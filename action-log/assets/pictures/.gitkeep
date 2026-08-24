@@ -1,0 +1,2 @@
+# Keep this folder in git so the picture-review feature has a landing dir.
+# User-uploaded images placed here are git-ignored (see ../../.gitignore).

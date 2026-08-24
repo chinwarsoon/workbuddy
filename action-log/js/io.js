@@ -325,12 +325,34 @@
       updateStatusbar();
       return;
     }
-    // file:// (fetch blocked) -> ask the user to pick the JSON manually
-    if($('openJsonModal')){ promptPickJson(); return; }
-    const seed = document.getElementById('seedData');
-    if(seed){ try{ applyDataset(JSON.parse(seed.textContent), { name:DEFAULT_DATA_FILE, path:'(embedded)', source:'embedded' }); }catch(e){} }
-    const sseed = document.getElementById('seedSetup');
-    if(sseed){ try{ applySetup(JSON.parse(sseed.textContent)); }catch(e){} }
+    // file:// (double-click) — no server. Browsers (Chrome) block fetch() on
+    // file://, but Firefox allows same-folder reads. Try fetch first; on failure
+    // fall back to the embedded sample so the app opens instantly and stays
+    // usable without a blocking prompt. Real data can be loaded any time via the
+    // top-bar "Set data folder" / "Import" (both are user-gesture file pickers).
+    let dataJson=null, note='';
+    try{
+      const res = await fetch('./'+DEFAULT_DATA_FILE);
+      if(res.ok){
+        const txt = await res.text();
+        const stripped = txt.charCodeAt(0)===0xFEFF ? txt.slice(1) : txt; // strip UTF-8 BOM
+        dataJson = JSON.parse(stripped);
+      } else { note = 'HTTP '+res.status; }
+    }catch(e){ note = 'fetch blocked (file://): '+e.message; }
+    if(dataJson){
+      applyDataset(dataJson, { name:DEFAULT_DATA_FILE, path:'(local file)', source:'external' });
+    } else {
+      const seed = document.getElementById('seedData');
+      if(seed){ try{ applyDataset(JSON.parse(seed.textContent), { name:DEFAULT_DATA_FILE, path:'(embedded)', source:'embedded' }); }catch(e){} }
+      else applyDataset({projects:[],disciplines:[],statuses:[],actions:[]}, { name:DEFAULT_DATA_FILE, path:'', source:'none' });
+      toast('Opened from file:// — showing sample data. Use "Set data folder" or "Import" to load your action.json.');
+    }
+    // setup.json — attempt fetch, else fall back to embedded defaults
+    try{
+      const sres = await fetch('./setup.json');
+      if(sres.ok){ const stxt = await sres.text(); const sstripped = stxt.charCodeAt(0)===0xFEFF ? stxt.slice(1) : stxt; applySetup(JSON.parse(sstripped)); }
+      else { const sseed = document.getElementById('seedSetup'); if(sseed){ try{ applySetup(JSON.parse(sseed.textContent)); }catch(e){} } }
+    }catch(e){ const sseed = document.getElementById('seedSetup'); if(sseed){ try{ applySetup(JSON.parse(sseed.textContent)); }catch(e){} } }
     updateStatusbar();
   }
 
