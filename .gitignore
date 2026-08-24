@@ -1,0 +1,16 @@
+# WorkBuddy session metadata — never commit (memory logs, screenshots, etc.)
+.workbuddy/
+
+# OS & editor junk
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.tmp
+*~
+*.swp
+
+# Local runtime data — keep setup.json templates, ignore user data
+**/action.json
+
+# Dependency / build output
+node_modules/

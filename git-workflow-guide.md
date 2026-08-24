@@ -1,7 +1,9 @@
-# Git Workflow Guide — WorkBuddy + WSL + Cross-Workstation
+# Git Workflow Guide — WorkBuddy + Cross-Workstation
 
-> Summary of how to clone, link WSL, commit to GitHub, and collaborate across
-> workstations from inside WorkBuddy. Built from our session discussion.
+> How to clone, commit to GitHub, and keep your local folder in sync with the
+> remote from inside WorkBuddy. WSL is **optional** — if it is unavailable (e.g. a
+> managed company machine), commit from **Windows PowerShell over HTTPS + PAT**
+> instead (see §2b). Built from our session discussion.
 
 ---
 
@@ -47,6 +49,11 @@ git clone git@github.com:<user>/<repo>.git
 - Create a token with `repo` scope at GitHub → Settings → Developer settings → PAT.
 - Use it **instead of your password** when Git prompts during `push`.
 
+> **Windows-only caveat:** an SSH key created *inside* WSL is invisible to Windows
+> PowerShell, so `git@github.com:...` fails with `Permission denied (publickey)`
+> on a machine where WSL isn't installed. In that case **use Option B (HTTPS +
+> PAT) from PowerShell** — no WSL and no Windows SSH key needed. See §2b.
+
 Also set your identity once:
 ```bash
 git config --global user.name  "Your Name"
@@ -90,6 +97,51 @@ confirm nothing unexpected changed.
 
 ---
 
+## 2b. Windows-only workstation — PowerShell + HTTPS + PAT (no WSL)
+
+On a managed/company machine **WSL may be unavailable**, and the SSH key you set
+up lives *inside* WSL — so `git@github.com:<user>/<repo>.git` fails with
+`Permission denied (publickey)` when run from Windows PowerShell. Solution: commit
+**from Windows PowerShell over HTTPS using a Personal Access Token (PAT)**. No
+WSL, no Windows SSH key required.
+
+**One-time: create a PAT**
+- GitHub → avatar → **Settings → Developer settings → Personal access tokens → Tokens (classic)**
+- **Generate new token** (set an expiry, check the **`repo`** scope), then **copy
+  the token** (shown only once — store it safely).
+
+**Clone / commit / push from PowerShell**
+```powershell
+cd C:\Users\franklin.song\WorkBuddy          # your stable working dir
+git clone https://github.com/chinwarsoon/workbuddy.git
+cd workbuddy
+git checkout main
+git pull --ff-only
+# ... edit files (e.g. copy a project into action-log/) ...
+git add action-log                           # stage only what you changed
+git status                                   # verify .workbuddy / secrets are NOT staged
+git commit -m "feat: ..."
+git push origin main                         # Git Credential Manager reuses the cached PAT
+```
+- When Git prompts: **Username** = your GitHub login (`chinwarsoon`);
+  **Password** = the **PAT** (not your account password; input is not echoed).
+- After the first push, **Git Credential Manager (GCM)** caches the PAT — later
+  `push`/`pull` usually need no re-entry.
+
+**Clear a cached/bad credential** (auth fails after a password change or typo):
+```powershell
+cmdkey /delete:git:https://github.com
+```
+Then re-run `git push` and re-enter Username + PAT.
+
+**Corporate proxy / network blocks** (timeout or connection refused to github.com):
+```powershell
+git config --global http.proxy  http://<proxy-host>:<port>
+git config --global https.proxy http://<proxy-host>:<port>
+```
+
+---
+
 ## 3. Share a project across workstations (same login, different PC)
 
 This is the part that surprised us earlier — worth being explicit:
@@ -127,7 +179,78 @@ On the other machine: `git pull` to get the latest.
 
 **To also carry over your identity/memory files**, copy
 `C:\Users\frank\.workbuddy\` between machines — or, better, point your working
-directory at a **cloud-synced folder** (OneDrive / Dropbox) so context persists.
+   directory at a **cloud-synced folder** (OneDrive / Dropbox) so context persists.
+
+---
+
+## 3b. Keep your local folder and GitHub in sync
+
+The local clone and the GitHub remote drift apart the moment either side changes.
+Treat **GitHub (`main`) as the source of truth** and sync explicitly.
+
+**Pull before you start, push when you stop:**
+```powershell
+cd C:\Users\franklin.song\WorkBuddy\workbuddy
+git checkout main
+git pull --ff-only          # fast-forward only; refuses if it would rewrite history
+# ... make & commit changes ...
+git push origin main
+```
+
+**Verify the two are in sync:**
+```powershell
+git status                  # "nothing to commit, working tree clean" => local == last commit
+git log --oneline -3        # compare local HEAD with GitHub's main
+git fetch origin
+git rev-parse HEAD origin/main    # identical hashes on both => fully synced
+```
+- If `git status` shows untracked/modified files, they are **not** on GitHub yet —
+  `git add` + `git commit` + `git push` to sync them.
+- If `git pull --ff-only` is refused, someone pushed conflicting history; fetch and
+  inspect (`git log --oneline origin/main..HEAD`) before a normal merge/pull.
+- After pushing, confirm on GitHub: the file's "last commit" updates and
+  `https://github.com/chinwarsoon/workbuddy/action-log` reflects your changes.
+
+## 3c. Automated review-first sync — `git-sync.bat` (Windows, no WSL)
+
+For a one-command, **review-before-you-push** flow on a Windows-only machine, use
+the bundled `git-sync.bat` at the repo root
+(`C:\Users\franklin.song\WorkBuddy\workbuddy\git-sync.bat`).
+
+It runs **`git fetch` only (no merge)**, then prints a side-by-side comparison so
+you decide what to do:
+
+| Block | Meaning | Command |
+|-------|---------|---------|
+| A | Local uncommitted changes | `git status -s` |
+| B | Commits **ahead** of GitHub → will be **pushed** | `git log origin/main..HEAD` |
+| C | Commits **behind** GitHub → will be **pulled** | `git log HEAD..origin/main` |
+| D | Line-level diff vs GitHub | `git diff --stat HEAD origin/main` |
+
+Then a menu lets you choose:
+`1` pull only · `2` push only · `3` pull then push · `4` commit local changes then push · `5` full diff · `6` re-fetch · `0` exit.
+
+**Usage**
+```powershell
+cd C:\Users\franklin.song\WorkBuddy\workbuddy
+.\git-sync.bat
+```
+or just double-click the file in Explorer. It auto-detects the repo via
+`cd /d "%~dp0"`, so it works from any location and has **no hardcoded path**.
+
+**Notes**
+- Pull uses `git pull --ff-only`, so it refuses if a pull would rewrite history
+  (same safety as §3b). Resolve manually with `git pull --rebase` if needed.
+- Option `4` stages everything with `git add -A`. If you do **not** want
+  `git-sync.bat` itself committed, add it to `.gitignore`, or stage specific
+  files and use option `2` (push only).
+- The script is currently untracked. Commit it if you want it shared in the repo
+  (portable — no machine-specific paths); otherwise keep it local.
+- **`git-sync.bat` is the single sync entry point — do NOT create a separate
+  `git-commit-push.bat`.** Its menu option `4` already does stage + commit + push,
+  and option `2` does push-only, both with the same `--ff-only` safety. A second
+  dedicated commit-push script would be redundant. For a quick one-shot without the
+  menu, run the manual commands in §3b instead of writing a new `.bat`.
 
 ---
 
@@ -193,16 +316,20 @@ git push origin --delete feat/my-feature
 
 | Task | Command |
 |------|---------|
-| Clone (HTTPS) | `git clone https://github.com/<user>/<repo>.git` |
-| Clone (SSH)   | `git clone git@github.com:<user>/<repo>.git` |
+| Clone (HTTPS) | `git clone https://github.com/<user>/<repo>.git` (PAT as password) |
+| Clone (SSH)   | `git clone git@github.com:<user>/<repo>.git` (needs WSL/Windows SSH key) |
 | New branch    | `git checkout -b feat/x origin/main` |
 | Stage + commit| `git add . && git commit -m "feat: ..."` |
 | Push          | `git push -u origin feat/x` |
-| Sync          | `git fetch origin && git rebase origin/main` |
+| Sync local→remote | `git checkout main && git pull --ff-only` then `git push origin main` |
+| Review-first sync | `.\git-sync.bat` (fetch → compare A/B/C/D → pick pull/push) |
+| Verify synced | `git rev-parse HEAD origin/main` (same hash = in sync) |
+| Clear cached cred | `cmdkey /delete:git:https://github.com` (re-enter PAT next push) |
 | Safe force    | `git push --force-with-lease` |
-| Access WSL    | `//wsl$/Ubuntu/home/<user>/<repo>/` |
+| Access WSL    | `//wsl$/Ubuntu/home/<user>/<repo>/` (only if WSL installed) |
 
 ---
 
-*Generated from session discussion — adjust paths (`franklin`, `Ubuntu`,
-`dsai`) to match your actual setup.*
+*Generated from session discussion. WSL is optional — on a Windows-only (no WSL)
+machine, use PowerShell + HTTPS + PAT (§1 Option B, §2b). Adjust paths
+(`franklin.song`, `Ubuntu`, `dsai`) to match your actual setup.*
