@@ -1,0 +1,9 @@
+# WorkBuddy project metadata (screenshots, memory logs) — not app source
+.workbuddy/
+
+# Local runtime data — user's action store. Keep out of version control.
+action.json
+
+# User-uploaded screenshots in the pictures folder (keep the folder via .gitkeep)
+assets/pictures/*
+!assets/pictures/.gitkeep

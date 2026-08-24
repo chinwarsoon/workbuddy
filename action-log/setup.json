@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "brand": { "accent": "#0066CC" },
+  "appearance": { "dark": false, "activity": true, "sidebar": true, "right": true, "topbar": true, "theme": "light", "panelWidths": { "sidebar": 260, "right": 300 } },
+  "labels": {
+    "project": "Project", "discipline": "Discipline", "status": "Status", "priority": "Priority",
+    "assignedTo": "Assigned to", "createdBy": "Created by", "due": "Due date",
+    "dependsOn": "Depends on", "createdOn": "Created On", "description": "Description"
+  },
+  "defaultView": { "perspective": "actions", "reports": "status", "search": "overdue", "settings": "appearance", "help": "start" },
+  "help": [
+    {"id":"start","title":"Getting started","body":"# Getting started\n\nActionTracker helps you organize work across projects and disciplines. Use the left icon rail to switch **perspectives** — each one swaps both the left panel and the main panel.\n\nStart in **Actions**: expand a project, then a discipline, and click an action to see its detail."},
+    {"id":"tree","title":"Tree navigation","body":"# Tree navigation (Actions)\n\nThe left panel is a read-only navigation hierarchy: **Project → Discipline → Action**.\n\n- Click a chevron (▾ / ▸) to expand or collapse a group.\n- Click an action (or its **✎**) to open it inline in the main panel — every field is directly editable.\n- Click a discipline's **+** to add a new action.\n- Projects, disciplines, statuses and member names are added or edited only in **Settings** — the create card and inline editor let you pick from those lists, never add to them."},
+    {"id":"persp","title":"Perspectives","body":"# Perspectives\n\nEach icon is a perspective that defines both panels:\n\n- **Actions**: tree + detail\n- **Projects**: list + dashboard\n- **Disciplines**: list + cross-project breakdown\n- **Reports**: types + chart\n- **Search**: saved filters + results\n- **Settings / Help**: sections + articles\n\nAll list values — **Projects**, **Disciplines**, **Statuses** and **Members** (names) — are managed only in **Settings**."},
+    {"id":"data","title":"Import / Export","body":"# Import / Export\n\n**Quick Actions** (right panel) holds the main buttons: **Save Actions** / **Save Settings** write `action.json` / `setup.json`, **Export** opens the Word/Excel drawer, plus Import, Layout and **Help**. The top-bar **⋯** menu mirrors these and adds Create, data folder and theme — so they stay reachable even when the right panel is hidden or on narrow screens.\n\n- **Save Actions** writes the current dataset as `action.json`.\n- **Save Settings** writes the UI configuration (brand, labels, default view, help, reports, filters) as `setup.json`.\n\nOn Chromium both pickers open in the data folder you set; elsewhere they download."},
+    {"id":"keys","title":"Keyboard shortcuts","body":"# Keyboard shortcuts\n\n- **Ctrl/Cmd + 1…7** — jump to a perspective.\n- **Ctrl/Cmd + S** — Save Actions (action.json) · **Ctrl/Cmd + Shift + S** — Save Settings (setup.json).\n- **Ctrl/Cmd + E** — open Export · **Ctrl/Cmd + ,** — Settings.\n- **Enter** — commit an inline rename in Settings.\n- **Esc** — cancel an inline edit, close a modal or a mobile drawer."}
+  ],
+  "reports": [
+    {"id":"status","label":"By Status"},
+    {"id":"discipline","label":"By Discipline"},
+    {"id":"project","label":"By Project"},
+    {"id":"assignee","label":"By Assignee"},
+    {"id":"priority","label":"By Priority"}
+  ],
+  "filters": [
+    {"id":"overdue","label":"Overdue","where":[{"field":"due","op":"lt","value":"__today__"},{"field":"statusId","op":"ne","value":"completed"}]},
+    {"id":"blocked","label":"Blocked","where":[{"field":"statusId","op":"eq","value":"blocked"}]},
+    {"id":"notstarted","label":"Not Started","where":[{"field":"statusId","op":"eq","value":"not-started"}]},
+    {"id":"unassigned","label":"Unassigned","where":[{"field":"assignedToIds","op":"empty","value":""}]},
+    {"id":"all","label":"All Actions","where":[]}
+  ]
+}

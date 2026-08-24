@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ActionTracker — Project Action Tracker</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="app" id="app">
+    <!-- Top bar (brand / context / actions) -->
+    <div class="topbar" id="topbar">
+      <div class="tb-brand">
+        <div class="tb-logo">AT</div>
+        <div class="tb-file" id="tbFile"><span class="tb-fname">ActionTracker</span><span class="tb-meta" id="tbMeta"></span></div>
+      </div>
+      <div class="tb-crumb" id="tbCrumb">Actions</div>
+      <div class="tb-actions">
+        <div class="tb-overflow">
+          <button class="tb-more" id="tbMore" title="More">⋯</button>
+          <div class="tb-pop" id="tbPop">
+            <div class="tb-item" id="tbSaveActions">Save Actions</div>
+            <div class="tb-item" id="tbSaveSettings">Save Settings</div>
+            <div class="tb-item" id="tbExportMenu">Export</div>
+            <div class="tb-sep"></div>
+            <div class="tb-item" id="tbImport">Import data…</div>
+            <div class="tb-item" id="tbCreate">Create empty data file</div>
+            <div class="tb-item" id="tbFolder">Set data folder…</div>
+            <div class="tb-item" id="tbDark">Toggle dark theme</div>
+            <div class="tb-item" id="tbLayout">Layout & settings…</div>
+            <div class="tb-item" id="tbSettings">Settings</div>
+            <div class="tb-item" id="tbHelp">Help</div>
+          </div>
+        </div>
+        <button class="tb-mtrigger" id="tbDrawer" title="Panels">☰</button>
+      </div>
+    </div>
+    <div class="tb-scrim" id="tbScrim"></div>
+
+    <!-- Activity bar -->
+    <div class="activitybar" id="activitybar">
+      <div class="appicon">AT</div>
+      <div class="abtn active" data-p="actions" title="Actions (list)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.4" fill="currentColor" stroke="none"/></svg></div>
+      <div class="abtn" data-p="projects" title="Projects"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+      <div class="abtn" data-p="disciplines" title="Disciplines"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 3h7l11 11-7 7L3 10z"/><circle cx="8" cy="8" r="1.6" fill="currentColor" stroke="none"/></svg></div>
+      <div class="abtn" data-p="reports" title="Reports"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="11" width="3.5" height="9" rx="1"/><rect x="10.25" y="6" width="3.5" height="14" rx="1"/><rect x="16.5" y="13" width="3.5" height="7" rx="1"/></svg></div>
+      <div class="abtn" data-p="search" title="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="21" y2="21" stroke-linecap="round"/></svg></div>
+      <div class="abspacer"></div>
+      <div class="abdiv"></div>
+      <div class="abtn" data-p="settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1" stroke-linecap="round"/></svg></div>
+      <div class="abtn" data-p="help" title="Help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.5 2.5 0 0 1 4.5 1.4c0 1.6-2 2-2 3.4" stroke-linecap="round"/><circle cx="12" cy="17.2" r="0.7" fill="currentColor" stroke="none"/></svg></div>
+    </div>
+
+    <!-- Sidebar (dynamic per perspective) -->
+    <div class="sidebar" id="sidebar">
+      <div class="side-head" id="sideHead">ACTIONS</div>
+      <div class="side-sub" id="sideSub">All actions</div>
+      <div class="side-toolbar" id="sideToolbar"></div>
+      <div class="tree" id="sideBody"></div>
+    </div>
+
+    <!-- Editor / main panel -->
+    <div class="editor" id="editor">
+      <div class="ed-top" id="edTop"></div>
+      <div class="ed-body" id="edBody"></div>
+    </div>
+
+    <!-- Right panel (Quick Actions: Save/Export/Import/Layout) -->
+    <div class="rightpanel" id="rightpanel">
+      <div class="rp-head">PANEL</div>
+      <div class="rp-sub">Quick Actions</div>
+      <button class="rp-btn primary" id="rpSaveActions" disabled title="Save data (action.json)">Save Actions</button>
+      <button class="rp-btn" id="rpSaveSettings" disabled title="Save UI settings (setup.json)">Save Settings</button>
+      <button class="rp-btn" id="rpExportMenu">Export</button>
+      <button class="rp-btn" id="rpImport">Import…</button>
+      <button class="rp-btn" id="rpSetting">Layout…</button>
+      <button class="rp-btn" id="rpHelp">Help</button>
+      <input type="file" id="fileInput" accept="application/json" style="display:none" />
+    </div>
+    <div class="statusbar" id="statusbar" role="status" aria-live="polite"></div>
+  </div>
+
+  <!-- Action modal (create / edit) -->
+  <div class="backdrop" id="actionModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="m-head"><h2 class="m-title" id="modalTitle">New Action</h2><div class="m-close" id="modalClose">✕</div></div>
+      <div class="field"><label class="label">Action title</label><input class="input" id="mTitle" placeholder="e.g. Finalize homepage hero" /></div>
+      <div class="field"><label class="label">Description</label><textarea class="input" id="mDesc" placeholder="Add details, acceptance criteria..."></textarea></div>
+      <div class="row2">
+        <div class="field"><label class="label">Project</label>
+          <select class="input" id="mProject"></select>
+        </div>
+        <div class="field"><label class="label">Discipline</label>
+          <select class="input" id="mDiscipline"></select>
+        </div>
+      </div>
+      <div class="field"><label class="label">Status</label>
+        <div class="seg" id="mSeg"></div>
+        <span class="link" id="mAddStatus">+ Add custom status</span>
+      </div>
+      <div class="field"><label class="label">Priority</label>
+        <div class="seg" id="mPriority"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label class="label">Due date</label><input class="input" id="mDue" type="date" /></div>
+        <div class="field"><label class="label">Assigned to</label><div class="assignee-pick" id="mAssignee"></div></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label class="label">Created by</label><select class="input" id="mCreator"></select></div>
+        <div class="field"><label class="label">Depends on (id)</label><input class="input" id="mDepends" placeholder="e.g. 37" /></div>
+      </div>
+      <p class="form-hint">Names, projects, disciplines and statuses are managed only in <b>Settings</b>. To add a member, open <b>Settings → Members</b>; for statuses use <b>Settings → Statuses</b>.</p>
+      <div class="m-foot">
+        <button class="btn" id="modalCancel">Cancel</button>
+        <button class="btn primary" id="modalSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Color swatch popover (statuses & priorities) -->
+  <div class="sw-pop" id="statusColorPop"></div>
+
+  <!-- Per-project management popup (disciplines / members) -->
+  <div class="backdrop" id="projectModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pmTitle">
+      <div class="m-head"><h2 class="m-title" id="pmTitle">Manage</h2><div class="m-close" id="pmClose">✕</div></div>
+      <div id="pmBody"></div>
+      <div class="m-foot">
+        <button class="btn primary" id="pmDone">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reassign before delete (blocked deletion guard) -->
+  <div class="backdrop" id="reassignModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rsTitle">
+      <div class="m-head"><h2 class="m-title" id="rsTitle">Reassign before delete</h2><div class="m-close" id="rsClose">✕</div></div>
+      <div id="rsBody"></div>
+      <div class="m-foot"><button class="btn" id="rsCancel">Cancel</button><button class="btn primary" id="rsDelete">Delete</button></div>
+    </div>
+  </div>
+
+  <!-- Delete confirmation with dependency impact (ISS-24) -->
+  <div class="backdrop" id="delConfirmModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="dcTitle">
+      <div class="m-head"><h2 class="m-title" id="dcTitle">Delete action</h2><div class="m-close" id="dcClose">✕</div></div>
+      <div id="dcBody"></div>
+      <div class="m-foot"><button class="btn" id="dcCancel">Cancel</button><button class="btn ghost" id="dcConfirm">Delete</button></div>
+    </div>
+  </div>
+
+  <!-- Layout modal -->
+  <div class="backdrop" id="layoutModal">
+    <div class="modal sm" role="dialog" aria-modal="true" aria-label="Layout & settings">
+      <div class="m-head"><h2 class="m-title">Layout & Settings</h2><div class="m-close" id="layoutClose">✕</div></div>
+      <div class="toggle"><span>Top bar</span><div class="switch on" id="swTop"></div></div>
+      <div class="toggle"><span>Activity bar</span><div class="switch on" id="swActivity"></div></div>
+      <div class="toggle"><span>Sidebar (tree)</span><div class="switch on" id="swSidebar"></div></div>
+      <div class="toggle"><span>Right panel</span><div class="switch on" id="swRight"></div></div>
+      <div class="toggle"><span>Dark theme</span><div class="switch" id="swDark"></div></div>
+      <div class="slider-row"><span style="width:90px">Sidebar</span><input type="range" id="rwSidebar" min="180" max="360" value="260" /><span id="rwSidebarVal">260</span></div>
+      <div class="slider-row"><span style="width:90px">Right</span><input type="range" id="rwRight" min="220" max="380" value="300" /><span id="rwRightVal">300</span></div>
+    </div>
+  </div>
+
+  <!-- Help modal -->
+  <div class="backdrop" id="helpModal">
+    <div class="modal sm" role="dialog" aria-modal="true" aria-label="Help">
+      <div class="m-head"><h2 class="m-title">Help</h2><div class="m-close" id="helpClose">✕</div></div>
+      <div class="help-body">
+        <p><b>Perspectives</b></p>
+        <ul>
+          <li>Each icon in the left rail is a <b>perspective</b>. Clicking it swaps <b>both</b> the left panel and the main panel.</li>
+          <li><b>Actions</b> → tree + action detail. <b>Projects</b> → project list + dashboard. <b>Disciplines</b> → discipline list + breakdown.</li>
+          <li><b>Reports</b> → report types + chart. <b>Search</b> → saved filters + results. <b>Settings / Help</b> → sections + articles.</li>
+        </ul>
+        <p><b>Tree navigation (Actions)</b></p>
+        <ul>
+          <li>Click a chevron (▾ / ▸) to expand or collapse a group.</li>
+          <li>Hover a discipline row to reveal its <b>+</b> add-action control; hover an action row to reveal its <b>✎</b> edit control.</li>
+          <li>Deleting a project, discipline or action happens in <b>Settings</b>, never in the tree.</li>
+        </ul>
+        <p><b>Regions</b> — Top bar, Activity bar, Sidebar, Editor, Right panel can each be toggled or resized from Settings (gear icon) or Layout. On narrow screens (≤900px) the ☰ button in the top bar opens the sidebar as a drawer.</p>
+        <p><b>Managing lists</b> — Projects, Disciplines, Statuses and Members (names) are added, renamed or deleted <b>only</b> in Settings. The create card and inline editor pick from those lists but never add to them.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Startup JSON picker (file://) -->
+  <div class="backdrop" id="openJsonModal">
+    <div class="modal sm" role="dialog" aria-modal="true" aria-label="Open data file">
+      <div class="m-head"><h2 class="m-title">Open data file</h2></div>
+      <p style="margin:6px 0 16px; color:var(--muted); font-size:13px; line-height:1.5;">This page was opened directly (not from a web server), so it can't auto-load <code>action.json</code>. Choose your data file, or start from the built-in sample.</p>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button class="btn" id="ojSample">Use sample data</button>
+        <button class="btn primary" id="ojPick">Choose JSON file</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export drawer -->
+  <div class="backdrop" id="exportModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Export">
+      <div class="m-head"><h2 class="m-title">Export</h2><div class="m-close" id="exClose">✕</div></div>
+      <div class="ex-fmt">
+        <label><input type="radio" name="exFmt" id="exFmtWord" checked /> Word</label>
+        <label><input type="radio" name="exFmt" id="exFmtExcel" /> Excel</label>
+      </div>
+      <div class="ex-filters">
+        <div class="field"><label class="label">Project</label><select class="input" id="exProject"></select></div>
+        <div class="field"><label class="label">Discipline</label><select class="input" id="exDiscipline"></select></div>
+        <div class="field"><label class="label">Status</label><select class="input" id="exStatus"></select></div>
+        <div class="field"><label class="label">Title contains</label><input class="input" id="exSearch" placeholder="search…" /></div>
+      </div>
+      <div class="ex-list-head">
+        <button class="btn" id="exSelectAll">Select all</button>
+        <button class="btn" id="exClear">Clear</button>
+        <span class="ex-count" id="exCount">0 selected</span>
+      </div>
+      <div class="ex-list" id="exList"></div>
+      <div class="m-foot">
+        <button class="btn" id="exCancel">Cancel</button>
+        <button class="btn primary" id="exExport">Export</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image review lightbox (linked picture preview) -->
+  <div class="backdrop" id="imgReviewModal">
+    <div class="img-review-modal" role="dialog" aria-modal="true" aria-label="Review picture">
+      <div class="img-review-head"><span class="img-review-name" id="imgReviewName"></span><div class="img-review-close" id="imgReviewClose">✕</div></div>
+      <div class="img-review-body" id="imgReviewBody"></div>
+      <div class="img-review-foot">
+        <button class="btn" id="imgReviewDownload">Download</button>
+        <button class="btn primary" id="imgReviewClose2">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="application/json" id="seedData">
+{
+  "schemaVersion": 2,
+  "members": [
+    {"id":"m_fs","name":"FS","initials":"FS","role":"PM","disciplineId":""},
+    {"id":"m_mk","name":"MK","initials":"MK","role":"Design","disciplineId":"d1"},
+    {"id":"m_ts","name":"TS","initials":"TS","role":"Marketing","disciplineId":"d3"},
+    {"id":"m_jl","name":"JL","initials":"JL","role":"Engineering","disciplineId":"d2"},
+    {"id":"m_ar","name":"AR","initials":"AR","role":"Engineering","disciplineId":"d2"}
+  ],
+  "statuses": [
+    {"id":"pending","label":"Pending","color":"#E6F0FF"},
+    {"id":"in-progress","label":"In Progress","color":"#D7E9FF"},
+    {"id":"completed","label":"Completed","color":"#E3F5E9"},
+    {"id":"blocked","label":"Blocked","color":"#FDECEC"},
+    {"id":"on-hold","label":"On Hold","color":"#FFF2E0"},
+    {"id":"not-started","label":"Not Started","color":"#F2F2F7"},
+    {"id":"info","label":"Info","color":"#CFEFFE"}
+  ],
+  "priorities": [
+    {"id":"critical","label":"Critical","color":"#FDECEC"},
+    {"id":"high","label":"High","color":"#FFE1BD"},
+    {"id":"medium","label":"Medium","color":"#E6F0FF"},
+    {"id":"low","label":"Low","color":"#E2E8F0"}
+  ],
+  "projects": [
+    {"id":"p1","name":"Project Atlas","code":"ATLAS","disciplineIds":["d1","d2","d3","d4","d5"],"memberIds":["m_fs","m_mk","m_ts","m_jl","m_ar"]},
+    {"id":"p2","name":"Project Nova","code":"NOVA","disciplineIds":["d1","d2","d3","d4","d5"],"memberIds":["m_fs","m_mk","m_ts","m_jl","m_ar"]}
+  ],
+  "disciplines": [
+    {"id":"d1","name":"Design"},
+    {"id":"d2","name":"Engineering"},
+    {"id":"d3","name":"Marketing"},
+    {"id":"d4","name":"Content"},
+    {"id":"d5","name":"QA"}
+  ],
+  "actions": [
+    {"id":38,"title":"Finalize homepage hero section","projectId":"p1","disciplineId":"d1","statusId":"in-progress","due":"2026-08-20","priorityId":"high","assignedToIds":["m_mk"],"createdById":"m_fs","description":"Design and ship the new homepage hero with updated copy and imagery.","history":[{"d":"2026-08-12","t":"Created by FS"},{"d":"2026-08-13","t":"Status → In Progress by MK"}]},
+    {"id":39,"title":"Update brand colors","projectId":"p1","disciplineId":"d1","statusId":"pending","due":"2026-08-24","priorityId":"medium","assignedToIds":["m_ts"],"createdById":"m_fs","description":"Refresh secondary palette and document tokens.","history":[{"d":"2026-08-12","t":"Created by FS"}]},
+    {"id":40,"title":"Set up analytics dashboard","projectId":"p1","disciplineId":"d2","statusId":"pending","due":"2026-08-22","priorityId":"medium","assignedToIds":["m_jl"],"createdById":"m_fs","description":"Wire up event tracking and a weekly metrics view.","history":[{"d":"2026-08-12","t":"Created by FS"}]},
+    {"id":41,"title":"Write API documentation","projectId":"p1","disciplineId":"d5","statusId":"completed","due":"2026-08-18","priorityId":"low","assignedToIds":["m_ar"],"createdById":"m_fs","description":"Document v2 endpoints with examples.","history":[{"d":"2026-08-12","t":"Created by FS"},{"d":"2026-08-17","t":"Status → Completed by AR"}]},
+    {"id":42,"title":"Launch email campaign","projectId":"p2","disciplineId":"d3","statusId":"on-hold","due":"2026-08-25","priorityId":"critical","assignedToIds":["m_ts"],"createdById":"m_fs","description":"Q3 acquisition email sequence.","history":[{"d":"2026-08-12","t":"Created by FS"}]},
+    {"id":43,"title":"Draft release notes","projectId":"p2","disciplineId":"d4","statusId":"not-started","due":"2026-08-28","priorityId":"medium","assignedToIds":["m_mk"],"createdById":"m_fs","description":"Summarize changes for v1.4.","history":[{"d":"2026-08-12","t":"Created by FS"}]}
+  ]
+}
+</script>
+  <script type="application/json" id="seedSetup">
+{
+  "schemaVersion": 1,
+  "brand": { "accent": "#0066CC" },
+  "appearance": { "dark": false, "activity": true, "sidebar": true, "right": true, "topbar": true, "theme": "light", "panelWidths": { "sidebar": 260, "right": 300 } },
+  "labels": {
+    "project": "Project", "discipline": "Discipline", "status": "Status", "priority": "Priority",
+    "assignedTo": "Assigned to", "createdBy": "Created by", "due": "Due date",
+    "dependsOn": "Depends on", "createdOn": "Created On", "description": "Description"
+  },
+  "defaultView": { "perspective": "actions", "reports": "status", "search": "overdue", "settings": "appearance", "help": "start" },
+  "help": [
+    {"id":"start","title":"Getting started","body":"# Getting started\n\nActionTracker helps you organize work across projects and disciplines. Use the left icon rail to switch **perspectives** — each one swaps both the left panel and the main panel.\n\nStart in **Actions**: expand a project, then a discipline, and click an action to see its detail."},
+    {"id":"tree","title":"Tree navigation","body":"# Tree navigation (Actions)\n\nThe left panel is a read-only navigation hierarchy: **Project → Discipline → Action**.\n\n- Click a chevron (▾ / ▸) to expand or collapse a group.\n- Click an action (or its **✎**) to open it inline in the main panel — every field is directly editable.\n- Click a discipline's **+** to add a new action.\n- Projects, disciplines, statuses and member names are added or edited only in **Settings** — the create card and inline editor let you pick from those lists, never add to them."},
+    {"id":"persp","title":"Perspectives","body":"# Perspectives\n\nEach icon is a perspective that defines both panels:\n\n- **Actions**: tree + detail\n- **Projects**: list + dashboard\n- **Disciplines**: list + cross-project breakdown\n- **Reports**: types + chart\n- **Search**: saved filters + results\n- **Settings / Help**: sections + articles\n\nAll list values — **Projects**, **Disciplines**, **Statuses** and **Members** (names) — are managed only in **Settings**."},
+    {"id":"data","title":"Import / Export","body":"# Import / Export\n\n**Quick Actions** (right panel) holds the main buttons: **Save Actions** / **Save Settings** write `action.json` / `setup.json`, **Export** opens the Word/Excel drawer, plus Import, Layout and **Help**. The top-bar **⋯** menu mirrors these and adds Create, data folder and theme — so they stay reachable even when the right panel is hidden or on narrow screens.\n\n- **Save Actions** writes the current dataset as `action.json`.\n- **Save Settings** writes the UI configuration (brand, labels, default view, help, reports, filters) as `setup.json`.\n\nOn Chromium both pickers open in the data folder you set; elsewhere they download."},
+    {"id":"keys","title":"Keyboard shortcuts","body":"# Keyboard shortcuts\n\n- **Ctrl/Cmd + 1…7** — jump to a perspective.\n- **Ctrl/Cmd + S** — Save Actions (action.json) · **Ctrl/Cmd + Shift + S** — Save Settings (setup.json).\n- **Ctrl/Cmd + E** — open Export · **Ctrl/Cmd + ,** — Settings.\n- **Enter** — commit an inline rename in Settings.\n- **Esc** — cancel an inline edit, close a modal or a mobile drawer."}
+  ],
+  "reports": [
+    {"id":"status","label":"By Status"},
+    {"id":"discipline","label":"By Discipline"},
+    {"id":"project","label":"By Project"},
+    {"id":"assignee","label":"By Assignee"},
+    {"id":"priority","label":"By Priority"}
+  ],
+  "filters": [
+    {"id":"overdue","label":"Overdue","where":[{"field":"due","op":"lt","value":"__today__"},{"field":"statusId","op":"ne","value":"completed"}]},
+    {"id":"blocked","label":"Blocked","where":[{"field":"statusId","op":"eq","value":"blocked"}]},
+    {"id":"notstarted","label":"Not Started","where":[{"field":"statusId","op":"eq","value":"not-started"}]},
+    {"id":"unassigned","label":"Unassigned","where":[{"field":"assignedToIds","op":"empty","value":""}]},
+    {"id":"all","label":"All Actions","where":[]}
+  ]
+}
+</script>
+<script src="js/core.js"></script>
+<script src="js/editor.js"></script>
+<script src="js/report.js"></script>
+<script src="js/io.js"></script>
+<script src="js/render.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/bootstrap.js"></script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Action Panel — Layout Example</title>
+<style>
+  :root{
+    --text:#1f2329; --muted:#8a94a6; --border:#e3e6ec; --chip:#f6f8fa;
+    --panel:#ffffff; --accent:#2f6fed; --accent-soft:#e8f0ff;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:'Inter',-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    color:var(--text); background:#eef1f5; padding:28px;}
+  .wrap{max-width:860px; margin:0 auto; background:var(--panel);
+    border:1px solid var(--border); border-radius:16px; box-shadow:0 6px 24px rgba(20,30,50,.06); overflow:hidden;}
+  /* pseudo ed-top to show context */
+  .ed-top{display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:14px 22px; border-bottom:1px solid var(--border); background:var(--chip);}
+  .ed-bread{font-size:14px; font-weight:600; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .ed-actions{display:flex; gap:8px; margin-left:auto; flex:none;}
+  .btn{border:1px solid var(--border); background:#fff; color:var(--text); padding:7px 14px;
+    border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .btn:disabled{opacity:.45; cursor:not-allowed;}
+  .ed-body{padding:22px;}
+
+  /* Title */
+  .ae-title{margin-bottom:18px;}
+  .ae-title .lab{display:block; font-size:12px; font-weight:600; color:var(--muted); margin-bottom:6px;}
+  .ae-title-input{width:100%; border:1px solid var(--border); border-radius:9px; padding:11px 13px;
+    font-size:20px; font-weight:700; color:var(--text);}
+
+  /* compact meta: 3 rows */
+  .ae-compact{display:flex; flex-direction:column; gap:12px;}
+  .ae-crow{display:flex; gap:14px; flex-wrap:wrap;}
+  .ae-cfield{flex:1 1 200px; min-width:170px; display:flex; align-items:center; gap:8px;}
+  .ae-clabel{font-size:12px; font-weight:600; color:var(--muted); white-space:nowrap; width:84px; flex:none;}
+  .ae-cinput{width:100%; padding:8px 10px; font-size:13px; border:1px solid var(--border);
+    border-radius:8px; color:var(--text); background:#fff; font-family:inherit;}
+  .ae-cinput[readonly]{background:var(--chip); color:var(--muted); cursor:default;}
+  /* Row 3 status emphasis */
+  .ae-row-status{background:var(--accent-soft); border:1px solid #d4e2ff; border-radius:10px; padding:10px 12px;}
+  .seg{display:flex; gap:6px;}
+  .seg button{border:1px solid var(--border); background:#fff; color:var(--text); padding:6px 12px;
+    border-radius:20px; font-size:12px; font-weight:600; cursor:pointer;}
+  .seg button.on{background:var(--accent); border-color:var(--accent); color:#fff;}
+
+  /* THE single divider (meta → description) */
+  .ae-divider{height:1px; background:var(--border); margin:22px 0 16px; border:0;}
+  /* divider below "add row" — needs space above & below for clear separation */
+  .ae-divider.below-add{margin:26px 0;}
+
+  /* Description — hero */
+  .ed-section-h{font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase;
+    letter-spacing:.04em; margin:0 0 8px;}
+  .ae-log{width:100%; border-collapse:collapse; margin-bottom:8px;}
+  .ae-log th{text-align:left; font-size:12px; font-weight:600; color:var(--muted); padding:6px 8px; border-bottom:1px solid var(--border);}
+  .ae-log td{border-bottom:1px solid var(--border); padding:6px 6px; vertical-align:top;}
+  .ae-log-date{width:150px;}
+  .ae-log textarea{width:100%; border:1px solid var(--border); border-radius:7px; padding:7px 9px;
+    font:inherit; font-size:13px; resize:vertical; min-height:38px; color:var(--text);}
+  .ae-log textarea:focus{outline:none; border-color:var(--accent);}
+  .ae-log-del{border:none; background:transparent; color:#c0392b; cursor:pointer; font-size:14px; padding:2px 6px;}
+  .ae-log-hint{font-size:11px; color:var(--muted); margin:4px 0 10px;}
+
+  /* Hybrid: live preview = quiet card (thin border, no heavy tint) — reads as the exported report */
+  .ae-report{margin-top:0; padding:18px 20px; background:#fbfcfe; border:1px solid var(--border); border-radius:12px;}
+  .ae-report-title{font-size:18px; font-weight:700; margin-bottom:12px;}
+  .ae-report-tbl{width:100%; border-collapse:collapse; margin-bottom:14px;}
+  .ae-report-tbl th, .ae-report-tbl td{border:1px solid var(--border); padding:7px 10px; text-align:left; font-size:13px; vertical-align:top;}
+  .ae-report-tbl th{background:var(--panel); font-weight:600; color:var(--muted); width:120px;}
+  .ae-report-h{font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin:6px 0 8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="ed-top">
+    <span class="ed-bread">Actions / Finalize homepage hero section</span>
+    <div class="ed-actions">
+      <button class="btn primary" id="edSave">Save</button>
+      <button class="btn">+ New Action</button>
+      <button class="btn">Delete</button>
+    </div>
+  </div>
+  <div class="ed-body">
+    <div class="ae-title">
+      <span class="lab">Action title</span>
+      <input class="ae-title-input" id="aeTitle" value="Finalize homepage hero section" />
+    </div>
+
+    <!-- SECTION 1 — META BLOCK (3 rows, no internal dividers) -->
+    <div class="ae-compact">
+      <div class="ae-crow">
+        <div class="ae-cfield"><span class="ae-clabel">Project</span>
+          <select class="ae-cinput" id="aeProject">
+            <option>Website Redesign</option><option>Mobile App</option><option>Brand System</option>
+          </select></div>
+        <div class="ae-cfield"><span class="ae-clabel">Discipline</span>
+          <select class="ae-cinput" id="aeDiscipline">
+            <option>Design</option><option>Engineering</option><option>Content</option>
+          </select></div>
+      </div>
+      <div class="ae-crow">
+        <div class="ae-cfield"><span class="ae-clabel">Created by</span><input class="ae-cinput" id="aeCreator" value="Alice" /></div>
+        <div class="ae-cfield"><span class="ae-clabel">Created on</span><input class="ae-cinput" id="aeCreatedOn" type="date" value="2026-08-12" readonly /></div>
+        <div class="ae-cfield"><span class="ae-clabel">Assigned to</span><input class="ae-cinput" id="aeAssignee" value="Bob" /></div>
+        <div class="ae-cfield"><span class="ae-clabel">Depends on</span><input class="ae-cinput" id="aeDepends" value="37" /></div>
+      </div>
+      <div class="ae-crow ae-row-status">
+        <div class="ae-cfield" style="flex:2 1 320px;">
+          <span class="ae-clabel">Status</span>
+          <div class="seg" id="aeSeg">
+            <button data-s="Pending">Pending</button>
+            <button data-s="In Progress" class="on">In Progress</button>
+            <button data-s="Done">Done</button>
+            <button data-s="Blocked">Blocked</button>
+          </div>
+        </div>
+      </div>
+      <div class="ae-crow">
+        <div class="ae-cfield" style="flex:1 1 180px;">
+          <span class="ae-clabel">Due</span><input class="ae-cinput" id="aeDue" type="date" value="2026-08-25" />
+        </div>
+      </div>
+    </div>
+
+    <!-- DIVIDER between Section 1 (meta) and Section 2 (description) -->
+    <hr class="ae-divider" />
+
+    <!-- DESCRIPTION — HERO -->
+    <div class="ed-section-h">Description — dated detail log</div>
+    <table class="ae-log" id="aeLog">
+      <thead><tr><th class="ae-log-date">Date</th><th>Detail</th><th></th></tr></thead>
+      <tbody id="aeLogBody"></tbody>
+    </table>
+    <div class="ae-log-hint">Enter = new line inside a cell · Ctrl+Enter (or + Add row) = append a new row</div>
+    <button class="btn" id="aeAddRow">+ Add row</button>
+
+    <!-- DIVIDER below the add-row button, with space separating description from live preview -->
+    <hr class="ae-divider below-add" />
+
+    <!-- LIVE PREVIEW — third section, separated by its own card border (hybrid) -->
+    <div class="ae-report">
+      <div class="ed-section-h" style="margin-bottom:10px">Live preview — tabulated report</div>
+      <div class="ae-report-title" id="rpTitle">Finalize homepage hero section</div>
+      <table class="ae-report-tbl" id="rpMeta"></table>
+      <div class="ae-report-h">Detail log</div>
+      <table class="ae-report-tbl" id="rpLog"></table>
+    </div>
+  </div>
+</div>
+
+<script>
+  const esc = s => (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  let log = [
+    {date:'2026-08-13', text:'Reviewed competitor hero sections and noted 3 patterns to avoid.'},
+    {date:'2026-08-15', text:'Drafted 3 layout concepts; awaiting design review.'}
+  ];
+
+  function renderLog(){
+    const tb = document.getElementById('aeLogBody');
+    tb.innerHTML = log.map((r,i)=>`<tr>
+      <td><input class="ae-cinput ae-log-date" type="date" value="${esc(r.date)}" data-i="${i}" data-k="date" /></td>
+      <td><textarea data-i="${i}" data-k="text">${esc(r.text)}</textarea></td>
+      <td><button class="ae-log-del" data-i="${i}">✕</button></td></tr>`).join('');
+    tb.querySelectorAll('textarea').forEach(t=>{
+      t.addEventListener('input', ()=>{ log[+t.dataset.i].text=t.value; sync(); });
+      t.addEventListener('keydown', e=>{ if(e.key==='Enter' && e.ctrlKey){ e.preventDefault(); addRow(); } });
+    });
+    tb.querySelectorAll('input[type=date]').forEach(inp=>inp.addEventListener('input', ()=>{ log[+inp.dataset.i].date=inp.value; sync(); }));
+    tb.querySelectorAll('.ae-log-del').forEach(b=>b.addEventListener('click', ()=>{ log.splice(+b.dataset.i,1); renderLog(); sync(); }));
+  }
+  function addRow(){ log.push({date:new Date().toISOString().slice(0,10), text:''}); renderLog(); sync();
+    const rows=document.querySelectorAll('#aeLogBody textarea'); if(rows.length) rows[rows.length-1].focus(); }
+
+  function status(){ const b=document.querySelector('#aeSeg button.on'); return b?b.dataset.s:'Pending'; }
+  function sync(){
+    document.getElementById('rpTitle').textContent = document.getElementById('aeTitle').value;
+    document.getElementById('rpMeta').innerHTML =
+      `<tr><th>Project</th><td>${esc(document.getElementById('aeProject').value)}</td></tr>`+
+      `<tr><th>Discipline</th><td>${esc(document.getElementById('aeDiscipline').value)}</td></tr>`+
+      `<tr><th>Status</th><td>${esc(status())}</td></tr>`+
+      `<tr><th>Due</th><td>${esc(document.getElementById('aeDue').value)}</td></tr>`+
+      `<tr><th>Assigned to</th><td>${esc(document.getElementById('aeAssignee').value)}</td></tr>`+
+      `<tr><th>Created by</th><td>${esc(document.getElementById('aeCreator').value)}</td></tr>`+
+      `<tr><th>Created on</th><td>${esc(document.getElementById('aeCreatedOn').value)}</td></tr>`+
+      `<tr><th>Depends on</th><td>${esc(document.getElementById('aeDepends').value)}</td></tr>`;
+    document.getElementById('rpLog').innerHTML = log.length
+      ? log.map(r=>`<tr><th style="width:120px">${esc(r.date)}</th><td>${esc(r.text)}</td></tr>`).join('')
+      : `<tr><th style="width:120px">—</th><td><em>No entries</em></td></tr>`;
+  }
+
+  document.querySelectorAll('#aeSeg button').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('#aeSeg button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); sync();
+  }));
+  ['aeTitle','aeProject','aeDiscipline','aeDue','aeAssignee','aeCreator','aeDepends'].forEach(id=>
+    document.getElementById(id).addEventListener('input', sync));
+  document.getElementById('aeAddRow').addEventListener('click', addRow);
+
+  renderLog(); sync();
+</script>
+</body>
+</html>

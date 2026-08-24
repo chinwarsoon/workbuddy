@@ -1,0 +1,2524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ActionTracker — Project Action Tracker</title>
+<style>
+  :root{
+    --aw:56px; --sw:260px; --rw:300px;
+    --bg:#F5F5F7; --panel:#FFFFFF; --text:#1D1D1F; --muted:#6E6E73;
+    --accent:#0066CC; --border:rgba(0,0,0,0.08); --bar:#1C1C1E; --bar-icon:#9FA0A6;
+    --row-hover:#F2F2F7; --code-bg:#F2F2F7; --chip:#F2F2F7;
+    --sel-bg:rgba(0,102,204,0.10);
+  }
+  body.dark{
+    --bg:#1E1E1E; --panel:#252526; --text:#E6E6E6; --muted:#9A9A9A;
+    --border:rgba(255,255,255,0.1); --row-hover:#2D2D2E; --code-bg:#1B1B1B; --chip:#333337;
+    --accent:#0A84FF; --sel-bg:rgba(10,132,255,0.22);
+  }
+  *{box-sizing:border-box; -webkit-font-smoothing:antialiased;}
+  html,body{margin:0; height:100%;}
+  /* Keyboard focus (WCAG 2.4.7): visible ring everywhere; light ring on dark rails */
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:inherit;}
+  .activitybar :focus-visible{outline-color:#fff;}
+  .ae-log input:focus-visible, .ae-log textarea:focus-visible{outline:none;}
+  body{font-family:"Inter","SF Pro Text",-apple-system,Segoe UI,Roboto,sans-serif;
+    background:var(--bg); color:var(--text); font-size:14px;}
+  .app{display:grid; grid-template-columns:var(--aw) var(--sw) minmax(0,1fr) var(--rw); grid-template-rows:var(--th) 1fr 30px; height:100vh; overflow:hidden;}
+  /* Top bar (48px, brand+context / actions / overflow) */
+  :root{ --th:48px; }
+  body.hide-topbar{ --th:0px; }
+  body.hide-topbar .topbar{ display:none; }
+  .topbar{ grid-column:1 / -1; grid-row:1; background:var(--panel); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 14px; gap:14px; min-width:0; }
+  body.dark .topbar{ background:var(--bar); border-bottom-color:var(--border); }
+  .tb-brand{ display:flex; align-items:center; gap:10px; flex:none; min-width:0; }
+  .tb-logo{ width:28px; height:28px; border-radius:7px; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; }
+  .tb-file{ font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:42vw; }
+  .tb-file .tb-fname{ color:var(--text); }
+  .tb-file .tb-meta{ color:var(--muted); font-weight:400; margin-left:6px; font-size:12px; }
+  .tb-file .tb-unsaved{ color:#FF9F0A; font-weight:600; animation:tb-pulse 1.2s ease-in-out infinite; }
+  @keyframes tb-pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+  @media (prefers-reduced-motion: reduce){ .tb-unsaved{ animation:none; } }
+  .tb-crumb{ color:var(--muted); font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; min-width:0; }
+  .tb-crumb .sep{ color:var(--border); margin:0 8px; }
+  .tb-crumb .cur{ color:var(--text); font-weight:500; }
+  .tb-actions{ display:flex; align-items:center; gap:8px; flex:none; }
+  .tb-overflow{ position:relative; }
+  .tb-pop{ position:absolute; right:0; top:calc(100% + 6px); background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:6px; min-width:200px; box-shadow:0 12px 32px rgba(0,0,0,.16); display:none; z-index:60; }
+  .tb-pop.open{ display:block; }
+  .tb-pop .tb-item{ display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; font-size:13px; cursor:pointer; }
+  .tb-pop .tb-item:hover{ background:var(--row-hover); }
+  .tb-sep{ height:1px; background:var(--border); margin:6px 4px; }
+  .tb-more{ width:30px; height:30px; border-radius:15px; border:1px solid var(--border); background:var(--panel); color:var(--text); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:14px; }
+  body.dark .tb-more{ background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.14); color:#E6E6EA; }
+  /* Mobile drawer trigger (visible only ≤900px) */
+  .tb-mtrigger{ display:none; width:30px; height:30px; border-radius:15px; border:1px solid var(--border); background:var(--panel); color:var(--text); cursor:pointer; align-items:center; justify-content:center; font-size:14px; }
+  body.dark .tb-mtrigger{ background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.14); color:#E6E6EA; }
+  @media (max-width:900px){ .tb-mtrigger{ display:inline-flex; } }
+  /* Drawer scrim */
+  .tb-scrim{ position:fixed; top:var(--th); left:0; right:0; bottom:0; background:rgba(0,0,0,.32); display:none; z-index:55; }
+  .tb-scrim.open{ display:block; }
+  @media (max-width:900px){
+    body.m-show-side .sidebar, body.m-show-right .rightpanel{ display:flex; position:fixed; top:var(--th); bottom:30px; z-index:56; }
+    body.m-show-side .sidebar{ left:var(--aw); width:78vw; max-width:320px; }
+    body.m-show-right .rightpanel{ right:0; width:78vw; max-width:300px; }
+  }
+  /* Status bar */
+  #statusbar{grid-column:1 / -1; grid-row:3; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:0 14px; background:var(--bar); color:#E6E6EA; font-size:12px; user-select:none; overflow:hidden;}
+  .sb-left{display:flex; align-items:center; gap:8px; min-width:0;}
+  .sb-dot{width:8px; height:8px; border-radius:50%; flex:none; background:#8E8E93;}
+  .sb-dot.sb-ext{background:#34C759;}
+  .sb-dot.sb-imp{background:var(--accent);}
+  .sb-dot.sb-emb{background:#FF9F0A;}
+  .sb-dot.sb-none{background:#8E8E93;}
+  .sb-file{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:46vw;}
+  .sb-src{color:#9A9AA0; white-space:nowrap;}
+  .sb-mig{color:#FF9F0A; background:rgba(255,159,10,0.14); border:1px solid rgba(255,159,10,0.4); border-radius:6px; padding:1px 7px; font-size:11px; white-space:nowrap; flex:none;}
+  .sb-right{display:flex; align-items:center; gap:10px; flex:none;}
+  .sb-counts{color:#C7C7CC; white-space:nowrap;}
+  body.hide-activity{--aw:0px;} body.hide-sidebar{--sw:0px;} body.hide-right{--rw:0px;}
+  body.hide-activity .activitybar{display:none;} body.hide-sidebar .sidebar{display:none;} body.hide-right .rightpanel{display:none;}
+
+  /* Activity bar */
+  .activitybar{background:var(--bar); grid-row:2; display:flex; flex-direction:column; align-items:center; padding:12px 0; gap:4px;}
+  .appicon{width:32px; height:32px; border-radius:8px; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; margin-bottom:4px;}
+  .abtn{width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--bar-icon); cursor:pointer; position:relative; user-select:none;}
+  .abtn:hover{color:#fff;}
+  .abtn.active{color:#fff; background:rgba(255,255,255,0.12);}
+  .abtn.active::before{content:""; position:absolute; left:-10px; top:7px; bottom:7px; width:2px; border-radius:2px; background:var(--accent);}
+  .abtn svg{width:20px; height:20px; display:block;}
+  .abspacer{flex:1;}
+  .abdiv{width:24px; height:1px; background:rgba(255,255,255,0.16); margin:8px 0;}
+
+  /* Sidebar */
+  .sidebar{background:var(--panel); grid-row:2; border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden;}
+  .side-head{padding:14px 16px 6px; font-size:11px; font-weight:700; letter-spacing:.04em; color:var(--muted);}
+  .side-sub{padding:0 16px 8px; font-size:13px; font-weight:600;}
+  .side-toolbar{display:flex; gap:8px; padding:6px 8px 10px;}
+  .side-toolbar .btn{border-radius:8px; padding:7px 10px; font-size:13px; font-weight:600; cursor:pointer; border:1px solid var(--border); background:var(--panel); color:var(--text); white-space:nowrap;}
+  .side-toolbar .btn.primary{background:var(--accent); color:#fff; border-color:transparent;}
+  .side-toolbar input{flex:1; min-width:0; border-radius:8px; border:1px solid var(--border); background:var(--chip); color:var(--text); padding:7px 10px; font-size:12px;}
+  .tree{flex:1; overflow:auto; padding:4px 6px 16px;}
+
+  .tnode{display:flex; align-items:center; height:30px; border-radius:6px; cursor:pointer; padding-right:6px;}
+  .tnode:hover{background:var(--row-hover);}
+  .tnode.sel{background:var(--sel-bg);}
+  .tchev{width:18px; text-align:center; color:var(--muted); font-size:11px; flex:none; user-select:none;}
+  .tdot{width:8px; height:8px; border-radius:50%; background:var(--accent); margin:0 6px 0 10px; flex:none;}
+  .tname{flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:13px;}
+  .tnode.project > .tname{font-weight:600;}
+  .tnode.discipline > .tname{font-weight:500;}
+  .tcount{color:var(--muted); font-size:11px; margin-left:6px;}
+  .tcontrols{display:none; gap:2px; margin-left:6px;}
+  .tnode:hover .tcontrols{display:flex;}
+  .tbtn{width:20px; height:20px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; color:var(--muted);}
+  .tbtn:hover{background:var(--chip);}
+  .tbtn.add{color:var(--accent); font-weight:700; font-size:14px;}
+  .tbtn.del{color:#C0392B; font-weight:700;}
+  .tmp-input{border:1px solid var(--accent); border-radius:6px; padding:3px 6px; font-size:13px; font-family:inherit; color:var(--text); background:var(--panel); width:100%;}
+  .empty-leaf{font-size:12px; color:var(--muted); font-style:italic; padding:8px 10px;}
+
+  /* Sidebar list (non-tree perspectives) */
+  .sitem{padding:10px 12px; border-radius:8px; cursor:pointer; margin:2px;}
+  .sitem:hover{background:var(--row-hover);}
+  .sitem.sel{background:var(--sel-bg);}
+  .sitem-top{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .sname{font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .scount{font-size:11px; color:var(--muted); flex:none;}
+  .sitem-sub{font-size:11px; color:var(--muted); margin-top:3px;}
+  .sbar{height:6px; border-radius:3px; background:var(--chip); overflow:hidden; margin-top:7px;}
+  .sbar.wide{height:10px; margin:10px 0;}
+  .sbar-fill{height:100%; background:var(--accent); border-radius:3px; transition:width .3s;}
+
+  /* Editor */
+  .editor{background:var(--panel); grid-row:2; display:flex; flex-direction:column; overflow:hidden;}
+  .ed-top{height:56px; display:flex; align-items:center; gap:12px; padding:0 16px; border-bottom:1px solid var(--border);}
+  .ed-bread{font-size:12px; color:var(--muted); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .ed-body{flex:1; overflow:auto; padding:24px 32px;}
+  .ed-title{font-size:22px; font-weight:600; margin:0 0 12px;}
+  .badge{height:26px; padding:0 12px; border-radius:13px; font-size:12px; font-weight:600; display:flex; align-items:center;}
+  .b-disc{background:var(--chip); color:var(--text); font-weight:500;}
+  .ed-desc{font-size:14px; line-height:1.5; color:var(--text); margin-bottom:24px; max-width:720px;}
+  .form-hint{font-size:12px; line-height:1.5; color:var(--muted); margin:2px 0 4px; max-width:560px;}
+  .form-hint b{color:var(--text);}
+  .ed-section-h{font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin:20px 0 8px;}
+  .dep-flow{display:flex; flex-wrap:wrap; gap:8px;}
+  .dep-chip{background:var(--chip); border-radius:14px; padding:5px 12px; font-size:12px;}
+  .hist-row{font-size:13px; padding:3px 0; color:var(--text);}
+  .meta-row{font-size:13px; padding:3px 0;}
+  .linkrow{cursor:pointer; color:var(--accent);}
+  .linkrow:hover{text-decoration:underline;}
+  .json-box{background:var(--code-bg); border-radius:11px; padding:14px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; white-space:pre-wrap; color:var(--text); max-width:760px; max-height:220px; overflow:auto;}
+  .ed-actions{display:flex; gap:10px; margin-top:24px;}
+  .btn{border-radius:22px; padding:10px 22px; font-size:14px; font-weight:600; cursor:pointer; border:1px solid var(--border); background:var(--panel); color:var(--text);}
+  .btn.primary{background:var(--accent); color:#fff; border-color:transparent;}
+  .btn.ghost{border-color:rgba(192,57,43,0.5); color:#C0392B;}
+
+  /* Action inline editor (main panel) */
+  .ae{display:flex; flex-direction:column; gap:22px; max-width:860px;}
+  /* Consistent content measure for every perspective (Projects/Disciplines/Reports/Search/Settings/Help) */
+  #edBody > *{max-width:860px;}
+  .ae-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px 20px;}
+  .ae-span{grid-column:1 / -1;}
+  .ae-title-input{font-size:21px; font-weight:600; padding:12px 14px;}
+  textarea.ae-desc-input{min-height:128px; line-height:1.55;}
+  .ae-preview{border:1px solid var(--border); border-radius:14px; padding:18px 20px; background:var(--chip);}
+  .ae-preview .ed-section-h{margin-top:0;}
+  .ae-desc{font-size:14px; line-height:1.6; color:var(--text); white-space:pre-wrap; margin:0 0 12px; max-width:720px;}
+  .ae-meta .meta-row:last-child{padding-bottom:0;}
+  /* Action editor top toolbar + dated detail log */
+  .ed-top-actions{margin-left:auto; display:flex; gap:10px; flex-shrink:0;}
+  .ed-top .btn:disabled{opacity:.45; cursor:not-allowed;}
+  .ae-log{width:100%; border-collapse:collapse; margin-top:4px;}
+  .ae-log th, .ae-log td{border:1px solid var(--border); padding:7px 10px; text-align:left; font-size:13px; vertical-align:top;}
+  .ae-log th{background:var(--chip); font-weight:700; color:var(--muted); text-transform:uppercase; font-size:11px; letter-spacing:.04em;}
+  .ae-log input{border:none; background:transparent; font:inherit; width:100%; padding:2px 0; color:var(--text);}
+  .ae-log input:focus{outline:none; box-shadow:inset 0 -2px 0 var(--accent);}
+  .ae-log-date{width:150px;}
+  .ae-log-del{border:none; background:transparent; color:#C0392B; cursor:pointer; font-size:14px; padding:2px 6px;}
+  .ae-empty-row{color:var(--muted); font-style:italic;}
+
+  /* Compact meta rows (2-col, label-on-top) + primary detail log + report preview */
+  .ae-title{margin-bottom:14px;}
+  .ae-compact{display:flex; flex-direction:column; gap:14px; margin-bottom:0;}
+  .ae-crow{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .ae-cfield{display:flex; flex-direction:column; align-items:stretch; gap:6px;}
+  .ae-clabel{font-size:12px; font-weight:600; color:var(--muted);}
+  .ae-cinput{padding:7px 10px; font-size:13px;}
+  .ae-cfield .seg{margin:0;}
+  input.ae-cinput[readonly]{background:var(--chip); color:var(--muted); cursor:default;}
+  /* Hybrid separators: one divider (meta -> description) + one below add-row */
+  .ae-divider{height:1px; background:var(--border); margin:22px 0 16px; border:0;}
+  .ae-divider.below-add{margin:26px 0;}
+  .ae-log textarea.ae-log-text{width:100%; border:none; background:transparent; font:inherit; resize:vertical; min-height:38px; padding:2px 0; color:var(--text);}
+  .ae-log textarea.ae-log-text:focus{outline:none; box-shadow:inset 0 -2px 0 var(--accent);}
+  .ae-log-hint{font-size:11px; color:var(--muted); margin:6px 0 8px;}
+  .ae-report{border:1px solid var(--border); border-radius:14px; padding:18px 20px; background:var(--chip);}
+  .ae-report-title{font-size:18px; font-weight:700; margin-bottom:12px;}
+  .ae-report-tbl{width:100%; border-collapse:collapse; margin-bottom:14px;}
+  .ae-report-tbl th, .ae-report-tbl td{border:1px solid var(--border); padding:7px 10px; text-align:left; font-size:13px; vertical-align:top;}
+  .ae-report-tbl th{background:var(--panel); font-weight:600; color:var(--muted); width:118px;}
+  .ae-report-h{font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin:6px 0 8px;}
+
+  /* Export modal */
+  .ex-fmt{display:flex; gap:18px; margin:4px 0 14px; font-size:14px;}
+  .ex-fmt label{display:flex; align-items:center; gap:6px; cursor:pointer;}
+  .ex-filters{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;}
+  .ex-filters .field{margin-bottom:0;}
+  .ex-list-head{display:flex; align-items:center; gap:10px; margin:6px 0;}
+  .ex-count{margin-left:auto; font-size:13px; color:var(--muted);}
+  .ex-list{max-height:260px; overflow:auto; border:1px solid var(--border); border-radius:12px; padding:8px;}
+  .ex-item{display:flex; align-items:center; gap:8px; padding:7px 8px; border-radius:8px; font-size:13px; cursor:pointer;}
+  .ex-item:hover{background:var(--row-hover);}
+  .ex-item .ex-sub{margin-left:auto; font-size:11px; color:var(--muted);}
+
+  /* Mid-range: when the editor column gets narrow (sidebar+right panel visible), collapse meta rows */
+  @media (max-width:1180px){
+    .ae-crow{grid-template-columns:1fr;}
+  }
+  @media (max-width:680px){
+    .ae-grid{grid-template-columns:1fr;}
+    .ae-crow{grid-template-columns:1fr;}
+    .ae-cfield{width:100%;}
+    .ae-report-tbl th{width:90px;}
+    .ex-filters{grid-template-columns:1fr;}
+  }
+
+  /* Reports */
+  .rpt-row{display:flex; align-items:center; gap:10px; padding:8px 0;}
+  .rpt-label{width:150px; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:none;}
+  .rpt-bar{flex:1; height:14px; background:var(--chip); border-radius:7px; overflow:hidden;}
+  .rpt-fill{height:100%; background:var(--accent); border-radius:7px; transition:width .3s;}
+  .rpt-val{width:30px; text-align:right; font-size:13px; font-weight:600; flex:none;}
+
+  /* Right panel */
+  .rightpanel{background:var(--panel); grid-row:2; border-left:1px solid var(--border); padding:14px 16px; display:flex; flex-direction:column; gap:6px; overflow-y:auto;}
+  .rp-head{font-size:11px; font-weight:700; letter-spacing:.04em; color:var(--muted);}
+  .rp-sub{font-size:13px; font-weight:600; margin-bottom:8px;}
+  .rp-btn{height:48px; border-radius:10px; background:var(--panel); border:1px solid var(--border); color:var(--text); font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; padding:0 16px; gap:10px;}
+  .rp-btn:hover{border-color:var(--accent);}
+  .rp-btn.primary{background:var(--accent); color:#fff; border-color:transparent;}
+  .rp-btn.primary:hover{border-color:transparent; filter:brightness(.92);}
+  .rp-btn[disabled]{opacity:.45; cursor:not-allowed; pointer-events:none;}
+  /* Dirty-flash: draws attention the moment a save button becomes active */
+  .flash{animation:flash-ring .7s ease 2;}
+  @keyframes flash-ring{0%{box-shadow:0 0 0 0 var(--accent);}50%{box-shadow:0 0 0 6px rgba(0,102,204,.28);}100%{box-shadow:0 0 0 0 var(--accent);}}
+  /* Empty-state call-to-action */
+  .empty-cta{margin:8px 2px 2px; border:1px solid var(--accent); color:var(--accent); background:transparent; border-radius:14px; padding:5px 14px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; display:inline-block;}
+  .empty-cta:hover{background:rgba(0,102,204,.08);}
+  .empty-main{margin-top:6px;}
+
+  /* Modal */
+  .backdrop{position:fixed; inset:0; background:rgba(0,0,0,0.4); display:none; align-items:center; justify-content:center; z-index:50;}
+  .backdrop.open{display:flex;}
+  .modal{background:var(--panel); border-radius:18px; width:560px; max-width:94vw; max-height:92vh; overflow:auto; padding:24px 28px;}
+  .modal.sm{width:420px;}
+  .m-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
+  .m-title{font-size:22px; font-weight:600; margin:0;}
+  .m-close{cursor:pointer; color:var(--muted); font-size:20px; width:32px; height:32px; border-radius:16px; display:flex; align-items:center; justify-content:center;}
+  .m-close:hover{background:var(--chip);}
+  .field{margin-bottom:14px;}
+  .label{font-size:13px; font-weight:600; margin-bottom:6px; display:block;}
+  .input, textarea.input, select.input{width:100%; border-radius:11px; border:1px solid var(--border); background:var(--panel); color:var(--text); padding:11px 14px; font-size:14px; font-family:inherit;}
+  textarea.input{resize:vertical; min-height:72px;}
+  .row2{display:flex; gap:12px;}
+  .row2 .field{flex:1;}
+  .seg{display:flex; gap:6px; flex-wrap:wrap;}
+  .seg button{border:1px solid var(--border); background:var(--chip); color:var(--text); border-radius:18px; padding:8px 14px; font-size:13px; cursor:pointer;}
+  .seg button.on{outline:2px solid var(--accent); outline-offset:2px; font-weight:700; border-color:transparent;}
+  /* Multi-assignee picker */
+  .assignee-pick{display:flex; flex-wrap:wrap; gap:6px;}
+  .ae-cfield .assignee-pick{margin:0;}
+  .assignee-chip{border:1px solid var(--border); background:var(--chip); color:var(--text); border-radius:16px; padding:6px 13px; font-size:13px; cursor:pointer; font-family:inherit;}
+  .assignee-chip:hover{border-color:var(--accent);}
+  .assignee-chip.on{background:var(--accent); color:#fff; border-color:transparent; font-weight:600;}
+  /* Scrollable multi-pick for 20+ members + per-project management rows */
+  .assignee-pick{max-height:120px; overflow-y:auto;}
+  .asm-filter{margin:0 0 8px; width:100%; border-radius:8px; border:1px solid var(--border); background:var(--chip); color:var(--text); padding:6px 10px; font-size:12px; box-sizing:border-box;}
+  .pm-row{display:flex; align-items:center; gap:8px; background:var(--chip); border-radius:10px; padding:8px 12px; margin:4px 0;}
+  .pm-row .nm{flex:1; font-size:14px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .pm-row input[type=checkbox]{flex:none;}
+  .pm-mini{width:26px; height:26px; border-radius:7px; border:1px solid var(--border); background:var(--panel); color:var(--muted); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:12px;}
+  .pm-mini:hover{background:var(--row-hover);}
+  .rs-bulk{display:flex; align-items:center; gap:8px; margin:6px 0 10px; font-size:13px; color:var(--muted);}
+  .rs-row{display:flex; align-items:center; gap:10px; background:var(--chip); border-radius:10px; padding:7px 12px; margin:5px 0;}
+  .rs-row .rs-t{flex:1; font-size:13px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .rs-row .rs-k{font-style:normal; color:var(--muted); font-size:12px; flex:none;}
+  .rs-row select{flex:0 0 210px; border-radius:8px; border:1px solid var(--border); background:var(--panel); color:var(--text); padding:5px 8px; font-size:13px; font-family:inherit;}
+  .rs-soft-h{margin-top:14px;}
+  .pm-move{display:flex; gap:4px; flex:none;}
+  .proj-block{border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin:10px 0; display:flex; align-items:center; gap:10px;}
+  .proj-block .nm{flex:1; font-weight:600;}
+  .link{color:var(--accent); font-size:13px; cursor:pointer; margin-top:6px; display:inline-block;}
+  .m-foot{display:flex; justify-content:flex-end; gap:10px; margin-top:18px; position:sticky; bottom:-24px; margin-left:-28px; margin-right:-28px; padding:14px 28px 24px; background:var(--panel); border-top:1px solid var(--border);}
+  .lm-list{display:flex; flex-direction:column; gap:8px; max-height:340px; overflow:auto; margin:10px 0;}
+  .lm-item{display:flex; align-items:center; gap:8px; background:var(--chip); border-radius:10px; padding:8px 12px;}
+  .lm-item .nm{flex:1; font-size:14px;}
+  .lm-item input{border:1px solid var(--accent); border-radius:8px; padding:6px 10px; font-size:13px; font-family:inherit; flex:1; background:var(--panel); color:var(--text);}
+  .lm-input.lm-role{flex:0 0 150px;}
+  /* Standard settings list: column header + multi-field rows */
+  .lm-head{display:grid; gap:8px; align-items:center; padding:0 12px 4px; color:var(--muted); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.03em; position:sticky; top:0; background:var(--panel); z-index:2;}
+  .lm-member{display:grid; gap:8px; align-items:center;}
+  .lm-member input,.lm-member select{border:1px solid var(--border); border-radius:8px; padding:6px 10px; font-size:13px; font-family:inherit; min-width:0; width:100%; box-sizing:border-box; background:var(--panel); color:var(--text);}
+  .lm-member input:focus,.lm-member select:focus{border-color:var(--accent); outline:none;}
+  .lm-filter{margin:0 0 8px; width:100%; border-radius:8px; border:1px solid var(--border); background:var(--chip); color:var(--text); padding:6px 10px; font-size:12px; box-sizing:border-box;}
+  .lm-mini{width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--muted); font-size:13px; border:1px solid var(--border); background:var(--panel);}
+  .lm-mini.del{color:#C0392B; border-color:rgba(192,57,43,0.4);}
+  .sw-trigger{width:18px; height:18px; border-radius:5px; border:1px solid rgba(0,0,0,0.18); cursor:pointer; flex:none;}
+  .sw-pop{display:none; position:fixed; z-index:60; background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:10px; box-shadow:0 10px 30px rgba(0,0,0,0.18); width:220px;}
+  .sw-pop.open{display:block;}
+  .sw-pop .sw-dot{width:24px; height:24px; border-radius:50%; border:1px solid rgba(0,0,0,0.12); cursor:pointer; padding:0; margin:3px; vertical-align:top;}
+  .sw-pop .sw-custom{display:flex; align-items:center; gap:8px; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); font-size:12px; color:var(--muted);}
+  .sw-pop .sw-custom input{width:36px; height:26px; border:none; background:none; cursor:pointer; padding:0;}
+  .lm-empty{color:var(--muted); font-size:13px; padding:8px 0;}
+  .toggle{display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border);}
+  .switch{width:42px; height:24px; border-radius:12px; background:var(--chip); position:relative; cursor:pointer; transition:.2s;}
+  .switch.on{background:var(--accent);}
+  .switch::after{content:""; position:absolute; width:18px; height:18px; border-radius:50%; background:#fff; top:3px; left:3px; transition:.2s;}
+  .switch.on::after{left:21px;}
+  .slider-row{display:flex; align-items:center; gap:12px; padding:8px 0;}
+  .slider-row input[type=range]{flex:1;}
+  .help-body{font-size:14px; line-height:1.6;}
+  .help-body li{margin-bottom:6px;}
+
+  /* Toast */
+  .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--text); color:var(--panel); padding:10px 18px; border-radius:22px; font-size:13px; opacity:0; transition:.25s; z-index:80; pointer-events:none;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  @media (max-width:900px){
+    .app{grid-template-columns:var(--aw) 1fr;}
+    .sidebar, .rightpanel{display:none;}
+  }
+</style>
+</head>
+<body>
+  <div class="app" id="app">
+    <!-- Top bar (brand / context / actions) -->
+    <div class="topbar" id="topbar">
+      <div class="tb-brand">
+        <div class="tb-logo">AT</div>
+        <div class="tb-file" id="tbFile"><span class="tb-fname">ActionTracker</span><span class="tb-meta" id="tbMeta"></span></div>
+      </div>
+      <div class="tb-crumb" id="tbCrumb">Actions</div>
+      <div class="tb-actions">
+        <div class="tb-overflow">
+          <button class="tb-more" id="tbMore" title="More">⋯</button>
+          <div class="tb-pop" id="tbPop">
+            <div class="tb-item" id="tbSaveActions">Save Actions</div>
+            <div class="tb-item" id="tbSaveSettings">Save Settings</div>
+            <div class="tb-item" id="tbExportMenu">Export</div>
+            <div class="tb-sep"></div>
+            <div class="tb-item" id="tbImport">Import data…</div>
+            <div class="tb-item" id="tbCreate">Create empty data file</div>
+            <div class="tb-item" id="tbFolder">Set data folder…</div>
+            <div class="tb-item" id="tbDark">Toggle dark theme</div>
+            <div class="tb-item" id="tbLayout">Layout & settings…</div>
+            <div class="tb-item" id="tbSettings">Settings</div>
+            <div class="tb-item" id="tbHelp">Help</div>
+          </div>
+        </div>
+        <button class="tb-mtrigger" id="tbDrawer" title="Panels">☰</button>
+      </div>
+    </div>
+    <div class="tb-scrim" id="tbScrim"></div>
+
+    <!-- Activity bar -->
+    <div class="activitybar" id="activitybar">
+      <div class="appicon">AT</div>
+      <div class="abtn active" data-p="actions" title="Actions (list)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.4" fill="currentColor" stroke="none"/></svg></div>
+      <div class="abtn" data-p="projects" title="Projects"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+      <div class="abtn" data-p="disciplines" title="Disciplines"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 3h7l11 11-7 7L3 10z"/><circle cx="8" cy="8" r="1.6" fill="currentColor" stroke="none"/></svg></div>
+      <div class="abtn" data-p="reports" title="Reports"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="11" width="3.5" height="9" rx="1"/><rect x="10.25" y="6" width="3.5" height="14" rx="1"/><rect x="16.5" y="13" width="3.5" height="7" rx="1"/></svg></div>
+      <div class="abtn" data-p="search" title="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="21" y2="21" stroke-linecap="round"/></svg></div>
+      <div class="abspacer"></div>
+      <div class="abdiv"></div>
+      <div class="abtn" data-p="settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1" stroke-linecap="round"/></svg></div>
+      <div class="abtn" data-p="help" title="Help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.5 2.5 0 0 1 4.5 1.4c0 1.6-2 2-2 3.4" stroke-linecap="round"/><circle cx="12" cy="17.2" r="0.7" fill="currentColor" stroke="none"/></svg></div>
+    </div>
+
+    <!-- Sidebar (dynamic per perspective) -->
+    <div class="sidebar" id="sidebar">
+      <div class="side-head" id="sideHead">ACTIONS</div>
+      <div class="side-sub" id="sideSub">All actions</div>
+      <div class="side-toolbar" id="sideToolbar"></div>
+      <div class="tree" id="sideBody"></div>
+    </div>
+
+    <!-- Editor / main panel -->
+    <div class="editor" id="editor">
+      <div class="ed-top" id="edTop"></div>
+      <div class="ed-body" id="edBody"></div>
+    </div>
+
+    <!-- Right panel (Quick Actions: Save/Export/Import/Layout) -->
+    <div class="rightpanel" id="rightpanel">
+      <div class="rp-head">PANEL</div>
+      <div class="rp-sub">Quick Actions</div>
+      <button class="rp-btn primary" id="rpSaveActions" disabled title="Save data (action.json)">Save Actions</button>
+      <button class="rp-btn" id="rpSaveSettings" disabled title="Save UI settings (setup.json)">Save Settings</button>
+      <button class="rp-btn" id="rpExportMenu">Export</button>
+      <button class="rp-btn" id="rpImport">Import…</button>
+      <button class="rp-btn" id="rpSetting">Layout…</button>
+      <button class="rp-btn" id="rpHelp">Help</button>
+      <input type="file" id="fileInput" accept="application/json" style="display:none" />
+    </div>
+    <div class="statusbar" id="statusbar" role="status" aria-live="polite"></div>
+  </div>
+
+  <!-- Action modal (create / edit) -->
+  <div class="backdrop" id="actionModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="m-head"><h2 class="m-title" id="modalTitle">New Action</h2><div class="m-close" id="modalClose">✕</div></div>
+      <div class="field"><label class="label">Action title</label><input class="input" id="mTitle" placeholder="e.g. Finalize homepage hero" /></div>
+      <div class="field"><label class="label">Description</label><textarea class="input" id="mDesc" placeholder="Add details, acceptance criteria..."></textarea></div>
+      <div class="row2">
+        <div class="field"><label class="label">Project</label>
+          <select class="input" id="mProject"></select>
+        </div>
+        <div class="field"><label class="label">Discipline</label>
+          <select class="input" id="mDiscipline"></select>
+        </div>
+      </div>
+      <div class="field"><label class="label">Status</label>
+        <div class="seg" id="mSeg"></div>
+        <span class="link" id="mAddStatus">+ Add custom status</span>
+      </div>
+      <div class="field"><label class="label">Priority</label>
+        <div class="seg" id="mPriority"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label class="label">Due date</label><input class="input" id="mDue" type="date" /></div>
+        <div class="field"><label class="label">Assigned to</label><div class="assignee-pick" id="mAssignee"></div></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label class="label">Created by</label><select class="input" id="mCreator"></select></div>
+        <div class="field"><label class="label">Depends on (id)</label><input class="input" id="mDepends" placeholder="e.g. 37" /></div>
+      </div>
+      <p class="form-hint">Names, projects, disciplines and statuses are managed only in <b>Settings</b>. To add a member, open <b>Settings → Members</b>; for statuses use <b>Settings → Statuses</b>.</p>
+      <div class="m-foot">
+        <button class="btn" id="modalCancel">Cancel</button>
+        <button class="btn primary" id="modalSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Color swatch popover (statuses & priorities) -->
+  <div class="sw-pop" id="statusColorPop"></div>
+
+  <!-- Per-project management popup (disciplines / members) -->
+  <div class="backdrop" id="projectModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pmTitle">
+      <div class="m-head"><h2 class="m-title" id="pmTitle">Manage</h2><div class="m-close" id="pmClose">✕</div></div>
+      <div id="pmBody"></div>
+      <div class="m-foot">
+        <button class="btn primary" id="pmDone">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reassign before delete (blocked deletion guard) -->
+  <div class="backdrop" id="reassignModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rsTitle">
+      <div class="m-head"><h2 class="m-title" id="rsTitle">Reassign before delete</h2><div class="m-close" id="rsClose">✕</div></div>
+      <div id="rsBody"></div>
+      <div class="m-foot"><button class="btn" id="rsCancel">Cancel</button><button class="btn primary" id="rsDelete">Delete</button></div>
+    </div>
+  </div>
+
+  <!-- Layout modal -->
+  <div class="backdrop" id="layoutModal">
+    <div class="modal sm" role="dialog" aria-modal="true" aria-label="Layout & settings">
+      <div class="m-head"><h2 class="m-title">Layout & Settings</h2><div class="m-close" id="layoutClose">✕</div></div>
+      <div class="toggle"><span>Top bar</span><div class="switch on" id="swTop"></div></div>
+      <div class="toggle"><span>Activity bar</span><div class="switch on" id="swActivity"></div></div>
+      <div class="toggle"><span>Sidebar (tree)</span><div class="switch on" id="swSidebar"></div></div>
+      <div class="toggle"><span>Right panel</span><div class="switch on" id="swRight"></div></div>
+      <div class="toggle"><span>Dark theme</span><div class="switch" id="swDark"></div></div>
+      <div class="slider-row"><span style="width:90px">Sidebar</span><input type="range" id="rwSidebar" min="180" max="360" value="260" /><span id="rwSidebarVal">260</span></div>
+      <div class="slider-row"><span style="width:90px">Right</span><input type="range" id="rwRight" min="220" max="380" value="300" /><span id="rwRightVal">300</span></div>
+    </div>
+  </div>
+
+  <!-- Help modal -->
+  <div class="backdrop" id="helpModal">
+    <div class="modal sm" role="dialog" aria-modal="true" aria-label="Help">
+      <div class="m-head"><h2 class="m-title">Help</h2><div class="m-close" id="helpClose">✕</div></div>
+      <div class="help-body">
+        <p><b>Perspectives</b></p>
+        <ul>
+          <li>Each icon in the left rail is a <b>perspective</b>. Clicking it swaps <b>both</b> the left panel and the main panel.</li>
+          <li><b>Actions</b> → tree + action detail. <b>Projects</b> → project list + dashboard. <b>Disciplines</b> → discipline list + breakdown.</li>
+          <li><b>Reports</b> → report types + chart. <b>Search</b> → saved filters + results. <b>Settings / Help</b> → sections + articles.</li>
+        </ul>
+        <p><b>Tree navigation (Actions)</b></p>
+        <ul>
+          <li>Click a chevron (▾ / ▸) to expand or collapse a group.</li>
+          <li>Hover a discipline row to reveal its <b>+</b> add-action control; hover an action row to reveal its <b>✎</b> edit control.</li>
+          <li>Deleting a project, discipline or action happens in <b>Settings</b>, never in the tree.</li>
+        </ul>
+        <p><b>Regions</b> — Top bar, Activity bar, Sidebar, Editor, Right panel can each be toggled or resized from Settings (gear icon) or Layout. On narrow screens (≤900px) the ☰ button in the top bar opens the sidebar as a drawer.</p>
+        <p><b>Managing lists</b> — Projects, Disciplines, Statuses and Members (names) are added, renamed or deleted <b>only</b> in Settings. The create card and inline editor pick from those lists but never add to them.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Startup JSON picker (file://) -->
+  <div class="backdrop" id="openJsonModal">
+    <div class="modal sm" role="dialog" aria-modal="true" aria-label="Open data file">
+      <div class="m-head"><h2 class="m-title">Open data file</h2></div>
+      <p style="margin:6px 0 16px; color:var(--muted); font-size:13px; line-height:1.5;">This page was opened directly (not from a web server), so it can't auto-load <code>action.json</code>. Choose your data file, or start from the built-in sample.</p>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button class="btn" id="ojSample">Use sample data</button>
+        <button class="btn primary" id="ojPick">Choose JSON file</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export drawer -->
+  <div class="backdrop" id="exportModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Export">
+      <div class="m-head"><h2 class="m-title">Export</h2><div class="m-close" id="exClose">✕</div></div>
+      <div class="ex-fmt">
+        <label><input type="radio" name="exFmt" id="exFmtWord" checked /> Word</label>
+        <label><input type="radio" name="exFmt" id="exFmtExcel" /> Excel</label>
+      </div>
+      <div class="ex-filters">
+        <div class="field"><label class="label">Project</label><select class="input" id="exProject"></select></div>
+        <div class="field"><label class="label">Discipline</label><select class="input" id="exDiscipline"></select></div>
+        <div class="field"><label class="label">Status</label><select class="input" id="exStatus"></select></div>
+        <div class="field"><label class="label">Title contains</label><input class="input" id="exSearch" placeholder="search…" /></div>
+      </div>
+      <div class="ex-list-head">
+        <button class="btn" id="exSelectAll">Select all</button>
+        <button class="btn" id="exClear">Clear</button>
+        <span class="ex-count" id="exCount">0 selected</span>
+      </div>
+      <div class="ex-list" id="exList"></div>
+      <div class="m-foot">
+        <button class="btn" id="exCancel">Cancel</button>
+        <button class="btn primary" id="exExport">Export</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="application/json" id="seedData">
+{
+  "schemaVersion": 2,
+  "members": [
+    {"id":"m_fs","name":"FS","initials":"FS","role":"PM","disciplineId":""},
+    {"id":"m_mk","name":"MK","initials":"MK","role":"Design","disciplineId":"d1"},
+    {"id":"m_ts","name":"TS","initials":"TS","role":"Marketing","disciplineId":"d3"},
+    {"id":"m_jl","name":"JL","initials":"JL","role":"Engineering","disciplineId":"d2"},
+    {"id":"m_ar","name":"AR","initials":"AR","role":"Engineering","disciplineId":"d2"}
+  ],
+  "statuses": [
+    {"id":"pending","label":"Pending","color":"#E6F0FF"},
+    {"id":"in-progress","label":"In Progress","color":"#D7E9FF"},
+    {"id":"completed","label":"Completed","color":"#E3F5E9"},
+    {"id":"blocked","label":"Blocked","color":"#FDECEC"},
+    {"id":"on-hold","label":"On Hold","color":"#FFF2E0"},
+    {"id":"not-started","label":"Not Started","color":"#F2F2F7"},
+    {"id":"deleted","label":"Deleted","color":"#E5E5EA"}
+  ],
+  "priorities": [
+    {"id":"critical","label":"Critical","color":"#FDECEC"},
+    {"id":"high","label":"High","color":"#FFE1BD"},
+    {"id":"medium","label":"Medium","color":"#E6F0FF"},
+    {"id":"low","label":"Low","color":"#E2E8F0"}
+  ],
+  "projects": [
+    {"id":"p1","name":"Project Atlas","code":"ATLAS","disciplineIds":["d1","d2","d3","d4","d5"],"memberIds":["m_fs","m_mk","m_ts","m_jl","m_ar"]},
+    {"id":"p2","name":"Project Nova","code":"NOVA","disciplineIds":["d1","d2","d3","d4","d5"],"memberIds":["m_fs","m_mk","m_ts","m_jl","m_ar"]}
+  ],
+  "disciplines": [
+    {"id":"d1","name":"Design"},
+    {"id":"d2","name":"Engineering"},
+    {"id":"d3","name":"Marketing"},
+    {"id":"d4","name":"Content"},
+    {"id":"d5","name":"QA"}
+  ],
+  "actions": [
+    {"id":38,"title":"Finalize homepage hero section","projectId":"p1","disciplineId":"d1","statusId":"in-progress","due":"2026-08-20","priorityId":"high","assignedToIds":["m_mk"],"createdById":"m_fs","description":"Design and ship the new homepage hero with updated copy and imagery.","history":[{"d":"2026-08-12","t":"Created by FS"},{"d":"2026-08-13","t":"Status → In Progress by MK"}]},
+    {"id":39,"title":"Update brand colors","projectId":"p1","disciplineId":"d1","statusId":"pending","due":"2026-08-24","priorityId":"medium","assignedToIds":["m_ts"],"createdById":"m_fs","description":"Refresh secondary palette and document tokens.","history":[{"d":"2026-08-12","t":"Created by FS"}]},
+    {"id":40,"title":"Set up analytics dashboard","projectId":"p1","disciplineId":"d2","statusId":"pending","due":"2026-08-22","priorityId":"medium","assignedToIds":["m_jl"],"createdById":"m_fs","description":"Wire up event tracking and a weekly metrics view.","history":[{"d":"2026-08-12","t":"Created by FS"}]},
+    {"id":41,"title":"Write API documentation","projectId":"p1","disciplineId":"d5","statusId":"completed","due":"2026-08-18","priorityId":"low","assignedToIds":["m_ar"],"createdById":"m_fs","description":"Document v2 endpoints with examples.","history":[{"d":"2026-08-12","t":"Created by FS"},{"d":"2026-08-17","t":"Status → Completed by AR"}]},
+    {"id":42,"title":"Launch email campaign","projectId":"p2","disciplineId":"d3","statusId":"on-hold","due":"2026-08-25","priorityId":"critical","assignedToIds":["m_ts"],"createdById":"m_fs","description":"Q3 acquisition email sequence.","history":[{"d":"2026-08-12","t":"Created by FS"}]},
+    {"id":43,"title":"Draft release notes","projectId":"p2","disciplineId":"d4","statusId":"not-started","due":"2026-08-28","priorityId":"medium","assignedToIds":["m_mk"],"createdById":"m_fs","description":"Summarize changes for v1.4.","history":[{"d":"2026-08-12","t":"Created by FS"}]}
+  ]
+}
+</script>
+  <script type="application/json" id="seedSetup">
+{
+  "schemaVersion": 1,
+  "brand": { "accent": "#0066CC" },
+  "appearance": { "dark": false, "activity": true, "sidebar": true, "right": true, "topbar": true, "theme": "light", "panelWidths": { "sidebar": 260, "right": 300 } },
+  "labels": {
+    "project": "Project", "discipline": "Discipline", "status": "Status", "priority": "Priority",
+    "assignedTo": "Assigned to", "createdBy": "Created by", "due": "Due date",
+    "dependsOn": "Depends on", "createdOn": "Created On", "description": "Description"
+  },
+  "defaultView": { "perspective": "actions", "reports": "status", "search": "overdue", "settings": "appearance", "help": "start" },
+  "help": [
+    {"id":"start","title":"Getting started","body":"# Getting started\n\nActionTracker helps you organize work across projects and disciplines. Use the left icon rail to switch **perspectives** — each one swaps both the left panel and the main panel.\n\nStart in **Actions**: expand a project, then a discipline, and click an action to see its detail."},
+    {"id":"tree","title":"Tree navigation","body":"# Tree navigation (Actions)\n\nThe left panel is a read-only navigation hierarchy: **Project → Discipline → Action**.\n\n- Click a chevron (▾ / ▸) to expand or collapse a group.\n- Click an action (or its **✎**) to open it inline in the main panel — every field is directly editable.\n- Click a discipline's **+** to add a new action.\n- Projects, disciplines, statuses and member names are added or edited only in **Settings** — the create card and inline editor let you pick from those lists, never add to them."},
+    {"id":"persp","title":"Perspectives","body":"# Perspectives\n\nEach icon is a perspective that defines both panels:\n\n- **Actions**: tree + detail\n- **Projects**: list + dashboard\n- **Disciplines**: list + cross-project breakdown\n- **Reports**: types + chart\n- **Search**: saved filters + results\n- **Settings / Help**: sections + articles\n\nAll list values — **Projects**, **Disciplines**, **Statuses** and **Members** (names) — are managed only in **Settings**."},
+    {"id":"data","title":"Import / Export","body":"# Import / Export\n\n**Quick Actions** (right panel) holds the main buttons: **Save Actions** / **Save Settings** write `action.json` / `setup.json`, **Export** opens the Word/Excel drawer, plus Import, Layout and **Help**. The top-bar **⋯** menu mirrors these and adds Create, data folder and theme — so they stay reachable even when the right panel is hidden or on narrow screens.\n\n- **Save Actions** writes the current dataset as `action.json`.\n- **Save Settings** writes the UI configuration (brand, labels, default view, help, reports, filters) as `setup.json`.\n\nOn Chromium both pickers open in the data folder you set; elsewhere they download."},
+    {"id":"keys","title":"Keyboard shortcuts","body":"# Keyboard shortcuts\n\n- **Ctrl/Cmd + 1…7** — jump to a perspective.\n- **Ctrl/Cmd + S** — Save Actions (action.json) · **Ctrl/Cmd + Shift + S** — Save Settings (setup.json).\n- **Ctrl/Cmd + E** — open Export · **Ctrl/Cmd + ,** — Settings.\n- **Enter** — commit an inline rename in Settings.\n- **Esc** — cancel an inline edit, close a modal or a mobile drawer."}
+  ],
+  "reports": [
+    {"id":"status","label":"By Status"},
+    {"id":"discipline","label":"By Discipline"},
+    {"id":"project","label":"By Project"},
+    {"id":"assignee","label":"By Assignee"},
+    {"id":"priority","label":"By Priority"}
+  ],
+  "filters": [
+    {"id":"overdue","label":"Overdue","where":[{"field":"due","op":"lt","value":"__today__"},{"field":"statusId","op":"ne","value":"completed"}]},
+    {"id":"blocked","label":"Blocked","where":[{"field":"statusId","op":"eq","value":"blocked"}]},
+    {"id":"notstarted","label":"Not Started","where":[{"field":"statusId","op":"eq","value":"not-started"}]},
+    {"id":"unassigned","label":"Unassigned","where":[{"field":"assignedToIds","op":"empty","value":""}]},
+    {"id":"all","label":"All Actions","where":[]}
+  ]
+}
+</script>
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const uid = p => p + Math.random().toString(36).slice(2,8);
+  const esc = s => String(s==null?"":s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const cap = s => (s||"").charAt(0).toUpperCase()+ (s||"").slice(1);
+  const todayStr = () => new Date().toISOString().slice(0,10);
+  let edDirty = false;
+  let exportSel = new Set();
+
+  // ---- State ----
+  const state = {
+    projects: [], disciplines: [], statuses: [], priorities: [], actions: [],
+    loadedFile: null,
+    expanded: {},
+    nextId: 1,
+    perspective: 'actions',
+    selection: { actions:null, projects:null, disciplines:null, reports:'status', search:'overdue', settings:'appearance', help:'start' },
+    searchOpen: null,
+    filter: '',
+    pendingAdd: null,
+    editTarget: null,
+    editingId: null,
+    layout: { activity:true, sidebar:true, right:true, topbar:true, dark:false, sw:260, rw:300, theme:'light' },
+    members: [],
+    migrated: false,
+    dataDirty: false,
+    setupDirty: false,
+    // UI settings — loaded from setup.json; falls back to these built-in defaults.
+    setup: {
+      brand: { accent: '#0066CC' },
+      appearance: { dark:false, activity:true, sidebar:true, right:true, topbar:true, theme:'light', panelWidths:{ sidebar:260, right:300 } },
+      labels: {},
+      defaultView: { perspective:'actions', reports:'status', search:'overdue', settings:'appearance', help:'start' },
+      help: {},
+      reports: null,
+      filters: null
+    }
+  };
+
+  // ---- Schema-driven status / member helpers ----
+  const CURRENT_SCHEMA = 2;   // bump when the JSON schema changes; drives legacy migration detection
+  // Curated, distinguishable status palette — first 6 are semantic anchors so the
+  // seed statuses (Pending/In Progress/Completed/Blocked/On Hold/Not Started) get
+  // meaningful colors; hue AND lightness vary so adjacent statuses stay separable.
+  const STATUS_PALETTE = ['#E7DAFF','#D6E4FF','#D7F5DD','#FFD2D2','#FFE9BD','#E2E8F0','#CFEFFE','#EAFBD0','#FFD6EC','#FCE7F3','#E5E7EB','#FEF3C7'];
+  const STATUS_SWATCH_NAMES = ['Purple','Blue','Green','Red','Amber','Slate','Cyan','Lime','Pink','Rose','Gray','Light Amber'];
+  const slug = s => String(s==null?'':s).toLowerCase().trim().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') || 'x';
+  function normStatus(s, i){
+    if(typeof s==='string') return { id: slug(s), label:s, color: STATUS_PALETTE[i%STATUS_PALETTE.length] };
+    const o = s||{};
+    return { id: o.id||slug(o.label||('status-'+(i+1))), label: o.label||o.id||('Status '+(i+1)), color: o.color||STATUS_PALETTE[i%STATUS_PALETTE.length] };
+  }
+  function normMember(m){
+    if(typeof m==='string') return { id: uid('m'), name:m, initials:m, role:'', disciplineId:'', left:false, deletedOn:'', color:'' };
+    const o=m||{}; return { id:o.id||uid('m'), name:o.name||'', initials:o.initials||o.name||'', role:o.role||'', disciplineId:o.disciplineId||'', left:!!o.left, deletedOn:o.deletedOn||'', color:o.color||'' };
+  }
+  function findStatus(s){ if(!s) return null; const k=String(s).toLowerCase(); return state.statuses.find(x=>(x.id&&x.id.toLowerCase()===k)||x.label.toLowerCase()===k)||null; }
+  function statusLabel(s){ const st=findStatus(s); return st? st.label : (s||'—'); }
+  function statusColor(s){ const st=findStatus(s); return st? st.color : '#EFEAFB'; }
+  function textOn(hex){ const c=(hex||'#EFEAFB').replace('#',''); const r=parseInt(c.substr(0,2),16)||0, g=parseInt(c.substr(2,2),16)||0, b=parseInt(c.substr(4,2),16)||0; return (0.299*r+0.587*g+0.114*b)>150? '#1d1d1f' : '#ffffff'; }
+  function statusStyle(s){ const bg=statusColor(s); return `background:${bg};color:${textOn(bg)}`; }
+  function toHex6(c){ if(!c) return '#EFEAFB'; if(c[0]==='#'&&c.length===4) return '#'+c.slice(1).split('').map(x=>x+x).join(''); return c; }
+  const projName = id => (state.projects.find(p=>p.id===id)||{}).name || '—';
+  const discName = id => (state.disciplines.find(d=>d.id===id)||{}).name || '—';
+  const liveActions = () => state.actions.filter(a=>!a.deleted);
+  const actionsOf = (pid,did) => liveActions().filter(a=>a.projectId===pid && a.disciplineId===did);
+  // Schema v2: assignee resolution is id-first, with orphan name fallbacks kept for rectification.
+  const memberNameById = id => (state.members.find(m=>m.id===id)||{}).name || '';
+  const assigneeList = a => {
+    const ids = Array.isArray(a.assignedToIds) ? a.assignedToIds.filter(Boolean) : [];
+    const byId = ids.map(id=>memberNameById(id)).filter(Boolean);
+    const byName = Array.isArray(a.assignedToNames) ? a.assignedToNames.filter(Boolean) : [];
+    const legacy = Array.isArray(a.assignedTo) ? a.assignedTo.filter(Boolean) : (a.assignedTo ? String(a.assignedTo).split(',').map(s=>s.trim()).filter(Boolean) : []);
+    return [...new Set([...byId, ...byName, ...legacy])];
+  };
+  const assigneesTxt = a => assigneeList(a).join(', ') || '—';
+  const aStatusId = a => a.statusId || (findStatus(a.status)||{}).id || '';
+  const aStatusLabel = a => a.statusLabel || statusLabel(a.statusId || a.status);
+  const aStatusStyle = a => a.statusLabel ? 'background:#F5F5F7;color:#9A9A9A;' : statusStyle(a.statusId);
+  const aPriorityId = a => a.priorityId || (findPriority(a.priority)||{}).id || '';
+  const aPriorityLabel = a => a.priorityLabel || priorityLabel(a.priorityId || a.priority);
+  const aPriorityStyle = a => a.priorityLabel ? 'background:#F5F5F7;color:#9A9A9A;' : priorityStyle(a.priorityId);
+  const creatorName = a => a.createdByName || memberNameById(a.createdById) || a.createdBy || '—';
+  const priorityRank = a => { const i=state.priorities.findIndex(p=>p.id===aPriorityId(a)); return i<0?999:i; };
+  const projStats = pId => {
+    const acts = liveActions().filter(a=>a.projectId===pId);
+    const total = acts.length;
+    const done = acts.filter(a=>aStatusId(a)===(findStatus('Completed')||{}).id).length;
+    const blocked = acts.filter(a=>aStatusId(a)===(findStatus('Blocked')||{}).id).length;
+    return { total, done, blocked, pct: total? Math.round(done/total*100):0 };
+  };
+
+  // ---- Per-project scoping (A1): global catalog + per-project assignments ----
+  const projById = id => state.projects.find(p=>p.id===id) || null;
+  const projectDisciplineIds = p => (p && Array.isArray(p.disciplineIds)) ? p.disciplineIds.slice() : (p ? [] : []);
+  const projectDisciplines = p => projectDisciplineIds(p).map(id=>state.disciplines.find(d=>d.id===id)).filter(Boolean);
+  const projectMemberIds = p => (p && Array.isArray(p.memberIds)) ? p.memberIds.slice() : (p ? state.members.filter(m=>!m.left).map(m=>m.id) : []);
+  const projectMembers = p => projectMemberIds(p).map(id=>state.members.find(m=>m.id===id)).filter(Boolean);
+  function ensureProjectLists(p){
+    if(!p) return p;
+    if(p.code===undefined || p.code===null) p.code='';
+    if(!Array.isArray(p.disciplineIds)) p.disciplineIds = state.disciplines.map(d=>d.id);
+    if(!Array.isArray(p.memberIds) && state.members.length) p.memberIds = state.members.filter(m=>!m.left).map(m=>m.id);
+    return p;
+  }
+  function populateDisciplineSelect(sel, projectId, val){
+    const list = projectDisciplines(projById(projectId));
+    let opts = list.map(d=>`<option value="${esc(d.id)}"${d.id===val?' selected':''}>${esc(d.name)}</option>`).join('');
+    if(val && !list.some(d=>d.id===val)) opts += `<option value="${esc(val)}" selected>${esc((state.disciplines.find(d=>d.id===val)||{}).name||val)} (not in project)</option>`;
+    sel.innerHTML = opts || '<option value="">— no disciplines —</option>';
+  }
+
+  // ---- Priority metadata (schema-driven, lives in action.json) ----
+  const PRIORITY_PALETTE = ['#FDECEC','#FFE1BD','#E6F0FF','#E2E8F0','#E3F5E9','#FCE7F3'];
+  function normPriority(p, i){
+    if(typeof p==='string') return { id: slug(p), label:p, color: PRIORITY_PALETTE[i%PRIORITY_PALETTE.length] };
+    const o=p||{}; return { id:o.id||slug(o.label||('priority-'+(i+1))), label:o.label||o.id||('Priority '+(i+1)), color:o.color||PRIORITY_PALETTE[i%PRIORITY_PALETTE.length] };
+  }
+  function findPriority(p){ if(!p) return null; const k=String(p).toLowerCase(); return state.priorities.find(x=>(x.id&&x.id.toLowerCase()===k)||x.label.toLowerCase()===k)||null; }
+  function priorityLabel(p){ const pr=findPriority(p); return pr? pr.label : (p||'—'); }
+  function priorityColor(p){ const pr=findPriority(p); return pr? pr.color : '#EFEAFB'; }
+  function priorityStyle(p){ const bg=priorityColor(p); return `background:${bg};color:${textOn(bg)}`; }
+
+  // ---- i18n: field labels sourced from setup.json (fallback to English) ----
+  function L(key, fallback){ return (state.setup.labels && state.setup.labels[key]) || fallback; }
+
+  // ---- Minimal safe markdown -> HTML (for setup-driven help articles) ----
+  function mdToHtml(md){
+    if(!md) return '';
+    const inline = s => esc(s).replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>');
+    return String(md).split(/\n{2,}/).map(block=>{
+      const t=block.trim();
+      const h=t.match(/^(#{1,3})\s+(.*)$/); if(h) return `<h${h[1].length} class="ed-section-h">${inline(h[2])}</h${h[1].length}>`;
+      if(/^[-*]\s/.test(t)) return '<ul>'+t.split(/\n/).map(li=>'<li>'+inline(li.replace(/^[-*]\s/,''))+'</li>').join('')+'</ul>';
+      return '<p>'+inline(t)+'</p>';
+    }).join('');
+  }
+
+  // ---- Setup (setup.json) application ----
+  function applyBrand(){ document.documentElement.style.setProperty('--accent', (state.setup.brand && state.setup.brand.accent) || '#0066CC'); }
+  function evalWhere(a, where){
+    if(!where || !where.length) return true;
+    return where.every(c=>{
+      let v=a[c.field]; let val=c.value;
+      if(val==='__today__') val=todayStr();
+      const empty = v==null || v==='' || (Array.isArray(v)&&v.length===0);
+      switch(c.op){
+        case 'eq': return String(v)===String(val);
+        case 'ne': return String(v)!==String(val);
+        case 'lt': return v<val;
+        case 'gt': return v>val;
+        case 'empty': return empty;
+        case 'notempty': return !empty;
+        default: return true;
+      }
+    });
+  }
+  const BUILTIN_REPORTS=[{id:'status',label:'By Status'},{id:'discipline',label:'By Discipline'},{id:'project',label:'By Project'},{id:'assignee',label:'By Assignee'},{id:'priority',label:'By Priority'}];
+  const BUILTIN_FILTERS=[
+    {id:'overdue',label:'Overdue',fn:()=>liveActions().filter(a=>a.due && a.due<todayStr() && aStatusId(a)!==((findStatus('Completed')||{}).id))},
+    {id:'blocked',label:'Blocked',fn:()=>liveActions().filter(a=>aStatusId(a)===(findStatus('Blocked')||{}).id)},
+    {id:'notstarted',label:'Not Started',fn:()=>liveActions().filter(a=>aStatusId(a)===(findStatus('Not Started')||{}).id)},
+    {id:'unassigned',label:'Unassigned',fn:()=>liveActions().filter(a=>!assigneeList(a).length)},
+    {id:'all',label:'All Actions',fn:()=>liveActions()}
+  ];
+  function applySetup(s){
+    s = s || {};
+    if(s.brand && s.brand.accent) state.setup.brand.accent = s.brand.accent;
+    if(s.appearance){ const a=s.appearance, pw=a.panelWidths||{};
+      state.layout = Object.assign(state.layout, {
+        activity: a.activity!==undefined?!!a.activity:state.layout.activity,
+        sidebar:  a.sidebar!==undefined?!!a.sidebar:state.layout.sidebar,
+        right:    a.right!==undefined?!!a.right:state.layout.right,
+        topbar:   a.topbar!==undefined?!!a.topbar:state.layout.topbar,
+        dark:     !!a.dark, sw: Number(pw.sidebar)||state.layout.sw, rw: Number(pw.right)||state.layout.rw,
+        theme:    a.theme||state.layout.theme
+      });
+    }
+    if(s.labels) state.setup.labels = Object.assign({}, state.setup.labels, s.labels);
+    if(s.defaultView) state.setup.defaultView = Object.assign({}, state.setup.defaultView, s.defaultView);
+    if(s.help && Array.isArray(s.help)){ const o={}; s.help.forEach(h=>{ if(h&&h.id) o[h.id]={title:h.title||h.id, body:h.body||''}; }); state.setup.help=o; }
+    REPORTS = (s.reports && s.reports.length) ? s.reports.map(r=>({id:r.id,label:r.label})) : BUILTIN_REPORTS.slice();
+    FILTERS = (s.filters && s.filters.length) ? s.filters.map(f=>({id:f.id,label:f.label,fn:()=>liveActions().filter(a=>evalWhere(a,f.where||[]))})) : BUILTIN_FILTERS.slice();
+    state.setup.reports = (s.reports && s.reports.length) ? s.reports : [];
+    state.setup.filters = (s.filters && s.filters.length) ? s.filters : [];
+    HELPTOPICS.length=0;
+    if(Object.keys(state.setup.help).length) Object.keys(state.setup.help).forEach(k=>HELPTOPICS.push({id:k,label:state.setup.help[k].title}));
+    else BUILTIN_HELP_TOPICS.forEach(t=>HELPTOPICS.push(t));
+    // default view
+    const dv=state.setup.defaultView;
+    if(dv && dv.perspective) state.perspective=dv.perspective;
+    if(dv) state.selection = Object.assign({}, state.selection, { reports:dv.reports||'status', search:dv.search||'overdue', settings:dv.settings||'appearance', help:dv.help||'start' });
+    applyBrand(); applyLayout(); refresh(); updateStatusbar(); updateSaveButtons();
+  }
+  const BUILTIN_HELP_TOPICS=[{id:'start',label:'Getting started'},{id:'tree',label:'Tree navigation'},{id:'persp',label:'Perspectives'},{id:'data',label:'Import / Export'},{id:'keys',label:'Keyboard shortcuts'}];
+  const BUILTIN_HELP_MD = {
+    start:{ title:'Getting started', body:'# Getting started\n\nActionTracker helps you organize work across projects and disciplines. Use the left icon rail to switch **perspectives** — each one swaps both the left panel and the main panel.\n\nStart in **Actions**: expand a project, then a discipline, and click an action to see its detail.' },
+    tree:{ title:'Tree navigation', body:'# Tree navigation (Actions)\n\nThe left panel is a read-only navigation hierarchy: **Project → Discipline → Action**.\n\n- Click a chevron (▾ / ▸) to expand or collapse a group.\n- Click an action (or its **✎**) to open it inline in the main panel — every field is directly editable.\n- Click a discipline\'s **+** to add a new action.\n- Projects, disciplines, statuses and member names are added or edited only in **Settings**.' },
+    persp:{ title:'Perspectives', body:'# Perspectives\n\nEach icon is a perspective that defines both panels:\n\n- **Actions**: tree + detail\n- **Projects**: list + dashboard\n- **Disciplines**: list + cross-project breakdown\n- **Reports**: types + chart\n- **Search**: saved filters + results\n- **Settings / Help**: sections + articles\n\nAll list values — **Projects**, **Disciplines**, **Statuses** and **Members** (names) — are managed only in **Settings**.' },
+    data:{ title:'Import / Export', body:'# Import / Export\n\n**Quick Actions** (right panel) holds the main buttons: **Save Actions** / **Save Settings** write `action.json` / `setup.json`, **Export** opens the Word/Excel drawer, plus Import, Layout and **Help**. The top-bar **⋯** menu mirrors these and adds Create, data folder and theme — so they stay reachable even when the right panel is hidden or on narrow screens.\n\n- **Save Actions** writes the current dataset as `action.json`.\n- **Save Settings** writes the UI configuration (brand, labels, default view, help, reports, filters) as `setup.json`.\n\nOn Chromium both pickers open in the data folder you set; elsewhere they download.' },
+    keys:{ title:'Keyboard shortcuts', body:'# Keyboard shortcuts\n\n- **Ctrl/Cmd + 1…7** — jump to a perspective.\n- **Ctrl/Cmd + S** — Save Actions (action.json) · **Ctrl/Cmd + Shift + S** — Save Settings (setup.json).\n- **Ctrl/Cmd + E** — open Export · **Ctrl/Cmd + ,** — Settings.\n- **Enter** — commit an inline rename in Settings.\n- **Esc** — cancel an inline edit, close a modal or a mobile drawer.' }
+  };
+
+  // ---- Perspective menus ----
+  let REPORTS = BUILTIN_REPORTS.slice();
+  let FILTERS = BUILTIN_FILTERS.slice();
+  let HELPTOPICS = BUILTIN_HELP_TOPICS.slice();
+  const SETSECTIONS=[{id:'appearance',label:'Appearance'},{id:'layout',label:'Layout'},{id:'projects',label:'Projects'},{id:'disciplines',label:'Disciplines'},{id:'members',label:'Members'},{id:'fields',label:'Statuses'},{id:'priorities',label:'Priorities'},{id:'data',label:'Data'},{id:'deleted',label:'Deleted'}];
+
+  // ---- Render dispatchers ----
+  function renderSidebar(){
+    const heads = {
+      actions:['ACTIONS','All actions'], projects:['PROJECTS','All projects'],
+      disciplines:['DISCIPLINES','All disciplines'], reports:['REPORTS','Report types'],
+      search:['SEARCH','Saved filters'], settings:['SETTINGS','Sections'], help:['HELP','Topics']
+    };
+    const h = heads[state.perspective];
+    $('sideHead').textContent=h[0]; $('sideSub').textContent=h[1];
+    $('sideToolbar').innerHTML = toolbarHtml();
+    const tf=$('treeFilter'); if(tf){ tf.value=state.filter; tf.oninput=e=>{ state.filter=e.target.value; renderSideBody(); }; }
+    renderSideBody();
+  }
+  function toolbarHtml(){
+    if(state.perspective==='actions') return `<input id="treeFilter" placeholder="Filter actions…" />`;
+    return '';
+  }
+  function renderSideBody(){
+    const p=state.perspective;
+    if(p==='actions') return renderTreeBody();
+    if(p==='projects') return renderProjSide();
+    if(p==='disciplines') return renderDiscSide();
+    if(p==='reports') return renderReportSide();
+    if(p==='search') return renderSearchSide();
+    if(p==='settings') return renderSettingsSide();
+    if(p==='help') return renderHelpSide();
+  }
+  function renderMain(){
+    const p=state.perspective;
+    if(p==='actions') return renderActionsMain();
+    if(p==='projects') return renderProjectsMain();
+    if(p==='disciplines') return renderDisciplinesMain();
+    if(p==='reports') return renderReportsMain();
+    if(p==='search') return renderSearchMain();
+    if(p==='settings') return renderSettingsMain();
+    if(p==='help') return renderHelpMain();
+  }
+  function refresh(){ renderSideBody(); renderMain(); updateSaveButtons(); }
+  function markDataDirty(){ state.dataDirty=true; updateSaveButtons(); }
+  function markSetupDirty(){ state.setupDirty=true; updateSaveButtons(); }
+  function updateSaveButtons(){
+    ['tbSaveActions','rpSaveActions'].forEach(id=>{ const a=$(id); if(a){ const was=a.dataset.d; a.disabled = !state.dataDirty; if(state.dataDirty && was!=='1') flashBtn(a); a.dataset.d = state.dataDirty?'1':'0'; } });
+    ['tbSaveSettings','rpSaveSettings'].forEach(id=>{ const s=$(id); if(s){ const was=s.dataset.d; s.disabled = !state.setupDirty; if(state.setupDirty && was!=='1') flashBtn(s); s.dataset.d = state.setupDirty?'1':'0'; } });
+    const es=$('aeSave'); if(es){ const was=es.dataset.d; es.disabled = !edDirty; if(edDirty && was!=='1') flashBtn(es); es.dataset.d = edDirty?'1':'0'; }
+    syncTopbarUnsaved();
+  }
+  function flashBtn(el){ if(!el) return; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+  // Guard: if there are unsaved changes (actions or settings) and the user tries to
+  // navigate away (switch perspective/selection or close the window), inform them.
+  async function confirmSaveBeforeLeave(){
+    if(!state.dataDirty && !state.setupDirty) return true;
+    const which=[state.dataDirty?'Actions':'', state.setupDirty?'Settings':''].filter(Boolean).join(' + ');
+    if(!confirm('You have unsaved '+which+' changes. Save before leaving?')) return false;
+    try{ if(state.dataDirty) await writeDataFile(); }catch(e){}
+    if(state.dataDirty) return false; // save was cancelled (picker aborted) — stay
+    try{ if(state.setupDirty) await saveSetupFile(); }catch(e){}
+    return !state.setupDirty;
+  }
+  window.addEventListener('beforeunload', e=>{ if(state.dataDirty || state.setupDirty){ e.preventDefault(); e.returnValue=''; } });
+  async function setPerspective(p){
+    if(!await confirmSaveBeforeLeave()) return false;
+    state.perspective=p;
+    document.querySelectorAll('.abtn[data-p]').forEach(b=>b.classList.toggle('active', b.dataset.p===p));
+    renderSidebar(); renderMain();
+    return true;
+  }
+  async function selectNode(id){
+    if(!await confirmSaveBeforeLeave()) return false;
+    state.selection[state.perspective]=id; refresh();
+    return true;
+  }
+
+  // Top bar crumb mirrors the editor breadcrumb (perspective / selection)
+  function renderTopbarCrumb(bread){
+    const parts=String(bread||'Actions').split(' / ');
+    return parts.map((p,i)=> i<parts.length-1
+      ? `<span>${esc(p)}</span><span class="sep">/</span>`
+      : `<span class="cur">${esc(p)}</span>`).join('');
+  }
+  function setEdTop(bread, btnLabel, handler){
+    const t=$('edTop');
+    t.innerHTML = `<div class="ed-bread" id="edBread">${esc(bread)}</div>` + (btnLabel?`<button class="btn primary" id="edTopBtn" style="border-radius:18px;padding:8px 16px;">${esc(btnLabel)}</button>`:'');
+    if(btnLabel) $('edTopBtn').onclick=handler;
+    const cr=$('tbCrumb'); if(cr) cr.innerHTML = renderTopbarCrumb(bread);
+  }
+
+  // ---- Tree (Actions perspective) ----
+  function renderTreeBody(){
+    const tree=$('sideBody');
+    const f=state.filter.trim().toLowerCase();
+    const matches = a => !f || (a.title.toLowerCase().includes(f) || projName(a.projectId).toLowerCase().includes(f) || discName(a.disciplineId).toLowerCase().includes(f));
+    let html='';
+    state.projects.forEach(p=>{
+      const pkey='p'+p.id; const open=!!state.expanded[pkey];
+      const pacts=liveActions().filter(a=>a.projectId===p.id);
+      if(f && !pacts.some(matches)) return;
+      html += nodeRow('project', pkey, p.id, open, esc(p.name), pacts.length, null);
+      if(open){
+        projectDisciplines(p).forEach(d=>{
+          const dkey=p.id+'::d'+d.id; const dop=!!state.expanded[dkey];
+          const acts=actionsOf(p.id,d.id).filter(matches).sort((x,y)=>priorityRank(x)-priorityRank(y));
+          if(f && acts.length===0) return;
+          html += nodeRow('discipline', dkey, d.id, dop, esc(d.name), acts.length, p.id);
+          if(dop && (!f || acts.length)){
+            acts.forEach(a=>{
+              const sel=a.id===state.selection.actions?' sel':'';
+              html += `<div class="tnode action${sel}" data-type="action" data-id="${a.id}"><span class="tdot"></span>`
+                    + `<span class="tname">${esc(a.title)}</span>`
+                    + `<span class="tcount" style="${aPriorityStyle(a)}">${esc(aPriorityLabel(a))}</span>`
+                    + `<span class="tcount">${esc(aStatusLabel(a))}</span></div>`;
+            });
+            if(acts.length===0) html += `<div class="empty-leaf">No actions yet<br><button class="empty-cta" type="button" data-addact="${p.id}::${d.id}">+ Add action</button></div>`;
+          }
+        });
+      }
+    });
+    tree.innerHTML = html;
+    tree.querySelectorAll('[data-addact]').forEach(b=>b.onclick=()=>{ const [pid,did]=b.dataset.addact.split('::'); openModalCreate(pid, did); });
+    const ti=$('tmpInput'); if(ti){ ti.focus(); ti.select(); }
+  }
+  function nodeRow(type, key, id, open, name, count, projectId){
+    const chev = type==='action' ? '' : (open ? '▾' : '▸');
+    let ctrl = '';
+    if(type==='action'){
+      ctrl = `<span class="tcontrols"><span class="tbtn edit" data-act="edit-action" title="Edit action">✎</span></span>`;
+    } else if(type==='discipline'){
+      ctrl = `<span class="tcontrols"><span class="tbtn add" data-act="add-action" title="Add action">+</span></span>`;
+    }
+    const pidAttr = projectId ? ` data-pid="${projectId}"` : '';
+    return `<div class="tnode ${type}" data-type="${type}" data-id="${id}" data-key="${key}"${pidAttr} tabindex="0">`
+         + `<span class="tchev">${chev}</span>`
+         + (type==='action' ? `<span class="tdot"></span>` : '')
+         + `<span class="tname">${name}</span><span class="tcount">${count}</span>`
+         + ctrl + `</div>`;
+  }
+
+  // ---- Sidebar lists ----
+  function renderProjSide(){
+    const sel=state.selection.projects; let html='';
+    state.projects.forEach(p=>{
+      const s=projStats(p.id); const on=p.id===sel?' sel':'';
+      html+=`<div class="sitem${on}" data-id="${p.id}" tabindex="0">
+        <div class="sitem-top"><span class="sname">${esc(p.name)}</span><span class="scount">${s.total}</span></div>
+        <div class="sbar"><div class="sbar-fill" style="width:${s.pct}%"></div></div>
+        <div class="sitem-sub">${s.pct}% done · ${s.blocked} blocked</div></div>`;
+    });
+    $('sideBody').innerHTML = html || `<div class="empty-leaf">No projects yet — add one via the tree <b>+</b> or Settings.</div>`;
+  }
+  function renderDiscSide(){
+    const sel=state.selection.disciplines; let html='';
+    state.disciplines.forEach(d=>{
+      const acts=liveActions().filter(a=>a.disciplineId===d.id);
+      const projs=[...new Set(acts.map(a=>a.projectId))].length; const on=d.id===sel?' sel':'';
+      html+=`<div class="sitem${on}" data-id="${d.id}" tabindex="0"><div class="sitem-top"><span class="sname">${esc(d.name)}</span><span class="scount">${acts.length}</span></div><div class="sitem-sub">${projs} project(s)</div></div>`;
+    });
+    $('sideBody').innerHTML = html || `<div class="empty-leaf">No disciplines yet — add one via the tree <b>+</b> or Settings.</div>`;
+  }
+  function renderReportSide(){
+    const sel=state.selection.reports;
+    $('sideBody').innerHTML = REPORTS.map(r=>`<div class="sitem${r.id===sel?' sel':''}" data-id="${r.id}" tabindex="0"><span class="sname">${esc(r.label)}</span></div>`).join('');
+  }
+  function renderSearchSide(){
+    const sel=state.selection.search;
+    $('sideBody').innerHTML = FILTERS.map(f=>`<div class="sitem${f.id===sel?' sel':''}" data-id="${f.id}" tabindex="0"><span class="sname">${esc(f.label)}</span><span class="scount">${f.fn().length}</span></div>`).join('');
+  }
+  function renderSettingsSide(){
+    const sel=state.selection.settings;
+    $('sideBody').innerHTML = SETSECTIONS.map(s=>`<div class="sitem${s.id===sel?' sel':''}" data-id="${s.id}" tabindex="0"><span class="sname">${esc(s.label)}</span></div>`).join('');
+  }
+  function renderHelpSide(){
+    const sel=state.selection.help;
+    $('sideBody').innerHTML = HELPTOPICS.map(t=>`<div class="sitem${t.id===sel?' sel':''}" data-id="${t.id}" tabindex="0"><span class="sname">${esc(t.label)}</span></div>`).join('');
+  }
+
+  // ---- Main panels ----
+  // Read-only detail (Search): reuses the same tabulated report as the inline
+  // editor's live preview so fields are never duplicated between views.
+  function actionDetailHtml(a){
+    const hist = (a.history||[]).map(h=>`<div class="hist-row">${esc(h.d)} — ${esc(h.t)}</div>`).join('') || '<div class="hist-row">No history</div>';
+    return `<div class="ae-report">${reportHtml(a)}</div>
+      <div class="ed-section-h">Update history</div>
+      ${hist}
+      <div class="ed-actions"><button class="btn primary" id="edEdit">Edit</button><button class="btn ghost" id="edDelete">Delete</button></div>`;
+  }
+  function bindActionDetail(a){
+    $('edEdit').onclick=async ()=>{ if(await setPerspective('actions')){ state.selection.actions=a.id; refresh(); } };
+    $('edDelete').onclick=()=>{ if(confirm('Mark this action as Deleted? It stays in action.json until physically removed in Settings → Deleted.')) softDeleteAction(a); };
+  }
+  // Tabulated report — shared by the live preview, the read-only detail view and the Word export.
+  function reportHtml(a){
+    const createdOn = a.createdOn || (a.history && a.history[0] && typeof a.history[0].d==='string' && /^\d{4}-\d{2}-\d{2}$/.test(a.history[0].d) ? a.history[0].d : '');
+    const meta = `<table class="ae-report-tbl">`
+      + `<tr><th>Project</th><td>${esc(projName(a.projectId))}</td><th>Discipline</th><td>${esc(discName(a.disciplineId))}</td></tr>`
+      + `<tr><th>Priority</th><td><span class="badge" style="height:22px;${aPriorityStyle(a)}">${esc(aPriorityLabel(a))}</span></td><th>Status</th><td><span class="badge" style="height:22px;${aStatusStyle(a)}">${esc(aStatusLabel(a))}</span></td></tr>`
+      + `<tr><th>Due</th><td>${esc(a.due||'—')}</td><th>Assigned to</th><td>${esc(assigneesTxt(a))}</td></tr>`
+      + `<tr><th>Created by</th><td>${esc(creatorName(a))}</td><th>Created On</th><td>${esc(createdOn||'—')}</td></tr>`
+      + `<tr><th>Depends on</th><td colspan="3">${esc(a.dependsOn?('#'+a.dependsOn):'—')}</td></tr>`
+      + `</table>`;
+    const logRows=(a.detailLog&&a.detailLog.length) ? a.detailLog.map(r=>`<tr><td>${esc(r.date||'')}</td><td>${esc(r.text||'')}</td></tr>`).join('') : `<tr><td colspan="2" class="ae-empty-row">No entries</td></tr>`;
+    const logTable = `<table class="ae-report-tbl"><thead><tr><th class="ae-log-date">Date</th><th>Detail</th></tr></thead><tbody>${logRows}</tbody></table>`;
+    return `<div class="ae-report-title">${esc(a.title)}</div>${meta}<div class="ae-report-h">Description (dated detail log)</div>${logTable}`;
+  }
+  function renderActionsMain(){
+    edDirty=false;
+    const a=state.actions.find(x=>x.id===state.selection.actions);
+    if(!a){ renderActionTop(null); $('edBody').innerHTML=`<p class="ed-desc">Select an action from the tree, or create a new one.</p>`; return; }
+    renderActionTop(a);
+    $('edBody').innerHTML=renderActionEditor(a); bindActionEditor(a);
+  }
+  function renderActionTop(a){
+    const t=$('edTop'); const dis=!a;
+    t.innerHTML = `<div class="ed-bread" id="edBread">${esc(a?('Actions / '+a.title):'Actions')}</div>`
+      + `<div class="ed-top-actions">`
+      + `<button class="btn primary" id="aeSave"${dis?' disabled':''}>Save</button>`
+      + `<button class="btn" id="aeNew">+ New Action</button>`
+      + `<button class="btn ghost" id="aeDelete"${dis?' disabled':''}>Delete</button>`
+      + `</div>`;
+    const cr=$('tbCrumb'); if(cr) cr.innerHTML = renderTopbarCrumb(a?('Actions / '+a.title):'Actions');
+    $('aeNew').onclick=()=>openModalCreate(null,null);
+    if(a){ $('aeSave').onclick=()=>saveInlineAction(a); $('aeDelete').onclick=()=>deleteAction(a); }
+  }
+  function renderActionEditor(a){
+    const logRows = (a.detailLog||[]).map((r,i)=>logRowHtml(i,r)).join('');
+    const histRows = (a.history||[]).map(h=>`<div class="hist-row">${esc(h.d)} — ${esc(h.t)}</div>`).join('') || '<div class="hist-row">No history</div>';
+    return `<div class="ae">
+      <div class="ae-title"><input class="input ae-title-input" id="aeTitle" value="${esc(a.title)}" /></div>
+      <div class="ae-compact">
+        <div class="ae-crow">
+          <div class="ae-cfield"><span class="ae-clabel">${esc(L('project','Project'))}</span><select class="input ae-cinput" id="aeProject"></select></div>
+          <div class="ae-cfield"><span class="ae-clabel">${esc(L('discipline','Discipline'))}</span><select class="input ae-cinput" id="aeDiscipline"></select></div>
+        </div>
+        <div class="ae-crow">
+          <div class="ae-cfield"><span class="ae-clabel">${esc(L('createdBy','Created by'))}</span><select class="input ae-cinput" id="aeCreator"></select></div>
+          <div class="ae-cfield"><span class="ae-clabel">${esc(L('createdOn','Created On'))}</span><input class="input ae-cinput" id="aeCreatedOn" type="date" value="${esc(a.createdOn||'')}" readonly /></div>
+        </div>
+        <div class="ae-crow">
+          <div class="ae-cfield"><span class="ae-clabel">${esc(L('assignedTo','Assigned to'))}</span><div class="assignee-pick" id="aeAssignee"></div></div>
+          <div class="ae-cfield"><span class="ae-clabel">${esc(L('due','Due date'))}</span><input class="input ae-cinput" id="aeDue" type="date" value="${esc(a.due||'')}" /></div>
+        </div>
+        <div class="ae-crow">
+          <div class="ae-cfield"><span class="ae-clabel">${esc(L('dependsOn','Depends on'))}</span><input class="input ae-cinput" id="aeDepends" value="${esc(a.dependsOn||'')}" /></div>
+        </div>
+        <div class="ae-crow">
+          <div class="ae-cfield ae-span"><span class="ae-clabel">${esc(L('status','Status'))}</span><div class="seg" id="aeSeg"></div></div>
+        </div>
+        <div class="ae-crow">
+          <div class="ae-cfield ae-span"><span class="ae-clabel">${esc(L('priority','Priority'))}</span><div class="seg" id="aePriority"></div></div>
+        </div>
+      </div>
+      <hr class="ae-divider" />
+      <div class="ed-section-h" style="margin:0 0 8px">Description — dated detail log</div>
+      <div class="ae-log-wrap">
+        <table class="ae-log" id="aeLog"><thead><tr><th class="ae-log-date">Date</th><th>Detail</th><th></th></tr></thead><tbody id="aeLogBody">${logRows}</tbody></table>
+        <div class="ae-log-hint">Enter = new line inside a cell · Ctrl+Enter (or + Add row) = append a new row</div>
+        <button class="btn" id="aeAddRow">+ Add row</button>
+      </div>
+      <hr class="ae-divider below-add" />
+      <div class="ed-section-h" style="margin:0 0 8px">Live preview — tabulated report</div>
+      <div class="ae-report" id="aeReport">${reportHtml(a)}</div>
+      <hr class="ae-divider" />
+      <div class="ed-section-h" style="margin:0 0 8px">Update history</div>
+      <div class="ae-history">${histRows}</div>
+    </div>`;
+  }
+  function logRowHtml(i, r){
+    return `<tr class="ae-log-row" data-i="${i}"><td><input type="date" class="ae-log-date" value="${esc(r.date||'')}" /></td><td><textarea class="ae-log-text" rows="2">${esc(r.text||'')}</textarea></td><td><button class="ae-log-del" title="Delete row">✕</button></td></tr>`;
+  }
+  function bindActionEditor(a){
+    populateSelect($('aeProject'), state.projects, a.projectId);
+    populateDisciplineSelect($('aeDiscipline'), a.projectId, a.disciplineId);
+    populateMemberSelect($('aeCreator'), a.createdById, a.projectId, a.createdByName);
+    renderAssigneePicker($('aeAssignee'), a, a.projectId);
+    renderSeg($('aeSeg'), a.statusId, a.statusLabel);
+    renderPrioritySeg($('aePriority'), a.priorityId, a.priorityLabel);
+    const onEdit=()=>markDirty(a);
+    ['aeTitle','aeDue','aeDepends'].forEach(id=>{ const el=$(id); if(el) el.addEventListener('input', onEdit); });
+    $('aeProject').addEventListener('change', onEdit);
+    $('aeDiscipline').addEventListener('change', onEdit);
+    $('aeCreator').addEventListener('change', onEdit);
+    // Project change cascades: discipline options + member pickers follow the new project.
+    $('aeProject').addEventListener('change', ()=>{
+      const p=$('aeProject').value;
+      const keep=$('aeDiscipline').value;
+      const first=(projectDisciplines(projById(p))[0]||{}).id;
+      populateDisciplineSelect($('aeDiscipline'), p, projectDisciplines(projById(p)).some(d=>d.id===keep)?keep:first);
+      renderAssigneePicker($('aeAssignee'), pickState($('aeAssignee')), p);
+      populateMemberSelect($('aeCreator'), $('aeCreator').value, p);
+    });
+    $('aeAssignee').querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>{ b.classList.toggle('on'); b.setAttribute('aria-pressed', b.classList.contains('on')?'true':'false'); onEdit(); });
+    $('aeAssignee').querySelectorAll('button.orphan').forEach(b=>b.onclick=()=>{ b.remove(); onEdit(); });
+    $('aeSeg').querySelectorAll('button').forEach(b=>b.addEventListener('click', onEdit));
+    $('aePriority').querySelectorAll('button').forEach(b=>b.addEventListener('click', onEdit));
+    document.querySelectorAll('#aeLogBody .ae-log-row').forEach(row=>bindLogRow(row,a));
+    $('aeAddRow').onclick=()=>appendLogRow(a);
+    const save=$('aeSave'); if(save){ save.disabled=!edDirty; save.onclick=()=>saveInlineAction(a); }
+    const del=$('aeDelete'); if(del) del.onclick=()=>deleteAction(a);
+  }
+  function markDirty(a){
+    edDirty=true;
+    state.dataDirty=true; updateSaveButtons();
+    const b=$('aeSave'); if(b) b.disabled=false;
+    if(a) syncPreview(a);
+  }
+  function bindLogRow(row,a){
+    row.querySelectorAll('.ae-log-date, .ae-log-text').forEach(el=>el.addEventListener('input', ()=>markDirty(a)));
+    const ta=row.querySelector('.ae-log-text');
+    if(ta) ta.addEventListener('keydown', e=>{ if(e.key==='Enter' && e.ctrlKey){ e.preventDefault(); appendLogRow(a); } });
+    row.querySelector('.ae-log-del').addEventListener('click', ()=>{ row.remove(); markDirty(a); });
+  }
+  function appendLogRow(a){
+    const tb=$('aeLogBody'); const i=tb.children.length;
+    tb.insertAdjacentHTML('beforeend', logRowHtml(i, {date: todayStr(), text:''}));
+    bindLogRow(tb.lastElementChild, a);
+    markDirty(a);
+  }
+  function deleteAction(a){
+    if(confirm('Mark this action as Deleted? It stays in action.json until physically removed in Settings → Deleted.')) softDeleteAction(a);
+  }
+  function softDeleteAction(a){
+    if(!a || a.deleted) return;
+    a.deleted = true; a.deletedOn = todayStr();
+    if(state.selection.actions===a.id) state.selection.actions = (liveActions()[0]&&liveActions()[0].id) || null;
+    markDataDirty(); refresh(); toast('Action marked Deleted — Save Actions to persist');
+  }
+  function restoreAction(a){
+    if(!a || !a.deleted) return;
+    a.deleted = false; a.deletedOn = '';
+    markDataDirty(); refresh(); toast('Action restored — Save Actions to persist');
+  }
+  function syncPreview(a){
+    const status=($('aeSeg').querySelector('button.on')||{}).dataset ? $('aeSeg').querySelector('button.on').dataset.s : a.statusId;
+    const priority=($('aePriority').querySelector('button.on')||{}).dataset ? $('aePriority').querySelector('button.on').dataset.p : a.priorityId;
+    const pid=$('aeProject').value, did=$('aeDiscipline').value;
+    const due=$('aeDue').value, creator=$('aeCreator').value, dep=$('aeDepends').value;
+    const as=selectedAssignees($('aeAssignee'));
+    const live=Object.assign({}, a, {
+      title:$('aeTitle').value, statusId:status, priorityId:priority, projectId:pid, disciplineId:did, due,
+      assignedToIds:as.ids, assignedToNames:as.orphans, createdById:creator, dependsOn: dep?parseInt(dep,10):null,
+      detailLog:[...document.querySelectorAll('#aeLogBody .ae-log-row')].map(tr=>({date:tr.querySelector('.ae-log-date').value, text:tr.querySelector('.ae-log-text').value}))
+    });
+    const rep=$('aeReport'); if(rep) rep.innerHTML=reportHtml(live);
+    const b=$('edBread'); if(b) b.textContent='Actions / '+$('aeTitle').value;
+    const cr=$('tbCrumb'); if(cr) cr.innerHTML = renderTopbarCrumb('Actions / '+$('aeTitle').value);
+  }
+  async function saveInlineAction(a){
+    const title=$('aeTitle').value.trim(); if(!title){ toast('Title required'); return; }
+    a.title=title;
+    a.projectId=$('aeProject').value;
+    a.disciplineId=$('aeDiscipline').value;
+    const st=selectedSeg($('aeSeg')); if(st){ a.statusId=st; delete a.statusLabel; }
+    const pr=selectedPriority($('aePriority')); if(pr){ a.priorityId=pr; delete a.priorityLabel; }
+    a.due=$('aeDue').value;
+    const as=selectedAssignees($('aeAssignee'));
+    a.assignedToIds=as.ids; a.assignedToNames=as.orphans; delete a.assignedTo;
+    const cr=$('aeCreator').value; a.createdById=cr; if(cr) delete a.createdByName;
+    a.dependsOn=$('aeDepends').value?parseInt($('aeDepends').value,10):null;
+    a.detailLog=[...document.querySelectorAll('#aeLogBody .ae-log-row')].map(tr=>({ date: tr.querySelector('.ae-log-date').value, text: tr.querySelector('.ae-log-text').value }));
+    a.history=a.history||[]; a.history.push({d:todayStr(), t:'Edited inline'});
+    edDirty=false; state.dataDirty=false; updateSaveButtons();
+    refresh();
+    toast('Action updated');
+    try{ await writeDataFile(); }catch(e){}
+  }
+  function renderProjectsMain(){
+    const p=state.projects.find(x=>x.id===state.selection.projects);
+    if(!p){ setEdTop('Projects'); $('edBody').innerHTML=`<p class="ed-desc">Select a project from the left to view its dashboard. Projects are managed in <b>Settings → Projects</b>.</p>`; return; }
+    const s=projStats(p.id);
+    const discCounts = state.disciplines.map(d=>{ const n=liveActions().filter(a=>a.projectId===p.id&&a.disciplineId===d.id).length; return {d,n}; }).filter(x=>x.n>0);
+    const recent = liveActions().filter(a=>a.projectId===p.id).slice(-5).reverse();
+    setEdTop('Projects / '+p.name,'+ Add Action',()=>openModalCreate(p.id, state.disciplines[0]&&state.disciplines[0].id));
+    $('edBody').innerHTML = `
+      <h1 class="ed-title">${esc(p.name)}</h1>
+      <div class="sbar wide"><div class="sbar-fill" style="width:${s.pct}%"></div></div>
+      <div class="ed-desc">${s.pct}% complete · ${s.total} actions · ${s.blocked} blocked</div>
+      <div class="ed-section-h">Disciplines</div>
+      <div class="dep-flow">${discCounts.map(x=>`<div class="dep-chip">${esc(discName(x.d.id))} <b>${x.n}</b></div>`).join('')||'<span class="ed-desc">No actions yet.</span>'}</div>
+      <div class="ed-section-h">Recent actions</div>
+      ${recent.map(a=>`<div class="meta-row linkrow" data-actid="${a.id}">${esc(a.title)} — <span class="badge" style="height:20px;${aStatusStyle(a)}">${esc(aStatusLabel(a))}</span></div>`).join('')||`<div class="ed-desc">No actions yet in this project — add your first one.</div><div class="ed-actions empty-main"><button class="btn primary" id="pAddAct" type="button">+ Add action</button></div>`}`;
+    const pa=$('pAddAct'); if(pa) pa.onclick=()=>openModalCreate(p.id, state.disciplines[0]&&state.disciplines[0].id);
+    $('edBody').querySelectorAll('[data-actid]').forEach(r=>r.onclick=async ()=>{ if(await setPerspective('actions')) selectNode(parseInt(r.dataset.actid,10)); });
+  }
+  function renderDisciplinesMain(){
+    const d=state.disciplines.find(x=>x.id===state.selection.disciplines);
+    if(!d){ setEdTop('Disciplines'); $('edBody').innerHTML=`<p class="ed-desc">Select a discipline from the left to see its cross-project breakdown.</p>`; return; }
+    const acts=liveActions().filter(a=>a.disciplineId===d.id);
+    const byProj={}; acts.forEach(a=>{ (byProj[a.projectId]=byProj[a.projectId]||[]).push(a); });
+    setEdTop('Disciplines / '+d.name);
+    let html=`<h1 class="ed-title">${esc(d.name)}</h1><div class="ed-desc">${acts.length} actions across ${Object.keys(byProj).length} project(s).</div>`;
+    Object.keys(byProj).forEach(pid=>{
+      html+=`<div class="ed-section-h">${esc(projName(pid))}</div>`;
+      html+=byProj[pid].map(a=>`<div class="meta-row linkrow" data-actid="${a.id}">${esc(a.title)} — <span class="badge" style="height:20px;${aStatusStyle(a)}">${esc(aStatusLabel(a))}</span></div>`).join('');
+    });
+    if(!acts.length) html+=`<div class="ed-desc">No actions assigned to this discipline yet — add your first one.</div><div class="ed-actions empty-main"><button class="btn primary" id="dAddAct" type="button">+ Add action</button></div>`;
+    $('edBody').innerHTML=html;
+    const da=$('dAddAct'); if(da) da.onclick=()=>openModalCreate(state.projects[0]&&state.projects[0].id, d.id);
+    $('edBody').querySelectorAll('[data-actid]').forEach(r=>r.onclick=async ()=>{ if(await setPerspective('actions')) selectNode(parseInt(r.dataset.actid,10)); });
+  }
+  function renderReportsMain(){
+    const r=state.selection.reports||'status';
+    const label=(REPORTS.find(x=>x.id===r)||{}).label||'';
+    setEdTop('Reports / '+label);
+    let data=[];
+    if(r==='status'){ const m={}; liveActions().forEach(a=>m[aStatusLabel(a)]=(m[aStatusLabel(a)]||0)+1); data=Object.keys(m).map(k=>({k,v:m[k]})).sort((a,b)=>{ const ia=state.statuses.findIndex(s=>s.label===a.k), ib=state.statuses.findIndex(s=>s.label===b.k); return (ia<0?999:ia)-(ib<0?999:ib); }); }
+    else if(r==='discipline'){ const m={}; liveActions().forEach(a=>{ const n=discName(a.disciplineId); m[n]=(m[n]||0)+1; }); data=Object.keys(m).map(k=>({k,v:m[k]})); }
+    else if(r==='project'){ const m={}; liveActions().forEach(a=>{ const n=projName(a.projectId); m[n]=(m[n]||0)+1; }); data=Object.keys(m).map(k=>({k,v:m[k]})); }
+    else if(r==='assignee'){ const m={}; liveActions().forEach(a=>{ const list=assigneeList(a); if(list.length) list.forEach(n=>m[n]=(m[n]||0)+1); else m['Unassigned']=(m['Unassigned']||0)+1; }); data=Object.keys(m).map(k=>({k,v:m[k]})); }
+    else if(r==='priority'){ const m={}; liveActions().forEach(a=>{ const n=aPriorityLabel(a); m[n]=(m[n]||0)+1; }); data=Object.keys(m).map(k=>({k,v:m[k]})).sort((a,b)=>{ const ia=state.priorities.findIndex(p=>p.label===a.k), ib=state.priorities.findIndex(p=>p.label===b.k); return (ia<0?999:ia)-(ib<0?999:ib); }); }
+    const max=Math.max(1,...data.map(d=>d.v));
+    const barColor = d => r==='status' ? statusColor(d.k) : r==='priority' ? priorityColor(d.k) : '';
+    $('edBody').innerHTML=`<h1 class="ed-title">${esc(label)}</h1>
+      <div class="ed-section-h">${data.reduce((s,d)=>s+d.v,0)} actions</div>
+      ${data.map(d=>{ const col=barColor(d); return `<div class="rpt-row"><span class="rpt-label">${esc(d.k)}</span><div class="rpt-bar"><div class="rpt-fill" style="width:${Math.round(d.v/max*100)}%${col?`;background:${col}`:''}"></div></div><span class="rpt-val">${d.v}</span></div>`; }).join('')}
+      ${data.length?'':'<div class="ed-desc">No actions yet — add an action to see reports.</div><div class="ed-actions empty-main"><button class="btn primary" id="rptAddAct" type="button">+ Add action</button></div>'}`;
+    const ra=$('rptAddAct'); if(ra) ra.onclick=()=>openModalCreate(null,null);
+  }
+  function renderSearchMain(){
+    const f=state.selection.search;
+    const def=FILTERS.find(x=>x.id===f)||FILTERS[0];
+    if(state.searchOpen){
+      const a=state.actions.find(x=>x.id===state.searchOpen);
+      if(a){ setEdTop('Search / '+def.label); $('edBody').innerHTML=`<button class="btn" id="srchBack" style="margin-bottom:12px">← Back to results</button>`+actionDetailHtml(a); $('srchBack').onclick=()=>{ state.searchOpen=null; renderMain(); }; bindActionDetail(a); return; }
+      state.searchOpen=null;
+    }
+    setEdTop('Search / '+def.label);
+    const list=def.fn();
+    $('edBody').innerHTML=`<div class="ed-section-h">${list.length} result(s)</div>`+ (list.length? list.map(a=>`<div class="meta-row linkrow" data-actid="${a.id}">${esc(a.title)} — <span class="badge b-disc">${esc(projName(a.projectId))}</span> <span class="badge" style="height:20px;${aStatusStyle(a)}">${esc(aStatusLabel(a))}</span></div>`).join('') : `<div class="ed-desc">No matching actions.</div>`);
+    $('edBody').querySelectorAll('[data-actid]').forEach(r=>r.onclick=()=>{ state.searchOpen=parseInt(r.dataset.actid,10); renderMain(); });
+  }
+  function renderSettingsMain(){
+    const sec=state.selection.settings||'appearance';
+    const label=(SETSECTIONS.find(x=>x.id===sec)||{}).label||'';
+    const L=state.layout;
+    setEdTop('Settings / '+label);
+    if(sec==='appearance'){
+      $('edBody').innerHTML=`
+        <div class="toggle"><span>Dark theme</span><div class="switch ${L.dark?'on':''}" id="stDark"></div></div>
+        <div class="toggle"><span>Brand accent</span><input type="color" id="stAccent" value="${esc(toHex6(state.setup.brand.accent||'#0066CC'))}" style="width:44px;height:28px;border:none;background:none;padding:0;cursor:pointer;" title="Accent color — saved to setup.json" /></div>
+        <div class="ed-actions" style="margin-top:14px"><button class="btn" id="stSetView">Use current view as default</button><span class="form-hint" style="margin:0 0 0 12px">Default: ${esc(state.setup.defaultView.perspective||'actions')}</span></div>`;
+      $('stDark').onclick=()=>{ L.dark=!L.dark; applyLayout(); markSetupDirty(); renderSideBody(); renderMain(); };
+      setSwitch($('stDark'), L.dark);
+      $('stAccent').oninput=e=>{ state.setup.brand.accent=toHex6(e.target.value); applyBrand(); markSetupDirty(); };
+      $('stSetView').onclick=()=>{ state.setup.defaultView.perspective=state.perspective; markSetupDirty(); renderMain(); toast('Default view set to '+state.perspective); };
+    } else if(sec==='layout'){
+      $('edBody').innerHTML=`
+        <div class="toggle"><span>Top bar</span><div class="switch ${L.topbar?'on':''}" id="stTop"></div></div>
+        <div class="toggle"><span>Activity bar</span><div class="switch ${L.activity?'on':''}" id="stAct"></div></div>
+        <div class="toggle"><span>Sidebar</span><div class="switch ${L.sidebar?'on':''}" id="stSide"></div></div>
+        <div class="toggle"><span>Right panel</span><div class="switch ${L.right?'on':''}" id="stRight"></div></div>
+        <div class="slider-row"><span style="width:90px">Sidebar</span><input type="range" id="stSw" min="180" max="360" value="${L.sw}" /><span id="stSwV">${L.sw}</span></div>
+        <div class="slider-row"><span style="width:90px">Right</span><input type="range" id="stRw" min="220" max="380" value="${L.rw}" /><span id="stRwV">${L.rw}</span></div>`;
+      $('stTop').onclick=()=>{ L.topbar=!L.topbar; applyLayout(); markSetupDirty(); renderMain(); };
+      $('stAct').onclick=()=>{ L.activity=!L.activity; applyLayout(); markSetupDirty(); renderMain(); };
+      $('stSide').onclick=()=>{ L.sidebar=!L.sidebar; applyLayout(); markSetupDirty(); renderMain(); };
+      $('stRight').onclick=()=>{ L.right=!L.right; applyLayout(); markSetupDirty(); renderMain(); };
+      setSwitch($('stTop'), L.topbar);
+      setSwitch($('stAct'), L.activity);
+      setSwitch($('stSide'), L.sidebar);
+      setSwitch($('stRight'), L.right);
+      $('stSw').oninput=e=>{ L.sw=+e.target.value; $('stSwV').textContent=L.sw; applyLayout(); markSetupDirty(); };
+      $('stRw').oninput=e=>{ L.rw=+e.target.value; $('stRwV').textContent=L.rw; applyLayout(); markSetupDirty(); };
+    } else if(sec==='projects'){
+      renderManagedList('projects');
+    } else if(sec==='disciplines'){
+      renderDisciplinePanel();
+    } else if(sec==='members'){
+      renderMembersList();
+    } else if(sec==='fields'){
+      renderColorList(state.statuses, 'statuses');
+    } else if(sec==='priorities'){
+      renderColorList(state.priorities, 'priorities');
+    } else if(sec==='data'){
+      const jsonA = serializeData();
+      const jsonS = serializeSetup();
+      const folderName = dataDirHandle ? esc(dataDirHandle.name) : 'not set';
+      const fsApi = !!window.showDirectoryPicker;
+      $('edBody').innerHTML=`<p class="ed-desc">Two files drive this app: <b>action.json</b> (business data) and <b>setup.json</b> (UI settings). Set a <b>data folder</b> once and every Save / Download / Import / Export picker will open there.</p>
+        <div class="ed-actions" style="margin-top:8px"><button class="btn" id="dtFolder">${fsApi?'Set data folder':'Data folder (Chromium only)'}</button><span class="ed-desc" style="margin:0">Current: <b id="dtFolderName">${folderName}</b></span></div>
+        <div class="ed-actions" style="margin-top:8px"><button class="btn primary" id="dtExp">Save Actions (action.json)</button><button class="btn" id="dtExpS">Save Settings (setup.json)</button><button class="btn" id="dtImp">Import…</button></div>
+        <div class="ed-section-h">action.json (data)</div><div class="json-box">${esc(JSON.stringify(jsonA,null,2))}</div>
+        <div class="ed-section-h">setup.json (UI settings)</div><div class="json-box">${esc(JSON.stringify(jsonS,null,2))}</div>`;
+      $('dtExp').onclick=writeDataFile;
+      $('dtExpS').onclick=saveSetupFile;
+      $('dtImp').onclick=importViaPicker;
+      const df=$('dtFolder'); if(df) df.onclick=setDataFolder;
+    } else if(sec==='deleted'){
+      const del = state.actions.filter(a=>a.deleted);
+      const rows = del.map(a=>`<label class="lm-item del-row" style="cursor:pointer">
+        <input type="checkbox" class="del-chk" value="${a.id}" />
+        <span class="nm">${esc(a.title)}</span>
+        <span class="ex-sub">${esc(projName(a.projectId))} · ${esc(discName(a.disciplineId))} · deleted ${esc(a.deletedOn||'—')}</span>
+      </label>`).join('');
+      $('edBody').innerHTML = `<h1 class="ed-title">Deleted actions</h1>
+        <p class="ed-desc">Deleted actions are hidden from the tree, dashboards, reports and exports, and stay in <b>action.json</b> until you physically remove them here. Deleting a list item never touches deleted actions — in the reassign dialog you decide for each one.</p>
+        <div class="ed-actions" style="margin-top:8px">
+          <button class="btn primary" id="dlSelAll">Select all</button>
+          <button class="btn" id="dlRestore">Restore selected</button>
+          <button class="btn ghost" id="dlRemove">Remove selected (from action.json)</button>
+          <span class="ed-desc" style="margin:0 0 0 10px"><b id="dlCount">${del.length}</b> deleted</span>
+        </div>
+        <div class="lm-list" id="dlList">${rows||'<div class="lm-empty">No deleted actions.</div>'}</div>`;
+      const setSel = all => $('dlList').querySelectorAll('.del-chk').forEach(c=>c.checked=all);
+      $('dlSelAll').onclick=()=>{ const all=[...$('dlList').querySelectorAll('.del-chk')].every(c=>c.checked); setSel(!all); };
+      $('dlRestore').onclick=()=>{ const sel=[...$('dlList').querySelectorAll('.del-chk:checked')].map(c=>+c.value); if(!sel.length){ toast('Select deleted actions first'); return; } sel.forEach(id=>restoreAction(state.actions.find(a=>a.id===id))); renderSettingsMain(); };
+      $('dlRemove').onclick=()=>{ const sel=[...$('dlList').querySelectorAll('.del-chk:checked')].map(c=>+c.value); if(!sel.length){ toast('Select deleted actions first'); return; }
+        if(!confirm('Physically remove '+sel.length+' deleted action(s) from action.json? This cannot be undone.')) return;
+        state.actions = state.actions.filter(a=>!sel.includes(a.id));
+        if(state.selection.actions && !state.actions.find(a=>a.id===state.selection.actions)) state.selection.actions=null;
+        markDataDirty(); renderSettingsMain(); refresh(); toast('Removed '+sel.length+' action(s) — Save Actions to persist'); };
+    }
+  }
+  function renderMembersList(){
+    setEdTop('Settings / Members');
+    const mems = state.members.filter(m=>!m.left);
+    const leftMems = state.members.filter(m=>m.left);
+    const discOptions = cur => '<option value="">— none —</option>' + state.disciplines.map(d=>`<option value="${esc(d.id)}"${d.id===cur?' selected':''}>${esc(d.name)}</option>`).join('');
+    const COLS = '1.6fr 1fr 1.2fr 1.5fr 30px';
+    const rowHtml = m => `<div class="lm-item lm-member" data-id="${esc(m.id)}" style="grid-template-columns:${COLS}">
+      <input class="lm-inp" data-f="name" placeholder="Name" value="${esc(m.name||'')}" />
+      <input class="lm-inp" data-f="initials" placeholder="Initials" value="${esc(m.initials||'')}" />
+      <input class="lm-inp" data-f="role" placeholder="Title" value="${esc(m.role||'')}" />
+      <select class="lm-inp" data-f="disciplineId" title="Discipline">${discOptions(m.disciplineId||'')}</select>
+      <button class="lm-mini del" title="Mark as left">🚪</button>
+    </div>`;
+    const pblocks = state.projects.map(p=>`<div class="proj-block"><span class="nm">${esc(p.name)}</span><span class="scount">${projectMembers(p).length} member(s)</span><button class="btn" id="pmMem_${esc(p.id)}">Select members…</button></div>`).join('');
+    const lrows = leftMems.map(m=>`<div class="proj-block"><span class="nm">${esc(m.name)}</span><span class="scount">${esc(m.role||'')} · left ${esc(m.deletedOn||'—')}</span><button class="btn" data-restore="${esc(m.id)}">Restore</button><button class="btn ghost" data-remove="${esc(m.id)}">Remove permanently</button></div>`).join('');
+    $('edBody').innerHTML = `<p class="ed-desc">Members are referenced by the <b>Assigned to</b> and <b>Created by</b> fields. Add or edit here — discipline is picked from the discipline catalog. Deleting marks a member as <b>left</b>: the record is kept so past assignments stay readable.</p>
+      ${mems.length>8?'<input class="lm-filter" id="memFilter" type="text" placeholder="Filter members…" />':''}
+      <div class="lm-list" id="memList">
+        <div class="lm-head" style="grid-template-columns:${COLS}"><span>Name</span><span>Initials</span><span>Title</span><span>Discipline</span><span></span></div>
+        ${mems.map(rowHtml).join('') || '<div class="lm-empty">No active members yet.</div>'}
+      </div>
+      <div class="ed-actions"><button class="btn" id="mAddMember">+ Add member</button></div>
+      <div class="ed-section-h">Left members (${leftMems.length})</div>
+      ${lrows || '<div class="lm-empty">No members have left.</div>'}
+      <div class="ed-section-h">Per-project members</div>
+      <p class="ed-desc">Only members assigned to a project appear in that project's action pickers — unassigned names are hidden there. Assignment is a pop-up selection.</p>
+      ${pblocks || '<div class="lm-empty">No projects yet.</div>'}`;
+    const bindRow = row=>{
+      const getM = ()=>{
+        const id=row.dataset.id;
+        if(id==='__new__') return null;
+        return state.members.find(x=>x.id===id);
+      };
+      row.querySelectorAll('input,select').forEach(f=>{
+        const commit=()=>{
+          let m = getM();
+          if(!m){
+            if(row.dataset.id!=='__new__') return;
+            const vals={}; row.querySelectorAll('input,select').forEach(x=>vals[x.dataset.f]=x.value);
+            if(!vals.name && !vals.initials && !vals.role && !vals.disciplineId) return; // untouched ghost -> stay pending
+            m = normMember({ name:vals.name, initials:vals.initials, role:vals.role, disciplineId:vals.disciplineId });
+            state.members.push(m); row.dataset.id=m.id; markDataDirty();
+          }
+          if(m && String(m[f.dataset.f]||'') !== String(f.value||'')){ m[f.dataset.f]=f.value; markDataDirty(); }
+        };
+        f.addEventListener('input', commit);
+        f.addEventListener('change', commit);
+      });
+      const nameInp = row.querySelector('[data-f="name"]');
+      if(nameInp) nameInp.addEventListener('blur', ()=>{ if(row.dataset.id==='__new__' && !nameInp.value.trim()) row.remove(); });
+      row.querySelector('.del').onclick=()=>{
+        const id=row.dataset.id; if(id==='__new__'){ row.remove(); return; }
+        markLeftMember(id);
+      };
+    };
+    $('edBody').querySelectorAll('.lm-member').forEach(bindRow);
+    $('edBody').querySelectorAll('[data-restore]').forEach(b=>b.onclick=()=>restoreMember(b.dataset.restore));
+    $('edBody').querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>requestDelete('member', b.dataset.remove, ()=>renderMembersList()));
+    $('mAddMember').onclick=()=>{
+      const div=document.createElement('div');
+      div.className='lm-item lm-member'; div.dataset.id='__new__'; div.style.gridTemplateColumns=COLS;
+      div.innerHTML=`<input class="lm-inp" data-f="name" placeholder="Name" /><input class="lm-inp" data-f="initials" placeholder="Initials" /><input class="lm-inp" data-f="role" placeholder="Title" /><select class="lm-inp" data-f="disciplineId">${discOptions('')}</select><button class="lm-mini del" title="Delete">🗑</button>`;
+      $('memList').appendChild(div); bindRow(div);
+      const fi=div.querySelector('[data-f="name"]'); if(fi) fi.focus();
+    };
+    const fi=$('memFilter'); if(fi) fi.oninput=e=>{
+      const q=e.target.value.trim().toLowerCase();
+      $('memList').querySelectorAll('.lm-member').forEach(row=>{ row.style.display = (!q || (row.textContent||'').toLowerCase().includes(q)) ? '' : 'none'; });
+    };
+    state.projects.forEach(p=>{ const b=$('pmMem_'+p.id); if(b) b.onclick=()=>openProjectMemberModal(p.id); });
+  }
+  function renderColorList(list, kind){
+    const isPrio = kind==='priorities';
+    setEdTop('Settings / '+(isPrio?'Priorities':'Statuses'));
+    const COLS='30px 1fr 30px';
+    const rowHtml = o => `<div class="lm-item lm-member" data-id="${esc(o.id)}" style="grid-template-columns:${COLS}">
+      <span class="sw-trigger" data-swatch style="background:${esc(toHex6(o.color))}" title="Color — ${esc(o.label)}"></span>
+      <input data-f="label" placeholder="${isPrio?'Priority':'Status'}" value="${esc(o.label||'')}" />
+      <button class="lm-mini del" title="Delete">🗑</button>
+    </div>`;
+    $('edBody').innerHTML = `<p class="ed-desc">${isPrio
+        ? 'Priorities are managed here only — label and color. Deleting one is blocked while any action uses it: reassign those actions first, nothing is deleted silently.'
+        : 'Statuses are managed here only — label and color. Deleting one is blocked while any action uses it: reassign those actions first, nothing is deleted silently.'}</p>
+      ${list.length>8?'<input class="lm-filter" id="clFilter" type="text" placeholder="Filter…" />':''}
+      <div class="lm-list" id="clList">
+        <div class="lm-head" style="grid-template-columns:${COLS}"><span>Color</span><span>Label</span><span></span></div>
+        ${list.map(rowHtml).join('') || '<div class="lm-empty">No '+kind+' yet.</div>'}
+      </div>
+      <div class="ed-actions"><button class="btn" id="clAdd">+ Add ${isPrio?'priority':'status'}</button></div>`;
+    const bind = row => {
+      bindStdRow(row, list, {
+        fields:['label'],
+        create: vals => {
+          const lb=String(vals.label||'').trim(); if(!lb) return null;
+          if(list.some(x=>String(x.label||'').toLowerCase()===lb.toLowerCase())){ toast((isPrio?'Priority':'Status')+' already exists'); return null; }
+          return isPrio ? normPriority(lb, list.length) : normStatus(lb, list.length);
+        },
+        delConfirm: id => true,
+        onRemove: id=>requestDelete(isPrio?'priority':'status', id, ()=>renderColorList(list, kind))
+      });
+      const sw=row.querySelector('[data-swatch]');
+      if(sw && row.dataset.id!=='__new__') sw.onclick=e=>{ e.stopPropagation(); openStatusColorPop(list, row.dataset.id, sw); };
+    };
+    $('edBody').querySelectorAll('.lm-member').forEach(bind);
+    $('clAdd').onclick=()=>{
+      const div=document.createElement('div'); div.className='lm-item lm-member'; div.dataset.id='__new__'; div.style.gridTemplateColumns=COLS;
+      div.innerHTML=`<span class="sw-trigger" data-swatch style="background:#EFEAFB" title="Color"></span><input data-f="label" placeholder="${isPrio?'Priority':'Status'}" /><button class="lm-mini del" title="Delete">🗑</button>`;
+      $('clList').appendChild(div); bind(div);
+      const fi=div.querySelector('[data-f="label"]'); if(fi) fi.focus();
+    };
+    const fi=$('clFilter'); if(fi) fi.oninput=e=>{
+      const q=e.target.value.trim().toLowerCase();
+      $('clList').querySelectorAll('.lm-member').forEach(row=>{ row.style.display = (!q || (row.textContent||'').toLowerCase().includes(q)) ? '' : 'none'; });
+    };
+  }
+  function renderDisciplinePanel(){
+    setEdTop('Settings / Disciplines');
+    const list = state.disciplines;
+    const COLS='1fr 30px';
+    const rowHtml = d => `<div class="lm-item lm-member" data-id="${esc(d.id)}" style="grid-template-columns:${COLS}">
+      <input data-f="name" placeholder="Name" value="${esc(d.name||'')}" />
+      <button class="lm-mini del" title="Delete">🗑</button>
+    </div>`;
+    const blocks = state.projects.map(p=>`<div class="proj-block"><span class="nm">${esc(p.name)}</span><span class="scount">${projectDisciplines(p).length} discipline(s)</span><button class="btn" id="pdBtn_${esc(p.id)}">Select disciplines…</button></div>`).join('');
+    $('edBody').innerHTML = `<p class="ed-desc">Global catalog — add, rename or delete a discipline here. Per project: choose which catalog disciplines apply via pop-up selection; unassigned ones are hidden in that project's tree and pickers. Deleting a discipline also removes its actions.</p>
+      ${list.length>8?'<input class="lm-filter" id="dcFilter" type="text" placeholder="Filter disciplines…" />':''}
+      <div class="lm-list" id="dcList">
+        <div class="lm-head" style="grid-template-columns:${COLS}"><span>Name</span><span></span></div>
+        ${list.map(rowHtml).join('') || '<div class="lm-empty">No disciplines yet.</div>'}
+      </div>
+      <div class="ed-actions"><button class="btn" id="dcAdd">+ Add discipline</button></div>
+      <div class="ed-section-h">Per-project disciplines</div>
+      <p class="ed-desc">Check = assigned to that project (shown in its tree & pickers). Order = tree display order.</p>
+      ${blocks || '<div class="lm-empty">No projects yet.</div>'}`;
+    const bind = row => bindStdRow(row, list, {
+      fields:['name'],
+      create: vals => vals.name.trim() ? { id:uid('d'), name:vals.name.trim() } : null,
+      delConfirm: id => true,
+      onRemove: id => requestDelete('discipline', id, ()=>renderDisciplinePanel())
+    });
+    $('edBody').querySelectorAll('.lm-member').forEach(bind);
+    $('dcAdd').onclick=()=>{
+      const div=document.createElement('div'); div.className='lm-item lm-member'; div.dataset.id='__new__'; div.style.gridTemplateColumns=COLS;
+      div.innerHTML=`<input data-f="name" placeholder="Name" /><button class="lm-mini del" title="Delete">🗑</button>`;
+      $('dcList').appendChild(div); bind(div);
+      const fi=div.querySelector('[data-f="name"]'); if(fi) fi.focus();
+    };
+    const fi=$('dcFilter'); if(fi) fi.oninput=e=>{
+      const q=e.target.value.trim().toLowerCase();
+      $('dcList').querySelectorAll('.lm-member').forEach(row=>{ row.style.display = (!q || (row.textContent||'').toLowerCase().includes(q)) ? '' : 'none'; });
+    };
+    state.projects.forEach(p=>{ const b=$('pdBtn_'+p.id); if(b) b.onclick=()=>openProjectDisciplineModal(p.id); });
+  }
+  // Generic per-project management popup (complete modal window)
+  function openProjectModal(title, bodyHtml, onDone){
+    $('pmTitle').textContent=title;
+    if(bodyHtml) $('pmBody').innerHTML=bodyHtml;
+    $('pmDone').onclick=()=>{ closeModalBox('projectModal'); if(onDone) onDone(); };
+    $('pmClose').onclick=()=>closeModalBox('projectModal');
+    openModalBox('projectModal');
+  }
+  function openProjectDisciplineModal(pid){
+    const p=projById(pid); if(!p) return;
+    ensureProjectLists(p);
+    const render=()=>{
+      const q=((($('pdFilter')||{}).value)||'').trim().toLowerCase();
+      const rows = state.disciplines.map(d=>{
+        if(q && !d.name.toLowerCase().includes(q)) return '';
+        const on=p.disciplineIds.includes(d.id);
+        return `<div class="pm-row" data-d="${esc(d.id)}">
+          <input type="checkbox" class="pd-chk" ${on?'checked':''} />
+          <span class="nm">${esc(d.name)}</span>
+          <span class="pm-move"><button type="button" class="pm-mini" data-mv="up" title="Move up">↑</button><button type="button" class="pm-mini" data-mv="down" title="Move down">↓</button></span>
+        </div>`;
+      }).join('');
+      $('pmBody').innerHTML = `<input class="asm-filter" id="pdFilter" type="text" placeholder="Filter disciplines…" />
+        <div class="lm-list">${rows||'<div class="lm-empty">No matching disciplines.</div>'}</div>
+        <p class="form-hint">Check = assigned to ${esc(p.name)} (shown in its tree & pickers). Order = tree display order.</p>`;
+      const fi=$('pdFilter'); if(fi) fi.oninput=render;
+      $('pmBody').querySelectorAll('.pd-chk').forEach(c=>c.onchange=()=>{
+        const id=c.closest('.pm-row').dataset.d;
+        if(c.checked){ if(!p.disciplineIds.includes(id)) p.disciplineIds.push(id); }
+        else p.disciplineIds = p.disciplineIds.filter(x=>x!==id);
+        markDataDirty();
+      });
+      $('pmBody').querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>{
+        const id=b.closest('.pm-row').dataset.d; const i=p.disciplineIds.indexOf(id); if(i<0) return;
+        const j=i+(b.dataset.mv==='up'?-1:1);
+        if(j<0 || j>=p.disciplineIds.length) return;
+        [p.disciplineIds[i],p.disciplineIds[j]]=[p.disciplineIds[j],p.disciplineIds[i]];
+        markDataDirty(); render();
+      });
+    };
+    openProjectModal('Disciplines — '+p.name, '', ()=>{ refresh(); toast('Project disciplines updated — Save Actions to persist'); });
+    render();
+  }
+  function openProjectMemberModal(pid){
+    const p=projById(pid); if(!p) return;
+    ensureProjectLists(p);
+    const render=()=>{
+      const q=((($('pmFilter')||{}).value)||'').trim().toLowerCase();
+      const rows = state.members.filter(m=>m.name && !m.left).map(m=>{
+        if(q && !(m.name+' '+(m.role||'')).toLowerCase().includes(q)) return '';
+        const on=p.memberIds.includes(m.id);
+        return `<div class="pm-row" data-m="${esc(m.id)}"><input type="checkbox" class="pm-chk" ${on?'checked':''} /><span class="nm">${esc(m.name+(m.role?' · '+m.role:''))}</span></div>`;
+      }).join('');
+      $('pmBody').innerHTML = `<input class="asm-filter" id="pmFilter" type="text" placeholder="Filter members…" />
+        <div class="lm-list">${rows||'<div class="lm-empty">No matching members.</div>'}</div>
+        <p class="form-hint">Check = assigned to ${esc(p.name)}; only these appear in its action pickers.</p>`;
+      const fi=$('pmFilter'); if(fi) fi.oninput=render;
+      $('pmBody').querySelectorAll('.pm-chk').forEach(c=>c.onchange=()=>{
+        const id=c.closest('.pm-row').dataset.m;
+        if(c.checked){ if(!p.memberIds.includes(id)) p.memberIds.push(id); }
+        else p.memberIds = p.memberIds.filter(x=>x!==id);
+        markDataDirty();
+      });
+    };
+    openProjectModal('Members — '+p.name, '', ()=>{ refresh(); toast('Project members updated — Save Actions to persist'); });
+    render();
+  }
+  // Standard always-editable list row: ghost-create on first input, live commit, confirm+remove.
+  function bindStdRow(row, list, opts){
+    const get = ()=> row.dataset.id==='__new__' ? null : (list.find(x=>x.id===row.dataset.id)||null);
+    row.querySelectorAll('input,select').forEach(f=>{
+      const commit=()=>{
+        let o=get();
+        if(!o){
+          if(row.dataset.id!=='__new__') return;
+          const vals={}; row.querySelectorAll('input,select').forEach(x=>vals[x.dataset.f]=x.value);
+          if(!opts.fields.some(x=>vals[x] && String(vals[x]).trim())) return; // untouched ghost
+          o=opts.create(vals);
+          if(!o) return; // rejected (duplicate/invalid) -> stays ghost
+          list.push(o); row.dataset.id=o.id; markDataDirty();
+        }
+        if(o && String(o[f.dataset.f]||'')!==String(f.value||'')){ o[f.dataset.f]=f.value; markDataDirty(); }
+      };
+      f.addEventListener('input', commit);
+      f.addEventListener('change', commit);
+    });
+    const first=row.querySelector('[data-f]');
+    if(first) first.addEventListener('blur', ()=>{ if(row.dataset.id==='__new__' && !String(first.value||'').trim()) row.remove(); });
+    row.querySelector('.del').onclick=()=>{
+      const id=row.dataset.id; if(id==='__new__'){ row.remove(); return; }
+      if(opts.delConfirm && !opts.delConfirm(id)) return;
+      opts.onRemove(id);
+    };
+  }
+  // ---- Delete guard: reference scan + blocked reassign (no cascade, no silent loss) ----
+  function referencesOf(kind, id){
+    const refs = { actions:[], members:[], projects:[] };
+    state.actions.forEach(a=>{
+      const hit = kind==='project' ? a.projectId===id
+        : kind==='discipline' ? a.disciplineId===id
+        : kind==='status' ? a.statusId===id
+        : kind==='priority' ? a.priorityId===id
+        : kind==='member' ? ((Array.isArray(a.assignedToIds)&&a.assignedToIds.includes(id)) || a.createdById===id)
+        : false;
+      if(hit) refs.actions.push(a);
+    });
+    if(kind==='discipline') state.members.forEach(m=>{ if(m.disciplineId===id) refs.members.push(m); });
+    if(kind==='discipline') state.projects.forEach(p=>{ if(Array.isArray(p.disciplineIds)&&p.disciplineIds.includes(id)) refs.projects.push(p); });
+    if(kind==='member') state.projects.forEach(p=>{ if(Array.isArray(p.memberIds)&&p.memberIds.includes(id)) refs.projects.push(p); });
+    return refs;
+  }
+  function itemLabel(kind, id){
+    if(kind==='project') return (state.projects.find(x=>x.id===id)||{}).name || id;
+    if(kind==='discipline') return (state.disciplines.find(x=>x.id===id)||{}).name || id;
+    if(kind==='status') return (state.statuses.find(x=>x.id===id)||{}).label || id;
+    if(kind==='priority') return (state.priorities.find(x=>x.id===id)||{}).label || id;
+    return (state.members.find(x=>x.id===id)||{}).name || id;
+  }
+  function candidatesOf(kind){
+    if(kind==='project') return state.projects.map(p=>({id:p.id,label:p.name}));
+    if(kind==='discipline') return state.disciplines.map(d=>({id:d.id,label:d.name}));
+    if(kind==='status') return state.statuses.map(s=>({id:s.id,label:s.label}));
+    if(kind==='priority') return state.priorities.map(p=>({id:p.id,label:p.label}));
+    return state.members.filter(m=>m.name && !m.left).map(m=>({id:m.id,label:m.name}));
+  }
+  function performDelete(kind, id){
+    if(kind==='project'){ state.projects = state.projects.filter(x=>x.id!==id); if(state.selection.projects===id) state.selection.projects=null; }
+    else if(kind==='discipline'){
+      state.disciplines = state.disciplines.filter(x=>x.id!==id);
+      state.projects.forEach(pr=>{ if(Array.isArray(pr.disciplineIds)) pr.disciplineIds=pr.disciplineIds.filter(x=>x!==id); });
+      state.projects.forEach(p=>delete state.expanded[p.id+'::d'+id]);
+      if(state.selection.disciplines===id) state.selection.disciplines=null;
+    }
+    else if(kind==='status') state.statuses = state.statuses.filter(x=>x.id!==id);
+    else if(kind==='priority') state.priorities = state.priorities.filter(x=>x.id!==id);
+    else if(kind==='member'){
+      state.members = state.members.filter(x=>x.id!==id);
+      state.projects.forEach(p=>{ if(Array.isArray(p.memberIds)) p.memberIds=p.memberIds.filter(x=>x!==id); });
+    }
+    if(state.selection.actions && !state.actions.find(a=>a.id===state.selection.actions)) state.selection.actions=null;
+  }
+  function requestDelete(kind, id, reRender){
+    const refs = referencesOf(kind, id);
+    if(!refs.actions.length && !refs.members.length){
+      if(!confirm(`Delete "${itemLabel(kind,id)}"?`)) return;
+      performDelete(kind, id); markDataDirty(); reRender(); refresh(); toast(cap(kind)+' deleted — Save Actions to persist');
+      return;
+    }
+    openReassignModal(kind, id, reRender);
+  }
+  function openReassignModal(kind, id, reRender){
+    const label = itemLabel(kind, id);
+    const refs = referencesOf(kind, id);
+    const live = refs.actions.filter(a=>!a.deleted);
+    const soft = refs.actions.filter(a=>a.deleted);
+    const cands = candidatesOf(kind).filter(c=>c.id!==id);
+    const noCand = cands.length===0;
+    const hasActionRows = (live.length + soft.length) > 0;
+    const blockNoCand = noCand && kind!=='member' && hasActionRows;
+    const candOpts = cur => cands.map(c=>`<option value="${esc(c.id)}"${c.id===cur?' selected':''}>${esc(c.label)}</option>`).join('');
+    const optHtml = (cur, extra) => (extra||'') + candOpts(cur);
+    const actionRow = a => {
+      const t = `<span class="rs-t">${esc(a.title)}</span>`;
+      if(kind==='member'){
+        let rows='';
+        if(Array.isArray(a.assignedToIds) && a.assignedToIds.includes(id))
+          rows += `<div class="rs-row">${t}<em class="rs-k">assignee</em><select class="rs-sel" data-rid="${esc(a.id+'_asg')}"><option value="">— pick —</option><option value="__remove__">— remove this assignee —</option>${candOpts('')}</select></div>`;
+        if(a.createdById===id)
+          rows += `<div class="rs-row">${t}<em class="rs-k">created by</em><select class="rs-sel" data-rid="${esc(a.id+'_cr')}"><option value="">— pick —</option><option value="__snap__">— keep name snapshot —</option>${candOpts('')}</select></div>`;
+        return rows;
+      }
+      return `<div class="rs-row">${t}<select class="rs-sel" data-rid="${esc(a.id)}"><option value="">— pick —</option>${candOpts('')}</select></div>`;
+    };
+    let html = `<p class="ed-desc" style="margin-bottom:10px">⚠ <b>${esc(label)}</b> is referenced by ${live.length} action(s)` + (soft.length? ` and ${soft.length} deleted action(s)`: '') + (refs.members.length? ` and ${refs.members.length} member(s)`: '') + `. Reassign every reference — nothing is deleted silently.</p>`;
+    if(live.length){
+      html += `<div class="ed-section-h">Actions (${live.length})</div>`
+        + `<div class="rs-bulk">Reassign all: <select id="rsAll" class="rs-sel rs-all"><option value="">— pick —</option>${candOpts('')}</select></div>`
+        + live.map(actionRow).join('');
+    }
+    if(soft.length){
+      html += `<div class="ed-section-h rs-soft-h">Deleted actions (${soft.length}) — reassign, or remove permanently</div>`
+        + soft.map(actionRow).join('');
+    }
+    if(kind==='discipline' && refs.members.length){
+      html += `<div class="ed-section-h">Members' discipline (${refs.members.length})</div>`
+        + refs.members.map(m=>`<div class="rs-row"><span class="rs-t">${esc(m.name)}</span><select class="rs-sel" data-rid="m_${esc(m.id)}" data-empty-ok="1"><option value="">— none —</option>${candOpts(m.disciplineId||'')}</select></div>`).join('');
+    }
+    if(refs.projects.length) html += `<p class="form-hint">Also removes <b>${esc(label)}</b> from ${refs.projects.length} project assignment list(s) — configuration only, not data.</p>`;
+    if(blockNoCand) html += `<p class="form-hint" style="color:#C0392B">No other ${kind} exists — create another one first, then try deleting again.</p>`;
+    $('rsBody').innerHTML = html;
+    const validate = ()=>{
+      const sels=[...$('rsBody').querySelectorAll('.rs-sel:not(.rs-all)')];
+      $('rsDelete').disabled = blockNoCand || sels.some(s=>!String(s.value).length && s.dataset.emptyOk!=='1');
+    };
+    const all=$('rsAll'); if(all) all.onchange=()=>{
+      const v=all.value;
+      $('rsBody').querySelectorAll('.rs-sel:not(.rs-all):not([data-empty-ok])').forEach(s=>{ s.value=v; });
+      validate();
+    };
+    $('rsBody').querySelectorAll('.rs-sel').forEach(s=>s.onchange=validate);
+    $('rsDelete').onclick=()=>{
+      $('rsBody').querySelectorAll('.rs-sel:not(.rs-all)').forEach(sel=>{
+        const v=sel.value; const rid=sel.dataset.rid;
+        if(!String(v).length && sel.dataset.emptyOk!=='1') return;
+        if(rid.indexOf('m_')===0){ const m=state.members.find(x=>x.id===rid.slice(2)); if(m) m.disciplineId=v||''; return; }
+        const a=state.actions.find(x=>String(x.id)===rid); if(!a) return;
+        if(kind==='member'){
+          if(rid.endsWith('_asg')){
+            if(v==='__remove__'){ if(a.deleted) state.actions=state.actions.filter(x=>x.id!==a.id); else a.assignedToIds=(a.assignedToIds||[]).filter(x=>x!==id); }
+            else if(v){ a.assignedToIds=(a.assignedToIds||[]).map(x=>x===id?v:x); if(!a.assignedToIds.includes(v)) a.assignedToIds.push(v); }
+          } else if(rid.endsWith('_cr')){
+            if(v==='__snap__'){ a.createdById=''; a.createdByName=label; }
+            else if(v){ a.createdById=v; delete a.createdByName; }
+            else if(a.deleted){ a.createdById=''; a.createdByName=label; }
+          }
+          return;
+        }
+        if(v==='__remove__' && a.deleted){ state.actions=state.actions.filter(x=>x.id!==a.id); return; }
+        if(kind==='project') a.projectId=v;
+        else if(kind==='discipline') a.disciplineId=v;
+        else if(kind==='status'){ a.statusId=v; delete a.statusLabel; }
+        else if(kind==='priority'){ a.priorityId=v; delete a.priorityLabel; }
+      });
+      performDelete(kind, id);
+      closeModalBox('reassignModal');
+      markDataDirty(); reRender(); refresh(); toast(cap(kind)+' deleted — references reassigned — Save Actions to persist');
+    };
+    $('rsCancel').onclick=()=>closeModalBox('reassignModal');
+    $('rsClose').onclick=()=>closeModalBox('reassignModal');
+    openModalBox('reassignModal');
+    validate();
+  }
+  // Members: soft "left" flag (a member may leave the project; record is kept).
+  function markLeftMember(id){
+    const m=state.members.find(x=>x.id===id); if(!m) return;
+    if(!confirm(`Mark "${m.name}" as left? The member record is kept so past assignments stay readable. They are removed from project member lists.`)) return;
+    m.left=true; m.deletedOn=todayStr();
+    state.projects.forEach(p=>{ if(Array.isArray(p.memberIds)) p.memberIds=p.memberIds.filter(x=>x!==id); });
+    markDataDirty(); renderMembersList(); refresh(); toast('Member marked as left — Save Actions to persist');
+  }
+  function restoreMember(id){
+    const m=state.members.find(x=>x.id===id); if(!m) return;
+    m.left=false; m.deletedOn='';
+    markDataDirty(); renderMembersList(); refresh(); toast('Member restored — Save Actions to persist');
+  }
+  function renderManagedList(type){ // Projects — Name | Code
+    setEdTop('Settings / Projects');
+    const list = state.projects;
+    const COLS='1.6fr 1fr 30px';
+    const rowHtml = p => `<div class="lm-item lm-member" data-id="${esc(p.id)}" style="grid-template-columns:${COLS}">
+      <input data-f="name" placeholder="Name" value="${esc(p.name||'')}" />
+      <input data-f="code" placeholder="Code" value="${esc(p.code||'')}" />
+      <button class="lm-mini del" title="Delete">🗑</button>
+    </div>`;
+    $('edBody').innerHTML = `<p class="ed-desc">Projects are managed here only — name and code. Per-project discipline and member assignment is done through pop-up selection in the Disciplines and Members panels. Deleting a project also removes its actions.</p>
+      ${list.length>8?'<input class="lm-filter" id="pjFilter" type="text" placeholder="Filter projects…" />':''}
+      <div class="lm-list" id="pjList">
+        <div class="lm-head" style="grid-template-columns:${COLS}"><span>Name</span><span>Code</span><span></span></div>
+        ${list.map(rowHtml).join('') || '<div class="lm-empty">No projects yet.</div>'}
+      </div>
+      <div class="ed-actions"><button class="btn" id="pjAdd">+ Add project</button></div>`;
+    const bind = row => bindStdRow(row, list, {
+      fields:['name','code'],
+      create: vals => vals.name.trim() ? ensureProjectLists({ id:uid('p'), name:vals.name.trim(), code:String(vals.code||'').trim() }) : null,
+      delConfirm: id => true,
+      onRemove: id => requestDelete('project', id, ()=>renderManagedList(type))
+    });
+    $('edBody').querySelectorAll('.lm-member').forEach(bind);
+    $('pjAdd').onclick=()=>{
+      const div=document.createElement('div'); div.className='lm-item lm-member'; div.dataset.id='__new__'; div.style.gridTemplateColumns=COLS;
+      div.innerHTML=`<input data-f="name" placeholder="Name" /><input data-f="code" placeholder="Code" /><button class="lm-mini del" title="Delete">🗑</button>`;
+      $('pjList').appendChild(div); bind(div);
+      const fi=div.querySelector('[data-f="name"]'); if(fi) fi.focus();
+    };
+    const fi=$('pjFilter'); if(fi) fi.oninput=e=>{
+      const q=e.target.value.trim().toLowerCase();
+      $('pjList').querySelectorAll('.lm-member').forEach(row=>{ row.style.display = (!q || (row.textContent||'').toLowerCase().includes(q)) ? '' : 'none'; });
+    };
+  }
+
+  function renderHelpMain(){
+    const t=state.selection.help;
+    const art = state.setup.help[t] || BUILTIN_HELP_MD[t] || { title:t, body:'' };
+    setEdTop('Help / '+(art.title||t));
+    $('edBody').innerHTML=`<h1 class="ed-title">${esc(art.title||t)}</h1><div class="help-body">${mdToHtml(art.body)||'<p>No article.</p>'}</div>`;
+  }
+
+  // ---- Sidebar interactions ----
+  $('sideBody').addEventListener('click', e=>{
+    if(e.target.closest('input')) return;
+    if(state.perspective!=='actions'){ const it=e.target.closest('.sitem'); if(it) selectNode(it.dataset.id); return; }
+    // Tree logic
+    const ctrlBtn=e.target.closest('[data-act]');
+    if(ctrlBtn){
+      const node=e.target.closest('.tnode');
+      const type=node.dataset.type, id=node.dataset.id, pid=node.dataset.pid, act=ctrlBtn.dataset.act;
+      if(act==='add-action'){ openModalCreate(pid, id); }
+      else if(act==='edit-action'){ selectNode(parseInt(id,10)); }
+      return;
+    }
+    const chev=e.target.closest('.tchev');
+    if(chev){ const node=e.target.closest('.tnode'); state.expanded[node.dataset.key]=!state.expanded[node.dataset.key]; renderSideBody(); return; }
+    const actionRow=e.target.closest('.tnode.action'); if(actionRow){ selectNode(parseInt(actionRow.dataset.id,10)); return; }
+    const groupRow=e.target.closest('.tnode.project, .tnode.discipline'); if(groupRow){ state.expanded[groupRow.dataset.key]=!state.expanded[groupRow.dataset.key]; renderSideBody(); }
+  });
+  $('sideBody').addEventListener('keydown', e=>{
+    if(e.target.id==='tmpInput'){
+      if(e.key==='Enter'){ commitTmp(e.target.value); }
+      else if(e.key==='Escape'){ e.stopPropagation(); state.pendingAdd=null; state.editTarget=null; renderSideBody(); renderMain(); }
+    } else if((e.key==='Enter'||e.key===' ') && e.target.classList && (e.target.classList.contains('tnode')||e.target.classList.contains('sitem'))){
+      e.preventDefault(); e.target.click();
+    }
+  });
+
+  function commitTmp(val){
+    val=(val||'').trim();
+    if(!val){ state.pendingAdd=null; state.editTarget=null; renderSideBody(); return; }
+    if(state.pendingAdd){
+      if(state.pendingAdd.type==='project'){
+        const id=uid('p'); state.projects.push(ensureProjectLists({id, name:val})); state.expanded['p'+id]=true; toast('Project added');
+      } else {
+        const id=uid('d'); const pid=state.pendingAdd.projectId;
+        state.disciplines.push({id, name:val}); const pj=projById(pid); if(pj){ ensureProjectLists(pj); if(!pj.disciplineIds.includes(id)) pj.disciplineIds.push(id); } state.expanded[pid+'::d'+id]=true; state.expanded['p'+pid]=true; toast('Discipline added');
+      }
+      state.pendingAdd=null;
+    } else if(state.editTarget){
+      if(state.editTarget.type==='project'){ const p=state.projects.find(x=>x.id===state.editTarget.id); if(p) p.name=val; }
+      else { const d=state.disciplines.find(x=>x.id===state.editTarget.id); if(d) d.name=val; }
+      state.editTarget=null; toast('Renamed');
+    }
+    markDataDirty(); refresh();
+  }
+  function deleteNode(type, id){
+    if(type==='project'){
+      const p=state.projects.find(x=>x.id===id); if(!p) return;
+      const n=state.actions.filter(a=>a.projectId===id).length;
+      if(!confirm(`Delete project "${p.name}"${n?` and its ${n} action(s)`:''}?`)) return;
+      state.actions=state.actions.filter(a=>a.projectId!==id);
+      state.projects=state.projects.filter(x=>x.id!==id);
+      delete state.expanded['p'+id]; toast('Project deleted');
+    } else {
+      const d=state.disciplines.find(x=>x.id===id); if(!d) return;
+      const n=state.actions.filter(a=>a.disciplineId===id).length;
+      if(!confirm(`Delete discipline "${d.name}"${n?` and its ${n} action(s)`:''}?`)) return;
+      state.actions=state.actions.filter(a=>a.disciplineId!==id);
+      state.disciplines=state.disciplines.filter(x=>x.id!==id);
+      state.projects.forEach(pr=>{ if(Array.isArray(pr.disciplineIds)) pr.disciplineIds=pr.disciplineIds.filter(x=>x!==id); });
+      state.projects.forEach(p=>delete state.expanded[p.id+'::d'+id]); toast('Discipline deleted');
+    }
+    if(state.selection.actions && !state.actions.find(a=>a.id===state.selection.actions)) state.selection.actions=null;
+    if(state.selection.projects===id) state.selection.projects=null;
+    if(state.selection.disciplines===id) state.selection.disciplines=null;
+    markDataDirty(); refresh();
+  }
+
+  // ---- Action modal ----
+  function populateSelect(sel, items, val){ sel.innerHTML=items.map(i=>`<option value="${i.id}"${i.id===val?' selected':''}>${esc(i.name)}</option>`).join(''); }
+  function populateMemberSelect(sel, valId, projectId, snapName){
+    const members = (projectId ? projectMembers(projById(projectId)) : state.members).filter(m=>m.name && !m.left);
+    let opts=['<option value="">—</option>'];
+    members.forEach(m=>{ if(m.name) opts.push(`<option value="${esc(m.id)}"${m.id===valId?' selected':''}>${esc(m.name+(m.role? ' · '+m.role:''))}</option>`); });
+    if(snapName && !members.some(m=>m.id===valId)) opts.push(`<option value="" selected disabled>— snapshot: ${esc(snapName)} —</option>`);
+    sel.innerHTML=opts.join('');
+  }
+  function renderSeg(container, selectedId, orphanLabel){
+    const items = state.statuses.slice();
+    const sel = selectedId || '';
+    container.innerHTML=items.map(s=>`<button data-s="${esc(s.id)}" aria-pressed="${s.id===sel?'true':'false'}" class="${s.id===sel?'on':''}" style="${statusStyle(s.id)}">${esc(s.label)}</button>`).join('');
+    if(orphanLabel) container.insertAdjacentHTML('afterbegin', `<button class="orphan" disabled type="button" title="This status no longer exists — pick one below">⚠ ${esc(orphanLabel)} (deleted)</button>`);
+    container.querySelectorAll('button').forEach(b=>b.onclick=()=>{ container.querySelectorAll('button').forEach(x=>{ x.classList.remove('on'); x.setAttribute('aria-pressed','false'); }); b.classList.add('on'); b.setAttribute('aria-pressed','true'); });
+  }
+  function selectedSeg(container){ const on=container.querySelector('button.on'); return on?on.dataset.s:(state.statuses[0]?state.statuses[0].id:''); }
+  // Multi-assignee picker (schema v2): chips carry member ids; orphan name chips kept for rectification.
+  // projectId filters to the project's assigned members (unassigned are hidden).
+  function renderAssigneePicker(container, action, projectId){
+    if(!container) return;
+    const act = action || {};
+    const selIds = new Set(Array.isArray(act.assignedToIds)?act.assignedToIds.filter(Boolean):[]);
+    const members = projectId ? projectMembers(projById(projectId)) : state.members;
+    const list = members.filter(m=>m.name && !m.left);
+    const html = list.map(m=>{
+      const on = selIds.has(m.id);
+      return `<button type="button" class="assignee-chip${on?' on':''}" data-id="${esc(m.id)}" data-n="${esc(m.name)}" aria-pressed="${on?'true':'false'}" title="${esc(m.role||'')}">${esc(m.name)}</button>`;
+    }).join('');
+    const orphans = (act.assignedToNames||[]).filter(Boolean).map(n=>`<button type="button" class="assignee-chip orphan" data-name="${esc(n)}" data-n="${esc(n)}" title="Member no longer exists — click to remove">${esc(n)} ⚠</button>`).join('');
+    container.innerHTML = (list.length>8 ? `<input class="asm-filter" type="text" placeholder="Filter members…" />` : '')
+      + (html || (orphans?'':'<span class="form-hint" style="margin:0">No members assigned to this project — add them in Settings → Members.</span>'))
+      + orphans;
+    const fi=container.querySelector('.asm-filter');
+    if(fi) fi.oninput=()=>{ const q=fi.value.trim().toLowerCase(); container.querySelectorAll('.assignee-chip').forEach(b=>b.style.display = (!q || b.dataset.n.toLowerCase().includes(q)) ? '' : 'none'); };
+  }
+  function selectedAssignees(container){ if(!container) return { ids:[], orphans:[] }; return { ids:[...container.querySelectorAll('button.on[data-id]')].map(b=>b.dataset.id), orphans:[...container.querySelectorAll('.assignee-chip.orphan[data-name]')].map(b=>b.dataset.name) }; }
+  const pickState = el => { const s=selectedAssignees(el); return { assignedToIds:s.ids, assignedToNames:s.orphans }; };
+  function renderPrioritySeg(container, selectedId, orphanLabel){
+    const items = state.priorities.slice();
+    const def = selectedId || ((state.priorities.find(p=>p.label==='Medium')||state.priorities[0]||{}).id) || '';
+    container.innerHTML=items.map(p=>`<button data-p="${esc(p.id)}" aria-pressed="${p.id===def?'true':'false'}" class="${p.id===def?'on':''}" style="${priorityStyle(p.id)}">${esc(p.label)}</button>`).join('');
+    if(orphanLabel) container.insertAdjacentHTML('afterbegin', `<button class="orphan" disabled type="button" title="This priority no longer exists — pick one below">⚠ ${esc(orphanLabel)} (deleted)</button>`);
+    container.querySelectorAll('button').forEach(b=>b.onclick=()=>{ container.querySelectorAll('button').forEach(x=>{ x.classList.remove('on'); x.setAttribute('aria-pressed','false'); }); b.classList.add('on'); b.setAttribute('aria-pressed','true'); });
+  }
+  function selectedPriority(container){ const on=container.querySelector('button.on'); return on?on.dataset.p:''; }
+  // ---- Modal focus management (WCAG 2.4.3): focus first control on open, restore on close ----
+  function openModalBox(id){
+    const b=$(id); if(!b) return;
+    b._lastFocus = document.activeElement;
+    b.classList.add('open');
+    const f=b.querySelector('input,select,textarea,button,[tabindex]:not([tabindex="-1"])');
+    if(f) f.focus();
+  }
+  function closeModalBox(id){
+    const b=$(id); if(!b) return;
+    b.classList.remove('open');
+    if(b._lastFocus && b._lastFocus.focus) b._lastFocus.focus();
+  }
+  function openModalCreate(pid, did){
+    state.editingId=null; $('modalTitle').textContent='New Action';
+    $('mTitle').value=''; $('mDesc').value='';
+    const proj = pid || (state.projects[0] && state.projects[0].id) || '';
+    populateSelect($('mProject'), state.projects, proj);
+    populateDisciplineSelect($('mDiscipline'), proj, did || (projectDisciplines(projById(proj))[0]||{}).id || '');
+    renderSeg($('mSeg'), ((findStatus('Pending')||state.statuses[0]||{}).id) || '');
+    renderPrioritySeg($('mPriority'), ((state.priorities.find(p=>p.label==='Medium')||state.priorities[0]||{}).id) || '');
+    $('mDue').value=''; $('mDepends').value='';
+    renderAssigneePicker($('mAssignee'), {assignedToIds:[],assignedToNames:[]}, proj);
+    populateMemberSelect($('mCreator'), '', proj);
+    $('mProject').onchange=()=>{ const p=$('mProject').value;
+      populateDisciplineSelect($('mDiscipline'), p, (projectDisciplines(projById(p))[0]||{}).id || '');
+      renderAssigneePicker($('mAssignee'), pickState($('mAssignee')), p);
+      populateMemberSelect($('mCreator'), $('mCreator').value, p);
+    };
+    $('actionModal').classList.add('open');
+    const first=$('mTitle'); if(first) first.focus();
+  }
+  function modalSave(){
+    const title=$('mTitle').value.trim(); if(!title){ toast('Title required'); return; }
+    const desc=$('mDesc').value;
+    const as=selectedAssignees($('mAssignee'));
+    const data={ title, projectId:$('mProject').value, disciplineId:$('mDiscipline').value, statusId:selectedSeg($('mSeg')), priorityId:selectedPriority($('mPriority')), due:$('mDue').value, assignedToIds:as.ids, assignedToNames:as.orphans, createdById:$('mCreator').value, dependsOn:$('mDepends').value?parseInt($('mDepends').value,10):null };
+    data.id=state.nextId++; data.history=[{d:todayStr(), t:'Created'}];
+    data.createdOn = todayStr();
+    data.detailLog = desc ? [{date: todayStr(), text: desc}] : [];
+    state.actions.push(data); state.selection.actions=data.id; state.dataDirty=true; updateSaveButtons(); toast('Action created');
+    closeModalBox('actionModal'); refresh();
+  }
+  $('modalSave').onclick=modalSave;
+  $('modalCancel').onclick=()=>closeModalBox('actionModal');
+  $('modalClose').onclick=()=>closeModalBox('actionModal');
+  $('mAddStatus').onclick=()=>{ closeModalBox('actionModal'); state.selection.settings='fields'; setPerspective('settings'); };
+
+  // ---- Color popover (statuses & priorities): curated palette + native "custom" fallback ----
+  let _curTrigger=null;
+  function openStatusColorPop(list, id, anchor){
+    const pop=$('statusColorPop'); if(!pop) return;
+    const idx=list.findIndex(x=>x.id===id); if(idx<0) return;
+    const cur=list[idx].color || '#EFEAFB';
+    pop.innerHTML = STATUS_PALETTE.map((hex,i)=>`<button class="sw-dot" data-hex="${esc(hex)}" title="${esc(STATUS_SWATCH_NAMES[i]||hex)}" style="background:${esc(hex)}"></button>`).join('')
+      + `<label class="sw-custom">Custom <input type="color" id="swCustom" value="${esc(toHex6(cur))}"></label>`;
+    const r=anchor.getBoundingClientRect();
+    pop.style.left = Math.max(8, Math.min(r.left, window.innerWidth-236))+'px';
+    pop.style.top  = Math.min(r.bottom+6, window.innerHeight-180)+'px';
+    pop.classList.add('open'); _curTrigger=anchor;
+    pop.querySelectorAll('.sw-dot').forEach(b=> b.onclick=()=>{ applyStatusColor(list, idx, b.dataset.hex); closeStatusColorPop(); });
+    const ci=$('swCustom'); if(ci) ci.oninput=()=> applyStatusColor(list, idx, ci.value);
+    document.removeEventListener('click', _outsideClose);
+    setTimeout(()=> document.addEventListener('click', _outsideClose), 0);
+  }
+  function applyStatusColor(list, idx, hex){ const s=list[idx]; if(!s) return; s.color=hex; markDataDirty(); refresh(); if(_curTrigger) _curTrigger.style.background=hex; }
+  function closeStatusColorPop(){ const pop=$('statusColorPop'); if(pop){ pop.classList.remove('open'); pop.innerHTML=''; } document.removeEventListener('click', _outsideClose); _curTrigger=null; }
+  function _outsideClose(e){ const pop=$('statusColorPop'); if(pop && !pop.contains(e.target) && !(e.target.classList && e.target.classList.contains('sw-trigger'))) closeStatusColorPop(); }
+
+  // ---- Import / Export ----
+  function exportData(){ writeDataFile(); }
+  const bindEl=(id,fn)=>{ const el=$(id); if(el) el.onclick=fn; };
+  bindEl('rpExport', exportData);
+  bindEl('rpSaveActions', writeDataFile);
+  bindEl('rpSaveSettings', saveSetupFile);
+  bindEl('rpImport', importViaPicker);
+  bindEl('rpExportMenu', openExportModal);
+  // Top bar actions
+  bindEl('tbSaveActions', writeDataFile);
+  bindEl('tbSaveSettings', saveSetupFile);
+  bindEl('tbExportMenu', openExportModal);
+  bindEl('tbImport', importViaPicker);
+  bindEl('tbCreate', createDataFile);
+  bindEl('tbFolder', setDataFolder);
+  bindEl('tbDark', ()=>{ state.layout.dark=!state.layout.dark; applyLayout(); markSetupDirty(); });
+  bindEl('tbLayout', ()=>{ syncLayoutModal(); openModalBox('layoutModal'); });
+  bindEl('tbSettings', ()=>{ setPerspective('settings'); });
+  bindEl('tbHelp', ()=>{ openModalBox('helpModal'); });
+  // Overflow menu (⋯)
+  const tbMore=$('tbMore'), tbPop=$('tbPop');
+  if(tbMore && tbPop){
+    tbMore.onclick=e=>{ e.stopPropagation(); tbPop.classList.toggle('open'); };
+    document.addEventListener('click', e=>{ if(!tbPop.contains(e.target) && e.target!==tbMore) tbPop.classList.remove('open'); });
+    tbPop.querySelectorAll('.tb-item').forEach(it=>it.addEventListener('click', ()=>tbPop.classList.remove('open')));
+  }
+  // Mobile drawers (≤900px): ☰ toggles the sidebar drawer over a scrim
+  const tbDrawer=$('tbDrawer'), tbScrim=$('tbScrim');
+  function closeDrawers(){ document.body.classList.remove('m-show-side','m-show-right'); if(tbScrim) tbScrim.classList.remove('open'); }
+  if(tbDrawer) tbDrawer.onclick=()=>{ const open=document.body.classList.toggle('m-show-side'); if(tbScrim) tbScrim.classList.toggle('open', open); };
+  if(tbScrim) tbScrim.onclick=closeDrawers;
+  // Right panel collapse removed per user; hide/unhide via Settings → Layout or the Layout modal.
+  $('fileInput').onchange=async e=>{
+    const f=e.target.files[0]; if(!f) return;
+    if(!await confirmSaveBeforeLeave()){ e.target.value=''; return; }
+    const r=new FileReader(); r.onload=()=>{
+      try{ const d=JSON.parse(r.result);
+        applyDataset(d, { name:f.name, path:f.name, source:'imported' });
+        // Imported data is clean: no changes to save yet (except legacy upgrades).
+        state.dataDirty = !!state.migrated; updateSaveButtons();
+        toast('Loaded '+f.name);
+        const oj=$('openJsonModal'); if(oj) closeModalBox('openJsonModal');
+      }catch(err){ toast('Invalid JSON'); }
+    }; r.readAsText(f); e.target.value='';
+  };
+
+  async function importViaPicker(opts){
+    if(!await confirmSaveBeforeLeave()) return;
+    if(!window.showOpenFilePicker){ $('fileInput').click(); return; }
+    try{
+      const [h] = await window.showOpenFilePicker({
+        startIn: dataDirHandle || undefined,
+        multiple: false,
+        types: [{ description:'JSON', accept: { 'application/json': ['.json'] } }]
+      });
+      const f = await h.getFile();
+      const text = await f.text();
+      try{ applyDataset(JSON.parse(text), { name:f.name, path:f.name, source:'imported' });
+        // Imported data is clean: no changes to save yet (except legacy upgrades).
+        state.dataDirty = !!state.migrated; updateSaveButtons(); toast('Loaded '+f.name); }
+      catch(err){ toast('Invalid JSON'); return; }
+      const oj=$('openJsonModal'); if(oj) closeModalBox('openJsonModal');
+      if(opts && opts.setFolder) await maybeSetDataFolder();
+    }catch(e){ if(e && e.name!=='AbortError') toast('Import failed'); }
+  }
+
+  // ---- Export to Word / Excel ----
+  async function msoDownload(filename, html, mime){
+    if(window.showSaveFilePicker){
+      const r = await saveViaPicker(filename, '﻿'+html, mime);
+      if(r.ok){ toast('Exported '+filename); return; }
+      if(r.aborted) return;
+    }
+    const blob = new Blob(['﻿'+html], { type: mime });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+    toast('Exported '+filename);
+  }
+  function createdOnOf(a){
+    return a.createdOn || (a.history && a.history[0] && typeof a.history[0].d==='string' && /^\d{4}-\d{2}-\d{2}$/.test(a.history[0].d) ? a.history[0].d : '');
+  }
+  function detailLogRows(a){
+    return (a.detailLog && a.detailLog.length)
+      ? a.detailLog.map(r=>`<tr><td>${esc(r.date||'')}</td><td>${esc(r.text||'')}</td></tr>`).join('')
+      : `<tr><td colspan="2">No entries</td></tr>`;
+  }
+  function exportWord(acts){
+    const sections = acts.map(a=>{
+      const meta = `<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;font-family:Calibri;width:100%">`
+        + `<tr><td><b>Project</b></td><td>${esc(projName(a.projectId))}</td><td><b>Discipline</b></td><td>${esc(discName(a.disciplineId))}</td></tr>`
+        + `<tr><td><b>Status</b></td><td>${esc(aStatusLabel(a))}</td><td><b>Due</b></td><td>${esc(a.due||'—')}</td></tr>`
+        + `<tr><td><b>Assigned to</b></td><td>${esc(assigneesTxt(a))}</td><td><b>Created by</b></td><td>${esc(creatorName(a))}</td></tr>`
+        + `<tr><td><b>Created On</b></td><td>${esc(createdOnOf(a)||'—')}</td><td><b>Depends on</b></td><td>${esc(a.dependsOn?('#'+a.dependsOn):'—')}</td></tr>`
+        + `</table>`;
+      const log = `<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;font-family:Calibri;width:100%"><tr><th style="text-align:left">Date</th><th style="text-align:left">Detail</th></tr>${detailLogRows(a)}</table>`;
+      return `<h2>${esc(a.title)}</h2>${meta}<p style="font-family:Calibri"><b>Description (dated detail log)</b></p>${log}`;
+    }).join('<hr/>');
+    const html = `<!DOCTYPE html><html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Actions</title></head><body>${sections}</body></html>`;
+    msoDownload('Actions.doc', html, 'application/msword');
+  }
+  function exportExcel(acts){
+    const header = `<tr><th>ID</th><th>Title</th><th>Project</th><th>Discipline</th><th>Status</th><th>Due</th><th>Assigned</th><th>Created By</th><th>Created On</th></tr>`;
+    const rows = acts.map(a=>`<tr><td>${a.id}</td><td>${esc(a.title)}</td><td>${esc(projName(a.projectId))}</td><td>${esc(discName(a.disciplineId))}</td><td>${esc(aStatusLabel(a))}</td><td>${esc(a.due||'')}</td><td>${esc(assigneeList(a).join(', '))}</td><td>${esc(a.createdByName||memberNameById(a.createdById)||'')}</td><td>${esc(createdOnOf(a)||'')}</td></tr>`).join('');
+    const html = `<!DOCTYPE html><html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Actions</title></head><body><table border="1" cellspacing="0" cellpadding="4">${header}${rows}</table></body></html>`;
+    msoDownload('Actions.xls', html, 'application/vnd.ms-excel');
+  }
+  function openExportModal(){
+    exportSel = new Set();
+    renderExportFilters();
+    openModalBox('exportModal');
+  }
+  function renderExportFilters(){
+    $('exProject').innerHTML   = `<option value="">All</option>` + state.projects.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+    $('exDiscipline').innerHTML= `<option value="">All</option>` + state.disciplines.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('');
+    $('exStatus').innerHTML    = `<option value="">All</option>` + state.statuses.map(s=>`<option value="${esc(s.id)}">${esc(s.label)}</option>`).join('');
+    ['exProject','exDiscipline','exStatus'].forEach(id=>{ const el=$(id); if(el) el.onchange=renderExportList; });
+    const q=$('exSearch'); if(q) q.oninput=renderExportList;
+    renderExportList();
+  }
+  function exportFiltered(){
+    const pid=$('exProject').value, did=$('exDiscipline').value, st=$('exStatus').value, q=$('exSearch').value.trim().toLowerCase();
+    return liveActions().filter(a=>{
+      if(pid && a.projectId!==pid) return false;
+      if(did && a.disciplineId!==did) return false;
+      if(st && aStatusId(a)!==st) return false;
+      if(q && !a.title.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }
+  function renderExportList(){
+    const all = exportFiltered();
+    [...exportSel].forEach(id=>{ if(!all.find(a=>a.id===id)) exportSel.delete(id); });
+    const list = all.length ? all.map(a=>`<label class="ex-item"><input type="checkbox" class="ex-chk" value="${a.id}" ${exportSel.has(a.id)?'checked':''}/> <span>${esc(a.title)}</span> <span class="ex-sub">${esc(projName(a.projectId))} · ${esc(aStatusLabel(a))}</span></label>`).join('')
+                         : `<div class="lm-empty">No actions match the filters.</div>`;
+    $('exList').innerHTML = list;
+    $('exList').querySelectorAll('.ex-chk').forEach(c=>c.onchange=()=>{ if(c.checked) exportSel.add(+c.value); else exportSel.delete(+c.value); updateExportCount(); });
+    updateExportCount();
+  }
+  function updateExportCount(){
+    const n = exportSel.size;
+    const el=$('exCount'); if(el) el.textContent = n + ' selected';
+    const btn=$('exExport'); if(btn) btn.disabled = n===0;
+  }
+  $('exSelectAll').onclick=()=>{ exportFiltered().forEach(a=>exportSel.add(a.id)); renderExportList(); };
+  $('exClear').onclick=()=>{ exportSel.clear(); renderExportList(); };
+  $('exCancel').onclick=()=>closeModalBox('exportModal');
+  $('exClose').onclick=()=>closeModalBox('exportModal');
+  $('exExport').onclick=()=>{
+    const acts = liveActions().filter(a=>exportSel.has(a.id));
+    if(!acts.length) return;
+    if($('exFmtWord').checked) exportWord(acts); else exportExcel(acts);
+    closeModalBox('exportModal');
+  };
+
+  // ---- Data source: auto-load + status bar ----
+  const DEFAULT_DATA_FILE = 'action.json';
+  function resolveDataUrl(){ try { return new URL(DEFAULT_DATA_FILE, location.href); } catch(e){ return null; } }
+
+  // ---- Data-folder handle (so pickers open next to index.html) ----
+  // Browsers won't accept an absolute path, so we ask the user to pick the
+  // folder once, persist the handle, and pass it as `startIn` to every picker.
+  const DATA_DIR_KEY = 'at_data_dir';
+  let dataDirHandle = null;
+  function idbOpen(){ return new Promise((res,rej)=>{ const r=indexedDB.open('actiontracker',1); r.onupgradeneeded=()=>{ try{ r.result.createObjectStore('kv'); }catch(e){} }; r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
+  async function idbGet(k){ try{ const db=await idbOpen(); return await new Promise((res,rej)=>{ const tx=db.transaction('kv','readonly'); const rq=tx.objectStore('kv').get(k); rq.onsuccess=()=>res(rq.result); rq.onerror=()=>rej(rq.error); }); }catch(e){ return null; } }
+  async function idbSet(k,v){ try{ const db=await idbOpen(); await new Promise((res,rej)=>{ const tx=db.transaction('kv','readwrite'); tx.objectStore('kv').put(v,k); tx.oncomplete=()=>res(); tx.onerror=()=>rej(tx.error); }); }catch(e){} }
+  async function loadDataDir(){
+    if(!window.showDirectoryPicker) return;
+    try{ const h=await idbGet(DATA_DIR_KEY); if(!h) return;
+      let ok='granted'; try{ ok=await h.requestPermission({mode:'readwrite'}); }catch(e){}
+      if(ok==='granted'||ok===undefined) dataDirHandle=h;
+    }catch(e){}
+  }
+  async function setDataFolder(silent){
+    if(!window.showDirectoryPicker){ if(!silent) toast('Folder picker needs a Chromium-based browser'); return; }
+    try{
+      const h=await window.showDirectoryPicker({ mode:'readwrite' });
+      let ok='granted'; try{ ok=await h.requestPermission({mode:'readwrite'}); }catch(e){}
+      if(ok!=='granted' && ok!==undefined){ if(!silent) toast('Permission denied'); return; }
+      dataDirHandle=h; await idbSet(DATA_DIR_KEY, h); updateStatusbar();
+      if(!silent) toast('Data folder set: '+h.name);
+    }catch(e){ if(e && e.name!=='AbortError' && !silent) toast('Could not set folder'); }
+  }
+  // Auto-set the working folder right after the user opens a JSON from file://,
+  // so subsequent saves/exports start in that folder. Skips if unsupported or a
+  // folder is already known (restored from IndexedDB). Fails quietly — the
+  // status-bar Folder button remains available as a fallback.
+  async function maybeSetDataFolder(){
+    if(!window.showDirectoryPicker || dataDirHandle) return;
+    try{ await setDataFolder(true); }catch(e){}
+  }
+  // Save content into the chosen folder via showSaveFilePicker (startIn = data folder).
+  async function saveViaPicker(filename, content, mime){
+    if(!window.showSaveFilePicker) return false;
+    const ext = (filename.split('.').pop()||'json').toLowerCase();
+    const accept = mime==='application/json' ? { 'application/json': ['.json'] } : { [mime]: ['.'+ext] };
+    try{
+      const handle = await window.showSaveFilePicker({ suggestedName: filename, startIn: dataDirHandle || undefined, types: [{ description:'File', accept }] });
+      const w = await handle.createWritable(); await w.write(content); await w.close();
+      return { ok:true, aborted:false };
+    }catch(e){ return { ok:false, aborted: !!(e && e.name==='AbortError') }; }
+  }
+  function srcLabel(s){ return s==='external' ? 'from file' : s==='imported' ? 'from upload' : s==='embedded' ? 'embedded default' : 'missing — no data'; }
+
+  function applyDataset(d, meta){
+    d = d || {};
+    // --- migration detection: a file without schemaVersion (or older than current) is legacy ---
+    const incomingVer = (typeof d.schemaVersion==='number') ? d.schemaVersion : 0;
+    state.migrated = (incomingVer < CURRENT_SCHEMA) && meta && meta.source!=='none';
+    // --- statuses: normalize strings/objects -> {id,label,color} ---
+    state.statuses = (Array.isArray(d.statuses) ? d.statuses : []).map((s,i)=>normStatus(s,i));
+    state.projects    = (Array.isArray(d.projects) ? d.projects : []).map(ensureProjectLists);
+    state.disciplines = Array.isArray(d.disciplines)  ? d.disciplines : [];
+    // --- priorities (schema-driven metadata, lives in action.json) ---
+    state.priorities = (Array.isArray(d.priorities) ? d.priorities : []).map((p,i)=>normPriority(p,i));
+    if(!state.priorities.length) state.priorities = ['Critical','High','Medium','Low'].map((p,i)=>normPriority(p,i));
+    // --- members: load declared members (left/active flag kept) ---
+    let members = (Array.isArray(d.members) ? d.members : []).map(m=>normMember(m));
+    state.actions = (Array.isArray(d.actions) ? d.actions : []).map(a=>{
+      if(a && !a.assignedTo && a.assignedBy) a.assignedTo = a.assignedBy; // legacy typo fix
+      // assignedTo: string (legacy) -> array of member names
+      if(typeof a.assignedTo==='string') a.assignedTo = a.assignedTo ? [a.assignedTo] : [];
+      if(!Array.isArray(a.assignedTo)) a.assignedTo = [];
+      a.assignedTo = a.assignedTo.filter(Boolean);
+      // ---- Schema v2: label/name -> id references; orphans kept as fallback (NO auto-create) ----
+      if(a.statusId===undefined && a.status!==undefined){ const st=findStatus(a.status); a.statusId = st? st.id : ''; if(!st) a.statusLabel = a.status; }
+      if(a.priorityId===undefined && a.priority!==undefined){ const pr=findPriority(a.priority); a.priorityId = pr? pr.id : ''; if(!pr) a.priorityLabel = a.priority; }
+      if(a.assignedToIds===undefined){
+        const ids=[], names=[];
+        a.assignedTo.forEach(n=>{ const m=members.find(x=>String(x.name||'').toLowerCase()===String(n||'').toLowerCase()); if(m) ids.push(m.id); else names.push(n); });
+        a.assignedToIds=ids; if(names.length) a.assignedToNames=names;
+      }
+      if(a.createdById===undefined && a.createdBy!==undefined){
+        const m=members.find(x=>String(x.name||'').toLowerCase()===String(a.createdBy||'').toLowerCase());
+        a.createdById = m? m.id : ''; if(!m) a.createdByName = a.createdBy;
+      }
+      if(!Array.isArray(a.detailLog)) a.detailLog = a.description ? [{date: todayStr(), text: a.description}] : [];
+      if(!a.createdOn){ const h0=(a.history||[])[0]; a.createdOn = (h0 && typeof h0.d==='string' && /^\d{4}-\d{2}-\d{2}$/.test(h0.d)) ? h0.d : todayStr(); }
+      return a;
+    });
+    state.members = members;
+    // Per-project member assignment: legacy/absent lists default to all ACTIVE members (members now loaded).
+    state.projects.forEach(p=>{ if(!Array.isArray(p.memberIds)) p.memberIds = members.filter(m=>!m.left).map(m=>m.id); });
+    // --- legacy migration: old action.json carried `settings` -> promote to setup.json ---
+    if(d.settings){ applySetup(d.settings); state.setupDirty = true; }
+    state.nextId      = state.actions.reduce((m,a)=>Math.max(m, (a&&a.id||0)), 0) + 1;
+    state.loadedFile  = meta || { name:DEFAULT_DATA_FILE, path:'', source:'embedded' };
+    if(Object.keys(state.expanded).length===0){
+      const fp=state.projects[0];
+      if(fp){ state.expanded['p'+fp.id]=true; const fd=state.disciplines[0]; if(fd) state.expanded['p'+fp.id+'::'+fd.id]=true; }
+    }
+    if(state.selection.actions && !state.actions.find(a=>a.id===state.selection.actions))
+      state.selection.actions = state.actions[0] ? state.actions[0].id : null;
+    applyLayout();
+    refresh();
+    updateStatusbar();
+    if(state.migrated) toast('Legacy schema detected — Save to write the upgraded v2 file');
+  }
+
+  // Serialize the DATA schema (action.json) — no UI settings.
+  function serializeData(){
+    return {
+      schemaVersion: 2,
+      members: state.members.map(m=>({ id:m.id, name:m.name, initials:m.initials||m.name||'', role:m.role||'', disciplineId:m.disciplineId||'', left:!!m.left, deletedOn:m.deletedOn||'', color:m.color||'' })),
+      statuses: state.statuses.map(s=>({ id:s.id, label:s.label, color:s.color })),
+      priorities: state.priorities.map(p=>({ id:p.id, label:p.label, color:p.color })),
+      projects: state.projects.map(p=>({ ...p, code:p.code||'' })), disciplines: state.disciplines,
+      actions: state.actions.map(a=>{
+        const { status, priority, assignedTo, createdBy, _prevStatus, _prevStatusId, _prevStatusLabel, ...rest } = a;
+        return { ...rest, deleted: !!a.deleted, statusId: a.statusId||'', statusLabel: a.statusLabel||'', priorityId: a.priorityId||'', priorityLabel: a.priorityLabel||'', assignedToIds: Array.isArray(a.assignedToIds)?a.assignedToIds:[], assignedToNames: Array.isArray(a.assignedToNames)?a.assignedToNames:[], createdById: a.createdById||'', createdByName: a.createdByName||'' };
+      })
+    };
+  }
+  // Serialize the SETUP schema (setup.json) — UI configuration only.
+  function serializeSetup(){
+    return {
+      schemaVersion: 1,
+      brand: state.setup.brand,
+      appearance: {
+        dark: !!state.layout.dark, activity: !!state.layout.activity, sidebar: !!state.layout.sidebar, right: !!state.layout.right, topbar: !!state.layout.topbar,
+        theme: state.layout.theme||'light',
+        panelWidths: { sidebar: state.layout.sw||260, right: state.layout.rw||300 }
+      },
+      labels: state.setup.labels,
+      defaultView: state.setup.defaultView,
+      help: Object.keys(state.setup.help).length
+        ? Object.keys(state.setup.help).map(k=>({ id:k, title:state.setup.help[k].title, body:state.setup.help[k].body }))
+        : Object.keys(BUILTIN_HELP_MD).map(k=>({ id:k, title:BUILTIN_HELP_MD[k].title, body:BUILTIN_HELP_MD[k].body })),
+      reports: (state.setup.reports && state.setup.reports.length) ? state.setup.reports : BUILTIN_REPORTS.map(r=>({id:r.id,label:r.label})),
+      filters: (state.setup.filters && state.setup.filters.length) ? state.setup.filters : BUILTIN_FILTERS.map(f=>({id:f.id,label:f.label}))
+    };
+  }
+
+  async function autoLoad(){
+    const url = resolveDataUrl();
+    if(url && (location.protocol==='http:' || location.protocol==='https:')){
+      let dataJson=null, note='';
+      try{
+        const res = await fetch(url);
+        if(!res.ok){ note = 'HTTP '+res.status; }
+        else {
+          const txt = await res.text();
+          const stripped = txt.charCodeAt(0)===0xFEFF ? txt.slice(1) : txt; // strip UTF-8 BOM
+          try { dataJson = JSON.parse(stripped); }
+          catch(e){ note = 'parse error: '+e.message; }
+        }
+      }catch(e){ note = 'fetch failed: '+e.message; }
+      if(dataJson){
+        applyDataset(dataJson, { name:DEFAULT_DATA_FILE, path:url.pathname, source:'external' });
+      } else {
+        applyDataset({projects:[],disciplines:[],statuses:[],actions:[]}, { name:DEFAULT_DATA_FILE, path:url.pathname, source:'none' });
+        toast(DEFAULT_DATA_FILE+' unloaded ('+(note||'empty')+') — started empty. Use Create to write it.');
+      }
+      // setup.json is optional; missing -> built-in defaults (applySetup not called, lets keep BUILTIN_*)
+      try{
+        const surl = new URL('setup.json', location.href);
+        const sres = await fetch(surl);
+        if(sres.ok){
+          const stxt = await sres.text();
+          const sstripped = stxt.charCodeAt(0)===0xFEFF ? stxt.slice(1) : stxt;
+          applySetup(JSON.parse(sstripped));
+        } else if(sres.status!==404){
+          console.warn('setup.json returned '+sres.status+', using built-in defaults.');
+        }
+      }catch(e){ console.warn('setup.json load failed ('+e.message+'), using built-in defaults.'); }
+      updateStatusbar();
+      return;
+    }
+    // file:// (fetch blocked) -> ask the user to pick the JSON manually
+    if($('openJsonModal')){ promptPickJson(); return; }
+    const seed = document.getElementById('seedData');
+    if(seed){ try{ applyDataset(JSON.parse(seed.textContent), { name:DEFAULT_DATA_FILE, path:'(embedded)', source:'embedded' }); }catch(e){} }
+    const sseed = document.getElementById('seedSetup');
+    if(sseed){ try{ applySetup(JSON.parse(sseed.textContent)); }catch(e){} }
+    updateStatusbar();
+  }
+
+  // Shown when the page runs from file:// — asks the user to pick the JSON manually.
+  function promptPickJson(){
+    const m = $('openJsonModal'); if(!m) return;
+    m.classList.add('open');
+    const f=m.querySelector('button'); if(f) f.focus();
+    $('ojPick').onclick = () => importViaPicker({ setFolder:true });
+    $('ojSample').onclick = async () => {
+      if(!await confirmSaveBeforeLeave()) return;
+      const seed = document.getElementById('seedData');
+      if(seed){ try{ applyDataset(JSON.parse(seed.textContent), { name:DEFAULT_DATA_FILE, path:'(embedded)', source:'embedded' }); }catch(e){} }
+      else applyDataset({projects:[],disciplines:[],statuses:[],actions:[]}, { name:DEFAULT_DATA_FILE, path:'', source:'none' });
+      closeModalBox('openJsonModal');
+    };
+  }
+
+  // Create an empty data file in the same folder. On Chromium uses the File System
+  // Access API to write INTO the HTML's directory; elsewhere falls back to a download.
+  async function createDataFile(){
+    const empty = {
+      schemaVersion: 2,
+      members: [],
+      statuses: ['Pending','In Progress','Completed','Blocked','On Hold','Not Started'].map((s,i)=>normStatus(s,i)),
+      priorities: ['Critical','High','Medium','Low'].map((p,i)=>normPriority(p,i)),
+      projects: [], disciplines: [], actions: []
+    };
+    try{
+      if(window.showSaveFilePicker){
+        const handle = await window.showSaveFilePicker({
+          suggestedName: DEFAULT_DATA_FILE,
+          startIn: dataDirHandle || undefined,
+          types:[{ description:'JSON', accept:{ 'application/json': ['.json'] } }]
+        });
+        const w = await handle.createWritable();
+        await w.write(JSON.stringify(empty, null, 2));
+        await w.close();
+        state.loadedFile = { name:DEFAULT_DATA_FILE, path:'(local file)', source:'external' };
+        state.dataDirty = false; updateSaveButtons();
+        toast('Created empty '+DEFAULT_DATA_FILE);
+        updateStatusbar();
+        return;
+      }
+    }catch(e){ /* user cancelled or unsupported -> fall through to download */ }
+    const blob = new Blob([JSON.stringify(empty, null, 2)], { type:'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = DEFAULT_DATA_FILE; a.click();
+    state.dataDirty = false; updateSaveButtons();
+    toast('Downloaded empty '+DEFAULT_DATA_FILE+' (save it next to index.html)');
+  }
+
+  function downloadJson(name, text, msg){
+    const blob = new Blob([text], {type:'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+    if(msg) toast(msg);
+  }
+
+  // Save Actions writes the data file (action.json) into the local folder.
+  async function writeDataFile(){
+    const text = JSON.stringify(serializeData(), null, 2);
+    if(window.showSaveFilePicker){
+      try{
+        const handle = await window.showSaveFilePicker({
+          suggestedName: DEFAULT_DATA_FILE,
+          startIn: dataDirHandle || undefined,
+          types: [{ description:'JSON', accept: { 'application/json': ['.json'] } }]
+        });
+        const w = await handle.createWritable(); await w.write(text); await w.close();
+        state.loadedFile = { name: handle.name || DEFAULT_DATA_FILE, path: '(local file)', source: 'external' };
+        state.dataDirty = false; updateSaveButtons();
+        toast('Saved ' + (handle.name || DEFAULT_DATA_FILE));
+      }catch(e){ if(e && e.name !== 'AbortError') toast('Save failed: ' + e.message); }
+      return;
+    }
+    downloadJson(DEFAULT_DATA_FILE, text, 'Saved '+DEFAULT_DATA_FILE);
+    state.dataDirty = false; updateSaveButtons();
+  }
+
+  // Save Settings writes the UI configuration (setup.json). On Chromium it uses
+  // the File System Access API; elsewhere it falls back to a DOWNLOAD (the browser
+  // cannot write directly), and we tell the user that explicitly.
+  async function saveSetupFile(){
+    const text = JSON.stringify(serializeSetup(), null, 2);
+    if(window.showSaveFilePicker){
+      const r = await saveViaPicker('setup.json', text, 'application/json');
+      if(r.ok){ state.setupDirty = false; updateSaveButtons(); toast('Saved setup.json'); return; }
+      if(r.aborted) return;
+    }
+    downloadJson('setup.json', text, 'Downloading setup.json (browser can\'t write directly)');
+    state.setupDirty = false; updateSaveButtons();
+  }
+
+  function updateStatusbar(){
+    const el = $('statusbar'); if(!el) return;
+    const f = state.loadedFile;
+    const src = f ? f.source : 'none';
+    const dot  = src==='external' ? 'sb-ext' : src==='imported' ? 'sb-imp' : src==='embedded' ? 'sb-emb' : 'sb-none';
+    const name = f ? f.name : 'No data file';
+    const path = f ? (f.path||'') : '';
+    const srcTxt  = srcLabel(src);
+    const migTag  = state.migrated ? '<span class="sb-mig" title="Upgraded from a legacy schema. Click Save to persist the new v1 format.">⚠ legacy → v1</span>' : '';
+    const counts = state.projects.length+' projects · '+liveActions().length+' actions';
+    const folderChip = dataDirHandle ? '<span class="sb-src">📁 '+esc(dataDirHandle.name)+'</span>' : '';
+    // Pure status: source dot + file + folder + legacy tag + counts (no buttons)
+    el.innerHTML =
+      '<span class="sb-left"><span class="sb-dot '+dot+'"></span>'+
+      '<span class="sb-file" title="'+esc(path)+'">Loaded: '+esc(name)+'</span>'+
+      folderChip +
+      '<span class="sb-src">'+esc(srcTxt)+'</span>'+ migTag +'</span>'+
+      '<span class="sb-right"><span class="sb-counts">'+counts+'</span></span>';
+    // Top bar brand meta mirrors the same state
+    const tf=$('tbFile'); if(tf){ const fname=tf.querySelector('.tb-fname'); if(fname) fname.textContent=name; }
+    syncTopbarUnsaved();
+  }
+  // Top-bar "● unsaved" indicator — kept in sync on every dirty/save change and
+  // pulses continuously while there are unsaved changes (amber, infinite).
+  function syncTopbarUnsaved(){
+    const tm=$('tbMeta'); if(!tm) return;
+    const src = state.loadedFile ? state.loadedFile.source : 'none';
+    const counts = state.projects.length+' projects · '+liveActions().length+' actions';
+    const dirty = state.dataDirty || state.setupDirty;
+    tm.innerHTML = (src==='none'?'no data · ':'')+esc(counts)+(dirty?' · <span class="tb-unsaved" title="Unsaved changes — Save Actions / Save Settings">● unsaved</span>':'');
+  }
+
+  // ---- Activity bar ----
+  $('activitybar').addEventListener('click', async e=>{ const b=e.target.closest('.abtn[data-p]'); if(b) await setPerspective(b.dataset.p); });
+
+  // ---- Layout ----
+  function setSwitch(el,on){
+    if(!el) return;
+    el.classList.toggle('on',on);
+    el.setAttribute('role','switch');
+    el.setAttribute('aria-checked', on?'true':'false');
+    if(el.getAttribute('tabindex')==null) el.tabIndex=0;
+  }
+  function applyLayout(){
+    const L=state.layout;
+    document.body.classList.toggle('hide-topbar', !L.topbar);
+    document.body.classList.toggle('hide-activity', !L.activity);
+    document.body.classList.toggle('hide-sidebar', !L.sidebar);
+    document.body.classList.toggle('hide-right', !L.right);
+    document.body.classList.toggle('dark', L.dark);
+    document.documentElement.style.setProperty('--sw', L.sw+'px');
+    document.documentElement.style.setProperty('--rw', L.rw+'px');
+  }
+  function syncLayoutModal(){
+    setSwitch($('swTop'), state.layout.topbar);
+    setSwitch($('swActivity'), state.layout.activity);
+    setSwitch($('swSidebar'), state.layout.sidebar);
+    setSwitch($('swRight'), state.layout.right);
+    setSwitch($('swDark'), state.layout.dark);
+    $('rwSidebar').value=state.layout.sw; $('rwSidebarVal').textContent=state.layout.sw;
+    $('rwRight').value=state.layout.rw; $('rwRightVal').textContent=state.layout.rw;
+  }
+  [['swTop','topbar'],['swActivity','activity'],['swSidebar','sidebar'],['swRight','right'],['swDark','dark']].forEach(([id,key])=>{
+    const el=$(id); if(!el) return;
+    el.onclick=()=>{ state.layout[key]=!state.layout[key]; setSwitch(el, state.layout[key]); applyLayout(); markSetupDirty(); };
+  });
+  $('rwSidebar').oninput=e=>{ state.layout.sw=+e.target.value; $('rwSidebarVal').textContent=state.layout.sw; applyLayout(); markSetupDirty(); };
+  $('rwRight').oninput=e=>{ state.layout.rw=+e.target.value; $('rwRightVal').textContent=state.layout.rw; applyLayout(); markSetupDirty(); };
+  $('layoutClose').onclick=()=>closeModalBox('layoutModal');
+
+  // ---- Right panel + Help modal ----
+  bindEl('rpSetting', ()=>{ syncLayoutModal(); openModalBox('layoutModal'); });
+  bindEl('rpHelp', ()=>{ openModalBox('helpModal'); });
+  $('helpClose').onclick=()=>closeModalBox('helpModal');
+
+  // ---- Toast ----
+  let toastT;
+  function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1800); }
+
+  // ---- Modals backdrop close ----
+  ['actionModal','layoutModal','helpModal','exportModal','openJsonModal','projectModal','reassignModal'].forEach(id=>{
+    $(id).addEventListener('click', e=>{ if(e.target===$(id)) closeModalBox(id); });
+  });
+
+  // ---- Keyboard shortcuts ----
+  const KEYS={'1':'actions','2':'projects','3':'disciplines','4':'reports','5':'search','6':'settings','7':'help'};
+  document.addEventListener('keydown', e=>{
+    // Switch widgets: Enter / Space toggles any [role=switch]
+    if((e.key==='Enter'||e.key===' '||e.key==='Spacebar') && e.target && e.target.getAttribute && e.target.getAttribute('role')==='switch'){ e.preventDefault(); e.target.click(); return; }
+    // Esc: close the topmost open modal, else close the mobile drawer
+    if(e.key==='Escape'){
+      const open=[...document.querySelectorAll('.backdrop.open')].pop();
+      if(open){ closeModalBox(open.id); return; }
+      if(document.body.classList.contains('m-show-side')){ closeDrawers(); return; }
+    }
+    const m=e.metaKey||e.ctrlKey;
+    if(m && e.key.toLowerCase()==='s' && e.shiftKey){ e.preventDefault(); saveSetupFile(); return; }
+    if(m && e.key.toLowerCase()==='s'){ e.preventDefault(); writeDataFile(); return; }
+    if(m && e.key.toLowerCase()==='e'){ e.preventDefault(); openExportModal(); return; }
+    if(m && e.key===','){ e.preventDefault(); setPerspective('settings'); return; }
+    if(m && KEYS[e.key]){ e.preventDefault(); setPerspective(KEYS[e.key]); }
+  });
+  // Focus trap (WCAG 2.1.2): Tab stays inside the open modal
+  document.addEventListener('keydown', e=>{
+    if(e.key!=='Tab') return;
+    const open=[...document.querySelectorAll('.backdrop.open')].pop();
+    if(!open) return;
+    const f=open.querySelectorAll('input,select,textarea,button,[tabindex]:not([tabindex="-1"])');
+    if(!f.length) return;
+    const first=f[0], last=f[f.length-1], a=document.activeElement;
+    if(e.shiftKey && (a===first || !open.contains(a))){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && (a===last || !open.contains(a))){ e.preventDefault(); first.focus(); }
+  });
+
+  // ---- Init ----
+  applyLayout();
+  syncLayoutModal();
+  setPerspective(state.perspective);
+  autoLoad();
+  loadDataDir().then(updateStatusbar);
+})();
+</script>
+</body>
+</html>
