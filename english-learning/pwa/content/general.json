@@ -1,0 +1,759 @@
+{
+  "id": "general",
+  "name": "通用英语",
+  "nameEn": "General English",
+  "desc": "默认内容包：40 个每日单词 + 6 篇分级阅读 + 计划任务库",
+  "descEn": "Default pack: 40 daily words + 6 graded readings + plan task bank",
+  "words": [
+    {
+      "word": "serene",
+      "ipa": "/sɪˈriːn/",
+      "pos": "adj.",
+      "def": "宁静的",
+      "defEn": "calm and peaceful",
+      "ex": "The lake was serene at dawn.",
+      "exzh": "黎明时湖面宁静。",
+      "exEn": "The lake was calm and peaceful at dawn.",
+      "emoji": "🌅"
+    },
+    {
+      "word": "resilient",
+      "ipa": "/rɪˈzɪliənt/",
+      "pos": "adj.",
+      "def": "有韧性的",
+      "defEn": "able to recover quickly",
+      "ex": "Children are remarkably resilient.",
+      "exzh": "孩子的韧性令人惊叹。",
+      "exEn": "Children recover from difficulties remarkably well.",
+      "emoji": "🌱"
+    },
+    {
+      "word": "aroma",
+      "ipa": "/əˈroʊmə/",
+      "pos": "n.",
+      "def": "香气",
+      "defEn": "a pleasant smell",
+      "ex": "The aroma of coffee filled the room.",
+      "exzh": "咖啡的香气弥漫房间。",
+      "exEn": "The smell of coffee filled the room.",
+      "emoji": "☕"
+    },
+    {
+      "word": "wander",
+      "ipa": "/ˈwɑːndər/",
+      "pos": "v.",
+      "def": "漫步",
+      "defEn": "walk slowly with no aim",
+      "ex": "We love to wander through old streets.",
+      "exzh": "我们爱在老街漫步。",
+      "exEn": "We love to walk slowly through old streets.",
+      "emoji": "🚶"
+    },
+    {
+      "word": "grateful",
+      "ipa": "/ˈɡreɪtfəl/",
+      "pos": "adj.",
+      "def": "感激的",
+      "defEn": "feeling thanks",
+      "ex": "I am grateful for your help.",
+      "exzh": "我感激你的帮助。",
+      "exEn": "I am thankful for your help.",
+      "emoji": "🙏"
+    },
+    {
+      "word": "horizon",
+      "ipa": "/həˈraɪzn/",
+      "pos": "n.",
+      "def": "地平线",
+      "defEn": "where sky meets land/sea",
+      "ex": "The sun sank below the horizon.",
+      "exzh": "太阳沉入地平线。",
+      "exEn": "The sun went down below the horizon.",
+      "emoji": "🌄"
+    },
+    {
+      "word": "nourish",
+      "ipa": "/ˈnɜːrɪʃ/",
+      "pos": "v.",
+      "def": "滋养",
+      "defEn": "provide food/nutrients",
+      "ex": "Good food nourishes the body.",
+      "exzh": "好食物滋养身体。",
+      "exEn": "Good food feeds and strengthens the body.",
+      "emoji": "🥗"
+    },
+    {
+      "word": "whisper",
+      "ipa": "/ˈwɪspər/",
+      "pos": "v.",
+      "def": "低语",
+      "defEn": "speak very quietly",
+      "ex": "She whispered a secret to me.",
+      "exzh": "她对我低语一个秘密。",
+      "exEn": "She spoke a secret to me very quietly.",
+      "emoji": "🤫"
+    },
+    {
+      "word": "brilliant",
+      "ipa": "/ˈbrɪljənt/",
+      "pos": "adj.",
+      "def": "杰出的",
+      "defEn": "very clever/bright",
+      "ex": "He had a brilliant idea.",
+      "exzh": "他有个绝妙的主意。",
+      "exEn": "He had a very clever idea.",
+      "emoji": "💡"
+    },
+    {
+      "word": "abundance",
+      "ipa": "/əˈbʌndəns/",
+      "pos": "n.",
+      "def": "丰富",
+      "defEn": "a large amount",
+      "ex": "The garden had an abundance of flowers.",
+      "exzh": "花园里繁花似锦。",
+      "exEn": "The garden had a large number of flowers.",
+      "emoji": "🌾"
+    },
+    {
+      "word": "courageous",
+      "ipa": "/kəˈreɪdʒəs/",
+      "pos": "adj.",
+      "def": "勇敢的",
+      "defEn": "brave",
+      "ex": "It was a courageous decision.",
+      "exzh": "那是个勇敢的决定。",
+      "exEn": "It was a brave decision.",
+      "emoji": "🦁"
+    },
+    {
+      "word": "tranquil",
+      "ipa": "/ˈtræŋkwɪl/",
+      "pos": "adj.",
+      "def": "平静的",
+      "defEn": "quiet and calm",
+      "ex": "The village was tranquil at night.",
+      "exzh": "夜晚的村庄很宁静。",
+      "exEn": "The village was quiet and calm at night.",
+      "emoji": "🏞️"
+    },
+    {
+      "word": "vibrant",
+      "ipa": "/ˈvaɪbrənt/",
+      "pos": "adj.",
+      "def": "充满活力的",
+      "defEn": "full of energy",
+      "ex": "The city has a vibrant culture.",
+      "exzh": "这座城市文化充满活力。",
+      "exEn": "The city has a lively, energetic culture.",
+      "emoji": "🌈"
+    },
+    {
+      "word": "cultivate",
+      "ipa": "/ˈkʌltɪveɪt/",
+      "pos": "v.",
+      "def": "培养",
+      "defEn": "develop or grow",
+      "ex": "Try to cultivate good habits.",
+      "exzh": "试着培养好习惯。",
+      "exEn": "Try to develop good habits.",
+      "emoji": "🌻"
+    },
+    {
+      "word": "curiosity",
+      "ipa": "/ˌkjʊriˈɒsəti/",
+      "pos": "n.",
+      "def": "好奇心",
+      "defEn": "desire to learn",
+      "ex": "Her curiosity led her to explore.",
+      "exzh": "好奇心驱使她去探索。",
+      "exEn": "Her desire to learn led her to explore.",
+      "emoji": "🔍"
+    },
+    {
+      "word": "effortless",
+      "ipa": "/ˈefərtləs/",
+      "pos": "adj.",
+      "def": "轻松的",
+      "defEn": "needing no effort",
+      "ex": "He made it look effortless.",
+      "exzh": "他做得看似毫不费力。",
+      "exEn": "He made it look easy, with no effort.",
+      "emoji": "🍃"
+    },
+    {
+      "word": "harmony",
+      "ipa": "/ˈhɑːrməni/",
+      "pos": "n.",
+      "def": "和谐",
+      "defEn": "peaceful agreement",
+      "ex": "They lived in perfect harmony.",
+      "exzh": "他们和睦相处。",
+      "exEn": "They lived together in perfect peace.",
+      "emoji": "🎵"
+    },
+    {
+      "word": "legacy",
+      "ipa": "/ˈleɡəsi/",
+      "pos": "n.",
+      "def": "遗产",
+      "defEn": "something left behind",
+      "ex": "She left a legacy of kindness.",
+      "exzh": "她留下了善意的遗产。",
+      "exEn": "She left behind a tradition of kindness.",
+      "emoji": "📜"
+    },
+    {
+      "word": "milestone",
+      "ipa": "/ˈmaɪlstoʊn/",
+      "pos": "n.",
+      "def": "里程碑",
+      "defEn": "important stage",
+      "ex": "Graduation is a major milestone.",
+      "exzh": "毕业是重要里程碑。",
+      "exEn": "Graduation is a major important step.",
+      "emoji": "🪨"
+    },
+    {
+      "word": "nurture",
+      "ipa": "/ˈnɜːrtʃər/",
+      "pos": "v.",
+      "def": "养育",
+      "defEn": "care for and help grow",
+      "ex": "Parents nurture their children.",
+      "exzh": "父母养育孩子。",
+      "exEn": "Parents care for and help their children grow.",
+      "emoji": "🤱"
+    },
+    {
+      "word": "optimistic",
+      "ipa": "/ˌɑːptɪˈmɪstɪk/",
+      "pos": "adj.",
+      "def": "乐观的",
+      "defEn": "hopeful",
+      "ex": "Stay optimistic about the future.",
+      "exzh": "对未来保持乐观。",
+      "exEn": "Stay hopeful about the future.",
+      "emoji": "☀️"
+    },
+    {
+      "word": "perspective",
+      "ipa": "/pərˈspektɪv/",
+      "pos": "n.",
+      "def": "视角",
+      "defEn": "a way of seeing",
+      "ex": "He offered a new perspective.",
+      "exzh": "他提供了一个新视角。",
+      "exEn": "He offered a new way of looking at things.",
+      "emoji": "🔭"
+    },
+    {
+      "word": "reflection",
+      "ipa": "/rɪˈflekʃən/",
+      "pos": "n.",
+      "def": "反思",
+      "defEn": "careful thought",
+      "ex": "Reading is a time for reflection.",
+      "exzh": "阅读是反思的时光。",
+      "exEn": "Reading is a time for careful thought.",
+      "emoji": "🪞"
+    },
+    {
+      "word": "thrive",
+      "ipa": "/θraɪv/",
+      "pos": "v.",
+      "def": "繁荣",
+      "defEn": "grow strong/well",
+      "ex": "Plants thrive in sunlight.",
+      "exzh": "植物在阳光下茁壮成长。",
+      "exEn": "Plants grow strong in sunlight.",
+      "emoji": "🌺"
+    },
+    {
+      "word": "wisdom",
+      "ipa": "/ˈwɪzdəm/",
+      "pos": "n.",
+      "def": "智慧",
+      "defEn": "deep understanding",
+      "ex": "Experience brings wisdom.",
+      "exzh": "经验带来智慧。",
+      "exEn": "Experience brings deep understanding.",
+      "emoji": "🦉"
+    },
+    {
+      "word": "journey",
+      "ipa": "/ˈdʒɜːrni/",
+      "pos": "n.",
+      "def": "旅程",
+      "defEn": "a long trip",
+      "ex": "Life is a long journey.",
+      "exzh": "人生是一段漫长的旅程。",
+      "exEn": "Life is a long trip.",
+      "emoji": "🧳"
+    },
+    {
+      "word": "blossom",
+      "ipa": "/ˈblɑːsəm/",
+      "pos": "v.",
+      "def": "开花",
+      "defEn": "produce flowers",
+      "ex": "The tree will blossom in spring.",
+      "exzh": "树会在春天开花。",
+      "exEn": "The tree will produce flowers in spring.",
+      "emoji": "🌸"
+    },
+    {
+      "word": "companion",
+      "ipa": "/kəmˈpænjən/",
+      "pos": "n.",
+      "def": "同伴",
+      "defEn": "a friend/comrade",
+      "ex": "A dog is a loyal companion.",
+      "exzh": "狗是忠诚的同伴。",
+      "exEn": "A dog is a loyal friend.",
+      "emoji": "🐾"
+    },
+    {
+      "word": "delight",
+      "ipa": "/dɪˈlaɪt/",
+      "pos": "n.",
+      "def": "喜悦",
+      "defEn": "great pleasure",
+      "ex": "To my delight, it worked.",
+      "exzh": "让我高兴的是，它奏效了。",
+      "exEn": "To my great pleasure, it worked.",
+      "emoji": "🎉"
+    },
+    {
+      "word": "embrace",
+      "ipa": "/ɪmˈbreɪs/",
+      "pos": "v.",
+      "def": "接纳",
+      "defEn": "accept willingly",
+      "ex": "Embrace new challenges.",
+      "exzh": "接纳新的挑战。",
+      "exEn": "Accept new challenges willingly.",
+      "emoji": "🤗"
+    },
+    {
+      "word": "fleeting",
+      "ipa": "/ˈfliːtɪŋ/",
+      "pos": "adj.",
+      "def": "短暂的",
+      "defEn": "passing quickly",
+      "ex": "Happiness can be fleeting.",
+      "exzh": "幸福可能转瞬即逝。",
+      "exEn": "Happiness can pass quickly.",
+      "emoji": "⏳"
+    },
+    {
+      "word": "genuine",
+      "ipa": "/ˈdʒenjuɪn/",
+      "pos": "adj.",
+      "def": "真诚的",
+      "defEn": "real and sincere",
+      "ex": "She gave a genuine smile.",
+      "exzh": "她露出了真诚的微笑。",
+      "exEn": "She gave a real, sincere smile.",
+      "emoji": "💎"
+    },
+    {
+      "word": "inspire",
+      "ipa": "/ɪnˈspaɪər/",
+      "pos": "v.",
+      "def": "激励",
+      "defEn": "fill with motivation",
+      "ex": "The speech inspired many people.",
+      "exzh": "这场演讲激励了很多人。",
+      "exEn": "The speech motivated many people.",
+      "emoji": "🚀"
+    },
+    {
+      "word": "mindful",
+      "ipa": "/ˈmaɪndfəl/",
+      "pos": "adj.",
+      "def": "正念的",
+      "defEn": "aware and present",
+      "ex": "Be mindful of your breathing.",
+      "exzh": "留意你的呼吸。",
+      "exEn": "Be aware of your breathing.",
+      "emoji": "🧘"
+    },
+    {
+      "word": "persevere",
+      "ipa": "/ˌpɜːrsəˈvɪr/",
+      "pos": "v.",
+      "def": "坚持",
+      "defEn": "keep going despite difficulty",
+      "ex": "If you persevere, you will succeed.",
+      "exzh": "只要坚持，你就会成功。",
+      "exEn": "If you keep going, you will succeed.",
+      "emoji": "🏔️"
+    },
+    {
+      "word": "radiate",
+      "ipa": "/ˈreɪdieɪt/",
+      "pos": "v.",
+      "def": "散发",
+      "defEn": "send out (light/feeling)",
+      "ex": "She radiates confidence.",
+      "exzh": "她散发着自信。",
+      "exEn": "She sends out confidence.",
+      "emoji": "🌟"
+    },
+    {
+      "word": "savor",
+      "ipa": "/ˈseɪvər/",
+      "pos": "v.",
+      "def": "品味",
+      "defEn": "enjoy fully",
+      "ex": "Savor every moment.",
+      "exzh": "品味每一刻。",
+      "exEn": "Enjoy every moment fully.",
+      "emoji": "🍷"
+    },
+    {
+      "word": "envision",
+      "ipa": "/ɪnˈvɪʒn/",
+      "pos": "v.",
+      "def": "设想",
+      "defEn": "imagine",
+      "ex": "Envision your bright future.",
+      "exzh": "设想你光明的未来。",
+      "exEn": "Imagine your bright future.",
+      "emoji": "💭"
+    },
+    {
+      "word": "flourish",
+      "ipa": "/ˈflɜːrɪʃ/",
+      "pos": "v.",
+      "def": "茂盛",
+      "defEn": "grow healthily",
+      "ex": "Business began to flourish.",
+      "exzh": "生意开始兴旺。",
+      "exEn": "The business began to grow healthily.",
+      "emoji": "🌿"
+    },
+    {
+      "word": "eager",
+      "ipa": "/ˈiːɡər/",
+      "pos": "adj.",
+      "def": "热切的",
+      "defEn": "very keen",
+      "ex": "I am eager to learn.",
+      "exzh": "我渴望学习。",
+      "exEn": "I am very keen to learn.",
+      "emoji": "🐣"
+    }
+  ],
+  "readings": [
+    {
+      "title": "晨光",
+      "titleEn": "Morning Light",
+      "level": "A1",
+      "text": "Every morning, the sun <b>rises</b> slowly over the hills. A young woman steps outside and takes a deep breath. She enjoys the quiet moment before the busy day begins. Small <b>habits</b> like this help her feel calm and ready. Over time, these peaceful minutes become her favorite part of the day.",
+      "vocab": [
+        {
+          "w": "rise",
+          "d": "升起",
+          "dEn": "go up / appear"
+        },
+        {
+          "w": "habit",
+          "d": "习惯",
+          "dEn": "regular practice"
+        }
+      ],
+      "questions": [
+        {
+          "q": "Where does the woman go every morning?",
+          "options": [
+            "To a busy office",
+            "Outside her home",
+            "To a restaurant"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What do small habits help her feel?",
+          "options": [
+            "Tired",
+            "Calm and ready",
+            "Angry"
+          ],
+          "a": 1
+        }
+      ]
+    },
+    {
+      "title": "好奇的猫",
+      "titleEn": "The Curious Cat",
+      "level": "A1",
+      "text": "A cat named Mimi lives in a small <b>apartment</b>. She is very <b>curious</b> about everything. When her owner reads a book, Mimi sits close and watches. She does not understand the words, but she likes the sound of the pages turning. Curiosity, even without understanding, can bring comfort.",
+      "vocab": [
+        {
+          "w": "apartment",
+          "d": "公寓",
+          "dEn": "flat"
+        },
+        {
+          "w": "curious",
+          "d": "好奇的",
+          "dEn": "eager to know"
+        }
+      ],
+      "questions": [
+        {
+          "q": "Where does Mimi live?",
+          "options": [
+            "In a big house",
+            "In a small apartment",
+            "On a farm"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What does Mimi like about the book?",
+          "options": [
+            "The pictures",
+            "The sound of pages turning",
+            "The words"
+          ],
+          "a": 1
+        }
+      ]
+    },
+    {
+      "title": "在做中学",
+      "titleEn": "Learning by Doing",
+      "level": "A2",
+      "text": "Many people think learning a language is hard. But the best way is simple: use it every day. Speak with friends, watch short videos, and do not fear mistakes. Mistakes are not <b>failures</b>; they are lessons. With practice, your <b>confidence</b> grows.",
+      "vocab": [
+        {
+          "w": "failure",
+          "d": "失败",
+          "dEn": "lack of success"
+        },
+        {
+          "w": "confidence",
+          "d": "自信",
+          "dEn": "self-belief"
+        }
+      ],
+      "questions": [
+        {
+          "q": "What is the best way to learn a language?",
+          "options": [
+            "Use it every day",
+            "Only read books",
+            "Avoid speaking"
+          ],
+          "a": 0
+        },
+        {
+          "q": "What are mistakes according to the text?",
+          "options": [
+            "Failures",
+            "Lessons",
+            "Goals"
+          ],
+          "a": 1
+        }
+      ]
+    },
+    {
+      "title": "时间的礼物",
+      "titleEn": "The Gift of Time",
+      "level": "A2",
+      "text": "Time is the most <b>valuable</b> gift we have. We cannot save it or buy more of it. Yet many of us spend it worrying about the future. Try to enjoy the present moment. A walk, a song, or a kind word can make an <b>ordinary</b> day special.",
+      "vocab": [
+        {
+          "w": "valuable",
+          "d": "珍贵的",
+          "dEn": "of great worth"
+        },
+        {
+          "w": "ordinary",
+          "d": "普通的",
+          "dEn": "normal, everyday"
+        }
+      ],
+      "questions": [
+        {
+          "q": "Why is time valuable?",
+          "options": [
+            "We can buy more",
+            "We cannot save or buy more",
+            "It is cheap"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What can make an ordinary day special?",
+          "options": [
+            "Worrying",
+            "A walk, song, or kind word",
+            "Sleeping all day"
+          ],
+          "a": 1
+        }
+      ]
+    },
+    {
+      "title": "海那边的朋友",
+      "titleEn": "A Friend Across the Sea",
+      "level": "A2",
+      "text": "Emma met a friend online from another country. They text every week and teach each other phrases. Last month, Emma learned how to say 'hello' in three new languages. Their <b>friendship</b> shows that <b>distance</b> is not a wall, but a bridge.",
+      "vocab": [
+        {
+          "w": "friendship",
+          "d": "友谊",
+          "dEn": "close bond"
+        },
+        {
+          "w": "distance",
+          "d": "距离",
+          "dEn": "space between"
+        }
+      ],
+      "questions": [
+        {
+          "q": "How did Emma meet her friend?",
+          "options": [
+            "At school",
+            "Online",
+            "On a trip"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What did Emma learn last month?",
+          "options": [
+            "To say hello in 3 languages",
+            "To cook",
+            "To drive"
+          ],
+          "a": 0
+        }
+      ]
+    },
+    {
+      "title": "休息与恢复",
+      "titleEn": "Rest and Recovery",
+      "level": "A2",
+      "text": "After a long week of work, the body needs rest. Sleep helps the brain store what it learned. Without enough rest, we feel tired and forget things. A short walk or quiet music can help us <b>relax</b>. Rest is not <b>laziness</b>; it is part of doing well.",
+      "vocab": [
+        {
+          "w": "relax",
+          "d": "放松",
+          "dEn": "rest and unwind"
+        },
+        {
+          "w": "laziness",
+          "d": "懒惰",
+          "dEn": "avoiding work"
+        }
+      ],
+      "questions": [
+        {
+          "q": "What does sleep help the brain do?",
+          "options": [
+            "Forget things",
+            "Store what it learned",
+            "Work faster"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Is rest laziness?",
+          "options": [
+            "Yes",
+            "No, it is part of doing well",
+            "Sometimes"
+          ],
+          "a": 1
+        }
+      ]
+    }
+  ],
+  "areaTasks": {
+    "vocab": {
+      "zh": [
+        "学习 2 个新单词",
+        "复习生词卡 5 分钟"
+      ],
+      "en": [
+        "Learn 2 new words",
+        "Review flashcards 5 min"
+      ]
+    },
+    "reading": {
+      "zh": [
+        "阅读一篇短文",
+        "做阅读理解题"
+      ],
+      "en": [
+        "Read a short text",
+        "Do the comprehension quiz"
+      ]
+    },
+    "speaking": {
+      "zh": [
+        "跟读练习 5 分钟",
+        "用英语描述今天"
+      ],
+      "en": [
+        "Shadow-read 5 min",
+        "Describe today in English"
+      ]
+    },
+    "listening": {
+      "zh": [
+        "听一段英语音频",
+        "看短视频并跟读"
+      ],
+      "en": [
+        "Listen to English audio",
+        "Watch a short video & repeat"
+      ]
+    },
+    "grammar": {
+      "zh": [
+        "学习一个语法点",
+        "用新语法造句"
+      ],
+      "en": [
+        "Study one grammar point",
+        "Make sentences with it"
+      ]
+    },
+    "writing": {
+      "zh": [
+        "写 3 句英语日记",
+        "写一封简短英文信"
+      ],
+      "en": [
+        "Write a 3-sentence diary",
+        "Write a short English note"
+      ]
+    }
+  },
+  "areaLabel": {
+    "zh": {
+      "vocab": "词汇",
+      "reading": "阅读",
+      "speaking": "口语",
+      "listening": "听力",
+      "grammar": "语法",
+      "writing": "写作"
+    },
+    "en": {
+      "vocab": "Vocabulary",
+      "reading": "Reading",
+      "speaking": "Speaking",
+      "listening": "Listening",
+      "grammar": "Grammar",
+      "writing": "Writing"
+    }
+  }
+}

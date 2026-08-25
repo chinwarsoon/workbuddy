@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "defaultPack": "general",
+  "packs": [
+    {
+      "id": "general",
+      "file": "general.json",
+      "name": "通用英语",
+      "nameEn": "General English"
+    },
+    {
+      "id": "nce2",
+      "file": "nce2.json",
+      "name": "新概念风格·第二册",
+      "nameEn": "NCE-Style Book 2"
+    },
+    {
+      "id": "nce3",
+      "file": "nce3.json",
+      "name": "新概念风格·第三册",
+      "nameEn": "NCE-Style Book 3"
+    },
+    {
+      "id": "nce4",
+      "file": "nce4.json",
+      "name": "新概念风格·第四册",
+      "nameEn": "NCE-Style Book 4"
+    }
+  ]
+}

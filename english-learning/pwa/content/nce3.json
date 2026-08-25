@@ -1,0 +1,1540 @@
+{
+  "id": "nce3",
+  "name": "新概念风格·第三册",
+  "nameEn": "NCE-Style Book 3",
+  "desc": "仿《新概念英语3》风格：79 个中级偏高核心词 + 10 篇原创叙事长文（约 180–220 词，情节铺垫 + 结尾点题）+ 计划任务库（含三册招牌练习：摘要写作）。课文为原创，规避版权。",
+  "descEn": "Book-3-style pack: 79 upper-intermediate words + 10 original narrative essays (~180–220 words, build-up + pointed ending) + plan task bank incl. the classic summary-writing drill. Original texts, copyright-safe.",
+  "words": [
+    {
+      "word": "spot",
+      "ipa": "/spɑːt/",
+      "pos": "v.",
+      "def": "认出；发现",
+      "defEn": "to notice someone or something suddenly",
+      "ex": "She spotted a familiar face in the crowd.",
+      "exzh": "她在人群中认出一张熟面孔。",
+      "exEn": "She suddenly noticed a familiar face in the crowd.",
+      "emoji": "👁️"
+    },
+    {
+      "word": "evidence",
+      "ipa": "/ˈevɪdəns/",
+      "pos": "n.",
+      "def": "证据",
+      "defEn": "facts that show something is true",
+      "ex": "There is little evidence to support the rumour.",
+      "exzh": "几乎没有证据支持这个传言。",
+      "exEn": "Few facts back up the rumour.",
+      "emoji": "🔍"
+    },
+    {
+      "word": "accumulate",
+      "ipa": "/əˈkjuːmjəleɪt/",
+      "pos": "v.",
+      "def": "积累；积聚",
+      "defEn": "to collect more and more over time",
+      "ex": "Dust had accumulated on the shelf.",
+      "exzh": "书架上积了灰尘。",
+      "exEn": "Dust had slowly gathered on the shelf.",
+      "emoji": "📚"
+    },
+    {
+      "word": "disturb",
+      "ipa": "/dɪˈstɜːrb/",
+      "pos": "v.",
+      "def": "打扰；使不安",
+      "defEn": "to interrupt or make someone worried",
+      "ex": "The strange noise disturbed the whole village.",
+      "exzh": "怪声让全村不安。",
+      "exEn": "The odd noise worried everyone in the village.",
+      "emoji": "😰"
+    },
+    {
+      "word": "extraordinary",
+      "ipa": "/ɪkˈstrɔːrdəneri/",
+      "pos": "adj.",
+      "def": "非凡的；特别的",
+      "defEn": "very unusual or remarkable",
+      "ex": "The rescue was an extraordinary success.",
+      "exzh": "这次营救异常成功。",
+      "exEn": "The rescue succeeded beyond expectation.",
+      "emoji": "🌟"
+    },
+    {
+      "word": "hunt",
+      "ipa": "/hʌnt/",
+      "pos": "v.",
+      "def": "追猎；搜寻",
+      "defEn": "to chase animals or search for something",
+      "ex": "They hunted for the missing keys all morning.",
+      "exzh": "他们一上午都在找丢失的钥匙。",
+      "exEn": "They searched for the keys all morning.",
+      "emoji": "🏹"
+    },
+    {
+      "word": "similar",
+      "ipa": "/ˈsɪmələr/",
+      "pos": "adj.",
+      "def": "相似的",
+      "defEn": "almost the same but not exactly",
+      "ex": "The two cases were strikingly similar.",
+      "exzh": "两起案件惊人地相似。",
+      "exEn": "The two cases were almost alike.",
+      "emoji": "🔄"
+    },
+    {
+      "word": "locate",
+      "ipa": "/loʊˈkeɪt/",
+      "pos": "v.",
+      "def": "找到；确定位置",
+      "defEn": "to find the exact position of something",
+      "ex": "Engineers located the fault within an hour.",
+      "exzh": "工程师一小时内找到了故障点。",
+      "exEn": "Engineers found the fault in under an hour.",
+      "emoji": "📍"
+    },
+    {
+      "word": "reluctant",
+      "ipa": "/rɪˈlʌktənt/",
+      "pos": "adj.",
+      "def": "不情愿的",
+      "defEn": "not willing to do something",
+      "ex": "He was reluctant to admit his mistake.",
+      "exzh": "他不愿承认错误。",
+      "exEn": "He did not want to admit his mistake.",
+      "emoji": "🙃"
+    },
+    {
+      "word": "possession",
+      "ipa": "/pəˈzeʃn/",
+      "pos": "n.",
+      "def": "拥有；所有物",
+      "defEn": "something you own; the state of owning",
+      "ex": "The ring was her most treasured possession.",
+      "exzh": "戒指是她最珍视的物品。",
+      "exEn": "The ring was what she valued most.",
+      "emoji": "💍"
+    },
+    {
+      "word": "evade",
+      "ipa": "/ɪˈveɪd/",
+      "pos": "v.",
+      "def": "逃避；躲避",
+      "defEn": "to avoid or escape by cleverness",
+      "ex": "The fox evaded the hunters for days.",
+      "exzh": "狐狸躲过了猎人好几天。",
+      "exEn": "For days the fox escaped every trap.",
+      "emoji": "🦊"
+    },
+    {
+      "word": "resemble",
+      "ipa": "/rɪˈzembl/",
+      "pos": "v.",
+      "def": "与…相似",
+      "defEn": "to look like someone or something",
+      "ex": "The footprint resembled a dog's.",
+      "exzh": "脚印像狗的。",
+      "exEn": "The print looked much like a dog's.",
+      "emoji": "👣"
+    },
+    {
+      "word": "conceal",
+      "ipa": "/kənˈsiːl/",
+      "pos": "v.",
+      "def": "隐藏；隐瞒",
+      "defEn": "to hide something carefully",
+      "ex": "He concealed the gift behind his back.",
+      "exzh": "他把礼物藏在身后。",
+      "exEn": "He hid the gift behind his back.",
+      "emoji": "🙈"
+    },
+    {
+      "word": "astonish",
+      "ipa": "/əˈstɑːnɪʃ/",
+      "pos": "v.",
+      "def": "使震惊",
+      "defEn": "to surprise someone greatly",
+      "ex": "The final result astonished the judges.",
+      "exzh": "最终结果让评委震惊。",
+      "exEn": "The result amazed the judges completely.",
+      "emoji": "😲"
+    },
+    {
+      "word": "dismiss",
+      "ipa": "/dɪsˈmɪs/",
+      "pos": "v.",
+      "def": "不予理会；解雇",
+      "defEn": "to reject an idea; to remove from a job",
+      "ex": "At first the police dismissed the report.",
+      "exzh": "起初警方未理会这份报告。",
+      "exEn": "At first police paid the report no attention.",
+      "emoji": "🙅"
+    },
+    {
+      "word": "acknowledge",
+      "ipa": "/əkˈnɑːlɪdʒ/",
+      "pos": "v.",
+      "def": "承认",
+      "defEn": "to accept that something is true",
+      "ex": "She acknowledged that she needed help.",
+      "exzh": "她承认自己需要帮助。",
+      "exEn": "She admitted she needed help.",
+      "emoji": "✅"
+    },
+    {
+      "word": "suspicious",
+      "ipa": "/səˈspɪʃəs/",
+      "pos": "adj.",
+      "def": "可疑的；怀疑的",
+      "defEn": "making you think something is wrong",
+      "ex": "His explanation sounded suspicious.",
+      "exzh": "他的解释听起来可疑。",
+      "exEn": "His explanation seemed doubtful.",
+      "emoji": "🤨"
+    },
+    {
+      "word": "claim",
+      "ipa": "/kleɪm/",
+      "pos": "v.",
+      "def": "声称",
+      "defEn": "to say something is true without proof",
+      "ex": "Witnesses claimed they saw bright lights.",
+      "exzh": "目击者称看到了亮光。",
+      "exEn": "Witnesses said they saw bright lights.",
+      "emoji": "🗣️"
+    },
+    {
+      "word": "convince",
+      "ipa": "/kənˈvɪns/",
+      "pos": "v.",
+      "def": "使信服",
+      "defEn": "to make someone believe something",
+      "ex": "The photos finally convinced the experts.",
+      "exzh": "照片最终让专家们信服。",
+      "exEn": "The photos made the experts believe at last.",
+      "emoji": "💡"
+    },
+    {
+      "word": "confirm",
+      "ipa": "/kənˈfɜːrm/",
+      "pos": "v.",
+      "def": "确认；证实",
+      "defEn": "to make certain something is true",
+      "ex": "Tests confirmed the medicine was safe.",
+      "exzh": "检测证实药物是安全的。",
+      "exEn": "Tests showed for sure the drug was safe.",
+      "emoji": "🔬"
+    },
+    {
+      "word": "investigate",
+      "ipa": "/ɪnˈvestɪɡeɪt/",
+      "pos": "v.",
+      "def": "调查",
+      "defEn": "to examine facts to find the truth",
+      "ex": "Scientists investigated the lake for months.",
+      "exzh": "科学家们调查湖泊数月。",
+      "exEn": "Scientists studied the lake for months.",
+      "emoji": "🕵️"
+    },
+    {
+      "word": "mysterious",
+      "ipa": "/mɪˈstɪriəs/",
+      "pos": "adj.",
+      "def": "神秘的",
+      "defEn": "hard to explain or understand",
+      "ex": "A mysterious light appeared at midnight.",
+      "exzh": "午夜出现一道神秘的光。",
+      "exEn": "An unexplained light appeared at midnight.",
+      "emoji": "🌌"
+    },
+    {
+      "word": "responsibility",
+      "ipa": "/rɪˌspɑːnsəˈbɪləti/",
+      "pos": "n.",
+      "def": "责任",
+      "defEn": "a duty you must carry out",
+      "ex": "Keeping the light on was his responsibility.",
+      "exzh": "保持灯亮是他的职责。",
+      "exEn": "His duty was to keep the light burning.",
+      "emoji": "🧭"
+    },
+    {
+      "word": "expert",
+      "ipa": "/ˈekspɜːrt/",
+      "pos": "n.",
+      "def": "专家",
+      "defEn": "a person with special skill or knowledge",
+      "ex": "An animal expert examined the tracks.",
+      "exzh": "动物专家查看了足迹。",
+      "exEn": "A specialist studied the footprints.",
+      "emoji": "🎓"
+    },
+    {
+      "word": "examine",
+      "ipa": "/ɪɡˈzæmɪn/",
+      "pos": "v.",
+      "def": "检查；细看",
+      "defEn": "to look at something closely",
+      "ex": "The doctor examined the wound carefully.",
+      "exzh": "医生仔细检查伤口。",
+      "exEn": "The doctor studied the wound closely.",
+      "emoji": "🔎"
+    },
+    {
+      "word": "trail",
+      "ipa": "/treɪl/",
+      "pos": "n.",
+      "def": "小径；踪迹",
+      "defEn": "a path; marks left by someone passing",
+      "ex": "The hikers followed a narrow mountain trail.",
+      "exzh": "徒步者沿着狭窄的山径走。",
+      "exEn": "Hikers took the narrow mountain path.",
+      "emoji": "🥾"
+    },
+    {
+      "word": "fur",
+      "ipa": "/fɜːr/",
+      "pos": "n.",
+      "def": "皮毛",
+      "defEn": "soft hair covering an animal",
+      "ex": "Grey fur was caught on the fence.",
+      "exzh": "栅栏上挂着灰色的毛。",
+      "exEn": "Grey hair from an animal clung to the fence.",
+      "emoji": "🐈"
+    },
+    {
+      "word": "release",
+      "ipa": "/rɪˈliːs/",
+      "pos": "v.",
+      "def": "释放",
+      "defEn": "to set free",
+      "ex": "They released the bird into the forest.",
+      "exzh": "他们把鸟放归森林。",
+      "exEn": "They set the bird free in the woods.",
+      "emoji": "🕊️"
+    },
+    {
+      "word": "occasionally",
+      "ipa": "/əˈkeɪʒnəli/",
+      "pos": "adv.",
+      "def": "偶尔",
+      "defEn": "sometimes but not often",
+      "ex": "Occasionally he wrote letters home.",
+      "exzh": "他偶尔给家里写信。",
+      "exEn": "From time to time he wrote home.",
+      "emoji": "🗓️"
+    },
+    {
+      "word": "gradually",
+      "ipa": "/ˈɡrædʒuəli/",
+      "pos": "adv.",
+      "def": "逐渐地",
+      "defEn": "slowly over a period of time",
+      "ex": "The pain gradually faded away.",
+      "exzh": "疼痛逐渐消退。",
+      "exEn": "Little by little the pain went away.",
+      "emoji": "🌅"
+    },
+    {
+      "word": "wildlife",
+      "ipa": "/ˈwaɪldlaɪf/",
+      "pos": "n.",
+      "def": "野生动物",
+      "defEn": "animals living in nature",
+      "ex": "The valley is rich in wildlife.",
+      "exzh": "这条山谷野生动物丰富。",
+      "exEn": "Many wild animals live in the valley.",
+      "emoji": "🦌"
+    },
+    {
+      "word": "preserve",
+      "ipa": "/prɪˈzɜːrv/",
+      "pos": "v.",
+      "def": "保护；保存",
+      "defEn": "to keep something safe from harm",
+      "ex": "The law preserves the old forest.",
+      "exzh": "法律保护这片古森林。",
+      "exEn": "The law keeps the old forest safe.",
+      "emoji": "🌲"
+    },
+    {
+      "word": "rare",
+      "ipa": "/rer/",
+      "pos": "adj.",
+      "def": "稀有的",
+      "defEn": "not seen or found often",
+      "ex": "A rare bird nested by the river.",
+      "exzh": "一只珍稀鸟类在河边筑巢。",
+      "exEn": "An uncommon bird built its nest there.",
+      "emoji": "🦜"
+    },
+    {
+      "word": "survive",
+      "ipa": "/sərˈvaɪv/",
+      "pos": "v.",
+      "def": "幸存；存活",
+      "defEn": "to stay alive in a hard situation",
+      "ex": "Only a few trees survived the drought.",
+      "exzh": "只有几棵树熬过了旱灾。",
+      "exEn": "Just a few trees lived through the drought.",
+      "emoji": "🌱"
+    },
+    {
+      "word": "habitat",
+      "ipa": "/ˈhæbɪtæt/",
+      "pos": "n.",
+      "def": "栖息地",
+      "defEn": "the natural home of a plant or animal",
+      "ex": "Draining the marsh destroyed their habitat.",
+      "exzh": "排干沼泽毁掉了它们的栖息地。",
+      "exEn": "Emptying the marsh took their home away.",
+      "emoji": "🏞️"
+    },
+    {
+      "word": "threat",
+      "ipa": "/θret/",
+      "pos": "n.",
+      "def": "威胁",
+      "defEn": "something that may cause harm",
+      "ex": "Pollution is a threat to the lake.",
+      "exzh": "污染对湖泊是个威胁。",
+      "exEn": "Pollution endangers the lake.",
+      "emoji": "⚠️"
+    },
+    {
+      "word": "environment",
+      "ipa": "/ɪnˈvaɪrənmənt/",
+      "pos": "n.",
+      "def": "环境",
+      "defEn": "the natural world around us",
+      "ex": "Everyone can help protect the environment.",
+      "exzh": "人人都能保护环境。",
+      "exEn": "Anyone can help care for nature.",
+      "emoji": "🌍"
+    },
+    {
+      "word": "campaign",
+      "ipa": "/kæmˈpeɪn/",
+      "pos": "n.",
+      "def": "运动；活动",
+      "defEn": "a planned series of actions for a goal",
+      "ex": "Students launched a clean-up campaign.",
+      "exzh": "学生发起了清洁运动。",
+      "exEn": "Students started a plan to clean things up.",
+      "emoji": "📣"
+    },
+    {
+      "word": "volunteer",
+      "ipa": "/ˌvɑːlənˈtɪr/",
+      "pos": "n.",
+      "def": "志愿者",
+      "defEn": "someone who works without being paid",
+      "ex": "Fifty volunteers cleared the riverbank.",
+      "exzh": "五十名志愿者清理河岸。",
+      "exEn": "Fifty helpers cleaned the riverbank freely.",
+      "emoji": "🙋"
+    },
+    {
+      "word": "donate",
+      "ipa": "/doʊˈneɪt/",
+      "pos": "v.",
+      "def": "捐赠",
+      "defEn": "to give money or things to help others",
+      "ex": "He donated his books to the school.",
+      "exzh": "他把书捐给了学校。",
+      "exEn": "He gave his books to the school for free.",
+      "emoji": "🎁"
+    },
+    {
+      "word": "community",
+      "ipa": "/kəˈmjuːnəti/",
+      "pos": "n.",
+      "def": "社区",
+      "defEn": "people living together in one place",
+      "ex": "The whole community joined the project.",
+      "exzh": "整个社区参与了项目。",
+      "exEn": "People from all over town took part.",
+      "emoji": "🏘️"
+    },
+    {
+      "word": "participate",
+      "ipa": "/pɑːrˈtɪsɪpeɪt/",
+      "pos": "v.",
+      "def": "参加",
+      "defEn": "to take part in an activity",
+      "ex": "Every family participated in the fair.",
+      "exzh": "每个家庭都参加了集市。",
+      "exEn": "All families took part in the fair.",
+      "emoji": "🤝"
+    },
+    {
+      "word": "organize",
+      "ipa": "/ˈɔːrɡənaɪz/",
+      "pos": "v.",
+      "def": "组织",
+      "defEn": "to arrange people or events",
+      "ex": "She organized a concert for charity.",
+      "exzh": "她为慈善组织了一场音乐会。",
+      "exEn": "She arranged a charity concert.",
+      "emoji": "📋"
+    },
+    {
+      "word": "ceremony",
+      "ipa": "/ˈserəmoʊni/",
+      "pos": "n.",
+      "def": "典礼；仪式",
+      "defEn": "a formal public event",
+      "ex": "The opening ceremony lasted two hours.",
+      "exzh": "开幕式持续了两小时。",
+      "exEn": "The opening event ran two hours long.",
+      "emoji": "🎏"
+    },
+    {
+      "word": "congratulate",
+      "ipa": "/kənˈɡrætʃuleɪt/",
+      "pos": "v.",
+      "def": "祝贺",
+      "defEn": "to tell someone you are happy for them",
+      "ex": "We congratulated her on the award.",
+      "exzh": "我们祝贺她获奖。",
+      "exEn": "We praised her for winning the prize.",
+      "emoji": "🎊"
+    },
+    {
+      "word": "achievement",
+      "ipa": "/əˈtʃiːvmənt/",
+      "pos": "n.",
+      "def": "成就",
+      "defEn": "something done successfully with effort",
+      "ex": "Climbing the peak was a great achievement.",
+      "exzh": "登顶是了不起的成就。",
+      "exEn": "Reaching the top was a huge success.",
+      "emoji": "🏅"
+    },
+    {
+      "word": "scholarship",
+      "ipa": "/ˈskɑːlərʃɪp/",
+      "pos": "n.",
+      "def": "奖学金",
+      "defEn": "money given to a clever student",
+      "ex": "Her essay won her a full scholarship.",
+      "exzh": "她的文章为她赢得全额奖学金。",
+      "exEn": "Her essay earned her a full award to study.",
+      "emoji": "📜"
+    },
+    {
+      "word": "qualify",
+      "ipa": "/ˈkwɑːlɪfaɪ/",
+      "pos": "v.",
+      "def": "使合格；取得资格",
+      "defEn": "to reach the needed level",
+      "ex": "He qualified for the national finals.",
+      "exzh": "他取得了全国决赛资格。",
+      "exEn": "He reached the level needed for the finals.",
+      "emoji": "🎫"
+    },
+    {
+      "word": "ambition",
+      "ipa": "/æmˈbɪʃn/",
+      "pos": "n.",
+      "def": "抱负；雄心",
+      "defEn": "a strong wish to succeed",
+      "ex": "Her ambition was to become a doctor.",
+      "exzh": "她的抱负是成为医生。",
+      "exEn": "She strongly wished to become a doctor.",
+      "emoji": "🚀"
+    },
+    {
+      "word": "determination",
+      "ipa": "/dɪˌtɜːrmɪˈneɪʃn/",
+      "pos": "n.",
+      "def": "决心",
+      "defEn": "firm intention to succeed",
+      "ex": "With quiet determination she tried again.",
+      "exzh": "她带着坚定的决心再试一次。",
+      "exEn": "Calmly firm, she gave it another try.",
+      "emoji": "🧱"
+    },
+    {
+      "word": "obstacle",
+      "ipa": "/ˈɑːbstəkl/",
+      "pos": "n.",
+      "def": "障碍",
+      "defEn": "something that blocks progress",
+      "ex": "Fear was the biggest obstacle to success.",
+      "exzh": "恐惧是成功的最大障碍。",
+      "exEn": "Fear blocked success more than anything.",
+      "emoji": "🧗"
+    },
+    {
+      "word": "overcome",
+      "ipa": "/ˌoʊvərˈkʌm/",
+      "pos": "v.",
+      "def": "克服",
+      "defEn": "to succeed despite difficulty",
+      "ex": "She overcame injury to win gold.",
+      "exzh": "她战胜伤病赢得金牌。",
+      "exEn": "Despite injury she won the gold medal.",
+      "emoji": "⛰️"
+    },
+    {
+      "word": "courage",
+      "ipa": "/ˈkɜːrɪdʒ/",
+      "pos": "n.",
+      "def": "勇气",
+      "defEn": "bravery in facing danger or fear",
+      "ex": "It took courage to speak up.",
+      "exzh": "说出来需要勇气。",
+      "exEn": "Speaking up required real bravery.",
+      "emoji": "🦁"
+    },
+    {
+      "word": "encourage",
+      "ipa": "/ɪnˈkɜːrɪdʒ/",
+      "pos": "v.",
+      "def": "鼓励",
+      "defEn": "to give someone hope to continue",
+      "ex": "Her teacher encouraged her to enter.",
+      "exzh": "老师鼓励她参赛。",
+      "exEn": "Her teacher gave her hope to take part.",
+      "emoji": "🙌"
+    },
+    {
+      "word": "discourage",
+      "ipa": "/dɪsˈkɜːrɪdʒ/",
+      "pos": "v.",
+      "def": "使气馁",
+      "defEn": "to make someone lose hope",
+      "ex": "Early failures did not discourage him.",
+      "exzh": "早期的失败没有让他气馁。",
+      "exEn": "Losing at first did not steal his hope.",
+      "emoji": "😞"
+    },
+    {
+      "word": "appreciate",
+      "ipa": "/əˈpriːʃieɪt/",
+      "pos": "v.",
+      "def": "感激；欣赏",
+      "defEn": "to be thankful; to value highly",
+      "ex": "I appreciate your honest advice.",
+      "exzh": "我很感激你坦诚的建议。",
+      "exEn": "I am thankful for your frank advice.",
+      "emoji": "💐"
+    },
+    {
+      "word": "gratitude",
+      "ipa": "/ˈɡrætɪtuːd/",
+      "pos": "n.",
+      "def": "感激之情",
+      "defEn": "the feeling of being thankful",
+      "ex": "He thanked them with deep gratitude.",
+      "exzh": "他满怀感激地向他们道谢。",
+      "exEn": "Warm thanks filled his heart for them.",
+      "emoji": "🙏"
+    },
+    {
+      "word": "sincere",
+      "ipa": "/sɪnˈsɪr/",
+      "pos": "adj.",
+      "def": "真诚的",
+      "defEn": "honest and truly meant",
+      "ex": "Please accept my sincere apologies.",
+      "exzh": "请接受我真诚的道歉。",
+      "exEn": "My apology is honest and true.",
+      "emoji": "💗"
+    },
+    {
+      "word": "generous",
+      "ipa": "/ˈdʒenərəs/",
+      "pos": "adj.",
+      "def": "慷慨的",
+      "defEn": "willing to give freely",
+      "ex": "A generous stranger paid the fare.",
+      "exzh": "一位慷慨的陌生人付了车费。",
+      "exEn": "A kind stranger gave freely to pay it.",
+      "emoji": "🤲"
+    },
+    {
+      "word": "hospitable",
+      "ipa": "/hɑːˈspɪtəbl/",
+      "pos": "adj.",
+      "def": "好客的",
+      "defEn": "warm and welcoming to guests",
+      "ex": "The villagers were wonderfully hospitable.",
+      "exzh": "村民们极为好客。",
+      "exEn": "Villagers welcomed guests with open arms.",
+      "emoji": "🏠"
+    },
+    {
+      "word": "companion",
+      "ipa": "/kəmˈpænjən/",
+      "pos": "n.",
+      "def": "同伴",
+      "defEn": "a person or animal who goes with you",
+      "ex": "His dog was his faithful companion.",
+      "exzh": "他的狗是他忠实的伙伴。",
+      "exEn": "His dog stayed faithfully by his side.",
+      "emoji": "🐕"
+    },
+    {
+      "word": "loyalty",
+      "ipa": "/ˈlɔɪəlti/",
+      "pos": "n.",
+      "def": "忠诚",
+      "defEn": "being firm in supporting someone",
+      "ex": "Their loyalty never wavered in hard times.",
+      "exzh": "困难时期他们的忠诚从未动摇。",
+      "exEn": "In hard times they stayed true always.",
+      "emoji": "🛡️"
+    },
+    {
+      "word": "forgive",
+      "ipa": "/fərˈɡɪv/",
+      "pos": "v.",
+      "def": "原谅",
+      "defEn": "to stop being angry about a wrong",
+      "ex": "She found it hard to forgive him.",
+      "exzh": "她觉得很难原谅他。",
+      "exEn": "Forgiving him was not easy for her.",
+      "emoji": "🕊️"
+    },
+    {
+      "word": "apologize",
+      "ipa": "/əˈpɑːlədʒaɪz/",
+      "pos": "v.",
+      "def": "道歉",
+      "defEn": "to say sorry for a mistake",
+      "ex": "He apologized for arriving late.",
+      "exzh": "他为迟到道歉。",
+      "exEn": "He said sorry for coming late.",
+      "emoji": "🙇"
+    },
+    {
+      "word": "regret",
+      "ipa": "/rɪˈɡret/",
+      "pos": "v.",
+      "def": "后悔",
+      "defEn": "to feel sad about something done",
+      "ex": "I regret not visiting them sooner.",
+      "exzh": "我后悔没有早点去看他们。",
+      "exEn": "I feel sad I waited so long to visit.",
+      "emoji": "😔"
+    },
+    {
+      "word": "wisdom",
+      "ipa": "/ˈwɪzdəm/",
+      "pos": "n.",
+      "def": "智慧",
+      "defEn": "good judgment gained by experience",
+      "ex": "Her advice was full of quiet wisdom.",
+      "exzh": "她的建议充满沉静的智慧。",
+      "exEn": "Her advice showed deep good sense.",
+      "emoji": "🦉"
+    },
+    {
+      "word": "keen",
+      "ipa": "/kiːn/",
+      "pos": "adj.",
+      "def": "热衷的；渴望的",
+      "defEn": "very interested and eager",
+      "ex": "He was keen to learn sailing.",
+      "exzh": "他热衷于学帆船。",
+      "exEn": "He eagerly wanted to learn sailing.",
+      "emoji": "⚡"
+    },
+    {
+      "word": "eager",
+      "ipa": "/ˈiːɡər/",
+      "pos": "adj.",
+      "def": "渴望的",
+      "defEn": "strongly wanting to do something",
+      "ex": "Eager readers lined up before dawn.",
+      "exzh": "热心的读者天亮前就排起了队。",
+      "exEn": "Excited readers queued before sunrise.",
+      "emoji": "🤩"
+    },
+    {
+      "word": "purpose",
+      "ipa": "/ˈpɜːrpəs/",
+      "pos": "n.",
+      "def": "目的",
+      "defEn": "the reason for doing something",
+      "ex": "The purpose of the meeting was clear.",
+      "exzh": "会议的目的很明确。",
+      "exEn": "Why they met was quite clear.",
+      "emoji": "🎯"
+    },
+    {
+      "word": "achieve",
+      "ipa": "/əˈtʃiːv/",
+      "pos": "v.",
+      "def": "达到；实现",
+      "defEn": "to succeed in doing something",
+      "ex": "Together they achieved the impossible.",
+      "exzh": "他们一起实现了不可能的事。",
+      "exEn": "Working together, they did the impossible.",
+      "emoji": "🏁"
+    },
+    {
+      "word": "effort",
+      "ipa": "/ˈefərt/",
+      "pos": "n.",
+      "def": "努力",
+      "defEn": "energy used to do something",
+      "ex": "Success came after years of effort.",
+      "exzh": "成功来自多年的努力。",
+      "exEn": "Years of trying brought success at last.",
+      "emoji": "💪"
+    },
+    {
+      "word": "persist",
+      "ipa": "/pərˈsɪst/",
+      "pos": "v.",
+      "def": "坚持",
+      "defEn": "to keep doing despite difficulty",
+      "ex": "If you persist, results will come.",
+      "exzh": "坚持下去就会有结果。",
+      "exEn": "Keep going and results will follow.",
+      "emoji": "🔁"
+    },
+    {
+      "word": "quit",
+      "ipa": "/kwɪt/",
+      "pos": "v.",
+      "def": "放弃；退出",
+      "defEn": "to stop doing something",
+      "ex": "He refused to quit the race.",
+      "exzh": "他拒绝退出比赛。",
+      "exEn": "He would not leave the race midway.",
+      "emoji": "🛑"
+    },
+    {
+      "word": "setback",
+      "ipa": "/ˈsetbæk/",
+      "pos": "n.",
+      "def": "挫折",
+      "defEn": "a problem that delays progress",
+      "ex": "The storm was a setback, not an end.",
+      "exzh": "风暴只是挫折，不是终点。",
+      "exEn": "The storm delayed them but did not stop them.",
+      "emoji": "🌊"
+    },
+    {
+      "word": "triumph",
+      "ipa": "/ˈtraɪʌmf/",
+      "pos": "n.",
+      "def": "胜利",
+      "defEn": "a great victory or success",
+      "ex": "Finishing at last felt like a triumph.",
+      "exzh": "最终完赛感觉像一场胜利。",
+      "exEn": "Crossing the line felt like winning a war.",
+      "emoji": "🏆"
+    },
+    {
+      "word": "celebrate",
+      "ipa": "/ˈselɪbreɪt/",
+      "pos": "v.",
+      "def": "庆祝",
+      "defEn": "to show joy for a happy event",
+      "ex": "The town celebrated its 300th birthday.",
+      "exzh": "小镇庆祝建镇三百周年。",
+      "exEn": "The town held a party for its 300th year.",
+      "emoji": "🎉"
+    },
+    {
+      "word": "tradition",
+      "ipa": "/trəˈdɪʃn/",
+      "pos": "n.",
+      "def": "传统",
+      "defEn": "a custom passed down through years",
+      "ex": "Making mooncakes is a family tradition.",
+      "exzh": "做月饼是家族传统。",
+      "exEn": "The family has long made mooncakes.",
+      "emoji": "🏮"
+    },
+    {
+      "word": "custom",
+      "ipa": "/ˈkʌstəm/",
+      "pos": "n.",
+      "def": "习俗",
+      "defEn": "a usual way of acting in a group",
+      "ex": "It is a local custom to share harvest food.",
+      "exzh": "分享收获是当地习俗。",
+      "exEn": "Locals usually share the food they grow.",
+      "emoji": "🎎"
+    },
+    {
+      "word": "heritage",
+      "ipa": "/ˈherɪtɪdʒ/",
+      "pos": "n.",
+      "def": "遗产；传承",
+      "defEn": "valuable things passed down over time",
+      "ex": "Old songs are part of our cultural heritage.",
+      "exzh": "老歌是我们文化遗产的一部分。",
+      "exEn": "Old songs belong to the culture we inherit.",
+      "emoji": "🏛️"
+    }
+  ],
+  "readings": [
+    {
+      "title": "出没的大猫",
+      "titleEn": "A Wildcat at Large",
+      "level": "B2",
+      "text": "Reports of a strange animal began to <b>accumulate</b> in the spring. Farmers <b>claimed</b> that sheep had been killed, and a shopkeeper swore he had <b>spotted</b> a large cat crossing the road at dawn. The newspaper called it 'the beast of Willow Valley', and soon everyone was talking about it. Police at first <b>dismissed</b> the stories, but when grey <b>fur</b> was found on a fence, they agreed to <b>investigate</b>. An animal <b>expert</b> was invited from the city. He <b>examined</b> the prints carefully and measured them twice. 'This is no tiger,' he announced, to the disappointment of the reporters. 'But it is certainly no ordinary house cat either.' Volunteers organized night watches. For three weeks nothing happened. Then, on a rainy Tuesday, the mystery ended quietly: the beast walked into a barn, ate two bowls of milk, and fell asleep beside the farm dog. It was Max, an enormous pet cat who had been missing — and living very well — for two months.",
+      "vocab": [
+        {
+          "w": "accumulate",
+          "d": "积累",
+          "dEn": "collect over time"
+        },
+        {
+          "w": "claim",
+          "d": "声称",
+          "dEn": "state without proof"
+        },
+        {
+          "w": "dismiss",
+          "d": "不予理会",
+          "dEn": "reject an idea"
+        },
+        {
+          "w": "investigate",
+          "d": "调查",
+          "dEn": "search for truth"
+        },
+        {
+          "w": "fur",
+          "d": "皮毛",
+          "dEn": "animal hair"
+        }
+      ],
+      "questions": [
+        {
+          "q": "What made the police change their minds?",
+          "options": [
+            "A photo in the paper",
+            "Grey fur on a fence",
+            "A video from a farm"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What did the expert conclude?",
+          "options": [
+            "It was a tiger",
+            "It was neither tiger nor ordinary house cat",
+            "There was no animal"
+          ],
+          "a": 1
+        },
+        {
+          "q": "How did the story end?",
+          "options": [
+            "The beast attacked a barn",
+            "Max the pet cat was found well-fed",
+            "The cat escaped to the hills"
+          ],
+          "a": 1
+        }
+      ]
+    },
+    {
+      "title": "敲了十三下的钟",
+      "titleEn": "The Bell That Struck Thirteen",
+      "level": "B2",
+      "text": "The town clock had kept perfect time for eighty years — until one June evening, when it struck thirteen. Tourists arrived the next day with cameras. Journalists rang the mayor's office. The <b>occasion</b> might have delighted the town council, had the mayor not been <b>eager</b> to prove it never happened. An engineer was sent to <b>examine</b> the mechanism, and the poor caretaker, Mr. Bell, was asked the same question forty times: 'Did you wind it twice?' Mr. Bell, a man of <b>sincere</b> honesty, <b>acknowledged</b> nothing and admitted nothing. He simply smiled. The engineer found nothing wrong. The mystery remained until autumn, when a reporter finally checked the old newspapers of exactly one hundred years before. On the same June evening a century earlier, the clock had struck thirteen too — and the town, back then, had sold thousands of postcards celebrating it. Mr. Bell, it turned out, knew the story all along. Some traditions, he said quietly, deserve to repeat themselves once a century.",
+      "vocab": [
+        {
+          "w": "occasion",
+          "d": "场合；时刻",
+          "dEn": "a particular time or event"
+        },
+        {
+          "w": "eager",
+          "d": "渴望的",
+          "dEn": "strongly wanting"
+        },
+        {
+          "w": "acknowledge",
+          "d": "承认",
+          "dEn": "admit the truth"
+        },
+        {
+          "w": "mechanism",
+          "d": "机械装置",
+          "dEn": "working parts of a machine"
+        }
+      ],
+      "questions": [
+        {
+          "q": "Why was the mayor unhappy?",
+          "options": [
+            "Tourists damaged the clock",
+            "He wanted to prove it never happened",
+            "The clock stopped working"
+          ],
+          "a": 1
+        },
+        {
+          "q": "How did Mr. Bell answer questions?",
+          "options": [
+            "He admitted winding twice",
+            "He admitted nothing",
+            "He blamed the engineer"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What did the old newspapers reveal?",
+          "options": [
+            "The clock struck thirteen a century ago",
+            "The clock was rebuilt twice",
+            "Mr. Bell's grandfather stole the bell"
+          ],
+          "a": 0
+        }
+      ]
+    },
+    {
+      "title": "灯塔守者的风暴",
+      "titleEn": "The Keeper's Storm",
+      "level": "B2",
+      "text": "For thirty-one years, old Anders had kept the lighthouse burning, and in all that time he had never once failed. So when the radio warned of the worst <b>storm</b> in decades, he simply nodded, checked his lamp, and made tea. The gale arrived at midnight. Waves exploded against the tower; the wind tore at the roof like a living thing. At two o'clock the electric supply failed, and Anders climbed the stairs with a heavy oil can, step by step, <b>gradually</b> fighting both gravity and age. By dawn the lamp still burned. In the harbour below, a fishing boat — guided safely through the black water — reached the pier. Its crew never learned the keeper's name, and he never told them. When reporters asked him later whether he had been afraid, the old man thought for a moment. 'Fear is natural,' he said. 'So is <b>responsibility</b>. You simply decide which of the two will climb the stairs with you.' Then he went back to polishing the lamp.",
+      "vocab": [
+        {
+          "w": "storm",
+          "d": "风暴",
+          "dEn": "violent weather"
+        },
+        {
+          "w": "gradually",
+          "d": "逐渐地",
+          "dEn": "step by step"
+        },
+        {
+          "w": "responsibility",
+          "d": "责任",
+          "dEn": "one's duty"
+        },
+        {
+          "w": "harbour",
+          "d": "港口",
+          "dEn": "safe place for ships"
+        }
+      ],
+      "questions": [
+        {
+          "q": "What failed at two o'clock?",
+          "options": [
+            "The stairs",
+            "The electric supply",
+            "The radio"
+          ],
+          "a": 1
+        },
+        {
+          "q": "How did the fishing boat get home safely?",
+          "options": [
+            "By luck alone",
+            "Guided by the lighthouse lamp",
+            "Towed by another ship"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What does Anders say about fear and duty?",
+          "options": [
+            "Fear beats duty",
+            "You choose which one climbs with you",
+            "Duty removes all fear"
+          ],
+          "a": 1
+        }
+      ]
+    },
+    {
+      "title": "为河流的一小时",
+      "titleEn": "One Hour for the River",
+      "level": "B2",
+      "text": "Nobody remembered who first suggested it, but on the first Sunday of May, half the town appeared at the riverbank carrying gloves and rubbish bags. The idea was simple: give the river one hour. Students, shopkeepers, and two <b>reluctant</b> teenagers dragged in by their mothers formed teams along the water. At nine o'clock the <b>campaign</b> began, and by ten the banks looked transformed. Tyres, bottles, and a truly astonishing quantity of plastic bags left the reeds where they had rested for years. One <b>volunteer</b> fished out a bicycle; another found a wedding photo, still in its frame, which was returned to a blushing couple married twenty years before. The mayor gave a short speech about protecting the <b>environment</b>; the crowd politely applauded and then returned to picking up litter, which everyone privately agreed was the more useful speech. Since that day, the hour has become a local <b>custom</b>. The river, for its part, has answered in its own way — with kingfishers returning to the reeds each spring.",
+      "vocab": [
+        {
+          "w": "campaign",
+          "d": "运动；活动",
+          "dEn": "planned series of actions"
+        },
+        {
+          "w": "volunteer",
+          "d": "志愿者",
+          "dEn": "unpaid helper"
+        },
+        {
+          "w": "environment",
+          "d": "环境",
+          "dEn": "natural world"
+        },
+        {
+          "w": "custom",
+          "d": "习俗",
+          "dEn": "usual group practice"
+        }
+      ],
+      "questions": [
+        {
+          "q": "What was the plan?",
+          "options": [
+            "To sell the riverbank",
+            "To give the river one hour of cleaning",
+            "To build a bridge"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What surprising item was found?",
+          "options": [
+            "Treasure coins",
+            "A framed wedding photo",
+            "An old boat"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What proves the project worked?",
+          "options": [
+            "The mayor's applause",
+            "Kingfishers came back in spring",
+            "More rubbish bags were sold"
+          ],
+          "a": 1
+        }
+      ]
+    },
+    {
+      "title": "周二来的信",
+      "titleEn": "The Letter on a Tuesday",
+      "level": "B2",
+      "text": "Mei had applied for the <b>scholarship</b> mostly to silence her uncle, who insisted that girls from small towns should not <b>hunt</b> for big dreams. She wrote the essay at the kitchen table between dinner shifts, describing her grandmother, who traded vegetables for piano lessons. When the envelope arrived on a plain Tuesday, she nearly filed it unopened under 'another polite refusal'. Inside, however, was a single page: she had been awarded the full grant. Her mother cried into the soup. Her uncle, to his credit, was the first to <b>congratulate</b> her, though he added that it would probably be very tiring. It was. Three years later, standing on a hospital ward as a newly qualified doctor, Mei still kept the envelope in her desk drawer — not as proof of her <b>achievement</b>, but as a reminder of her grandmother trading tomatoes for scales. Talent, she had learned, rarely announces itself loudly. Sometimes it whispers from a kitchen table, waiting for somebody stubborn enough to listen.",
+      "vocab": [
+        {
+          "w": "scholarship",
+          "d": "奖学金",
+          "dEn": "study grant"
+        },
+        {
+          "w": "congratulate",
+          "d": "祝贺",
+          "dEn": "express joy for success"
+        },
+        {
+          "w": "achievement",
+          "d": "成就",
+          "dEn": "success won by effort"
+        },
+        {
+          "w": "reluctant",
+          "d": "不情愿的",
+          "dEn": "not willing"
+        }
+      ],
+      "questions": [
+        {
+          "q": "Why did Mei first apply?",
+          "options": [
+            "To win a prize for writing",
+            "To silence her uncle",
+            "Because her teacher demanded it"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Who was first to congratulate her?",
+          "options": [
+            "Her mother",
+            "Her uncle",
+            "Her grandmother"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Why does she keep the envelope?",
+          "options": [
+            "As proof of her degree",
+            "As a reminder of her grandmother's trade",
+            "To apply again next year"
+          ],
+          "a": 1
+        }
+      ]
+    },
+    {
+      "title": "外婆的笔记本",
+      "titleEn": "Grandmother's Notebook",
+      "level": "B2",
+      "text": "When Grandmother died, we expected lawyers and paperwork. Instead, we found a fat notebook wrapped in cloth, its pages soft with age. Inside were recipes — but written like letters: 'Add salt when the soup stops asking for it.' 'Stir slowly, the way you walk when you are happy.' At first we laughed. Then my sister, who had inherited none of Grandmother's cooking talent, attempted the New Year dumplings strictly following the strange instructions. They tasted exactly right, though nobody could explain why. Word spread among the cousins, and soon the notebook travelled from kitchen to kitchen like a honoured guest. We began adding our own pages — my brother recorded how to fix a bicycle chain, my aunt noted remedies for homesickness. Last winter, a neighbour's daughter asked if she might copy a few pages for her own future family. Of course, we said. A <b>heritage</b> that is hidden away is merely storage; a <b>heritage</b> that is shared becomes a <b>tradition</b>. Grandmother, who shared everything, would have approved of the stains on the newest pages.",
+      "vocab": [
+        {
+          "w": "heritage",
+          "d": "遗产；传承",
+          "dEn": "things passed down"
+        },
+        {
+          "w": "tradition",
+          "d": "传统",
+          "dEn": "long-standing custom"
+        },
+        {
+          "w": "attempt",
+          "d": "尝试",
+          "dEn": "try to do"
+        },
+        {
+          "w": "inherit",
+          "d": "继承",
+          "dEn": "receive from the past"
+        }
+      ],
+      "questions": [
+        {
+          "q": "What was in the notebook?",
+          "options": [
+            "Legal papers",
+            "Recipes written like letters",
+            "Old photographs"
+          ],
+          "a": 1
+        },
+        {
+          "q": "How did the sister's dumplings turn out?",
+          "options": [
+            "Burnt and salty",
+            "Exactly right",
+            "Nobody cooked them"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What is the story's point?",
+          "options": [
+            "Hidden heritage is mere storage; shared, it becomes tradition",
+            "Cooking cannot be taught",
+            "Old notebooks are valuable antiques"
+          ],
+          "a": 0
+        }
+      ]
+    },
+    {
+      "title": "12路公交车上的钱包",
+      "titleEn": "The Wallet on Bus 12",
+      "level": "B2",
+      "text": "Old Chen drove Bus 12 for twenty-two years and claimed he had seen everything. So when he spotted a leather wallet glowing under a seat after the last run, he was neither excited nor troubled. He logged it, locked it in the depot safe, and went home to his noodles. The wallet belonged to a young nurse named Lin, and it held her first month's salary in cash — savings meant for her mother's medicine. She came to the depot the next morning, pale and prepared for the worst. Instead, a sleepy clerk produced the wallet, counted every bill in front of her, and had her sign a form. Nothing was missing. Lin tried to offer a reward; Old Chen waved it away with genuine offence. 'The seat belongs to the bus,' he said, 'and the bus belongs to the route, and the route belongs to everybody.' Years later, Nurse Lin tells the story to frightened patients before operations. Honesty, she explains, is rarely dramatic. Mostly it is a tired driver, a locked safe, and noodles going cold at home.",
+      "vocab": [
+        {
+          "w": "genuine",
+          "d": "真诚的；真正的",
+          "dEn": "real, not pretended"
+        },
+        {
+          "w": "reward",
+          "d": "报酬",
+          "dEn": "thanks in return"
+        },
+        {
+          "w": "log",
+          "d": "登记",
+          "dEn": "record officially"
+        },
+        {
+          "w": "salary",
+          "d": "薪水",
+          "dEn": "pay for work"
+        }
+      ],
+      "questions": [
+        {
+          "q": "What did Old Chen do with the wallet?",
+          "options": [
+            "Kept the cash",
+            "Logged and locked it in the safe",
+            "Gave it to the mayor"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Why was the money important to Lin?",
+          "options": [
+            "For her mother's medicine",
+            "For driving lessons",
+            "For a wedding gift"
+          ],
+          "a": 0
+        },
+        {
+          "q": "What does the story say about honesty?",
+          "options": [
+            "It is usually dramatic",
+            "It is often quiet and ordinary",
+            "It no longer exists"
+          ],
+          "a": 1
+        }
+      ]
+    },
+    {
+      "title": "四十二公里",
+      "titleEn": "Forty-Two Kilometres",
+      "level": "B2",
+      "text": "At kilometre thirty-five, Daniel's knee announced its formal objection. Every training manual says this is the moment champions are separated from everyone else; what the manuals omit is that most runners simply negotiate. Daniel bargained shamelessly. Run to the next bridge, he promised his leg, and you may stop forever. At the bridge he promised it a hotel breakfast. Somewhere near kilometre forty, promises exhausted, he discovered something quieter than bargaining: the thought of his daughter waiting at the finish with a crayon drawing of 'Daddy flying'. He did not sprint. He did not smile for photographs. He moved forward the way rain falls — steadily, and without drama. The clock read four hours and fifty-one minutes when he crossed the line, far from the leaders. His daughter graded the performance excellent. Only later did he understand what the race had taught him: <b>obstacles</b> are rarely defeated in one heroic blow. They are <b>overcome</b> by agreement — one bridge, one promise, one slow kilometre at a time — by people who <b>persist</b> after the excitement has gone.",
+      "vocab": [
+        {
+          "w": "obstacle",
+          "d": "障碍",
+          "dEn": "thing blocking progress"
+        },
+        {
+          "w": "overcome",
+          "d": "克服",
+          "dEn": "beat difficulty"
+        },
+        {
+          "w": "persist",
+          "d": "坚持",
+          "dEn": "keep going"
+        },
+        {
+          "w": "negotiate",
+          "d": "协商",
+          "dEn": "bargain terms"
+        }
+      ],
+      "questions": [
+        {
+          "q": "What happened at kilometre thirty-five?",
+          "options": [
+            "Daniel led the race",
+            "His knee began to hurt badly",
+            "It started raining"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What finally pushed him forward?",
+          "options": [
+            "A hotel breakfast",
+            "His daughter waiting with a drawing",
+            "The race officials"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What lesson does he draw?",
+          "options": [
+            "Obstacles fall to one heroic blow",
+            "Champions never feel pain",
+            "Obstacles are overcome bit by bit"
+          ],
+          "a": 2
+        }
+      ]
+    },
+    {
+      "title": "读书的村庄",
+      "titleEn": "The Village That Read",
+      "level": "B2",
+      "text": "The library began as a joke: twelve donated books on a bench outside the post office, protected from rain by an upturned bucket. The postmaster, Mr. Osei, lent them out on trust — no cards, no fines, only the rule that a borrower must tell him one thing they learned. Villagers found the rule irresistible. The farmer reported that Napoleon had been short; his wife disputed this hotly and borrowed a second book to win the argument. Within a year the bench held three hundred volumes, and the bucket had been replaced by a proper wooden case carved by a proud grandfather. Children did homework there after dark because the case sat under the streetlamp. Exam results crept upward; so, more interestingly, did attendance at village meetings, where people had begun, dangerously and delightfully, to ask for evidence. When a journalist came to write about 'rural poverty', Mr. Osei served her tea and handed her a history of the region. 'We are not a poor village,' he corrected mildly. 'We were a quiet one. It has been a decade of noise ever since.'",
+      "vocab": [
+        {
+          "w": "donate",
+          "d": "捐赠",
+          "dEn": "give for free"
+        },
+        {
+          "w": "dispute",
+          "d": "争论",
+          "dEn": "argue against"
+        },
+        {
+          "w": "evidence",
+          "d": "证据",
+          "dEn": "supporting facts"
+        },
+        {
+          "w": "volume",
+          "d": "册；卷",
+          "dEn": "book"
+        }
+      ],
+      "questions": [
+        {
+          "q": "What was the borrowing rule?",
+          "options": [
+            "Pay a small fine",
+            "Tell Mr. Osei one thing learned",
+            "Return books within a day"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Why did children sit by the book case at night?",
+          "options": [
+            "It stood under the streetlamp",
+            "The library was warmer",
+            "They were hiding"
+          ],
+          "a": 0
+        },
+        {
+          "q": "How did Mr. Osei correct the journalist?",
+          "options": [
+            "They were poor, not quiet",
+            "They were quiet, not poor",
+            "The region had no history"
+          ],
+          "a": 1
+        }
+      ]
+    },
+    {
+      "title": "平凡英雄",
+      "titleEn": "An Ordinary Hero",
+      "level": "B2",
+      "text": "Judy never asked to be called brave. For eight years her job was simply to walk ahead of Tom and keep him safe — Tom, who had lost his sight at nineteen, and Judy, a golden retriever with a professional calm and a private weakness for sausage rolls. Their routine was precise: the office by eight, the bakery avoided on Mondays (delivery vans), the canal path avoided always (no railing). One November evening a lorry jumped the curb on Bridge Street, and everything Judy had rehearsed for years happened in four seconds. She pulled Tom back with all her weight, turned him, and pushed him against the wall while the world clattered. Tom broke a wrist; Judy broke nothing but her composure for exactly one minute, trembling against his coat before resuming her dignified post at his knee. Newspapers called her a hero and printed her photograph, which she endured with visible boredom. Tom understood better. Loyalty, he told the reporters, is not one dramatic act. It is the same quiet act repeated eight thousand mornings, until the morning it saves your life.",
+      "vocab": [
+        {
+          "w": "companion",
+          "d": "同伴",
+          "dEn": "one who accompanies"
+        },
+        {
+          "w": "loyalty",
+          "d": "忠诚",
+          "dEn": "faithful devotion"
+        },
+        {
+          "w": "rehearse",
+          "d": "排练；演练",
+          "dEn": "practise beforehand"
+        },
+        {
+          "w": "composure",
+          "d": "镇定",
+          "dEn": "calm manner"
+        },
+        {
+          "w": "routine",
+          "d": "常规",
+          "dEn": "fixed daily pattern"
+        }
+      ],
+      "questions": [
+        {
+          "q": "What was Judy's job?",
+          "options": [
+            "Police dog",
+            "Guide dog for Tom",
+            "Guarding the bakery"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Which route did they always avoid?",
+          "options": [
+            "Bridge Street shops",
+            "The canal path",
+            "The office car park"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What does Tom say loyalty really is?",
+          "options": [
+            "One dramatic act",
+            "A quiet act repeated daily",
+            "Something dogs are born knowing"
+          ],
+          "a": 1
+        }
+      ]
+    }
+  ],
+  "areaTasks": {
+    "vocab": {
+      "zh": [
+        "学习 2 个三册词汇并用各造一句",
+        "复习生词卡 5 分钟"
+      ],
+      "en": [
+        "Learn 2 Book-3 words; make a sentence each",
+        "Review flashcards 5 min"
+      ]
+    },
+    "reading": {
+      "zh": [
+        "精读一篇长文，划出关键句",
+        "用 3–4 句英文写摘要"
+      ],
+      "en": [
+        "Close-read one essay; mark key lines",
+        "Write a 3–4 sentence summary"
+      ]
+    },
+    "speaking": {
+      "zh": [
+        "用自己的话复述故事（1–2 分钟）",
+        "朗读一段并模仿语气停顿"
+      ],
+      "en": [
+        "Retell the story in your own words (1–2 min)",
+        "Read a passage aloud, copying tone & pauses"
+      ]
+    },
+    "listening": {
+      "zh": [
+        "听本文录音一遍，再跟读一段",
+        "听 5 分钟英语新闻并记要点"
+      ],
+      "en": [
+        "Listen to the audio once, then shadow-read a paragraph",
+        "Listen to 5 min of English news; note key points"
+      ]
+    },
+    "grammar": {
+      "zh": [
+        "找出文中的分词/从句结构",
+        "仿写两个复杂句"
+      ],
+      "en": [
+        "Find participle/clause structures in the text",
+        "Imitate with two complex sentences"
+      ]
+    },
+    "writing": {
+      "zh": [
+        "写 100 词的故事梗概",
+        "就短文主题写一段 80 词评论"
+      ],
+      "en": [
+        "Write a 100-word plot summary",
+        "Write an 80-word comment on the theme"
+      ]
+    }
+  },
+  "areaLabel": {
+    "zh": {
+      "vocab": "词汇",
+      "reading": "阅读",
+      "speaking": "口语",
+      "listening": "听力",
+      "grammar": "语法",
+      "writing": "写作"
+    },
+    "en": {
+      "vocab": "Vocabulary",
+      "reading": "Reading",
+      "speaking": "Speaking",
+      "listening": "Listening",
+      "grammar": "Grammar",
+      "writing": "Writing"
+    }
+  }
+}

@@ -1,0 +1,282 @@
+{
+  "id": "nce2",
+  "name": "新概念英语第二册风格",
+  "nameEn": "New Concept Style — Book 2",
+  "desc": "仿《新概念英语2》风格：97 个高频核心词 + 12 篇幽默短篇故事（约 100–150 词，一般过去时叙事 + 结尾妙句）+ 计划任务库。课文为原创，规避版权。",
+  "descEn": "Book-2-style pack: 97 core words + 12 original humorous short stories (~100–150 words, past-tense narrative with punchline endings) + plan task bank. Original texts, copyright-safe.",
+  "words": [
+    { "word": "private", "ipa": "/ˈpraɪvət/", "pos": "adj.", "def": "私人的", "defEn": "belonging to one person only; not public", "ex": "He keeps his diary in a private drawer.", "exzh": "他把日记放在私人抽屉里。", "exEn": "He keeps his diary in a drawer nobody else opens.", "emoji": "🔒" },
+    { "word": "conversation", "ipa": "/ˌkɑːnvərˈseɪʃn/", "pos": "n.", "def": "谈话", "defEn": "an informal talk", "ex": "We had a long conversation about the film.", "exzh": "我们就那部电影聊了很久。", "exEn": "We talked about the film for a long time.", "emoji": "💬" },
+    { "word": "theatre", "ipa": "/ˈθiətər/", "pos": "n.", "def": "剧院", "defEn": "a building where plays are performed", "ex": "The theatre was full last night.", "exzh": "昨晚剧院坐满了人。", "exEn": "The playhouse was crowded last night.", "emoji": "🎭" },
+    { "word": "seat", "ipa": "/siːt/", "pos": "n.", "def": "座位", "defEn": "a place to sit", "ex": "I found my seat in the third row.", "exzh": "我在第三排找到了座位。", "exEn": "I found the place where I sat in row three.", "emoji": "💺" },
+    { "word": "play", "ipa": "/pleɪ/", "pos": "n.", "def": "戏剧", "defEn": "a story performed by actors", "ex": "The play began at eight o'clock.", "exzh": "戏剧八点开始。", "exEn": "The performance started at eight.", "emoji": "🎬" },
+    { "word": "loudly", "ipa": "/ˈlaʊdli/", "pos": "adv.", "def": "大声地", "defEn": "in a way that makes much noise", "ex": "Someone was coughing loudly behind us.", "exzh": "有人在我们身后大声咳嗽。", "exEn": "Someone behind us was coughing noisily.", "emoji": "📢" },
+    { "word": "angry", "ipa": "/ˈæŋɡri/", "pos": "adj.", "def": "生气的", "defEn": "feeling strong displeasure", "ex": "She got angry when the bus left early.", "exzh": "公交车提前开走时她很生气。", "exEn": "She became cross when the bus went too soon.", "emoji": "😠" },
+    { "word": "bear", "ipa": "/ber/", "pos": "v.", "def": "忍受", "defEn": "to tolerate; to put up with", "ex": "I can't bear the noise any longer.", "exzh": "我再也受不了这噪音了。", "exEn": "I cannot stand the noise anymore.", "emoji": "😤" },
+    { "word": "business", "ipa": "/ˈbɪznəs/", "pos": "n.", "def": "生意；事务", "defEn": "trade or one's work affairs", "ex": "It's none of your business.", "exzh": "这不关你的事。", "exEn": "It does not concern you.", "emoji": "💼" },
+    { "word": "rudely", "ipa": "/ˈruːdli/", "pos": "adv.", "def": "无礼地", "defEn": "in an impolite way", "ex": "The waiter spoke rudely to the old man.", "exzh": "侍者对老人说话很无礼。", "exEn": "The waiter was impolite to the old man.", "emoji": "🙄" },
+    { "word": "park", "ipa": "/pɑːrk/", "pos": "v.", "def": "停放（车辆）", "defEn": "to leave a vehicle in a place", "ex": "You can't park here — it's a bus stop.", "exzh": "这里不能停车——这是公交站。", "exEn": "You must not leave your car here.", "emoji": "🅿️" },
+    { "word": "traffic", "ipa": "/ˈtræfɪk/", "pos": "n.", "def": "交通", "defEn": "the movement of vehicles on roads", "ex": "The traffic was heavy this morning.", "exzh": "今天早上交通很拥堵。", "exEn": "There were many cars on the road this morning.", "emoji": "🚗" },
+    { "word": "ticket", "ipa": "/ˈtɪkɪt/", "pos": "n.", "def": "罚单；票", "defEn": "a printed note of fine; pass for entry", "ex": "The officer gave him a ticket for parking.", "exzh": "交警因违停给他开了罚单。", "exEn": "The officer fined him for leaving his car there.", "emoji": "🎫" },
+    { "word": "note", "ipa": "/noʊt/", "pos": "n.", "def": "便条", "defEn": "a short written message", "ex": "I left a note on the kitchen table.", "exzh": "我在餐桌上留了张便条。", "exEn": "I wrote a short message and left it on the table.", "emoji": "📝" },
+    { "word": "area", "ipa": "/ˈeriə/", "pos": "n.", "def": "地区", "defEn": "a particular part of a place or city", "ex": "This area is quiet at night.", "exzh": "这个地区晚上很安静。", "exEn": "This part of town is calm after dark.", "emoji": "🗺️" },
+    { "word": "sign", "ipa": "/saɪn/", "pos": "n.", "def": "标志", "defEn": "a board that gives information", "ex": "Didn't you see the 'No Parking' sign?", "exzh": "你没看到“禁止停车”的标志吗？", "exEn": "Did you not notice the board?", "emoji": "🚸" },
+    { "word": "remind", "ipa": "/rɪˈmaɪnd/", "pos": "v.", "def": "提醒", "defEn": "to help someone remember", "ex": "Please remind me to call her at six.", "exzh": "请提醒我六点给她打电话。", "exEn": "Help me remember to phone her at six.", "emoji": "⏰" },
+    { "word": "luck", "ipa": "/lʌk/", "pos": "n.", "def": "运气", "defEn": "good or bad fortune", "ex": "Good luck brought them together again.", "exzh": "好运让他们再次相遇。", "exEn": "Fortune brought them back together.", "emoji": "🍀" },
+    { "word": "borrow", "ipa": "/ˈbɑːroʊ/", "pos": "v.", "def": "借入", "defEn": "to take and use something that will be returned", "ex": "May I borrow your umbrella?", "exzh": "我可以借用你的伞吗？", "exEn": "Can I use your umbrella for a while?", "emoji": "☂️" },
+    { "word": "spoil", "ipa": "/spɔɪl/", "pos": "v.", "def": "破坏；糟蹋", "defEn": "to ruin something good", "ex": "One late train spoiled our whole plan.", "exzh": "一班车晚点毁了我们整个计划。", "exEn": "One delayed train ruined our plans.", "emoji": "💔" },
+    { "word": "museum", "ipa": "/mjuˈziːəm/", "pos": "n.", "def": "博物馆", "defEn": "a place where old things are shown", "ex": "The museum closes at five o'clock.", "exzh": "博物馆五点关门。", "exEn": "The exhibition hall shuts at five.", "emoji": "🏛️" },
+    { "word": "terrible", "ipa": "/ˈterəbl/", "pos": "adj.", "def": "糟糕的", "defEn": "very bad", "ex": "The weather was terrible yesterday.", "exzh": "昨天天气很糟糕。", "exEn": "Yesterday's weather was awful.", "emoji": "⛈️" },
+    { "word": "public", "ipa": "/ˈpʌblɪk/", "pos": "adj.", "def": "公共的", "defEn": "for everyone, not private", "ex": "Smoking is banned in public places.", "exzh": "公共场所禁止吸烟。", "exEn": "No smoking where everyone goes.", "emoji": "🏙️" },
+    { "word": "decision", "ipa": "/dɪˈsɪʒn/", "pos": "n.", "def": "决定", "defEn": "a choice that you make", "ex": "It was a hard decision to make.", "exzh": "这是个艰难的决定。", "exEn": "Choosing was difficult.", "emoji": "⚖️" },
+    { "word": "whole", "ipa": "/hoʊl/", "pos": "adj.", "def": "全部的", "defEn": "complete; entire", "ex": "The whole class passed the exam.", "exzh": "全班都通过了考试。", "exEn": "Everyone in class passed the test.", "emoji": "🌐" },
+    { "word": "immediately", "ipa": "/ɪˈmiːdiətli/", "pos": "adv.", "def": "立刻", "defEn": "at once; without delay", "ex": "He answered my letter immediately.", "exzh": "他立刻回了我的信。", "exEn": "He replied at once.", "emoji": "⚡" },
+    { "word": "proud", "ipa": "/praʊd/", "pos": "adj.", "def": "自豪的", "defEn": "feeling pleased about something done well", "ex": "She was proud of her son's progress.", "exzh": "她为儿子的进步感到自豪。", "exEn": "Her son's progress pleased her greatly.", "emoji": "🏆" },
+    { "word": "important", "ipa": "/ɪmˈpɔːrtnt/", "pos": "adj.", "def": "重要的", "defEn": "having great value or meaning", "ex": "Sleep is important for memory.", "exzh": "睡眠对记忆很重要。", "exEn": "Sleep matters greatly for remembering.", "emoji": "❗" },
+    { "word": "surprise", "ipa": "/sərˈpraɪz/", "pos": "n.", "def": "惊讶", "defEn": "an unexpected event or feeling", "ex": "To my surprise, the door was open.", "exzh": "令我惊讶的是门开着。", "exEn": "Unexpectedly, the door stood open.", "emoji": "😲" },
+    { "word": "crowded", "ipa": "/ˈkraʊdɪd/", "pos": "adj.", "def": "拥挤的", "defEn": "full of people", "ex": "The market was crowded on Sunday.", "exzh": "周日市场很拥挤。", "exEn": "Sunday's market was packed with people.", "emoji": "👥" },
+    { "word": "refuse", "ipa": "/rɪˈfjuːz/", "pos": "v.", "def": "拒绝", "defEn": "to say no; not accept", "ex": "He refused to give up his seat.", "exzh": "他拒绝让出座位。", "exEn": "He would not give up his seat.", "emoji": "🚫" },
+    { "word": "complain", "ipa": "/kəmˈpleɪn/", "pos": "v.", "def": "抱怨", "defEn": "to say you are not satisfied", "ex": "Customers complained about the long wait.", "exzh": "顾客抱怨等待太久。", "exEn": "Customers said they waited far too long.", "emoji": "🗯️" },
+    { "word": "gain", "ipa": "/ɡeɪn/", "pos": "v.", "def": "获得", "defEn": "to get something useful or wanted", "ex": "He gained experience working abroad.", "exzh": "他在国外工作获得了经验。", "exEn": "Working abroad gave him experience.", "emoji": "📈" },
+    { "word": "interrupt", "ipa": "/ˌɪntərˈʌpt/", "pos": "v.", "def": "打断", "defEn": "to stop someone while speaking", "ex": "Excuse me for interrupting you.", "exzh": "抱歉打断你。", "exEn": "Forgive me for stopping your speech.", "emoji": "✋" },
+    { "word": "employ", "ipa": "/ɪmˈplɔɪ/", "pos": "v.", "def": "雇用", "defEn": "to pay someone to work", "ex": "The factory employs two hundred workers.", "exzh": "这家工厂雇了两百名工人。", "exEn": "Two hundred workers are paid by the factory.", "emoji": "🏭" },
+    { "word": "salary", "ipa": "/ˈsæləri/", "pos": "n.", "def": "薪水", "defEn": "money paid monthly for work", "ex": "He saves half of his salary every month.", "exzh": "他每月存下一半工资。", "exEn": "Each month he saves half his pay.", "emoji": "💰" },
+    { "word": "owe", "ipa": "/oʊ/", "pos": "v.", "def": "欠", "defEn": "to need to pay back", "ex": "I still owe him ten dollars.", "exzh": "我还欠他十美元。", "exEn": "I must still return ten dollars to him.", "emoji": "🧾" },
+    { "word": "pity", "ipa": "/ˈpɪti/", "pos": "n.", "def": "遗憾；可惜", "defEn": "a sad feeling about misfortune", "ex": "What a pity you missed the show!", "exzh": "你错过了演出真可惜！", "exEn": "How sad that you missed it!", "emoji": "😔" },
+    { "word": "entertain", "ipa": "/ˌentərˈteɪn/", "pos": "v.", "def": "款待；使娱乐", "defEn": "to amuse guests; to please", "ex": "She entertained us with funny stories.", "exzh": "她用有趣的故事招待我们。", "exEn": "Her funny stories amused us all.", "emoji": "🎉" },
+    { "word": "charming", "ipa": "/ˈtʃɑːrmɪŋ/", "pos": "adj.", "def": "迷人的", "defEn": "very pleasant; attractive", "ex": "They stayed in a charming little hotel.", "exzh": "他们住进一家迷人的小旅馆。", "exEn": "Their little hotel was delightful.", "emoji": "✨" },
+    { "word": "recognize", "ipa": "/ˈrekəɡnaɪz/", "pos": "v.", "def": "认出", "defEn": "to know someone seen before", "ex": "I didn't recognize her new hairstyle.", "exzh": "我没认出她的新发型。", "exEn": "I could not tell who she was at first.", "emoji": "👀" },
+    { "word": "suggest", "ipa": "/səˈdʒest/", "pos": "v.", "def": "建议", "defEn": "to offer an idea", "ex": "He suggested going out for dinner.", "exzh": "他建议出去吃晚饭。", "exEn": "He put forward the idea of dinner out.", "emoji": "💡" },
+    { "word": "hazard", "ipa": "/ˈhæzərd/", "pos": "n.", "def": "危险", "defEn": "a danger; risk", "ex": "Wet floors are a hazard for old people.", "exzh": "湿地板对老人是种危险。", "exEn": "Wet floors endanger older people.", "emoji": "⚠️" },
+    { "word": "scene", "ipa": "/siːn/", "pos": "n.", "def": "现场；景色", "defEn": "what you see at a place", "ex": "Police arrived quickly at the scene.", "exzh": "警察很快赶到现场。", "exEn": "Officers reached the spot fast.", "emoji": "🚨" },
+    { "word": "attempt", "ipa": "/əˈtempt/", "pos": "n.", "def": "尝试", "defEn": "an effort to do something", "ex": "His first attempt failed, but he tried again.", "exzh": "第一次尝试失败后他又试了。", "exEn": "His first try failed, yet he tried once more.", "emoji": "🎯" },
+    { "word": "rescue", "ipa": "/ˈreskjuː/", "pos": "v.", "def": "营救", "defEn": "to save from danger", "ex": "Firemen rescued the cat from the tree.", "exzh": "消防员把猫从树上救下。", "exEn": "Firefighters saved the cat up the tree.", "emoji": "🧯" },
+    { "word": "worry", "ipa": "/ˈwʌri/", "pos": "v.", "def": "担心", "defEn": "to feel anxious", "ex": "Don't worry — the flight is on time.", "exzh": "别担心——航班准点。", "exEn": "Be at ease; the plane is punctual.", "emoji": "😟" },
+    { "word": "patient", "ipa": "/ˈpeɪʃnt/", "pos": "adj.", "def": "耐心的", "defEn": "able to wait calmly", "ex": "Be patient; results take time.", "exzh": "耐心点——结果需要时间。", "exEn": "Wait calmly; outcomes come slowly.", "emoji": "🧘" },
+    { "word": "amaze", "ipa": "/əˈmeɪz/", "pos": "v.", "def": "使惊奇", "defEn": "to surprise greatly", "ex": "Her memory amazed the doctors.", "exzh": "她的记忆力让医生们惊讶。", "exEn": "Doctors were astonished by her memory.", "emoji": "🤯" },
+    { "word": "curtain", "ipa": "/ˈkɜːrtn/", "pos": "n.", "def": "窗帘；幕布", "defEn": "cloth hung at a window or stage", "ex": "She drew the curtains before bed.", "exzh": "睡前她拉上了窗帘。", "exEn": "Before sleep she closed the window cloth.", "emoji": "🪟" },
+    { "word": "reveal", "ipa": "/rɪˈviːl/", "pos": "v.", "def": "揭示；透露", "defEn": "to make known what was hidden", "ex": "The letter revealed an old secret.", "exzh": "信中揭示了一个旧秘密。", "exEn": "The letter made an old secret known.", "emoji": "🔍" },
+    { "word": "gather", "ipa": "/ˈɡæðər/", "pos": "v.", "def": "聚集", "defEn": "to come together in one place", "ex": "A crowd gathered around the singer.", "exzh": "人群聚集在歌手周围。", "exEn": "People came together near the singer.", "emoji": "🎪" },
+    { "word": "considerable", "ipa": "/kənˈsɪdərəbl/", "pos": "adj.", "def": "相当大的", "defEn": "large enough to be noticed", "ex": "The repair cost a considerable sum.", "exzh": "修理花了一笔可观的钱。", "exEn": "Repairs took quite a large amount.", "emoji": "📐" },
+    { "word": "piece", "ipa": "/piːs/", "pos": "n.", "def": "碎片；件", "defEn": "a part broken off; an item", "ex": "The vase fell to pieces.", "exzh": "花瓶摔成了碎片。", "exEn": "The vase broke into many bits.", "emoji": "🏺" },
+    { "word": "precious", "ipa": "/ˈpreʃəs/", "pos": "adj.", "def": "珍贵的", "defEn": "of great value", "ex": "Time is more precious than money.", "exzh": "时间比金钱更珍贵。", "exEn": "Time is worth more than coins.", "emoji": "💎" },
+    { "word": "ancient", "ipa": "/ˈeɪnʃənt/", "pos": "adj.", "def": "古代的", "defEn": "very old; from long ago", "ex": "They studied ancient Greek stories.", "exzh": "他们研究古希腊故事。", "exEn": "They read tales from long-gone Greece.", "emoji": "📜" },
+    { "word": "myth", "ipa": "/mɪθ/", "pos": "n.", "def": "神话", "defEn": "an ancient story about gods", "ex": "Every culture has its own myths.", "exzh": "每种文化都有自己的神话。", "exEn": "Each culture keeps ancient tales alive.", "emoji": "🗿" },
+    { "word": "trouble", "ipa": "/ˈtrʌbl/", "pos": "n.", "def": "麻烦", "defEn": "difficulty or problems", "ex": "He stayed out of trouble at school.", "exzh": "他在学校没惹麻烦。", "exEn": "At school he caused no problems.", "emoji": "🌀" },
+    { "word": "escape", "ipa": "/ɪˈskeɪp/", "pos": "v.", "def": "逃脱", "defEn": "to get free from a place", "ex": "Two birds escaped from the cage.", "exzh": "两只鸟从笼子里逃走了。", "exEn": "Two birds flew free from their cage.", "emoji": "🕊️" },
+    { "word": "branch", "ipa": "/bræntʃ/", "pos": "n.", "def": "树枝；分部", "defEn": "arm of a tree; local office", "ex": "The cat sat on the highest branch.", "exzh": "猫坐在最高的树枝上。", "exEn": "The cat rested on the topmost arm of the tree.", "emoji": "🌳" },
+    { "word": "weight", "ipa": "/weɪt/", "pos": "n.", "def": "重量", "defEn": "how heavy something is", "ex": "The box lost weight after we emptied it.", "exzh": "倒空后箱子轻了。", "exEn": "Once emptied, the box weighed less.", "emoji": "🏋️" },
+    { "word": "underground", "ipa": "/ˈʌndərɡraʊnd/", "pos": "adj.", "def": "地下的", "defEn": "below the surface of the ground", "ex": "They traveled by underground railway.", "exzh": "他们乘地铁出行。", "exEn": "They rode trains beneath the city.", "emoji": "🚇" },
+    { "word": "steam", "ipa": "/stiːm/", "pos": "n.", "def": "蒸汽", "defEn": "hot mist from boiling water", "ex": "Steam rose from the hot soup.", "exzh": "热汤冒出了蒸汽。", "exEn": "Hot mist floated above the soup.", "emoji": "♨️" },
+    { "word": "captain", "ipa": "/ˈkæptɪn/", "pos": "n.", "def": "船长；队长", "defEn": "leader of a ship or team", "ex": "The captain guided us through the storm.", "exzh": "船长带领我们穿过风暴。", "exEn": "Our leader steered us through rough seas.", "emoji": "⚓" },
+    { "word": "sail", "ipa": "/seɪl/", "pos": "v.", "def": "航行", "defEn": "to travel by boat", "ex": "They sailed south along the coast.", "exzh": "他们沿海岸向南航行。", "exEn": "They traveled southward by sea.", "emoji": "⛵" },
+    { "word": "harbour", "ipa": "/ˈhɑːrbər/", "pos": "n.", "def": "港口", "defEn": "a safe place for ships", "ex": "Fishing boats returned to harbour at dusk.", "exzh": "渔船黄昏时返回港口。", "exEn": "Fishing boats came home as light faded.", "emoji": "⛴️" },
+    { "word": "storm", "ipa": "/stɔːrm/", "pos": "n.", "def": "风暴", "defEn": "very bad weather with wind and rain", "ex": "The storm kept us indoors all day.", "exzh": "风暴让我们一整天待在室内。", "exEn": "Bad weather held us inside all day.", "emoji": "🌪️" },
+    { "word": "dangerous", "ipa": "/ˈdeɪndʒərəs/", "pos": "adj.", "def": "危险的", "defEn": "likely to cause harm", "ex": "Driving fast in rain is dangerous.", "exzh": "雨天开快车很危险。", "exEn": "Speeding in rain can harm you.", "emoji": "☠️" },
+    { "word": "exercise", "ipa": "/ˈeksərsaɪz/", "pos": "n.", "def": "锻炼；练习", "defEn": "body activity; a practice task", "ex": "Morning exercise wakes up the body.", "exzh": "晨练唤醒身体。", "exEn": "Moving each morning freshens you up.", "emoji": "🏃" },
+    { "word": "secretly", "ipa": "/ˈsiːkrɪtli/", "pos": "adv.", "def": "秘密地", "defEn": "without others knowing", "ex": "They secretly planned a birthday party.", "exzh": "他们秘密筹划生日派对。", "exEn": "Quietly they planned the party unseen.", "emoji": "🤫" },
+    { "word": "embarrassed", "ipa": "/ɪmˈbærəst/", "pos": "adj.", "def": "尴尬的", "defEn": "feeling ashamed in front of others", "ex": "He felt embarrassed singing in public.", "exzh": "当众唱歌让他很尴尬。", "exEn": "Singing before others shamed him a little.", "emoji": "🙈" },
+    { "word": "guilty", "ipa": "/ˈɡɪlti/", "pos": "adj.", "def": "内疚的；有罪的", "defEn": "feeling one did wrong; judged wrong", "ex": "She felt guilty about forgetting his name.", "exzh": "忘了他的名字让她很内疚。", "exEn": "Forgetting his name troubled her conscience.", "emoji": "😕" },
+    { "word": "strict", "ipa": "/strɪkt/", "pos": "adj.", "def": "严格的", "defEn": "demanding rules be obeyed", "ex": "Our teacher is strict but fair.", "exzh": "我们的老师严格但公正。", "exEn": "Our teacher demands much, yet treats all fairly.", "emoji": "📏" },
+    { "word": "reward", "ipa": "/rɪˈwɔːrd/", "pos": "n.", "def": "奖赏", "defEn": "something given for good work", "ex": "A kind word is its own reward.", "exzh": "善意的话本身就是奖赏。", "exEn": "Kindness pays back in itself.", "emoji": "🎖️" },
+    { "word": "sacrifice", "ipa": "/ˈsækrɪfaɪs/", "pos": "v.", "def": "牺牲；舍弃", "defEn": "to give up something valued", "ex": "Parents sacrifice sleep for babies.", "exzh": "父母为婴儿牺牲睡眠。", "exEn": "Parents give up sleep so babies rest.", "emoji": "🕯️" },
+    { "word": "favour", "ipa": "/ˈfeɪvər/", "pos": "n.", "def": "恩惠；帮忙", "defEn": "a helpful act; kindness", "ex": "Could you do me a favour and post this?", "exzh": "能帮我个忙把这封信寄了吗？", "exEn": "Would you kindly mail this letter for me?", "emoji": "🙏" },
+    { "word": "overboard", "ipa": "/ˈoʊvərbɔːrd/", "pos": "adv.", "def": "向船外", "defEn": "from a ship into the water", "ex": "A wave washed his hat overboard.", "exzh": "一个浪头把他的帽子卷进了海里。", "exEn": "A big wave swept his hat into the sea.", "emoji": "🌊" },
+    { "word": "plunge", "ipa": "/plʌndʒ/", "pos": "v.", "def": "跳入；猛冲", "defEn": "to jump suddenly into something", "ex": "He plunged into the cold water.", "exzh": "他一头扎进冰冷的水里。", "exEn": "Into the icy water he dove at once.", "emoji": "🤿" },
+    { "word": "struggle", "ipa": "/ˈstrʌɡl/", "pos": "v.", "def": "挣扎；奋斗", "defEn": "to try hard against difficulty", "ex": "She struggled up the snowy hill.", "exzh": "她艰难地爬上雪坡。", "exEn": "With effort she climbed the snowy slope.", "emoji": "💪" },
+    { "word": "slightly", "ipa": "/ˈslaɪtli/", "pos": "adv.", "def": "稍微", "defEn": "a little; not much", "ex": "The price rose slightly last month.", "exzh": "上月价格略有上涨。", "exEn": "Prices edged up a little last month.", "emoji": "📊" },
+    { "word": "notice", "ipa": "/ˈnoʊtɪs/", "pos": "v.", "def": "注意到", "defEn": "to see and become aware of", "ex": "Did you notice the new painting?", "exzh": "你注意到那幅新画了吗？", "exEn": "Did you see the picture just hung?", "emoji": "🔎" },
+    { "word": "temporarily", "ipa": "/ˌtempəˈrerəli/", "pos": "adv.", "def": "暂时地", "defEn": "for a short time only", "ex": "The road is temporarily closed.", "exzh": "这条路暂时封闭。", "exEn": "For now the road stays shut.", "emoji": "🕐" },
+    { "word": "actual", "ipa": "/ˈæktʃuəl/", "pos": "adj.", "def": "实际的", "defEn": "real; existing in fact", "ex": "The actual trip took nine hours.", "exzh": "实际行程花了九小时。", "exEn": "In fact the journey lasted nine hours.", "emoji": "📌" },
+    { "word": "flight", "ipa": "/flaɪt/", "pos": "n.", "def": "航班；飞行", "defEn": "a journey by air", "ex": "Our flight leaves at noon.", "exzh": "我们的航班中午起飞。", "exEn": "Our plane departs at midday.", "emoji": "✈️" },
+    { "word": "extreme", "ipa": "/ɪkˈstriːm/", "pos": "adj.", "def": "极度的", "defEn": "very great in degree", "ex": "He showed extreme patience with children.", "exzh": "他对孩子表现出极大的耐心。", "exEn": "His patience with children knew few limits.", "emoji": "🌡️" },
+    { "word": "quantity", "ipa": "/ˈkwɑːntəti/", "pos": "n.", "def": "数量", "defEn": "how much of something", "ex": "A large quantity of rice was stored here.", "exzh": "这里储存过大量大米。", "exEn": "Much grain once filled this store.", "emoji": "📦" },
+    { "word": "smuggle", "ipa": "/ˈsmʌɡl/", "pos": "v.", "def": "走私；偷运", "defEn": "to move goods secretly and illegally", "ex": "Customs officers caught men smuggling clocks.", "exzh": "海关官员抓到偷运钟表的人。", "exEn": "Officers stopped men moving clocks unlawfully.", "emoji": "🕵️" },
+    { "word": "officious", "ipa": "/əˈfɪʃəs/", "pos": "adj.", "def": "爱指手画脚的", "defEn": "too eager to give orders", "ex": "An officious guard checked every bag twice.", "exzh": "一个爱管事警卫把每个包查了两遍。", "exEn": "A bossy guard searched each bag twice over.", "emoji": "🛃" },
+    { "word": "unscrew", "ipa": "/ʌnˈskruː/", "pos": "v.", "def": "拧开", "defEn": "to open by turning", "ex": "He unscrewed the cap of the bottle.", "exzh": "他拧开了瓶盖。", "exEn": "Turning hard, he opened the bottle top.", "emoji": "🔧" },
+    { "word": "dreadful", "ipa": "/ˈdredfl/", "pos": "adj.", "def": "可怕的；糟透的", "defEn": "very bad or frightening", "ex": "Traffic noise was dreadful downtown.", "exzh": "市中心的交通噪音糟透了。", "exEn": "Downtown street noise was awful beyond words.", "emoji": "😱" },
+    { "word": "pave", "ipa": "/peɪv/", "pos": "v.", "def": "铺路", "defEn": "to cover a road with flat stones", "ex": "Workers paved the square with grey stones.", "exzh": "工人用灰石铺了广场。", "exEn": "Grey stones covered the square anew.", "emoji": "🧱" },
+    { "word": "statue", "ipa": "/ˈstætʃuː/", "pos": "n.", "def": "雕像", "defEn": "a figure made of stone or metal", "ex": "Pigeons rested on the statue's head.", "exzh": "鸽子停在雕像头上休息。", "exEn": "Birds perched upon the stone head.", "emoji": "🗿" },
+    { "word": "erect", "ipa": "/ɪˈrekt/", "pos": "v.", "def": "竖立；建造", "defEn": "to build or set upright", "ex": "They erected a tent near the lake.", "exzh": "他们在湖边搭起帐篷。", "exEn": "Near the water they raised a tent.", "emoji": "🏗️" },
+    { "word": "accustomed", "ipa": "/əˈkʌstəmd/", "pos": "adj.", "def": "习惯的", "defEn": "used to something", "ex": "Soon she grew accustomed to city noise.", "exzh": "不久她习惯了城市噪音。", "exEn": "In time the city noise felt normal to her.", "emoji": "🔄" },
+    { "word": "skip", "ipa": "/skɪp/", "pos": "v.", "def": "跳过；略过", "defEn": "to pass over; leave out", "ex": "Never skip breakfast before school.", "exzh": "上学前别不吃早餐。", "exEn": "Eat before class; never leave breakfast out.", "emoji": "🥣" },
+    { "word": "hesitate", "ipa": "/ˈhezɪteɪt/", "pos": "v.", "def": "犹豫", "defEn": "to pause before acting from doubt", "ex": "Don't hesitate to ask questions.", "exzh": "有问题尽管问，别犹豫。", "exEn": "Ask freely; doubt should not delay you.", "emoji": "🤔" },
+    { "word": "intend", "ipa": "/ɪnˈtend/", "pos": "v.", "def": "打算", "defEn": "to plan to do something", "ex": "They intend to visit Xi'an next spring.", "exzh": "他们打算明年春天去西安。", "exEn": "Next spring they plan to see Xi'an.", "emoji": "🗓️" }
+  ],
+  "readings": [
+    {
+      "title": "私人谈话",
+      "titleEn": "A Private Conversation",
+      "level": "B1",
+      "text": "Last week I went to the <b>theatre</b>. I had a very good <b>seat</b>. The <b>play</b> was very interesting. I did not enjoy it. A young man and a young woman were sitting behind me. They were talking <b>loudly</b>. I got very <b>angry</b>. I could not hear the actors. I turned round. I looked at the man and the woman <b>angrily</b>. They did not pay any attention. In the end, I could not <b>bear</b> it. I turned round again. \"It's none of your <b>business</b>,\" the young man said <b>rudely</b>. \"This is a private conversation!\"",
+      "vocab": [ { "w": "theatre", "d": "剧院", "dEn": "playhouse" }, { "w": "loudly", "d": "大声地", "dEn": "noisily" }, { "w": "bear", "d": "忍受", "dEn": "tolerate" }, { "w": "business", "d": "事务", "dEn": "concern" }, { "w": "rudely", "d": "无礼地", "dEn": "impolitely" } ],
+      "questions": [
+        { "q": "Where did the writer go last week?", "options": ["To the cinema", "To the theatre", "To a concert"], "a": 1 },
+        { "q": "Why couldn't the writer enjoy the play?", "options": ["The play was boring", "Two people were talking loudly behind him", "His seat was uncomfortable"], "a": 1 },
+        { "q": "What did the young man mean by 'a private conversation'?", "options": ["They were whispering secrets", "It was none of the writer's business", "They were actors rehearsing"], "a": 1 }
+      ]
+    },
+    {
+      "title": "早餐还是午餐？",
+      "titleEn": "Breakfast or Lunch?",
+      "level": "B1",
+      "text": "It was Sunday. I never get up early on Sundays. I sometimes stay in bed until lunchtime. Last Sunday I got up very late. I looked out of the window. It was dark outside. \"What a day!\" I thought. \"It's raining again.\" Just then, the telephone rang. It was my aunt Lucy. \"I've just arrived by train,\" she said. \"I'm coming to see you.\" \"But I'm still having <b>breakfast</b>,\" I said. \"What are you doing?\" she asked. \"I'm having breakfast,\" I repeated. \"Dear me,\" she said. \"Do you always get up so late? It's one o'clock!\"",
+      "vocab": [ { "w": "lunchtime", "d": "午餐时间", "dEn": "midday meal hour" }, { "w": "repeat", "d": "重复", "dEn": "say again" }, { "w": "aunt", "d": "姑妈；姨妈", "dEn": "father's or mother's sister" } ],
+      "questions": [
+        { "q": "When does the writer usually stay in bed until?", "options": ["Seven o'clock", "Lunchtime", "Nine o'clock"], "a": 1 },
+        { "q": "Who telephoned the writer?", "options": ["His sister", "His aunt Lucy", "His mother"], "a": 1 },
+        { "q": "What time was it really?", "options": ["Eight in the morning", "Midnight", "One o'clock in the afternoon"], "a": 2 }
+      ]
+    },
+    {
+      "title": "请给我寄张明信片",
+      "titleEn": "Please Send Me a Card",
+      "level": "B1",
+      "text": "Postcards always <b>spoil</b> my holidays. Last summer, I went to Italy. I visited <b>museums</b> and sat in <b>public</b> gardens. A friendly waiter taught me a few words of Italian. Then he lent me a book. I read a few lines, but I did not understand a word. Every day I thought about postcards. My holidays passed quickly, but I did not send cards to my friends. On the last day I made a big <b>decision</b>. I got up early and bought thirty-seven cards. I spent the <b>whole</b> day in my room, but I did not write a single card!",
+      "vocab": [ { "w": "spoil", "d": "破坏", "dEn": "ruin" }, { "w": "museum", "d": "博物馆", "dEn": "exhibition hall" }, { "w": "decision", "d": "决定", "dEn": "choice" }, { "w": "whole", "d": "整个的", "dEn": "complete" } ],
+      "questions": [
+        { "q": "What always spoils the writer's holidays?", "options": ["Rainy weather", "Postcards", "Crowded museums"], "a": 1 },
+        { "q": "How many cards did the writer buy?", "options": ["Twelve", "Thirty", "Thirty-seven"], "a": 2 },
+        { "q": "How many cards did he write?", "options": ["All of them", "Only one", "Not a single one"], "a": 2 }
+      ]
+    },
+    {
+      "title": "激动人心的旅行",
+      "titleEn": "An Exciting Trip",
+      "level": "B1",
+      "text": "I have just received a letter from my brother, Tim. He is in Australia. He has been there for six months. Tim is an engineer. He is working for a big firm and he has already visited a great number of different places in Australia. He has just bought an Australian car and has gone to Alice Springs, a small town in the centre of Australia. He will soon visit Darwin. From there, he will fly to Perth. My brother has never been abroad before, so he is finding this trip very exciting.",
+      "vocab": [ { "w": "receive", "d": "收到", "dEn": "get (a letter)" }, { "w": "engineer", "d": "工程师", "dEn": "person who designs machines" }, { "w": "firm", "d": "公司", "dEn": "business company" }, { "w": "abroad", "d": "在国外", "dEn": "in a foreign country" } ],
+      "questions": [
+        { "q": "What is Tim's job?", "options": ["Teacher", "Engineer", "Pilot"], "a": 1 },
+        { "q": "Where is Alice Springs?", "options": ["On the coast", "In the centre of Australia", "In the north"], "a": 1 },
+        { "q": "Why does Tim find the trip exciting?", "options": ["He earns a lot", "It is his first time abroad", "The car is new"], "a": 1 }
+      ]
+    },
+    {
+      "title": "无错号之娱",
+      "titleEn": "The Best and the Worst",
+      "level": "B1",
+      "text": "Joe Sanders has the most beautiful garden in our town. Nearly everybody enters for 'The Nicest Garden Competition' each year, but Joe wins every time. Bill Frith's garden is larger than Joe's. Bill works harder than Joe and grows more flowers and vegetables, but Joe's garden is more interesting. He has made neat paths and has built a wooden bridge over a pool. I like gardens too, but I do not like hard work. Every year I enter for the garden competition too, and I always win a little prize for the worst garden in the town!",
+      "vocab": [ { "w": "competition", "d": "比赛", "dEn": "contest" }, { "w": "neat", "d": "整齐的", "dEn": "tidy" }, { "w": "wooden", "d": "木制的", "dEn": "made of wood" }, { "w": "prize", "d": "奖品", "dEn": "award" } ],
+      "questions": [
+        { "q": "Whose garden is larger?", "options": ["Joe's", "Bill's", "The writer's"], "a": 1 },
+        { "q": "Why does Joe win every year?", "options": ["His garden is the most beautiful", "He works hardest", "He judges the contest"], "a": 0 },
+        { "q": "What prize does the writer win?", "options": ["Best flowers", "Wooden bridge award", "Prize for the worst garden"], "a": 2 }
+      ]
+    },
+    {
+      "title": "又是一个星期天",
+      "titleEn": "Percy Buttons",
+      "level": "B1",
+      "text": "I was having dinner at a restaurant when Tony Steele came in. Tony worked in a lawyer's office years ago, but he is now working at a bank. He gets a good <b>salary</b>, but he always <b>borrows</b> money from his friends and never pays it back. Tony saw me and came and sat at the same table. He has never borrowed money from me. While he was eating, I asked him to lend me twenty pounds. To my <b>surprise</b>, he gave me the money immediately. \"I have never borrowed any money from you,\" Tony said, \"so now you can pay for my dinner!\"",
+      "vocab": [ { "w": "salary", "d": "薪水", "dEn": "monthly pay" }, { "w": "borrow", "d": "借（入）", "dEn": "take a loan" }, { "w": "surprise", "d": "惊讶", "dEn": "unexpected thing" }, { "w": "immediately", "d": "立刻", "dEn": "at once" } ],
+      "questions": [
+        { "q": "Where does Tony work now?", "options": ["At a lawyer's office", "At a bank", "At a restaurant"], "a": 1 },
+        { "q": "What did the writer ask Tony?", "options": ["To pay for dinner", "To lend him twenty pounds", "To find him a job"], "a": 1 },
+        { "q": "Why did Tony hand over the money?", "options": ["He was generous", "So the writer would pay for his dinner", "He owed it already"], "a": 1 }
+      ]
+    },
+    {
+      "title": "警察与赞美诗式的小偷",
+      "titleEn": "Too Late",
+      "level": "B1",
+      "text": "The plane was late and detectives were waiting at the airport all morning. They were expecting a valuable parcel of diamonds from South Africa. A few hours earlier, someone had told the police that thieves would try to steal the diamonds. When the plane arrived, some of the detectives were waiting inside the main building while others were waiting on the airfield. Two men took the parcel off the plane and carried it into the Customs House. While two detectives were keeping guard at the door, two others opened the parcel. To their surprise, the precious parcel was full of stones and sand!",
+      "vocab": [ { "w": "detective", "d": "侦探", "dEn": "police investigator" }, { "w": "valuable", "d": "贵重的", "dEn": "worth much money" }, { "w": "steal", "d": "偷", "dEn": "take unlawfully" }, { "w": "precious", "d": "珍贵的", "dEn": "of high value" } ],
+      "questions": [
+        { "q": "What were the detectives expecting?", "options": ["A famous actor", "A parcel of diamonds", "Illegal weapons"], "a": 1 },
+        { "q": "Where was the parcel taken?", "options": ["To the police station", "Into the Customs House", "Back to the plane"], "a": 1 },
+        { "q": "What did the parcel really contain?", "options": ["Diamonds", "Sand and stones", "Gold coins"], "a": 1 }
+      ]
+    },
+    {
+      "title": "卡塞特街11号",
+      "titleEn": "One Good Turn Deserves Another",
+      "level": "B1",
+      "text": "I was walking along the street when I saw a crowd gathered outside a shop. A young man had just tried to steal a woman's handbag, but she held it firmly. The thief pulled hard, the strap snapped, and he ran off with the bag. A moment later everyone shouted: the woman's husband, a tall sailor, raced after him. He caught the thief in two minutes, carried him back by the collar, and handed both bag and thief to a policeman. Then he gave the bag to his wife — and asked her politely to buy him a cold drink as a reward.",
+      "vocab": [ { "w": "crowd", "d": "人群", "dEn": "many people together" }, { "w": "strap", "d": "带子", "dEn": "band of a bag" }, { "w": "collar", "d": "衣领", "dEn": "part of shirt at neck" }, { "w": "reward", "d": "报酬", "dEn": "praise or payment" } ],
+      "questions": [
+        { "q": "What did the thief try to steal?", "options": ["A wallet", "A handbag", "A necklace"], "a": 1 },
+        { "q": "Who caught the thief?", "options": ["A policeman", "The husband, a sailor", "A shop owner"], "a": 1 },
+        { "q": "What reward did the sailor ask for?", "options": ["Money", "A cold drink", "Nothing at all"], "a": 1 }
+      ]
+    },
+    {
+      "title": "冷遇",
+      "titleEn": "Do You Call That a Hat?",
+      "level": "B1",
+      "text": "\"Do you call that a hat?\" I said to my wife. \"You needn't be so rude about it,\" my wife answered as she looked at herself in the mirror. I sat down on one of the modern easy-chairs. I had sat down only seconds when a voice at the door said, \"Would you mind not sitting in that chair? It's for exhibition only.\" \"I'm sorry,\" I said. \"I didn't notice it.\" Our new furniture had arrived that morning, and everything in the living room was new — including the chairs people must not sit in.",
+      "vocab": [ { "w": "rude", "d": "粗鲁的", "dEn": "impolite" }, { "w": "mirror", "d": "镜子", "dEn": "glass that reflects" }, { "w": "exhibition", "d": "展览", "dEn": "public display" }, { "w": "furniture", "d": "家具", "dEn": "chairs, tables, beds" } ],
+      "questions": [
+        { "q": "What did the writer criticize?", "options": ["His wife's hat", "The mirror", "The carpet"], "a": 0 },
+        { "q": "Why could he not sit in the chair?", "options": ["It was broken", "It was for exhibition only", "His wife was sitting there"], "a": 1 },
+        { "q": "When had the furniture arrived?", "options": ["That morning", "Last week", "A month ago"], "a": 0 }
+      ]
+    },
+    {
+      "title": "并非很懂音乐",
+      "titleEn": "Not Very Musical",
+      "level": "B1",
+      "text": "As we had had a long walk through one of the markets of Old Delhi, we stopped at a square to have a rest. After a time, we noticed a snake charmer with two large baskets at the other side of the square, so we went to have a look at him. As soon as he saw us, he picked up a long pipe which was covered with coins and opened one of the baskets. When he began to play a tune, we had our first glimpse of the snake. It rose out of the basket and began to follow the movements of the pipe. We were very surprised when the snake charmer suddenly began to play jazz and pop songs. The snake, however, continued to 'dance' slowly. It obviously could not tell the difference between Indian music and jazz!",
+      "vocab": [ { "w": "charmer", "d": "耍蛇人", "dEn": "one who controls snakes" }, { "w": "pipe", "d": "笛子；管", "dEn": "musical tube" }, { "w": "tune", "d": "曲调", "dEn": "melody" }, { "w": "movement", "d": "动作", "dEn": "motion" } ],
+      "questions": [
+        { "q": "Why did they stop at the square?", "options": ["To buy food", "To have a rest", "To watch a film"], "a": 1 },
+        { "q": "What covered the pipe?", "options": ["Paint", "Coins", "Cloth"], "a": 1 },
+        { "q": "What surprised the visitors?", "options": ["The snake bit someone", "The charmer played jazz", "The snake escaped"], "a": 1 }
+      ]
+    },
+    {
+      "title": "越过峡谷",
+      "titleEn": "Over the Bridge",
+      "level": "B1",
+      "text": "I love travelling in the country, but I don't like losing my way. I went on an excursion recently, but my trip took me longer than I expected. \"I'm going to Woodford Green,\" I said to the conductor as I got on the bus, \"but I don't know where it is.\" \"I'll tell you where to get off,\" answered the conductor. I sat in the front of the bus to get a good view of the countryside. Some people on the bus watched the scenery, others read their papers. An old lady got off halfway — at a small bridge over a stream. \"This isn't Woodford Green, is it?\" I asked anxiously. \"Oh dear!\" said the conductor suddenly. \"I forgot to put you off.\" \"It doesn't matter,\" I said. \"I'll get off here.\" \"We're going back now,\" said the conductor. \"Well, in that case, I prefer to stay on the bus,\" I answered.",
+      "vocab": [ { "w": "excursion", "d": "远足", "dEn": "short journey" }, { "w": "conductor", "d": "售票员", "dEn": "bus crew member" }, { "w": "scenery", "d": "风景", "dEn": "natural view" }, { "w": "prefer", "d": "宁愿", "dEn": "like better" } ],
+      "questions": [
+        { "q": "Where did the writer want to go?", "options": ["To the stream", "To Woodford Green", "Back home"], "a": 1 },
+        { "q": "What mistake did the conductor make?", "options": ["Wrong change", "Forgot to put the writer off", "Missed a stop"], "a": 1 },
+        { "q": "Why did the writer stay on the bus?", "options": ["He was tired", "The bus was returning anyway", "It started raining"], "a": 1 }
+      ]
+    },
+    {
+      "title": "绿林好汉式的海关",
+      "titleEn": "Do You Speak English?",
+      "level": "B1",
+      "text": "I had an amusing experience last year. After I had left a small village in the south of France, I drove on to the next town. On the way, a young man waved to me. I stopped and he asked me for a lift. As soon as he had got into the car, I said good morning to him in French and he replied in the same language. Apart from a few words, I do not know any French at all. Neither of us spoke during the journey. I had nearly reached the town, when the young man suddenly said, very slowly, \"Do you speak English?\" As I soon learnt, he was English himself!",
+      "vocab": [ { "w": "wave", "d": "挥手", "dEn": "move hand to signal" }, { "w": "lift", "d": "搭便车", "dEn": "free ride" }, { "w": "journey", "d": "旅程", "dEn": "trip" } ],
+      "questions": [
+        { "q": "Where did this happen?", "options": ["In England", "In France", "In Australia"], "a": 1 },
+        { "q": "What language did the writer use first?", "options": ["English", "French", "German"], "a": 1 },
+        { "q": "What was surprising about the young man?", "options": ["He was French", "He was English himself", "He was the town mayor"], "a": 1 }
+      ]
+    }
+  ],
+  "areaTasks": {
+    "vocab": {
+      "zh": ["学习 2 个 NCE2 核心词", "复习生词卡 5 分钟"],
+      "en": ["Learn 2 Book-2 core words", "Review flashcards 5 min"]
+    },
+    "reading": {
+      "zh": ["精读一篇短文并跟读", "做阅读理解题"],
+      "en": ["Read one story closely & shadow-read", "Do the comprehension quiz"]
+    },
+    "speaking": {
+      "zh": ["朗读短文 3 遍模仿语音语调", "复述故事大意 1 分钟"],
+      "en": ["Read aloud 3x, copy intonation", "Retell the story in 1 minute"]
+    },
+    "listening": {
+      "zh": ["听课文录音一遍再朗读对照", "听一段英语播客"],
+      "en": ["Listen to a recording, then read aloud", "Listen to one English podcast"]
+    },
+    "grammar": {
+      "zh": ["归纳本篇语法点（如过去进行时）", "用该语法造 3 个句子"],
+      "en": ["Note the grammar point (e.g. past continuous)", "Write 3 sentences using it"]
+    },
+    "writing": {
+      "zh": ["模仿课文写一篇 80 词小故事", "改写故事结局"],
+      "en": ["Imitate the text with an 80-word story", "Rewrite the ending"]
+    }
+  },
+  "areaLabel": {
+    "zh": { "vocab": "词汇", "reading": "阅读", "speaking": "口语", "listening": "听力", "grammar": "语法", "writing": "写作" },
+    "en": { "vocab": "Vocabulary", "reading": "Reading", "speaking": "Speaking", "listening": "Listening", "grammar": "Grammar", "writing": "Writing" }
+  }
+}

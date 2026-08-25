@@ -1,0 +1,1262 @@
+{
+  "id": "nce4",
+  "name": "新概念风格·第四册",
+  "nameEn": "NCE-Style Book 4",
+  "desc": "仿《新概念英语4》风格：65 个高级核心词 + 8 篇原创论述文（约 200–260 词，观点—论证—转折—结论结构）+ 计划任务库（四册招牌练习：论证框架分析、观点写作）。课文为原创，规避版权。",
+  "descEn": "Book-4-style pack: 65 advanced words + 8 original argumentative essays (~200–260 words, claim–support–counterpoint–conclusion) + plan task bank incl. Book-4 classics: argument mapping & opinion writing. Original texts, copyright-safe.",
+  "words": [
+    {
+      "word": "phenomenon",
+      "ipa": "/fəˈnɑːmɪnən/",
+      "pos": "n.",
+      "def": "现象",
+      "defEn": "something observed that happens or exists",
+      "ex": "Urban silence is a modern phenomenon.",
+      "exzh": "城市静音是一种现代现象。",
+      "exEn": "The quieting of cities belongs to our age.",
+      "emoji": "🔭"
+    },
+    {
+      "word": "argue",
+      "ipa": "/ˈɑːrɡjuː/",
+      "pos": "v.",
+      "def": "主张；论证",
+      "defEn": "to give reasons to support a view",
+      "ex": "The author argues that speed is overvalued.",
+      "exzh": "作者主张速度被高估了。",
+      "exEn": "The writer claims speed matters too much.",
+      "emoji": "⚖️"
+    },
+    {
+      "word": "assumption",
+      "ipa": "/əˈsʌmpʃn/",
+      "pos": "n.",
+      "def": "假设；假定",
+      "defEn": "something accepted as true without proof",
+      "ex": "The plan rests on a shaky assumption.",
+      "exzh": "这个计划建立在不稳的假设上。",
+      "exEn": "The plan depends on a weak guess.",
+      "emoji": "🧩"
+    },
+    {
+      "word": "justification",
+      "ipa": "/ˌdʒʌstɪfɪˈkeɪʃn/",
+      "pos": "n.",
+      "def": "正当理由",
+      "defEn": "a good reason for something",
+      "ex": "There is little justification for the delay.",
+      "exzh": "这次拖延缺乏正当理由。",
+      "exEn": "Little good reason explains the delay.",
+      "emoji": "📜"
+    },
+    {
+      "word": "contradict",
+      "ipa": "/ˌkɑːntrəˈdɪkt/",
+      "pos": "v.",
+      "def": "反驳；与…矛盾",
+      "defEn": "to say the opposite; to conflict with",
+      "ex": "The data contradict the popular belief.",
+      "exzh": "数据与流行观点相矛盾。",
+      "exEn": "Facts run against what most believe.",
+      "emoji": "🔀"
+    },
+    {
+      "word": "paradox",
+      "ipa": "/ˈpærədɑːks/",
+      "pos": "n.",
+      "def": "悖论",
+      "defEn": "a statement that seems self-contradictory yet true",
+      "ex": "It is a paradox that choice can reduce freedom.",
+      "exzh": "选择反而减少自由，这是个悖论。",
+      "exEn": "Oddly, more choice may mean less freedom.",
+      "emoji": "🌀"
+    },
+    {
+      "word": "inevitable",
+      "ipa": "/ɪnˈevɪtəbl/",
+      "pos": "adj.",
+      "def": "不可避免的",
+      "defEn": "certain to happen; unavoidable",
+      "ex": "Change is inevitable in any craft.",
+      "exzh": "任何行业都难免变化。",
+      "exEn": "No craft escapes change forever.",
+      "emoji": "➡️"
+    },
+    {
+      "word": "prevailing",
+      "ipa": "/prɪˈveɪlɪŋ/",
+      "pos": "adj.",
+      "def": "盛行的；占优势的",
+      "defEn": "most common or strongest at a time",
+      "ex": "She challenged the prevailing view of her field.",
+      "exzh": "她挑战了本领域的主流观点。",
+      "exEn": "She went against the common view around her.",
+      "emoji": "🌊"
+    },
+    {
+      "word": "skeptic",
+      "ipa": "/ˈskeptɪk/",
+      "pos": "n.",
+      "def": "怀疑者",
+      "defEn": "a person who doubts until shown proof",
+      "ex": "Skeptics demanded repeated experiments.",
+      "exzh": "怀疑者要求反复实验。",
+      "exEn": "Doubters wanted the tests done again.",
+      "emoji": "🤨"
+    },
+    {
+      "word": "empirical",
+      "ipa": "/ɪmˈpɪrɪkl/",
+      "pos": "adj.",
+      "def": "实证的",
+      "defEn": "based on observation and experiment",
+      "ex": "Empirical data settled the debate.",
+      "exzh": "实证数据终结了争论。",
+      "exEn": "Observed facts ended the argument.",
+      "emoji": "📊"
+    },
+    {
+      "word": "hypothesis",
+      "ipa": "/haɪˈpɑːθəsɪs/",
+      "pos": "n.",
+      "def": "假说",
+      "defEn": "an idea proposed for testing",
+      "ex": "His hypothesis survived every test but one.",
+      "exzh": "他的假说通过了除一项外的所有检验。",
+      "exEn": "All tests passed except one single case.",
+      "emoji": "🧪"
+    },
+    {
+      "word": "inference",
+      "ipa": "/ˈɪnfərəns/",
+      "pos": "n.",
+      "def": "推断",
+      "defEn": "a conclusion drawn from evidence",
+      "ex": "That inference goes beyond the data.",
+      "exzh": "这一推断超出了数据的范围。",
+      "exEn": "You cannot draw that from these facts alone.",
+      "emoji": "🔗"
+    },
+    {
+      "word": "criterion",
+      "ipa": "/kraɪˈtɪriən/",
+      "pos": "n.",
+      "def": "标准",
+      "defEn": "a standard by which things are judged",
+      "ex": "Speed is a poor criterion for progress.",
+      "exzh": "速度不是衡量进步的好标准。",
+      "exEn": "Judging progress by speed judges poorly.",
+      "emoji": "📏"
+    },
+    {
+      "word": "perspective",
+      "ipa": "/pərˈspektɪv/",
+      "pos": "n.",
+      "def": "视角",
+      "defEn": "a particular way of seeing things",
+      "ex": "History looks different from below.",
+      "exzh": "从底层看历史面貌不同。",
+      "exEn": "Seen from ordinary lives, history changes shape.",
+      "emoji": "🖼️"
+    },
+    {
+      "word": "context",
+      "ipa": "/ˈkɑːntekst/",
+      "pos": "n.",
+      "def": "语境；背景",
+      "defEn": "the setting that gives meaning to something",
+      "ex": "The remark changes meaning without its context.",
+      "exzh": "脱离语境这句话意思就变了。",
+      "exEn": "Take away its setting and it means another thing.",
+      "emoji": "🧵"
+    },
+    {
+      "word": "implication",
+      "ipa": "/ˌɪmplɪˈkeɪʃn/",
+      "pos": "n.",
+      "def": "含义；影响",
+      "defEn": "what follows indirectly from an idea or act",
+      "ex": "The implications reach far beyond economics.",
+      "exzh": "其影响远不止经济学。",
+      "exEn": "What follows touches far more than money.",
+      "emoji": "🕸️"
+    },
+    {
+      "word": "undermine",
+      "ipa": "/ˌʌndərˈmaɪn/",
+      "pos": "v.",
+      "def": "削弱；暗中破坏",
+      "defEn": "to weaken gradually and often secretly",
+      "ex": "Rumours undermine trust in institutions.",
+      "exzh": "谣言削弱对机构的信任。",
+      "exEn": "Whispers slowly eat away at trust.",
+      "emoji": "🕳️"
+    },
+    {
+      "word": "advocate",
+      "ipa": "/ˈædvəkeɪt/",
+      "pos": "v.",
+      "def": "提倡",
+      "defEn": "to publicly support an idea",
+      "ex": "He advocates slower, deeper reading.",
+      "exzh": "他提倡更慢更深的阅读。",
+      "exEn": "He speaks openly for slow, deep reading.",
+      "emoji": "📣"
+    },
+    {
+      "word": "opponent",
+      "ipa": "/əˈpoʊnənt/",
+      "pos": "n.",
+      "def": "反对者",
+      "defEn": "a person who argues against something",
+      "ex": "Even opponents concede the method works.",
+      "exzh": "连反对者也承认该方法有效。",
+      "exEn": "Those against it admit it does work.",
+      "emoji": "🥊"
+    },
+    {
+      "word": "consensus",
+      "ipa": "/kənˈsensəs/",
+      "pos": "n.",
+      "def": "共识",
+      "defEn": "general agreement among a group",
+      "ex": "A quiet consensus formed by evening.",
+      "exzh": "傍晚时形成了默契的共识。",
+      "exEn": "By nightfall all had quietly agreed.",
+      "emoji": "🤝"
+    },
+    {
+      "word": "controversy",
+      "ipa": "/ˈkɑːntrəvɜːrsi/",
+      "pos": "n.",
+      "def": "争议",
+      "defEn": "public disagreement about something",
+      "ex": "The policy sparked immediate controversy.",
+      "exzh": "政策立即引发争议。",
+      "exEn": "The policy set off open dispute at once.",
+      "emoji": "🔥"
+    },
+    {
+      "word": "scrutiny",
+      "ipa": "/ˈskruːtəni/",
+      "pos": "n.",
+      "def": "仔细审查",
+      "defEn": "close and careful examination",
+      "ex": "Every figure came under scrutiny.",
+      "exzh": "每个数字都被仔细审查。",
+      "exEn": "Each number was checked with care.",
+      "emoji": "🔬"
+    },
+    {
+      "word": "distort",
+      "ipa": "/dɪˈstɔːrt/",
+      "pos": "v.",
+      "def": "歪曲；扭曲",
+      "defEn": "to change the true shape or meaning of",
+      "ex": "Headlines distort careful research.",
+      "exzh": "标题会扭曲严谨的研究。",
+      "exEn": "Big headlines bend careful findings out of shape.",
+      "emoji": "🪞"
+    },
+    {
+      "word": "substantiate",
+      "ipa": "/səbˈstænʃieɪt/",
+      "pos": "v.",
+      "def": "证实；使有根据",
+      "defEn": "to support a claim with evidence",
+      "ex": "The report substantiates earlier warnings.",
+      "exzh": "报告证实了早先的警告。",
+      "exEn": "The report backs up past warnings with proof.",
+      "emoji": "✅"
+    },
+    {
+      "word": "refute",
+      "ipa": "/rɪˈfjuːt/",
+      "pos": "v.",
+      "def": "驳斥",
+      "defEn": "to prove a statement wrong",
+      "ex": "One counterexample can refute a theory.",
+      "exzh": "一个反例就能驳倒一个理论。",
+      "exEn": "A single contrary case can break a theory.",
+      "emoji": "❌"
+    },
+    {
+      "word": "plausible",
+      "ipa": "/ˈplɔːzəbl/",
+      "pos": "adj.",
+      "def": "貌似合理的",
+      "defEn": "seeming reasonable or believable",
+      "ex": "The excuse sounded plausible enough.",
+      "exzh": "这个借口听起来足够合理。",
+      "exEn": "The reason seemed fair on the surface.",
+      "emoji": "🎭"
+    },
+    {
+      "word": "superficial",
+      "ipa": "/ˌsuːpərˈfɪʃl/",
+      "pos": "adj.",
+      "def": "肤浅的",
+      "defEn": "concerned only with the surface",
+      "ex": "Skimming breeds superficial knowledge.",
+      "exzh": "略读造成肤浅的认识。",
+      "exEn": "Reading only surfaces leaves shallow learning.",
+      "emoji": "🫧"
+    },
+    {
+      "word": "profound",
+      "ipa": "/prəˈfaʊnd/",
+      "pos": "adj.",
+      "def": "深刻的",
+      "defEn": "very great; showing deep insight",
+      "ex": "The essay made a profound impression.",
+      "exzh": "这篇文章留下深刻印象。",
+      "exEn": "The essay sank deep into memory.",
+      "emoji": "🌌"
+    },
+    {
+      "word": "coherent",
+      "ipa": "/koʊˈhɪrənt/",
+      "pos": "adj.",
+      "def": "连贯的；有条理的",
+      "defEn": "logically connected and clear",
+      "ex": "A coherent argument needs structure.",
+      "exzh": "连贯的论证需要结构。",
+      "exEn": "Clear reasoning must be well ordered.",
+      "emoji": "🧱"
+    },
+    {
+      "word": "concise",
+      "ipa": "/kənˈsaɪs/",
+      "pos": "adj.",
+      "def": "简洁的",
+      "defEn": "short and clear; using few words",
+      "ex": "Good definitions are concise by nature.",
+      "exzh": "好的定义天生简洁。",
+      "exEn": "Fine definitions say much in few words.",
+      "emoji": "✂️"
+    },
+    {
+      "word": "explicit",
+      "ipa": "/ɪkˈsplɪsɪt/",
+      "pos": "adj.",
+      "def": "明确的",
+      "defEn": "stated clearly and directly",
+      "ex": "Be explicit about your assumptions.",
+      "exzh": "把你的假设说明白。",
+      "exEn": "State your starting guesses plainly.",
+      "emoji": "📢"
+    },
+    {
+      "word": "implicit",
+      "ipa": "/ɪmˈplɪsɪt/",
+      "pos": "adj.",
+      "def": "含蓄的；隐含的",
+      "defEn": "suggested without being said directly",
+      "ex": "The criticism was implicit but unmistakable.",
+      "exzh": "批评是含蓄却明白无误的。",
+      "exEn": "Not said outright, yet perfectly clear.",
+      "emoji": "💭"
+    },
+    {
+      "word": "nuance",
+      "ipa": "/ˈnuːɑːns/",
+      "pos": "n.",
+      "def": "细微差别",
+      "defEn": "a very small difference in meaning",
+      "ex": "Translation loses cultural nuances.",
+      "exzh": "翻译会丢失文化上的细微差别。",
+      "exEn": "Fine shades of meaning slip through translation.",
+      "emoji": "🎨"
+    },
+    {
+      "word": "ambiguity",
+      "ipa": "/ˌæmbɪˈɡjuːəti/",
+      "pos": "n.",
+      "def": "歧义；模糊",
+      "defEn": "the state of having more than one meaning",
+      "ex": "Ambiguity is a tool as well as a fault.",
+      "exzh": "歧义既是缺点也是工具。",
+      "exEn": "Unclear meaning can serve as well as spoil.",
+      "emoji": "🌗"
+    },
+    {
+      "word": "arbitrary",
+      "ipa": "/ˈɑːrbɪtreri/",
+      "pos": "adj.",
+      "def": "武断的；任意的",
+      "defEn": "decided without reason or principle",
+      "ex": "The deadline felt arbitrary to everyone.",
+      "exzh": "截止日期让人觉得毫无道理。",
+      "exEn": "None could see why that date was chosen.",
+      "emoji": "🎲"
+    },
+    {
+      "word": "subjective",
+      "ipa": "/səbˈdʒektɪv/",
+      "pos": "adj.",
+      "def": "主观的",
+      "defEn": "based on personal feelings, not facts",
+      "ex": "Taste is subjective; quality less so.",
+      "exzh": "品味是主观的，质量则不然。",
+      "exEn": "Liking differs by person; worth less so.",
+      "emoji": "👁️"
+    },
+    {
+      "word": "objective",
+      "ipa": "/əbˈdʒektɪv/",
+      "pos": "adj.",
+      "def": "客观的",
+      "defEn": "based on facts, not feelings",
+      "ex": "Keep the evaluation objective.",
+      "exzh": "评估要保持客观。",
+      "exEn": "Judge by facts, not by moods.",
+      "emoji": "🎯"
+    },
+    {
+      "word": "bias",
+      "ipa": "/ˈbaɪəs/",
+      "pos": "n.",
+      "def": "偏见",
+      "defEn": "unfair leaning toward one side",
+      "ex": "Hidden bias shapes even careful studies.",
+      "exzh": "隐藏的偏见影响甚至严谨的研究。",
+      "exEn": "Even careful work leans unseen ways.",
+      "emoji": "⚖️"
+    },
+    {
+      "word": "prejudice",
+      "ipa": "/ˈpredʒudɪs/",
+      "pos": "n.",
+      "def": "成见",
+      "defEn": "an opinion formed before knowing facts",
+      "ex": "Prejudice survives on second-hand stories.",
+      "exzh": "成见靠二手的故事存活。",
+      "exEn": "Unfair opinions live off tales retold.",
+      "emoji": "🚧"
+    },
+    {
+      "word": "stereotype",
+      "ipa": "/ˈsteriətaɪp/",
+      "pos": "n.",
+      "def": "刻板印象",
+      "defEn": "a fixed, oversimplified image of a group",
+      "ex": "Travel dismantles stereotypes slowly.",
+      "exzh": "旅行慢慢拆除刻板印象。",
+      "exEn": "Journeys slowly take fixed images apart.",
+      "emoji": "🧿"
+    },
+    {
+      "word": "diversity",
+      "ipa": "/daɪˈvɜːrsəti/",
+      "pos": "n.",
+      "def": "多样性",
+      "defEn": "the state of having many different kinds",
+      "ex": "Diversity strengthens a team's judgment.",
+      "exzh": "多样性增强团队判断力。",
+      "exEn": "Mixed teams judge better than alike ones.",
+      "emoji": "🌈"
+    },
+    {
+      "word": "integrate",
+      "ipa": "/ˈɪntɪɡreɪt/",
+      "pos": "v.",
+      "def": "融合；整合",
+      "defEn": "to combine parts into a whole",
+      "ex": "Newcomers integrated within a year.",
+      "exzh": "新来的人一年内融入了。",
+      "exEn": "Within a year newcomers became part of the whole.",
+      "emoji": "🧩"
+    },
+    {
+      "word": "adaptation",
+      "ipa": "/ˌædæpˈteɪʃn/",
+      "pos": "n.",
+      "def": "适应；改编",
+      "defEn": "the process of adjusting to conditions",
+      "ex": "Adaptation, not perfection, ensures survival.",
+      "exzh": "确保生存的是适应而非完美。",
+      "exEn": "Survival favours those who adjust, not the flawless.",
+      "emoji": "🦎"
+    },
+    {
+      "word": "innovation",
+      "ipa": "/ˌɪnəˈveɪʃn/",
+      "pos": "n.",
+      "def": "创新",
+      "defEn": "a new idea, method, or device",
+      "ex": "Innovation begins as disobedience.",
+      "exzh": "创新始于不服从。",
+      "exEn": "New ideas start by refusing old ones.",
+      "emoji": "💡"
+    },
+    {
+      "word": "tradition-bound",
+      "ipa": "/trəˈdɪʃn baʊnd/",
+      "pos": "adj.",
+      "def": "受传统束缚的",
+      "defEn": "held back by established customs",
+      "ex": "Tradition-bound industries change last.",
+      "exzh": "受传统束缚的行业改变最慢。",
+      "exEn": "Custom-held trades are slowest to move.",
+      "emoji": "⛓️"
+    },
+    {
+      "word": "mechanization",
+      "ipa": "/ˌmekənəˈzeɪʃn/",
+      "pos": "n.",
+      "def": "机械化",
+      "defEn": "use of machines to do work",
+      "ex": "Mechanization redrew village life.",
+      "exzh": "机械化重绘了乡村生活。",
+      "exEn": "Machines reshaped country living entirely.",
+      "emoji": "⚙️"
+    },
+    {
+      "word": "automation",
+      "ipa": "/ˌɔːtəˈmeɪʃn/",
+      "pos": "n.",
+      "def": "自动化",
+      "defEn": "running processes without human control",
+      "ex": "Automation shifts human effort upward.",
+      "exzh": "自动化把人的精力推向更高处。",
+      "exEn": "With machines working, people climb to harder tasks.",
+      "emoji": "🤖"
+    },
+    {
+      "word": "consumption",
+      "ipa": "/kənˈsʌmpʃn/",
+      "pos": "n.",
+      "def": "消费；消耗",
+      "defEn": "the using up of goods or resources",
+      "ex": "Conspicuous consumption wastes quietly.",
+      "exzh": "炫耀式消费在悄悄浪费。",
+      "exEn": "Showing off wealth burns resources unseen.",
+      "emoji": "🛒"
+    },
+    {
+      "word": "scarcity",
+      "ipa": "/ˈskersəti/",
+      "pos": "n.",
+      "def": "稀缺",
+      "defEn": "the state of being in short supply",
+      "ex": "Attention, not time, is the new scarcity.",
+      "exzh": "新的稀缺是注意力而非时间。",
+      "exEn": "Focus runs shorter than hours now.",
+      "emoji": "⏳"
+    },
+    {
+      "word": "abundance",
+      "ipa": "/əˈbʌndəns/",
+      "pos": "n.",
+      "def": "充裕；丰富",
+      "defEn": "a very large quantity of something",
+      "ex": "Abundance brings problems of its own.",
+      "exzh": "充裕也带来自身的问题。",
+      "exEn": "Plenty carries troubles all its own.",
+      "emoji": "🌾"
+    },
+    {
+      "word": "sustainable",
+      "ipa": "/səˈsteɪnəbl/",
+      "pos": "adj.",
+      "def": "可持续的",
+      "defEn": "able to continue without harming the future",
+      "ex": "No growth is sustainable without limits.",
+      "exzh": "没有节制就没有可持续的增长。",
+      "exEn": "Growth without limits cannot last.",
+      "emoji": "♻️"
+    },
+    {
+      "word": "depletion",
+      "ipa": "/dɪˈpliːʃn/",
+      "pos": "n.",
+      "def": "耗尽",
+      "defEn": "serious reduction in amount",
+      "ex": "Soil depletion precedes famine.",
+      "exzh": "土壤耗尽先于饥荒。",
+      "exEn": "Hungry years follow worn-out ground.",
+      "emoji": "🏜️"
+    },
+    {
+      "word": "conserve",
+      "ipa": "/kənˈsɜːrv/",
+      "pos": "v.",
+      "def": "节约；保护",
+      "defEn": "to use carefully to avoid waste",
+      "ex": "To conserve water, price it honestly.",
+      "exzh": "要节约用水就给它诚实的价格。",
+      "exEn": "Honest pricing teaches careful use.",
+      "emoji": "💧"
+    },
+    {
+      "word": "welfare",
+      "ipa": "/ˈwelfer/",
+      "pos": "n.",
+      "def": "福利；幸福",
+      "defEn": "health and happiness of a group",
+      "ex": "National welfare exceeds national income.",
+      "exzh": "国民福祉超过国民收入。",
+      "exEn": "A nation's wellbeing counts more than its earnings.",
+      "emoji": "🏡"
+    },
+    {
+      "word": "prosperity",
+      "ipa": "/prɑːˈsperəti/",
+      "pos": "n.",
+      "def": "繁荣",
+      "defEn": "the state of being successful and rich",
+      "ex": "Prosperity built on debt borrows trouble.",
+      "exzh": "建立在债务上的繁荣是预支麻烦。",
+      "exEn": "Riches resting on loans invite future pain.",
+      "emoji": "💰"
+    },
+    {
+      "word": "inequality",
+      "ipa": "/ˌɪnɪˈkwɑːləti/",
+      "pos": "n.",
+      "def": "不平等",
+      "defEn": "unfair difference in status or wealth",
+      "ex": "Inequality narrows the market itself.",
+      "exzh": "不平等会压缩市场本身。",
+      "exEn": "When few hold much, markets grow smaller.",
+      "emoji": "📉"
+    },
+    {
+      "word": "mobility",
+      "ipa": "/moʊˈbɪləti/",
+      "pos": "n.",
+      "def": "流动性",
+      "defEn": "ability to move between social levels or places",
+      "ex": "Education once promised social mobility.",
+      "exzh": "教育曾承诺社会流动。",
+      "exEn": "Schools once opened doors between classes.",
+      "emoji": "🪜"
+    },
+    {
+      "word": "meritocracy",
+      "ipa": "/ˌmerɪˈtɑːkrəsi/",
+      "pos": "n.",
+      "def": "精英体制",
+      "defEn": "a system rewarding ability above birth",
+      "ex": "A perfect meritocracy is still a dream.",
+      "exzh": "完美的精英体制仍是梦想。",
+      "exEn": "Reward purely by talent remains a wish.",
+      "emoji": "🏆"
+    },
+    {
+      "word": "democratic",
+      "ipa": "/ˌdeməˈkrætɪk/",
+      "pos": "adj.",
+      "def": "民主的",
+      "defEn": "based on equal participation",
+      "ex": "Reading is a democratic pleasure.",
+      "exzh": "阅读是一种民主的乐趣。",
+      "exEn": "Books belong equally to everyone.",
+      "emoji": "🗳️"
+    },
+    {
+      "word": "authoritarian",
+      "ipa": "/əˌθɔːrəˈteriən/",
+      "pos": "adj.",
+      "def": "威权的",
+      "defEn": "demanding obedience without freedom",
+      "ex": "Efficiency is the authoritarian's favourite word.",
+      "exzh": "效率是威权者最爱说的词。",
+      "exEn": "Control speaks first of efficiency.",
+      "emoji": "🗿"
+    },
+    {
+      "word": "liberty",
+      "ipa": "/ˈlɪbərti/",
+      "pos": "n.",
+      "def": "自由",
+      "defEn": "freedom from unjust control",
+      "ex": "Liberty requires educated citizens.",
+      "exzh": "自由需要受过教育的公民。",
+      "exEn": "Freedom stands on informed minds.",
+      "emoji": "🗽"
+    },
+    {
+      "word": "censorship",
+      "ipa": "/ˈsensərʃɪp/",
+      "pos": "n.",
+      "def": "审查制度",
+      "defEn": "control of what may be said or published",
+      "ex": "Soft censorship hides behind algorithms.",
+      "exzh": "软性审查藏在算法背后。",
+      "exEn": "Quiet controls now wear digital masks.",
+      "emoji": "🔇"
+    },
+    {
+      "word": "propaganda",
+      "ipa": "/ˌprɑːpəˈɡændə/",
+      "pos": "n.",
+      "def": "宣传（贬义）",
+      "defEn": "biased information spread to influence people",
+      "ex": "Propaganda imitates the voice of reason.",
+      "exzh": "宣传模仿理性的声音。",
+      "exEn": "Persuasion-by-power dresses as common sense.",
+      "emoji": "📻"
+    },
+    {
+      "word": "discern",
+      "ipa": "/dɪˈsɜːrn/",
+      "pos": "v.",
+      "def": "辨别；察觉",
+      "defEn": "to recognize something with effort",
+      "ex": "Few readers discern editing bias.",
+      "exzh": "很少有读者察觉编辑偏见。",
+      "exEn": "Hardly anyone spots hidden editorial hands.",
+      "emoji": "👀"
+    },
+    {
+      "word": "cultivate",
+      "ipa": "/ˈkʌltɪveɪt/",
+      "pos": "v.",
+      "def": "培养；耕作",
+      "defEn": "to develop by care and effort",
+      "ex": "Cultivate attention like a garden.",
+      "exzh": "像照料花园一样培养注意力。",
+      "exEn": "Tend your focus as a farmer tends soil.",
+      "emoji": "🌱"
+    }
+  ],
+  "readings": [
+    {
+      "title": "速度的暴政",
+      "titleEn": "The Tyranny of Speed",
+      "level": "C1",
+      "text": "We tend to <b>assume</b> that whatever saves time must improve life, and the whole machinery of modern <b>innovation</b> rests upon this <b>assumption</b>. Yet the evidence deserves closer <b>scrutiny</b>. When letters took weeks, a reply meant days of reflection; when messages arrive in seconds, replies arrive in reflex. The faster the exchange, the thinner the thought inside it. Defenders of speed <b>argue</b> that quick communication merely removes dead waiting-time, leaving thinking untouched — a <b>plausible</b> claim, but an <b>empirically</b> doubtful one: studies of workplace messaging suggest the opposite, that pace sets depth rather than serving it. The real <b>implication</b> is uncomfortable. If thought expands to fill available time, then every technology that shrinks time shrinks thought also. This is not an <b>argument</b> for returning to quills and sailing ships; <b>inevitability</b> is not the question. The question is whether we will <b>cultivate</b> deliberate slowness on purpose, in some corners of life, precisely because the rest of life accelerates beyond our control. Speed is a magnificent servant. As a master, it quietly starves whatever it feeds on.",
+      "vocab": [
+        {
+          "w": "assumption",
+          "d": "假设",
+          "dEn": "accepted-without-proof idea"
+        },
+        {
+          "w": "scrutiny",
+          "d": "仔细审查",
+          "dEn": "close examination"
+        },
+        {
+          "w": "implication",
+          "d": "含义；影响",
+          "dEn": "indirect consequence"
+        },
+        {
+          "w": "cultivate",
+          "d": "培养",
+          "dEn": "develop deliberately"
+        }
+      ],
+      "questions": [
+        {
+          "q": "What assumption does the author challenge?",
+          "options": [
+            "Letters were unreliable",
+            "Whatever saves time improves life",
+            "Innovation always fails"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What do workplace-messaging studies suggest?",
+          "options": [
+            "Speed serves depth",
+            "Pace sets depth",
+            "Depth is unaffected"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What solution does the author propose?",
+          "options": [
+            "Abandon fast communication",
+            "Return to sailing ships",
+            "Deliberately keep some corners of life slow"
+          ],
+          "a": 2
+        }
+      ]
+    },
+    {
+      "title": "选择的幻觉",
+      "titleEn": "The Illusion of Choice",
+      "level": "C1",
+      "text": "Supermarkets stock forty kinds of jam and call it freedom; economists long treated this equation as obvious. A curious <b>paradox</b>, however, has emerged from decades of consumer research: beyond a certain point, added options paralyse rather than liberate. Faced with twenty-four varieties, shoppers buy less; faced with six, they buy more and regret less. The <b>prevailing</b> defence of unlimited choice — that individuals know their own preferences best — quietly <b>contradicts</b> how preference actually forms. We discover what we want largely by choosing, comparing and, crucially, by living with results; a catalogue of infinite alternatives makes every chosen life look like a failed experiment. Critics reply that restricting choice patronises the public, and where choice is <b>arbitrary</b>, they are right. But no one <b>advocates</b> removing varieties of bread. The serious <b>argument</b> concerns defaults: pension plans, medical consents, news feeds. Whoever designs the default designs the outcome, and there the vocabulary of freedom has been borrowed by engineering. A mature society would stop counting options and start auditing them — asking not 'how many?' but 'chosen how, and by whom?'",
+      "vocab": [
+        {
+          "w": "paradox",
+          "d": "悖论",
+          "dEn": "self-contradictory truth"
+        },
+        {
+          "w": "prevailing",
+          "d": "盛行的",
+          "dEn": "currently dominant"
+        },
+        {
+          "w": "contradict",
+          "d": "与…矛盾",
+          "dEn": "conflict with"
+        },
+        {
+          "w": "default",
+          "d": "默认选项",
+          "dEn": "preset option"
+        }
+      ],
+      "questions": [
+        {
+          "q": "What does consumer research show?",
+          "options": [
+            "More options always increase sales",
+            "Beyond a point extra options paralyse buyers",
+            "Shoppers never regret choices"
+          ],
+          "a": 1
+        },
+        {
+          "q": "Why does endless comparison harm satisfaction?",
+          "options": [
+            "It makes every chosen life feel like a failed experiment",
+            "It costs too much time",
+            "People forget their preferences"
+          ],
+          "a": 0
+        },
+        {
+          "q": "Where should society focus according to the author?",
+          "options": [
+            "On counting total options",
+            "On auditing how defaults are designed",
+            "On banning supermarkets"
+          ],
+          "a": 1
+        }
+      ]
+    },
+    {
+      "title": "注意力的经济学",
+      "titleEn": "The Economics of Attention",
+      "level": "C1",
+      "text": "Herbert Simon observed that wealth of information creates poverty of attention, and half a century later his aside reads like prophecy. The services we call free are paid for in exactly that coinage: minutes, mornings, and the capacity for sustained thought. Advertisers once rented attention briefly; platforms now farm it industrially, harvesting engagement with machines tuned — by <b>empirical</b> experiment, not accident — to provoke indignation, envy, and compulsive return. It would be comfortable to <b>dismiss</b> such design as harmless entertainment, but <b>scarcity</b> imposes discipline: whatever consumes attention consumes the raw material of citizenship, craftsmanship, and love. Some conclude that regulation alone can restore balance, treating attention as utilities treat water; others place faith in individual discipline, an answer that flatters the will and ignores the laboratory. Both positions share a mistake — treating attention as a private resource. It is also a shared one, like air in a theatre: when everyone stands, no one sees better. The <b>justification</b> for collective norms, from school phone bans to quiet carriages, is simply this. Attention is cultivated socially or it is not cultivated at all.",
+      "vocab": [
+        {
+          "w": "scarcity",
+          "d": "稀缺",
+          "dEn": "short supply"
+        },
+        {
+          "w": "dismiss",
+          "d": "不予理会",
+          "dEn": "reject casually"
+        },
+        {
+          "w": "justification",
+          "d": "正当理由",
+          "dEn": "good reason"
+        },
+        {
+          "w": "harvest",
+          "d": "收割；采集",
+          "dEn": "gather systematically"
+        }
+      ],
+      "questions": [
+        {
+          "q": "How are 'free' services really paid for?",
+          "options": [
+            "By advertising budgets only",
+            "With users' time and sustained thought",
+            "Through government subsidies"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What mistake do both regulatory and personal-discipline answers share?",
+          "options": [
+            "They ignore economics",
+            "They treat attention as purely private",
+            "They trust technology firms"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What is the author's conclusion?",
+          "options": [
+            "Attention must be cultivated socially",
+            "Phones should be banned everywhere",
+            "Nothing effective can be done"
+          ],
+          "a": 0
+        }
+      ]
+    },
+    {
+      "title": "机器与手艺",
+      "titleEn": "Machine and Craft",
+      "level": "C1",
+      "text": "Every generation believes its machines finally abolish skill, and every generation is wrong in an instructive way. The loom did not end weaving; it moved judgement upstream, into pattern and thread. <b>Mechanization</b> removed muscle work; <b>automation</b> now removes routine decisions, and again the fear is of endings while the reality is relocation — of where human <b>judgement</b> sits inside the work. What genuinely disappears in this migration is not skill but visibility. When a carpenter planes a board, quality is public: the hand corrects the eye corrects the hand, and error teaches instantly. When software completes our sentences and cameras complete our photographs, correction still occurs, but silently, elsewhere, by systems whose standards we did not set and cannot inspect. The result is competence without apprenticeship. This suggests a principle for education in an automated age: teach judgement where the machines are weakest — framing problems, weighing values, noticing when a plausible answer is wrong — and treat fluency with tools as necessary but shallow. Machines inherit our routines. Only we can <b>discern</b> which routines deserved inheriting.",
+      "vocab": [
+        {
+          "w": "mechanization",
+          "d": "机械化",
+          "dEn": "machines replacing muscle work"
+        },
+        {
+          "w": "automation",
+          "d": "自动化",
+          "dEn": "machines replacing routine decisions"
+        },
+        {
+          "w": "apprenticeship",
+          "d": "学徒制；实践训练",
+          "dEn": "learning under a master"
+        },
+        {
+          "w": "discern",
+          "d": "辨别",
+          "dEn": "recognize with effort"
+        }
+      ],
+      "questions": [
+        {
+          "q": "What actually disappears with automation, says the author?",
+          "options": [
+            "Skill itself",
+            "The visibility of skill and correction",
+            "Human employment"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What should education emphasise?",
+          "options": [
+            "Fluency with tools above all",
+            "Judgement where machines are weakest",
+            "Avoiding all technology"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What line ends the essay?",
+          "options": [
+            "Machines inherit routines; we must judge which deserve it",
+            "Machines will soon replace teachers",
+            "Craft is doomed"
+          ],
+          "a": 0
+        }
+      ]
+    },
+    {
+      "title": "城市的孤独",
+      "titleEn": "Solitude in Cities",
+      "level": "C1",
+      "text": "Eight million neighbours, the saying goes, and not one to borrow salt from. Urban loneliness is usually described as a modern failure, yet the <b>phenomenon</b> is older than elevators: crowd density and neighbourliness have always traded against each other. What is genuinely new is not isolation but its <b>justification</b>. Previous generations experienced city anonymity as loss; we have begun to sell it as liberation — freedom from the village eye, the borrowed ladder, the obligation to attend. There is truth in that freedom, and critics who romanticise communal villages ignore their surveillance and their suffocation. But marketing anonymity as pure gain <b>distorts</b> the ledger. Sociological evidence is fairly consistent: moderate, low-stakes neighbourhood contact measurably protects mental health, while total anonymity corrodes it. The sensible position therefore refuses both nostalgia and triumphalism. Cities need what might be engineered smallness: courtyards over towers, corner shops over chains, third places over private screens — designs that make casual acquaintance cheap and refusal optional. Loneliness is not the price of liberty. Bad architecture is. Liberty, like a garden, needs walls in the right places, and gates.",
+      "vocab": [
+        {
+          "w": "phenomenon",
+          "d": "现象",
+          "dEn": "observable fact"
+        },
+        {
+          "w": "distort",
+          "d": "歪曲",
+          "dEn": "twist the truth of"
+        },
+        {
+          "w": "nostalgia",
+          "d": "怀旧",
+          "dEn": "longing for the past"
+        },
+        {
+          "w": "anonymity",
+          "d": "匿名；无名状态",
+          "dEn": "state of being unknown"
+        }
+      ],
+      "questions": [
+        {
+          "q": "What is genuinely new about urban loneliness?",
+          "options": [
+            "Its existence",
+            "Its being sold as liberation",
+            "Its effect on health"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What do critics of village-life romanticism point out?",
+          "options": [
+            "Villages lacked shops",
+            "Villages offered surveillance and suffocation too",
+            "Villages were lonelier"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What does 'bad architecture' mean here?",
+          "options": [
+            "Tall towers and chains that prevent casual contact",
+            "Buildings that fall down",
+            "Streets that are too wide"
+          ],
+          "a": 0
+        }
+      ]
+    },
+    {
+      "title": "语言在退化吗？",
+      "titleEn": "Is Language Decaying?",
+      "level": "C1",
+      "text": "Every civilisation complains that its language is rotting, and every complaint is eventually embarrassed by the dictionary. Latin parents scolded late-Latin slang; eighteenth-century essayists feared the novel would ruin English prose; my own schooling deplored 'hopefully' as a sentence adverb. Language survived us all. Yet the familiar rebuttal — that change equals life — can become its own <b>superficial</b> slogan, excusing every sloppiness as vitality. A subtler position distinguishes change in <b>convention</b> from decay in precision. When pronunciation drifts, only pedants object; when the shared vocabulary for describing feeling thins, something real is lost, for words are instruments of thought, and blunt instruments cut rough outlines. The honest <b>argument</b>, then, is not whether language changes — it must — but which changes we resist and which we adopt. That is a collective decision, made story by story and classroom by classroom. Languages do not die of natural causes; they die of disuse in particular registers by particular communities. Decay is not destiny. It is a budget, and every generation votes on it, mostly by accident.",
+      "vocab": [
+        {
+          "w": "convention",
+          "d": "惯例；约定",
+          "dEn": "accepted practice"
+        },
+        {
+          "w": "pedant",
+          "d": "迂腐之人",
+          "dEn": "person obsessed with minor rules"
+        },
+        {
+          "w": "register",
+          "d": "语域；使用场合",
+          "dEn": "style of language for a context"
+        },
+        {
+          "w": "deplore",
+          "d": "谴责",
+          "dEn": "strongly disapprove"
+        }
+      ],
+      "questions": [
+        {
+          "q": "What flaw does the author find in 'change equals life'?",
+          "options": [
+            "It is historically false",
+            "It can excuse every sloppiness as vitality",
+            "It insults young speakers"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What distinction does the author draw?",
+          "options": [
+            "Change in convention vs decay in precision",
+            "Written vs spoken language",
+            "Old vs young speakers"
+          ],
+          "a": 0
+        },
+        {
+          "q": "How do languages actually die?",
+          "options": [
+            "Natural aging",
+            "Disuse in specific registers by specific communities",
+            "Government decrees"
+          ],
+          "a": 1
+        }
+      ]
+    },
+    {
+      "title": "进步的两张面孔",
+      "titleEn": "The Two Faces of Progress",
+      "level": "C1",
+      "text": "Ask whether the century improved, and averages answer yes while kitchens answer more quietly. National income climbed; so, less famously, did the distance between the climb and those who carried it. Economic historians call this distribution; families call it Tuesday. The intellectual difficulty is that both faces are real. <b>Prosperity</b> is genuine — medicine, mobility, and full stomachs are not metaphors — and yet aggregate growth can proceed for decades while <b>inequality</b> quietly re-prices the basics: housing, healthcare, security — goods whose supply cannot expand as easily as desires. Defenders of growth reply that redistribution, not production, is the problem; critics reply that production has captured redistribution, which is why every reform arrives means-tested, stigmatised, and late. Between them lies a simpler test that citizens might apply to any decade's report card: did a person of average luck find life becoming more navigable? Not richer — navigable. By that <b>criterion</b>, progress is neither myth nor machine; it is a direction, reversible, chosen policy by policy. The twentieth century proves we can move that way. The present one is deciding whether we remember how.",
+      "vocab": [
+        {
+          "w": "prosperity",
+          "d": "繁荣",
+          "dEn": "widely shared success"
+        },
+        {
+          "w": "inequality",
+          "d": "不平等",
+          "dEn": "unfair difference"
+        },
+        {
+          "w": "aggregate",
+          "d": "总计的",
+          "dEn": "combined total"
+        },
+        {
+          "w": "criterion",
+          "d": "标准",
+          "dEn": "judging standard"
+        }
+      ],
+      "questions": [
+        {
+          "q": "What does 'families call it Tuesday' suggest?",
+          "options": [
+            "Growth feels abstract in daily life",
+            "Families dislike statistics",
+            "Tuesdays are economically significant"
+          ],
+          "a": 0
+        },
+        {
+          "q": "Why can growth coexist with hardship?",
+          "options": [
+            "Basics like housing get re-priced by inequality",
+            "Statistics are usually wrong",
+            "People save instead of spending"
+          ],
+          "a": 0
+        },
+        {
+          "q": "What simple test does the author propose for progress?",
+          "options": [
+            "Whether national income rises",
+            "Whether average-luck lives become more navigable",
+            "Whether technology advances"
+          ],
+          "a": 1
+        }
+      ]
+    },
+    {
+      "title": "论无聊的价值",
+      "titleEn": "In Defence of Boredom",
+      "level": "C1",
+      "text": "Boredom has acquired the reputation of a disease, and we carry the cure permanently in our pockets. Waiting rooms, queues, elevators — every gap is now filled before it can be felt. The assumption that boredom is mere discomfort deserves challenge, because biographically it seems closer to a workshop. Nearly everyone can recall that ideas arrive not during effort but in the vacancy after it: walks, showers, trains. Psychologists explain this as consolidation; older traditions called it incubation; either way, the mechanism requires empty time, and empty time is precisely what the feed abolishes. The <b>objection</b> is immediate — that romanticising boredom romanticises privilege, since the poor have endured enforced idleness for centuries. It is a fair hit, and it sharpens the proposal rather than defeating it: what matters is chosen emptiness, the difference between a fallow field and abandoned one. To <b>cultivate</b> boredom, then, is a discipline of the leisured mind, not a luxury good: ten minutes of nothing between tasks, one walk without headphones, a child permitted to be boring on a Sunday afternoon. Minds, like fields, produce nothing forever unless left occasionally unplanted.",
+      "vocab": [
+        {
+          "w": "incubation",
+          "d": "酝酿",
+          "dEn": "period of quiet development"
+        },
+        {
+          "w": "objection",
+          "d": "反对意见",
+          "dEn": "raised counterargument"
+        },
+        {
+          "w": "fallow",
+          "d": "休耕的",
+          "dEn": "left unplanted to recover"
+        },
+        {
+          "w": "vacancy",
+          "d": "空档；空白",
+          "dEn": "empty interval"
+        }
+      ],
+      "questions": [
+        {
+          "q": "According to the essay, when do ideas typically arrive?",
+          "options": [
+            "During maximum effort",
+            "In the vacancy after effort",
+            "Under deadline pressure"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What is the strong objection the author concedes?",
+          "options": [
+            "Boredom research is fake",
+            "Romanticising boredom romanticises privilege",
+            "Phones are harmless"
+          ],
+          "a": 1
+        },
+        {
+          "q": "What kind of boredom is defended?",
+          "options": [
+            "Enforced idleness",
+            "Chosen emptiness, like a fallow field",
+            "Weekend parties"
+          ],
+          "a": 1
+        }
+      ]
+    }
+  ],
+  "areaTasks": {
+    "vocab": {
+      "zh": [
+        "学习 2 个四册词汇并各写一句议论用法",
+        "复习生词卡 5 分钟"
+      ],
+      "en": [
+        "Learn 2 Book-4 words; use each in an argument sentence",
+        "Review flashcards 5 min"
+      ]
+    },
+    "reading": {
+      "zh": [
+        "精读一篇论述文，标出论点—论据—反驳",
+        "用一句话概括作者立场"
+      ],
+      "en": [
+        "Close-read one essay; mark claim–evidence–rebuttal",
+        "Summarise the stance in one sentence"
+      ]
+    },
+    "speaking": {
+      "zh": [
+        "口头陈述文章论点并给一个反例",
+        "就同话题做 1 分钟即兴发言"
+      ],
+      "en": [
+        "Present the argument aloud plus one counterexample",
+        "Give a 1-min impromptu talk on the same topic"
+      ]
+    },
+    "listening": {
+      "zh": [
+        "听一段英语演讲并记录论证结构",
+        "听本文录音后复述结论"
+      ],
+      "en": [
+        "Listen to one talk; map its argument structure",
+        "Relisten to the audio; restate the conclusion"
+      ]
+    },
+    "grammar": {
+      "zh": [
+        "分析文中的让步/倒装等高阶句式",
+        "仿写一个让步—转折段落"
+      ],
+      "en": [
+        "Analyse concessive/inverted structures used",
+        "Imitate one concession–turn paragraph"
+      ]
+    },
+    "writing": {
+      "zh": [
+        "写 120 词短论：同意或反驳作者",
+        "列正反提纲再写成段"
+      ],
+      "en": [
+        "Write a 120-word mini-essay: agree or refute",
+        "Outline pro/con, then write it as a paragraph"
+      ]
+    }
+  },
+  "areaLabel": {
+    "zh": {
+      "vocab": "词汇",
+      "reading": "阅读",
+      "speaking": "口语",
+      "listening": "听力",
+      "grammar": "语法",
+      "writing": "写作"
+    },
+    "en": {
+      "vocab": "Vocabulary",
+      "reading": "Reading",
+      "speaking": "Speaking",
+      "listening": "Listening",
+      "grammar": "Grammar",
+      "writing": "Writing"
+    }
+  }
+}

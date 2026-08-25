@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#6a5cff">
+<title>EnglishDaily · 英语学习助手</title>
+<style>
+  :root{
+    --accent:#6a5cff;
+    --accent2:#9b6bff;
+    --bg:#f4f5fb;
+    --card:#ffffff;
+    --text:#1c1d2b;
+    --muted:#8a8da3;
+    --line:#ececf3;
+    --good:#2fbf71;
+    --warn:#ff8a5c;
+    --shadow:0 6px 20px rgba(40,40,90,.08);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;margin:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+  #app{
+    display:flex;flex-direction:column;
+    height:100vh;height:100dvh;
+    max-width:480px;margin:0 auto;
+    background:var(--bg);
+    position:relative;
+  }
+  header{
+    flex:0 0 auto;
+    padding:calc(env(safe-area-inset-top) + 14px) 18px 12px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff;
+    box-shadow:0 4px 14px rgba(106,92,255,.25);
+  }
+  header .row{display:flex;align-items:center;justify-content:space-between;}
+  header h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.3px;}
+  header .sub{font-size:12px;opacity:.9;margin-top:2px;}
+  .streak{
+    display:flex;align-items:center;gap:4px;
+    background:rgba(255,255,255,.22);
+    padding:6px 11px;border-radius:999px;font-size:13px;font-weight:600;
+  }
+  .langbtn{
+    border:none;background:rgba(255,255,255,.22);color:#fff;
+    width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;margin-left:2px;flex:0 0 auto;
+  }
+  .langbtn:active{transform:scale(.94);}
+  main{
+    flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:16px 16px 24px;
+  }
+  .tabbar{
+    flex:0 0 auto;display:flex;
+    background:rgba(255,255,255,.94);
+    backdrop-filter:saturate(180%) blur(12px);
+    -webkit-backdrop-filter:saturate(180%) blur(12px);
+    border-top:1px solid var(--line);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .tabbar button{
+    flex:1;border:none;background:none;cursor:pointer;
+    padding:9px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px;
+    color:var(--muted);font-size:11px;font-weight:600;
+  }
+  .tabbar button .ic{font-size:21px;line-height:1;}
+  .tabbar button.active{color:var(--accent);}
+  .tabbar .badge{
+    position:absolute;top:4px;right:50%;transform:translateX(34px);
+    background:var(--warn);color:#fff;font-size:10px;font-weight:700;
+    min-width:16px;height:16px;border-radius:9px;padding:0 4px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .tabbar button{position:relative;}
+
+  section{display:none;animation:fade .25s ease;}
+  section.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+  .card{
+    background:var(--card);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px;margin-bottom:14px;
+  }
+  .card h2{font-size:16px;margin:0 0 10px;display:flex;align-items:center;gap:8px;}
+  .card h3{font-size:14px;margin:14px 0 8px;color:var(--accent);}
+  .muted{color:var(--muted);font-size:13px;}
+  .pill{display:inline-block;background:#eef0ff;color:var(--accent);font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;margin-left:6px;}
+  .tag{display:inline-block;background:#f1f2f8;color:var(--muted);font-size:11px;padding:3px 8px;border-radius:8px;margin:3px 4px 3px 0;}
+
+  /* Buttons */
+  .btn{
+    border:none;border-radius:14px;padding:13px 16px;font-size:15px;font-weight:700;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;
+    cursor:pointer;width:100%;box-shadow:0 4px 12px rgba(106,92,255,.3);
+  }
+  .btn:active{transform:scale(.98);}
+  .btn.secondary{background:#eef0ff;color:var(--accent);box-shadow:none;}
+  .btn.ghost{background:#fff;color:var(--text);border:1px solid var(--line);box-shadow:none;}
+  .btn.small{padding:9px 14px;font-size:13px;width:auto;border-radius:11px;}
+  .btn-row{display:flex;gap:10px;margin-top:12px;}
+  .btn-row .btn{margin:0;}
+
+  /* Form */
+  label.fld{display:block;margin:12px 0 4px;font-size:13px;font-weight:600;color:#444;}
+  input[type=text],input[type=number],input[type=time],select,textarea{
+    width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;
+    font-size:15px;font-family:inherit;background:#fafbff;color:var(--text);
+  }
+  textarea{resize:vertical;min-height:90px;}
+  .checks{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+  .checks label{
+    display:flex;align-items:center;gap:6px;background:#f1f2f8;padding:9px 12px;
+    border-radius:11px;font-size:13px;font-weight:600;cursor:pointer;
+    border:1px solid transparent;
+  }
+  .checks input{width:18px;height:18px;accent-color:var(--accent);}
+  .checks label.on{background:#eef0ff;border-color:var(--accent);color:var(--accent);}
+
+  /* Daily word card */
+  .wordcard{
+    border-radius:var(--radius);overflow:hidden;margin-bottom:14px;
+    box-shadow:var(--shadow);background:var(--card);
+  }
+  .wordcard .illus{
+    height:140px;display:flex;align-items:center;justify-content:center;font-size:72px;
+    background:linear-gradient(135deg,#eef1ff,#f6e9ff);position:relative;
+  }
+  .wordcard .illus::after{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(circle at 70% 20%,rgba(255,255,255,.6),transparent 60%);
+  }
+  .wordcard .body{padding:16px;}
+  .wordcard .w{font-size:26px;font-weight:800;letter-spacing:.3px;}
+  .wordcard .ipa{color:var(--accent);font-size:15px;margin-left:8px;font-weight:600;}
+  .wordcard .pos{display:inline-block;background:#eef0ff;color:var(--accent);font-size:11px;font-weight:700;padding:2px 8px;border-radius:7px;margin-top:8px;}
+  .wordcard .def{font-size:16px;margin-top:10px;font-weight:600;}
+  .wordcard .ex{margin-top:10px;background:#f7f8ff;padding:11px 12px;border-radius:12px;font-size:14px;line-height:1.5;}
+  .wordcard .exzh{color:var(--muted);font-size:13px;margin-top:5px;}
+  .wordcard .acts{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  .iconbtn{
+    border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;
+    font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;color:var(--text);
+  }
+  .iconbtn:active{transform:scale(.97);}
+  .iconbtn.on{background:#fff4e8;border-color:var(--warn);color:var(--warn);}
+  .iconbtn.done{background:#eafaf0;border-color:var(--good);color:var(--good);}
+
+  /* Reading */
+  .reading-text{line-height:1.9;font-size:16px;background:#fafbff;padding:14px;border-radius:12px;margin:6px 0 12px;}
+  .reading-text b{color:var(--accent);}
+  .q{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;}
+  .q .qt{font-size:14px;font-weight:600;margin-bottom:8px;}
+  .opt{border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin:6px 0;font-size:14px;cursor:pointer;background:#fff;}
+  .opt:active{transform:scale(.99);}
+  .opt.right{background:#eafaf0;border-color:var(--good);color:var(--good);font-weight:700;}
+  .opt.wrong{background:#fff0ec;border-color:var(--warn);color:var(--warn);font-weight:700;}
+
+  /* Flashcards */
+  .flash{
+    border-radius:var(--radius);box-shadow:var(--shadow);background:linear-gradient(135deg,#fff,#f6f1ff);
+    padding:26px 18px;text-align:center;min-height:230px;display:flex;flex-direction:column;justify-content:center;
+  }
+  .flash .front{font-size:34px;font-weight:800;}
+  .flash .front .ipa{display:block;font-size:18px;color:var(--accent);font-weight:600;margin-top:6px;}
+  .flash .back{font-size:16px;line-height:1.6;margin-top:14px;}
+  .flash .back .def{font-weight:700;font-size:18px;}
+  .flash .hint{color:var(--muted);font-size:13px;margin-top:14px;}
+
+  /* Stats */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .stat{background:#f7f8ff;border-radius:14px;padding:12px 8px;text-align:center;}
+  .stat .n{font-size:22px;font-weight:800;color:var(--accent);}
+  .stat .l{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  .milestone{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);}
+  .milestone:last-child{border-bottom:none;}
+  .milestone .mk{font-size:20px;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#f1f2f8;}
+  .milestone.done .mk{background:#eafaf0;}
+  .milestone .mt{font-size:14px;font-weight:600;}
+  .milestone .ms{font-size:11px;color:var(--muted);}
+  .milestone.done .mt{color:var(--good);}
+
+  .seg{display:flex;background:#eef0ff;border-radius:12px;padding:4px;margin-bottom:14px;}
+  .seg button{flex:1;border:none;background:none;padding:9px;border-radius:9px;font-weight:700;font-size:13px;color:var(--accent);cursor:pointer;}
+  .seg button.active{background:#fff;box-shadow:0 2px 6px rgba(106,92,255,.18);}
+
+  .sched{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .sched .d{background:#f7f8ff;border-radius:11px;padding:8px 4px;text-align:center;}
+  .sched .d .dn{font-size:11px;font-weight:700;color:var(--accent);}
+  .sched .d .dt{font-size:9px;color:var(--muted);margin-top:4px;line-height:1.35;}
+
+  .bm{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);}
+  .bm:last-child{border-bottom:none;}
+  .bm .e{font-size:26px;width:42px;text-align:center;}
+  .bm .info{flex:1;}
+  .bm .info .w{font-weight:700;font-size:15px;}
+  .bm .info .d{font-size:12px;color:var(--muted);}
+
+  .toast{
+    position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);
+    background:rgba(28,29,43,.92);color:#fff;padding:11px 18px;border-radius:12px;font-size:14px;
+    opacity:0;pointer-events:none;transition:.25s;z-index:99;max-width:80%;text-align:center;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .reminder-box{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .switch{position:relative;width:48px;height:28px;flex:0 0 auto;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{position:absolute;inset:0;background:#d7d9e6;border-radius:999px;transition:.2s;cursor:pointer;}
+  .slider:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+  .switch input:checked + .slider{background:var(--accent);}
+  .switch input:checked + .slider:before{transform:translateX(20px);}
+
+  .center{text-align:center;padding:30px 10px;color:var(--muted);}
+  .center .big{font-size:54px;}
+  .note{font-size:12px;color:var(--muted);line-height:1.6;margin-top:8px;}
+  hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="row">
+      <div>
+        <h1>EnglishDaily</h1>
+        <div class="sub" id="headerDate"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="streak" id="streakBox">🔥 <span id="streakN">0</span> <span data-i18n="day_unit">天</span></div>
+        <button class="langbtn" id="langBtn" data-act="toggleLang" title="Language / 语言" aria-label="Toggle language">🌐</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- PLAN -->
+    <section id="tab-plan" class="active">
+      <div class="card">
+        <h2>📅 <span data-i18n="plan_title">学习计划</span> <span class="pill">Plan Builder</span></h2>
+        <div id="planArea"></div>
+      </div>
+    </section>
+
+    <!-- DAILY -->
+    <section id="tab-daily">
+      <div id="dailyStatus"></div>
+      <div id="dailyArea"></div>
+    </section>
+
+    <!-- READING -->
+    <section id="tab-reading">
+      <div class="card">
+        <h2>📖 <span data-i18n="reading_title">每周阅读</span> <span class="pill">Weekly Reading</span></h2>
+        <div id="readingArea"></div>
+      </div>
+    </section>
+
+    <!-- REVIEW -->
+    <section id="tab-review">
+      <div class="seg" id="reviewSeg">
+        <button data-act="reviewmode" data-mode="flash" class="active">🔁 <span data-i18n="rev_flash">复习卡片</span></button>
+        <button data-act="reviewmode" data-mode="allflash">📚 <span data-i18n="rev_all">全部单词</span></button>
+        <button data-act="reviewmode" data-mode="quiz">✍️ <span data-i18n="rev_quiz">词汇测验</span></button>
+      </div>
+      <div id="reviewArea"></div>
+    </section>
+
+    <!-- ME -->
+    <section id="tab-me">
+      <div class="card">
+        <h2>📊 <span data-i18n="me_progress">学习进度</span> <span class="pill">Progress</span></h2>
+        <div class="stats" id="statsBox"></div>
+        <h3 data-i18n="last7">近 7 天活跃度</h3>
+        <div id="chartBox"></div>
+        <h3>🏆 <span data-i18n="milestones">里程碑</span></h3>
+        <div id="milestoneBox"></div>
+      </div>
+
+      <div class="card">
+        <h2>⭐ <span data-i18n="me_bookmarks">难点收藏</span> <span class="pill">Bookmarks</span></h2>
+        <div id="bookmarkBox"></div>
+      </div>
+
+      <div class="card">
+        <h2>📦 <span data-i18n="pack_title">内容包</span> <span class="pill">Content Pack</span></h2>
+        <div id="packArea"></div>
+      </div>
+
+      <div class="card">
+        <h2>📝 <span data-i18n="me_notes">我的笔记</span> <span class="pill">Notes</span></h2>
+        <textarea id="notesArea" placeholder="随时记录新学的表达、句型或心得……"></textarea>
+        <div class="note" data-i18n="notes_note">笔记自动保存在本机（localStorage），不会上传。</div>
+      </div>
+
+      <div class="card">
+        <h2>⏰ <span data-i18n="me_reminder">提醒与连续打卡</span></h2>
+        <div class="reminder-box">
+          <label class="switch">
+            <input type="checkbox" id="remindToggle">
+            <span class="slider"></span>
+          </label>
+          <span data-i18n="daily_remind">每日学习提醒</span>
+          <input type="time" id="remindTime" value="20:00" style="width:auto;">
+          <button class="btn small secondary" data-act="testNotify"><span data-i18n="test_remind">测试提醒</span></button>
+        </div>
+        <div class="note" data-i18n="remind_note">提醒通过浏览器通知实现（首次需授权）。本工具完全离线运行，通知在打开应用时触发。</div>
+        <hr>
+        <div class="btn-row">
+          <button class="btn secondary small" data-act="exportData"><span data-i18n="export_btn">⬇️ 导出备份</span></button>
+          <button class="btn secondary small" data-act="importData"><span data-i18n="import_btn">⬆️ 导入备份</span></button>
+        </div>
+        <input type="file" id="importFile" accept="application/json,.json" style="display:none;">
+        <input type="file" id="packFile" accept="application/json,.json" style="display:none;">
+        <div class="note" data-i18n="backup_note">导出会把全部进度存成一个 .json 文件到「文件」App；换设备、清缓存或系统更新前先导出，再导入即可永不丢失。建议配合「添加到主屏幕」使用，存储更稳。</div>
+        <hr>
+        <button class="btn ghost small" data-act="resetData" style="width:100%"><span data-i18n="reset_btn">🗑️ 清除全部学习数据</span></button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar" id="tabbar">
+    <button data-act="tab" data-target="plan" class="active"><span class="ic">📅</span><span data-i18n="tab_plan">计划</span></button>
+    <button data-act="tab" data-target="daily"><span class="ic">📚</span><span data-i18n="tab_daily">每日</span></button>
+    <button data-act="tab" data-target="reading"><span class="ic">📖</span><span data-i18n="tab_reading">阅读</span></button>
+    <button data-act="tab" data-target="review"><span class="ic">🔁</span><span data-i18n="tab_review">复习</span><span class="badge" id="reviewBadge" style="display:none">0</span></button>
+    <button data-act="tab" data-target="me"><span class="ic">👤</span><span data-i18n="tab_me">我的</span></button>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== DATA ===================== */
+let WORDS = [
+  {word:"serene",ipa:"/sɪˈriːn/",pos:"adj.",def:"宁静的",defEn:"calm and peaceful",ex:"The lake was serene at dawn.",exzh:"黎明时湖面宁静。",exEn:"The lake was calm and peaceful at dawn.",emoji:"🌅"},
+  {word:"resilient",ipa:"/rɪˈzɪliənt/",pos:"adj.",def:"有韧性的",defEn:"able to recover quickly",ex:"Children are remarkably resilient.",exzh:"孩子的韧性令人惊叹。",exEn:"Children recover from difficulties remarkably well.",emoji:"🌱"},
+  {word:"aroma",ipa:"/əˈroʊmə/",pos:"n.",def:"香气",defEn:"a pleasant smell",ex:"The aroma of coffee filled the room.",exzh:"咖啡的香气弥漫房间。",exEn:"The smell of coffee filled the room.",emoji:"☕"},
+  {word:"wander",ipa:"/ˈwɑːndər/",pos:"v.",def:"漫步",defEn:"walk slowly with no aim",ex:"We love to wander through old streets.",exzh:"我们爱在老街漫步。",exEn:"We love to walk slowly through old streets.",emoji:"🚶"},
+  {word:"grateful",ipa:"/ˈɡreɪtfəl/",pos:"adj.",def:"感激的",defEn:"feeling thanks",ex:"I am grateful for your help.",exzh:"我感激你的帮助。",exEn:"I am thankful for your help.",emoji:"🙏"},
+  {word:"horizon",ipa:"/həˈraɪzn/",pos:"n.",def:"地平线",defEn:"where sky meets land/sea",ex:"The sun sank below the horizon.",exzh:"太阳沉入地平线。",exEn:"The sun went down below the horizon.",emoji:"🌄"},
+  {word:"nourish",ipa:"/ˈnɜːrɪʃ/",pos:"v.",def:"滋养",defEn:"provide food/nutrients",ex:"Good food nourishes the body.",exzh:"好食物滋养身体。",exEn:"Good food feeds and strengthens the body.",emoji:"🥗"},
+  {word:"whisper",ipa:"/ˈwɪspər/",pos:"v.",def:"低语",defEn:"speak very quietly",ex:"She whispered a secret to me.",exzh:"她对我低语一个秘密。",exEn:"She spoke a secret to me very quietly.",emoji:"🤫"},
+  {word:"brilliant",ipa:"/ˈbrɪljənt/",pos:"adj.",def:"杰出的",defEn:"very clever/bright",ex:"He had a brilliant idea.",exzh:"他有个绝妙的主意。",exEn:"He had a very clever idea.",emoji:"💡"},
+  {word:"abundance",ipa:"/əˈbʌndəns/",pos:"n.",def:"丰富",defEn:"a large amount",ex:"The garden had an abundance of flowers.",exzh:"花园里繁花似锦。",exEn:"The garden had a large number of flowers.",emoji:"🌾"},
+  {word:"courageous",ipa:"/kəˈreɪdʒəs/",pos:"adj.",def:"勇敢的",defEn:"brave",ex:"It was a courageous decision.",exzh:"那是个勇敢的决定。",exEn:"It was a brave decision.",emoji:"🦁"},
+  {word:"tranquil",ipa:"/ˈtræŋkwɪl/",pos:"adj.",def:"平静的",defEn:"quiet and calm",ex:"The village was tranquil at night.",exzh:"夜晚的村庄很宁静。",exEn:"The village was quiet and calm at night.",emoji:"🏞️"},
+  {word:"vibrant",ipa:"/ˈvaɪbrənt/",pos:"adj.",def:"充满活力的",defEn:"full of energy",ex:"The city has a vibrant culture.",exzh:"这座城市文化充满活力。",exEn:"The city has a lively, energetic culture.",emoji:"🌈"},
+  {word:"cultivate",ipa:"/ˈkʌltɪveɪt/",pos:"v.",def:"培养",defEn:"develop or grow",ex:"Try to cultivate good habits.",exzh:"试着培养好习惯。",exEn:"Try to develop good habits.",emoji:"🌻"},
+  {word:"curiosity",ipa:"/ˌkjʊriˈɒsəti/",pos:"n.",def:"好奇心",defEn:"desire to learn",ex:"Her curiosity led her to explore.",exzh:"好奇心驱使她去探索。",exEn:"Her desire to learn led her to explore.",emoji:"🔍"},
+  {word:"effortless",ipa:"/ˈefərtləs/",pos:"adj.",def:"轻松的",defEn:"needing no effort",ex:"He made it look effortless.",exzh:"他做得看似毫不费力。",exEn:"He made it look easy, with no effort.",emoji:"🍃"},
+  {word:"harmony",ipa:"/ˈhɑːrməni/",pos:"n.",def:"和谐",defEn:"peaceful agreement",ex:"They lived in perfect harmony.",exzh:"他们和睦相处。",exEn:"They lived together in perfect peace.",emoji:"🎵"},
+  {word:"legacy",ipa:"/ˈleɡəsi/",pos:"n.",def:"遗产",defEn:"something left behind",ex:"She left a legacy of kindness.",exzh:"她留下了善意的遗产。",exEn:"She left behind a tradition of kindness.",emoji:"📜"},
+  {word:"milestone",ipa:"/ˈmaɪlstoʊn/",pos:"n.",def:"里程碑",defEn:"important stage",ex:"Graduation is a major milestone.",exzh:"毕业是重要里程碑。",exEn:"Graduation is a major important step.",emoji:"🪨"},
+  {word:"nurture",ipa:"/ˈnɜːrtʃər/",pos:"v.",def:"养育",defEn:"care for and help grow",ex:"Parents nurture their children.",exzh:"父母养育孩子。",exEn:"Parents care for and help their children grow.",emoji:"🤱"},
+  {word:"optimistic",ipa:"/ˌɑːptɪˈmɪstɪk/",pos:"adj.",def:"乐观的",defEn:"hopeful",ex:"Stay optimistic about the future.",exzh:"对未来保持乐观。",exEn:"Stay hopeful about the future.",emoji:"☀️"},
+  {word:"perspective",ipa:"/pərˈspektɪv/",pos:"n.",def:"视角",defEn:"a way of seeing",ex:"He offered a new perspective.",exzh:"他提供了一个新视角。",exEn:"He offered a new way of looking at things.",emoji:"🔭"},
+  {word:"reflection",ipa:"/rɪˈflekʃən/",pos:"n.",def:"反思",defEn:"careful thought",ex:"Reading is a time for reflection.",exzh:"阅读是反思的时光。",exEn:"Reading is a time for careful thought.",emoji:"🪞"},
+  {word:"thrive",ipa:"/θraɪv/",pos:"v.",def:"繁荣",defEn:"grow strong/well",ex:"Plants thrive in sunlight.",exzh:"植物在阳光下茁壮成长。",exEn:"Plants grow strong in sunlight.",emoji:"🌺"},
+  {word:"wisdom",ipa:"/ˈwɪzdəm/",pos:"n.",def:"智慧",defEn:"deep understanding",ex:"Experience brings wisdom.",exzh:"经验带来智慧。",exEn:"Experience brings deep understanding.",emoji:"🦉"},
+  {word:"journey",ipa:"/ˈdʒɜːrni/",pos:"n.",def:"旅程",defEn:"a long trip",ex:"Life is a long journey.",exzh:"人生是一段漫长的旅程。",exEn:"Life is a long trip.",emoji:"🧳"},
+  {word:"blossom",ipa:"/ˈblɑːsəm/",pos:"v.",def:"开花",defEn:"produce flowers",ex:"The tree will blossom in spring.",exzh:"树会在春天开花。",exEn:"The tree will produce flowers in spring.",emoji:"🌸"},
+  {word:"companion",ipa:"/kəmˈpænjən/",pos:"n.",def:"同伴",defEn:"a friend/comrade",ex:"A dog is a loyal companion.",exzh:"狗是忠诚的同伴。",exEn:"A dog is a loyal friend.",emoji:"🐾"},
+  {word:"delight",ipa:"/dɪˈlaɪt/",pos:"n.",def:"喜悦",defEn:"great pleasure",ex:"To my delight, it worked.",exzh:"让我高兴的是，它奏效了。",exEn:"To my great pleasure, it worked.",emoji:"🎉"},
+  {word:"embrace",ipa:"/ɪmˈbreɪs/",pos:"v.",def:"接纳",defEn:"accept willingly",ex:"Embrace new challenges.",exzh:"接纳新的挑战。",exEn:"Accept new challenges willingly.",emoji:"🤗"},
+  {word:"fleeting",ipa:"/ˈfliːtɪŋ/",pos:"adj.",def:"短暂的",defEn:"passing quickly",ex:"Happiness can be fleeting.",exzh:"幸福可能转瞬即逝。",exEn:"Happiness can pass quickly.",emoji:"⏳"},
+  {word:"genuine",ipa:"/ˈdʒenjuɪn/",pos:"adj.",def:"真诚的",defEn:"real and sincere",ex:"She gave a genuine smile.",exzh:"她露出了真诚的微笑。",exEn:"She gave a real, sincere smile.",emoji:"💎"},
+  {word:"inspire",ipa:"/ɪnˈspaɪər/",pos:"v.",def:"激励",defEn:"fill with motivation",ex:"The speech inspired many people.",exzh:"这场演讲激励了很多人。",exEn:"The speech motivated many people.",emoji:"🚀"},
+  {word:"mindful",ipa:"/ˈmaɪndfəl/",pos:"adj.",def:"正念的",defEn:"aware and present",ex:"Be mindful of your breathing.",exzh:"留意你的呼吸。",exEn:"Be aware of your breathing.",emoji:"🧘"},
+  {word:"persevere",ipa:"/ˌpɜːrsəˈvɪr/",pos:"v.",def:"坚持",defEn:"keep going despite difficulty",ex:"If you persevere, you will succeed.",exzh:"只要坚持，你就会成功。",exEn:"If you keep going, you will succeed.",emoji:"🏔️"},
+  {word:"radiate",ipa:"/ˈreɪdieɪt/",pos:"v.",def:"散发",defEn:"send out (light/feeling)",ex:"She radiates confidence.",exzh:"她散发着自信。",exEn:"She sends out confidence.",emoji:"🌟"},
+  {word:"savor",ipa:"/ˈseɪvər/",pos:"v.",def:"品味",defEn:"enjoy fully",ex:"Savor every moment.",exzh:"品味每一刻。",exEn:"Enjoy every moment fully.",emoji:"🍷"},
+  {word:"envision",ipa:"/ɪnˈvɪʒn/",pos:"v.",def:"设想",defEn:"imagine",ex:"Envision your bright future.",exzh:"设想你光明的未来。",exEn:"Imagine your bright future.",emoji:"💭"},
+  {word:"flourish",ipa:"/ˈflɜːrɪʃ/",pos:"v.",def:"茂盛",defEn:"grow healthily",ex:"Business began to flourish.",exzh:"生意开始兴旺。",exEn:"The business began to grow healthily.",emoji:"🌿"},
+  {word:"eager",ipa:"/ˈiːɡər/",pos:"adj.",def:"热切的",defEn:"very keen",ex:"I am eager to learn.",exzh:"我渴望学习。",exEn:"I am very keen to learn.",emoji:"🐣"}
+];
+
+let READINGS = [
+  {title:"晨光",titleEn:"Morning Light",level:"A1",
+   text:"Every morning, the sun <b>rises</b> slowly over the hills. A young woman steps outside and takes a deep breath. She enjoys the quiet moment before the busy day begins. Small <b>habits</b> like this help her feel calm and ready. Over time, these peaceful minutes become her favorite part of the day.",
+   vocab:[{w:"rise",d:"升起",dEn:"go up / appear"},{w:"habit",d:"习惯",dEn:"regular practice"}],
+   questions:[
+     {q:"Where does the woman go every morning?",options:["To a busy office","Outside her home","To a restaurant"],a:1},
+     {q:"What do small habits help her feel?",options:["Tired","Calm and ready","Angry"],a:1}
+   ]},
+  {title:"好奇的猫",titleEn:"The Curious Cat",level:"A1",
+   text:"A cat named Mimi lives in a small <b>apartment</b>. She is very <b>curious</b> about everything. When her owner reads a book, Mimi sits close and watches. She does not understand the words, but she likes the sound of the pages turning. Curiosity, even without understanding, can bring comfort.",
+   vocab:[{w:"apartment",d:"公寓",dEn:"flat"},{w:"curious",d:"好奇的",dEn:"eager to know"}],
+   questions:[
+     {q:"Where does Mimi live?",options:["In a big house","In a small apartment","On a farm"],a:1},
+     {q:"What does Mimi like about the book?",options:["The pictures","The sound of pages turning","The words"],a:1}
+   ]},
+  {title:"在做中学",titleEn:"Learning by Doing",level:"A2",
+   text:"Many people think learning a language is hard. But the best way is simple: use it every day. Speak with friends, watch short videos, and do not fear mistakes. Mistakes are not <b>failures</b>; they are lessons. With practice, your <b>confidence</b> grows.",
+   vocab:[{w:"failure",d:"失败",dEn:"lack of success"},{w:"confidence",d:"自信",dEn:"self-belief"}],
+   questions:[
+     {q:"What is the best way to learn a language?",options:["Use it every day","Only read books","Avoid speaking"],a:0},
+     {q:"What are mistakes according to the text?",options:["Failures","Lessons","Goals"],a:1}
+   ]},
+  {title:"时间的礼物",titleEn:"The Gift of Time",level:"A2",
+   text:"Time is the most <b>valuable</b> gift we have. We cannot save it or buy more of it. Yet many of us spend it worrying about the future. Try to enjoy the present moment. A walk, a song, or a kind word can make an <b>ordinary</b> day special.",
+   vocab:[{w:"valuable",d:"珍贵的",dEn:"of great worth"},{w:"ordinary",d:"普通的",dEn:"normal, everyday"}],
+   questions:[
+     {q:"Why is time valuable?",options:["We can buy more","We cannot save or buy more","It is cheap"],a:1},
+     {q:"What can make an ordinary day special?",options:["Worrying","A walk, song, or kind word","Sleeping all day"],a:1}
+   ]},
+  {title:"海那边的朋友",titleEn:"A Friend Across the Sea",level:"A2",
+   text:"Emma met a friend online from another country. They text every week and teach each other phrases. Last month, Emma learned how to say 'hello' in three new languages. Their <b>friendship</b> shows that <b>distance</b> is not a wall, but a bridge.",
+   vocab:[{w:"friendship",d:"友谊",dEn:"close bond"},{w:"distance",d:"距离",dEn:"space between"}],
+   questions:[
+     {q:"How did Emma meet her friend?",options:["At school","Online","On a trip"],a:1},
+     {q:"What did Emma learn last month?",options:["To say hello in 3 languages","To cook","To drive"],a:0}
+   ]},
+  {title:"休息与恢复",titleEn:"Rest and Recovery",level:"A2",
+   text:"After a long week of work, the body needs rest. Sleep helps the brain store what it learned. Without enough rest, we feel tired and forget things. A short walk or quiet music can help us <b>relax</b>. Rest is not <b>laziness</b>; it is part of doing well.",
+   vocab:[{w:"relax",d:"放松",dEn:"rest and unwind"},{w:"laziness",d:"懒惰",dEn:"avoiding work"}],
+   questions:[
+     {q:"What does sleep help the brain do?",options:["Forget things","Store what it learned","Work faster"],a:1},
+     {q:"Is rest laziness?",options:["Yes","No, it is part of doing well","Sometimes"],a:1}
+   ]}
+];
+
+let AREA_TASKS = {
+  vocab:{zh:["学习 2 个新单词","复习生词卡 5 分钟"],en:["Learn 2 new words","Review flashcards 5 min"]},
+  reading:{zh:["阅读一篇短文","做阅读理解题"],en:["Read a short text","Do the comprehension quiz"]},
+  speaking:{zh:["跟读练习 5 分钟","用英语描述今天"],en:["Shadow-read 5 min","Describe today in English"]},
+  listening:{zh:["听一段英语音频","看短视频并跟读"],en:["Listen to English audio","Watch a short video & repeat"]},
+  grammar:{zh:["学习一个语法点","用新语法造句"],en:["Study one grammar point","Make sentences with it"]},
+  writing:{zh:["写 3 句英语日记","写一封简短英文信"],en:["Write a 3-sentence diary","Write a short English note"]}
+};
+let AREA_LABEL = {
+  zh:{vocab:"词汇",reading:"阅读",speaking:"口语",listening:"听力",grammar:"语法",writing:"写作"},
+  en:{vocab:"Vocabulary",reading:"Reading",speaking:"Speaking",listening:"Listening",grammar:"Grammar",writing:"Writing"}
+};
+
+/* ===================== CONTENT PACKS =====================
+   Learning material is organized into "content packs" (one JSON file per
+   goal). On the hosted PWA the packs are auto-loaded from content/manifest.json
+   + the listed JSON files. On local file:// a built-in pack is embedded so the
+   app always works, and the user can import more packs with a file picker. */
+const BUILTIN_GENERAL = {
+  id:"general", name:"通用英语", nameEn:"General English",
+  desc:"默认内容包：40 个每日单词 + 6 篇分级阅读 + 计划任务库",
+  descEn:"Default pack: 40 daily words + 6 graded readings + plan task bank",
+  words:WORDS, readings:READINGS, areaTasks:AREA_TASKS, areaLabel:AREA_LABEL
+};
+
+let CONTENT = null;     // active pack in use
+let PACKS = {};         // all loaded packs keyed by id
+let PACK_META = [];     // [{id,file,name,nameEn,builtin/imported}]
+
+function fetchJSON(url){
+  return fetch(url).then(function(r){ if(!r.ok) throw new Error("404 "+url); return r.json(); });
+}
+function normalizePack(d){
+  d = d || {};
+  return {
+    id: d.id || "imported",
+    name: d.name || d.nameEn || "Imported",
+    nameEn: d.nameEn || d.name || "Imported",
+    desc: d.desc || d.descEn || "",
+    descEn: d.descEn || d.desc || "",
+    words: Array.isArray(d.words) ? d.words : [],
+    readings: Array.isArray(d.readings) ? d.readings : [],
+    areaTasks: d.areaTasks || d.AREA_TASKS || {},
+    areaLabel: d.areaLabel || d.AREA_LABEL || {}
+  };
+}
+function applyPack(p){
+  if(!p) return;
+  CONTENT = p;
+  WORDS = p.words || [];
+  READINGS = p.readings || [];
+  AREA_TASKS = p.areaTasks || {};
+  AREA_LABEL = p.areaLabel || {};
+  state.activePack = p.id;
+  // reset review queues so cards from the previous pack never linger
+  flashQueue=[]; allFlashQueue=[]; flashFlipped=false;
+}
+async function loadContent(){
+  let active = BUILTIN_GENERAL;
+  PACKS = { general: BUILTIN_GENERAL };
+  PACK_META = [{id:"general", file:null, name:"通用英语", nameEn:"General English", builtin:true}];
+  const http = location.protocol.startsWith("http");
+  if(http){
+    try{
+      const manifest = await fetchJSON("content/manifest.json");
+      PACK_META = (manifest.packs || []).slice();
+      const def = manifest.defaultPack || (PACK_META[0] && PACK_META[0].id);
+      for(const meta of PACK_META){
+        try{
+          const data = await fetchJSON("content/" + meta.file);
+          PACKS[meta.id] = normalizePack(data);
+        }catch(e){ /* skip an unavailable pack, keep going */ }
+      }
+      const chosen = (state.activePack && PACKS[state.activePack]) ? state.activePack
+                   : (def && PACKS[def] ? def : "general");
+      active = PACKS[chosen] || BUILTIN_GENERAL;
+    }catch(e){ /* manifest missing -> built-in only */ }
+  } else {
+    if(state.importedPack){
+      const ip = normalizePack(state.importedPack);
+      PACKS[ip.id] = ip;
+      PACK_META.push({id:ip.id, file:null, name:ip.name, nameEn:ip.nameEn, imported:true});
+      if(state.activePack && PACKS[state.activePack]) active = PACKS[state.activePack];
+    }
+  }
+  applyPack(active);
+}
+
+/* ===================== I18N ===================== */
+const I18N = {
+  day_unit:{zh:"天",en:"day"},
+  tab_plan:{zh:"计划",en:"Plan"}, tab_daily:{zh:"每日",en:"Daily"}, tab_reading:{zh:"阅读",en:"Reading"},
+  tab_review:{zh:"复习",en:"Review"}, tab_me:{zh:"我的",en:"Me"},
+  plan_title:{zh:"学习计划",en:"Study Plan"}, reading_title:{zh:"每周阅读",en:"Weekly Reading"},
+  rev_flash:{zh:"复习卡片",en:"Flashcards"}, rev_quiz:{zh:"词汇测验",en:"Vocab Quiz"},
+  rev_all:{zh:"全部单词",en:"All Words"},
+  review_all_note:{zh:"自由复习模式：不改变复习计划，评分不会安排下次到期时间。",en:"Free review mode: ratings here don't change the spaced-repetition schedule."},
+  review_all_count:{zh:"本包共 {n} 词 · 自由复习",en:"{n} words in this pack · free review"},
+  no_due_note:{zh:"当前包共有 {n} 张卡，都已按遗忘曲线安排在未来到期。",en:"{n} cards in this pack — all scheduled for future dates by the forgetting curve."},
+  review_all_hint:{zh:"想现在就复习？点上方「📚 全部单词」。",en:"Want to review now? Tap 「📚 All Words」 above."},
+  me_progress:{zh:"学习进度",en:"Progress"}, me_bookmarks:{zh:"难点收藏",en:"Bookmarks"},
+  me_notes:{zh:"我的笔记",en:"My Notes"}, me_reminder:{zh:"提醒与连续打卡",en:"Reminders & Streak"},
+  last7:{zh:"近 7 天活跃度",en:"Last 7 days"}, milestones:{zh:"里程碑",en:"Milestones"},
+  daily_remind:{zh:"每日学习提醒",en:"Daily reminder"}, test_remind:{zh:"测试提醒",en:"Test"},
+  export_btn:{zh:"⬇️ 导出备份",en:"⬇️ Export"}, import_btn:{zh:"⬆️ 导入备份",en:"⬆️ Import"},
+  reset_btn:{zh:"🗑️ 清除全部学习数据",en:"🗑️ Clear all data"},
+  notes_note:{zh:"笔记自动保存在本机（localStorage），不会上传。",en:"Notes are saved locally (localStorage); nothing is uploaded."},
+  remind_note:{zh:"提醒通过浏览器通知实现（首次需授权）。本工具完全离线运行，通知在打开应用时触发。",en:"Reminders use browser notifications (grant permission on first use). The app runs fully offline; notifications fire when you open it."},
+  backup_note:{zh:"导出会把全部进度存成一个 .json 文件到「文件」App；换设备、清缓存或系统更新前先导出，再导入即可永不丢失。建议配合「添加到主屏幕」使用，存储更稳。",en:"Export saves all progress to a .json file in the Files app. Export before changing devices, clearing cache, or system updates, then import to restore. For stable storage, add this app to your Home Screen."},
+  // Plan builder
+  plan_intro:{zh:"告诉我们你的目标，我们为你生成一份专属周计划。",en:"Tell us your goal and we'll build a personalized weekly plan."},
+  plan_goal:{zh:"我的目标",en:"My goal"}, plan_min:{zh:"每天可投入时间",en:"Daily time (min)"},
+  plan_areas:{zh:"重点方向（可多选）",en:"Focus areas (multi-select)"},
+  goal_travel:{zh:"✈️ 旅行交流",en:"✈️ Travel"}, goal_work:{zh:"💼 职场提升",en:"💼 Career"},
+  goal_exam:{zh:"🎓 考试备考",en:"🎓 Exam"}, goal_hobby:{zh:"🌟 兴趣拓展",en:"🌟 Hobby"}, goal_culture:{zh:"📚 文化阅读",en:"📚 Culture"},
+  gen_plan:{zh:"生成我的计划",en:"Generate my plan"}, edit_plan:{zh:"修改计划",en:"Edit plan"},
+  week_plan:{zh:"本周建议安排",en:"This week's plan"},
+  plan_note:{zh:"每天约 {n} 分钟 / 任务。计划会依据你的选择自动轮换重点方向。",en:"About {n} min per task. The plan rotates focus areas automatically based on your choices."},
+  stat_goal:{zh:"目标",en:"Goal"}, stat_daily:{zh:"每日",en:"Daily"}, stat_dir:{zh:"方向",en:"Areas"},
+  // Daily
+  daily_intro:{zh:"每天 2 个新词，点 🔊 听发音，学会后点击「我学会了」记录进度。",en:"Two new words daily. Tap 🔊 to hear them, then mark “I learned it”."},
+  learn_btn:{zh:"📝 我学会了",en:"📝 I learned it"}, learned_btn:{zh:"✅ 已学会",en:"✅ Learned"},
+  bookmark_btn:{zh:"☆ 收藏",en:"☆ Bookmark"}, bookmarked_btn:{zh:"⭐ 已收藏",en:"⭐ Bookmarked"},
+  review_pill:{zh:"复习",en:"Review"},
+  // Reading
+  comprehension:{zh:"理解小测",en:"Comprehension"}, mark_read:{zh:"标记本周已读完",en:"Mark this week as read"},
+  marked_read:{zh:"✅ 本周已读",en:"✅ Read this week"},
+  read_aloud:{zh:"🔊 朗读全文",en:"🔊 Read Aloud"}, read_stop:{zh:"⏹ 停止朗读",en:"⏹ Stop Reading"},
+  sentence_speak:{zh:"🔊",en:"🔊"},
+  // Review flash
+  cards_due:{zh:"待复习",en:"Due"}, cards_unit:{zh:"张",en:"cards"},
+  tap_meaning:{zh:"👆 点击卡片查看释义",en:"👆 Tap card to see meaning"},
+  flip_hint:{zh:"点击卡片翻面后评分，系统会按遗忘曲线安排下次复习。",en:"After flipping, rate it; the system schedules the next review by the forgetting curve."},
+  no_cards:{zh:"暂时没有需要复习的卡片。",en:"No cards to review right now."},
+  no_cards_note:{zh:"每天学完单词后会自动加入复习队列，按间隔重复算法安排。",en:"Words you learn are added daily and scheduled by spaced repetition."},
+  rate_forget:{zh:"😵 忘了",en:"😵 Forgot"}, rate_ok:{zh:"🙂 一般",en:"🙂 Okay"}, rate_easy:{zh:"😎 轻松",en:"😎 Easy"},
+  all_correct:{zh:"全部答对，别忘了标记已读 👆",en:"All correct — don't forget to mark it as read 👆"},
+  // Quiz
+  try_again:{zh:"再做一次",en:"Try again"},
+  quiz_done_great:{zh:"太棒了！继续保持 🌟",en:"Great job! Keep it up 🌟"},
+  quiz_done_ok:{zh:"不错，再巩固一下生词卡。",en:"Nice — review your flashcards more."},
+  quiz_done_low:{zh:"多复习几天生词卡会更好哦。",en:"More flashcard review will help."},
+  // Me stats
+  s_words:{zh:"已学单词",en:"Words"}, s_streak:{zh:"连续天数",en:"Streak"}, s_read:{zh:"阅读篇数",en:"Readings"},
+  s_flash:{zh:"复习卡",en:"Cards"}, s_bm:{zh:"收藏",en:"Saved"}, s_quiz:{zh:"测验次数",en:"Quizzes"},
+  // Milestones
+  ms1:{zh:"学会第 1 个单词",en:"Learn your 1st word"}, ms2:{zh:"学会 10 个单词",en:"Learn 10 words"},
+  ms3:{zh:"学会 25 个单词",en:"Learn 25 words"}, ms4:{zh:"学会 50 个单词",en:"Learn 50 words"},
+  ms5:{zh:"完成第一篇阅读",en:"Finish 1st reading"}, ms6:{zh:"连续学习 7 天",en:"7-day streak"}, ms7:{zh:"完成一次测验",en:"Finish a quiz"},
+  done:{zh:"已达成",en:"Achieved"}, ongoing:{zh:"进行中",en:"In progress"},
+  bm_empty:{zh:"还没有收藏。在「每日」或复习中点击 ☆ 收藏难点单词。",en:"No bookmarks yet. Tap ☆ on a word in Daily or Review."},
+  // Toasts
+  toast_learned:{zh:"已学： ",en:"Learned: "}, toast_bm_add:{zh:"已收藏 ⭐",en:"Bookmarked ⭐"},
+  toast_bm_del:{zh:"已取消收藏",en:"Removed bookmark"}, toast_read:{zh:"阅读完成 🎉",en:"Reading done 🎉"},
+  toast_plan:{zh:"计划已生成 📅",en:"Plan created 📅"},
+  toast_export:{zh:"已导出备份文件 ⬇️（在「文件」App 中查看）",en:"Backup exported ⬇️ (check the Files app)"},
+  toast_export_fail:{zh:"导出失败",en:"Export failed"}, toast_import_ok:{zh:"备份已导入 ✅",en:"Backup imported ✅"},
+  toast_import_fail:{zh:"导入失败：文件格式错误",en:"Import failed: bad file"},
+  toast_cleared:{zh:"数据已清除",en:"Data cleared"}, toast_no_speak:{zh:"当前浏览器不支持发音",en:"Speech not supported"},
+  toast_no_notify:{zh:"浏览器不支持通知",en:"Notifications unsupported"},
+  toast_notify_denied:{zh:"通知被拒绝，请在浏览器设置中开启",en:"Notifications denied; enable in settings"},
+  toast_notify_inapp:{zh:"未授权通知，将在应用内提醒",en:"No permission; in-app reminder instead"},
+  toast_remind_now:{zh:"⏰ 今日还未学习，快来打卡！",en:"⏰ You haven't studied today!"},
+  toggle_to:{zh:"语言：中文",en:"Language: English"},
+  // Misc / dynamic
+  week_label:{zh:"第 {n} 周",en:"Week {n}"},
+  speak_btn:{zh:"🔊 发音",en:"🔊 Pronounce"},
+  plan_min_ph:{zh:"分钟",en:"minutes"},
+  app_title:{zh:"EnglishDaily · 英语学习助手",en:"EnglishDaily · English Learning"},
+  confirm_clear:{zh:"确定清除全部学习数据？此操作不可恢复。",en:"Clear all learning data? This cannot be undone."},
+  notify_test_title:{zh:"EnglishDaily 提醒",en:"EnglishDaily Reminder"},
+  notify_test_body:{zh:"该学英语啦！每天 2 个单词，积少成多 🌟",en:"Time to study! Two new words a day adds up 🌟"},
+  notify_setok_body:{zh:"设置成功！每日提醒已开启 ⏰",en:"Done! Daily reminder is on ⏰"},
+  notify_remind_title:{zh:"EnglishDaily · 该学习啦",en:"EnglishDaily · Time to learn"},
+  notify_remind_body:{zh:"今天还没学哦，点开学 2 个单词吧！",en:"You haven't studied today — open and learn 2 words!"},
+  // Content pack
+  pack_title:{zh:"内容包",en:"Content Pack"},
+  pack_switch:{zh:"选择学习目标（内容包）",en:"Choose your learning goal (content pack)"},
+  pack_import:{zh:"📂 导入内容包",en:"📂 Import pack"},
+  pack_note:{zh:"托管版（PWA）会自动加载 content/ 下的所有内容包；本地以文件方式打开时，请用「导入内容包」选择 JSON 文件。",en:"The hosted PWA auto-loads every pack in content/. In local file mode, use “Import pack” to pick a JSON file."},
+  pack_loaded:{zh:"内容包已加载：",en:"Pack loaded: "}
+};
+function t(k){
+  const v=I18N[k];
+  if(!v) return k;
+  return v[state.lang] || v.zh || v.en || k;
+}
+function tf(k, vars){
+  let s=t(k);
+  if(vars) for(const key in vars) s=s.split("{"+key+"}").join(vars[key]);
+  return s;
+}
+function applyI18n(){
+  const L = state.lang;
+  document.documentElement.lang = (L==="en" ? "en" : "zh-CN");
+  document.querySelectorAll("[data-i18n]").forEach(function(el){ el.textContent = t(el.dataset.i18n); });
+  const na=document.getElementById("notesArea");
+  if(na) na.placeholder = (L==="en") ? "Jot down new expressions, sentence patterns, or thoughts…" : "随时记录新学的表达、句型或心得……";
+  const hd=document.getElementById("headerDate");
+  if(hd) hd.textContent = new Date().toLocaleDateString(L==="en"?"en-US":"zh-CN",{year:"numeric",month:"long",day:"numeric",weekday:"long"});
+  const lb=document.getElementById("langBtn");
+  if(lb) lb.textContent = (L==="en") ? "中" : "EN";
+  document.title = t("app_title");
+}
+function toggleLang(){
+  state.lang = (state.lang==="en") ? "zh" : "en";
+  saveState();
+  stopReadAloud();
+  renderAll();
+  toast(t("toggle_to"));
+}
+function renderAll(){
+  applyI18n();
+  stopReadAloud();
+  renderPlan(); refreshDaily(); refreshReading(); renderReview(); renderMe();
+}
+
+/* ===================== STATE ===================== */
+const STORE_KEY = "englishDaily_v1";
+function defaultState(){
+  return {
+    startDate: todayStr(),
+    lang: "zh",
+    activePack: "general", // id of the content pack currently in use
+    importedPack: null,    // full pack JSON kept for local file:// persistence
+    learnedWords: [],      // [{word,date,pack}]
+    readingsDone: [],      // ["pack::weekIndex"]
+    bookmarks: [],         // [wordObj with pack]
+    notes: "",
+    flashcards: {},        // {"pack::word":{ease,interval,reps,due}}
+    streak: {count:0, last:null},
+    plan: null,            // {goal,minutes,areas}
+    reminder: {enabled:false, time:"20:00"},
+    activity: {},          // {date:{words,reading,review,quiz}}
+    quizResults: []        // [{date,score,total}]
+  };
+}
+/* Migrate older progress (no pack info) to the pack-scoped format. */
+function migrateState(s){
+  if(!s) return s;
+  if(s.flashcards){
+    const f2={};
+    for(const k in s.flashcards){ f2[(k.indexOf("::")>=0?k:("general::"+k))] = s.flashcards[k]; }
+    s.flashcards = f2;
+  }
+  if(Array.isArray(s.learnedWords)){
+    s.learnedWords = s.learnedWords.map(function(x){
+      if(typeof x==="string") return {word:x, date:"", pack:"general"};
+      return x.pack ? x : Object.assign({}, x, {pack:"general"});
+    });
+  }
+  if(Array.isArray(s.bookmarks)){
+    s.bookmarks = s.bookmarks.map(function(x){ return x.pack ? x : Object.assign({}, x, {pack:"general"}); });
+  }
+  if(Array.isArray(s.readingsDone)){
+    s.readingsDone = s.readingsDone.map(function(x){
+      return (typeof x==="string" && x.indexOf("::")>=0) ? x : ("general::"+x);
+    });
+  }
+  if(!s.activePack) s.activePack = "general";
+  return s;
+}
+let state = loadState();
+
+function loadState(){
+  try{
+    const s = JSON.parse(localStorage.getItem(STORE_KEY));
+    if(s){ const d=defaultState(); return migrateState(Object.assign(d,s)); }
+  }catch(e){}
+  return defaultState();
+}
+function saveState(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+
+/* ----- pack-scoped helpers ----- */
+function ap(){ return state.activePack || "general"; }
+function fkey(w){ return ap()+"::"+w; }
+function rkey(wk){ return ap()+"::"+wk; }
+function packOf(rec){ return (rec && rec.pack) || "general"; }
+function learnedActive(){ return state.learnedWords.filter(function(x){ return packOf(x)===ap(); }).length; }
+function readingsActive(){ return state.readingsDone.filter(function(x){ return x.indexOf(ap()+"::")===0; }).length; }
+function flashActive(){ return Object.keys(state.flashcards).filter(function(k){ return k.indexOf(ap()+"::")===0; }).length; }
+function bmActive(){ return state.bookmarks.filter(function(x){ return packOf(x)===ap(); }).length; }
+
+/* ===================== DATE HELPERS ===================== */
+function fmtDate(d){
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,"0");
+  const day=String(d.getDate()).padStart(2,"0");
+  return y+"-"+m+"-"+day;
+}
+function todayStr(){ return fmtDate(new Date()); }
+function yesterdayStr(){ const d=new Date(); d.setDate(d.getDate()-1); return fmtDate(d); }
+function addDays(s,n){ const d=new Date(s+"T00:00:00"); d.setDate(d.getDate()+n); return fmtDate(d); }
+function dayIndex(){
+  const start=new Date(state.startDate+"T00:00:00");
+  const now=new Date(todayStr()+"T00:00:00");
+  return Math.max(0, Math.floor((now-start)/86400000));
+}
+function currentWeek(){ return Math.floor(dayIndex()/7); }
+
+/* ===================== CORE LOGIC ===================== */
+function recordActivity(type, amount){
+  amount = amount||1;
+  const t = todayStr();
+  if(!state.activity[t]) state.activity[t]={words:0,reading:0,review:0,quiz:0};
+  state.activity[t][type]=(state.activity[t][type]||0)+amount;
+  if(state.streak.last!==t){
+    if(state.streak.last===yesterdayStr()) state.streak.count+=1;
+    else state.streak.count=1;
+    state.streak.last=t;
+  }
+  saveState();
+}
+
+function learnWord(word){
+  if(!state.learnedWords.find(x=>x.word===word && packOf(x)===ap())){
+    state.learnedWords.push({word, date: todayStr(), pack: ap()});
+  }
+  if(!state.flashcards[fkey(word)]){
+    state.flashcards[fkey(word)]={ease:2.5, interval:0, reps:0, due: todayStr()};
+  }
+  recordActivity("words");
+  saveState();
+  refreshDaily(); renderMe(); toast(t('toast_learned')+word);
+}
+
+function isLearned(word){ return state.learnedWords.some(x=>x.word===word && packOf(x)===ap()); }
+
+function toggleBookmark(word){
+  const i = state.bookmarks.findIndex(x=>x.word===word && packOf(x)===ap());
+  if(i>=0){ state.bookmarks.splice(i,1); toast(t('toast_bm_del')); }
+  else{
+    const w = WORDS.find(x=>x.word===word);
+    if(w) state.bookmarks.push(Object.assign({}, w, {pack: ap()}));
+    toast(t('toast_bm_add'));
+  }
+  saveState();
+  refreshDaily(); renderMe();
+}
+function isBookmarked(word){ return state.bookmarks.some(x=>x.word===word && packOf(x)===ap()); }
+
+function dueCards(){
+  const t=todayStr(); const pre=ap()+"::";
+  return Object.keys(state.flashcards)
+    .filter(k=> k.indexOf(pre)===0 && state.flashcards[k].due <= t)
+    .map(k=> k.slice(pre.length));
+}
+function rateCard(word, q){
+  let c = state.flashcards[fkey(word)]; if(!c) return;
+  if(q<3){ c.reps=0; c.interval=1; }
+  else{
+    c.reps+=1;
+    if(c.reps===1) c.interval=1;
+    else if(c.reps===2) c.interval=3;
+    else c.interval=Math.max(1, Math.round(c.interval*(q>=4?2.5:2)));
+  }
+  c.due=addDays(todayStr(), c.interval);
+  recordActivity("review");
+  saveState();
+}
+
+function completeReading(weekIdx){
+  const key=rkey(weekIdx);
+  if(!state.readingsDone.includes(key)) state.readingsDone.push(key);
+  recordActivity("reading");
+  saveState();
+  refreshReading(); renderMe();
+  toast(t('toast_read'));
+}
+
+function shuffle(a){
+  a=a.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+/* ===================== SPEECH ===================== */
+function speak(text){
+  if(!("speechSynthesis" in window)){ toast(t('toast_no_speak')); return; }
+  try{
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang="en-US"; u.rate=0.9; u.pitch=1;
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+// --- Read-aloud for the whole reading page ---
+let readAloudOn=false;
+function stripHtml(s){ const d=document.createElement("div"); d.innerHTML=s||""; return (d.textContent||d.innerText||"").replace(/\s+/g," ").trim(); }
+function updateReadBtn(){
+  const b=document.getElementById("readAloudBtn");
+  if(b){ b.textContent = readAloudOn ? t('read_stop') : t('read_aloud'); b.classList.toggle("secondary", readAloudOn); }
+}
+function stopReadAloud(){
+  readAloudOn=false;
+  try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){}
+  updateReadBtn();
+}
+function readPageAloud(){
+  if(!("speechSynthesis" in window)){ toast(t('toast_no_speak')); return; }
+  if(readAloudOn){ stopReadAloud(); return; }
+  try{
+    const el=document.getElementById("readingArea");
+    if(!el) return;
+    // Speak the article body only (skip quiz questions), sentence by sentence.
+    const body=el.querySelector(".reading-text");
+    const text=stripHtml(body?body.innerHTML:"");
+    if(!text){ toast(t('toast_no_speak')); return; }
+    window.speechSynthesis.cancel();
+    readAloudOn=true;
+    updateReadBtn();
+    const sents=text.split(/(?<=[.!?])\s+/).filter(Boolean);
+    let i=0;
+    const speakNext=()=>{
+      if(!readAloudOn || i>=sents.length){ readAloudOn=false; updateReadBtn(); return; }
+      const u=new SpeechSynthesisUtterance(sents[i++]);
+      u.lang="en-US"; u.rate=0.85; u.pitch=1;
+      u.onend=speakNext; u.onerror=()=>{ readAloudOn=false; updateReadBtn(); };
+      window.speechSynthesis.speak(u);
+    };
+    speakNext();
+  }catch(e){ readAloudOn=false; try{updateReadBtn();}catch(_){} }
+}
+
+/* ===================== RENDER: PLAN ===================== */
+function renderPlan(){
+  const el=document.getElementById("planArea");
+  if(!state.plan){
+    el.innerHTML = `
+      <p class="muted">${t('plan_intro')}</p>
+      <label class="fld">${t('plan_goal')}</label>
+      <select id="planGoal">
+        <option value="travel">${t('goal_travel')}</option>
+        <option value="work">${t('goal_work')}</option>
+        <option value="exam">${t('goal_exam')}</option>
+        <option value="hobby">${t('goal_hobby')}</option>
+        <option value="culture">${t('goal_culture')}</option>
+      </select>
+      <label class="fld">${t('plan_min')}</label>
+      <input type="number" id="planMin" min="5" max="180" value="20" placeholder="${t('plan_min_ph')}">
+      <label class="fld">${t('plan_areas')}</label>
+      <div class="checks" id="planAreas">
+        ${Object.keys((AREA_LABEL && AREA_LABEL[state.lang])||{}).map(k=>`<label data-area="${k}"><input type="checkbox" value="${k}" checked> ${AREA_LABEL[state.lang][k]}</label>`).join("")}
+      </div>
+      <div class="btn-row"><button class="btn" data-act="savePlan">${t('gen_plan')}</button></div>
+    `;
+    el.querySelectorAll("#planAreas label").forEach(lb=>{
+      const cb=lb.querySelector("input");
+      const sync=()=>lb.classList.toggle("on", cb.checked);
+      cb.addEventListener("change", sync); sync();
+    });
+    return;
+  }
+  const p=state.plan;
+  const areas = p.areas.length?p.areas:["vocab","reading"];
+  const days = state.lang==="en" ? ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"] : ["周一","周二","周三","周四","周五","周六","周日"];
+  const perTask=Math.max(5, Math.round(p.minutes/2));
+  let sched="";
+  for(let i=0;i<7;i++){
+    const a1=areas[i%areas.length];
+    const a2=areas[(i+1)%areas.length];
+    const tasks=AREA_TASKS[a1][state.lang][0]+"<br>"+AREA_TASKS[a2][state.lang][0];
+    sched+=`<div class="d"><div class="dn">${days[i]}</div><div class="dt">${tasks}</div></div>`;
+  }
+  const goalLabel=(state.lang==="en"
+    ? {travel:"Travel",work:"Career",exam:"Exam",hobby:"Hobby",culture:"Culture"}
+    : {travel:"旅行交流",work:"职场提升",exam:"考试备考",hobby:"兴趣拓展",culture:"文化阅读"})[p.goal]||p.goal;
+  el.innerHTML = `
+    <div class="stats">
+      <div class="stat"><div class="n">${goalLabel}</div><div class="l">${t('stat_goal')}</div></div>
+      <div class="stat"><div class="n">${p.minutes}'</div><div class="l">${t('stat_daily')}</div></div>
+      <div class="stat"><div class="n">${areas.length}</div><div class="l">${t('stat_dir')}</div></div>
+    </div>
+    <h3>📆 ${t('week_plan')}</h3>
+    <div class="sched">${sched}</div>
+    <p class="note">${tf('plan_note',{n:perTask})}</p>
+    <div class="btn-row">
+      <button class="btn secondary" data-act="editPlan">${t('edit_plan')}</button>
+    </div>
+  `;
+}
+function savePlan(){
+  const goal=document.getElementById("planGoal").value;
+  const minutes=parseInt(document.getElementById("planMin").value)||20;
+  const areas=[...document.querySelectorAll("#planAreas input:checked")].map(c=>c.value);
+  state.plan={goal,minutes,areas};
+  saveState();
+  renderPlan();
+  toast(t('toast_plan'));
+}
+
+/* ===================== RENDER: DAILY ===================== */
+function todaysWords(){
+  const di=dayIndex();
+  const i=di*2;
+  const w1=WORDS[i % WORDS.length];
+  const w2=WORDS[(i+1) % WORDS.length];
+  return {w1,w2,isReview:i>=WORDS.length,di};
+}
+function wordCardHTML(w, idx){
+  const learned=isLearned(w.word);
+  const bm=isBookmarked(w.word);
+  return `
+  <div class="wordcard">
+    <div class="illus">${w.emoji}</div>
+    <div class="body">
+      <div><span class="w">${w.word}</span><span class="ipa">${w.ipa}</span></div>
+      <span class="pos">${w.pos}</span>
+      <div class="def">${state.lang==='en'?w.defEn:w.def}</div>
+      <div class="ex">${w.ex}
+        <button class="iconbtn small" data-act="speak" data-text="${w.ex}" style="float:right;padding:4px 8px;">🔊</button>
+        <div class="exzh">${state.lang==='en'?w.exEn:w.exzh}</div>
+      </div>
+      <div class="acts">
+        <button class="iconbtn ${bm?'on':''}" data-act="bookmark" data-word="${w.word}">${bm?t('bookmarked_btn'):t('bookmark_btn')}</button>
+        <button class="iconbtn ${learned?'done':''}" data-act="learn" data-word="${w.word}">${learned?t('learned_btn'):t('learn_btn')}</button>
+      </div>
+    </div>
+  </div>`;
+}
+function refreshDaily(){
+  const td=todaysWords();
+  const a=document.getElementById("dailyArea");
+  const s=document.getElementById("dailyStatus");
+  const di=td.di+1;
+  const dayHead = state.lang==='en' ? ("Day "+di) : ("第 "+di+" 天");
+  s.innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h2 style="margin:0;">📚 ${dayHead} ${td.isReview?'<span class="pill">'+t('review_pill')+'</span>':''}</h2>
+        <span class="muted">${new Date().toLocaleDateString(state.lang==='en'?'en-US':'zh-CN',{month:'long',day:'numeric',weekday:'short'})}</span>
+      </div>
+      <p class="muted" style="margin:8px 0 0;">${t('daily_intro')}</p>
+    </div>`;
+  a.innerHTML = wordCardHTML(td.w1,0)+wordCardHTML(td.w2,1);
+}
+
+/* ===================== RENDER: READING ===================== */
+let readingState={};
+function refreshReading(){
+  const a=document.getElementById("readingArea");
+  if(!READINGS || READINGS.length===0){
+    a.innerHTML = `<div class="center"><div class="big">📭</div><p>${state.lang==='en'?"This content pack has no readings yet.":"本内容包暂无可读文章。"}</p></div>`;
+    readingState={wk:0, answered:0, total:0};
+    return;
+  }
+  const wk=currentWeek() % READINGS.length;
+  const r=READINGS[wk];
+  const done=state.readingsDone.includes(rkey(wk));
+  a.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h3 style="margin:0;">${tf('week_label',{n:wk+1})} · ${state.lang==='en'?r.titleEn:r.title}</h3>
+      <span class="pill">${r.level}</span>
+    </div>
+    <div class="btn-row" style="margin-top:8px;">
+      <button class="btn secondary small" id="readAloudBtn" data-act="readAloud">${t('read_aloud')}</button>
+      <button class="btn secondary small" data-act="stopReadAloud" style="display:none;"></button>
+    </div>
+    <div class="reading-text">${r.text}</div>
+    <div>
+      ${r.vocab.map(v=>`<span class="tag">${v.w} · ${state.lang==='en'?v.dEn:v.d}</span>`).join("")}
+    </div>
+    <h3>${t('comprehension')}</h3>
+    <div id="readingQs">
+      ${r.questions.map((q,qi)=>`
+        <div class="q" data-qi="${qi}">
+          <div class="qt">${qi+1}. ${q.q}</div>
+          ${q.options.map((o,oi)=>`<div class="opt" data-act="readingopt" data-qi="${qi}" data-oi="${oi}">${o}</div>`).join("")}
+        </div>`).join("")}
+    </div>
+    <button class="btn ${done?'secondary':'ghost'}" data-act="completeReading" data-week="${wk}" ${done?'disabled':''}>
+      ${done?t('marked_read'):t('mark_read')}
+    </button>
+  `;
+  readingState={wk, answered:0, total:r.questions.length};
+}
+function readingAnswer(qi, oi){
+  const wk=currentWeek() % READINGS.length;
+  const r=READINGS[wk];
+  const q=r.questions[qi];
+  const qEl=document.querySelector(`#readingQs .q[data-qi="${qi}"]`);
+  if(!qEl || qEl.dataset.done) return;
+  qEl.dataset.done="1";
+  const opts=qEl.querySelectorAll(".opt");
+  opts.forEach((o,idx)=>{
+    o.style.pointerEvents="none";
+    if(idx===q.a) o.classList.add("right");
+    else if(idx===oi) o.classList.add("wrong");
+  });
+  readingState.answered++;
+  if(readingState.answered>=readingState.total){
+    toast(t('all_correct'));
+  }
+}
+
+/* ===================== RENDER: REVIEW ===================== */
+let reviewMode="flash";
+let flashQueue=[];
+let allFlashQueue=[];
+let flashFlipped=false;
+let quizData=[];
+let quizIdx=0;
+let quizScore=0;
+
+function flashCardHTML(w, word, countLabel, free){
+  return `
+    <p class="muted" style="text-align:center;">${countLabel}</p>
+    <div class="flash" data-act="flip">
+      ${flashFlipped?`
+        <div class="back">
+          <div class="def">${state.lang==='en'?w.defEn:w.def}</div>
+          <div class="w" style="font-size:18px;margin:8px 0;color:var(--accent);">${w.word} ${w.ipa}</div>
+          <div>${w.ex}</div>
+          <div class="exzh" style="color:var(--muted);font-size:13px;margin-top:4px;">${state.lang==='en'?w.exEn:w.exzh}</div>
+          <button class="iconbtn small" data-act="speak" data-text="${w.word}" style="margin-top:10px;">${t('speak_btn')}</button>
+        </div>`
+      :`
+        <div class="front">${w.word}<span class="ipa">${w.ipa}</span></div>
+        <div class="hint">${t('tap_meaning')}</div>
+      `}
+    </div>
+    ${flashFlipped?`
+      <div class="btn-row">
+        <button class="btn ghost" data-act="${free?'rateFree':'rate'}" data-word="${word}" data-q="0">${t('rate_forget')}</button>
+        <button class="btn secondary" data-act="${free?'rateFree':'rate'}" data-word="${word}" data-q="3">${t('rate_ok')}</button>
+        <button class="btn" data-act="${free?'rateFree':'rate'}" data-word="${word}" data-q="5">${t('rate_easy')}</button>
+      </div>`:`<p class="note" style="text-align:center;margin-top:12px;">${free?t('review_all_note'):t('flip_hint')}</p>`}
+  `;
+}
+function renderReview(){
+  const a=document.getElementById("reviewArea");
+  if(reviewMode==="allflash"){
+    // Free review: every word of the active pack
+    if(allFlashQueue.length===0) allFlashQueue=shuffle(WORDS.map(x=>x.word));
+    if(allFlashQueue.length===0){ a.innerHTML=`<div class="center"><div class="big">📭</div><p>${t('no_cards')}</p></div>`; return; }
+    const w=WORDS.find(x=>x.word===allFlashQueue[0]);
+    if(!w){ allFlashQueue.shift(); return renderReview(); }
+    a.innerHTML=flashCardHTML(w,w.word,tf('review_all_count',{n:WORDS.length}),true);
+    return;
+  }
+  if(reviewMode==="flash"){
+    // Due-only review. Empty queue is EXPECTED when nothing is due yet.
+    if(flashQueue.length===0) flashQueue=shuffle(dueCards());
+    if(flashQueue.length===0){
+      const total=flashActive();
+      const dueN=dueCards().length;
+      a.innerHTML=`<div class="center"><div class="big">🎉</div><p>${t('no_cards')}</p><p class="note">${tf('no_due_note',{n:total})}</p><p class="note">${t('review_all_hint')}</p></div>`;
+      void dueN;
+      return;
+    }
+    const word=flashQueue[0];
+    const w=WORDS.find(x=>x.word===word);
+    if(!w){ flashQueue.shift(); return renderReview(); } // stale card from another pack — skip it
+    a.innerHTML=flashCardHTML(w,word,t('cards_due')+" "+flashQueue.length+" "+t('cards_unit'),false);
+  } else {
+    if(quizData.length===0) buildQuiz();
+    if(quizIdx>=quizData.length){
+      const total=quizData.length;
+      const pct=total?Math.round(quizScore/total*100):0;
+      state.quizResults.push({date:todayStr(),score:quizScore,total});
+      recordActivity("quiz"); saveState();
+      a.innerHTML=`<div class="center"><div class="big">${pct>=80?'🏆':'💪'}</div>
+        <p style="font-size:18px;font-weight:700;">${state.lang==='en'?'Score':'得分'} ${quizScore} / ${total}（${pct}%）</p>
+        <p class="note">${pct>=80?t('quiz_done_great'):(pct>=60?t('quiz_done_ok'):t('quiz_done_low'))}</p>
+        <button class="btn" style="margin-top:14px;" data-act="restartQuiz">${t('try_again')}</button></div>`;
+      quizData=[]; quizIdx=0; quizScore=0; renderMe();
+      return;
+    }
+    const q=quizData[quizIdx];
+    a.innerHTML=`
+      <p class="muted" style="text-align:center;">${state.lang==='en'?('Q '+(quizIdx+1)+' / '+quizData.length+' · Score '+quizScore):('第 '+(quizIdx+1)+' / '+quizData.length+' 题 · 得分 '+quizScore)}</p>
+      <div class="flash" style="background:linear-gradient(135deg,#fff,#eef3ff);">
+        <div class="def" style="font-size:20px;">${state.lang==='en'?"\u201C"+q.def+"\u201D":"\u300C"+q.def+"\u300D"}</div>
+        <div class="exzh" style="color:var(--muted);margin-top:8px;font-size:14px;">${q.ex}</div>
+      </div>
+      <div style="margin-top:14px;">
+        ${q.options.map((o,oi)=>`<div class="opt" data-act="quizopt" data-oi="${oi}">${o}</div>`).join("")}
+      </div>
+    `;
+  }
+}
+function flipCard(){
+  const q = (reviewMode==="allflash") ? allFlashQueue : flashQueue;
+  if(q.length===0) return;
+  flashFlipped=!flashFlipped;
+  renderReview();
+}
+function rateFlash(word,q){
+  rateCard(word, parseInt(q));
+  flashQueue.shift();
+  flashFlipped=false;
+  renderReview();
+  renderMe();
+}
+function buildQuiz(n){
+  const known=state.learnedWords.filter(x=>packOf(x)===ap()).map(x=>x.word);
+  const pool=(known.length>=4?known:WORDS.map(x=>x.word));
+  const picks=shuffle(pool).slice(0, Math.min(n||5, pool.length));
+  quizData=picks.map(w=>{
+    const wo=WORDS.find(x=>x.word===w);
+    const wrong=shuffle(WORDS.filter(x=>x.word!==w)).slice(0,3).map(x=>x.word);
+    return {word:w, def:(state.lang==='en'?wo.defEn:wo.def), ex:(state.lang==='en'?wo.exEn:wo.exzh), options:shuffle([w,...wrong]), answer:w};
+  });
+  quizIdx=0; quizScore=0;
+}
+function quizAnswer(oi){
+  const q=quizData[quizIdx];
+  const opts=document.querySelectorAll("#reviewArea .opt");
+  const chosen=q.options[oi];
+  opts.forEach((o,idx)=>{
+    o.style.pointerEvents="none";
+    if(q.options[idx]===q.answer) o.classList.add("right");
+    else if(idx===oi) o.classList.add("wrong");
+  });
+  if(chosen===q.answer) quizScore++;
+  setTimeout(()=>{ quizIdx++; renderReview(); }, 650);
+}
+
+/* ===================== RENDER: ME ===================== */
+function last7(){
+  const arr=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const s=fmtDate(d);
+    const act=state.activity[s]||{};
+    const score=(act.words||0)+(act.reading||0)*2+(act.review||0)+(act.quiz||0);
+    const wd = state.lang==='en' ? ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"] : ["日","一","二","三","四","五","六"];
+    arr.push({label:wd[d.getDay()], score});
+  }
+  return arr;
+}
+function renderChart(){
+  const data=last7();
+  const max=Math.max(1,...data.map(d=>d.score));
+  const w=320,h=130,bw=30,gap=8,x0=8,base=h-22;
+  let bars="";
+  data.forEach((d,i)=>{
+    const bh=(d.score/max)*(h-34);
+    const x=x0+i*(bw+gap);
+    const y=base-bh;
+    bars+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="6" fill="url(#g1)"/>`;
+    bars+=`<text x="${x+bw/2}" y="${base+15}" font-size="11" fill="#8a8da3" text-anchor="middle">${d.label}</text>`;
+    if(d.score>0) bars+=`<text x="${x+bw/2}" y="${y-4}" font-size="10" fill="#555" text-anchor="middle">${d.score}</text>`;
+  });
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" style="display:block;">
+    <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6a8dff"/><stop offset="1" stop-color="#9b6bff"/>
+    </linearGradient></defs>${bars}</svg>`;
+}
+function renderMe(){
+  document.getElementById("streakN").textContent=state.streak.count;
+  document.getElementById("statsBox").innerHTML=`
+    <div class="stat"><div class="n">${learnedActive()}</div><div class="l">${t('s_words')}</div></div>
+    <div class="stat"><div class="n">${state.streak.count}</div><div class="l">${t('s_streak')}</div></div>
+    <div class="stat"><div class="n">${readingsActive()}</div><div class="l">${t('s_read')}</div></div>
+    <div class="stat"><div class="n">${flashActive()}</div><div class="l">${t('s_flash')}</div></div>
+    <div class="stat"><div class="n">${bmActive()}</div><div class="l">${t('s_bm')}</div></div>
+    <div class="stat"><div class="n">${state.quizResults.length}</div><div class="l">${t('s_quiz')}</div></div>
+  `;
+  document.getElementById("chartBox").innerHTML=renderChart();
+
+  const milestones=[
+    {label:t('ms1'),test:()=>learnedActive()>=1,ico:"🌱"},
+    {label:t('ms2'),test:()=>learnedActive()>=10,ico:"📚"},
+    {label:t('ms3'),test:()=>learnedActive()>=25,ico:"🌟"},
+    {label:t('ms4'),test:()=>learnedActive()>=50,ico:"🏅"},
+    {label:t('ms5'),test:()=>readingsActive()>=1,ico:"📖"},
+    {label:t('ms6'),test:()=>state.streak.count>=7,ico:"🔥"},
+    {label:t('ms7'),test:()=>state.quizResults.length>=1,ico:"✍️"}
+  ];
+  document.getElementById("milestoneBox").innerHTML=milestones.map(m=>{
+    const done=m.test();
+    return `<div class="milestone ${done?'done':''}">
+      <div class="mk">${done?'✅':m.ico}</div>
+      <div><div class="mt">${m.label}</div><div class="ms">${done?t('done'):t('ongoing')}</div></div>
+    </div>`;
+  }).join("");
+
+  // bookmarks (filtered to the active pack)
+  const bmList = state.bookmarks.filter(x=>packOf(x)===ap());
+  const bm=document.getElementById("bookmarkBox");
+  if(bmList.length===0){
+    bm.innerHTML=`<p class="muted">${t('bm_empty')}</p>`;
+  } else {
+    bm.innerHTML=bmList.map(w=>`
+      <div class="bm">
+        <div class="e">${w.emoji}</div>
+        <div class="info">
+          <div class="w">${w.word} <span class="muted" style="font-weight:400;font-size:12px;">${w.ipa}</span></div>
+          <div class="d">${state.lang==='en'?w.defEn:w.def} · ${state.lang==='en'?w.exEn:w.exzh}</div>
+        </div>
+        <button class="iconbtn small" data-act="speak" data-text="${w.word}">🔊</button>
+        <button class="iconbtn small" data-act="unbookmark" data-word="${w.word}">✕</button>
+      </div>`).join("");
+  }
+
+  // content pack card
+  renderPackCard();
+
+  // notes
+  const na=document.getElementById("notesArea");
+  if(na.value!==state.notes) na.value=state.notes;
+
+  // reminder
+  document.getElementById("remindToggle").checked=state.reminder.enabled;
+  document.getElementById("remindTime").value=state.reminder.time;
+
+  // badge
+  const due=dueCards().length;
+  const badge=document.getElementById("reviewBadge");
+  if(due>0){ badge.style.display="flex"; badge.textContent=due; }
+  else badge.style.display="none";
+}
+
+/* ===================== BACKUP (EXPORT / IMPORT) ===================== */
+function exportData(){
+  try{
+    const data=JSON.stringify(state, null, 2);
+    const blob=new Blob([data],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    a.download="englishDaily-backup-"+todayStr()+".json";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 1000);
+    toast(t('toast_export'));
+  }catch(e){ toast(t('toast_export_fail')); }
+}
+function importData(){
+  document.getElementById("importFile").click();
+}
+function bindImport(){
+  const inp=document.getElementById("importFile");
+  if(!inp) return;
+  inp.addEventListener("change", function(){
+    const f=this.files[0]; if(!f) return;
+    const r=new FileReader();
+    r.onload=function(){
+      try{
+        const s=JSON.parse(r.result);
+        if(!s || !Array.isArray(s.learnedWords)) throw new Error("bad");
+        state=Object.assign(defaultState(), s);
+        saveState();
+        toast(t('toast_import_ok'));
+        renderPlan(); refreshDaily(); refreshReading(); renderReview(); renderMe();
+      }catch(e){ toast(t('toast_import_fail')); }
+      finally{ inp.value=""; }
+    };
+    r.readAsText(f);
+  });
+}
+
+/* ===================== CONTENT PACK UI ===================== */
+function renderPackCard(){
+  const el=document.getElementById("packArea"); if(!el) return;
+  const opts = PACK_META.map(function(m){
+    const nm = (state.lang==="en" ? (m.nameEn||m.name) : (m.name||m.nameEn));
+    return `<option value="${m.id}" ${(state.activePack||"general")===m.id?"selected":""}>${nm}</option>`;
+  }).join("");
+  const cur = CONTENT || BUILTIN_GENERAL;
+  const desc = (state.lang==="en" ? (cur.descEn||cur.desc) : (cur.desc||cur.descEn));
+  el.innerHTML = `
+    <p class="muted">${t('pack_switch')}</p>
+    <select id="packSelect">${opts}</select>
+    <p class="note" style="margin-top:8px;">${desc||""}</p>
+    <div class="btn-row">
+      <button class="btn secondary small" data-act="importPack">${t('pack_import')}</button>
+    </div>
+    <p class="note">${t('pack_note')}</p>
+  `;
+  const sel=document.getElementById("packSelect");
+  if(sel){
+    sel.addEventListener("change", function(){
+      const p = PACKS[this.value];
+      if(p){ applyPack(p); saveState(); renderAll(); }
+    });
+  }
+}
+function importPack(){
+  const inp=document.getElementById("packFile");
+  if(inp) inp.click();
+}
+function bindPackImport(){
+  const inp=document.getElementById("packFile");
+  if(!inp) return;
+  inp.addEventListener("change", function(){
+    const f=this.files[0]; if(!f) return;
+    const r=new FileReader();
+    r.onload=function(){
+      try{
+        const d=JSON.parse(r.result);
+        if(!d || !Array.isArray(d.words)) throw new Error("bad");
+        const p=normalizePack(d);
+        PACKS[p.id]=p;
+        if(!PACK_META.some(function(m){return m.id===p.id;})){
+          PACK_META.push({id:p.id, file:null, name:p.name, nameEn:p.nameEn, imported:true});
+        }
+        state.importedPack = d;   // keep raw JSON for local file:// persistence
+        saveState();
+        applyPack(p);
+        renderAll();
+        toast(t('pack_loaded') + (state.lang==="en"?p.nameEn:p.name));
+      }catch(e){ toast(t('toast_import_fail')); }
+      finally{ inp.value=""; }
+    };
+    r.readAsText(f);
+  });
+}
+
+/* ===================== TABS ===================== */
+function switchTab(target){
+  stopReadAloud();
+  document.querySelectorAll("main section").forEach(s=>s.classList.remove("active"));
+  document.getElementById("tab-"+target).classList.add("active");
+  document.querySelectorAll("#tabbar button").forEach(b=>b.classList.toggle("active", b.dataset.target===target));
+  if(target==="plan") renderPlan();
+  if(target==="daily") refreshDaily();
+  if(target==="reading") refreshReading();
+  if(target==="review") renderReview();
+  if(target==="me") renderMe();
+}
+
+/* ===================== TOAST ===================== */
+let toastTimer=null;
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove("show"), 1800);
+}
+
+/* ===================== EVENT DELEGATION ===================== */
+document.addEventListener("click", function(e){
+  const el=e.target.closest("[data-act]");
+  if(!el) return;
+  const act=el.dataset.act;
+  const word=el.dataset.word;
+  switch(act){
+    case "tab": switchTab(el.dataset.target); break;
+    case "savePlan": savePlan(); break;
+    case "editPlan": state.plan=null; saveState(); renderPlan(); break;
+    case "learn": learnWord(word); break;
+    case "bookmark": toggleBookmark(word); break;
+    case "unbookmark": toggleBookmark(word); break;
+    case "speak": stopReadAloud(); speak(el.dataset.text); break;
+    case "readAloud": readPageAloud(); break;
+    case "stopReadAloud": stopReadAloud(); break;
+    case "completeReading": completeReading(parseInt(el.dataset.week)); break;
+    case "readingopt": readingAnswer(parseInt(el.dataset.qi), parseInt(el.dataset.oi)); break;
+    case "reviewmode":
+      reviewMode=el.dataset.mode;
+      document.querySelectorAll("#reviewSeg button").forEach(b=>b.classList.toggle("active", b.dataset.mode===reviewMode));
+      if(reviewMode==="flash"){ flashQueue=shuffle(dueCards()); flashFlipped=false; }
+      else if(reviewMode==="allflash"){ allFlashQueue=shuffle(WORDS.map(x=>x.word)); flashFlipped=false; }
+      else { quizData=[]; }
+      renderReview();
+      break;
+    case "flip": flipCard(); break;
+    case "rate": rateFlash(el.dataset.word, el.dataset.q); break;
+    case "rateFree":
+      // free review: advance without touching the spaced-repetition schedule
+      allFlashQueue.shift();
+      flashFlipped=false;
+      renderReview();
+      break;
+    case "quizopt": quizAnswer(parseInt(el.dataset.oi)); break;
+    case "restartQuiz": quizData=[]; renderReview(); break;
+    case "testNotify": testNotify(); break;
+    case "exportData": exportData(); break;
+    case "importData": importData(); break;
+    case "importPack": importPack(); break;
+    case "toggleLang": toggleLang(); break;
+    case "resetData":
+      if(confirm(t('confirm_clear'))){
+        localStorage.removeItem(STORE_KEY);
+        state=defaultState(); saveState();
+        switchTab("plan"); toast(t('toast_cleared'));
+      }
+      break;
+  }
+});
+
+/* notes autosave */
+document.getElementById("notesArea").addEventListener("input", function(){
+  state.notes=this.value; saveState();
+});
+/* reminder settings */
+document.getElementById("remindToggle").addEventListener("change", function(){
+  state.reminder.enabled=this.checked; saveState();
+  if(this.checked && "Notification" in window && Notification.permission==="default"){
+    Notification.requestPermission();
+  }
+});
+document.getElementById("remindTime").addEventListener("change", function(){
+  state.reminder.time=this.value; saveState();
+});
+
+/* ===================== REMINDER ===================== */
+function testNotify(){
+  if(!("Notification" in window)){ toast(t('toast_no_notify')); return; }
+  if(Notification.permission==="granted"){
+    new Notification(t('notify_test_title'),{body:t('notify_test_body')});
+  } else if(Notification.permission==="default"){
+    Notification.requestPermission().then(p=>{
+      if(p==="granted") new Notification(t('notify_test_title'),{body:t('notify_setok_body')});
+      else toast(t('toast_notify_inapp'));
+    });
+  } else { toast(t('toast_notify_denied')); }
+}
+function checkReminder(){
+  if(!state.reminder.enabled) return;
+  const now=new Date();
+  const [h,m]=state.reminder.time.split(":").map(Number);
+  const cur=todayStr();
+  // 今天还没学习，且已过提醒时间
+  const act=state.activity[cur];
+  const studied = act && ((act.words||0)+(act.reading||0)+(act.review||0)+(act.quiz||0))>0;
+  if(!studied && now.getHours()>=h && now.getMinutes()>=m){
+    if("Notification" in window && Notification.permission==="granted"){
+      new Notification(t('notify_remind_title'),{body:t('notify_remind_body')});
+    }
+    toast(t('toast_remind_now'));
+  }
+}
+
+/* ===================== INIT ===================== */
+async function init(){
+  // Load content packs (async on hosted PWA; instant built-in on local file://)
+  await loadContent();
+  // record open as activity touch (light) - keep streak alive only if already today
+  applyI18n();
+  document.getElementById("streakN").textContent=state.streak.count;
+  renderPlan();
+  refreshDaily();
+  refreshReading();
+  renderReview();
+  renderMe();
+  bindImport();
+  bindPackImport();
+  checkReminder();
+  ensurePwaMeta();
+  registerSW();
+}
+init();
+
+/* ===================== PWA META / SERVICE WORKER ===================== */
+/* Only inject manifest + touch-icon and register the SW when served over
+   http(s). On file:// (local single-file mode) we skip everything so the
+   page never requests missing files and never throws a 404. */
+function ensurePwaMeta(){
+  if(!location.protocol.startsWith("http")) return;
+  var m=document.createElement("link");
+  m.rel="manifest"; m.href="data:application/manifest+json;base64,eyJuYW1lIjogIkVuZ2xpc2hEYWlseSDCtyDoi7Hor63lrabkuaDliqnmiYsiLCAic2hvcnRfbmFtZSI6ICJFbmdsaXNoRGFpbHkiLCAiZGVzY3JpcHRpb24iOiAi56a757q/6Iux6K+t5a2m5Lmg5Yqp5omL77ya5q+P5pel5Y2V6K+N44CB5q+P5ZGo6ZiF6K+744CB6Ze06ZqU5aSN5Lmg44CB6L+b5bqm6L+96LiqIiwgInN0YXJ0X3VybCI6ICIuIiwgInNjb3BlIjogIi4iLCAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwgImJhY2tncm91bmRfY29sb3IiOiAiI2Y1ZjVmNyIsICJ0aGVtZV9jb2xvciI6ICIjNmE1Y2ZmIiwgImljb25zIjogW3sic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjRiV3h1Y3owaWFIUjBjRG92TDNkM2R5NTNNeTV2Y21jdk1qQXdNQzl6ZG1jaUlIZHBaSFJvUFNJeE9EQWlJR2hsYVdkb2REMGlNVGd3SWlCMmFXVjNRbTk0UFNJd0lEQWdNVGd3SURFNE1DSStQR1JsWm5NK1BHeHBibVZoY2tkeVlXUnBaVzUwSUdsa1BTSm5JaUI0TVQwaU1DSWdlVEU5SWpBaUlIZ3lQU0l4SWlCNU1qMGlNU0krUEhOMGIzQWdiMlptYzJWMFBTSXdJaUJ6ZEc5d0xXTnZiRzl5UFNJak5tRTFZMlptSWk4K1BITjBiM0FnYjJabWMyVjBQU0l4SWlCemRHOXdMV052Ykc5eVBTSWpPV0k0WTJabUlpOCtQQzlzYVc1bFlYSkhjbUZrYVdWdWRENDhMMlJsWm5NK1BISmxZM1FnZDJsa2RHZzlJakU0TUNJZ2FHVnBaMmgwUFNJeE9EQWlJSEo0UFNJME1DSWdabWxzYkQwaWRYSnNLQ05uS1NJdlBqeDBaWGgwSUhnOUlqa3dJaUI1UFNJeE1qUWlJR1p2Ym5RdFptRnRhV3g1UFNKQmNtbGhiQ3hJWld4MlpYUnBZMkVzYzJGdWN5MXpaWEpwWmlJZ1ptOXVkQzF6YVhwbFBTSTVOaUlnWm05dWRDMTNaV2xuYUhROUlqY3dNQ0lnWm1sc2JEMGlJMlptWm1abVppSWdkR1Y0ZEMxaGJtTm9iM0k5SW0xcFpHUnNaU0krUVdFOEwzUmxlSFErUEM5emRtYysiLCAic2l6ZXMiOiAiYW55IiwgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIsICJwdXJwb3NlIjogImFueSJ9XX0=";
+  document.head.appendChild(m);
+  var a=document.createElement("link");
+  a.rel="apple-touch-icon"; a.href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjNmE1Y2ZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjOWI4Y2ZmIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIHJ4PSI0MCIgZmlsbD0idXJsKCNnKSIvPjx0ZXh0IHg9IjkwIiB5PSIxMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCxIZWx2ZXRpY2Esc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5NiIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QWE8L3RleHQ+PC9zdmc+";
+  document.head.appendChild(a);
+}
+function registerSW(){
+  if(!("serviceWorker" in navigator)) return;
+  if(!location.protocol.startsWith("http")) return; // skip on file:// — local mode stays plain
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("sw.js").catch(function(){ /* offline file mode, ignore */ });
+  });
+}
+</script>
+</body>
+</html>
