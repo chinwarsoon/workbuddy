@@ -7,8 +7,9 @@ rem  Launches the ActionTracker app from THIS folder (the folder
 rem  the .bat lives in) using a local HTTP server — NO file copy.
 rem
 rem  The app also works by double-clicking index.html directly
-rem  (file:// mode, sample data), but the local server gives full
-rem  read/write access to action.json / setup.json in this folder.
+rem  (file:// mode shows a startup modal to pick action.json), but the
+rem  local server gives the smoothest read/write access to action.json /
+rem  setup.json in this folder and auto-loads them on startup.
 rem
 rem  Edit PORT below if 8000 is already taken.
 rem ============================================================
@@ -51,5 +52,19 @@ echo Opening http://localhost:%PORT%/index.html
 start "" "http://localhost:%PORT%/index.html"
 
 echo.
-echo Done. If the page shows old/default data, press Ctrl+Shift+R to hard-refresh.
+echo ============================================================
+echo  ActionTracker launched
+echo  URL : http://localhost:%PORT%/index.html
+echo ------------------------------------------------------------
+echo  IMPORTANT - your browser may serve a CACHED page.
+echo  After EVERY file update, press   Ctrl + Shift + R   (hard refresh).
+echo  (macOS: Cmd + Shift + R^)
+echo  Notes:
+echo   - Reads action.json / setup.json from THIS folder ^(the .bat folder^).
+echo   - If you see default/sample data, hard-refresh first.
+echo   - If it still shows sample data, check that action.json exists here.
+echo  To stop: close the "ActionLogServer" command window.
+echo ============================================================
+echo.
+echo Press any key to close this window...
 pause

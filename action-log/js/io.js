@@ -322,14 +322,17 @@
           console.warn('setup.json returned '+sres.status+', using built-in defaults.');
         }
       }catch(e){ console.warn('setup.json load failed ('+e.message+'), using built-in defaults.'); }
+      // Page-start load must NOT be flagged dirty — the user hasn't edited anything.
+      // Normalization / legacy hints are already surfaced via the toasts above; we don't
+      // want to block navigation or show "● unsaved" just for opening the file.
+      state.dataDirty=false; state.setupDirty=false; updateSaveButtons();
       updateStatusbar();
       return;
     }
-    // file:// (double-click) — no server. Browsers (Chrome) block fetch() on
-    // file://, but Firefox allows same-folder reads. Try fetch first; on failure
-    // fall back to the embedded sample so the app opens instantly and stays
-    // usable without a blocking prompt. Real data can be loaded any time via the
-    // top-bar "Set data folder" / "Import" (both are user-gesture file pickers).
+    // file:// (double-click) — no server. Per workplan §5.1, the browser blocks
+    // fetch() of sibling files on file:// (Chrome; Firefox allows same-folder reads).
+    // So: Firefox auto-loads when fetch succeeds; Chrome (fetch blocked) shows the
+    // startup modal (promptPickJson) to pick action.json + set the working folder.
     let dataJson=null, note='';
     try{
       const res = await fetch('./'+DEFAULT_DATA_FILE);
@@ -341,19 +344,20 @@
     }catch(e){ note = 'fetch blocked (file://): '+e.message; }
     if(dataJson){
       applyDataset(dataJson, { name:DEFAULT_DATA_FILE, path:'(local file)', source:'external' });
+      // Page-start load must NOT be flagged dirty — the user hasn't edited anything.
+      state.dataDirty=false; state.setupDirty=false; updateSaveButtons();
+      updateStatusbar();
     } else {
-      const seed = document.getElementById('seedData');
-      if(seed){ try{ applyDataset(JSON.parse(seed.textContent), { name:DEFAULT_DATA_FILE, path:'(embedded)', source:'embedded' }); }catch(e){} }
-      else applyDataset({projects:[],disciplines:[],statuses:[],actions:[]}, { name:DEFAULT_DATA_FILE, path:'', source:'none' });
-      toast('Opened from file:// — showing sample data. Use "Set data folder" or "Import" to load your action.json.');
+      // No sibling file reachable (Chrome file://) — restore the §5.1 startup modal
+      // so the user can pick action.json + the working folder. No silent sample fallback.
+      promptPickJson();
     }
-    // setup.json — attempt fetch, else fall back to embedded defaults
+    // setup.json — attempt fetch, else fall back to embedded defaults (no UI impact)
     try{
       const sres = await fetch('./setup.json');
       if(sres.ok){ const stxt = await sres.text(); const sstripped = stxt.charCodeAt(0)===0xFEFF ? stxt.slice(1) : stxt; applySetup(JSON.parse(sstripped)); }
       else { const sseed = document.getElementById('seedSetup'); if(sseed){ try{ applySetup(JSON.parse(sseed.textContent)); }catch(e){} } }
     }catch(e){ const sseed = document.getElementById('seedSetup'); if(sseed){ try{ applySetup(JSON.parse(sseed.textContent)); }catch(e){} } }
-    updateStatusbar();
   }
 
   // Shown when the page runs from file:// — asks the user to pick the JSON manually.

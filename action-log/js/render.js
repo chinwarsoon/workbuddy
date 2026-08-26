@@ -1,5 +1,10 @@
 "use strict";
 
+  // Inline SVG glyphs for persistent-at-rest affordances (ISS-39 / ISS-45) — symbols, not emoji.
+  const FC_GLYPH_EDIT = '<svg class="fc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+  const FC_GLYPH_LOCK = '<svg class="fc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  const FC_GLYPH_WARN = '<svg class="fc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20z"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17" r="0.7" fill="currentColor" stroke="none"/></svg>';
+
   // ---- Tree (Actions perspective) ----
   // Uniform per-level indent step (configurable in Settings → Layout, default 16px).
   function treePad(level){ return 8 + (level||0) * (state.layout.treeIndent||16); }
@@ -202,8 +207,9 @@
   function renderActionsMain(){
     edDirty=false;
     const a=state.actions.find(x=>x.id===state.selection.actions);
-    if(!a){ renderActionTop(null); $('edBody').innerHTML=`<p class="ed-desc">Select an action from the tree, or create a new one.</p>`; return; }
+    if(!a){ renderActionTop(null); renderActionSubhead(null); $('edBody').innerHTML=`<p class="ed-desc">Select an action from the tree, or create a new one.</p>`; return; }
     renderActionTop(a);
+    renderActionSubhead(a);
     $('edBody').innerHTML=renderActionEditor(a); bindActionEditor(a);
   }
   function renderActionTop(a){
@@ -222,6 +228,86 @@
     $('aeNew').onclick=()=>openModalCreate(null,null);
     if(a){ $('aeSave').onclick=()=>saveInlineAction(a); $('aeDelete').onclick=()=>deleteAction(a); $('aeAddSub').onclick=()=>addSubAction(a.id); $('aeSplit').onclick=()=>splitIntoSubactions(a); if(isChild) $('aePromote').onclick=()=>promoteAction(a); }
   }
+  // --- Subhead (sticky, read-only identity bar) — ISS-42 / ISS-45 ---
+  function renderActionSubhead(a){
+    const el=$('edSubhead'); if(!el) return;
+    if(!a){ el.innerHTML=''; el.style.display='none'; return; }
+    el.style.display='';
+    el.innerHTML = `<div class="ed-sh-inner">
+      <div class="ed-sh-row1">
+        <input class="input ed-sh-title" id="aeTitle" value="${esc(a.title)}" aria-label="Action title" />
+        <span class="ed-sh-id">#${a.id}</span>
+      </div>
+      <div class="ed-sh-meta">
+        <span class="sh-chip"><span class="sh-k">${esc(L('project','Project'))}</span><span class="sh-v">${esc(projName(a.projectId))}</span><span class="sh-lock" title="Locked — set at creation, cannot be changed">${FC_GLYPH_LOCK}</span></span>
+        <span class="sh-chip"><span class="sh-k">${esc(L('discipline','Discipline'))}</span><span class="sh-v">${esc(discName(a.disciplineId))}</span><span class="sh-lock" title="Locked — set at creation, cannot be changed">${FC_GLYPH_LOCK}</span></span>
+        <span class="sh-chip"><span class="sh-k">${esc(L('status','Status'))}</span><span class="sh-v sh-status" id="shStatus" style="${statusStyle(a.statusId)}">${esc(aStatusLabel(a))}</span></span>
+        <span class="sh-chip"><span class="sh-k">${esc(L('createdBy','Created by'))}</span><span class="sh-v">${esc((state.members.find(m=>String(m.id)===String(a.createdById))||{}).name || a.createdByName || '—')}</span></span>
+        <span class="sh-chip"><span class="sh-k">${esc(L('createdOn','Created on'))}</span><span class="sh-v">${esc(a.createdOn||'—')}</span></span>
+      </div>
+    </div>`;
+  }
+  // --- Focus cells: click-to-edit popovers with focus management (ISS-39/41/44/47) ---
+  let __focusDocBound = false;
+  function closeAllFocusPops(){
+    document.querySelectorAll('#edBody .focus-cell.open').forEach(c=>{
+      c.classList.remove('open'); c.setAttribute('aria-expanded','false');
+      const p=c.querySelector('.focus-pop'); if(p) p.hidden=true;
+    });
+  }
+  function isOverdue(rec){
+    if(!rec.due) return false;
+    const done = (findStatus(rec.statusId)||{}).label === 'Completed' || rec.statusLabel === 'Completed';
+    if(done) return false;
+    return rec.due < todayStr();
+  }
+  // Reads the LIVE selection from the popover controls (not from `a`, which is only
+  // written at save time). This is what makes the focus cell update instantly when a
+  // drop-down / seg / picker value changes inside the popover.
+  function syncFocusDisplays(a){
+    const seg=$('aeSeg'), pr=$('aePriority'), asg=$('aeAssignee'), dueEl=$('aeDue');
+    const sid = seg ? selectedSeg(seg) : (a.statusId||'');
+    const pid = pr ? selectedPriority(pr) : (a.priorityId||'');
+    const dueVal = dueEl ? (dueEl.value||'') : (a.due||'');
+    const fs=$('fvStatus'); if(fs){ fs.textContent=statusLabel(sid); fs.setAttribute('style', statusStyle(sid)); }
+    const fp=$('fvPriority'); if(fp){ fp.textContent=priorityLabel(pid); fp.setAttribute('style', priorityStyle(pid)); }
+    const fd=$('fvDue'); if(fd){ fd.textContent=dueVal||'—'; const cell=fd.closest('.focus-cell'); if(cell) cell.classList.toggle('overdue', isOverdue({due:dueVal, statusId:sid, statusLabel:statusLabel(sid)})); }
+    const fa=$('fvAssignee'); if(fa){ fa.textContent = asg ? (()=>{ const s=selectedAssignees(asg); return s.ids.map(id=>(state.members.find(m=>String(m.id)===String(id))||{}).name).concat(s.orphans).join(', ')||'—'; })() : assigneesTxt(a); }
+    const fpr=$('fvProgress'); if(fpr) fpr.textContent=(a.progress||0)+'%';
+    const sh=$('shStatus'); if(sh){ sh.textContent=statusLabel(sid); sh.setAttribute('style', statusStyle(sid)); }
+  }
+  function bindFocusCells(a){
+    if(!__focusDocBound){
+      document.addEventListener('click', e=>{ if(!e.target.closest('#edBody .focus-cell')) closeAllFocusPops(); });
+      __focusDocBound=true;
+    }
+    document.querySelectorAll('#edBody .focus-cell[data-edit]').forEach(cell=>{
+      const pop=cell.querySelector('.focus-pop');
+      const toggle=()=>{
+        const wasOpen=!pop.hidden;
+        closeAllFocusPops();
+        if(wasOpen) return;
+        pop.hidden=false; cell.classList.add('open'); cell.setAttribute('aria-expanded','true');
+        const f=pop.querySelector('input, select, button, textarea'); if(f) f.focus();
+      };
+      cell.addEventListener('click', e=>{ if(e.target.closest('.focus-pop')) return; e.stopPropagation(); toggle(); });
+      cell.addEventListener('keydown', e=>{
+        if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle(); }
+        else if(e.key==='Escape'){ if(!pop.hidden){ closeAllFocusPops(); cell.focus(); } }
+      });
+      pop.addEventListener('click', e=>e.stopPropagation());
+      pop.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeAllFocusPops(); cell.focus(); } });
+    });
+  }
+  // --- Dependency warning badge on the folded Dependencies header (ISS-40) ---
+  function updateDepBadge(a){
+    const badge=$('depBadge'); if(!badge) return;
+    const types=new Set();
+    actionDeps(a).forEach(d=>{ const w=depWarn(a,d); if(w){ w.replace('⚠','').split('·').forEach(p=>{ const t=p.trim(); if(t) types.add(t); }); } });
+    if(!types.size){ badge.style.display='none'; badge.innerHTML=''; return; }
+    badge.style.display='';
+    badge.innerHTML = FC_GLYPH_WARN + '<span>'+esc([...types].join(' · '))+'</span>';
+  }
   function renderActionEditor(a){
     const r=rollupParent(a);
     const logRows = (a.detailLog||[]).map((r,i)=>logRowHtml(i,r)).join('');
@@ -229,48 +315,54 @@
     const isParent = childrenOf(a.id).length > 0;
     const schedule = a.schedule || {};
     return `<div class="ae">
-      <div class="ae-title"><input class="input ae-title-input" id="aeTitle" value="${esc(a.title)}" /></div>
-      ${ isParent ? `<div class="ae-parent-note">∑ Parent of ${r.count} sub-action(s) · ${r.pct}% complete (rollup: progress ${r.progress}%, plan ${r.planStart||'—'} → ${r.planFinish||'—'}, ${r.duration}d) — schedule/progress/deps are read-only</div>
-      <div class="ae-crow"><div class="ae-cfield ae-span"><span class="ae-clabel">${esc(L('dependencies','Dependencies'))} — consolidated from ${r.count} sub-action(s) (read-only)</span><div class="ae-deps-readonly" id="aeDepSummary">${renderDepSummaryHtml(a)}</div></div></div>` : '' }
-      <div class="ae-compact">
-        <div class="ae-crow">
-          <div class="ae-cfield"><span class="ae-clabel">${esc(L('project','Project'))}</span><select class="input ae-cinput" id="aeProject"></select></div>
-          <div class="ae-cfield"><span class="ae-clabel">${esc(L('discipline','Discipline'))}</span><select class="input ae-cinput" id="aeDiscipline"></select></div>
-        </div>
-        <div class="ae-crow">
-          <div class="ae-cfield"><span class="ae-clabel">${esc(L('createdBy','Created by'))}</span><select class="input ae-cinput" id="aeCreator"></select></div>
-          <div class="ae-cfield"><span class="ae-clabel">${esc(L('createdOn','Created On'))}</span><input class="input ae-cinput" id="aeCreatedOn" type="date" value="${esc(a.createdOn||'')}" readonly /></div>
-        </div>
-        <div class="ae-crow">
-          <div class="ae-cfield"><span class="ae-clabel">${esc(L('assignedTo','Assigned to'))}</span><div class="assignee-pick" id="aeAssignee"></div></div>
-          <div class="ae-cfield"><span class="ae-clabel">${esc(L('due','Due date'))}</span><input class="input ae-cinput" id="aeDue" type="date" value="${esc(a.due||'')}" /></div>
-        </div>
-        ${ !isParent ? `
-        <div class="ae-crow">
-          <div class="ae-cfield ae-span"><span class="ae-clabel">${esc(L('dependencies','Dependencies'))}</span>
-            <div id="aeDeps" class="ae-deps"></div>
-            <button class="btn" id="aeAddDep" type="button" style="margin-top:6px">+ Add dependency</button>
+      ${ isParent ? `<div class="ae-parent-note">∑ Parent of ${r.count} sub-action(s) · ${r.pct}% complete (rollup: progress ${r.progress}%, plan ${r.planStart||'—'} → ${r.planFinish||'—'}, ${r.duration}d) — schedule/progress/deps are read-only</div>` : '' }
+      <!-- Project / Discipline / Creator: locked for this action (set at creation). Hidden selects kept so save/load keep working. -->
+      <div class="ae-hidden" hidden>
+        <select class="input ae-cinput" id="aeProject"></select>
+        <select class="input ae-cinput" id="aeDiscipline"></select>
+        <select class="input ae-cinput" id="aeCreator"></select>
+      </div>
+      <!-- FOCUS AREA: primary metadata, click a value to edit (ISS-39/41/43/44/46/47) -->
+      <div class="focus" role="group" aria-label="Primary metadata — click a value to edit">
+        <div class="focus-grid">
+          <div class="focus-cell" data-edit="assignee" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false" title="Click to edit">
+            <span class="focus-label">${esc(L('assignedTo','Assigned to'))}</span>
+            <span class="focus-value" id="fvAssignee">${esc(assigneesTxt(a))}</span>
+            <span class="focus-glyph" aria-hidden="true">${FC_GLYPH_EDIT}</span>
+            <div class="focus-pop" hidden><div class="assignee-pick" id="aeAssignee"></div></div>
           </div>
-        </div>
-        <div class="ae-crow">
-          <div class="ae-cfield ae-span"><span class="ae-clabel">${esc(L('schedule','Schedule'))}</span>
-            <div class="ae-schedule-grid" id="aeSchedule"></div>
+          <div class="focus-cell" data-edit="due" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false" title="Click to edit">
+            <span class="focus-label">${esc(L('due','Due date'))}</span>
+            <span class="focus-value" id="fvDue">${esc(a.due||'—')}</span>
+            <span class="focus-glyph" aria-hidden="true">${FC_GLYPH_EDIT}</span>
+            <div class="focus-pop" hidden><input class="input ae-cinput" id="aeDue" type="date" value="${esc(a.due||'')}" /></div>
           </div>
-        </div>
-        <div class="ae-crow">
-          <div class="ae-cfield"><span class="ae-clabel">${esc(L('progress','Progress'))}</span>
-            <div class="ae-progress-wrap"><input type="range" id="aeProgress" min="0" max="100" value="${a.progress||0}" style="flex:1" /><span id="aeProgressVal" style="width:48px;text-align:right">${a.progress||0}%</span></div>
+          <div class="focus-cell" data-edit="status" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false" title="Click to edit">
+            <span class="focus-label">${esc(L('status','Status'))}</span>
+            <span class="focus-value s-on" id="fvStatus" style="${statusStyle(a.statusId)}">${esc(aStatusLabel(a))}</span>
+            <span class="focus-glyph" aria-hidden="true">${FC_GLYPH_EDIT}</span>
+            <div class="focus-pop" hidden><div class="seg" id="aeSeg"></div></div>
           </div>
-        </div>
-        ` : '' }
-        <div class="ae-crow">
-          <div class="ae-cfield ae-span"><span class="ae-clabel">${esc(L('status','Status'))}</span><div class="seg" id="aeSeg"></div></div>
-        </div>
-        <div class="ae-crow">
-          <div class="ae-cfield ae-span"><span class="ae-clabel">${esc(L('priority','Priority'))}</span><div class="seg" id="aePriority"></div></div>
+          <div class="focus-cell" data-edit="priority" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false" title="Click to edit">
+            <span class="focus-label">${esc(L('priority','Priority'))}</span>
+            <span class="focus-value p-on" id="fvPriority" style="${priorityStyle(a.priorityId)}">${esc(aPriorityLabel(a))}</span>
+            <span class="focus-glyph" aria-hidden="true">${FC_GLYPH_EDIT}</span>
+            <div class="focus-pop" hidden><div class="seg" id="aePriority"></div></div>
+          </div>
+          ${ isParent ? `
+          <div class="focus-cell locked" aria-disabled="true" title="Locked — rolled up from sub-actions">
+            <span class="focus-label">${esc(L('progress','Progress'))}</span>
+            <span class="focus-value">${r.progress||0}% · rolled up</span>
+            <span class="focus-lock" aria-hidden="true">${FC_GLYPH_LOCK}</span>
+          </div>` : `
+          <div class="focus-cell" data-edit="progress" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false" title="Click to edit">
+            <span class="focus-label">${esc(L('progress','Progress'))}</span>
+            <span class="focus-value" id="fvProgress">${a.progress||0}%</span>
+            <span class="focus-glyph" aria-hidden="true">${FC_GLYPH_EDIT}</span>
+            <div class="focus-pop" hidden><div class="ae-progress-wrap"><input type="range" id="aeProgress" min="0" max="100" value="${a.progress||0}" style="flex:1" /><span id="aeProgressVal" style="width:48px;text-align:right">${a.progress||0}%</span></div></div>
+          </div>` }
         </div>
       </div>
-      ${ renderCustomFieldsSection(a) }
       <hr class="ae-divider" />
       <div class="ed-section-h" style="margin:0 0 8px">Description — dated detail log</div>
       <div class="ae-log-wrap">
@@ -278,12 +370,27 @@
         <div class="ae-log-hint">Enter = new line inside a cell · Ctrl+Enter (or + Add row) = append a new row</div>
         <button class="btn" id="aeAddRow">+ Add row</button>
       </div>
-      <hr class="ae-divider below-add" />
-      <div class="ed-section-h" style="margin:0 0 8px">Live preview — tabulated report</div>
-      <div class="ae-report" id="aeReport">${reportHtml(a)}</div>
-      <hr class="ae-divider" />
-      <div class="ed-section-h" style="margin:0 0 8px">Update history</div>
-      <div class="ae-history">${histRows}</div>
+      ${ !isParent ? `
+      <details class="fold">
+        <summary class="fold-sum">${esc(L('dependencies','Dependencies'))}<span class="fold-badge" id="depBadge"></span></summary>
+        <div class="fold-body">
+          <div id="aeDeps" class="ae-deps"></div>
+          <button class="btn" id="aeAddDep" type="button" style="margin-top:6px">+ Add dependency</button>
+        </div>
+      </details>
+      <details class="fold">
+        <summary class="fold-sum">${esc(L('schedule','Schedule'))}</summary>
+        <div class="fold-body"><div class="ae-schedule-grid" id="aeSchedule"></div></div>
+      </details>` : '' }
+      ${ renderCustomFieldsSection(a) }
+      <details class="fold">
+        <summary class="fold-sum">Update history</summary>
+        <div class="fold-body"><div class="ae-history">${histRows}</div></div>
+      </details>
+      <details class="fold">
+        <summary class="fold-sum">Live preview — tabulated report</summary>
+        <div class="fold-body"><div class="ae-report" id="aeReport">${reportHtml(a)}</div></div>
+      </details>
     </div>`;
   }
   function logRowHtml(i, r){
@@ -322,7 +429,7 @@
       const val = (a.custom && a.custom[f.key] !== undefined) ? a.custom[f.key] : (f.default!==undefined && f.default!==null ? f.default : '');
       return `<div class="ae-crow"><div class="ae-cfield ae-span"><span class="ae-clabel">${esc(f.label)}${f.required?' *':''}</span>${customFieldInputHtml(f, val)}</div></div>`;
     }).join('');
-    return `<hr class="ae-divider" /><div class="ed-section-h" style="margin:0 0 8px">Custom Fields</div><div class="ae-customfields">${rows}</div>`;
+    return `<details class="fold"><summary class="fold-sum">Custom Fields</summary><div class="fold-body"><div class="ae-customfields">${rows}</div></div></details>`;
   }
   function readCustomFieldsInto(a){
     const fields = a.projectId ? getCustomFieldsForProject(a.projectId) : [];
@@ -390,6 +497,7 @@
       a.deps.push({ rowKey: nextDepKey(), predKind:'action', predId: first?first.id:0, type:'FS', lag:0 });
       renderDepEditor(a); markDirty(a);
     };
+    updateDepBadge(a);
   }
   let __depKeySeq = 1;
   function nextDepKey(){ return __depKeySeq++; }
@@ -498,10 +606,10 @@
     if(!isParent){
       renderDepEditor(a);
       renderScheduleEditor(a);
-      const prog=$('aeProgress'); if(prog){ prog.addEventListener('input', ()=>{ readProgressInto(a); markDirty(a); }); }
+      const prog=$('aeProgress'); if(prog){ prog.addEventListener('input', ()=>{ readProgressInto(a); markDirty(a); const fp=$('fvProgress'); if(fp) fp.textContent=a.progress+'%'; }); }
     }
     const onEdit=()=>markDirty(a);
-    ['aeTitle','aeDue'].forEach(id=>{ const el=$(id); if(el) el.addEventListener('input', onEdit); });
+    ['aeTitle','aeDue'].forEach(id=>{ const el=$(id); if(el) el.addEventListener('input', ()=>{ onEdit(); if(id==='aeDue'){ syncFocusDisplays(a); } }); });
     $('aeProject').addEventListener('change', onEdit);
     $('aeDiscipline').addEventListener('change', onEdit);
     $('aeCreator').addEventListener('change', onEdit);
@@ -514,13 +622,16 @@
       renderAssigneePicker($('aeAssignee'), pickState($('aeAssignee')), p);
       populateMemberSelect($('aeCreator'), $('aeCreator').value, p);
     });
-    $('aeAssignee').querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>{ b.classList.toggle('on'); b.setAttribute('aria-pressed', b.classList.contains('on')?'true':'false'); onEdit(); });
+    $('aeAssignee').querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>{ b.classList.toggle('on'); b.setAttribute('aria-pressed', b.classList.contains('on')?'true':'false'); onEdit(); syncFocusDisplays(a); });
     $('aeAssignee').querySelectorAll('button.orphan').forEach(b=>b.onclick=()=>{ b.remove(); onEdit(); });
-    $('aeSeg').querySelectorAll('button').forEach(b=>b.addEventListener('click', onEdit));
-    $('aePriority').querySelectorAll('button').forEach(b=>b.addEventListener('click', onEdit));
+    $('aeSeg').querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{ onEdit(); syncFocusDisplays(a); }));
+    $('aePriority').querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{ onEdit(); syncFocusDisplays(a); }));
     document.querySelectorAll('#aeLogBody .ae-log-row').forEach(row=>bindLogRow(row,a));
     $('aeAddRow').onclick=()=>appendLogRow(a);
     bindCustomFields(a);
+    bindFocusCells(a);
+    syncFocusDisplays(a);
+    if(!isParent) updateDepBadge(a);
     // Preview (live report) image links open the review lightbox.
     const rep=$('aeReport'); if(rep) rep.addEventListener('click', e=>{ const t=e.target.closest('.ae-rep-img'); if(t){ e.preventDefault(); openImgReview(t.dataset.src, t.dataset.name); } });
     const save=$('aeSave'); if(save){ save.disabled=!edDirty; save.onclick=()=>saveInlineAction(a); }

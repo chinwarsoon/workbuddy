@@ -416,6 +416,9 @@
   }
   function renderMain(){
     const p=state.perspective;
+    // Subhead (action node badge + identity) belongs only to the Actions perspective.
+    // Hide it on every other perspective so it never leaks a stale action title.
+    if(p!=='actions'){ const s=$('edSubhead'); if(s){ s.innerHTML=''; s.style.display='none'; } }
     if(p==='actions') return renderActionsMain();
     if(p==='projects') return renderProjectsMain();
     if(p==='disciplines') return renderDisciplinesMain();
