@@ -48,13 +48,32 @@ echo --- D. Net line diff vs GitHub  (git diff --stat %BRANCH% %UPSTREAM%) ---
 git diff --stat %BRANCH% %UPSTREAM%
 echo.
 echo ============================================================
-echo   Choose an action:
-echo    1) Pull only         (git pull --ff-only origin %BRANCH%)
-echo    2) Push only         (git push origin %BRANCH%)
-echo    3) Pull then Push
-echo    4) Commit local changes, then Push
-echo    5) Show full diff    (git diff %BRANCH% %UPSTREAM%)
-echo    6) Refresh / re-check (fetch again)
+echo   Choose an action (read the notes first):
+echo ------------------------------------------------------------
+echo    1) Pull only      git pull --ff-only   (FAST-FORWARD ONLY)
+echo         Use when B is empty (no local commits) and you only want
+echo         GitHub's changes. Fails if branches have diverged.
+echo    2) Push only      git push             (requires UP-TO-DATE)
+echo         Use only when C is empty (GitHub has nothing new) and you
+echo         simply want to upload your already-committed local commits.
+echo    3) Pull then Push git pull --ff-only + git push
+echo         One-shot sync for the simple case: GitHub first, then you.
+echo         Still fails if diverged (ff-only cannot merge forks).
+echo    4) Commit local changes, then Push   (git add -A + commit + push)
+echo         Commits your UNCOMMITTED work, then pushes. If C is NOT
+echo         empty (GitHub has other changes) the push will be REJECTED -
+echo         use option 7 instead to rebase onto GitHub first.
+echo    5) Show full diff  git diff %BRANCH% %UPSTREAM%
+echo         Read-only. Inspect exactly what differs before deciding.
+echo    6) Refresh / re-check   git fetch again, show menu anew
+echo         Re-reads the latest GitHub state (handy after a push).
+echo    7) Commit + Pull --rebase + Push  (RECOMMENDED for forks)
+echo         Commits your local work, then REBASES it on top of GitHub's
+echo         latest (rewrites local history linearly, no merge commit),
+echo         then pushes. Use this when BOTH B and C are non-empty
+echo         (you and GitHub both have new commits). Resolve any conflict
+echo         with git add ^<file^> then git rebase --continue; abort with
+echo         git rebase --abort (safe - returns to before the rebase).
 echo    0) Exit
 echo ============================================================
 set /p CHOICE="Enter choice: "
@@ -71,6 +90,7 @@ if "%CHOICE%"=="5" (
   goto menu
 )
 if "%CHOICE%"=="6" goto menu
+if "%CHOICE%"=="7" goto commitrebasepush
 if "%CHOICE%"=="0" goto :eof
 echo Invalid choice.
 pause
@@ -127,5 +147,33 @@ if errorlevel 1 (
   goto menu
 )
 echo Commit + Push done.
+pause
+goto menu
+
+:commitrebasepush
+set /p MSG="Commit message: "
+if "%MSG%"=="" set "MSG=chore: update workbuddy repo"
+git add -A
+git commit -m "%MSG%"
+if errorlevel 1 (
+  echo [ABORT] Commit failed - nothing committed.
+  pause
+  goto menu
+)
+git pull --rebase origin %BRANCH%
+if errorlevel 1 (
+  echo [ABORT] Rebase stopped due to conflict OR GitHub moved.
+  echo   Resolve conflicts, then:  git add ^<file^>  &&  git rebase --continue
+  echo   Or to undo safely:       git rebase --abort
+  pause
+  goto menu
+)
+git push origin %BRANCH%
+if errorlevel 1 (
+  echo [ABORT] Push failed.
+  pause
+  goto menu
+)
+echo Commit + Rebase + Push done.
 pause
 goto menu
