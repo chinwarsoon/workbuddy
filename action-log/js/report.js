@@ -39,6 +39,11 @@
     return a.createdOn || (a.history && a.history[0] && typeof a.history[0].d==='string' && /^\d{4}-\d{2}-\d{2}$/.test(a.history[0].d) ? a.history[0].d : '');
   }
   function detailLogRows(a){
+    function addLabel(set, label, fn){
+      if(!Array.isArray(set)) return '';
+      const parts = set.map(fn).filter(Boolean);
+      return parts.length ? `<div class="rep-sub"><b>${label}:</b> ${parts.join(', ')}</div>` : '';
+    }
     function imgsHtml(r){
       const imgs=(Array.isArray(r.images)&&r.images.length)?r.images:[];
       if(!imgs.length) return '';
@@ -48,7 +53,14 @@
       }).join('');
     }
     return (a.detailLog && a.detailLog.length)
-      ? a.detailLog.map(r=>`<tr><td>${esc(r.date||'')}</td><td>${esc(r.text||'')}${imgsHtml(r)}</td></tr>`).join('')
+      ? a.detailLog.map(r=>{
+          const typeIds = addLabel(r.typeIds, 'Type', id=>{ const t=(state.actionTypes||[]).find(x=>x.id===id); return t?t.label:id; });
+          const byIds = addLabel(r.actionBy, 'Action by', id=>memberNameById(id));
+          const st = r.status ? `<div class="rep-sub"><b>Status:</b> ${esc(statusLabel(r.status))}</div>` : '';
+          const due = r.due ? `<div class="rep-sub"><b>Due:</b> ${esc(r.due)}</div>` : '';
+          const by = r.editedBy ? `<div class="rep-sub"><b>Edited by:</b> ${esc(memberNameById(r.editedBy))}</div>` : '';
+          return `<tr><td>${esc(r.date||'')}</td><td>${typeIds}${byIds}${st}${due}${by}${esc(r.text||'')}${imgsHtml(r)}</td></tr>`;
+        }).join('')
       : `<tr><td colspan="2">No entries</td></tr>`;
   }
   function exportWord(acts){

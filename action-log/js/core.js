@@ -28,6 +28,7 @@
     dataDirty: false,
     setupDirty: false,
     customFields: [],
+    actionTypes: [],
     // UI settings — loaded from setup.json; falls back to these built-in defaults.
     setup: {
       brand: { accent: '#0066CC' },
@@ -199,6 +200,7 @@
     if(!Array.isArray(p.memberIds) && state.members.length) p.memberIds = state.members.filter(m=>!m.left).map(m=>m.id);
     if(!Array.isArray(p.customFieldKeys)) p.customFieldKeys = [];
     if(!Array.isArray(p.customFields)) p.customFields = [];
+    if(!Array.isArray(p.actionTypeIds)) p.actionTypeIds = [];
     return p;
   }
   function populateDisciplineSelect(sel, projectId, val){
@@ -288,6 +290,25 @@
     if(Object.keys(custom).length) action.custom = custom;
   }
 
+  // ---- Action Types (ISS-60): meeting-discussion tags for dated detail-log rows ----
+  // Global catalog in setup.json (mirrors customFields). Per-project enablement via
+  // project.actionTypeIds[] (ids from the global catalog). A project with an EMPTY
+  // actionTypeIds array falls back to ALL global action types (so it works out of the box);
+  // once you assign a subset, only that subset is offered in that project's editor.
+  const DEFAULT_ACTION_TYPES = ['Internal Design Change','Vendor Change','Client Design Change','Design Development','Client Instruction'];
+  function normActionType(t, i){
+    if(typeof t==='string') return { id: slug(t), label: t };
+    const o = t || {};
+    return { id: o.id || slug(o.label || ('actiontype-'+(i+1))), label: o.label || o.id || ('Action Type '+(i+1)) };
+  }
+  function getActionTypesForProject(pid){
+    const p = projById(pid);
+    const global = (state.actionTypes || []).map(t=>normActionType(t));
+    if(!p || !Array.isArray(p.actionTypeIds) || p.actionTypeIds.length===0) return global;
+    const set = new Set(p.actionTypeIds);
+    return global.filter(t=>set.has(t.id));
+  }
+
   // ---- Priority metadata (schema-driven, lives in action.json) ----
   const PRIORITY_PALETTE = ['#FDECEC','#FFE1BD','#E6F0FF','#E2E8F0','#E3F5E9','#FCE7F3'];
   function normPriority(p, i){
@@ -359,6 +380,7 @@
     if(s.defaultView) state.setup.defaultView = Object.assign({}, state.setup.defaultView, s.defaultView);
     if(s.help && Array.isArray(s.help)){ const o={}; s.help.forEach(h=>{ if(h&&h.id) o[h.id]={title:h.title||h.id, body:h.body||''}; }); state.setup.help=o; }
     if(s.customFields && Array.isArray(s.customFields)) state.customFields = s.customFields.map(f=>normCustomField(f));
+    if(s.actionTypes && Array.isArray(s.actionTypes)) state.actionTypes = s.actionTypes.map(t=>normActionType(t));
     REPORTS = (s.reports && s.reports.length) ? s.reports.map(r=>({id:r.id,label:r.label})) : BUILTIN_REPORTS.slice();
     FILTERS = (s.filters && s.filters.length) ? s.filters.map(f=>({id:f.id,label:f.label,fn:()=>liveActions().filter(a=>evalWhere(a,f.where||[]))})) : BUILTIN_FILTERS.slice();
     state.setup.reports = (s.reports && s.reports.length) ? s.reports : [];
@@ -385,7 +407,7 @@
   let REPORTS = BUILTIN_REPORTS.slice();
   let FILTERS = BUILTIN_FILTERS.slice();
   let HELPTOPICS = BUILTIN_HELP_TOPICS.slice();
-  const SETSECTIONS=[{id:'appearance',label:'Appearance'},{id:'layout',label:'Layout'},{id:'projects',label:'Projects'},{id:'disciplines',label:'Disciplines'},{id:'members',label:'Members'},{id:'fields',label:'Statuses'},{id:'priorities',label:'Priorities'},{id:'referencepoints',label:'Reference Points'},{id:'customfields',label:'Custom Fields'},{id:'data',label:'Data'},{id:'deleted',label:'Deleted'}];
+  const SETSECTIONS=[{id:'appearance',label:'Appearance'},{id:'layout',label:'Layout'},{id:'projects',label:'Projects'},{id:'disciplines',label:'Disciplines'},{id:'members',label:'Members'},{id:'fields',label:'Statuses'},{id:'priorities',label:'Priorities'},{id:'referencepoints',label:'Reference Points'},{id:'customfields',label:'Custom Fields'},{id:'actiontypes',label:'Action Types'},{id:'data',label:'Data'},{id:'deleted',label:'Deleted'}];
 
   // ---- Render dispatchers ----
   function renderSidebar(){

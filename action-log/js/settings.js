@@ -46,6 +46,8 @@
       renderColorList(state.priorities, 'priorities');
     } else if(sec==='customfields'){
       renderCustomFields();
+    } else if(sec==='actiontypes'){
+      renderActionTypes();
     } else if(sec==='referencepoints'){
       renderReferencePoints();
     } else if(sec==='data'){
@@ -414,6 +416,7 @@
     if(kind==='status') return (state.statuses.find(x=>x.id===id)||{}).label || id;
     if(kind==='priority') return (state.priorities.find(x=>x.id===id)||{}).label || id;
     if(kind==='customfield') return (state.customFields.find(x=>x.id===id)||{}).label || id;
+    if(kind==='actiontype') return (state.actionTypes.find(x=>x.id===id)||{}).label || id;
     return (state.members.find(x=>x.id===id)||{}).name || id;
   }
   function candidatesOf(kind){
@@ -421,6 +424,7 @@
     if(kind==='discipline') return state.disciplines.map(d=>({id:d.id,label:d.name}));
     if(kind==='status') return state.statuses.map(s=>({id:s.id,label:s.label}));
     if(kind==='priority') return state.priorities.map(p=>({id:p.id,label:p.label}));
+    if(kind==='actiontype') return (state.actionTypes||[]).map(t=>({id:t.id,label:t.label}));
     return [];
   }
   function performDelete(kind, id){
@@ -438,6 +442,7 @@
       state.projects.forEach(p=>{ if(Array.isArray(p.memberIds)) p.memberIds=p.memberIds.filter(x=>x!==id); });
     }
     else if(kind==='customfield'){ deleteCustomField(id, reRender || (()=>renderCustomFields())); }
+    else if(kind==='actiontype'){ deleteActionType(id, reRender || (()=>renderActionTypes())); }
     if(state.selection.actions && !state.actions.find(a=>a.id===state.selection.actions)) state.selection.actions=null;
   }
   // ISS-28: delete a custom field definition. If any action holds a value for the
@@ -770,6 +775,86 @@
       };
     };
     openProjectModal('Custom Fields — '+p.name, '', ()=>{ refresh(); toast('Project custom fields updated — Save Actions to persist'); });
+    render();
+  }
+  // ---- ISS-60: Action Types (meeting-discussion tags) — global catalog in setup.json ----
+  // Mirrors the Custom Fields model: one global catalog, enabled per project via
+  // project.actionTypeIds[] (empty array = all types offered).
+  function deleteActionType(id, reRender){
+    if(!(state.actionTypes||[]).some(x=>x.id===id)) return;
+    if(!confirm('Delete this action type from the global catalog?')) return;
+    state.actionTypes = (state.actionTypes||[]).filter(x=>x.id!==id);
+    // Drop the id from any per-project enablement lists.
+    state.projects.forEach(p=>{ if(Array.isArray(p.actionTypeIds)) p.actionTypeIds=p.actionTypeIds.filter(x=>x!==id); });
+    markSetupDirty(); if(reRender) reRender(); refresh(); toast('Action type deleted — Save Settings to persist');
+  }
+  function renderActionTypes(){
+    setEdTop('Settings / Action Types');
+    const list = state.actionTypes || [];
+    const COLS='1fr 30px';
+    const rowHtml = f => `<div class="lm-item lm-member" data-id="${esc(f.id)}" style="grid-template-columns:${COLS}">
+      <input data-f="label" placeholder="Action type (e.g. Client Instruction)" value="${esc(f.label||'')}" />
+      <button class="lm-mini del" title="Delete">🗑</button>
+    </div>`;
+    $('edBody').innerHTML = `<p class="ed-desc">Global catalog of <b>action types</b> — tags used on the dated detail log (e.g. Client Instruction, Internal Design Change). A type is <b>offered in a project's editor only after you enable it there</b> (via the project's <b>Configure…</b> button below). A project with <b>no types configured shows all</b> global types; once you pick a subset, only that subset is offered. Catalog edits are saved to <b>setup.json</b>.</p>
+      ${list.length>8?'<input class="lm-filter" id="atFilter" type="text" placeholder="Filter action types…" />':''}
+      <div class="lm-list" id="atList">
+        <div class="lm-head" style="grid-template-columns:${COLS}"><span>Label</span><span></span></div>
+        ${list.map(rowHtml).join('') || '<div class="lm-empty">No action types yet.</div>'}
+      </div>
+      <div class="ed-actions"><button class="btn" id="atAdd">+ Add action type</button></div>
+      <div class="ed-section-h" style="margin-top:18px">Enabled per project</div>
+      <p class="ed-desc">Click <b>Configure…</b> on a project to choose which action types are enabled for it. Types not enabled for a project are not offered in that project's detail-log editor.</p>
+      ${state.projects.map(p=>`<div class="proj-block"><span class="nm">${esc(p.name)}</span><span class="scount">${(p.actionTypeIds||[]).length? (p.actionTypeIds.length+' enabled') : 'all (none configured)'}</span><button class="btn" id="patBtn_${esc(p.id)}">Configure…</button></div>`).join('') || '<div class="lm-empty">No projects yet.</div>'}`;
+    const bind = row => bindStdRow(row, list, {
+      fields:['label'],
+      create: vals => {
+        const lb = String(vals.label||'').trim(); if(!lb) return null;
+        if((state.actionTypes||[]).some(x=>String(x.label||'').toLowerCase()===lb.toLowerCase())){ toast('Action type already exists'); return null; }
+        return normActionType(lb, (state.actionTypes||[]).length);
+      },
+      setupDirty: true,
+      delConfirm: id => true,
+      onRemove: id => requestDelete('actiontype', id, ()=>renderActionTypes())
+    });
+    $('edBody').querySelectorAll('.lm-member').forEach(row=>bind(row));
+    $('atAdd').onclick=()=>{
+      const div=document.createElement('div'); div.className='lm-item lm-member'; div.dataset.id='__new__'; div.style.gridTemplateColumns=COLS;
+      div.innerHTML=`<input data-f="label" placeholder="Action type (e.g. Client Instruction)" /><button class="lm-mini del" title="Delete">🗑</button>`;
+      $('atList').appendChild(div); bind(div);
+      const fi=div.querySelector('[data-f="label"]'); if(fi) fi.focus();
+    };
+    const fi=$('atFilter'); if(fi) fi.oninput=e=>{
+      const q=e.target.value.trim().toLowerCase();
+      $('atList').querySelectorAll('.lm-member').forEach(row=>{ row.style.display = (!q || (row.textContent||'').toLowerCase().includes(q)) ? '' : 'none'; });
+    };
+    state.projects.forEach(p=>{ const b=$('patBtn_'+p.id); if(b) b.onclick=()=>openProjectActionTypesModal(p.id); });
+  }
+  function openProjectActionTypesModal(pid){
+    const p=projById(pid); if(!p) return;
+    ensureProjectLists(p);
+    const render=()=>{
+      const global = (state.actionTypes||[]).map(t=>normActionType(t));
+      const enabled = new Set(p.actionTypeIds || []);
+      const rows = global.map(t=>{
+        const on = enabled.has(t.id);
+        return `<div class="pm-row" data-id="${esc(t.id)}">
+          <input type="checkbox" class="pat-chk" ${on?'checked':''} />
+          <span class="nm">${esc(t.label)}</span>
+        </div>`;
+      }).join('');
+      $('pmBody').innerHTML = `<input class="asm-filter" id="patFilter" type="text" placeholder="Filter action types…" />
+        <div class="ed-section-h" style="margin:0 0 8px">Action types (check = enabled for this project)</div>
+        <div class="lm-list">${rows||'<div class="lm-empty">No global action types — add them in Settings → Action Types first.</div>'}</div>
+        <p class="form-hint">No types checked = <b>all</b> global types are offered in this project's editor. Check a subset to limit the choices to only those.</p>`;
+      const fi=$('patFilter'); if(fi) fi.oninput=render;
+      $('pmBody').querySelectorAll('.pat-chk').forEach(c=>c.onchange=()=>{
+        const id=c.closest('.pm-row').dataset.id;
+        if(c.checked){ enabled.add(id); } else enabled.delete(id);
+        p.actionTypeIds = [...enabled]; markDataDirty();
+      });
+    };
+    openProjectModal('Action Types — '+p.name, '', ()=>{ refresh(); toast('Project action types updated — Save Actions to persist'); });
     render();
   }
 

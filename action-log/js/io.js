@@ -152,10 +152,12 @@
     state.projects    = (Array.isArray(d.projects) ? d.projects : []).map(ensureProjectLists);
     state.disciplines = Array.isArray(d.disciplines)  ? d.disciplines : [];
     state.customFields = (Array.isArray(d.customFields) ? d.customFields : []).map(f=>normCustomField(f));
+    state.actionTypes = (Array.isArray(d.actionTypes) ? d.actionTypes : []).map(normActionType);
     state.referencePoints = (Array.isArray(d.referencePoints) ? d.referencePoints : []).map(normReferencePoint);
     // --- priorities (schema-driven metadata, lives in action.json) ---
     state.priorities = (Array.isArray(d.priorities) ? d.priorities : []).map((p,i)=>normPriority(p,i));
     if(!state.priorities.length) state.priorities = ['Critical','High','Medium','Low'].map((p,i)=>normPriority(p,i));
+    if(!state.actionTypes.length) state.actionTypes = DEFAULT_ACTION_TYPES.map((t,i)=>normActionType(t,i));
     // --- members: load declared members (left/active flag kept) ---
     let members = (Array.isArray(d.members) ? d.members : []).map(m=>normMember(m));
     state.actions = (Array.isArray(d.actions) ? d.actions : []).map(a=>{
@@ -177,7 +179,15 @@
         a.createdById = m? m.id : ''; if(!m) a.createdByName = a.createdBy;
       }
       if(!Array.isArray(a.detailLog)) a.detailLog = a.description ? [{date: todayStr(), text: a.description}] : [];
-      a.detailLog.forEach(r=>{ if(!Array.isArray(r.images)) r.images = []; });
+      a.detailLog.forEach(r=>{
+        if(!Array.isArray(r.images)) r.images = [];
+        if(!Array.isArray(r.typeIds)) r.typeIds = [];
+        if(!Array.isArray(r.actionBy)) r.actionBy = [];
+        if(r.due===undefined) r.due = '';
+        if(!Array.isArray(r.dueHistory)) r.dueHistory = [];
+        if(r.status===undefined) r.status = (state.statuses[0]||{}).id || '';
+        if(r.editedBy===undefined) r.editedBy = '';
+      });
       if(!a.createdOn){ const h0=(a.history||[])[0]; a.createdOn = (h0 && typeof h0.d==='string' && /^\d{4}-\d{2}-\d{2}$/.test(h0.d)) ? h0.d : todayStr(); }
       // ---- Schema v2 → v3 migration (ISS-25/26): single `dependsOn` int -> `deps[]` ----
       if(Array.isArray(a.deps)){
@@ -261,7 +271,7 @@
       statuses: state.statuses.map(s=>({ id:s.id, label:s.label, color:s.color, builtin: !!s.builtin })),
       priorities: state.priorities.map(p=>({ id:p.id, label:p.label, color:p.color })),
       referencePoints: state.referencePoints.map(r=>({ id:r.id, name:r.name||'', date:r.date||'', projectId:r.projectId||'' })),
-      projects: state.projects.map(p=>({ ...p, code:p.code||'', customFieldKeys: Array.isArray(p.customFieldKeys)?p.customFieldKeys:[], customFields: Array.isArray(p.customFields)?p.customFields:[] })), disciplines: state.disciplines,
+      projects: state.projects.map(p=>({ ...p, code:p.code||'', customFieldKeys: Array.isArray(p.customFieldKeys)?p.customFieldKeys:[], customFields: Array.isArray(p.customFields)?p.customFields:[], actionTypeIds: Array.isArray(p.actionTypeIds)?p.actionTypeIds:[] })), disciplines: state.disciplines,
       actions: state.actions.map(a=>{
         const { status, priority, assignedTo, createdBy, dependsOn, _prevStatus, _prevStatusId, _prevStatusLabel, ...rest } = a;
         return { ...rest, deleted: !!a.deleted, statusId: a.statusId||'', statusLabel: a.statusLabel||'', priorityId: a.priorityId||'', priorityLabel: a.priorityLabel||'', assignedToIds: Array.isArray(a.assignedToIds)?a.assignedToIds:[], assignedToNames: Array.isArray(a.assignedToNames)?a.assignedToNames:[], createdById: a.createdById||'', createdByName: a.createdByName||'', parentId: (a.parentId==null?null:a.parentId), deps: Array.isArray(a.deps)?a.deps.filter(Boolean).map(d=>({ predKind:d.predKind==='reference'?'reference':'action', predId:d.predId, type:DEP_TYPES.includes(d.type)?d.type:'FS', lag:Number.isFinite(+d.lag)?(+d.lag):0 })):[], schedule: a.schedule||{}, progress: Number.isFinite(+a.progress)?(+a.progress):0, custom: a.custom||{} };
@@ -286,7 +296,8 @@
         : Object.keys(BUILTIN_HELP_MD).map(k=>({ id:k, title:BUILTIN_HELP_MD[k].title, body:BUILTIN_HELP_MD[k].body })),
       reports: (state.setup.reports && state.setup.reports.length) ? state.setup.reports : BUILTIN_REPORTS.map(r=>({id:r.id,label:r.label})),
       filters: (state.setup.filters && state.setup.filters.length) ? state.setup.filters : BUILTIN_FILTERS.map(f=>({id:f.id,label:f.label})),
-      customFields: state.customFields.map(f=>({ id:f.id, key:f.key, label:f.label, type:f.type, options:f.options, required:!!f.required, default:f.default, description:f.description||'' }))
+      customFields: state.customFields.map(f=>({ id:f.id, key:f.key, label:f.label, type:f.type, options:f.options, required:!!f.required, default:f.default, description:f.description||'' })),
+      actionTypes: (state.actionTypes||[]).map(f=>({ id:f.id, label:f.label }))
     };
   }
 

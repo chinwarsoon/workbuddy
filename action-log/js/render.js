@@ -310,7 +310,7 @@
   }
   function renderActionEditor(a){
     const r=rollupParent(a);
-    const logRows = (a.detailLog||[]).map((r,i)=>logRowHtml(i,r)).join('');
+    const logRows = (a.detailLog||[]).map((r,i)=>logRowHtml(i,r,a)).join('');
     const histRows = (a.history||[]).map(h=>`<div class="hist-row">${esc(h.d)} — ${esc(h.t)}</div>`).join('') || '<div class="hist-row">No history</div>';
     const isParent = childrenOf(a.id).length > 0;
     const schedule = a.schedule || {};
@@ -366,8 +366,8 @@
       <hr class="ae-divider" />
       <div class="ed-section-h" style="margin:0 0 8px">Description — dated detail log</div>
       <div class="ae-log-wrap">
-        <table class="ae-log" id="aeLog"><thead><tr><th class="ae-log-date">Date</th><th>Detail</th><th></th></tr></thead><tbody id="aeLogBody">${logRows}</tbody></table>
-        <div class="ae-log-hint">Enter = new line inside a cell · Ctrl+Enter (or + Add row) = append a new row</div>
+        <table class="ae-log" id="aeLog"><thead><tr><th class="ae-log-row-h"></th><th class="ae-log-date">Date</th><th>Detail</th><th class="ae-log-meta-h">Meta</th></tr></thead><tbody id="aeLogBody">${logRows}</tbody></table>
+        <div class="ae-log-hint">Enter = new line inside a cell · Ctrl+Enter (or + Add row) = append a row · Row column reorders / deletes · click a Meta line to edit it</div>
         <button class="btn" id="aeAddRow">+ Add row</button>
       </div>
       ${ !isParent ? `
@@ -393,14 +393,56 @@
       </details>
     </div>`;
   }
-  function logRowHtml(i, r){
+  // ---- ISS-59/61/65: dated detail-log row with meeting fields ----
+  // Layout (approved 2026-08-27): 4 columns = Row(↑/↓/✕) · Date · Detail(widest) · Meta(trailing).
+  // Meta holds the 5 structured fields (Type / Action by / Due / Status / Edited by) stacked,
+  // showing CURRENT values only; each line is clickable (Option A) and opens a popover editor.
+  // Legacy rows (date/text/images only) keep loading — defaults applied in bindLogRow.
+  function logMetaType(r, a){
+    const types = getActionTypesForProject(a.projectId);
+    const sel = (Array.isArray(r.typeIds)?r.typeIds.filter(Boolean):[]).map(id=>(types.find(t=>t.id===id)||{}).label).filter(Boolean);
+    if(!sel.length) return '<span class="ae-meta-none">— none —</span>';
+    const shown = sel.slice(0,2).map(l=>`<span class="chip-mini at">${esc(l)}</span>`).join('');
+    return shown + (sel.length>2 ? ` <span class="chip-mini more">+${sel.length-2}</span>` : '');
+  }
+  function logMetaBy(r, a){
+    const members = projectMembers(projById(a.projectId)).filter(m=>m.name && !m.left);
+    const sel = (Array.isArray(r.actionBy)?r.actionBy.filter(Boolean):[]).map(id=>memberNameById(id)).filter(Boolean);
+    if(!sel.length) return '<span class="ae-meta-none">— none —</span>';
+    const shown = sel.slice(0,2).map(n=>`<span class="chip-mini by">${esc(n)}</span>`).join('');
+    return shown + (sel.length>2 ? ` <span class="chip-mini more">+${sel.length-2}</span>` : '');
+  }
+  function logMetaDue(r){
+    if(!r.due) return '<span class="ae-meta-none">— none —</span>';
+    const overdue = r.due < todayStr() && r.status !== ((findStatus('Completed')||{}).id);
+    return `<span class="${overdue?'ae-meta-due overdue':'ae-meta-due'}">${esc(r.due)}</span>`;
+  }
+  function logMetaStatus(r){
+    if(!r.status) return '<span class="ae-meta-none">— none —</span>';
+    const st = findStatus(r.status) || {label:r.status};
+    return `<span class="chip-mini st" style="${statusStyle(r.status)}">${esc(st.label)}</span>`;
+  }
+  function logMetaEditedBy(r){
+    if(!r.editedBy) return '<span class="ae-meta-none">— none —</span>';
+    return `<span class="chip-mini">${esc(memberNameById(r.editedBy))}</span>`;
+  }
+  function logRowHtml(i, r, a){
     const initImgs=(Array.isArray(r.images)?r.images:[]);
     const imgs=(initImgs.length) ? initImgs.map(im=>`<span class="ae-img-chip" data-src="${esc(im.src)}" data-name="${esc(im.name||'image')}" title="Click to review"><img src="${esc(im.src)}" alt="${esc(im.name||'image')}" />${esc(im.name||'image')}<button class="ae-img-rm" title="Remove">✕</button></span>`).join('') : '';
-    return `<tr class="ae-log-row" data-i="${i}" data-imgs="${esc(JSON.stringify(initImgs))}"><td><input type="date" class="ae-log-date" value="${esc(r.date||'')}" /></td>`
+    return `<tr class="ae-log-row" data-i="${i}" data-imgs="${esc(JSON.stringify(initImgs))}" data-meta="${esc(JSON.stringify({typeIds:(r.typeIds||[]), actionBy:(r.actionBy||[]), due:(r.due||''), status:(r.status||''), editedBy:(r.editedBy||'')}))}">`
+      + `<td class="ae-log-rown"><button class="ae-row-mv" data-mv="up" title="Move up" type="button">↑</button><button class="ae-row-mv" data-mv="down" title="Move down" type="button">↓</button><button class="ae-log-del" title="Delete row" type="button">✕</button></td>`
+      + `<td><input type="date" class="ae-log-date" value="${esc(r.date||'')}" /></td>`
       + `<td><textarea class="ae-log-text" rows="2">${esc(r.text||'')}</textarea>`
       + `<div class="ae-img-row">${imgs}</div>`
       + `<div class="ae-img-ctl"><button class="ae-add-img" type="button" title="Attach a picture (file picker)">📎 Attach</button><input class="ae-link-img" type="text" placeholder="Link existing: assets/pictures/name.png" /><button class="ae-add-link" type="button" title="Use the link above">🔗 Link</button><input type="file" class="ae-file" accept="image/*" hidden /></div>`
-      + `</td><td><button class="ae-log-del" title="Delete row">✕</button></td></tr>`;
+      + `</td>`
+      + `<td class="ae-log-meta">`
+      + `<div class="ae-meta-line" data-meta="type"><span class="ae-meta-k">Type</span><span class="ae-meta-v">${logMetaType(r,a)}</span></div>`
+      + `<div class="ae-meta-line" data-meta="by"><span class="ae-meta-k">By</span><span class="ae-meta-v">${logMetaBy(r,a)}</span></div>`
+      + `<div class="ae-meta-line" data-meta="due"><span class="ae-meta-k">Due</span><span class="ae-meta-v">${logMetaDue(r)}</span></div>`
+      + `<div class="ae-meta-line" data-meta="status"><span class="ae-meta-k">Status</span><span class="ae-meta-v">${logMetaStatus(r)}</span></div>`
+      + `<div class="ae-meta-line" data-meta="editedBy"><span class="ae-meta-k">Edited by</span><span class="ae-meta-v">${logMetaEditedBy(r)}</span></div>`
+      + `</td></tr>`;
   }
   // ---- ISS-28: Custom Fields section in the action editor (Phase 3 MVP) ----
   function customFieldInputHtml(f, val){
@@ -644,10 +686,38 @@
     if(a) syncPreview(a);
   }
   function bindLogRow(row,a){
+    // ISS-65: legacy rows (date/text/images only) keep working — seed meta dataset from
+    // the row's initial data-meta attribute (or defaults), so readLogRowData + popover agree.
+    if(!row.dataset.defaulted){
+      let r = {};
+      try { r = JSON.parse(row.dataset.meta||'null') || {}; } catch(e){ r = {}; }
+      const seed = {
+        typeIds: Array.isArray(r.typeIds)?r.typeIds:[],
+        actionBy: Array.isArray(r.actionBy)?r.actionBy:[],
+        due: r.due||'',
+        dueHistory: Array.isArray(r.dueHistory)?r.dueHistory:[],
+        status: r.status || (state.statuses[0]?state.statuses[0].id:''),
+        editedBy: r.editedBy||''
+      };
+      row.dataset.metaType = JSON.stringify(seed.typeIds);
+      row.dataset.metaBy = JSON.stringify(seed.actionBy);
+      row.dataset.metaDue = seed.due;
+      row.dataset.metaStatus = seed.status;
+      row.dataset.metaEditedBy = seed.editedBy;
+      row.dataset.defaulted='1';
+    }
     row.querySelectorAll('.ae-log-date, .ae-log-text').forEach(el=>el.addEventListener('input', ()=>markDirty(a)));
     const ta=row.querySelector('.ae-log-text');
     if(ta) ta.addEventListener('keydown', e=>{ if(e.key==='Enter' && e.ctrlKey){ e.preventDefault(); appendLogRow(a); } });
     row.querySelector('.ae-log-del').addEventListener('click', ()=>{ row.remove(); markDirty(a); });
+    // --- Meta lines: click a line to open its popover editor (Option A, ISS-59) ---
+    row.querySelectorAll('.ae-meta-line').forEach(line=>line.addEventListener('click', ()=>openMetaPop(row, a, line.dataset.meta)));
+    // --- ↑/↓ reorder (ISS-61) ---
+    row.querySelectorAll('.ae-row-mv').forEach(btn=>btn.addEventListener('click', ()=>{
+      const dir = btn.dataset.mv==='up' ? -1 : 1;
+      const sib = dir<0 ? row.previousElementSibling : row.nextElementSibling;
+      if(sib && sib.classList.contains('ae-log-row')){ row.parentNode.insertBefore(row, dir<0 ? sib : sib.nextElementSibling); markDirty(a); }
+    }));
     // --- Picture attachments (rule 1: link / rule 2: embed / rule 3: Chromium download) ---
     const fileInput=row.querySelector('.ae-file');
     const addImgBtn=row.querySelector('.ae-add-img');
@@ -676,9 +746,96 @@
     // Rule 1: invalid/missing link -> broken image + inline error (handled in renderChips).
     renderChips(readImages(), imgRow, row);
   }
+  // Collect the new per-row fields from a row (ISS-59). Values are stored on row.dataset
+  // (kept in sync by the Meta popover), so reading is layout-independent.
+  function readLogRowData(row, a){
+    const parse = key => { try{ return JSON.parse(row.dataset[key]||'null') || []; }catch(e){ return []; } };
+    return {
+      typeIds: parse('metaType'),
+      actionBy: parse('metaBy'),
+      due: row.dataset.metaDue || '',
+      status: row.dataset.metaStatus || (state.statuses[0]?state.statuses[0].id:''),
+      editedBy: row.dataset.metaEditedBy || ''
+    };
+  }
+  // --- Meta popover editor (Option A): click a line to edit one field (ISS-59) ---
+  function metaState(row){
+    const parse = key => { try{ return JSON.parse(row.dataset[key]||'null') || []; }catch(e){ return []; } };
+    return {
+      typeIds: parse('metaType'),
+      actionBy: parse('metaBy'),
+      due: row.dataset.metaDue || '',
+      status: row.dataset.metaStatus || (state.statuses[0]?state.statuses[0].id:''),
+      editedBy: row.dataset.metaEditedBy || ''
+    };
+  }
+  function setMetaState(row, a, s){
+    row.dataset.metaType = JSON.stringify(s.typeIds||[]);
+    row.dataset.metaBy = JSON.stringify(s.actionBy||[]);
+    row.dataset.metaDue = s.due || '';
+    row.dataset.metaStatus = s.status || '';
+    row.dataset.metaEditedBy = s.editedBy || '';
+    renderMetaInRow(row, a, s);
+    markDirty(a);
+  }
+  function renderMetaInRow(row, a, s){
+    const types = getActionTypesForProject(a.projectId);
+    const members = projectMembers(projById(a.projectId)).filter(m=>m.name && !m.left);
+    const typeV = (s.typeIds.length? s.typeIds.map(id=>(types.find(t=>t.id===id)||{}).label).filter(Boolean) : null)
+      || '<span class="ae-meta-none">— none —</span>';
+    const byV = (s.actionBy.length? s.actionBy.map(id=>memberNameById(id)).filter(Boolean) : null)
+      || '<span class="ae-meta-none">— none —</span>';
+    const setLine = (kind, html) => { const el=row.querySelector('.ae-meta-line[data-meta="'+kind+'"] .ae-meta-v'); if(el) el.innerHTML=html; };
+    const mini = arr => arr.slice(0,2).map(l=>`<span class="chip-mini at">${esc(l)}</span>`).join('') + (arr.length>2?` <span class="chip-mini more">+${arr.length-2}</span>`:'');
+    setLine('type', Array.isArray(s.typeIds)&&s.typeIds.length? mini(s.typeIds.map(id=>(types.find(t=>t.id===id)||{}).label).filter(Boolean)) : '<span class="ae-meta-none">— none —</span>');
+    setLine('by', Array.isArray(s.actionBy)&&s.actionBy.length? mini(s.actionBy.map(id=>memberNameById(id)).filter(Boolean)) : '<span class="ae-meta-none">— none —</span>');
+    const overdue = s.due && s.due < todayStr() && s.status !== ((findStatus('Completed')||{}).id);
+    setLine('due', s.due? `<span class="${overdue?'ae-meta-due overdue':'ae-meta-due'}">${esc(s.due)}</span>` : '<span class="ae-meta-none">— none —</span>');
+    const st = findStatus(s.status)||{label:s.status};
+    setLine('status', s.status? `<span class="chip-mini st" style="${statusStyle(s.status)}">${esc(st.label)}</span>` : '<span class="ae-meta-none">— none —</span>');
+    setLine('editedBy', s.editedBy? `<span class="chip-mini">${esc(memberNameById(s.editedBy))}</span>` : '<span class="ae-meta-none">— none —</span>');
+  }
+  function openMetaPop(row, a, kind){
+    const s = metaState(row);
+    const body = $('aeMetaPopBody'); const title=$('aeMetaPopTitle');
+    if(kind==='type'){
+      title.textContent='Type';
+      const types = getActionTypesForProject(a.projectId);
+      const sel = new Set(s.typeIds);
+      body.innerHTML = types.length ? types.map(t=>`<label class="ae-mv-list"><input type="checkbox" data-tid="${esc(t.id)}" ${sel.has(t.id)?'checked':''}/> ${esc(t.label)}</label>`).join('') : '<p class="form-hint">No action types configured for this project.</p>';
+      body.querySelectorAll('input').forEach(c=>c.addEventListener('change', ()=>{ const set=new Set(s.typeIds); if(c.checked) set.add(c.dataset.tid); else set.delete(c.dataset.tid); s.typeIds=[...set]; setMetaState(row,a,{...s}); }));
+    } else if(kind==='by'){
+      title.textContent='Action by';
+      const members = projectMembers(projById(a.projectId)).filter(m=>m.name && !m.left);
+      const sel = new Set(s.actionBy);
+      body.innerHTML = members.length ? members.map(m=>`<label class="ae-mv-list"><input type="checkbox" data-bid="${esc(m.id)}" ${sel.has(m.id)?'checked':''}/> ${esc(m.name)}</label>`).join('') : '<p class="form-hint">No members in this project.</p>';
+      body.querySelectorAll('input').forEach(c=>c.addEventListener('change', ()=>{ const set=new Set(s.actionBy); if(c.checked) set.add(c.dataset.bid); else set.delete(c.dataset.bid); s.actionBy=[...set]; setMetaState(row,a,{...s}); }));
+    } else if(kind==='due'){
+      title.textContent='Due';
+      body.innerHTML = `<input type="date" id="aeMetaDueInput" class="input" value="${esc(s.due||'')}" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:8px" />`;
+      $('aeMetaDueInput').addEventListener('input', e=>{ s.due=e.target.value; setMetaState(row,a,{...s}); });
+    } else if(kind==='status'){
+      title.textContent='Status';
+      const sel = s.status || (state.statuses[0]?state.statuses[0].id:'');
+      body.innerHTML = '<div class="seg">'+state.statuses.map(s2=>`<button data-s="${esc(s2.id)}" class="${s2.id===sel?'on':''}" style="${statusStyle(s2.id)}">${esc(s2.label)}</button>`).join('')+'</div>';
+      body.querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{ body.querySelectorAll('button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); s.status=b.dataset.s; setMetaState(row,a,{...s}); }));
+    } else if(kind==='editedBy'){
+      title.textContent='Edited by';
+      const members = projectMembers(projById(a.projectId)).filter(m=>m.name && !m.left);
+      const opts=['<option value="">— none —</option>'].concat(members.map(m=>`<option value="${esc(m.id)}"${m.id===s.editedBy?' selected':''}>${esc(m.name)}</option>`));
+      body.innerHTML = `<select id="aeMetaByInput" class="input" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:8px">${opts.join('')}</select>`;
+      $('aeMetaByInput').addEventListener('change', e=>{ s.editedBy=e.target.value; setMetaState(row,a,{...s}); });
+    }
+    const done=$('aeMetaPopDone'); done.onclick=closeMetaPop;
+    const closeX=$('aeMetaPopClose'); if(closeX) closeX.onclick=closeMetaPop;
+    const pop=$('aeMetaPop'); pop.onclick=e=>{ if(e.target===pop) closeMetaPop(); };
+    pop.classList.add('open');
+  }
+  function closeMetaPop(){ const pop=$('aeMetaPop'); if(pop) pop.classList.remove('open'); }
   function appendLogRow(a){
     const tb=$('aeLogBody'); const i=tb.children.length;
-    tb.insertAdjacentHTML('beforeend', logRowHtml(i, {date: todayStr(), text:''}));
+    const blank={ date: todayStr(), text:'', editedBy:'', typeIds:[], actionBy:[], due:'', dueHistory:[], status: state.statuses[0]?state.statuses[0].id:'' };
+    tb.insertAdjacentHTML('beforeend', logRowHtml(i, blank, a));
     bindLogRow(tb.lastElementChild, a);
     markDirty(a);
   }
@@ -796,7 +953,7 @@
       title:$('aeTitle').value, statusId:status, priorityId:priority, projectId:pid, disciplineId:did, due,
       assignedToIds:as.ids, assignedToNames:as.orphans, createdById:creator, deps: a.deps.slice(),
       schedule: a.schedule||{}, progress: a.progress||0,
-      detailLog:[...document.querySelectorAll('#aeLogBody .ae-log-row')].map(tr=>{ const imgs=collectLogImages(tr); return { date:tr.querySelector('.ae-log-date').value, text:tr.querySelector('.ae-log-text').value, images: imgs }; })
+      detailLog:[...document.querySelectorAll('#aeLogBody .ae-log-row')].map(tr=>{ const imgs=collectLogImages(tr); const rd=readLogRowData(tr, a); return { date:tr.querySelector('.ae-log-date').value, text:tr.querySelector('.ae-log-text').value, images: imgs, editedBy:rd.editedBy, typeIds:rd.typeIds, actionBy:rd.actionBy, due:rd.due, dueHistory:(Array.isArray(rd.dueHistory)?rd.dueHistory:[]), status:rd.status }; })
     });
     const rep=$('aeReport'); if(rep) rep.innerHTML=reportHtml(live);
     const b=$('edBread'); if(b) b.textContent='Actions / '+$('aeTitle').value;
@@ -821,7 +978,7 @@
       readProgressInto(a);
     }
     delete a.dependsOn;
-    a.detailLog=[...document.querySelectorAll('#aeLogBody .ae-log-row')].map(tr=>{ const imgs=collectLogImages(tr); return { date: tr.querySelector('.ae-log-date').value, text: tr.querySelector('.ae-log-text').value, images: imgs }; });
+    a.detailLog=[...document.querySelectorAll('#aeLogBody .ae-log-row')].map(tr=>{ const imgs=collectLogImages(tr); const rd=readLogRowData(tr, a); return { date: tr.querySelector('.ae-log-date').value, text: tr.querySelector('.ae-log-text').value, images: imgs, editedBy:rd.editedBy, typeIds:rd.typeIds, actionBy:rd.actionBy, due:rd.due, dueHistory:(Array.isArray(rd.dueHistory)?rd.dueHistory:[]), status:rd.status }; });
     a.history=a.history||[]; a.history.push({d:todayStr(), t:'Edited inline'});
     edDirty=false; state.dataDirty=false; updateSaveButtons();
     refresh();
