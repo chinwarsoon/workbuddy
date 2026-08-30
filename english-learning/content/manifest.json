@@ -29,14 +29,14 @@
     {
       "id": "freq1k",
       "file": "freq-1k.json",
-      "name": "高频词·第1阶 (0–1000)",
-      "nameEn": "High-Frequency 1 (0–1000)"
+      "name": "高频词·第1阶 (NGSL 1–1000)",
+      "nameEn": "High-Frequency 1 (NGSL 1–1000)"
     },
     {
       "id": "freq2k",
       "file": "freq-2k.json",
-      "name": "高频词·第2阶 (1001–3000)",
-      "nameEn": "High-Frequency 2 (1001–3000)"
+      "name": "高频词·第2阶 (NGSL 1001–2809)",
+      "nameEn": "High-Frequency 2 (NGSL 1001–2809)"
     },
     {
       "id": "freq3k",
