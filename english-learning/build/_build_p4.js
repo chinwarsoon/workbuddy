@@ -137,5 +137,8 @@ fs.writeFileSync(path.join(DIR,"content","freq-4k.json"), out);
 fs.writeFileSync(path.join(DIR,"pwa","content","freq-4k.json"), out);
 console.log("WROTE freq-4k.json — "+words.length+" words, "+readingsJSON.length+" readings");
 
+// Auto-bump the SW cache name from a hash of served content (no manual edits).
+require(path.join(DIR,"build","_bump_sw.js"));
+
 if(problems.length){ console.log("\nPROBLEMS ("+problems.length+"):\n"+problems.join("\n")); process.exit(1); }
 console.log("\nALL CHECKS PASSED");
