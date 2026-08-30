@@ -278,7 +278,5 @@ This is the **primary graded vocabulary path**, built in four phases. Each phase
 
 **Recycling principle:** each later phase's readings reuse earlier-taught words as plain text for spiral review. The app's `CROSS_DICT` mechanism auto-detects any prior-phase word inside a later reading and renders it as a tappable blue popup (meaning + 🔊 pronunciation) — so vocabulary compounds instead of being forgotten. Phase 4 readings recycle the **Phase 1 + 2** taught set at 100% coverage (452/452 words); Phase 3's NAWL words stay consolidated in the Phase 3 pack.
 
-**Status:** Phase 1–4 are **complete** and registered in both `content/manifest.json` and `pwa/content/manifest.json`. The hosted PWA's `sw.js` cache is bumped to `ed-v28` (includes `./content/freq-4k.json`). To preview, open `pwa/index.html` (or the hosted share link) and pick **高频词·第4阶 (COCA 学术拓展)** from **Me → Content Pack**.
-
-> **Known minor inconsistency (non-blocking):** the `manifest.json` `name` fields say `(0–1000)` / `(1001–3000)` while each pack's internal `name` says `(NGSL 1–1000)` / `(NGSL 1001–2809)`. The displayed selector uses the manifest names; both describe the same content. Harmonize later if desired.
+**Status:** Phase 1–4 are **complete** and registered in both `content/manifest.json` and `pwa/content/manifest.json`. The hosted PWA's `sw.js` cache is auto-bumped from content hash (`build/_prep_deploy.js`); current live hash: `ed-60711b35`. To preview, open `pwa/index.html` (or the hosted share link) and pick **高频词·第4阶 (COCA 学术拓展)** from **Me → Content Pack**.
 
