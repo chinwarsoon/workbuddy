@@ -25,7 +25,7 @@
   html,body{height:100%;margin:0;}
   body{
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
-    background:var(--bg);
+    background:#e8eaf2;
     color:var(--text);
     font-size:16px;
     -webkit-font-smoothing:antialiased;
@@ -34,7 +34,9 @@
   #app{
     display:flex;flex-direction:column;
     height:100vh;height:100dvh;
-    max-width:480px;margin:0 auto;
+    width:100%;
+    max-width:480px;
+    margin:0 auto;
     background:var(--bg);
     position:relative;
   }
@@ -97,6 +99,12 @@
   .card h2{font-size:16px;margin:0 0 10px;display:flex;align-items:center;gap:8px;}
   .card h3{font-size:14px;margin:14px 0 8px;color:var(--accent);}
   .muted{color:var(--muted);font-size:13px;}
+  /* Listen & Learn — current word/sentence display */
+  .lnow{margin-top:12px;padding:13px 14px;background:#f7f8ff;border:1px solid var(--line);border-radius:12px;min-height:54px;}
+  .lnow-label{font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);}
+  .lnow-word{font-size:22px;font-weight:800;letter-spacing:.3px;color:var(--text);}
+  .lnow-ipa{color:var(--accent);font-size:14px;margin-left:8px;font-weight:600;}
+  .lnow-ex{margin-top:8px;font-size:15px;line-height:1.55;color:var(--text);}
   .pill{display:inline-block;background:#eef0ff;color:var(--accent);font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;margin-left:6px;}
   .tag{display:inline-block;background:#f1f2f8;color:var(--muted);font-size:11px;padding:3px 8px;border-radius:8px;margin:3px 4px 3px 0;}
 
@@ -161,6 +169,7 @@
   /* Reading */
   .reading-text{line-height:1.9;font-size:16px;background:#fafbff;padding:14px;border-radius:12px;margin:6px 0 12px;}
   .reading-text b{color:var(--accent);}
+  .reading-text b.prior{color:var(--accent2,#0a7d5a);text-decoration:underline dotted;}
   .q{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;}
   .q .qt{font-size:14px;font-weight:600;margin-bottom:8px;}
   .opt{border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin:6px 0;font-size:14px;cursor:pointer;background:#fff;}
@@ -197,10 +206,10 @@
   .seg button{flex:1;border:none;background:none;padding:9px;border-radius:9px;font-weight:700;font-size:13px;color:var(--accent);cursor:pointer;}
   .seg button.active{background:#fff;box-shadow:0 2px 6px rgba(106,92,255,.18);}
 
-  .sched{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
-  .sched .d{background:#f7f8ff;border-radius:11px;padding:8px 4px;text-align:center;}
-  .sched .d .dn{font-size:11px;font-weight:700;color:var(--accent);}
-  .sched .d .dt{font-size:9px;color:var(--muted);margin-top:4px;line-height:1.35;}
+  .sched{display:grid;grid-template-columns:1fr;gap:8px;}
+  .sched .d{display:flex;align-items:flex-start;gap:12px;background:#f7f8ff;border-radius:11px;padding:10px 12px;text-align:left;}
+  .sched .d .dn{font-size:13px;font-weight:700;color:var(--accent);min-width:44px;flex:0 0 auto;}
+  .sched .d .dt{font-size:13px;color:var(--text);margin-top:0;line-height:1.5;}
 
   .bm{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);}
   .bm:last-child{border-bottom:none;}
@@ -228,6 +237,27 @@
   .center .big{font-size:54px;}
   .note{font-size:12px;color:var(--muted);line-height:1.6;margin-top:8px;}
   hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
+
+  /* Reading key words */
+  .keys{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+  .keychip{display:inline-flex;align-items:center;gap:2px;background:#eef0ff;border-radius:999px;padding:3px 4px 3px 10px;}
+  .keychip .kb{border:none;background:none;font-weight:700;color:var(--accent);font-size:14px;cursor:pointer;padding:4px 6px;}
+  .keychip .kbs{border:none;background:#fff;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;}
+  .keychip .kbl{border:none;background:#fff;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;color:#8a8da3;cursor:pointer;}
+  .keychip .kbl.done{background:#eafaf0;color:var(--good);}
+
+  /* Word popup modal */
+  .modal-mask{position:fixed;inset:0;background:rgba(20,22,40,.5);display:none;align-items:center;justify-content:center;z-index:120;padding:20px;}
+  .modal-mask.show{display:flex;}
+  .modal{background:#fff;border-radius:18px;max-width:360px;width:100%;padding:20px;box-shadow:0 12px 44px rgba(30,30,70,.28);max-height:82vh;overflow:auto;}
+  .modal .mw{font-size:26px;font-weight:800;letter-spacing:.3px;}
+  .modal .mipa{color:var(--accent);font-size:15px;margin-left:8px;font-weight:600;}
+  .modal .mpos{display:inline-block;background:#eef0ff;color:var(--accent);font-size:11px;font-weight:700;padding:2px 8px;border-radius:7px;margin-top:8px;}
+  .modal .mdef{font-size:16px;margin-top:10px;font-weight:600;}
+  .modal .mex{margin-top:10px;background:#f7f8ff;padding:11px 12px;border-radius:12px;font-size:14px;line-height:1.5;overflow:hidden;}
+  .modal .mexzh{color:var(--muted);font-size:13px;margin-top:5px;}
+  .modal .macts{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+  .modal .macts .iconbtn{flex:1;justify-content:center;}
 </style>
 </head>
 <body>
@@ -300,6 +330,20 @@
       </div>
 
       <div class="card">
+        <h2>🎚️ <span data-i18n="speech_title">朗读速度</span> <span class="pill">Speed</span></h2>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:18px;" aria-hidden="true">🐢</span>
+          <input type="range" id="speechRate" min="0.5" max="1.2" step="0.05" value="0.85" style="flex:1;accent-color:var(--accent);height:28px;">
+          <span style="font-size:18px;" aria-hidden="true">🐇</span>
+          <span id="speechRateVal" class="pill" style="min-width:52px;text-align:center;margin-left:0;">0.85×</span>
+        </div>
+        <div class="btn-row" style="margin-top:10px;">
+          <button class="btn small secondary" data-act="speak" data-text="This is my reading speed. I can make it slower or faster.">🔊 <span data-i18n="speech_test">试听效果</span></button>
+        </div>
+        <div class="note" data-i18n="speech_rate_note">影响所有发音：点读单词、听学播放器、阅读整页朗读。调整立即生效。</div>
+      </div>
+
+      <div class="card">
         <h2>📝 <span data-i18n="me_notes">我的笔记</span> <span class="pill">Notes</span></h2>
         <textarea id="notesArea" placeholder="随时记录新学的表达、句型或心得……"></textarea>
         <div class="note" data-i18n="notes_note">笔记自动保存在本机（localStorage），不会上传。</div>
@@ -341,9 +385,15 @@
 </div>
 
 <div class="toast" id="toast"></div>
+<audio id="listenKeep" loop playsinline preload="none" style="display:none;"></audio>
+<div class="modal-mask" id="wordModal"><div class="modal" id="wordModalBody"></div></div>
 
 <script>
 /* ===================== DATA ===================== */
+/* CROSS_DICT: words from OTHER packs (e.g. Phase 1/2 when currently in Phase 3)
+   so a Phase 3 reading can show earlier-learned words as tappable blue words.
+   Built in loadContent(). Keyed by lowercase word; value = word object. */
+let CROSS_DICT = {};
 let WORDS = [
   {word:"serene",ipa:"/sɪˈriːn/",pos:"adj.",def:"宁静的",defEn:"calm and peaceful",ex:"The lake was serene at dawn.",exzh:"黎明时湖面宁静。",exEn:"The lake was calm and peaceful at dawn.",emoji:"🌅"},
   {word:"resilient",ipa:"/rɪˈzɪliənt/",pos:"adj.",def:"有韧性的",defEn:"able to recover quickly",ex:"Children are remarkably resilient.",exzh:"孩子的韧性令人惊叹。",exEn:"Children recover from difficulties remarkably well.",emoji:"🌱"},
@@ -508,6 +558,17 @@ async function loadContent(){
       const chosen = (state.activePack && PACKS[state.activePack]) ? state.activePack
                    : (def && PACKS[def] ? def : "general");
       active = PACKS[chosen] || BUILTIN_GENERAL;
+      // Build CROSS_DICT: every word from packs OTHER than the active one,
+      // so a Phase 3 reading can surface Phase 1/2 taught words as tappable.
+      CROSS_DICT = {};
+      Object.keys(PACKS).forEach(function(pid){
+        if(pid===chosen) return;
+        const pk = PACKS[pid];
+        if(!pk || !Array.isArray(pk.words)) return;
+        pk.words.forEach(function(w){
+          if(w && w.word && w.def){ CROSS_DICT[w.word.toLowerCase()] = w; }
+        });
+      });
     }catch(e){ /* manifest missing -> built-in only */ }
   } else {
     if(state.importedPack){
@@ -552,7 +613,12 @@ const I18N = {
   plan_note:{zh:"每天约 {n} 分钟 / 任务。计划会依据你的选择自动轮换重点方向。",en:"About {n} min per task. The plan rotates focus areas automatically based on your choices."},
   stat_goal:{zh:"目标",en:"Goal"}, stat_daily:{zh:"每日",en:"Daily"}, stat_dir:{zh:"方向",en:"Areas"},
   // Daily
-  daily_intro:{zh:"每天 2 个新词，点 🔊 听发音，学会后点击「我学会了」记录进度。",en:"Two new words daily. Tap 🔊 to hear them, then mark “I learned it”."},
+  daily_intro:{zh:"每天 {n} 个新词，点 🔊 听发音，学会后点击「我学会了」记录进度。",en:"{n} new words daily. Tap 🔊 to hear them, then mark “I learned it”."},
+  daily_count:{zh:"每天学习词数",en:"Words per day"},
+  daily_count_unit:{zh:"个",en:"words"},
+  speech_title:{zh:"朗读速度",en:"Reading Speed"},
+  speech_rate_note:{zh:"影响所有发音：点读单词、听学播放器、阅读整页朗读。调整立即生效。",en:"Applies to all speech: word tap, listen player, and read-aloud. Changes take effect immediately."},
+  speech_test:{zh:"🔊 试听效果",en:"🔊 Test speed"},
   learn_btn:{zh:"📝 我学会了",en:"📝 I learned it"}, learned_btn:{zh:"✅ 已学会",en:"✅ Learned"},
   bookmark_btn:{zh:"☆ 收藏",en:"☆ Bookmark"}, bookmarked_btn:{zh:"⭐ 已收藏",en:"⭐ Bookmarked"},
   review_pill:{zh:"复习",en:"Review"},
@@ -561,6 +627,10 @@ const I18N = {
   marked_read:{zh:"✅ 本周已读",en:"✅ Read this week"},
   read_aloud:{zh:"🔊 朗读全文",en:"🔊 Read Aloud"}, read_stop:{zh:"⏹ 停止朗读",en:"⏹ Stop Reading"},
   sentence_speak:{zh:"🔊",en:"🔊"},
+  // Reading key words / word popup
+  key_words:{zh:"本篇重点词",en:"Key words"},
+  key_words_note:{zh:"这些蓝色标注的词是本文重点，建议全部学会 👆（点文中蓝字或下方按钮看释义并发音）",en:"These blue-marked words are the focus of this text — learn them all 👆 (tap a blue word or a button below for meaning + pronunciation)"},
+  popup_heard:{zh:"点 🔊 听发音。",en:"Tap 🔊 to hear it."},
   // Review flash
   cards_due:{zh:"待复习",en:"Due"}, cards_unit:{zh:"张",en:"cards"},
   tap_meaning:{zh:"👆 点击卡片查看释义",en:"👆 Tap card to see meaning"},
@@ -599,6 +669,15 @@ const I18N = {
   // Misc / dynamic
   week_label:{zh:"第 {n} 周",en:"Week {n}"},
   speak_btn:{zh:"🔊 发音",en:"🔊 Pronounce"},
+  // Listen & learn (All Words)
+  listen_title:{zh:"🎧 听读模式",en:"🎧 Listen & learn"},
+  listen_intro:{zh:"自动朗读每个单词及其例句，可后台 / 锁屏聆听（建议「添加到主屏幕」后使用）。",en:"Auto-reads each word and its example sentence. Listen in the background or with the screen off (best when added to Home Screen)."},
+  listen_play:{zh:"▶ 开始听读",en:"▶ Play all"},
+  listen_pause:{zh:"⏸ 暂停",en:"⏸ Pause"},
+  listen_next:{zh:"⏭ 下一个",en:"⏭ Next"},
+  listen_repeat:{zh:"🔁 重听本词",en:"🔁 Replay"},
+  listen_progress:{zh:"第 {n} / {N} 词",en:"Word {n} / {N}"},
+  listen_now:{zh:"正在播放",en:"Now playing"},
   plan_min_ph:{zh:"分钟",en:"minutes"},
   app_title:{zh:"EnglishDaily · 英语学习助手",en:"EnglishDaily · English Learning"},
   confirm_clear:{zh:"确定清除全部学习数据？此操作不可恢复。",en:"Clear all learning data? This cannot be undone."},
@@ -666,7 +745,9 @@ function defaultState(){
     plan: null,            // {goal,minutes,areas}
     reminder: {enabled:false, time:"20:00"},
     activity: {},          // {date:{words,reading,review,quiz}}
-    quizResults: []        // [{date,score,total}]
+    quizResults: [],       // [{date,score,total}]
+    dailyCount: 2,        // words to learn per day (1–10), user-settable
+    speechRate: 0.85      // TTS speaking rate (0.5–1.2), user-settable
   };
 }
 /* Migrate older progress (no pack info) to the pack-scoped format. */
@@ -809,12 +890,18 @@ function shuffle(a){
 }
 
 /* ===================== SPEECH ===================== */
+/* User-settable global speaking rate (Settings ▸ Reading Speed). */
+function speechRate(){
+  const r=parseFloat(state.speechRate);
+  return (isNaN(r) || r<0.5 || r>1.2) ? 0.85 : r;
+}
 function speak(text){
+  if(!text||!String(text).trim()) return;
   if(!("speechSynthesis" in window)){ toast(t('toast_no_speak')); return; }
   try{
     window.speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(text);
-    u.lang="en-US"; u.rate=0.9; u.pitch=1;
+    u.lang="en-US"; u.rate=speechRate(); u.pitch=1;
     window.speechSynthesis.speak(u);
   }catch(e){}
 }
@@ -848,13 +935,168 @@ function readPageAloud(){
     const speakNext=()=>{
       if(!readAloudOn || i>=sents.length){ readAloudOn=false; updateReadBtn(); return; }
       const u=new SpeechSynthesisUtterance(sents[i++]);
-      u.lang="en-US"; u.rate=0.85; u.pitch=1;
+      u.lang="en-US"; u.rate=speechRate(); u.pitch=1;
       u.onend=speakNext; u.onerror=()=>{ readAloudOn=false; updateReadBtn(); };
       window.speechSynthesis.speak(u);
     };
     speakNext();
   }catch(e){ readAloudOn=false; try{updateReadBtn();}catch(_){} }
 }
+
+/* ===================== LISTEN & LEARN (All Words) ===================== */
+/* Auto-plays each word then its sample sentence, one by one. A silent looping
+   <audio> keeps the iOS audio session alive so speech can continue in the
+   background / with the screen dimmed or locked (best when added to Home Screen). */
+let listenOn=false, listenIdx=0, listenQueue=[];
+let _silentWav=null;
+function makeSilentWav(){
+  // 30s silent mono 8kHz wav — all samples zero, so no amplitude jump at the
+  // loop seam. Length is 30s (not 1s) so the iOS resample/refade tick only
+  // happens ~once per 30s instead of once per second (keeps screen-off alive).
+  const sr=8000, dur=30, n=sr*dur;
+  const buf=new ArrayBuffer(44+n);
+  const dv=new DataView(buf);
+  const ws=(o,s)=>{ for(let i=0;i<s.length;i++) dv.setUint8(o+i,s.charCodeAt(i)); };
+  ws(0,"RIFF"); dv.setUint32(4,36+n,true); ws(8,"WAVE"); ws(12,"fmt ");
+  dv.setUint32(16,16,true); dv.setUint16(20,1,true); dv.setUint16(22,1,true);
+  dv.setUint32(24,sr,true); dv.setUint32(28,sr,true); dv.setUint16(32,1,true); dv.setUint16(34,8,true);
+  ws(36,"data"); dv.setUint32(40,n,true);
+  let s=""; const bytes=new Uint8Array(buf);
+  for(let i=0;i<bytes.length;i++) s+=String.fromCharCode(bytes[i]);
+  return "data:audio/wav;base64,"+btoa(s);
+}
+function startListenKeep(){
+  const a=document.getElementById("listenKeep");
+  if(!a) return;
+  try{
+    if(!_silentWav) _silentWav=makeSilentWav();
+    if(a.src!==_silentWav && a.getAttribute("src")!==_silentWav) a.src=_silentWav;
+    const p=a.play();
+    if(p&&p.catch) p.catch(()=>{});
+  }catch(e){}
+}
+function stopListenKeep(){
+  const a=document.getElementById("listenKeep");
+  if(a){ try{ a.pause(); }catch(e){} }
+}
+function listenBuildQueue(){
+  // stable pack order: a calm "listen through everything", independent of the shuffled study deck
+  listenQueue=WORDS.slice();
+}
+function listenSpeak(text, onEnd){
+  if(!("speechSynthesis" in window)){ if(onEnd) onEnd(); return; }
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang="en-US"; u.rate=speechRate(); u.pitch=1;
+  u.onend=()=>{ if(onEnd) onEnd(); };
+  u.onerror=()=>{ if(onEnd) onEnd(); };
+  window.speechSynthesis.speak(u);
+}
+function listenNext(){
+  if(!listenOn){ updateListenBtn(); return; }
+  if(listenIdx>=listenQueue.length){ listenOn=false; stopListenKeep(); updateListenBtn(); return; }
+  const w=listenQueue[listenIdx];
+  updateListenBtn();
+  listenSpeak(w.word, ()=>{
+    if(!listenOn) return;
+    if(w.ex && String(w.ex).trim()){
+      listenSpeak(w.ex, ()=>{
+        if(!listenOn) return;
+        listenIdx++; listenNext();
+      });
+    } else {
+      listenIdx++; listenNext();
+    }
+  });
+}
+function listenStart(){
+  if(!("speechSynthesis" in window)){ toast(t('toast_no_speak')); return; }
+  if(listenQueue.length===0) listenBuildQueue();
+  if(listenIdx>=listenQueue.length) listenIdx=0;
+  startListenKeep();
+  window.speechSynthesis.cancel();
+  listenOn=true; updateListenBtn(); listenNext();
+}
+function listenStop(){
+  listenOn=false;
+  try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){}
+  stopListenKeep(); updateListenBtn();
+}
+function listenToggle(){ if(listenOn) listenStop(); else listenStart(); }
+function listenSkip(){
+  if(listenQueue.length===0) listenBuildQueue();
+  listenIdx=Math.min(listenIdx+1, Math.max(0,listenQueue.length-1));
+  if(listenOn){ window.speechSynthesis.cancel(); listenNext(); } else updateListenBtn();
+}
+function listenReplay(){
+  if(listenQueue.length===0) listenBuildQueue();
+  if(listenIdx>=listenQueue.length) listenIdx=Math.max(0,listenQueue.length-1);
+  if(listenOn){ window.speechSynthesis.cancel(); listenNext(); }
+  else { startListenKeep(); window.speechSynthesis.cancel(); listenOn=true; updateListenBtn(); listenNext(); }
+}
+function updateListenNow(){
+  const el=document.getElementById("listenNow");
+  if(!el) return;
+  const w=listenQueue[listenIdx];
+  if(!w){ el.innerHTML=`<span class="muted">—</span>`; return; }
+  const ex = (w.ex && String(w.ex).trim()) ? w.ex : "";
+  el.innerHTML = `
+    <div class="lnow-label">${t('listen_now')||'Now playing'}</div>
+    <div><span class="lnow-word">${w.word}</span>${w.ipa?`<span class="lnow-ipa">${w.ipa}</span>`:""}</div>
+    ${ex?`<div class="lnow-ex">${ex}</div>`:`<div class="muted" style="margin-top:8px;">${t('popup_heard')||''}</div>`}
+  `;
+}
+function updateListenBtn(){
+  const play=document.getElementById("listenToggle");
+  const prog=document.getElementById("listenProgress");
+  if(play) play.textContent = listenOn ? t('listen_pause') : t('listen_play');
+  if(prog) prog.textContent = tf('listen_progress',{n:Math.min(listenIdx+1, listenQueue.length||1), N:listenQueue.length||WORDS.length});
+  updateListenNow();
+}
+function listenCardHTML(){
+  if(listenQueue.length===0) listenBuildQueue();
+  const w=listenQueue[Math.min(listenIdx, listenQueue.length-1)] || null;
+  const ex = (w && w.ex && String(w.ex).trim()) ? w.ex : "";
+  const nowHTML = w ? `
+    <div class="lnow-label">${t('listen_now')||'Now playing'}</div>
+    <div><span class="lnow-word">${w.word}</span>${w.ipa?`<span class="lnow-ipa">${w.ipa}</span>`:""}</div>
+    ${ex?`<div class="lnow-ex">${ex}</div>`:`<div class="muted" style="margin-top:8px;">${t('popup_heard')||''}</div>`}
+  ` : `<span class="muted">—</span>`;
+  return `
+  <div class="card" style="margin-top:14px;border:1px solid var(--accent);">
+    <h3>🎧 ${t('listen_title')}</h3>
+    <p class="note">${t('listen_intro')}</p>
+    <div id="listenNow" class="lnow">${nowHTML}</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;">
+      <button class="btn" id="listenToggle" data-act="listenToggle">${listenOn?t('listen_pause'):t('listen_play')}</button>
+      <button class="btn ghost" data-act="listenSkip">${t('listen_next')}</button>
+      <button class="btn ghost" data-act="listenReplay">${t('listen_repeat')}</button>
+      <span id="listenProgress" class="pill" style="margin-left:auto;">${tf('listen_progress',{n:Math.min(listenIdx+1, listenQueue.length||1), N:listenQueue.length||WORDS.length})}</span>
+    </div>
+  </div>`;
+}
+
+/* ===================== WORD POPUP ===================== */
+function openWordPopup(wordObj, rawText){
+  const L=state.lang;
+  if(!wordObj) wordObj={word:rawText||"",def:rawText||"",defEn:rawText||"",ipa:"",pos:"",ex:"",exzh:"",exEn:"",emoji:""};
+  const body=document.getElementById("wordModalBody");
+  body.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+      <div><span class="mw">${wordObj.word}</span>${wordObj.ipa?`<span class="mipa">${wordObj.ipa}</span>`:""}</div>
+      <button class="iconbtn small" data-act="closeModal" style="border:none;background:none;font-size:20px;padding:2px 6px;color:var(--muted);">✕</button>
+    </div>
+    ${wordObj.pos?`<span class="mpos">${wordObj.pos}</span>`:""}
+    <div class="mdef">${L==='en'?wordObj.defEn:wordObj.def}</div>
+    ${wordObj.ex?`<div class="mex">${wordObj.ex}
+      <button class="iconbtn small" data-act="speak" data-text="${wordObj.ex}" style="float:right;padding:4px 8px;">🔊</button>
+      <div class="mexzh">${L==='en'?wordObj.exEn:wordObj.exzh}</div></div>`:`<p class="muted" style="margin-top:10px;">${t('popup_heard')}</p>`}
+    <div class="macts">
+      <button class="iconbtn" data-act="speak" data-text="${wordObj.word}">${t('speak_btn')}</button>
+      <button class="iconbtn" data-act="learnFromPopup" data-word="${wordObj.word}">${isLearned(wordObj.word)?t('learned_btn'):t('learn_btn')}</button>
+    </div>`;
+  document.getElementById("wordModal").classList.add("show");
+}
+function closeWordPopup(){ const m=document.getElementById("wordModal"); if(m) m.classList.remove("show"); }
 
 /* ===================== RENDER: PLAN ===================== */
 function renderPlan(){
@@ -923,13 +1165,122 @@ function savePlan(){
   toast(t('toast_plan'));
 }
 
-/* ===================== RENDER: DAILY ===================== */
+/* ===================== WORD RESOLUTION =====================
+   Blue words in a reading's <b>…</b> (and its vocab list) are the reading's
+   "key words". We resolve a raw word (possibly inflected, e.g. "borrows") to a
+   full word object: first by exact/stem match in WORDS, then by match in the
+   current reading's vocab, falling back to a minimal object so the popup can
+   still show the word + a 🔊 pronunciation button. */
+function currentReading(){ const wk=currentWeek() % READINGS.length; return READINGS[wk]; }
+function vocabToWord(v){
+  return {
+    word:v.w, ipa:v.ipa||"", pos:v.pos||"",
+    def:v.d||v.w, defEn:v.dEn||v.d||v.w,
+    ex:v.ex||"", exzh:v.exzh||"", exEn:v.exEn||"",
+    emoji:v.emoji||"📘"
+  };
+}
+function stemVariants(s){
+  const out=[s];
+  const suffixes=[["ies","y"],["es",""],["s",""],["ed",""],["ing",""],["ly",""]];
+  for(const suf of suffixes){
+    const sufStr=suf[0], rep=suf[1];
+    if(s.endsWith(sufStr) && s.length>sufStr.length){
+      const base=s.slice(0,s.length-sufStr.length)+rep;
+      if(base && out.indexOf(base)<0) out.push(base);
+    }
+  }
+  if(s.endsWith("'s")){ const b=s.slice(0,-2); if(out.indexOf(b)<0) out.push(b); }
+  return out;
+}
+function resolveWord(raw, r){
+  if(!raw) return null;
+  const s=raw.toLowerCase().replace(/[^a-z'-]/g,"").replace(/^'+|'+$/g,"");
+  if(!s) return null;
+  const cands=stemVariants(s);
+  for(const c of cands){ const m=WORDS.find(x=>x.word && x.word.toLowerCase()===c); if(m) return m; }
+  // fall back to cross-pack words (e.g. Phase 1/2 while reading Phase 3)
+  for(const c of cands){ if(CROSS_DICT[c]) return CROSS_DICT[c]; }
+  if(r && r.vocab){
+    for(const c of cands){ const v=r.vocab.find(x=>x.w && x.w.toLowerCase()===c); if(v) return vocabToWord(v); }
+  }
+  const m2=WORDS.find(x=>x.word && x.word.toLowerCase().length>2 &&
+    (s.indexOf(x.word.toLowerCase())===0 || x.word.toLowerCase().indexOf(s)===0));
+  if(m2) return m2;
+  return { word:raw, ipa:"", pos:"", def:raw, defEn:raw, ex:"", exzh:"", exEn:"", emoji:"📘" };
+}
+function readingVocabWords(r){
+  if(!r || !r.vocab) return [];
+  const seen={}, out=[];
+  r.vocab.forEach(function(v){
+    const w=resolveWord(v.w, r);
+    if(w && !seen[w.word]){ seen[w.word]=1; out.push(w); }
+  });
+  return out;
+}
+function readingBlueWords(r){
+  if(!r || !r.text) return [];
+  const seen={}, out=[];
+  const raws=(r.text.match(/<b>([^<]+)<\/b>/g)||[]).map(function(m){return m.replace(/<\/?b>/g,"").trim();});
+  raws.forEach(function(raw){
+    const w=resolveWord(raw, r);
+    if(w && !seen[w.word]){ seen[w.word]=1; out.push(w); }
+  });
+  return out;
+}
+/* Unified "key words" of a reading = its blue <b> words (resolved to base forms +
+   definitions where the pack provides them). Falls back to the vocab list when a
+   reading has no blue words, so those words stay learnable. This is the single
+   source of truth for BOTH the Key-words card and the daily-priority pool. */
+function readingKeyWords(r){
+  const b=readingBlueWords(r);
+  return b.length? b : readingVocabWords(r);
+}
+/* Wrap any Phase-1/2 (cross-pack) taught word that appears in the reading text
+   as a tappable <b class="prior">, so earlier-learned vocabulary is复习-able in
+   context. Words already blue in the source are left untouched. */
+function highlightPriorWords(container){
+  if(!container) return;
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
+  const textNodes=[];
+  while(walker.nextNode()) textNodes.push(walker.currentNode);
+  textNodes.forEach(function(node){
+    const txt=node.nodeValue;
+    if(!/\b[a-zA-Z]{3,}\b/.test(txt)) return;
+    let html=txt, changed=false;
+    // match whole words, longest first to avoid partial overlaps
+    const keys=Object.keys(CROSS_DICT).sort((a,b)=>b.length-a.length);
+    for(const k of keys){
+      const re=new RegExp("\\b"+k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","gi");
+      if(re.test(html) && !new RegExp("</?b","i").test(html)){
+        html=html.replace(re, function(m){ return '<b class="prior">'+m+'</b>'; });
+        changed=true;
+      }
+    }
+    if(changed){ const span=document.createElement("span"); span.innerHTML=html; node.parentNode.replaceChild(span, node); }
+  });
+}
+/* The daily 2 words prioritize the CURRENT reading's blue/vocab "key words"
+   first (so the highlighted words become the daily task), then continue with the
+   pack's WORDS list. Selection stays deterministic by day index. */
 function todaysWords(){
   const di=dayIndex();
-  const i=di*2;
-  const w1=WORDS[i % WORDS.length];
-  const w2=WORDS[(i+1) % WORDS.length];
-  return {w1,w2,isReview:i>=WORDS.length,di};
+  const r=currentReading();
+  const rv=readingKeyWords(r);
+  const poolMap={}, pool=[];
+  rv.forEach(function(w){ if(!poolMap[w.word]){ poolMap[w.word]=1; pool.push(w); } });
+  WORDS.forEach(function(w){ if(!poolMap[w.word]){ poolMap[w.word]=1; pool.push(w); } });
+  const n=Math.max(1, pool.length);
+  const count=Math.min(10, Math.max(1, state.dailyCount||2));
+  // Fixed per-day stride (independent of count) so changing the daily count
+  // extends/truncates the list instead of sliding to a different word set —
+  // otherwise today's words would all "disappear" when the count changes.
+  const STRIDE=2;
+  const i=(di*STRIDE) % n;
+  const words=[];
+  for(let k=0;k<count;k++){ words.push(pool[(i+k)%n]); }
+  const isReview = words.every(function(w){ return isLearned(w.word); });
+  return {words,isReview,di,count};
 }
 function wordCardHTML(w, idx){
   const learned=isLearned(w.word);
@@ -942,7 +1293,7 @@ function wordCardHTML(w, idx){
       <span class="pos">${w.pos}</span>
       <div class="def">${state.lang==='en'?w.defEn:w.def}</div>
       <div class="ex">${w.ex}
-        <button class="iconbtn small" data-act="speak" data-text="${w.ex}" style="float:right;padding:4px 8px;">🔊</button>
+        <button class="iconbtn small" data-act="speak" data-text="${w.ex||w.word}" style="float:right;padding:4px 8px;">🔊</button>
         <div class="exzh">${state.lang==='en'?w.exEn:w.exzh}</div>
       </div>
       <div class="acts">
@@ -964,9 +1315,25 @@ function refreshDaily(){
         <h2 style="margin:0;">📚 ${dayHead} ${td.isReview?'<span class="pill">'+t('review_pill')+'</span>':''}</h2>
         <span class="muted">${new Date().toLocaleDateString(state.lang==='en'?'en-US':'zh-CN',{month:'long',day:'numeric',weekday:'short'})}</span>
       </div>
-      <p class="muted" style="margin:8px 0 0;">${t('daily_intro')}</p>
+      <p class="muted" style="margin:8px 0 0;">${tf('daily_intro',{n:td.count})}</p>
     </div>`;
-  a.innerHTML = wordCardHTML(td.w1,0)+wordCardHTML(td.w2,1);
+  const cards = td.words.map(function(w,idx){ return wordCardHTML(w,idx); }).join("");
+  a.innerHTML = `
+    <div class="card" style="padding:12px;">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span class="fld" style="margin:0;">${t('daily_count')}</span>
+        <input type="number" id="dailyCount" min="1" max="10" value="${td.count}" style="width:64px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-size:14px;">
+        <span class="muted">${t('daily_count_unit')}</span>
+      </div>
+    </div>` + cards;
+  const dc=document.getElementById("dailyCount");
+  if(dc) dc.addEventListener("change", function(){
+    let v=parseInt(dc.value,10);
+    if(isNaN(v)) v=2;
+    v=Math.min(10, Math.max(1, v));
+    state.dailyCount=v; saveState();
+    refreshDaily();
+  });
 }
 
 /* ===================== RENDER: READING ===================== */
@@ -991,9 +1358,21 @@ function refreshReading(){
       <button class="btn secondary small" data-act="stopReadAloud" style="display:none;"></button>
     </div>
     <div class="reading-text">${r.text}</div>
-    <div>
-      ${r.vocab.map(v=>`<span class="tag">${v.w} · ${state.lang==='en'?v.dEn:v.d}</span>`).join("")}
-    </div>
+    ${((readingKeyWords(r).length)?`
+    <div class="card" style="margin-top:14px;">
+      <h3>🔑 ${t('key_words')} <span class="pill">${readingKeyWords(r).length}</span></h3>
+      <p class="note">${t('key_words_note')}</p>
+      <div class="keys">
+        ${readingKeyWords(r).map(function(wo){
+          const learned=isLearned(wo.word);
+          return `<span class="keychip">
+            <button class="kb" data-act="wordpopup" data-word="${wo.word}">${wo.word}</button>
+            <button class="kbs" data-act="speak" data-text="${wo.word}" title="${t('speak_btn')}">🔊</button>
+            <button class="kbl ${learned?'done':''}" data-act="learnFromReading" data-word="${wo.word}">${learned?'✅':t('learn_btn')}</button>
+          </span>`;
+        }).join("")}
+      </div>
+    </div>`:"")}
     <h3>${t('comprehension')}</h3>
     <div id="readingQs">
       ${r.questions.map((q,qi)=>`
@@ -1007,6 +1386,14 @@ function refreshReading(){
     </button>
   `;
   readingState={wk, answered:0, total:r.questions.length};
+  // surface Phase 1/2 taught words from other packs as tappable prior words
+  highlightPriorWords(a.querySelector(".reading-text"));
+  // make the blue <b> words inside the article tappable → word popup
+  a.querySelectorAll(".reading-text b").forEach(function(b){
+    b.dataset.act="wordpopup";
+    b.dataset.word=b.textContent;
+    b.style.cursor="pointer";
+  });
 }
 function readingAnswer(qi, oi){
   const wk=currentWeek() % READINGS.length;
@@ -1069,7 +1456,8 @@ function renderReview(){
     if(allFlashQueue.length===0){ a.innerHTML=`<div class="center"><div class="big">📭</div><p>${t('no_cards')}</p></div>`; return; }
     const w=WORDS.find(x=>x.word===allFlashQueue[0]);
     if(!w){ allFlashQueue.shift(); return renderReview(); }
-    a.innerHTML=flashCardHTML(w,w.word,tf('review_all_count',{n:WORDS.length}),true);
+    a.innerHTML=flashCardHTML(w,w.word,tf('review_all_count',{n:WORDS.length}),true) + listenCardHTML();
+    updateListenBtn();
     return;
   }
   if(reviewMode==="flash"){
@@ -1239,6 +1627,15 @@ function renderMe(){
   document.getElementById("remindToggle").checked=state.reminder.enabled;
   document.getElementById("remindTime").value=state.reminder.time;
 
+  // speech rate slider (Settings)
+  const srEl=document.getElementById("speechRate");
+  if(srEl){
+    const rv=speechRate();
+    srEl.value=rv;
+    const lab=document.getElementById("speechRateVal");
+    if(lab) lab.textContent=Number(rv.toFixed(2))+"×";
+  }
+
   // badge
   const due=dueCards().length;
   const badge=document.getElementById("reviewBadge");
@@ -1345,6 +1742,7 @@ function bindPackImport(){
 /* ===================== TABS ===================== */
 function switchTab(target){
   stopReadAloud();
+  listenStop();
   document.querySelectorAll("main section").forEach(s=>s.classList.remove("active"));
   document.getElementById("tab-"+target).classList.add("active");
   document.querySelectorAll("#tabbar button").forEach(b=>b.classList.toggle("active", b.dataset.target===target));
@@ -1377,12 +1775,25 @@ document.addEventListener("click", function(e){
     case "learn": learnWord(word); break;
     case "bookmark": toggleBookmark(word); break;
     case "unbookmark": toggleBookmark(word); break;
-    case "speak": stopReadAloud(); speak(el.dataset.text); break;
+    case "speak": stopReadAloud(); listenStop(); speak(el.dataset.text); break;
+    case "wordpopup": openWordPopup(resolveWord(word, currentReading()), word); break;
+    case "closeModal": closeWordPopup(); break;
+    case "learnFromPopup":
+      learnWord(word);
+      el.textContent = isLearned(word)? t('learned_btn'):t('learn_btn');
+      el.classList.add("done");
+      break;
+    case "learnFromReading":
+      learnWord(word);
+      el.textContent = isLearned(word)? "✅" : t('learn_btn');
+      el.classList.add("done");
+      break;
     case "readAloud": readPageAloud(); break;
     case "stopReadAloud": stopReadAloud(); break;
     case "completeReading": completeReading(parseInt(el.dataset.week)); break;
     case "readingopt": readingAnswer(parseInt(el.dataset.qi), parseInt(el.dataset.oi)); break;
     case "reviewmode":
+      listenStop();
       reviewMode=el.dataset.mode;
       document.querySelectorAll("#reviewSeg button").forEach(b=>b.classList.toggle("active", b.dataset.mode===reviewMode));
       if(reviewMode==="flash"){ flashQueue=shuffle(dueCards()); flashFlipped=false; }
@@ -1400,6 +1811,9 @@ document.addEventListener("click", function(e){
       break;
     case "quizopt": quizAnswer(parseInt(el.dataset.oi)); break;
     case "restartQuiz": quizData=[]; renderReview(); break;
+    case "listenToggle": listenToggle(); break;
+    case "listenSkip": listenSkip(); break;
+    case "listenReplay": listenReplay(); break;
     case "testNotify": testNotify(); break;
     case "exportData": exportData(); break;
     case "importData": importData(); break;
@@ -1429,6 +1843,26 @@ document.getElementById("remindToggle").addEventListener("change", function(){
 document.getElementById("remindTime").addEventListener("change", function(){
   state.reminder.time=this.value; saveState();
 });
+/* speech rate (Settings ▸ Reading Speed): live update, saved on change */
+(function(){
+  const sr=document.getElementById("speechRate");
+  if(!sr) return;
+  const lab=document.getElementById("speechRateVal");
+  const show=(v)=>{ if(lab) lab.textContent=Number(v.toFixed(2))+"×"; };
+  sr.addEventListener("input", function(){
+    const v=parseFloat(sr.value);
+    if(isNaN(v)) return;
+    state.speechRate=Math.min(1.2, Math.max(0.5, v));
+    show(state.speechRate);
+  });
+  sr.addEventListener("change", function(){
+    saveState();
+    // give live feedback at the newly chosen speed
+    speak("This is my reading speed.");
+  });
+})();
+/* word popup: tap outside the card closes it */
+document.getElementById("wordModal").addEventListener("click", function(e){ if(e.target===this) closeWordPopup(); });
 
 /* ===================== REMINDER ===================== */
 function testNotify(){

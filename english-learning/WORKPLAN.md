@@ -25,7 +25,10 @@ It is designed for **iPhone Safari** but also works in any modern browser (deskt
    - Each word shows: IPA phonetic, part of speech, Chinese meaning, example sentence + translation, and an emoji illustration.
    - "I learned it" button records progress.
 3. **Weekly Reading** (Reading tab)
-   - 6 short graded texts (A1–A2) with highlighted vocabulary and a multiple-choice comprehension quiz (auto-scored). Completion is recorded.
+   - 6 short graded texts (A1–A2) with vocabulary highlighted in **blue** — these are the reading's "key words".
+   - **Tap any blue word** (or the 🔊 / 📝 buttons in the "本篇重点词 / Key words" card) to open a popup with its meaning + a 🔊 pronunciation button.
+   - The current reading's blue/key words are **prioritized as the daily learning words**: they appear first in the Daily tab, and a "Key words" card tells you to learn all of them.
+   - A multiple-choice comprehension quiz (auto-scored) follows each text; completion is recorded.
 4. **Progress Tracker** (Me tab)
    - Stats: words learned, consecutive-day streak, readings finished.
    - **7-day activity bar chart** drawn as inline SVG.
@@ -214,11 +217,15 @@ english-learning/
 │   ├── general.json            ← sample pack: 40 words + 6 readings + task bank
 │   ├── nce2.json               ← sample pack: New Concept *Style* Book 2 (97 words + 12 stories)
 │   ├── nce3.json               ← sample pack: Book 3 style (79 words + 10 essays)
-│   └── nce4.json               ← sample pack: Book 4 style (65 words + 8 argument essays)
+│   ├── nce4.json               ← sample pack: Book 4 style (65 words + 8 argument essays)
+│   ├── freq1k.json             ← Phase 1: NGSL 1–1000 (1056 words + 12 readings)
+│   ├── freq2k.json             ← Phase 2: NGSL 1001–2809 (1879 words + 12 readings)
+│   ├── freq3k.json             ← Phase 3: NAWL academic (956 words + 12 readings)
+│   └── freq4k.json             ← Phase 4: COCA expansion (800 words + 12 readings)
 └── pwa/
     ├── index.html              ← identical copy, prepared for hosting
     ├── sw.js                   ← service worker (offline caching, includes content/)
-    └── content/                ← same manifest.json + general.json for hosting
+    └── content/                ← same manifest.json + freq1k–4k for hosting
 ```
 
 ### How to author a new pack
@@ -253,4 +260,18 @@ Create a JSON file, e.g. `travel.json`:
 - **`nce3.json`** — Book-3 style: 79 upper-intermediate words + **10 original** ~180–220-word narrative essays (build-up + pointed ending) + task bank incl. the classic summary-writing drill.
 - **`nce4.json`** — Book-4 style: 65 advanced words + **8 original** ~200–260-word argumentative essays (claim–support–counterpoint–conclusion) + task bank with argument mapping & opinion writing.
 - ⚠️ **Copyright note:** the *original* NCE lesson texts are owned by Longman / 外研社, so these packs contain **only newly written texts in the same style** — safe to share, deploy, and study. If you own the books, you may replace `readings[].text` with your own copies for **private, non-redistributed** study; do not publish the actual copyrighted texts.
+
+### High-Frequency phased curriculum (Phase 1–4) — the main graded word list
+This is the **primary graded vocabulary path**, built in four phases. Each phase is a separate pack; together they cover ~4,691 words across 48 graded readings (A2 → B2). The pack names shown in the selector are `高频词·第1–4阶`.
+
+- **`freq1k.json` — Phase 1 (NGSL 1–1000, A2):** 1056 words + 12 readings. The foundation layer.
+- **`freq2k.json` — Phase 2 (NGSL 1001–2809, B1):** 1879 words + 12 readings.
+- **`freq3k.json` — Phase 3 (NAWL academic, B2):** 956 words (the New Academic Word List) + 12 readings.
+- **`freq4k.json` — Phase 4 (COCA expansion, B2) — COMPLETE:** 800 words = NAWL tail (ranks 801–956, 156 words) + COCA 3000–5000 academic band (644 words). 12 B2 readings (240–300 words each). Every blue key-word resolves to a full definition. Build scripts: `build/_gen_p4_words.py` (word list), `build/p4_readings.js` (readings), `build/_build_p4.js` (pack builder + validator), `build/_test_p4.js` (smoke test).
+
+**Recycling principle:** each later phase's readings reuse earlier-taught words as plain text for spiral review. The app's `CROSS_DICT` mechanism auto-detects any prior-phase word inside a later reading and renders it as a tappable blue popup (meaning + 🔊 pronunciation) — so vocabulary compounds instead of being forgotten. Phase 4 readings recycle the **Phase 1 + 2** taught set at 100% coverage (452/452 words); Phase 3's NAWL words stay consolidated in the Phase 3 pack.
+
+**Status:** Phase 1–4 are **complete** and registered in both `content/manifest.json` and `pwa/content/manifest.json`. The hosted PWA's `sw.js` cache is bumped to `ed-v28` (includes `./content/freq-4k.json`). To preview, open `pwa/index.html` (or the hosted share link) and pick **高频词·第4阶 (COCA 学术拓展)** from **Me → Content Pack**.
+
+> **Known minor inconsistency (non-blocking):** the `manifest.json` `name` fields say `(0–1000)` / `(1001–3000)` while each pack's internal `name` says `(NGSL 1–1000)` / `(NGSL 1001–2809)`. The displayed selector uses the manifest names; both describe the same content. Harmonize later if desired.
 

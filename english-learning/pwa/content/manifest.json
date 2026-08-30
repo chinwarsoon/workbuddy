@@ -25,6 +25,30 @@
       "file": "nce4.json",
       "name": "新概念风格·第四册",
       "nameEn": "NCE-Style Book 4"
+    },
+    {
+      "id": "freq1k",
+      "file": "freq-1k.json",
+      "name": "高频词·第1阶 (0–1000)",
+      "nameEn": "High-Frequency 1 (0–1000)"
+    },
+    {
+      "id": "freq2k",
+      "file": "freq-2k.json",
+      "name": "高频词·第2阶 (1001–3000)",
+      "nameEn": "High-Frequency 2 (1001–3000)"
+    },
+    {
+      "id": "freq3k",
+      "file": "freq-3k.json",
+      "name": "高频词·第3阶 (NAWL 学术词)",
+      "nameEn": "High-Frequency 3 (NAWL academic)"
+    },
+    {
+      "id": "freq4k",
+      "file": "freq-4k.json",
+      "name": "高频词·第4阶 (COCA 学术拓展)",
+      "nameEn": "High-Frequency 4 (COCA expansion)"
     }
   ]
 }

@@ -456,12 +456,24 @@
         {
           "w": "rise",
           "d": "升起",
-          "dEn": "go up / appear"
+          "dEn": "go up / appear",
+          "ipa": "/raɪz/",
+          "pos": "v.",
+          "emoji": "📈",
+          "ex": "The sun rises in the east.",
+          "exzh": "太阳从东方升起。",
+          "exEn": "The sun comes up in the east."
         },
         {
           "w": "habit",
           "d": "习惯",
-          "dEn": "regular practice"
+          "dEn": "regular practice",
+          "ipa": "/ˈhæbɪt/",
+          "pos": "n.",
+          "emoji": "🔁",
+          "ex": "Reading is a good habit.",
+          "exzh": "阅读是个好习惯。",
+          "exEn": "Reading is a good practice."
         }
       ],
       "questions": [
@@ -494,12 +506,24 @@
         {
           "w": "apartment",
           "d": "公寓",
-          "dEn": "flat"
+          "dEn": "flat",
+          "ipa": "/əˈpɑːrtmənt/",
+          "pos": "n.",
+          "emoji": "🏠",
+          "ex": "She lives in a small apartment.",
+          "exzh": "她住在一间小公寓里。",
+          "exEn": "She lives in a small flat."
         },
         {
           "w": "curious",
           "d": "好奇的",
-          "dEn": "eager to know"
+          "dEn": "eager to know",
+          "ipa": "/ˈkjʊriəs/",
+          "pos": "adj.",
+          "emoji": "🔍",
+          "ex": "The child is curious about everything.",
+          "exzh": "那孩子对所有事都好奇。",
+          "exEn": "The child wants to know about everything."
         }
       ],
       "questions": [
@@ -532,12 +556,24 @@
         {
           "w": "failure",
           "d": "失败",
-          "dEn": "lack of success"
+          "dEn": "lack of success",
+          "ipa": "/ˈfeɪljər/",
+          "pos": "n.",
+          "emoji": "❌",
+          "ex": "Failure is a chance to learn.",
+          "exzh": "失败是学习的机会。",
+          "exEn": "Failure is a chance to learn."
         },
         {
           "w": "confidence",
           "d": "自信",
-          "dEn": "self-belief"
+          "dEn": "self-belief",
+          "ipa": "/ˈkɑːnfɪdəns/",
+          "pos": "n.",
+          "emoji": "💪",
+          "ex": "Practice builds confidence.",
+          "exzh": "练习能建立自信。",
+          "exEn": "Practice builds self-belief."
         }
       ],
       "questions": [
@@ -570,12 +606,24 @@
         {
           "w": "valuable",
           "d": "珍贵的",
-          "dEn": "of great worth"
+          "dEn": "of great worth",
+          "ipa": "/ˈvæljuəbəl/",
+          "pos": "adj.",
+          "emoji": "💎",
+          "ex": "Time is valuable.",
+          "exzh": "时间很宝贵。",
+          "exEn": "Time is of great worth."
         },
         {
           "w": "ordinary",
           "d": "普通的",
-          "dEn": "normal, everyday"
+          "dEn": "normal, everyday",
+          "ipa": "/ˈɔːrdnəri/",
+          "pos": "adj.",
+          "emoji": "😐",
+          "ex": "It was an ordinary day.",
+          "exzh": "那是平常的一天。",
+          "exEn": "It was a normal day."
         }
       ],
       "questions": [
@@ -608,12 +656,24 @@
         {
           "w": "friendship",
           "d": "友谊",
-          "dEn": "close bond"
+          "dEn": "close bond",
+          "ipa": "/ˈfrendʃɪp/",
+          "pos": "n.",
+          "emoji": "🤝",
+          "ex": "Friendship grows over time.",
+          "exzh": "友谊随时间的推移而增长。",
+          "exEn": "Friendship grows over time."
         },
         {
           "w": "distance",
           "d": "距离",
-          "dEn": "space between"
+          "dEn": "space between",
+          "ipa": "/ˈdɪstəns/",
+          "pos": "n.",
+          "emoji": "📏",
+          "ex": "Distance is not a wall.",
+          "exzh": "距离不是一堵墙。",
+          "exEn": "Distance is not a wall."
         }
       ],
       "questions": [
@@ -646,12 +706,24 @@
         {
           "w": "relax",
           "d": "放松",
-          "dEn": "rest and unwind"
+          "dEn": "rest and unwind",
+          "ipa": "/rɪˈlæks/",
+          "pos": "v.",
+          "emoji": "🧘",
+          "ex": "Take a break to relax.",
+          "exzh": "休息一下放松。",
+          "exEn": "Take a break to rest."
         },
         {
           "w": "laziness",
           "d": "懒惰",
-          "dEn": "avoiding work"
+          "dEn": "avoiding work",
+          "ipa": "/ˈleɪzinəs/",
+          "pos": "n.",
+          "emoji": "😴",
+          "ex": "Laziness wastes time.",
+          "exzh": "懒惰浪费时间。",
+          "exEn": "Laziness wastes time."
         }
       ],
       "questions": [

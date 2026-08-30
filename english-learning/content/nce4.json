@@ -747,6 +747,39 @@
           "w": "cultivate",
           "d": "培养",
           "dEn": "develop deliberately"
+        },
+        {
+          "w": "assume",
+          "ipa": "/əˈsuːm/",
+          "pos": "v.",
+          "d": "假定；认为",
+          "dEn": "suppose something is true",
+          "ex": "I assume he is right.",
+          "exzh": "我假定他是对的。",
+          "exEn": "I suppose he is correct.",
+          "emoji": "🤔"
+        },
+        {
+          "w": "argument",
+          "ipa": "/ˈɑːrɡjumənt/",
+          "pos": "n.",
+          "d": "争论；论点",
+          "dEn": "a reason given to support a view",
+          "ex": "They had an argument about money.",
+          "exzh": "他们为钱吵了一架。",
+          "exEn": "They had a disagreement about money.",
+          "emoji": "💬"
+        },
+        {
+          "w": "inevitability",
+          "ipa": "/ɪnˌevɪtəˈbɪləti/",
+          "pos": "n.",
+          "d": "必然性",
+          "dEn": "the fact that something cannot be avoided",
+          "ex": "Change is an inevitability.",
+          "exzh": "变化是必然的。",
+          "exEn": "Change cannot be avoided.",
+          "emoji": "🔄"
         }
       ],
       "questions": [
@@ -804,6 +837,17 @@
           "w": "default",
           "d": "默认选项",
           "dEn": "preset option"
+        },
+        {
+          "w": "argument",
+          "ipa": "/ˈɑːrɡjumənt/",
+          "pos": "n.",
+          "d": "争论；论点",
+          "dEn": "a reason given to support a view",
+          "ex": "They had an argument about money.",
+          "exzh": "他们为钱吵了一架。",
+          "exEn": "They had a disagreement about money.",
+          "emoji": "💬"
         }
       ],
       "questions": [
@@ -918,6 +962,17 @@
           "w": "discern",
           "d": "辨别",
           "dEn": "recognize with effort"
+        },
+        {
+          "w": "judgement",
+          "ipa": "/ˈdʒʌdʒmənt/",
+          "pos": "n.",
+          "d": "判断；判断力",
+          "dEn": "the ability to form an opinion",
+          "ex": "Use your own judgement.",
+          "exzh": "用你自己的判断。",
+          "exEn": "Use your own ability to judge.",
+          "emoji": "⚖️"
         }
       ],
       "questions": [
@@ -1032,6 +1087,17 @@
           "w": "deplore",
           "d": "谴责",
           "dEn": "strongly disapprove"
+        },
+        {
+          "w": "argument",
+          "ipa": "/ˈɑːrɡjumənt/",
+          "pos": "n.",
+          "d": "争论；论点",
+          "dEn": "a reason given to support a view",
+          "ex": "They had an argument about money.",
+          "exzh": "他们为钱吵了一架。",
+          "exEn": "They had a disagreement about money.",
+          "emoji": "💬"
         }
       ],
       "questions": [

@@ -1,4 +1,4 @@
-const CACHE = "ed-v8";
+const CACHE = "ed-v28";
 // Only reference files that actually exist. The manifest + touch-icon are
 // inlined as data URIs inside index.html, so they are not separate files.
 const ASSETS = [
@@ -8,7 +8,11 @@ const ASSETS = [
   "./content/general.json",
   "./content/nce2.json",
   "./content/nce3.json",
-  "./content/nce4.json"
+  "./content/nce4.json",
+  "./content/freq-1k.json",
+  "./content/freq-2k.json",
+  "./content/freq-3k.json",
+  "./content/freq-4k.json"
 ];
 
 self.addEventListener("install", function (e) {
