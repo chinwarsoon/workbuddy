@@ -37,7 +37,7 @@ It is designed for **iPhone Safari** but also works in any modern browser (deskt
    - iOS-style bottom tab bar, safe-area insets (`viewport-fit=cover` + `env(safe-area-inset-*)`), `100dvh` to handle Safari's address-bar resize, ≥44px tap targets, zoom disabled.
 
 ### Bonus modules
-- 🔁 **Spaced-repetition flashcards** (Review tab) — simplified SM-2 algorithm; schedules each word by interval / ease / next-due date.
+- 🔁 **Spaced-repetition flashcards** (Review tab) — simplified SM-2 algorithm; one **global schedule per word** (not per pack), so a word learned in any pack keeps its schedule everywhere. Modes: 🔁 current-pack due queue, 🌐 **All Packs** cross-pack due queue, 📚 free browse (no scheduling), ✍️ quiz. The nav badge shows the global due count.
 - ✍️ **Vocabulary quiz** — meaning → choose the word; auto-scored; history saved.
 - ⭐ **Bookmarks** — star difficult words from Daily/Review into a separate list.
 - 🔥 **Streak + reminder** — toggle on/off + set time; uses the Notification API with an in-app fallback.
@@ -204,8 +204,14 @@ All learning **content** (words, readings, plan task bank) is organized into **c
 - **Local file (`file://`)** — browsers block `fetch()` of local files, so the app ships with a **built-in "General English" pack embedded** (works with zero setup). To use your own pack, open **Me → 📦 Content Pack → 📂 Import pack** and pick a JSON file. The imported pack is saved in `localStorage`, so it reloads automatically next time. *(True auto-detect of new files is impossible on `file://` — it is a browser security rule, not a choice.)*
 - A **pack selector** in **Me → Content Pack** switches the active goal at any time; **Daily / Reading / Review all follow the selected pack**.
 
-### Per-goal progress stays separate
-Your progress references each item by its pack: `(packId, word)` for learned words / bookmarks / flashcards, and `(packId, week)` for completed readings. Switching packs shows only that pack's progress; nothing is ever overwritten or lost.
+### Per-goal progress stays separate — except flashcards, which are global
+Learned words / bookmarks / completed readings are referenced per pack: `(packId, word)` and `(packId, week)`. Switching packs shows only that pack's progress; nothing is ever overwritten or lost.
+
+**Flashcards are the exception (by design):** memory of a word is not pack-specific, so each card is keyed by the **word itself** (`flashcards["word"] = {ease, interval, reps, due, packs:[...]}`), with a `packs` tag recording where it was learned. Consequences:
+- A word already learned in **any** pack counts as learned everywhere (`isLearned` is global) — Daily/Reading never re-teach it.
+- On entering a pack, words of that pack that you already learned elsewhere are **captured** into the review pool with their existing schedule (`captureLearnedInPack`).
+- The 🌐 **All Packs** review mode shows one mixed due queue across every pack; the nav badge counts global due.
+- Old `pack::word` card keys are migrated once (idempotently) on load and on backup import — merging duplicates with the soonest due date, the least advanced schedule, and the union of pack tags.
 
 ### Current file layout
 ```

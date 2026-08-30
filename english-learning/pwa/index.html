@@ -302,6 +302,7 @@
     <section id="tab-review">
       <div class="seg" id="reviewSeg">
         <button data-act="reviewmode" data-mode="flash" class="active">🔁 <span data-i18n="rev_flash">复习卡片</span></button>
+        <button data-act="reviewmode" data-mode="globalflash">🌐 <span data-i18n="rev_global">跨包复习</span></button>
         <button data-act="reviewmode" data-mode="allflash">📚 <span data-i18n="rev_all">全部单词</span></button>
         <button data-act="reviewmode" data-mode="quiz">✍️ <span data-i18n="rev_quiz">词汇测验</span></button>
       </div>
@@ -537,7 +538,11 @@ function applyPack(p){
   AREA_LABEL = p.areaLabel || {};
   state.activePack = p.id;
   // reset review queues so cards from the previous pack never linger
-  flashQueue=[]; allFlashQueue=[]; flashFlipped=false;
+  flashQueue=[]; allFlashQueue=[]; globalQueue=[]; flashFlipped=false;
+  // Cross-pack capture: words of this pack already learned in ANY pack are
+  // recognized as known here — they join the review pool with their existing
+  // schedule instead of being re-taught from scratch.
+  captureLearnedInPack();
 }
 async function loadContent(){
   let active = BUILTIN_GENERAL;
@@ -589,6 +594,9 @@ const I18N = {
   plan_title:{zh:"学习计划",en:"Study Plan"}, reading_title:{zh:"每周阅读",en:"Weekly Reading"},
   rev_flash:{zh:"复习卡片",en:"Flashcards"}, rev_quiz:{zh:"词汇测验",en:"Vocab Quiz"},
   rev_all:{zh:"全部单词",en:"All Words"},
+  rev_global:{zh:"跨包复习",en:"All Packs"},
+  review_global_count:{zh:"跨包待复习 {n} 词",en:"{n} due across all packs"},
+  no_due_global_note:{zh:"所有内容包共 {n} 张卡，均已按遗忘曲线安排在未来到期。",en:"{n} cards across all packs — all scheduled for future dates by the forgetting curve."},
   review_all_note:{zh:"自由复习模式：不改变复习计划，评分不会安排下次到期时间。",en:"Free review mode: ratings here don't change the spaced-repetition schedule."},
   review_all_count:{zh:"本包共 {n} 词 · 自由复习",en:"{n} words in this pack · free review"},
   no_due_note:{zh:"当前包共有 {n} 张卡，都已按遗忘曲线安排在未来到期。",en:"{n} cards in this pack — all scheduled for future dates by the forgetting curve."},
@@ -740,7 +748,7 @@ function defaultState(){
     readingsDone: [],      // ["pack::weekIndex"]
     bookmarks: [],         // [wordObj with pack]
     notes: "",
-    flashcards: {},        // {"pack::word":{ease,interval,reps,due}}
+    flashcards: {},        // {"word":{ease,interval,reps,due,packs:[...]}} — one GLOBAL schedule per word
     streak: {count:0, last:null},
     plan: null,            // {goal,minutes,areas}
     reminder: {enabled:false, time:"20:00"},
@@ -754,8 +762,33 @@ function defaultState(){
 function migrateState(s){
   if(!s) return s;
   if(s.flashcards){
+    /* One-time migration to GLOBAL card keys: "pack::word" -> "word" (lowercase).
+       If the same word was learned in several packs, merge conservatively:
+       soonest due date, least advanced schedule, union of pack tags. Idempotent. */
     const f2={};
-    for(const k in s.flashcards){ f2[(k.indexOf("::")>=0?k:("general::"+k))] = s.flashcards[k]; }
+    for(const k in s.flashcards){
+      const c=s.flashcards[k]; if(!c) continue;
+      const oldKey = k.indexOf("::")>=0;
+      let pack="general", word=k;
+      if(oldKey){ const i=k.indexOf("::"); pack=k.slice(0,i); word=k.slice(i+2); }
+      const g=String(word).toLowerCase();
+      // keep any existing packs tag (idempotent re-runs), add old-key pack if new
+      let packs = Array.isArray(c.packs) ? c.packs.slice() : [];
+      if(oldKey && packs.indexOf(pack)<0) packs.push(pack);
+      if(packs.length===0) packs=["general"];
+      const prev=f2[g];
+      if(!prev){
+        f2[g]=Object.assign({}, c, {packs:packs});
+      }else{
+        f2[g]={
+          ease: Math.min(prev.ease||2.5, c.ease||2.5),
+          interval: Math.min(prev.interval||0, c.interval||0),
+          reps: Math.min(prev.reps||0, c.reps||0),
+          due: (String(c.due)<String(prev.due) ? c.due : prev.due),
+          packs: prev.packs.concat(packs).filter(function(p,i,arr){ return arr.indexOf(p)===i; })
+        };
+      }
+    }
     s.flashcards = f2;
   }
   if(Array.isArray(s.learnedWords)){
@@ -788,12 +821,19 @@ function saveState(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
 
 /* ----- pack-scoped helpers ----- */
 function ap(){ return state.activePack || "general"; }
-function fkey(w){ return ap()+"::"+w; }
+function wkey(w){ return String(w).toLowerCase(); } // flashcards are keyed globally by word
 function rkey(wk){ return ap()+"::"+wk; }
 function packOf(rec){ return (rec && rec.pack) || "general"; }
 function learnedActive(){ return state.learnedWords.filter(function(x){ return packOf(x)===ap(); }).length; }
 function readingsActive(){ return state.readingsDone.filter(function(x){ return x.indexOf(ap()+"::")===0; }).length; }
-function flashActive(){ return Object.keys(state.flashcards).filter(function(k){ return k.indexOf(ap()+"::")===0; }).length; }
+/* map lowercase word -> display word of the ACTIVE pack */
+function packWordSet(){
+  const s={};
+  WORDS.forEach(function(w){ if(w && w.word) s[String(w.word).toLowerCase()]=w.word; });
+  return s;
+}
+function flashActive(){ const s=packWordSet(); return Object.keys(state.flashcards).filter(function(k){ return s[k]; }).length; }
+function flashActiveGlobal(){ return Object.keys(state.flashcards).length; }
 function bmActive(){ return state.bookmarks.filter(function(x){ return packOf(x)===ap(); }).length; }
 
 /* ===================== DATE HELPERS ===================== */
@@ -831,15 +871,43 @@ function learnWord(word){
   if(!state.learnedWords.find(x=>x.word===word && packOf(x)===ap())){
     state.learnedWords.push({word, date: todayStr(), pack: ap()});
   }
-  if(!state.flashcards[fkey(word)]){
-    state.flashcards[fkey(word)]={ease:2.5, interval:0, reps:0, due: todayStr()};
+  const g=wkey(word);
+  const c=state.flashcards[g];
+  if(!c){
+    state.flashcards[g]={ease:2.5, interval:0, reps:0, due: todayStr(), packs:[ap()]};
+  }else if(Array.isArray(c.packs) && c.packs.indexOf(ap())<0){
+    // already carded (possibly from another pack): keep the existing schedule,
+    // just add this pack as provenance
+    c.packs.push(ap());
   }
   recordActivity("words");
   saveState();
   refreshDaily(); renderMe(); toast(t('toast_learned')+word);
 }
 
-function isLearned(word){ return state.learnedWords.some(x=>x.word===word && packOf(x)===ap()); }
+/* Learned in ANY pack counts — memory of a word is not pack-specific. */
+function learnedAny(word){
+  const g=String(word).toLowerCase();
+  return state.learnedWords.some(function(x){ return x.word && x.word.toLowerCase()===g; });
+}
+function isLearned(word){ return learnedAny(word); }
+
+/* Cross-pack capture: ensure every word of the ACTIVE pack that the user has
+   already learned (in any pack) exists in the global deck, so switching packs
+   re-uses the existing schedule instead of re-teaching the word. */
+function captureLearnedInPack(){
+  if(!Array.isArray(WORDS) || WORDS.length===0) return;
+  let changed=false;
+  WORDS.forEach(function(w){
+    if(!w || !w.word || !learnedAny(w.word)) return;
+    const g=wkey(w.word);
+    const c=state.flashcards[g];
+    if(!c){ state.flashcards[g]={ease:2.5, interval:0, reps:0, due: todayStr(), packs:[ap()]}; changed=true; }
+    else if(!Array.isArray(c.packs)){ c.packs=[ap()]; changed=true; }
+    else if(c.packs.indexOf(ap())<0){ c.packs.push(ap()); changed=true; }
+  });
+  if(changed) saveState();
+}
 
 function toggleBookmark(word){
   const i = state.bookmarks.findIndex(x=>x.word===word && packOf(x)===ap());
@@ -854,20 +922,40 @@ function toggleBookmark(word){
 }
 function isBookmarked(word){ return state.bookmarks.some(x=>x.word===word && packOf(x)===ap()); }
 
+/* Due words of the ACTIVE pack (card schedule is global; membership is pack-scoped). */
 function dueCards(){
-  const t=todayStr(); const pre=ap()+"::";
+  const t=todayStr(); const s=packWordSet();
   return Object.keys(state.flashcards)
-    .filter(k=> k.indexOf(pre)===0 && state.flashcards[k].due <= t)
-    .map(k=> k.slice(pre.length));
+    .filter(function(k){ return s[k] && state.flashcards[k].due <= t; })
+    .map(function(k){ return s[k]; });
+}
+/* Due words across EVERY pack — the "All Packs" review queue. */
+function dueCardsGlobal(){
+  const t=todayStr();
+  return Object.keys(state.flashcards)
+    .filter(function(k){ return state.flashcards[k].due <= t; });
+}
+/* Find a word object in any loaded pack (active pack first) for card rendering. */
+function findWordGlobal(word){
+  const g=String(word).toLowerCase();
+  const cur=WORDS.find(function(x){ return x.word && x.word.toLowerCase()===g; });
+  if(cur) return cur;
+  for(const pid in PACKS){
+    const pk=PACKS[pid];
+    if(!pk || !Array.isArray(pk.words)) continue;
+    const w=pk.words.find(function(x){ return x.word && x.word.toLowerCase()===g; });
+    if(w) return w;
+  }
+  return null;
 }
 function rateCard(word, q){
-  let c = state.flashcards[fkey(word)]; if(!c) return;
+  let c = state.flashcards[wkey(word)]; if(!c) return;
   if(q<3){ c.reps=0; c.interval=1; }
   else{
     c.reps+=1;
     if(c.reps===1) c.interval=1;
     else if(c.reps===2) c.interval=3;
-    else c.interval=Math.max(1, Math.round(c.interval*(q>=4?2.5:2)));
+    else c.interval=Math.max(1, Math.round(c.interval*(q>=4?2.2:2)));
   }
   c.due=addDays(todayStr(), c.interval);
   recordActivity("review");
@@ -1418,6 +1506,7 @@ function readingAnswer(qi, oi){
 let reviewMode="flash";
 let flashQueue=[];
 let allFlashQueue=[];
+let globalQueue=[];
 let flashFlipped=false;
 let quizData=[];
 let quizIdx=0;
@@ -1460,6 +1549,22 @@ function renderReview(){
     updateListenBtn();
     return;
   }
+  if(reviewMode==="globalflash"){
+    // Due review across EVERY pack — one global schedule follows the learner.
+    // Only queue cards whose word can still be rendered (exists in some pack),
+    // otherwise the skip-shift fallback below could loop forever.
+    if(globalQueue.length===0) globalQueue=shuffle(dueCardsGlobal().filter(function(k){ return findWordGlobal(k); }));
+    if(globalQueue.length===0){
+      const total=flashActiveGlobal();
+      a.innerHTML=`<div class="center"><div class="big">🎉</div><p>${t('no_cards')}</p><p class="note">${tf('no_due_global_note',{n:total})}</p></div>`;
+      return;
+    }
+    const word=globalQueue[0];
+    const w=findWordGlobal(word);
+    if(!w){ globalQueue.shift(); return renderReview(); } // word no longer in any pack — skip
+    a.innerHTML=flashCardHTML(w,w.word,tf('review_global_count',{n:globalQueue.length}),false);
+    return;
+  }
   if(reviewMode==="flash"){
     // Due-only review. Empty queue is EXPECTED when nothing is due yet.
     if(flashQueue.length===0) flashQueue=shuffle(dueCards());
@@ -1472,7 +1577,7 @@ function renderReview(){
     }
     const word=flashQueue[0];
     const w=WORDS.find(x=>x.word===word);
-    if(!w){ flashQueue.shift(); return renderReview(); } // stale card from another pack — skip it
+    if(!w){ flashQueue.shift(); return renderReview(); } // stale card — skip it
     a.innerHTML=flashCardHTML(w,word,t('cards_due')+" "+flashQueue.length+" "+t('cards_unit'),false);
   } else {
     if(quizData.length===0) buildQuiz();
@@ -1502,20 +1607,21 @@ function renderReview(){
   }
 }
 function flipCard(){
-  const q = (reviewMode==="allflash") ? allFlashQueue : flashQueue;
+  const q = (reviewMode==="allflash") ? allFlashQueue : (reviewMode==="globalflash" ? globalQueue : flashQueue);
   if(q.length===0) return;
   flashFlipped=!flashFlipped;
   renderReview();
 }
 function rateFlash(word,q){
   rateCard(word, parseInt(q));
-  flashQueue.shift();
+  if(reviewMode==="globalflash") globalQueue.shift(); else flashQueue.shift();
   flashFlipped=false;
   renderReview();
   renderMe();
 }
 function buildQuiz(n){
-  const known=state.learnedWords.filter(x=>packOf(x)===ap()).map(x=>x.word);
+  // words of the CURRENT pack that are learned in ANY pack (cross-pack aware)
+  const known=WORDS.filter(function(x){ return x.word && learnedAny(x.word); }).map(function(x){ return x.word; });
   const pool=(known.length>=4?known:WORDS.map(x=>x.word));
   const picks=shuffle(pool).slice(0, Math.min(n||5, pool.length));
   quizData=picks.map(w=>{
@@ -1636,8 +1742,8 @@ function renderMe(){
     if(lab) lab.textContent=Number(rv.toFixed(2))+"×";
   }
 
-  // badge
-  const due=dueCards().length;
+  // badge — GLOBAL due count so switching packs never hides pending reviews
+  const due=dueCardsGlobal().length;
   const badge=document.getElementById("reviewBadge");
   if(due>0){ badge.style.display="flex"; badge.textContent=due; }
   else badge.style.display="none";
@@ -1671,7 +1777,7 @@ function bindImport(){
       try{
         const s=JSON.parse(r.result);
         if(!s || !Array.isArray(s.learnedWords)) throw new Error("bad");
-        state=Object.assign(defaultState(), s);
+        state=migrateState(Object.assign(defaultState(), s)); // fold old pack::word cards into global keys
         saveState();
         toast(t('toast_import_ok'));
         renderPlan(); refreshDaily(); refreshReading(); renderReview(); renderMe();
@@ -1797,6 +1903,7 @@ document.addEventListener("click", function(e){
       reviewMode=el.dataset.mode;
       document.querySelectorAll("#reviewSeg button").forEach(b=>b.classList.toggle("active", b.dataset.mode===reviewMode));
       if(reviewMode==="flash"){ flashQueue=shuffle(dueCards()); flashFlipped=false; }
+      else if(reviewMode==="globalflash"){ globalQueue=shuffle(dueCardsGlobal().filter(function(k){ return findWordGlobal(k); })); flashFlipped=false; }
       else if(reviewMode==="allflash"){ allFlashQueue=shuffle(WORDS.map(x=>x.word)); flashFlipped=false; }
       else { quizData=[]; }
       renderReview();
