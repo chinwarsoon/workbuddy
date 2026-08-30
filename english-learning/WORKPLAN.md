@@ -280,3 +280,11 @@ This is the **primary graded vocabulary path**, built in four phases. Each phase
 
 **Status:** Phase 1–4 are **complete** and registered in both `content/manifest.json` and `pwa/content/manifest.json`. The hosted PWA's `sw.js` cache is auto-bumped from content hash (`build/_prep_deploy.js`); current live hash: `ed-60711b35`. To preview, open `pwa/index.html` (or the hosted share link) and pick **高频词·第4阶 (COCA 学术拓展)** from **Me → Content Pack**.
 
+## 12. Open items — future enhancements (pending decision, not started)
+
+Reviewed 2026-08-30. Nothing here is pending implementation work; each item waits for an explicit go-ahead. New UI text/labels for any of these require approval before coding (per project convention).
+
+1. **Phase 2 Chinese example-sentence quality.** All 1879 `freq-2k` words have full ZH+EN definitions (backfilled, commit `61f9c3a`), but the Chinese example sentences are loose template-generated text rather than natural translations. A rewrite pass (e.g. better templates or per-word examples) would raise quality. Scope: `content/freq-2k.json` + `pwa/content/freq-2k.json` + rebuild.
+2. **Extend reading recycling to Phase 3.** Phase 4 readings currently recycle P1+P2 only (decision B1, 452/452 covered). Extending recycling to include the Phase 3 NAWL set would compound academic vocabulary too — but previously conflicted with the 240–300-word reading-length cap; would need re-balancing the reading texts.
+3. **Per-word review push reminders.** Not feasible as-is: an offline-first PWA cannot fire background notifications per due word. Current behavior is the in-app due queue + global nav badge, plus the generic fixed-time daily reminder (only fires while the app is open). Options if wanted later: Background Sync API (limited iOS support) or a native-wrapper approach — both change the deployment model and need separate evaluation against the offline/no-data-loss requirements.
+
