@@ -303,6 +303,8 @@
       <div class="seg" id="reviewSeg">
         <button data-act="reviewmode" data-mode="flash" class="active">🔁 <span data-i18n="rev_flash">复习卡片</span></button>
         <button data-act="reviewmode" data-mode="globalflash">🌐 <span data-i18n="rev_global">跨包复习</span></button>
+        <button data-act="reviewmode" data-mode="productive">✏️ <span data-i18n="rev_productive">主动拼写</span></button>
+        <button data-act="reviewmode" data-mode="context">📖 <span data-i18n="rev_context">语境复习</span></button>
         <button data-act="reviewmode" data-mode="allflash">📚 <span data-i18n="rev_all">全部单词</span></button>
         <button data-act="reviewmode" data-mode="quiz">✍️ <span data-i18n="rev_quiz">词汇测验</span></button>
       </div>
@@ -538,7 +540,7 @@ function applyPack(p){
   AREA_LABEL = p.areaLabel || {};
   state.activePack = p.id;
   // reset review queues so cards from the previous pack never linger
-  flashQueue=[]; allFlashQueue=[]; globalQueue=[]; flashFlipped=false;
+  flashQueue=[]; allFlashQueue=[]; globalQueue=[]; productiveQueue=[]; contextQueue=[]; typedResult=null; flashFlipped=false;
   // Cross-pack capture: words of this pack already learned in ANY pack are
   // recognized as known here — they join the review pool with their existing
   // schedule instead of being re-taught from scratch.
@@ -595,6 +597,15 @@ const I18N = {
   rev_flash:{zh:"复习卡片",en:"Flashcards"}, rev_quiz:{zh:"词汇测验",en:"Vocab Quiz"},
   rev_all:{zh:"全部单词",en:"All Words"},
   rev_global:{zh:"跨包复习",en:"All Packs"},
+  rev_productive:{zh:"主动拼写",en:"Spell It"},
+  rev_context:{zh:"语境复习",en:"Context"},
+  prod_hint:{zh:"根据释义拼出这个单词（输入后回车或点「检查」）",en:"Type the word that matches this definition (Enter or Check)"},
+  ctx_hint:{zh:"根据句子语境填出缺失的单词",en:"Fill in the missing word from the sentence context"},
+  type_placeholder:{zh:"输入单词…",en:"Type the word…"},
+  check_btn:{zh:"检查",en:"Check"},
+  typed_correct:{zh:"✅ 正确！",en:"✅ Correct!"},
+  typed_wrong:{zh:"❌ 拼错了，正确答案：",en:"❌ Not quite. The answer:"},
+  next_btn:{zh:"下一张",en:"Next"},
   review_global_count:{zh:"跨包待复习 {n} 词",en:"{n} due across all packs"},
   no_due_global_note:{zh:"所有内容包共 {n} 张卡，均已按遗忘曲线安排在未来到期。",en:"{n} cards across all packs — all scheduled for future dates by the forgetting curve."},
   review_all_note:{zh:"自由复习模式：不改变复习计划，评分不会安排下次到期时间。",en:"Free review mode: ratings here don't change the spaced-repetition schedule."},
@@ -1507,6 +1518,9 @@ let reviewMode="flash";
 let flashQueue=[];
 let allFlashQueue=[];
 let globalQueue=[];
+let productiveQueue=[];
+let contextQueue=[];
+let typedResult=null;
 let flashFlipped=false;
 let quizData=[];
 let quizIdx=0;
@@ -1537,6 +1551,76 @@ function flashCardHTML(w, word, countLabel, free){
       </div>`:`<p class="note" style="text-align:center;margin-top:12px;">${free?t('review_all_note'):t('flip_hint')}</p>`}
   `;
 }
+/* Shared result card after a typed answer is checked (productive & context modes). */
+function typedResultHTML(w, countLabel){
+  const ok=typedResult && typedResult.correct;
+  return `
+    <p class="muted" style="text-align:center;">${countLabel}</p>
+    <div class="flash" style="cursor:default;background:linear-gradient(135deg,#fff,${ok?'#eef8ef':'#fdf0f0'});">
+      <div class="def" style="font-size:17px;">${ok?t('typed_correct'):t('typed_wrong')}</div>
+      <div class="w" style="font-size:18px;margin:8px 0;color:var(--accent);">${w.word} ${w.ipa||""}</div>
+      <div class="def">${state.lang==='en'?w.defEn:w.def}</div>
+      <div>${w.ex||""}</div>
+      <div class="exzh" style="color:var(--muted);font-size:13px;margin-top:4px;">${state.lang==='en'?w.exEn:w.exzh}</div>
+      <button class="iconbtn small" data-act="speak" data-text="${w.word}" style="margin-top:10px;">${t('speak_btn')}</button>
+    </div>
+    <div class="btn-row"><button class="btn" data-act="typedNext">${t('next_btn')}</button></div>`;
+}
+function typedInputHTML(word){
+  return `
+    <div style="margin-top:14px;display:flex;gap:8px;">
+      <input class="typeInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+        placeholder="${t('type_placeholder')}" onkeydown="typedEnter(event)"
+        style="flex:1;font-size:16px;padding:12px 14px;border:1.5px solid #d5d7e3;border-radius:12px;outline:none;font-family:inherit;">
+      <button class="btn" data-act="checkTyped" data-word="${word}">${t('check_btn')}</button>
+    </div>`;
+}
+/* Productive recall: definition (+emoji/pos hint) → user types the word. */
+function productiveCardHTML(w, count){
+  const countLabel=t('cards_due')+" "+count+" "+t('cards_unit');
+  if(typedResult && typedResult.word===w.word) return typedResultHTML(w, countLabel);
+  return `
+    <p class="muted" style="text-align:center;">${countLabel}</p>
+    <div class="flash" style="cursor:default;">
+      <div class="big">${w.emoji||'🔤'}</div>
+      <div class="def" style="font-size:18px;">${w.pos?('<span class="muted" style="font-size:13px;">'+w.pos+' · </span>'):''}${state.lang==='en'?w.defEn:w.def}</div>
+    </div>
+    ${typedInputHTML(w.word)}
+    <p class="note" style="text-align:center;margin-top:12px;">${t('prod_hint')}</p>`;
+}
+/* Context review: a real reading sentence with the target word blanked. */
+function rxWord(word){ return new RegExp("\\b"+String(word).replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i"); }
+function contextSentence(w){
+  // Prefer sentences from the ACTIVE pack's readings, then any other pack, then the word's own example.
+  const ids=[ap()].concat(Object.keys(PACKS).filter(function(p){ return p!==ap(); }));
+  for(const pid of ids){
+    const pk=PACKS[pid];
+    if(!pk || !Array.isArray(pk.readings)) continue;
+    for(const r of pk.readings){
+      const plain=String(r.text||"").replace(/<[^>]+>/g,"");
+      const sents=plain.match(/[^.!?\n]+[.!?]*/g)||[];
+      for(const s of sents){
+        if(rxWord(w.word).test(s)) return s.trim();
+      }
+    }
+  }
+  if(w.ex && rxWord(w.word).test(w.ex)) return w.ex;
+  return null;
+}
+function contextCardHTML(w, count){
+  const countLabel=t('cards_due')+" "+count+" "+t('cards_unit');
+  if(typedResult && typedResult.word===w.word) return typedResultHTML(w, countLabel);
+  const sent=contextSentence(w);
+  if(!sent) return productiveCardHTML(w, count); // no sentence anywhere — fall back to definition prompt
+  const masked=sent.replace(rxWord(w.word), "<b style='color:var(--accent);'>______</b>");
+  return `
+    <p class="muted" style="text-align:center;">${countLabel}</p>
+    <div class="flash" style="cursor:default;">
+      <div style="font-size:17px;line-height:1.8;">${masked}</div>
+    </div>
+    ${typedInputHTML(w.word)}
+    <p class="note" style="text-align:center;margin-top:12px;">${t('ctx_hint')}</p>`;
+}
 function renderReview(){
   const a=document.getElementById("reviewArea");
   if(reviewMode==="allflash"){
@@ -1563,6 +1647,37 @@ function renderReview(){
     const w=findWordGlobal(word);
     if(!w){ globalQueue.shift(); return renderReview(); } // word no longer in any pack — skip
     a.innerHTML=flashCardHTML(w,w.word,tf('review_global_count',{n:globalQueue.length}),false);
+    return;
+  }
+  if(reviewMode==="productive"){
+    // Productive recall (definition → type the word) on the GLOBAL due queue:
+    // one schedule per word follows the learner, shared with the other modes.
+    if(productiveQueue.length===0) productiveQueue=shuffle(dueCardsGlobal().filter(function(k){ return findWordGlobal(k); }));
+    if(productiveQueue.length===0){
+      const total=flashActiveGlobal();
+      a.innerHTML=`<div class="center"><div class="big">🎉</div><p>${t('no_cards')}</p><p class="note">${total>0?tf('no_due_global_note',{n:total}):t('no_cards_note')}</p></div>`;
+      return;
+    }
+    const word=productiveQueue[0];
+    const w=findWordGlobal(word);
+    if(!w){ productiveQueue.shift(); return renderReview(); }
+    a.innerHTML=productiveCardHTML(w, productiveQueue.length);
+    const inp=a.querySelector(".typeInput"); if(inp) inp.focus();
+    return;
+  }
+  if(reviewMode==="context"){
+    // Context review (reading sentence with a blank) on the GLOBAL due queue.
+    if(contextQueue.length===0) contextQueue=shuffle(dueCardsGlobal().filter(function(k){ return findWordGlobal(k); }));
+    if(contextQueue.length===0){
+      const total=flashActiveGlobal();
+      a.innerHTML=`<div class="center"><div class="big">🎉</div><p>${t('no_cards')}</p><p class="note">${total>0?tf('no_due_global_note',{n:total}):t('no_cards_note')}</p></div>`;
+      return;
+    }
+    const word=contextQueue[0];
+    const w=findWordGlobal(word);
+    if(!w){ contextQueue.shift(); return renderReview(); }
+    a.innerHTML=contextCardHTML(w, contextQueue.length);
+    const inp=a.querySelector(".typeInput"); if(inp) inp.focus();
     return;
   }
   if(reviewMode==="flash"){
@@ -1618,6 +1733,32 @@ function rateFlash(word,q){
   flashFlipped=false;
   renderReview();
   renderMe();
+}
+/* ---- typed-answer modes (productive & context) ---- */
+function normTyped(s){
+  return String(s||"").toLowerCase().trim().replace(/[.,!?;:]+$/,"").replace(/^["']|["']$/g,"");
+}
+function checkTyped(word){
+  const inp=document.querySelector("#reviewArea .typeInput");
+  if(!inp) return;
+  const w=findWordGlobal(word); if(!w) return;
+  const ok = normTyped(inp.value)===String(w.word).toLowerCase();
+  typedResult={word:w.word, correct:ok};
+  // Typed correct → standard "Okay" step; wrong → reset like "Forgot".
+  rateCard(w.word, ok?3:0);
+  renderReview();
+  renderMe();
+}
+function typedEnter(ev){
+  if(ev.key!=="Enter") return;
+  ev.preventDefault();
+  const b=document.querySelector('#reviewArea [data-act="checkTyped"]') || document.querySelector('#reviewArea [data-act="typedNext"]');
+  if(b) b.click();
+}
+function typedNext(){
+  if(reviewMode==="context") contextQueue.shift(); else productiveQueue.shift();
+  typedResult=null;
+  renderReview();
 }
 function buildQuiz(n){
   // words of the CURRENT pack that are learned in ANY pack (cross-pack aware)
@@ -1904,12 +2045,16 @@ document.addEventListener("click", function(e){
       document.querySelectorAll("#reviewSeg button").forEach(b=>b.classList.toggle("active", b.dataset.mode===reviewMode));
       if(reviewMode==="flash"){ flashQueue=shuffle(dueCards()); flashFlipped=false; }
       else if(reviewMode==="globalflash"){ globalQueue=shuffle(dueCardsGlobal().filter(function(k){ return findWordGlobal(k); })); flashFlipped=false; }
+      else if(reviewMode==="productive"){ productiveQueue=shuffle(dueCardsGlobal().filter(function(k){ return findWordGlobal(k); })); flashFlipped=false; typedResult=null; }
+      else if(reviewMode==="context"){ contextQueue=shuffle(dueCardsGlobal().filter(function(k){ return findWordGlobal(k); })); flashFlipped=false; typedResult=null; }
       else if(reviewMode==="allflash"){ allFlashQueue=shuffle(WORDS.map(x=>x.word)); flashFlipped=false; }
       else { quizData=[]; }
       renderReview();
       break;
     case "flip": flipCard(); break;
     case "rate": rateFlash(el.dataset.word, el.dataset.q); break;
+    case "checkTyped": checkTyped(el.dataset.word); break;
+    case "typedNext": typedNext(); break;
     case "rateFree":
       // free review: advance without touching the spaced-repetition schedule
       allFlashQueue.shift();

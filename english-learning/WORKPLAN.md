@@ -37,7 +37,7 @@ It is designed for **iPhone Safari** but also works in any modern browser (deskt
    - iOS-style bottom tab bar, safe-area insets (`viewport-fit=cover` + `env(safe-area-inset-*)`), `100dvh` to handle Safari's address-bar resize, ≥44px tap targets, zoom disabled.
 
 ### Bonus modules
-- 🔁 **Spaced-repetition flashcards** (Review tab) — simplified SM-2 algorithm; one **global schedule per word** (not per pack), so a word learned in any pack keeps its schedule everywhere. Modes: 🔁 current-pack due queue, 🌐 **All Packs** cross-pack due queue, 📚 free browse (no scheduling), ✍️ quiz. The nav badge shows the global due count.
+- 🔁 **Spaced-repetition flashcards** (Review tab) — simplified SM-2 algorithm; one **global schedule per word** (not per pack), so a word learned in any pack keeps its schedule everywhere. Modes: 🔁 current-pack due queue, 🌐 **All Packs** cross-pack due queue, ✏️ **Spell It** productive recall (definition → type the word; correct = "Okay" step, wrong = reset), 📖 **Context** review (a real reading sentence with the word blanked → type it; falls back to the word's example, then to the definition prompt), 📚 free browse (no scheduling), ✍️ quiz. Typed modes share the global due queue and the same per-word schedule; grading ignores case and trailing punctuation. The nav badge shows the global due count.
 - ✍️ **Vocabulary quiz** — meaning → choose the word; auto-scored; history saved.
 - ⭐ **Bookmarks** — star difficult words from Daily/Review into a separate list.
 - 🔥 **Streak + reminder** — toggle on/off + set time; uses the Notification API with an in-app fallback.
@@ -211,6 +211,7 @@ Learned words / bookmarks / completed readings are referenced per pack: `(packId
 - A word already learned in **any** pack counts as learned everywhere (`isLearned` is global) — Daily/Reading never re-teach it.
 - On entering a pack, words of that pack that you already learned elsewhere are **captured** into the review pool with their existing schedule (`captureLearnedInPack`).
 - The 🌐 **All Packs** review mode shows one mixed due queue across every pack; the nav badge counts global due.
+- The ✏️ **Spell It** and 📖 **Context** typed modes also draw from the global due queue and advance the **same** per-word schedule (typed correct = "Okay", typed wrong = "Forgot"), so every mode reinforces one memory trace per word.
 - Old `pack::word` card keys are migrated once (idempotently) on load and on backup import — merging duplicates with the soonest due date, the least advanced schedule, and the union of pack tags.
 
 ### Current file layout
