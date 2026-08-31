@@ -110,23 +110,26 @@ setTimeout(() => {
     const c3 = JSON.parse(ev("JSON.stringify(state.flashcards['" + w1.toLowerCase() + "'])"));
     ok(c3.interval === 22, "Easy on interval 10 -> 22 (x2.2): " + c3.interval);
 
-    console.log("=== 8. badge + globalflash mode ===");
+    console.log("=== 8. badge + all-packs due review (scope=all) ===");
     ev("renderMe();");
     const badge = w.document.getElementById("reviewBadge");
     ok(badge && badge.style.display !== "none" && parseInt(badge.textContent) >= 2,
        "nav badge shows global due count >= 2: " + (badge && badge.textContent));
-    ev("reviewMode='globalflash'; globalQueue=[]; renderReview();");
+    // the old "globalflash" mode is now scope=all on mode=flash. Add a resolvable
+    // due card (a word that exists in the loaded pack) and render it directly.
+    ev("state.flashcards[WORDS[0].word.toLowerCase()] = {ease:2.5, interval:4, reps:2, due:'"+past+"', packs:['general']};");
+    const W0 = ev("WORDS[0].word");
+    ev("state.reviewScope='all'; reviewMode='flash'; sessionDone=false; currentQueue=['"+W0+"']; renderReview();");
     const ra = w.document.getElementById("reviewArea").innerHTML;
-    ok(/跨包待复习|due across all packs/.test(ra), "globalflash renders queue: " + ra.slice(0, 80).replace(/\n/g," "));
-    // rating in global mode advances the global queue
-    const qBefore = ev("globalQueue.length");
-    const firstWord = ev("globalQueue[0]");
-    ev("flashFlipped = true; rateFlash('" + firstWord + "', 3);");
-    ok(ev("globalQueue.length") === qBefore - 1, "rateFlash advances global queue");
+    ok(new RegExp(W0, "i").test(ra), "all-packs due review renders a due card: " + ra.slice(0, 90).replace(/\n/g," "));
+    // rating advances the (single) current queue
+    const qBefore = ev("currentQueue.length");
+    ev("flashFlipped = true; rateFlash('" + W0 + "', 3);");
+    ok(ev("currentQueue.length") === qBefore - 1, "rateFlash advances current queue");
 
-    console.log("=== 9. free mode untouched ===");
-    ev("reviewMode='allflash'; allFlashQueue=[]; renderReview();");
-    ok(/自由复习|free review|全部单词/i.test(w.document.getElementById("reviewArea").innerHTML), "allflash still renders");
+    console.log("=== 9. free browse (all packs) still renders ===");
+    ev("state.reviewScope='all'; reviewMode='allflash'; allSub=''; sessionDone=false; currentQueue=['"+W0+"']; renderReview();");
+    ok(new RegExp(W0, "i").test(w.document.getElementById("reviewArea").innerHTML), "allflash (scope=all) still renders");
 
     console.log(fail === 0 ? "\nALL PASS" : "\nFAILURES: " + fail);
     process.exit(fail === 0 ? 0 : 1);

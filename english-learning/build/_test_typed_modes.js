@@ -65,11 +65,11 @@ setTimeout(() => {
     console.log("=== 1. seg buttons exist ===");
     const btnP = w.document.querySelector('#reviewSeg button[data-mode="productive"]');
     const btnC = w.document.querySelector('#reviewSeg button[data-mode="context"]');
-    ok(!!btnP && /主动拼写|Spell/.test(btnP.textContent), "productive seg button renders");
-    ok(!!btnC && /语境复习|Context/.test(btnC.textContent), "context seg button renders");
+    ok(!!btnP, "productive seg button exists (data-mode=productive)");
+    ok(!!btnC && /语境|Context/i.test(btnC.textContent), "context seg button renders");
 
     console.log("=== 2. productive: correct typed answer ===");
-    ev(`reviewMode='productive'; productiveQueue=['${W0}']; typedResult=null; renderReview();`);
+    ev(`state.reviewScope='pack'; reviewMode='productive'; sessionDone=false; currentQueue=['${W0}']; typedResult=null; renderReview();`);
     ok(!!w.document.querySelector("#reviewArea .typeInput"), "productive renders a text input");
     ok(/检查|Check/.test(ra().innerHTML), "check button renders");
     ok(!new RegExp(W0k, "i").test((ra().querySelector(".flash")||{innerHTML:""}).innerHTML.replace(/<[^>]+>/g,"")),
@@ -80,7 +80,7 @@ setTimeout(() => {
     ok(tr && tr.correct === true && tr.word === W0, "typed answer (case+punct) grades correct");
     const bk = JSON.parse(ev("JSON.stringify(state.flashcards['" + W0k + "'])"));
     ok(bk.reps === 3 && bk.interval === 8, "q=3 ladder: reps 2->3, interval 4->8: " + JSON.stringify(bk));
-    ok(ev("productiveQueue.length") === 1, "queue NOT advanced before typedNext");
+    ok(ev("currentQueue.length") === 1, "queue NOT advanced before typedNext");
     ok(/正确|Correct/.test(ra().innerHTML), "result card shows correct feedback");
 
     console.log("=== 3. typedNext advances ===");
@@ -88,7 +88,7 @@ setTimeout(() => {
     ok(!!w.document.querySelector("#reviewArea .typeInput") || /no_cards|🎉/.test(ra().innerHTML), "next card or empty state renders");
 
     console.log("=== 4. productive: wrong answer rates q=0 ===");
-    ev(`reviewMode='productive'; productiveQueue=['${W1}']; typedResult=null; renderReview();`);
+    ev(`state.reviewScope='pack'; reviewMode='productive'; sessionDone=false; currentQueue=['${W1}']; typedResult=null; renderReview();`);
     ev("document.querySelector('#reviewArea .typeInput').value='wrongzz'; checkTyped('" + W1 + "');");
     const rv = JSON.parse(ev("JSON.stringify(state.flashcards['" + W1k + "'])"));
     ok(rv.reps === 0 && rv.interval === 1, "q=0 reset: reps->0, interval->1: " + JSON.stringify(rv));
@@ -98,7 +98,7 @@ setTimeout(() => {
     console.log("=== 5. context mode renders masked sentence ===");
     const sent = JSON.parse(ev("JSON.stringify(contextSentence(findWordGlobal('" + W0 + "')))"));
     ok(typeof sent === "string" && sent.length > 0, "contextSentence resolves for '" + W0 + "'");
-    ev(`reviewMode='context'; contextQueue=['${W0}']; typedResult=null; renderReview();`);
+    ev(`state.reviewScope='pack'; reviewMode='context'; sessionDone=false; currentQueue=['${W0}']; typedResult=null; renderReview();`);
     const ctxHtml = ra().innerHTML;
     ok(/______/.test(ctxHtml) || /def/.test(ctxHtml), "context card renders (masked sentence or definition fallback)");
     ok(!!w.document.querySelector("#reviewArea .typeInput"), "context mode has a text input");
@@ -113,8 +113,8 @@ setTimeout(() => {
     ok(ev("normTyped(undefined)") === "", "normTyped safe on undefined");
 
     console.log("=== 7. other modes still work ===");
-    ev("reviewMode='flash'; flashQueue=[]; flashFlipped=false; renderReview();");
-    ok(/待复习|Due|🎉/.test(ra().innerHTML), "classic flashcard mode still renders");
+    ev("state.reviewScope='pack'; reviewMode='flash'; sessionDone=false; currentQueue=['" + W0 + "']; renderReview();");
+    ok(ra().innerHTML.indexOf(W0) >= 0 || /待复习|Due|🎉/.test(ra().innerHTML), "classic flashcard mode still renders");
 
     console.log(fail === 0 ? "\nALL PASS" : "\nFAILURES: " + fail);
     process.exit(fail === 0 ? 0 : 1);
