@@ -1,4 +1,4 @@
-const CACHE = "ed-bc9c5375";
+const CACHE = "ed-2f278ce8";
 // Only reference files that actually exist. The manifest + touch-icon are
 // inlined as data URIs inside index.html, so they are not separate files.
 const ASSETS = [
