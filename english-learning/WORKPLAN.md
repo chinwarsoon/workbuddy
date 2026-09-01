@@ -116,7 +116,7 @@ All three open the **same app code**; they differ only in *where* the file is op
 - A **Service Worker** (`sw.js`) caches the page on first load, so it keeps working **offline** even after the host is unreachable.
 - `https` storage is the most stable of the three.
 - **Share link:** https://889d525c87954023a62ef99476da83bd.app.workbuddy.link/
-  - This is the **current deployed link** — it serves the latest build (service worker cache `ed-82731975`, with the global-SRS refactor, Spell It + Context modes, and status colors). Re-deploys reuse the same link. After a deploy, close and reopen the app once so Safari picks up the new service worker.
+  - This is the **current deployed link** — it serves the latest build (service worker cache `ed-bc9c5375`, with the global-SRS refactor, Spell It + Context modes, status colors, and the B1–B6 accessibility fixes: pinch-zoom, contrast, keyboard/ARIA, dialog focus-trap, reduced-motion, XSS hardening). Re-deploys reuse the same link. After a deploy, close and reopen the app once so Safari picks up the new service worker.
 
 > **You can use all three at once.** They are just different entry points to the same app. They do **not** conflict.
 
@@ -280,7 +280,7 @@ This is the **primary graded vocabulary path**, built in four phases. Each phase
 
 **Recycling principle:** each later phase's readings reuse earlier-taught words as plain text for spiral review. The app's `CROSS_DICT` mechanism auto-detects any prior-phase word inside a later reading and renders it as a tappable blue popup (meaning + 🔊 pronunciation) — so vocabulary compounds instead of being forgotten. Phase 4 readings recycle the **Phase 1 + 2** taught set at 100% coverage (452/452 words); Phase 3's NAWL words stay consolidated in the Phase 3 pack.
 
-**Status:** Phase 1–4 are **complete** and registered in both `content/manifest.json` and `pwa/content/manifest.json`. The hosted PWA's `sw.js` cache is auto-bumped from content hash (`build/_prep_deploy.js`); current live hash: `ed-82731975` (served at `https://889d525c87954023a62ef99476da83bd.app.workbuddy.link/`). To preview, open `pwa/index.html` (or the hosted share link) and pick **高频词·第4阶 (COCA 学术拓展)** from **Me → Content Pack**.
+**Status:** Phase 1–4 are **complete** and registered in both `content/manifest.json` and `pwa/content/manifest.json`. The hosted PWA's `sw.js` cache is auto-bumped from content hash (`build/_prep_deploy.js`); current live hash: `ed-bc9c5375` (served at `https://889d525c87954023a62ef99476da83bd.app.workbuddy.link/`). To preview, open `pwa/index.html` (or the hosted share link) and pick **高频词·第4阶 (COCA 学术拓展)** from **Me → Content Pack**.
 
 ## 12. Open items — future enhancements (pending decision, not started)
 
@@ -520,7 +520,7 @@ Status: **all implemented & synced** to `pwa/index.html` and `english-learning-t
 
 ## 17. Web UI Compliance & iPhone Accessibility Plan (approved & implemented 2026-08-31)
 
-Status: **implemented.** All six batches (B1–B6) are coded in `english-learning/pwa/index.html`, mirrored to `english-learning-tool.html`, and the service-worker cache is bumped to **`ed-bc9c5375`** (from a hash of the 9 content packs + `index.html`). Host redeploy pending — run the CloudStudio deploy of `pwa/` so `https://889d525c87954023a62ef99476da83bd.app.workbuddy.link/` serves the new build; then close & reopen the app once on the phone to pick up the new SW.
+Status: **implemented + deployed.** All six batches (B1–B6) are coded in `english-learning/pwa/index.html`, mirrored to `english-learning-tool.html`, the service-worker cache is bumped to **`ed-bc9c5375`**, and the hosted link `https://889d525c87954023a62ef99476da83bd.app.workbuddy.link/` now serves that build (verified 2026-09-01). Close & reopen the app once on the phone to pick up the new SW.
 
 **Scope of every batch:** edits land in `english-learning/pwa/index.html` (the hosted source), then get mirrored to `english-learning/english-learning-tool.html`, then redeploy (→ new `ed-xxxx` hash). Line numbers are approximate (from the audit pass) and given as `selector / feature` for durable reference.
 
