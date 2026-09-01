@@ -2,10 +2,12 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#6a5cff">
+<meta name="apple-mobile-web-app-title" content="EnglishDaily">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22EnglishDaily%20%E5%AD%A6%E4%B9%A0%22%2C%22short_name%22%3A%22EnglishDaily%22%2C%22display%22%3A%22standalone%22%2C%22start_url%22%3A%22.%22%2C%22background_color%22%3A%22%23f5f5f7%22%2C%22theme_color%22%3A%22%236a5cff%22%7D">
 <title>EnglishDaily · 英语学习助手</title>
 <style>
   :root{
@@ -14,12 +16,14 @@
     --bg:#f4f5fb;
     --card:#ffffff;
     --text:#1c1d2b;
-    --muted:#8a8da3;
+    --muted:#6b6f86;
     --line:#ececf3;
     --good:#2fbf71;
     --warn:#ff8a5c;
     --shadow:0 6px 20px rgba(40,40,90,.08);
     --radius:18px;
+    --st-new:#3b82f6; --st-learning:#3b82f6; --st-learned:#0a7d5a;
+    --st-scheduled:#4fb286; --st-due:#b97a00; --st-forgotten:#c23b1e;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{height:100%;margin:0;}
@@ -57,7 +61,7 @@
   }
   .langbtn{
     border:none;background:rgba(255,255,255,.22);color:#fff;
-    width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;
+    width:44px;height:44px;border-radius:50%;font-size:18px;cursor:pointer;
     display:flex;align-items:center;justify-content:center;margin-left:2px;flex:0 0 auto;
   }
   .langbtn:active{transform:scale(.94);}
@@ -82,7 +86,7 @@
   .tabbar button.active{color:var(--accent);}
   .tabbar .badge{
     position:absolute;top:4px;right:50%;transform:translateX(34px);
-    background:var(--warn);color:#fff;font-size:10px;font-weight:700;
+    background:var(--warn);color:#7a3b00;font-size:10px;font-weight:700;
     min-width:16px;height:16px;border-radius:9px;padding:0 4px;
     display:flex;align-items:center;justify-content:center;
   }
@@ -91,6 +95,10 @@
   section{display:none;animation:fade .25s ease;}
   section.active{display:block;}
   @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important;}
+  }
 
   .card{
     background:var(--card);border-radius:var(--radius);
@@ -104,6 +112,7 @@
   .lnow-label{font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);}
   .lnow-word{font-size:22px;font-weight:800;letter-spacing:.3px;color:var(--text);}
   .lnow-ipa{color:var(--accent);font-size:14px;margin-left:8px;font-weight:600;}
+  .lnow-word.lk{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;}
   .lnow-ex{margin-top:8px;font-size:15px;line-height:1.55;color:var(--text);}
   .pill{display:inline-block;background:#eef0ff;color:var(--accent);font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;margin-left:6px;}
   .tag{display:inline-block;background:#f1f2f8;color:var(--muted);font-size:11px;padding:3px 8px;border-radius:8px;margin:3px 4px 3px 0;}
@@ -125,7 +134,7 @@
   label.fld{display:block;margin:12px 0 4px;font-size:13px;font-weight:600;color:#444;}
   input[type=text],input[type=number],input[type=time],select,textarea{
     width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;
-    font-size:15px;font-family:inherit;background:#fafbff;color:var(--text);
+    font-size:16px;font-family:inherit;background:#fafbff;color:var(--text);
   }
   textarea{resize:vertical;min-height:90px;}
   .checks{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
@@ -166,9 +175,32 @@
   .iconbtn.on{background:#fff4e8;border-color:var(--warn);color:var(--warn);}
   .iconbtn.done{background:#eafaf0;border-color:var(--good);color:var(--good);}
 
+  /* Shared word-detail block (wordDetailHTML) — global classes so the Daily card, the
+     Reading popup, and the review Flash/Typed cards all render meaning + speakers the same. */
+  .wd-head{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .wd-word{font-size:26px;font-weight:800;letter-spacing:.3px;}
+  .wd-pron{display:flex;align-items:center;gap:8px;margin-top:8px;color:var(--accent);font-size:15px;font-weight:600;}
+  .wd-pos{display:inline-block;background:#eef0ff;color:var(--accent);font-size:11px;font-weight:700;padding:2px 8px;border-radius:7px;margin-top:8px;}
+  .wd-def{font-size:16px;margin-top:10px;font-weight:600;}
+  .wd-ex{margin-top:10px;background:#f7f8ff;padding:11px 12px;border-radius:12px;font-size:14px;line-height:1.5;}
+  .wd-exzh{color:var(--muted);font-size:13px;margin-top:5px;}
+
+  /* Illustration: a word's `pic` (image URL / data URI) is preferred; the
+     `emoji` is the offline fallback. Sizing per container: */
+  .wemoji{display:inline-block;line-height:1;}
+  .wpimg{object-fit:contain;display:block;}
+  .wordcard .illus .wemoji{font-size:72px;}
+  .wordcard .illus .wpimg{width:104px;height:104px;margin:auto;}
+  .wd-head .wemoji{font-size:30px;margin-right:4px;}
+  .wd-head .wpimg{width:34px;height:34px;margin-right:6px;vertical-align:middle;}
+  .flash .big .wemoji{font-size:48px;}
+  .flash .big .wpimg{width:64px;height:64px;margin:auto;}
+
   /* Reading */
   .reading-text{line-height:1.9;font-size:16px;background:#fafbff;padding:14px;border-radius:12px;margin:6px 0 12px;}
   .reading-text b{color:var(--accent);}
+  .reading-text b.prior{color:var(--accent2,#0a7d5a);text-decoration:underline dotted;}
+  .revword{color:var(--accent);font-weight:700;font-size:14px;cursor:pointer;text-decoration:underline dotted; text-underline-offset:3px;}
   .q{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;}
   .q .qt{font-size:14px;font-weight:600;margin-bottom:8px;}
   .opt{border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin:6px 0;font-size:14px;cursor:pointer;background:#fff;}
@@ -183,9 +215,14 @@
   }
   .flash .front{font-size:34px;font-weight:800;}
   .flash .front .ipa{display:block;font-size:18px;color:var(--accent);font-weight:600;margin-top:6px;}
-  .flash .back{font-size:16px;line-height:1.6;margin-top:14px;}
+  .flash .front .ipa .iconbtn{display:inline-flex;padding:2px 8px;font-size:14px;border-radius:9px;vertical-align:middle;margin-left:8px;}
+  .flash .back{font-size:16px;line-height:1.6;margin-top:14px;text-align:left;}
   .flash .back .def{font-weight:700;font-size:18px;}
+  .flash .wd-head,.flash .wd-pron,.flash .wd-def,.flash .wd-ex{text-align:left;}
   .flash .hint{color:var(--muted);font-size:13px;margin-top:14px;}
+  .revdiv{display:flex;align-items:center;gap:10px;margin:18px 0 10px;}
+  .revdiv::before,.revdiv::after{content:"";flex:1;height:1px;background:var(--line);}
+  .revdiv span{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.6px;white-space:nowrap;}
 
   /* Stats */
   .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
@@ -205,6 +242,66 @@
   .seg button{flex:1;border:none;background:none;padding:9px;border-radius:9px;font-weight:700;font-size:13px;color:var(--accent);cursor:pointer;}
   .seg button.active{background:#fff;box-shadow:0 2px 6px rgba(106,92,255,.18);}
 
+  /* Review: scope switch + mode row (two orthogonal controls) */
+  .scope-row{display:flex;gap:8px;margin-bottom:10px;}
+  .scope-row button{
+    flex:1;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:10px 8px;
+    font-weight:700;font-size:14px;color:var(--muted);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:5px;
+  }
+  .scope-row button.active{
+    background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:transparent;
+    box-shadow:0 4px 12px rgba(106,92,255,.3);
+  }
+  /* Review mode row: segmented control that always fits the panel width (no scroll) */
+  #reviewSeg{display:flex;gap:4px;background:#eef0ff;border-radius:12px;padding:4px;margin-bottom:14px;}
+  #reviewSeg button{
+    flex:1 1 0;min-width:0;border:none;background:none;padding:9px 4px;border-radius:9px;
+    font-weight:700;font-size:12px;color:var(--accent);cursor:pointer;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;
+  }
+  #reviewSeg button.active{background:#fff;box-shadow:0 2px 6px rgba(106,92,255,.18);}
+  #reviewSeg .rc{font-weight:600;opacity:.7;margin-left:2px;font-size:11px;}
+  /* sub-filter (已学单词 / 全部词) under 全部包 + 全部单词 */
+  .subbar{display:flex;gap:6px;margin-bottom:10px;}
+  .subbar button{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;font-weight:700;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap;}
+  .subbar button.active{background:#eef0ff;border-color:var(--accent);color:var(--accent);}
+
+  /* Review card shell: meta + progress bar on top */
+  .revtop{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .revmeta{font-size:13px;font-weight:700;color:var(--accent);white-space:nowrap;}
+  .revprog{flex:1;height:6px;background:#eef0ff;border-radius:999px;overflow:hidden;}
+  .revprogbar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:999px;transition:width .25s;}
+
+  /* Typed row (P0 fix: the global .btn{width:100%} + inline flex:1 collapsed the input) */
+  .type-row{display:flex;gap:8px;margin-top:14px;align-items:stretch;}
+  .type-row .typeInput{flex:1 1 auto;min-width:0;width:auto;}
+  .type-row .btn{flex:0 0 auto;width:auto;}
+  .typhint{font-size:12px;color:var(--muted);letter-spacing:1px;margin-top:8px;font-family:ui-monospace,Menlo,monospace;}
+  .typtoolbar{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+  .typtoolbar .hintbtn{flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:700;color:var(--accent);cursor:pointer;}
+  .nearmsg{color:var(--warn);font-size:13px;font-weight:800;margin-top:8px;}
+
+  /* Rating bar: semantic colors + interval preview, sticky bottom */
+  .revacts{position:sticky;bottom:10px;z-index:5;background:rgba(255,255,255,.92);backdrop-filter:saturate(180%) blur(8px);-webkit-backdrop-filter:saturate(180%) blur(8px);border-radius:14px;padding:8px;box-shadow:0 6px 18px rgba(28,29,43,.12);margin-top:12px;}
+  .rate-btn{flex:1;border:none;border-radius:12px;padding:12px 6px;min-height:44px;font-size:13px;font-weight:800;cursor:pointer;line-height:1.35;}
+  .rate-btn small{display:block;font-weight:700;font-size:11px;opacity:.85;}
+  .rate-btn:active{transform:scale(.98);}
+  .rate-forget{background:#fff0ec;color:#c23b1e;}
+  .rate-ok{background:#fff7e6;color:#8a5a00;}
+  .rate-easy{background:#eafaf0;color:#0a7d5a;}
+  .revacts .btn{width:100%;border-radius:12px;}
+
+  /* Undo bar */
+  .undo{display:flex;align-items:center;gap:10px;background:#fff7e6;border:1px solid #f0d9a0;border-radius:12px;padding:8px 10px;margin-bottom:10px;font-size:12px;font-weight:600;color:#8a6a1d;}
+  .undo button{border:none;background:var(--accent);color:#fff;border-radius:9px;padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer;}
+
+  @media(max-width:340px){
+    .type-row{flex-direction:column;}
+    .type-row .btn{width:100%;}
+    #reviewSeg button{padding:8px 11px;}
+  }
+
   .sched{display:grid;grid-template-columns:1fr;gap:8px;}
   .sched .d{display:flex;align-items:flex-start;gap:12px;background:#f7f8ff;border-radius:11px;padding:10px 12px;text-align:left;}
   .sched .d .dn{font-size:13px;font-weight:700;color:var(--accent);min-width:44px;flex:0 0 auto;}
@@ -218,7 +315,7 @@
   .bm .info .d{font-size:12px;color:var(--muted);}
 
   .toast{
-    position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);
+    position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
     background:rgba(28,29,43,.92);color:#fff;padding:11px 18px;border-radius:12px;font-size:14px;
     opacity:0;pointer-events:none;transition:.25s;z-index:99;max-width:80%;text-align:center;
   }
@@ -240,13 +337,13 @@
   /* Reading key words */
   .keys{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
   .keychip{display:inline-flex;align-items:center;gap:2px;background:#eef0ff;border-radius:999px;padding:3px 4px 3px 10px;}
-  .keychip .kb{border:none;background:none;font-weight:700;color:var(--accent);font-size:14px;cursor:pointer;padding:4px 6px;}
-  .keychip .kbs{border:none;background:#fff;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;}
-  .keychip .kbl{border:none;background:#fff;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;color:#8a8da3;cursor:pointer;}
+  .keychip .kb{border:none;background:none;font-weight:700;color:var(--accent);font-size:14px;cursor:pointer;padding:10px 8px;min-height:44px;}
+  .keychip .kbs{border:none;background:#fff;border-radius:50%;width:44px;height:44px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;}
+  .keychip .kbl{border:none;background:#fff;border-radius:999px;padding:8px 12px;min-height:44px;font-size:12px;font-weight:700;color:#8a8da3;cursor:pointer;}
   .keychip .kbl.done{background:#eafaf0;color:var(--good);}
 
   /* Word popup modal */
-  .modal-mask{position:fixed;inset:0;background:rgba(20,22,40,.5);display:none;align-items:center;justify-content:center;z-index:120;padding:20px;}
+  .modal-mask{position:fixed;inset:0;background:rgba(20,22,40,.5);display:none;align-items:center;justify-content:center;z-index:120;padding:max(20px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left));}
   .modal-mask.show{display:flex;}
   .modal{background:#fff;border-radius:18px;max-width:360px;width:100%;padding:20px;box-shadow:0 12px 44px rgba(30,30,70,.28);max-height:82vh;overflow:auto;}
   .modal .mw{font-size:26px;font-weight:800;letter-spacing:.3px;}
@@ -299,10 +396,16 @@
 
     <!-- REVIEW -->
     <section id="tab-review">
-      <div class="seg" id="reviewSeg">
-        <button data-act="reviewmode" data-mode="flash" class="active">🔁 <span data-i18n="rev_flash">复习卡片</span></button>
-        <button data-act="reviewmode" data-mode="allflash">📚 <span data-i18n="rev_all">全部单词</span></button>
-        <button data-act="reviewmode" data-mode="quiz">✍️ <span data-i18n="rev_quiz">词汇测验</span></button>
+      <div class="scope-row" id="reviewScopeRow" role="tablist" aria-label="Review scope">
+        <button data-act="reviewscope" data-scope="pack" class="active" role="tab" aria-selected="true"><span data-i18n="scope_pack">本包</span></button>
+        <button data-act="reviewscope" data-scope="all" role="tab" aria-selected="false">🌐 <span data-i18n="scope_all">全部包</span></button>
+      </div>
+      <div id="reviewSeg" role="tablist" aria-label="Review mode">
+        <button data-act="reviewmode" data-mode="flash" class="active" role="tab" aria-selected="true">🔁 <span data-i18n="rev_flash">卡片</span><span class="rc"></span></button>
+        <button data-act="reviewmode" data-mode="productive" role="tab" aria-selected="false">✏️ <span data-i18n="rev_productive">拼写</span><span class="rc"></span></button>
+        <button data-act="reviewmode" data-mode="context" role="tab" aria-selected="false">📖 <span data-i18n="rev_context">语境</span><span class="rc"></span></button>
+        <button data-act="reviewmode" data-mode="allflash" role="tab" aria-selected="false">📚 <span data-i18n="rev_all">全部</span><span class="rc"></span></button>
+        <button data-act="reviewmode" data-mode="quiz" role="tab" aria-selected="false">✍️ <span data-i18n="rev_quiz">测验</span></button>
       </div>
       <div id="reviewArea"></div>
     </section>
@@ -332,7 +435,7 @@
         <h2>🎚️ <span data-i18n="speech_title">朗读速度</span> <span class="pill">Speed</span></h2>
         <div style="display:flex;align-items:center;gap:10px;">
           <span style="font-size:18px;" aria-hidden="true">🐢</span>
-          <input type="range" id="speechRate" min="0.5" max="1.2" step="0.05" value="0.85" style="flex:1;accent-color:var(--accent);height:28px;">
+          <input type="range" id="speechRate" min="0.5" max="1.2" step="0.05" value="0.85" style="flex:1;accent-color:var(--accent);height:28px;" aria-label="语音语速">
           <span style="font-size:18px;" aria-hidden="true">🐇</span>
           <span id="speechRateVal" class="pill" style="min-width:52px;text-align:center;margin-left:0;">0.85×</span>
         </div>
@@ -344,7 +447,7 @@
 
       <div class="card">
         <h2>📝 <span data-i18n="me_notes">我的笔记</span> <span class="pill">Notes</span></h2>
-        <textarea id="notesArea" placeholder="随时记录新学的表达、句型或心得……"></textarea>
+        <textarea id="notesArea" aria-label="我的笔记" placeholder="随时记录新学的表达、句型或心得……"></textarea>
         <div class="note" data-i18n="notes_note">笔记自动保存在本机（localStorage），不会上传。</div>
       </div>
 
@@ -352,11 +455,11 @@
         <h2>⏰ <span data-i18n="me_reminder">提醒与连续打卡</span></h2>
         <div class="reminder-box">
           <label class="switch">
-            <input type="checkbox" id="remindToggle">
+            <input type="checkbox" id="remindToggle" aria-label="每日学习提醒">
             <span class="slider"></span>
           </label>
           <span data-i18n="daily_remind">每日学习提醒</span>
-          <input type="time" id="remindTime" value="20:00" style="width:auto;">
+          <input type="time" id="remindTime" value="20:00" style="width:auto;" aria-label="提醒时间">
           <button class="btn small secondary" data-act="testNotify"><span data-i18n="test_remind">测试提醒</span></button>
         </div>
         <div class="note" data-i18n="remind_note">提醒通过浏览器通知实现（首次需授权）。本工具完全离线运行，通知在打开应用时触发。</div>
@@ -383,12 +486,19 @@
   </nav>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <audio id="listenKeep" loop playsinline preload="none" style="display:none;"></audio>
-<div class="modal-mask" id="wordModal"><div class="modal" id="wordModalBody"></div></div>
+<div class="modal-mask" id="wordModal"><div class="modal" id="wordModalBody" role="dialog" aria-modal="true" aria-label="单词详情"></div></div>
 
 <script>
 /* ===================== DATA ===================== */
+/* CROSS_DICT: words from OTHER packs (e.g. Phase 1/2 when currently in Phase 3)
+   so a Phase 3 reading can show earlier-learned words as tappable blue words.
+   Built in loadContent(). Keyed by lowercase word; value = word object. */
+let CROSS_DICT = {};
+/* HTML-escape user/pack-supplied strings before inserting into innerHTML/attributes
+   (stored-XSS hardening: imported content-pack JSON is untrusted). */
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
 let WORDS = [
   {word:"serene",ipa:"/sɪˈriːn/",pos:"adj.",def:"宁静的",defEn:"calm and peaceful",ex:"The lake was serene at dawn.",exzh:"黎明时湖面宁静。",exEn:"The lake was calm and peaceful at dawn.",emoji:"🌅"},
   {word:"resilient",ipa:"/rɪˈzɪliənt/",pos:"adj.",def:"有韧性的",defEn:"able to recover quickly",ex:"Children are remarkably resilient.",exzh:"孩子的韧性令人惊叹。",exEn:"Children recover from difficulties remarkably well.",emoji:"🌱"},
@@ -531,8 +641,15 @@ function applyPack(p){
   AREA_TASKS = p.areaTasks || {};
   AREA_LABEL = p.areaLabel || {};
   state.activePack = p.id;
-  // reset review queues so cards from the previous pack never linger
-  flashQueue=[]; allFlashQueue=[]; flashFlipped=false;
+  // reset review session so cards from the previous pack never linger
+  currentQueue=[]; queueTotal=0; sessionDone=false; freePractice=false; allSub="learned";
+  typedResult=null; flashFlipped=false; sessionStart=0; undoData=null;
+  clearTimeout(undoTimer);
+  ctxIdxReady=false; globalWordsCache=null; learnedKeySetCache=null;
+  // Cross-pack capture: words of this pack already learned in ANY pack are
+  // recognized as known here — they join the review pool with their existing
+  // schedule instead of being re-taught from scratch.
+  captureLearnedInPack();
 }
 async function loadContent(){
   let active = BUILTIN_GENERAL;
@@ -553,6 +670,17 @@ async function loadContent(){
       const chosen = (state.activePack && PACKS[state.activePack]) ? state.activePack
                    : (def && PACKS[def] ? def : "general");
       active = PACKS[chosen] || BUILTIN_GENERAL;
+      // Build CROSS_DICT: every word from packs OTHER than the active one,
+      // so a Phase 3 reading can surface Phase 1/2 taught words as tappable.
+      CROSS_DICT = {};
+      Object.keys(PACKS).forEach(function(pid){
+        if(pid===chosen) return;
+        const pk = PACKS[pid];
+        if(!pk || !Array.isArray(pk.words)) return;
+        pk.words.forEach(function(w){
+          if(w && w.word && w.def){ CROSS_DICT[w.word.toLowerCase()] = w; }
+        });
+      });
     }catch(e){ /* manifest missing -> built-in only */ }
   } else {
     if(state.importedPack){
@@ -571,12 +699,44 @@ const I18N = {
   tab_plan:{zh:"计划",en:"Plan"}, tab_daily:{zh:"每日",en:"Daily"}, tab_reading:{zh:"阅读",en:"Reading"},
   tab_review:{zh:"复习",en:"Review"}, tab_me:{zh:"我的",en:"Me"},
   plan_title:{zh:"学习计划",en:"Study Plan"}, reading_title:{zh:"每周阅读",en:"Weekly Reading"},
-  rev_flash:{zh:"复习卡片",en:"Flashcards"}, rev_quiz:{zh:"词汇测验",en:"Vocab Quiz"},
-  rev_all:{zh:"全部单词",en:"All Words"},
+  rev_flash:{zh:"卡片",en:"Cards"}, rev_quiz:{zh:"测验",en:"Quiz"},
+  rev_all:{zh:"全部",en:"All"},
+  rev_productive:{zh:"拼写",en:"Spell"},
+  rev_context:{zh:"语境",en:"Context"},
+  scope_pack:{zh:"本包",en:"This Pack"},
+  scope_all:{zh:"全部包",en:"All Packs"},
+  prod_hint:{zh:"根据释义拼出这个单词（输入后回车或点「检查」）",en:"Type the word that matches this definition (Enter or Check)"},
+  ctx_hint:{zh:"根据句子语境填出缺失的单词",en:"Fill in the missing word from the sentence context"},
+  type_placeholder:{zh:"输入单词…",en:"Type the word…"},
+  check_btn:{zh:"检查",en:"Check"},
+  typed_correct:{zh:"✅ 正确！",en:"✅ Correct!"},
+  typed_wrong:{zh:"❌ 拼错了，正确答案：",en:"❌ Not quite. The answer:"},
+  next_btn:{zh:"下一张",en:"Next"},
+  quiz_score:{zh:"得分",en:"Score"},
+  all_learned:{zh:"已学单词",en:"Learned"},
+  all_learned_count:{zh:"已学单词 · {n}",en:"{n} learned"},
+  all_words_count:{zh:"全部 {n} 词",en:"All {n} words"},
+  free_practice:{zh:"立即练习（不入档）",en:"Learn now (no schedule)"},
+  free_note:{zh:"自由练习：评分不会改变复习计划。",en:"Free practice: ratings don't change your schedule."},
+  goto_all_btn:{zh:"切到全部单词",en:"Browse all words"},
+  near_miss:{zh:"很接近！再试一次",en:"Almost! Try again"},
+  reveal_btn:{zh:"看答案（记为忘了）",en:"Show answer (counts as forgot)"},
+  first_letter_btn:{zh:"提示首字母",en:"First letter"},
+  len_hint:{zh:"{n} 个字母",en:"{n} letters"},
+  ctx_fallback:{zh:"未找到含该词的句子，改用释义提示。",en:"No sentence found — using the definition prompt."},
+  rated_label:{zh:"已评",en:"Rated"},
+  undo_btn:{zh:"撤销",en:"Undo"},
+  interval_day:{zh:"{n}天",en:"{n}d"},
+  session_done:{zh:"🎉 本组完成！共 {n} 词",en:"🎉 Session done! {n} words"},
+  session_min:{zh:"用时 {n} 分钟",en:"{n} min"},
+  again_btn:{zh:"再来一组",en:"One more set"},
+  done_btn:{zh:"完成",en:"Done"},
+  review_global_count:{zh:"跨包待复习 {n} 词",en:"{n} due across all packs"},
+  no_due_global_note:{zh:"所有内容包共 {n} 张卡，均已按遗忘曲线安排在未来到期。",en:"{n} cards across all packs — all scheduled for future dates by the forgetting curve."},
   review_all_note:{zh:"自由复习模式：不改变复习计划，评分不会安排下次到期时间。",en:"Free review mode: ratings here don't change the spaced-repetition schedule."},
   review_all_count:{zh:"本包共 {n} 词 · 自由复习",en:"{n} words in this pack · free review"},
   no_due_note:{zh:"当前包共有 {n} 张卡，都已按遗忘曲线安排在未来到期。",en:"{n} cards in this pack — all scheduled for future dates by the forgetting curve."},
-  review_all_hint:{zh:"想现在就复习？点上方「📚 全部单词」。",en:"Want to review now? Tap 「📚 All Words」 above."},
+  review_all_hint:{zh:"也可以在上方切换模式，选择「📚 全部单词」自由浏览。",en:"You can also switch modes above and pick 「📚 All Words」 to browse freely."},
   me_progress:{zh:"学习进度",en:"Progress"}, me_bookmarks:{zh:"难点收藏",en:"Bookmarks"},
   me_notes:{zh:"我的笔记",en:"My Notes"}, me_reminder:{zh:"提醒与连续打卡",en:"Reminders & Streak"},
   last7:{zh:"近 7 天活跃度",en:"Last 7 days"}, milestones:{zh:"里程碑",en:"Milestones"},
@@ -613,6 +773,7 @@ const I18N = {
   sentence_speak:{zh:"🔊",en:"🔊"},
   // Reading key words / word popup
   key_words:{zh:"本篇重点词",en:"Key words"},
+  review_words:{zh:"复习词",en:"Review words"},
   key_words_note:{zh:"这些蓝色标注的词是本文重点，建议全部学会 👆（点文中蓝字或下方按钮看释义并发音）",en:"These blue-marked words are the focus of this text — learn them all 👆 (tap a blue word or a button below for meaning + pronunciation)"},
   popup_heard:{zh:"点 🔊 听发音。",en:"Tap 🔊 to hear it."},
   // Review flash
@@ -719,12 +880,13 @@ function defaultState(){
     startDate: todayStr(),
     lang: "zh",
     activePack: "general", // id of the content pack currently in use
+    reviewScope: "pack",   // Review tab: "pack" (本包) | "all" (全部包) — persisted, like activePack
     importedPack: null,    // full pack JSON kept for local file:// persistence
     learnedWords: [],      // [{word,date,pack}]
     readingsDone: [],      // ["pack::weekIndex"]
     bookmarks: [],         // [wordObj with pack]
     notes: "",
-    flashcards: {},        // {"pack::word":{ease,interval,reps,due}}
+    flashcards: {},        // {"word":{ease,interval,reps,due,packs:[...]}} — one GLOBAL schedule per word
     streak: {count:0, last:null},
     plan: null,            // {goal,minutes,areas}
     reminder: {enabled:false, time:"20:00"},
@@ -738,8 +900,33 @@ function defaultState(){
 function migrateState(s){
   if(!s) return s;
   if(s.flashcards){
+    /* One-time migration to GLOBAL card keys: "pack::word" -> "word" (lowercase).
+       If the same word was learned in several packs, merge conservatively:
+       soonest due date, least advanced schedule, union of pack tags. Idempotent. */
     const f2={};
-    for(const k in s.flashcards){ f2[(k.indexOf("::")>=0?k:("general::"+k))] = s.flashcards[k]; }
+    for(const k in s.flashcards){
+      const c=s.flashcards[k]; if(!c) continue;
+      const oldKey = k.indexOf("::")>=0;
+      let pack="general", word=k;
+      if(oldKey){ const i=k.indexOf("::"); pack=k.slice(0,i); word=k.slice(i+2); }
+      const g=String(word).toLowerCase();
+      // keep any existing packs tag (idempotent re-runs), add old-key pack if new
+      let packs = Array.isArray(c.packs) ? c.packs.slice() : [];
+      if(oldKey && packs.indexOf(pack)<0) packs.push(pack);
+      if(packs.length===0) packs=["general"];
+      const prev=f2[g];
+      if(!prev){
+        f2[g]=Object.assign({}, c, {packs:packs});
+      }else{
+        f2[g]={
+          ease: Math.min(prev.ease||2.5, c.ease||2.5),
+          interval: Math.min(prev.interval||0, c.interval||0),
+          reps: Math.min(prev.reps||0, c.reps||0),
+          due: (String(c.due)<String(prev.due) ? c.due : prev.due),
+          packs: prev.packs.concat(packs).filter(function(p,i,arr){ return arr.indexOf(p)===i; })
+        };
+      }
+    }
     s.flashcards = f2;
   }
   if(Array.isArray(s.learnedWords)){
@@ -772,12 +959,19 @@ function saveState(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
 
 /* ----- pack-scoped helpers ----- */
 function ap(){ return state.activePack || "general"; }
-function fkey(w){ return ap()+"::"+w; }
+function wkey(w){ return String(w).toLowerCase(); } // flashcards are keyed globally by word
 function rkey(wk){ return ap()+"::"+wk; }
 function packOf(rec){ return (rec && rec.pack) || "general"; }
 function learnedActive(){ return state.learnedWords.filter(function(x){ return packOf(x)===ap(); }).length; }
 function readingsActive(){ return state.readingsDone.filter(function(x){ return x.indexOf(ap()+"::")===0; }).length; }
-function flashActive(){ return Object.keys(state.flashcards).filter(function(k){ return k.indexOf(ap()+"::")===0; }).length; }
+/* map lowercase word -> display word of the ACTIVE pack */
+function packWordSet(){
+  const s={};
+  WORDS.forEach(function(w){ if(w && w.word) s[String(w.word).toLowerCase()]=w.word; });
+  return s;
+}
+function flashActive(){ const s=packWordSet(); return Object.keys(state.flashcards).filter(function(k){ return s[k]; }).length; }
+function flashActiveGlobal(){ return Object.keys(state.flashcards).length; }
 function bmActive(){ return state.bookmarks.filter(function(x){ return packOf(x)===ap(); }).length; }
 
 /* ===================== DATE HELPERS ===================== */
@@ -815,15 +1009,62 @@ function learnWord(word){
   if(!state.learnedWords.find(x=>x.word===word && packOf(x)===ap())){
     state.learnedWords.push({word, date: todayStr(), pack: ap()});
   }
-  if(!state.flashcards[fkey(word)]){
-    state.flashcards[fkey(word)]={ease:2.5, interval:0, reps:0, due: todayStr()};
+  const g=wkey(word);
+  const c=state.flashcards[g];
+  if(!c){
+    state.flashcards[g]={ease:2.5, interval:0, reps:0, due: todayStr(), packs:[ap()], proficiency:"learned"};
+  }else if(Array.isArray(c.packs) && c.packs.indexOf(ap())<0){
+    // already carded (possibly from another pack): keep the existing schedule,
+    // just add this pack as provenance
+    c.packs.push(ap());
   }
+  learnedKeySetCache=null; // learned set changed
   recordActivity("words");
   saveState();
   refreshDaily(); renderMe(); toast(t('toast_learned')+word);
 }
 
-function isLearned(word){ return state.learnedWords.some(x=>x.word===word && packOf(x)===ap()); }
+/* Learned in ANY pack counts — memory of a word is not pack-specific. */
+function learnedAny(word){
+  const g=String(word).toLowerCase();
+  return state.learnedWords.some(function(x){ return x.word && x.word.toLowerCase()===g; });
+}
+function isLearned(word){ return learnedAny(word); }
+/* Resolve the DISPLAYED learning status of a word from the progress model,
+   then return its theme color (§15). proficiency is stored on flashcards;
+   schedule (due/scheduled) is derived from nextDue, never stored. */
+function statusOf(word){
+  const c=state.flashcards[wkey(word)];
+  if(c && c.proficiency==="forgotten") return "forgotten";
+  if(c && c.proficiency==="learning") return "learning";
+  const learned=(c && c.proficiency==="learned") || learnedAny(word);
+  if(learned){
+    if(c && c.reps>0 && c.due && c.due<=todayStr()) return "due";
+    return "scheduled";
+  }
+  return "new";
+}
+function statusColor(word){ return "var(--st-"+statusOf(word)+")"; }
+
+/* Cross-pack capture: ensure every word of the ACTIVE pack that the user has
+   already learned (in any pack) exists in the global deck, so switching packs
+   re-uses the existing schedule instead of re-teaching the word. */
+function captureLearnedInPack(){
+  if(!Array.isArray(WORDS) || WORDS.length===0) return;
+  let changed=false;
+  WORDS.forEach(function(w){
+    if(!w || !w.word || !learnedAny(w.word)) return;
+    const g=wkey(w.word);
+    const c=state.flashcards[g];
+    if(!c){ state.flashcards[g]={ease:2.5, interval:0, reps:0, due: todayStr(), packs:[ap()], proficiency:"learned"}; changed=true; }
+    else{
+      if(!c.proficiency) c.proficiency="learned";
+      if(!Array.isArray(c.packs)){ c.packs=[ap()]; changed=true; }
+      else if(c.packs.indexOf(ap())<0){ c.packs.push(ap()); changed=true; }
+    }
+  });
+  if(changed) saveState();
+}
 
 function toggleBookmark(word){
   const i = state.bookmarks.findIndex(x=>x.word===word && packOf(x)===ap());
@@ -838,21 +1079,42 @@ function toggleBookmark(word){
 }
 function isBookmarked(word){ return state.bookmarks.some(x=>x.word===word && packOf(x)===ap()); }
 
+/* Due words of the ACTIVE pack (card schedule is global; membership is pack-scoped). */
 function dueCards(){
-  const t=todayStr(); const pre=ap()+"::";
+  const t=todayStr(); const s=packWordSet();
   return Object.keys(state.flashcards)
-    .filter(k=> k.indexOf(pre)===0 && state.flashcards[k].due <= t)
-    .map(k=> k.slice(pre.length));
+    .filter(function(k){ return s[k] && state.flashcards[k].due <= t; })
+    .map(function(k){ return s[k]; });
+}
+/* Due words across EVERY pack — the "All Packs" review queue. */
+function dueCardsGlobal(){
+  const t=todayStr();
+  return Object.keys(state.flashcards)
+    .filter(function(k){ return state.flashcards[k].due <= t; });
+}
+/* Find a word object in any loaded pack (active pack first) for card rendering. */
+function findWordGlobal(word){
+  const g=String(word).toLowerCase();
+  const cur=WORDS.find(function(x){ return x.word && x.word.toLowerCase()===g; });
+  if(cur) return cur;
+  for(const pid in PACKS){
+    const pk=PACKS[pid];
+    if(!pk || !Array.isArray(pk.words)) continue;
+    const w=pk.words.find(function(x){ return x.word && x.word.toLowerCase()===g; });
+    if(w) return w;
+  }
+  return null;
 }
 function rateCard(word, q){
-  let c = state.flashcards[fkey(word)]; if(!c) return;
+  let c = state.flashcards[wkey(word)]; if(!c) return;
   if(q<3){ c.reps=0; c.interval=1; }
   else{
     c.reps+=1;
     if(c.reps===1) c.interval=1;
     else if(c.reps===2) c.interval=3;
-    else c.interval=Math.max(1, Math.round(c.interval*(q>=4?2.5:2)));
+    else c.interval=Math.max(1, Math.round(c.interval*(q>=4?2.2:2)));
   }
+  c.proficiency = (q<3) ? "forgotten" : "learned";
   c.due=addDays(todayStr(), c.interval);
   recordActivity("review");
   saveState();
@@ -1025,7 +1287,7 @@ function updateListenNow(){
   const ex = (w.ex && String(w.ex).trim()) ? w.ex : "";
   el.innerHTML = `
     <div class="lnow-label">${t('listen_now')||'Now playing'}</div>
-    <div><span class="lnow-word">${w.word}</span>${w.ipa?`<span class="lnow-ipa">${w.ipa}</span>`:""}</div>
+    <div><span class="lnow-word lk" data-act="listenWord" data-word="${w.word}">${w.word}</span>${w.ipa?`<span class="lnow-ipa">${w.ipa}</span>`:""}</div>
     ${ex?`<div class="lnow-ex">${ex}</div>`:`<div class="muted" style="margin-top:8px;">${t('popup_heard')||''}</div>`}
   `;
 }
@@ -1042,12 +1304,12 @@ function listenCardHTML(){
   const ex = (w && w.ex && String(w.ex).trim()) ? w.ex : "";
   const nowHTML = w ? `
     <div class="lnow-label">${t('listen_now')||'Now playing'}</div>
-    <div><span class="lnow-word">${w.word}</span>${w.ipa?`<span class="lnow-ipa">${w.ipa}</span>`:""}</div>
+    <div><span class="lnow-word lk" data-act="listenWord" data-word="${w.word}">${w.word}</span>${w.ipa?`<span class="lnow-ipa">${w.ipa}</span>`:""}</div>
     ${ex?`<div class="lnow-ex">${ex}</div>`:`<div class="muted" style="margin-top:8px;">${t('popup_heard')||''}</div>`}
   ` : `<span class="muted">—</span>`;
   return `
-  <div class="card" style="margin-top:14px;border:1px solid var(--accent);">
-    <h3>🎧 ${t('listen_title')}</h3>
+  <div class="revdiv"><span>${t('listen_title')}</span></div>
+  <div class="card" style="border:1px solid var(--accent);">
     <p class="note">${t('listen_intro')}</p>
     <div id="listenNow" class="lnow">${nowHTML}</div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;">
@@ -1060,27 +1322,31 @@ function listenCardHTML(){
 }
 
 /* ===================== WORD POPUP ===================== */
+let lastFocusedBeforeModal=null;
 function openWordPopup(wordObj, rawText){
-  const L=state.lang;
   if(!wordObj) wordObj={word:rawText||"",def:rawText||"",defEn:rawText||"",ipa:"",pos:"",ex:"",exzh:"",exEn:"",emoji:""};
+  const m=document.getElementById("wordModal");
   const body=document.getElementById("wordModalBody");
   body.innerHTML=`
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
-      <div><span class="mw">${wordObj.word}</span>${wordObj.ipa?`<span class="mipa">${wordObj.ipa}</span>`:""}</div>
-      <button class="iconbtn small" data-act="closeModal" style="border:none;background:none;font-size:20px;padding:2px 6px;color:var(--muted);">✕</button>
+      <div style="flex:1;min-width:0;">${wordDetailHTML(wordObj)}</div>
+      <button class="iconbtn small" data-act="closeModal" style="border:none;background:none;font-size:20px;padding:2px 6px;color:var(--muted);flex:0 0 auto;">✕</button>
     </div>
-    ${wordObj.pos?`<span class="mpos">${wordObj.pos}</span>`:""}
-    <div class="mdef">${L==='en'?wordObj.defEn:wordObj.def}</div>
-    ${wordObj.ex?`<div class="mex">${wordObj.ex}
-      <button class="iconbtn small" data-act="speak" data-text="${wordObj.ex}" style="float:right;padding:4px 8px;">🔊</button>
-      <div class="mexzh">${L==='en'?wordObj.exEn:wordObj.exzh}</div></div>`:`<p class="muted" style="margin-top:10px;">${t('popup_heard')}</p>`}
     <div class="macts">
-      <button class="iconbtn" data-act="speak" data-text="${wordObj.word}">${t('speak_btn')}</button>
-      <button class="iconbtn" data-act="learnFromPopup" data-word="${wordObj.word}">${isLearned(wordObj.word)?t('learned_btn'):t('learn_btn')}</button>
+      <button class="iconbtn ${isBookmarked(wordObj.word)?'on':''}" data-act="bookmark" data-word="${esc(wordObj.word)}">${isBookmarked(wordObj.word)?t('bookmarked_btn'):t('bookmark_btn')}</button>
+      <button class="iconbtn ${isLearned(wordObj.word)?'done':''}" data-act="learnFromPopup" data-word="${esc(wordObj.word)}">${isLearned(wordObj.word)?t('learned_btn'):t('learn_btn')}</button>
     </div>`;
-  document.getElementById("wordModal").classList.add("show");
+  lastFocusedBeforeModal=document.activeElement;
+  m.classList.add("show");
+  const closeBtn=body.querySelector('[data-act="closeModal"]');
+  if(closeBtn) closeBtn.focus();
 }
-function closeWordPopup(){ const m=document.getElementById("wordModal"); if(m) m.classList.remove("show"); }
+function closeWordPopup(){
+  const m=document.getElementById("wordModal");
+  if(m) m.classList.remove("show");
+  if(lastFocusedBeforeModal && lastFocusedBeforeModal.focus) lastFocusedBeforeModal.focus();
+  lastFocusedBeforeModal=null;
+}
 
 /* ===================== RENDER: PLAN ===================== */
 function renderPlan(){
@@ -1183,6 +1449,8 @@ function resolveWord(raw, r){
   if(!s) return null;
   const cands=stemVariants(s);
   for(const c of cands){ const m=WORDS.find(x=>x.word && x.word.toLowerCase()===c); if(m) return m; }
+  // fall back to cross-pack words (e.g. Phase 1/2 while reading Phase 3)
+  for(const c of cands){ if(CROSS_DICT[c]) return CROSS_DICT[c]; }
   if(r && r.vocab){
     for(const c of cands){ const v=r.vocab.find(x=>x.w && x.w.toLowerCase()===c); if(v) return vocabToWord(v); }
   }
@@ -1218,6 +1486,30 @@ function readingKeyWords(r){
   const b=readingBlueWords(r);
   return b.length? b : readingVocabWords(r);
 }
+/* Wrap any Phase-1/2 (cross-pack) taught word that appears in the reading text
+   as a tappable <b class="prior">, so earlier-learned vocabulary is复习-able in
+   context. Words already blue in the source are left untouched. */
+function highlightPriorWords(container){
+  if(!container) return;
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
+  const textNodes=[];
+  while(walker.nextNode()) textNodes.push(walker.currentNode);
+  textNodes.forEach(function(node){
+    const txt=node.nodeValue;
+    if(!/\b[a-zA-Z]{3,}\b/.test(txt)) return;
+    let html=txt, changed=false;
+    // match whole words, longest first to avoid partial overlaps
+    const keys=Object.keys(CROSS_DICT).sort((a,b)=>b.length-a.length);
+    for(const k of keys){
+      const re=new RegExp("\\b"+k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","gi");
+      if(re.test(html) && !new RegExp("</?b","i").test(html)){
+        html=html.replace(re, function(m){ return '<b class="prior">'+m+'</b>'; });
+        changed=true;
+      }
+    }
+    if(changed){ const span=document.createElement("span"); span.innerHTML=html; node.parentNode.replaceChild(span, node); }
+  });
+}
 /* The daily 2 words prioritize the CURRENT reading's blue/vocab "key words"
    first (so the highlighted words become the daily task), then continue with the
    pack's WORDS list. Selection stays deterministic by day index. */
@@ -1240,23 +1532,48 @@ function todaysWords(){
   const isReview = words.every(function(w){ return isLearned(w.word); });
   return {words,isReview,di,count};
 }
+/* Shared word-detail block (word+IPA + 🔊 word + pos + meaning + example + 🔊 sentence).
+   Used by the Daily card, the Reading popup, and the review Flash/Typed cards so the
+   meaning always renders through explainWord() (language-aware) and speakers stay consistent.
+   Callers wrap it and add their own action bar. */
+/* Illustration for a word: prefer an explicit `pic` (image URL or data URI),
+   otherwise fall back to the `emoji`. Used by the Daily card, the shared detail
+   head, and the Spell It prompt so a real picture can convey meaning when present. */
+function wordPicHTML(w, fallback){
+  if(w && w.pic) return `<img class="wpimg" alt="${esc(w.word)}" src="${esc(w.pic)}">`;
+  if(w && w.emoji) return `<span class="wemoji">${w.emoji}</span>`;
+  return fallback ? `<span class="wemoji">${fallback}</span>` : "";
+}
+/* Shared word-detail block, line-by-line:
+   1) word (+ illustration)  2) pronunciation + 🔊 speak-word  3) word class
+   4) explanation  5) sample sentence + 🔊 speak-sentence (+ translation)
+   Callers append their own action bar (bookmark / learn / rating / next). */
+function wordDetailHTML(w, hideEmoji){
+  if(!w) w={word:"",def:"",defEn:"",ipa:"",pos:"",ex:"",exzh:"",exEn:"",emoji:""};
+  const head=`<div class="wd-head">
+      ${(!hideEmoji)?wordPicHTML(w):""}
+      <span class="wd-word">${esc(w.word)}</span>
+    </div>`;
+  const pron=w.ipa?`<div class="wd-pron">${esc(w.ipa)}
+      <button class="iconbtn small" data-act="speak" data-text="${esc(w.word)}" style="margin-left:4px;">🔊</button></div>`:"";
+  const pos=w.pos?`<div class="wd-pos">${esc(w.pos)}</div>`:"";
+  const def=`<div class="wd-def">${esc(explainWord(w))}</div>`;
+  const ex=w.ex?`<div class="wd-ex">${esc(w.ex)}
+      <button class="iconbtn small" data-act="speak" data-text="${esc(w.ex)}" style="float:right;padding:4px 8px;">🔊</button>
+      <div class="wd-exzh">${esc(state.lang==='en'?w.exEn:w.exzh)}</div></div>`:"";
+  return head+pron+pos+def+ex;
+}
 function wordCardHTML(w, idx){
   const learned=isLearned(w.word);
   const bm=isBookmarked(w.word);
   return `
   <div class="wordcard">
-    <div class="illus">${w.emoji}</div>
+    <div class="illus">${wordPicHTML(w)}</div>
     <div class="body">
-      <div><span class="w">${w.word}</span><span class="ipa">${w.ipa}</span></div>
-      <span class="pos">${w.pos}</span>
-      <div class="def">${state.lang==='en'?w.defEn:w.def}</div>
-      <div class="ex">${w.ex}
-        <button class="iconbtn small" data-act="speak" data-text="${w.ex||w.word}" style="float:right;padding:4px 8px;">🔊</button>
-        <div class="exzh">${state.lang==='en'?w.exEn:w.exzh}</div>
-      </div>
+      ${wordDetailHTML(w, true)}
       <div class="acts">
-        <button class="iconbtn ${bm?'on':''}" data-act="bookmark" data-word="${w.word}">${bm?t('bookmarked_btn'):t('bookmark_btn')}</button>
-        <button class="iconbtn ${learned?'done':''}" data-act="learn" data-word="${w.word}">${learned?t('learned_btn'):t('learn_btn')}</button>
+        <button class="iconbtn ${bm?'on':''}" data-act="bookmark" data-word="${esc(w.word)}">${bm?t('bookmarked_btn'):t('bookmark_btn')}</button>
+        <button class="iconbtn ${learned?'done':''}" data-act="learn" data-word="${esc(w.word)}">${learned?t('learned_btn'):t('learn_btn')}</button>
       </div>
     </div>
   </div>`;
@@ -1306,6 +1623,12 @@ function refreshReading(){
   const wk=currentWeek() % READINGS.length;
   const r=READINGS[wk];
   const done=state.readingsDone.includes(rkey(wk));
+  // split a trailing "🔁 Review: ..." note onto its own line (keeps it off the last sentence)
+  const rawText=String(r.text||"");
+  const revMatch=rawText.match(/(?:🔁\s*)?Review\s*[:：][\s\S]*$/i);
+  const bodyText=revMatch?rawText.slice(0,revMatch.index):rawText;
+  const tailText=revMatch?rawText.slice(revMatch.index):"";
+  const revWords = tailText ? tailText.replace(/^(?:🔁\s*)?Review\s*[:：]\s*/i,"").trim().split(/\s+/).filter(Boolean) : [];
   a.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <h3 style="margin:0;">${tf('week_label',{n:wk+1})} · ${state.lang==='en'?r.titleEn:r.title}</h3>
@@ -1315,7 +1638,14 @@ function refreshReading(){
       <button class="btn secondary small" id="readAloudBtn" data-act="readAloud">${t('read_aloud')}</button>
       <button class="btn secondary small" data-act="stopReadAloud" style="display:none;"></button>
     </div>
-    <div class="reading-text">${r.text}</div>
+    <div class="reading-text">${bodyText}</div>
+    ${revWords.length?`
+    <div class="card" style="margin-top:14px;">
+      <h3>🔁 ${t('review_words')} <span class="pill">${revWords.length}</span></h3>
+      <div class="keys">
+        ${revWords.map(function(w){ return `<span class="revword" role="button" tabindex="0" data-act="wordpopup" data-word="${esc(w)}" style="color:${statusColor(w)}">${esc(w)}</span>`; }).join("")}
+      </div>
+    </div>`:""}
     ${((readingKeyWords(r).length)?`
     <div class="card" style="margin-top:14px;">
       <h3>🔑 ${t('key_words')} <span class="pill">${readingKeyWords(r).length}</span></h3>
@@ -1324,9 +1654,9 @@ function refreshReading(){
         ${readingKeyWords(r).map(function(wo){
           const learned=isLearned(wo.word);
           return `<span class="keychip">
-            <button class="kb" data-act="wordpopup" data-word="${wo.word}">${wo.word}</button>
-            <button class="kbs" data-act="speak" data-text="${wo.word}" title="${t('speak_btn')}">🔊</button>
-            <button class="kbl ${learned?'done':''}" data-act="learnFromReading" data-word="${wo.word}">${learned?'✅':t('learn_btn')}</button>
+            <button class="kb" data-act="wordpopup" data-word="${esc(wo.word)}" style="color:${statusColor(wo.word)}">${esc(wo.word)}</button>
+            <button class="kbs" data-act="speak" data-text="${esc(wo.word)}" title="${t('speak_btn')}">🔊</button>
+            <button class="kbl ${learned?'done':''}" data-act="learnFromReading" data-word="${esc(wo.word)}">${learned?'✅':t('learn_btn')}</button>
           </span>`;
         }).join("")}
       </div>
@@ -1336,7 +1666,7 @@ function refreshReading(){
       ${r.questions.map((q,qi)=>`
         <div class="q" data-qi="${qi}">
           <div class="qt">${qi+1}. ${q.q}</div>
-          ${q.options.map((o,oi)=>`<div class="opt" data-act="readingopt" data-qi="${qi}" data-oi="${oi}">${o}</div>`).join("")}
+          ${q.options.map((o,oi)=>`<div class="opt" role="button" tabindex="0" data-act="readingopt" data-qi="${qi}" data-oi="${oi}">${esc(o)}</div>`).join("")}
         </div>`).join("")}
     </div>
     <button class="btn ${done?'secondary':'ghost'}" data-act="completeReading" data-week="${wk}" ${done?'disabled':''}>
@@ -1344,11 +1674,16 @@ function refreshReading(){
     </button>
   `;
   readingState={wk, answered:0, total:r.questions.length};
+  // surface Phase 1/2 taught words from other packs as tappable prior words
+  highlightPriorWords(a.querySelector(".reading-text"));
   // make the blue <b> words inside the article tappable → word popup
   a.querySelectorAll(".reading-text b").forEach(function(b){
     b.dataset.act="wordpopup";
     b.dataset.word=b.textContent;
     b.style.cursor="pointer";
+    b.style.color=statusColor(b.textContent);
+    b.setAttribute("role","button");
+    b.tabIndex=0;
   });
 }
 function readingAnswer(qi, oi){
@@ -1372,117 +1707,533 @@ function readingAnswer(qi, oi){
 
 /* ===================== RENDER: REVIEW ===================== */
 let reviewMode="flash";
-let flashQueue=[];
-let allFlashQueue=[];
+/* Two orthogonal controls drive the Review tab:
+   - scope (state.reviewScope): "pack" 本包 | "all" 全部包 → which packs supply the queue
+   - mode (reviewMode): flash / productive / context / allflash / quiz
+   卡片·拼写·语境 share ONE global per-word SRS schedule; allflash is free browse
+   (never touches the schedule). reviewScope persists in localStorage. */
+let currentQueue=[];       // word strings for the current (mode, scope) session
+let queueTotal=0;          // size of the last built queue (progress bar + summary)
+let sessionStart=0;        // ms timestamp when the current session began
+let sessionDone=false;     // true once the summary is shown (blocks auto-rebuild)
+let freePractice=false;    // 「立即练习（不入档）」: drill without changing the SRS schedule
+let allSub="learned";      // allflash + 全部包 sub-filter: "learned" | "all"
+let typedResult=null;      // {word, correct, near, guess} of the last checked answer
 let flashFlipped=false;
 let quizData=[];
 let quizIdx=0;
 let quizScore=0;
+let undoData=null;         // {word, key, prev, label} for the 5s undo bar
+let undoTimer=null;
+let ctxIdx=null;           // packId -> {lowerWord: [sentences]} context-sentence index
+let ctxIdxReady=false;
+let globalWordsCache=null;    // [{word object}] across all packs (deduped, stable order)
+let learnedKeySetCache=null;  // {lowerWord:1} for every learned word
 
-function flashCardHTML(w, word, countLabel, free){
+/* ---- word pools & queues ---- */
+function allWordsGlobal(){
+  if(globalWordsCache) return globalWordsCache;
+  const seen={}, out=[];
+  for(const pid in PACKS){
+    const pk=PACKS[pid];
+    if(!pk || !Array.isArray(pk.words)) continue;
+    for(const w of pk.words){
+      if(!w || !w.word) continue;
+      const k=String(w.word).toLowerCase();
+      if(seen[k]) continue;
+      seen[k]=1; out.push(w);
+    }
+  }
+  globalWordsCache=out;
+  return out;
+}
+function learnedKeySet(){
+  if(learnedKeySetCache) return learnedKeySetCache;
+  const s={};
+  state.learnedWords.forEach(function(x){ if(x && x.word) s[String(x.word).toLowerCase()]=1; });
+  learnedKeySetCache=s;
+  return s;
+}
+function learnedWordsGlobal(){
+  const ls=learnedKeySet();
+  return allWordsGlobal().filter(function(w){ return ls[String(w.word).toLowerCase()]; });
+}
+function dueQueueFor(scope){
+  return (scope==="all")
+    ? dueCardsGlobal().filter(function(k){ return findWordGlobal(k); })
+    : dueCards();
+}
+function buildQueue(){
+  const scope=state.reviewScope;
+  if(reviewMode==="quiz") return;
+  if(freePractice){
+    // 「立即练习（不入档）」: drill ANY word in scope without touching the schedule
+    const pool=(scope==="all")
+      ? (learnedWordsGlobal().length ? learnedWordsGlobal() : allWordsGlobal())
+      : WORDS;
+    currentQueue=shuffle(pool.map(function(w){ return w.word; }));
+  } else if(reviewMode==="allflash"){
+    const pool=(scope==="all")
+      ? (allSub==="learned" ? learnedWordsGlobal() : allWordsGlobal())
+      : WORDS;
+    currentQueue=pool.map(function(w){ return w.word; });
+  } else {
+    currentQueue=shuffle(dueQueueFor(scope));
+  }
+  queueTotal=currentQueue.length;
+  if(queueTotal>0) sessionStart=Date.now();
+}
+
+/* ---- meta / chrome ---- */
+function modeLabel(m){
+  const map={flash:"🔁 "+t('rev_flash'), productive:"✏️ "+t('rev_productive'), context:"📖 "+t('rev_context'), allflash:"📚 "+t('rev_all'), quiz:"✍️ "+t('rev_quiz')};
+  return map[m]||m;
+}
+function cardTopHTML(mode){
+  const total=Math.max(1,queueTotal);
+  const done=Math.max(0,total-currentQueue.length);
+  const pct=Math.round(done/total*100);
+  const pos=(currentQueue.length>0) ? (done+1)+"/"+total : total+"/"+total;
   return `
-    <p class="muted" style="text-align:center;">${countLabel}</p>
-    <div class="flash" data-act="flip">
+    <div class="revtop">
+      <span class="revmeta">${modeLabel(mode)} · ${pos}</span>
+      <div class="revprog"><div class="revprogbar" style="width:${pct}%"></div></div>
+    </div>`;
+}
+function refreshReviewChrome(){
+  const scope=state.reviewScope;
+  document.querySelectorAll("#reviewScopeRow button").forEach(function(b){
+    const on=b.dataset.scope===scope;
+    b.classList.toggle("active", on);
+    b.setAttribute("aria-selected", on?"true":"false");
+  });
+  const dueN=(scope==="all"?dueCardsGlobal():dueCards()).length;
+  const counts={
+    flash:dueN, productive:dueN, context:dueN,
+    allflash:(scope==="all" ? (allSub==="learned"?learnedWordsGlobal().length:allWordsGlobal().length) : WORDS.length),
+    quiz:0
+  };
+  document.querySelectorAll("#reviewSeg button").forEach(function(b){
+    const m=b.dataset.mode;
+    const on=m===reviewMode;
+    b.classList.toggle("active", on);
+    b.setAttribute("aria-selected", on?"true":"false");
+    const c=b.querySelector(".rc");
+    if(c) c.textContent = counts[m] ? " · "+counts[m] : "";
+  });
+}
+
+/* ---- rating buttons (semantic colors + next-interval preview) ---- */
+function previewInterval(word,q){
+  const c=state.flashcards[wkey(word)];
+  if(!c) return "";
+  let iv;
+  if(q<3) iv=1;
+  else{
+    const reps=(c.reps||0)+1;
+    if(reps===1) iv=1;
+    else if(reps===2) iv=3;
+    else iv=Math.max(1, Math.round((c.interval||0)*(q>=4?2.2:2)));
+  }
+  return tf('interval_day',{n:iv});
+}
+function rateBtnHTML(word,q,free){
+  const cls=q==0?"rate-forget":(q==3?"rate-ok":"rate-easy");
+  const label=q==0?t('rate_forget'):(q==3?t('rate_ok'):t('rate_easy'));
+  const iv=free?"":previewInterval(word,q);
+  return `<button class="rate-btn ${cls}" data-act="${free?'rateFree':'rate'}" data-word="${word}" data-q="${q}">${label}${iv?`<small>${iv}</small>`:""}</button>`;
+}
+/* 全部包 scope + allflash mode: sub-filter bar (已学单词 vs 全部词) — decision C */
+function allSubBarHTML(){
+  if(!(reviewMode==="allflash" && state.reviewScope==="all")) return "";
+  const learned=learnedWordsGlobal().length;
+  const all=allWordsGlobal().length;
+  return `
+    <div class="subbar">
+      <button class="${allSub==="learned"?"active":""}" data-act="allsub" data-sub="learned">${t('all_learned')} · ${learned}</button>
+      <button class="${allSub==="all"?"active":""}" data-act="allsub" data-sub="all">${tf('all_words_count',{n:all})}</button>
+    </div>`;
+}
+/* Best available explanation for a word, respecting the panel language.
+   - English UI: only English gloss (defEn); never show Chinese. If defEn is
+     missing, show "-" (no Chinese fallback, per language-switch rule).
+   - Chinese UI: Chinese def, then English def, then example sentence. */
+function explainWord(w){
+  if(!w) return state.lang==='en' ? "-" : "";
+  if(state.lang==='en'){
+    return (w.defEn && String(w.defEn).trim()) ? w.defEn : "-";
+  }
+  if(w.def && String(w.def).trim()) return w.def;
+  if(w.defEn && String(w.defEn).trim()) return w.defEn;
+  var ex = (w.exzh && String(w.exzh).trim()) ? w.exzh : ((w.ex && String(w.ex).trim()) ? w.ex : "");
+  return ex || "-";
+}
+/* Flash card: front shows word+IPA (tap to flip); rating bar is ALWAYS visible below. */
+function flashCardHTML(w, free){
+  return `
+    ${cardTopHTML(reviewMode)}
+    ${undoBarHTML()}
+    <div class="flash" data-act="flip" role="button" tabindex="0" aria-label="${t('tap_meaning')}">
       ${flashFlipped?`
-        <div class="back">
-          <div class="def">${state.lang==='en'?w.defEn:w.def}</div>
-          <div class="w" style="font-size:18px;margin:8px 0;color:var(--accent);">${w.word} ${w.ipa}</div>
-          <div>${w.ex}</div>
-          <div class="exzh" style="color:var(--muted);font-size:13px;margin-top:4px;">${state.lang==='en'?w.exEn:w.exzh}</div>
-          <button class="iconbtn small" data-act="speak" data-text="${w.word}" style="margin-top:10px;">${t('speak_btn')}</button>
-        </div>`
+        <div class="back">${wordDetailHTML(w)}</div>`
       :`
-        <div class="front">${w.word}<span class="ipa">${w.ipa}</span></div>
+        <div class="front">${esc(w.word)}<span class="ipa">${esc(w.ipa)} <button class="iconbtn small" data-act="speak" data-text="${esc(w.word)}">🔊</button></span></div>
         <div class="hint">${t('tap_meaning')}</div>
       `}
     </div>
-    ${flashFlipped?`
-      <div class="btn-row">
-        <button class="btn ghost" data-act="${free?'rateFree':'rate'}" data-word="${word}" data-q="0">${t('rate_forget')}</button>
-        <button class="btn secondary" data-act="${free?'rateFree':'rate'}" data-word="${word}" data-q="3">${t('rate_ok')}</button>
-        <button class="btn" data-act="${free?'rateFree':'rate'}" data-word="${word}" data-q="5">${t('rate_easy')}</button>
-      </div>`:`<p class="note" style="text-align:center;margin-top:12px;">${free?t('review_all_note'):t('flip_hint')}</p>`}
-  `;
+    <div class="revacts">
+      <div style="display:flex;gap:8px;">
+        ${rateBtnHTML(w.word,0,free)}${rateBtnHTML(w.word,3,free)}${rateBtnHTML(w.word,5,free)}
+      </div>
+    </div>
+    ${free?`<p class="note" style="text-align:center;margin-top:8px;">${t('free_note')}</p>`:""}`;
 }
+/* Shared result card after a typed answer is checked (productive & context modes). */
+function typedResultHTML(w){
+  const ok=typedResult && typedResult.correct;
+  return `
+    ${cardTopHTML(reviewMode)}
+    ${undoBarHTML()}
+    <div class="flash" style="cursor:default;background:linear-gradient(135deg,#fff,${ok?'#eef8ef':'#fdf0f0'});">
+      <div class="wd-def" style="font-size:17px;">${ok?t('typed_correct'):t('typed_wrong')}</div>
+      ${wordDetailHTML(w)}
+    </div>
+    <div class="revacts"><div style="display:flex;gap:8px;"><button class="btn" data-act="typedNext">${t('next_btn')}</button></div></div>`;
+}
+/* Typed input: length hint + first-letter hint + reveal-as-forgot; never collapses (type-row). */
+function typedInputHTML(w){
+  const word=String(w.word||"");
+  const prefill=(typedResult && typedResult.near && typedResult.word===word) ? String(typedResult.guess||"").replace(/"/g,"&quot;") : "";
+  const len=word.length;
+  return `
+    <div class="type-row">
+      <input class="typeInput" type="text" value="${prefill}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+        placeholder="${t('type_placeholder')}" enterkeyhint="go" onkeydown="typedEnter(event)">
+      <button class="btn" data-act="checkTyped" data-word="${esc(word)}">${t('check_btn')}</button>
+    </div>
+    <div class="typhint">${Array(len).fill("_").join(" ")} <span style="opacity:.7;">(${tf('len_hint',{n:len})})</span></div>
+    <div class="typtoolbar">
+      <button class="hintbtn" data-act="typeHint" data-word="${word}">💡 ${t('first_letter_btn')}</button>
+      <button class="hintbtn" data-act="revealAnswer" data-word="${word}">👁️ ${t('reveal_btn')}</button>
+    </div>`;
+}
+/* Productive recall: definition (+emoji/pos hint) → user types the word. */
+function productiveCardHTML(w){
+  if(typedResult && typedResult.word===w.word && !typedResult.near) return typedResultHTML(w);
+  const near=!!(typedResult && typedResult.word===w.word && typedResult.near);
+  return `
+    ${cardTopHTML(reviewMode)}
+    ${undoBarHTML()}
+    <div class="flash" style="cursor:default;">
+      <div class="big">${wordPicHTML(w,'🔤')}</div>
+      <div class="def" style="font-size:18px;">${w.pos?`<span class="wd-pos" style="margin-top:0;margin-right:6px;">${w.pos}</span> `:''}${explainWord(w)}</div>
+      ${near?`<div class="nearmsg">${t('near_miss')}</div>`:""}
+    </div>
+    ${typedInputHTML(w)}
+    <p class="note" style="text-align:center;margin-top:12px;">${t('prod_hint')}</p>`;
+}
+/* Context review: a real reading sentence with the target word blanked.
+   Sentences are indexed once per pack load (excludes "🔁 Review:" tails).
+   If no sentence exists anywhere, fall back to the definition prompt with an
+   explicit notice instead of silently degrading. */
+function rxWord(word){ return new RegExp("\\b"+String(word).replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i"); }
+function ctxEnsure(){
+  if(ctxIdxReady) return;
+  ctxIdx={};
+  for(const pid in PACKS){
+    const pk=PACKS[pid];
+    if(!pk || !Array.isArray(pk.readings)) continue;
+    const idx={};
+    for(const r of pk.readings){
+      const plain=String(r.text||"").replace(/<[^>]+>/g,"");
+      const sents=plain.match(/[^.!?\n]+[.!?]*/g)||[];
+      for(const s of sents){
+        const st=s.trim();
+        if(!st || /review\s*[:：]/i.test(st)) continue; // skip word-list style tails
+        const toks=st.match(/[A-Za-z']+/g)||[];
+        for(const tok of toks){
+          const lw=tok.toLowerCase();
+          if(idx[lw]){ if(idx[lw].indexOf(st)<0) idx[lw].push(st); }
+          else idx[lw]=[st];
+        }
+      }
+    }
+    ctxIdx[pid]=idx;
+  }
+  ctxIdxReady=true;
+}
+function contextSentence(w){
+  ctxEnsure();
+  const lw=String(w.word).toLowerCase();
+  const ids=[ap()].concat(Object.keys(PACKS).filter(function(p){ return p!==ap(); }));
+  for(const pid of ids){
+    const arr=(ctxIdx[pid]||{})[lw];
+    if(arr && arr.length) return arr[0];
+  }
+  if(w.ex && rxWord(w.word).test(w.ex)) return w.ex;
+  return null;
+}
+function contextCardHTML(w){
+  if(typedResult && typedResult.word===w.word && !typedResult.near) return typedResultHTML(w);
+  const near=!!(typedResult && typedResult.word===w.word && typedResult.near);
+  const sent=contextSentence(w);
+  const fallback=!sent;
+  const masked=sent ? sent.replace(rxWord(w.word), "<b style='color:var(--accent);'>______</b>") : "";
+  return `
+    ${cardTopHTML(reviewMode)}
+    ${undoBarHTML()}
+    ${fallback?`<p class="note" style="background:#fff7e6;border:1px solid #f0d9a0;border-radius:10px;padding:8px 10px;text-align:center;">${t('ctx_fallback')}</p>`:""}
+    <div class="flash" style="cursor:default;">
+      ${sent?`<div style="font-size:17px;line-height:1.8;">${masked}</div>`
+            :`<div class="def" style="font-size:18px;">${w.pos?`<span class="wd-pos" style="margin-top:0;margin-right:6px;">${w.pos}</span> `:''}${explainWord(w)}</div>`}
+      ${near?`<div class="nearmsg">${t('near_miss')}</div>`:""}
+    </div>
+    ${typedInputHTML(w)}
+    <p class="note" style="text-align:center;margin-top:12px;">${t('ctx_hint')}</p>`;
+}
+
+/* ---- undo bar (5s) ---- */
+function undoBarHTML(){
+  if(!undoData) return "";
+  return `<div class="undo"><span>${t('rated_label')}：${undoData.label}</span><button data-act="undoRate">${t('undo_btn')}</button></div>`;
+}
+function setUndo(word, key, label, prev){
+  clearTimeout(undoTimer);
+  undoData={word:word, key:key, label:label, prev:prev};
+  undoTimer=setTimeout(function(){ undoData=null; renderReview(); }, 5000);
+}
+function undoRate(){
+  if(!undoData) return;
+  const d=undoData;
+  undoData=null; clearTimeout(undoTimer);
+  if(d.prev) state.flashcards[d.key]=d.prev;
+  else delete state.flashcards[d.key];
+  if(currentQueue.indexOf(d.word)<0) currentQueue.unshift(d.word);
+  queueTotal=Math.max(queueTotal, currentQueue.length);
+  flashFlipped=false; typedResult=null;
+  saveState();
+  renderReview(); renderMe();
+}
+
+/* ---- main renderer ---- */
 function renderReview(){
   const a=document.getElementById("reviewArea");
-  if(reviewMode==="allflash"){
-    // Free review: every word of the active pack
-    if(allFlashQueue.length===0) allFlashQueue=shuffle(WORDS.map(x=>x.word));
-    if(allFlashQueue.length===0){ a.innerHTML=`<div class="center"><div class="big">📭</div><p>${t('no_cards')}</p></div>`; return; }
-    const w=WORDS.find(x=>x.word===allFlashQueue[0]);
-    if(!w){ allFlashQueue.shift(); return renderReview(); }
-    a.innerHTML=flashCardHTML(w,w.word,tf('review_all_count',{n:WORDS.length}),true) + listenCardHTML();
+  if(!a) return;
+  refreshReviewChrome();
+  if(reviewMode==="quiz"){ renderQuiz(a); return; }
+  // a built session just ran dry → summary screen (not a "no cards" state)
+  if(currentQueue.length===0 && queueTotal>0){ renderSessionSummary(a); return; }
+  if(currentQueue.length===0 && !sessionDone) buildQueue();
+  if(currentQueue.length===0){ renderEmpty(a); return; }
+  const word=currentQueue[0];
+  const w=findWordGlobal(word);
+  if(!w){ currentQueue.shift(); return renderReview(); } // stale card — skip it
+  if(reviewMode==="flash" || reviewMode==="allflash"){
+    const free=(reviewMode==="allflash") || freePractice;
+    a.innerHTML=allSubBarHTML() + flashCardHTML(w, free) + listenCardHTML();
     updateListenBtn();
     return;
   }
-  if(reviewMode==="flash"){
-    // Due-only review. Empty queue is EXPECTED when nothing is due yet.
-    if(flashQueue.length===0) flashQueue=shuffle(dueCards());
-    if(flashQueue.length===0){
-      const total=flashActive();
-      const dueN=dueCards().length;
-      a.innerHTML=`<div class="center"><div class="big">🎉</div><p>${t('no_cards')}</p><p class="note">${tf('no_due_note',{n:total})}</p><p class="note">${t('review_all_hint')}</p></div>`;
-      void dueN;
-      return;
-    }
-    const word=flashQueue[0];
-    const w=WORDS.find(x=>x.word===word);
-    if(!w){ flashQueue.shift(); return renderReview(); } // stale card from another pack — skip it
-    a.innerHTML=flashCardHTML(w,word,t('cards_due')+" "+flashQueue.length+" "+t('cards_unit'),false);
-  } else {
-    if(quizData.length===0) buildQuiz();
-    if(quizIdx>=quizData.length){
-      const total=quizData.length;
-      const pct=total?Math.round(quizScore/total*100):0;
-      state.quizResults.push({date:todayStr(),score:quizScore,total});
-      recordActivity("quiz"); saveState();
-      a.innerHTML=`<div class="center"><div class="big">${pct>=80?'🏆':'💪'}</div>
-        <p style="font-size:18px;font-weight:700;">${state.lang==='en'?'Score':'得分'} ${quizScore} / ${total}（${pct}%）</p>
-        <p class="note">${pct>=80?t('quiz_done_great'):(pct>=60?t('quiz_done_ok'):t('quiz_done_low'))}</p>
-        <button class="btn" style="margin-top:14px;" data-act="restartQuiz">${t('try_again')}</button></div>`;
-      quizData=[]; quizIdx=0; quizScore=0; renderMe();
-      return;
-    }
-    const q=quizData[quizIdx];
-    a.innerHTML=`
-      <p class="muted" style="text-align:center;">${state.lang==='en'?('Q '+(quizIdx+1)+' / '+quizData.length+' · Score '+quizScore):('第 '+(quizIdx+1)+' / '+quizData.length+' 题 · 得分 '+quizScore)}</p>
-      <div class="flash" style="background:linear-gradient(135deg,#fff,#eef3ff);">
-        <div class="def" style="font-size:20px;">${state.lang==='en'?"\u201C"+q.def+"\u201D":"\u300C"+q.def+"\u300D"}</div>
-        <div class="exzh" style="color:var(--muted);margin-top:8px;font-size:14px;">${q.ex}</div>
-      </div>
-      <div style="margin-top:14px;">
-        ${q.options.map((o,oi)=>`<div class="opt" data-act="quizopt" data-oi="${oi}">${o}</div>`).join("")}
-      </div>
-    `;
+  if(reviewMode==="productive"){
+    a.innerHTML=productiveCardHTML(w) + listenCardHTML();
+    updateListenBtn();
+    const inp=a.querySelector(".typeInput"); if(inp) inp.focus();
+    return;
+  }
+  if(reviewMode==="context"){
+    a.innerHTML=contextCardHTML(w) + listenCardHTML();
+    updateListenBtn();
+    const inp=a.querySelector(".typeInput"); if(inp) inp.focus();
   }
 }
+function renderSessionSummary(a){
+  sessionDone=true;
+  const done=Math.max(1,queueTotal);
+  const mins=Math.max(1, Math.round((Date.now()-sessionStart)/60000));
+  a.innerHTML=`
+    ${undoBarHTML()}
+    <div class="center"><div class="big">🎉</div>
+      <p style="font-size:17px;font-weight:700;">${tf('session_done',{n:done})}</p>
+      <p class="note">${tf('session_min',{n:mins})}</p>
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button class="btn" data-act="againSummary">${t('again_btn')}</button>
+        <button class="btn ghost" data-act="doneSummary">${t('done_btn')}</button>
+      </div>
+    </div>`;
+}
+function renderEmpty(a){
+  if(reviewMode==="allflash"){
+    a.innerHTML=`<div class="center"><div class="big">📭</div><p>${t('no_cards')}</p></div>`;
+    return;
+  }
+  const scope=state.reviewScope;
+  const total=scope==="all"?flashActiveGlobal():flashActive();
+  const note=scope==="all"?tf('no_due_global_note',{n:total}):tf('no_due_note',{n:total});
+  a.innerHTML=`
+    <div class="center"><div class="big">🎉</div>
+      <p>${t('no_cards')}</p>
+      <p class="note">${total>0?note:t('no_cards_note')}</p>
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button class="btn" data-act="freePractice">${t('free_practice')}</button>
+        <button class="btn ghost" data-act="gotoAll">${t('goto_all_btn')}</button>
+      </div>
+    </div>`;
+}
+function renderQuiz(a){
+  if(quizData.length===0) buildQuiz(5);
+  if(quizData.length===0){ // pack has no words at all
+    a.innerHTML=`<div class="center"><div class="big">📭</div><p>${t('no_cards')}</p></div>`;
+    return;
+  }
+  if(quizIdx>=quizData.length){
+    const total=quizData.length;
+    const pct=total?Math.round(quizScore/total*100):0;
+    state.quizResults.push({date:todayStr(),score:quizScore,total});
+    recordActivity("quiz"); saveState();
+    a.innerHTML=`<div class="center"><div class="big">${pct>=80?'🏆':'💪'}</div>
+      <p style="font-size:18px;font-weight:700;">${state.lang==='en'?'Score':'得分'} ${quizScore} / ${total}（${pct}%）</p>
+      <p class="note">${pct>=80?t('quiz_done_great'):(pct>=60?t('quiz_done_ok'):t('quiz_done_low'))}</p>
+      <button class="btn" style="margin-top:14px;" data-act="restartQuiz">${t('try_again')}</button></div>`;
+    quizData=[]; quizIdx=0; quizScore=0; renderMe();
+    return;
+  }
+  const q=quizData[quizIdx];
+  const total=quizData.length;
+  const pct=Math.round(quizIdx/total*100);
+  a.innerHTML=`
+    <div class="revtop">
+      <span class="revmeta">✍️ ${t('rev_quiz')} · ${quizIdx+1}/${total} · ${t('quiz_score')} ${quizScore}</span>
+      <div class="revprog"><div class="revprogbar" style="width:${pct}%"></div></div>
+    </div>
+    <div class="flash" style="background:linear-gradient(135deg,#fff,#eef3ff);">
+      <div class="def" style="font-size:20px;">${state.lang==='en'?"\u201C"+q.def+"\u201D":"\u300C"+q.def+"\u300D"}</div>
+      <div class="exzh" style="color:var(--muted);margin-top:8px;font-size:14px;">${q.ex}</div>
+    </div>
+    <div style="margin-top:14px;">
+      ${q.options.map((o,oi)=>`<div class="opt" role="button" tabindex="0" data-act="quizopt" data-oi="${oi}">${esc(o)}</div>`).join("")}
+    </div>
+  `;
+}
 function flipCard(){
-  const q = (reviewMode==="allflash") ? allFlashQueue : flashQueue;
-  if(q.length===0) return;
+  if(currentQueue.length===0) return;
   flashFlipped=!flashFlipped;
   renderReview();
 }
 function rateFlash(word,q){
+  const key=wkey(word);
+  const prev=state.flashcards[key] ? JSON.parse(JSON.stringify(state.flashcards[key])) : null;
+  const iv=previewInterval(word, parseInt(q));
   rateCard(word, parseInt(q));
-  flashQueue.shift();
+  currentQueue.shift();
   flashFlipped=false;
+  renderReview(); renderMe();
+  if(!freePractice){
+    const label=(q==0?t('rate_forget'):(q==3?t('rate_ok'):t('rate_easy')))+(iv?" · "+iv:"");
+    setUndo(word, key, label, prev);
+  }
+}
+/* ---- typed-answer modes (productive & context) ---- */
+function normTyped(s){
+  return String(s||"").toLowerCase().trim().replace(/[.,!?;:]+$/,"").replace(/^["']|["']$/g,"");
+}
+function editDist(a,b){
+  const m=a.length, n=b.length;
+  if(!m) return n;
+  if(!n) return m;
+  let prev=new Array(n+1), cur=new Array(n+1);
+  for(let j=0;j<=n;j++) prev[j]=j;
+  for(let i=1;i<=m;i++){
+    cur[0]=i;
+    for(let j=1;j<=n;j++){
+      cur[j]=Math.min(prev[j]+1, cur[j-1]+1, prev[j-1]+(a[i-1]===b[j-1]?0:1));
+    }
+    const tmp=prev; prev=cur; cur=tmp;
+  }
+  return prev[n];
+}
+function checkTyped(word){
+  const inp=document.querySelector("#reviewArea .typeInput");
+  if(!inp) return;
+  const w=findWordGlobal(word); if(!w) return;
+  const target=String(w.word).toLowerCase();
+  const guess=normTyped(inp.value);
+  const key=wkey(w.word);
+  const gradeUndo=function(q){
+    if(freePractice) return;
+    const prev=state.flashcards[key] ? JSON.parse(JSON.stringify(state.flashcards[key])) : null;
+    rateCard(w.word, q);
+    setUndo(w.word, key, (q===3?t('rate_ok'):t('rate_forget'))+" · "+previewInterval(w.word,q), prev);
+  };
+  if(guess===target){
+    typedResult={word:w.word, correct:true, near:false, guess:inp.value};
+    gradeUndo(3); // typed correct → standard "Okay" step
+  } else if(Math.abs(guess.length-target.length)<=1 && editDist(guess,target)<=1){
+    // near-miss: retry WITHOUT rating — the card is neither advanced nor reset
+    typedResult={word:w.word, correct:false, near:true, guess:inp.value};
+  } else {
+    typedResult={word:w.word, correct:false, near:false, guess:inp.value};
+    gradeUndo(0); // wrong → reset like "Forgot"
+  }
   renderReview();
   renderMe();
 }
+function typedEnter(ev){
+  if(ev.key!=="Enter") return;
+  ev.preventDefault();
+  const b=document.querySelector('#reviewArea [data-act="checkTyped"]') || document.querySelector('#reviewArea [data-act="typedNext"]');
+  if(b) b.click();
+}
+function typedNext(){
+  currentQueue.shift();
+  typedResult=null;
+  renderReview();
+}
+function typeHint(word){
+  const inp=document.querySelector("#reviewArea .typeInput");
+  const w=findWordGlobal(word);
+  if(!w || !inp) return;
+  inp.value=String(w.word).charAt(0);
+  inp.focus();
+}
+function revealAnswer(word){
+  const w=findWordGlobal(word);
+  if(!w) return;
+  typedResult={word:w.word, correct:false, near:false, guess:""};
+  if(!freePractice){
+    const prev=state.flashcards[wkey(w.word)] ? JSON.parse(JSON.stringify(state.flashcards[wkey(w.word)])) : null;
+    rateCard(w.word,0);
+    setUndo(w.word, wkey(w.word), t('rate_forget')+" · "+previewInterval(w.word,0), prev);
+  }
+  renderReview(); renderMe();
+}
+/* Quiz draws from the CURRENT pack (本包) or across ALL packs (全部包). */
 function buildQuiz(n){
-  const known=state.learnedWords.filter(x=>packOf(x)===ap()).map(x=>x.word);
-  const pool=(known.length>=4?known:WORDS.map(x=>x.word));
-  const picks=shuffle(pool).slice(0, Math.min(n||5, pool.length));
-  quizData=picks.map(w=>{
-    const wo=WORDS.find(x=>x.word===w);
-    const wrong=shuffle(WORDS.filter(x=>x.word!==w)).slice(0,3).map(x=>x.word);
-    return {word:w, def:(state.lang==='en'?wo.defEn:wo.def), ex:(state.lang==='en'?wo.exEn:wo.exzh), options:shuffle([w,...wrong]), answer:w};
-  });
+  const scope=state.reviewScope;
+  if(scope==="all"){
+    const poolAll=allWordsGlobal();
+    const known=poolAll.filter(function(x){ return learnedAny(x.word); });
+    const pool=(known.length>=4?known:poolAll);
+    const picks=shuffle(pool).slice(0, Math.min(n||5, pool.length));
+    quizData=picks.map(wo=>{
+      const wrong=shuffle(pool.filter(x=>x.word!==wo.word)).slice(0,3).map(x=>x.word);
+      return {word:wo.word, def:(state.lang==='en'?wo.defEn:wo.def), ex:(state.lang==='en'?wo.exEn:wo.exzh), options:shuffle([wo.word,...wrong]), answer:wo.word};
+    });
+  } else {
+    // words of the CURRENT pack that are learned in ANY pack (cross-pack aware)
+    const known=WORDS.filter(function(x){ return x.word && learnedAny(x.word); }).map(function(x){ return x.word; });
+    const pool=(known.length>=4?known:WORDS.map(x=>x.word));
+    const picks=shuffle(pool).slice(0, Math.min(n||5, pool.length));
+    quizData=picks.map(w=>{
+      const wo=WORDS.find(x=>x.word===w);
+      const wrong=shuffle(WORDS.filter(x=>x.word!==w)).slice(0,3).map(x=>x.word);
+      return {word:w, def:(state.lang==='en'?wo.defEn:wo.def), ex:(state.lang==='en'?wo.exEn:wo.exzh), options:shuffle([w,...wrong]), answer:w};
+    });
+  }
   quizIdx=0; quizScore=0;
 }
 function quizAnswer(oi){
   const q=quizData[quizIdx];
+  if(!q) return;
   const opts=document.querySelectorAll("#reviewArea .opt");
   const chosen=q.options[oi];
   opts.forEach((o,idx)=>{
@@ -1567,8 +2318,8 @@ function renderMe(){
           <div class="w">${w.word} <span class="muted" style="font-weight:400;font-size:12px;">${w.ipa}</span></div>
           <div class="d">${state.lang==='en'?w.defEn:w.def} · ${state.lang==='en'?w.exEn:w.exzh}</div>
         </div>
-        <button class="iconbtn small" data-act="speak" data-text="${w.word}">🔊</button>
-        <button class="iconbtn small" data-act="unbookmark" data-word="${w.word}">✕</button>
+        <button class="iconbtn small" data-act="speak" data-text="${esc(w.word)}">🔊</button>
+        <button class="iconbtn small" data-act="unbookmark" data-word="${esc(w.word)}">✕</button>
       </div>`).join("");
   }
 
@@ -1592,8 +2343,8 @@ function renderMe(){
     if(lab) lab.textContent=Number(rv.toFixed(2))+"×";
   }
 
-  // badge
-  const due=dueCards().length;
+  // badge — GLOBAL due count so switching packs never hides pending reviews
+  const due=dueCardsGlobal().length;
   const badge=document.getElementById("reviewBadge");
   if(due>0){ badge.style.display="flex"; badge.textContent=due; }
   else badge.style.display="none";
@@ -1627,7 +2378,8 @@ function bindImport(){
       try{
         const s=JSON.parse(r.result);
         if(!s || !Array.isArray(s.learnedWords)) throw new Error("bad");
-        state=Object.assign(defaultState(), s);
+        state=migrateState(Object.assign(defaultState(), s)); // fold old pack::word cards into global keys
+        learnedKeySetCache=null; // learned set changed
         saveState();
         toast(t('toast_import_ok'));
         renderPlan(); refreshDaily(); refreshReading(); renderReview(); renderMe();
@@ -1701,12 +2453,55 @@ function switchTab(target){
   listenStop();
   document.querySelectorAll("main section").forEach(s=>s.classList.remove("active"));
   document.getElementById("tab-"+target).classList.add("active");
-  document.querySelectorAll("#tabbar button").forEach(b=>b.classList.toggle("active", b.dataset.target===target));
+  document.querySelectorAll("#tabbar button").forEach(b=>{
+    const on=b.dataset.target===target;
+    b.classList.toggle("active", on);
+    b.setAttribute("aria-selected", on?"true":"false");
+  });
   if(target==="plan") renderPlan();
   if(target==="daily") refreshDaily();
   if(target==="reading") refreshReading();
   if(target==="review") renderReview();
   if(target==="me") renderMe();
+}
+
+/* ===================== A11Y SETUP ===================== */
+function setupA11y(){
+  const main=document.querySelector("main");
+  if(main && !main.getAttribute("aria-label")) main.setAttribute("aria-label","主体内容");
+  document.querySelectorAll("main section").forEach(function(s){
+    s.setAttribute("role","tabpanel");
+    s.tabIndex=0;
+    if(!s.getAttribute("aria-label")){
+      const h=s.querySelector("h1,h2,h3");
+      if(h) s.setAttribute("aria-label",(h.textContent||"").trim());
+    }
+  });
+  const tabbar=document.getElementById("tabbar");
+  if(tabbar){
+    tabbar.setAttribute("role","tablist");
+    tabbar.setAttribute("aria-label","主导航");
+    tabbar.querySelectorAll("button").forEach(function(b){
+      b.setAttribute("role","tab");
+      b.setAttribute("aria-selected", b.classList.contains("active")?"true":"false");
+      b.setAttribute("aria-controls","tab-"+b.dataset.target);
+    });
+  }
+  const ra=document.getElementById("reviewArea");
+  if(ra){ ra.setAttribute("role","tabpanel"); ra.setAttribute("tabindex","0"); }
+  document.querySelectorAll('[role="tablist"]').forEach(function(list){
+    list.querySelectorAll('[role="tab"]').forEach(function(t){ t.setAttribute("aria-controls","reviewArea"); });
+    list.addEventListener("keydown", function(e){
+      if(e.key!=="ArrowRight" && e.key!=="ArrowLeft") return;
+      const tabs=Array.prototype.slice.call(list.querySelectorAll('[role="tab"]'));
+      const i=tabs.indexOf(document.activeElement);
+      if(i<0) return;
+      e.preventDefault();
+      const dir=e.key==="ArrowRight"?1:-1;
+      const n=(i+dir+tabs.length)%tabs.length;
+      tabs[n].focus();
+    });
+  });
 }
 
 /* ===================== TOAST ===================== */
@@ -1729,9 +2524,13 @@ document.addEventListener("click", function(e){
     case "savePlan": savePlan(); break;
     case "editPlan": state.plan=null; saveState(); renderPlan(); break;
     case "learn": learnWord(word); break;
-    case "bookmark": toggleBookmark(word); break;
+    case "bookmark": toggleBookmark(word);
+      el.textContent = isBookmarked(word)? t('bookmarked_btn'):t('bookmark_btn');
+      el.classList.toggle("on", isBookmarked(word));
+      break;
     case "unbookmark": toggleBookmark(word); break;
     case "speak": stopReadAloud(); listenStop(); speak(el.dataset.text); break;
+    case "listenWord": listenStop(); openWordPopup(resolveWord(word, currentReading()), word); break;
     case "wordpopup": openWordPopup(resolveWord(word, currentReading()), word); break;
     case "closeModal": closeWordPopup(); break;
     case "learnFromPopup":
@@ -1751,20 +2550,50 @@ document.addEventListener("click", function(e){
     case "reviewmode":
       listenStop();
       reviewMode=el.dataset.mode;
-      document.querySelectorAll("#reviewSeg button").forEach(b=>b.classList.toggle("active", b.dataset.mode===reviewMode));
-      if(reviewMode==="flash"){ flashQueue=shuffle(dueCards()); flashFlipped=false; }
-      else if(reviewMode==="allflash"){ allFlashQueue=shuffle(WORDS.map(x=>x.word)); flashFlipped=false; }
-      else { quizData=[]; }
+      currentQueue=[]; queueTotal=0; sessionDone=false; freePractice=false;
+      typedResult=null; flashFlipped=false; undoData=null;
+      clearTimeout(undoTimer);
+      if(reviewMode==="allflash") allSub="learned";
+      if(reviewMode==="quiz") quizData=[];
+      renderReview();
+      break;
+    case "reviewscope":
+      listenStop();
+      state.reviewScope=el.dataset.scope; saveState();
+      currentQueue=[]; queueTotal=0; sessionDone=false; freePractice=false;
+      typedResult=null; flashFlipped=false; undoData=null;
+      clearTimeout(undoTimer);
+      if(reviewMode==="allflash") allSub="learned";
+      if(reviewMode==="quiz") quizData=[];
+      renderReview(); renderMe();
+      break;
+    case "allsub":
+      allSub=el.dataset.sub; currentQueue=[]; queueTotal=0; renderReview();
+      break;
+    case "freePractice":
+      freePractice=true; sessionDone=false; currentQueue=[]; queueTotal=0; renderReview();
+      break;
+    case "gotoAll":
+      reviewMode="allflash"; freePractice=false; sessionDone=false;
+      currentQueue=[]; queueTotal=0; flashFlipped=false; typedResult=null;
+      if(state.reviewScope==="all") allSub="learned";
       renderReview();
       break;
     case "flip": flipCard(); break;
     case "rate": rateFlash(el.dataset.word, el.dataset.q); break;
+    case "checkTyped": checkTyped(el.dataset.word); break;
+    case "typeHint": typeHint(el.dataset.word); break;
+    case "revealAnswer": revealAnswer(el.dataset.word); break;
+    case "typedNext": typedNext(); break;
     case "rateFree":
-      // free review: advance without touching the spaced-repetition schedule
-      allFlashQueue.shift();
+      // free practice: advance without touching the spaced-repetition schedule
+      currentQueue.shift();
       flashFlipped=false;
       renderReview();
       break;
+    case "undoRate": undoRate(); break;
+    case "againSummary": sessionDone=false; currentQueue=[]; queueTotal=0; renderReview(); break;
+    case "doneSummary": sessionDone=true; queueTotal=0; currentQueue=[]; renderReview(); break;
     case "quizopt": quizAnswer(parseInt(el.dataset.oi)); break;
     case "restartQuiz": quizData=[]; renderReview(); break;
     case "listenToggle": listenToggle(); break;
@@ -1779,9 +2608,21 @@ document.addEventListener("click", function(e){
       if(confirm(t('confirm_clear'))){
         localStorage.removeItem(STORE_KEY);
         state=defaultState(); saveState();
+        learnedKeySetCache=null; globalWordsCache=null;
         switchTab("plan"); toast(t('toast_cleared'));
       }
       break;
+  }
+});
+/* Any element marked role=button + data-act (flash card, quiz options, revword,
+   reading blue words, segmented tabs) activates on Enter/Space for keyboard users.
+   Native <button>s already do this themselves, so we skip them. */
+document.addEventListener("keydown", function(e){
+  if((e.key!=="Enter" && e.key!==" ") || e.repeat) return;
+  const t=e.target;
+  if(t && t.getAttribute && t.getAttribute("role")==="button" && t.hasAttribute("data-act")){
+    e.preventDefault();
+    t.click();
   }
 });
 
@@ -1819,6 +2660,19 @@ document.getElementById("remindTime").addEventListener("change", function(){
 })();
 /* word popup: tap outside the card closes it */
 document.getElementById("wordModal").addEventListener("click", function(e){ if(e.target===this) closeWordPopup(); });
+/* Modal a11y: Esc closes; Tab is trapped inside the dialog while open. */
+document.addEventListener("keydown", function(e){
+  const m=document.getElementById("wordModal");
+  if(!m || !m.classList.contains("show")) return;
+  if(e.key==="Escape"){ e.preventDefault(); closeWordPopup(); return; }
+  if(e.key==="Tab"){
+    const f=m.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])');
+    if(!f.length) return;
+    const first=f[0], last=f[f.length-1];
+    if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+  }
+});
 
 /* ===================== REMINDER ===================== */
 function testNotify(){
@@ -1863,6 +2717,7 @@ async function init(){
   bindImport();
   bindPackImport();
   checkReminder();
+  setupA11y();
   ensurePwaMeta();
   registerSW();
 }

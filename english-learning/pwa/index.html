@@ -2,10 +2,12 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#6a5cff">
+<meta name="apple-mobile-web-app-title" content="EnglishDaily">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22EnglishDaily%20%E5%AD%A6%E4%B9%A0%22%2C%22short_name%22%3A%22EnglishDaily%22%2C%22display%22%3A%22standalone%22%2C%22start_url%22%3A%22.%22%2C%22background_color%22%3A%22%23f5f5f7%22%2C%22theme_color%22%3A%22%236a5cff%22%7D">
 <title>EnglishDaily · 英语学习助手</title>
 <style>
   :root{
@@ -14,7 +16,7 @@
     --bg:#f4f5fb;
     --card:#ffffff;
     --text:#1c1d2b;
-    --muted:#8a8da3;
+    --muted:#6b6f86;
     --line:#ececf3;
     --good:#2fbf71;
     --warn:#ff8a5c;
@@ -59,7 +61,7 @@
   }
   .langbtn{
     border:none;background:rgba(255,255,255,.22);color:#fff;
-    width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;
+    width:44px;height:44px;border-radius:50%;font-size:18px;cursor:pointer;
     display:flex;align-items:center;justify-content:center;margin-left:2px;flex:0 0 auto;
   }
   .langbtn:active{transform:scale(.94);}
@@ -84,7 +86,7 @@
   .tabbar button.active{color:var(--accent);}
   .tabbar .badge{
     position:absolute;top:4px;right:50%;transform:translateX(34px);
-    background:var(--warn);color:#fff;font-size:10px;font-weight:700;
+    background:var(--warn);color:#7a3b00;font-size:10px;font-weight:700;
     min-width:16px;height:16px;border-radius:9px;padding:0 4px;
     display:flex;align-items:center;justify-content:center;
   }
@@ -93,6 +95,10 @@
   section{display:none;animation:fade .25s ease;}
   section.active{display:block;}
   @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important;}
+  }
 
   .card{
     background:var(--card);border-radius:var(--radius);
@@ -128,7 +134,7 @@
   label.fld{display:block;margin:12px 0 4px;font-size:13px;font-weight:600;color:#444;}
   input[type=text],input[type=number],input[type=time],select,textarea{
     width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;
-    font-size:15px;font-family:inherit;background:#fafbff;color:var(--text);
+    font-size:16px;font-family:inherit;background:#fafbff;color:var(--text);
   }
   textarea{resize:vertical;min-height:90px;}
   .checks{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
@@ -278,11 +284,11 @@
 
   /* Rating bar: semantic colors + interval preview, sticky bottom */
   .revacts{position:sticky;bottom:10px;z-index:5;background:rgba(255,255,255,.92);backdrop-filter:saturate(180%) blur(8px);-webkit-backdrop-filter:saturate(180%) blur(8px);border-radius:14px;padding:8px;box-shadow:0 6px 18px rgba(28,29,43,.12);margin-top:12px;}
-  .rate-btn{flex:1;border:none;border-radius:12px;padding:12px 6px;font-size:13px;font-weight:800;cursor:pointer;line-height:1.35;}
+  .rate-btn{flex:1;border:none;border-radius:12px;padding:12px 6px;min-height:44px;font-size:13px;font-weight:800;cursor:pointer;line-height:1.35;}
   .rate-btn small{display:block;font-weight:700;font-size:11px;opacity:.85;}
   .rate-btn:active{transform:scale(.98);}
   .rate-forget{background:#fff0ec;color:#c23b1e;}
-  .rate-ok{background:#fff7e6;color:#b97a00;}
+  .rate-ok{background:#fff7e6;color:#8a5a00;}
   .rate-easy{background:#eafaf0;color:#0a7d5a;}
   .revacts .btn{width:100%;border-radius:12px;}
 
@@ -309,7 +315,7 @@
   .bm .info .d{font-size:12px;color:var(--muted);}
 
   .toast{
-    position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);
+    position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
     background:rgba(28,29,43,.92);color:#fff;padding:11px 18px;border-radius:12px;font-size:14px;
     opacity:0;pointer-events:none;transition:.25s;z-index:99;max-width:80%;text-align:center;
   }
@@ -331,13 +337,13 @@
   /* Reading key words */
   .keys{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
   .keychip{display:inline-flex;align-items:center;gap:2px;background:#eef0ff;border-radius:999px;padding:3px 4px 3px 10px;}
-  .keychip .kb{border:none;background:none;font-weight:700;color:var(--accent);font-size:14px;cursor:pointer;padding:4px 6px;}
-  .keychip .kbs{border:none;background:#fff;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;}
-  .keychip .kbl{border:none;background:#fff;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;color:#8a8da3;cursor:pointer;}
+  .keychip .kb{border:none;background:none;font-weight:700;color:var(--accent);font-size:14px;cursor:pointer;padding:10px 8px;min-height:44px;}
+  .keychip .kbs{border:none;background:#fff;border-radius:50%;width:44px;height:44px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;}
+  .keychip .kbl{border:none;background:#fff;border-radius:999px;padding:8px 12px;min-height:44px;font-size:12px;font-weight:700;color:#8a8da3;cursor:pointer;}
   .keychip .kbl.done{background:#eafaf0;color:var(--good);}
 
   /* Word popup modal */
-  .modal-mask{position:fixed;inset:0;background:rgba(20,22,40,.5);display:none;align-items:center;justify-content:center;z-index:120;padding:20px;}
+  .modal-mask{position:fixed;inset:0;background:rgba(20,22,40,.5);display:none;align-items:center;justify-content:center;z-index:120;padding:max(20px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left));}
   .modal-mask.show{display:flex;}
   .modal{background:#fff;border-radius:18px;max-width:360px;width:100%;padding:20px;box-shadow:0 12px 44px rgba(30,30,70,.28);max-height:82vh;overflow:auto;}
   .modal .mw{font-size:26px;font-weight:800;letter-spacing:.3px;}
@@ -429,7 +435,7 @@
         <h2>🎚️ <span data-i18n="speech_title">朗读速度</span> <span class="pill">Speed</span></h2>
         <div style="display:flex;align-items:center;gap:10px;">
           <span style="font-size:18px;" aria-hidden="true">🐢</span>
-          <input type="range" id="speechRate" min="0.5" max="1.2" step="0.05" value="0.85" style="flex:1;accent-color:var(--accent);height:28px;">
+          <input type="range" id="speechRate" min="0.5" max="1.2" step="0.05" value="0.85" style="flex:1;accent-color:var(--accent);height:28px;" aria-label="语音语速">
           <span style="font-size:18px;" aria-hidden="true">🐇</span>
           <span id="speechRateVal" class="pill" style="min-width:52px;text-align:center;margin-left:0;">0.85×</span>
         </div>
@@ -441,7 +447,7 @@
 
       <div class="card">
         <h2>📝 <span data-i18n="me_notes">我的笔记</span> <span class="pill">Notes</span></h2>
-        <textarea id="notesArea" placeholder="随时记录新学的表达、句型或心得……"></textarea>
+        <textarea id="notesArea" aria-label="我的笔记" placeholder="随时记录新学的表达、句型或心得……"></textarea>
         <div class="note" data-i18n="notes_note">笔记自动保存在本机（localStorage），不会上传。</div>
       </div>
 
@@ -449,11 +455,11 @@
         <h2>⏰ <span data-i18n="me_reminder">提醒与连续打卡</span></h2>
         <div class="reminder-box">
           <label class="switch">
-            <input type="checkbox" id="remindToggle">
+            <input type="checkbox" id="remindToggle" aria-label="每日学习提醒">
             <span class="slider"></span>
           </label>
           <span data-i18n="daily_remind">每日学习提醒</span>
-          <input type="time" id="remindTime" value="20:00" style="width:auto;">
+          <input type="time" id="remindTime" value="20:00" style="width:auto;" aria-label="提醒时间">
           <button class="btn small secondary" data-act="testNotify"><span data-i18n="test_remind">测试提醒</span></button>
         </div>
         <div class="note" data-i18n="remind_note">提醒通过浏览器通知实现（首次需授权）。本工具完全离线运行，通知在打开应用时触发。</div>
@@ -480,9 +486,9 @@
   </nav>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <audio id="listenKeep" loop playsinline preload="none" style="display:none;"></audio>
-<div class="modal-mask" id="wordModal"><div class="modal" id="wordModalBody"></div></div>
+<div class="modal-mask" id="wordModal"><div class="modal" id="wordModalBody" role="dialog" aria-modal="true" aria-label="单词详情"></div></div>
 
 <script>
 /* ===================== DATA ===================== */
@@ -490,6 +496,9 @@
    so a Phase 3 reading can show earlier-learned words as tappable blue words.
    Built in loadContent(). Keyed by lowercase word; value = word object. */
 let CROSS_DICT = {};
+/* HTML-escape user/pack-supplied strings before inserting into innerHTML/attributes
+   (stored-XSS hardening: imported content-pack JSON is untrusted). */
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
 let WORDS = [
   {word:"serene",ipa:"/sɪˈriːn/",pos:"adj.",def:"宁静的",defEn:"calm and peaceful",ex:"The lake was serene at dawn.",exzh:"黎明时湖面宁静。",exEn:"The lake was calm and peaceful at dawn.",emoji:"🌅"},
   {word:"resilient",ipa:"/rɪˈzɪliənt/",pos:"adj.",def:"有韧性的",defEn:"able to recover quickly",ex:"Children are remarkably resilient.",exzh:"孩子的韧性令人惊叹。",exEn:"Children recover from difficulties remarkably well.",emoji:"🌱"},
@@ -1313,8 +1322,10 @@ function listenCardHTML(){
 }
 
 /* ===================== WORD POPUP ===================== */
+let lastFocusedBeforeModal=null;
 function openWordPopup(wordObj, rawText){
   if(!wordObj) wordObj={word:rawText||"",def:rawText||"",defEn:rawText||"",ipa:"",pos:"",ex:"",exzh:"",exEn:"",emoji:""};
+  const m=document.getElementById("wordModal");
   const body=document.getElementById("wordModalBody");
   body.innerHTML=`
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
@@ -1322,12 +1333,20 @@ function openWordPopup(wordObj, rawText){
       <button class="iconbtn small" data-act="closeModal" style="border:none;background:none;font-size:20px;padding:2px 6px;color:var(--muted);flex:0 0 auto;">✕</button>
     </div>
     <div class="macts">
-      <button class="iconbtn ${isBookmarked(wordObj.word)?'on':''}" data-act="bookmark" data-word="${wordObj.word}">${isBookmarked(wordObj.word)?t('bookmarked_btn'):t('bookmark_btn')}</button>
-      <button class="iconbtn ${isLearned(wordObj.word)?'done':''}" data-act="learnFromPopup" data-word="${wordObj.word}">${isLearned(wordObj.word)?t('learned_btn'):t('learn_btn')}</button>
+      <button class="iconbtn ${isBookmarked(wordObj.word)?'on':''}" data-act="bookmark" data-word="${esc(wordObj.word)}">${isBookmarked(wordObj.word)?t('bookmarked_btn'):t('bookmark_btn')}</button>
+      <button class="iconbtn ${isLearned(wordObj.word)?'done':''}" data-act="learnFromPopup" data-word="${esc(wordObj.word)}">${isLearned(wordObj.word)?t('learned_btn'):t('learn_btn')}</button>
     </div>`;
-  document.getElementById("wordModal").classList.add("show");
+  lastFocusedBeforeModal=document.activeElement;
+  m.classList.add("show");
+  const closeBtn=body.querySelector('[data-act="closeModal"]');
+  if(closeBtn) closeBtn.focus();
 }
-function closeWordPopup(){ const m=document.getElementById("wordModal"); if(m) m.classList.remove("show"); }
+function closeWordPopup(){
+  const m=document.getElementById("wordModal");
+  if(m) m.classList.remove("show");
+  if(lastFocusedBeforeModal && lastFocusedBeforeModal.focus) lastFocusedBeforeModal.focus();
+  lastFocusedBeforeModal=null;
+}
 
 /* ===================== RENDER: PLAN ===================== */
 function renderPlan(){
@@ -1521,7 +1540,7 @@ function todaysWords(){
    otherwise fall back to the `emoji`. Used by the Daily card, the shared detail
    head, and the Spell It prompt so a real picture can convey meaning when present. */
 function wordPicHTML(w, fallback){
-  if(w && w.pic) return `<img class="wpimg" alt="${(w.word||'').replace(/"/g,'&quot;')}" src="${w.pic}">`;
+  if(w && w.pic) return `<img class="wpimg" alt="${esc(w.word)}" src="${esc(w.pic)}">`;
   if(w && w.emoji) return `<span class="wemoji">${w.emoji}</span>`;
   return fallback ? `<span class="wemoji">${fallback}</span>` : "";
 }
@@ -1533,15 +1552,15 @@ function wordDetailHTML(w, hideEmoji){
   if(!w) w={word:"",def:"",defEn:"",ipa:"",pos:"",ex:"",exzh:"",exEn:"",emoji:""};
   const head=`<div class="wd-head">
       ${(!hideEmoji)?wordPicHTML(w):""}
-      <span class="wd-word">${w.word}</span>
+      <span class="wd-word">${esc(w.word)}</span>
     </div>`;
-  const pron=w.ipa?`<div class="wd-pron">${w.ipa}
-      <button class="iconbtn small" data-act="speak" data-text="${w.word}" style="margin-left:4px;">🔊</button></div>`:"";
-  const pos=w.pos?`<div class="wd-pos">${w.pos}</div>`:"";
-  const def=`<div class="wd-def">${explainWord(w)}</div>`;
-  const ex=w.ex?`<div class="wd-ex">${w.ex}
-      <button class="iconbtn small" data-act="speak" data-text="${w.ex}" style="float:right;padding:4px 8px;">🔊</button>
-      <div class="wd-exzh">${state.lang==='en'?w.exEn:w.exzh}</div></div>`:"";
+  const pron=w.ipa?`<div class="wd-pron">${esc(w.ipa)}
+      <button class="iconbtn small" data-act="speak" data-text="${esc(w.word)}" style="margin-left:4px;">🔊</button></div>`:"";
+  const pos=w.pos?`<div class="wd-pos">${esc(w.pos)}</div>`:"";
+  const def=`<div class="wd-def">${esc(explainWord(w))}</div>`;
+  const ex=w.ex?`<div class="wd-ex">${esc(w.ex)}
+      <button class="iconbtn small" data-act="speak" data-text="${esc(w.ex)}" style="float:right;padding:4px 8px;">🔊</button>
+      <div class="wd-exzh">${esc(state.lang==='en'?w.exEn:w.exzh)}</div></div>`:"";
   return head+pron+pos+def+ex;
 }
 function wordCardHTML(w, idx){
@@ -1553,8 +1572,8 @@ function wordCardHTML(w, idx){
     <div class="body">
       ${wordDetailHTML(w, true)}
       <div class="acts">
-        <button class="iconbtn ${bm?'on':''}" data-act="bookmark" data-word="${w.word}">${bm?t('bookmarked_btn'):t('bookmark_btn')}</button>
-        <button class="iconbtn ${learned?'done':''}" data-act="learn" data-word="${w.word}">${learned?t('learned_btn'):t('learn_btn')}</button>
+        <button class="iconbtn ${bm?'on':''}" data-act="bookmark" data-word="${esc(w.word)}">${bm?t('bookmarked_btn'):t('bookmark_btn')}</button>
+        <button class="iconbtn ${learned?'done':''}" data-act="learn" data-word="${esc(w.word)}">${learned?t('learned_btn'):t('learn_btn')}</button>
       </div>
     </div>
   </div>`;
@@ -1624,7 +1643,7 @@ function refreshReading(){
     <div class="card" style="margin-top:14px;">
       <h3>🔁 ${t('review_words')} <span class="pill">${revWords.length}</span></h3>
       <div class="keys">
-        ${revWords.map(function(w){ return `<span class="revword" data-act="wordpopup" data-word="${w}" style="color:${statusColor(w)}">${w}</span>`; }).join("")}
+        ${revWords.map(function(w){ return `<span class="revword" role="button" tabindex="0" data-act="wordpopup" data-word="${esc(w)}" style="color:${statusColor(w)}">${esc(w)}</span>`; }).join("")}
       </div>
     </div>`:""}
     ${((readingKeyWords(r).length)?`
@@ -1635,9 +1654,9 @@ function refreshReading(){
         ${readingKeyWords(r).map(function(wo){
           const learned=isLearned(wo.word);
           return `<span class="keychip">
-            <button class="kb" data-act="wordpopup" data-word="${wo.word}" style="color:${statusColor(wo.word)}">${wo.word}</button>
-            <button class="kbs" data-act="speak" data-text="${wo.word}" title="${t('speak_btn')}">🔊</button>
-            <button class="kbl ${learned?'done':''}" data-act="learnFromReading" data-word="${wo.word}">${learned?'✅':t('learn_btn')}</button>
+            <button class="kb" data-act="wordpopup" data-word="${esc(wo.word)}" style="color:${statusColor(wo.word)}">${esc(wo.word)}</button>
+            <button class="kbs" data-act="speak" data-text="${esc(wo.word)}" title="${t('speak_btn')}">🔊</button>
+            <button class="kbl ${learned?'done':''}" data-act="learnFromReading" data-word="${esc(wo.word)}">${learned?'✅':t('learn_btn')}</button>
           </span>`;
         }).join("")}
       </div>
@@ -1647,7 +1666,7 @@ function refreshReading(){
       ${r.questions.map((q,qi)=>`
         <div class="q" data-qi="${qi}">
           <div class="qt">${qi+1}. ${q.q}</div>
-          ${q.options.map((o,oi)=>`<div class="opt" data-act="readingopt" data-qi="${qi}" data-oi="${oi}">${o}</div>`).join("")}
+          ${q.options.map((o,oi)=>`<div class="opt" role="button" tabindex="0" data-act="readingopt" data-qi="${qi}" data-oi="${oi}">${esc(o)}</div>`).join("")}
         </div>`).join("")}
     </div>
     <button class="btn ${done?'secondary':'ghost'}" data-act="completeReading" data-week="${wk}" ${done?'disabled':''}>
@@ -1663,6 +1682,8 @@ function refreshReading(){
     b.dataset.word=b.textContent;
     b.style.cursor="pointer";
     b.style.color=statusColor(b.textContent);
+    b.setAttribute("role","button");
+    b.tabIndex=0;
   });
 }
 function readingAnswer(qi, oi){
@@ -1856,7 +1877,7 @@ function flashCardHTML(w, free){
       ${flashFlipped?`
         <div class="back">${wordDetailHTML(w)}</div>`
       :`
-        <div class="front">${w.word}<span class="ipa">${w.ipa} <button class="iconbtn small" data-act="speak" data-text="${w.word}">🔊</button></span></div>
+        <div class="front">${esc(w.word)}<span class="ipa">${esc(w.ipa)} <button class="iconbtn small" data-act="speak" data-text="${esc(w.word)}">🔊</button></span></div>
         <div class="hint">${t('tap_meaning')}</div>
       `}
     </div>
@@ -1888,7 +1909,7 @@ function typedInputHTML(w){
     <div class="type-row">
       <input class="typeInput" type="text" value="${prefill}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
         placeholder="${t('type_placeholder')}" enterkeyhint="go" onkeydown="typedEnter(event)">
-      <button class="btn" data-act="checkTyped" data-word="${word}">${t('check_btn')}</button>
+      <button class="btn" data-act="checkTyped" data-word="${esc(word)}">${t('check_btn')}</button>
     </div>
     <div class="typhint">${Array(len).fill("_").join(" ")} <span style="opacity:.7;">(${tf('len_hint',{n:len})})</span></div>
     <div class="typtoolbar">
@@ -2089,7 +2110,7 @@ function renderQuiz(a){
       <div class="exzh" style="color:var(--muted);margin-top:8px;font-size:14px;">${q.ex}</div>
     </div>
     <div style="margin-top:14px;">
-      ${q.options.map((o,oi)=>`<div class="opt" data-act="quizopt" data-oi="${oi}">${o}</div>`).join("")}
+      ${q.options.map((o,oi)=>`<div class="opt" role="button" tabindex="0" data-act="quizopt" data-oi="${oi}">${esc(o)}</div>`).join("")}
     </div>
   `;
 }
@@ -2297,8 +2318,8 @@ function renderMe(){
           <div class="w">${w.word} <span class="muted" style="font-weight:400;font-size:12px;">${w.ipa}</span></div>
           <div class="d">${state.lang==='en'?w.defEn:w.def} · ${state.lang==='en'?w.exEn:w.exzh}</div>
         </div>
-        <button class="iconbtn small" data-act="speak" data-text="${w.word}">🔊</button>
-        <button class="iconbtn small" data-act="unbookmark" data-word="${w.word}">✕</button>
+        <button class="iconbtn small" data-act="speak" data-text="${esc(w.word)}">🔊</button>
+        <button class="iconbtn small" data-act="unbookmark" data-word="${esc(w.word)}">✕</button>
       </div>`).join("");
   }
 
@@ -2432,12 +2453,55 @@ function switchTab(target){
   listenStop();
   document.querySelectorAll("main section").forEach(s=>s.classList.remove("active"));
   document.getElementById("tab-"+target).classList.add("active");
-  document.querySelectorAll("#tabbar button").forEach(b=>b.classList.toggle("active", b.dataset.target===target));
+  document.querySelectorAll("#tabbar button").forEach(b=>{
+    const on=b.dataset.target===target;
+    b.classList.toggle("active", on);
+    b.setAttribute("aria-selected", on?"true":"false");
+  });
   if(target==="plan") renderPlan();
   if(target==="daily") refreshDaily();
   if(target==="reading") refreshReading();
   if(target==="review") renderReview();
   if(target==="me") renderMe();
+}
+
+/* ===================== A11Y SETUP ===================== */
+function setupA11y(){
+  const main=document.querySelector("main");
+  if(main && !main.getAttribute("aria-label")) main.setAttribute("aria-label","主体内容");
+  document.querySelectorAll("main section").forEach(function(s){
+    s.setAttribute("role","tabpanel");
+    s.tabIndex=0;
+    if(!s.getAttribute("aria-label")){
+      const h=s.querySelector("h1,h2,h3");
+      if(h) s.setAttribute("aria-label",(h.textContent||"").trim());
+    }
+  });
+  const tabbar=document.getElementById("tabbar");
+  if(tabbar){
+    tabbar.setAttribute("role","tablist");
+    tabbar.setAttribute("aria-label","主导航");
+    tabbar.querySelectorAll("button").forEach(function(b){
+      b.setAttribute("role","tab");
+      b.setAttribute("aria-selected", b.classList.contains("active")?"true":"false");
+      b.setAttribute("aria-controls","tab-"+b.dataset.target);
+    });
+  }
+  const ra=document.getElementById("reviewArea");
+  if(ra){ ra.setAttribute("role","tabpanel"); ra.setAttribute("tabindex","0"); }
+  document.querySelectorAll('[role="tablist"]').forEach(function(list){
+    list.querySelectorAll('[role="tab"]').forEach(function(t){ t.setAttribute("aria-controls","reviewArea"); });
+    list.addEventListener("keydown", function(e){
+      if(e.key!=="ArrowRight" && e.key!=="ArrowLeft") return;
+      const tabs=Array.prototype.slice.call(list.querySelectorAll('[role="tab"]'));
+      const i=tabs.indexOf(document.activeElement);
+      if(i<0) return;
+      e.preventDefault();
+      const dir=e.key==="ArrowRight"?1:-1;
+      const n=(i+dir+tabs.length)%tabs.length;
+      tabs[n].focus();
+    });
+  });
 }
 
 /* ===================== TOAST ===================== */
@@ -2550,11 +2614,13 @@ document.addEventListener("click", function(e){
       break;
   }
 });
-/* flash card is a flip surface with role=button — support Enter/Space for a11y */
+/* Any element marked role=button + data-act (flash card, quiz options, revword,
+   reading blue words, segmented tabs) activates on Enter/Space for keyboard users.
+   Native <button>s already do this themselves, so we skip them. */
 document.addEventListener("keydown", function(e){
   if((e.key!=="Enter" && e.key!==" ") || e.repeat) return;
   const t=e.target;
-  if(t && t.classList && t.classList.contains("flash") && t.hasAttribute("data-act")){
+  if(t && t.getAttribute && t.getAttribute("role")==="button" && t.hasAttribute("data-act")){
     e.preventDefault();
     t.click();
   }
@@ -2594,6 +2660,19 @@ document.getElementById("remindTime").addEventListener("change", function(){
 })();
 /* word popup: tap outside the card closes it */
 document.getElementById("wordModal").addEventListener("click", function(e){ if(e.target===this) closeWordPopup(); });
+/* Modal a11y: Esc closes; Tab is trapped inside the dialog while open. */
+document.addEventListener("keydown", function(e){
+  const m=document.getElementById("wordModal");
+  if(!m || !m.classList.contains("show")) return;
+  if(e.key==="Escape"){ e.preventDefault(); closeWordPopup(); return; }
+  if(e.key==="Tab"){
+    const f=m.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])');
+    if(!f.length) return;
+    const first=f[0], last=f[f.length-1];
+    if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+  }
+});
 
 /* ===================== REMINDER ===================== */
 function testNotify(){
@@ -2638,6 +2717,7 @@ async function init(){
   bindImport();
   bindPackImport();
   checkReminder();
+  setupA11y();
   ensurePwaMeta();
   registerSW();
 }
