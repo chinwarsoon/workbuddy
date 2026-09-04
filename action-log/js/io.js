@@ -180,7 +180,12 @@
       }
       if(!Array.isArray(a.detailLog)) a.detailLog = a.description ? [{date: todayStr(), text: a.description}] : [];
       a.detailLog.forEach(r=>{
-        if(!Array.isArray(r.images)) r.images = [];
+        // ISS-75: migrate legacy `images` (picture-only) -> `attachments` with a `type`.
+        if(Array.isArray(r.images) && !Array.isArray(r.attachments)){
+          r.attachments = r.images.map(im=>({ name: im.name||'image', src: im.src, type:'image' }));
+          delete r.images;
+        }
+        if(!Array.isArray(r.attachments)) r.attachments = [];
         if(!Array.isArray(r.typeIds)) r.typeIds = [];
         if(!Array.isArray(r.actionBy)) r.actionBy = [];
         if(r.due===undefined) r.due = '';

@@ -45,9 +45,10 @@
       return parts.length ? `<div class="rep-sub"><b>${label}:</b> ${parts.join(', ')}</div>` : '';
     }
     function imgsHtml(r){
-      const imgs=(Array.isArray(r.images)&&r.images.length)?r.images:[];
-      if(!imgs.length) return '';
-      return imgs.map(im=>{
+      const att=(Array.isArray(r.attachments)?r.attachments:(Array.isArray(r.images)?r.images.map(im=>({name:im.name,src:im.src,type:'image'})):[]));
+      if(!att.length) return '';
+      return att.map(im=>{
+        if((im.type||'image')==='file') return `<br/>🔗 <a href="${esc(normalizeLinkSrc(im.src))}">${esc(im.name||'file')}</a>`;
         if(String(im.src||'').indexOf('data:')===0) return `<br/><img src="${esc(im.src)}" alt="${esc(im.name||'image')}" style="max-width:420px;max-height:320px;border:1px solid #ccc;border-radius:6px" />`;
         return `<br/>📎 ${esc(im.name||'image')} — ${esc(im.src)}`;
       }).join('');

@@ -134,7 +134,12 @@
   .editor{background:var(--panel); grid-row:2; display:flex; flex-direction:column; overflow:hidden;}
   .ed-top{height:56px; display:flex; align-items:center; gap:12px; padding:0 16px; border-bottom:1px solid var(--border);}
   .ed-bread{font-size:12px; color:var(--muted); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .ed-body{flex:1; overflow:auto; padding:24px 32px;}
+  /* Vertical padding lives on the inner content (`.ae` / `.ae-report`), NOT here:
+     a scroll container's `padding-top` makes a `position:sticky; top:0` header pin
+     24px *below* its top border, leaving a transparent strip where table rows peek
+     ABOVE the floating header. Removing the top/bottom padding from the scroll box
+     lets the sticky thead pin flush at the very top (right under the subhead). */
+  .ed-body{flex:1; overflow:auto; padding:0 32px 24px;}
   .ed-title{font-size:22px; font-weight:600; margin:0 0 12px;}
   .badge{height:26px; padding:0 12px; border-radius:13px; font-size:12px; font-weight:600; display:flex; align-items:center;}
   .b-disc{background:var(--chip); color:var(--text); font-weight:500;}
@@ -167,9 +172,31 @@
   /* Action editor top toolbar + dated detail log */
   .ed-top-actions{margin-left:auto; display:flex; gap:10px; flex-shrink:0;}
   .ed-top .btn:disabled{opacity:.45; cursor:not-allowed;}
-  .ae-log{width:100%; border-collapse:collapse; margin-top:4px; table-layout:fixed;}
-  .ae-log th, .ae-log td{border:1px solid var(--border); padding:7px 10px; text-align:left; font-size:13px; vertical-align:top;}
-  .ae-log th{background:var(--chip); font-weight:700; color:var(--muted); text-transform:uppercase; font-size:11px; letter-spacing:.04em; position:sticky; top:0; z-index:2;}
+  /* v39 (ISS-73): the "Description — dated detail log" heading now lives INSIDE .ae-log-wrap
+     so it reads as the table's caption instead of a label floating above it. `.ae` is a flex
+     column with gap:0, so heading margin-bottom + table margin-top were the entire gap
+     (8px + 4px) — now a single 6px. */
+  .ae-log-wrap > .ed-section-h{margin:0 0 6px;}
+  .ae-log{width:100%; border-collapse:separate; border-spacing:0; margin-top:0; table-layout:fixed;}
+  .ae-log th, .ae-log td{border:none; padding:7px 10px; text-align:left; font-size:13px; vertical-align:top; background-clip:padding-box; box-shadow:inset -1px 0 var(--border), inset 0 -1px 0 var(--border);}
+  .ae-log th:first-child, .ae-log td:first-child{box-shadow:inset 1px 0 0 var(--border), inset -1px 0 var(--border), inset 0 -1px 0 var(--border);}
+  /* v40 / ISS-74 — the pinned column header must FULLY cover the rows scrolling beneath it.
+     `z-index:3` on the cell alone was not enough: the rows carry real form controls
+     (date input, textarea, buttons) and the absolutely-pinned Attach/Link bar (ISS-72),
+     which paint over a plainly-stacked sticky cell. Three independent guards:
+     (1) `thead` itself is sticky at `z-index:6` — the whole row-group becomes a stacking
+         context, so every row descendant paints strictly below the header band.
+     (2) the `th` keeps its own `position:sticky; top:0; z-index:6` for engines that do not
+         support sticky row-groups, plus `will-change:transform` so the header is promoted
+         to its own compositing layer (stops form controls bleeding through).
+     (3) `tbody{isolation:isolate}` — row content can never escape above the header band.
+     Background is painted twice (solid + matching gradient) so the band stays opaque even
+     if a theme ever makes `--chip` translucent. Outer `0 1px 0` hairline gives the pinned
+     band a crisp bottom edge over the rows passing under it. */
+  .ae-log thead{position:sticky; top:0; z-index:6;}
+  .ae-log tbody{isolation:isolate;}
+  .ae-log th{background-color:var(--chip); background-image:linear-gradient(var(--chip),var(--chip)); font-weight:700; color:var(--muted); text-transform:uppercase; font-size:11px; letter-spacing:.04em; position:sticky; top:0; z-index:6; will-change:transform; box-shadow:inset 1px 0 0 var(--border), inset -1px 0 var(--border), inset 0 1px 0 var(--border), inset 0 -1px 0 var(--border), 0 1px 0 var(--border);}
+  .ae-log th:first-child{box-shadow:inset 1px 0 0 var(--border), inset -1px 0 var(--border), inset 0 1px 0 var(--border), inset 0 -1px 0 var(--border), 0 1px 0 var(--border);}
   .ae-log input{border:none; background:transparent; font:inherit; width:100%; padding:2px 0; color:var(--text);}
   .ae-log input:focus{outline:none; box-shadow:inset 0 -2px 0 var(--accent);}
   .ae-log-date{width:104px;}
@@ -180,12 +207,22 @@
   .ae-log-rown{text-align:center; white-space:nowrap; vertical-align:top;}
   .ae-row-mv{border:1px solid var(--border); background:var(--chip); color:var(--text); cursor:pointer; font-size:13px; line-height:1; width:20px; height:22px; border-radius:6px; display:inline-block; margin:0 1px;}
   .ae-log td{overflow-wrap:anywhere; word-break:break-word;}
-  .ae-col-resizer{position:absolute; top:0; right:0; width:7px; height:100%; cursor:col-resize; user-select:none; z-index:3;}
-  .ae-col-resizer:hover{background:var(--accent); opacity:.22;}
+  .ae-col-resizer{position:absolute; top:0; right:0; width:10px; height:100%; cursor:col-resize; user-select:none; z-index:4;}
+  .ae-col-resizer::after{content:""; position:absolute; top:18%; right:3px; width:2px; height:64%; background:var(--border); border-radius:1px;}
+  .ae-col-resizer:hover::after, .ae-col-resizer.active::after{background:var(--accent);}
+  .ae-col-resizer:hover{background:var(--accent); opacity:.14;}
   .ae-col-resizing, .ae-col-resizing *{user-select:none !important; cursor:col-resize !important;}
   .ae-row-mv:hover{border-color:var(--accent); color:var(--accent);}
   .ae-log-del{border:none; background:transparent; color:#C0392B; cursor:pointer; font-size:14px; padding:2px 4px; display:block; margin:6px auto 0;}
   .ae-log-meta{vertical-align:top;}
+  /* ISS-70 re-fix (v39 / ISS-72): the Detail cell MUST stay a real table-cell. `display:flex`
+     on a <td> takes it out of table layout — the browser wraps it in an anonymous cell, so its
+     box-shadow grid lines ended at the flex box's content height instead of the row height,
+     which is why the Detail column's bottom line sat above the Date/Meta bottom lines.
+     Instead: keep display:table-cell, reserve room at the bottom, pin Attach/Link into it. */
+  .ae-log td.ae-log-detail{vertical-align:top;}
+  .ae-log td.ae-log-detail .ae-log-text{width:100%;}
+  /* ISS-75: Attach/Link bar is now in-flow (two labeled groups) — no absolute pinning. */
   .ae-meta-line{display:flex; align-items:baseline; gap:6px; font-size:12px; line-height:1.7; cursor:pointer; padding:1px 4px; border-radius:6px;}
   .ae-meta-line:hover{background:var(--chip);}
   .ae-meta-k{color:var(--muted); min-width:54px; font-size:11px; text-transform:uppercase; letter-spacing:.03em;}
@@ -250,25 +287,45 @@
   /* Hybrid separators: one divider (meta -> description) + one below add-row */
   .ae-divider{height:1px; background:var(--border); margin:22px 0 16px; border:0;}
   .ae-divider.below-add{margin:26px 0;}
-  .ae-log textarea.ae-log-text{width:100%; border:none; background:transparent; font:inherit; resize:vertical; min-height:38px; padding:2px 0; color:var(--text);}
+  .ae-log textarea.ae-log-text{width:100%; border:none; background:transparent; font:inherit; resize:vertical; min-height:38px; padding:2px 0; color:var(--text); overflow:hidden;}
   .ae-log textarea.ae-log-text:focus{outline:none; box-shadow:inset 0 -2px 0 var(--accent);}
   .ae-log-hint{font-size:11px; color:var(--muted); margin:6px 0 8px;}
-  /* --- Picture attachments in the dated detail log --- */
-  .ae-img-row{display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 6px;}
+  /* --- Attachments in the dated detail log (ISS-75): two labeled groups + divider --- */
+  .ae-attach{display:flex; flex-direction:column; gap:8px; margin-top:6px; padding-top:6px; border-top:1px dashed var(--border);}
+  /* When a row has no attachments at all, drop the divider/border so the cell stays minimal. */
+  .ae-attach:not(.has-any){border-top:none; margin-top:6px; padding-top:0;}
+  .ae-attach-group{display:flex; flex-direction:column; gap:6px;}
+  .ae-attach-h{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--muted);}
+  .ae-attach-div{height:1px; background:var(--border); margin:1px 0;}
+  .ae-img-row{display:flex; flex-wrap:wrap; gap:8px; margin:0;}
+  .ae-link-row{display:flex; flex-wrap:wrap; gap:8px; margin:0;}
   .ae-img-chip{display:inline-flex; align-items:center; gap:6px; max-width:220px; padding:4px 8px 4px 4px; border:1px solid var(--border); border-radius:10px; background:#fff; cursor:pointer; font-size:12px; color:var(--text);}
   .ae-img-chip img{width:34px; height:34px; object-fit:cover; border-radius:6px; background:var(--chip); flex:0 0 auto;}
   .ae-img-chip.broken{background:#FDECEC; border-color:#F5B5B5;}
   .ae-img-chip.broken img{display:none;}
   .ae-img-chip.broken::before{content:"⚠"; color:#C0392B; font-size:16px; width:34px; text-align:center;}
+  .ae-link-chip{display:inline-flex; align-items:center; gap:6px; max-width:260px; padding:4px 8px; border:1px solid var(--border); border-radius:10px; background:#fff; font-size:12px; color:var(--text);}
+  .ae-link-open{color:var(--accent); text-decoration:none; word-break:break-all;}
+  .ae-link-open:hover{text-decoration:underline;}
   .ae-img-rm{border:none; background:transparent; color:#C0392B; cursor:pointer; font-size:12px; padding:0 2px; margin-left:2px;}
-  .ae-img-ctl{display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:6px;}
-  .ae-add-img, .ae-add-link{border:1px solid var(--border); background:var(--chip); color:var(--text); border-radius:9px; padding:5px 10px; cursor:pointer; font-size:12px;}
-  .ae-add-img:hover, .ae-add-link:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .ae-attach-group .ae-add-img, .ae-attach-group .ae-add-link, .ae-attach-group .ae-browse-link{border:1px solid var(--border); background:var(--chip); color:var(--text); border-radius:9px; padding:5px 10px; cursor:pointer; font-size:12px;}
+  .ae-attach-group .ae-add-img{align-self:flex-end; margin-top:2px;}
+  .ae-attach-group .ae-add-img:hover, .ae-attach-group .ae-add-link:hover, .ae-attach-group .ae-browse-link:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
+  /* Empty chip rows reserve no space; a group hides its header + chip row until it has items
+     (ISS-75 follow-up: keep Picture/File-link rows minimized automatically). */
+  .ae-img-row:empty, .ae-link-row:empty{display:none;}
+  .ae-attach-group:not(.has-items) .ae-attach-h{display:none;}
+  .ae-attach-group:not(.has-items) .ae-img-row,
+  .ae-attach-group:not(.has-items) .ae-link-row{display:none;}
+  .ae-attach:not(.has-any) .ae-attach-div{display:none;}
+  .ae-link-inputs{display:flex; flex-wrap:wrap; gap:6px; align-items:center;}
   .ae-link-img{flex:1 1 200px; min-width:160px; border:1px solid var(--border); border-radius:9px; padding:5px 9px; font:inherit; font-size:12px; color:var(--text); background:#fff;}
   .ae-link-img:focus{outline:none; border-color:var(--accent);}
   .ae-rep-imgs{display:flex; flex-wrap:wrap; gap:8px; margin-top:6px;}
   .ae-rep-img{display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border:1px solid var(--border); border-radius:9px; background:var(--chip); color:var(--accent); text-decoration:none; font-size:12px; cursor:pointer;}
   .ae-rep-img:hover{background:var(--accent); color:#fff;}
+  .ae-rep-link{display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border:1px solid var(--border); border-radius:9px; background:var(--chip); color:var(--accent); text-decoration:none; font-size:12px;}
+  .ae-rep-link:hover{background:var(--accent); color:#fff;}
   /* --- Image review lightbox --- */
   .img-review-modal{max-width:min(92vw, 1100px); width:auto; background:var(--panel); border-radius:16px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.35);}
   .img-review-head{display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border);}
@@ -445,7 +502,11 @@
 
   /* ===== Action detail panel redesign (ISS-39…ISS-48) ===== */
   /* .ae no longer uses a fixed 22px gap; spacing is explicit per block */
-  .ae{gap:0;}
+  .ae{gap:0; padding:24px 0 0;}
+  /* Read-only detail view + empty state (direct children of the scroll box) keep
+     their top breathing room now that `.ed-body` no longer supplies padding-top. */
+  .ed-body > .ae-report{padding-top:24px;}
+  .ed-body > .ed-desc{padding-top:24px;}
   .ae-hidden{display:none !important;}
 
   /* --- Subhead: sticky, read-only identity bar (ISS-42 / ISS-45) --- */
@@ -510,7 +571,11 @@
   .fold-body .ae-customfields .ae-crow:last-child{margin-bottom:0;}
 
   @media (max-width:680px){
-    .focus-grid{grid-template-columns:1fr 1fr;}
+    .focus-grid{grid-template-columns:1fr;}
     .ed-subhead, .ed-body{padding-left:16px; padding-right:16px;}
+    /* Keep top padding 0 so the sticky table header still pins flush (no gap). */
+    .ed-body{padding:0 16px 16px;}
+    .ed-body > .ae, .ed-body > .ae-report, .ed-body > .ed-desc{padding-top:16px;}
+    .ae-log-meta-h{width:auto; min-width:120px;}
   }
 

@@ -192,10 +192,10 @@
       + `<tr><th>Dependencies</th><td colspan="3">${reportDepsHtml(a)}</td></tr>`
       + `</table>`;
     const logRows=(a.detailLog&&a.detailLog.length) ? a.detailLog.map(r=>{
-      const imgs=(Array.isArray(r.images)&&r.images.length) ? '<div class="ae-rep-imgs">'+r.images.map(im=>`<a class="ae-rep-img" href="#" data-src="${esc(im.src)}" data-name="${esc(im.name||'image')}">📎 ${esc(im.name||'image')}</a>`).join('')+'</div>' : '';
+      const att=(Array.isArray(r.attachments)?r.attachments:(Array.isArray(r.images)?r.images.map(im=>({name:im.name,src:im.src,type:'image'})):[])); const imgs=(att.length) ? '<div class="ae-rep-imgs">'+att.map(im=>{ if((im.type||'image')==='file') return `<a class="ae-rep-link" href="${esc(im.src)}" target="_blank" rel="noopener">🔗 ${esc(im.name||'file')}</a>`; return `<a class="ae-rep-img" href="#" data-src="${esc(im.src)}" data-name="${esc(im.name||'image')}" title="Click to review">📎 ${esc(im.name||'image')}</a>`; }).join('')+'</div>' : '';
       return `<tr><td>${esc(r.date||'')}</td><td>${esc(r.text||'')}${imgs}</td></tr>`;
     }).join('') : `<tr><td colspan="2" class="ae-empty-row">No entries</td></tr>`;
-    const logTable = `<table class="ae-report-tbl"><thead><tr><th class="ae-log-date">Date</th><th>Detail</th></tr></thead><tbody>${logRows}</tbody></table>`;
+    const logTable = `<table class="ae-report-tbl"><thead><tr><th class="ae-log-date">Date<span class="ae-col-resizer" data-col="date"></span></th><th>Detail<span class="ae-col-resizer" data-col="detail"></span></th></tr></thead><tbody>${logRows}</tbody></table>`;
     const customRows = a.projectId ? getCustomFieldsForProject(a.projectId).filter(f=>(a.custom||{})[f.key]!==undefined && (a.custom||{})[f.key]!=='').map(f=>{
       const v=(a.custom||{})[f.key];
       const disp = Array.isArray(v) ? v.join(', ') : (f.type==='boolean' ? (v?'Yes':'No') : String(v));
@@ -364,9 +364,9 @@
         </div>
       </div>
       <hr class="ae-divider" />
-      <div class="ed-section-h" style="margin:0 0 8px">Description — dated detail log</div>
       <div class="ae-log-wrap">
-        <table class="ae-log" id="aeLog"><thead><tr><th class="ae-log-row-h"></th><th class="ae-log-date">Date</th><th>Detail</th><th class="ae-log-meta-h">Meta</th></tr></thead><tbody id="aeLogBody">${logRows}</tbody></table>
+        <div class="ed-section-h">Description — dated detail log</div>
+        <table class="ae-log" id="aeLog"><thead><tr><th class="ae-log-row-h"><span class="ae-col-resizer" data-col="row"></span></th><th class="ae-log-date">Date<span class="ae-col-resizer" data-col="date"></span></th><th>Detail<span class="ae-col-resizer" data-col="detail"></span></th><th class="ae-log-meta-h">Meta<span class="ae-col-resizer" data-col="meta"></span></th></tr></thead><tbody id="aeLogBody">${logRows}</tbody></table>
         <div class="ae-log-hint">Enter = new line inside a cell · Ctrl+Enter (or + Add row) = append a row · Row column reorders / deletes · click a Meta line to edit it</div>
         <button class="btn" id="aeAddRow">+ Add row</button>
       </div>
@@ -427,14 +427,16 @@
     return `<span class="chip-mini">${esc(memberNameById(r.editedBy))}</span>`;
   }
   function logRowHtml(i, r, a){
-    const initImgs=(Array.isArray(r.images)?r.images:[]);
-    const imgs=(initImgs.length) ? initImgs.map(im=>`<span class="ae-img-chip" data-src="${esc(im.src)}" data-name="${esc(im.name||'image')}" title="Click to review"><img src="${esc(im.src)}" alt="${esc(im.name||'image')}" />${esc(im.name||'image')}<button class="ae-img-rm" title="Remove">✕</button></span>`).join('') : '';
-    return `<tr class="ae-log-row" data-i="${i}" data-imgs="${esc(JSON.stringify(initImgs))}" data-meta="${esc(JSON.stringify({typeIds:(r.typeIds||[]), actionBy:(r.actionBy||[]), due:(r.due||''), status:(r.status||''), editedBy:(r.editedBy||'')}))}">`
+    const initAtt=(Array.isArray(r.attachments)?r.attachments:(Array.isArray(r.images)?r.images.map(im=>({name:im.name,src:im.src,type:'image'})):[]));
+    return `<tr class="ae-log-row" data-i="${i}" data-attach="${esc(JSON.stringify(initAtt))}" data-meta="${esc(JSON.stringify({typeIds:(r.typeIds||[]), actionBy:(r.actionBy||[]), due:(r.due||''), status:(r.status||''), editedBy:(r.editedBy||'')}))}">`
       + `<td class="ae-log-rown"><button class="ae-row-mv" data-mv="up" title="Move up" type="button">↑</button><button class="ae-row-mv" data-mv="down" title="Move down" type="button">↓</button><button class="ae-log-del" title="Delete row" type="button">✕</button></td>`
       + `<td><input type="date" class="ae-log-date" value="${esc(r.date||'')}" /></td>`
-      + `<td><textarea class="ae-log-text" rows="2">${esc(r.text||'')}</textarea>`
-      + `<div class="ae-img-row">${imgs}</div>`
-      + `<div class="ae-img-ctl"><button class="ae-add-img" type="button" title="Attach a picture (file picker)">📎 Attach</button><input class="ae-link-img" type="text" placeholder="Link existing: assets/pictures/name.png" /><button class="ae-add-link" type="button" title="Use the link above">🔗 Link</button><input type="file" class="ae-file" accept="image/*" hidden /></div>`
+      + `<td class="ae-log-detail"><textarea class="ae-log-text" rows="2">${esc(r.text||'')}</textarea>`
+      + `<div class="ae-attach">`
+      + `<div class="ae-attach-group"><div class="ae-attach-h">🖼 Picture</div><div class="ae-img-row"></div><button class="ae-add-img" type="button" title="Attach pictures (file picker, multiple)">🖼 Add pictures</button><input type="file" class="ae-file" accept="image/*" multiple hidden /></div>`
+      + `<div class="ae-attach-div" role="separator"></div>`
+      + `<div class="ae-attach-group"><div class="ae-attach-h">🔗 File link</div><div class="ae-link-row"></div><div class="ae-link-inputs"><input class="ae-link-img" type="text" placeholder="Paste URL or local path (e.g. Z:\folder\file.pptx)" /><button class="ae-add-link" type="button" title="Add the URL above as a link">＋ Add link</button><button class="ae-browse-link" type="button" title="Pick files to link (multiple)">📂 Browse files</button><input type="file" class="ae-file-link" multiple hidden /></div><div class="ae-log-hint">Local paths become file:// links — open this app via file:// (double-click index.html) to click them open.</div></div>`
+      + `</div>`
       + `</td>`
       + `<td class="ae-log-meta">`
       + `<div class="ae-meta-line" data-meta="type"><span class="ae-meta-k">Type</span><span class="ae-meta-v">${logMetaType(r,a)}</span></div>`
@@ -669,9 +671,11 @@
     $('aeSeg').querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{ onEdit(); syncFocusDisplays(a); }));
     $('aePriority').querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{ onEdit(); syncFocusDisplays(a); }));
     document.querySelectorAll('#aeLogBody .ae-log-row').forEach(row=>bindLogRow(row,a));
+    requestAnimationFrame(autosizeAllLogTextareas); // re-fit after layout/fonts settle
     $('aeAddRow').onclick=()=>appendLogRow(a);
     bindCustomFields(a);
     bindFocusCells(a);
+    bindColResizers(a);
     syncFocusDisplays(a);
     if(!isParent) updateDepBadge(a);
     // Preview (live report) image links open the review lightbox.
@@ -679,6 +683,60 @@
     const save=$('aeSave'); if(save){ save.disabled=!edDirty; save.onclick=()=>saveInlineAction(a); }
     const del=$('aeDelete'); if(del) del.onclick=()=>deleteAction(a);
   }
+  // ---- ISS-67/69: user-resizable ae-log columns (drag handles on the 4 th) ----
+  // Widths stored as percentages in localStorage['aeLogColWidths']; the dragged column
+  // and its neighbour trade width so the total stays 100% and the drag is always visible.
+  const COL_RES_KEY='aeLogColWidths';
+  const COL_RES_DEFAULTS={row:6, date:16, detail:58, meta:20}; // sum 100 (%)
+  let _colDrag=null, _colResizeDocBound=false, _resizeBound=false;
+  function _bindColResizeDoc(){
+    if(_colResizeDocBound) return; _colResizeDocBound=true;
+    document.addEventListener('mousemove', e=>{
+      if(!_colDrag) return;
+      const dpx=e.clientX-_colDrag.startX;
+      const dPct=(dpx/_colDrag.tableW)*100;
+      let nk=_colDrag.wk+dPct, nn=_colDrag.wn-dPct;
+      const MIN=4; // ~48px on a ~1200px editor
+      if(nk<MIN){ nk=MIN; nn=_colDrag.wk+_colDrag.wn-MIN; }
+      if(nn<MIN){ nn=MIN; nk=_colDrag.wk+_colDrag.wn-MIN; }
+      _colDrag.w[_colDrag.k]=nk; _colDrag.w[_colDrag.nk]=nn;
+      _colDrag.th.style.width=nk+'%';
+      const nth=_colDrag.th.nextElementSibling || _colDrag.th.previousElementSibling;
+      if(nth) nth.style.width=nn+'%';
+    });
+    document.addEventListener('mouseup', ()=>{
+      if(!_colDrag) return;
+      const active=document.querySelector('.ae-col-resizer.active');
+      if(active) active.classList.remove('active');
+      document.body.classList.remove('ae-col-resizing');
+      try{ localStorage.setItem(COL_RES_KEY, JSON.stringify(_colDrag.w)); }catch(e){}
+      autosizeAllLogTextareas(); // column width changed -> re-fit every detail textarea
+      _colDrag=null;
+    });
+    if(!_resizeBound){ _resizeBound=true; window.addEventListener('resize', ()=>autosizeAllLogTextareas()); }
+  }
+  function bindColResizers(a){
+    const table=document.getElementById('aeLog'); if(!table) return;
+    const head=table.querySelector('thead'); if(!head) return;
+    const ths=[].slice.call(head.querySelectorAll('th'));
+    let w=COL_RES_DEFAULTS;
+    try{ const s=JSON.parse(localStorage.getItem(COL_RES_KEY)); if(s&&typeof s==='object') w=Object.assign({},COL_RES_DEFAULTS,s); }catch(e){}
+    ths.forEach(th=>{ const c=th.querySelector('.ae-col-resizer'); if(c&&w[c.dataset.col]!=null) th.style.width=w[c.dataset.col]+'%'; });
+    head.querySelectorAll('.ae-col-resizer').forEach(h=>{
+      h.addEventListener('mousedown', e=>{
+        e.preventDefault(); e.stopPropagation();
+        const th=h.closest('th'); const k=h.dataset.col;
+        const cols=['row','date','detail','meta'];
+        const idx=cols.indexOf(k);
+        const nk=(idx<cols.length-1)?cols[idx+1]:cols[idx-1];
+        _colDrag={k, nk, startX:e.clientX, wk:w[k], wn:w[nk], tableW:table.getBoundingClientRect().width, th, w};
+        h.classList.add('active');
+        document.body.classList.add('ae-col-resizing');
+      });
+    });
+    _bindColResizeDoc();
+  }
+
   function markDirty(a){
     edDirty=true;
     state.dataDirty=true; updateSaveButtons();
@@ -708,7 +766,7 @@
     }
     row.querySelectorAll('.ae-log-date, .ae-log-text').forEach(el=>el.addEventListener('input', ()=>markDirty(a)));
     const ta=row.querySelector('.ae-log-text');
-    if(ta) ta.addEventListener('keydown', e=>{ if(e.key==='Enter' && e.ctrlKey){ e.preventDefault(); appendLogRow(a); } });
+    if(ta){ autosizeTextarea(ta); ta.addEventListener('input', ()=>autosizeTextarea(ta)); ta.addEventListener('keydown', e=>{ if(e.key==='Enter' && e.ctrlKey){ e.preventDefault(); appendLogRow(a); } }); }
     row.querySelector('.ae-log-del').addEventListener('click', ()=>{ row.remove(); markDirty(a); });
     // --- Meta lines: click a line to open its popover editor (Option A, ISS-59) ---
     row.querySelectorAll('.ae-meta-line').forEach(line=>line.addEventListener('click', ()=>openMetaPop(row, a, line.dataset.meta)));
@@ -718,33 +776,49 @@
       const sib = dir<0 ? row.previousElementSibling : row.nextElementSibling;
       if(sib && sib.classList.contains('ae-log-row')){ row.parentNode.insertBefore(row, dir<0 ? sib : sib.nextElementSibling); markDirty(a); }
     }));
-    // --- Picture attachments (rule 1: link / rule 2: embed / rule 3: Chromium download) ---
-    const fileInput=row.querySelector('.ae-file');
-    const addImgBtn=row.querySelector('.ae-add-img');
-    const linkInput=row.querySelector('.ae-link-img');
-    const linkBtn=row.querySelector('.ae-add-link');
-    const imgRow=row.querySelector('.ae-img-row');
-    function readImages(){ try{ return JSON.parse(row.dataset.imgs||'null') || []; }catch(e){ return []; } }
-    function writeImages(arr){ row.dataset.imgs=JSON.stringify(arr); renderChips(arr, imgRow, row); markDirty(a); }
+    // --- Picture attachments (rule 2: embed / rule 3: Chromium download) + file links (ISS-75) ---
+    const fileInput=row.querySelector('.ae-file');            // pictures (image/*, multiple)
+    const addImgBtn=row.querySelector('.ae-add-img');         // 🖼 Add pictures
+    const linkInput=row.querySelector('.ae-link-img');        // paste absolute / web URL
+    const linkBtn=row.querySelector('.ae-add-link');          // ＋ Add link
+    const browseLinkBtn=row.querySelector('.ae-browse-link'); // 📂 Browse files
+    const fileLinkInput=row.querySelector('.ae-file-link');   // multi file picker -> blob URLs
+    function readAtt(){ try{ return JSON.parse(row.dataset.attach||'null') || []; }catch(e){ return []; } }
+    function writeAtt(arr){ row.dataset.attach=JSON.stringify(arr); renderChips(arr, row); markDirty(a); }
+    function addPictures(list){
+      const arr=readAtt();
+      const embed = f => fileToDataUrl(f).then(dataUrl=>{ arr.push({name:f.name, src:dataUrl, type:'image'}); writeAtt(arr); });
+      Array.from(list||[]).forEach(f=>{
+        if(window.showDirectoryPicker && typeof writePictureToAssets==='function'){
+          writePictureToAssets(f)
+            .then(rel=>{ if(rel){ arr.push({name:f.name, src:rel, type:'image'}); writeAtt(arr); toast('Saved to '+rel); } else { embed(f); } })
+            .catch(()=>{ embed(f); });
+        } else {
+          embed(f);
+        }
+      });
+    }
     if(addImgBtn) addImgBtn.addEventListener('click', ()=>fileInput && fileInput.click());
-    if(fileInput) fileInput.addEventListener('change', async ()=>{
-      const f=fileInput.files && fileInput.files[0]; fileInput.value=''; if(!f) return;
-      const arr=readImages();
-      // Rule 3: Chromium -> download into assets/pictures/ and store the new relative URL.
-      if(window.showDirectoryPicker && typeof writePictureToAssets==='function'){
-        const rel=await writePictureToAssets(f);
-        if(rel){ arr.push({ name:f.name, src:rel }); writeImages(arr); toast('Saved to '+rel); return; }
-      }
-      // Rule 2: any other location -> always embed as data: URL (no loss).
-      const dataUrl=await fileToDataUrl(f);
-      arr.push({ name:f.name, src:dataUrl }); writeImages(arr);
+    if(fileInput) fileInput.addEventListener('change', ()=>{
+      const list=fileInput.files ? Array.from(fileInput.files) : []; fileInput.value='';
+      if(list.length) addPictures(list);
     });
     if(linkBtn) linkBtn.addEventListener('click', ()=>{
-      const v=(linkInput.value||'').trim(); if(!v) return;
-      const arr=readImages(); arr.push({ name:v.split('/').pop()||v, src:v }); writeImages(arr); linkInput.value='';
+      const raw=(linkInput.value||'').trim(); if(!raw) return;
+      const v=normalizeLinkSrc(raw);
+      const arr=readAtt();
+      const name=(v.split(/[\\/]/).pop()||v).split(/[?#]/)[0] || v;
+      arr.push({ name, src:v, type:'file' }); writeAtt(arr); linkInput.value='';
     });
-    // Rule 1: invalid/missing link -> broken image + inline error (handled in renderChips).
-    renderChips(readImages(), imgRow, row);
+    if(browseLinkBtn) browseLinkBtn.addEventListener('click', ()=>fileLinkInput && fileLinkInput.click());
+    if(fileLinkInput) fileLinkInput.addEventListener('change', ()=>{
+      const list=fileLinkInput.files ? Array.from(fileLinkInput.files) : []; fileLinkInput.value='';
+      if(!list.length) return;
+      const arr=readAtt();
+      list.forEach(f=>{ const url=URL.createObjectURL(f); arr.push({ name:f.name, src:url, type:'file' }); });
+      writeAtt(arr);
+    });
+    renderChips(readAtt(), row);
   }
   // Collect the new per-row fields from a row (ISS-59). Values are stored on row.dataset
   // (kept in sync by the Meta popover), so reading is layout-independent.
@@ -841,16 +915,51 @@
   }
   // --- Picture helpers ---
   function fileToDataUrl(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
-  function collectLogImages(row){ try{ return JSON.parse(row.dataset.imgs||'null') || []; }catch(e){ return []; } }
-  function renderChips(arr, imgRow, row){
-    if(!imgRow) return;
-    imgRow.innerHTML = arr.map((im,idx)=>`<span class="ae-img-chip" data-idx="${idx}" data-src="${esc(im.src)}" data-name="${esc(im.name||'image')}" title="Click to review">`+
-      `<img src="${esc(im.src)}" alt="${esc(im.name||'image')}" onerror="this.parentNode.classList.add('broken')" />`+
-      `${esc(im.name||'image')}<button class="ae-img-rm" title="Remove">✕</button></span>`).join('');
-    imgRow.querySelectorAll('.ae-img-chip').forEach(chip=>{
+  // Auto-size a detail-log textarea so the row height always fits its full content (no inner
+  // scrollbar, no wasted space). Reset to 'auto' first so shrinking content re-measures correctly.
+  function autosizeTextarea(el){ if(!el) return; el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
+  function autosizeAllLogTextareas(){ document.querySelectorAll('#aeLogBody .ae-log-text').forEach(autosizeTextarea); }
+  function collectLogAttachments(row){ try{ return JSON.parse(row.dataset.attach||'null') || []; }catch(e){ return []; } }
+  function renderChips(arr, row){
+    if(!row) return;
+    const imgRow=row.querySelector('.ae-img-row');
+    const linkRow=row.querySelector('.ae-link-row');
+    if(imgRow) imgRow.innerHTML = arr.map((im,idx)=> ((im.type||'image')==='image')
+      ? `<span class="ae-img-chip" data-idx="${idx}" data-src="${esc(im.src)}" data-name="${esc(im.name||'image')}" title="Click to review">`+
+        `<img src="${esc(im.src)}" alt="${esc(im.name||'image')}" onerror="this.parentNode.classList.add('broken')" />`+
+        `${esc(im.name||'image')}<button class="ae-img-rm" title="Remove">✕</button></span>`
+      : '').join('');
+    if(linkRow) linkRow.innerHTML = arr.map((im,idx)=> (im.type==='file')
+      ? `<span class="ae-link-chip" data-idx="${idx}" data-name="${esc(im.name||'file')}" title="${esc(normalizeLinkSrc(im.src))}">`+
+        `<a class="ae-link-open" href="${esc(normalizeLinkSrc(im.src))}" target="_blank" rel="noopener" onclick="event.stopPropagation()">📄 ${esc(im.name||'file')} ↗</a>`+
+        `<button class="ae-img-rm" title="Remove">✕</button></span>`
+      : '').join('');
+    row.querySelectorAll('.ae-img-rm').forEach(btn=>btn.addEventListener('click', e=>{
+      e.stopPropagation(); const i=+btn.parentNode.dataset.idx; const a=arr.slice(); a.splice(i,1);
+      row.dataset.attach=JSON.stringify(a); renderChips(a, row); markDirty(state.actions.find(x=>x.id===state.selection.actions));
+    }));
+    if(imgRow) imgRow.querySelectorAll('.ae-img-chip').forEach(chip=>{
       chip.addEventListener('click', e=>{ if(e.target.classList.contains('ae-img-rm')) return; openImgReview(chip.dataset.src, chip.dataset.name); });
-      chip.querySelector('.ae-img-rm').addEventListener('click', e=>{ e.stopPropagation(); const i=+chip.dataset.idx; const a=arr.slice(); a.splice(i,1); row.dataset.imgs=JSON.stringify(a); renderChips(a, imgRow, row); markDirty(state.actions.find(x=>x.id===state.selection.actions)); });
     });
+    // ISS-75 follow-up: collapse a group (and the divider) when it holds no chips, so the
+    // Picture / File-link rows stay minimized automatically in every row.
+    const groups = row.querySelectorAll('.ae-attach-group');
+    if(groups[0]) groups[0].classList.toggle('has-items', !!(imgRow && imgRow.children.length));
+    if(groups[1]) groups[1].classList.toggle('has-items', !!(linkRow && linkRow.children.length));
+    const attach=row.querySelector('.ae-attach');
+    if(attach) attach.classList.toggle('has-any', (groups[0]&&groups[0].classList.contains('has-items'))||(groups[1]&&groups[1].classList.contains('has-items')));
+  }
+  // Normalize a linked source into a clickable, absolute URL (ISS-75 link fix).
+  // Strips surrounding quotes (Windows "Copy as path" wraps paths in " ") and turns
+  // local Windows paths (C:\ / C:/) into file:// URLs. Already-absolute web/blob/data
+  // URLs are passed through untouched.
+  function stripQuotes(s){ return String(s||'').replace(/^["'\s]+/,'').replace(/["'\s]+$/,''); }
+  function normalizeLinkSrc(s){
+    s = stripQuotes(s);
+    if(!s) return s;
+    if(/^(https?:|mailto:|file:|blob:|data:)/i.test(s)) return s;
+    if(/^[a-z]:[\\/]/i.test(s)) return 'file:///' + s.split('\\').join('/');
+    return s;
   }
   // --- Image review lightbox ---
   function openImgReview(src, name){
@@ -953,7 +1062,7 @@
       title:$('aeTitle').value, statusId:status, priorityId:priority, projectId:pid, disciplineId:did, due,
       assignedToIds:as.ids, assignedToNames:as.orphans, createdById:creator, deps: a.deps.slice(),
       schedule: a.schedule||{}, progress: a.progress||0,
-      detailLog:[...document.querySelectorAll('#aeLogBody .ae-log-row')].map(tr=>{ const imgs=collectLogImages(tr); const rd=readLogRowData(tr, a); return { date:tr.querySelector('.ae-log-date').value, text:tr.querySelector('.ae-log-text').value, images: imgs, editedBy:rd.editedBy, typeIds:rd.typeIds, actionBy:rd.actionBy, due:rd.due, dueHistory:(Array.isArray(rd.dueHistory)?rd.dueHistory:[]), status:rd.status }; })
+      detailLog:[...document.querySelectorAll('#aeLogBody .ae-log-row')].map(tr=>{ const att=collectLogAttachments(tr); const rd=readLogRowData(tr, a); return { date:tr.querySelector('.ae-log-date').value, text:tr.querySelector('.ae-log-text').value, attachments: att, editedBy:rd.editedBy, typeIds:rd.typeIds, actionBy:rd.actionBy, due:rd.due, dueHistory:(Array.isArray(rd.dueHistory)?rd.dueHistory:[]), status:rd.status }; })
     });
     const rep=$('aeReport'); if(rep) rep.innerHTML=reportHtml(live);
     const b=$('edBread'); if(b) b.textContent='Actions / '+$('aeTitle').value;
@@ -978,7 +1087,7 @@
       readProgressInto(a);
     }
     delete a.dependsOn;
-    a.detailLog=[...document.querySelectorAll('#aeLogBody .ae-log-row')].map(tr=>{ const imgs=collectLogImages(tr); const rd=readLogRowData(tr, a); return { date: tr.querySelector('.ae-log-date').value, text: tr.querySelector('.ae-log-text').value, images: imgs, editedBy:rd.editedBy, typeIds:rd.typeIds, actionBy:rd.actionBy, due:rd.due, dueHistory:(Array.isArray(rd.dueHistory)?rd.dueHistory:[]), status:rd.status }; });
+    a.detailLog=[...document.querySelectorAll('#aeLogBody .ae-log-row')].map(tr=>{ const att=collectLogAttachments(tr); const rd=readLogRowData(tr, a); return { date: tr.querySelector('.ae-log-date').value, text: tr.querySelector('.ae-log-text').value, attachments: att, editedBy:rd.editedBy, typeIds:rd.typeIds, actionBy:rd.actionBy, due:rd.due, dueHistory:(Array.isArray(rd.dueHistory)?rd.dueHistory:[]), status:rd.status }; });
     a.history=a.history||[]; a.history.push({d:todayStr(), t:'Edited inline'});
     edDirty=false; state.dataDirty=false; updateSaveButtons();
     refresh();
