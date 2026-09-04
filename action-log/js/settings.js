@@ -167,38 +167,51 @@
   }
   function renderColorList(list, kind){
     const isPrio = kind==='priorities';
+    // ISS-75: statuses gain a 3-letter short-code column (editable, shown in the compact
+    // detail-log meta pill). Priorities carry no code, so their layout stays 3 columns.
+    const COLS = kind==='statuses' ? '30px 1fr 72px 30px' : '30px 1fr 30px';
     setEdTop('Settings / '+(isPrio?'Priorities':'Statuses'));
-    const COLS='30px 1fr 30px';
     const rowHtml = o => {
       if(kind==='statuses' && o.builtin){
         return `<div class="lm-item lm-member lm-builtin" data-id="${esc(o.id)}" style="grid-template-columns:${COLS}">
           <span class="sw-trigger" style="background:${esc(toHex6(o.color))}" title="${esc(o.label)} (system built-in)"></span>
           <span class="builtin-label">${esc(o.label)} <span class="builtin-tag">Built-in</span></span>
+          <input data-f="code" class="cl-code" placeholder="PEN" maxlength="3" value="${esc(o.code||'')}" title="Short code shown in the detail-log status pill" />
           <span class="builtin-lock" title="System status — read only">🔒</span>
         </div>`;
       }
+      const codeCell = kind==='statuses'
+        ? `<input data-f="code" class="cl-code" placeholder="PEN" maxlength="3" value="${esc(o.code||'')}" title="Short code shown in the detail-log status pill" />`
+        : '';
       return `<div class="lm-item lm-member" data-id="${esc(o.id)}" style="grid-template-columns:${COLS}">
         <span class="sw-trigger" data-swatch style="background:${esc(toHex6(o.color))}" title="Color — ${esc(o.label)}"></span>
         <input data-f="label" placeholder="${isPrio?'Priority':'Status'}" value="${esc(o.label||'')}" />
+        ${codeCell}
         <button class="lm-mini del" title="Delete">🗑</button>
       </div>`;
     };
+    const headCols = kind==='statuses'
+      ? '<span>Color</span><span>Label</span><span>Code</span><span></span>'
+      : '<span>Color</span><span>Label</span><span></span>';
     $('edBody').innerHTML = `<p class="ed-desc">${isPrio
         ? 'Priorities are managed here only — label and color. Deleting one is blocked while any action uses it: reassign those actions first, nothing is deleted silently.'
-        : 'Statuses are managed here only — label and color. Deleting one is blocked while any action uses it: reassign those actions first, nothing is deleted silently.'}</p>
+        : 'Statuses are managed here only — label, color and a 3-letter <b>short code</b>. The code is shown in the compact detail-log status pill (a coloured dot carries the colour, so you never have to memorise it); it is auto-derived from the label but you can override it here.'}</p>
       ${list.length>8?'<input class="lm-filter" id="clFilter" type="text" placeholder="Filter…" />':''}
       <div class="lm-list" id="clList">
-        <div class="lm-head" style="grid-template-columns:${COLS}"><span>Color</span><span>Label</span><span></span></div>
+        <div class="lm-head" style="grid-template-columns:${COLS}">${headCols}</div>
         ${list.map(rowHtml).join('') || '<div class="lm-empty">No '+kind+' yet.</div>'}
       </div>
       <div class="ed-actions"><button class="btn" id="clAdd">+ Add ${isPrio?'priority':'status'}</button></div>`;
     const bind = row => {
       bindStdRow(row, list, {
-        fields:['label'],
+        fields:['label','code'],
         create: vals => {
           const lb=String(vals.label||'').trim(); if(!lb) return null;
           if(list.some(x=>String(x.label||'').toLowerCase()===lb.toLowerCase())){ toast((isPrio?'Priority':'Status')+' already exists'); return null; }
-          return isPrio ? normPriority(lb, list.length) : normStatus(lb, list.length);
+          const st = isPrio ? normPriority(lb, list.length) : normStatus(lb, list.length);
+          const c = String(vals.code||'').trim().toUpperCase().replace(/[^A-Z]/g,'').slice(0,3);
+          if(c) st.code = c;
+          return st;
         },
         delConfirm: id => true,
         onRemove: id=>requestDelete(isPrio?'priority':'status', id, ()=>renderColorList(list, kind))
@@ -206,10 +219,19 @@
       const sw=row.querySelector('[data-swatch]');
       if(sw && row.dataset.id!=='__new__') sw.onclick=e=>{ e.stopPropagation(); openStatusColorPop(list, row.dataset.id, sw); };
     };
-    $('edBody').querySelectorAll('.lm-member').forEach(row=>{ if(row.classList.contains('lm-builtin')) return; bind(row); });
+    $('edBody').querySelectorAll('.lm-member').forEach(row=>{
+      // Built-in statuses are locked for label/colour but their short code IS editable (ISS-75).
+      if(row.classList.contains('lm-builtin')){
+        const codeEl=row.querySelector('[data-f="code"]');
+        if(codeEl) codeEl.addEventListener('input', ()=>{ const o=list.find(x=>x.id===row.dataset.id); if(o){ o.code=codeEl.value.trim().toUpperCase().replace(/[^A-Z]/g,'').slice(0,3); markDataDirty(); } });
+        return;
+      }
+      bind(row);
+    });
     $('clAdd').onclick=()=>{
       const div=document.createElement('div'); div.className='lm-item lm-member'; div.dataset.id='__new__'; div.style.gridTemplateColumns=COLS;
-      div.innerHTML=`<span class="sw-trigger" data-swatch style="background:#EFEAFB" title="Color"></span><input data-f="label" placeholder="${isPrio?'Priority':'Status'}" /><button class="lm-mini del" title="Delete">🗑</button>`;
+      const codeCell = kind==='statuses' ? '<input data-f="code" class="cl-code" placeholder="PEN" maxlength="3" title="Short code" />' : '';
+      div.innerHTML=`<span class="sw-trigger" data-swatch style="background:#EFEAFB" title="Color"></span><input data-f="label" placeholder="${isPrio?'Priority':'Status'}" />${codeCell}<button class="lm-mini del" title="Delete">🗑</button>`;
       $('clList').appendChild(div); bind(div);
       const fi=div.querySelector('[data-f="label"]'); if(fi) fi.focus();
     };

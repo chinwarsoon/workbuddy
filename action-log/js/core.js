@@ -49,10 +49,24 @@
   const STATUS_PALETTE = ['#E7DAFF','#D6E4FF','#D7F5DD','#FFD2D2','#FFE9BD','#E2E8F0','#CFEFFE','#EAFBD0','#FFD6EC','#FCE7F3','#E5E7EB','#FEF3C7'];
   const STATUS_SWATCH_NAMES = ['Purple','Blue','Green','Red','Amber','Slate','Cyan','Lime','Pink','Rose','Gray','Light Amber'];
   const slug = s => String(s==null?'':s).toLowerCase().trim().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') || 'x';
+  // Derive a 3-letter short code from a status label (used in the compact meta column
+  // so colours don't have to be memorised). First word, letters only, uppercased, max 3.
+  function defaultStatusCode(label){
+    const w = String(label||'').trim().split(/\s+/)[0] || '';
+    const code = w.replace(/[^a-zA-Z]/g,'').slice(0,3).toUpperCase();
+    return code || 'ST';
+  }
   function normStatus(s, i){
-    if(typeof s==='string') return { id: slug(s), label:s, color: STATUS_PALETTE[i%STATUS_PALETTE.length], builtin:false };
+    if(typeof s==='string') return { id: slug(s), label:s, color: STATUS_PALETTE[i%STATUS_PALETTE.length], builtin:false, code: defaultStatusCode(s) };
     const o = s||{};
-    return { id: o.id||slug(o.label||('status-'+(i+1))), label: o.label||o.id||('Status '+(i+1)), color: o.color||STATUS_PALETTE[i%STATUS_PALETTE.length], builtin: !!o.builtin };
+    return { id: o.id||slug(o.label||('status-'+(i+1))), label: o.label||o.id||('Status '+(i+1)), color: o.color||STATUS_PALETTE[i%STATUS_PALETTE.length], builtin: !!o.builtin, code: o.code || defaultStatusCode(o.label||o.id||'') };
+  }
+  // Initials for a person name: CJK keeps the last 1-2 chars; Latin takes up to 2 first letters.
+  // Used in the compact meta column to shrink the By / Edited-by width.
+  function initials(name){
+    const n = String(name||'').trim(); if(!n) return '';
+    if(/[一-鿿]/.test(n)) return n.slice(-2);
+    return n.split(/\s+/).filter(Boolean).slice(0,2).map(p=>p[0]||'').join('').toUpperCase();
   }
   function normMember(m){
     if(typeof m==='string') return { id: uid('m'), name:m, initials:m, role:'', disciplineId:'', left:false, deletedOn:'', color:'' };
@@ -63,6 +77,8 @@
   function statusColor(s){ const st=findStatus(s); return st? st.color : '#EFEAFB'; }
   function textOn(hex){ const c=(hex||'#EFEAFB').replace('#',''); const r=parseInt(c.substr(0,2),16)||0, g=parseInt(c.substr(2,2),16)||0, b=parseInt(c.substr(4,2),16)||0; return (0.299*r+0.587*g+0.114*b)>150? '#1d1d1f' : '#ffffff'; }
   function statusStyle(s){ const bg=statusColor(s); return `background:${bg};color:${textOn(bg)}`; }
+  // 3-letter short code for a status (or its label fallback) — shown in the compact meta column.
+  function statusCode(s){ const st=findStatus(s); if(st && st.code) return st.code; const lbl=statusLabel(s); return lbl ? defaultStatusCode(lbl) : ''; }
   function toHex6(c){ if(!c) return '#EFEAFB'; if(c[0]==='#'&&c.length===4) return '#'+c.slice(1).split('').map(x=>x+x).join(''); return c; }
   const projName = id => (state.projects.find(p=>p.id===id)||{}).name || '—';
   const discName = id => (state.disciplines.find(d=>d.id===id)||{}).name || '—';

@@ -409,7 +409,7 @@
     const members = projectMembers(projById(a.projectId)).filter(m=>m.name && !m.left);
     const sel = (Array.isArray(r.actionBy)?r.actionBy.filter(Boolean):[]).map(id=>memberNameById(id)).filter(Boolean);
     if(!sel.length) return '<span class="ae-meta-none">— none —</span>';
-    const shown = sel.slice(0,2).map(n=>`<span class="chip-mini by">${esc(n)}</span>`).join('');
+    const shown = sel.slice(0,2).map(n=>`<span class="chip-mini by" title="${esc(n)}">${esc(initials(n))}</span>`).join('');
     return shown + (sel.length>2 ? ` <span class="chip-mini more">+${sel.length-2}</span>` : '');
   }
   function logMetaDue(r){
@@ -417,25 +417,30 @@
     const overdue = r.due < todayStr() && r.status !== ((findStatus('Completed')||{}).id);
     return `<span class="${overdue?'ae-meta-due overdue':'ae-meta-due'}">${esc(r.due)}</span>`;
   }
+  // ISS-75: compact meta column — Status shows a neutral pill with a COLOURED dot + a
+  // 3-letter code (hover reveals the full label). The dot carries the status colour so the
+  // user never has to memorise colours; the code is configurable per status in Settings.
   function logMetaStatus(r){
     if(!r.status) return '<span class="ae-meta-none">— none —</span>';
-    const st = findStatus(r.status) || {label:r.status};
-    return `<span class="chip-mini st" style="${statusStyle(r.status)}">${esc(st.label)}</span>`;
+    const st = findStatus(r.status) || {label:r.status, color:'#EFEAFB'};
+    const code = statusCode(r.status) || (st.label||'').slice(0,3).toUpperCase();
+    return `<span class="chip-mini st" title="${esc(st.label)}"><span class="ae-dot" style="background:${statusColor(r.status)}"></span>${esc(code)}</span>`;
   }
   function logMetaEditedBy(r){
     if(!r.editedBy) return '<span class="ae-meta-none">— none —</span>';
-    return `<span class="chip-mini">${esc(memberNameById(r.editedBy))}</span>`;
+    const nm = memberNameById(r.editedBy);
+    return `<span class="chip-mini" title="${esc(nm)}">${esc(initials(nm))}</span>`;
   }
   function logRowHtml(i, r, a){
     const initAtt=(Array.isArray(r.attachments)?r.attachments:(Array.isArray(r.images)?r.images.map(im=>({name:im.name,src:im.src,type:'image'})):[]));
     return `<tr class="ae-log-row" data-i="${i}" data-attach="${esc(JSON.stringify(initAtt))}" data-meta="${esc(JSON.stringify({typeIds:(r.typeIds||[]), actionBy:(r.actionBy||[]), due:(r.due||''), status:(r.status||''), editedBy:(r.editedBy||'')}))}">`
       + `<td class="ae-log-rown"><button class="ae-row-mv" data-mv="up" title="Move up" type="button">↑</button><button class="ae-row-mv" data-mv="down" title="Move down" type="button">↓</button><button class="ae-log-del" title="Delete row" type="button">✕</button></td>`
       + `<td><input type="date" class="ae-log-date" value="${esc(r.date||'')}" /></td>`
-      + `<td class="ae-log-detail"><textarea class="ae-log-text" rows="2">${esc(r.text||'')}</textarea>`
-      + `<div class="ae-attach">`
-      + `<div class="ae-attach-group"><div class="ae-attach-h">🖼 Picture</div><div class="ae-img-row"></div><button class="ae-add-img" type="button" title="Attach pictures (file picker, multiple)">🖼 Add pictures</button><input type="file" class="ae-file" accept="image/*" multiple hidden /></div>`
-      + `<div class="ae-attach-div" role="separator"></div>`
-      + `<div class="ae-attach-group"><div class="ae-attach-h">🔗 File link</div><div class="ae-link-row"></div><div class="ae-link-inputs"><input class="ae-link-img" type="text" placeholder="Paste URL or local path (e.g. Z:\folder\file.pptx)" /><button class="ae-add-link" type="button" title="Add the URL above as a link">＋ Add link</button><button class="ae-browse-link" type="button" title="Pick files to link (multiple)">📂 Browse files</button><input type="file" class="ae-file-link" multiple hidden /></div><div class="ae-log-hint">Local paths become file:// links — open this app via file:// (double-click index.html) to click them open.</div></div>`
+      + `<td class="ae-log-detail"><div class="ae-detail-wrap">`
+      + `<textarea class="ae-log-text" rows="2">${esc(r.text||'')}</textarea>`
+      + `<button class="ae-attach-chip" type="button" data-attach-toggle title="Attachments — click to manage">`
+      + `<svg class="ae-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 6.5l-7 7a2 2 0 0 0 2.8 2.8l7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8.5 15.5l7-7a2 2 0 0 0-2.8-2.8l-7 7a4 4 0 0 0 5.6 5.6l6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      + `<span class="ae-attach-count">${initAtt.length}</span></button>`
       + `</div>`
       + `</td>`
       + `<td class="ae-log-meta">`
@@ -776,49 +781,10 @@
       const sib = dir<0 ? row.previousElementSibling : row.nextElementSibling;
       if(sib && sib.classList.contains('ae-log-row')){ row.parentNode.insertBefore(row, dir<0 ? sib : sib.nextElementSibling); markDirty(a); }
     }));
-    // --- Picture attachments (rule 2: embed / rule 3: Chromium download) + file links (ISS-75) ---
-    const fileInput=row.querySelector('.ae-file');            // pictures (image/*, multiple)
-    const addImgBtn=row.querySelector('.ae-add-img');         // 🖼 Add pictures
-    const linkInput=row.querySelector('.ae-link-img');        // paste absolute / web URL
-    const linkBtn=row.querySelector('.ae-add-link');          // ＋ Add link
-    const browseLinkBtn=row.querySelector('.ae-browse-link'); // 📂 Browse files
-    const fileLinkInput=row.querySelector('.ae-file-link');   // multi file picker -> blob URLs
-    function readAtt(){ try{ return JSON.parse(row.dataset.attach||'null') || []; }catch(e){ return []; } }
-    function writeAtt(arr){ row.dataset.attach=JSON.stringify(arr); renderChips(arr, row); markDirty(a); }
-    function addPictures(list){
-      const arr=readAtt();
-      const embed = f => fileToDataUrl(f).then(dataUrl=>{ arr.push({name:f.name, src:dataUrl, type:'image'}); writeAtt(arr); });
-      Array.from(list||[]).forEach(f=>{
-        if(window.showDirectoryPicker && typeof writePictureToAssets==='function'){
-          writePictureToAssets(f)
-            .then(rel=>{ if(rel){ arr.push({name:f.name, src:rel, type:'image'}); writeAtt(arr); toast('Saved to '+rel); } else { embed(f); } })
-            .catch(()=>{ embed(f); });
-        } else {
-          embed(f);
-        }
-      });
-    }
-    if(addImgBtn) addImgBtn.addEventListener('click', ()=>fileInput && fileInput.click());
-    if(fileInput) fileInput.addEventListener('change', ()=>{
-      const list=fileInput.files ? Array.from(fileInput.files) : []; fileInput.value='';
-      if(list.length) addPictures(list);
-    });
-    if(linkBtn) linkBtn.addEventListener('click', ()=>{
-      const raw=(linkInput.value||'').trim(); if(!raw) return;
-      const v=normalizeLinkSrc(raw);
-      const arr=readAtt();
-      const name=(v.split(/[\\/]/).pop()||v).split(/[?#]/)[0] || v;
-      arr.push({ name, src:v, type:'file' }); writeAtt(arr); linkInput.value='';
-    });
-    if(browseLinkBtn) browseLinkBtn.addEventListener('click', ()=>fileLinkInput && fileLinkInput.click());
-    if(fileLinkInput) fileLinkInput.addEventListener('change', ()=>{
-      const list=fileLinkInput.files ? Array.from(fileLinkInput.files) : []; fileLinkInput.value='';
-      if(!list.length) return;
-      const arr=readAtt();
-      list.forEach(f=>{ const url=URL.createObjectURL(f); arr.push({ name:f.name, src:url, type:'file' }); });
-      writeAtt(arr);
-    });
-    renderChips(readAtt(), row);
+    // --- Attachment chip opens a popover (ISS-75): manage pictures / file links on demand ---
+    const chip=row.querySelector('.ae-attach-chip');
+    if(chip) chip.addEventListener('click', ()=>openAttachPop(row, a));
+    updateAttachCount(row);
   }
   // Collect the new per-row fields from a row (ISS-59). Values are stored on row.dataset
   // (kept in sync by the Meta popover), so reading is layout-independent.
@@ -862,12 +828,12 @@
     const setLine = (kind, html) => { const el=row.querySelector('.ae-meta-line[data-meta="'+kind+'"] .ae-meta-v'); if(el) el.innerHTML=html; };
     const mini = arr => arr.slice(0,2).map(l=>`<span class="chip-mini at">${esc(l)}</span>`).join('') + (arr.length>2?` <span class="chip-mini more">+${arr.length-2}</span>`:'');
     setLine('type', Array.isArray(s.typeIds)&&s.typeIds.length? mini(s.typeIds.map(id=>(types.find(t=>t.id===id)||{}).label).filter(Boolean)) : '<span class="ae-meta-none">— none —</span>');
-    setLine('by', Array.isArray(s.actionBy)&&s.actionBy.length? mini(s.actionBy.map(id=>memberNameById(id)).filter(Boolean)) : '<span class="ae-meta-none">— none —</span>');
+    setLine('by', Array.isArray(s.actionBy)&&s.actionBy.length? (()=>{ const ns=s.actionBy.map(id=>memberNameById(id)).filter(Boolean); return ns.slice(0,2).map(n=>`<span class="chip-mini by" title="${esc(n)}">${esc(initials(n))}</span>`).join('') + (ns.length>2?` <span class="chip-mini more">+${ns.length-2}</span>`:''); })() : '<span class="ae-meta-none">— none —</span>');
     const overdue = s.due && s.due < todayStr() && s.status !== ((findStatus('Completed')||{}).id);
     setLine('due', s.due? `<span class="${overdue?'ae-meta-due overdue':'ae-meta-due'}">${esc(s.due)}</span>` : '<span class="ae-meta-none">— none —</span>');
     const st = findStatus(s.status)||{label:s.status};
-    setLine('status', s.status? `<span class="chip-mini st" style="${statusStyle(s.status)}">${esc(st.label)}</span>` : '<span class="ae-meta-none">— none —</span>');
-    setLine('editedBy', s.editedBy? `<span class="chip-mini">${esc(memberNameById(s.editedBy))}</span>` : '<span class="ae-meta-none">— none —</span>');
+    setLine('status', s.status? `<span class="chip-mini st" title="${esc(st.label)}"><span class="ae-dot" style="background:${statusColor(s.status)}"></span>${esc(statusCode(s.status)||(st.label||'').slice(0,3).toUpperCase())}</span>` : '<span class="ae-meta-none">— none —</span>');
+    setLine('editedBy', s.editedBy? (()=>{ const n=memberNameById(s.editedBy); return `<span class="chip-mini" title="${esc(n)}">${esc(initials(n))}</span>`; })() : '<span class="ae-meta-none">— none —</span>');
   }
   function openMetaPop(row, a, kind){
     const s = metaState(row);
@@ -920,10 +886,13 @@
   function autosizeTextarea(el){ if(!el) return; el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
   function autosizeAllLogTextareas(){ document.querySelectorAll('#aeLogBody .ae-log-text').forEach(autosizeTextarea); }
   function collectLogAttachments(row){ try{ return JSON.parse(row.dataset.attach||'null') || []; }catch(e){ return []; } }
-  function renderChips(arr, row){
-    if(!row) return;
-    const imgRow=row.querySelector('.ae-img-row');
-    const linkRow=row.querySelector('.ae-link-row');
+  // Renders picture / file-link chips into `container` (the row, or the attachment popover),
+  // writing the edited array back onto `dataRow.dataset.attach`. The two groups collapse
+  // automatically when empty so a row / popover stays minimal (ISS-75 follow-up).
+  function renderChips(arr, container, dataRow){
+    if(!container) return;
+    const imgRow=container.querySelector('.ae-img-row');
+    const linkRow=container.querySelector('.ae-link-row');
     if(imgRow) imgRow.innerHTML = arr.map((im,idx)=> ((im.type||'image')==='image')
       ? `<span class="ae-img-chip" data-idx="${idx}" data-src="${esc(im.src)}" data-name="${esc(im.name||'image')}" title="Click to review">`+
         `<img src="${esc(im.src)}" alt="${esc(im.name||'image')}" onerror="this.parentNode.classList.add('broken')" />`+
@@ -931,23 +900,85 @@
       : '').join('');
     if(linkRow) linkRow.innerHTML = arr.map((im,idx)=> (im.type==='file')
       ? `<span class="ae-link-chip" data-idx="${idx}" data-name="${esc(im.name||'file')}" title="${esc(normalizeLinkSrc(im.src))}">`+
-        `<a class="ae-link-open" href="${esc(normalizeLinkSrc(im.src))}" target="_blank" rel="noopener" onclick="event.stopPropagation()">📄 ${esc(im.name||'file')} ↗</a>`+
+        `<a class="ae-link-open" href="${esc(normalizeLinkSrc(im.src))}" target="_blank" rel="noopener" onclick="event.stopPropagation()">`+
+        `<svg class="ae-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h5a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 3v5a1 1 0 0 0 1 1h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`+
+        `${esc(im.name||'file')} ↗</a>`+
         `<button class="ae-img-rm" title="Remove">✕</button></span>`
       : '').join('');
-    row.querySelectorAll('.ae-img-rm').forEach(btn=>btn.addEventListener('click', e=>{
+    container.querySelectorAll('.ae-img-rm').forEach(btn=>btn.addEventListener('click', e=>{
       e.stopPropagation(); const i=+btn.parentNode.dataset.idx; const a=arr.slice(); a.splice(i,1);
-      row.dataset.attach=JSON.stringify(a); renderChips(a, row); markDirty(state.actions.find(x=>x.id===state.selection.actions));
+      dataRow.dataset.attach=JSON.stringify(a); renderChips(a, container, dataRow); updateAttachCount(dataRow); markDirty(state.actions.find(x=>x.id===state.selection.actions));
     }));
     if(imgRow) imgRow.querySelectorAll('.ae-img-chip').forEach(chip=>{
       chip.addEventListener('click', e=>{ if(e.target.classList.contains('ae-img-rm')) return; openImgReview(chip.dataset.src, chip.dataset.name); });
     });
-    // ISS-75 follow-up: collapse a group (and the divider) when it holds no chips, so the
-    // Picture / File-link rows stay minimized automatically in every row.
-    const groups = row.querySelectorAll('.ae-attach-group');
+    const groups = container.querySelectorAll('.ae-attach-group');
     if(groups[0]) groups[0].classList.toggle('has-items', !!(imgRow && imgRow.children.length));
     if(groups[1]) groups[1].classList.toggle('has-items', !!(linkRow && linkRow.children.length));
-    const attach=row.querySelector('.ae-attach');
+    const attach=container.querySelector('.ae-attach');
     if(attach) attach.classList.toggle('has-any', (groups[0]&&groups[0].classList.contains('has-items'))||(groups[1]&&groups[1].classList.contains('has-items')));
+  }
+  // --- Attachment popover (ISS-75): the Detail cell shows only a count chip; this modal
+  //     opens on demand to review / add / remove pictures and file links. No emoji — SVG icons. ---
+  function openAttachPop(row, a){
+    if(!row) return;
+    const arr = collectLogAttachments(row);
+    const pop = $('aeAttachPop'); if(!pop) return;
+    const body = $('aeAttachPopBody');
+    body.innerHTML =
+      `<div class="ae-attach">` +
+        `<div class="ae-attach-group" data-g="pic"><div class="ae-attach-h">Pictures</div>` +
+          `<button class="ae-add-img" type="button" id="aeAddPics">+ Add pictures</button>` +
+          `<input type="file" id="aePicsInput" accept="image/*" multiple style="display:none" />` +
+          `<div class="ae-img-row"></div>` +
+        `</div>` +
+        `<div class="ae-attach-group" data-g="link"><div class="ae-attach-h">File links</div>` +
+          `<div class="ae-link-inputs">` +
+            `<input class="ae-link-img" id="aeLinkUrl" placeholder="Paste a URL or file path…" />` +
+            `<button class="ae-add-link" type="button" id="aeAddLink">Add link</button>` +
+            `<button class="ae-browse-link" type="button" id="aeBrowseFile">Browse files</button>` +
+            `<input type="file" id="aeFileInput" multiple style="display:none" />` +
+          `</div>` +
+          `<p class="form-hint">Tip: paste a local path like <code>C:\folder\file.pdf</code> — it opens as a file:// link.</p>` +
+          `<div class="ae-link-row"></div>` +
+        `</div>` +
+      `</div>`;
+    renderChips(arr, body, row);
+    const write = newArr => { row.dataset.attach=JSON.stringify(newArr); renderChips(newArr, body, row); updateAttachCount(row); markDirty(a); };
+    // Pictures
+    const picsInput = body.querySelector('#aePicsInput');
+    body.querySelector('#aeAddPics').addEventListener('click', ()=>picsInput.click());
+    picsInput.addEventListener('change', async e=>{
+      const files=[...e.target.files||[]];
+      for(const f of files){ try{ arr.push({name:f.name, src:await fileToDataUrl(f), type:'image'}); }catch(err){} }
+      write(arr.slice()); picsInput.value='';
+    });
+    // Link (URL or local path)
+    body.querySelector('#aeAddLink').addEventListener('click', ()=>{
+      const v=body.querySelector('#aeLinkUrl').value.trim(); if(!v) return;
+      arr.push({name:v.split(/[\\/]/).pop()||v, src:v, type:'file'}); write(arr.slice());
+      body.querySelector('#aeLinkUrl').value='';
+    });
+    // Browse files (embed as data URLs)
+    const fileInput = body.querySelector('#aeFileInput');
+    body.querySelector('#aeBrowseFile').addEventListener('click', ()=>fileInput.click());
+    fileInput.addEventListener('change', async e=>{
+      const files=[...e.target.files||[]];
+      for(const f of files){ try{ arr.push({name:f.name, src:await fileToDataUrl(f), type:'file'}); }catch(err){} }
+      write(arr.slice()); fileInput.value='';
+    });
+    const done=$('aeAttachPopDone'); if(done) done.onclick=closeAttachPop;
+    const closeX=$('aeAttachPopClose'); if(closeX) closeX.onclick=closeAttachPop;
+    pop.onclick=e=>{ if(e.target===pop) closeAttachPop(); };
+    pop.classList.add('open');
+  }
+  function closeAttachPop(){ const pop=$('aeAttachPop'); if(pop) pop.classList.remove('open'); }
+  // Keep the Detail-cell count chip in sync with the row's attachment array.
+  function updateAttachCount(row){
+    if(!row) return;
+    const n=collectLogAttachments(row).length;
+    const el=row.querySelector('.ae-attach-count');
+    if(el) el.textContent=String(n);
   }
   // Normalize a linked source into a clickable, absolute URL (ISS-75 link fix).
   // Strips surrounding quotes (Windows "Copy as path" wraps paths in " ") and turns
