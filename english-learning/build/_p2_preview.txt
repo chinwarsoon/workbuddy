@@ -398,1482 +398,1482 @@ burn	[curated]	Dry wood burns quickly.	干木柴烧得很快。
 trend	[curated]	The trend is moving in our favor.	趋势正朝着有利我们的方向发展。
 initial	[curated]	My initial idea was to wait.	我最初的想法是等待。
 pleasure	[curated]	It is a pleasure to meet you.	很高兴见到你。
-suggestion	[gen]	Let's talk about the suggestion first.	我们先谈谈提议。
-critical	[gen]	Their plan seemed critical at first.	他们的计划起初显得很批评。
-gather	[gen]	I know very little about the gather.	我对集合了解很少。
-mostly	[gen]	He mostly refused to give a reason.	他大概拒绝给出理由。
-pop	[gen]	The pop is not the real problem.	砰然声不是真正的问题。
-essential	[gen]	He knows a lot about the essential.	他很了解要素。
-desire	[gen]	Nobody explained the desire to us.	没有人向我们解释欲望。
-promote	[gen]	You should not promote alone.	你不该独自促进。
-currently	[gen]	The cost fell currently after the change.	改动之后成本现在下降了。
-employ	[gen]	People often worry about the employ.	人们常常为雇用担心。
-path	[gen]	The path was the first thing I noticed.	我首先注意到的就是路径。
-topic	[gen]	She has strong views on the topic.	她对主题有很鲜明的看法。
-beach	[gen]	The beach surprised everyone in the room.	海滩让在场的所有人都很意外。
-attract	[gen]	He offered to attract for us.	他主动提出替我们吸引。
-engage	[gen]	It helps to engage early.	早点答应会有帮助。
-powerful	[gen]	Nobody expected it to be so powerful.	没人想到会这么有力。
-flower	[gen]	Let's talk about the flower first.	我们先谈谈花。
-crisis	[gen]	The crisis matters more than you think.	危机比你以为的更重要。
-settle	[gen]	I know very little about the settle.	我对有背长椅决定了解很少。
-boat	[gen]	We cannot ignore the boat.	我们不能忽视船乘船以船运。
-aid	[gen]	The aid is not the real problem.	帮助不是真正的问题。
-fan	[gen]	He knows a lot about the fan.	他很了解风扇。
-twice	[curated]	I have read that book twice.	那本书我读过两遍。
-fresh	[gen]	She gave a very fresh reply.	她给出了一个非常新鲜的回答。
-delay	[gen]	It is hard to describe the delay in a few words.	很难用几句话描述耽搁。
-safety	[gen]	People often worry about the safety.	人们常常为安全担心。
-engineer	[gen]	The engineer was the first thing I noticed.	我首先注意到的就是工程师。
-quiet	[gen]	He stayed quiet the whole time.	他全程都很安静。
-insurance	[gen]	The insurance surprised everyone in the room.	保险让在场的所有人都很意外。
-nurse	[gen]	We keep coming back to the nurse.	我们总是绕回护士这个话题。
-divide	[gen]	That is where the divide becomes important.	那就是分开变得重要的地方。
-length	[gen]	The length says a lot about them.	长度很能说明他们的情况。
-investigation	[gen]	Let's talk about the investigation first.	我们先谈谈调查。
-somewhere	[gen]	The somewhere matters more than you think.	到某处比你以为的更重要。
-expand	[gen]	It is hard to expand well.	要把使膨胀做好很难。
-commit	[gen]	Do not commit until you are ready.	在你准备好之前不要委托(托付)。
-obvious	[gen]	The result was obvious, so they tried again.	结果很明显，于是他们又试了一次。
-jump	[gen]	He knows a lot about the jump.	他很了解跳跃。
-weapon	[gen]	Nobody explained the weapon to us.	没有人向我们解释武器。
-relatively	[gen]	He spoke relatively, so everyone understood.	他讲得很相对地，所以大家都听懂了。
-host	[gen]	It is hard to describe the host in a few words.	很难用几句话描述主人。
-district	[gen]	People often worry about the district.	人们常常为区域担心。
-broad	[gen]	The broad was the first thing I noticed.	我首先注意到的就是宽广的。
-tire	[gen]	She has strong views on the tire.	她对轮胎有很鲜明的看法。
-spring	[gen]	The spring surprised everyone in the room.	春天让在场的所有人都很意外。
-spirit	[gen]	We keep coming back to the spirit.	我们总是绕回精神这个话题。
-lunch	[gen]	That is where the lunch becomes important.	那就是午餐变得重要的地方。
-actual	[gen]	Nobody expected it to be so actual.	没人想到会这么真实。
-battle	[gen]	Let's talk about the battle first.	我们先谈谈战役战斗。
-tradition	[gen]	The tradition matters more than you think.	传说比你以为的更重要。
-hardly	[gen]	The plan failed hardly, and nobody knew why.	计划刚刚失败了，没人知道原因。
-coach	[gen]	We cannot ignore the coach.	我们不能忽视四轮大马车。
-experiment	[gen]	The experiment is not the real problem.	实验不是真正的问题。
-consideration	[gen]	He knows a lot about the consideration.	他很了解考虑。
-strange	[gen]	It looked strange, but nobody said a word.	它看起来奇怪，但没人说一句话。
-code	[gen]	The code came up again today.	今天又提到了代码。
-possibly	[gen]	The cost fell possibly after the change.	改动之后成本可能下降了。
-threat	[gen]	People often worry about the threat.	人们常常为恐吓担心。
-accident	[gen]	The accident was the first thing I noticed.	我首先注意到的就是意外事件。
-impossible	[gen]	She has strong views on the impossible.	她对不可能的有很鲜明的看法。
-revenue	[gen]	The revenue surprised everyone in the room.	收入让在场的所有人都很意外。
-enable	[gen]	He offered to enable for us.	他主动提出替我们使能够。
-afraid	[gen]	Most people thought it was afraid.	大多数人认为它很害怕。
-active	[gen]	The active says a lot about them.	活跃的很能说明他们的情况。
-conclude	[gen]	Nobody asked us to conclude.	没有人要求我们结束。
-religious	[gen]	The religious matters more than you think.	宗教性的比你以为的更重要。
-cancer	[gen]	I know very little about the cancer.	我对癌了解很少。
-convince	[gen]	Do not convince until you are ready.	在你准备好之前不要说服。
-vary	[gen]	Nothing happened when we tried to vary.	我们试着改变时，什么也没发生。
-environmental	[gen]	After the change, everything felt environmental.	改动之后，一切都让人觉得周围。
-healthy	[gen]	It looked healthy, but nobody said a word.	它看起来健康，但没人说一句话。
-blow	[gen]	The blow came up again today.	今天又提到了吹。
-location	[gen]	It is hard to describe the location in a few words.	很难用几句话描述位置。
-invest	[gen]	They want to invest, but they cannot.	他们想投资，但做不到。
-proceed	[gen]	They had to proceed again and again.	他们不得不反复继续进行。
-actor	[gen]	She has strong views on the actor.	她对男演员有很鲜明的看法。
-glad	[gen]	The idea is glad, yet people accept it.	这个想法高兴，但人们接受了它。
-tape	[gen]	We keep coming back to the tape.	我们总是绕回带子这个话题。
-whereas	[curated]	He prefers tea, whereas I prefer coffee.	他喜欢茶，而我更喜欢咖啡。
-opposite	[gen]	Nobody expected it to be so opposite.	没人想到会这么相对。
-stone	[gen]	Let's talk about the stone first.	我们先谈谈石头。
-sum	[gen]	The sum matters more than you think.	总数比你以为的更重要。
-murder	[gen]	I know very little about the murder.	我对谋杀了解很少。
-soldier	[gen]	We cannot ignore the soldier.	我们不能忽视军人。
-finance	[gen]	The finance is not the real problem.	财政不是真正的问题。
-hate	[gen]	He knows a lot about the hate.	他很了解憎恨。
-egg	[gen]	Nobody explained the egg to us.	没有人向我们解释蛋。
-concert	[gen]	The concert came up again today.	今天又提到了音乐会。
-shock	[gen]	It is hard to describe the shock in a few words.	很难用几句话描述震动。
-comfortable	[gen]	I have never seen anything so comfortable.	我从未见过这么舒服的东西。
-usual	[gen]	It is usual to say that out loud.	把那句话说出口是平常的。
-carefully	[gen]	It works carefully, so we kept the old rule.	它小心地有效，所以我们保留了旧规则。
-pack	[gen]	The pack surprised everyone in the room.	包裹让在场的所有人都很意外。
-recall	[gen]	We keep coming back to the recall.	我们总是绕回回忆这个话题。
-wine	[gen]	That is where the wine becomes important.	那就是葡萄酒变得重要的地方。
-camera	[gen]	The camera says a lot about them.	照相机很能说明他们的情况。
-swim	[gen]	Nobody asked us to swim.	没有人要求我们游泳。
-manufacture	[gen]	I would rather manufacture than wait.	我宁愿产品，也不愿等待。
-theater	[gen]	I know very little about the theater.	我对戏院了解很少。
-cycle	[gen]	We cannot ignore the cycle.	我们不能忽视周期。
-totally	[gen]	That happens totally in real life.	这在现实生活中完全地发生。
-museum	[gen]	He knows a lot about the museum.	他很了解博物馆。
-visitor	[gen]	Nobody explained the visitor to us.	没有人向我们解释参观者。
-freedom	[gen]	The freedom came up again today.	今天又提到了自由。
-construction	[gen]	It is hard to describe the construction in a few words.	很难用几句话描述建筑。
-dear	[gen]	People often worry about the dear.	人们常常为亲爱的人担心。
-objective	[gen]	The objective was the first thing I noticed.	我首先注意到的就是目的。
-moreover	[curated]	The plan is cheap; moreover, it is quick.	这个方案成本低；而且，它还很快。
-onto	[gen]	The onto surprised everyone in the room.	在...之上让在场的所有人都很意外。
-historical	[gen]	The room felt historical to me.	我觉得房间很历史。
-oppose	[gen]	It helps to oppose early.	早点反对会有帮助。
-branch	[gen]	The branch says a lot about them.	树枝很能说明他们的情况。
-scientist	[gen]	Let's talk about the scientist first.	我们先谈谈科学家。
-route	[gen]	I would rather route than wait.	我宁愿路径，也不愿等待。
-bind	[gen]	I know very little about the bind.	我对绑了解很少。
-belong	[gen]	Do not belong until you are ready.	在你准备好之前不要属于。
-taste	[gen]	The taste is not the real problem.	味道不是真正的问题。
-tonight	[gen]	He knows a lot about the tonight.	他很了解今晚。
-fashion	[gen]	Nobody explained the fashion to us.	没有人向我们解释流行。
-danger	[gen]	The danger came up again today.	今天又提到了危险。
-bomb	[gen]	It is hard to describe the bomb in a few words.	很难用几句话描述炸弹轰炸。
-army	[gen]	People often worry about the army.	人们常常为军队担心。
-dangerous	[gen]	It is dangerous to say that out loud.	把那句话说出口是危险的。
-decrease	[gen]	She has strong views on the decrease.	她对减少有很鲜明的看法。
-hurt	[gen]	He learned to hurt the hard way.	他吃了苦头才学会伤害。
-council	[gen]	We keep coming back to the council.	我们总是绕回会议这个话题。
-editor	[gen]	That is where the editor becomes important.	那就是编者变得重要的地方。
-normally	[gen]	They normally repeated the same mistake.	他们正规地重复了同样的错误。
-sight	[gen]	Let's talk about the sight first.	我们先谈谈景观。
-generate	[gen]	I would rather generate than wait.	我宁愿产生，也不愿等待。
-gift	[gen]	I know very little about the gift.	我对礼物了解很少。
-delivery	[gen]	We cannot ignore the delivery.	我们不能忽视递送。
-deny	[gen]	Nothing happened when we tried to deny.	我们试着否认时，什么也没发生。
-anybody	[gen]	He knows a lot about the anybody.	他很了解任何人重要人物。
-bedroom	[gen]	Nobody explained the bedroom to us.	没有人向我们解释卧室。
-quote	[gen]	You should not quote alone.	你不该独自引用引述。
-climb	[gen]	It is hard to describe the climb in a few words.	很难用几句话描述攀登。
-basically	[gen]	She basically opened the door and left.	她基本上打开门走了出去。
-violence	[gen]	The violence was the first thing I noticed.	我首先注意到的就是猛烈。
-minister	[gen]	She has strong views on the minister.	她对部长有很鲜明的看法。
-mainly	[gen]	You can see it mainly in this chart.	在这张图表中你能主要地看到它。
-mouth	[gen]	We keep coming back to the mouth.	我们总是绕回嘴这个话题。
-noise	[gen]	That is where the noise becomes important.	那就是噪音变得重要的地方。
-manner	[gen]	The manner says a lot about them.	样子很能说明他们的情况。
-gun	[gen]	Let's talk about the gun first.	我们先谈谈枪。
-square	[gen]	The square matters more than you think.	正方形比你以为的更重要。
-occasion	[gen]	I know very little about the occasion.	我对场合了解很少。
-familiar	[gen]	We cannot ignore the familiar.	我们不能忽视熟悉的。
-ignore	[gen]	Nothing happened when we tried to ignore.	我们试着不理睬时，什么也没发生。
-destroy	[gen]	We decided to destroy after all.	我们最终还是决定破坏。
-affair	[gen]	Nobody explained the affair to us.	没有人向我们解释事件。
-civil	[gen]	She gave a very civil reply.	她给出了一个非常市民的回答。
-locate	[gen]	She managed to locate in the end.	她最终设法找出了。
-citizen	[gen]	People often worry about the citizen.	人们常常为市民担心。
-temperature	[gen]	The temperature was the first thing I noticed.	我首先注意到的就是温度。
-gold	[gen]	She has strong views on the gold.	她对黄金有很鲜明的看法。
-domestic	[gen]	The domestic surprised everyone in the room.	家庭的让在场的所有人都很意外。
-load	[gen]	We keep coming back to the load.	我们总是绕回负荷这个话题。
-belief	[gen]	That is where the belief becomes important.	那就是信念变得重要的地方。
-troop	[gen]	The troop says a lot about them.	军队很能说明他们的情况。
-technical	[gen]	Let's talk about the technical first.	我们先谈谈技术上的。
-remind	[gen]	I would rather remind than wait.	我宁愿提醒，也不愿等待。
-arrangement	[gen]	I know very little about the arrangement.	我对排列了解很少。
-skin	[gen]	We cannot ignore the skin.	我们不能忽视皮肤。
-prison	[gen]	The prison is not the real problem.	监狱不是真正的问题。
-switch	[gen]	He knows a lot about the switch.	他很了解开关。
-acquire	[gen]	We cannot acquire without help.	没有帮助我们就无法获得。
-corporate	[gen]	She gave a very corporate reply.	她给出了一个非常社团的回答。
-fairly	[gen]	The cost fell fairly after the change.	改动之后成本美观地下降了。
-wood	[gen]	People often worry about the wood.	人们常常为木材担心。
-participate	[gen]	They had to participate again and again.	他们不得不反复参加。
-tough	[gen]	He stayed tough the whole time.	他全程都很恶棍。
-tear	[gen]	The tear surprised everyone in the room.	泪滴让在场的所有人都很意外。
-representative	[gen]	We keep coming back to the representative.	我们总是绕回代表这个话题。
-capacity	[gen]	That is where the capacity becomes important.	那就是容量变得重要的地方。
-border	[gen]	The border says a lot about them.	边缘很能说明他们的情况。
-shake	[gen]	Nobody asked us to shake.	没有人要求我们摇动。
-assessment	[gen]	The assessment matters more than you think.	评估比你以为的更重要。
-shoe	[gen]	I know very little about the shoe.	我对鞋了解很少。
-ought	[gen]	We cannot ignore the ought.	我们不能忽视应该。
-ad	[gen]	The ad is not the real problem.	广告不是真正的问题。
-fee	[gen]	He knows a lot about the fee.	他很了解费用。
-regulation	[gen]	Nobody explained the regulation to us.	没有人向我们解释规则。
-escape	[gen]	The escape came up again today.	今天又提到了逃亡。
-studio	[gen]	It is hard to describe the studio in a few words.	很难用几句话描述工作室。
-proper	[gen]	I have never seen anything so proper.	我从未见过这么适当的东西。
-relax	[gen]	They had to relax again and again.	他们不得不反复放松。
-tourist	[gen]	She has strong views on the tourist.	她对观光客有很鲜明的看法。
-component	[gen]	The component surprised everyone in the room.	元件让在场的所有人都很意外。
-afford	[gen]	He offered to afford for us.	他主动提出替我们买得起。
-lawyer	[gen]	That is where the lawyer becomes important.	那就是律师变得重要的地方。
-suspect	[gen]	The suspect says a lot about them.	被怀疑者很能说明他们的情况。
-cup	[gen]	Let's talk about the cup first.	我们先谈谈杯子。
-description	[gen]	The description matters more than you think.	描述比你以为的更重要。
-confidence	[gen]	I know very little about the confidence.	我对信心了解很少。
-industrial	[gen]	The answer was industrial, and everyone knew it.	答案是工业的，大家都知道。
-complain	[gen]	Nothing happened when we tried to complain.	我们试着抱怨时，什么也没发生。
-perspective	[gen]	He knows a lot about the perspective.	他很了解远景。
-error	[gen]	Nobody explained the error to us.	没有人向我们解释错误。
-arrest	[gen]	The arrest came up again today.	今天又提到了逮捕。
-assess	[gen]	She managed to assess in the end.	她最终设法估定了。
-register	[gen]	People often worry about the register.	人们常常为寄存器担心。
-asset	[gen]	The asset was the first thing I noticed.	我首先注意到的就是资产。
-signal	[gen]	She has strong views on the signal.	她对信号有很鲜明的看法。
-finger	[gen]	The finger surprised everyone in the room.	手指让在场的所有人都很意外。
-relevant	[gen]	The room felt relevant to me.	我觉得房间很有关联。
-explore	[gen]	It helps to explore early.	早点探险会有帮助。
-leadership	[gen]	The leadership says a lot about them.	领导能力很能说明他们的情况。
-commitment	[gen]	Let's talk about the commitment first.	我们先谈谈委托。
-wake	[gen]	The wake matters more than you think.	叫醒比你以为的更重要。
-necessarily	[gen]	The plan failed necessarily, and nobody knew why.	计划必然地失败了，没人知道原因。
-bright	[gen]	The answer was bright, and everyone knew it.	答案是明亮的，大家都知道。
-frame	[gen]	The frame is not the real problem.	框不是真正的问题。
-slowly	[gen]	The two reports differ slowly.	两份报告慢慢地不同。
-bond	[gen]	Nobody explained the bond to us.	没有人向我们解释捆绑物。
-hire	[gen]	The hire came up again today.	今天又提到了租金。
-hole	[gen]	It is hard to describe the hole in a few words.	很难用几句话描述孔。
-tie	[gen]	People often worry about the tie.	人们常常为带子担心。
-chain	[gen]	The chain was the first thing I noticed.	我首先注意到的就是链。
-literature	[gen]	She has strong views on the literature.	她对文学有很鲜明的看法。
-victim	[gen]	The victim surprised everyone in the room.	受害人让在场的所有人都很意外。
-threaten	[gen]	He offered to threaten for us.	他主动提出替我们恐吓。
-amaze	[gen]	It helps to amaze early.	早点使吃惊会有帮助。
-birth	[gen]	The birth says a lot about them.	出生很能说明他们的情况。
-label	[gen]	Let's talk about the label first.	我们先谈谈标签。
-root	[gen]	The root matters more than you think.	根比你以为的更重要。
-factory	[gen]	I know very little about the factory.	我对工厂了解很少。
-expense	[gen]	We cannot ignore the expense.	我们不能忽视费用。
-channel	[gen]	The channel is not the real problem.	海峡不是真正的问题。
-investigate	[gen]	We decided to investigate after all.	我们最终还是决定调查。
-recommendation	[gen]	Nobody explained the recommendation to us.	没有人向我们解释推荐。
-rank	[gen]	The rank came up again today.	今天又提到了等级。
-typical	[gen]	That sounds typical, but it is true.	那听起来典型，但却是真的。
-west	[gen]	People often worry about the west.	人们常常为西方担心。
-friendly	[gen]	The friendly was the first thing I noticed.	我首先注意到的就是友好的。
-resident	[gen]	She has strong views on the resident.	她对居民有很鲜明的看法。
-provision	[gen]	The provision surprised everyone in the room.	(政府提供的)钱和设备让在场的所有人都很意外。
-concentrate	[gen]	We keep coming back to the concentrate.	我们总是绕回浓缩这个话题。
-plenty	[gen]	That is where the plenty becomes important.	那就是充分变得重要的地方。
-export	[gen]	The export says a lot about them.	输出品很能说明他们的情况。
-entirely	[gen]	She entirely agrees with the final decision.	她完全同意最后的决定。
-strongly	[gen]	They strongly finished before the deadline.	他们强有力地在截止日期前完成了。
-consist	[gen]	It is hard to consist well.	要把组成做好很难。
-graduate	[gen]	We cannot ignore the graduate.	我们不能忽视毕业生。
-brand	[gen]	The brand is not the real problem.	商标不是真正的问题。
-moral	[gen]	He knows a lot about the moral.	他很了解道德。
-insist	[gen]	We cannot insist without help.	没有帮助我们就无法坚持。
-combination	[gen]	The combination came up again today.	今天又提到了组合。
-abuse	[gen]	It is hard to describe the abuse in a few words.	很难用几句话描述滥用。
-ice	[gen]	People often worry about the ice.	人们常常为冰担心。
-principal	[gen]	The principal was the first thing I noticed.	我首先注意到的就是校长。
-definitely	[gen]	It works definitely, so we kept the old rule.	它明确无疑地有效，所以我们保留了旧规则。
-grade	[gen]	The grade surprised everyone in the room.	等级让在场的所有人都很意外。
-nevertheless	[curated]	The task was hard; nevertheless, they finished it.	任务很艰巨；尽管如此，他们还是完成了。
-predict	[gen]	It helps to predict early.	早点预知会有帮助。
-previously	[gen]	They previously repeated the same mistake.	他们先重复了同样的错误。
-protection	[gen]	Let's talk about the protection first.	我们先谈谈保护。
-largely	[gen]	They largely finished before the deadline.	他们大量地在截止日期前完成了。
-wed	[gen]	It is hard to wed well.	要把与...结婚做好很难。
-shot	[gen]	We cannot ignore the shot.	我们不能忽视发射。
-appearance	[gen]	The appearance is not the real problem.	出现不是真正的问题。
-reasonable	[gen]	After the change, everything felt reasonable.	改动之后，一切都让人觉得合理。
-guarantee	[gen]	Nobody explained the guarantee to us.	没有人向我们解释担保。
-till	[gen]	The till came up again today.	今天又提到了直到。
-theme	[gen]	It is hard to describe the theme in a few words.	很难用几句话描述主题。
-judgment	[gen]	People often worry about the judgment.	人们常常为裁判担心。
-odd	[gen]	It is odd to say that out loud.	把那句话说出口是奇数的。
-approve	[gen]	We tried to approve, and it worked.	我们试着赞同，结果成功了。
-loan	[gen]	The loan surprised everyone in the room.	贷款让在场的所有人都很意外。
-definition	[gen]	We keep coming back to the definition.	我们总是绕回定义这个话题。
-elect	[gen]	It helps to elect early.	早点当选人会有帮助。
-atmosphere	[gen]	The atmosphere says a lot about them.	大气很能说明他们的情况。
-farmer	[gen]	Let's talk about the farmer first.	我们先谈谈农夫。
-comparison	[gen]	The comparison matters more than you think.	比较比你以为的更重要。
-characteristic	[gen]	I know very little about the characteristic.	我对特性了解很少。
-license	[gen]	We cannot ignore the license.	我们不能忽视执照。
-rely	[gen]	Nothing happened when we tried to rely.	我们试着信赖时，什么也没发生。
-narrow	[gen]	He knows a lot about the narrow.	他很了解狭窄部分。
-succeed	[gen]	We cannot succeed without help.	没有帮助我们就无法成功。
-identity	[gen]	The identity came up again today.	今天又提到了身份。
-desk	[gen]	It is hard to describe the desk in a few words.	很难用几句话描述书桌。
-permit	[gen]	People often worry about the permit.	人们常常为许可证担心。
-seriously	[gen]	He answered the question seriously.	他严肃地回答了这个问题。
-wild	[gen]	She has strong views on the wild.	她对荒野有很鲜明的看法。
-empty	[gen]	The empty surprised everyone in the room.	空的让在场的所有人都很意外。
-association	[gen]	We keep coming back to the association.	我们总是绕回协会这个话题。
-instrument	[gen]	That is where the instrument becomes important.	那就是工具变得重要的地方。
-investor	[gen]	The investor says a lot about them.	投资者很能说明他们的情况。
-practical	[gen]	We need something more practical.	我们需要更实际的东西。
-tea	[gen]	The tea matters more than you think.	茶比你以为的更重要。
-lovely	[gen]	Keep it lovely and simple.	保持可爱、简单就好。
-soft	[gen]	The answer was soft, and everyone knew it.	答案是软的的，大家都知道。
-row	[gen]	The row is not the real problem.	排不是真正的问题。
-lock	[gen]	He knows a lot about the lock.	他很了解锁。
-fuel	[gen]	Nobody explained the fuel to us.	没有人向我们解释燃料。
-expectation	[gen]	The expectation came up again today.	今天又提到了期待。
-celebrate	[gen]	She managed to celebrate in the end.	她最终设法庆祝了。
-sexual	[gen]	I have never seen anything so sexual.	我从未见过这么性的的东西。
-shoulder	[gen]	The shoulder was the first thing I noticed.	我首先注意到的就是肩。
-breath	[gen]	She has strong views on the breath.	她对呼吸有很鲜明的看法。
-increasingly	[gen]	You can see it increasingly in this chart.	在这张图表中你能逐渐地看到它。
-import	[gen]	We keep coming back to the import.	我们总是绕回进口货这个话题。
-bottle	[gen]	That is where the bottle becomes important.	那就是瓶子变得重要的地方。
-ourselves	[gen]	The ourselves says a lot about them.	我们自己很能说明他们的情况。
-sheet	[gen]	Let's talk about the sheet first.	我们先谈谈床单。
-cast	[gen]	The cast matters more than you think.	演员阵容比你以为的更重要。
-notion	[gen]	I know very little about the notion.	我对概念了解很少。
-conservative	[gen]	We cannot ignore the conservative.	我们不能忽视保守的。
-journey	[gen]	The journey is not the real problem.	旅程不是真正的问题。
-opposition	[gen]	He knows a lot about the opposition.	他很了解反对。
-relief	[gen]	Nobody explained the relief to us.	没有人向我们解释减轻。
-honor	[gen]	The honor came up again today.	今天又提到了荣誉。
-outcome	[gen]	It is hard to describe the outcome in a few words.	很难用几句话描述结果。
-blame	[gen]	People often worry about the blame.	人们常常为过失担心。
-explanation	[gen]	The explanation was the first thing I noticed.	我首先注意到的就是解释。
-arise	[gen]	We tried to arise, and it worked.	我们试着站立，结果成功了。
-musical	[gen]	The musical surprised everyone in the room.	音乐片让在场的所有人都很意外。
-recover	[gen]	He offered to recover for us.	他主动提出替我们重新获得。
-dad	[gen]	That is where the dad becomes important.	那就是爸爸变得重要的地方。
-stretch	[gen]	The stretch says a lot about them.	伸展很能说明他们的情况。
-declare	[gen]	Nobody asked us to declare.	没有人要求我们宣布。
-retire	[gen]	I would rather retire than wait.	我宁愿隐居引退，也不愿等待。
-tiny	[gen]	Keep it tiny and simple.	保持很少、简单就好。
-careful	[gen]	The answer was careful, and everyone knew it.	答案是小心的，大家都知道。
-suitable	[gen]	The result was suitable, so they tried again.	结果很适当，于是他们又试了一次。
-native	[gen]	He knows a lot about the native.	他很了解本地人。
-fruit	[gen]	Nobody explained the fruit to us.	没有人向我们解释水果。
-analyze	[gen]	You should not analyze alone.	你不该独自分析。
-witness	[gen]	It is hard to describe the witness in a few words.	很难用几句话描述证人。
-mail	[gen]	People often worry about the mail.	人们常常为邮件担心。
-terrible	[gen]	It is terrible to say that out loud.	把那句话说出口是可怕的。
-researcher	[gen]	She has strong views on the researcher.	她对研究人员有很鲜明的看法。
-ordinary	[gen]	The ordinary surprised everyone in the room.	平常的让在场的所有人都很意外。
-anywhere	[curated]	I cannot find my keys anywhere.	我到处都找不到钥匙。
-mental	[gen]	Most people thought it was mental.	大多数人认为它很心智。
-participant	[gen]	The participant says a lot about them.	参加者很能说明他们的情况。
-vision	[gen]	Let's talk about the vision first.	我们先谈谈视觉。
-personality	[gen]	The personality matters more than you think.	个性比你以为的更重要。
-specifically	[gen]	The plan failed specifically, and nobody knew why.	计划特定地失败了，没人知道原因。
-fat	[gen]	We cannot ignore the fat.	我们不能忽视脂肪。
-entry	[gen]	The entry is not the real problem.	登录不是真正的问题。
-fellow	[gen]	He knows a lot about the fellow.	他很了解男人。
-chemical	[gen]	Nobody explained the chemical to us.	没有人向我们解释化学药品。
-capture	[gen]	The capture came up again today.	今天又提到了抓取。
-tip	[gen]	It is hard to describe the tip in a few words.	很难用几句话描述顶。
-discount	[gen]	People often worry about the discount.	人们常常为折扣担心。
-peak	[gen]	The peak was the first thing I noticed.	我首先注意到的就是山峰。
-chairman	[gen]	She has strong views on the chairman.	她对主席有很鲜明的看法。
-proportion	[gen]	The proportion surprised everyone in the room.	比例让在场的所有人都很意外。
-ear	[gen]	We keep coming back to the ear.	我们总是绕回耳朵这个话题。
-disappear	[gen]	It helps to disappear early.	早点消失会有帮助。
-shout	[gen]	It took courage to shout.	呼喊是需要勇气的。
-yard	[gen]	Let's talk about the yard first.	我们先谈谈码。
-constant	[gen]	The constant matters more than you think.	常数比你以为的更重要。
-significantly	[gen]	The plan failed significantly, and nobody knew why.	计划值得注目地失败了，没人知道原因。
-hill	[gen]	We cannot ignore the hill.	我们不能忽视小山。
-considerable	[gen]	The result was considerable, so they tried again.	结果很相当，于是他们又试了一次。
-instruction	[gen]	He knows a lot about the instruction.	他很了解指令。
-intelligence	[gen]	Nobody explained the intelligence to us.	没有人向我们解释智力。
-ideal	[gen]	The ideal came up again today.	今天又提到了理想。
-folk	[gen]	It is hard to describe the folk in a few words.	很难用几句话描述人们。
-surely	[gen]	She surely opened the door and left.	她的确地打开门走了出去。
-guard	[gen]	The guard was the first thing I noticed.	我首先注意到的就是守卫者。
-cat	[gen]	She has strong views on the cat.	她对猫有很鲜明的看法。
-somewhat	[gen]	The somewhat surprised everyone in the room.	某物让在场的所有人都很意外。
-kiss	[gen]	We keep coming back to the kiss.	我们总是绕回吻吻接吻这个话题。
-presentation	[gen]	That is where the presentation becomes important.	那就是赠与变得重要的地方。
-joint	[gen]	The joint says a lot about them.	连接处很能说明他们的情况。
-compete	[gen]	Nobody asked us to compete.	没有人要求我们竞争。
-poll	[gen]	The poll matters more than you think.	投票比你以为的更重要。
-weak	[gen]	Keep it weak and simple.	保持不牢固、简单就好。
-faith	[gen]	We cannot ignore the faith.	我们不能忽视信心。
-reduction	[gen]	The reduction is not the real problem.	减少不是真正的问题。
-complaint	[gen]	He knows a lot about the complaint.	他很了解诉苦。
-bore	[gen]	Nobody explained the bore to us.	没有人向我们解释令人讨厌的人。
-mission	[gen]	The mission came up again today.	今天又提到了任务。
-somehow	[gen]	The cost fell somehow after the change.	改动之后成本不知何故下降了。
-tone	[gen]	People often worry about the tone.	人们常常为音调担心。
-neighborhood	[gen]	The neighborhood was the first thing I noticed.	我首先注意到的就是附近。
-passenger	[gen]	She has strong views on the passenger.	她对乘客有很鲜明的看法。
-justice	[gen]	The justice surprised everyone in the room.	正义让在场的所有人都很意外。
-phase	[gen]	We keep coming back to the phase.	我们总是绕回时期这个话题。
-thin	[gen]	Most people thought it was thin.	大多数人认为它很薄的。
-rush	[gen]	The rush says a lot about them.	匆促很能说明他们的情况。
-formal	[gen]	We need something more formal.	我们需要更正式的东西。
-religion	[gen]	The religion matters more than you think.	宗教比你以为的更重要。
-employer	[gen]	I know very little about the employer.	我对雇主了解很少。
-reject	[gen]	Do not reject until you are ready.	在你准备好之前不要被拒之人。
-latter	[gen]	The latter is not the real problem.	后者的不是真正的问题。
-plate	[gen]	He knows a lot about the plate.	他很了解碟。
-ban	[gen]	Nobody explained the ban to us.	没有人向我们解释禁令禁止。
-steal	[gen]	The steal came up again today.	今天又提到了剽窃。
-protest	[gen]	It is hard to describe the protest in a few words.	很难用几句话描述抗议。
-index	[gen]	People often worry about the index.	人们常常为索引担心。
-sad	[gen]	It is sad to say that out loud.	把那句话说出口是忧愁的。
-frequently	[gen]	It works frequently, so we kept the old rule.	它频繁有效，所以我们保留了旧规则。
-circle	[gen]	The circle surprised everyone in the room.	圆周让在场的所有人都很意外。
-helpful	[gen]	The room felt helpful to me.	我觉得房间很有帮助。
-command	[gen]	That is where the command becomes important.	那就是命令变得重要的地方。
-attractive	[gen]	Nobody expected it to be so attractive.	没人想到会这么吸引人。
-sick	[gen]	Let's talk about the sick first.	我们先谈谈病人。
-impression	[gen]	The impression matters more than you think.	印象比你以为的更重要。
-unable	[gen]	Keep it unable and simple.	保持不能、简单就好。
-joke	[gen]	We cannot ignore the joke.	我们不能忽视笑话。
-sky	[gen]	The sky is not the real problem.	天空不是真正的问题。
-column	[gen]	He knows a lot about the column.	他很了解专栏。
-impose	[gen]	We cannot impose without help.	没有帮助我们就无法征(税)。
-criminal	[gen]	The criminal came up again today.	今天又提到了罪犯。
-besides	[curated]	Besides, we have no money for it.	再说，我们也没钱做这件事。
-properly	[gen]	She properly opened the door and left.	她适当地打开门走了出去。
-ancient	[gen]	The ancient was the first thing I noticed.	我首先注意到的就是古代的。
-coast	[gen]	She has strong views on the coast.	她对海岸有很鲜明的看法。
-ill	[gen]	The idea is ill, yet people accept it.	这个想法疾病，但人们接受了它。
-kick	[gen]	We keep coming back to the kick.	我们总是绕回踢这个话题。
-closely	[gen]	The light changed closely as we watched.	我们注视着，光线接近地变化着。
-multiple	[gen]	The multiple says a lot about them.	倍数很能说明他们的情况。
-yield	[gen]	Let's talk about the yield first.	我们先谈谈生产量。
-via	[gen]	The via matters more than you think.	经由比你以为的更重要。
-legislation	[gen]	I know very little about the legislation.	我对立法了解很少。
-county	[gen]	We cannot ignore the county.	我们不能忽视县。
-unlike	[gen]	The result was unlike, so they tried again.	结果很不像，于是他们又试了一次。
-mobile	[gen]	He knows a lot about the mobile.	他很了解移动的。
-assistant	[gen]	Nobody explained the assistant to us.	没有人向我们解释助手。
-implement	[gen]	The implement came up again today.	今天又提到了工具。
-chart	[gen]	It is hard to describe the chart in a few words.	很难用几句话描述图表。
-attach	[gen]	They want to attach, but they cannot.	他们想附上，但做不到。
-hell	[gen]	The hell was the first thing I noticed.	我首先注意到的就是地狱。
-everywhere	[curated]	There was dust everywhere in the room.	房间里到处都是灰尘。
-advise	[gen]	He learned to advise the hard way.	他吃了苦头才学会劝告。
-household	[gen]	We keep coming back to the household.	我们总是绕回一家人这个话题。
-acknowledge	[gen]	It helps to acknowledge early.	早点承认会有帮助。
-reward	[gen]	The reward says a lot about them.	报酬很能说明他们的情况。
-east	[gen]	Let's talk about the east first.	我们先谈谈东方。
-hat	[gen]	The hat matters more than you think.	帽子给...戴帽子比你以为的更重要。
-academic	[gen]	Keep it academic and simple.	保持学院、简单就好。
-voter	[gen]	We cannot ignore the voter.	我们不能忽视选民。
-meanwhile	[curated]	He cooked; meanwhile, I set the table.	他做饭，与此同时我摆好了餐具。
-furthermore	[curated]	It is cheap; furthermore, it lasts longer.	它很便宜；而且更耐用。
-accuse	[gen]	We cannot accuse without help.	没有帮助我们就无法指责。
-scientific	[gen]	She gave a very scientific reply.	她给出了一个非常科学的回答。
-wage	[gen]	It is hard to describe the wage in a few words.	很难用几句话描述工资。
-absence	[gen]	People often worry about the absence.	人们常常为缺席担心。
-construct	[gen]	They had to construct again and again.	他们不得不反复构造。
-remark	[gen]	She has strong views on the remark.	她对评论有很鲜明的看法。
-professor	[gen]	The professor surprised everyone in the room.	教授让在场的所有人都很意外。
-rare	[gen]	The room felt rare to me.	我觉得房间很稀罕。
-intention	[gen]	That is where the intention becomes important.	那就是意图变得重要的地方。
-dozen	[gen]	The dozen says a lot about them.	打很能说明他们的情况。
-settlement	[gen]	Let's talk about the settlement first.	我们先谈谈安顿。
-gap	[gen]	The gap matters more than you think.	缝隙比你以为的更重要。
-widely	[gen]	The plan failed widely, and nobody knew why.	计划广泛地失败了，没人知道原因。
-minimum	[gen]	We cannot ignore the minimum.	我们不能忽视最小的。
-estate	[gen]	The estate is not the real problem.	不动产不是真正的问题。
-equally	[gen]	The two reports differ equally.	两份报告相等地不同。
-expose	[gen]	Nobody explained the expose to us.	没有人向我们解释使暴露。
-alive	[gen]	She gave a very alive reply.	她给出了一个非常活着的回答。
-shut	[gen]	That sounds shut, but it is true.	那听起来关闭关上，但却是真的。
-victory	[gen]	People often worry about the victory.	人们常常为胜利担心。
-resolve	[gen]	They had to resolve again and again.	他们不得不反复决定。
-critic	[gen]	She has strong views on the critic.	她对批评家有很鲜明的看法。
-variable	[gen]	The variable surprised everyone in the room.	易变的事物让在场的所有人都很意外。
-enormous	[gen]	The room felt enormous to me.	我觉得房间很巨大。
-sweet	[gen]	That is where the sweet becomes important.	那就是甜蜜变得重要的地方。
-permanent	[gen]	Nobody expected it to be so permanent.	没人想到会这么永久。
-emotion	[gen]	Let's talk about the emotion first.	我们先谈谈情绪。
-pursue	[gen]	I would rather pursue than wait.	我宁愿追赶，也不愿等待。
-tall	[gen]	I know very little about the tall.	我对高的了解很少。
-urge	[gen]	We cannot ignore the urge.	我们不能忽视冲动。
-enemy	[gen]	The enemy is not the real problem.	敌人不是真正的问题。
-appoint	[gen]	We decided to appoint after all.	我们最终还是决定任命。
-milk	[gen]	Nobody explained the milk to us.	没有人向我们解释奶。
-talent	[gen]	The talent came up again today.	今天又提到了天才。
-smell	[gen]	It is hard to describe the smell in a few words.	很难用几句话描述味道。
-prior	[gen]	People often worry about the prior.	人们常常为更重要的担心。
-priority	[gen]	The priority was the first thing I noticed.	我首先注意到的就是优先权。
-online	[gen]	She has strong views on the online.	她对联机有很鲜明的看法。
-phrase	[gen]	The phrase surprised everyone in the room.	惯用语让在场的所有人都很意外。
-pilot	[gen]	We keep coming back to the pilot.	我们总是绕回飞行员这个话题。
-stable	[gen]	That is where the stable becomes important.	那就是马房变得重要的地方。
-merely	[gen]	They merely repeated the same mistake.	他们只重复了同样的错误。
-resolution	[gen]	Let's talk about the resolution first.	我们先谈谈解析。
-communicate	[gen]	I would rather communicate than wait.	我宁愿显露，也不愿等待。
-vast	[gen]	Keep it vast and simple.	保持巨大、简单就好。
-exhibition	[gen]	We cannot ignore the exhibition.	我们不能忽视表现。
-producer	[gen]	The producer is not the real problem.	生产者不是真正的问题。
-regional	[gen]	After the change, everything felt regional.	改动之后，一切都让人觉得地方。
-immediate	[gen]	It looked immediate, but nobody said a word.	它看起来立即，但没人说一句话。
-incident	[gen]	The incident came up again today.	今天又提到了事件。
-childhood	[gen]	It is hard to describe the childhood in a few words.	很难用几句话描述孩童时期。
-draft	[gen]	People often worry about the draft.	人们常常为气流担心。
-slip	[gen]	The slip was the first thing I noticed.	我首先注意到的就是滑。
-accompany	[gen]	We tried to accompany, and it worked.	我们试着陪伴，结果成功了。
-politician	[gen]	The politician surprised everyone in the room.	政客让在场的所有人都很意外。
-angry	[gen]	The room felt angry to me.	我觉得房间很生气。
-knock	[gen]	That is where the knock becomes important.	那就是敲变得重要的地方。
-seed	[gen]	The seed says a lot about them.	种子很能说明他们的情况。
-salary	[gen]	Let's talk about the salary first.	我们先谈谈薪水给...加薪。
-illustrate	[gen]	I would rather illustrate than wait.	我宁愿举例说明，也不愿等待。
-imply	[gen]	It is hard to imply well.	要把暗示做好很难。
-breakfast	[gen]	We cannot ignore the breakfast.	我们不能忽视早餐。
-temporary	[gen]	The result was temporary, so they tried again.	结果很暂时，于是他们又试了一次。
-liberal	[gen]	He knows a lot about the liberal.	他很了解自由主义者。
-lake	[gen]	Nobody explained the lake to us.	没有人向我们解释湖。
-qualify	[gen]	You should not qualify alone.	你不该独自取得资格。
-competitive	[gen]	That sounds competitive, but it is true.	那听起来竞争，但却是真的。
-truly	[gen]	She truly opened the door and left.	她真实地打开门走了出去。
-hi	[gen]	The hi was the first thing I noticed.	我首先注意到的就是喂。
-yellow	[gen]	She has strong views on the yellow.	她对黄色有很鲜明的看法。
-habit	[gen]	The habit surprised everyone in the room.	习惯让在场的所有人都很意外。
-disk	[gen]	We keep coming back to the disk.	我们总是绕回圆盘这个话题。
-core	[gen]	That is where the core becomes important.	那就是核心变得重要的地方。
-emotional	[gen]	Nobody expected it to be so emotional.	没人想到会这么情绪。
-aircraft	[gen]	Let's talk about the aircraft first.	我们先谈谈航空器。
-self	[gen]	The self matters more than you think.	自己比你以为的更重要。
-metal	[gen]	It is hard to metal well.	要把金属做好很难。
-existence	[gen]	We cannot ignore the existence.	我们不能忽视存在。
-bone	[gen]	The bone is not the real problem.	骨头不是真正的问题。
-panel	[gen]	He knows a lot about the panel.	他很了解嵌板。
-prime	[gen]	Nobody explained the prime to us.	没有人向我们解释最佳部分。
-appointment	[gen]	The appointment came up again today.	今天又提到了约会。
-emphasize	[gen]	She managed to emphasize in the end.	她最终设法强调了。
-maximum	[gen]	People often worry about the maximum.	人们常常为极点担心。
-effectively	[gen]	He answered the question effectively.	他有效地回答了这个问题。
-elsewhere	[curated]	The shop was closed, so we ate elsewhere.	那家店关门了，我们只好去别处吃。
-bother	[gen]	He learned to bother the hard way.	他吃了苦头才学会烦扰。
-initiative	[gen]	We keep coming back to the initiative.	我们总是绕回主动行动这个话题。
-sharp	[gen]	That is where the sharp becomes important.	那就是半升音调变得重要的地方。
-diet	[gen]	The diet says a lot about them.	日常饮食很能说明他们的情况。
-motion	[gen]	Let's talk about the motion first.	我们先谈谈移动。
-gray	[gen]	The gray matters more than you think.	灰色比你以为的更重要。
-plastic	[gen]	I know very little about the plastic.	我对塑料了解很少。
-complicate	[gen]	Do not complicate until you are ready.	在你准备好之前不要弄复杂。
-discipline	[gen]	The discipline is not the real problem.	训练不是真正的问题。
-disappoint	[gen]	We decided to disappoint after all.	我们最终还是决定使失望。
-boss	[gen]	Nobody explained the boss to us.	没有人向我们解释老板。
-assumption	[gen]	The assumption came up again today.	今天又提到了假定。
-freeze	[gen]	It is hard to describe the freeze in a few words.	很难用几句话描述冻结。
-extreme	[gen]	People often worry about the extreme.	人们常常为极端担心。
-passage	[gen]	The passage was the first thing I noticed.	我首先注意到的就是通道。
-reputation	[gen]	She has strong views on the reputation.	她对名誉有很鲜明的看法。
-forth	[gen]	The forth surprised everyone in the room.	往前让在场的所有人都很意外。
-negotiation	[gen]	We keep coming back to the negotiation.	我们总是绕回谈判这个话题。
-mechanism	[gen]	That is where the mechanism becomes important.	那就是机械变得重要的地方。
-coat	[gen]	The coat says a lot about them.	外套外面覆盖很能说明他们的情况。
-democracy	[gen]	Let's talk about the democracy first.	我们先谈谈民主政治。
-pocket	[gen]	The pocket matters more than you think.	口袋比你以为的更重要。
-lucky	[gen]	Keep it lucky and simple.	保持幸运、简单就好。
-crash	[gen]	We cannot ignore the crash.	我们不能忽视哗啦声。
-observation	[gen]	The observation is not the real problem.	观察不是真正的问题。
-meat	[gen]	He knows a lot about the meat.	他很了解肉。
-concentration	[gen]	Nobody explained the concentration to us.	没有人向我们解释集中。
-implication	[gen]	The implication came up again today.	今天又提到了牵连。
-deserve	[gen]	She managed to deserve in the end.	她最终设法该得到了。
-unusual	[gen]	I have never seen anything so unusual.	我从未见过这么不寻常的东西。
-defend	[gen]	They had to defend again and again.	他们不得不反复防护。
-classic	[gen]	She has strong views on the classic.	她对古典作品有很鲜明的看法。
-king	[gen]	The king surprised everyone in the room.	国王让在场的所有人都很意外。
-interaction	[gen]	We keep coming back to the interaction.	我们总是绕回交互作用这个话题。
-repair	[gen]	That is where the repair becomes important.	那就是修理变得重要的地方。
-collapse	[gen]	The collapse says a lot about them.	崩溃很能说明他们的情况。
-borrow	[gen]	Nobody asked us to borrow.	没有人要求我们借。
-fundamental	[gen]	The fundamental matters more than you think.	基本原理比你以为的更重要。
-dish	[gen]	I know very little about the dish.	我对盘子了解很少。
-abroad	[curated]	She has lived abroad for ten years.	她在国外生活了十年。
-soul	[gen]	The soul is not the real problem.	灵魂不是真正的问题。
-capable	[gen]	After the change, everything felt capable.	改动之后，一切都让人觉得有能力。
-defeat	[gen]	Nobody explained the defeat to us.	没有人向我们解释败北。
-presidential	[gen]	She gave a very presidential reply.	她给出了一个非常总统制的回答。
-perfectly	[gen]	The cost fell perfectly after the change.	改动之后成本完全地下降了。
-enhance	[gen]	They want to enhance, but they cannot.	他们想提高，但做不到。
-proud	[gen]	It is proud to say that out loud.	把那句话说出口是骄傲的。
-emergency	[gen]	She has strong views on the emergency.	她对紧急状况有很鲜明的看法。
-distinguish	[gen]	He learned to distinguish the hard way.	他吃了苦头才学会区别。
-substantial	[gen]	We keep coming back to the substantial.	我们总是绕回重要材料(或事物)这个话题。
-nearby	[gen]	Most people thought it was nearby.	大多数人认为它很附近。
-manufacturer	[gen]	The manufacturer says a lot about them.	制造业者很能说明他们的情况。
-slide	[gen]	Let's talk about the slide first.	我们先谈谈滑。
-valuable	[gen]	The valuable matters more than you think.	有价值的比你以为的更重要。
-personally	[gen]	The plan failed personally, and nobody knew why.	计划亲自地失败了，没人知道原因。
-breast	[gen]	We cannot ignore the breast.	我们不能忽视胸部。
-cope	[gen]	The cope is not the real problem.	竞争不是真正的问题。
-approximately	[gen]	The two reports differ approximately.	两份报告大约不同。
-accommodation	[gen]	Nobody explained the accommodation to us.	没有人向我们解释膳宿。
-highlight	[gen]	The highlight came up again today.	今天又提到了加亮区。
-reporter	[gen]	It is hard to describe the reporter in a few words.	很难用几句话描述记者。
-climate	[gen]	People often worry about the climate.	人们常常为气候担心。
-shirt	[gen]	The shirt was the first thing I noticed.	我首先注意到的就是衬衫。
-exception	[gen]	She has strong views on the exception.	她对例外有很鲜明的看法。
-corporation	[gen]	The corporation surprised everyone in the room.	公司让在场的所有人都很意外。
-chip	[gen]	We keep coming back to the chip.	我们总是绕回屑片这个话题。
-winner	[gen]	That is where the winner becomes important.	那就是胜利者变得重要的地方。
-encounter	[gen]	The encounter says a lot about them.	相会很能说明他们的情况。
-brown	[gen]	Let's talk about the brown first.	我们先谈谈褐色。
-breathe	[gen]	I would rather breathe than wait.	我宁愿呼吸，也不愿等待。
-excuse	[gen]	I know very little about the excuse.	我对原谅了解很少。
-partly	[gen]	He partly refused to give a reason.	他部分地拒绝给出理由。
-tennis	[gen]	The tennis is not the real problem.	网球不是真正的问题。
-urban	[gen]	After the change, everything felt urban.	改动之后，一切都让人觉得都市。
-confuse	[gen]	We cannot confuse without help.	没有帮助我们就无法使混乱。
-southern	[gen]	She gave a very southern reply.	她给出了一个非常南方人的回答。
-output	[gen]	It is hard to describe the output in a few words.	很难用几句话描述输出。
-beauty	[gen]	People often worry about the beauty.	人们常常为美担心。
-massive	[gen]	It is massive to say that out loud.	把那句话说出口是大而重的。
-install	[gen]	We tried to install, and it worked.	我们试着安装，结果成功了。
-calculate	[gen]	He learned to calculate the hard way.	他吃了苦头才学会计算。
-mouse	[gen]	We keep coming back to the mouse.	我们总是绕回老鼠这个话题。
-mathematics	[gen]	That is where the mathematics becomes important.	那就是数学变得重要的地方。
-upper	[gen]	The upper says a lot about them.	上面的很能说明他们的情况。
-creation	[gen]	Let's talk about the creation first.	我们先谈谈创造。
-occupy	[gen]	I would rather occupy than wait.	我宁愿占领，也不愿等待。
-outline	[gen]	I know very little about the outline.	我对大纲了解很少。
-sufficient	[gen]	The answer was sufficient, and everyone knew it.	答案是充分的，大家都知道。
-update	[gen]	The update is not the real problem.	更新不是真正的问题。
-luck	[gen]	He knows a lot about the luck.	他很了解运气。
-preserve	[gen]	Nobody explained the preserve to us.	没有人向我们解释保护。
-split	[gen]	The split came up again today.	今天又提到了劈开。
-swing	[gen]	It is hard to describe the swing in a few words.	很难用几句话描述摇摆。
-illness	[gen]	People often worry about the illness.	人们常常为疾病担心。
-journalist	[gen]	The journalist was the first thing I noticed.	我首先注意到的就是新闻记者。
-sudden	[gen]	He stayed sudden the whole time.	他全程都很突然。
-advertisement	[gen]	The advertisement surprised everyone in the room.	广告让在场的所有人都很意外。
-consistent	[gen]	The room felt consistent to me.	我觉得房间很一致。
-originally	[gen]	The light changed originally as we watched.	我们注视着，光线本来变化着。
-aside	[gen]	The aside says a lot about them.	小声说的话很能说明他们的情况。
-comfort	[gen]	Let's talk about the comfort first.	我们先谈谈舒适。
-secondly	[curated]	Secondly, it costs far too much.	其次，它太贵了。
-severe	[gen]	Keep it severe and simple.	保持严格、简单就好。
-gene	[gen]	We cannot ignore the gene.	我们不能忽视基因。
-prospect	[gen]	The prospect is not the real problem.	景色不是真正的问题。
-snow	[gen]	He knows a lot about the snow.	他很了解雪。
-plot	[gen]	Nobody explained the plot to us.	没有人向我们解释小块土地。
-neck	[gen]	The neck came up again today.	今天又提到了脖子。
-criteria	[gen]	It is hard to describe the criteria in a few words.	很难用几句话描述标准。
-primarily	[gen]	She primarily opened the door and left.	她主要地打开门走了出去。
-integrate	[gen]	They had to integrate again and again.	他们不得不反复综合。
-criticism	[gen]	She has strong views on the criticism.	她对批评有很鲜明的看法。
-convention	[gen]	The convention surprised everyone in the room.	大会让在场的所有人都很意外。
-bet	[gen]	We keep coming back to the bet.	我们总是绕回打赌这个话题。
-retain	[gen]	It helps to retain early.	早点保持会有帮助。
-sequence	[gen]	The sequence says a lot about them.	序列很能说明他们的情况。
-plain	[gen]	Let's talk about the plain first.	我们先谈谈平原。
-volunteer	[gen]	The volunteer matters more than you think.	志愿者比你以为的更重要。
-rural	[gen]	Keep it rural and simple.	保持乡下、简单就好。
-calm	[gen]	Do not calm until you are ready.	在你准备好之前不要平稳。
-abandon	[gen]	The abandon is not the real problem.	放弃不是真正的问题。
-examination	[gen]	He knows a lot about the examination.	他很了解考试。
-silence	[gen]	Nobody explained the silence to us.	没有人向我们解释沉默。
-rapidly	[gen]	He spoke rapidly, so everyone understood.	他讲得很飞快地，所以大家都听懂了。
-efficient	[gen]	That sounds efficient, but it is true.	那听起来有效率，但却是真的。
-revolution	[gen]	People often worry about the revolution.	人们常常为革命担心。
-delight	[gen]	The delight was the first thing I noticed.	我首先注意到的就是高兴。
-spell	[gen]	She has strong views on the spell.	她对符咒有很鲜明的看法。
-premise	[gen]	The premise surprised everyone in the room.	前提让在场的所有人都很意外。
-lean	[gen]	He offered to lean for us.	他主动提出替我们瘦肉。
-dramatic	[gen]	Most people thought it was dramatic.	大多数人认为它很戏剧性。
-differ	[gen]	It took courage to differ.	不一致是需要勇气的。
-grateful	[gen]	We need something more grateful.	我们需要更感谢的东西。
-protein	[gen]	The protein matters more than you think.	蛋白质比你以为的更重要。
-bike	[gen]	I know very little about the bike.	我对自行车了解很少。
-distribute	[gen]	Do not distribute until you are ready.	在你准备好之前不要分配。
-intellectual	[gen]	The intellectual is not the real problem.	有知识者不是真正的问题。
-derive	[gen]	We decided to derive after all.	我们最终还是决定得自起源。
-crucial	[gen]	It looked crucial, but nobody said a word.	它看起来决定性，但没人说一句话。
-unemployment	[gen]	The unemployment came up again today.	今天又提到了失业。
-wheel	[gen]	It is hard to describe the wheel in a few words.	很难用几句话描述轮子。
-crop	[gen]	People often worry about the crop.	人们常常为农作物担心。
-minority	[gen]	The minority was the first thing I noticed.	我首先注意到的就是少数。
-origin	[gen]	She has strong views on the origin.	她对起源有很鲜明的看法。
-interpretation	[gen]	The interpretation surprised everyone in the room.	解释让在场的所有人都很意外。
-gentleman	[gen]	We keep coming back to the gentleman.	我们总是绕回绅士这个话题。
-drama	[gen]	That is where the drama becomes important.	那就是戏剧变得重要的地方。
-landscape	[gen]	The landscape says a lot about them.	风景很能说明他们的情况。
-educate	[gen]	Nobody asked us to educate.	没有人要求我们教育。
-toy	[gen]	The toy matters more than you think.	玩具比你以为的更重要。
-fault	[gen]	I know very little about the fault.	我对过错了解很少。
-exhibit	[gen]	We cannot ignore the exhibit.	我们不能忽视显示。
-minor	[gen]	The result was minor, so they tried again.	结果很未成年人，于是他们又试了一次。
-hunt	[gen]	He knows a lot about the hunt.	他很了解狩猎。
-storm	[gen]	Nobody explained the storm to us.	没有人向我们解释暴风雨。
-thick	[gen]	She gave a very thick reply.	她给出了一个非常厚的的回答。
-achievement	[gen]	It is hard to describe the achievement in a few words.	很难用几句话描述完成。
-negotiate	[gen]	They want to negotiate, but they cannot.	他们想商议，但做不到。
-dominate	[gen]	They had to dominate again and again.	他们不得不反复支配。
-supplier	[gen]	She has strong views on the supplier.	她对供应者有很鲜明的看法。
-prize	[gen]	The prize surprised everyone in the room.	奖赏让在场的所有人都很意外。
-typically	[gen]	I typically remember what she said.	我代表性地记得她说过的话。
-peer	[gen]	That is where the peer becomes important.	那就是同等的人变得重要的地方。
-pension	[gen]	The pension says a lot about them.	养老金很能说明他们的情况。
-wing	[gen]	Let's talk about the wing first.	我们先谈谈翅膀。
-acquisition	[gen]	The acquisition matters more than you think.	获得比你以为的更重要。
-laughter	[gen]	I know very little about the laughter.	我对笑了解很少。
-deeply	[gen]	He deeply refused to give a reason.	他深刻地拒绝给出理由。
-recognition	[gen]	The recognition is not the real problem.	赞誉不是真正的问题。
-electricity	[gen]	He knows a lot about the electricity.	他很了解电。
-roof	[gen]	Nobody explained the roof to us.	没有人向我们解释屋顶。
-retirement	[gen]	The retirement came up again today.	今天又提到了退休。
-respectively	[gen]	The cost fell respectively after the change.	改动之后成本各自地下降了。
-variation	[gen]	People often worry about the variation.	人们常常为变更担心。
-ultimately	[gen]	He answered the question ultimately.	他最后回答了这个问题。
-proof	[gen]	She has strong views on the proof.	她对证据有很鲜明的看法。
-soil	[gen]	The soil surprised everyone in the room.	土壤让在场的所有人都很意外。
-smart	[gen]	We keep coming back to the smart.	我们总是绕回聪明的这个话题。
-layer	[gen]	That is where the layer becomes important.	那就是层变得重要的地方。
-upset	[gen]	The upset says a lot about them.	弄翻的很能说明他们的情况。
-tooth	[gen]	Let's talk about the tooth first.	我们先谈谈牙齿。
-representation	[gen]	The representation matters more than you think.	表示法比你以为的更重要。
-preparation	[gen]	I know very little about the preparation.	我对准备了解很少。
-dispute	[gen]	We cannot ignore the dispute.	我们不能忽视争论。
-agenda	[gen]	The agenda is not the real problem.	议程不是真正的问题。
-emphasis	[gen]	He knows a lot about the emphasis.	他很了解强调。
-edition	[gen]	Nobody explained the edition to us.	没有人向我们解释版本。
-silver	[gen]	The silver came up again today.	今天又提到了银。
-entertainment	[gen]	It is hard to describe the entertainment in a few words.	很难用几句话描述娱乐。
-honest	[gen]	I have never seen anything so honest.	我从未见过这么诚实的东西。
-undertake	[gen]	They had to undertake again and again.	他们不得不反复试图。
-wire	[gen]	She has strong views on the wire.	她对电线有很鲜明的看法。
-unlikely	[gen]	The idea is unlikely, yet people accept it.	这个想法不太可能，但人们接受了它。
-gay	[gen]	The room felt gay to me.	我觉得房间很欢快。
-publication	[gen]	That is where the publication becomes important.	那就是出版物变得重要的地方。
-slight	[gen]	It took courage to slight.	轻蔑是需要勇气的。
-unknown	[gen]	Let's talk about the unknown first.	我们先谈谈不知道的。
-framework	[gen]	The framework matters more than you think.	结构比你以为的更重要。
-zone	[gen]	I know very little about the zone.	我对地带了解很少。
-restrict	[gen]	Do not restrict until you are ready.	在你准备好之前不要限制。
-trace	[gen]	The trace is not the real problem.	痕迹不是真正的问题。
-inch	[gen]	He knows a lot about the inch.	他很了解英寸。
-equivalent	[gen]	Nobody explained the equivalent to us.	没有人向我们解释同等物。
-solid	[gen]	The solid came up again today.	今天又提到了固体。
-enterprise	[gen]	It is hard to describe the enterprise in a few words.	很难用几句话描述企业。
-elderly	[gen]	I have never seen anything so elderly.	我从未见过这么过了中年的东西。
-owe	[gen]	They had to owe again and again.	他们不得不反复亏欠。
-governor	[gen]	She has strong views on the governor.	她对(美)州长有很鲜明的看法。
-uniform	[gen]	The uniform surprised everyone in the room.	制服让在场的所有人都很意外。
-port	[gen]	We keep coming back to the port.	我们总是绕回港口这个话题。
-pitch	[gen]	That is where the pitch becomes important.	那就是程度变得重要的地方。
-arrival	[gen]	The arrival says a lot about them.	到达很能说明他们的情况。
-contemporary	[gen]	Let's talk about the contemporary first.	我们先谈谈同时代的人。
-gate	[gen]	The gate matters more than you think.	门比你以为的更重要。
-ease	[gen]	I know very little about the ease.	我对安乐了解很少。
-beer	[gen]	We cannot ignore the beer.	我们不能忽视啤酒。
-specialist	[gen]	The specialist is not the real problem.	专门医师不是真正的问题。
-assure	[gen]	We decided to assure after all.	我们最终还是决定保证。
-profile	[gen]	Nobody explained the profile to us.	没有人向我们解释侧面。
-mood	[gen]	The mood came up again today.	今天又提到了心情。
-episode	[gen]	It is hard to describe the episode in a few words.	很难用几句话描述插曲。
-crack	[gen]	People often worry about the crack.	人们常常为裂缝担心。
-numerous	[gen]	It is numerous to say that out loud.	把那句话说出口是很多的。
-submit	[gen]	We tried to submit, and it worked.	我们试着使服从，结果成功了。
-symptom	[gen]	The symptom surprised everyone in the room.	症状让在场的所有人都很意外。
-virtually	[gen]	I virtually remember what she said.	我事实上记得她说过的话。
-era	[gen]	That is where the era becomes important.	那就是时代变得重要的地方。
-coverage	[gen]	The coverage says a lot about them.	覆盖的范围很能说明他们的情况。
-tension	[gen]	Let's talk about the tension first.	我们先谈谈紧张。
-cable	[gen]	The cable matters more than you think.	电缆比你以为的更重要。
-sensitive	[gen]	Keep it sensitive and simple.	保持敏感、简单就好。
-nervous	[gen]	The answer was nervous, and everyone knew it.	答案是神经紧张的，大家都知道。
-input	[gen]	The input is not the real problem.	输入不是真正的问题。
-isolate	[gen]	We decided to isolate after all.	我们最终还是决定使隔离。
-prisoner	[gen]	Nobody explained the prisoner to us.	没有人向我们解释囚犯。
-eliminate	[gen]	You should not eliminate alone.	你不该独自除去。
-tight	[gen]	That sounds tight, but it is true.	那听起来紧的，但却是真的。
-wet	[gen]	They want to wet, but they cannot.	他们想湿气，但做不到。
-secondary	[gen]	The secondary was the first thing I noticed.	我首先注意到的就是中级的。
-welfare	[gen]	She has strong views on the welfare.	她对福利有很鲜明的看法。
-recruit	[gen]	The recruit surprised everyone in the room.	新兵让在场的所有人都很意外。
-exclude	[gen]	He offered to exclude for us.	他主动提出替我们除外。
-string	[gen]	That is where the string becomes important.	那就是线变得重要的地方。
-cloud	[gen]	The cloud says a lot about them.	云很能说明他们的情况。
-persuade	[gen]	Nobody asked us to persuade.	没有人要求我们劝。
-inspire	[gen]	I would rather inspire than wait.	我宁愿使感动，也不愿等待。
-grand	[gen]	Keep it grand and simple.	保持庄重、简单就好。
-hence	[curated]	The road was closed; hence the delay.	道路封闭，因此造成了延误。
-crew	[gen]	The crew is not the real problem.	全体人员不是真正的问题。
-phenomenon	[gen]	He knows a lot about the phenomenon.	他很了解现象。
-pupil	[gen]	Nobody explained the pupil to us.	没有人向我们解释学生。
-FALSE	[gen]	She gave a very FALSE reply.	她给出了一个非常错误的回答。
-assist	[gen]	It is hard to describe the assist in a few words.	很难用几句话描述帮助。
-restore	[gen]	They want to restore, but they cannot.	他们想回复，但做不到。
-formula	[gen]	The formula was the first thing I noticed.	我首先注意到的就是客套语。
-alter	[gen]	We tried to alter, and it worked.	我们试着改变，结果成功了。
-perceive	[gen]	He learned to perceive the hard way.	他吃了苦头才学会感觉。
-routine	[gen]	We keep coming back to the routine.	我们总是绕回常规这个话题。
-sink	[gen]	That is where the sink becomes important.	那就是藏垢的场所变得重要的地方。
-stare	[gen]	The stare says a lot about them.	注视很能说明他们的情况。
-anymore	[curated]	I do not live there anymore.	我不再住在那里了。
-hero	[gen]	The hero matters more than you think.	英雄比你以为的更重要。
-supporter	[gen]	I know very little about the supporter.	我对支持者了解很少。
-convert	[gen]	We cannot ignore the convert.	我们不能忽视皈依者。
-steady	[gen]	The result was steady, so they tried again.	结果很稳定，于是他们又试了一次。
-meter	[gen]	He knows a lot about the meter.	他很了解米。
-truck	[gen]	Nobody explained the truck to us.	没有人向我们解释卡车。
-nose	[gen]	The nose came up again today.	今天又提到了鼻子。
-beside	[gen]	It is hard to describe the beside in a few words.	很难用几句话描述在旁边。
-sail	[gen]	People often worry about the sail.	人们常常为帆担心。
-disaster	[gen]	The disaster was the first thing I noticed.	我首先注意到的就是灾祸。
-pace	[gen]	She has strong views on the pace.	她对速度有很鲜明的看法。
-heavily	[gen]	You can see it heavily in this chart.	在这张图表中你能很重地看到它。
-devote	[gen]	He offered to devote for us.	他主动提出替我们投入于。
-terrorist	[gen]	That is where the terrorist becomes important.	那就是恐怖分子变得重要的地方。
-justify	[gen]	It took courage to justify.	替...辩护是需要勇气的。
-vital	[gen]	We need something more vital.	我们需要更生命的东西。
-fascinate	[gen]	I would rather fascinate than wait.	我宁愿令人入神，也不愿等待。
-external	[gen]	I know very little about the external.	我对外部了解很少。
-spare	[gen]	We cannot ignore the spare.	我们不能忽视剩余。
-whenever	[curated]	Call me whenever you need help.	你什么时候需要帮助，就给我打电话。
-depression	[gen]	He knows a lot about the depression.	他很了解不景气。
-guilty	[gen]	It looked guilty, but nobody said a word.	它看起来犯罪，但没人说一句话。
-underlie	[gen]	You should not underlie alone.	你不该独自位于...之下。
-mom	[gen]	It is hard to describe the mom in a few words.	很难用几句话描述妈妈。
-distinction	[gen]	People often worry about the distinction.	人们常常为区别担心。
-satisfaction	[gen]	The satisfaction was the first thing I noticed.	我首先注意到的就是满足。
-incorporate	[gen]	He stayed incorporate the whole time.	他全程都很合并。
-pour	[gen]	He learned to pour the hard way.	他吃了苦头才学会流出。
-sweep	[gen]	We keep coming back to the sweep.	我们总是绕回扫除这个话题。
-obligation	[gen]	That is where the obligation becomes important.	那就是义务变得重要的地方。
-sir	[gen]	The sir says a lot about them.	先生很能说明他们的情况。
-evaluate	[gen]	Nobody asked us to evaluate.	没有人要求我们评估。
-anger	[gen]	The anger matters more than you think.	忿怒激怒比你以为的更重要。
-pub	[gen]	I know very little about the pub.	我对酒馆了解很少。
-perception	[gen]	We cannot ignore the perception.	我们不能忽视知觉。
-naturally	[gen]	That happens naturally in real life.	这在现实生活中自然地发生。
-currency	[gen]	He knows a lot about the currency.	他很了解货币。
-database	[gen]	Nobody explained the database to us.	没有人向我们解释数据库。
-initially	[gen]	He spoke initially, so everyone understood.	他讲得很最初，所以大家都听懂了。
-territory	[gen]	It is hard to describe the territory in a few words.	很难用几句话描述领土。
-stream	[gen]	People often worry about the stream.	人们常常为水流担心。
-rarely	[gen]	He answered the question rarely.	他很少地回答了这个问题。
-height	[gen]	She has strong views on the height.	她对高度有很鲜明的看法。
-apparent	[gen]	The idea is apparent, yet people accept it.	这个想法清晰可见，但人们接受了它。
-western	[gen]	We keep coming back to the western.	我们总是绕回西方人这个话题。
-expansion	[gen]	That is where the expansion becomes important.	那就是扩充变得重要的地方。
-constantly	[gen]	They constantly repeated the same mistake.	他们不变地重复了同样的错误。
-muscle	[gen]	Let's talk about the muscle first.	我们先谈谈肌肉。
-scare	[gen]	The scare matters more than you think.	惊吓比你以为的更重要。
-badly	[gen]	The plan failed badly, and nobody knew why.	计划严重地失败了，没人知道原因。
-everyday	[gen]	The answer was everyday, and everyone knew it.	答案是每天的，大家都知道。
-boundary	[gen]	The boundary is not the real problem.	边界不是真正的问题。
-ratio	[gen]	He knows a lot about the ratio.	他很了解比。
-essay	[gen]	Nobody explained the essay to us.	没有人向我们解释随笔。
-scream	[gen]	The scream came up again today.	今天又提到了尖叫声尖叫。
-withdraw	[gen]	She managed to withdraw in the end.	她最终设法撤回了。
-pollution	[gen]	People often worry about the pollution.	人们常常为污染担心。
-disorder	[gen]	The disorder was the first thing I noticed.	我首先注意到的就是杂乱。
-furniture	[gen]	She has strong views on the furniture.	她对家具有很鲜明的看法。
-symbol	[gen]	The symbol surprised everyone in the room.	符号让在场的所有人都很意外。
-apartment	[gen]	We keep coming back to the apartment.	我们总是绕回房间这个话题。
-demonstration	[gen]	That is where the demonstration becomes important.	那就是示范变得重要的地方。
-analyst	[gen]	The analyst says a lot about them.	分析者很能说明他们的情况。
-platform	[gen]	Let's talk about the platform first.	我们先谈谈站台。
-steel	[gen]	The steel matters more than you think.	钢比你以为的更重要。
-cake	[gen]	I know very little about the cake.	我对蛋糕了解很少。
-transform	[gen]	Do not transform until you are ready.	在你准备好之前不要使转换。
-wound	[gen]	The wound is not the real problem.	创伤不是真正的问题。
-restriction	[gen]	He knows a lot about the restriction.	他很了解限制。
-foundation	[gen]	Nobody explained the foundation to us.	没有人向我们解释基础。
-designer	[gen]	The designer came up again today.	今天又提到了设计者。
-strain	[gen]	It is hard to describe the strain in a few words.	很难用几句话描述紧张。
-innovation	[gen]	People often worry about the innovation.	人们常常为改革担心。
-singer	[gen]	The singer was the first thing I noticed.	我首先注意到的就是歌手。
-trail	[gen]	She has strong views on the trail.	她对踪迹有很鲜明的看法。
-trap	[gen]	The trap surprised everyone in the room.	圈套让在场的所有人都很意外。
-loose	[gen]	The room felt loose to me.	我觉得房间很发射。
-extension	[gen]	That is where the extension becomes important.	那就是延长变得重要的地方。
-wealth	[gen]	The wealth says a lot about them.	财富很能说明他们的情况。
-gradually	[gen]	She gradually agrees with the final decision.	她逐渐地同意最后的决定。
-tank	[gen]	The tank matters more than you think.	槽比你以为的更重要。
-evil	[gen]	I know very little about the evil.	我对邪恶了解很少。
-remarkable	[gen]	The answer was remarkable, and everyone knew it.	答案是不平常的，大家都知道。
-tune	[gen]	The tune is not the real problem.	歌曲不是真正的问题。
-grass	[gen]	He knows a lot about the grass.	他很了解草。
-invitation	[gen]	Nobody explained the invitation to us.	没有人向我们解释邀请。
-transition	[gen]	The transition came up again today.	今天又提到了转变。
-frighten	[gen]	She managed to frighten in the end.	她最终设法使惊吓惊恐了。
-bid	[gen]	People often worry about the bid.	人们常常为出价命令担心。
-breed	[gen]	The breed was the first thing I noticed.	我首先注意到的就是种类。
-extraordinary	[gen]	He stayed extraordinary the whole time.	他全程都很非常。
-brilliant	[gen]	The idea is brilliant, yet people accept it.	这个想法光辉，但人们接受了它。
-adviser	[gen]	We keep coming back to the adviser.	我们总是绕回顾问这个话题。
-stem	[gen]	That is where the stem becomes important.	那就是茎变得重要的地方。
-reverse	[gen]	The reverse says a lot about them.	相反很能说明他们的情况。
-mode	[gen]	Let's talk about the mode first.	我们先谈谈模态。
-mirror	[gen]	The mirror matters more than you think.	镜子比你以为的更重要。
-awful	[gen]	Keep it awful and simple.	保持可怕、简单就好。
-pose	[gen]	We cannot ignore the pose.	我们不能忽视姿势。
-adjust	[gen]	Nothing happened when we tried to adjust.	我们试着调整时，什么也没发生。
-creative	[gen]	After the change, everything felt creative.	改动之后，一切都让人觉得有创造力。
-nowadays	[gen]	Nobody explained the nowadays to us.	没有人向我们解释现在。
-poem	[gen]	The poem came up again today.	今天又提到了诗。
-agricultural	[gen]	That sounds agricultural, but it is true.	那听起来农业，但却是真的。
-competitor	[gen]	People often worry about the competitor.	人们常常为竞争者担心。
-alcohol	[gen]	The alcohol was the first thing I noticed.	我首先注意到的就是酒精。
-vegetable	[gen]	She has strong views on the vegetable.	她对蔬菜有很鲜明的看法。
-van	[gen]	The van surprised everyone in the room.	货车让在场的所有人都很意外。
-confident	[gen]	The room felt confident to me.	我觉得房间很有信心。
-curve	[gen]	That is where the curve becomes important.	那就是曲线变得重要的地方。
-knee	[gen]	The knee says a lot about them.	膝很能说明他们的情况。
-overcome	[gen]	Nobody asked us to overcome.	没有人要求我们战胜。
-web	[gen]	The web matters more than you think.	网比你以为的更重要。
-depth	[gen]	I know very little about the depth.	我对深度了解很少。
-entrance	[gen]	We cannot ignore the entrance.	我们不能忽视入口。
-log	[gen]	The log is not the real problem.	记录不是真正的问题。
-giant	[gen]	He knows a lot about the giant.	他很了解巨人。
-god	[gen]	Nobody explained the god to us.	没有人向我们解释上帝。
-portion	[gen]	The portion came up again today.	今天又提到了部分。
-substance	[gen]	It is hard to describe the substance in a few words.	很难用几句话描述物质。
-extensive	[gen]	I have never seen anything so extensive.	我从未见过这么广的的东西。
-interpret	[gen]	They had to interpret again and again.	他们不得不反复解释。
-independence	[gen]	She has strong views on the independence.	她对独立有很鲜明的看法。
-sugar	[gen]	The sugar surprised everyone in the room.	糖让在场的所有人都很意外。
-inner	[gen]	The room felt inner to me.	我觉得房间很内部。
-harm	[gen]	It helps to harm early.	早点伤害会有帮助。
-consult	[gen]	It took courage to consult.	商讨是需要勇气的。
-pink	[gen]	Let's talk about the pink first.	我们先谈谈粉红色。
-shadow	[gen]	The shadow matters more than you think.	阴影比你以为的更重要。
-strip	[gen]	I know very little about the strip.	我对长条了解很少。
-smooth	[gen]	We cannot ignore the smooth.	我们不能忽视平滑的。
-intervention	[gen]	The intervention is not the real problem.	插入不是真正的问题。
-impress	[gen]	He knows a lot about the impress.	他很了解印象。
-exam	[gen]	Nobody explained the exam to us.	没有人向我们解释考试。
-vice	[gen]	The vice came up again today.	今天又提到了恶习。
-radical	[gen]	It is hard to describe the radical in a few words.	很难用几句话描述激进分子。
-similarly	[gen]	She similarly opened the door and left.	她相像地打开门走了出去。
-behave	[gen]	They had to behave again and again.	他们不得不反复举止端正。
-loud	[gen]	He stayed loud the whole time.	他全程都很大声。
-dimension	[gen]	The dimension surprised everyone in the room.	尺寸让在场的所有人都很意外。
-subsequent	[gen]	The room felt subsequent to me.	我觉得房间很后来。
-infection	[gen]	That is where the infection becomes important.	那就是传染变得重要的地方。
-jacket	[gen]	The jacket says a lot about them.	夹克很能说明他们的情况。
-efficiency	[gen]	Let's talk about the efficiency first.	我们先谈谈效率。
-dirty	[gen]	Their plan seemed dirty at first.	他们的计划起初显得很肮脏。
-statistic	[gen]	I know very little about the statistic.	我对统计量了解很少。
-regularly	[gen]	He regularly refused to give a reason.	他有规则地拒绝给出理由。
-resort	[gen]	The resort is not the real problem.	度假胜地不是真正的问题。
-iron	[gen]	He knows a lot about the iron.	他很了解铁。
-broadcast	[gen]	Nobody explained the broadcast to us.	没有人向我们解释广播。
-bread	[gen]	The bread came up again today.	今天又提到了面包。
-blind	[gen]	It is hard to describe the blind in a few words.	很难用几句话描述蒙蔽物。
-pure	[gen]	I have never seen anything so pure.	我从未见过这么纯的的东西。
-bloody	[gen]	It is bloody to say that out loud.	把那句话说出口是血腥的。
-ally	[gen]	She has strong views on the ally.	她对同盟者有很鲜明的看法。
-quantity	[gen]	The quantity surprised everyone in the room.	量让在场的所有人都很意外。
-bend	[gen]	We keep coming back to the bend.	我们总是绕回变弯曲这个话题。
-mature	[gen]	Most people thought it was mature.	大多数人认为它很成熟。
-briefly	[gen]	They briefly repeated the same mistake.	他们简短地重复了同样的错误。
-alarm	[gen]	Let's talk about the alarm first.	我们先谈谈惊恐。
-disturb	[gen]	I would rather disturb than wait.	我宁愿扰乱，也不愿等待。
-sustain	[gen]	It is hard to sustain well.	要把承受做好很难。
-flood	[gen]	We cannot ignore the flood.	我们不能忽视洪水。
-poverty	[gen]	The poverty is not the real problem.	贫穷不是真正的问题。
-crazy	[gen]	He knows a lot about the crazy.	他很了解发狂的。
-cite	[gen]	We cannot cite without help.	没有帮助我们就无法引用。
-newly	[gen]	He spoke newly, so everyone understood.	他讲得很重新，所以大家都听懂了。
-parallel	[gen]	It is hard to describe the parallel in a few words.	很难用几句话描述平行。
-gender	[gen]	People often worry about the gender.	人们常常为性产生担心。
-sponsor	[gen]	They had to sponsor again and again.	他们不得不反复保证人。
-boot	[gen]	She has strong views on the boot.	她对长靴有很鲜明的看法。
-accurate	[gen]	The idea is accurate, yet people accept it.	这个想法正确，但人们接受了它。
-dealer	[gen]	We keep coming back to the dealer.	我们总是绕回经销商这个话题。
-button	[gen]	That is where the button becomes important.	那就是钮扣变得重要的地方。
-burden	[gen]	The burden says a lot about them.	负担很能说明他们的情况。
-desert	[gen]	Let's talk about the desert first.	我们先谈谈沙漠。
-mate	[gen]	The mate matters more than you think.	配偶比你以为的更重要。
-occasionally	[gen]	The plan failed occasionally, and nobody knew why.	计划有时候失败了，没人知道原因。
-shareholder	[gen]	We cannot ignore the shareholder.	我们不能忽视股东。
-bowl	[gen]	The bowl is not the real problem.	碗不是真正的问题。
-discovery	[gen]	He knows a lot about the discovery.	他很了解发现。
-resistance	[gen]	Nobody explained the resistance to us.	没有人向我们解释抵抗力。
-bath	[gen]	The bath came up again today.	今天又提到了沐浴。
-frequency	[gen]	It is hard to describe the frequency in a few words.	很难用几句话描述频率。
-criticize	[gen]	They want to criticize, but they cannot.	他们想批评，但做不到。
-tap	[gen]	The tap was the first thing I noticed.	我首先注意到的就是轻打。
-philosophy	[gen]	She has strong views on the philosophy.	她对哲学有很鲜明的看法。
-lip	[gen]	The lip surprised everyone in the room.	唇让在场的所有人都很意外。
-attribute	[gen]	We keep coming back to the attribute.	我们总是绕回属性这个话题。
-apologize	[gen]	It helps to apologize early.	早点道歉会有帮助。
-approval	[gen]	The approval says a lot about them.	赞成很能说明他们的情况。
-grab	[gen]	Let's talk about the grab first.	我们先谈谈抓握。
-entitle	[gen]	I would rather entitle than wait.	我宁愿给...权利，也不愿等待。
-lend	[gen]	It is hard to lend well.	要把借做好很难。
-involvement	[gen]	We cannot ignore the involvement.	我们不能忽视卷入。
-exposure	[gen]	The exposure is not the real problem.	暴露不是真正的问题。
-conventional	[gen]	After the change, everything felt conventional.	改动之后，一切都让人觉得传统。
-digital	[gen]	It looked digital, but nobody said a word.	它看起来数字显示，但没人说一句话。
-translate	[gen]	You should not translate alone.	你不该独自翻译。
-edit	[gen]	She managed to edit in the end.	她最终设法编辑了。
-formation	[gen]	People often worry about the formation.	人们常常为形成担心。
-deposit	[gen]	The deposit was the first thing I noticed.	我首先注意到的就是存款。
-pleasant	[gen]	He stayed pleasant the whole time.	他全程都很愉快。
-overseas	[gen]	The idea is overseas, yet people accept it.	这个想法海外，但人们接受了它。
-advocate	[gen]	We keep coming back to the advocate.	我们总是绕回提倡者这个话题。
-establishment	[gen]	That is where the establishment becomes important.	那就是确立变得重要的地方。
-summary	[gen]	The summary says a lot about them.	摘要很能说明他们的情况。
-rough	[gen]	Let's talk about the rough first.	我们先谈谈粗糙的东西。
-pen	[gen]	The pen matters more than you think.	钢笔比你以为的更重要。
-recovery	[gen]	I know very little about the recovery.	我对恢复了解很少。
-seal	[gen]	We cannot ignore the seal.	我们不能忽视印章。
-tube	[gen]	The tube is not the real problem.	管不是真正的问题。
-tower	[gen]	He knows a lot about the tower.	他很了解塔。
-characterize	[gen]	We cannot characterize without help.	没有帮助我们就无法描绘...的特性。
-specify	[gen]	You should not specify alone.	你不该独自详列。
-exact	[gen]	That sounds exact, but it is true.	那听起来精确，但却是真的。
-spin	[gen]	People often worry about the spin.	人们常常为旋转担心。
-operator	[gen]	The operator was the first thing I noticed.	我首先注意到的就是操作员。
-infant	[gen]	She has strong views on the infant.	她对婴儿有很鲜明的看法。
-dig	[gen]	The dig surprised everyone in the room.	挖让在场的所有人都很意外。
-drag	[gen]	We keep coming back to the drag.	我们总是绕回拖这个话题。
-mount	[gen]	That is where the mount becomes important.	那就是乘骑用马变得重要的地方。
-wrap	[gen]	The wrap says a lot about them.	外套很能说明他们的情况。
-anticipate	[gen]	Nobody asked us to anticipate.	没有人要求我们预期。
-dependent	[gen]	Their plan seemed dependent at first.	他们的计划起初显得很依赖他人者。
-specialize	[gen]	It is hard to specialize well.	要把使特殊化做好很难。
-angle	[gen]	We cannot ignore the angle.	我们不能忽视角。
-chicken	[gen]	The chicken is not the real problem.	小鸡不是真正的问题。
-anxiety	[gen]	He knows a lot about the anxiety.	他很了解焦虑。
-virus	[gen]	Nobody explained the virus to us.	没有人向我们解释病毒。
-precisely	[gen]	He spoke precisely, so everyone understood.	他讲得很精确地，所以大家都听懂了。
-rival	[gen]	It is hard to describe the rival in a few words.	很难用几句话描述对手。
-offense	[gen]	People often worry about the offense.	人们常常为犯罪担心。
-detect	[gen]	They had to detect again and again.	他们不得不反复发现。
-teenager	[gen]	She has strong views on the teenager.	她对十三岁到十九岁的少年有很鲜明的看法。
-admire	[gen]	He learned to admire the hard way.	他吃了苦头才学会赞美。
-moderate	[gen]	The room felt moderate to me.	我觉得房间很适度。
-surgery	[gen]	That is where the surgery becomes important.	那就是外科变得重要的地方。
-musician	[gen]	The musician says a lot about them.	音乐家很能说明他们的情况。
-significance	[gen]	Let's talk about the significance first.	我们先谈谈重要性。
-shower	[gen]	The shower matters more than you think.	阵雨比你以为的更重要。
-illegal	[gen]	Keep it illegal and simple.	保持违法、简单就好。
-charity	[gen]	We cannot ignore the charity.	我们不能忽视慈悲。
-universal	[gen]	The universal is not the real problem.	全世界的不是真正的问题。
-cigarette	[gen]	He knows a lot about the cigarette.	他很了解香烟。
-constitute	[gen]	We cannot constitute without help.	没有帮助我们就无法构成。
-adequate	[gen]	She gave a very adequate reply.	她给出了一个非常适当的回答。
-consultant	[gen]	It is hard to describe the consultant in a few words.	很难用几句话描述顾问。
-historian	[gen]	People often worry about the historian.	人们常常为历史学家担心。
-cousin	[gen]	The cousin was the first thing I noticed.	我首先注意到的就是堂兄弟姊妹。
-visual	[gen]	He stayed visual the whole time.	他全程都很视觉。
-stupid	[gen]	The stupid surprised everyone in the room.	愚蠢的让在场的所有人都很意外。
-keen	[gen]	We keep coming back to the keen.	我们总是绕回锋利的这个话题。
-ethnic	[gen]	That is where the ethnic becomes important.	那就是人种的变得重要的地方。
-twin	[gen]	The twin says a lot about them.	双胞胎中一人很能说明他们的情况。
-clinical	[gen]	We need something more clinical.	我们需要更临床的东西。
-eastern	[gen]	The eastern matters more than you think.	东方人比你以为的更重要。
-forecast	[gen]	It is hard to forecast well.	要把预想做好很难。
-segment	[gen]	We cannot ignore the segment.	我们不能忽视片段。
-custom	[gen]	The custom is not the real problem.	习惯不是真正的问题。
-adapt	[gen]	We decided to adapt after all.	我们最终还是决定使适应。
-sand	[gen]	Nobody explained the sand to us.	没有人向我们解释沙。
-cap	[gen]	The cap came up again today.	今天又提到了盖子。
-prompt	[gen]	It is hard to describe the prompt in a few words.	很难用几句话描述激励。
-charm	[gen]	People often worry about the charm.	人们常常为吸引力担心。
-react	[gen]	They had to react again and again.	他们不得不反复起反应。
-lecture	[gen]	She has strong views on the lecture.	她对演讲有很鲜明的看法。
-venture	[gen]	The venture surprised everyone in the room.	冒险让在场的所有人都很意外。
-compound	[gen]	We keep coming back to the compound.	我们总是绕回混合物这个话题。
-rescue	[gen]	That is where the rescue becomes important.	那就是援救变得重要的地方。
-mess	[gen]	The mess says a lot about them.	食堂很能说明他们的情况。
-preference	[gen]	Let's talk about the preference first.	我们先谈谈偏爱。
-comprehensive	[gen]	Their plan seemed comprehensive at first.	他们的计划起初显得很广泛。
-incentive	[gen]	I know very little about the incentive.	我对动机了解很少。
-league	[gen]	We cannot ignore the league.	我们不能忽视同盟。
-dialog	[gen]	The dialog is not the real problem.	会话不是真正的问题。
-cream	[gen]	He knows a lot about the cream.	他很了解乳酪。
-rapid	[gen]	Nobody explained the rapid to us.	没有人向我们解释迅速的。
-cancel	[gen]	You should not cancel alone.	你不该独自取消。
-regret	[gen]	She managed to regret in the end.	她最终设法遗憾了。
-dismiss	[gen]	They want to dismiss, but they cannot.	他们想解散，但做不到。
-margin	[gen]	The margin was the first thing I noticed.	我首先注意到的就是页边的空白。
-beneath	[gen]	She has strong views on the beneath.	她对在...下方有很鲜明的看法。
-opponent	[gen]	The opponent surprised everyone in the room.	对手让在场的所有人都很意外。
-resist	[gen]	He offered to resist for us.	他主动提出替我们抵抗。
-capability	[gen]	That is where the capability becomes important.	那就是能力变得重要的地方。
-absolute	[gen]	The absolute says a lot about them.	绝对的很能说明他们的情况。
-correspond	[gen]	Nobody asked us to correspond.	没有人要求我们符合。
-stroke	[gen]	The stroke matters more than you think.	笔划比你以为的更重要。
-dare	[gen]	I know very little about the dare.	我对挑战了解很少。
-barrier	[gen]	We cannot ignore the barrier.	我们不能忽视障碍。
-rid	[gen]	Nothing happened when we tried to rid.	我们试着免除时，什么也没发生。
-divorce	[gen]	He knows a lot about the divorce.	他很了解离婚与...离婚。
-ruin	[gen]	Nobody explained the ruin to us.	没有人向我们解释毁灭。
-bury	[gen]	You should not bury alone.	你不该独自埋葬。
-counsel	[gen]	It is hard to describe the counsel in a few words.	很难用几句话描述商议。
-tendency	[gen]	People often worry about the tendency.	人们常常为趋向担心。
-frequent	[gen]	It is frequent to say that out loud.	把那句话说出口是时常发生的。
-motor	[gen]	She has strong views on the motor.	她对马达有很鲜明的看法。
-survival	[gen]	The survival surprised everyone in the room.	生存让在场的所有人都很意外。
-counter	[gen]	We keep coming back to the counter.	我们总是绕回计算器这个话题。
-possess	[gen]	It helps to possess early.	早点持有会有帮助。
-permission	[gen]	The permission says a lot about them.	许可很能说明他们的情况。
-valley	[gen]	Let's talk about the valley first.	我们先谈谈山谷。
-float	[gen]	The float matters more than you think.	漂流物比你以为的更重要。
-mad	[gen]	Keep it mad and simple.	保持疯狂、简单就好。
-greatly	[gen]	He greatly refused to give a reason.	他很拒绝给出理由。
-visible	[gen]	The result was visible, so they tried again.	结果很看得见，于是他们又试了一次。
-electric	[gen]	He knows a lot about the electric.	他很了解电的。
-impressive	[gen]	It looked impressive, but nobody said a word.	它看起来给人深刻印象，但没人说一句话。
-evolution	[gen]	The evolution came up again today.	今天又提到了进化。
-awareness	[gen]	It is hard to describe the awareness in a few words.	很难用几句话描述意识。
-violent	[gen]	I have never seen anything so violent.	我从未见过这么暴力的东西。
-slave	[gen]	The slave was the first thing I noticed.	我首先注意到的就是奴隶。
-wealthy	[gen]	He stayed wealthy the whole time.	他全程都很富有。
-architecture	[gen]	The architecture surprised everyone in the room.	建筑学让在场的所有人都很意外。
-acceptable	[gen]	The room felt acceptable to me.	我觉得房间很可接受。
-journal	[gen]	That is where the journal becomes important.	那就是日记变得重要的地方。
-coal	[gen]	The coal says a lot about them.	煤很能说明他们的情况。
-measurement	[gen]	Let's talk about the measurement first.	我们先谈谈尺寸。
-random	[gen]	Their plan seemed random at first.	他们的计划起初显得很随意。
-successfully	[gen]	The plan failed successfully, and nobody knew why.	计划成功失败了，没人知道原因。
-depress	[gen]	Do not depress until you are ready.	在你准备好之前不要使沮丧。
-illustration	[gen]	The illustration is not the real problem.	例证不是真正的问题。
-burst	[gen]	He knows a lot about the burst.	他很了解破裂。
-privilege	[gen]	Nobody explained the privilege to us.	没有人向我们解释特权。
-buyer	[gen]	The buyer came up again today.	今天又提到了买主。
-mutual	[gen]	That sounds mutual, but it is true.	那听起来相互，但却是真的。
-rail	[gen]	People often worry about the rail.	人们常常为横杆担心。
-motivate	[gen]	They had to motivate again and again.	他们不得不反复给与动机。
-laboratory	[gen]	She has strong views on the laboratory.	她对实验室有很鲜明的看法。
-mortgage	[gen]	The mortgage surprised everyone in the room.	抵押让在场的所有人都很意外。
-promotion	[gen]	We keep coming back to the promotion.	我们总是绕回晋级这个话题。
-passion	[gen]	That is where the passion becomes important.	那就是激情变得重要的地方。
-champion	[gen]	The champion says a lot about them.	冠军很能说明他们的情况。
-fulfill	[gen]	Nobody asked us to fulfill.	没有人要求我们实践。
-dust	[gen]	The dust matters more than you think.	灰尘比你以为的更重要。
-dedicate	[gen]	It is hard to dedicate well.	要把献出做好很难。
-roughly	[gen]	He roughly refused to give a reason.	他概略地拒绝给出理由。
-skirt	[gen]	The skirt is not the real problem.	裙子不是真正的问题。
-province	[gen]	He knows a lot about the province.	他很了解省。
-march	[gen]	Nobody explained the march to us.	没有人向我们解释三月。
-evaluation	[gen]	The evaluation came up again today.	今天又提到了评估。
-compromise	[gen]	It is hard to describe the compromise in a few words.	很难用几句话描述妥协。
-accomplish	[gen]	They want to accomplish, but they cannot.	他们想完成，但做不到。
-weakness	[gen]	The weakness was the first thing I noticed.	我首先注意到的就是虚弱。
-announcement	[gen]	She has strong views on the announcement.	她对公告有很鲜明的看法。
-salt	[gen]	The salt surprised everyone in the room.	盐让在场的所有人都很意外。
-glance	[gen]	We keep coming back to the glance.	我们总是绕回一瞥这个话题。
-opera	[gen]	That is where the opera becomes important.	那就是歌剧变得重要的地方。
-contest	[gen]	The contest says a lot about them.	竞赛很能说明他们的情况。
-brush	[gen]	Let's talk about the brush first.	我们先谈谈刷子。
-embarrass	[gen]	I would rather embarrass than wait.	我宁愿使困窘，也不愿等待。
-gallery	[gen]	I know very little about the gallery.	我对走廊了解很少。
-genetic	[gen]	The answer was genetic, and everyone knew it.	答案是创始的，大家都知道。
-aggressive	[gen]	The result was aggressive, so they tried again.	结果很侵略，于是他们又试了一次。
-chest	[gen]	He knows a lot about the chest.	他很了解胸。
-format	[gen]	Nobody explained the format to us.	没有人向我们解释开本。
-literary	[gen]	She gave a very literary reply.	她给出了一个非常文学的回答。
-govern	[gen]	She managed to govern in the end.	她最终设法统治了。
-embrace	[gen]	People often worry about the embrace.	人们常常为拥抱担心。
-praise	[gen]	The praise was the first thing I noticed.	我首先注意到的就是赞美。
-silent	[gen]	He stayed silent the whole time.	他全程都很沉默。
-pump	[gen]	The pump surprised everyone in the room.	抽水机让在场的所有人都很意外。
-publisher	[gen]	We keep coming back to the publisher.	我们总是绕回出版者这个话题。
-celebration	[gen]	That is where the celebration becomes important.	那就是庆祝变得重要的地方。
-golf	[gen]	The golf says a lot about them.	高尔夫球打高尔夫球很能说明他们的情况。
-compensation	[gen]	Let's talk about the compensation first.	我们先谈谈补偿。
-classical	[gen]	Their plan seemed classical at first.	他们的计划起初显得很古典。
-weigh	[gen]	It is hard to weigh well.	要把称...重量做好很难。
-versus	[gen]	We cannot ignore the versus.	我们不能忽视对...。
-deficit	[gen]	The deficit is not the real problem.	赤字不是真正的问题。
-modify	[gen]	We decided to modify after all.	我们最终还是决定修正。
-flash	[gen]	Nobody explained the flash to us.	没有人向我们解释闪光。
-friendship	[gen]	The friendship came up again today.	今天又提到了友谊。
-profession	[gen]	It is hard to describe the profession in a few words.	很难用几句话描述职业。
-literally	[gen]	She literally opened the door and left.	她逐字地打开门走了出去。
-equation	[gen]	The equation was the first thing I noticed.	我首先注意到的就是相等。
-gesture	[gen]	She has strong views on the gesture.	她对手势有很鲜明的看法。
-entertain	[gen]	He learned to entertain the hard way.	他吃了苦头才学会娱乐。
-fantastic	[gen]	The room felt fantastic to me.	我觉得房间很奇妙。
-assign	[gen]	It helps to assign early.	早点分配会有帮助。
-inflation	[gen]	The inflation says a lot about them.	胀大很能说明他们的情况。
-historic	[gen]	We need something more historic.	我们需要更历史上著名的东西。
-injure	[gen]	I would rather injure than wait.	我宁愿伤害，也不愿等待。
-remote	[gen]	Keep it remote and simple.	保持遥远、简单就好。
-therapy	[gen]	We cannot ignore the therapy.	我们不能忽视治疗。
-orange	[gen]	The orange is not the real problem.	柑橘不是真正的问题。
-twist	[gen]	He knows a lot about the twist.	他很了解一扭。
-personnel	[gen]	Nobody explained the personnel to us.	没有人向我们解释人员。
-imagination	[gen]	The imagination came up again today.	今天又提到了想像。
-disagree	[gen]	She managed to disagree in the end.	她最终设法不一致了。
-throat	[gen]	People often worry about the throat.	人们常常为咽喉担心。
-insight	[gen]	The insight was the first thing I noticed.	我首先注意到的就是察看。
-tackle	[gen]	She has strong views on the tackle.	她对工具有很鲜明的看法。
-forever	[gen]	You can see it forever in this chart.	在这张图表中你能永远看到它。
-exceed	[gen]	He offered to exceed for us.	他主动提出替我们超过。
-expenditure	[gen]	That is where the expenditure becomes important.	那就是开支变得重要的地方。
-joy	[gen]	The joy says a lot about them.	欢喜很能说明他们的情况。
-pregnant	[gen]	We need something more pregnant.	我们需要更怀孕的东西。
-reliable	[gen]	Their plan seemed reliable at first.	他们的计划起初显得很可靠。
-gear	[gen]	I know very little about the gear.	我对齿轮了解很少。
-click	[gen]	We cannot ignore the click.	我们不能忽视咔哒声。
-poet	[gen]	The poet is not the real problem.	诗人不是真正的问题。
-fortune	[gen]	He knows a lot about the fortune.	他很了解财富。
-ceremony	[gen]	Nobody explained the ceremony to us.	没有人向我们解释典礼。
-pile	[gen]	The pile came up again today.	今天又提到了堆。
-pig	[gen]	It is hard to describe the pig in a few words.	很难用几句话描述猪。
-mixture	[gen]	People often worry about the mixture.	人们常常为混合担心。
-automatically	[gen]	He answered the question automatically.	他自动地回答了这个问题。
-scholar	[gen]	She has strong views on the scholar.	她对学者有很鲜明的看法。
-psychological	[gen]	The idea is psychological, yet people accept it.	这个想法心理学，但人们接受了它。
-dramatically	[gen]	I dramatically remember what she said.	我戏剧地记得她说过的话。
-stake	[gen]	That is where the stake becomes important.	那就是桩变得重要的地方。
-creature	[gen]	The creature says a lot about them.	人很能说明他们的情况。
-partnership	[gen]	Let's talk about the partnership first.	我们先谈谈合伙。
-participation	[gen]	The participation matters more than you think.	参与比你以为的更重要。
-clause	[gen]	I know very little about the clause.	我对子句了解很少。
-penalty	[gen]	We cannot ignore the penalty.	我们不能忽视处罚。
-chamber	[gen]	The chamber is not the real problem.	室不是真正的问题。
-fancy	[gen]	He knows a lot about the fancy.	他很了解想象力。
-poetry	[gen]	Nobody explained the poetry to us.	没有人向我们解释诗。
-chat	[gen]	The chat came up again today.	今天又提到了闲谈。
-evolve	[gen]	She managed to evolve in the end.	她最终设法进展了。
-sake	[gen]	People often worry about the sake.	人们常常为目的担心。
-shelf	[gen]	The shelf was the first thing I noticed.	我首先注意到的就是架子。
-boost	[gen]	She has strong views on the boost.	她对推进有很鲜明的看法。
-tail	[gen]	The tail surprised everyone in the room.	尾部让在场的所有人都很意外。
-possession	[gen]	We keep coming back to the possession.	我们总是绕回拥有这个话题。
-abortion	[gen]	That is where the abortion becomes important.	那就是流产变得重要的地方。
-curious	[gen]	Nobody expected it to be so curious.	没人想到会这么好奇。
-wooden	[gen]	We need something more wooden.	我们需要更木制的东西。
-boom	[gen]	The boom matters more than you think.	繁荣比你以为的更重要。
-tale	[gen]	I know very little about the tale.	我对故事了解很少。
-democratic	[gen]	The answer was democratic, and everyone knew it.	答案是民主的，大家都知道。
-consequently	[curated]	It rained all week; consequently, the match was cancelled.	雨下了一整周，因此比赛取消了。
-pot	[gen]	He knows a lot about the pot.	他很了解盆。
-cow	[gen]	Nobody explained the cow to us.	没有人向我们解释母牛。
-strengthen	[gen]	You should not strengthen alone.	你不该独自加强。
-whilst	[curated]	She read whilst waiting for the train.	她等火车时看书。
-constraint	[gen]	People often worry about the constraint.	人们常常为强制担心。
-fold	[gen]	The fold was the first thing I noticed.	我首先注意到的就是折层。
-bin	[gen]	She has strong views on the bin.	她对(贮存谷物等的)容器有很鲜明的看法。
-undergo	[gen]	He learned to undergo the hard way.	他吃了苦头才学会遭受。
-potentially	[gen]	I potentially remember what she said.	我可能地记得她说过的话。
-scope	[gen]	That is where the scope becomes important.	那就是范围变得重要的地方。
-pretend	[gen]	It took courage to pretend.	假装是需要勇气的。
-diversity	[gen]	Let's talk about the diversity first.	我们先谈谈差异。
-allege	[gen]	I would rather allege than wait.	我宁愿宣称，也不愿等待。
-pride	[gen]	I know very little about the pride.	我对骄傲了解很少。
-intense	[gen]	The answer was intense, and everyone knew it.	答案是非常的，大家都知道。
-inquiry	[gen]	The inquiry is not the real problem.	质询不是真正的问题。
-resign	[gen]	We decided to resign after all.	我们最终还是决定辞职。
-craft	[gen]	Nobody explained the craft to us.	没有人向我们解释技艺。
-strict	[gen]	She gave a very strict reply.	她给出了一个非常严厉的回答。
-concrete	[gen]	It is hard to describe the concrete in a few words.	很难用几句话描述凝结物。
-shell	[gen]	People often worry about the shell.	人们常常为贝壳担心。
-damn	[gen]	The damn was the first thing I noticed.	我首先注意到的就是一点。
-distinct	[gen]	He stayed distinct the whole time.	他全程都很清楚。
-humor	[gen]	The humor surprised everyone in the room.	幽默让在场的所有人都很意外。
-limitation	[gen]	We keep coming back to the limitation.	我们总是绕回限制这个话题。
-indication	[gen]	That is where the indication becomes important.	那就是指示变得重要的地方。
-stability	[gen]	The stability says a lot about them.	安定很能说明他们的情况。
-wise	[gen]	Let's talk about the wise first.	我们先谈谈明智的。
-neglect	[gen]	The neglect matters more than you think.	疏忽比你以为的更重要。
-compose	[gen]	It is hard to compose well.	要把组成做好很难。
-jail	[gen]	We cannot ignore the jail.	我们不能忽视监牢。
-shelter	[gen]	The shelter is not the real problem.	庇护所不是真正的问题。
-mere	[gen]	He knows a lot about the mere.	他很了解小湖。
-carbon	[gen]	Nobody explained the carbon to us.	没有人向我们解释碳。
-regulate	[gen]	You should not regulate alone.	你不该独自管理。
-cheese	[gen]	It is hard to describe the cheese in a few words.	很难用几句话描述乳酪。
-trigger	[gen]	People often worry about the trigger.	人们常常为触发器担心。
-pipe	[gen]	The pipe was the first thing I noticed.	我首先注意到的就是管。
-destruction	[gen]	She has strong views on the destruction.	她对破坏有很鲜明的看法。
-guitar	[gen]	The guitar surprised everyone in the room.	吉他让在场的所有人都很意外。
-flag	[gen]	We keep coming back to the flag.	我们总是绕回标志这个话题。
-piano	[gen]	That is where the piano becomes important.	那就是钢琴变得重要的地方。
-magic	[gen]	The magic says a lot about them.	魔术很能说明他们的情况。
-mystery	[gen]	Let's talk about the mystery first.	我们先谈谈秘密。
-ski	[gen]	The ski matters more than you think.	滑雪橇滑雪比你以为的更重要。
-whisper	[gen]	I know very little about the whisper.	我对耳语了解很少。
-rear	[gen]	We cannot ignore the rear.	我们不能忽视后面。
-species	[gen]	The species is not the real problem.	种不是真正的问题。
-moon	[gen]	He knows a lot about the moon.	他很了解月亮。
-presumably	[gen]	The number rose presumably over the year.	这一数字在一年内推测上上升。
-bless	[gen]	You should not bless alone.	你不该独自祝福。
-airline	[gen]	It is hard to describe the airline in a few words.	很难用几句话描述航线。
-amendment	[gen]	People often worry about the amendment.	人们常常为修订担心。
-grandmother	[gen]	The grandmother was the first thing I noticed.	我首先注意到的就是祖母。
-jury	[gen]	She has strong views on the jury.	她对陪审团有很鲜明的看法。
-cooperation	[gen]	The cooperation surprised everyone in the room.	合作让在场的所有人都很意外。
-civilian	[gen]	We keep coming back to the civilian.	我们总是绕回平民这个话题。
-composition	[gen]	That is where the composition becomes important.	那就是作文变得重要的地方。
-coin	[gen]	The coin says a lot about them.	硬币很能说明他们的情况。
-regardless	[gen]	We need something more regardless.	我们需要更不管的东西。
-scan	[gen]	The scan matters more than you think.	审视比你以为的更重要。
-bunch	[gen]	I know very little about the bunch.	我对串了解很少。
-racial	[gen]	The answer was racial, and everyone knew it.	答案是人种的，大家都知道。
-greet	[gen]	Nothing happened when we tried to greet.	我们试着问候时，什么也没发生。
-hopefully	[gen]	The two reports differ hopefully.	两份报告有希望地不同。
-sanction	[gen]	Nobody explained the sanction to us.	没有人向我们解释核准。
-trick	[gen]	The trick came up again today.	今天又提到了诡计。
-paragraph	[gen]	It is hard to describe the paragraph in a few words.	很难用几句话描述段落。
-maker	[gen]	People often worry about the maker.	人们常常为制造者担心。
-chocolate	[gen]	The chocolate was the first thing I noticed.	我首先注意到的就是巧克力。
-stimulate	[gen]	We tried to stimulate, and it worked.	我们试着刺激，结果成功了。
-belt	[gen]	The belt surprised everyone in the room.	带子让在场的所有人都很意外。
-potato	[gen]	We keep coming back to the potato.	我们总是绕回马铃薯这个话题。
-narrative	[gen]	That is where the narrative becomes important.	那就是叙述变得重要的地方。
-tissue	[gen]	The tissue says a lot about them.	薄的织物很能说明他们的情况。
-barely	[gen]	She barely agrees with the final decision.	她几乎不同意最后的决定。
-invent	[gen]	I would rather invent than wait.	我宁愿发明，也不愿等待。
-tourism	[gen]	I know very little about the tourism.	我对观光业了解很少。
-pro	[gen]	We cannot ignore the pro.	我们不能忽视正面地。
-stair	[gen]	The stair is not the real problem.	梯级不是真正的问题。
-hesitate	[gen]	We decided to hesitate after all.	我们最终还是决定犹豫。
-shine	[gen]	We cannot shine without help.	没有帮助我们就无法光泽。
-motivation	[gen]	The motivation came up again today.	今天又提到了动机。
-romantic	[gen]	It is hard to describe the romantic in a few words.	很难用几句话描述浪漫的。
-firmly	[gen]	She firmly opened the door and left.	她坚固打开门走了出去。
-interior	[gen]	It is interior to say that out loud.	把那句话说出口是内部的。
-stomach	[gen]	She has strong views on the stomach.	她对胃有很鲜明的看法。
-nowhere	[gen]	The nowhere surprised everyone in the room.	无处让在场的所有人都很意外。
-pray	[gen]	He offered to pray for us.	他主动提出替我们祈祷。
-championship	[gen]	That is where the championship becomes important.	那就是冠军身份变得重要的地方。
-servant	[gen]	The servant says a lot about them.	仆人很能说明他们的情况。
-immigrant	[gen]	Let's talk about the immigrant first.	我们先谈谈移民。
-excess	[gen]	The excess matters more than you think.	过度比你以为的更重要。
-complexity	[gen]	I know very little about the complexity.	我对复杂了解很少。
-liability	[gen]	We cannot ignore the liability.	我们不能忽视责任。
-surprisingly	[gen]	That happens surprisingly in real life.	这在现实生活中使人惊奇发生。
-extract	[gen]	We decided to extract after all.	我们最终还是决定榨出物。
-implementation	[gen]	Nobody explained the implementation to us.	没有人向我们解释安装启用。
-bias	[gen]	The bias came up again today.	今天又提到了偏见。
-differently	[gen]	The cost fell differently after the change.	改动之后成本差异下降了。
-catalog	[gen]	People often worry about the catalog.	人们常常为目录担心。
-continuous	[gen]	It is continuous to say that out loud.	把那句话说出口是连续的。
-golden	[gen]	He stayed golden the whole time.	他全程都很金的。
-stamp	[gen]	The stamp surprised everyone in the room.	印让在场的所有人都很意外。
-guideline	[gen]	We keep coming back to the guideline.	我们总是绕回指导路线这个话题。
-envelope	[gen]	That is where the envelope becomes important.	那就是信封变得重要的地方。
-knife	[gen]	The knife says a lot about them.	小刀很能说明他们的情况。
-biological	[gen]	We need something more biological.	我们需要更生物学的东西。
-consume	[gen]	I would rather consume than wait.	我宁愿消耗，也不愿等待。
-luxury	[gen]	I know very little about the luxury.	我对奢侈了解很少。
-weekly	[gen]	We cannot ignore the weekly.	我们不能忽视周刊。
+suggestion	[curated]	Do you have any suggestions?	你有什么建议吗？
+critical	[curated]	The next few days are critical.	接下来几天至关重要。
+gather	[curated]	A crowd gathered at the gate.	一群人聚集在大门口。
+mostly	[curated]	The students are mostly from Asia.	这些学生主要来自亚洲。
+pop	[curated]	She listens to pop music all day.	她整天听流行音乐。
+essential	[curated]	Sleep is essential to good health.	睡眠对健康必不可少。
+desire	[curated]	He had a strong desire to win.	他有强烈的取胜欲望。
+promote	[curated]	The campaign promotes healthy eating.	这项活动倡导健康饮食。
+currently	[curated]	She is currently working in Paris.	她目前在巴黎工作。
+employ	[curated]	The factory employs 200 people.	这家工厂雇用了两百人。
+path	[curated]	The path leads to the beach.	这条小路通向海滩。
+topic	[curated]	Let's choose a topic for the essay.	我们为这篇作文选个主题吧。
+beach	[curated]	We spent the afternoon on the beach.	我们在海滩上度过了下午。
+attract	[curated]	Bright colors attract bees.	鲜艳的颜色会吸引蜜蜂。
+engage	[curated]	It is hard to engage young readers.	很难让年轻读者投入进来。
+powerful	[curated]	The speech was short but powerful.	那篇演讲很短，却很有力量。
+flower	[curated]	She grows flowers in the garden.	她在花园里种花。
+crisis	[curated]	The company faced a serious crisis.	公司面临一场严重危机。
+settle	[curated]	They settled the dispute out of court.	他们在庭外解决了纠纷。
+boat	[curated]	We took a boat to the island.	我们乘船去了那个岛。
+aid	[curated]	First aid saved his life.	急救救了他的命。
+fan	[curated]	Turn on the fan, please.	请把风扇打开。
+twice	[curated]	I have read it twice.	我读了两遍。
+fresh	[curated]	We buy fresh bread every morning.	我们每天早上买新鲜面包。
+delay	[curated]	The flight left after a two-hour delay.	航班延误两小时后起飞。
+safety	[curated]	Safety comes first on this site.	在这个工地上，安全第一。
+engineer	[curated]	My sister is a software engineer.	我姐姐是一名软件工程师。
+quiet	[curated]	Keep quiet during the exam.	考试期间保持安静。
+insurance	[curated]	Does the price include insurance?	这个价格包含保险吗？
+nurse	[curated]	The nurse checked my temperature.	护士给我量了体温。
+divide	[curated]	Divide the cake into eight pieces.	把蛋糕分成八块。
+length	[curated]	What is the length of the room?	这个房间有多长？
+investigation	[curated]	The investigation took six months.	这项调查持续了六个月。
+somewhere	[curated]	Let's go somewhere quiet.	我们去个安静的地方吧。
+expand	[curated]	The company plans to expand into Asia.	公司计划向亚洲扩张。
+commit	[curated]	No one knows who committed the crime.	没人知道是谁犯下了这桩罪行。
+obvious	[curated]	The answer was obvious to everyone.	答案对所有人来说都很明显。
+jump	[curated]	The cat jumped onto the table.	猫跳上了桌子。
+weapon	[curated]	The police found a weapon in the car.	警方在车里发现了一件武器。
+relatively	[curated]	The test was relatively easy.	这次测验相对容易。
+host	[curated]	Our host made us feel welcome.	主人让我们感到宾至如归。
+district	[curated]	They live in the northern district.	他们住在北区。
+broad	[curated]	The river is broad and slow.	这条河又宽又缓。
+tire	[curated]	One of the tires is flat.	有一条轮胎没气了。
+spring	[curated]	Flowers come out in spring.	春天花儿开放。
+spirit	[curated]	The team showed great spirit.	这支队伍表现出极佳的精神面貌。
+lunch	[curated]	Let's have lunch together.	我们一起吃午饭吧。
+actual	[curated]	The actual cost was much higher.	实际成本要高得多。
+battle	[curated]	The battle lasted three days.	这场战役持续了三天。
+tradition	[curated]	It is a family tradition.	这是一个家族传统。
+hardly	[curated]	I hardly slept last night.	我昨晚几乎没睡。
+coach	[curated]	The coach changed the plan at half-time.	教练在中场改变了计划。
+experiment	[curated]	We did a simple experiment in class.	我们在课堂上做了一个简单的实验。
+consideration	[curated]	After careful consideration, she agreed.	经过仔细考虑，她同意了。
+strange	[curated]	That's a strange way to ask.	这样提问真奇怪。
+code	[curated]	Please enter your code.	请输入你的密码。
+possibly	[curated]	It may possibly rain tonight.	今晚可能会下雨。
+threat	[curated]	The letter was read as a threat.	那封信被视作一种威胁。
+accident	[curated]	He broke his arm in an accident.	他在一次事故中摔断了胳膊。
+impossible	[curated]	It's impossible to finish today.	今天不可能完成。
+revenue	[curated]	Revenue fell by ten percent.	收入下降了百分之十。
+enable	[curated]	This tool enables you to work faster.	这个工具能让你工作得更快。
+afraid	[curated]	I'm afraid of the dark.	我怕黑。
+active	[curated]	He stays active after retirement.	他退休后依然很活跃。
+conclude	[curated]	The meeting concluded at noon.	会议中午结束。
+religious	[curated]	They are very religious.	他们非常虔诚。
+cancer	[curated]	She survived cancer twice.	她两次战胜了癌症。
+convince	[curated]	He convinced me to stay.	他说服我留下来。
+vary	[curated]	Prices vary from shop to shop.	各家商店的价格各不相同。
+environmental	[curated]	We face serious environmental problems.	我们面临严重的环境问题。
+healthy	[curated]	Eat healthy food and exercise.	吃健康的食物并锻炼身体。
+blow	[curated]	The wind blew all night.	风刮了一整夜。
+location	[curated]	The location is perfect for a shop.	这个位置开店再合适不过。
+invest	[curated]	They invested in new machines.	他们投资购买了新机器。
+proceed	[curated]	Please proceed to the gate.	请前往登机口。
+actor	[curated]	The actor won his first award.	那位男演员赢得了他的第一个奖项。
+glad	[curated]	I'm glad you came.	我很高兴你来了。
+tape	[curated]	He fixed it with tape.	他用胶带把它固定住了。
+whereas	[curated]	He likes coffee, whereas I prefer tea.	他喜欢咖啡，而我更喜欢茶。
+opposite	[curated]	The bank is on the opposite side.	银行在马路对面。
+stone	[curated]	Someone threw a stone at the window.	有人朝窗户扔了一块石头。
+sum	[curated]	They paid a large sum for it.	他们为此付了一大笔钱。
+murder	[curated]	The murder happened last winter.	那起谋杀案发生在去年冬天。
+soldier	[curated]	The soldier wrote home every week.	那位士兵每周都给家里写信。
+finance	[curated]	She works in finance.	她在金融业工作。
+hate	[curated]	I hate waiting in line.	我讨厌排队等待。
+egg	[curated]	Boil the egg for six minutes.	把鸡蛋煮六分钟。
+concert	[curated]	We went to a concert last night.	我们昨晚去听了一场音乐会。
+shock	[curated]	The news came as a shock.	这个消息令人震惊。
+comfortable	[curated]	These shoes are very comfortable.	这双鞋非常舒服。
+usual	[curated]	He arrived later than usual.	他到得比平时晚。
+carefully	[curated]	Read the questions carefully.	仔细阅读题目。
+pack	[curated]	Did you pack your bag?	你收拾好行李了吗？
+recall	[curated]	I can't recall his name.	我想不起他的名字。
+wine	[curated]	Would you like some wine?	你想来点葡萄酒吗？
+camera	[curated]	He bought a new camera.	他买了一台新相机。
+swim	[curated]	We swim every morning.	我们每天早上游泳。
+manufacture	[curated]	They manufacture car parts.	他们生产汽车零件。
+theater	[curated]	The theater was full.	剧院座无虚席。
+cycle	[curated]	The cycle repeats every year.	这个周期每年重复一次。
+totally	[curated]	I totally agree with you.	我完全同意你的看法。
+museum	[curated]	The museum opens at nine.	博物馆九点开门。
+visitor	[curated]	Visitors must sign in here.	访客必须在这里登记。
+freedom	[curated]	Freedom of speech is a basic right.	言论自由是一项基本权利。
+construction	[curated]	The bridge is under construction.	这座桥正在施工中。
+dear	[curated]	She is a dear friend of mine.	她是我的一位亲密朋友。
+objective	[curated]	Our main objective is safety.	我们的主要目标是安全。
+moreover	[curated]	It's cheap; moreover, it lasts longer.	它很便宜，而且更耐用。
+onto	[curated]	The cat jumped onto the roof.	猫跳上了屋顶。
+historical	[curated]	The city has many historical buildings.	这座城市有许多历史建筑。
+oppose	[curated]	Many people oppose the new tax.	许多人反对这项新税。
+branch	[curated]	The bird sat on a branch.	鸟儿停在一根树枝上。
+scientist	[curated]	A scientist explained the results.	一位科学家解释了这些结果。
+route	[curated]	Which route do you take to work?	你上班走哪条路线？
+bind	[curated]	They bound his hands with rope.	他们用绳子把他的手绑起来。
+belong	[curated]	This book belongs to me.	这本书是我的。
+taste	[curated]	The soup has a salty taste.	这汤有股咸味。
+tonight	[curated]	Are you free tonight?	你今晚有空吗？
+fashion	[curated]	That style is back in fashion.	那种款式又流行起来了。
+danger	[curated]	He was in danger of losing his job.	他有失去工作的危险。
+bomb	[curated]	The bomb was found under a car.	炸弹是在一辆汽车下面发现的。
+army	[curated]	He joined the army at eighteen.	他十八岁参了军。
+dangerous	[curated]	The road is dangerous at night.	这条路夜晚很危险。
+decrease	[curated]	Sales decreased by five percent.	销售额下降了百分之五。
+hurt	[curated]	My back hurts after the trip.	旅行后我的背很疼。
+council	[curated]	The council meets once a month.	委员会每月开一次会。
+editor	[curated]	The editor cut two paragraphs.	编辑删掉了两段。
+normally	[curated]	I normally get up at seven.	我通常七点起床。
+sight	[curated]	The sunset was a beautiful sight.	日落是一道美丽的景象。
+generate	[curated]	Wind can generate electricity.	风力可以发电。
+gift	[curated]	Thank you for the gift.	谢谢你的礼物。
+delivery	[curated]	Delivery takes two days.	递送需要两天时间。
+deny	[curated]	He denied the accusation.	他否认了这项指控。
+anybody	[curated]	Anybody can learn this.	任何人都能学会这个。
+bedroom	[curated]	The house has three bedrooms.	这栋房子有三间卧室。
+quote	[curated]	She quoted a line from the poem.	她引用了诗中的一行。
+climb	[curated]	They climbed the mountain in a day.	他们用一天时间爬上了那座山。
+basically	[curated]	It's basically the same thing.	这基本上是同一回事。
+violence	[curated]	The film contains too much violence.	这部电影暴力镜头太多。
+minister	[curated]	The minister spoke to reporters.	部长向记者发表了讲话。
+mainly	[curated]	The group is mainly young people.	这个群体主要是年轻人。
+mouth	[curated]	He opened his mouth to speak.	他张开嘴要说话。
+noise	[curated]	The noise kept me awake.	噪音吵得我睡不着。
+manner	[curated]	He spoke in a polite manner.	他说话很有礼貌。
+gun	[curated]	The gun was found in the river.	枪是在河里找到的。
+square	[curated]	We met in the town square.	我们在市政广场见面。
+occasion	[curated]	Save that dress for a special occasion.	那条裙子留着特殊场合穿吧。
+familiar	[curated]	Your face looks familiar.	你看起来很面熟。
+ignore	[curated]	He ignored my advice.	他无视了我的建议。
+destroy	[curated]	The fire destroyed the building.	大火烧毁了那栋建筑。
+affair	[curated]	It's a private affair.	这是件私事。
+civil	[curated]	Please be civil to each other.	请彼此礼貌相待。
+locate	[curated]	We couldn't locate the file.	我们找不到那个文件。
+citizen	[curated]	Every citizen has the right to vote.	每个公民都有投票权。
+temperature	[curated]	The temperature dropped overnight.	气温一夜之间下降了。
+gold	[curated]	The ring is made of gold.	这枚戒指是金的。
+domestic	[curated]	Domestic flights leave from here.	国内航班从这里起飞。
+load	[curated]	The truck carried a heavy load.	卡车装载着沉重的货物。
+belief	[curated]	It's my belief that he is honest.	我相信他是诚实的。
+troop	[curated]	The troops arrived at dawn.	部队在黎明时分抵达。
+technical	[curated]	We had a technical problem.	我们遇到了一个技术问题。
+remind	[curated]	Please remind me tomorrow.	请明天提醒我。
+arrangement	[curated]	We made the travel arrangements.	我们做好了旅行安排。
+skin	[curated]	The sun is bad for your skin.	阳光对皮肤不好。
+prison	[curated]	He spent two years in prison.	他在监狱里待了两年。
+switch	[curated]	Where is the light switch?	电灯开关在哪里？
+acquire	[curated]	She acquired the skill quickly.	她很快就掌握了这项技能。
+corporate	[curated]	The company changed its corporate culture.	公司改变了它的企业文化。
+fairly	[curated]	Treat everyone fairly.	公平对待每一个人。
+wood	[curated]	The table is made of wood.	这张桌子是木头做的。
+participate	[curated]	About 200 students participated.	大约两百名学生参加了。
+tough	[curated]	It was a tough decision.	那是个艰难的决定。
+tear	[curated]	A tear ran down her cheek.	一滴眼泪顺着她的脸颊流下。
+representative	[curated]	She is our representative in Paris.	她是我们在巴黎的代表。
+capacity	[curated]	The hall has a capacity of 500.	这个大厅可容纳五百人。
+border	[curated]	We crossed the border at noon.	我们中午越过了边境。
+shake	[curated]	Shake the bottle before use.	使用前请摇匀瓶子。
+assessment	[curated]	The assessment takes an hour.	这项评估需要一个小时。
+shoe	[curated]	Where is my other shoe?	我的另一只鞋在哪儿？
+ought	[curated]	You ought to see a doctor.	你应该去看医生。
+ad	[curated]	I saw your ad online.	我在网上看到了你的广告。
+fee	[curated]	There is a small entry fee.	需要支付少量入场费。
+regulation	[curated]	The regulation applies to all schools.	这项规定适用于所有学校。
+escape	[curated]	Two prisoners escaped last night.	两名囚犯昨晚逃走了。
+studio	[curated]	She rents a small studio.	她租了一间小工作室。
+proper	[curated]	Use the proper tool for the job.	要用合适的工具干活。
+relax	[curated]	Try to relax before the test.	考试前尽量放松。
+tourist	[curated]	The town is full of tourists.	这个镇上到处都是游客。
+component	[curated]	Each component is tested twice.	每个部件都要检测两次。
+afford	[curated]	We can't afford a new car.	我们买不起新车。
+lawyer	[curated]	Ask a lawyer before you sign.	签字前先咨询律师。
+suspect	[curated]	The police suspect him of theft.	警方怀疑他犯了偷窃罪。
+cup	[curated]	Would you like a cup of tea?	你想喝杯茶吗？
+description	[curated]	The description does not match.	这个描述与实物不符。
+confidence	[curated]	She spoke with confidence.	她说话时充满自信。
+industrial	[curated]	The city has a long industrial history.	这座城市有悠久的工业历史。
+complain	[curated]	They complain about the noise.	他们抱怨噪音太大。
+perspective	[curated]	Try to see it from her perspective.	试着从她的角度看这件事。
+error	[curated]	There is an error on this page.	这一页上有一处错误。
+arrest	[curated]	He was arrested last Friday.	他上周五被捕了。
+assess	[curated]	Teachers assess students every term.	老师每学期对学生进行评估。
+register	[curated]	You must register before Friday.	你必须在周五前登记。
+asset	[curated]	The house is our biggest asset.	这栋房子是我们最大的资产。
+signal	[curated]	The signal is weak in here.	这里的信号很弱。
+finger	[curated]	He cut his finger on the glass.	他被玻璃割伤了手指。
+relevant	[curated]	Please send the relevant documents.	请把相关文件发过来。
+explore	[curated]	They explored the cave together.	他们一起探察了那个山洞。
+leadership	[curated]	She showed real leadership.	她展现出了真正的领导力。
+commitment	[curated]	His commitment to the work is clear.	他对这项工作的投入显而易见。
+wake	[curated]	I wake at six every morning.	我每天早上六点醒来。
+necessarily	[curated]	Expensive doesn't necessarily mean better.	贵不一定就意味着更好。
+bright	[curated]	The room is bright in the morning.	这间屋子早上很明亮。
+frame	[curated]	The frame is made of wood.	这个框子是木头做的。
+slowly	[curated]	Please speak slowly.	请说慢一点。
+bond	[curated]	They share a strong bond.	他们之间有着牢固的纽带。
+hire	[curated]	We hired two new drivers.	我们新雇了两名司机。
+hole	[curated]	There is a hole in my sock.	我的袜子上有个洞。
+tie	[curated]	He wore a blue tie.	他系了一条蓝色领带。
+chain	[curated]	The chain has 50 stores.	这家连锁店有五十家门店。
+literature	[curated]	She studies English literature.	她研究英国文学。
+victim	[curated]	The victim was taken to hospital.	受害者被送往医院。
+threaten	[curated]	He threatened to call the police.	他威胁说要报警。
+amaze	[curated]	Her progress amazed everyone.	她的进步让所有人吃惊。
+birth	[curated]	The baby weighed 3kg at birth.	这个婴儿出生时重三公斤。
+label	[curated]	Read the label before you buy.	购买前先看看标签。
+root	[curated]	The roots go deep into the soil.	根深深扎进土壤里。
+factory	[curated]	The factory closed last year.	这家工厂去年关闭了。
+expense	[curated]	Travel is our biggest expense.	差旅是我们最大的开支。
+channel	[curated]	Which channel is the match on?	比赛在哪个频道播出？
+investigate	[curated]	Police are investigating the case.	警方正在调查这起案件。
+recommendation	[curated]	I booked it on your recommendation.	我是听了你的推荐才订的。
+rank	[curated]	She holds the rank of captain.	她拥有上尉军衔。
+typical	[curated]	That's a typical winter day here.	这是这里典型的冬日天气。
+west	[curated]	The sun sets in the west.	太阳从西边落下。
+friendly	[curated]	The neighbors are very friendly.	邻居们非常友好。
+resident	[curated]	Local residents objected to the plan.	当地居民反对这个计划。
+provision	[curated]	Provision of clean water is a priority.	清洁水源的供应是当务之急。
+concentrate	[curated]	I can't concentrate with music on.	开着音乐我无法集中注意力。
+plenty	[curated]	We have plenty of time.	我们有充足的时间。
+export	[curated]	They export coffee to Europe.	他们向欧洲出口咖啡。
+entirely	[curated]	I entirely agree with you.	我完全同意你的看法。
+strongly	[curated]	I strongly recommend this book.	我强烈推荐这本书。
+consist	[curated]	The team consists of five people.	这个团队由五个人组成。
+graduate	[curated]	She is a Harvard graduate.	她是哈佛大学的毕业生。
+brand	[curated]	Which brand do you prefer?	你更喜欢哪个品牌？
+moral	[curated]	It's a moral question, not a legal one.	这是一个道德问题，不是法律问题。
+insist	[curated]	He insisted on paying.	他坚持要付钱。
+combination	[curated]	A combination of factors caused it.	多种因素共同导致了这一结果。
+abuse	[curated]	Drug abuse is a serious problem.	药物滥用是个严重问题。
+ice	[curated]	Add some ice to the glass.	往杯子里加点冰。
+principal	[curated]	The principal spoke at the assembly.	校长在集会上讲了话。
+definitely	[curated]	I'll definitely be there.	我肯定会到。
+grade	[curated]	He got a good grade in math.	他数学取得了好成绩。
+nevertheless	[curated]	The task was hard; nevertheless, they finished.	任务艰巨，尽管如此他们还是完成了。
+predict	[curated]	Nobody can predict the future.	没人能预测未来。
+previously	[curated]	He worked here previously.	他以前在这里工作过。
+protection	[curated]	Wear a helmet for protection.	戴上头盔以保护自己。
+largely	[curated]	It depends largely on the weather.	这很大程度上取决于天气。
+wed	[curated]	They wed in a small church.	他们在一家小教堂举行了婚礼。
+shot	[curated]	He took a shot at the goal.	他朝球门射了一脚。
+appearance	[curated]	Don't judge people by appearance.	不要以貌取人。
+reasonable	[curated]	That seems a reasonable price.	这个价格似乎还算合理。
+guarantee	[curated]	There is no guarantee of success.	成功并无保证。
+till	[curated]	We waited till midnight.	我们一直等到午夜。
+theme	[curated]	The theme of the talk is change.	这次演讲的主题是变革。
+judgment	[curated]	Use your own judgment.	运用你自己的判断力。
+odd	[curated]	That's odd — the door was locked.	真奇怪——门明明是锁着的。
+approve	[curated]	The board approved the plan.	董事会批准了这个计划。
+loan	[curated]	He took out a bank loan.	他申请了一笔银行贷款。
+definition	[curated]	Look up the definition online.	上网查一下这个定义。
+elect	[curated]	They elected a new leader.	他们选出了一位新领导人。
+atmosphere	[curated]	The restaurant has a warm atmosphere.	这家餐厅气氛温馨。
+farmer	[curated]	The farmer grows wheat and corn.	这位农民种植小麦和玉米。
+comparison	[curated]	There is no comparison between them.	两者之间没有可比性。
+characteristic	[curated]	Patience is her main characteristic.	耐心是她的主要特点。
+license	[curated]	He lost his driving license.	他的驾驶执照被吊销了。
+rely	[curated]	You can rely on her.	你可以信赖她。
+narrow	[curated]	The street is very narrow.	这条街很窄。
+succeed	[curated]	She succeeded after many tries.	经过多次尝试她终于成功了。
+identity	[curated]	He kept his identity secret.	他隐瞒了自己的身份。
+desk	[curated]	Leave the keys on my desk.	把钥匙放在我桌上。
+permit	[curated]	Do you have a work permit?	你有工作许可证吗？
+seriously	[curated]	Take this seriously, please.	请认真对待这件事。
+wild	[curated]	Wild animals live in the hills.	野生动物生活在山里。
+empty	[curated]	The bottle is empty.	瓶子是空的。
+association	[curated]	He joined the teachers' association.	他加入了教师协会。
+instrument	[curated]	Can you play a musical instrument?	你会演奏乐器吗？
+investor	[curated]	Investors lost a lot of money.	投资者损失了很多钱。
+practical	[curated]	We need a practical solution.	我们需要一个切实可行的方案。
+tea	[curated]	Would you like tea or coffee?	你想喝茶还是咖啡？
+lovely	[curated]	What a lovely day!	多好的天气啊！
+soft	[curated]	The bed is very soft.	这张床很软。
+row	[curated]	We sat in the front row.	我们坐在第一排。
+lock	[curated]	Someone changed the lock.	有人换了锁。
+fuel	[curated]	Fuel prices rose again.	燃料价格又上涨了。
+expectation	[curated]	The result exceeded our expectations.	结果超出了我们的预期。
+celebrate	[curated]	They celebrated her birthday.	他们为她庆祝了生日。
+sexual	[curated]	The talk covered sexual health education.	这个讲座涉及性健康教育。
+shoulder	[curated]	He carried the bag on his shoulder.	他把包挎在肩上。
+breath	[curated]	Take a deep breath.	深吸一口气。
+increasingly	[curated]	It is becoming increasingly common.	这正变得越来越普遍。
+import	[curated]	We import most of our oil.	我们的石油大部分靠进口。
+bottle	[curated]	He drank a bottle of water.	他喝了一瓶水。
+ourselves	[curated]	We built the house ourselves.	这房子是我们自己建的。
+sheet	[curated]	Give me a sheet of paper.	给我一张纸。
+cast	[curated]	The whole cast was excellent.	全体演员都很出色。
+notion	[curated]	He rejected the notion of luck.	他不认同运气这种说法。
+conservative	[curated]	He is conservative with money.	他在花钱上很保守。
+journey	[curated]	It was a long journey home.	回家的路途很漫长。
+opposition	[curated]	The plan met strong opposition.	这个计划遭到强烈反对。
+relief	[curated]	It was a relief to hear that.	听到这个消息让人松了一口气。
+honor	[curated]	It's an honor to meet you.	见到你是我的荣幸。
+outcome	[curated]	No one knows the outcome yet.	目前还没有人知道结果。
+blame	[curated]	Don't blame him for this.	这事别怪他。
+explanation	[curated]	That's no explanation at all.	这根本算不上解释。
+arise	[curated]	Problems arose during the test.	测试过程中出现了问题。
+musical	[curated]	We watched a musical last night.	我们昨晚看了一部音乐剧。
+recover	[curated]	He is recovering from the flu.	他正在从流感中恢复。
+dad	[curated]	My dad taught me to cook.	我爸爸教我做饭。
+stretch	[curated]	Stretch your legs after the drive.	开车后伸展一下腿。
+declare	[curated]	They declared the results.	他们宣布了结果。
+retire	[curated]	She retired at sixty.	她六十岁退休。
+tiny	[curated]	The room is tiny.	这个房间很小。
+careful	[curated]	Be careful with that knife.	小心那把刀。
+suitable	[curated]	We need a suitable time.	我们需要一个合适的时间。
+native	[curated]	She is a native of Beijing.	她是北京人。
+fruit	[curated]	Eat more fruit and vegetables.	多吃水果和蔬菜。
+analyze	[curated]	We analyzed the data twice.	我们把数据分析了两遍。
+witness	[curated]	The witness told a different story.	这名证人的说法不一样。
+mail	[curated]	Is there any mail today?	今天有邮件吗？
+terrible	[curated]	The weather was terrible.	天气糟透了。
+researcher	[curated]	A researcher explained the study.	一名研究人员介绍了这项研究。
+ordinary	[curated]	It was an ordinary Monday.	那是个平常的星期一。
+anywhere	[curated]	I can't find it anywhere.	我到处都找不到它。
+mental	[curated]	Mental health is as important as physical health.	心理健康和身体健康一样重要。
+participant	[curated]	Each participant got a gift.	每位参与者都收到了一份礼物。
+vision	[curated]	His vision is getting worse.	他的视力越来越差。
+personality	[curated]	They have very different personalities.	他们的性格截然不同。
+specifically	[curated]	I asked specifically about the cost.	我专门问了费用问题。
+fat	[curated]	This food is high in fat.	这种食物脂肪含量高。
+entry	[curated]	Entry is free on Sundays.	周日免费入场。
+fellow	[curated]	He's a good fellow.	他是个好人。
+chemical	[curated]	The farm uses fewer chemicals now.	这家农场现在用的化学品更少了。
+capture	[curated]	They captured the city in May.	他们在五月攻占了那座城市。
+tip	[curated]	Here's a useful tip.	这里有个实用的小窍门。
+discount	[curated]	Students get a 20% discount.	学生可享受八折优惠。
+peak	[curated]	We reached the peak at noon.	我们中午登上了山顶。
+chairman	[curated]	The chairman opened the meeting.	主席宣布会议开始。
+proportion	[curated]	What proportion of students passed?	有多大比例的学生通过了？
+ear	[curated]	He whispered in her ear.	他在她耳边低语。
+disappear	[curated]	The cat disappeared for two days.	那只猫失踪了两天。
+shout	[curated]	Don't shout at me.	别冲我大喊。
+yard	[curated]	The kids are playing in the yard.	孩子们在院子里玩。
+constant	[curated]	He lives under constant pressure.	他长期处于压力之下。
+significantly	[curated]	Prices rose significantly.	价格显著上涨。
+hill	[curated]	They walked up the hill.	他们走上了小山。
+considerable	[curated]	The project cost a considerable sum.	这个项目耗资相当大。
+instruction	[curated]	Follow the instructions on the box.	按盒子上的说明操作。
+intelligence	[curated]	The test measures intelligence.	这个测试测量智力。
+ideal	[curated]	This is the ideal place to work.	这是工作的理想场所。
+folk	[curated]	Some folks never change.	有些人永远不会改变。
+surely	[curated]	You surely remember him.	你肯定记得他。
+guard	[curated]	The guard checked our bags.	保安检查了我们的包。
+cat	[curated]	The cat sleeps all day.	这只猫整天睡觉。
+somewhat	[curated]	I was somewhat surprised.	我有点惊讶。
+kiss	[curated]	She gave him a kiss.	她吻了他一下。
+presentation	[curated]	Her presentation was excellent.	她的报告非常精彩。
+joint	[curated]	It was a joint decision.	这是共同作出的决定。
+compete	[curated]	They compete for the same customers.	他们争夺同样的客户。
+poll	[curated]	The poll shows a clear lead.	民调显示领先优势明显。
+weak	[curated]	He felt weak after the illness.	病后他感到虚弱。
+faith	[curated]	I have faith in this team.	我对这支队伍有信心。
+reduction	[curated]	There was a reduction in costs.	成本有所降低。
+complaint	[curated]	We received several complaints.	我们收到了几起投诉。
+bore	[curated]	Long meetings bore me.	冗长的会议让我厌烦。
+mission	[curated]	The mission failed.	这次任务失败了。
+somehow	[curated]	Somehow he found the money.	他不知怎么地凑齐了那笔钱。
+tone	[curated]	Watch your tone.	注意你的语气。
+neighborhood	[curated]	It's a quiet neighborhood.	这是个安静的街区。
+passenger	[curated]	All passengers must wear seat belts.	所有乘客都必须系安全带。
+justice	[curated]	They fought for justice.	他们为正义而战。
+phase	[curated]	We are in the second phase.	我们正处于第二阶段。
+thin	[curated]	The ice is too thin.	冰面太薄了。
+rush	[curated]	There's no rush — take your time.	不用着急，慢慢来。
+formal	[curated]	The invitation was quite formal.	这份请柬相当正式。
+religion	[curated]	Religion plays a big role there.	宗教在那里起着重要作用。
+employer	[curated]	My employer pays for training.	我的雇主承担培训费用。
+reject	[curated]	They rejected my application.	他们拒绝了我的申请。
+latter	[curated]	Of the two, I prefer the latter.	两者之中我更喜欢后者。
+plate	[curated]	He broke a plate.	他打碎了一个盘子。
+ban	[curated]	There is a ban on smoking here.	这里禁止吸烟。
+steal	[curated]	Someone stole my bike.	有人偷了我的自行车。
+protest	[curated]	A protest was held downtown.	市中心举行了一场抗议活动。
+index	[curated]	Look it up in the index.	在索引里查一下。
+sad	[curated]	Why do you look sad?	你为什么看起来很伤心？
+frequently	[curated]	This word is frequently used.	这个词经常被使用。
+circle	[curated]	Draw a circle on the paper.	在纸上画一个圆。
+helpful	[curated]	The staff were very helpful.	工作人员非常乐于帮忙。
+command	[curated]	The officer gave a command.	军官下达了一道命令。
+attractive	[curated]	The offer is very attractive.	这个条件很有吸引力。
+sick	[curated]	She stayed home because she was sick.	她因为生病待在家里。
+impression	[curated]	He made a good impression.	他给人留下了好印象。
+unable	[curated]	I was unable to attend the meeting.	我无法参加会议。
+joke	[curated]	That was a joke, not a threat.	那是个玩笑，不是威胁。
+sky	[curated]	The sky turned red at dusk.	黄昏时天空变成了红色。
+column	[curated]	She writes a weekly column.	她每周写一篇专栏。
+impose	[curated]	The government imposed a new tax.	政府开征了一项新税。
+criminal	[curated]	The criminal was caught within hours.	罪犯几小时内就被抓获了。
+besides	[curated]	Besides that, nothing changed.	除此之外，什么也没变。
+properly	[curated]	The door wasn't shut properly.	门没有关好。
+ancient	[curated]	They visited an ancient temple.	他们参观了一座古庙。
+coast	[curated]	We drove along the coast.	我们沿着海岸开车。
+ill	[curated]	He was ill for a week.	他病了一周。
+kick	[curated]	He kicked the ball into the net.	他把球踢进了球网。
+closely	[curated]	Watch the screen closely.	仔细看着屏幕。
+multiple	[curated]	There are multiple ways to do it.	有多种方法可以做到。
+yield	[curated]	The land yields good crops.	这片地产出很好的庄稼。
+via	[curated]	We flew to Rome via Paris.	我们经巴黎飞往罗马。
+legislation	[curated]	New legislation takes effect in June.	新法规六月生效。
+county	[curated]	The county has three hospitals.	这个县有三家医院。
+unlike	[curated]	Unlike me, he loves spicy food.	不像我，他喜欢吃辣。
+mobile	[curated]	Mobile phones are not allowed here.	这里不允许使用手机。
+assistant	[curated]	My assistant will call you back.	我的助手会给你回电话。
+implement	[curated]	They implemented the plan in April.	他们在四月实施了这个计划。
+chart	[curated]	The chart shows the yearly change.	这张图表显示了每年的变化。
+attach	[curated]	Attach a photo to the form.	在表格上附一张照片。
+hell	[curated]	The trip was hell.	那趟旅行简直糟透了。
+everywhere	[curated]	I looked everywhere for my keys.	我到处找我的钥匙。
+advise	[curated]	Doctors advise eating less sugar.	医生建议少吃糖。
+household	[curated]	One in three households owns a car.	三分之一的家庭拥有汽车。
+acknowledge	[curated]	He acknowledged his mistake.	他承认了自己的错误。
+reward	[curated]	She got a reward for returning the wallet.	她因归还钱包而得到了酬谢。
+east	[curated]	The sun rises in the east.	太阳从东方升起。
+hat	[curated]	He took off his hat.	他摘下了帽子。
+academic	[curated]	The academic year starts in September.	学年从九月开始。
+voter	[curated]	Voters go to the polls on Sunday.	选民在周日投票。
+meanwhile	[curated]	Meanwhile, the rain kept falling.	与此同时，雨一直在下。
+furthermore	[curated]	Furthermore, it costs too much.	此外，它的价格也太高了。
+accuse	[curated]	They accused him of lying.	他们指责他撒谎。
+scientific	[curated]	We need more scientific evidence.	我们需要更多科学证据。
+wage	[curated]	The workers want higher wages.	工人们要求更高的工资。
+absence	[curated]	Her absence was noticed at once.	她的缺席立刻就被注意到了。
+construct	[curated]	They constructed a new bridge.	他们修建了一座新桥。
+remark	[curated]	He made a rude remark.	他说了一句无礼的话。
+professor	[curated]	The professor gave a great lecture.	教授做了一场精彩的讲座。
+rare	[curated]	Snow is rare in this city.	这座城市很少下雪。
+intention	[curated]	I have no intention of leaving.	我无意离开。
+dozen	[curated]	He bought a dozen eggs.	他买了一打鸡蛋。
+settlement	[curated]	They reached a settlement out of court.	他们达成了庭外和解。
+gap	[curated]	There is a gap between the two walls.	两堵墙之间有一道缝隙。
+widely	[curated]	The method is widely used.	这种方法被广泛使用。
+minimum	[curated]	The minimum age is eighteen.	最低年龄是十八岁。
+estate	[curated]	He works in real estate.	他从事房地产工作。
+equally	[curated]	The money was divided equally.	这笔钱被平分了。
+expose	[curated]	The report exposed the problem.	这份报告揭露了那个问题。
+alive	[curated]	The plant is still alive.	这株植物还活着。
+shut	[curated]	Please shut the window.	请把窗户关上。
+victory	[curated]	It was a narrow victory.	那是一场险胜。
+resolve	[curated]	They resolved the issue quickly.	他们迅速解决了这个问题。
+critic	[curated]	The critic praised the film.	那位评论家称赞了这部电影。
+variable	[curated]	Several variables affect the result.	若干个变量会影响结果。
+enormous	[curated]	The loss was enormous.	损失十分巨大。
+sweet	[curated]	This tea is too sweet.	这茶太甜了。
+permanent	[curated]	She found a permanent job.	她找到了一份长期的工作。
+emotion	[curated]	He spoke with strong emotion.	他说话时情绪激动。
+pursue	[curated]	He decided to pursue his dream.	他决定去追求自己的梦想。
+tall	[curated]	He is the tallest in his class.	他是班里最高的。
+urge	[curated]	Doctors urge people to exercise.	医生敦促人们锻炼身体。
+enemy	[curated]	They became friends, not enemies.	他们成了朋友，而不是敌人。
+appoint	[curated]	They appointed a new manager.	他们任命了一位新经理。
+milk	[curated]	Add a little milk to the coffee.	往咖啡里加一点牛奶。
+talent	[curated]	She has a talent for music.	她有音乐天赋。
+smell	[curated]	The smell of bread filled the room.	房间里弥漫着面包的香味。
+prior	[curated]	He had no prior experience.	他此前没有相关经验。
+priority	[curated]	Safety is our first priority.	安全是我们的首要任务。
+online	[curated]	You can apply online.	你可以在线申请。
+phrase	[curated]	That phrase means good luck.	那个短语的意思是祝好运。
+pilot	[curated]	The pilot announced a short delay.	飞行员通知会短暂延误。
+stable	[curated]	His condition is now stable.	他的情况现在稳定了。
+merely	[curated]	It is merely a suggestion.	这只是一个建议。
+resolution	[curated]	They passed a resolution yesterday.	他们昨天通过了一项决议。
+communicate	[curated]	We communicate by email every week.	我们每周通过电子邮件交流。
+vast	[curated]	A vast crowd filled the square.	广场上挤满了人。
+exhibition	[curated]	The exhibition runs until March.	展览将持续到三月。
+producer	[curated]	The producer of the film spoke briefly.	这部电影的制片人简短地讲了话。
+regional	[curated]	The regional office is in Leeds.	地区办事处设在利兹。
+immediate	[curated]	There is no immediate danger.	目前没有直接危险。
+incident	[curated]	The incident was reported to police.	这一事件已向警方报案。
+childhood	[curated]	They were friends since childhood.	他们从小就是朋友。
+draft	[curated]	Here is the first draft of the report.	这是报告的初稿。
+slip	[curated]	He slipped on the wet floor.	他在湿地板上滑倒了。
+accompany	[curated]	She accompanied me to the station.	她陪我去了车站。
+politician	[curated]	The politician refused to answer.	那位政治家拒绝回答。
+angry	[curated]	Don't be angry with him.	别生他的气。
+knock	[curated]	Someone knocked at the door.	有人敲门。
+seed	[curated]	Plant the seeds in spring.	春天播种。
+salary	[curated]	The salary is paid monthly.	工资按月支付。
+illustrate	[curated]	Let me illustrate with an example.	让我举例说明。
+imply	[curated]	What are you implying?	你在暗示什么？
+breakfast	[curated]	I had breakfast at seven.	我七点吃了早餐。
+temporary	[curated]	This is only a temporary fix.	这只是暂时的解决办法。
+liberal	[curated]	He holds fairly liberal views.	他持有相当开明的观点。
+lake	[curated]	They swam in the lake.	他们在湖里游泳。
+qualify	[curated]	She qualified as a doctor in 2010.	她在二〇一〇年取得了医生资格。
+competitive	[curated]	The job market is very competitive.	就业市场竞争激烈。
+truly	[curated]	I'm truly sorry for the delay.	对这次延误我真的很抱歉。
+hi	[curated]	Hi, how are you doing?	嗨，你好吗？
+yellow	[curated]	She wore a yellow dress.	她穿了一条黄裙子。
+habit	[curated]	He has a habit of reading in bed.	他有在床上看书的习惯。
+disk	[curated]	Insert the disk into the drive.	把磁盘插入驱动器。
+core	[curated]	The core issue is trust.	核心问题是信任。
+emotional	[curated]	It was an emotional moment.	那是一个令人动情的时刻。
+aircraft	[curated]	The aircraft landed safely.	飞机安全着陆。
+self	[curated]	He is not his usual self today.	他今天不太像平时的自己。
+metal	[curated]	The box is made of metal.	这个盒子是金属做的。
+existence	[curated]	Few people knew of its existence.	很少有人知道它的存在。
+bone	[curated]	The dog buried a bone.	狗把一根骨头埋了起来。
+panel	[curated]	A panel of experts reviewed it.	一个专家小组对其进行了评审。
+prime	[curated]	The building is in a prime location.	这栋楼位置极佳。
+appointment	[curated]	I have a doctor's appointment at ten.	我十点预约了医生。
+emphasize	[curated]	He emphasized the need for speed.	他强调了速度的必要性。
+maximum	[curated]	The maximum speed is 100 km/h.	最高时速是一百公里。
+effectively	[curated]	The system works effectively.	这个系统运行有效。
+elsewhere	[curated]	Let's eat elsewhere tonight.	我们今晚换个地方吃饭吧。
+bother	[curated]	Sorry to bother you at home.	很抱歉在家打扰你。
+initiative	[curated]	The peace initiative failed.	这项和平倡议失败了。
+sharp	[curated]	Be careful with that sharp knife.	小心那把锋利的刀。
+diet	[curated]	A balanced diet keeps you healthy.	均衡的饮食让你保持健康。
+motion	[curated]	The machine is in motion.	机器正在运转。
+gray	[curated]	His hair is turning gray.	他的头发渐渐花白了。
+plastic	[curated]	We should use less plastic.	我们应该少用塑料。
+complicate	[curated]	Don't complicate things.	别把事情复杂化。
+discipline	[curated]	The teacher keeps good discipline.	这位老师维持着良好的纪律。
+disappoint	[curated]	I hate to disappoint you.	我不想让你失望。
+boss	[curated]	My boss is on holiday this week.	我的老板这周休假。
+assumption	[curated]	That's a dangerous assumption.	那是个危险的假设。
+freeze	[curated]	Water freezes at zero degrees.	水在零度结冰。
+extreme	[curated]	Extreme weather is more common now.	极端天气如今更为常见。
+passage	[curated]	Read the passage twice.	把这段文章读两遍。
+reputation	[curated]	The school has a good reputation.	这所学校声誉良好。
+forth	[curated]	They walked back and forth.	他们来回踱步。
+negotiation	[curated]	The negotiations lasted three days.	谈判持续了三天。
+mechanism	[curated]	The mechanism is broken.	这个机械装置坏了。
+coat	[curated]	Hang up your coat.	把你的外套挂起来。
+democracy	[curated]	The country returned to democracy.	这个国家重回民主。
+pocket	[curated]	He put the key in his pocket.	他把钥匙放进了口袋。
+lucky	[curated]	You are lucky to be here.	你能在这里很幸运。
+crash	[curated]	The car crashed into a tree.	汽车撞上了一棵树。
+observation	[curated]	The study is based on observation.	这项研究基于观察。
+meat	[curated]	He does not eat meat.	他不吃肉。
+concentration	[curated]	This work needs total concentration.	这项工作需要全神贯注。
+implication	[curated]	The implications are serious.	其影响十分严重。
+deserve	[curated]	You deserve a rest.	你应该休息一下。
+unusual	[curated]	That's an unusual name.	那是个不常见的名字。
+defend	[curated]	He defended his decision.	他为自己的决定辩护。
+classic	[curated]	It's a classic example.	这是一个典型的例子。
+king	[curated]	The king ruled for forty years.	这位国王统治了四十年。
+interaction	[curated]	Interaction between the two groups matters.	两组之间的互动很重要。
+repair	[curated]	The road needs repair.	这条路需要维修。
+collapse	[curated]	The bridge collapsed in 1995.	这座桥在一九九五年倒塌了。
+borrow	[curated]	Can I borrow your pen?	我能借你的笔用一下吗？
+fundamental	[curated]	This is a fundamental difference.	这是根本性的差别。
+dish	[curated]	This dish is my favorite.	这道菜是我的最爱。
+abroad	[curated]	She studied abroad for a year.	她在国外学习了一年。
+soul	[curated]	She poured her soul into the work.	她把全部心血都倾注在这项工作上。
+capable	[curated]	She is capable of great things.	她能成就大事。
+defeat	[curated]	They defeated the champions.	他们击败了卫冕冠军。
+presidential	[curated]	The presidential election is in June.	总统选举在六月举行。
+perfectly	[curated]	You understood it perfectly.	你理解得非常准确。
+enhance	[curated]	Music enhances the experience.	音乐能提升这种体验。
+proud	[curated]	I'm proud of you.	我为你感到骄傲。
+emergency	[curated]	In an emergency, call for help.	遇到紧急情况时呼救。
+distinguish	[curated]	Children must learn to distinguish fact from opinion.	孩子必须学会区分事实和观点。
+substantial	[curated]	The report shows substantial progress.	报告显示取得了实质性进展。
+nearby	[curated]	We stayed at a nearby hotel.	我们住在附近的一家酒店。
+manufacturer	[curated]	The manufacturer recalled the product.	制造商召回了该产品。
+slide	[curated]	The kids slid down the hill.	孩子们从山上滑下来。
+valuable	[curated]	Her advice was very valuable.	她的建议非常有价值。
+personally	[curated]	I thanked him personally.	我亲自向他道了谢。
+breast	[curated]	The bird has a white breast.	这只鸟的胸脯是白色的。
+cope	[curated]	He copes well under pressure.	他在压力下应对自如。
+approximately	[curated]	The trip takes approximately two hours.	这段旅程大约需要两小时。
+accommodation	[curated]	Accommodation is included in the price.	住宿费含在价格里。
+highlight	[curated]	The highlight was the final match.	最精彩的环节是决赛。
+reporter	[curated]	A reporter asked the first question.	一名记者问了第一个问题。
+climate	[curated]	The climate here is mild.	这里的气候温和。
+shirt	[curated]	He bought two new shirts.	他买了两件新衬衫。
+exception	[curated]	There are always exceptions.	总会有例外。
+corporation	[curated]	The corporation employs 5,000 people.	这家公司雇用了五千人。
+chip	[curated]	The chip inside the phone failed.	手机里的芯片坏了。
+winner	[curated]	The winner will get a prize.	获胜者将获得奖品。
+encounter	[curated]	We encountered a problem on day one.	我们第一天就遇到了问题。
+brown	[curated]	She has brown eyes.	她有一双褐色的眼睛。
+breathe	[curated]	Breathe slowly and deeply.	缓慢而深沉地呼吸。
+excuse	[curated]	That's a poor excuse.	那是个蹩脚的借口。
+partly	[curated]	It was partly my fault.	这在一定程度上是我的错。
+tennis	[curated]	We play tennis on Saturdays.	我们每周六打网球。
+urban	[curated]	Urban life can be stressful.	城市生活可能压力很大。
+confuse	[curated]	Don't confuse the two terms.	别把这两个术语弄混了。
+southern	[curated]	They live in southern Spain.	他们住在西班牙南部。
+output	[curated]	Output rose by ten percent.	产量增长了百分之十。
+beauty	[curated]	We admired the beauty of the lake.	我们赞叹那个湖的美景。
+massive	[curated]	A massive tree fell across the road.	一棵大树倒下横在路上。
+install	[curated]	Can you install the software today?	你今天能装好这个软件吗？
+calculate	[curated]	Calculate the total cost first.	先算出总成本。
+mouse	[curated]	The mouse ran under the table.	老鼠跑到了桌子底下。
+mathematics	[curated]	She teaches mathematics at a high school.	她在一所中学教数学。
+upper	[curated]	He lives on the upper floor.	他住在上面那层。
+creation	[curated]	The creation of the park took years.	这座公园的建成花了好几年。
+occupy	[curated]	The desk occupies too much space.	这张桌子占了太多空间。
+outline	[curated]	Here is a brief outline of the plan.	这是计划简要大纲。
+sufficient	[curated]	We have sufficient evidence.	我们有充分的证据。
+update	[curated]	I'll send you an update on Friday.	我周五给你发一份最新进展。
+luck	[curated]	Good luck with the interview!	祝你面试好运！
+preserve	[curated]	We must preserve these old buildings.	我们必须保护这些老建筑。
+split	[curated]	They split the bill in half.	他们把账单平摊了。
+swing	[curated]	The door swung open.	门一下子敞开了。
+illness	[curated]	He missed a week because of illness.	他因病缺勤一周。
+journalist	[curated]	A journalist asked about the cost.	一名记者问起了费用问题。
+sudden	[curated]	There was a sudden change in plan.	计划突然变了。
+advertisement	[curated]	I saw an advertisement for the job.	我看到了这则招聘广告。
+consistent	[curated]	Her answers were not consistent.	她的回答前后不一致。
+originally	[curated]	The house was originally a school.	这栋房子原本是一所学校。
+aside	[curated]	She stepped aside to let us pass.	她闪到一边让我们过去。
+comfort	[curated]	The hotel offers comfort and quiet.	这家酒店舒适又安静。
+secondly	[curated]	Secondly, it costs too much.	第二，它太贵了。
+severe	[curated]	The city faced severe weather.	这座城市遭遇了恶劣天气。
+gene	[curated]	The gene is passed from parent to child.	这种基因由父母传给孩子。
+prospect	[curated]	The prospect of travel excited her.	旅行的前景让她兴奋。
+snow	[curated]	Snow fell all night.	雪下了一整夜。
+plot	[curated]	The plot of the novel is simple.	这部小说的情节很简单。
+neck	[curated]	He wore a scarf around his neck.	他脖子上围着一条围巾。
+criteria	[curated]	The criteria are listed on page two.	这些标准列在第二页。
+primarily	[curated]	The tool is used primarily in schools.	这个工具主要在学校里使用。
+integrate	[curated]	The school integrates art into every subject.	这所学校把艺术融入每门课程。
+criticism	[curated]	His criticism was fair.	他的批评很中肯。
+convention	[curated]	The annual convention is in May.	年度大会在五月举行。
+bet	[curated]	I bet you ten dollars.	我跟你赌十美元。
+retain	[curated]	The soil retains water well.	这种土壤保水性很好。
+sequence	[curated]	Do the exercises in the right sequence.	按正确顺序做这些练习。
+plain	[curated]	The train crossed the plain.	火车穿过了平原。
+volunteer	[curated]	We need two more volunteers.	我们还需要两名志愿者。
+rural	[curated]	Rural life is quieter than city life.	乡村生活比城市生活安静。
+calm	[curated]	Keep calm and wait here.	保持冷静，在这里等着。
+abandon	[curated]	They abandoned the plan.	他们放弃了那个计划。
+examination	[curated]	The final examination is in June.	期末考试在六月举行。
+silence	[curated]	There was a long silence.	出现了长时间的沉默。
+rapidly	[curated]	The population is growing rapidly.	人口在迅速增长。
+efficient	[curated]	This machine is very efficient.	这台机器效率很高。
+revolution	[curated]	The revolution changed everything.	这场革命改变了一切。
+delight	[curated]	She read the letter with delight.	她高兴地读了那封信。
+spell	[curated]	How do you spell your name?	你的名字怎么拼？
+premise	[curated]	The argument rests on a false premise.	这个论点建立在一个错误的前提上。
+lean	[curated]	Don't lean on the door.	别靠在门上。
+dramatic	[curated]	There was a dramatic drop in sales.	销售额急剧下降。
+differ	[curated]	The two reports differ on cost.	两份报告在成本上说法不一。
+grateful	[curated]	I'm grateful for your help.	我很感谢你的帮助。
+protein	[curated]	Beans are rich in protein.	豆类富含蛋白质。
+bike	[curated]	He rides his bike to work.	他骑自行车上班。
+distribute	[curated]	Volunteers distributed food and water.	志愿者分发了食物和水。
+intellectual	[curated]	It was an intellectual challenge.	这是一次智力上的挑战。
+derive	[curated]	The word derives from Latin.	这个词源自拉丁语。
+crucial	[curated]	The next step is crucial.	下一步至关重要。
+unemployment	[curated]	Unemployment rose last year.	去年失业率上升了。
+wheel	[curated]	The front wheel is loose.	前轮松了。
+crop	[curated]	The crops failed after the drought.	旱灾之后庄稼歉收。
+minority	[curated]	Only a minority voted against it.	只有少数人投了反对票。
+origin	[curated]	The word has an uncertain origin.	这个词的起源不明。
+interpretation	[curated]	That is one possible interpretation.	那是一种可能的解释。
+gentleman	[curated]	An old gentleman opened the door.	一位年长的绅士开了门。
+drama	[curated]	We study drama on Thursdays.	我们每周四上戏剧课。
+landscape	[curated]	The landscape changed as we climbed.	我们往上爬时，景色也随之变化。
+educate	[curated]	Schools educate children for life.	学校为孩子们的一生奠定基础。
+toy	[curated]	The child left his toys on the floor.	孩子把玩具丢在地板上。
+fault	[curated]	It's not your fault.	这不是你的错。
+exhibit	[curated]	The museum exhibits ancient coins.	这家博物馆展出古钱币。
+minor	[curated]	There are a few minor problems.	有几个小问题。
+hunt	[curated]	Cats hunt at night.	猫在夜间捕猎。
+storm	[curated]	The storm knocked out the power.	暴风雨造成了停电。
+thick	[curated]	The walls are very thick.	这些墙很厚。
+achievement	[curated]	It was a great achievement.	这是一项了不起的成就。
+negotiate	[curated]	They negotiated a better price.	他们谈下了一个更好的价格。
+dominate	[curated]	Two firms dominate the market.	两家公司主导着市场。
+supplier	[curated]	We changed our supplier last year.	我们去年更换了供应商。
+prize	[curated]	She won first prize.	她得了一等奖。
+typically	[curated]	The trip typically takes two hours.	这段路通常要花两小时。
+peer	[curated]	Children learn from their peers.	孩子们向同龄人学习。
+pension	[curated]	He lives on a small pension.	他靠微薄的养老金生活。
+wing	[curated]	The bird broke its wing.	那只鸟折断了翅膀。
+acquisition	[curated]	Language acquisition takes years.	语言习得需要多年时间。
+laughter	[curated]	Laughter came from the next room.	笑声从隔壁房间传来。
+deeply	[curated]	The story moved me deeply.	这个故事深深打动了我。
+recognition	[curated]	Her work gained wide recognition.	她的作品获得了广泛认可。
+electricity	[curated]	The village had no electricity.	这个村子没有电。
+roof	[curated]	The roof leaks when it rains.	下雨时屋顶会漏水。
+retirement	[curated]	He travels a lot in retirement.	他退休后经常旅行。
+respectively	[curated]	They finished first and second respectively.	他们分别获得第一名和第二名。
+variation	[curated]	There is little variation between them.	它们之间几乎没有差别。
+ultimately	[curated]	Ultimately, the decision is yours.	最终决定权在你。
+proof	[curated]	Do you have any proof?	你有证据吗？
+soil	[curated]	The soil here is very rich.	这里的土壤非常肥沃。
+smart	[curated]	She is the smartest in the group.	她是组里最聪明的。
+layer	[curated]	Add a thin layer of cheese.	加一层薄薄的奶酪。
+upset	[curated]	He was upset about the result.	他对结果感到失望。
+tooth	[curated]	Brush your teeth twice a day.	每天刷两次牙。
+representation	[curated]	The map is a representation of the area.	这张地图是该地区的示意图。
+preparation	[curated]	Preparation begins a week early.	准备工作提前一周开始。
+dispute	[curated]	The dispute lasted for years.	这场争论持续了多年。
+agenda	[curated]	What's on the agenda today?	今天的议程是什么？
+emphasis	[curated]	They put great emphasis on safety.	他们非常重视安全。
+edition	[curated]	The second edition comes out in May.	第二版将在五月出版。
+silver	[curated]	The cup is made of silver.	这只杯子是银制的。
+entertainment	[curated]	The town offers little entertainment.	这个镇上没什么娱乐活动。
+honest	[curated]	Be honest with me.	对我说实话吧。
+undertake	[curated]	They undertook a large study.	他们开展了一项大型研究。
+wire	[curated]	A wire runs along the wall.	一根电线沿着墙延伸。
+unlikely	[curated]	Rain is unlikely today.	今天不太可能下雨。
+gay	[curated]	The film focuses on gay rights.	这部电影关注的是同性恋权益。
+publication	[curated]	The publication appears monthly.	这份刊物每月出版。
+slight	[curated]	There was a slight change in price.	价格有轻微变动。
+unknown	[curated]	The cause is still unknown.	原因仍然不明。
+framework	[curated]	We work within a clear framework.	我们在一个明确的框架内工作。
+zone	[curated]	This is a no-parking zone.	这里是禁止停车区。
+restrict	[curated]	The rules restrict what we can do.	这些规定限制了我们的行动。
+trace	[curated]	There was no trace of the letter.	那封信一点踪迹也没有。
+inch	[curated]	Add two inches to the width.	在宽度上加两英寸。
+equivalent	[curated]	This is the equivalent of a month's pay.	这相当于一个月的工资。
+solid	[curated]	Ice is water in solid form.	冰是水的固体形态。
+enterprise	[curated]	Small enterprises need support.	小企业需要支持。
+elderly	[curated]	The bus is free for elderly people.	老年人乘坐这路公交免费。
+owe	[curated]	I owe you ten dollars.	我欠你十美元。
+governor	[curated]	The governor spoke on television.	州长在电视上发表了讲话。
+uniform	[curated]	Students wear a uniform here.	这里的学生穿校服。
+port	[curated]	The ship left port at dawn.	船在黎明时离港。
+pitch	[curated]	The team ran onto the pitch.	球队跑上了球场。
+arrival	[curated]	We waited for her arrival.	我们等候她的到来。
+contemporary	[curated]	She studies contemporary art.	她研究当代艺术。
+gate	[curated]	Please close the gate.	请把大门关上。
+ease	[curated]	He passed the test with ease.	他轻松地通过了考试。
+beer	[curated]	Would you like a beer?	你想来杯啤酒吗？
+specialist	[curated]	See a specialist about your back.	你的背的问题去看专科医生吧。
+assure	[curated]	I assure you it is safe.	我向你保证这很安全。
+profile	[curated]	Please update your online profile.	请更新你的在线个人资料。
+mood	[curated]	He is in a good mood today.	他今天心情很好。
+episode	[curated]	Watch the next episode tonight.	今晚看下一集吧。
+crack	[curated]	There is a crack in the wall.	墙上有一道裂缝。
+numerous	[curated]	Numerous studies show the same thing.	大量研究显示了同样的结果。
+submit	[curated]	Submit your work by Friday.	请在周五前提交作业。
+symptom	[curated]	Fever is a common symptom.	发烧是常见症状。
+virtually	[curated]	The town was virtually empty.	这个镇上几乎空无一人。
+era	[curated]	We live in a digital era.	我们生活在一个数字时代。
+coverage	[curated]	The phone has poor coverage here.	这里的手机信号覆盖很差。
+tension	[curated]	Tension grew between the two sides.	双方之间的紧张气氛加剧了。
+cable	[curated]	A cable connects the two machines.	一根电缆连接着两台机器。
+sensitive	[curated]	Her skin is very sensitive.	她的皮肤很敏感。
+nervous	[curated]	I was nervous before the talk.	演讲前我很紧张。
+input	[curated]	We need your input on this.	这件事我们需要你的意见。
+isolate	[curated]	Doctors isolated the patients.	医生把病人们隔离起来。
+prisoner	[curated]	The prisoner escaped at dawn.	那名囚犯在黎明时逃跑了。
+eliminate	[curated]	We must eliminate these errors.	我们必须消除这些错误。
+tight	[curated]	These shoes are too tight.	这双鞋太紧了。
+wet	[curated]	My shoes got wet in the rain.	我的鞋在雨中弄湿了。
+secondary	[curated]	That is a secondary concern.	那是次要的问题。
+welfare	[curated]	The state provides welfare to the poor.	国家为穷人提供福利。
+recruit	[curated]	The army recruits every spring.	军队每年春天征召新兵。
+exclude	[curated]	The price excludes breakfast.	这个价格不含早餐。
+string	[curated]	He tied it with a piece of string.	他用一根细绳把它系住了。
+cloud	[curated]	Dark clouds covered the sky.	乌云遮住了天空。
+persuade	[curated]	She persuaded him to wait.	她说服他再等等。
+inspire	[curated]	Her story inspired many people.	她的故事激励了很多人。
+grand	[curated]	The hotel has a grand entrance.	这家酒店的大门气势恢宏。
+hence	[curated]	The road was closed; hence the delay.	道路被封，因此延误了。
+crew	[curated]	The crew worked through the night.	全体工作人员通宵工作。
+phenomenon	[curated]	It is a natural phenomenon.	这是一种自然现象。
+pupil	[curated]	Each pupil has a tablet.	每个学生都有一台平板电脑。
+FALSE	[curated]	The report was false.	这份报告是虚假的。
+assist	[curated]	She assisted me with the forms.	她帮我填了那些表格。
+restore	[curated]	They restored the old church.	他们修复了那座旧教堂。
+formula	[curated]	The formula is on the board.	公式在黑板上。
+alter	[curated]	We had to alter our plans.	我们不得不改变计划。
+perceive	[curated]	People perceive risk differently.	人们对风险的感知各不相同。
+routine	[curated]	Exercise is part of my daily routine.	锻炼是我日常作息的一部分。
+sink	[curated]	The dishes are in the sink.	碗碟都在水槽里。
+stare	[curated]	Don't stare at people.	别盯着人看。
+anymore	[curated]	He doesn't live here anymore.	他不再住这儿了。
+hero	[curated]	The hero of the story is a child.	这个故事的主人公是个孩子。
+supporter	[curated]	Hundreds of supporters came.	数百名支持者到场。
+convert	[curated]	They converted the garage into an office.	他们把车库改成了办公室。
+steady	[curated]	He walks at a steady pace.	他以稳定的步伐行走。
+meter	[curated]	The pool is 25 meters long.	这个泳池长二十五米。
+truck	[curated]	A truck blocked the road.	一辆卡车堵住了路。
+nose	[curated]	He broke his nose playing football.	他踢足球时撞破了鼻子。
+beside	[curated]	Come and sit beside me.	过来坐到我旁边。
+sail	[curated]	They sailed across the lake.	他们驾船渡过了湖。
+disaster	[curated]	The flood was a disaster.	那场洪水是一场灾难。
+pace	[curated]	He walked at a slow pace.	他走得很慢。
+heavily	[curated]	It rained heavily all night.	大雨下了一整夜。
+devote	[curated]	She devotes two hours to reading.	她每天花两小时阅读。
+terrorist	[curated]	The attack was carried out by terrorists.	这起袭击是恐怖分子实施的。
+justify	[curated]	How do you justify the cost?	你怎么解释这笔开支的正当性？
+vital	[curated]	It is vital to act now.	现在就行动至关重要。
+fascinate	[curated]	Dinosaurs fascinate young children.	恐龙让幼儿非常着迷。
+external	[curated]	They hired an external adviser.	他们聘请了一位外部顾问。
+spare	[curated]	Have you got a spare pen?	你有一支多余的笔吗？
+whenever	[curated]	Call me whenever you need help.	你需要帮助时随时给我打电话。
+depression	[curated]	He suffered from depression for years.	他患有抑郁症多年。
+guilty	[curated]	The jury found him guilty.	陪审团判定他有罪。
+underlie	[curated]	Two principles underlie the method.	这个方法基于两项原则。
+mom	[curated]	My mom is a nurse.	我妈妈是名护士。
+distinction	[curated]	There is a clear distinction here.	这里有一个明显的区别。
+satisfaction	[curated]	The work gave her great satisfaction.	这份工作给了她极大的满足感。
+incorporate	[curated]	The plan incorporates the new rules.	该计划纳入了新规定。
+pour	[curated]	She poured tea into two cups.	她把茶倒进两个杯子里。
+sweep	[curated]	He sweeps the floor every morning.	他每天早上扫地。
+obligation	[curated]	We have an obligation to help.	我们有义务提供帮助。
+sir	[curated]	Excuse me, sir, is this seat free?	打扰一下，先生，这个座位有人吗？
+evaluate	[curated]	We evaluate each project in May.	我们每年五月评估各个项目。
+anger	[curated]	He spoke with anger in his voice.	他说话时带着怒气。
+pub	[curated]	We met at the pub after work.	下班后我们在酒馆见面。
+perception	[curated]	Public perception has changed.	公众的看法已经改变了。
+naturally	[curated]	She speaks naturally and clearly.	她说得自然又清楚。
+currency	[curated]	You can change currency at the airport.	你可以在机场兑换货币。
+database	[curated]	The database holds 10,000 records.	这个数据库存有一万条记录。
+initially	[curated]	Initially, only five people came.	起初只来了五个人。
+territory	[curated]	The animals mark their territory.	这些动物会标记自己的领地。
+stream	[curated]	A small stream runs behind the house.	房子后面有一条小溪。
+rarely	[curated]	He rarely eats meat.	他很少吃肉。
+height	[curated]	The wall is two meters in height.	这堵墙高两米。
+apparent	[curated]	The reason soon became apparent.	原因很快就明朗了。
+western	[curated]	They live in western Canada.	他们住在加拿大西部。
+expansion	[curated]	The expansion created 200 jobs.	这次扩张创造了两百个就业岗位。
+constantly	[curated]	She is constantly on the phone.	她总是不停地打电话。
+muscle	[curated]	He pulled a muscle in his leg.	他腿部拉伤了一块肌肉。
+scare	[curated]	Loud noises scare the dog.	巨大的声响会让狗受惊。
+badly	[curated]	He was badly hurt in the crash.	他在车祸中受了重伤。
+everyday	[curated]	This is part of everyday life.	这是日常生活的一部分。
+boundary	[curated]	The river forms the boundary.	这条河构成了分界线。
+ratio	[curated]	The ratio is three to one.	比例是三比一。
+essay	[curated]	Write a short essay on this topic.	就这个题目写一篇短文。
+scream	[curated]	She screamed when she saw it.	她看到它时尖叫起来。
+withdraw	[curated]	He withdrew money from the bank.	他从银行取了钱。
+pollution	[curated]	Air pollution is a serious problem.	空气污染是个严重问题。
+disorder	[curated]	The room was in complete disorder.	房间里一片凌乱。
+furniture	[curated]	The furniture is old but clean.	这些家具很旧但很干净。
+symbol	[curated]	The heart is a symbol of love.	心形是爱的象征。
+apartment	[curated]	They rent a small apartment.	他们租了一套小公寓。
+demonstration	[curated]	He gave a demonstration of the tool.	他演示了这个工具的用法。
+analyst	[curated]	The analyst expects prices to fall.	分析师预计价格会下跌。
+platform	[curated]	The train leaves from platform four.	列车从四号站台发车。
+steel	[curated]	The bridge is made of steel.	这座桥是钢结构的。
+cake	[curated]	She made a chocolate cake.	她做了一个巧克力蛋糕。
+transform	[curated]	The internet transformed the industry.	互联网改变了这个行业。
+wound	[curated]	The wound took a month to heal.	这处伤口一个月才愈合。
+restriction	[curated]	There are no restrictions on age.	没有年龄限制。
+foundation	[curated]	Reading is the foundation of learning.	阅读是学习的基础。
+designer	[curated]	The designer showed us three plans.	设计师给我们看了三套方案。
+strain	[curated]	The rope broke under the strain.	绳子在拉力下断了。
+innovation	[curated]	The award rewards innovation.	这个奖项奖励创新。
+singer	[curated]	The singer thanked the crowd.	那位歌手向观众致谢。
+trail	[curated]	We followed the trail up the hill.	我们沿着小路上了山。
+trap	[curated]	The mouse was caught in a trap.	老鼠被夹子捉住了。
+loose	[curated]	The screw is loose.	这颗螺丝松了。
+extension	[curated]	We built an extension last year.	我们去年加盖了一间。
+wealth	[curated]	Wealth does not bring happiness.	财富并不带来幸福。
+gradually	[curated]	The pain gradually went away.	疼痛逐渐消失了。
+tank	[curated]	Fill the tank before we leave.	出发前把油箱加满。
+evil	[curated]	The story is about good and evil.	这个故事讲的是善与恶。
+remarkable	[curated]	She made remarkable progress.	她取得了惊人的进步。
+tune	[curated]	He hummed a familiar tune.	他哼着一支熟悉的曲子。
+grass	[curated]	The grass needs cutting.	草坪该修剪了。
+invitation	[curated]	Thanks for the invitation.	谢谢你的邀请。
+transition	[curated]	The transition took two years.	这一转变历时两年。
+frighten	[curated]	Don't frighten the children.	别吓着孩子们。
+bid	[curated]	Their bid was higher than ours.	他们的出价比我们高。
+breed	[curated]	This breed of dog runs fast.	这个品种的狗跑得快。
+extraordinary	[curated]	He has an extraordinary memory.	他有着非凡的记忆力。
+brilliant	[curated]	That was a brilliant idea.	那是个绝妙的主意。
+adviser	[curated]	Ask your adviser before you choose.	选择之前先问问你的导师。
+stem	[curated]	Cut the stem at an angle.	把茎斜着剪断。
+reverse	[curated]	The car reversed into the wall.	汽车倒着撞上了墙。
+mode	[curated]	Switch the phone to silent mode.	把手机调成静音模式。
+mirror	[curated]	She looked in the mirror.	她照了照镜子。
+awful	[curated]	The food was awful.	那食物糟糕透了。
+pose	[curated]	The loss poses a real problem.	这次损失构成了实际问题。
+adjust	[curated]	Adjust the seat before you drive.	开车前先调好座椅。
+creative	[curated]	She is very creative with colors.	她在色彩运用上很有创意。
+nowadays	[curated]	Nowadays people read less.	如今人们阅读更少了。
+poem	[curated]	He wrote a poem for her.	他为她写了一首诗。
+agricultural	[curated]	The region is mainly agricultural.	这个地区以农业为主。
+competitor	[curated]	Our main competitor cut its prices.	我们的主要竞争对手降价了。
+alcohol	[curated]	He avoids alcohol at lunch.	他午餐时不喝酒。
+vegetable	[curated]	Eat more vegetables every day.	每天多吃些蔬菜。
+van	[curated]	The van is parked outside.	那辆货车停在外面。
+confident	[curated]	I'm confident we will win.	我有信心我们会赢。
+curve	[curated]	The road bends in a sharp curve.	这条路有个急弯。
+knee	[curated]	He fell and hurt his knee.	他摔倒伤了膝盖。
+overcome	[curated]	She overcame her fear of water.	她克服了对水的恐惧。
+web	[curated]	The spider wove a large web.	蜘蛛织了一张大网。
+depth	[curated]	The pool is two meters in depth.	这个泳池深两米。
+entrance	[curated]	Meet me at the main entrance.	在大门口等我。
+log	[curated]	Keep a log of every call.	把每次通话都记录下来。
+giant	[curated]	A giant tree stood in the yard.	院子里有一棵参天大树。
+god	[curated]	They pray to God every Sunday.	他们每个星期日向上帝祈祷。
+portion	[curated]	He ate a large portion of rice.	他吃了很大一份米饭。
+substance	[curated]	The substance is harmless.	这种物质无害。
+extensive	[curated]	The book shows extensive research.	这本书显示出广泛的研究。
+interpret	[curated]	How do you interpret the results?	你如何解释这些结果？
+independence	[curated]	The country gained independence in 1960.	这个国家于一九六〇年获得独立。
+sugar	[curated]	Too much sugar is bad for you.	吃太多糖对身体不好。
+inner	[curated]	The inner door is locked.	里面那道门锁着。
+harm	[curated]	The storm harmed the crops.	暴风雨损害了庄稼。
+consult	[curated]	Consult a doctor if it hurts.	如果疼痛，请咨询医生。
+pink	[curated]	She painted the room pink.	她把房间刷成了粉色。
+shadow	[curated]	The tree cast a long shadow.	那棵树投下了长长的影子。
+strip	[curated]	Cut the paper into thin strips.	把纸裁成细长条。
+smooth	[curated]	The surface is smooth to touch.	这个表面摸起来很光滑。
+intervention	[curated]	The strike ended without intervention.	罢工在没有外界干预的情况下结束了。
+impress	[curated]	He impressed them with his skill.	他的技艺给他们留下了深刻印象。
+exam	[curated]	The exam starts at nine.	考试九点开始。
+vice	[curated]	Smoking is his only vice.	抽烟是他唯一的坏习惯。
+radical	[curated]	The plan is too radical for them.	这个计划对他们来说太激进了。
+similarly	[curated]	The second case ended similarly.	第二起案件的结局相似。
+behave	[curated]	The children behaved very well.	孩子们表现得很好。
+loud	[curated]	The music was too loud.	音乐声太大了。
+dimension	[curated]	We measured all three dimensions.	我们测量了三个维度。
+subsequent	[curated]	Subsequent events proved him right.	后来的事证明他是对的。
+infection	[curated]	The wound caused an infection.	伤口引发了感染。
+jacket	[curated]	Take a jacket; it is cold.	带件外套，天冷。
+efficiency	[curated]	The new system improved efficiency.	新系统提高了效率。
+dirty	[curated]	Your hands are dirty.	你的手脏了。
+statistic	[curated]	One statistic tells the whole story.	一个统计数字就能说明全部问题。
+regularly	[curated]	Exercise regularly, not just once.	要经常锻炼，而不是只练一次。
+resort	[curated]	The island is a popular resort.	这个岛是热门的度假胜地。
+iron	[curated]	The gate is made of iron.	这扇大门是铁做的。
+broadcast	[curated]	The match was broadcast live.	这场比赛进行了现场直播。
+bread	[curated]	He bought a loaf of bread.	他买了一条面包。
+blind	[curated]	She has been blind since birth.	她天生失明。
+pure	[curated]	The water here is pure.	这里的水很纯净。
+bloody	[curated]	It was a bloody battle.	那是一场血腥的战斗。
+ally	[curated]	France was our closest ally.	法国是我们最亲密的盟友。
+quantity	[curated]	We need a large quantity of sand.	我们需要大量的沙子。
+bend	[curated]	Bend your knees, not your back.	弯曲膝盖，别弯背。
+mature	[curated]	He is very mature for his age.	以他的年纪来说他非常成熟。
+briefly	[curated]	She spoke briefly about the plan.	她简短地介绍了一下计划。
+alarm	[curated]	The alarm went off at six.	闹钟六点响了。
+disturb	[curated]	Sorry to disturb you so late.	抱歉这么晚打扰你。
+sustain	[curated]	The company sustained heavy losses.	公司承受了重大损失。
+flood	[curated]	The flood destroyed many homes.	洪水毁掉了许多房屋。
+poverty	[curated]	They lived in poverty for years.	他们贫困地生活了多年。
+crazy	[curated]	That idea is crazy.	那个想法太疯狂了。
+cite	[curated]	He cited two studies in his essay.	他在文章中引用了两项研究。
+newly	[curated]	The newly opened museum is free.	新开的那家博物馆免费。
+parallel	[curated]	The two roads run parallel.	这两条路平行延伸。
+gender	[curated]	The form asks for age and gender.	表格要求填写年龄和性别。
+sponsor	[curated]	A local firm sponsored the event.	一家本地公司赞助了这次活动。
+boot	[curated]	He wore heavy boots in the snow.	他下雪时穿着厚重的靴子。
+accurate	[curated]	The figures are not accurate.	这些数字不准确。
+dealer	[curated]	The dealer offered a good price.	经销商给了一个不错的价格。
+button	[curated]	Press the red button to start.	按下红色按钮启动。
+burden	[curated]	The cost is a heavy burden.	这笔费用是沉重的负担。
+desert	[curated]	They crossed the desert by camel.	他们骑骆驼穿越了沙漠。
+mate	[curated]	He is an old mate of mine.	他是我的老朋友。
+occasionally	[curated]	We eat out occasionally.	我们偶尔出去吃饭。
+shareholder	[curated]	Shareholders voted against the deal.	股东投票反对这笔交易。
+bowl	[curated]	She filled the bowl with rice.	她往碗里盛了米饭。
+discovery	[curated]	The discovery changed medicine.	这一发现改变了医学。
+resistance	[curated]	There was strong resistance to the tax.	这项税收遭到强烈抵制。
+bath	[curated]	He takes a bath every evening.	他每天晚上泡澡。
+frequency	[curated]	The frequency of storms has risen.	风暴发生的频率上升了。
+criticize	[curated]	It is easy to criticize others.	批评别人很容易。
+tap	[curated]	Turn off the tap, please.	请把水龙头关上。
+philosophy	[curated]	He studies philosophy at university.	他在大学读哲学。
+lip	[curated]	Her lips were dry from the cold.	寒冷让她的嘴唇干裂。
+attribute	[curated]	Patience is a useful attribute.	耐心是一项有用的品质。
+apologize	[curated]	I apologize for the delay.	我为延误表示歉意。
+approval	[curated]	The plan needs official approval.	这个计划需要官方批准。
+grab	[curated]	Grab a chair and join us.	拉把椅子过来一起坐吧。
+entitle	[curated]	This ticket entitles you to one drink.	这张票可让你免费喝一杯。
+lend	[curated]	Can you lend me five dollars?	你能借我五美元吗？
+involvement	[curated]	His involvement was never proven.	从未证实他参与其中。
+exposure	[curated]	Too much sun exposure is harmful.	过度日晒有害健康。
+conventional	[curated]	He prefers conventional methods.	他更喜欢传统方法。
+digital	[curated]	The library is going digital.	这家图书馆正在数字化。
+translate	[curated]	Can you translate this sentence?	你能翻译这个句子吗？
+edit	[curated]	I edited the report last night.	我昨晚编辑了那份报告。
+formation	[curated]	The formation of ice takes hours.	结冰需要好几个小时。
+deposit	[curated]	He made a large deposit yesterday.	他昨天存了一大笔钱。
+pleasant	[curated]	We had a pleasant evening.	我们度过了一个愉快的夜晚。
+overseas	[curated]	She works overseas now.	她现在在海外工作。
+advocate	[curated]	He advocates a simpler approach.	他提倡一种更简单的方法。
+establishment	[curated]	The establishment of the school took years.	这所学校的创办花了好几年。
+summary	[curated]	Write a short summary at the end.	在结尾写一段简短的摘要。
+rough	[curated]	The paper feels rough.	这种纸摸起来很粗糙。
+pen	[curated]	Can I borrow your pen?	能借你的笔用一下吗？
+recovery	[curated]	His recovery took three months.	他花了三个月才康复。
+seal	[curated]	The letter bears the royal seal.	这封信盖有王室印章。
+tube	[curated]	Water flows through this tube.	水从这根管子里流过。
+tower	[curated]	The tower is 300 years old.	这座塔有三百年历史。
+characterize	[curated]	How would you characterize the change?	你会如何描述这一变化？
+specify	[curated]	Please specify the size you need.	请写明你需要的尺寸。
+exact	[curated]	What is the exact time?	确切的时间是几点？
+spin	[curated]	The wheel spun slowly.	轮子慢慢转动着。
+operator	[curated]	The operator answered at once.	接线员立刻接了电话。
+infant	[curated]	The infant slept through the night.	婴儿整晚都在睡觉。
+dig	[curated]	They dug a hole for the tree.	他们为这棵树挖了个坑。
+drag	[curated]	He dragged the box across the floor.	他拖着箱子穿过地板。
+mount	[curated]	They mounted the camera on the wall.	他们把摄像机装在墙上。
+wrap	[curated]	Wrap it in paper, please.	请用纸把它包起来。
+anticipate	[curated]	We anticipate a small delay.	我们预计会有一点延误。
+dependent	[curated]	He is dependent on his parents.	他依赖父母生活。
+specialize	[curated]	She specializes in child health.	她专门研究儿童健康。
+angle	[curated]	Draw a 90-degree angle.	画一个九十度的角。
+chicken	[curated]	We keep chickens in the yard.	我们在院子里养鸡。
+anxiety	[curated]	Exams cause her a lot of anxiety.	考试让她非常焦虑。
+virus	[curated]	The virus spreads through the air.	这种病毒通过空气传播。
+precisely	[curated]	Tell me precisely what happened.	准确地告诉我发生了什么。
+rival	[curated]	The two rivals met again.	这两位对手再次相遇。
+offense	[curated]	He apologized for the offense.	他为那次冒犯道了歉。
+detect	[curated]	The test detects the disease early.	这项检查能在早期发现这种疾病。
+teenager	[curated]	Teenagers need more sleep.	青少年需要更多睡眠。
+admire	[curated]	I admire her patience.	我钦佩她的耐心。
+moderate	[curated]	Take moderate exercise each day.	每天进行适度的运动。
+surgery	[curated]	The surgery lasts two hours.	这台手术需要两个小时。
+musician	[curated]	The musician plays three instruments.	这位音乐家会演奏三种乐器。
+significance	[curated]	The discovery has great significance.	这一发现意义重大。
+shower	[curated]	A short shower passed over.	一阵短暂的阵雨过去了。
+illegal	[curated]	Parking here is illegal.	在这里停车是违法的。
+charity	[curated]	She gives money to charity.	她向慈善机构捐款。
+universal	[curated]	Music is a universal language.	音乐是一种世界通用的语言。
+cigarette	[curated]	He gave up cigarettes last year.	他去年戒了烟。
+constitute	[curated]	Women constitute half the staff.	女性占员工总数的一半。
+adequate	[curated]	The lighting here is not adequate.	这里的照明不够。
+consultant	[curated]	The consultant advised waiting.	顾问建议再等等。
+historian	[curated]	A historian wrote about the city.	一位历史学家写下了这座城市的历史。
+cousin	[curated]	My cousin lives in Leeds.	我的表弟住在利兹。
+visual	[curated]	The book is full of visual detail.	这本书充满了视觉细节。
+stupid	[curated]	That was a stupid thing to say.	那样说很愚蠢。
+keen	[curated]	He is keen on photography.	他热衷于摄影。
+ethnic	[curated]	The city has many ethnic groups.	这座城市有许多民族群体。
+twin	[curated]	My twin sister lives abroad.	我的双胞胎姐姐住在国外。
+clinical	[curated]	Clinical trials begin next year.	临床试验将于明年开始。
+eastern	[curated]	They moved to eastern Europe.	他们搬到了东欧。
+forecast	[curated]	The forecast says rain tomorrow.	天气预报说明天有雨。
+segment	[curated]	This segment lasts ten minutes.	这一段时长十分钟。
+custom	[curated]	It is an old custom here.	这是这里的一个古老习俗。
+adapt	[curated]	It took time to adapt to the heat.	适应这种炎热花了一些时间。
+sand	[curated]	The sand was hot underfoot.	脚下的沙子很烫。
+cap	[curated]	He wore a blue cap.	他戴着一顶蓝帽子。
+prompt	[curated]	The letter prompted a quick reply.	这封信促使对方迅速回复。
+charm	[curated]	The town has a quiet charm.	这座小镇有一种宁静的魅力。
+react	[curated]	How did they react to the news?	他们对这个消息反应如何？
+lecture	[curated]	The lecture starts at two.	讲座两点开始。
+venture	[curated]	The venture lost money at first.	这个项目起初是亏损的。
+compound	[curated]	The compound is used in medicine.	这种化合物用于医药。
+rescue	[curated]	Firefighters rescued two people.	消防员救出了两个人。
+mess	[curated]	The kitchen is a mess.	厨房一团糟。
+preference	[curated]	Do you have a preference?	你有偏好吗？
+comprehensive	[curated]	It is a comprehensive guide.	这是一本内容全面的指南。
+incentive	[curated]	Money is a strong incentive.	金钱是强大的激励。
+league	[curated]	Our team tops the league.	我们队在联赛中排名第一。
+dialog	[curated]	Read the dialog in pairs.	两人一组朗读这段对话。
+cream	[curated]	Add a spoon of cream.	加一勺奶油。
+rapid	[curated]	The city saw rapid growth.	这座城市发展迅速。
+cancel	[curated]	They cancelled the flight.	他们取消了那趟航班。
+regret	[curated]	I regret saying that.	我后悔说了那些话。
+dismiss	[curated]	The company dismissed three workers.	公司解雇了三名员工。
+margin	[curated]	Write notes in the margin.	在页边空白处做笔记。
+beneath	[curated]	The cat hid beneath the table.	猫躲在桌子下面。
+opponent	[curated]	Our opponent scored first.	我们的对手先得分。
+resist	[curated]	I could not resist the cake.	我抵挡不住那块蛋糕的诱惑。
+capability	[curated]	The robot has limited capability.	这个机器人的能力有限。
+absolute	[curated]	He spoke with absolute confidence.	他说话时带着绝对的自信。
+correspond	[curated]	The numbers do not correspond.	这些数字对不上。
+stroke	[curated]	He suffered a stroke last year.	他去年中风了。
+dare	[curated]	I dare not ask him.	我不敢问他。
+barrier	[curated]	Language is a real barrier.	语言是一个实际的障碍。
+rid	[curated]	We need to rid the room of rats.	我们需要把房间里的老鼠清除掉。
+divorce	[curated]	Their divorce was final in May.	他们的离婚在五月最终生效。
+ruin	[curated]	The castle is now a ruin.	那座城堡如今已成废墟。
+bury	[curated]	They buried him in the village.	他们把他安葬在村里。
+counsel	[curated]	She gave me wise counsel.	她给了我明智的忠告。
+tendency	[curated]	He has a tendency to arrive late.	他有迟到的倾向。
+frequent	[curated]	Blackouts are frequent in winter.	冬天停电很频繁。
+motor	[curated]	The motor makes a strange noise.	马达发出奇怪的声音。
+survival	[curated]	Clean water is vital to survival.	清洁的水对生存至关重要。
+counter	[curated]	Pay at the counter over there.	请在那边的柜台付款。
+possess	[curated]	He possesses great skill.	他拥有高超的技艺。
+permission	[curated]	You need written permission.	你需要书面许可。
+valley	[curated]	The village lies in a valley.	这个村庄坐落在山谷中。
+float	[curated]	Leaves floated on the water.	树叶漂浮在水面上。
+mad	[curated]	Are you mad?	你疯了吗？
+greatly	[curated]	Prices have greatly increased.	价格大幅上涨。
+visible	[curated]	The damage is clearly visible.	损坏清晰可见。
+electric	[curated]	He drives an electric car.	他开一辆电动汽车。
+impressive	[curated]	The results were very impressive.	这些结果令人印象深刻。
+evolution	[curated]	Darwin wrote about evolution.	达尔文写的是进化论。
+awareness	[curated]	Awareness of the problem is growing.	对这个问题的认识正在提高。
+violent	[curated]	The protest turned violent.	抗议演变成了暴力冲突。
+slave	[curated]	The slaves were freed in 1865.	奴隶们在一八六五年获得解放。
+wealthy	[curated]	He comes from a wealthy family.	他出身于一个富裕家庭。
+architecture	[curated]	She studies architecture in Rome.	她在罗马学习建筑。
+acceptable	[curated]	Is this level acceptable?	这个水平可以接受吗？
+journal	[curated]	She keeps a journal every day.	她每天写日记。
+coal	[curated]	The mine produced coal for years.	这座煤矿产煤多年。
+measurement	[curated]	Take accurate measurements first.	先进行精确测量。
+random	[curated]	We chose names at random.	我们随机抽取了名字。
+successfully	[curated]	She completed the course successfully.	她顺利完成了这门课程。
+depress	[curated]	Rainy days depress him.	雨天让他沮丧。
+illustration	[curated]	The book has many illustrations.	这本书有很多插图。
+burst	[curated]	The pipe burst in the cold.	管道在严寒中爆裂了。
+privilege	[curated]	It is a privilege to work here.	在这里工作是一种荣幸。
+buyer	[curated]	The buyer paid in cash.	买主用现金支付。
+mutual	[curated]	They have mutual respect.	他们彼此尊重。
+rail	[curated]	Hold on to the rail.	抓住栏杆。
+motivate	[curated]	Money does not motivate everyone.	金钱并不能激励所有人。
+laboratory	[curated]	The laboratory closed at six.	实验室六点关门。
+mortgage	[curated]	They took out a 30-year mortgage.	他们办理了三十年的抵押贷款。
+promotion	[curated]	She got a promotion in June.	她在六月获得了晋升。
+passion	[curated]	He has a passion for cooking.	他酷爱烹饪。
+champion	[curated]	The champion defended her title.	这位冠军卫冕成功。
+fulfill	[curated]	She fulfilled her promise.	她履行了自己的承诺。
+dust	[curated]	Dust covered the old table.	旧桌子上蒙着灰尘。
+dedicate	[curated]	He dedicates two hours a day.	他每天投入两小时。
+roughly	[curated]	It costs roughly ten dollars.	这大约要十美元。
+skirt	[curated]	She wore a long skirt.	她穿了一条长裙。
+province	[curated]	The province is in the north.	这个省在北部。
+march	[curated]	The project starts in March.	这个项目三月启动。
+evaluation	[curated]	The evaluation takes two weeks.	评估需要两周时间。
+compromise	[curated]	They reached a fair compromise.	他们达成了合理的妥协。
+accomplish	[curated]	We accomplished a lot today.	我们今天完成了很多事。
+weakness	[curated]	Spelling is my weakness.	拼写是我的弱项。
+announcement	[curated]	The announcement came this morning.	公告是今天上午发布的。
+salt	[curated]	Add a little salt.	加一点盐。
+glance	[curated]	She gave him a quick glance.	她快速瞥了他一眼。
+opera	[curated]	We saw an opera last night.	我们昨晚看了一出歌剧。
+contest	[curated]	He entered the writing contest.	他参加了写作比赛。
+brush	[curated]	Use a soft brush on it.	用软毛刷刷它。
+embarrass	[curated]	Don't embarrass her in public.	别当众让她难堪。
+gallery	[curated]	The gallery is free on Sundays.	这家美术馆周日免费。
+genetic	[curated]	The disease has a genetic cause.	这种疾病有遗传原因。
+aggressive	[curated]	He became aggressive after a few drinks.	他喝了几杯后变得好斗起来。
+chest	[curated]	He has a pain in his chest.	他胸部疼痛。
+format	[curated]	Use the same format throughout.	全文使用统一的格式。
+literary	[curated]	She writes literary fiction.	她写文学小说。
+govern	[curated]	The king governed for thirty years.	这位国王统治了三十年。
+embrace	[curated]	She embraced her daughter.	她拥抱了女儿。
+praise	[curated]	He praised the team's effort.	他赞扬了团队的努力。
+silent	[curated]	The room fell silent.	房间里安静了下来。
+pump	[curated]	The pump broke last week.	水泵上周坏了。
+publisher	[curated]	The publisher rejected the book.	出版商拒绝了这本书。
+celebration	[curated]	The celebration lasted all night.	庆祝活动持续了一整夜。
+golf	[curated]	He plays golf on Sundays.	他周日打高尔夫球。
+compensation	[curated]	She received compensation for the loss.	她因损失获得了赔偿。
+classical	[curated]	We listened to classical music.	我们听了古典音乐。
+weigh	[curated]	Weigh the bag before you leave.	出发前称一下包。
+versus	[curated]	It is Smith versus Jones tonight.	今晚是史密斯对琼斯。
+deficit	[curated]	The country ran a large deficit.	这个国家出现了巨额赤字。
+modify	[curated]	They modified the design slightly.	他们稍微修改了设计。
+flash	[curated]	A flash of light filled the room.	一道闪光充满了房间。
+friendship	[curated]	Their friendship lasted fifty years.	他们的友谊持续了五十年。
+profession	[curated]	Teaching is a noble profession.	教师是高尚的职业。
+literally	[curated]	The word literally means water.	这个词的字面意思是「水」。
+equation	[curated]	Solve the equation on page ten.	解出第十页的方程。
+gesture	[curated]	He made a rude gesture.	他做了个粗鲁的手势。
+entertain	[curated]	She entertained us with stories.	她讲故事来逗我们开心。
+fantastic	[curated]	The view was fantastic.	那景色美极了。
+assign	[curated]	The teacher assigned two chapters.	老师布置了两章的内容。
+inflation	[curated]	Inflation rose to five percent.	通货膨胀率升到了百分之五。
+historic	[curated]	It is a historic building.	这是一座有历史意义的建筑。
+injure	[curated]	Two players were injured.	两名球员受伤了。
+remote	[curated]	They live in a remote village.	他们住在一个偏远的村庄。
+therapy	[curated]	He needs physical therapy twice a week.	他每周需要做两次理疗。
+orange	[curated]	She peeled an orange.	她剥了一个橙子。
+twist	[curated]	Twist the cap to open it.	拧开盖子就能打开。
+personnel	[curated]	All personnel must sign in.	全体人员必须签到。
+imagination	[curated]	Children have a rich imagination.	孩子们有丰富的想象力。
+disagree	[curated]	I disagree with that view.	我不同意那种观点。
+throat	[curated]	My throat is sore today.	我今天嗓子疼。
+insight	[curated]	The book gives real insight.	这本书带来了真正的洞见。
+tackle	[curated]	We must tackle the problem now.	我们现在必须处理这个问题。
+forever	[curated]	I will remember it forever.	我会永远记住它。
+exceed	[curated]	Costs must not exceed 500 dollars.	费用不能超过五百美元。
+expenditure	[curated]	Public expenditure rose again.	公共开支再次上升。
+joy	[curated]	The news filled her with joy.	这个消息让她满心欢喜。
+pregnant	[curated]	She is three months pregnant.	她怀孕三个月了。
+reliable	[curated]	He is a reliable worker.	他是个可靠的员工。
+gear	[curated]	Leave your gear by the door.	把装备放在门边。
+click	[curated]	Click the link to continue.	点击链接继续。
+poet	[curated]	The poet read aloud to us.	那位诗人给我们朗读。
+fortune	[curated]	He made a fortune in business.	他做生意发了财。
+ceremony	[curated]	The ceremony takes an hour.	典礼持续一小时。
+pile	[curated]	There is a pile of books here.	这里有一堆书。
+pig	[curated]	The pigs are fed twice a day.	这些猪每天喂两次。
+mixture	[curated]	Add the mixture to the pan.	把混合料倒入锅中。
+automatically	[curated]	The doors open automatically.	门会自动打开。
+scholar	[curated]	A scholar gave the opening talk.	一位学者做了开场演讲。
+psychological	[curated]	The problem is psychological, not physical.	这个问题是心理上的，不是生理上的。
+dramatically	[curated]	Sales dropped dramatically in April.	四月份销售额急剧下降。
+stake	[curated]	The stakes are very high.	风险非常高。
+creature	[curated]	Every creature needs water.	每种生物都需要水。
+partnership	[curated]	They formed a partnership in 2010.	他们在二〇一〇年建立了合伙关系。
+participation	[curated]	Participation is free this year.	今年参加是免费的。
+clause	[curated]	Read clause four carefully.	仔细阅读第四条。
+penalty	[curated]	The penalty is ten dollars.	罚款是十美元。
+chamber	[curated]	The chamber is cold and dark.	这个房间又冷又暗。
+fancy	[curated]	Do you fancy a cup of tea?	你想来杯茶吗？
+poetry	[curated]	She writes poetry in her free time.	她在空闲时写诗。
+chat	[curated]	Let's have a chat after work.	下班后我们聊聊吧。
+evolve	[curated]	The plan evolved over time.	这个计划随着时间演变。
+sake	[curated]	Do it for your own sake.	为了你自己，去做吧。
+shelf	[curated]	Put it back on the shelf.	把它放回架子上。
+boost	[curated]	The win boosted morale.	这场胜利鼓舞了士气。
+tail	[curated]	The dog wagged its tail.	狗摇着尾巴。
+possession	[curated]	The ring is now in her possession.	这枚戒指现在归她所有。
+abortion	[curated]	The law restricts abortion.	法律对堕胎有限制。
+curious	[curated]	I'm curious about the result.	我对结果很好奇。
+wooden	[curated]	They sat on a wooden bench.	他们坐在一张木凳上。
+boom	[curated]	The city grew during the boom.	这座城市在繁荣期发展起来。
+tale	[curated]	He told us a long tale.	他给我们讲了一个很长的故事。
+democratic	[curated]	It was a fair democratic vote.	那是一次公正的民主投票。
+consequently	[curated]	It rained; consequently, we stayed in.	下雨了，因此我们待在家里。
+pot	[curated]	Put the plant in a bigger pot.	把这棵植物移到更大的花盆里。
+cow	[curated]	The cows are in the field.	牛都在田里。
+strengthen	[curated]	Exercise strengthens the heart.	锻炼能增强心脏功能。
+whilst	[curated]	He read whilst waiting.	他边等边看书。
+constraint	[curated]	Time is the main constraint.	时间是主要限制因素。
+fold	[curated]	Fold the paper in half.	把纸对折。
+bin	[curated]	Throw it in the bin.	把它扔进垃圾桶。
+undergo	[curated]	He underwent surgery last month.	他上个月接受了手术。
+potentially	[curated]	The drug is potentially harmful.	这种药可能有害。
+scope	[curated]	That is beyond the scope here.	那超出了这里的范围。
+pretend	[curated]	Don't pretend you don't know.	别假装你不知道。
+diversity	[curated]	The school values diversity.	这所学校重视多样性。
+allege	[curated]	They allege he took the money.	他们声称他拿了那笔钱。
+pride	[curated]	He takes pride in his work.	他为自己的工作感到自豪。
+intense	[curated]	The heat was intense.	酷热难耐。
+inquiry	[curated]	The inquiry lasted two years.	这项调查持续了两年。
+resign	[curated]	She resigned last Friday.	她上周五辞职了。
+craft	[curated]	He learned the craft as a boy.	他小时候就学会了这门手艺。
+strict	[curated]	The teacher is very strict.	这位老师非常严格。
+concrete	[curated]	The floor is made of concrete.	地面是混凝土做的。
+shell	[curated]	We collected shells on the beach.	我们在海滩上捡贝壳。
+damn	[curated]	Damn, I forgot the keys.	该死，我忘带钥匙了。
+distinct	[curated]	There are two distinct groups.	有两个截然不同的群体。
+humor	[curated]	He has a dry sense of humor.	他有一种冷幽默。
+limitation	[curated]	Every method has limitations.	每种方法都有局限。
+indication	[curated]	There is no indication of change.	没有变化的迹象。
+stability	[curated]	The country needs stability.	这个国家需要稳定。
+wise	[curated]	That was a wise choice.	那是个明智的选择。
+neglect	[curated]	Don't neglect your health.	别忽视自己的健康。
+compose	[curated]	The team is composed of five people.	这个团队由五人组成。
+jail	[curated]	He spent a night in jail.	他在牢里待了一晚。
+shelter	[curated]	They built a shelter from branches.	他们用树枝搭了一个庇护所。
+mere	[curated]	It cost a mere five dollars.	它只花了五美元。
+carbon	[curated]	Carbon is found in all living things.	所有生物体内都含有碳。
+regulate	[curated]	The law regulates the market.	法律对市场进行监管。
+cheese	[curated]	Sprinkle cheese on top.	在上面撒些奶酪。
+trigger	[curated]	Stress triggered the attack.	压力诱发了这次发作。
+pipe	[curated]	Water leaked from the pipe.	水从管子里漏了出来。
+destruction	[curated]	The war caused great destruction.	战争造成了巨大的破坏。
+guitar	[curated]	He plays the guitar well.	他吉他弹得很好。
+flag	[curated]	The flag flew over the building.	旗子在那栋楼上飘扬。
+piano	[curated]	She practises the piano daily.	她每天练钢琴。
+magic	[curated]	The children loved the magic show.	孩子们很喜欢那场魔术表演。
+mystery	[curated]	The mystery was solved quickly.	这个谜很快就被解开了。
+ski	[curated]	They ski every winter.	他们每年冬天都滑雪。
+whisper	[curated]	He whispered the answer to me.	他悄悄把答案告诉了我。
+rear	[curated]	The garden is at the rear.	花园在后面。
+species	[curated]	This species lives in water.	这个物种生活在水中。
+moon	[curated]	The moon was full last night.	昨晚是满月。
+presumably	[curated]	He is presumably at home.	他大概在家吧。
+bless	[curated]	The priest blessed the couple.	神父为这对新人祝福。
+airline	[curated]	The airline lost my bag.	航空公司弄丢了我的行李。
+amendment	[curated]	They proposed an amendment.	他们提出了一项修正案。
+grandmother	[curated]	My grandmother lives with us.	我祖母和我们住在一起。
+jury	[curated]	The jury reached a verdict.	陪审团作出了裁决。
+cooperation	[curated]	The work needs close cooperation.	这项工作需要密切合作。
+civilian	[curated]	No civilians were hurt.	没有平民受伤。
+composition	[curated]	Write a short composition for Friday.	周五前写一篇简短的作文。
+coin	[curated]	He found an old coin.	他找到一枚古币。
+regardless	[curated]	We'll go regardless of the weather.	不管天气如何我们都会去。
+scan	[curated]	Scan the document and send it.	把文件扫描后发过来。
+bunch	[curated]	She bought a bunch of grapes.	她买了一串葡萄。
+racial	[curated]	Racial tension grew in the city.	这座城市的种族紧张局势加剧了。
+greet	[curated]	She greeted us at the door.	她在门口迎接我们。
+hopefully	[curated]	Hopefully, it will not rain.	希望不会下雨。
+sanction	[curated]	The UN imposed sanctions.	联合国实施了制裁。
+trick	[curated]	It's just a trick.	那只是个把戏。
+paragraph	[curated]	Read the second paragraph.	读第二段。
+maker	[curated]	The maker's name is on the base.	底部有制造商的名字。
+chocolate	[curated]	She loves dark chocolate.	她喜欢黑巧克力。
+stimulate	[curated]	Coffee stimulates the brain.	咖啡能刺激大脑。
+belt	[curated]	He tightened his belt.	他系紧了腰带。
+potato	[curated]	Boil the potatoes for twenty minutes.	把土豆煮二十分钟。
+narrative	[curated]	The book follows a clear narrative.	这本书有清晰的叙事。
+tissue	[curated]	Give me a tissue, please.	请给我一张纸巾。
+barely	[curated]	I barely know him.	我几乎不认识他。
+invent	[curated]	Who invented the telephone?	电话是谁发明的？
+tourism	[curated]	Tourism employs many locals.	旅游业雇用了许多当地人。
+pro	[curated]	He turned pro at nineteen.	他十九岁转为职业选手。
+stair	[curated]	He sat on the bottom stair.	他坐在最下面一级台阶上。
+hesitate	[curated]	Don't hesitate to ask.	有疑问尽管问。
+shine	[curated]	The sun shone all day.	阳光照耀了一整天。
+motivation	[curated]	His motivation is unclear.	他的动机不明。
+romantic	[curated]	They had a romantic dinner.	他们吃了一顿浪漫的晚餐。
+firmly	[curated]	Close the door firmly.	把门关严。
+interior	[curated]	The interior is painted white.	内部被刷成了白色。
+stomach	[curated]	My stomach hurts after lunch.	午饭后我胃疼。
+nowhere	[curated]	The keys are nowhere to be found.	钥匙哪儿都找不到。
+pray	[curated]	They pray before every meal.	他们每餐前都祈祷。
+championship	[curated]	The championship ends in July.	锦标赛七月结束。
+servant	[curated]	The house had three servants.	这栋房子有三名仆人。
+immigrant	[curated]	He is a second-generation immigrant.	他是第二代移民。
+excess	[curated]	An excess of sugar is unhealthy.	摄入过多糖分不健康。
+complexity	[curated]	The complexity surprised everyone.	其复杂程度让所有人惊讶。
+liability	[curated]	The firm accepted no liability.	该公司不承担任何责任。
+surprisingly	[curated]	The test was surprisingly easy.	这次测验出人意料地简单。
+extract	[curated]	They extract oil from the seeds.	他们从这些种子中榨油。
+implementation	[curated]	Implementation begins in January.	实施工作一月开始。
+bias	[curated]	The report shows clear bias.	这份报告带有明显的偏见。
+differently	[curated]	Others see it differently.	其他人的看法不同。
+catalog	[curated]	Find it in the catalog.	在目录里找找看。
+continuous	[curated]	There was continuous rain for days.	连续下了好几天雨。
+golden	[curated]	The fields were golden in autumn.	秋天的田野一片金黄。
+stamp	[curated]	He collects rare stamps.	他收集稀有邮票。
+guideline	[curated]	Follow the official guidelines.	遵守官方准则。
+envelope	[curated]	Seal the envelope before posting.	寄出前把信封口。
+knife	[curated]	Use a sharp knife.	用一把锋利的刀。
+biological	[curated]	They study biological samples.	他们研究生物样本。
+consume	[curated]	The car consumes a lot of fuel.	这辆车很耗油。
+luxury	[curated]	A car is a luxury here.	在这里汽车是奢侈品。
+weekly	[curated]	We have a weekly meeting.	我们每周开一次会。
 wherever	[curated]	Sit wherever you like.	你想坐哪儿就坐哪儿。
-bite	[gen]	He knows a lot about the bite.	他很了解咬。
-printer	[gen]	Nobody explained the printer to us.	没有人向我们解释印刷工。
-firstly	[curated]	Firstly, we need more data.	首先，我们需要更多数据。
-anxious	[gen]	That sounds anxious, but it is true.	那听起来忧虑，但却是真的。
-adventure	[gen]	People often worry about the adventure.	人们常常为冒险担心。
-fence	[gen]	The fence was the first thing I noticed.	我首先注意到的就是围墙。
-exhaust	[gen]	She has strong views on the exhaust.	她对排气有很鲜明的看法。
-attraction	[gen]	The attraction surprised everyone in the room.	吸引让在场的所有人都很意外。
-quietly	[gen]	I quietly remember what she said.	我安静地记得她说过的话。
-castle	[gen]	That is where the castle becomes important.	那就是城堡变得重要的地方。
-veteran	[gen]	The veteran says a lot about them.	老手很能说明他们的情况。
-reflection	[gen]	Let's talk about the reflection first.	我们先谈谈反映。
-nerve	[gen]	The nerve matters more than you think.	精神比你以为的更重要。
-determination	[gen]	I know very little about the determination.	我对决心了解很少。
-altogether	[curated]	There are altogether twenty students in the class.	这个班总共有二十名学生。
-fiction	[gen]	The fiction is not the real problem.	小说不是真正的问题。
-carpet	[gen]	He knows a lot about the carpet.	他很了解地毯。
-cluster	[gen]	We cannot cluster without help.	没有帮助我们就无法串。
-confusion	[gen]	The confusion came up again today.	今天又提到了混乱。
-hurry	[gen]	It is hard to describe the hurry in a few words.	很难用几句话描述匆忙。
-logic	[gen]	People often worry about the logic.	人们常常为逻辑担心。
-controversial	[gen]	It is controversial to say that out loud.	把那句话说出口是争论的。
-raw	[gen]	She has strong views on the raw.	她对擦伤处有很鲜明的看法。
-grammar	[gen]	The grammar surprised everyone in the room.	语法学让在场的所有人都很意外。
-revise	[gen]	He offered to revise for us.	他主动提出替我们校订。
-hint	[gen]	That is where the hint becomes important.	那就是暗示变得重要的地方。
-hook	[gen]	The hook says a lot about them.	钩很能说明他们的情况。
-bell	[gen]	Let's talk about the bell first.	我们先谈谈铃。
-liquid	[gen]	The liquid matters more than you think.	液体比你以为的更重要。
-panic	[gen]	I know very little about the panic.	我对恐慌了解很少。
-uncle	[gen]	We cannot ignore the uncle.	我们不能忽视叔父。
-rice	[gen]	The rice is not the real problem.	米不是真正的问题。
-slope	[gen]	He knows a lot about the slope.	他很了解倾斜。
-happiness	[gen]	Nobody explained the happiness to us.	没有人向我们解释快乐。
-genuine	[gen]	She gave a very genuine reply.	她给出了一个非常真正的回答。
-vessel	[gen]	It is hard to describe the vessel in a few words.	很难用几句话描述船。
-verb	[gen]	People often worry about the verb.	人们常常为动词担心。
-reckon	[gen]	They had to reckon again and again.	他们不得不反复计算。
-silly	[gen]	She has strong views on the silly.	她对愚蠢的有很鲜明的看法。
-transportation	[gen]	The transportation surprised everyone in the room.	运输让在场的所有人都很意外。
-harbor	[gen]	We keep coming back to the harbor.	我们总是绕回港这个话题。
-comedy	[gen]	That is where the comedy becomes important.	那就是喜剧变得重要的地方。
-chase	[gen]	The chase says a lot about them.	追求很能说明他们的情况。
-storage	[gen]	Let's talk about the storage first.	我们先谈谈存储器。
-universe	[gen]	The universe matters more than you think.	宇宙比你以为的更重要。
-horrible	[gen]	Keep it horrible and simple.	保持可怕、简单就好。
-sheep	[gen]	We cannot ignore the sheep.	我们不能忽视羊。
-lover	[gen]	The lover is not the real problem.	爱人不是真正的问题。
-rat	[gen]	He knows a lot about the rat.	他很了解鼠。
-portrait	[gen]	Nobody explained the portrait to us.	没有人向我们解释肖像。
-innocent	[gen]	The innocent came up again today.	今天又提到了无罪的。
-substitute	[gen]	It is hard to describe the substitute in a few words.	很难用几句话描述代理。
-supplement	[gen]	People often worry about the supplement.	人们常常为补充物担心。
-adjustment	[gen]	The adjustment was the first thing I noticed.	我首先注意到的就是调整。
-reasonably	[gen]	It works reasonably, so we kept the old rule.	它适度地有效，所以我们保留了旧规则。
-filter	[gen]	The filter surprised everyone in the room.	滤波器让在场的所有人都很意外。
-flexible	[gen]	The room felt flexible to me.	我觉得房间很易曲。
-abstract	[gen]	Most people thought it was abstract.	大多数人认为它很抽象。
-tent	[gen]	The tent says a lot about them.	帐篷很能说明他们的情况。
-precise	[gen]	We need something more precise.	我们需要更精确的东西。
-distant	[gen]	Their plan seemed distant at first.	他们的计划起初显得很远的。
-stranger	[gen]	I know very little about the stranger.	我对陌生人了解很少。
-shade	[gen]	We cannot ignore the shade.	我们不能忽视荫。
-grain	[gen]	The grain is not the real problem.	谷粒不是真正的问题。
-situate	[gen]	We decided to situate after all.	我们最终还是决定使位于。
-summarize	[gen]	We cannot summarize without help.	没有帮助我们就无法概述。
-leap	[gen]	The leap came up again today.	今天又提到了跳跃。
-snap	[gen]	It is hard to describe the snap in a few words.	很难用几句话描述使突然中断。
-probability	[gen]	People often worry about the probability.	人们常常为可能性担心。
-leather	[gen]	The leather was the first thing I noticed.	我首先注意到的就是皮革。
-uncertainty	[gen]	She has strong views on the uncertainty.	她对不确定有很鲜明的看法。
-swear	[gen]	He learned to swear the hard way.	他吃了苦头才学会发誓。
-refugee	[gen]	We keep coming back to the refugee.	我们总是绕回难民这个话题。
-shore	[gen]	That is where the shore becomes important.	那就是海岸变得重要的地方。
-monthly	[gen]	The monthly says a lot about them.	月刊很能说明他们的情况。
-comprise	[gen]	Nobody asked us to comprise.	没有人要求我们包含。
-stir	[gen]	The stir matters more than you think.	骚动比你以为的更重要。
-excitement	[gen]	I know very little about the excitement.	我对刺激了解很少。
-sigh	[gen]	We cannot ignore the sigh.	我们不能忽视叹息。
-pregnancy	[gen]	The pregnancy is not the real problem.	怀孕不是真正的问题。
-experimental	[gen]	After the change, everything felt experimental.	改动之后，一切都让人觉得实验。
-institutional	[gen]	It looked institutional, but nobody said a word.	它看起来制度，但没人说一句话。
-slice	[gen]	The slice came up again today.	今天又提到了薄的切片。
-wander	[gen]	She managed to wander in the end.	她最终设法游荡了。
-empire	[gen]	People often worry about the empire.	人们常常为帝国担心。
-subsequently	[gen]	He answered the question subsequently.	他后来回答了这个问题。
-gentle	[gen]	He stayed gentle the whole time.	他全程都很温和。
-attendance	[gen]	The attendance surprised everyone in the room.	出席让在场的所有人都很意外。
-ownership	[gen]	We keep coming back to the ownership.	我们总是绕回所有权这个话题。
-qualification	[gen]	That is where the qualification becomes important.	那就是资格变得重要的地方。
-suspend	[gen]	It took courage to suspend.	悬是需要勇气的。
-functional	[gen]	We need something more functional.	我们需要更功能的东西。
-voluntary	[gen]	The voluntary matters more than you think.	自动的比你以为的更重要。
-pale	[gen]	It is hard to pale well.	要把栅栏做好很难。
-stain	[gen]	We cannot ignore the stain.	我们不能忽视污染。
-athlete	[gen]	The athlete is not the real problem.	运动员不是真正的问题。
-organic	[gen]	He knows a lot about the organic.	他很了解器官的。
-tongue	[gen]	Nobody explained the tongue to us.	没有人向我们解释舌。
-server	[gen]	The server came up again today.	今天又提到了服伺者。
-structural	[gen]	That sounds structural, but it is true.	那听起来结构，但却是真的。
-website	[gen]	People often worry about the website.	人们常常为网站（全球资讯网的主机站）担心。
-fool	[gen]	The fool was the first thing I noticed.	我首先注意到的就是愚人。
-alongside	[curated]	He worked alongside his father for years.	他和他父亲一起工作了很多年。
-unite	[gen]	He learned to unite the hard way.	他吃了苦头才学会联合。
-gently	[gen]	I gently remember what she said.	我温和地记得她说过的话。
-compute	[gen]	It helps to compute early.	早点计算会有帮助。
-wipe	[gen]	It took courage to wipe.	擦拭是需要勇气的。
-weird	[gen]	We need something more weird.	我们需要更怪异的东西。
-gaze	[gen]	The gaze matters more than you think.	注视比你以为的更重要。
-fade	[gen]	I know very little about the fade.	我对褪色了解很少。
-cough	[gen]	We cannot ignore the cough.	我们不能忽视咳嗽咳嗽咳出。
-hypothesis	[gen]	The hypothesis is not the real problem.	假设不是真正的问题。
-royal	[gen]	He knows a lot about the royal.	他很了解王室。
-theoretical	[gen]	It looked theoretical, but nobody said a word.	它看起来理论，但没人说一句话。
-curtain	[gen]	The curtain came up again today.	今天又提到了帐。
-mayor	[gen]	It is hard to describe the mayor in a few words.	很难用几句话描述市长。
-darkness	[gen]	People often worry about the darkness.	人们常常为黑暗担心。
-aunt	[gen]	The aunt was the first thing I noticed.	我首先注意到的就是阿姨。
-tournament	[gen]	She has strong views on the tournament.	她对比赛有很鲜明的看法。
-registration	[gen]	The registration surprised everyone in the room.	登记让在场的所有人都很意外。
-fragment	[gen]	We keep coming back to the fragment.	我们总是绕回碎片这个话题。
-listener	[gen]	That is where the listener becomes important.	那就是收听者变得重要的地方。
-immigration	[gen]	The immigration says a lot about them.	移民很能说明他们的情况。
-tender	[gen]	Let's talk about the tender first.	我们先谈谈嫩的。
-density	[gen]	The density matters more than you think.	密度比你以为的更重要。
-ugly	[gen]	Keep it ugly and simple.	保持丑陋、简单就好。
-module	[gen]	We cannot ignore the module.	我们不能忽视组件。
-faithfully	[gen]	That happens faithfully in real life.	这在现实生活中忠实地发生。
-autumn	[gen]	He knows a lot about the autumn.	他很了解秋天。
-cheek	[gen]	Nobody explained the cheek to us.	没有人向我们解释颊。
-attachment	[gen]	The attachment came up again today.	今天又提到了连接。
-holder	[gen]	It is hard to describe the holder in a few words.	很难用几句话描述持有人。
-solar	[gen]	I have never seen anything so solar.	我从未见过这么太阳的东西。
-grin	[gen]	They had to grin again and again.	他们不得不反复露齿笑露齿而笑。
-rose	[gen]	She has strong views on the rose.	她对玫瑰有很鲜明的看法。
-noun	[gen]	The noun surprised everyone in the room.	名词让在场的所有人都很意外。
-fortunate	[gen]	The room felt fortunate to me.	我觉得房间很幸运。
-alright	[gen]	Most people thought it was alright.	大多数人认为它很没问题。
-lazy	[gen]	Nobody expected it to be so lazy.	没人想到会这么懒惰。
-hello	[gen]	Let's talk about the hello first.	我们先谈谈喂。
-hunger	[gen]	The hunger matters more than you think.	饥饿比你以为的更重要。
-insure	[gen]	It is hard to insure well.	要把保险做好很难。
-ashamed	[gen]	The answer was ashamed, and everyone knew it.	答案是惭愧的，大家都知道。
-found	[gen]	The found is not the real problem.	建立不是真正的问题。
-blog	[gen]	We decided to blog after all.	我们最终还是决定博客。
-thirst	[gen]	Nobody explained the thirst to us.	没有人向我们解释口渴。
+bite	[curated]	The dog bit his hand.	狗咬了他的手。
+printer	[curated]	The printer is out of paper.	打印机没纸了。
+firstly	[curated]	Firstly, we need more data.	第一，我们需要更多数据。
+anxious	[curated]	She was anxious about the exam.	她为考试感到焦虑。
+adventure	[curated]	The trip was a real adventure.	这趟旅行是一次真正的冒险。
+fence	[curated]	They painted the fence white.	他们把栅栏刷成了白色。
+exhaust	[curated]	Exhaust fumes filled the street.	废气弥漫在街道上。
+attraction	[curated]	The castle is the main attraction.	那座城堡是主要景点。
+quietly	[curated]	He left the room quietly.	他悄悄地离开了房间。
+castle	[curated]	The castle is open to visitors.	这座城堡对游客开放。
+veteran	[curated]	He is a veteran of two wars.	他是经历过两场战争的老兵。
+reflection	[curated]	We saw our reflection in the water.	我们在水中看到了自己的倒影。
+nerve	[curated]	It takes nerve to ask that.	问那个问题需要勇气。
+determination	[curated]	She showed great determination.	她表现出了极大的决心。
+altogether	[curated]	That's a different matter altogether.	那完全是另一回事。
+fiction	[curated]	She prefers fiction to history.	比起历史她更喜欢小说。
+carpet	[curated]	The carpet needs cleaning.	地毯需要清洗。
+cluster	[curated]	Houses cluster around the square.	房屋围绕着广场聚集。
+confusion	[curated]	There was some confusion about times.	时间安排上有些混乱。
+hurry	[curated]	We left in a hurry.	我们匆匆离开了。
+logic	[curated]	I don't follow your logic.	我不理解你的逻辑。
+controversial	[curated]	It is a controversial decision.	这是一个有争议的决定。
+raw	[curated]	Do not eat raw meat.	不要吃生肉。
+grammar	[curated]	Her grammar has improved.	她的语法进步了。
+revise	[curated]	Revise the notes before the exam.	考试前复习一下笔记。
+hint	[curated]	She gave me a hint.	她给了我一点提示。
+hook	[curated]	Hang your coat on the hook.	把外套挂在钩子上。
+bell	[curated]	The bell rang at noon.	中午铃响了。
+liquid	[curated]	Add the liquid slowly.	慢慢加入液体。
+panic	[curated]	There is no reason for panic.	没有理由恐慌。
+uncle	[curated]	My uncle lives in Canada.	我叔叔住在加拿大。
+rice	[curated]	We eat rice every day.	我们每天吃米饭。
+slope	[curated]	The slope is steep here.	这里坡很陡。
+happiness	[curated]	Money cannot buy happiness.	金钱买不到幸福。
+genuine	[curated]	He showed genuine concern.	他表现出了真正的关心。
+vessel	[curated]	The vessel left port at dawn.	那艘船在黎明时离港。
+verb	[curated]	Find the verb in this sentence.	找出这个句子里的动词。
+reckon	[curated]	I reckon it will rain.	我觉得会下雨。
+silly	[curated]	Stop being silly.	别犯傻了。
+transportation	[curated]	Public transportation is cheap here.	这里公共交通很便宜。
+harbor	[curated]	The boat is in the harbor.	船停在港内。
+comedy	[curated]	We watched a comedy last night.	我们昨晚看了一部喜剧。
+chase	[curated]	The dog chased the cat.	狗追着猫跑。
+storage	[curated]	There is little storage space.	存储空间很小。
+universe	[curated]	The universe is vast.	宇宙浩瀚无垠。
+horrible	[curated]	The weather was horrible.	天气糟透了。
+sheep	[curated]	The sheep are in the field.	羊在田里。
+lover	[curated]	They were lovers for years.	他们相恋多年。
+rat	[curated]	A rat ran across the floor.	一只老鼠从地板上跑过。
+portrait	[curated]	The portrait hangs in the hall.	那幅肖像挂在厅里。
+innocent	[curated]	He was proved innocent.	他被证明是无辜的。
+substitute	[curated]	Use honey as a substitute.	用蜂蜜作为替代品。
+supplement	[curated]	Take a vitamin supplement daily.	每天服用维生素补充剂。
+adjustment	[curated]	The machine needs a small adjustment.	这台机器需要小幅调整。
+reasonably	[curated]	The price is reasonably low.	价格还算合理。
+filter	[curated]	Change the water filter.	更换一下净水滤芯。
+flexible	[curated]	Our hours are flexible.	我们的工作时间很灵活。
+abstract	[curated]	The idea is too abstract.	这个想法太抽象了。
+tent	[curated]	We put up the tent at dusk.	我们在黄昏时搭起了帐篷。
+precise	[curated]	Give me the precise figure.	给我准确的数字。
+distant	[curated]	A distant bell rang.	远处传来了钟声。
+stranger	[curated]	Don't talk to strangers.	不要和陌生人说话。
+shade	[curated]	Let's sit in the shade.	我们坐在阴凉处吧。
+grain	[curated]	The farmer sells grain in autumn.	这位农民在秋天卖粮食。
+situate	[curated]	The house is situated on a hill.	这栋房子坐落在小山上。
+summarize	[curated]	Summarize the text in three lines.	用三行话概括这篇文章。
+leap	[curated]	He leaped over the fence.	他跳过了栅栏。
+snap	[curated]	The branch snapped in the wind.	树枝被风折断了。
+probability	[curated]	The probability of rain is high.	下雨的可能性很大。
+leather	[curated]	The bag is made of leather.	这个包是皮革做的。
+uncertainty	[curated]	There is great uncertainty now.	现在存在很大的不确定性。
+swear	[curated]	I swear I did not do it.	我发誓不是我干的。
+refugee	[curated]	The camp houses 2,000 refugees.	这个营地收容了两千名难民。
+shore	[curated]	We walked along the shore.	我们沿着海岸散步。
+monthly	[curated]	The magazine is monthly.	这本杂志是月刊。
+comprise	[curated]	The book comprises ten chapters.	这本书共有十章。
+stir	[curated]	Stir the soup gently.	轻轻搅动汤。
+excitement	[curated]	The children shouted with excitement.	孩子们兴奋地喊叫。
+sigh	[curated]	He sighed and sat down.	他叹了口气坐了下来。
+pregnancy	[curated]	The pregnancy was easy.	这次怀孕很顺利。
+experimental	[curated]	The drug is still experimental.	这种药仍处于试验阶段。
+institutional	[curated]	Institutional rules must change.	制度性的规定必须改变。
+slice	[curated]	Have a slice of bread.	吃一片面包吧。
+wander	[curated]	We wandered through the old town.	我们在老城里漫步。
+empire	[curated]	The empire lasted 400 years.	这个帝国延续了四百年。
+subsequently	[curated]	He subsequently changed his mind.	他后来改变了主意。
+gentle	[curated]	He has a gentle voice.	他声音温和。
+attendance	[curated]	Attendance fell last week.	上周出勤率下降了。
+ownership	[curated]	Ownership of the land is disputed.	这片土地的所有权存在争议。
+qualification	[curated]	Do you have the right qualification?	你有相应的资格吗？
+suspend	[curated]	The match was suspended.	比赛被暂停了。
+functional	[curated]	The design is simple and functional.	这个设计简单实用。
+voluntary	[curated]	The work is voluntary.	这项工作是自愿的。
+pale	[curated]	He looked pale and tired.	他看上去苍白而疲惫。
+stain	[curated]	There is a stain on your shirt.	你衬衫上有一块污渍。
+athlete	[curated]	The athlete trained for years.	这位运动员训练了多年。
+organic	[curated]	We buy organic vegetables.	我们买有机蔬菜。
+tongue	[curated]	The doctor looked at his tongue.	医生检查了他的舌头。
+server	[curated]	The server is down again.	服务器又宕机了。
+structural	[curated]	The building has structural problems.	这栋建筑存在结构问题。
+website	[curated]	The website is updated daily.	这个网站每天更新。
+fool	[curated]	Don't be a fool.	别当傻瓜。
+alongside	[curated]	He walked alongside me.	他走在我旁边。
+unite	[curated]	The crisis united the country.	这场危机让全国团结起来。
+gently	[curated]	Close the door gently.	轻轻把门关上。
+compute	[curated]	The machine computes the total.	这台机器计算总额。
+wipe	[curated]	Wipe the table after dinner.	饭后把桌子擦干净。
+weird	[curated]	That's weird — it was here.	真奇怪——它刚才还在这儿。
+gaze	[curated]	She gazed out of the window.	她凝视着窗外。
+fade	[curated]	The colors faded in the sun.	颜色在阳光下褪色了。
+cough	[curated]	He coughed all night.	他咳嗽了一整夜。
+hypothesis	[curated]	The hypothesis was tested twice.	这个假设被验证过两次。
+royal	[curated]	The royal family lives there.	王室住在那里。
+theoretical	[curated]	It is only a theoretical risk.	那只是理论上的风险。
+curtain	[curated]	Draw the curtains, please.	请把窗帘拉上。
+mayor	[curated]	The mayor opened the new school.	市长为新学校剪彩。
+darkness	[curated]	The room was in total darkness.	房间里一片漆黑。
+aunt	[curated]	My aunt lives in the north.	我姑姑住在北方。
+tournament	[curated]	The tournament starts on Friday.	比赛周五开始。
+registration	[curated]	Registration closes at five.	登记五点截止。
+fragment	[curated]	Only a fragment of the pot remained.	这只罐子只剩下一块碎片。
+listener	[curated]	Every listener heard the news.	每位听众都听到了这个消息。
+immigration	[curated]	Immigration rose sharply last year.	去年移民人数急剧上升。
+tender	[curated]	The meat is very tender.	这肉很嫩。
+density	[curated]	The city has a high density.	这座城市人口密度高。
+ugly	[curated]	That building is ugly.	那栋建筑很难看。
+module	[curated]	Each module takes two weeks.	每个模块需要两周。
+faithfully	[curated]	He served the club faithfully.	他忠心耿耿地为俱乐部服务。
+autumn	[curated]	The leaves fall in autumn.	树叶在秋天落下。
+cheek	[curated]	She kissed him on the cheek.	她吻了他的脸颊。
+attachment	[curated]	See the attachment below.	见下方附件。
+holder	[curated]	The holder must sign here.	持有人必须在这里签字。
+solar	[curated]	They installed solar panels.	他们安装了太阳能电池板。
+grin	[curated]	He grinned at the news.	听到这个消息他咧嘴笑了。
+rose	[curated]	She grows roses by the door.	她在门边种玫瑰。
+noun	[curated]	Circle every noun in the line.	圈出这行里的每个名词。
+fortunate	[curated]	We were fortunate to escape.	我们幸运地逃脱了。
+alright	[curated]	Are you alright?	你还好吗？
+lazy	[curated]	He is lazy on Sundays.	他周日很懒。
+hello	[curated]	Say hello to your sister.	替我向你姐姐问好。
+hunger	[curated]	Hunger kept them awake.	饥饿让他们睡不着。
+insure	[curated]	Insure the car before you drive.	开车前先给车上保险。
+ashamed	[curated]	I'm ashamed of my behaviour.	我为自己的行为感到羞愧。
+found	[curated]	They founded the club in 1990.	他们在一九九〇年创立了这个俱乐部。
+blog	[curated]	She writes a blog about food.	她写了一个关于美食的博客。
+thirst	[curated]	The heat caused terrible thirst.	炎热让人极度口渴。

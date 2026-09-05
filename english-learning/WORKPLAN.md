@@ -116,7 +116,7 @@ All three open the **same app code**; they differ only in *where* the file is op
 - A **Service Worker** (`sw.js`) caches the page on first load, so it keeps working **offline** even after the host is unreachable.
 - `https` storage is the most stable of the three.
 - **Share link:** https://889d525c87954023a62ef99476da83bd.app.workbuddy.link/
-  - This is the **current deployed link** — it serves the latest build (service worker cache `ed-2f278ce8`: Phase-2 example rewrite §12.1, global-SRS refactor, Spell It + Context modes, status colors, and the B1–B6 accessibility fixes: pinch-zoom, contrast, keyboard/ARIA, dialog focus-trap, reduced-motion, XSS hardening). Re-deploys reuse the same link. After a deploy, close and reopen the app once so Safari picks up the new service worker.
+  - This is the **current deployed link** — it serves the latest build (service worker cache `ed-c493f6c4`: full Phase-2 example rewrite §12.1 (all 1879 hand-authored), global-SRS refactor, Spell It + Context modes, status colors, and the B1–B6 accessibility fixes: pinch-zoom, contrast, keyboard/ARIA, dialog focus-trap, reduced-motion, XSS hardening). Re-deploys reuse the same link. After a deploy, close and reopen the app once so Safari picks up the new service worker.
 
 > **You can use all three at once.** They are just different entry points to the same app. They do **not** conflict.
 
@@ -280,7 +280,7 @@ This is the **primary graded vocabulary path**, built in four phases. Each phase
 
 **Recycling principle:** each later phase's readings reuse earlier-taught words as plain text for spiral review. The app's `CROSS_DICT` mechanism auto-detects any prior-phase word inside a later reading and renders it as a tappable blue popup (meaning + 🔊 pronunciation) — so vocabulary compounds instead of being forgotten. Phase 4 readings recycle the **Phase 1 + 2** taught set at 100% coverage (452/452 words); Phase 3's NAWL words stay consolidated in the Phase 3 pack.
 
-**Status:** Phase 1–4 are **complete** and registered in both `content/manifest.json` and `pwa/content/manifest.json`. The hosted PWA's `sw.js` cache is auto-bumped from content hash (`build/_prep_deploy.js`); current live hash: `ed-2f278ce8` (served at `https://889d525c87954023a62ef99476da83bd.app.workbuddy.link/`). To preview, open `pwa/index.html` (or the hosted share link) and pick **高频词·第4阶 (COCA 学术拓展)** from **Me → Content Pack**.
+**Status:** Phase 1–4 are **complete** and registered in both `content/manifest.json` and `pwa/content/manifest.json`. The hosted PWA's `sw.js` cache is auto-bumped from content hash (`build/_prep_deploy.js`); current live hash: `ed-c493f6c4` (served at `https://889d525c87954023a62ef99476da83bd.app.workbuddy.link/`). To preview, open `pwa/index.html` (or the hosted share link) and pick **高频词·第4阶 (COCA 学术拓展)** from **Me → Content Pack**.
 
 ## 12. Open items — future enhancements (pending decision, not started)
 
@@ -288,16 +288,19 @@ Reviewed 2026-08-30. Nothing here is pending implementation work; each item wait
 
 > The **Review tab redesign** (scope switch + mode row, typed-input fix) is no longer an open question — it is an approved action plan tracked in **§13**.
 
-1. **Phase 2 Chinese example-sentence quality.** — **PARTIALLY DONE 2026-09-01 (batch 1 of N); remainder still open.**
+1. **Phase 2 Chinese example-sentence quality.** — **DONE 2026-09-05: all 1879 words hand-authored; nothing left open.**
    - *Original defect:* all 1879 `freq-2k` examples came from only **14 EN / 11 ZH templates**, **100% (1879/1879)** of `exzh` pasted the **raw English word into the Chinese sentence** (e.g. `这个weather有助于解释结果。`), and POS was ignored (`We need to tired a clear answer.`).
    - *What shipped:* new pipeline **`build/_gen_p2_examples.js`** + hand-authored **`build/_p2_curated/*.json`**.
      - **Gloss cleanup** — strips inline ECDICT POS markers (`村庄 a. 乡村的` → `村庄`), later senses, duplicated halves (`在...下方在...下方` → `在...下方`).
      - **POS correction** — only second-guesses the pack on v./adj./adv.; a `-的` gloss on a `v.` entry is re-classified `adj.` (fixes `busy/slow/secure`).
      - **Frame libraries** — 16 frames per POS. Frames are deliberately **"topic/comment"** shaped (`We cannot ignore the {w}.` / `我们先谈谈{g}。`) because semantically-specific frames produce absurdities (`You can see the grandmother most clearly in this photo.`). Adjective frames avoid the indefinite article (`a illegal example`); verb frames take no object so they serve transitive *and* intransitive verbs.
-     - **Curated overrides** — `001.json` (200) + `002.json` (200) + `003.json` (21 conjunctive adverbs) = **421 hand-written EN+ZH pairs**, covering the highest-frequency 400 words plus every conjunctive adverb, which cannot be framed at all (`否则` → `他否则回答了这个问题。`).
-     - *Result:* `latin-in-ZH = 0` (was 1879), `validation problems = 0`, unique EN sentences 14 → **1879**, unique ZH 11 → **1877**. Both `content/` and `pwa/content/` synced; live at `ed-2f278ce8`; verified on the deployed link.
-   - **Still open:** the remaining **1458 words are framework-generated** — grammatical and non-absurd, but bland and occasionally stiff (e.g. `她对海岸有很鲜明的看法。`, `We decided to assure after all.` where *assure* wants an object). Genuine quality needs per-word authoring. Corpus extraction was evaluated and **rejected**: all 84 readings across every pack cover only **30.6% (575/1879)** of Phase-2 words, and some hits are `🔁 Review:` index lines rather than sentences.
-   - **Next batches, in file order:** words 400–599, 600–799, … Each batch is ~200 entries appended as `_p2_curated/00N.json`, then re-run `node build/_gen_p2_examples.js --apply` and redeploy. Files sort-merge, so later batches simply add coverage.
+     - **Curated overrides** — hand-written EN+ZH pairs in `build/_p2_curated/`, batch files sort-merge so later batches only add coverage:
+       `001.json` (200) + `002.json` (200) + `003.json` (21 conjunctive adverbs) — shipped `ed-2f278ce8`;
+       `004.json` (words 400–599) + `005.json` (600–799) + `006.json` (800–999) + `007.json` (1000–1199) + `008.json` (1200–1399) + `009.json` (1400–1599) + `010.json` (1600–1878, 279 entries) — shipped `ed-c493f6c4`.
+       Total **1879 / 1879 words curated — 0 framework-generated**. Conjunctive adverbs (`否则/然而/因此`) needed hand authoring because no frame fits them (`他否则回答了这个问题。`).
+     - *Result:* `latin-in-ZH = 0` (was 1879), `validation problems = 0`, unique EN sentences 14 → **1877**, unique ZH 11 → **1873** (the few remaining duplicates are intentional near-identical natural sentences). Both `content/` and `pwa/content/` synced; live at `ed-c493f6c4`; verified by downloading the deployed `freq-2k.json` and spot-checking `suggestion / blow / faithfully / snap / thirst / stair / shore / cast / FALSE`.
+   - **Known data defect (not fixed):** entry #1175 headword is the uppercase string `FALSE` instead of `false`. It is curable in the authoring layer (its example reads correctly: *The report was false.*), but renaming the headword was deliberately skipped because headwords are the key for the user's stored `learnedWords`/`flashcards` progress — renaming would orphan that progress. Fix only alongside a progress-migration step.
+   - **Design note (why per-word authoring and not automation):** the 16-frames-per-POS library produces grammatical, non-absurd sentences but stays bland and occasionally stiff (`她对海岸有很鲜明的看法。`, `We decided to assure after all.` where *assure* wants an object). Corpus extraction was evaluated and **rejected**: all 84 readings across every pack cover only **30.6% (575/1879)** of Phase-2 words, and some hits are `🔁 Review:` index lines rather than sentences.
 2. **Extend reading recycling to Phase 3.** Phase 4 readings currently recycle P1+P2 only (decision B1, 452/452 covered). Extending recycling to include the Phase 3 NAWL set would compound academic vocabulary too — but previously conflicted with the 240–300-word reading-length cap; would need re-balancing the reading texts.
 3. **Per-word review push reminders.** Not feasible as-is: an offline-first PWA cannot fire background notifications per due word. Current behavior is the in-app due queue + global nav badge, plus the generic fixed-time daily reminder (only fires while the app is open). Options if wanted later: Background Sync API (limited iOS support) or a native-wrapper approach — both change the deployment model and need separate evaluation against the offline/no-data-loss requirements.
 
@@ -529,7 +532,7 @@ Status: **all implemented & synced** to `pwa/index.html` and `english-learning-t
 
 ## 17. Web UI Compliance & iPhone Accessibility Plan (approved & implemented 2026-08-31)
 
-Status: **implemented + deployed.** All six batches (B1–B6) are coded in `english-learning/pwa/index.html`, mirrored to `english-learning-tool.html`, the service-worker cache is bumped to **`ed-bc9c5375`**, and the hosted link `https://889d525c87954023a62ef99476da83bd.app.workbuddy.link/` now serves that build (verified 2026-09-01). Close & reopen the app once on the phone to pick up the new SW. *(Superseded 2026-09-01 by the §12.1 content deploy — live hash is now `ed-2f278ce8`; the B1–B6 code itself is unchanged and still live.)*
+Status: **implemented + deployed.** All six batches (B1–B6) are coded in `english-learning/pwa/index.html`, mirrored to `english-learning-tool.html`, the service-worker cache is bumped to **`ed-bc9c5375`**, and the hosted link `https://889d525c87954023a62ef99476da83bd.app.workbuddy.link/` now serves that build (verified 2026-09-01). Close & reopen the app once on the phone to pick up the new SW. *(Superseded 2026-09-05 by the §12.1 content deploy — live hash is now `ed-c493f6c4`; the B1–B6 code itself is unchanged and still live.)*
 
 **Scope of every batch:** edits land in `english-learning/pwa/index.html` (the hosted source), then get mirrored to `english-learning/english-learning-tool.html`, then redeploy (→ new `ed-xxxx` hash). Line numbers are approximate (from the audit pass) and given as `selector / feature` for durable reference.
 
