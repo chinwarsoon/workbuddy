@@ -1,0 +1,5982 @@
+[
+  {
+    "word": "one",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "一(个)",
+    "defEn": "the smallest whole number or a numeral representing this number",
+    "ipa": "/wʌn/",
+    "pos": "n."
+  },
+  {
+    "word": "year",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "年",
+    "defEn": "a period of time containing 365 (or 366) days",
+    "ipa": "/jiə/",
+    "pos": "n."
+  },
+  {
+    "word": "well",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "井",
+    "defEn": "a deep hole or shaft dug or drilled to obtain water or oil or gas or brine",
+    "ipa": "/wel/",
+    "pos": "n."
+  },
+  {
+    "word": "way",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "路",
+    "defEn": "the condition of things generally",
+    "ipa": "/wei/",
+    "pos": "n."
+  },
+  {
+    "word": "thing",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "事物",
+    "defEn": "a special situation",
+    "ipa": "/θiŋ/",
+    "pos": "n."
+  },
+  {
+    "word": "back",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "后面的",
+    "defEn": "the posterior part of a human (or animal) body from the neck to the end of the spine",
+    "ipa": "/bæk/",
+    "pos": "n."
+  },
+  {
+    "word": "mean",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "低劣的",
+    "defEn": "an average of n numbers computed by adding some function of the numbers and dividing by some function of n",
+    "ipa": "/mi:n/",
+    "pos": "n."
+  },
+  {
+    "word": "really",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "实际上",
+    "defEn": "r in accordance with truth or fact or reality",
+    "ipa": "/'riəli/",
+    "pos": "adv."
+  },
+  {
+    "word": "life",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "生活",
+    "defEn": "a characteristic state or mode of living",
+    "ipa": "/laif/",
+    "pos": "n."
+  },
+  {
+    "word": "problem",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "问题",
+    "defEn": "a state of difficulty that needs to be resolved",
+    "ipa": "/'prɒbləm/",
+    "pos": "n."
+  },
+  {
+    "word": "lot",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "运气",
+    "defEn": "a parcel of land having fixed boundaries",
+    "ipa": "/lɒt/",
+    "pos": "n."
+  },
+  {
+    "word": "try",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "尝试",
+    "defEn": "make an effort or attempt",
+    "ipa": "/trai/",
+    "pos": "v."
+  },
+  {
+    "word": "leave",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "许可",
+    "defEn": "the period of time during which you are absent from work or duty",
+    "ipa": "/li:v/",
+    "pos": "n."
+  },
+  {
+    "word": "number",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "数",
+    "defEn": "the property possessed by a sum or total or indefinite quantity of units or individuals",
+    "ipa": "/'nʌmbə/",
+    "pos": "n."
+  },
+  {
+    "word": "part",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "部分",
+    "defEn": "something determined in relation to something that includes it",
+    "ipa": "/pɑ:t/",
+    "pos": "n."
+  },
+  {
+    "word": "point",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "点",
+    "defEn": "a geometric element that has position but no extension",
+    "ipa": "/pɒint/",
+    "pos": "n."
+  },
+  {
+    "word": "something",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "某事",
+    "defEn": "Anything unknown, undetermined, or not specifically",
+    "ipa": "/'sʌmθiŋ/",
+    "pos": "n."
+  },
+  {
+    "word": "interest",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "兴趣",
+    "defEn": "a sense of concern with and curiosity about someone or something",
+    "ipa": "/'intrist/",
+    "pos": "n."
+  },
+  {
+    "word": "week",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "星期",
+    "defEn": "any period of seven consecutive days",
+    "ipa": "/wi:k/",
+    "pos": "n."
+  },
+  {
+    "word": "include",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "包括",
+    "defEn": "have as a part, be made up out of",
+    "ipa": "/in'klu:d/",
+    "pos": "v."
+  },
+  {
+    "word": "course",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "课程",
+    "defEn": "education imparted in a series of lessons or meetings",
+    "ipa": "/kɒ:s/",
+    "pos": "n."
+  },
+  {
+    "word": "report",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "报告",
+    "defEn": "a written document describing the findings of some individual or group",
+    "ipa": "/ri'pɒ:t/",
+    "pos": "n."
+  },
+  {
+    "word": "group",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "团体",
+    "defEn": "any number of entities (members) considered as a unit",
+    "ipa": "/gru:p/",
+    "pos": "n."
+  },
+  {
+    "word": "case",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "情形",
+    "defEn": "an occurrence of something",
+    "ipa": "/keis/",
+    "pos": "n."
+  },
+  {
+    "word": "around",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "围绕；大约",
+    "defEn": "on all sides of; approximately",
+    "ipa": "/ə'raund/",
+    "pos": "prep."
+  },
+  {
+    "word": "seem",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "象是",
+    "defEn": "appear to exist",
+    "ipa": "/si:m/",
+    "pos": "v."
+  },
+  {
+    "word": "let",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "让",
+    "defEn": "a serve that strikes the net before falling into the receiver's court; the ball must be served again",
+    "ipa": "/let/",
+    "pos": "n."
+  },
+  {
+    "word": "kind",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "种类",
+    "defEn": "a category of things distinguished by some common characteristic or quality",
+    "ipa": "/kaind/",
+    "pos": "n."
+  },
+  {
+    "word": "system",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "系统",
+    "defEn": "instrumentality that combines interrelated interacting artifacts designed to work as a coherent entity",
+    "ipa": "/'sistəm/",
+    "pos": "n."
+  },
+  {
+    "word": "set",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "日落",
+    "defEn": "a group of things of the same kind that belong together and are so used",
+    "ipa": "/set/",
+    "pos": "n."
+  },
+  {
+    "word": "state",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "州",
+    "defEn": "the territory occupied by one of the constituent administrative districts of a nation",
+    "ipa": "/steit/",
+    "pos": "n."
+  },
+  {
+    "word": "fact",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "事实",
+    "defEn": "a piece of information about circumstances that exist or events that have occurred",
+    "ipa": "/fækt/",
+    "pos": "n."
+  },
+  {
+    "word": "however",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "然而",
+    "defEn": "despite that; but",
+    "ipa": "/hau'evə/",
+    "pos": "adv."
+  },
+  {
+    "word": "provide",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "提供",
+    "defEn": "give what is desired or needed, especially support, food or sustenance",
+    "ipa": "/prə'vaid/",
+    "pos": "v."
+  },
+  {
+    "word": "month",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "月",
+    "defEn": "a time unit of approximately 30 days",
+    "ipa": "/mʌnθ/",
+    "pos": "n."
+  },
+  {
+    "word": "large",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "大的",
+    "defEn": "a garment size for a large person",
+    "ipa": "/lɑ:dʒ/",
+    "pos": "n."
+  },
+  {
+    "word": "information",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "消息",
+    "defEn": "a message received and understood",
+    "ipa": "/.infə'meiʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "government",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "政府",
+    "defEn": "the organization that is the governing authority of a political unit",
+    "ipa": "/'gʌvənmənt/",
+    "pos": "n."
+  },
+  {
+    "word": "issue",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "发行",
+    "defEn": "an important question that is in dispute and must be settled",
+    "ipa": "/'isju/",
+    "pos": "n."
+  },
+  {
+    "word": "build",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "建立",
+    "defEn": "build or establish something abstract",
+    "ipa": "/bild/",
+    "pos": "v."
+  },
+  {
+    "word": "hold",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "把握",
+    "defEn": "power by which something or someone is affected or dominated",
+    "ipa": "/həuld/",
+    "pos": "n."
+  },
+  {
+    "word": "service",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "服务",
+    "defEn": "work done by one person or group that benefits another",
+    "ipa": "/'sə:vis/",
+    "pos": "n."
+  },
+  {
+    "word": "second",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "秒",
+    "defEn": "1/60 of a minute; the basic unit of time adopted under the Systeme International d'Unites",
+    "ipa": "/'sekənd/",
+    "pos": "n."
+  },
+  {
+    "word": "increase",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "增加",
+    "defEn": "a change resulting in an increase",
+    "ipa": "/in'kri:s/",
+    "pos": "n."
+  },
+  {
+    "word": "result",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "结果",
+    "defEn": "something that results",
+    "ipa": "/ri'zʌlt/",
+    "pos": "n."
+  },
+  {
+    "word": "away",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "离去",
+    "defEn": "used of an opponent's ground",
+    "ipa": "/ə'wei/",
+    "pos": "adv."
+  },
+  {
+    "word": "example",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "例子",
+    "defEn": "an item of information that is typical of a class or group",
+    "ipa": "/ig'zæmpl/",
+    "pos": "n."
+  },
+  {
+    "word": "happen",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "发生",
+    "defEn": "come to pass",
+    "ipa": "/'hæpən/",
+    "pos": "v."
+  },
+  {
+    "word": "offer",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "给予(物)",
+    "defEn": "the verbal act of offering",
+    "ipa": "/'ɒfə/",
+    "pos": "n."
+  },
+  {
+    "word": "program",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "节目",
+    "defEn": "a system of projects or services intended to meet a public need",
+    "ipa": "/'prəugræm/",
+    "pos": "n."
+  },
+  {
+    "word": "lead",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "铅",
+    "defEn": "an advantage held by a competitor in a race",
+    "ipa": "/li:d. led/",
+    "pos": "n."
+  },
+  {
+    "word": "thank",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "谢意",
+    "defEn": "express gratitude or show appreciation to",
+    "ipa": "/θæŋk/",
+    "pos": "v."
+  },
+  {
+    "word": "far",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "远的",
+    "defEn": "located at a great distance in time or space or degree",
+    "ipa": "/fɑ:/",
+    "pos": "adj."
+  },
+  {
+    "word": "hope",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "希望",
+    "defEn": "a specific instance of feeling hopeful",
+    "ipa": "/həup/",
+    "pos": "n."
+  },
+  {
+    "word": "form",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "形状",
+    "defEn": "the phonological or orthographic sound or appearance of a word that can be used to describe or identify something",
+    "ipa": "/fɒ:m/",
+    "pos": "n."
+  },
+  {
+    "word": "level",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "水平",
+    "defEn": "height above ground",
+    "ipa": "/'levl/",
+    "pos": "n."
+  },
+  {
+    "word": "person",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "人",
+    "defEn": "a human being",
+    "ipa": "/'pə:sn/",
+    "pos": "n."
+  },
+  {
+    "word": "experience",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "经历",
+    "defEn": "the accumulation of knowledge or skill that results from direct participation in events or activities",
+    "ipa": "/ik'spiəriəns/",
+    "pos": "n."
+  },
+  {
+    "word": "member",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "成员",
+    "defEn": "one of the persons who compose a social group (especially individuals who have joined and participate in a group",
+    "ipa": "/'membə/",
+    "pos": "n."
+  },
+  {
+    "word": "able",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "能干的",
+    "defEn": "(usually followed by `to') having the necessary means or skill or know-how or authority to do something",
+    "ipa": "/'eibl/",
+    "pos": "adj."
+  },
+  {
+    "word": "support",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "支持",
+    "defEn": "the activity of providing for or maintaining by supplying with money or necessities",
+    "ipa": "/sə'pɒ:t/",
+    "pos": "n."
+  },
+  {
+    "word": "whether",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "是否",
+    "defEn": "Which (of two); which one (of two); -- used",
+    "ipa": "/'hweðə/",
+    "pos": "pron."
+  },
+  {
+    "word": "line",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "列",
+    "defEn": "a formation of people or things one beside another",
+    "ipa": "/lain/",
+    "pos": "n."
+  },
+  {
+    "word": "present",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "现在",
+    "defEn": "the period of time that is happening now; any continuous stretch of time including the moment of speech",
+    "ipa": "/'preznt/",
+    "pos": "n."
+  },
+  {
+    "word": "side",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "旁边",
+    "defEn": "a place within a region identified relative to a center or reference location",
+    "ipa": "/said/",
+    "pos": "n."
+  },
+  {
+    "word": "term",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "术语",
+    "defEn": "a word or expression used for some particular thing",
+    "ipa": "/tə:m/",
+    "pos": "n."
+  },
+  {
+    "word": "least",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "最少",
+    "defEn": "something that is of no importance",
+    "ipa": "/li:st/",
+    "pos": "n."
+  },
+  {
+    "word": "age",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "年龄",
+    "defEn": "how long something has existed",
+    "ipa": "/eidʒ/",
+    "pos": "n."
+  },
+  {
+    "word": "process",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "程序",
+    "defEn": "(psychology) the performance of some composite cognitive activity; an operation that affects mental contents",
+    "ipa": "/'prɒses/",
+    "pos": "n."
+  },
+  {
+    "word": "public",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "公众",
+    "defEn": "a body of people sharing some common interest",
+    "ipa": "/'pʌblik/",
+    "pos": "n."
+  },
+  {
+    "word": "possible",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "可能的",
+    "defEn": "something that can be done",
+    "ipa": "/'pɒsəbl/",
+    "pos": "n."
+  },
+  {
+    "word": "actually",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "事实上",
+    "defEn": "in fact; really",
+    "ipa": "/'æktʃuəli/",
+    "pos": "adv."
+  },
+  {
+    "word": "view",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "视野",
+    "defEn": "the visual percept of a region",
+    "ipa": "/vju:/",
+    "pos": "n."
+  },
+  {
+    "word": "parent",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "父母",
+    "defEn": "a father or mother; one who begets or one who gives birth to or nurtures and raises a child; a relative who plays",
+    "ipa": "/'perənt/",
+    "pos": "n."
+  },
+  {
+    "word": "party",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "宴会",
+    "defEn": "an organization to gain political power",
+    "ipa": "/'pɑ:ti/",
+    "pos": "n."
+  },
+  {
+    "word": "local",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "地方性的",
+    "defEn": "public transport consisting of a bus or train that stops at all stations or stops",
+    "ipa": "/'ləukəl/",
+    "pos": "n."
+  },
+  {
+    "word": "control",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "控制",
+    "defEn": "power to direct or determine",
+    "ipa": "/kən'trəul/",
+    "pos": "n."
+  },
+  {
+    "word": "already",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "已经",
+    "defEn": "by this time; before now",
+    "ipa": "/ɒ:l'redi/",
+    "pos": "adv."
+  },
+  {
+    "word": "concern",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "关心",
+    "defEn": "something that interests you because it is important or affects you",
+    "ipa": "/kən'sə:n/",
+    "pos": "n."
+  },
+  {
+    "word": "product",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "产品",
+    "defEn": "an artifact that has been created by someone or some process",
+    "ipa": "/'prɒdʌkt/",
+    "pos": "n."
+  },
+  {
+    "word": "lose",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "遗失",
+    "defEn": "fail to keep or to maintain; cease to have, either physically or in an abstract sense",
+    "ipa": "/lu:z/",
+    "pos": "v."
+  },
+  {
+    "word": "whole",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "全部",
+    "defEn": "all of something including all its component elements or parts",
+    "ipa": "/həul/",
+    "pos": "n."
+  },
+  {
+    "word": "rate",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "比率",
+    "defEn": "a magnitude or frequency relative to a time unit",
+    "ipa": "/reit/",
+    "pos": "n."
+  },
+  {
+    "word": "care",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "小心",
+    "defEn": "the work of providing treatment for or attending to someone or something",
+    "ipa": "/kєə/",
+    "pos": "n."
+  },
+  {
+    "word": "expect",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "预期",
+    "defEn": "regard something as probable or likely",
+    "ipa": "/iks'pekt/",
+    "pos": "v."
+  },
+  {
+    "word": "sort",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "种类",
+    "defEn": "an approximate definition or example",
+    "ipa": "/sɒ:t/",
+    "pos": "n."
+  },
+  {
+    "word": "ever",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "曾经",
+    "defEn": "at any time",
+    "ipa": "/'evə/",
+    "pos": "adv."
+  },
+  {
+    "word": "anything",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "任何事",
+    "defEn": "Any object, act, state, event, or fact whatever; thing of",
+    "ipa": "/'eniθiŋ/",
+    "pos": "n."
+  },
+  {
+    "word": "cause",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "原因",
+    "defEn": "events that provide the generative force that is the origin of something",
+    "ipa": "/kɒ:z/",
+    "pos": "n."
+  },
+  {
+    "word": "fall",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "落下",
+    "defEn": "the season when the leaves fall from the trees",
+    "ipa": "/fɒ:l/",
+    "pos": "n."
+  },
+  {
+    "word": "deal",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "交易",
+    "defEn": "a particular instance of buying or selling",
+    "ipa": "/di:l/",
+    "pos": "n."
+  },
+  {
+    "word": "send",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "发送",
+    "defEn": "cause to go somewhere",
+    "ipa": "/send/",
+    "pos": "v."
+  },
+  {
+    "word": "soon",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "不久",
+    "defEn": "in a short time",
+    "ipa": "/su:n/",
+    "pos": "adv."
+  },
+  {
+    "word": "base",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "底部",
+    "defEn": "installation from which a military force initiates operations",
+    "ipa": "/beis/",
+    "pos": "n."
+  },
+  {
+    "word": "suggest",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "提议",
+    "defEn": "imply as a possibility",
+    "ipa": "/səg'dʒest/",
+    "pos": "v."
+  },
+  {
+    "word": "past",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "过去",
+    "defEn": "the time that has elapsed",
+    "ipa": "/pɑ:st/",
+    "pos": "n."
+  },
+  {
+    "word": "power",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "力",
+    "defEn": "possession of controlling influence",
+    "ipa": "/'pauə/",
+    "pos": "n."
+  },
+  {
+    "word": "center",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "中心",
+    "defEn": "an area that is approximately central within some larger region",
+    "ipa": "/'sentə/",
+    "pos": "n."
+  },
+  {
+    "word": "grow",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "种植",
+    "defEn": "become larger, greater, or bigger; expand or gain",
+    "ipa": "/grəu/",
+    "pos": "v."
+  },
+  {
+    "word": "nothing",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "无",
+    "defEn": "a quantity of no importance",
+    "ipa": "/'nʌθiŋ/",
+    "pos": "n."
+  },
+  {
+    "word": "return",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "回来",
+    "defEn": "a coming to or returning home",
+    "ipa": "/ri'tə:n/",
+    "pos": "n."
+  },
+  {
+    "word": "mother",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "母亲",
+    "defEn": "a woman who has given birth to a child (also used as a term of address to your mother)",
+    "ipa": "/'mʌðə/",
+    "pos": "n."
+  },
+  {
+    "word": "matter",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "事件",
+    "defEn": "a vaguely specified concern",
+    "ipa": "/'mætə/",
+    "pos": "n."
+  },
+  {
+    "word": "mind",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "思想",
+    "defEn": "that which is responsible for one's thoughts and feelings; the seat of the faculty of reason",
+    "ipa": "/maind/",
+    "pos": "n."
+  },
+  {
+    "word": "value",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "价值",
+    "defEn": "a numerical quantity measured or assigned or computed",
+    "ipa": "/'vælju:/",
+    "pos": "n."
+  },
+  {
+    "word": "record",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "记录",
+    "defEn": "anything (such as a document or a phonograph record or a photograph) providing permanent evidence of or information",
+    "ipa": "/ri'kɒ:d/",
+    "pos": "n."
+  },
+  {
+    "word": "several",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "几个的",
+    "defEn": "a common English word.",
+    "ipa": "/'sevərəl/",
+    "pos": "adj."
+  },
+  {
+    "word": "remember",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "记得",
+    "defEn": "recall knowledge from memory; have a recollection",
+    "ipa": "/ri'membə/",
+    "pos": "v."
+  },
+  {
+    "word": "bit",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "少量",
+    "defEn": "a small fragment of something broken off from the whole",
+    "ipa": "/bit/",
+    "pos": "n."
+  },
+  {
+    "word": "share",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "部分",
+    "defEn": "assets belonging to or due to or contributed by an individual person or group",
+    "ipa": "/ʃєə/",
+    "pos": "n."
+  },
+  {
+    "word": "real",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "真的",
+    "defEn": "true; not fake",
+    "ipa": "/'riəl/",
+    "pos": "n."
+  },
+  {
+    "word": "figure",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "数字",
+    "defEn": "a diagram or picture illustrating textual material",
+    "ipa": "/'figə/",
+    "pos": "n."
+  },
+  {
+    "word": "decide",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "决定",
+    "defEn": "reach, make, or come to a decision about something",
+    "ipa": "/di'said/",
+    "pos": "v."
+  },
+  {
+    "word": "language",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "语言",
+    "defEn": "a systematic means of communicating by the use of sounds or conventional symbols",
+    "ipa": "/'læŋgwidʒ/",
+    "pos": "n."
+  },
+  {
+    "word": "subject",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "科目",
+    "defEn": "the subject matter of a conversation or discussion",
+    "ipa": "/'sʌbdʒekt/",
+    "pos": "n."
+  },
+  {
+    "word": "development",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "发展",
+    "defEn": "act of improving by expanding or enlarging or refining",
+    "ipa": "/di'veləpmənt/",
+    "pos": "n."
+  },
+  {
+    "word": "town",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "城镇",
+    "defEn": "an urban area with a fixed boundary that is smaller than a city",
+    "ipa": "/taun/",
+    "pos": "n."
+  },
+  {
+    "word": "half",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "一半",
+    "defEn": "one of two divisions into which some games or performances are divided: the two divisions are separated by an interval",
+    "ipa": "/hɑ:f/",
+    "pos": "n."
+  },
+  {
+    "word": "break",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "休息",
+    "defEn": "an unexpected piece of good luck",
+    "ipa": "/breik/",
+    "pos": "n."
+  },
+  {
+    "word": "clear",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "清楚的",
+    "defEn": "the state of being free of suspicion",
+    "ipa": "/kliə/",
+    "pos": "n."
+  },
+  {
+    "word": "future",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "未来",
+    "defEn": "the time yet to come",
+    "ipa": "/'fju:tʃə/",
+    "pos": "n."
+  },
+  {
+    "word": "ago",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "以前",
+    "defEn": "a common English word.",
+    "ipa": "/ə'gəu/",
+    "pos": "adv."
+  },
+  {
+    "word": "remain",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "保持",
+    "defEn": "be left; of persons, questions, problems, results, evidence, etc",
+    "ipa": "/ri'mein/",
+    "pos": "v."
+  },
+  {
+    "word": "top",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "顶部",
+    "defEn": "the upper part of anything",
+    "ipa": "/tɒp/",
+    "pos": "n."
+  },
+  {
+    "word": "among",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "在...之中",
+    "defEn": "Alt",
+    "ipa": "/ə'mʌŋ/",
+    "pos": "prep."
+  },
+  {
+    "word": "involve",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "包括",
+    "defEn": "connect closely and often incriminatingly",
+    "ipa": "/in'vɒlv/",
+    "pos": "v."
+  },
+  {
+    "word": "reach",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "伸出",
+    "defEn": "the act of physically reaching or thrusting out",
+    "ipa": "/ri:tʃ/",
+    "pos": "n."
+  },
+  {
+    "word": "social",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "社会的",
+    "defEn": "relating to human society and its members",
+    "ipa": "/'səuʃəl/",
+    "pos": "adj."
+  },
+  {
+    "word": "period",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "时期",
+    "defEn": "the interval taken to complete one cycle of a regularly repeating phenomenon",
+    "ipa": "/'piəriəd/",
+    "pos": "n."
+  },
+  {
+    "word": "note",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "笔记",
+    "defEn": "a brief written record",
+    "ipa": "/nəut/",
+    "pos": "n."
+  },
+  {
+    "word": "history",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "历史",
+    "defEn": "the aggregate of past events",
+    "ipa": "/'histəri/",
+    "pos": "n."
+  },
+  {
+    "word": "create",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "创造",
+    "defEn": "bring into existence",
+    "ipa": "/kri:'eit/",
+    "pos": "v."
+  },
+  {
+    "word": "along",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "沿着",
+    "defEn": "moving forward on a line; together with",
+    "ipa": "/ə'lɒŋ/",
+    "pos": "adv."
+  },
+  {
+    "word": "type",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "类型",
+    "defEn": "a subdivision of a particular kind of thing",
+    "ipa": "/taip/",
+    "pos": "n."
+  },
+  {
+    "word": "sound",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "声音",
+    "defEn": "the particular auditory effect produced by a given cause",
+    "ipa": "/saund/",
+    "pos": "n."
+  },
+  {
+    "word": "political",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "政治的",
+    "defEn": "involving or characteristic of politics or parties or politicians",
+    "ipa": "/pə'litikl/",
+    "pos": "adj."
+  },
+  {
+    "word": "receive",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "收到",
+    "defEn": "get something; come into possession of",
+    "ipa": "/ri'si:v/",
+    "pos": "v."
+  },
+  {
+    "word": "moment",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "片刻",
+    "defEn": "a particular point in time",
+    "ipa": "/'məumənt/",
+    "pos": "n."
+  },
+  {
+    "word": "sale",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "出售",
+    "defEn": "a particular instance of selling",
+    "ipa": "/seil/",
+    "pos": "n."
+  },
+  {
+    "word": "policy",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "政策",
+    "defEn": "a plan of action adopted by an individual or social group",
+    "ipa": "/'pɒlisi/",
+    "pos": "n."
+  },
+  {
+    "word": "further",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "更远的",
+    "defEn": "a common English word.",
+    "ipa": "/'fə:ðə/",
+    "pos": "adj."
+  },
+  {
+    "word": "require",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "需要",
+    "defEn": "v require as useful, just, or proper",
+    "ipa": "/ri'kwaiə/",
+    "pos": "v."
+  },
+  {
+    "word": "general",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "一般",
+    "defEn": "a general officer of the highest rank",
+    "ipa": "/'dʒenərəl/",
+    "pos": "n."
+  },
+  {
+    "word": "appear",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "出现",
+    "defEn": "come into sight or view",
+    "ipa": "/ə'piə/",
+    "pos": "v."
+  },
+  {
+    "word": "individual",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "人",
+    "defEn": "a single organism",
+    "ipa": "/.indi'vidʒuəl/",
+    "pos": "n."
+  },
+  {
+    "word": "black",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "黑色",
+    "defEn": "the quality or state of the achromatic color of least lightness (bearing the least resemblance to white)",
+    "ipa": "/blæk/",
+    "pos": "n."
+  },
+  {
+    "word": "sense",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "感应",
+    "defEn": "a general conscious awareness",
+    "ipa": "/sens/",
+    "pos": "n."
+  },
+  {
+    "word": "perhaps",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "也许",
+    "defEn": "r by chance",
+    "ipa": "/pə'hæps/",
+    "pos": "adv."
+  },
+  {
+    "word": "add",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "增加",
+    "defEn": "make an addition (to); join or combine or unite with others; increase the quality, quantity, size or scope of",
+    "ipa": "/æd/",
+    "pos": "v."
+  },
+  {
+    "word": "rule",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "规则",
+    "defEn": "a principle or condition that customarily governs behavior",
+    "ipa": "/ru:l/",
+    "pos": "n."
+  },
+  {
+    "word": "pass",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "经过",
+    "defEn": "(military) a written leave of absence",
+    "ipa": "/pæs/",
+    "pos": "n."
+  },
+  {
+    "word": "produce",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "生产品",
+    "defEn": "fresh fruits and vegetable grown for the market",
+    "ipa": "/prə'dju:s/",
+    "pos": "n."
+  },
+  {
+    "word": "sell",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "卖",
+    "defEn": "the activity of persuading someone to buy",
+    "ipa": "/sel/",
+    "pos": "n."
+  },
+  {
+    "word": "agree",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "同意",
+    "defEn": "be in accord; be in agreement",
+    "ipa": "/ə'gri:/",
+    "pos": "v."
+  },
+  {
+    "word": "law",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "法律",
+    "defEn": "the collection of rules imposed by authority",
+    "ipa": "/lɒ:/",
+    "pos": "n."
+  },
+  {
+    "word": "everything",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "每件事物",
+    "defEn": "Whatever pertains to the subject under consideration",
+    "ipa": "/'evriθiŋ/",
+    "pos": "n."
+  },
+  {
+    "word": "research",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "研究",
+    "defEn": "systematic investigation to establish facts",
+    "ipa": "/ri'sə:tʃ/",
+    "pos": "n."
+  },
+  {
+    "word": "cover",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "盖子",
+    "defEn": "the act of concealing the existence of something by obstructing the view of it",
+    "ipa": "/'kʌvə/",
+    "pos": "n."
+  },
+  {
+    "word": "position",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "位置",
+    "defEn": "the particular portion of space occupied by something",
+    "ipa": "/pə'ziʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "human",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "人",
+    "defEn": "characteristic of humanity",
+    "ipa": "/'hju:mən/",
+    "pos": "adj."
+  },
+  {
+    "word": "situation",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "情形",
+    "defEn": "the general state of things; the combination of circumstances at a given time",
+    "ipa": "/.sitju'eiʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "film",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "软片",
+    "defEn": "a medium that disseminates moving pictures",
+    "ipa": "/film/",
+    "pos": "n."
+  },
+  {
+    "word": "war",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "战争",
+    "defEn": "the waging of armed conflict against an enemy",
+    "ipa": "/wɒ:/",
+    "pos": "n."
+  },
+  {
+    "word": "account",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "报告",
+    "defEn": "a formal contractual relationship established to provide for regular banking or brokerage or business services",
+    "ipa": "/ə'kaunt/",
+    "pos": "n."
+  },
+  {
+    "word": "major",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "主要的",
+    "defEn": "very important; main",
+    "ipa": "/'meidʒə/",
+    "pos": "n."
+  },
+  {
+    "word": "someone",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "有人",
+    "defEn": "n a human being",
+    "ipa": "/'sʌmwʌn/",
+    "pos": "pron."
+  },
+  {
+    "word": "above",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "在上方",
+    "defEn": "an earlier section of a written text",
+    "ipa": "/ə'bʌv/",
+    "pos": "n."
+  },
+  {
+    "word": "design",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "设计",
+    "defEn": "the act of working out the form of something (as by making a sketch or outline or plan)",
+    "ipa": "/di'zain/",
+    "pos": "n."
+  },
+  {
+    "word": "event",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "事件",
+    "defEn": "something that happens at a given place and time",
+    "ipa": "/i'vent/",
+    "pos": "n."
+  },
+  {
+    "word": "special",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "专辑",
+    "defEn": "a special offering (usually temporary and at a reduced price) that is featured in advertising",
+    "ipa": "/'speʃəl/",
+    "pos": "n."
+  },
+  {
+    "word": "sometimes",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "有时",
+    "defEn": "on some occasions",
+    "ipa": "/'sʌmtaimz/",
+    "pos": "adv."
+  },
+  {
+    "word": "choose",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "选择",
+    "defEn": "pick out, select, or choose from a number of alternatives",
+    "ipa": "/tʃu:z/",
+    "pos": "v."
+  },
+  {
+    "word": "father",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "父亲",
+    "defEn": "a male parent (also used as a term of address to your father)",
+    "ipa": "/'fɑ:ðə/",
+    "pos": "n."
+  },
+  {
+    "word": "forward",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "向前的",
+    "defEn": "the person who plays the position of forward in certain games, such as basketball, soccer, or hockey",
+    "ipa": "/'fɒ:wəd/",
+    "pos": "n."
+  },
+  {
+    "word": "main",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "主要部分",
+    "defEn": "any very large body of (salt) water",
+    "ipa": "/mein/",
+    "pos": "n."
+  },
+  {
+    "word": "die",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "死亡",
+    "defEn": "a small cube with 1 to 6 spots on the six faces; used in gambling to generate random numbers",
+    "ipa": "/dai/",
+    "pos": "n."
+  },
+  {
+    "word": "bear",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "熊",
+    "defEn": "massive plantigrade carnivorous or omnivorous mammals with long shaggy coats and strong claws",
+    "ipa": "/bєə/",
+    "pos": "n."
+  },
+  {
+    "word": "describe",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "描述",
+    "defEn": "give a description of",
+    "ipa": "/di'skraib/",
+    "pos": "v."
+  },
+  {
+    "word": "himself",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "他自己",
+    "defEn": "An emphasized form of the third person masculine",
+    "ipa": "/him'self/",
+    "pos": "pron."
+  },
+  {
+    "word": "available",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "可利用的",
+    "defEn": "obtainable or accessible and ready for use or service",
+    "ipa": "/ə'veiləbl/",
+    "pos": "adj."
+  },
+  {
+    "word": "especially",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "尤其",
+    "defEn": "r to a distinctly greater extent or degree than is common",
+    "ipa": "/i'speʃəli/",
+    "pos": "adv."
+  },
+  {
+    "word": "rise",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "上升",
+    "defEn": "a growth in strength or number or importance",
+    "ipa": "/raiz/",
+    "pos": "n."
+  },
+  {
+    "word": "maybe",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "也许",
+    "defEn": "r by chance",
+    "ipa": "/'meibi:/",
+    "pos": "adv."
+  },
+  {
+    "word": "community",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "社区",
+    "defEn": "a group of people living in a particular local area",
+    "ipa": "/kə'mju:niti/",
+    "pos": "n."
+  },
+  {
+    "word": "join",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "参加",
+    "defEn": "become part of; become a member of a group or organization",
+    "ipa": "/dʒɒin/",
+    "pos": "v."
+  },
+  {
+    "word": "please",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "请",
+    "defEn": "give pleasure to or be pleasing to",
+    "ipa": "/pli:z/",
+    "pos": "v."
+  },
+  {
+    "word": "detail",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "细节",
+    "defEn": "an isolated fact that is considered separately from the whole",
+    "ipa": "/'di:teil/",
+    "pos": "n."
+  },
+  {
+    "word": "difference",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "不同",
+    "defEn": "the quality of being unlike or dissimilar",
+    "ipa": "/'difərəns/",
+    "pos": "n."
+  },
+  {
+    "word": "action",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "行动",
+    "defEn": "something done (usually as opposed to something said)",
+    "ipa": "/'ækʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "step",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "步骤",
+    "defEn": "the act of changing location by raising the foot and setting it down",
+    "ipa": "/step/",
+    "pos": "n."
+  },
+  {
+    "word": "TRUE",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "真实的",
+    "defEn": "proper alignment; the property possessed by something that is in correct or proper alignment",
+    "ipa": "/tru:/",
+    "pos": "n."
+  },
+  {
+    "word": "themselves",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "他们自己",
+    "defEn": "The plural of himself, herself, and itself",
+    "ipa": "/ðəm'selvz/",
+    "pos": "pron."
+  },
+  {
+    "word": "draw",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "拉",
+    "defEn": "a gully that is shallower than a ravine",
+    "ipa": "/drɒ:/",
+    "pos": "n."
+  },
+  {
+    "word": "white",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "白色",
+    "defEn": "the color of snow or milk",
+    "ipa": "/hwait/",
+    "pos": "n."
+  },
+  {
+    "word": "date",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "日期",
+    "defEn": "the specified day of the month",
+    "ipa": "/deit/",
+    "pos": "n."
+  },
+  {
+    "word": "practice",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "实践",
+    "defEn": "a customary way of operation or behavior",
+    "ipa": "/'præktis/",
+    "pos": "n."
+  },
+  {
+    "word": "model",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "模型",
+    "defEn": "a hypothetical description of a complex entity or process",
+    "ipa": "/'mɒdəl/",
+    "pos": "n."
+  },
+  {
+    "word": "raise",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "上升",
+    "defEn": "the amount a salary is increased",
+    "ipa": "/reiz/",
+    "pos": "n."
+  },
+  {
+    "word": "front",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "前面",
+    "defEn": "the side that is forward or prominent",
+    "ipa": "/frʌnt/",
+    "pos": "n."
+  },
+  {
+    "word": "explain",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "解释",
+    "defEn": "make plain and comprehensible",
+    "ipa": "/ik'splein/",
+    "pos": "v."
+  },
+  {
+    "word": "outside",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "外面",
+    "defEn": "the region that is outside of something",
+    "ipa": "/'aut'said/",
+    "pos": "n."
+  },
+  {
+    "word": "behind",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "在后地",
+    "defEn": "a common English word.",
+    "ipa": "/bi'haind/",
+    "pos": "adv."
+  },
+  {
+    "word": "economic",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "经济上的",
+    "defEn": "of or relating to an economy, the system of production and management of material wealth",
+    "ipa": "/.i:kə'nɒmik/",
+    "pos": "adj."
+  },
+  {
+    "word": "site",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "位置",
+    "defEn": "the piece of land on which something is located (or is to be located)",
+    "ipa": "/sait/",
+    "pos": "n."
+  },
+  {
+    "word": "land",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "陆地",
+    "defEn": "the land on which real estate is located",
+    "ipa": "/lænd/",
+    "pos": "n."
+  },
+  {
+    "word": "finally",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "最后",
+    "defEn": "at the end; after a long time",
+    "ipa": "/'fainəli/",
+    "pos": "adv."
+  },
+  {
+    "word": "sign",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "符号",
+    "defEn": "a perceptible indication of something not immediately apparent (as a visible clue that something has happened)",
+    "ipa": "/sain/",
+    "pos": "n."
+  },
+  {
+    "word": "claim",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "要求",
+    "defEn": "an assertion of a right (as to money or property)",
+    "ipa": "/kleim/",
+    "pos": "n."
+  },
+  {
+    "word": "relationship",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "关系",
+    "defEn": "a relation between people; (`relationship' is often used where `relation' would serve, as in `the relationship",
+    "ipa": "/ri'leiʃənʃip/",
+    "pos": "n."
+  },
+  {
+    "word": "enjoy",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "享受",
+    "defEn": "derive or receive pleasure from; get enjoyment from; take pleasure in",
+    "ipa": "/in'dʒɒi/",
+    "pos": "v."
+  },
+  {
+    "word": "death",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "死亡",
+    "defEn": "the event of dying or departure from life",
+    "ipa": "/deθ/",
+    "pos": "n."
+  },
+  {
+    "word": "nice",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "美好的",
+    "defEn": "pleasant; good",
+    "ipa": "/nais/",
+    "pos": "n."
+  },
+  {
+    "word": "amount",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "总数",
+    "defEn": "the relative magnitude of something with reference to a criterion",
+    "ipa": "/ə'maunt/",
+    "pos": "n."
+  },
+  {
+    "word": "regard",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "关心",
+    "defEn": "(usually plural) a polite expression of desire for someone's welfare",
+    "ipa": "/ri'gɑ:d/",
+    "pos": "n."
+  },
+  {
+    "word": "couple",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "对",
+    "defEn": "a pair who associate with one another",
+    "ipa": "/'kʌpl/",
+    "pos": "n."
+  },
+  {
+    "word": "act",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "行动",
+    "defEn": "a legal document codifying the result of deliberations of a committee or society or legislative body",
+    "ipa": "/ækt/",
+    "pos": "n."
+  },
+  {
+    "word": "range",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "排",
+    "defEn": "the limits within which something can be effective",
+    "ipa": "/'reindʒ/",
+    "pos": "n."
+  },
+  {
+    "word": "quality",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "品质",
+    "defEn": "an essential and distinguishing attribute of something or someone",
+    "ipa": "/'kwɒləti/",
+    "pos": "n."
+  },
+  {
+    "word": "project",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "计划",
+    "defEn": "a planned undertaking",
+    "ipa": "/'prɒdʒekt/",
+    "pos": "n."
+  },
+  {
+    "word": "round",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "圆",
+    "defEn": "a charge of ammunition for a single shot",
+    "ipa": "/raund/",
+    "pos": "n."
+  },
+  {
+    "word": "accord",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "一致",
+    "defEn": "concurrence of opinion",
+    "ipa": "/ə'kɒ:d/",
+    "pos": "n."
+  },
+  {
+    "word": "list",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "目录",
+    "defEn": "a database containing an ordered array of items (names or topics)",
+    "ipa": "/list/",
+    "pos": "n."
+  },
+  {
+    "word": "wish",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "希望",
+    "defEn": "a specific feeling of desire",
+    "ipa": "/wiʃ/",
+    "pos": "n."
+  },
+  {
+    "word": "fund",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "基金",
+    "defEn": "a reserve of money set aside for some purpose",
+    "ipa": "/fʌnd/",
+    "pos": "n."
+  },
+  {
+    "word": "kid",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "小山羊",
+    "defEn": "soft smooth leather from the hide of a young goat",
+    "ipa": "/kid/",
+    "pos": "n."
+  },
+  {
+    "word": "industry",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "勤劳",
+    "defEn": "the people or companies engaged in a particular kind of commercial enterprise",
+    "ipa": "/'indəstri/",
+    "pos": "n."
+  },
+  {
+    "word": "education",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "教育",
+    "defEn": "the activities of educating or instructing; activities that impart knowledge or skill",
+    "ipa": "/.edju'keiʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "measure",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "尺寸",
+    "defEn": "any maneuver made as part of progress toward a goal",
+    "ipa": "/'meʒə/",
+    "pos": "n."
+  },
+  {
+    "word": "kill",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "杀",
+    "defEn": "the destruction of an enemy plane or ship or tank or missile",
+    "ipa": "/kil/",
+    "pos": "n."
+  },
+  {
+    "word": "serve",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "可作...用",
+    "defEn": "(sports) a stroke that puts the ball in play",
+    "ipa": "/sə:v/",
+    "pos": "n."
+  },
+  {
+    "word": "certainly",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "确定地",
+    "defEn": "r definitely or positively (`sure' is sometimes used informally for `surely')",
+    "ipa": "/'sə:tənli/",
+    "pos": "adv."
+  },
+  {
+    "word": "national",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "国家的",
+    "defEn": "a person who owes allegiance to that nation",
+    "ipa": "/'næʃənəl/",
+    "pos": "n."
+  },
+  {
+    "word": "itself",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "它本身",
+    "defEn": "The neuter reciprocal pronoun of It; as, the thing is",
+    "ipa": "/it'self/",
+    "pos": "pron."
+  },
+  {
+    "word": "teach",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "教",
+    "defEn": "to help someone learn",
+    "ipa": "/ti:tʃ/",
+    "pos": "n."
+  },
+  {
+    "word": "field",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "领域",
+    "defEn": "a piece of land cleared of trees and usually enclosed",
+    "ipa": "/fi:ld/",
+    "pos": "n."
+  },
+  {
+    "word": "security",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "安全",
+    "defEn": "the state of being free from danger or injury",
+    "ipa": "/si'kjuriti/",
+    "pos": "n."
+  },
+  {
+    "word": "benefit",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "利益",
+    "defEn": "financial assistance in time of need",
+    "ipa": "/'benifit/",
+    "pos": "n."
+  },
+  {
+    "word": "trade",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "贸易",
+    "defEn": "the commercial exchange (buying and selling on domestic or international markets) of goods and services",
+    "ipa": "/treid/",
+    "pos": "n."
+  },
+  {
+    "word": "risk",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "冒险",
+    "defEn": "a venture undertaken without regard to possible loss or injury",
+    "ipa": "/risk/",
+    "pos": "n."
+  },
+  {
+    "word": "news",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "新闻",
+    "defEn": "information about recent and important events",
+    "ipa": "/nju:z/",
+    "pos": "n."
+  },
+  {
+    "word": "standard",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "标准",
+    "defEn": "a basis for comparison; a reference point against which other things can be evaluated",
+    "ipa": "/'stændəd/",
+    "pos": "n."
+  },
+  {
+    "word": "vote",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "投票",
+    "defEn": "a choice that is made by counting the number of people in favor of each alternative",
+    "ipa": "/vəut/",
+    "pos": "n."
+  },
+  {
+    "word": "percent",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "百分比",
+    "defEn": "n a proportion in relation to a whole (which is usually the amount per hundred)",
+    "ipa": "/pə'sent/",
+    "pos": "n."
+  },
+  {
+    "word": "focus",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "焦点",
+    "defEn": "the concentration of attention or energy on something",
+    "ipa": "/'fəukəs/",
+    "pos": "n."
+  },
+  {
+    "word": "space",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "位置",
+    "defEn": "the unlimited expanse in which everything is located",
+    "ipa": "/speis/",
+    "pos": "n."
+  },
+  {
+    "word": "realize",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "了解",
+    "defEn": "make real or concrete; give reality or substance to",
+    "ipa": "/'riəlaiz/",
+    "pos": "v."
+  },
+  {
+    "word": "data",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "资料",
+    "defEn": "a collection of facts from which conclusions may be drawn",
+    "ipa": "/'deitə/",
+    "pos": "n."
+  },
+  {
+    "word": "single",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "单身的",
+    "defEn": "a base hit on which the batter stops safely at first base",
+    "ipa": "/'siŋgl/",
+    "pos": "n."
+  },
+  {
+    "word": "address",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "住址",
+    "defEn": "(computer science) the code that identifies where a piece of information is stored",
+    "ipa": "/ə'dres/",
+    "pos": "n."
+  },
+  {
+    "word": "performance",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "施行",
+    "defEn": "a dramatic or musical entertainment",
+    "ipa": "/pə'fɒ:məns/",
+    "pos": "n."
+  },
+  {
+    "word": "accept",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "接受",
+    "defEn": "consider or hold as true",
+    "ipa": "/ək'sept/",
+    "pos": "v."
+  },
+  {
+    "word": "society",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "社会",
+    "defEn": "an extended social group having a distinctive cultural and economic organization",
+    "ipa": "/sə'saiəti/",
+    "pos": "n."
+  },
+  {
+    "word": "technology",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "技术",
+    "defEn": "the practical application of science to commerce or industry",
+    "ipa": "/tek'nɒlədʒi/",
+    "pos": "n."
+  },
+  {
+    "word": "mention",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "提到",
+    "defEn": "a remark that calls attention to something or someone",
+    "ipa": "/'menʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "common",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "通常的",
+    "defEn": "belonging to or participated in by a community as a whole; public",
+    "ipa": "/'kɒmən/",
+    "pos": "adj."
+  },
+  {
+    "word": "total",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "全体的",
+    "defEn": "add up in number or quantity",
+    "ipa": "/'təutl/",
+    "pos": "v."
+  },
+  {
+    "word": "demand",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "要求",
+    "defEn": "an urgent or peremptory request",
+    "ipa": "/di'mɑ:nd/",
+    "pos": "n."
+  },
+  {
+    "word": "material",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "材料",
+    "defEn": "the tangible substance that goes into the makeup of a physical object",
+    "ipa": "/mə'tiəriəl/",
+    "pos": "n."
+  },
+  {
+    "word": "limit",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "界限",
+    "defEn": "the greatest possible degree of something",
+    "ipa": "/'limit/",
+    "pos": "n."
+  },
+  {
+    "word": "due",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "应得的东西",
+    "defEn": "that which is deserved or owed",
+    "ipa": "/dju:/",
+    "pos": "n."
+  },
+  {
+    "word": "wrong",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "错误的",
+    "defEn": "that which is contrary to the principles of justice or law",
+    "ipa": "/rɒŋ/",
+    "pos": "n."
+  },
+  {
+    "word": "foot",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "脚",
+    "defEn": "the part of the leg of a human being below the ankle joint",
+    "ipa": "/fut/",
+    "pos": "n."
+  },
+  {
+    "word": "effort",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "努力",
+    "defEn": "use of physical or mental energy; hard work",
+    "ipa": "/'efət/",
+    "pos": "n."
+  },
+  {
+    "word": "attention",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "注意",
+    "defEn": "the process whereby a person concentrates on some features of the environment to the (relative) exclusion of others",
+    "ipa": "/ə'tenʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "check",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "检查",
+    "defEn": "a written order directing a bank to pay money",
+    "ipa": "/tʃek/",
+    "pos": "n."
+  },
+  {
+    "word": "complete",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "完全的",
+    "defEn": "come or bring to a finish or an end; others finished in over 4 hours\"",
+    "ipa": "/kəm'pli:t/",
+    "pos": "v."
+  },
+  {
+    "word": "lie",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "谎言",
+    "defEn": "a statement that deviates from or perverts the truth",
+    "ipa": "/lai/",
+    "pos": "n."
+  },
+  {
+    "word": "pick",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "精选",
+    "defEn": "a small thin device (of metal or plastic or ivory) used to pluck a stringed instrument",
+    "ipa": "/pik/",
+    "pos": "n."
+  },
+  {
+    "word": "reduce",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "减少",
+    "defEn": "cut down on; make a reduction in",
+    "ipa": "/ri'dju:s/",
+    "pos": "v."
+  },
+  {
+    "word": "personal",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "私人的",
+    "defEn": "a short newspaper article about a particular person or group",
+    "ipa": "/'pə:snl/",
+    "pos": "n."
+  },
+  {
+    "word": "arrive",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "到达",
+    "defEn": "reach a destination; arrive by movement or progress",
+    "ipa": "/ə'raiv/",
+    "pos": "v."
+  },
+  {
+    "word": "current",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "涌流",
+    "defEn": "a flow of electricity through a conductor",
+    "ipa": "/'kʌrənt/",
+    "pos": "n."
+  },
+  {
+    "word": "exist",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "存在",
+    "defEn": "have an existence, be extant",
+    "ipa": "/ig'zist/",
+    "pos": "v."
+  },
+  {
+    "word": "similar",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "相似的",
+    "defEn": "marked by correspondence or resemblance",
+    "ipa": "/'similə/",
+    "pos": "adj."
+  },
+  {
+    "word": "fight",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "打架",
+    "defEn": "the act of fighting; any contest or struggle",
+    "ipa": "/fait/",
+    "pos": "n."
+  },
+  {
+    "word": "leader",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "领导者",
+    "defEn": "a person who rules or guides or inspires others",
+    "ipa": "/'li:də/",
+    "pos": "n."
+  },
+  {
+    "word": "fine",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "罚款",
+    "defEn": "money extracted as a penalty",
+    "ipa": "/fain/",
+    "pos": "n."
+  },
+  {
+    "word": "former",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "从前的",
+    "defEn": "the first of two or the first mentioned of two",
+    "ipa": "/'fɒ:mə/",
+    "pos": "n."
+  },
+  {
+    "word": "contact",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "联系",
+    "defEn": "close interaction",
+    "ipa": "/'kɒntækt/",
+    "pos": "n."
+  },
+  {
+    "word": "particularly",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "特别",
+    "defEn": "especially",
+    "ipa": "/pə'tikjjləli/",
+    "pos": "adv."
+  },
+  {
+    "word": "wife",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "妻子",
+    "defEn": "a married woman; a man's partner in marriage",
+    "ipa": "/waif/",
+    "pos": "n."
+  },
+  {
+    "word": "sport",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "运动",
+    "defEn": "an active diversion requiring physical exertion and competition",
+    "ipa": "/spɒ:t/",
+    "pos": "n."
+  },
+  {
+    "word": "prepare",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "准备",
+    "defEn": "to prepare verbally, either for written or spoken delivery",
+    "ipa": "/pri'pєə/",
+    "pos": "v."
+  },
+  {
+    "word": "discuss",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "讨论",
+    "defEn": "n an athletic competition in which a disk-shaped object is thrown as far as possible",
+    "ipa": "/dis'kʌs/",
+    "pos": "v."
+  },
+  {
+    "word": "response",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "反应",
+    "defEn": "a result",
+    "ipa": "/ri'spɒns/",
+    "pos": "n."
+  },
+  {
+    "word": "piece",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "块",
+    "defEn": "a separate part of a whole",
+    "ipa": "/pi:s/",
+    "pos": "n."
+  },
+  {
+    "word": "finish",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "完成",
+    "defEn": "the place designated as the end (as of a race or journey)",
+    "ipa": "/'finiʃ/",
+    "pos": "n."
+  },
+  {
+    "word": "suppose",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "推想",
+    "defEn": "express a supposition",
+    "ipa": "/sə'pəuz/",
+    "pos": "v."
+  },
+  {
+    "word": "president",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "总统",
+    "defEn": "an executive officer of a firm or corporation",
+    "ipa": "/'prezidənt/",
+    "pos": "n."
+  },
+  {
+    "word": "compare",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "比较",
+    "defEn": "examine and note the similarities or differences of",
+    "ipa": "/kəm'pєə/",
+    "pos": "v."
+  },
+  {
+    "word": "court",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "法院",
+    "defEn": "an assembly (including one or more judges) to conduct judicial business",
+    "ipa": "/kɒ:t/",
+    "pos": "n."
+  },
+  {
+    "word": "poor",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "贫穷的",
+    "defEn": "having little money or few possessions",
+    "ipa": "/puə. pɒ:/",
+    "pos": "adj."
+  },
+  {
+    "word": "knowledge",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "知识",
+    "defEn": "n the psychological result of perception and learning and reasoning",
+    "ipa": "/'nɒlidʒ/",
+    "pos": "n."
+  },
+  {
+    "word": "laugh",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "笑",
+    "defEn": "the sound of laughing",
+    "ipa": "/lɑ:f/",
+    "pos": "n."
+  },
+  {
+    "word": "arm",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "手臂",
+    "defEn": "a human limb; technically the part of the superior limb between the shoulder and the elbow but commonly used to",
+    "ipa": "/ɑ:m/",
+    "pos": "n."
+  },
+  {
+    "word": "source",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "来源",
+    "defEn": "a document (or organization) from which information is obtained",
+    "ipa": "/sɒ:s/",
+    "pos": "n."
+  },
+  {
+    "word": "employee",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "职员",
+    "defEn": "a worker who is hired to perform a job",
+    "ipa": "/.emplɒi'i:/",
+    "pos": "n."
+  },
+  {
+    "word": "manage",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "处理",
+    "defEn": "be in charge of, act on, or dispose of",
+    "ipa": "/'mænidʒ/",
+    "pos": "v."
+  },
+  {
+    "word": "firm",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "公司",
+    "defEn": "the members of a business organization that owns or operates one or more establishments",
+    "ipa": "/fə:m/",
+    "pos": "n."
+  },
+  {
+    "word": "cell",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "单元",
+    "defEn": "any small compartment",
+    "ipa": "/sel/",
+    "pos": "n."
+  },
+  {
+    "word": "article",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "文章",
+    "defEn": "nonfictional prose forming an independent part of a publication",
+    "ipa": "/'ɑ:tikl/",
+    "pos": "n."
+  },
+  {
+    "word": "attack",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "攻击",
+    "defEn": "(military) an offensive against an enemy (using weapons)",
+    "ipa": "/ə'tæk/",
+    "pos": "n."
+  },
+  {
+    "word": "surprise",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "惊奇",
+    "defEn": "the astonishment you feel when something totally unexpected happens to you",
+    "ipa": "/sə'praiz/",
+    "pos": "n."
+  },
+  {
+    "word": "factor",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "因素",
+    "defEn": "anything that contributes causally to a result",
+    "ipa": "/'fæktə/",
+    "pos": "n."
+  },
+  {
+    "word": "pretty",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "漂亮的",
+    "defEn": "a common English word.",
+    "ipa": "/'priti/",
+    "pos": "adj."
+  },
+  {
+    "word": "affect",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "影响",
+    "defEn": "the conscious subjective aspect of feeling or emotion",
+    "ipa": "/ə'fekt/",
+    "pos": "n."
+  },
+  {
+    "word": "drop",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "滴",
+    "defEn": "a shape that is spherical and small",
+    "ipa": "/drɒp/",
+    "pos": "n."
+  },
+  {
+    "word": "recent",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "最近的",
+    "defEn": "a common English word.",
+    "ipa": "/'ri:snt/",
+    "pos": "adj."
+  },
+  {
+    "word": "relate",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "讲",
+    "defEn": "give an account of",
+    "ipa": "/ri'leit/",
+    "pos": "v."
+  },
+  {
+    "word": "official",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "官员",
+    "defEn": "a worker who holds or is invested with an office",
+    "ipa": "/ə'fiʃəl/",
+    "pos": "n."
+  },
+  {
+    "word": "financial",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "财政的",
+    "defEn": "a involving financial matters",
+    "ipa": "/fai'nænʃəl/",
+    "pos": "adj."
+  },
+  {
+    "word": "miss",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "失误",
+    "defEn": "a failure to hit (or meet or find etc)",
+    "ipa": "/mis/",
+    "pos": "n."
+  },
+  {
+    "word": "art",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "艺术",
+    "defEn": "the products of human creativity; works of art collectively",
+    "ipa": "/ɑ:t/",
+    "pos": "n."
+  },
+  {
+    "word": "campaign",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "战役",
+    "defEn": "a series of actions advancing a principle or tending toward a particular end",
+    "ipa": "/kæm'pein/",
+    "pos": "n."
+  },
+  {
+    "word": "private",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "私人的",
+    "defEn": "personal; not public",
+    "ipa": "/'praivit/",
+    "pos": "n."
+  },
+  {
+    "word": "pause",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "暂停",
+    "defEn": "a time interval during which there is a temporary cessation of something",
+    "ipa": "/pɒ:z/",
+    "pos": "n."
+  },
+  {
+    "word": "everyone",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "每个人",
+    "defEn": "Everybody; -- commonly separated, every one",
+    "ipa": "/'evriwʌn/",
+    "pos": "n."
+  },
+  {
+    "word": "forget",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "忘记",
+    "defEn": "dismiss from the mind; stop remembering",
+    "ipa": "/fə'get/",
+    "pos": "v."
+  },
+  {
+    "word": "page",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "页",
+    "defEn": "one side of one leaf (of a book or magazine or newspaper or letter etc.) or the written or pictorial matter it contains",
+    "ipa": "/peidʒ/",
+    "pos": "n."
+  },
+  {
+    "word": "worry",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "担心",
+    "defEn": "a strong feeling of anxiety",
+    "ipa": "/'wʌri/",
+    "pos": "n."
+  },
+  {
+    "word": "represent",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "表现",
+    "defEn": "take the place of or be parallel or equivalent to",
+    "ipa": "/.repri'zent/",
+    "pos": "v."
+  },
+  {
+    "word": "key",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "钥匙",
+    "defEn": "metal device shaped in such a way that when it is inserted into the appropriate lock the lock's mechanism can be rotated",
+    "ipa": "/ki:/",
+    "pos": "n."
+  },
+  {
+    "word": "inside",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "内部",
+    "defEn": "the region that is inside of something",
+    "ipa": "/'in'said/",
+    "pos": "n."
+  },
+  {
+    "word": "international",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "国际的",
+    "defEn": "any of several international socialist organizations",
+    "ipa": "/.intə'næʃənəl/",
+    "pos": "n."
+  },
+  {
+    "word": "contain",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "包含",
+    "defEn": "be divisible by",
+    "ipa": "/kən'tein/",
+    "pos": "v."
+  },
+  {
+    "word": "notice",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "注意",
+    "defEn": "an announcement containing information about an event",
+    "ipa": "/'nəutis/",
+    "pos": "n."
+  },
+  {
+    "word": "wonder",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "奇迹",
+    "defEn": "the feeling aroused by something strange and surprising",
+    "ipa": "/'wʌndə/",
+    "pos": "n."
+  },
+  {
+    "word": "nature",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "自然",
+    "defEn": "the essential qualities or characteristics by which something is recognized",
+    "ipa": "/'neitʃə/",
+    "pos": "n."
+  },
+  {
+    "word": "structure",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "结构",
+    "defEn": "a thing constructed; a complex entity constructed of many parts",
+    "ipa": "/'strʌktʃə/",
+    "pos": "n."
+  },
+  {
+    "word": "section",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "区段",
+    "defEn": "a self-contained part of a larger composition (written or musical)",
+    "ipa": "/'sekʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "myself",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "我自己",
+    "defEn": "I or me in person; -- used for emphasis, my own self or",
+    "ipa": "/mai'self/",
+    "pos": "pron."
+  },
+  {
+    "word": "exactly",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "确切地",
+    "defEn": "r indicating exactness or preciseness",
+    "ipa": "/i^'zæktli/",
+    "pos": "adv."
+  },
+  {
+    "word": "paint",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "油漆",
+    "defEn": "a substance used as a coating to protect or decorate a surface (especially a mixture of pigment suspended in a",
+    "ipa": "/peint/",
+    "pos": "n."
+  },
+  {
+    "word": "worker",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "工人",
+    "defEn": "a person who works at a specific occupation",
+    "ipa": "/'wə:kə/",
+    "pos": "n."
+  },
+  {
+    "word": "press",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "压",
+    "defEn": "the print media responsible for gathering and publishing news in the form of newspapers or magazines",
+    "ipa": "/pres/",
+    "pos": "n."
+  },
+  {
+    "word": "whatever",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "无论什么",
+    "defEn": "s one or some or every or all without specification",
+    "ipa": "/hwɒt'evə/",
+    "pos": "pron."
+  },
+  {
+    "word": "region",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "区域",
+    "defEn": "the extended spatial location of something",
+    "ipa": "/'ri:dʒən/",
+    "pos": "n."
+  },
+  {
+    "word": "evening",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "傍晚",
+    "defEn": "the latter part of the day (the period of decreasing daylight from late afternoon until nightfall)",
+    "ipa": "/'i:vniŋ/",
+    "pos": "n."
+  },
+  {
+    "word": "influence",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "影响力",
+    "defEn": "a power to affect persons or events especially power based on prestige etc",
+    "ipa": "/'influəns/",
+    "pos": "n."
+  },
+  {
+    "word": "respect",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "尊敬",
+    "defEn": "(usually preceded by `in') a detail or point",
+    "ipa": "/ri'spekt/",
+    "pos": "n."
+  },
+  {
+    "word": "various",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "不同的",
+    "defEn": "s of many different kinds purposefully arranged but lacking any uniformity",
+    "ipa": "/'vєəriəs/",
+    "pos": "adj."
+  },
+  {
+    "word": "catch",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "捕捉",
+    "defEn": "a drawback or difficulty that is not readily evident",
+    "ipa": "/kætʃ/",
+    "pos": "n."
+  },
+  {
+    "word": "skill",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "技术",
+    "defEn": "an ability that has been acquired by training",
+    "ipa": "/'skil/",
+    "pos": "n."
+  },
+  {
+    "word": "attempt",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "尝试",
+    "defEn": "earnest and conscientious activity intended to do or accomplish something",
+    "ipa": "/ə'tempt/",
+    "pos": "n."
+  },
+  {
+    "word": "son",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "儿子",
+    "defEn": "a male human offspring",
+    "ipa": "/sʌn/",
+    "pos": "n."
+  },
+  {
+    "word": "simple",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "简单的",
+    "defEn": "any herbaceous plant having medicinal properties",
+    "ipa": "/'simpl/",
+    "pos": "n."
+  },
+  {
+    "word": "medium",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "媒体",
+    "defEn": "a means or instrumentality for storing or communicating information",
+    "ipa": "/'mi:diəm/",
+    "pos": "n."
+  },
+  {
+    "word": "average",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "平均",
+    "defEn": "a statistic describing the location of a distribution",
+    "ipa": "/'ævəridʒ/",
+    "pos": "n."
+  },
+  {
+    "word": "stock",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "树干",
+    "defEn": "the capital raised by a corporation through the issue of shares entitling holders to an ownership interest (equity)",
+    "ipa": "/stɒk/",
+    "pos": "n."
+  },
+  {
+    "word": "management",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "经营",
+    "defEn": "the act of managing something",
+    "ipa": "/'mænidʒmənt/",
+    "pos": "n."
+  },
+  {
+    "word": "hit",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "打击",
+    "defEn": "(baseball) a successful stroke in an athletic contest (especially in baseball)",
+    "ipa": "/hit/",
+    "pos": "n."
+  },
+  {
+    "word": "establish",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "建立",
+    "defEn": "set up or found",
+    "ipa": "/i'stæbliʃ/",
+    "pos": "v."
+  },
+  {
+    "word": "indeed",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "的确",
+    "defEn": "truly; without doubt",
+    "ipa": "/in'di:d/",
+    "pos": "adv."
+  },
+  {
+    "word": "final",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "期末考试",
+    "defEn": "the final match between the winners of all previous matches in an elimination tournament",
+    "ipa": "/'fainl/",
+    "pos": "n."
+  },
+  {
+    "word": "economy",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "经济",
+    "defEn": "the system of production and distribution and consumption",
+    "ipa": "/i'kɒnəmi/",
+    "pos": "n."
+  },
+  {
+    "word": "fit",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "适宜",
+    "defEn": "a display of bad temper",
+    "ipa": "/fit/",
+    "pos": "n."
+  },
+  {
+    "word": "guy",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "家伙",
+    "defEn": "an informal term for a youth or man",
+    "ipa": "/gai/",
+    "pos": "n."
+  },
+  {
+    "word": "function",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "官能",
+    "defEn": "(mathematics) a mathematical relation such that each element of a given set (the domain of the function) is",
+    "ipa": "/'fʌŋkʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "yesterday",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "昨天",
+    "defEn": "the day immediately before today",
+    "ipa": "/'jestədi/",
+    "pos": "n."
+  },
+  {
+    "word": "image",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "影像",
+    "defEn": "an iconic mental representation",
+    "ipa": "/'imidʒ/",
+    "pos": "n."
+  },
+  {
+    "word": "behavior",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "行为",
+    "defEn": "manner of acting or controlling yourself",
+    "ipa": "/bi'heivjə/",
+    "pos": "n."
+  },
+  {
+    "word": "addition",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "加法",
+    "defEn": "a component that is added to something to improve it",
+    "ipa": "/ə'diʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "determine",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "决定",
+    "defEn": "establish after a calculation, investigation, experiment, survey, or study",
+    "ipa": "/di'tə:min/",
+    "pos": "v."
+  },
+  {
+    "word": "fail",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "失败",
+    "defEn": "fail to do something; leave something undone",
+    "ipa": "/feil/",
+    "pos": "v."
+  },
+  {
+    "word": "environment",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "环境",
+    "defEn": "the totality of surrounding conditions",
+    "ipa": "/in'vairənmənt/",
+    "pos": "n."
+  },
+  {
+    "word": "production",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "制造",
+    "defEn": "the act or process of producing something",
+    "ipa": "/prə'dʌkʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "player",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "竞赛者",
+    "defEn": "a person who participates in or is skilled at some game",
+    "ipa": "/'pleiə/",
+    "pos": "n."
+  },
+  {
+    "word": "comment",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "注解",
+    "defEn": "a written explanation or criticism or illustration that is added to a book or other textual material",
+    "ipa": "/'kɒment/",
+    "pos": "n."
+  },
+  {
+    "word": "enter",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "进入",
+    "defEn": "to come or go into",
+    "ipa": "/'entə/",
+    "pos": "v."
+  },
+  {
+    "word": "occur",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "发生",
+    "defEn": "come to one's mind; suggest itself",
+    "ipa": "/ə'kə:/",
+    "pos": "v."
+  },
+  {
+    "word": "alone",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "孤独的",
+    "defEn": "a common English word.",
+    "ipa": "/ə'ləun/",
+    "pos": "adj."
+  },
+  {
+    "word": "wall",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "墙",
+    "defEn": "an architectural partition with a height and length greater than its thickness; used to divide or enclose an area or",
+    "ipa": "/wɒ:l/",
+    "pos": "n."
+  },
+  {
+    "word": "series",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "串联",
+    "defEn": "similar things placed in order or happening one after another",
+    "ipa": "/'siəri:z/",
+    "pos": "n."
+  },
+  {
+    "word": "direct",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "直接的",
+    "defEn": "command with authority",
+    "ipa": "/di'rekt/",
+    "pos": "v."
+  },
+  {
+    "word": "tomorrow",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "明天",
+    "defEn": "the day after today",
+    "ipa": "/tə'mɒ:rəu/",
+    "pos": "n."
+  },
+  {
+    "word": "director",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "主管",
+    "defEn": "someone who controls resources and expenditures",
+    "ipa": "/di'rektə/",
+    "pos": "n."
+  },
+  {
+    "word": "clearly",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "清楚地",
+    "defEn": "in a clear way",
+    "ipa": "/'kliəli/",
+    "pos": "adv."
+  },
+  {
+    "word": "lack",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "缺乏",
+    "defEn": "the state of needing something that is absent or unavailable",
+    "ipa": "/læk/",
+    "pos": "n."
+  },
+  {
+    "word": "review",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "检讨",
+    "defEn": "an essay or article that gives a critical evaluation (as of a book or play)",
+    "ipa": "/ri'vju:/",
+    "pos": "n."
+  },
+  {
+    "word": "depend",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "靠",
+    "defEn": "be contingent upon (something that is elided)",
+    "ipa": "/di'pend/",
+    "pos": "v."
+  },
+  {
+    "word": "recognize",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "认出",
+    "defEn": "be fully aware or cognizant of",
+    "ipa": "/'rekəgnaiz/",
+    "pos": "v."
+  },
+  {
+    "word": "department",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "部门",
+    "defEn": "a specialized division of a large organization",
+    "ipa": "/di'pɑ:tmənt/",
+    "pos": "n."
+  },
+  {
+    "word": "gain",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "增益",
+    "defEn": "the amount by which the revenue of a business exceeds its cost of operating",
+    "ipa": "/gein/",
+    "pos": "n."
+  },
+  {
+    "word": "tree",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "树",
+    "defEn": "a tall perennial woody plant having a main trunk and branches forming a distinct elevated crown; includes both",
+    "ipa": "/tri:/",
+    "pos": "n."
+  },
+  {
+    "word": "college",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "学院",
+    "defEn": "the body of faculty and students of a college",
+    "ipa": "/'kɒlidʒ/",
+    "pos": "n."
+  },
+  {
+    "word": "argue",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "提出理由",
+    "defEn": "present reasons and arguments",
+    "ipa": "/'ɑ:gju/",
+    "pos": "v."
+  },
+  {
+    "word": "board",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "木板",
+    "defEn": "a committee having supervisory powers",
+    "ipa": "/bɒ:d/",
+    "pos": "n."
+  },
+  {
+    "word": "holiday",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "假日",
+    "defEn": "a day on which work is suspended by law or custom",
+    "ipa": "/'hɒlədi/",
+    "pos": "n."
+  },
+  {
+    "word": "mark",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "标志",
+    "defEn": "a number or letter indicating quality (especially of a student's performance)",
+    "ipa": "/mɑ:k/",
+    "pos": "n."
+  },
+  {
+    "word": "church",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "教堂",
+    "defEn": "a building for Christian worship",
+    "ipa": "/tʃə:tʃ/",
+    "pos": "n."
+  },
+  {
+    "word": "achieve",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "完成",
+    "defEn": "to gain with effort",
+    "ipa": "/ə'tʃi:v/",
+    "pos": "v."
+  },
+  {
+    "word": "item",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "项目",
+    "defEn": "a distinct part that can be specified separately in a group of things that could be enumerated on a list",
+    "ipa": "/'aitəm/",
+    "pos": "n."
+  },
+  {
+    "word": "prove",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "证明",
+    "defEn": "be shown or be found to be",
+    "ipa": "/pru:v/",
+    "pos": "v."
+  },
+  {
+    "word": "cent",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "分",
+    "defEn": "a fractional monetary unit of several countries",
+    "ipa": "/sent/",
+    "pos": "n."
+  },
+  {
+    "word": "stuff",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "原料",
+    "defEn": "miscellaneous unspecified objects",
+    "ipa": "/stʌf/",
+    "pos": "n."
+  },
+  {
+    "word": "wide",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "宽的",
+    "defEn": "having great (or a certain) extent from one side to the other",
+    "ipa": "/waid/",
+    "pos": "adj."
+  },
+  {
+    "word": "anyone",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "任何人",
+    "defEn": "One taken at random rather than by selection; anybody",
+    "ipa": "/'eniwʌn/",
+    "pos": "n."
+  },
+  {
+    "word": "method",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "方法",
+    "defEn": "a way of doing something, especially a systematic way; implies an orderly logical arrangement (usually in steps)",
+    "ipa": "/'meθəd/",
+    "pos": "n."
+  },
+  {
+    "word": "analysis",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "分析",
+    "defEn": "the detailed study of something",
+    "ipa": "/ə'næləsis/",
+    "pos": "n."
+  },
+  {
+    "word": "election",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "选举",
+    "defEn": "a vote to select the winner of a position or political office",
+    "ipa": "/i'lekʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "military",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "军队",
+    "defEn": "the military forces of a nation",
+    "ipa": "/'militəri/",
+    "pos": "n."
+  },
+  {
+    "word": "club",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "俱乐部",
+    "defEn": "a formal association of people with similar interests",
+    "ipa": "/klʌb/",
+    "pos": "n."
+  },
+  {
+    "word": "below",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "在下面",
+    "defEn": "in or to a lower place",
+    "ipa": "/bi'ləu/",
+    "pos": "prep."
+  },
+  {
+    "word": "discussion",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "讨论",
+    "defEn": "an extended communication (often interactive) dealing with some particular topic",
+    "ipa": "/dis'kʌʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "sorry",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "难过的",
+    "defEn": "a feeling or expressing regret or sorrow or a sense of loss over something done or undone",
+    "ipa": "/'sɒri/",
+    "pos": "adj."
+  },
+  {
+    "word": "challenge",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "挑战",
+    "defEn": "a demanding or stimulating situation",
+    "ipa": "/'tʃælindʒ/",
+    "pos": "n."
+  },
+  {
+    "word": "nation",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "国家",
+    "defEn": "the people who live in a nation or country",
+    "ipa": "/'neiʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "nearly",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "几乎",
+    "defEn": "r (of actions or states) slightly short of or not quite accomplished; all but",
+    "ipa": "/'niəli/",
+    "pos": "adv."
+  },
+  {
+    "word": "statement",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "陈述",
+    "defEn": "a message that is stated or declared; a communication (oral or written) setting forth particulars or facts etc",
+    "ipa": "/'steitmənt/",
+    "pos": "n."
+  },
+  {
+    "word": "link",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "环",
+    "defEn": "the means of connection between things linked in series",
+    "ipa": "/liŋk/",
+    "pos": "n."
+  },
+  {
+    "word": "despite",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "轻视",
+    "defEn": "contemptuous disregard",
+    "ipa": "/di'spait/",
+    "pos": "n."
+  },
+  {
+    "word": "introduce",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "介绍",
+    "defEn": "cause to come to know personally",
+    "ipa": "/.intrə'dju:s/",
+    "pos": "v."
+  },
+  {
+    "word": "advantage",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "优点",
+    "defEn": "the quality of having a superior or more favorable position",
+    "ipa": "/əd'vɑ:ntidʒ/",
+    "pos": "n."
+  },
+  {
+    "word": "marry",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "与...结婚",
+    "defEn": "take in marriage",
+    "ipa": "/'mæri/",
+    "pos": "v."
+  },
+  {
+    "word": "strike",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "罢工",
+    "defEn": "a group's refusal to work in protest against low pay or bad work conditions",
+    "ipa": "/straik/",
+    "pos": "n."
+  },
+  {
+    "word": "mile",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "英里",
+    "defEn": "a unit of length equal to 1,760 yards or 5,280 feet; exactly 1609.344 meters",
+    "ipa": "/mail/",
+    "pos": "n."
+  },
+  {
+    "word": "seek",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "寻求",
+    "defEn": "the movement of a read/write head to a specific data track on a disk",
+    "ipa": "/si:k/",
+    "pos": "n."
+  },
+  {
+    "word": "unit",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "单位",
+    "defEn": "an individual or group or structure or other entity regarded as a structural or functional constituent of a whole",
+    "ipa": "/'ju:nit/",
+    "pos": "n."
+  },
+  {
+    "word": "card",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "卡片",
+    "defEn": "one of a set of small pieces of stiff paper marked in various ways and used for playing games or for telling fortunes",
+    "ipa": "/kɑ:d/",
+    "pos": "n."
+  },
+  {
+    "word": "quickly",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "很快地",
+    "defEn": "fast; in a short time",
+    "ipa": "/'kwikli/",
+    "pos": "adv."
+  },
+  {
+    "word": "agreement",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "同意",
+    "defEn": "the statement (oral or written) of an exchange of promises",
+    "ipa": "/ə'gri:mənt/",
+    "pos": "n."
+  },
+  {
+    "word": "release",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "释放",
+    "defEn": "merchandise issued for sale or public showing (especially a record or film)",
+    "ipa": "/ri'li:s/",
+    "pos": "n."
+  },
+  {
+    "word": "tax",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "税",
+    "defEn": "charge against a citizen's person or property or activity for the support of government",
+    "ipa": "/tæks/",
+    "pos": "n."
+  },
+  {
+    "word": "popular",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "通俗的",
+    "defEn": "regarded with great favor, approval, or affection especially by the general public",
+    "ipa": "/'pɒpjulə/",
+    "pos": "adj."
+  },
+  {
+    "word": "specific",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "特效药",
+    "defEn": "a medicine that has a mitigating effect on a specific disease",
+    "ipa": "/spi'sifik/",
+    "pos": "n."
+  },
+  {
+    "word": "fear",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "恐怖",
+    "defEn": "an emotion experienced in anticipation of some specific pain or danger (usually accompanied by a desire to flee or",
+    "ipa": "/fiə/",
+    "pos": "n."
+  },
+  {
+    "word": "aim",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "目标",
+    "defEn": "the goal intended to be attained (and which is believed to be attainable)",
+    "ipa": "/eim/",
+    "pos": "n."
+  },
+  {
+    "word": "television",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "电视",
+    "defEn": "broadcasting visual images of stationary or moving objects",
+    "ipa": "/'teli.viʒən/",
+    "pos": "n."
+  },
+  {
+    "word": "serious",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "严肃的",
+    "defEn": "concerned with work or important matters rather than play or trivialities",
+    "ipa": "/'siəriəs/",
+    "pos": "adj."
+  },
+  {
+    "word": "degree",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "程度",
+    "defEn": "a position on a scale of intensity or amount or quality",
+    "ipa": "/di'gri:/",
+    "pos": "n."
+  },
+  {
+    "word": "pull",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "拉",
+    "defEn": "the act of pulling; applying force to move something toward or with you",
+    "ipa": "/pul/",
+    "pos": "n."
+  },
+  {
+    "word": "red",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "红的",
+    "defEn": "red color or pigment; the chromatic color resembling the hue of blood",
+    "ipa": "/red/",
+    "pos": "n."
+  },
+  {
+    "word": "husband",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "丈夫",
+    "defEn": "a married man; a woman's partner in marriage",
+    "ipa": "/'hʌzbənd/",
+    "pos": "n."
+  },
+  {
+    "word": "access",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "通路",
+    "defEn": "the right to obtain or make use of or take advantage of something (as services or membership)",
+    "ipa": "/'ækses/",
+    "pos": "n."
+  },
+  {
+    "word": "movement",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "运动",
+    "defEn": "a natural event that involves a change in the position or location of something",
+    "ipa": "/'mu:vmənt/",
+    "pos": "n."
+  },
+  {
+    "word": "treat",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "宴请",
+    "defEn": "an occurrence that causes special pleasure or delight",
+    "ipa": "/tri:t/",
+    "pos": "n."
+  },
+  {
+    "word": "identify",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "识别",
+    "defEn": "recognize as being; establish the identity of someone or something",
+    "ipa": "/ai'dentifai/",
+    "pos": "v."
+  },
+  {
+    "word": "loss",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "损失",
+    "defEn": "something that is lost",
+    "ipa": "/lɒs/",
+    "pos": "n."
+  },
+  {
+    "word": "bus",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "公共汽车",
+    "defEn": "a large vehicle that carries passengers",
+    "ipa": "/bʌs/",
+    "pos": "n."
+  },
+  {
+    "word": "treatment",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "治疗",
+    "defEn": "care provided to improve a situation (especially medical procedures or applications that are intended to relieve",
+    "ipa": "/'tri:tmənt/",
+    "pos": "n."
+  },
+  {
+    "word": "conference",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "会议",
+    "defEn": "a prearranged meeting for consultation or exchange of information or discussion (especially one with a formal agenda)",
+    "ipa": "/'kɒnfərəns/",
+    "pos": "n."
+  },
+  {
+    "word": "yourself",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "你自己",
+    "defEn": "An emphasized or reflexive form of the pronoun of the",
+    "ipa": "/juə'self/",
+    "pos": "pron."
+  },
+  {
+    "word": "worth",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "价值",
+    "defEn": "an indefinite quantity of something having a specified value",
+    "ipa": "/wə:θ/",
+    "pos": "n."
+  },
+  {
+    "word": "natural",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "白痴",
+    "defEn": "someone regarded as certain to succeed",
+    "ipa": "/'nætʃərəl/",
+    "pos": "n."
+  },
+  {
+    "word": "express",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "快车",
+    "defEn": "mail that is distributed by a rapid and efficient system",
+    "ipa": "/ik'spres/",
+    "pos": "n."
+  },
+  {
+    "word": "indicate",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "显示",
+    "defEn": "indicate a place, direction, person, or thing; either spatially or figuratively",
+    "ipa": "/'indikeit/",
+    "pos": "v."
+  },
+  {
+    "word": "attend",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "参加",
+    "defEn": "be present at (meetings, church services, university), etc",
+    "ipa": "/ə'tend/",
+    "pos": "v."
+  },
+  {
+    "word": "brother",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "兄弟",
+    "defEn": "a male with the same parents as someone else",
+    "ipa": "/'brʌðə/",
+    "pos": "n."
+  },
+  {
+    "word": "organize",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "组织",
+    "defEn": "cause to be structured or ordered or operating according to some principle or idea",
+    "ipa": "/'ɒ:gənaiz/",
+    "pos": "v."
+  },
+  {
+    "word": "beyond",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "超过",
+    "defEn": "farther than; on the far side of",
+    "ipa": "/bi'jɒnd/",
+    "pos": "prep."
+  },
+  {
+    "word": "fish",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "鱼",
+    "defEn": "any of various mostly cold-blooded aquatic vertebrates usually having scales and breathing through gills",
+    "ipa": "/fiʃ/",
+    "pos": "n."
+  },
+  {
+    "word": "promise",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "诺言",
+    "defEn": "a verbal commitment by one person to another agreeing to do (or not to do) something in the future",
+    "ipa": "/'prɒmis/",
+    "pos": "n."
+  },
+  {
+    "word": "potential",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "潜在性",
+    "defEn": "the inherent capacity for coming into being",
+    "ipa": "/pə'tenʃəl/",
+    "pos": "n."
+  },
+  {
+    "word": "energy",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "精力",
+    "defEn": "(physics) a thermodynamic quantity equivalent to the capacity of a physical system to do work; the units of energy",
+    "ipa": "/'enədʒi/",
+    "pos": "n."
+  },
+  {
+    "word": "trouble",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "烦恼",
+    "defEn": "a source of difficulty",
+    "ipa": "/'trʌbl/",
+    "pos": "n."
+  },
+  {
+    "word": "relation",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "关系",
+    "defEn": "an abstraction belonging to or characteristic of two entities or parts together",
+    "ipa": "/ri'leiʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "touch",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "触觉",
+    "defEn": "the event of something coming in contact with the body",
+    "ipa": "/tʌtʃ/",
+    "pos": "n."
+  },
+  {
+    "word": "file",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "档案",
+    "defEn": "a set of related records (either written or electronic) kept together",
+    "ipa": "/fail/",
+    "pos": "n."
+  },
+  {
+    "word": "middle",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "中央",
+    "defEn": "an intermediate part or section",
+    "ipa": "/'midl/",
+    "pos": "n."
+  },
+  {
+    "word": "bar",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "条",
+    "defEn": "a counter where you can obtain food or drink",
+    "ipa": "/bɑ:/",
+    "pos": "n."
+  },
+  {
+    "word": "suffer",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "遭受",
+    "defEn": "undergo or be subjected to",
+    "ipa": "/'sʌfə/",
+    "pos": "v."
+  },
+  {
+    "word": "except",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "除",
+    "defEn": "v take exception to",
+    "ipa": "/ik'sept/",
+    "pos": "v."
+  },
+  {
+    "word": "tend",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "走向",
+    "defEn": "have a tendency or disposition to do or be something; be inclined",
+    "ipa": "/tend/",
+    "pos": "v."
+  },
+  {
+    "word": "advance",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "前进",
+    "defEn": "an amount paid before it is earned",
+    "ipa": "/əd'vɑ:ns/",
+    "pos": "n."
+  },
+  {
+    "word": "fill",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "装满",
+    "defEn": "a quantity sufficient to satisfy",
+    "ipa": "/fil/",
+    "pos": "n."
+  },
+  {
+    "word": "star",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "星",
+    "defEn": "(astronomy) a celestial body of hot gases that radiates energy derived from thermonuclear reactions in the interior",
+    "ipa": "/stɑ:/",
+    "pos": "n."
+  },
+  {
+    "word": "network",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "网络",
+    "defEn": "an interconnected system of things or people",
+    "ipa": "/'netwə:k/",
+    "pos": "n."
+  },
+  {
+    "word": "generally",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "通常",
+    "defEn": "usually; in most cases",
+    "ipa": "/'dʒenərəli/",
+    "pos": "adv."
+  },
+  {
+    "word": "avoid",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "避免",
+    "defEn": "stay clear from; keep away from; keep out of the way of someone or something",
+    "ipa": "/ə'vɒid/",
+    "pos": "v."
+  },
+  {
+    "word": "seat",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "座",
+    "defEn": "a space reserved for sitting (as in a theater or on a train or airplane)",
+    "ipa": "/si:t/",
+    "pos": "n."
+  },
+  {
+    "word": "throw",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "投",
+    "defEn": "the act of throwing (propelling something with a rapid movement of the arm and wrist)",
+    "ipa": "/θrəu/",
+    "pos": "n."
+  },
+  {
+    "word": "task",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "工作",
+    "defEn": "assign a task to",
+    "ipa": "/tɑ:sk/",
+    "pos": "v."
+  },
+  {
+    "word": "goal",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "目标",
+    "defEn": "the state of affairs that a plan is intended to achieve and that (when achieved) terminates behavior intended to",
+    "ipa": "/gəul/",
+    "pos": "n."
+  },
+  {
+    "word": "associate",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "同伴",
+    "defEn": "a person who joins with others in some activity or endeavor",
+    "ipa": "/ə'səuʃieit/",
+    "pos": "n."
+  },
+  {
+    "word": "blue",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "蓝色",
+    "defEn": "blue color or pigment; resembling the color of the clear sky in the daytime",
+    "ipa": "/blu:/",
+    "pos": "n."
+  },
+  {
+    "word": "option",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "选择权",
+    "defEn": "the right to buy or sell property at an agreed price; the right is purchased and if it is not exercised by a stated",
+    "ipa": "/'ɒpʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "box",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "盒子",
+    "defEn": "a (usually rectangular) container; may have a lid",
+    "ipa": "/bɒks/",
+    "pos": "n."
+  },
+  {
+    "word": "huge",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "极大的",
+    "defEn": "a common English word.",
+    "ipa": "/hju:dʒ/",
+    "pos": "adj."
+  },
+  {
+    "word": "message",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "消息",
+    "defEn": "a communication (usually brief) that is written or spoken or signaled",
+    "ipa": "/'mesidʒ/",
+    "pos": "n."
+  },
+  {
+    "word": "instance",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "建议",
+    "defEn": "n an occurrence of something",
+    "ipa": "/'instəns/",
+    "pos": "n."
+  },
+  {
+    "word": "style",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "风格",
+    "defEn": "a particular kind (as to appearance)",
+    "ipa": "/stail/",
+    "pos": "n."
+  },
+  {
+    "word": "refer",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "提交",
+    "defEn": "be relevant to",
+    "ipa": "/ri'fə:/",
+    "pos": "v."
+  },
+  {
+    "word": "push",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "推",
+    "defEn": "the act of applying force in order to move something away",
+    "ipa": "/puʃ/",
+    "pos": "n."
+  },
+  {
+    "word": "quarter",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "四分之一",
+    "defEn": "a district of a city having some distinguishing character",
+    "ipa": "/'kwɒ:tə/",
+    "pos": "n."
+  },
+  {
+    "word": "assume",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "假定",
+    "defEn": "take to be the case or to be true; accept without verification or proof",
+    "ipa": "/ə'sju:m/",
+    "pos": "v."
+  },
+  {
+    "word": "successful",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "成功的",
+    "defEn": "having succeeded or being marked by a favorable outcome",
+    "ipa": "/sək'sesful/",
+    "pos": "adj."
+  },
+  {
+    "word": "sing",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "唱",
+    "defEn": "deliver by singing",
+    "ipa": "/siŋ/",
+    "pos": "v."
+  },
+  {
+    "word": "doubt",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "怀疑",
+    "defEn": "the state of being unsure of something",
+    "ipa": "/daut/",
+    "pos": "n."
+  },
+  {
+    "word": "competition",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "竞争",
+    "defEn": "a business relation in which two parties compete to gain customers",
+    "ipa": "/.kɒmpi'tiʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "theory",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "理论",
+    "defEn": "a well-substantiated explanation of some aspect of the natural world; an organized system of accepted knowledge that",
+    "ipa": "/'θiəri/",
+    "pos": "n."
+  },
+  {
+    "word": "propose",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "计划",
+    "defEn": "make a proposal, declare a plan for something",
+    "ipa": "/prə'pəuz/",
+    "pos": "v."
+  },
+  {
+    "word": "reference",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "参考",
+    "defEn": "the most direct or specific meaning of a word or expression; the class of objects that an expression refers to",
+    "ipa": "/'refərəns/",
+    "pos": "n."
+  },
+  {
+    "word": "argument",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "争论",
+    "defEn": "a fact or assertion offered as evidence that something is true",
+    "ipa": "/'ɑ:gjumənt/",
+    "pos": "n."
+  },
+  {
+    "word": "adult",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "成人",
+    "defEn": "a fully developed person from maturity onward",
+    "ipa": "/'ædʌlt/",
+    "pos": "n."
+  },
+  {
+    "word": "fly",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "苍蝇",
+    "defEn": "two-winged insects characterized by active flight",
+    "ipa": "/flai/",
+    "pos": "n."
+  },
+  {
+    "word": "document",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "文件",
+    "defEn": "writing that provides information (especially information of an official nature)",
+    "ipa": "/'dɒkjumənt/",
+    "pos": "n."
+  },
+  {
+    "word": "pattern",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "模范",
+    "defEn": "a model considered worthy of imitation",
+    "ipa": "/'pætən/",
+    "pos": "n."
+  },
+  {
+    "word": "application",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "应用",
+    "defEn": "the act of bringing something to bear; using it for a particular purpose",
+    "ipa": "/.æpli'keiʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "obviously",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "显而易见地",
+    "defEn": "clearly; easily seen",
+    "ipa": "/'ɔbviəsli/",
+    "pos": "adv."
+  },
+  {
+    "word": "unclear",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "不易了解的",
+    "defEn": "not clear to the mind",
+    "ipa": "/.ʌn'kliə/",
+    "pos": "adj."
+  },
+  {
+    "word": "bill",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "帐单",
+    "defEn": "a statute in draft before it becomes law",
+    "ipa": "/bil/",
+    "pos": "n."
+  },
+  {
+    "word": "search",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "搜寻",
+    "defEn": "the activity of looking thoroughly in order to find something or someone",
+    "ipa": "/sə:tʃ/",
+    "pos": "n."
+  },
+  {
+    "word": "separate",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "独立件",
+    "defEn": "a garment that can be purchased separately and worn in combinations with other garments",
+    "ipa": "/'sepəreit/",
+    "pos": "n."
+  },
+  {
+    "word": "central",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "中央的",
+    "defEn": "a workplace that serves as a telecommunications facility where lines from telephones can be connected together to",
+    "ipa": "/'sentrəl/",
+    "pos": "n."
+  },
+  {
+    "word": "anyway",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "无论如何",
+    "defEn": "r used to indicate that a statement explains or supports a previous statement; anyhow, they're quiet\"; anyway, it's",
+    "ipa": "/'eniwei/",
+    "pos": "adv."
+  },
+  {
+    "word": "speech",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "演讲",
+    "defEn": "(language) communication by word of mouth",
+    "ipa": "/spi:tʃ/",
+    "pos": "n."
+  },
+  {
+    "word": "dog",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "狗",
+    "defEn": "a common domesticated animal kept as a pet",
+    "ipa": "/dɒg/",
+    "pos": "n."
+  },
+  {
+    "word": "officer",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "军官",
+    "defEn": "a person authorized to serve in a position of authority on a vessel",
+    "ipa": "/'ɒfisə/",
+    "pos": "n."
+  },
+  {
+    "word": "throughout",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "到处",
+    "defEn": "in every part of; during the whole of",
+    "ipa": "/θru:'aut/",
+    "pos": "adv."
+  },
+  {
+    "word": "oil",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "油",
+    "defEn": "a slippery or viscous liquid or liquefiable substance not miscible with water",
+    "ipa": "/ɒil/",
+    "pos": "n."
+  },
+  {
+    "word": "dress",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "服装",
+    "defEn": "a one-piece garment for a woman; has skirt and bodice",
+    "ipa": "/dres/",
+    "pos": "n."
+  },
+  {
+    "word": "profit",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "利润",
+    "defEn": "the advantageous quality of being beneficial",
+    "ipa": "/'prɒfit/",
+    "pos": "n."
+  },
+  {
+    "word": "guess",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "猜测",
+    "defEn": "a message expressing an opinion based on incomplete evidence",
+    "ipa": "/ges/",
+    "pos": "n."
+  },
+  {
+    "word": "fun",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "乐趣",
+    "defEn": "activities that are enjoyable or amusing",
+    "ipa": "/fʌn/",
+    "pos": "n."
+  },
+  {
+    "word": "protect",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "防卫",
+    "defEn": "shield from danger, injury, destruction, or damage",
+    "ipa": "/prə'tekt/",
+    "pos": "v."
+  },
+  {
+    "word": "resource",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "资源",
+    "defEn": "available source of wealth; a new or reserve supply that can be drawn upon when needed",
+    "ipa": "/ri'sɒ:s/",
+    "pos": "n."
+  },
+  {
+    "word": "science",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "科学",
+    "defEn": "a particular branch of scientific knowledge",
+    "ipa": "/'saiəns/",
+    "pos": "n."
+  },
+  {
+    "word": "balance",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "平衡",
+    "defEn": "a state of equilibrium",
+    "ipa": "/'bæləns/",
+    "pos": "n."
+  },
+  {
+    "word": "author",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "作家",
+    "defEn": "be the author of",
+    "ipa": "/'ɒ:θə/",
+    "pos": "v."
+  },
+  {
+    "word": "basic",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "基本原理",
+    "defEn": "a popular programming language that is relatively easy to learn; an acronym for beginner's all-purpose symbolic",
+    "ipa": "/'beisik/",
+    "pos": "n."
+  },
+  {
+    "word": "encourage",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "鼓励",
+    "defEn": "inspire with confidence; give hope or courage to",
+    "ipa": "/in'kʌridʒ/",
+    "pos": "v."
+  },
+  {
+    "word": "hair",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "头发",
+    "defEn": "a covering for the body (or parts of it) consisting of a dense growth of threadlike structures (as on the human",
+    "ipa": "/hєə/",
+    "pos": "n."
+  },
+  {
+    "word": "male",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "男人",
+    "defEn": "an animal that produces gametes (spermatozoa) that can fertilize female gametes (ova)",
+    "ipa": "/meil/",
+    "pos": "n."
+  },
+  {
+    "word": "operate",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "操作",
+    "defEn": "direct or control; projects, businesses, etc",
+    "ipa": "/'ɒpəreit/",
+    "pos": "v."
+  },
+  {
+    "word": "reflect",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "反射",
+    "defEn": "manifest or bring back",
+    "ipa": "/ri'flekt/",
+    "pos": "v."
+  },
+  {
+    "word": "property",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "财产",
+    "defEn": "something owned; any tangible or intangible possession that is owned by someone",
+    "ipa": "/'prɒpəti/",
+    "pos": "n."
+  },
+  {
+    "word": "previous",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "早先的",
+    "defEn": "a common English word.",
+    "ipa": "/'pri:viəs/",
+    "pos": "adj."
+  },
+  {
+    "word": "dark",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "黑暗",
+    "defEn": "absence of light or illumination",
+    "ipa": "/dɑ:k/",
+    "pos": "n."
+  },
+  {
+    "word": "imagine",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "想像",
+    "defEn": "form a mental image of something that is not present or that is not the case",
+    "ipa": "/i'mædʒin/",
+    "pos": "v."
+  },
+  {
+    "word": "okay",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "好",
+    "defEn": "all right; acceptable",
+    "ipa": "/əj'kei/",
+    "pos": "adj."
+  },
+  {
+    "word": "earn",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "赚得",
+    "defEn": "acquire or deserve by one's efforts or actions",
+    "ipa": "/ə:n/",
+    "pos": "v."
+  },
+  {
+    "word": "daughter",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "女儿",
+    "defEn": "a female human offspring",
+    "ipa": "/'dɒ:tə/",
+    "pos": "n."
+  },
+  {
+    "word": "post",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "柱",
+    "defEn": "the position where someone (as a guard or sentry) stands or is assigned to stand",
+    "ipa": "/pəust/",
+    "pos": "n."
+  },
+  {
+    "word": "newspaper",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "报纸",
+    "defEn": "a daily or weekly publication on folded sheets; contains news and articles and advertisements",
+    "ipa": "/'nju:z.peipə/",
+    "pos": "n."
+  },
+  {
+    "word": "define",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "定义",
+    "defEn": "give a definition for the meaning of a word",
+    "ipa": "/di'fain/",
+    "pos": "v."
+  },
+  {
+    "word": "conclusion",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "结论",
+    "defEn": "an intuitive assumption",
+    "ipa": "/kən'klu:ʒən/",
+    "pos": "n."
+  },
+  {
+    "word": "clock",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "时钟",
+    "defEn": "a timepiece that shows the time of day",
+    "ipa": "/klɒk/",
+    "pos": "n."
+  },
+  {
+    "word": "everybody",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "每个人",
+    "defEn": "Every person",
+    "ipa": "/'evribɒdi/",
+    "pos": "n."
+  },
+  {
+    "word": "weekend",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "周末",
+    "defEn": "a time period usually extending from Friday night through Sunday; more loosely defined as any period of successive",
+    "ipa": "/'wi:kend/",
+    "pos": "n."
+  },
+  {
+    "word": "perform",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "进行",
+    "defEn": "carry out or perform an action",
+    "ipa": "/pə'fɒ:m/",
+    "pos": "v."
+  },
+  {
+    "word": "professional",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "专业人才",
+    "defEn": "a person engaged in one of the learned professions",
+    "ipa": "/prə'feʃənl/",
+    "pos": "n."
+  },
+  {
+    "word": "debate",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "辩论",
+    "defEn": "the formal presentation of a stated proposition and the opposition to it (usually followed by a vote)",
+    "ipa": "/di'beit/",
+    "pos": "n."
+  },
+  {
+    "word": "memory",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "记忆",
+    "defEn": "something that is remembered",
+    "ipa": "/'meməri/",
+    "pos": "n."
+  },
+  {
+    "word": "green",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "绿色",
+    "defEn": "green color or pigment; resembling the color of growing grass",
+    "ipa": "/gri:n/",
+    "pos": "n."
+  },
+  {
+    "word": "song",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "歌",
+    "defEn": "a short musical composition with words",
+    "ipa": "/sɒŋ/",
+    "pos": "n."
+  },
+  {
+    "word": "object",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "物体",
+    "defEn": "a tangible and visible entity; an entity that can cast a shadow",
+    "ipa": "/'ɒbdʒekt/",
+    "pos": "n."
+  },
+  {
+    "word": "maintain",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "维持",
+    "defEn": "state or assert",
+    "ipa": "/mein'tein/",
+    "pos": "v."
+  },
+  {
+    "word": "credit",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "信用",
+    "defEn": "money available for a client to borrow",
+    "ipa": "/'kredit/",
+    "pos": "n."
+  },
+  {
+    "word": "ring",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "环",
+    "defEn": "a characteristic sound",
+    "ipa": "/riŋ/",
+    "pos": "n."
+  },
+  {
+    "word": "discover",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "发现",
+    "defEn": "make a discovery, make a new finding",
+    "ipa": "/dis'kʌvə/",
+    "pos": "v."
+  },
+  {
+    "word": "dead",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "死的",
+    "defEn": "people who are no longer living",
+    "ipa": "/ded/",
+    "pos": "n."
+  },
+  {
+    "word": "afternoon",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "午后",
+    "defEn": "the part of the day between noon and evening",
+    "ipa": "/'ɑ:ftə'nu:n/",
+    "pos": "n."
+  },
+  {
+    "word": "prefer",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "宁可",
+    "defEn": "like better; value more highly",
+    "ipa": "/pri'fə:/",
+    "pos": "v."
+  },
+  {
+    "word": "extend",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "扩充",
+    "defEn": "make available; provide",
+    "ipa": "/ik'stend/",
+    "pos": "v."
+  },
+  {
+    "word": "possibility",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "可能性",
+    "defEn": "a future prospect or potential",
+    "ipa": "/.pɒsə'biliti/",
+    "pos": "n."
+  },
+  {
+    "word": "direction",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "方向",
+    "defEn": "a line leading to a place or point",
+    "ipa": "/di'rekʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "facility",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "容易",
+    "defEn": "a building or place that provides a particular service or is used for a particular industry",
+    "ipa": "/fə'siliti/",
+    "pos": "n."
+  },
+  {
+    "word": "variety",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "多样",
+    "defEn": "(biology) a taxonomic category consisting of members of a species that differ from others of the same species in",
+    "ipa": "/və'raiəti/",
+    "pos": "n."
+  },
+  {
+    "word": "daily",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "每日的",
+    "defEn": "a newspaper that is published every day",
+    "ipa": "/'deili/",
+    "pos": "n."
+  },
+  {
+    "word": "clothes",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "衣服",
+    "defEn": "n clothing in general",
+    "ipa": "/kləuðz/",
+    "pos": "n."
+  },
+  {
+    "word": "track",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "轨迹",
+    "defEn": "a pair of parallel rails providing a runway for wheels",
+    "ipa": "/træk/",
+    "pos": "n."
+  },
+  {
+    "word": "dance",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "跳舞",
+    "defEn": "an artistic form of nonverbal communication",
+    "ipa": "/dæns. dɑ:ns/",
+    "pos": "n."
+  },
+  {
+    "word": "completely",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "完全地",
+    "defEn": "totally; fully",
+    "ipa": "/kəm'pli:tli/",
+    "pos": "adv."
+  },
+  {
+    "word": "female",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "女性",
+    "defEn": "an animal that produces gametes (ova) that can be fertilized by male gametes (spermatozoa)",
+    "ipa": "/'fi:meil/",
+    "pos": "n."
+  },
+  {
+    "word": "original",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "最初的",
+    "defEn": "something that serves as a model or a basis for making copies",
+    "ipa": "/ə'ridʒənl/",
+    "pos": "n."
+  },
+  {
+    "word": "sister",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "姐妹",
+    "defEn": "a female person who has the same parents as another person",
+    "ipa": "/'sistə/",
+    "pos": "n."
+  },
+  {
+    "word": "rock",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "岩石",
+    "defEn": "a lump or mass of hard consolidated mineral matter",
+    "ipa": "/rɒk/",
+    "pos": "n."
+  },
+  {
+    "word": "dream",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "梦",
+    "defEn": "a series of mental images and emotions occurring during sleep",
+    "ipa": "/dri:m/",
+    "pos": "n."
+  },
+  {
+    "word": "university",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "大学",
+    "defEn": "the body of faculty and students at a university",
+    "ipa": "/.ju:ni'və:siti/",
+    "pos": "n."
+  },
+  {
+    "word": "easily",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "容易地",
+    "defEn": "without difficulty",
+    "ipa": "/'i:zili/",
+    "pos": "adv."
+  },
+  {
+    "word": "agency",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "代理机构",
+    "defEn": "an administrative unit of government",
+    "ipa": "/'eidʒənsi/",
+    "pos": "n."
+  },
+  {
+    "word": "dollar",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "美元",
+    "defEn": "the basic monetary unit in many countries; equal to 100 cents",
+    "ipa": "/'dɒlə/",
+    "pos": "n."
+  },
+  {
+    "word": "garden",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "花园",
+    "defEn": "a plot of ground where plants are cultivated",
+    "ipa": "/'gɑ:dn/",
+    "pos": "n."
+  },
+  {
+    "word": "fix",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "使固定",
+    "defEn": "informal terms for a difficult situation",
+    "ipa": "/fiks/",
+    "pos": "n."
+  },
+  {
+    "word": "ahead",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "领先的",
+    "defEn": "a common English word.",
+    "ipa": "/ə'hed/",
+    "pos": "adj."
+  },
+  {
+    "word": "cross",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "十字架",
+    "defEn": "a wooden structure consisting of an upright post with a transverse piece",
+    "ipa": "/krɒs/",
+    "pos": "n."
+  },
+  {
+    "word": "yeah",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "(非正式)是",
+    "defEn": "r not only so, but",
+    "ipa": "/jɑ:/",
+    "pos": "adv."
+  },
+  {
+    "word": "candidate",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "候选人",
+    "defEn": "someone who is considered for something (for an office or prize or honor etc.)",
+    "ipa": "/'kændideit/",
+    "pos": "n."
+  },
+  {
+    "word": "weight",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "重",
+    "defEn": "the vertical force exerted by a mass as a result of gravity",
+    "ipa": "/weit/",
+    "pos": "n."
+  },
+  {
+    "word": "legal",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "法律的",
+    "defEn": "established by or founded upon law or official or accepted rules",
+    "ipa": "/'li:gəl/",
+    "pos": "adj."
+  },
+  {
+    "word": "proposal",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "提议",
+    "defEn": "something proposed (such as a plan or assumption)",
+    "ipa": "/prə'pəuzl/",
+    "pos": "n."
+  },
+  {
+    "word": "version",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "一种描述",
+    "defEn": "an interpretation of a matter from a particular viewpoint",
+    "ipa": "/'və:ʒən/",
+    "pos": "n."
+  },
+  {
+    "word": "conversation",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "会话",
+    "defEn": "the use of speech for informal exchange of views or ideas or information etc",
+    "ipa": "/.kɒnvə'seiʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "somebody",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "了不起的人",
+    "defEn": "n a human being",
+    "ipa": "/'sʌmbɒdi/",
+    "pos": "n."
+  },
+  {
+    "word": "pound",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "磅",
+    "defEn": "16 ounces avoirdupois",
+    "ipa": "/paund/",
+    "pos": "n."
+  },
+  {
+    "word": "magazine",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "杂志",
+    "defEn": "a periodic publication containing pictures and stories and articles of interest to those who purchase it or",
+    "ipa": "/.mægə'zi:n/",
+    "pos": "n."
+  },
+  {
+    "word": "shape",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "形状",
+    "defEn": "any spatial attributes (especially as defined by outline)",
+    "ipa": "/ʃeip/",
+    "pos": "n."
+  },
+  {
+    "word": "immediately",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "直接地",
+    "defEn": "at once; without delay",
+    "ipa": "/i'mi:diətli/",
+    "pos": "adv."
+  },
+  {
+    "word": "welcome",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "欢迎",
+    "defEn": "the state of being welcome",
+    "ipa": "/'welkəm/",
+    "pos": "n."
+  },
+  {
+    "word": "smile",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "微笑",
+    "defEn": "a facial expression characterized by turning up the corners of the mouth; usually shows pleasure or amusement",
+    "ipa": "/smail/",
+    "pos": "n."
+  },
+  {
+    "word": "agent",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "代理商",
+    "defEn": "an active and efficient cause; capable of producing a certain effect",
+    "ipa": "/'eidʒənt/",
+    "pos": "n."
+  },
+  {
+    "word": "traditional",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "传统的",
+    "defEn": "consisting of or derived from tradition",
+    "ipa": "/trə'diʃənl/",
+    "pos": "adj."
+  },
+  {
+    "word": "replace",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "代替",
+    "defEn": "substitute a person or thing for (another that is broken or inefficient or lost or no longer working or yielding",
+    "ipa": "/ri'pleis/",
+    "pos": "v."
+  },
+  {
+    "word": "judge",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "法官",
+    "defEn": "a public official authorized to decide questions brought before a court of justice",
+    "ipa": "/dʒʌdʒ/",
+    "pos": "n."
+  },
+  {
+    "word": "herself",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "她自己",
+    "defEn": "An emphasized form of the third person feminine",
+    "ipa": "/hə:'self/",
+    "pos": "pron."
+  },
+  {
+    "word": "suddenly",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "突然",
+    "defEn": "quickly and without warning",
+    "ipa": "/'sʌdənli/",
+    "pos": "adv."
+  },
+  {
+    "word": "generation",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "一代",
+    "defEn": "group of genetically related organisms constituting a single step in the line of descent",
+    "ipa": "/.dʒenə'reiʃən/",
+    "pos": "n."
+  },
+  {
+    "word": "estimate",
+    "packs": [
+      "freq-1k"
+    ],
+    "def": "估计",
+    "defEn": "an approximate calculation of quantity or degree or worth",
+    "ipa": "/'estimeit/",
+    "pos": "n."
+  }
+]

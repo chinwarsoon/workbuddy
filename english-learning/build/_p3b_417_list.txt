@@ -1,0 +1,419 @@
+=== freq-3k (218 words) ===
+graph         : def="曲线图, 图表"                                | defEn=a visual representation of the relations between c
+neuron        : def="神经原, 轴索"                                | defEn=n a cell that is specialized to conduct nerve impu
+robot         : def="机械人, 自动机械"                              | defEn=n a mechanism that can move automatically
+node          : def="节, 结节"                                  | defEn=a connecting point at which several lines come tog
+colonial      : def="殖民的, 殖民地的 殖民地居民"                        | defEn=a resident of a colony
+coordinate    : def="同等的人(或物), 坐标 a. 同等的"                    | defEn=a number that identifies a position relative to an
+prediction    : def="预言, 预报 预测"                              | defEn=the act of predicting (as by reasoning about the f
+syndrome      : def="并发症状, 综合征"                              | defEn=a complex of concurrent things
+incidence     : def="发生, 发生率"                                | defEn=the relative frequency of occurrence of something
+adaptation    : def="适应, 改编"                                 | defEn=a written work (as a novel) that has been recast i
+cone          : def="圆锥体, 球果使成锥形"                            | defEn=any cone-shaped artifact
+ex            : def="已离婚的配偶 不附资本增殖, (在船边码头)交货"               | defEn=n a man who was formerly a certain woman's husband
+feedback      : def="反馈, 反应 反馈"                              | defEn=the process in which part of the output of a syste
+diagram       : def="图表；图解"                                  | defEn=a drawing intended to explain how something works;
+leaf          : def="叶, 树叶"                                  | defEn=the main organ of photosynthesis and transpiration
+equality      : def="平等, 均匀"                                 | defEn=the quality of being the same in quantity or measu
+gradient      : def="倾斜度, 梯度"                                | defEn=a graded change in the magnitude of some physical 
+tumor         : def="肿大, 肿块"                                 | defEn=an abnormal new mass of tissue that serves no purp
+psychology    : def="心理学, 心理状态 心理学"                          | defEn=the science of mental life
+diverse       : def="不同的, 变化多的"                              | defEn=s. distinctly dissimilar or unlike
+migration     : def="移民, 移往"                                 | defEn=the movement of persons from one country or locali
+inclusion     : def="包含, 内含物 蕴含"                             | defEn=the state of being included
+disturbance   : def="扰乱, 不安"                                 | defEn=an unhappy and worried mental state
+validity      : def="有效性, 正确性 有效性"                           | defEn=the quality of having legal force or effectiveness
+atom          : def="原子, 核能"                                 | defEn=(physics and chemistry) the smallest component of 
+initiate      : def="入会, 开始 a. 新加入的开始"                       | defEn=someone who has been admitted to membership in a s
+consonant     : def="辅音 a. 一致的, 调和的"                         | defEn=a speech sound that is not a vowel
+discrete      : def="不连续的"                                   | defEn=constituting a separate entity or part
+classroom     : def="教室"                                     | defEn=a room in a school where lessons take place
+injection     : def="注射, 注射剂 注入; 注射"                         | defEn=the forceful insertion of a substance under pressu
+marginal      : def="边缘的, 最低限度的"                             | defEn=s. producing at a rate that barely covers producti
+client        : def="客户, 顾客"                                 | defEn=a person who seeks the advice of a lawyer
+superior      : def="长者, 占优势的人"                              | defEn=one of greater rank or station or quality
+singular      : def="单数 a. 异常的, 单一的"                         | defEn=the form of a word that is used to denote a single
+fetal         : def="胎儿的"                                    | defEn=of or relating to a fetus
+comprehension : def="理解, 包含"                                 | defEn=an ability to understand the meaning or importance
+oxygen        : def="氧 氧O-2"                                 | defEn=a nonmetallic bivalent element that is normally a 
+colony        : def="殖民地, 移民队 菌(集)落"                         | defEn=a body of people who settle far from home but main
+algebra       : def="代数学"                                    | defEn=the mathematics of generalized arithmetical operat
+overview      : def="概述, 概观"                                 | defEn=a general summary of a subject
+residual      : def="残渣的, 剩余的残渣"                             | defEn=(often plural) a payment that is made to a perform
+amino         : def="氨基的 氨基"                                 | defEn=the radical -NH2
+assembly      : def="与会者, 集会"                                | defEn=a group of machine parts that fit together to form
+closure       : def="关闭使终止"                                  | defEn=a rule for limiting or ending debate in a delibera
+selective     : def="选择的, 选择性的 选择的"                          | defEn=s. tending to select; characterized by careful cho
+availability  : def="有效性, 可利用性"                              | defEn=n the quality of being at hand when needed
+inhibition    : def="禁止, 抑制"                                 | defEn=(psychology) the conscious exclusion of unacceptab
+dense         : def="密集的, 浓厚的"                               | defEn=s. permitting little if any light to pass through 
+ecology       : def="生态学, 社会生态学 生态学"                         | defEn=the environment as it relates to living organisms
+discharge     : def="卸下, 放出"                                 | defEn=the sudden giving off of energy
+protocol      : def="草案, 礼仪"                                 | defEn=(computer science) rules determining the format an
+occupation    : def="职业, 占有"                                 | defEn=the principal activity in your life that you do to
+pragmatic     : def="忙碌的, 爱管闲事的"                             | defEn=of or concerning the theory of pragmatism
+productivity  : def="生产力 生产率, 生产能力"                          | defEn=(economics) the ratio of the quantity and quality 
+commentary    : def="注释, 评论"                                 | defEn=n a written explanation or criticism or illustrati
+consensus     : def="合意, 一致"                                 | defEn=agreement in the judgment or opinion reached by a 
+pi            : def="圆周率"                                    | defEn=the ratio of the circumference to the diameter of 
+assignment    : def="分配, 功课"                                 | defEn=a duty that you are assigned to perform (especiall
+mechanical    : def="机械的, 机械性的"                              | defEn=using (or as if using) mechanisms or tools or devi
+disability    : def="无力, 无能"                                 | defEn=the condition of being unable to perform as a cons
+contradiction : def="反驳"                                     | defEn=opposition between two conflicting forces or ideas
+problematic   : def="成问题的, 未定的"                              | defEn=s open to doubt or debate
+correction    : def="订正, 改正"                                 | defEn=the act of offering an improvement to replace a mi
+primitive     : def="原始人, 早期艺术家 a. 原始的"                      | defEn=a person who belongs to an early stage of civiliza
+static        : def="静电, 静电干扰 a. 静态的"                        | defEn=a crackling or hissing noise caused by electrical 
+peripheral    : def="周边的, 周围的"                               | defEn=(computer science) electronic equipment connected 
+spontaneous   : def="自然的, 自发的"                               | defEn=happening or arising without apparent external cau
+reliability   : def="信度"                                     | defEn=n the quality of being dependable or reliable
+reproduction  : def="再现, 复制"                                 | defEn=the process of generating offspring
+lung          : def="肺, 肺脏"                                  | defEn=either of two saclike respiratory organs in the ch
+circulation   : def="流通, 循环"                                 | defEn=the dissemination of copies of periodicals (as new
+metaphor      : def="隐喻"                                     | defEn=a figure of speech in which an expression is used 
+complication  : def="复杂化, 复杂情况 并发症"                          | defEn=the act or process of complicating
+absorption    : def="吸收, 专心"                                 | defEn=(chemistry) a process in which one substance perme
+donor         : def="捐赠人 给体; 供体"                             | defEn=person who makes a gift of property
+manipulation  : def="操作, 处理 (用手)操作; 使用"                      | defEn=exerting shrewd or devious influence especially fo
+analogy       : def="相似, 类似 模拟"                              | defEn=an inference that if things agree in some respects
+plausible     : def="貌似真实的, 貌似合理的"                           | defEn=apparently reasonable and valid, and truthful
+nitrogen      : def="氮 氮N-2"                                 | defEn=a common nonmetallic element that is normally a co
+wheat         : def="小麦"                                     | defEn=annual or biennial grass having erect flower spike
+sketch        : def="素描, 草图"                                 | defEn=preliminary drawing for later elaboration
+binary        : def="由两部分组成的, 二进位的"                          | defEn=a pre-compiled
+execution     : def="实行, 完成"                                 | defEn=putting a condemned person to death
+dictionary    : def="字典"                                     | defEn=a reference book containing an alphabetical list o
+strand        : def="(绳索的)股, 绳"                              | defEn=a pattern forming a unity within a larger structur
+philosopher   : def="哲学家, 哲人"                                | defEn=a specialist in philosophy
+objection     : def="异议, 反对"                                 | defEn=the speech act of objecting
+replication   : def="回答, 反响"                                 | defEn=(genetics) the process whereby DNA makes a copy of
+curriculum    : def="课程 课程, 学程"                              | defEn=n an integrated course of academic studies
+coherent      : def="互相耦合的, 清晰的"                             | defEn=marked by an orderly, logical, and aesthetically c
+sophisticate  : def="久经世故的人, 精于...之道的人篡改"                    | defEn=a worldly-wise person
+cylinder      : def="圆筒, 圆筒状物"                               | defEn=a solid bounded by a cylindrical surface and two p
+theorist      : def="理论家, 理论工作者"                             | defEn=someone who theorizes (especially in science or ar
+crystal       : def="水晶, 水晶装饰品"                              | defEn=a solid formed by the solidification of a chemical
+drift         : def="漂流物, 漂流"                                | defEn=a force that moves something along
+resistant     : def="抵抗者, 反抗者 a. 抵抗的"                        | defEn=s. impervious to being affected
+rhetoric      : def="修辞, 修辞学"                                | defEn=using language effectively to please or persuade
+turbulent     : def="狂暴的, 骚乱的"                               | defEn=s characterized by unrest or disorder or insubordi
+quantum       : def="量"                                      | defEn=a discrete amount of something that is analogous t
+conserve      : def="蜜饯, 果酱保存"                               | defEn=fruit preserved by cooking with sugar
+bulk          : def="大小, 体积"                                 | defEn=the property of something that is great in magnitu
+triangle      : def="三角形, 三个一组"                              | defEn=a three-sided polygon
+metabolism    : def="新陈代谢, 变态 新陈代谢; 代谢"                      | defEn=the organic processes (in a cell or organism) that
+dilemma       : def="困境, (进退两难的)窘境"                          | defEn=state of uncertainty or perplexity especially as r
+hydrogen      : def="氢 氢H-2"                                 | defEn=a nonmetallic univalent element that is normally a
+susceptible   : def="易受影响的, 易感动的"                            | defEn=(often followed by `of' or `to') yielding readily 
+architect     : def="建筑师, 设计者"                               | defEn=someone who creates plans to be used in making som
+morality      : def="道德, 教训"                                 | defEn=concern with the distinction between good and evil
+rainfall      : def="降雨"                                     | defEn=n water falling in drops from vapor condensed in t
+inferior      : def="次等的, 较差的"                               | defEn=one of lesser rank or station or quality
+composite     : def="合成的, 混合成的"                              | defEn=considered the most highly evolved dicotyledonous 
+bundle        : def="捆, 束包扎"                                 | defEn=a package of several things tied together for carr
+flexibility   : def="弹性, 适应性 灵活性; 适应性"                       | defEn=the property of being flexible; easily bent or sha
+realistic     : def="现实的, 逼真的"                               | defEn=aware or expressing awareness of things as they re
+initiation    : def="开始, 指引"                                 | defEn=a formal entry into an organization or position or
+ruler         : def="统治者, 管理者"                               | defEn=a person who rules or commands
+commodity     : def="农产品, 商品"                                | defEn=articles of commerce
+trivial       : def="琐碎的, 不重要的"                              | defEn=s. concerned with trivialities
+stance        : def="准备击球姿势, 站立的姿势"                          | defEn=standing posture
+profound      : def="极深的, 深厚的"                               | defEn=showing intellectual penetration or emotional dept
+proton        : def="质子 质子"                                  | defEn=a stable particle with positive charge equal to th
+pole          : def="波兰人, 极点"                                | defEn=a long (usually round) rod of wood or metal or pla
+respiratory   : def="呼吸的 呼吸的"                                | defEn=pertaining to respiration
+elimination   : def="除去, 消除"                                 | defEn=the act of removing or getting rid of something
+gross         : def="总数, 总量 a. 总共的"                          | defEn=twelve dozen
+continent     : def="大陆, 洲 a. 自制的"                           | defEn=one of the large landmasses of the earth
+viable        : def="能养活的, 能生长发育的 有活力的"                      | defEn=s. capable of life or normal growth and developmen
+limb          : def="四肢, 枝干"                                 | defEn=one of the jointed appendages of an animal used fo
+rationality   : def="合理性, 纯理性"                               | defEn=the state of having good sense and sound judgment
+antibiotic    : def="抗生素 a. 抗生的"                             | defEn=a chemical substance derivable from a mold or bact
+chemistry     : def="化学, 化学过程 化学"                            | defEn=the science of matter; the branch of the natural s
+fracture      : def="破碎, 骨折(使)破碎"                            | defEn=breaking of hard tissue such as bone
+dissolve      : def="溶解, 解散"                                 | defEn=(film) a gradual transition from one scene to the 
+bargain       : def="交易, 买卖协定"                               | defEn=an agreement between parties (usually arrived at a
+psychologist  : def="心理学家 心理学家"                              | defEn=a scientist trained in psychology
+diary         : def="日记 日记簿"                                 | defEn=a daily written record of (usually personal) exper
+illusion      : def="幻影, 错觉"                                 | defEn=an erroneous mental representation
+fever         : def="发烧, 发热"                                 | defEn=a rise in the temperature of the body; frequently 
+predator      : def="食肉动物, 掠夺者 捕食者"                          | defEn=any animal that lives by preying on other animals
+hepatitis     : def="肝炎 肝炎"                                  | defEn=inflammation of the liver caused by a virus or a t
+bracket       : def="支架, 括弧"                                 | defEn=a category falling within certain defined limits
+contradictory : def="反驳的, 反对的"                               | defEn=two propositions are contradictories if both canno
+sustainable   : def="足可支撑的, 养得起的"                            | defEn=capable of being sustained
+elastic       : def="松紧带, 橡皮筋 a. 有弹性的"                       | defEn=a fabric made of yarns containing an elastic mater
+vitamin       : def="维生素 维生素"                                | defEn=any of a group of organic substances essential in 
+enforcement   : def="执行, 强制 实施"                              | defEn=the act of enforcing; ensuring observance of or ob
+cyclic        : def="周期的, 轮转的"                               | defEn=conforming to the Carnot cycle
+clue          : def="线索"                                     | defEn=evidence that helps to solve a problem
+reactive      : def="反动的"                                    | defEn=participating readily in reactions
+chemotherapy  : def="化学疗法 化学疗法"                              | defEn=the use of chemical agents to treat or control dis
+directive     : def="指导的, 指挥的"                               | defEn=a pronouncement encouraging or banning some activi
+portfolio     : def="皮包, 公文包"                                | defEn=a large, flat, thin case for carrying loose papers
+dye           : def="颜料, 染料染"                                | defEn=a usually soluble substance for staining or colori
+tribe         : def="宗族, 部落"                                 | defEn=a social division of (usually preliterate) people
+plantation    : def="种植园, 大农场"                               | defEn=an estate where cash crops are grown on a large sc
+anti          : def="反对者, 反对论者 a. 反对的"                       | defEn=a person who is opposed (to an action or policy or
+domination    : def="支配, 控制"                                 | defEn=social control by dominating
+soluble       : def="溶解的, 可溶解的"                              | defEn=(of a substance) capable of being dissolved in som
+competent     : def="能干的, 胜任的"                               | defEn=properly or sufficiently qualified or capable or e
+container     : def="容器"                                     | defEn=any object that can be used to hold things (especi
+footnote      : def="脚注 脚注"                                  | defEn=a printed note placed below the text on a printed 
+overhead      : def="经常开支, 普通用费"                             | defEn=(nautical) the top surface of an enclosed space on
+goodness      : def="仁慈, 善良"                                 | defEn=n that which is pleasing or valuable or useful
+legend        : def="传说, 传奇文学"                               | defEn=a story about mythical or supernatural beings or e
+abdominal     : def="腹部的, 有腹鳍的 腹的"                           | defEn=the muscles of the abdomen
+outlet        : def="出口, 发泄方法"                               | defEn=n a place of business for retailing goods
+interviewer   : def="会见者, 面谈者"                               | defEn=a person who conducts an interview
+emperor       : def="皇帝, 君主"                                 | defEn=the male ruler of an empire
+transparency  : def="透明, 透明度"                                | defEn=permitting the free passage of electromagnetic rad
+chloride      : def="氯化物 氯化物; 盐酸盐"                           | defEn=any compound containing a chlorine atom
+destination   : def="目的地, 目标"                                | defEn=the ultimate goal for which something is done
+painful       : def="痛苦的, 困难的"                               | defEn=causing physical or psychological pain
+industrialization: def="工业化, 产业化 工业化"                           | defEn=the development of industry on an extensive scale
+audio         : def="音频的"                                    | defEn=the audible part of a transmitted signal
+splice        : def="接合"                                     | defEn=a junction where two things (as paper or film or m
+chunk         : def="大块"                                     | defEn=a substantial amount
+gram          : def="克"                                      | defEn=a metric unit of weight equal to one thousandth of
+pesticide     : def="杀虫剂"                                    | defEn=a chemical used to kill pests (as rodents or insec
+messenger     : def="报信者"                                    | defEn=a person who carries a message
+delta         : def="三角洲"                                    | defEn=a low triangular area of alluvial deposits where a
+flesh         : def="肉"                                      | defEn=the soft tissue of the body of a vertebrate: mainl
+surgeon       : def="外科医生"                                   | defEn=a physician who specializes in surgery
+denominator   : def="分母"                                     | defEn=the divisor of a fraction
+junior        : def="年少者"                                    | defEn=term of address for a disrespectful and annoying m
+solvent       : def="溶剂"                                     | defEn=a liquid substance capable of dissolving other sub
+hedge         : def="树篱"                                     | defEn=a fence formed by a row of closely planted shrubs 
+plug          : def="塞子"                                     | defEn=blockage consisting of an object designed to fill 
+clip          : def="修剪"                                     | defEn=any of various small fasteners used to hold loose 
+censor        : def="检查员"                                    | defEn=someone who censures or condemns
+thumb         : def="拇指"                                     | defEn=the thick short innermost digit of the forelimb
+flip          : def="掷"                                      | defEn=hot or cold alcoholic mixed drink containing a bea
+lecturer      : def="演讲者"                                    | defEn=someone who lectures professionally
+sword         : def="刀"                                      | defEn=a cutting or thrusting weapon that has a long meta
+barrel        : def="桶"                                      | defEn=a tube through which a bullet travels when a gun i
+liter         : def="公升"                                     | defEn=a metric unit of capacity, formerly defined as the
+phenomenal    : def="现象的"                                    | defEn=of or relating to a phenomenon
+bizarre       : def="奇异的"                                    | defEn=a common English word.
+specialty     : def="专业"                                     | defEn=n an asset of special worth or utility
+sometime      : def="某个时候"                                   | defEn=at some uncertain time in the future
+bucket        : def="桶"                                      | defEn=a roughly cylindrical vessel that is open at the t
+airplane      : def="飞机"                                     | defEn=an aircraft that has a fixed wing and is powered b
+syllabus      : def="摘要"                                     | defEn=n an integrated course of academic studies
+lever         : def="杠杆"                                     | defEn=a rigid bar pivoted about a fulcrum
+rub           : def="摩擦"                                     | defEn=the act of rubbing or wiping
+scripture     : def="圣经"                                     | defEn=any writing that is regarded as sacred by a religi
+bullet        : def="子弹"                                     | defEn=a projectile that is fired from a gun
+postgraduate  : def="大学毕业后的"                                 | defEn=n a student who continues studies after graduation
+artwork       : def="插图"                                     | defEn=photographs or other visual representations in a p
+bang          : def="重击"                                     | defEn=a sudden very loud noise
+volition      : def="行使意志"                                   | defEn=the capability of conscious choice and decision an
+shuttle       : def="穿梭"                                     | defEn=public transport that consists of a bus or train o
+chess         : def="国际象棋"                                   | defEn=a game played on a board with pieces
+circa         : def="大约"                                     | defEn=approximately; about (used with dates)
+connector     : def="连结者"                                    | defEn=n an instrumentality that connects
+neo           : def="最新式"                                    | defEn=a common English word.
+handout       : def="施舍物"                                    | defEn=an announcement distributed to members of the pres
+applause      : def="鼓掌"                                     | defEn=a demonstration of approval by clapping the hands 
+mall          : def="林荫路"                                    | defEn=n a public area set aside as a pedestrian walk
+=== freq-4k (199 words) ===
+audio         : def="音频的, 声音的 声频"                            | defEn=the audible part of a transmitted signal
+splice        : def="接合, 捻接"                                 | defEn=a junction where two things (as paper or film or m
+chunk         : def="大块, 矮胖的人(或物) 定样"                        | defEn=a substantial amount
+gram          : def="克, 绿豆"                                  | defEn=a metric unit of weight equal to one thousandth of
+pesticide     : def="杀虫剂 农药"                                 | defEn=a chemical used to kill pests (as rodents or insec
+messenger     : def="报信者, 使者 使者"                             | defEn=a person who carries a message
+delta         : def="三角洲, 希腊字母的第四个字 δ(希腊文的第四个字母)"            | defEn=a low triangular area of alluvial deposits where a
+flesh         : def="肉, 肉体"                                  | defEn=the soft tissue of the body of a vertebrate: mainl
+surgeon       : def="外科医生, 军医"                               | defEn=a physician who specializes in surgery
+denominator   : def="分母, 命名者 分母"                             | defEn=the divisor of a fraction
+junior        : def="年少者, 地位较低者"                             | defEn=term of address for a disrespectful and annoying m
+solvent       : def="溶剂 a. 有偿付能力的, 有溶解力的"                    | defEn=a liquid substance capable of dissolving other sub
+hedge         : def="树篱, 障碍"                                 | defEn=a fence formed by a row of closely planted shrubs 
+plug          : def="塞子, 栓"                                  | defEn=blockage consisting of an object designed to fill 
+clip          : def="修剪, 夹子"                                 | defEn=any of various small fasteners used to hold loose 
+censor        : def="检查员检查, 审查"                              | defEn=someone who censures or condemns
+thumb         : def="拇指以拇指拨弄, 笨拙地摆弄"                         | defEn=the thick short innermost digit of the forelimb
+flip          : def="掷, 弹"                                   | defEn=hot or cold alcoholic mixed drink containing a bea
+lecturer      : def="演讲者, 讲师 讲演人"                            | defEn=someone who lectures professionally
+sword         : def="刀, 剑"                                   | defEn=a cutting or thrusting weapon that has a long meta
+barrel        : def="桶装入桶内"                                  | defEn=a tube through which a bullet travels when a gun i
+liter         : def="公升 升"                                   | defEn=a metric unit of capacity
+phenomenal    : def="现象的, 能知觉的"                              | defEn=of or relating to a phenomenon
+bizarre       : def="奇异的"                                    | defEn=s. conspicuously or grossly unconventional or unus
+specialty     : def="专业, 专长"                                 | defEn=n an asset of special worth or utility
+sometime      : def="以前的, 某一时间的改天"                           | defEn=r. at some indefinite or unstated time
+bucket        : def="桶 存储桶; 桶"                               | defEn=a roughly cylindrical vessel that is open at the t
+airplane      : def="飞机 飞机"                                  | defEn=an aircraft that has a fixed wing and is powered b
+syllabus      : def="摘要, 提纲"                                 | defEn=n an integrated course of academic studies
+lever         : def="杠杆, 似杠杆之工具撬开使用杠杆"                       | defEn=a rigid bar pivoted about a fulcrum
+rub           : def="摩擦, 困难"                                 | defEn=the act of rubbing or wiping
+scripture     : def="圣经, 圣经的一节"                              | defEn=any writing that is regarded as sacred by a religi
+bullet        : def="子弹 弹, 子弹"                               | defEn=a projectile that is fired from a gun
+postgraduate  : def="大学毕业后的, 大学研究院的研究生"                      | defEn=n a student who continues studies after graduation
+artwork       : def="插图, 艺术作品 原图"                            | defEn=photographs or other visual representations in a p
+bang          : def="重击, 突然巨响"                               | defEn=a sudden very loud noise
+volition      : def="行使意志, 意志力"                              | defEn=the capability of conscious choice and decision an
+shuttle       : def="穿梭, 梭子"                                 | defEn=public transport that consists of a bus or train o
+chess         : def="国际象棋 雀麦"                                | defEn=weedy annual native to Europe but widely distribut
+circa         : def="大约在 大约"                                 | defEn=a term used in general English.
+connector     : def="连结者, 联系者"                               | defEn=n an instrumentality that connects
+neo           : def="最新式"                                    | defEn=s. (used as a combining form) recent or new
+handout       : def="施舍物, 救济品"                               | defEn=an announcement distributed to members of the pres
+applause      : def="鼓掌, 喝彩"                                 | defEn=a demonstration of approval by clapping the hands 
+mall          : def="林荫路"                                    | defEn=n a public area set aside as a pedestrian walk
+deaths        : def="死亡数"                                    | defEn=n the event of dying or departure from life
+marine        : def="舰队, 水兵"                                 | defEn=a member of the United States Marine Corps
+bills         : def="账单；议案（bill的复数）"                         | defEn=n a statute in draft before it becomes law
+theatre       : def="戏院, 电影院"                                | defEn=n a building where theatrical performances or moti
+fed           : def="feed的过去式和过去分词 联邦储备局"                    | defEn=n any federal law-enforcement officer
+recording     : def="记录的, 记录用的录音"                            | defEn=a signal that encodes something (e.g., picture or 
+champions     : def="夺标；盟主；冠军（champion的复数形式）"                | defEn=n someone who has won first place in a competition
+hanging       : def="绞死, 绞杀"                                 | defEn=decoration that is hung (as a tapestry) on a wall 
+roman         : def="罗马人 a. 罗马人的, 罗马的"                       | defEn=a resident of modern Rome
+authors       : def="著作家( author的名词复数 ); 作者; 创造者; 发起人"       | defEn=n writes (books or stories or articles or the like
+highway       : def="公路, 大道"                                 | defEn=a major road for any form of motor transport
+santa         : def="圣诞老人（等于Santa Claus）"                    | defEn=n the legendary patron saint of children; an imagi
+payments      : def="惩罚；薪资；支付；付款（payment的复数形式）"              | defEn=n a sum of money paid or a claim discharged
+healthcare    : def="医疗保健；卫生保健；健康护理, 健康服务"                   | defEn=the preservation of mental and physical health by 
+closing       : def="结束 a. 结束的"                              | defEn=approaching a particular destination; a coming clo
+threw         : def="throw的过去式"                              | defEn=v propel through the air
+contained     : def="泰然自若的, 从容的；被控制的"                        | defEn=s. gotten under control
+cooking       : def="烹饪 熬炼; 热炼; 蒸煮"                          | defEn=the act of preparing something (as food) by the ap
+hungry        : def="饥饿的, 荒年的"                               | defEn=feeling hunger; feeling a need or desire to eat fo
+minds         : def="思想；主意（mind的复数）"                         | defEn=n that which is responsible for one's thoughts and
+palace        : def="宫, 宫殿"                                  | defEn=a large and stately mansion
+photography   : def="摄影, 摄影术 照相术"                            | defEn=the act of taking and printing photographs
+tracks        : def="轮胎；磁道；轨道（track的复数）"                     | defEn=n a line or route along which something travels or
+asks          : def="可用座位公里, 客运运能（Available Seat Kilometres）" | defEn=v inquire about
+components    : def="部件；组件；成份（component复数）"                  | defEn=n an abstract part of something
+featured      : def="面貌秀丽的, 被作为特色的"                          | defEn=s. made a feature or highlight; given prominence
+hearts        : def="心；中心；内心；同情心；心形物（heart的复数）"              | defEn=a form of whist in which players avoid winning tri
+lieutenant    : def="中尉, 助理人员"                               | defEn=a commissioned military officer
+visiting      : def="参观, 拜访"                                 | defEn=the activity of making visits
+bags          : def="许多"                                     | defEn=n a flexible container with a single opening
+blocks        : def="积木；黑金石；街区；双头木鱼；楼群（block的复数）"            | defEn=n a solid piece of something (usually having flat 
+commissioner  : def="委员, 理事"                                 | defEn=a government administrator
+drinks        : def="饮料, 饮品；喝酒（drink复数）"                     | defEn=n a single serving of a beverage
+grounds       : def="场地, 庭院"                                 | defEn=a tract of land cleared for some special purposes 
+pizza         : def="比萨饼"                                    | defEn=Italian open pie made of thin bread dough spread w
+sisters       : def="姐妹们（sister的复数形式）"                       | defEn=n a female person who has the same parents as anot
+winners       : def="成功者（winner的复数）"                         | defEn=n the contestant who wins the contest
+diamond       : def="钻石, 菱形 菱形"                              | defEn=a transparent piece of diamond that has been cut a
+dressed       : def="穿好衣服的；打扮好的；去内脏及分割加工好的（特指动物, 如鱼"         | defEn=s. treated with medications and protective coverin
+economics     : def="经济学 经济学"                                | defEn=the branch of social science that deals with the p
+enjoying      : def="享有( enjoy的现在分词 ); 玩得快乐; 喜欢; enjoy yourself （祝愿时说）玩痛快些" | defEn=p. pr. & vb. n. of Enjoy
+handed        : def="有手的, 用手的"                               | defEn=having or involving the use of hands
+hockey        : def="冰球, 曲棍球"                                | defEn=n a game resembling ice hockey that is played on a
+islam         : def="伊斯兰教"                                   | defEn=the civilization of Muslims collectively which is 
+maps          : def="管理分析与规划系统（Management Analysis and Planning System）" | defEn=n a diagrammatic representation of the earth's sur
+principles    : def="原则, 原理"                                 | defEn=n a basic generalization that is accepted as true 
+struck        : def="受罢工影响的 strike的过去式和过去分词"                 | defEn=v deliver a sharp blow, as with the hand, fist, or
+walker        : def="徒步者, 轻便鞋 山林巡视官"                         | defEn=New Zealand runner who in 1975 became the first pe
+colonel       : def="陆军上校, 长官"                               | defEn=a commissioned military officer in the United Stat
+dutch         : def="荷兰人, 荷兰语 a. 荷兰的"                        | defEn=the people of the Netherlands
+inspiration   : def="灵感, 鼓舞人心的人或物"                           | defEn=arousal of the mind to special unusual activity or
+lowest        : def="最低的, 基层的"                               | defEn=r. in the lowest position; nearest the ground
+mum           : def="菊花, 沉默 a. 沉默的演哑剧 interj. 别说话"           | defEn=secrecy
+presents      : def="出品；礼物（present的复数）"                      | defEn=n the period of time that is happening now; any co
+titles        : def="标题；字幕；主题（title复数形式）"                    | defEn=n a heading that names a statute or legislative bi
+actors        : def="演员, 男演员；电影演员（actor的复数形式）"               | defEn=n a theatrical performer
+buried        : def="埋葬的；埋藏的"                                | defEn=placed in a grave
+butter        : def="奶油, 黄油涂黄油于"                             | defEn=an edible emulsion of fat globules made by churnin
+decent        : def="有分寸的, 得体的"                              | defEn=s. socially or conventionally correct; refined or 
+forgotten     : def="forget的过去分词"                            | defEn=v dismiss from the mind; stop remembering
+landing       : def="登陆, 码头"                                 | defEn=an intermediate platform in a staircase
+spiritual     : def="精神上的, 神圣的"                              | defEn=a kind of religious song originated by Blacks in t
+thrown        : def="throw的过去分词"                             | defEn=s. caused to fall to the ground
+bye           : def="再会, 回头见 结束命令"                           | defEn=you advance to the next round in a tournament with
+consumers     : def="消费者, 消耗者；用户"                            | defEn=n a person who uses goods or services
+critics       : def="评论家；批评者；吹毛求疵的人（critic的复数）"              | defEn=n a person who is professionally engaged in the an
+fallen        : def="堕落的, 落下来的"                              | defEn=s. having dropped by the force of gravity
+idiot         : def="白痴, 极蠢之人 白痴者"                           | defEn=a person of subnormal intelligence
+makeup        : def="组成, 性格"                                 | defEn=cosmetics applied to the face to improve or change
+posting       : def="记入, 记录"                                 | defEn=(bookkeeping) a listing on the company's records
+towns         : def="汤斯"                                     | defEn=n an urban area with a fixed boundary that is smal
+defensive     : def="防卫的, 防备用的"                              | defEn=an attitude of defensiveness (especially in the ph
+females       : def="雌性动物( female的复数形式 ); 女人"                | defEn=an animal that produces gametes (ova) that can be 
+gifts         : def="礼品, 赠品；礼物；天赋（gift的复数形式）"                | defEn=n something acquired without compensation
+lessons       : def="功课( lesson的名词复数 ); 课程; 教训; 一堂课"         | defEn=n a unit of instruction
+maintained    : def="被保持的"                                   | defEn=v keep in a certain state, position, or activity; 
+mill          : def="压榨机, 磨坊"                                | defEn=Scottish philosopher who expounded Bentham's utili
+subjects      : def="主题；被试者；学科；科目（subject的复数）"               | defEn=n the subject matter of a conversation or discussi
+bands         : def="法官；乐队"                                  | defEn=n an unofficial association of people or groups
+cop           : def="警官抓住"                                   | defEn=n uncomplimentary terms for a policeman
+fraud         : def="欺骗, 欺诈"                                 | defEn=intentional deception resulting in injury to anoth
+honour        : def="荣誉, 头衔"                                 | defEn=n the state of being honored
+instructions  : def="指令；说明（instruction的复数形式）"                | defEn=n a manual usually accompanying a technical device
+nov           : def="十一月（November）"                          | defEn=n the month following October and preceding Decemb
+programming   : def="节目的计划, 编制程序 程序设计; 程序编制"                 | defEn=creating a sequence of instructions to enable the 
+behaviour     : def="行为, 举止 特性"                              | defEn=n the action or reaction of something (as a machin
+diseases      : def="病害；疾病；疾病种类；病（disease的复数）"               | defEn=n an impairment of health or a condition of abnorm
+ears          : def="电声额定系统（Electro-Acoustic Rating System）" | defEn=n the sense organ for hearing and equilibrium
+heritage      : def="遗产, 祖先遗留物"                              | defEn=practices that are handed down from the past by tr
+juice         : def="汁, 活力"                                  | defEn=the liquid part that can be extracted from plant o
+privacy       : def="隐私, 隐居"                                 | defEn=the quality of being secluded from the presence or
+reducing      : def="减低；减轻体重法, 减肥法"                          | defEn=loss of excess weight (as by dieting); becoming sl
+scoring       : def="擦伤; 划伤"                                 | defEn=n evaluation of performance by assigning a grade o
+searching     : def="搜索的, 遍寻的"                               | defEn=s. having keenness and forcefulness and penetratio
+sections      : def="截面, 节段；型材（section的复数）"                  | defEn=n a self-contained part of a larger composition (w
+threatened    : def="受到威胁的威胁(threaten的过去分词)"                 | defEn=s. (of flora or fauna) likely in the near future t
+transferred   : def="呼叫转移；已转运"                               | defEn=v transfer somebody to a different position or loc
+apps          : def="应用程序, 应用软件；应用服务"                        | defEn=a term used in general English.
+cant          : def="伪善之言, 黑话"                               | defEn=insincere talk about religion or morals
+cotton        : def="棉花和谐, 有好感"                              | defEn=soft silky fibers from cotton plants in their raw 
+masters       : def="主人；硕士；大师赛（master的复数形式）"                 | defEn=United States poet (1869-1950)
+preferred     : def="首选的 首选的"                                | defEn=v like better; value more highly
+pulling       : def="拉单晶的"                                   | defEn=n the act of pulling; applying force to move somet
+removal       : def="移动, 移居"                                 | defEn=the act of removing
+risks         : def="风险, 危险（risk复数）"                         | defEn=n a source of danger; a possibility of incurring l
+screaming     : def="发出尖叫声的, 极滑稽的"                           | defEn=s. so extremely intense as to evoke screams
+sept          : def="氏族 九月"                                  | defEn=n the month following August and preceding October
+versions      : def="版本；译本"                                  | defEn=n an interpretation of a matter from a particular 
+wishes        : def="（书信或贺卡等中的）祝愿( wish的名词复数 ); 渴望; 希望的事; 许愿<正>希望, 想要" | defEn=n a specific feeling of desire
+athletes      : def="运动员( athlete的复数形式 ); 体育家; 擅长运动的人; 健儿"   | defEn=a person trained to compete in sports
+bull          : def="公牛 买方, 买空者"                             | defEn=uncastrated adult male of domestic cattle
+contributions : def="贡献；出资"                                  | defEn=n the part played by a person in bringing about a 
+generated     : def="生成的；发生的"                                | defEn=v bring into existence
+glasses       : def="眼镜；双筒望远镜；玻璃（glass的复数形式）"                | defEn=n optical instrument consisting of a frame that ho
+instant       : def="立即, 瞬间 a. 紧急的"                          | defEn=s. in or of the present month
+kills         : def="杀戮；杀敌数；歼敌数（kill的复数形式）"                  | defEn=n the act of terminating a life
+monitoring    : def="监控, 监督"                                 | defEn=the act of observing something (and sometimes keep
+photographs   : def="照片；逼真的描绘（photograph的复数）"                | defEn=n a representation of a person or scene in the for
+restaurants   : def="饭店( restaurant的名词复数 ); 餐馆; 饭馆; 菜馆"      | defEn=n a building where people go to eat
+samples       : def="样品；采样；例子（suffer的复数形式）"                  | defEn=n a small part of something intended as representa
+arena         : def="角斗场, 舞台"                                | defEn=the central area of an ancient Roman amphitheater 
+boots         : def="（英）擦靴的仆役；靴子（boot的复数）"                   | defEn=n footwear that covers the whole foot and lower le
+computers     : def="计算机, 电脑（computer的复数）"                   | defEn=n a machine for performing calculations automatica
+expenses      : def="开支, 经费"                                 | defEn=n amounts paid for goods and services that may be 
+gen           : def="消息, 真相"                                 | defEn=informal term for information
+hospitals     : def="医院( hospital的复数形式 )"                    | defEn=a health facility where patients receive treatment
+precious      : def="宝贵的, 珍贵的"                               | defEn=s. of high worth or cost
+premium       : def="额外补贴, 奖金"                               | defEn=payment for insurance
+proven        : def="prove的过去分词"                             | defEn=v be shown or be found to be
+requested     : def="要求的；被请求的"                               | defEn=asked for
+spots         : def="插播广告；花点布, 点子花纹棉布；置球点；斑点（spot的复数）"       | defEn=n spots before the eyes caused by opaque cell frag
+temperatures  : def="温度( temperature的复数形式 ); 气温; 高烧; 发烧"     | defEn=the degree of hotness or coldness of a body or env
+connections   : def="连接；关系（connection的复数形式）；关系学"             | defEn=n a relation between things or events (as in the c
+desperate     : def="不顾一切的, 危急的"                             | defEn=a person who is frightened and in need of help
+eve           : def="前夕, 前夜"                                 | defEn=(Old Testament
+frozen        : def="冻结的, 冰冷的"                               | defEn=turned into ice; affected by freezing or by long a
+guards        : def="禁卫军；护卫队；守卫；后卫（guard的复数形式）"              | defEn=n a person who keeps watch over something or someo
+instruments   : def="乐器；工具；仪器（instrument的复数）"                | defEn=n a device that requires skill for proper use
+mothers       : def="母亲；根源（mother的复数）"                       | defEn=n a woman who has given birth to a child (also use
+romance       : def="冒险故事, 浪漫史"                              | defEn=the group of languages derived from Latin
+trends        : def="动态, 趋势"                                 | defEn=n a general direction in which something tends to 
+ali           : def="异步线路接口"                                 | defEn=United States prizefighter who won the world heavy
+blocked       : def="堵塞的；被封锁的"                               | defEn=s. closed to traffic
+boards        : def="木板, 板子；纸板（board复数形式）"                   | defEn=the stage of a theater
+checks        : def="支票；格（check的复数形式）"                       | defEn=n a written order directing a bank to pay money
+distributed   : def="分布式的 分散对齐, 分布式处理"                       | defEn=spread out or scattered about or divided up
+documentary   : def="记录片 a. 文件的"                             | defEn=a film or TV program presenting the facts about a 
+favour        : def="好感, 偏爱"                                 | defEn=n a feeling of favorable regard
+giants        : def="巨人（giant的复数形式）；癸干忒斯；巨人族（希腊神话中常与天上诸神作战的种族）" | defEn=n any creature of exceptional size
+mask          : def="面具, 假面具"                                | defEn=a covering to disguise or conceal the face
+saudi         : def="沙乌地阿拉伯（人或语）的"                           | defEn=a native or inhabitant of Saudi Arabia
+toilet        : def="厕所, 梳妆梳妆"                               | defEn=a room or building equipped with one or more toile
+vietnam       : def="越南"                                     | defEn=a communist state in Indochina on the South China 
+calendar      : def="日历, 日程表列入表中 日历"                         | defEn=a system of timekeeping that defines the beginning

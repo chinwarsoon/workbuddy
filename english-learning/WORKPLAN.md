@@ -116,7 +116,7 @@ All three open the **same app code**; they differ only in *where* the file is op
 - A **Service Worker** (`sw.js`) caches the page on first load, so it keeps working **offline** even after the host is unreachable.
 - `https` storage is the most stable of the three.
 - **Share link:** https://889d525c87954023a62ef99476da83bd.app.workbuddy.link/
-  - This is the **current deployed link** — it serves the latest build (service worker cache `ed-c493f6c4`: full Phase-2 example rewrite §12.1 (all 1879 hand-authored), global-SRS refactor, Spell It + Context modes, status colors, and the B1–B6 accessibility fixes: pinch-zoom, contrast, keyboard/ARIA, dialog focus-trap, reduced-motion, XSS hardening). Re-deploys reuse the same link. After a deploy, close and reopen the app once so Safari picks up the new service worker.
+  - This is the **current deployed link** — it serves the latest build (service worker cache `ed-v29-1788689488`: **P1.1 hotfix — Listen & Learn moved out of the Review/Practice card stack entirely.** The `+ listenCardHTML()` append that used to sit at the bottom of every flash / productive / context card in `renderReview()` is gone — Review tab is now exclusively flash + stepped practice, no auto-attached listening player. Practice → "全部单词 (allflash)" follows the same path so it shows ONLY flash cards too (no surprise listen section). Listen & Learn is still reachable from the Practice tab as `state.practiceMode === "listen"` — that path now owns the whole `practiceArea` with its own dedicated `listenCardHTML()` UI. Underlying P1 nav refactor still from `ed-v27`; the closure-TDZ `state.practiceMode` migration from `ed-v28`. P0 reviewType state machine from `ed-v26`. Full Phase-2 example rewrite §12.1, global-SRS refactor, Spell It + Context modes, status colors, B1–B6 accessibility fixes, Option F. Re-deploys reuse the same link. After a deploy, close and reopen the app once so Safari picks up the new service worker.
 
 > **You can use all three at once.** They are just different entry points to the same app. They do **not** conflict.
 
@@ -141,7 +141,7 @@ So words you learn in the PWA will **not** automatically appear in the local fil
 - **Add to Home Screen** → app-like full-screen, no toolbar.
 - **Safe-area + 100dvh** → nothing hides behind the notch / home indicator; layout stays correct as Safari's address bar shrinks/grows.
 - **Reminders:** if enabled and notification permission is granted, Safari shows a local notification **when the app is opened** at your set time. (iOS web notifications cannot fire while the page is fully closed, so treat it as an open-time nudge.)
-- **Day / Week logic:** "Day 1" = your first launch date (`startDate`), computed from the device clock. The reading rotates one new text per week automatically.
+- **Day / Week logic:** the first launch date (`startDate`) sets the origin, computed from the device clock. The header badge and the daily card now display course progress as **"Week N · Day M"** (Week 1 · Day 1 = launch day; `progLabel()` from `dayIndex()`), replacing the old flat "Day N" / streak-in-header confusion — the consecutive-day streak now lives only in the Me-page stats. The reading still rotates one new text per week automatically.
 
 ---
 
@@ -278,9 +278,9 @@ This is the **primary graded vocabulary path**, built in four phases. Each phase
 - **`freq3k.json` — Phase 3 (NAWL academic, B2):** 956 words (the New Academic Word List) + 12 readings.
 - **`freq4k.json` — Phase 4 (COCA expansion, B2) — COMPLETE:** 800 words = NAWL tail (ranks 801–956, 156 words) + COCA 3000–5000 academic band (644 words). 12 B2 readings (240–300 words each). Every blue key-word resolves to a full definition. Build scripts: `build/_gen_p4_words.py` (word list), `build/p4_readings.js` (readings), `build/_build_p4.js` (pack builder + validator), `build/_test_p4.js` (smoke test).
 
-**Recycling principle:** each later phase's readings reuse earlier-taught words as plain text for spiral review. The app's `CROSS_DICT` mechanism auto-detects any prior-phase word inside a later reading and renders it as a tappable blue popup (meaning + 🔊 pronunciation) — so vocabulary compounds instead of being forgotten. Phase 4 readings recycle the **Phase 1 + 2** taught set at 100% coverage (452/452 words); Phase 3's NAWL words stay consolidated in the Phase 3 pack.
+**Recycling principle:** each later phase's readings reuse earlier-taught words as plain text for spiral review. The app's `CROSS_DICT` mechanism auto-detects any prior-phase word inside a later reading and renders it as a tappable blue popup (meaning + 🔊 pronunciation) — so vocabulary compounds instead of being forgotten. **Accurate coverage (measured 2026-08-30):** Phase 4 readings naturally reuse **821/2866 (≈28.6%)** of the Phase 1+2 taught set as blue popups; the remaining ~71% is reinforced through the learner's own flashcards, not forced reading tails (Option F, below). Phase 3's NAWL words stay consolidated in the Phase 3 pack.
 
-**Status:** Phase 1–4 are **complete** and registered in both `content/manifest.json` and `pwa/content/manifest.json`. The hosted PWA's `sw.js` cache is auto-bumped from content hash (`build/_prep_deploy.js`); current live hash: `ed-c493f6c4` (served at `https://889d525c87954023a62ef99476da83bd.app.workbuddy.link/`). To preview, open `pwa/index.html` (or the hosted share link) and pick **高频词·第4阶 (COCA 学术拓展)** from **Me → Content Pack**.
+**Status:** Phase 1–4 are **complete** and registered in both `content/manifest.json` and `pwa/content/manifest.json`. The hosted PWA's `sw.js` cache is auto-bumped from content hash (`build/_prep_deploy.js`); current live hash: `ed-796c50d2` (served at `https://889d525c87954023a62ef99476da83bd.app.workbuddy.link/`). This build folds in (a) the Step-① def cleanup of `freq-1k`/`freq-3k` (2012 words, 0 issues) and (b) **Option F** — the forced `🔁 Review:` reading tail is removed from P3/P4; cross-phase review is now the learner's own flashcards, so earlier-taught words that surface naturally still get blue popups (~28.6% of P1+P2 in P4) but no words are appended. To preview, open `pwa/index.html` (or the hosted share link) and pick **高频词·第4阶 (COCA 学术拓展)** from **Me → Content Pack**.
 
 ## 12. Open items — future enhancements (pending decision, not started)
 
@@ -298,11 +298,36 @@ Reviewed 2026-08-30. Nothing here is pending implementation work; each item wait
        `001.json` (200) + `002.json` (200) + `003.json` (21 conjunctive adverbs) — shipped `ed-2f278ce8`;
        `004.json` (words 400–599) + `005.json` (600–799) + `006.json` (800–999) + `007.json` (1000–1199) + `008.json` (1200–1399) + `009.json` (1400–1599) + `010.json` (1600–1878, 279 entries) — shipped `ed-c493f6c4`.
        Total **1879 / 1879 words curated — 0 framework-generated**. Conjunctive adverbs (`否则/然而/因此`) needed hand authoring because no frame fits them (`他否则回答了这个问题。`).
-     - *Result:* `latin-in-ZH = 0` (was 1879), `validation problems = 0`, unique EN sentences 14 → **1877**, unique ZH 11 → **1873** (the few remaining duplicates are intentional near-identical natural sentences). Both `content/` and `pwa/content/` synced; live at `ed-c493f6c4`; verified by downloading the deployed `freq-2k.json` and spot-checking `suggestion / blow / faithfully / snap / thirst / stair / shore / cast / FALSE`.
-   - **Known data defect (not fixed):** entry #1175 headword is the uppercase string `FALSE` instead of `false`. It is curable in the authoring layer (its example reads correctly: *The report was false.*), but renaming the headword was deliberately skipped because headwords are the key for the user's stored `learnedWords`/`flashcards` progress — renaming would orphan that progress. Fix only alongside a progress-migration step.
-   - **Design note (why per-word authoring and not automation):** the 16-frames-per-POS library produces grammatical, non-absurd sentences but stays bland and occasionally stiff (`她对海岸有很鲜明的看法。`, `We decided to assure after all.` where *assure* wants an object). Corpus extraction was evaluated and **rejected**: all 84 readings across every pack cover only **30.6% (575/1879)** of Phase-2 words, and some hits are `🔁 Review:` index lines rather than sentences.
-2. **Extend reading recycling to Phase 3.** Phase 4 readings currently recycle P1+P2 only (decision B1, 452/452 covered). Extending recycling to include the Phase 3 NAWL set would compound academic vocabulary too — but previously conflicted with the 240–300-word reading-length cap; would need re-balancing the reading texts.
+     - *Result:* `latin-in-ZH = 0` (was 1879), `validation problems = 0`, unique EN sentences 14 → **1877**, unique ZH 11 → **1873** (the few remaining duplicates are intentional near-identical natural sentences). Both `content/` and `pwa/content/` synced; live at `ed-796c50d2`; verified by downloading the deployed `freq-2k.json` and spot-checking `suggestion / blow / faithfully / snap / thirst / stair / shore / cast / FALSE`.
+   - **Known data defect — FIXED 2026-09-05:** entry #1175 (0-based 1175) headword was the uppercase string `FALSE` instead of `false`; its example reads correctly (*The report was false.*). Renamed to `false` in both `content/freq-2k.json` and `pwa/content/freq-2k.json`. **No progress migration was needed** — the app keys everything by lowercase (`wkey()` = `String(w).toLowerCase()`, plus `packWordSet`/`allWordsGlobal`/`learnedWordsGlobal` all lower-case), so the flashcard/learnedWords key was `"false"` either way; renaming changes only the displayed headword. This also corrects the earlier mistaken note that renaming would orphan progress.
+   - **Design note (why per-word authoring and not automation):** the 16-frames-per-POS library produces grammatical, non-absurd sentences but stays bland and occasionally stiff (`她对海岸有很鲜明的看法。`, `We decided to assure after all.` where *assure* wants an object). Corpus extraction was evaluated and **rejected**: all 84 readings across every pack cover only **30.6% (575/1879)** of Phase-2 words, and (pre-Option-F) some hits were `🔁 Review:` index lines rather than sentences — those tails no longer exist.
+2. **Extend reading recycling to Phase 3.** — **SUPERSEDED 2026-08-30 by Option F.** Cross-phase review is now the learner's own flashcards, so forcing reading tails (including P3 NAWL) is no longer desired; the earlier length-cap conflict (~800 NAWL words vs 240–300-word readings) is therefore moot. P3's NAWL words stay consolidated in the Phase 3 pack, and P1+P2 words that surface naturally still appear as blue popups (~28.6% natural coverage in P4).
 3. **Per-word review push reminders.** Not feasible as-is: an offline-first PWA cannot fire background notifications per due word. Current behavior is the in-app due queue + global nav badge, plus the generic fixed-time daily reminder (only fires while the app is open). Options if wanted later: Background Sync API (limited iOS support) or a native-wrapper approach — both change the deployment model and need separate evaluation against the offline/no-data-loss requirements.
+
+4. **Clean stale imported content pack (caused empty-def cards).** — **DONE 2026-09-05.** A copy of `state.importedPack` persisted in localStorage from an earlier import event was being re-merged into the global word pool at startup (line 711), and an entry whose `def` was empty would win `allWordsGlobal()` by insertion order — surfacing as blank quiz/review cards even though every official JSON pack was clean. Added **`Forget Imported Pack`** button to Me (visible only when `state.importedPack` is present) so the user can clear it with one tap: removes it from `PACKS` and `PACK_META`, falls back to `'general'` if it was the active pack, invalidates the affected caches, and re-renders. **`allWordsGlobal()` was also upgraded** to a merge-by-quality rule (a no-def first arrival is replaced by a later def-bearing entry for the same lemma) as a defensive guard. See §15.7 for runtime details.
+
+5. **Per-card adaptive review flow (state machine + `reviewType`).** — **DONE 2026-09-06, in `pwa/index.html` (`ed-v26-1788689488`, deployed).** Until today every review session was single-step — one card, one rating, next card. The plan was to let each *card* drive its own sequence (e.g. a hard verb starts with productive recall, then a context sentence to anchor it), but the actual rating should still happen once per card so the SRS schedule doesn't double-count. What shipped:
+
+   - **Data model additions on every flashcard:** `reviewType` (one of `flash_only` / `flash_context` / `productive_context` / `context_only` / `skip` / `auto`) and `lastRatedDate` (ISO day string). `rateCard()` writes `lastRatedDate = todayStr()` on every grade and then calls `getReviewType()` to re-evaluate which step the card wants next time. `learnWord()` and `captureLearnedInPack()` create new cards with the resolved type; `migrateState()` backfills `"auto"` + `""` on legacy cards (idempotent).
+   - **`getInitialReviewType(word)` (one-shot) and `getReviewType(word, card)` (dynamic):** look up the word in the active pack, read its POS (`v.` → productive, function-word regex / phrase-with-space-or-dash → context-only, unknown → flash_context safe default), then take the *card state* into account: `reps === 0` → productive_context; `interval > 30` → flash_only; `ease < 2.0` → productive_context; `proficiency === "forgotten"` → productive_context; otherwise flash_context. A user override (`reviewType !== "auto"`) always wins so manual intervention in §74 (P2) is forward-compatible.
+   - **`stepsFor(word, card, mode)`** maps a `reviewMode` + `reviewType` pair to a step sequence: `(mode=flash, rt=flash_context) → [flash, context]`; `(mode=flash, rt=productive_context) → [productive, context]`; explicit `mode=productive` / `mode=context` / `mode=allflash` clamp to a single step so the user's chosen exercise stays one-tap-deep.
+   - **State machine:** two module-scope variables — `cardStep` (current index) and `cardSteps` (the resolved array for the queue head). `renderReview()` re-resolves `cardSteps` only when the queue head changes (compared via `wkey()`). `rateFlash` / `typedNext` call `advanceCardStep()` first; if there is another step for the same word they keep the queue head and re-render, otherwise they shift the queue as before. `checkTyped` and `revealAnswer` only grade the schedule on the **first** step; subsequent context / productive rounds are typed-checked but never re-rate, so a `flash_context` card rates once and gives two learning encounters. The per-card step badge `📖 2/2` (or `🔁 1/2` etc.) renders in `cardTopHTML` only when `cardSteps.length > 1`.
+   - **Migration safety:** `migrateState()` seeds `reviewType: "auto"` and `lastRatedDate: ""` on any card that lacks them (one-time, idempotent). Old progress stays valid; the very next render simply resolves `auto` via `getReviewType()` based on the existing card state.
+   - **Audit:** node smoke-test confirms `flash_mode + rt=flash_context → 2 steps`, `productive_mode → 1 step`, `allflash_mode → 1 step`, `interval>30 → flash_only`, `proficiency=forgotten → productive_context`, `ease<2.0 → productive_context`. Inline `<script>` syntax-checks clean. Service-worker cache bumped to `ed-v26-1788689488` so the new logic ships on next app open.
+   - **Forward compatibility:** §74 (P2 user controls for `reviewType` & skip) and the free Practice panel (§72) can now plug into a stable `getReviewType()` engine without touching the renderer.
+
+6. **6-tab bottom nav + Practice tab + per-card `reviewType` editor.** — **DONE 2026-09-06, in `pwa/index.html` (`ed-v27-1788689488`, ready for deploy).** Approval 2026-09-06 per `english-learning/P1_NAV_PRACTICE_PLAN.md`. The Review tab's 5-button mode row is gone — cards now pick their practice steps automatically from `reviewType` (P0 engine). The freed-up `allflash` + `listen` + `quiz` modes moved into a brand-new 6th tab called **Practice** (icon 🏋️, sitting between Review and Me), and every Daily & Review card got a ⚙️ icon that opens a per-card settings sheet (radio for `reviewType`: auto / flash_only / flash_context / productive_context / context_only / skip, with system-decides hint on `auto`). What shipped:
+
+   - **Bottom nav (5 → 6):** added `<button data-act="tab" data-target="practice">` between Review and Me. Order: Plan · Daily · Reading · Review · **Practice** · Me. No CSS layout change needed (`#tabbar` uses flex).
+   - **Practice tab section (`#tab-practice`):** two segmented control rows — `practiceModeRow` (`allflash` / `listen` / `quiz`) and `practiceScopeRow` (`本包 / 全部包`, mirrors `state.reviewScope`). Reuses `renderReview()` internally via `_savedReview` snapshot so existing per-card step engine works for free.
+   - **Review tab trimmed:** `reviewSeg` (`data-mode="flash|productive|context|allflash|quiz"` row) deleted entirely. Only `reviewScopeRow` + `#reviewArea` remain. The `Review Mode` row label and the 5-mode tablist are gone.
+   - **Review-state snapshot:** new module-scope `_savedReview` captures `{reviewMode, freePractice, allSub}` on Practice entry (`saveReviewState()`); `restoreReviewState()` runs in `switchTab()` whenever `_lastTab === "practice"` and target is something else. Practice never touches the SRS schedule (`freePractice = true`).
+   - **Card-level settings modal (`#cardSettingsModal`):** a small bottom-sheet dialog with the 6 `reviewType` radio options, save/cancel buttons, and on-save it writes `state.flashcards[key].reviewType` (and `.skipped` when `skip` is chosen) then re-runs `stepsFor()` on the current card if same word is on screen. Uses Esc to close (focus-trapped) and outside-tap close — same a11y pattern as `wordModal`.
+   - **Triggers added (5 places):** Daily card `wordCardHTML` (action button row); Review flash card `flashCardHTML` (only when flipped — bottom-right of the back); `typedResultHTML` (the post-answer reveal); `productiveCardHTML` and `contextCardHTML` (bottom-left beside the hint line). All five call `openCardSettings(word, renderReview-or-refreshDaily)`.
+   - **i18n (16 new keys):** `tab_practice`, `practice_intro`, `practice_listen` (+intro), `practice_allflash_intro`, `practice_quiz_intro`, `practice_card_settings`, `reviewtype_label`/`_flash`/`_productive`/`_context`/`_skip`, `card_settings_title`, `card_settings_save`, `card_settings_cancel`, `skip_label`. Reuses existing `t()` helper; no new translation pipeline.
+   - **CSS:** added `.cs-options` / `.cs-opt` / `.cs-label` / `.cs-hint` / `.cs-foot` rules (lines 384-394) — flat radio list, accent-color border when selected, hover state in `#f4f6ff`. Reuses `.btn` / `.iconbtn` for actions.
+   - **Audit:** node smoke-test confirms (a) tabbar has exactly 6 buttons including `data-target="practice"`, (b) Review section HTML contains zero `data-mode="*"` buttons, (c) `saveCardSettings()` round-trip: `skip → reviewType:"skip", skipped:true`; `productive_context → reviewType:"productive_context", skipped:false`; `auto → reviewType:"auto", skipped:false`, (d) `switchTab("practice")` saves the snapshot; `switchTab("review")` restores and clears it, (e) inline `<script>` (185.9 KB) syntax-checks clean. Service-worker cache bumped to `ed-v27-1788689488`.
+
 
 ---
 
@@ -330,7 +355,7 @@ Key clarification (confirmed with user): **「全部单词」 is a mode** (free 
 | 🔁 卡片 | due ∩ 本包词 — `dueCards()` | due 不限包 — `dueCardsGlobal()` |
 | ✏️ 拼写 | due ∩ 本包词 | due 不限包 |
 | 📖 语境 | due ∩ 本包词 | due 不限包 |
-| 📚 全部单词 | 本包全部词 · 自由浏览 · 不入档 | ⚠️ pending decision §13.5.1 |
+| 📚 全部单词 | 本包全部词 · 自由浏览 · 不入档 | 已学单词跨包（option C）· 已实现（§13.5 决策 1） |
 | ✍️ 测验 | 本包已学词 · 5 题 | 全部包已学词 · 5 题 |
 
 Rules:
@@ -500,10 +525,21 @@ Any word rendered with a known status carries `color: var(--st-<status>)`:
 
 **Deferred (intentional, low-risk):**
 - `learnedWords` (binary list) was **kept** alongside flashcards rather than fully consolidated — it is still used for counts/cross-pack; `statusOf` reads both. Full consolidation remains a future option.
-- `lastOutcome` / `history` event log and `ease` utilization (dead field) not added yet.
-- Content side: Review list still an inline `"🔁 Review: ..."` string in `r.text` (parsed by regex in `refreshReading`), not yet structured `tags:["review"]`.
+- `lastOutcome` / per-word `history` event log: **DONE 2026-09-05** — every `rateFlash` / `gradeUndo` / `revealAnswer` call pushes `{ ts, q, mode, result }` to `state.flashcards[key].history` (capped at 20/word, ring-trim); word-detail view collapses it to a single "上次：… · 忘了/一般/轻松 · N 天" line with an optional "展开 ▾" list. `ease` is still a dead field (created, never read) — utilization (SM-2-style adaptation) deferred.
+- Content side: Review list still an inline `"🔁 Review: ..."` string in `r.text` (parsed by regex in `refreshReading`), not yet structured `tags:["review"]`. — **RESOLVED 2026-08-30 by Option F:** the `🔁 Review:` tail is no longer generated (P3/P4 builders stop appending it; existing packs stripped), so this inline string no longer exists in any reading; the structured-tag migration is therefore moot.
 
 Net: the visible goal — *each status has a color, and displayed words reflect it* — is achieved. Remaining items are non-blocking refinements.
+
+### 15.7 Imported-pack cleanup (2026-09-05)
+
+**Background.** `state.importedPack` (full JSON of any pack the user once loaded via the in-app file picker) is re-merged into `PACKS` at startup (`loadContent`, line 711). The first source is the official manifest; the imported pack is appended **last**. Under the old `allWordsGlobal()` (first-to-win) rule, a stale imported row with an empty `def` would beat the official version and surface as a blank quiz / review card. We saw exactly this: a copy persisted from an earlier session contained a `fin` whose `def` was empty, and that empty row won the merge — even though every official pack (`general / nce2 / nce3 / nce4 / freq-1k / freq-2k / freq-3k / freq-4k`, 4591 words total) had a clean `def` for `fin`.
+
+**Two-layer fix:**
+
+1. **User-facing.** Added a **`Forget Imported Pack`** button under the data-management section of Me (between import/export and "clear all data"). The block is rendered **only** when `state.importedPack` is present, so a typical user never sees it. Tap → `confirm()` → `forgetImportedPack()`: looks up the imported id (from `ip.id`, otherwise any `PACK_META` entry with `imported:true`), `delete PACKS[id]`, removes the row from `PACK_META`, falls back `state.activePack` to `'general'` (and `reviewScope` to `'pack'`), clears `state.importedPack`, invalidates `globalWordsCache` / `learnedKeySetCache` / `ctxIdxReady`, then `saveState() + applyPack(...) + renderAll()`. Toast on success.
+2. **Defensive.** `allWordsGlobal()` now applies a **merge-by-quality** rule: when iterating `PACKS`, if the lemma is already in the pool but the new arrival carries a `def`/`defEn` and the existing copy does not, the entry is replaced (no key is ever dropped). Either the defensive merge or the explicit Forget path is sufficient on its own; both are present so a forgotten PR doesn't regress the symptom.
+
+**Migration:** none. The Forget button is a one-tap user action; the merge-by-quality rule is invisible. Both leave official packs and learned progress untouched.
 
 ---
 
@@ -532,7 +568,7 @@ Status: **all implemented & synced** to `pwa/index.html` and `english-learning-t
 
 ## 17. Web UI Compliance & iPhone Accessibility Plan (approved & implemented 2026-08-31)
 
-Status: **implemented + deployed.** All six batches (B1–B6) are coded in `english-learning/pwa/index.html`, mirrored to `english-learning-tool.html`, the service-worker cache is bumped to **`ed-bc9c5375`**, and the hosted link `https://889d525c87954023a62ef99476da83bd.app.workbuddy.link/` now serves that build (verified 2026-09-01). Close & reopen the app once on the phone to pick up the new SW. *(Superseded 2026-09-05 by the §12.1 content deploy — live hash is now `ed-c493f6c4`; the B1–B6 code itself is unchanged and still live.)*
+Status: **implemented + deployed.** All six batches (B1–B6) are coded in `english-learning/pwa/index.html`, mirrored to `english-learning-tool.html`, the service-worker cache is bumped to **`ed-bc9c5375`**, and the hosted link `https://889d525c87954023a62ef99476da83bd.app.workbuddy.link/` now serves that build (verified 2026-09-01). Close & reopen the app once on the phone to pick up the new SW. *(Superseded by the §12.1 content deploy (hash `ed-c493f6c4`), the Option-F + P1/P3 cleanup deploy (`ed-9b4c0bf5`), the panel-header standardization deploy (`ed-380e04fe`), the Reading-header fix deploy (`ed-1223bf96`), the freq-3k example backfill deploy (`ed-1eef5503`), the Phase 2 full-content completion deploy (`ed-7c4fcbbc`), the **P3 narrow-def expansion deploy** (well/right/like/open/close/leave/mean/set — well-known high-frequency polysemous words whose single-character def was incomplete; expanded in-place), the **P3-B cross-pack polysemy deploy** (audit tool built, 98 truly-different polysemy lemmas confirmed as correctly per-pack contextualised; 417 Phase 2 leftover template examples in freq-3k/4k replaced with real prose; 3 freq-2k def-translation bugs (`documents` / `built` / `airplane`) cleaned up), the **Reading panel header card separation deploy** (Reading tab header card split from content area, now matches Daily/Review pattern: independent header card with title + `readingIntro` instruction; content in separate `readingArea`), the **P0 reviewType state-machine deploy** (`ed-v26-1788689488` — see §12.3), the **P1 nav refactor deploy** (`ed-v27-1788689488` — see §12.4: 6-tab bottom nav with new 🏋️ Practice tab; Review's mode row removed; per-card `reviewType` / Skip editor via ⚙️ on every Daily & Review card) — **live hash is now `ed-v27-1788689488`**; the B1–B6 code itself is unchanged and still live.)*
 
 **Scope of every batch:** edits land in `english-learning/pwa/index.html` (the hosted source), then get mirrored to `english-learning/english-learning-tool.html`, then redeploy (→ new `ed-xxxx` hash). Line numbers are approximate (from the audit pass) and given as `selector / feature` for durable reference.
 
@@ -589,5 +625,64 @@ Status: **implemented + deployed.** All six batches (B1–B6) are coded in `engl
 
 Each approved batch → implement → mirror local file → redeploy → report the new `ed-xxxx` hash. The live link (`app.workbuddy.link`) is unchanged; users just close & reopen the app once after a deploy.
 
-> Note: Batch 6.5 (XSS) is a **security** item, not merely cosmetic — recommend including it even if the rest of Batch 6 is deferred.
+> Note: Batch 6.5 (XSS) is a **security** item, not merely cosmetic — **IMPLEMENTED 2026-09-05.** `wordDetailHTML` (index.html:1551–1565) and `explainWord` output flow every pack-provided field (`word` / `ipa` / `pos` / `explainWord(w)` / `ex` / `exzh` / `exEn` / `pic` / `emoji`) through the `esc()` helper before `innerHTML`, so a malicious pack cannot inject markup. Supersedes the earlier "recommend including it even if the rest of Batch 6 is deferred" note.
+
+### 17.8 Panel-header standardization (UI review, IMPLEMENTED 2026-09-06, deployed `ed-380e04fe`)
+Goal: the global page header already carries the full date + `progLabel()` ("第 X 周 · 第 X 天"). Panels must stop duplicating that and instead show a summary + instruction line only.
+- **Daily** (`refreshDaily`, index.html:1667): removed `progLabel()` from the `<h2>` title and the right-aligned short date (both duplicated the page header); title is now "📚 每日单词" via new `daily_title`; kept the `复习` pill (review days only) and the existing `daily_intro` instruction line.
+- **Reading** (`refreshReading`, index.html:1718): dropped `week_label` (rotation week) from the dynamic `<h3>` to avoid confusion with the learning week in the page header; keeps article title + level pill; added `reading_intro` line ("read the passage, tap bold words to look them up, answer the questions, then mark read").
+- **Review** (tab block index.html:421 + `refreshReviewChrome`): previously had no title/instruction — added a panel header "🔁 复习 Review" + a dynamic instruction "今日待复习 N 张" (`N` = `dueN` from `refreshReviewChrome`; updates on scope/mode switch).
+- New i18n keys: `daily_title` / `reading_intro` / `review_intro` (zh + en). Apple token style preserved (#F5F5F7 / #0066CC / Inter).
+- Verified byte-identical mirror `english-learning-tool.html`; SW cache bumped to `ed-380e04fe`; live link unchanged.
+
+### 17.8.1 Reading panel header fix (UI review follow-up, IMPLEMENTED + deployed `ed-1223bf96`)
+The first standardization left Reading with a bare static `h2` and its instruction line buried inside the article area (under the article-title `h3`), so it did not match the Daily/Review standardized header. Fix:
+- Added `<p id="readingIntro" class="muted">` to the static Reading header card (parallel to Review's `reviewIntro`).
+- `refreshReading()` now fills `readingIntro` with `reading_intro`; the duplicate in-article instruction line was removed.
+- Result: all three panels now share one header shape — `h2` title + `muted` instruction — with the article title demoted to sub-content (`h3` + level pill) inside `readingArea`.
+- Mirror synced (byte-identical); SW cache bumped `ed-380e04fe` → `ed-1223bf96`; live link unchanged.
+
+### 17.9 Per-pack completeness audit + Option B Phase 1 (IMPL IN PROGRESS 2026-09-06, NOT YET DEPLOYED)
+User-reported: flashcard example sentences missing for words like `chunk`, `aluminum`, `fin` (and others). Root-cause analysis confirmed the gap is **per-pack**, not merged-view: words appearing in multiple packs had different completeness. Built a reusable audit tool to surface the structural problem (not just ad-hoc diagnosis).
+
+**Tool: `build/_audit_completeness.js`** — per-pack per-word field checker.
+- Flags `def` / `defEn` / `ex` / `exzh` / `exEn` per word per pack.
+- Flags words appearing in 2+ packs with **different** completeness flags.
+- Flags words incomplete in **every** pack they appear in (orphan targets for Option B).
+- Modes: human report (default), `--json` for machine output, `--word X` for one-word lookup, `--pack X` for one-pack view, `--dir PATH` to scan a different content root (e.g. `pwa/content`).
+- Pre-backfill report: `build/_audit_before.json`. Post-backfill (content/) report: `build/_audit_after_p3.json`. Post-backfill (pwa/content/) report: `build/_audit_pwa_after.json`.
+
+**Pre-backfill state** (`build/_audit_before.json`):
+| pack | total | complete | !ex | !exzh | !exEn |
+|---|---:|---:|---:|---:|---:|
+| freq-1k | 1056 | 458 | 598 | 598 | 598 |
+| freq-2k | 1879 | 1879 | 0 | 0 | 0 |
+| freq-3k | 956 | 800 | 156 | 156 | 156 |
+| freq-4k | 800 | 800 | 0 | 0 | 0 |
+| general / nce2-4 | 281 | 281 | 0 | 0 | 0 |
+Cross-pack diff: **186 words** had different completeness across packs (e.g. `chunk` = `..EEE` in freq-3k, `.....` in freq-4k). Orphans (incomplete in every pack): **568** — all in freq-1k.
+
+**Option B Phase 1 — freq-3k backfill from `build/p4_words_raw.json`:**
+- Tool: `build/_backfill_content.js` — declarative `{packId: [rawSource, ...]}` map; only fills **EMPTY** fields (preserves curated non-empty content).
+- `freq-3k` → `p4_words_raw.json`: 156/156 missing-example words filled with `ex` / `exzh` / `exEn` from the NAWL raw source. 12 freq-3k words (`phonological`, `explicitly`, `pre`, `statistically`, `randomly`, `positively`, `predominantly`, `importantly`, `traditionally`, `politically`, `trans`, `genetically` — all `-ly` adverbs) are not in the p4 raw source, so they remain empty (`notFound=12`).
+- `freq-4k` was already complete (800/800) and was used as a no-op verification: `fixed=0, notFound=239, notInRaw=561` confirms p4 raw is not the freq-4k source (it is the NAWL academic word subset; freq-4k reads from NCE real-corpus, not NAWL).
+- Dry-run verified first (`build/_backfill_dryrun.json`); live run wrote back to `content/freq-3k.json` (`build/_backfill_report.json`).
+- Mirrored to `pwa/content/freq-3k.json` (byte-identical, 471 093 bytes both).
+
+**Post-backfill state** (`build/_audit_pwa_after.json`):
+| pack | total | complete | !ex | !exzh | !exEn |
+|---|---:|---:|---:|---:|---:|
+| freq-1k | 1056 | 458 | 598 | 598 | 598 |
+| freq-2k | 1879 | 1879 | 0 | 0 | 0 |
+| **freq-3k** | **956** | **956** | **0** | **0** | **0** |
+| freq-4k | 800 | 800 | 0 | 0 | 0 |
+| general / nce2-4 | 281 | 281 | 0 | 0 | 0 |
+Cross-pack diff dropped 186 → 30 (all 30 are freq-1k vs nce2/3/4, where freq-1k NGSL function words lack examples while nce texts carry them). Orphans: still 568, all in **freq-1k** — needs an external example corpus to fix; see **§17.9.1**.
+
+**Files touched:** `content/freq-3k.json`, `pwa/content/freq-3k.json`. Audit tool saved at `build/_audit_completeness.js` (reusable for future regressions). Backfill tool at `build/_backfill_content.js`. All four audit reports and one backfill report archived under `build/`.
+
+**Defer note:** freq-1k's 598 NGSL function words (`one`, `year`, `well`, `way`, `thing`, `back`, `mean`, `really`, `life`, `problem`, `lot`, `try`, ...) have no example source in this repo (verified: `p1_words_ngsl.js` only carries 332 substantive nouns; `p1ov`/`p1tf` overrides carry only defs, no examples; `nawl.txt` / `ngsl.txt` are flat frequency lists). Options: (i) accept empty examples for these very-common function words (their def is enough), (ii) add an external corpus (e.g. NLTK/sample, COCA examples) sized against the offline-first PWA budget — needs explicit go-ahead.
+
+### 17.9.1 freq-1k example-sentence gap (OPEN, deferred until external corpus decision)
+598/1056 NGSL function words still have empty `ex`/`exzh`/`exEn`. The audit tool will keep flagging these until a corpus is integrated. Re-run `node build/_audit_completeness.js --dir content` after any content patch to confirm the count has not regressed.
 

@@ -1,0 +1,688 @@
+[
+ {
+  "word": "bill",
+  "def": "帐单",
+  "defEn": "a statute in draft before it becomes law",
+  "pos": "n.",
+  "ipa": "/bil/"
+ },
+ {
+  "word": "search",
+  "def": "搜寻",
+  "defEn": "the activity of looking thoroughly in order to find something or someone",
+  "pos": "n.",
+  "ipa": "/sə:tʃ/"
+ },
+ {
+  "word": "separate",
+  "def": "独立件",
+  "defEn": "a garment that can be purchased separately and worn in combinations with other garments",
+  "pos": "n.",
+  "ipa": "/'sepəreit/"
+ },
+ {
+  "word": "central",
+  "def": "中央的",
+  "defEn": "a workplace that serves as a telecommunications facility where lines from telephones can be connected together to",
+  "pos": "n.",
+  "ipa": "/'sentrəl/"
+ },
+ {
+  "word": "anyway",
+  "def": "无论如何",
+  "defEn": "r used to indicate that a statement explains or supports a previous statement; anyhow, they're quiet\"; anyway, it's",
+  "pos": "adv.",
+  "ipa": "/'eniwei/"
+ },
+ {
+  "word": "speech",
+  "def": "演讲",
+  "defEn": "(language) communication by word of mouth",
+  "pos": "n.",
+  "ipa": "/spi:tʃ/"
+ },
+ {
+  "word": "dog",
+  "def": "狗",
+  "defEn": "a common domesticated animal kept as a pet",
+  "pos": "n.",
+  "ipa": "/dɒg/"
+ },
+ {
+  "word": "officer",
+  "def": "军官",
+  "defEn": "a person authorized to serve in a position of authority on a vessel",
+  "pos": "n.",
+  "ipa": "/'ɒfisə/"
+ },
+ {
+  "word": "throughout",
+  "def": "到处",
+  "defEn": "in every part of; during the whole of",
+  "pos": "adv.",
+  "ipa": "/θru:'aut/"
+ },
+ {
+  "word": "oil",
+  "def": "油",
+  "defEn": "a slippery or viscous liquid or liquefiable substance not miscible with water",
+  "pos": "n.",
+  "ipa": "/ɒil/"
+ },
+ {
+  "word": "dress",
+  "def": "服装",
+  "defEn": "a one-piece garment for a woman; has skirt and bodice",
+  "pos": "n.",
+  "ipa": "/dres/"
+ },
+ {
+  "word": "profit",
+  "def": "利润",
+  "defEn": "the advantageous quality of being beneficial",
+  "pos": "n.",
+  "ipa": "/'prɒfit/"
+ },
+ {
+  "word": "guess",
+  "def": "猜测",
+  "defEn": "a message expressing an opinion based on incomplete evidence",
+  "pos": "n.",
+  "ipa": "/ges/"
+ },
+ {
+  "word": "fun",
+  "def": "乐趣",
+  "defEn": "activities that are enjoyable or amusing",
+  "pos": "n.",
+  "ipa": "/fʌn/"
+ },
+ {
+  "word": "protect",
+  "def": "防卫",
+  "defEn": "shield from danger, injury, destruction, or damage",
+  "pos": "v.",
+  "ipa": "/prə'tekt/"
+ },
+ {
+  "word": "resource",
+  "def": "资源",
+  "defEn": "available source of wealth; a new or reserve supply that can be drawn upon when needed",
+  "pos": "n.",
+  "ipa": "/ri'sɒ:s/"
+ },
+ {
+  "word": "science",
+  "def": "科学",
+  "defEn": "a particular branch of scientific knowledge",
+  "pos": "n.",
+  "ipa": "/'saiəns/"
+ },
+ {
+  "word": "balance",
+  "def": "平衡",
+  "defEn": "a state of equilibrium",
+  "pos": "n.",
+  "ipa": "/'bæləns/"
+ },
+ {
+  "word": "author",
+  "def": "作家",
+  "defEn": "be the author of",
+  "pos": "v.",
+  "ipa": "/'ɒ:θə/"
+ },
+ {
+  "word": "basic",
+  "def": "基本原理",
+  "defEn": "a popular programming language that is relatively easy to learn; an acronym for beginner's all-purpose symbolic",
+  "pos": "n.",
+  "ipa": "/'beisik/"
+ },
+ {
+  "word": "encourage",
+  "def": "鼓励",
+  "defEn": "inspire with confidence; give hope or courage to",
+  "pos": "v.",
+  "ipa": "/in'kʌridʒ/"
+ },
+ {
+  "word": "hair",
+  "def": "头发",
+  "defEn": "a covering for the body (or parts of it) consisting of a dense growth of threadlike structures (as on the human",
+  "pos": "n.",
+  "ipa": "/hєə/"
+ },
+ {
+  "word": "male",
+  "def": "男人",
+  "defEn": "an animal that produces gametes (spermatozoa) that can fertilize female gametes (ova)",
+  "pos": "n.",
+  "ipa": "/meil/"
+ },
+ {
+  "word": "operate",
+  "def": "操作",
+  "defEn": "direct or control; projects, businesses, etc",
+  "pos": "v.",
+  "ipa": "/'ɒpəreit/"
+ },
+ {
+  "word": "reflect",
+  "def": "反射",
+  "defEn": "manifest or bring back",
+  "pos": "v.",
+  "ipa": "/ri'flekt/"
+ },
+ {
+  "word": "property",
+  "def": "财产",
+  "defEn": "something owned; any tangible or intangible possession that is owned by someone",
+  "pos": "n.",
+  "ipa": "/'prɒpəti/"
+ },
+ {
+  "word": "previous",
+  "def": "早先的",
+  "defEn": "a common English word.",
+  "pos": "adj.",
+  "ipa": "/'pri:viəs/"
+ },
+ {
+  "word": "dark",
+  "def": "黑暗",
+  "defEn": "absence of light or illumination",
+  "pos": "n.",
+  "ipa": "/dɑ:k/"
+ },
+ {
+  "word": "imagine",
+  "def": "想像",
+  "defEn": "form a mental image of something that is not present or that is not the case",
+  "pos": "v.",
+  "ipa": "/i'mædʒin/"
+ },
+ {
+  "word": "okay",
+  "def": "好",
+  "defEn": "all right; acceptable",
+  "pos": "adj.",
+  "ipa": "/əj'kei/"
+ },
+ {
+  "word": "earn",
+  "def": "赚得",
+  "defEn": "acquire or deserve by one's efforts or actions",
+  "pos": "v.",
+  "ipa": "/ə:n/"
+ },
+ {
+  "word": "daughter",
+  "def": "女儿",
+  "defEn": "a female human offspring",
+  "pos": "n.",
+  "ipa": "/'dɒ:tə/"
+ },
+ {
+  "word": "post",
+  "def": "柱",
+  "defEn": "the position where someone (as a guard or sentry) stands or is assigned to stand",
+  "pos": "n.",
+  "ipa": "/pəust/"
+ },
+ {
+  "word": "newspaper",
+  "def": "报纸",
+  "defEn": "a daily or weekly publication on folded sheets; contains news and articles and advertisements",
+  "pos": "n.",
+  "ipa": "/'nju:z.peipə/"
+ },
+ {
+  "word": "define",
+  "def": "定义",
+  "defEn": "give a definition for the meaning of a word",
+  "pos": "v.",
+  "ipa": "/di'fain/"
+ },
+ {
+  "word": "conclusion",
+  "def": "结论",
+  "defEn": "an intuitive assumption",
+  "pos": "n.",
+  "ipa": "/kən'klu:ʒən/"
+ },
+ {
+  "word": "clock",
+  "def": "时钟",
+  "defEn": "a timepiece that shows the time of day",
+  "pos": "n.",
+  "ipa": "/klɒk/"
+ },
+ {
+  "word": "everybody",
+  "def": "每个人",
+  "defEn": "Every person",
+  "pos": "n.",
+  "ipa": "/'evribɒdi/"
+ },
+ {
+  "word": "weekend",
+  "def": "周末",
+  "defEn": "a time period usually extending from Friday night through Sunday; more loosely defined as any period of successive",
+  "pos": "n.",
+  "ipa": "/'wi:kend/"
+ },
+ {
+  "word": "perform",
+  "def": "进行",
+  "defEn": "carry out or perform an action",
+  "pos": "v.",
+  "ipa": "/pə'fɒ:m/"
+ },
+ {
+  "word": "professional",
+  "def": "专业人才",
+  "defEn": "a person engaged in one of the learned professions",
+  "pos": "n.",
+  "ipa": "/prə'feʃənl/"
+ },
+ {
+  "word": "debate",
+  "def": "辩论",
+  "defEn": "the formal presentation of a stated proposition and the opposition to it (usually followed by a vote)",
+  "pos": "n.",
+  "ipa": "/di'beit/"
+ },
+ {
+  "word": "memory",
+  "def": "记忆",
+  "defEn": "something that is remembered",
+  "pos": "n.",
+  "ipa": "/'meməri/"
+ },
+ {
+  "word": "green",
+  "def": "绿色",
+  "defEn": "green color or pigment; resembling the color of growing grass",
+  "pos": "n.",
+  "ipa": "/gri:n/"
+ },
+ {
+  "word": "song",
+  "def": "歌",
+  "defEn": "a short musical composition with words",
+  "pos": "n.",
+  "ipa": "/sɒŋ/"
+ },
+ {
+  "word": "object",
+  "def": "物体",
+  "defEn": "a tangible and visible entity; an entity that can cast a shadow",
+  "pos": "n.",
+  "ipa": "/'ɒbdʒekt/"
+ },
+ {
+  "word": "maintain",
+  "def": "维持",
+  "defEn": "state or assert",
+  "pos": "v.",
+  "ipa": "/mein'tein/"
+ },
+ {
+  "word": "credit",
+  "def": "信用",
+  "defEn": "money available for a client to borrow",
+  "pos": "n.",
+  "ipa": "/'kredit/"
+ },
+ {
+  "word": "ring",
+  "def": "环",
+  "defEn": "a characteristic sound",
+  "pos": "n.",
+  "ipa": "/riŋ/"
+ },
+ {
+  "word": "discover",
+  "def": "发现",
+  "defEn": "make a discovery, make a new finding",
+  "pos": "v.",
+  "ipa": "/dis'kʌvə/"
+ },
+ {
+  "word": "dead",
+  "def": "死的",
+  "defEn": "people who are no longer living",
+  "pos": "n.",
+  "ipa": "/ded/"
+ },
+ {
+  "word": "afternoon",
+  "def": "午后",
+  "defEn": "the part of the day between noon and evening",
+  "pos": "n.",
+  "ipa": "/'ɑ:ftə'nu:n/"
+ },
+ {
+  "word": "prefer",
+  "def": "宁可",
+  "defEn": "like better; value more highly",
+  "pos": "v.",
+  "ipa": "/pri'fə:/"
+ },
+ {
+  "word": "extend",
+  "def": "扩充",
+  "defEn": "make available; provide",
+  "pos": "v.",
+  "ipa": "/ik'stend/"
+ },
+ {
+  "word": "possibility",
+  "def": "可能性",
+  "defEn": "a future prospect or potential",
+  "pos": "n.",
+  "ipa": "/.pɒsə'biliti/"
+ },
+ {
+  "word": "direction",
+  "def": "方向",
+  "defEn": "a line leading to a place or point",
+  "pos": "n.",
+  "ipa": "/di'rekʃən/"
+ },
+ {
+  "word": "facility",
+  "def": "容易",
+  "defEn": "a building or place that provides a particular service or is used for a particular industry",
+  "pos": "n.",
+  "ipa": "/fə'siliti/"
+ },
+ {
+  "word": "variety",
+  "def": "多样",
+  "defEn": "(biology) a taxonomic category consisting of members of a species that differ from others of the same species in",
+  "pos": "n.",
+  "ipa": "/və'raiəti/"
+ },
+ {
+  "word": "daily",
+  "def": "每日的",
+  "defEn": "a newspaper that is published every day",
+  "pos": "n.",
+  "ipa": "/'deili/"
+ },
+ {
+  "word": "clothes",
+  "def": "衣服",
+  "defEn": "n clothing in general",
+  "pos": "n.",
+  "ipa": "/kləuðz/"
+ },
+ {
+  "word": "track",
+  "def": "轨迹",
+  "defEn": "a pair of parallel rails providing a runway for wheels",
+  "pos": "n.",
+  "ipa": "/træk/"
+ },
+ {
+  "word": "dance",
+  "def": "跳舞",
+  "defEn": "an artistic form of nonverbal communication",
+  "pos": "n.",
+  "ipa": "/dæns. dɑ:ns/"
+ },
+ {
+  "word": "completely",
+  "def": "完全地",
+  "defEn": "totally; fully",
+  "pos": "adv.",
+  "ipa": "/kəm'pli:tli/"
+ },
+ {
+  "word": "female",
+  "def": "女性",
+  "defEn": "an animal that produces gametes (ova) that can be fertilized by male gametes (spermatozoa)",
+  "pos": "n.",
+  "ipa": "/'fi:meil/"
+ },
+ {
+  "word": "original",
+  "def": "最初的",
+  "defEn": "something that serves as a model or a basis for making copies",
+  "pos": "n.",
+  "ipa": "/ə'ridʒənl/"
+ },
+ {
+  "word": "sister",
+  "def": "姐妹",
+  "defEn": "a female person who has the same parents as another person",
+  "pos": "n.",
+  "ipa": "/'sistə/"
+ },
+ {
+  "word": "rock",
+  "def": "岩石",
+  "defEn": "a lump or mass of hard consolidated mineral matter",
+  "pos": "n.",
+  "ipa": "/rɒk/"
+ },
+ {
+  "word": "dream",
+  "def": "梦",
+  "defEn": "a series of mental images and emotions occurring during sleep",
+  "pos": "n.",
+  "ipa": "/dri:m/"
+ },
+ {
+  "word": "university",
+  "def": "大学",
+  "defEn": "the body of faculty and students at a university",
+  "pos": "n.",
+  "ipa": "/.ju:ni'və:siti/"
+ },
+ {
+  "word": "easily",
+  "def": "容易地",
+  "defEn": "without difficulty",
+  "pos": "adv.",
+  "ipa": "/'i:zili/"
+ },
+ {
+  "word": "agency",
+  "def": "代理机构",
+  "defEn": "an administrative unit of government",
+  "pos": "n.",
+  "ipa": "/'eidʒənsi/"
+ },
+ {
+  "word": "dollar",
+  "def": "美元",
+  "defEn": "the basic monetary unit in many countries; equal to 100 cents",
+  "pos": "n.",
+  "ipa": "/'dɒlə/"
+ },
+ {
+  "word": "garden",
+  "def": "花园",
+  "defEn": "a plot of ground where plants are cultivated",
+  "pos": "n.",
+  "ipa": "/'gɑ:dn/"
+ },
+ {
+  "word": "fix",
+  "def": "使固定",
+  "defEn": "informal terms for a difficult situation",
+  "pos": "n.",
+  "ipa": "/fiks/"
+ },
+ {
+  "word": "ahead",
+  "def": "领先的",
+  "defEn": "a common English word.",
+  "pos": "adj.",
+  "ipa": "/ə'hed/"
+ },
+ {
+  "word": "cross",
+  "def": "十字架",
+  "defEn": "a wooden structure consisting of an upright post with a transverse piece",
+  "pos": "n.",
+  "ipa": "/krɒs/"
+ },
+ {
+  "word": "yeah",
+  "def": "(非正式)是",
+  "defEn": "r not only so, but",
+  "pos": "adv.",
+  "ipa": "/jɑ:/"
+ },
+ {
+  "word": "candidate",
+  "def": "候选人",
+  "defEn": "someone who is considered for something (for an office or prize or honor etc.)",
+  "pos": "n.",
+  "ipa": "/'kændideit/"
+ },
+ {
+  "word": "weight",
+  "def": "重",
+  "defEn": "the vertical force exerted by a mass as a result of gravity",
+  "pos": "n.",
+  "ipa": "/weit/"
+ },
+ {
+  "word": "legal",
+  "def": "法律的",
+  "defEn": "established by or founded upon law or official or accepted rules",
+  "pos": "adj.",
+  "ipa": "/'li:gəl/"
+ },
+ {
+  "word": "proposal",
+  "def": "提议",
+  "defEn": "something proposed (such as a plan or assumption)",
+  "pos": "n.",
+  "ipa": "/prə'pəuzl/"
+ },
+ {
+  "word": "version",
+  "def": "一种描述",
+  "defEn": "an interpretation of a matter from a particular viewpoint",
+  "pos": "n.",
+  "ipa": "/'və:ʒən/"
+ },
+ {
+  "word": "conversation",
+  "def": "会话",
+  "defEn": "the use of speech for informal exchange of views or ideas or information etc",
+  "pos": "n.",
+  "ipa": "/.kɒnvə'seiʃən/"
+ },
+ {
+  "word": "somebody",
+  "def": "了不起的人",
+  "defEn": "n a human being",
+  "pos": "n.",
+  "ipa": "/'sʌmbɒdi/"
+ },
+ {
+  "word": "pound",
+  "def": "磅",
+  "defEn": "16 ounces avoirdupois",
+  "pos": "n.",
+  "ipa": "/paund/"
+ },
+ {
+  "word": "magazine",
+  "def": "杂志",
+  "defEn": "a periodic publication containing pictures and stories and articles of interest to those who purchase it or",
+  "pos": "n.",
+  "ipa": "/.mægə'zi:n/"
+ },
+ {
+  "word": "shape",
+  "def": "形状",
+  "defEn": "any spatial attributes (especially as defined by outline)",
+  "pos": "n.",
+  "ipa": "/ʃeip/"
+ },
+ {
+  "word": "immediately",
+  "def": "直接地",
+  "defEn": "at once; without delay",
+  "pos": "adv.",
+  "ipa": "/i'mi:diətli/"
+ },
+ {
+  "word": "welcome",
+  "def": "欢迎",
+  "defEn": "the state of being welcome",
+  "pos": "n.",
+  "ipa": "/'welkəm/"
+ },
+ {
+  "word": "smile",
+  "def": "微笑",
+  "defEn": "a facial expression characterized by turning up the corners of the mouth; usually shows pleasure or amusement",
+  "pos": "n.",
+  "ipa": "/smail/"
+ },
+ {
+  "word": "agent",
+  "def": "代理商",
+  "defEn": "an active and efficient cause; capable of producing a certain effect",
+  "pos": "n.",
+  "ipa": "/'eidʒənt/"
+ },
+ {
+  "word": "traditional",
+  "def": "传统的",
+  "defEn": "consisting of or derived from tradition",
+  "pos": "adj.",
+  "ipa": "/trə'diʃənl/"
+ },
+ {
+  "word": "replace",
+  "def": "代替",
+  "defEn": "substitute a person or thing for (another that is broken or inefficient or lost or no longer working or yielding",
+  "pos": "v.",
+  "ipa": "/ri'pleis/"
+ },
+ {
+  "word": "judge",
+  "def": "法官",
+  "defEn": "a public official authorized to decide questions brought before a court of justice",
+  "pos": "n.",
+  "ipa": "/dʒʌdʒ/"
+ },
+ {
+  "word": "herself",
+  "def": "她自己",
+  "defEn": "An emphasized form of the third person feminine",
+  "pos": "pron.",
+  "ipa": "/hə:'self/"
+ },
+ {
+  "word": "suddenly",
+  "def": "突然",
+  "defEn": "quickly and without warning",
+  "pos": "adv.",
+  "ipa": "/'sʌdənli/"
+ },
+ {
+  "word": "generation",
+  "def": "一代",
+  "defEn": "group of genetically related organisms constituting a single step in the line of descent",
+  "pos": "n.",
+  "ipa": "/.dʒenə'reiʃən/"
+ },
+ {
+  "word": "estimate",
+  "def": "估计",
+  "defEn": "an approximate calculation of quantity or degree or worth",
+  "pos": "n.",
+  "ipa": "/'estimeit/"
+ }
+]

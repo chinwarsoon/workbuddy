@@ -1,0 +1,5 @@
+[
+  { "word": "documents", "def": "文件;证件",                       "defEn": "n. important papers or records (official documents, identity documents)",            "pos": "n." },
+  { "word": "built",     "def": "建造(build的过去式和过去分词)",       "defEn": "v. past tense and past participle of 'build' — to make something by putting parts together", "pos": "v." },
+  { "word": "airplane",  "def": "飞机",                          "defEn": "n. a powered, fixed-wing aircraft that flies in the sky",                            "pos": "n." }
+]

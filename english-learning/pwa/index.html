@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#6a5cff">
-<meta name="apple-mobile-web-app-title" content="EnglishDaily">
-<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22EnglishDaily%20%E5%AD%A6%E4%B9%A0%22%2C%22short_name%22%3A%22EnglishDaily%22%2C%22display%22%3A%22standalone%22%2C%22start_url%22%3A%22.%22%2C%22background_color%22%3A%22%23f5f5f7%22%2C%22theme_color%22%3A%22%236a5cff%22%7D">
+<html lang="zh-CN" data-page-node-id="OpvkZLHJAMXgVEwXmGuRER">
+<head data-page-node-id="ipMq0LygsZy9caPGNtjtie">
+<meta charset="UTF-8" data-page-node-id="kO9wOYSYDonEXFCPLjjAQS">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" data-page-node-id="FhwP13UyR2NPjqmOulg69W">
+<meta name="apple-mobile-web-app-capable" content="yes" data-page-node-id="aDkwPOsgCirfrclnljkLmC">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" data-page-node-id="0XDnaE2fkdoCFuu6ERrL0S">
+<meta name="theme-color" content="#6a5cff" data-page-node-id="YuIXSBgGjGUzlfVWROAGWy">
+<meta name="apple-mobile-web-app-title" content="EnglishDaily" data-page-node-id="FkhiFxF7cwOuTsYwwV5Nkz">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22EnglishDaily%20%E5%AD%A6%E4%B9%A0%22%2C%22short_name%22%3A%22EnglishDaily%22%2C%22display%22%3A%22standalone%22%2C%22start_url%22%3A%22.%22%2C%22background_color%22%3A%22%23f5f5f7%22%2C%22theme_color%22%3A%22%236a5cff%22%7D" data-page-node-id="SUnxHBZhSUnMPLMC3GAFP6">
 <title>EnglishDaily · 英语学习助手</title>
 <style>
   :root{
@@ -185,6 +185,29 @@
   .wd-ex{margin-top:10px;background:#f7f8ff;padding:11px 12px;border-radius:12px;font-size:14px;line-height:1.5;}
   .wd-exzh{color:var(--muted);font-size:13px;margin-top:5px;}
 
+  /* Review history (collapsed row + expandable list) — uses status tokens:
+     --st-forgotten for "忘了", --st-due for "一般", --st-scheduled for "轻松" */
+  .wd-hist{margin-top:14px;padding-top:12px;border-top:0.5px solid var(--line);
+    display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);flex-wrap:wrap;}
+  .wd-hist .ico{width:18px;height:18px;border-radius:50%;color:#fff;font-size:11px;font-weight:500;
+    display:inline-flex;align-items:center;justify-content:center;}
+  .wd-hist .ico.bad{background:var(--st-forgotten);}
+  .wd-hist .ico.warn{background:var(--st-due);}
+  .wd-hist .ico.ok{background:var(--st-scheduled);}
+  .wd-hist b{color:var(--ink);font-weight:500;}
+  .wd-hist-toggle{margin-left:auto;color:var(--accent);cursor:pointer;font-size:13px;background:none;border:none;padding:0;}
+  .wd-hist-list{border-top:0.5px solid var(--line);padding:8px 0;display:none;}
+  .wd-hist-list.open{display:block;}
+  .wd-hist-row{display:grid;grid-template-columns:84px 70px 1fr;gap:12px;
+    padding:6px 0;font-size:13px;align-items:center;}
+  .wd-hist-row .d{color:var(--muted);font-variant-numeric:tabular-nums;}
+  .wd-hist-row .m{color:var(--muted);font-size:11px;background:rgba(0,0,0,.04);
+    padding:2px 6px;border-radius:5px;width:max-content;}
+  .wd-hist-row .r{font-weight:500;text-align:right;}
+  .wd-hist-row .r.bad{color:var(--st-forgotten);}
+  .wd-hist-row .r.warn{color:var(--st-due);}
+  .wd-hist-row .r.ok{color:var(--st-scheduled);}
+
   /* Illustration: a word's `pic` (image URL / data URI) is preferred; the
      `emoji` is the offline fallback. Sizing per container: */
   .wemoji{display:inline-block;line-height:1;}
@@ -272,6 +295,10 @@
   .revmeta{font-size:13px;font-weight:700;color:var(--accent);white-space:nowrap;}
   .revprog{flex:1;height:6px;background:#eef0ff;border-radius:999px;overflow:hidden;}
   .revprogbar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:999px;transition:width .25s;}
+  /* Per-card step badge inside the meta line — drawn slightly muted so it
+     reads as a sub-indicator rather than competing with the mode label. */
+  .revstep{display:inline-block;font-size:11px;font-weight:600;color:var(--muted);
+           background:#eef0ff;border-radius:999px;padding:2px 8px;margin-left:2px;letter-spacing:.2px;}
 
   /* Typed row (P0 fix: the global .btn{width:100%} + inline flex:1 collapsed the input) */
   .type-row{display:flex;gap:8px;margin-top:14px;align-items:stretch;}
@@ -354,141 +381,175 @@
   .modal .mexzh{color:var(--muted);font-size:13px;margin-top:5px;}
   .modal .macts{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
   .modal .macts .iconbtn{flex:1;justify-content:center;}
+  /* Card settings sheet (reviewType / Skip) */
+  .cs-options{border:0;padding:0;margin:8px 0 12px;display:flex;flex-direction:column;gap:6px;}
+  .cs-opt{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;cursor:pointer;transition:border-color .15s,background .15s;background:#fafbff;}
+  .cs-opt:hover{border-color:var(--accent);background:#f4f6ff;}
+  .cs-opt.sel{border-color:var(--accent);background:#eef0ff;}
+  .cs-opt input[type=radio]{margin-right:8px;accent-color:var(--accent);}
+  .cs-opt .cs-label{font-size:15px;font-weight:600;color:var(--ink);}
+  .cs-opt .cs-hint{font-size:12px;color:var(--muted);margin-left:24px;}
+  .cs-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;}
+  .cs-foot .btn{min-width:84px;}
 </style>
 </head>
-<body>
-<div id="app">
-  <header>
-    <div class="row">
-      <div>
-        <h1>EnglishDaily</h1>
-        <div class="sub" id="headerDate"></div>
+<body data-page-node-id="GX0BGCQTliDRdXB4dsbngg">
+<div id="app" data-page-node-id="mC0K21yj9aTq5epYjiPnba">
+  <header data-page-node-id="1cLx8BLMusxwCA9uINsnE9">
+    <div class="row" data-page-node-id="OrWs4awJmiCfPAQboDhZBC">
+      <div data-page-node-id="cPoAXfEGBVYxsLWrH37olt">
+        <h1 data-page-node-id="vXD82NnJrINu5fpmSW9zcC">EnglishDaily</h1>
+        <div class="sub" id="headerDate" data-page-node-id="AMNVDgYdJVZvgISr7BQl5O"></div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div class="streak" id="streakBox">🔥 <span id="streakN">0</span> <span data-i18n="day_unit">天</span></div>
-        <button class="langbtn" id="langBtn" data-act="toggleLang" title="Language / 语言" aria-label="Toggle language">🌐</button>
+      <div style="display:flex;align-items:center;gap:8px;" data-page-node-id="JxUgY6nPjvCG9US1tSWGWH">
+        <div class="streak" id="streakBox" data-page-node-id="QtHsVADMV4oP8kfV5cY9SA">📅 <span id="streakN" data-page-node-id="UgVy9JEg21njoITISB14mf"></span></div>
+        <button class="langbtn" id="langBtn" data-act="toggleLang" title="Language / 语言" aria-label="Toggle language" data-page-node-id="RHG2G96WuvJGwNNtCIirYC">🌐</button>
       </div>
     </div>
   </header>
 
-  <main>
+  <main data-page-node-id="gorbNCUxG4ObIy4T5yL7x2">
     <!-- PLAN -->
-    <section id="tab-plan" class="active">
-      <div class="card">
-        <h2>📅 <span data-i18n="plan_title">学习计划</span> <span class="pill">Plan Builder</span></h2>
-        <div id="planArea"></div>
+    <section id="tab-plan" class="active" data-page-node-id="x3d4WFcT6zyMoQyE4ZfIW3">
+      <div class="card" data-page-node-id="5EBgGO1FuubOTIZRT9sFqd">
+        <h2 data-page-node-id="QL7XNnKY44THaTAYKlyxj9">📅 <span data-i18n="plan_title" data-page-node-id="DpvnQ8qkJMkeEMkytvkmoh">学习计划</span> <span class="pill" data-page-node-id="4nqTMd4IJ9U9PkCGCyK1Wv">Plan Builder</span></h2>
+        <div id="planArea" data-page-node-id="sMgRT2c9x0MvMYVG3DFkOY"></div>
       </div>
     </section>
 
     <!-- DAILY -->
-    <section id="tab-daily">
-      <div id="dailyStatus"></div>
-      <div id="dailyArea"></div>
+    <section id="tab-daily" data-page-node-id="L5YFoE0BQZnPKybbCWNDVO">
+      <div id="dailyStatus" data-page-node-id="848wwj6Dx079ytVOKHtJf4"></div>
+      <div id="dailyArea" data-page-node-id="VgE0xTdCHcG7wcxnoeuspR"></div>
     </section>
 
     <!-- READING -->
-    <section id="tab-reading">
-      <div class="card">
-        <h2>📖 <span data-i18n="reading_title">每周阅读</span> <span class="pill">Weekly Reading</span></h2>
-        <div id="readingArea"></div>
+    <section id="tab-reading" data-page-node-id="Zu5Jnl8zrdH4QV9i76jnPI">
+      <div class="card" data-page-node-id="fdGpiRnbYHv2D9FTbkwi9V">
+        <h2 data-page-node-id="2TkYlziiXbtQWvy7eXQcM1">📖 <span data-i18n="reading_title" data-page-node-id="qx2ZpB8EQEuPvRAHRDtzsC">每周阅读</span> <span class="pill" data-page-node-id="2hsWpjsFJGCB3Eq8lLPML6">Weekly Reading</span></h2>
+        <p class="muted" style="margin:6px 0 0;" id="readingIntro"></p>
       </div>
+      <div id="readingArea" data-page-node-id="Al14hhOHPfGLMWapL4Kt9W"></div>
     </section>
 
     <!-- REVIEW -->
-    <section id="tab-review">
-      <div class="scope-row" id="reviewScopeRow" role="tablist" aria-label="Review scope">
-        <button data-act="reviewscope" data-scope="pack" class="active" role="tab" aria-selected="true"><span data-i18n="scope_pack">本包</span></button>
-        <button data-act="reviewscope" data-scope="all" role="tab" aria-selected="false">🌐 <span data-i18n="scope_all">全部包</span></button>
+    <section id="tab-review" data-page-node-id="ciXPEtaenLgieRXp0Zozk8">
+      <div class="card">
+        <h2>🔁 <span data-i18n="tab_review">复习</span> <span class="pill">Review</span></h2>
+        <p class="muted" style="margin:6px 0 0;" id="reviewIntro"></p>
       </div>
-      <div id="reviewSeg" role="tablist" aria-label="Review mode">
-        <button data-act="reviewmode" data-mode="flash" class="active" role="tab" aria-selected="true">🔁 <span data-i18n="rev_flash">卡片</span><span class="rc"></span></button>
-        <button data-act="reviewmode" data-mode="productive" role="tab" aria-selected="false">✏️ <span data-i18n="rev_productive">拼写</span><span class="rc"></span></button>
-        <button data-act="reviewmode" data-mode="context" role="tab" aria-selected="false">📖 <span data-i18n="rev_context">语境</span><span class="rc"></span></button>
-        <button data-act="reviewmode" data-mode="allflash" role="tab" aria-selected="false">📚 <span data-i18n="rev_all">全部</span><span class="rc"></span></button>
-        <button data-act="reviewmode" data-mode="quiz" role="tab" aria-selected="false">✍️ <span data-i18n="rev_quiz">测验</span></button>
+      <div class="scope-row" id="reviewScopeRow" role="tablist" aria-label="Review scope" data-page-node-id="KxV2KF9UWdDRf7oQXuGR54">
+        <button data-act="reviewscope" data-scope="pack" class="active" role="tab" aria-selected="true" data-page-node-id="lc35fJW7DFv8uGx50bSMTB"><span data-i18n="scope_pack" data-page-node-id="B0aJAktp95MK5Wr97TAZaB">本包</span></button>
+        <button data-act="reviewscope" data-scope="all" role="tab" aria-selected="false" data-page-node-id="e1BEVHuu1QlsHyVd9N9eFE">🌐 <span data-i18n="scope_all" data-page-node-id="9P6rcFcmRzgINP1QiqzTsy">全部包</span></button>
       </div>
-      <div id="reviewArea"></div>
+      <div id="reviewArea" data-page-node-id="etrFedrvhP8H2crP4RRQQ5"></div>
+    </section>
+
+    <!-- PRACTICE -->
+    <section id="tab-practice" data-page-node-id="PRACTICE_TAB_ID">
+      <div class="card">
+        <h2>🏋️ <span data-i18n="tab_practice">练习</span> <span class="pill">Practice</span></h2>
+        <p class="muted" style="margin:6px 0 0;" id="practiceIntro"></p>
+      </div>
+      <div class="scope-row" id="practiceModeRow" role="tablist" aria-label="Practice mode" data-page-node-id="PRACTICE_MODE_ROW_ID">
+        <button data-act="practicemode" data-mode="allflash" class="active" role="tab" aria-selected="true"><span data-i18n="rev_all" data-page-node-id="PRACTICE_ALLFLASH_LABEL">全部单词</span><span class="rc" id="practiceAllflashCount"></span></button>
+        <button data-act="practicemode" data-mode="listen" role="tab" aria-selected="false"><span data-i18n="practice_listen" data-page-node-id="PRACTICE_LISTEN_LABEL">听写跟读</span><span class="rc" id="practiceListenCount"></span></button>
+        <button data-act="practicemode" data-mode="quiz" role="tab" aria-selected="false">✍️ <span data-i18n="rev_quiz" data-page-node-id="PRACTICE_QUIZ_LABEL">测验</span><span class="rc" id="practiceQuizCount"></span></button>
+      </div>
+      <div class="scope-row" id="practiceScopeRow" role="tablist" aria-label="Practice scope" data-page-node-id="PRACTICE_SCOPE_ROW_ID">
+        <button data-act="practicescope" data-scope="pack" class="active" role="tab" aria-selected="true"><span data-i18n="scope_pack" data-page-node-id="PRACTICE_SCOPE_PACK">本包</span></button>
+        <button data-act="practicescope" data-scope="all" role="tab" aria-selected="false">🌐 <span data-i18n="scope_all" data-page-node-id="PRACTICE_SCOPE_ALL">全部包</span></button>
+      </div>
+      <div id="practiceArea" data-page-node-id="PRACTICE_AREA_ID"></div>
     </section>
 
     <!-- ME -->
-    <section id="tab-me">
-      <div class="card">
-        <h2>📊 <span data-i18n="me_progress">学习进度</span> <span class="pill">Progress</span></h2>
-        <div class="stats" id="statsBox"></div>
-        <h3 data-i18n="last7">近 7 天活跃度</h3>
-        <div id="chartBox"></div>
-        <h3>🏆 <span data-i18n="milestones">里程碑</span></h3>
-        <div id="milestoneBox"></div>
+    <section id="tab-me" data-page-node-id="VQA0THswzWyeJ2l2oBvbVi">
+      <div class="card" data-page-node-id="o4F4tuExkk2B3aHF2EvZiV">
+        <h2 data-page-node-id="x2GoVFGD7p6uWajqDxJ39z">📊 <span data-i18n="me_progress" data-page-node-id="6dgGWlNFSHPcSer8eovtgm">学习进度</span> <span class="pill" data-page-node-id="a1OqrbiZBMTyqHQrHs8A6m">Progress</span></h2>
+        <div class="stats" id="statsBox" data-page-node-id="acLbLbmZ620FKpbykyoJL0"></div>
+        <h3 data-i18n="last7" data-page-node-id="imVbepIGCQYH1ceAVlIiCG">近 7 天活跃度</h3>
+        <div id="chartBox" data-page-node-id="7NnqQIUmDiOHTXbVDywdJr"></div>
+        <h3 data-page-node-id="PfDMqO22rNGqvDeqwjQTfA">🏆 <span data-i18n="milestones" data-page-node-id="EtEDRWrBjXKkkJ77SCidIm">里程碑</span></h3>
+        <div id="milestoneBox" data-page-node-id="8pnv8KPO9evfNGqLMDPPbW"></div>
       </div>
 
-      <div class="card">
-        <h2>⭐ <span data-i18n="me_bookmarks">难点收藏</span> <span class="pill">Bookmarks</span></h2>
-        <div id="bookmarkBox"></div>
+      <div class="card" data-page-node-id="T5SxdSvhx0LZtEIRWgdxFG">
+        <h2 data-page-node-id="n1fb7Xa6QN20WJh31IKzj5">⭐ <span data-i18n="me_bookmarks" data-page-node-id="j3iNdLuyKUlGIUK8gMdPPP">难点收藏</span> <span class="pill" data-page-node-id="8492YeYyEJmHmbctEli2R2">Bookmarks</span></h2>
+        <div id="bookmarkBox" data-page-node-id="Xi73uAHIO9ESkAsqgklcw8"></div>
       </div>
 
-      <div class="card">
-        <h2>📦 <span data-i18n="pack_title">内容包</span> <span class="pill">Content Pack</span></h2>
-        <div id="packArea"></div>
+      <div class="card" data-page-node-id="nxKvEkJjNQm5JByZ8vLOYq">
+        <h2 data-page-node-id="tAqpczbDhXkzIPBCM4Kbyj">📦 <span data-i18n="pack_title" data-page-node-id="UFg2sAK6oBjoFCzJX1zuIu">内容包</span> <span class="pill" data-page-node-id="nPZO0iSR9JLyNH9Fp3aw1n">Content Pack</span></h2>
+        <div id="packArea" data-page-node-id="fmdtDGq0LB9XraGeA9d4jx"></div>
       </div>
 
-      <div class="card">
-        <h2>🎚️ <span data-i18n="speech_title">朗读速度</span> <span class="pill">Speed</span></h2>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="font-size:18px;" aria-hidden="true">🐢</span>
-          <input type="range" id="speechRate" min="0.5" max="1.2" step="0.05" value="0.85" style="flex:1;accent-color:var(--accent);height:28px;" aria-label="语音语速">
-          <span style="font-size:18px;" aria-hidden="true">🐇</span>
-          <span id="speechRateVal" class="pill" style="min-width:52px;text-align:center;margin-left:0;">0.85×</span>
+      <div class="card" data-page-node-id="KKLJUqSFAvjMxsGlqBta3Z">
+        <h2 data-page-node-id="i8eaHn4B3NSDh0xVexsOQf">🎚️ <span data-i18n="speech_title" data-page-node-id="ulP6l24eVoDthRtQCoBiHU">朗读速度</span> <span class="pill" data-page-node-id="dbsCWtnomxQxZGiE7QDHhQ">Speed</span></h2>
+        <div style="display:flex;align-items:center;gap:10px;" data-page-node-id="jiWNCIADOt3eSSgYfwCsjs">
+          <span style="font-size:18px;" aria-hidden="true" data-page-node-id="ZLU2PctInQdKuose8VLRY3">🐢</span>
+          <input type="range" id="speechRate" min="0.5" max="1.2" step="0.05" value="0.85" style="flex:1;accent-color:var(--accent);height:28px;" aria-label="语音语速" data-page-node-id="bih9FOKc5rrZPi2bj681st">
+          <span style="font-size:18px;" aria-hidden="true" data-page-node-id="gFvFugWs1LDZOzgk0i2Moc">🐇</span>
+          <span id="speechRateVal" class="pill" style="min-width:52px;text-align:center;margin-left:0;" data-page-node-id="QGvnhIIXwYlqnJFwgAbCrT">0.85×</span>
         </div>
-        <div class="btn-row" style="margin-top:10px;">
-          <button class="btn small secondary" data-act="speak" data-text="This is my reading speed. I can make it slower or faster.">🔊 <span data-i18n="speech_test">试听效果</span></button>
+        <div class="btn-row" style="margin-top:10px;" data-page-node-id="eXcDJPUIsfCDcOfGq3Ybs4">
+          <button class="btn small secondary" data-act="speak" data-text="This is my reading speed. I can make it slower or faster." data-page-node-id="pqKr5OJbrXmRGQRAhKSMu5">🔊 <span data-i18n="speech_test" data-page-node-id="1WIqGKiWb3IgCNES5T76gp">试听效果</span></button>
         </div>
-        <div class="note" data-i18n="speech_rate_note">影响所有发音：点读单词、听学播放器、阅读整页朗读。调整立即生效。</div>
+        <div class="note" data-i18n="speech_rate_note" data-page-node-id="zTOxCKPxHr9WTKEEm7Qvij">影响所有发音：点读单词、听学播放器、阅读整页朗读。调整立即生效。</div>
       </div>
 
-      <div class="card">
-        <h2>📝 <span data-i18n="me_notes">我的笔记</span> <span class="pill">Notes</span></h2>
+      <div class="card" data-page-node-id="oM1DDqYIMFVB2yx4Gw1GbE">
+        <h2 data-page-node-id="JzenV8sS2S83j6WhB7fXtq">📝 <span data-i18n="me_notes" data-page-node-id="jDcb3hSA2vqMhctpNcHjxA">我的笔记</span> <span class="pill" data-page-node-id="Jk9N5UEZGvBsIj6PPgCc6I">Notes</span></h2>
         <textarea id="notesArea" aria-label="我的笔记" placeholder="随时记录新学的表达、句型或心得……"></textarea>
-        <div class="note" data-i18n="notes_note">笔记自动保存在本机（localStorage），不会上传。</div>
+        <div class="note" data-i18n="notes_note" data-page-node-id="DVEdAUjg4dW9BUc37BAILc">笔记自动保存在本机（localStorage），不会上传。</div>
       </div>
 
-      <div class="card">
-        <h2>⏰ <span data-i18n="me_reminder">提醒与连续打卡</span></h2>
-        <div class="reminder-box">
-          <label class="switch">
-            <input type="checkbox" id="remindToggle" aria-label="每日学习提醒">
-            <span class="slider"></span>
+      <div class="card" data-page-node-id="BcKmtHY4C892C0bDuysed5">
+        <h2 data-page-node-id="F5rxXa7FlKE8iUtXN95Acu">⏰ <span data-i18n="me_reminder" data-page-node-id="JADix8bVzsTEQTNtPWO0qz">提醒与连续打卡</span></h2>
+        <div class="reminder-box" data-page-node-id="poGYDMf4J2LLOQNRBPFjup">
+          <label class="switch" data-page-node-id="RiXqpMx0xnC9h3a8mcM8JI">
+            <input type="checkbox" id="remindToggle" aria-label="每日学习提醒" data-page-node-id="vzF6wnbJUB0yozr7G69a5u">
+            <span class="slider" data-page-node-id="vbykx9nb246DcBDxs5E8uH"></span>
           </label>
-          <span data-i18n="daily_remind">每日学习提醒</span>
-          <input type="time" id="remindTime" value="20:00" style="width:auto;" aria-label="提醒时间">
-          <button class="btn small secondary" data-act="testNotify"><span data-i18n="test_remind">测试提醒</span></button>
+          <span data-i18n="daily_remind" data-page-node-id="GosVsSr5AyS9vMAC11F1hZ">每日学习提醒</span>
+          <input type="time" id="remindTime" value="20:00" style="width:auto;" aria-label="提醒时间" data-page-node-id="9YxlFzdDAt6T7ISacyoWLE">
+          <button class="btn small secondary" data-act="testNotify" data-page-node-id="kmp1EIJKiupNdciB9We77f"><span data-i18n="test_remind" data-page-node-id="zgH3wGpFUYVbcPoxgatcO5">测试提醒</span></button>
         </div>
-        <div class="note" data-i18n="remind_note">提醒通过浏览器通知实现（首次需授权）。本工具完全离线运行，通知在打开应用时触发。</div>
-        <hr>
-        <div class="btn-row">
-          <button class="btn secondary small" data-act="exportData"><span data-i18n="export_btn">⬇️ 导出备份</span></button>
-          <button class="btn secondary small" data-act="importData"><span data-i18n="import_btn">⬆️ 导入备份</span></button>
+        <div class="note" data-i18n="remind_note" data-page-node-id="5oKjzx2AnwgHEzHprDHnrp">提醒通过浏览器通知实现（首次需授权）。本工具完全离线运行，通知在打开应用时触发。</div>
+        <hr data-page-node-id="pHchc3jEwFUwD54FHMgv4O">
+        <div class="btn-row" data-page-node-id="D0BHrYPFgU1YzQ6mGEMBwz">
+          <button class="btn secondary small" data-act="exportData" data-page-node-id="m23h6BCz8pGVoykd7NOIm2"><span data-i18n="export_btn" data-page-node-id="Wq7bh6EwfylVzjTX8UetFy">⬇️ 导出备份</span></button>
+          <button class="btn secondary small" data-act="importData" data-page-node-id="sMnntuhxkLEPAqmYQL1APX"><span data-i18n="import_btn" data-page-node-id="8qJcU6y5dvsdqjjTtG1Jx3">⬆️ 导入备份</span></button>
         </div>
-        <input type="file" id="importFile" accept="application/json,.json" style="display:none;">
-        <input type="file" id="packFile" accept="application/json,.json" style="display:none;">
-        <div class="note" data-i18n="backup_note">导出会把全部进度存成一个 .json 文件到「文件」App；换设备、清缓存或系统更新前先导出，再导入即可永不丢失。建议配合「添加到主屏幕」使用，存储更稳。</div>
-        <hr>
-        <button class="btn ghost small" data-act="resetData" style="width:100%"><span data-i18n="reset_btn">🗑️ 清除全部学习数据</span></button>
+        <input type="file" id="importFile" accept="application/json,.json" style="display:none;" data-page-node-id="v9YquMNCx2EnnEiT1S70PQ">
+        <input type="file" id="packFile" accept="application/json,.json" style="display:none;" data-page-node-id="ToWMWeoLmgQwE0yrrNubrb">
+        <div class="note" data-i18n="backup_note" data-page-node-id="yYMcjQHdSG3Umnv5Fw2Vy9">导出会把全部进度存成一个 .json 文件到「文件」App；换设备、清缓存或系统更新前先导出，再导入即可永不丢失。建议配合「添加到主屏幕」使用，存储更稳。</div>
+        <div id="forgetImportedBox" style="display:none;margin:14px 0 4px;" data-page-node-id="forgetImportedBox">
+          <div class="note" style="margin-bottom:8px;" data-i18n="forget_imported_note" data-page-node-id="forgetImportedNote">你的内容池里混入了一个来自文件/分享的导入词包。若它导致显示异常或释义为空，可在此清除（不影响官方词包和已学记录）。</div>
+          <button class="btn small secondary" data-act="forgetImported" data-page-node-id="forgetImportedBtn" style="width:100%;"><span data-i18n="forget_imported_btn" data-page-node-id="forgetImportedBtnLabel">🗑️ 清除导入的内容包</span></button>
+        </div>
+        <hr data-page-node-id="4iylL7SYCncMkyek42hnJs">
+        <button class="btn ghost small" data-act="resetData" style="width:100%" data-page-node-id="e8g46UU97jnkiHSwV7sQMs"><span data-i18n="reset_btn" data-page-node-id="rPO8ICqqttC5NzKqtGqlEf">🗑️ 清除全部学习数据</span></button>
       </div>
     </section>
   </main>
 
-  <nav class="tabbar" id="tabbar">
-    <button data-act="tab" data-target="plan" class="active"><span class="ic">📅</span><span data-i18n="tab_plan">计划</span></button>
-    <button data-act="tab" data-target="daily"><span class="ic">📚</span><span data-i18n="tab_daily">每日</span></button>
-    <button data-act="tab" data-target="reading"><span class="ic">📖</span><span data-i18n="tab_reading">阅读</span></button>
-    <button data-act="tab" data-target="review"><span class="ic">🔁</span><span data-i18n="tab_review">复习</span><span class="badge" id="reviewBadge" style="display:none">0</span></button>
-    <button data-act="tab" data-target="me"><span class="ic">👤</span><span data-i18n="tab_me">我的</span></button>
+  <nav class="tabbar" id="tabbar" data-page-node-id="tNl09Gd9RtxmEud87FeQj3">
+    <button data-act="tab" data-target="plan" class="active" data-page-node-id="fGeUKGq7VMWaruNxc85xbF"><span class="ic" data-page-node-id="sUdEUiFdLNGICu6ZfxZ1zo">📅</span><span data-i18n="tab_plan" data-page-node-id="iSfBSIM9AnEeF9GFQOoefb">计划</span></button>
+    <button data-act="tab" data-target="daily" data-page-node-id="qq02f23vGAdnXNcDHhMeZk"><span class="ic" data-page-node-id="KxHTmOMVSAKBESoGBQARIF">📚</span><span data-i18n="tab_daily" data-page-node-id="pr1Kl3XXHGv4hlY0hJTFpJ">每日</span></button>
+    <button data-act="tab" data-target="reading" data-page-node-id="mJTyUOjjcdOYjP8H4gaTLT"><span class="ic" data-page-node-id="dmq7s1sS4uAlxY2TDFyGh2">📖</span><span data-i18n="tab_reading" data-page-node-id="Sd8HrEQwC4afTpJ0FmxM6w">阅读</span></button>
+    <button data-act="tab" data-target="review" data-page-node-id="gKnMIgKo6o8kj7Db4xFZA7"><span class="ic" data-page-node-id="IIjTDSsIr5yOzVf0uQEiRB">🔁</span><span data-i18n="tab_review" data-page-node-id="t9jYhxl8rPzlrlFHVXZEdU">复习</span><span class="badge" id="reviewBadge" style="display:none" data-page-node-id="BfFHEp1E0FVQAtPJk8E9rK">0</span></button>
+    <button data-act="tab" data-target="practice" data-page-node-id="PRACTICE_TAB_BTN_ID"><span class="ic" data-page-node-id="PRACTICE_TAB_ICON">🏋️</span><span data-i18n="tab_practice" data-page-node-id="PRACTICE_TAB_LABEL">练习</span></button>
+    <button data-act="tab" data-target="me" data-page-node-id="XhECA7uSFPbMFU45KNCiFM"><span class="ic" data-page-node-id="b6D6TsqJqUwFfAvfeyuRXG">👤</span><span data-i18n="tab_me" data-page-node-id="8vqj5WDIstOFvGKEHGVklg">我的</span></button>
   </nav>
 </div>
 
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-<audio id="listenKeep" loop playsinline preload="none" style="display:none;"></audio>
-<div class="modal-mask" id="wordModal"><div class="modal" id="wordModalBody" role="dialog" aria-modal="true" aria-label="单词详情"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite" data-page-node-id="Np1EcFIDc3YjDuM1Y1KN78"></div>
+<audio id="listenKeep" loop playsinline preload="none" style="display:none;" data-page-node-id="lBtyc1GrvA6JPknBOSgR4N"></audio>
+<div class="modal-mask" id="wordModal" data-page-node-id="49lt3TsPEEdMVUew2gABFE"><div class="modal" id="wordModalBody" role="dialog" aria-modal="true" aria-label="单词详情" data-page-node-id="YobQPGqldpgXBIHccxSeFR"></div></div>
+
+<!-- Card-level reviewType / Skip editor. Used from Daily & Review cards. -->
+<div class="modal-mask" id="cardSettingsModal" data-page-node-id="CARD_SETTINGS_MODAL_ID"><div class="modal" id="cardSettingsBody" role="dialog" aria-modal="true" aria-label="卡片设置" data-page-node-id="CARD_SETTINGS_BODY_ID"></div></div>
 
 <script>
 /* ===================== DATA ===================== */
@@ -644,6 +705,7 @@ function applyPack(p){
   // reset review session so cards from the previous pack never linger
   currentQueue=[]; queueTotal=0; sessionDone=false; freePractice=false; allSub="learned";
   typedResult=null; flashFlipped=false; sessionStart=0; undoData=null;
+  cardStep=0; cardSteps=[];
   clearTimeout(undoTimer);
   ctxIdxReady=false; globalWordsCache=null; learnedKeySetCache=null;
   // Cross-pack capture: words of this pack already learned in ANY pack are
@@ -697,12 +759,27 @@ async function loadContent(){
 const I18N = {
   day_unit:{zh:"天",en:"day"},
   tab_plan:{zh:"计划",en:"Plan"}, tab_daily:{zh:"每日",en:"Daily"}, tab_reading:{zh:"阅读",en:"Reading"},
-  tab_review:{zh:"复习",en:"Review"}, tab_me:{zh:"我的",en:"Me"},
+  tab_review:{zh:"复习",en:"Review"}, tab_practice:{zh:"练习",en:"Practice"}, tab_me:{zh:"我的",en:"Me"},
   plan_title:{zh:"学习计划",en:"Study Plan"}, reading_title:{zh:"每周阅读",en:"Weekly Reading"},
   rev_flash:{zh:"卡片",en:"Cards"}, rev_quiz:{zh:"测验",en:"Quiz"},
   rev_all:{zh:"全部",en:"All"},
   rev_productive:{zh:"拼写",en:"Spell"},
   rev_context:{zh:"语境",en:"Context"},
+  practice_intro:{zh:"所有练习模式在这里——不计进度，随意刷词。",en:"All drill modes live here — no progress impact, free-form."},
+  practice_listen:{zh:"听写跟读",en:"Listen & Learn"},
+  practice_listen_intro:{zh:"先听单词发音，再跟读；不会拼也没关系。",en:"Listen first, then echo; spelling optional."},
+  practice_allflash_intro:{zh:"浏览全部单词，翻面看释义与例句；不计进度。",en:"Browse all words with reveal — no progress impact."},
+  practice_quiz_intro:{zh:"看释义选对词，5 题一组。",en:"Pick the word that matches — 5 questions per round."},
+  practice_card_settings:{zh:"卡片设置",en:"Card settings"},
+  reviewtype_label:{zh:"学习方式",en:"Review method"},
+  reviewtype_flash:{zh:"卡片",en:"Cards"},
+  reviewtype_productive:{zh:"拼写",en:"Spell"},
+  reviewtype_context:{zh:"语境",en:"Context"},
+  reviewtype_skip:{zh:"跳过",en:"Skip"},
+  card_settings_save:{zh:"保存",en:"Save"},
+  card_settings_cancel:{zh:"取消",en:"Cancel"},
+  card_settings_title:{zh:"修改此卡的复习方式",en:"Edit review method for this card"},
+  skip_label:{zh:"跳过此词",en:"Skip this word"},
   scope_pack:{zh:"本包",en:"This Pack"},
   scope_all:{zh:"全部包",en:"All Packs"},
   prod_hint:{zh:"根据释义拼出这个单词（输入后回车或点「检查」）",en:"Type the word that matches this definition (Enter or Check)"},
@@ -742,7 +819,10 @@ const I18N = {
   last7:{zh:"近 7 天活跃度",en:"Last 7 days"}, milestones:{zh:"里程碑",en:"Milestones"},
   daily_remind:{zh:"每日学习提醒",en:"Daily reminder"}, test_remind:{zh:"测试提醒",en:"Test"},
   export_btn:{zh:"⬇️ 导出备份",en:"⬇️ Export"}, import_btn:{zh:"⬆️ 导入备份",en:"⬆️ Import"},
-  reset_btn:{zh:"🗑️ 清除全部学习数据",en:"🗑️ Clear all data"},
+  forget_imported_btn:{zh:"🗑️ 清除导入的内容包",en:"🗑️ Forget imported pack"},
+  forget_imported_note:{zh:"你的内容池里混入了一个来自文件/分享的导入词包。若它导致显示异常或释义为空，可在此清除（不影响官方词包和已学记录）。",en:"An imported pack (from Files / share sheet) is in your content pool. Remove it here if it caused display issues or empty definitions (official packs & progress untouched)."},
+  forget_imported_confirm:{zh:"确定要清除导入的内容包吗？官方词包与已学记录不受影响。",en:"Remove the imported pack? Official packs and your learning progress are unaffected."},
+  toast_forget_imported:{zh:"已清除导入的内容包",en:"Imported pack removed"},
   notes_note:{zh:"笔记自动保存在本机（localStorage），不会上传。",en:"Notes are saved locally (localStorage); nothing is uploaded."},
   remind_note:{zh:"提醒通过浏览器通知实现（首次需授权）。本工具完全离线运行，通知在打开应用时触发。",en:"Reminders use browser notifications (grant permission on first use). The app runs fully offline; notifications fire when you open it."},
   backup_note:{zh:"导出会把全部进度存成一个 .json 文件到「文件」App；换设备、清缓存或系统更新前先导出，再导入即可永不丢失。建议配合「添加到主屏幕」使用，存储更稳。",en:"Export saves all progress to a .json file in the Files app. Export before changing devices, clearing cache, or system updates, then import to restore. For stable storage, add this app to your Home Screen."},
@@ -757,6 +837,7 @@ const I18N = {
   plan_note:{zh:"每天约 {n} 分钟 / 任务。计划会依据你的选择自动轮换重点方向。",en:"About {n} min per task. The plan rotates focus areas automatically based on your choices."},
   stat_goal:{zh:"目标",en:"Goal"}, stat_daily:{zh:"每日",en:"Daily"}, stat_dir:{zh:"方向",en:"Areas"},
   // Daily
+  daily_title:{zh:"每日单词",en:"Daily Words"},
   daily_intro:{zh:"每天 {n} 个新词，点 🔊 听发音，学会后点击「我学会了」记录进度。",en:"{n} new words daily. Tap 🔊 to hear them, then mark “I learned it”."},
   daily_count:{zh:"每天学习词数",en:"Words per day"},
   daily_count_unit:{zh:"个",en:"words"},
@@ -766,7 +847,9 @@ const I18N = {
   learn_btn:{zh:"📝 我学会了",en:"📝 I learned it"}, learned_btn:{zh:"✅ 已学会",en:"✅ Learned"},
   bookmark_btn:{zh:"☆ 收藏",en:"☆ Bookmark"}, bookmarked_btn:{zh:"⭐ 已收藏",en:"⭐ Bookmarked"},
   review_pill:{zh:"复习",en:"Review"},
+  review_intro:{zh:"选择一种模式复习生词；今日待复习 {n} 张。",en:"Pick a mode to review your words — {n} cards due today."},
   // Reading
+  reading_intro:{zh:"阅读短文，点击加粗词查词，完成后回答理解题并标记已读。",en:"Read the passage, tap any bold word to look it up, then answer the questions and mark it read."},
   comprehension:{zh:"理解小测",en:"Comprehension"}, mark_read:{zh:"标记本周已读完",en:"Mark this week as read"},
   marked_read:{zh:"✅ 本周已读",en:"✅ Read this week"},
   read_aloud:{zh:"🔊 朗读全文",en:"🔊 Read Aloud"}, read_stop:{zh:"⏹ 停止朗读",en:"⏹ Stop Reading"},
@@ -836,7 +919,13 @@ const I18N = {
   pack_switch:{zh:"选择学习目标（内容包）",en:"Choose your learning goal (content pack)"},
   pack_import:{zh:"📂 导入内容包",en:"📂 Import pack"},
   pack_note:{zh:"托管版（PWA）会自动加载 content/ 下的所有内容包；本地以文件方式打开时，请用「导入内容包」选择 JSON 文件。",en:"The hosted PWA auto-loads every pack in content/. In local file mode, use “Import pack” to pick a JSON file."},
-  pack_loaded:{zh:"内容包已加载：",en:"Pack loaded: "}
+  pack_loaded:{zh:"内容包已加载：",en:"Pack loaded: "},
+  wd_hist_last:{zh:"上次：",en:"Last: "},
+  wd_hist_expand:{zh:"展开 ▾",en:"Show ▾"},
+  wd_hist_collapse:{zh:"收起 ▴",en:"Hide ▴"},
+  wd_hist_forgot:{zh:"忘了",en:"Forgot"},
+  wd_hist_okay:{zh:"一般",en:"Okay"},
+  wd_hist_easy:{zh:"轻松",en:"Easy"}
 };
 function t(k){
   const v=I18N[k];
@@ -881,6 +970,11 @@ function defaultState(){
     lang: "zh",
     activePack: "general", // id of the content pack currently in use
     reviewScope: "pack",   // Review tab: "pack" (本包) | "all" (全部包) — persisted, like activePack
+    // Practice tab's mode: "allflash" (📚 全部单词) | "listen" (听写跟读) | "quiz" (词汇测验)
+    // Lives on `state` so the click handler can assign to it without TDZ
+    // trouble from a nested closure (we hit a real bug where a `let`-scoped
+    // global inside a click listener was unassignable from inner closures).
+    practiceMode: "allflash",
     importedPack: null,    // full pack JSON kept for local file:// persistence
     learnedWords: [],      // [{word,date,pack}]
     readingsDone: [],      // ["pack::weekIndex"]
@@ -927,8 +1021,20 @@ function migrateState(s){
         };
       }
     }
+    /* Backfill reviewType / lastRatedDate on cards that pre-date the rules engine.
+       Idempotent: existing values are preserved. */
+    for(const k in f2){
+      const c = f2[k]; if(!c) continue;
+      if(typeof c.reviewType !== "string" || !c.reviewType){
+        c.reviewType = "auto"; // will be resolved on first render via getReviewType
+      }
+      if(typeof c.lastRatedDate !== "string") c.lastRatedDate = "";
+      if(typeof c.skipped !== "boolean") c.skipped = false;
+      if(!Array.isArray(c.history)) c.history = [];
+    }
     s.flashcards = f2;
   }
+  if(!s.practiceMode) s.practiceMode = "allflash";
   if(Array.isArray(s.learnedWords)){
     s.learnedWords = s.learnedWords.map(function(x){
       if(typeof x==="string") return {word:x, date:"", pack:"general"};
@@ -990,6 +1096,115 @@ function dayIndex(){
   return Math.max(0, Math.floor((now-start)/86400000));
 }
 function currentWeek(){ return Math.floor(dayIndex()/7); }
+function progLabel(){
+  const di=dayIndex();
+  const wk=Math.floor(di/7)+1, dy=(di%7)+1;
+  return state.lang==='en' ? ("Week "+wk+" · Day "+dy) : ("第 "+wk+" 周 · 第 "+dy+" 天");
+}
+
+/* Determine initial reviewType for a word based on pos, frequency, etc.
+   Returns: flash_only | flash_context | productive_context | context_only | skip */
+function getInitialReviewType(word){
+  const w = findWordGlobal(word);
+  if(!w) return "flash_context"; // safe default
+  const pos = (w.pos || "").toLowerCase();
+  const isVerb = pos.includes("v") || pos.includes("verb");
+  const isFunction = /^(the|be|to|of|and|a|in|that|have|I|it|for|not|on|with|he|as|you|do|at|this|but|his|by|from)$/i.test(word);
+  const isPhrase = word.includes(" ") || word.includes("-");
+  // high-frequency function words -> context only
+  if(isFunction) return "context_only";
+  // verbs -> productive + context
+  if(isVerb) return "productive_context";
+  // phrases/collocations -> context only
+  if(isPhrase) return "context_only";
+  // default for concrete nouns etc.
+  return "flash_context";
+}
+
+/* Dynamic reviewType based on card state (reps, interval, ease, proficiency).
+   Called at review time to allow adaptive assignment. */
+function getReviewType(word, card){
+  // User override takes precedence
+  if(card && card.reviewType && card.reviewType !== "auto") return card.reviewType;
+  
+  const w = findWordGlobal(word);
+  if(!w) return "flash_context";
+  
+  const pos = (w.pos || "").toLowerCase();
+  const isVerb = pos.includes("v") || pos.includes("verb");
+  const isFunction = /^(the|be|to|of|and|a|in|that|have|I|it|for|not|on|with|he|as|you|do|at|this|but|his|by|from)$/i.test(word);
+  const isPhrase = word.includes(" ") || word.includes("-");
+  const reps = card?.reps || 0;
+  const interval = card?.interval || 0;
+  const ease = card?.ease || 2.5;
+  const prof = card?.proficiency || "learned";
+  
+  // Skip words
+  if(card?.reviewType === "skip") return "skip";
+  
+  // New words (reps=0) -> productive + context
+  if(reps === 0) return "productive_context";
+  
+  // High-frequency function words -> context only
+  if(isFunction) return "context_only";
+  
+  // Verbs -> productive + context (always)
+  if(isVerb) return "productive_context";
+  
+  // Phrases/collocations -> context only
+  if(isPhrase) return "context_only";
+  
+  // Mature cards (interval > 30 days) -> flash only for maintenance
+  if(interval > 30) return "flash_only";
+  
+  // Low ease (difficult words) -> productive + context for reinforcement
+  if(ease < 2.0) return "productive_context";
+  
+  // Forgotten words being relearned -> productive + context
+  if(prof === "forgotten") return "productive_context";
+  
+  // Default: flash + context
+  return "flash_context";
+}
+
+/* Resolve the multi-step sequence for a word, given its reviewType.
+   Each step is one of: "flash" | "productive" | "context".
+   User chooses the session MODE (flash / productive / context / allflash).
+   - If the user picked "flash" (the default due-cards session), each card
+     may render up to two steps according to its reviewType. Grading happens
+     on the FIRST step only — subsequent steps are reinforcement rounds
+     (typed answers are checked but never re-grade the schedule to avoid
+     double-counting).
+   - If the user picked "productive" or "context", the corresponding single
+     step is used (explicit mode overrides card sequencing).
+   - "allflash" (browse all) is rendered as a single flash step regardless,
+     to keep the free-browse UX one-tap-away.
+   The result is cached in `cardSteps` and the current `cardStep` cursor is
+   reset to 0 every time the queue head changes. */
+function stepsFor(word, card, mode){
+  // explicit modes clamp to a single step
+  if(mode==="productive") return [{kind:"productive"}];
+  if(mode==="context")    return [{kind:"context"}];
+  if(mode==="allflash")   return [{kind:"flash"}];
+  // mode === "flash" (due cards) — derive from reviewType
+  let rt = (card && card.reviewType) || "auto";
+  if(rt==="auto" || !rt) rt = getReviewType(word, card);
+  if(rt==="skip")        return [{kind:"flash"}]; // "skip" still shows once, no rating harm
+  if(rt==="flash_only")  return [{kind:"flash"}];
+  if(rt==="flash_context")     return [{kind:"flash"},{kind:"context"}];
+  if(rt==="productive_context")return [{kind:"productive"},{kind:"context"}];
+  if(rt==="context_only")      return [{kind:"context"}];
+  return [{kind:"flash"}];
+}
+function resetCardStepFor(word){
+  cardStep = 0;
+  const c = state.flashcards[wkey(word)];
+  cardSteps = stepsFor(word, c, reviewMode);
+}
+function advanceCardStep(){
+  if(cardStep < cardSteps.length - 1){ cardStep += 1; return true; }
+  return false;
+}
 
 /* ===================== CORE LOGIC ===================== */
 function recordActivity(type, amount){
@@ -1012,7 +1227,7 @@ function learnWord(word){
   const g=wkey(word);
   const c=state.flashcards[g];
   if(!c){
-    state.flashcards[g]={ease:2.5, interval:0, reps:0, due: todayStr(), packs:[ap()], proficiency:"learned"};
+    state.flashcards[g]={ease:2.5, interval:0, reps:0, due: todayStr(), packs:[ap()], proficiency:"learned", history:[], reviewType: getInitialReviewType(word), lastRatedDate: ""};
   }else if(Array.isArray(c.packs) && c.packs.indexOf(ap())<0){
     // already carded (possibly from another pack): keep the existing schedule,
     // just add this pack as provenance
@@ -1056,9 +1271,11 @@ function captureLearnedInPack(){
     if(!w || !w.word || !learnedAny(w.word)) return;
     const g=wkey(w.word);
     const c=state.flashcards[g];
-    if(!c){ state.flashcards[g]={ease:2.5, interval:0, reps:0, due: todayStr(), packs:[ap()], proficiency:"learned"}; changed=true; }
+    if(!c){ state.flashcards[g]={ease:2.5, interval:0, reps:0, due: todayStr(), packs:[ap()], proficiency:"learned", history:[], reviewType: getInitialReviewType(w.word), lastRatedDate: ""}; changed=true; }
     else{
       if(!c.proficiency) c.proficiency="learned";
+      if(!c.reviewType) c.reviewType = getInitialReviewType(w.word);
+      if(!c.lastRatedDate) c.lastRatedDate = "";
       if(!Array.isArray(c.packs)){ c.packs=[ap()]; changed=true; }
       else if(c.packs.indexOf(ap())<0){ c.packs.push(ap()); changed=true; }
     }
@@ -1116,8 +1333,29 @@ function rateCard(word, q){
   }
   c.proficiency = (q<3) ? "forgotten" : "learned";
   c.due=addDays(todayStr(), c.interval);
+  c.lastRatedDate = todayStr();
+  // Re-evaluate review type based on new state (adapts to reps/interval/ease).
+  // User override ("non-auto") is preserved by getReviewType itself.
+  try { c.reviewType = getReviewType(word, c); } catch(e) {}
   recordActivity("review");
   saveState();
+}
+/* Append one event to a flashcard's bounded history ring (max 20).
+   Called by every code path that mutates the schedule (rateFlash / gradeUndo
+   inside checkTyped / revealAnswer). Pure data — does NOT touch interval etc. */
+function logHistory(key, q, mode){
+  const c = state.flashcards[key]; if(!c) return;
+  if(!Array.isArray(c.history)) c.history = [];
+  c.history.push({ ts: todayStr(), q: q, mode: mode, result: q<3 ? "reset" : "advanced" });
+  if(c.history.length > 20) c.history = c.history.slice(-20);
+}
+/* Toggle the .wd-hist-list inside the SAME detail block — pure DOM flip,
+   no re-render, so the user's scroll/focus/speech state is preserved. */
+function toggleHist(btn){
+  const list = btn.parentNode.parentNode.querySelector(".wd-hist-list");
+  if(!list) return;
+  const open = list.classList.toggle("open");
+  btn.textContent = open ? t('wd_hist_collapse') : t('wd_hist_expand');
 }
 
 function completeReading(weekIdx){
@@ -1348,6 +1586,98 @@ function closeWordPopup(){
   lastFocusedBeforeModal=null;
 }
 
+/* ---- Card-level reviewType / Skip editor ----
+   Opens a small modal letting the user override how a single card behaves
+   in Review. Used from Daily cards (settings only) and from Review cards
+   (settings take effect immediately on the current card). */
+let _cardSettingsReturn = null; // function() — called after Save to re-render the host
+let _cardSettingsWord = null;
+function openCardSettings(word, onSave){
+  const w=findWordGlobal(word);
+  if(!w) return;
+  _cardSettingsWord=word;
+  _cardSettingsReturn=onSave || null;
+  const key=wkey(word);
+  const card=state.flashcards[key] || {};
+  const currentRT = card.reviewType || "auto";
+  const skipped = !!card.skipped;
+  const opts=[
+    {v:"auto",                label:t('reviewtype_flash')+" / "+t('reviewtype_productive')+" / "+t('reviewtype_context'), hint:state.lang==='en'?"System decides (pos, ease, interval).":"系统按词性/难度/间隔自动决定"},
+    {v:"flash_only",          label:"🔁 "+t('reviewtype_flash')},
+    {v:"flash_context",       label:"🔁+📖"},
+    {v:"productive_context",  label:"✏️+📖"},
+    {v:"context_only",        label:"📖 "+t('reviewtype_context')},
+    {v:"skip",                label:"⏭️ "+t('reviewtype_skip')},
+  ];
+  const body=document.getElementById("cardSettingsBody");
+  body.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;">${t('card_settings_title')}</div>
+        <div style="font-size:20px;font-weight:700;margin-top:4px;">${esc(w.word)} <span class="ipa" style="font-size:14px;color:var(--muted);">${esc(w.ipa||'')}</span></div>
+      </div>
+      <button class="iconbtn small" data-act="closeCardSettings" style="border:none;background:none;font-size:20px;padding:2px 6px;color:var(--muted);flex:0 0 auto;">✕</button>
+    </div>
+    <fieldset class="cs-options">
+      <legend class="muted" style="font-size:13px;padding:0 0 6px;">${t('reviewtype_label')}</legend>
+      ${opts.map(function(o){
+        const id="cs-opt-"+o.v.replace(/[^a-z0-9]/gi,'');
+        return `<label for="${id}" class="cs-opt ${currentRT===o.v?'sel':''}">
+          <input type="radio" id="${id}" name="cs-rt" value="${o.v}" ${currentRT===o.v?'checked':''}>
+          <span class="cs-label">${o.label}</span>
+          ${o.hint?`<span class="cs-hint">${o.hint}</span>`:""}
+        </label>`;
+      }).join("")}
+    </fieldset>
+    <div class="cs-foot">
+      <button class="btn ghost" data-act="closeCardSettings">${t('card_settings_cancel')}</button>
+      <button class="btn" data-act="saveCardSettings">${t('card_settings_save')}</button>
+    </div>`;
+  // Wire up selection highlight
+  body.querySelectorAll(".cs-opt").forEach(function(lbl){
+    const inp=lbl.querySelector("input");
+    if(!inp) return;
+    inp.addEventListener("change", function(){
+      body.querySelectorAll(".cs-opt").forEach(function(x){ x.classList.toggle("sel", x.querySelector("input").checked); });
+    });
+  });
+  const m=document.getElementById("cardSettingsModal");
+  m.classList.add("show");
+  const closeBtn=body.querySelector('[data-act="closeCardSettings"]');
+  if(closeBtn) closeBtn.focus();
+}
+function closeCardSettings(){
+  const m=document.getElementById("cardSettingsModal");
+  if(m) m.classList.remove("show");
+  _cardSettingsWord=null;
+  _cardSettingsReturn=null;
+}
+function saveCardSettings(){
+  const word=_cardSettingsWord;
+  if(!word) return;
+  const body=document.getElementById("cardSettingsBody");
+  const sel=body.querySelector("input[name='cs-rt']:checked");
+  const v=sel?sel.value:"auto";
+  const key=wkey(word);
+  if(!state.flashcards[key]){
+    // Create a minimal card record (e.g. user is editing a never-learned word from Daily)
+    state.flashcards[key]={ease:2.5,interval:0,reps:0,due:todayStr(),packs:[ap()],proficiency:"learned",history:[]};
+  }
+  state.flashcards[key].reviewType = (v==="auto") ? "auto" : v;
+  state.flashcards[key].skipped = (v==="skip");
+  state.flashcards[key].lastRatedDate = todayStr();
+  // Apply the change to the currently displayed card if same word is on screen
+  if(currentQueue.length>0 && wkey(currentQueue[0])===key){
+    cardSteps = stepsFor(word, state.flashcards[key], reviewMode);
+    cardStep = 0;
+  }
+  saveState();
+  recordActivity("review");
+  const cb=_cardSettingsReturn;
+  closeCardSettings();
+  if(typeof cb==="function") cb();
+}
+
 /* ===================== RENDER: PLAN ===================== */
 function renderPlan(){
   const el=document.getElementById("planArea");
@@ -1561,7 +1891,35 @@ function wordDetailHTML(w, hideEmoji){
   const ex=w.ex?`<div class="wd-ex">${esc(w.ex)}
       <button class="iconbtn small" data-act="speak" data-text="${esc(w.ex)}" style="float:right;padding:4px 8px;">🔊</button>
       <div class="wd-exzh">${esc(state.lang==='en'?w.exEn:w.exzh)}</div></div>`:"";
-  return head+pron+pos+def+ex;
+  // Review history — only render when the user has actually reviewed this word.
+  // Reuses status tokens (forgotten/due/scheduled) so colors match §15.
+  let hist = "";
+  if(w.word && isLearned(w.word)){
+    const h = (state.flashcards[wkey(w.word)]||{}).history;
+    if(Array.isArray(h) && h.length){
+      const last = h[h.length-1];
+      const klass = last.result==='reset' ? 'bad' : (last.q>=4 ? 'ok' : 'warn');
+      const label = last.result==='reset' ? t('wd_hist_forgot') : (last.q>=4 ? t('wd_hist_easy') : t('wd_hist_okay'));
+      const iv = (last.result==='reset') ? 1 : (state.flashcards[wkey(w.word)].interval || 1);
+      hist = `<div class="wd-hist">
+        <span class="ico ${klass}">!</span>
+        <span>${t('wd_hist_last')}${esc(last.ts)} · <b>${esc(label)}</b> · ${iv} ${state.lang==='en'?'d':'天'}</span>
+        <button type="button" class="wd-hist-toggle" onclick="event.stopPropagation(); toggleHist(this)">${t('wd_hist_expand')}</button>
+      </div>
+      <div class="wd-hist-list">
+        ${h.slice(-10).reverse().map(function(e){
+          const ck = e.result==='reset' ? 'bad' : (e.q>=4 ? 'ok' : 'warn');
+          const cl = e.result==='reset' ? t('wd_hist_forgot') : (e.q>=4 ? t('wd_hist_easy') : t('wd_hist_okay'));
+          return `<div class="wd-hist-row">
+            <span class="d">${esc(e.ts)}</span>
+            <span class="m">${esc(e.mode)}</span>
+            <span class="r ${ck}">${esc(cl)}</span>
+          </div>`;
+        }).join("")}
+      </div>`;
+    }
+  }
+  return head+pron+pos+def+ex+hist;
 }
 function wordCardHTML(w, idx){
   const learned=isLearned(w.word);
@@ -1574,6 +1932,7 @@ function wordCardHTML(w, idx){
       <div class="acts">
         <button class="iconbtn ${bm?'on':''}" data-act="bookmark" data-word="${esc(w.word)}">${bm?t('bookmarked_btn'):t('bookmark_btn')}</button>
         <button class="iconbtn ${learned?'done':''}" data-act="learn" data-word="${esc(w.word)}">${learned?t('learned_btn'):t('learn_btn')}</button>
+        <button class="iconbtn" data-act="cardSettings" data-word="${esc(w.word)}" aria-label="${t('practice_card_settings')}">⚙️</button>
       </div>
     </div>
   </div>`;
@@ -1582,14 +1941,9 @@ function refreshDaily(){
   const td=todaysWords();
   const a=document.getElementById("dailyArea");
   const s=document.getElementById("dailyStatus");
-  const di=td.di+1;
-  const dayHead = state.lang==='en' ? ("Day "+di) : ("第 "+di+" 天");
   s.innerHTML = `
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h2 style="margin:0;">📚 ${dayHead} ${td.isReview?'<span class="pill">'+t('review_pill')+'</span>':''}</h2>
-        <span class="muted">${new Date().toLocaleDateString(state.lang==='en'?'en-US':'zh-CN',{month:'long',day:'numeric',weekday:'short'})}</span>
-      </div>
+      <h2 style="margin:0;">📚 ${t('daily_title')} ${td.isReview?'<span class="pill">'+t('review_pill')+'</span>':''}</h2>
       <p class="muted" style="margin:8px 0 0;">${tf('daily_intro',{n:td.count})}</p>
     </div>`;
   const cards = td.words.map(function(w,idx){ return wordCardHTML(w,idx); }).join("");
@@ -1623,6 +1977,8 @@ function refreshReading(){
   const wk=currentWeek() % READINGS.length;
   const r=READINGS[wk];
   const done=state.readingsDone.includes(rkey(wk));
+  const ri=document.getElementById("readingIntro");
+  if(ri) ri.textContent=t('reading_intro');
   // split a trailing "🔁 Review: ..." note onto its own line (keeps it off the last sentence)
   const rawText=String(r.text||"");
   const revMatch=rawText.match(/(?:🔁\s*)?Review\s*[:：][\s\S]*$/i);
@@ -1631,7 +1987,7 @@ function refreshReading(){
   const revWords = tailText ? tailText.replace(/^(?:🔁\s*)?Review\s*[:：]\s*/i,"").trim().split(/\s+/).filter(Boolean) : [];
   a.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h3 style="margin:0;">${tf('week_label',{n:wk+1})} · ${state.lang==='en'?r.titleEn:r.title}</h3>
+      <h3 style="margin:0;">${state.lang==='en'?r.titleEn:r.title}</h3>
       <span class="pill">${r.level}</span>
     </div>
     <div class="btn-row" style="margin-top:8px;">
@@ -1706,25 +2062,30 @@ function readingAnswer(qi, oi){
 }
 
 /* ===================== RENDER: REVIEW ===================== */
-let reviewMode="flash";
-/* Two orthogonal controls drive the Review tab:
-   - scope (state.reviewScope): "pack" 本包 | "all" 全部包 → which packs supply the queue
-   - mode (reviewMode): flash / productive / context / allflash / quiz
-   卡片·拼写·语境 share ONE global per-word SRS schedule; allflash is free browse
-   (never touches the schedule). reviewScope persists in localStorage. */
-let currentQueue=[];       // word strings for the current (mode, scope) session
-let queueTotal=0;          // size of the last built queue (progress bar + summary)
-let sessionStart=0;        // ms timestamp when the current session began
-let sessionDone=false;     // true once the summary is shown (blocks auto-rebuild)
-let freePractice=false;    // 「立即练习（不入档）」: drill without changing the SRS schedule
-let allSub="learned";      // allflash + 全部包 sub-filter: "learned" | "all"
-let typedResult=null;      // {word, correct, near, guess} of the last checked answer
-let flashFlipped=false;
-let quizData=[];
-let quizIdx=0;
-let quizScore=0;
-let undoData=null;         // {word, key, prev, label} for the 5s undo bar
-let undoTimer=null;
+/* Session-scoped state. These are intentionally `var` (hoisted, function-scope)
+   so click-handler closures can mutate them via plain assignment without
+   hitting TDZ from `let`. The persistent user-preferences live on `state`. */
+var reviewMode="flash";
+var currentQueue=[];
+var queueTotal=0;
+var sessionStart=0;
+var sessionDone=false;
+var freePractice=false;
+var allSub="learned";
+var typedResult=null;
+var flashFlipped=false;
+var cardStep=0;
+var cardSteps=[];
+var quizData=[];
+var quizIdx=0;
+var quizScore=0;
+var undoData=null;
+var undoTimer=null;
+/* Practice tab runs in its own mode set (allflash / listen / quiz) and its own
+   scope (mirrors state.reviewScope so the two tabs stay in sync). Practice
+   never touches the SRS schedule — it is a free-form drill zone. */
+/* All browser-visible state lives on `state` (persisted) so the click
+   handler closure can mutate it via assignment without TDZ traps. */
 let ctxIdx=null;           // packId -> {lowerWord: [sentences]} context-sentence index
 let ctxIdxReady=false;
 let globalWordsCache=null;    // [{word object}] across all packs (deduped, stable order)
@@ -1733,15 +2094,25 @@ let learnedKeySetCache=null;  // {lowerWord:1} for every learned word
 /* ---- word pools & queues ---- */
 function allWordsGlobal(){
   if(globalWordsCache) return globalWordsCache;
-  const seen={}, out=[];
+  const idx={}, out=[];
+  // Merge-by-quality: when the same headword appears in several packs, keep
+  // the copy that carries a usable definition. This fixes the "empty def"
+  // quiz card caused by an imported/custom pack whose word has no usable
+  // def (e.g. fin) being visited first — we upgrade it from an official pack.
+  function pick(a,b){
+    const aHas=!!(a&&(a.def||a.defEn)), bHas=!!(b&&(b.def||b.defEn));
+    if(aHas&&!bHas) return a;
+    if(!aHas&&bHas) return b;
+    return a; // both usable (or both empty) → keep first, stable order
+  }
   for(const pid in PACKS){
     const pk=PACKS[pid];
     if(!pk || !Array.isArray(pk.words)) continue;
     for(const w of pk.words){
       if(!w || !w.word) continue;
       const k=String(w.word).toLowerCase();
-      if(seen[k]) continue;
-      seen[k]=1; out.push(w);
+      if(k in idx){ out[idx[k]]=pick(out[idx[k]], w); }
+      else { idx[k]=out.length; out.push(w); }
     }
   }
   globalWordsCache=out;
@@ -1794,9 +2165,21 @@ function cardTopHTML(mode){
   const done=Math.max(0,total-currentQueue.length);
   const pct=Math.round(done/total*100);
   const pos=(currentQueue.length>0) ? (done+1)+"/"+total : total+"/"+total;
+  /* Per-card step indicator (only when the current word has >1 step in
+     its reviewType sequence). Shows the user where they are inside the
+     multi-step flow, e.g. "🔁 1/2", "📖 2/2". */
+  let stepBadge="";
+  if(cardSteps && cardSteps.length>1 && currentQueue.length>0){
+    const i=Math.min(cardStep, cardSteps.length-1);
+    const kind=cardSteps[i].kind;
+    const label = kind==="flash" ? t('rev_flash')
+                : kind==="productive" ? t('rev_productive')
+                : t('rev_context');
+    stepBadge = `<span class="revstep">${esc(label)} · ${i+1}/${cardSteps.length}</span>`;
+  }
   return `
     <div class="revtop">
-      <span class="revmeta">${modeLabel(mode)} · ${pos}</span>
+      <span class="revmeta">${modeLabel(mode)} · ${pos}${stepBadge?' · '+stepBadge:''}</span>
       <div class="revprog"><div class="revprogbar" style="width:${pct}%"></div></div>
     </div>`;
 }
@@ -1821,6 +2204,8 @@ function refreshReviewChrome(){
     const c=b.querySelector(".rc");
     if(c) c.textContent = counts[m] ? " · "+counts[m] : "";
   });
+  const ri=document.getElementById("reviewIntro");
+  if(ri) ri.textContent = tf('review_intro',{n:dueN});
 }
 
 /* ---- rating buttons (semantic colors + next-interval preview) ---- */
@@ -1875,7 +2260,11 @@ function flashCardHTML(w, free){
     ${undoBarHTML()}
     <div class="flash" data-act="flip" role="button" tabindex="0" aria-label="${t('tap_meaning')}">
       ${flashFlipped?`
-        <div class="back">${wordDetailHTML(w)}</div>`
+        <div class="back">${wordDetailHTML(w)}
+          <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+            <button class="iconbtn small" data-act="cardSettings" data-word="${esc(w.word)}" aria-label="${t('practice_card_settings')}">⚙️ ${t('practice_card_settings')}</button>
+          </div>
+        </div>`
       :`
         <div class="front">${esc(w.word)}<span class="ipa">${esc(w.ipa)} <button class="iconbtn small" data-act="speak" data-text="${esc(w.word)}">🔊</button></span></div>
         <div class="hint">${t('tap_meaning')}</div>
@@ -1897,6 +2286,9 @@ function typedResultHTML(w){
     <div class="flash" style="cursor:default;background:linear-gradient(135deg,#fff,${ok?'#eef8ef':'#fdf0f0'});">
       <div class="wd-def" style="font-size:17px;">${ok?t('typed_correct'):t('typed_wrong')}</div>
       ${wordDetailHTML(w)}
+      <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+        <button class="iconbtn small" data-act="cardSettings" data-word="${esc(w.word)}" aria-label="${t('practice_card_settings')}">⚙️ ${t('practice_card_settings')}</button>
+      </div>
     </div>
     <div class="revacts"><div style="display:flex;gap:8px;"><button class="btn" data-act="typedNext">${t('next_btn')}</button></div></div>`;
 }
@@ -1930,7 +2322,10 @@ function productiveCardHTML(w){
       ${near?`<div class="nearmsg">${t('near_miss')}</div>`:""}
     </div>
     ${typedInputHTML(w)}
-    <p class="note" style="text-align:center;margin-top:12px;">${t('prod_hint')}</p>`;
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px;">
+      <button class="iconbtn small" data-act="cardSettings" data-word="${esc(w.word)}" aria-label="${t('practice_card_settings')}">⚙️ ${t('practice_card_settings')}</button>
+      <p class="note" style="margin:0;text-align:right;flex:1;">${t('prod_hint')}</p>
+    </div>`;
 }
 /* Context review: a real reading sentence with the target word blanked.
    Sentences are indexed once per pack load (excludes "🔁 Review:" tails).
@@ -1989,7 +2384,10 @@ function contextCardHTML(w){
       ${near?`<div class="nearmsg">${t('near_miss')}</div>`:""}
     </div>
     ${typedInputHTML(w)}
-    <p class="note" style="text-align:center;margin-top:12px;">${t('ctx_hint')}</p>`;
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px;">
+      <button class="iconbtn small" data-act="cardSettings" data-word="${esc(w.word)}" aria-label="${t('practice_card_settings')}">⚙️ ${t('practice_card_settings')}</button>
+      <p class="note" style="margin:0;text-align:right;flex:1;">${t('ctx_hint')}</p>
+    </div>`;
 }
 
 /* ---- undo bar (5s) ---- */
@@ -2016,10 +2414,19 @@ function undoRate(){
 }
 
 /* ---- main renderer ---- */
-function renderReview(){
-  const a=document.getElementById("reviewArea");
+function currentReviewAreaId(){
+  // Practice tab owns practiceArea; Review tab owns reviewArea. Default
+  // behavior of renderReview() follows whichever tab the user is on.
+  const p = document.getElementById("tab-practice");
+  if(p && p.classList.contains("active")) return "practiceArea";
+  return "reviewArea";
+}
+function renderReview(targetAreaId){
+  // targetAreaId: "reviewArea" or "practiceArea" (auto-detected if omitted)
+  const areaId = targetAreaId || currentReviewAreaId();
+  const a=document.getElementById(areaId);
   if(!a) return;
-  refreshReviewChrome();
+  if(areaId === "reviewArea") refreshReviewChrome();
   if(reviewMode==="quiz"){ renderQuiz(a); return; }
   // a built session just ran dry → summary screen (not a "no cards" state)
   if(currentQueue.length===0 && queueTotal>0){ renderSessionSummary(a); return; }
@@ -2027,24 +2434,127 @@ function renderReview(){
   if(currentQueue.length===0){ renderEmpty(a); return; }
   const word=currentQueue[0];
   const w=findWordGlobal(word);
-  if(!w){ currentQueue.shift(); return renderReview(); } // stale card — skip it
-  if(reviewMode==="flash" || reviewMode==="allflash"){
+  if(!w){ currentQueue.shift(); return renderReview(areaId); } // stale card — skip it
+  // Resolve per-card step sequence (cached; refresh only when the head changes)
+  if(!cardSteps.length || !wkeyOfCardStep() || wkeyOfCardStep() !== wkey(word)){
+    resetCardStepFor(word);
+  }
+  const step = cardSteps[cardStep] || {kind:"flash"};
+  const kind = step.kind;
+  // Listen & Learn was removed from the Review/Practice card stack entirely
+  // — it now lives only behind the Practice → "听写跟读" mode button, which
+  // takes over the whole practiceArea with its own dedicated UI. The per-card
+  // stack below stays purely flash ↔ productive ↔ context.
+  if(kind==="flash"){
     const free=(reviewMode==="allflash") || freePractice;
-    a.innerHTML=allSubBarHTML() + flashCardHTML(w, free) + listenCardHTML();
-    updateListenBtn();
+    a.innerHTML=allSubBarHTML() + flashCardHTML(w, free);
     return;
   }
-  if(reviewMode==="productive"){
-    a.innerHTML=productiveCardHTML(w) + listenCardHTML();
-    updateListenBtn();
+  if(kind==="productive"){
+    a.innerHTML=productiveCardHTML(w);
     const inp=a.querySelector(".typeInput"); if(inp) inp.focus();
     return;
   }
-  if(reviewMode==="context"){
-    a.innerHTML=contextCardHTML(w) + listenCardHTML();
-    updateListenBtn();
+  if(kind==="context"){
+    a.innerHTML=contextCardHTML(w);
     const inp=a.querySelector(".typeInput"); if(inp) inp.focus();
+    return;
   }
+}
+/* ---- Practice tab renderer ----
+   Practice is a free-form drill zone: it never touches the SRS schedule.
+   It mirrors the Review tab's queue + scope state so the two stay in sync,
+   but selects its own mode set (allflash | listen | quiz) and never forces
+   the user to a single per-card step engine. */
+function renderPractice(){
+  const a=document.getElementById("practiceArea");
+  if(!a) return;
+  refreshPracticeChrome();
+  refreshPracticeIntro();
+  // Mirror Practice state into Review variables so existing renderers work.
+  // We restore them on tab-out via restoreReviewState().
+  saveReviewState();
+  const pm = state.practiceMode || "allflash";
+  reviewMode = (pm==="listen") ? "allflash" : pm; // listen reuses allflash UI
+  freePractice = true;                  // practice NEVER touches the SRS schedule
+  allSub = "all";                       // Practice always shows all words in the pack
+  // "Listen & Learn" mode: a dedicated listening-only card, no flash cards
+  if(pm === "listen"){
+    listenBuildQueue(); listenIdx = 0;
+    currentQueue = []; queueTotal = 0;
+    a.innerHTML = listenCardHTML();
+    updateListenBtn();
+    return;
+  }
+  // "Quiz" mode: quiz in the practice area
+  if(pm === "quiz"){
+    reviewMode = "quiz";
+    quizData = []; quizIdx = 0; quizScore = 0;
+    currentQueue = []; queueTotal = 0;
+    renderQuiz(a);
+    return;
+  }
+  // "Allflash" mode: free browse (all words, no SRS)
+  currentQueue=[]; queueTotal=0; sessionDone=false;
+  typedResult=null; flashFlipped=false; undoData=null;
+  cardStep=0; cardSteps=[];
+  clearTimeout(undoTimer);
+  renderReview("practiceArea");
+}
+
+let _savedReview = null; // {reviewMode, freePractice, allSub} captured at Practice entry
+function saveReviewState(){
+  if(_savedReview) return; // already saved
+  _savedReview = { reviewMode: reviewMode, freePractice: freePractice, allSub: allSub };
+}
+function restoreReviewState(){
+  if(!_savedReview) return;
+  reviewMode = _savedReview.reviewMode;
+  freePractice = _savedReview.freePractice;
+  allSub = _savedReview.allSub;
+  _savedReview = null;
+}
+
+function refreshPracticeChrome(){
+  // Update active button in mode row
+  const r = document.getElementById("practiceModeRow");
+  if(r){
+    const pm = state.practiceMode || "allflash";
+    r.querySelectorAll("button[data-act='practicemode']").forEach(function(b){
+      const on = b.dataset.mode === pm;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-selected", on ? "true" : "false");
+    });
+  }
+  // Update active button in scope row
+  const s = document.getElementById("practiceScopeRow");
+  if(s){
+    s.querySelectorAll("button[data-act='practicescope']").forEach(function(b){
+      const on = b.dataset.scope === state.reviewScope;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-selected", on ? "true" : "false");
+    });
+  }
+}
+
+function refreshPracticeIntro(){
+  const el = document.getElementById("practiceIntro");
+  if(!el) return;
+  const pm = state.practiceMode || "allflash";
+  const key = pm==="listen" ? "practice_listen_intro"
+            : pm==="quiz"  ? "practice_quiz_intro"
+            : "practice_allflash_intro";
+  el.textContent = t(key);
+}
+
+/* Stable id of the word currently tracked by cardSteps / cardStep.
+   Used by renderReview to detect queue head changes and re-resolve steps. */
+function wkeyOfCardStep(){
+  // The "owner" of cardSteps is always the queue head when cardStep is at 0.
+  // For non-zero cardStep we may have already shifted; in that case the caller
+  // still compares against the new head (a new word) and will re-resolve.
+  if(currentQueue.length===0) return null;
+  return wkey(currentQueue[0]);
 }
 function renderSessionSummary(a){
   sessionDone=true;
@@ -2106,8 +2616,12 @@ function renderQuiz(a){
       <div class="revprog"><div class="revprogbar" style="width:${pct}%"></div></div>
     </div>
     <div class="flash" style="background:linear-gradient(135deg,#fff,#eef3ff);">
-      <div class="def" style="font-size:20px;">${state.lang==='en'?"\u201C"+q.def+"\u201D":"\u300C"+q.def+"\u300D"}</div>
-      <div class="exzh" style="color:var(--muted);margin-top:8px;font-size:14px;">${q.ex}</div>
+      <div class="def" style="font-size:20px;" data-word="${esc(q.word)}">${
+        (q.def && q.def.length)
+          ? (state.lang==='en'?"\u201C"+q.def+"\u201D":"\u300C"+q.def+"\u300D")
+          : `<span style="color:var(--muted);">⚠ 缺释义 → </span><b style="color:var(--ink);" data-act="reportEmpty" data-word="${esc(q.word)}">${esc(q.word)}</b>`
+      }</div>
+      <div class="exzh" style="color:var(--muted);margin-top:8px;font-size:14px;">${q.ex||""}</div>
     </div>
     <div style="margin-top:14px;">
       ${q.options.map((o,oi)=>`<div class="opt" role="button" tabindex="0" data-act="quizopt" data-oi="${oi}">${esc(o)}</div>`).join("")}
@@ -2124,8 +2638,22 @@ function rateFlash(word,q){
   const prev=state.flashcards[key] ? JSON.parse(JSON.stringify(state.flashcards[key])) : null;
   const iv=previewInterval(word, parseInt(q));
   rateCard(word, parseInt(q));
+  logHistory(key, parseInt(q), "flash");
+  /* State machine: if there is a next step for this card (e.g., context step
+     after flash), keep the queue and advance to the next step instead of
+     shifting the queue head. */
+  if(advanceCardStep()){
+    flashFlipped=false;
+    renderReview();
+    if(!freePractice){
+      const label=(q==0?t('rate_forget'):(q==3?t('rate_ok'):t('rate_easy')))+(iv?" · "+iv:"");
+      setUndo(word, key, label, prev);
+    }
+    return;
+  }
   currentQueue.shift();
   flashFlipped=false;
+  cardStep=0; cardSteps=[];
   renderReview(); renderMe();
   if(!freePractice){
     const label=(q==0?t('rate_forget'):(q==3?t('rate_ok'):t('rate_easy')))+(iv?" · "+iv:"");
@@ -2152,7 +2680,7 @@ function editDist(a,b){
   return prev[n];
 }
 function checkTyped(word){
-  const inp=document.querySelector("#reviewArea .typeInput");
+  const inp=document.querySelector("#" + currentReviewAreaId() + " .typeInput");
   if(!inp) return;
   const w=findWordGlobal(word); if(!w) return;
   const target=String(w.word).toLowerCase();
@@ -2162,17 +2690,24 @@ function checkTyped(word){
     if(freePractice) return;
     const prev=state.flashcards[key] ? JSON.parse(JSON.stringify(state.flashcards[key])) : null;
     rateCard(w.word, q);
+    logHistory(key, q, "typed");
     setUndo(w.word, key, (q===3?t('rate_ok'):t('rate_forget'))+" · "+previewInterval(w.word,q), prev);
   };
+  /* State machine: only the FIRST step of a card grades the schedule.
+     Subsequent steps (e.g., context after flash) are reinforcement rounds —
+     they check the typed answer, show it, and let the user move on, but
+     they do NOT rate the card again. This avoids double-counting when a
+     multi-step sequence like flash_context runs. */
+  const isFirstStep = cardStep === 0;
   if(guess===target){
     typedResult={word:w.word, correct:true, near:false, guess:inp.value};
-    gradeUndo(3); // typed correct → standard "Okay" step
+    if(isFirstStep) gradeUndo(3); // typed correct → standard "Okay" step
   } else if(Math.abs(guess.length-target.length)<=1 && editDist(guess,target)<=1){
     // near-miss: retry WITHOUT rating — the card is neither advanced nor reset
     typedResult={word:w.word, correct:false, near:true, guess:inp.value};
   } else {
     typedResult={word:w.word, correct:false, near:false, guess:inp.value};
-    gradeUndo(0); // wrong → reset like "Forgot"
+    if(isFirstStep) gradeUndo(0); // wrong → reset like "Forgot"
   }
   renderReview();
   renderMe();
@@ -2180,16 +2715,26 @@ function checkTyped(word){
 function typedEnter(ev){
   if(ev.key!=="Enter") return;
   ev.preventDefault();
-  const b=document.querySelector('#reviewArea [data-act="checkTyped"]') || document.querySelector('#reviewArea [data-act="typedNext"]');
+  const aid = currentReviewAreaId();
+  const b=document.querySelector('#' + aid + ' [data-act="checkTyped"]') || document.querySelector('#' + aid + ' [data-act="typedNext"]');
   if(b) b.click();
 }
 function typedNext(){
+  /* State machine: if there are more steps for this card, advance; otherwise
+     shift the queue. This handles the multi-step flow where context comes
+     after flash / productive — typedNext keeps the same word on screen. */
+  if(advanceCardStep()){
+    typedResult=null;
+    renderReview();
+    return;
+  }
   currentQueue.shift();
   typedResult=null;
+  cardStep=0; cardSteps=[];
   renderReview();
 }
 function typeHint(word){
-  const inp=document.querySelector("#reviewArea .typeInput");
+  const inp=document.querySelector("#" + currentReviewAreaId() + " .typeInput");
   const w=findWordGlobal(word);
   if(!w || !inp) return;
   inp.value=String(w.word).charAt(0);
@@ -2199,9 +2744,11 @@ function revealAnswer(word){
   const w=findWordGlobal(word);
   if(!w) return;
   typedResult={word:w.word, correct:false, near:false, guess:""};
-  if(!freePractice){
+  /* Only the first step of a multi-step sequence grades the schedule. */
+  if(!freePractice && cardStep===0){
     const prev=state.flashcards[wkey(w.word)] ? JSON.parse(JSON.stringify(state.flashcards[wkey(w.word)])) : null;
     rateCard(w.word,0);
+    logHistory(wkey(w.word), 0, "reveal");
     setUndo(w.word, wkey(w.word), t('rate_forget')+" · "+previewInterval(w.word,0), prev);
   }
   renderReview(); renderMe();
@@ -2234,7 +2781,7 @@ function buildQuiz(n){
 function quizAnswer(oi){
   const q=quizData[quizIdx];
   if(!q) return;
-  const opts=document.querySelectorAll("#reviewArea .opt");
+  const opts=document.querySelectorAll("#" + currentReviewAreaId() + " .opt");
   const chosen=q.options[oi];
   opts.forEach((o,idx)=>{
     o.style.pointerEvents="none";
@@ -2277,7 +2824,7 @@ function renderChart(){
     </linearGradient></defs>${bars}</svg>`;
 }
 function renderMe(){
-  document.getElementById("streakN").textContent=state.streak.count;
+  document.getElementById("streakN").textContent=progLabel();
   document.getElementById("statsBox").innerHTML=`
     <div class="stat"><div class="n">${learnedActive()}</div><div class="l">${t('s_words')}</div></div>
     <div class="stat"><div class="n">${state.streak.count}</div><div class="l">${t('s_streak')}</div></div>
@@ -2325,6 +2872,9 @@ function renderMe(){
 
   // content pack card
   renderPackCard();
+
+  // forget-imported-pack visibility (only when an imported pack is present)
+  renderForgetImported();
 
   // notes
   const na=document.getElementById("notesArea");
@@ -2388,6 +2938,49 @@ function bindImport(){
     };
     r.readAsText(f);
   });
+}
+
+/* Show the "Forget imported pack" panel ONLY when an imported pack is present.
+   Cheap (no innerHTML); called from renderMe() so it follows every state change. */
+function renderForgetImported(){
+  const box=document.getElementById("forgetImportedBox"); if(!box) return;
+  const ip=state.importedPack;
+  const hasImported = !!(ip && typeof ip==="object" && Array.isArray(ip.words));
+  box.style.display = hasImported ? "block" : "none";
+}
+
+/* Remove the imported pack from PACKS, PACK_META, and localStorage — and
+   refresh everything that depended on it. Official packs and learning
+   progress are untouched. */
+function forgetImportedPack(){
+  const ip=state.importedPack;
+  if(!ip){ return; }
+  if(!confirm(t('forget_imported_confirm'))) return;
+
+  // find the imported pack's id; fall back to first PACK_META entry that is imported:true
+  let importedId = ip.id || (PACK_META.find(function(m){return m.imported;})||{}).id;
+  if(!importedId){ importedId = "imported"; }
+
+  // 1) remove from PACKS (so it never enters any global pool / CROSS_DICT again)
+  if(PACKS[importedId]){ delete PACKS[importedId]; }
+
+  // 2) remove from PACK_META so the dropdown forgets it
+  PACK_META = PACK_META.filter(function(m){ return m.id !== importedId; });
+
+  // 3) if the active pack happens to be the imported one, fall back to 'general'
+  if(state.activePack === importedId){
+    state.activePack = "general";
+    state.reviewScope = "pack";   // reviewScope "all" would still pull from PACKS, but 'pack' is safest
+  }
+
+  // 4) clear the stored source & invalidate caches that depended on PACKS
+  state.importedPack = null;
+  globalWordsCache = null; learnedKeySetCache = null; ctxIdxReady = false;
+
+  saveState();
+  applyPack(PACKS[state.activePack] || BUILTIN_GENERAL);
+  renderAll();
+  toast(t('toast_forget_imported'));
 }
 
 /* ===================== CONTENT PACK UI ===================== */
@@ -2458,12 +3051,17 @@ function switchTab(target){
     b.classList.toggle("active", on);
     b.setAttribute("aria-selected", on?"true":"false");
   });
+  // If leaving the Practice tab, restore the review state snapshot taken at entry
+  if(_lastTab==="practice" && target!=="practice") restoreReviewState();
+  _lastTab = target;
   if(target==="plan") renderPlan();
   if(target==="daily") refreshDaily();
   if(target==="reading") refreshReading();
   if(target==="review") renderReview();
+  if(target==="practice") renderPractice();
   if(target==="me") renderMe();
 }
+let _lastTab = null;
 
 /* ===================== A11Y SETUP ===================== */
 function setupA11y(){
@@ -2533,6 +3131,13 @@ document.addEventListener("click", function(e){
     case "listenWord": listenStop(); openWordPopup(resolveWord(word, currentReading()), word); break;
     case "wordpopup": openWordPopup(resolveWord(word, currentReading()), word); break;
     case "closeModal": closeWordPopup(); break;
+    case "cardSettings": openCardSettings(word, function(){
+      if(_lastTab==="daily") refreshDaily();
+      else if(_lastTab==="practice") renderPractice();
+      else renderReview();
+    }); break;
+    case "saveCardSettings": saveCardSettings(); break;
+    case "closeCardSettings": closeCardSettings(); break;
     case "learnFromPopup":
       learnWord(word);
       el.textContent = isLearned(word)? t('learned_btn'):t('learn_btn');
@@ -2552,6 +3157,7 @@ document.addEventListener("click", function(e){
       reviewMode=el.dataset.mode;
       currentQueue=[]; queueTotal=0; sessionDone=false; freePractice=false;
       typedResult=null; flashFlipped=false; undoData=null;
+      cardStep=0; cardSteps=[];
       clearTimeout(undoTimer);
       if(reviewMode==="allflash") allSub="learned";
       if(reviewMode==="quiz") quizData=[];
@@ -2562,20 +3168,43 @@ document.addEventListener("click", function(e){
       state.reviewScope=el.dataset.scope; saveState();
       currentQueue=[]; queueTotal=0; sessionDone=false; freePractice=false;
       typedResult=null; flashFlipped=false; undoData=null;
+      cardStep=0; cardSteps=[];
       clearTimeout(undoTimer);
       if(reviewMode==="allflash") allSub="learned";
       if(reviewMode==="quiz") quizData=[];
       renderReview(); renderMe();
       break;
     case "allsub":
-      allSub=el.dataset.sub; currentQueue=[]; queueTotal=0; renderReview();
+      allSub=el.dataset.sub; currentQueue=[]; queueTotal=0; cardStep=0; cardSteps=[]; renderReview();
+      break;
+    case "practicemode":
+      listenStop();
+      state.practiceMode = el.dataset.mode; saveState();
+      if(state.practiceMode==="allflash" && state.reviewScope==="all") allSub="all";
+      currentQueue=[]; queueTotal=0; sessionDone=false; freePractice=true;
+      typedResult=null; flashFlipped=false; undoData=null;
+      cardStep=0; cardSteps=[];
+      clearTimeout(undoTimer);
+      if(state.practiceMode==="quiz") quizData=[];
+      renderPractice();
+      break;
+    case "practicescope":
+      listenStop();
+      state.reviewScope=el.dataset.scope; saveState();
+      currentQueue=[]; queueTotal=0; sessionDone=false; freePractice=true;
+      typedResult=null; flashFlipped=false; undoData=null;
+      cardStep=0; cardSteps=[];
+      clearTimeout(undoTimer);
+      if(state.practiceMode==="quiz") quizData=[];
+      renderPractice(); renderMe();
       break;
     case "freePractice":
-      freePractice=true; sessionDone=false; currentQueue=[]; queueTotal=0; renderReview();
+      freePractice=true; sessionDone=false; currentQueue=[]; queueTotal=0; cardStep=0; cardSteps=[]; renderReview();
       break;
     case "gotoAll":
       reviewMode="allflash"; freePractice=false; sessionDone=false;
       currentQueue=[]; queueTotal=0; flashFlipped=false; typedResult=null;
+      cardStep=0; cardSteps=[];
       if(state.reviewScope==="all") allSub="learned";
       renderReview();
       break;
@@ -2589,11 +3218,12 @@ document.addEventListener("click", function(e){
       // free practice: advance without touching the spaced-repetition schedule
       currentQueue.shift();
       flashFlipped=false;
+      cardStep=0; cardSteps=[];
       renderReview();
       break;
     case "undoRate": undoRate(); break;
-    case "againSummary": sessionDone=false; currentQueue=[]; queueTotal=0; renderReview(); break;
-    case "doneSummary": sessionDone=true; queueTotal=0; currentQueue=[]; renderReview(); break;
+    case "againSummary": sessionDone=false; currentQueue=[]; queueTotal=0; cardStep=0; cardSteps=[]; renderReview(); break;
+    case "doneSummary": sessionDone=true; queueTotal=0; currentQueue=[]; cardStep=0; cardSteps=[]; renderReview(); break;
     case "quizopt": quizAnswer(parseInt(el.dataset.oi)); break;
     case "restartQuiz": quizData=[]; renderReview(); break;
     case "listenToggle": listenToggle(); break;
@@ -2603,6 +3233,7 @@ document.addEventListener("click", function(e){
     case "exportData": exportData(); break;
     case "importData": importData(); break;
     case "importPack": importPack(); break;
+    case "forgetImported": forgetImportedPack(); break;
     case "toggleLang": toggleLang(); break;
     case "resetData":
       if(confirm(t('confirm_clear'))){
@@ -2660,8 +3291,17 @@ document.getElementById("remindTime").addEventListener("change", function(){
 })();
 /* word popup: tap outside the card closes it */
 document.getElementById("wordModal").addEventListener("click", function(e){ if(e.target===this) closeWordPopup(); });
+/* card settings modal: same outside-tap-close pattern */
+document.getElementById("cardSettingsModal").addEventListener("click", function(e){ if(e.target===this) closeCardSettings(); });
 /* Modal a11y: Esc closes; Tab is trapped inside the dialog while open. */
 document.addEventListener("keydown", function(e){
+  // Esc on either modal closes it
+  if(e.key==="Escape"){
+    const wm=document.getElementById("wordModal");
+    const cm=document.getElementById("cardSettingsModal");
+    if(wm && wm.classList.contains("show")){ e.preventDefault(); closeWordPopup(); return; }
+    if(cm && cm.classList.contains("show")){ e.preventDefault(); closeCardSettings(); return; }
+  }
   const m=document.getElementById("wordModal");
   if(!m || !m.classList.contains("show")) return;
   if(e.key==="Escape"){ e.preventDefault(); closeWordPopup(); return; }
@@ -2708,7 +3348,7 @@ async function init(){
   await loadContent();
   // record open as activity touch (light) - keep streak alive only if already today
   applyI18n();
-  document.getElementById("streakN").textContent=state.streak.count;
+  document.getElementById("streakN").textContent=progLabel();
   renderPlan();
   refreshDaily();
   refreshReading();

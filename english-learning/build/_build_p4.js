@@ -1,8 +1,10 @@
 /* Build Phase 4 pack (freq-4k) from the 800 generated words (NAWL tail 801-956
    + 644 COCA 3000-5000 band) + 12 B2 readings.
    Guarantees: (1) every blue word is a taught Phase 4 word;
-   (2) every Phase 1+2+3 taught word reappears at least once as plain text
-       (spiraling) — missing ones are appended as review tails. */
+   (2) earlier-taught (Phase 1+2) words that appear NATURALLY in a reading are
+       rendered as blue CROSS_DICT popups (spiraling). Per Option F (2026-08-30)
+       no forced "🔁 Review:" tail is appended — cross-phase review is the
+       learner's own flashcards, and the app skips the tail anyway. */
 const fs = require("fs");
 const path = require("path");
 const DIR = "C:/Users/frank/WorkBuddy/workbuddy/english-learning";
@@ -46,12 +48,14 @@ readings.forEach((r,i)=>{
   });
 });
 
-/* ---- recycling: cover every Phase 1+2 TAUGHT WORD (lemma) at least once ----
-   NOTE: the approved plan mentioned P1+P2+P3 (1251 words), but 12 B2 readings
-   (~250 words each) cannot naturally contain ~800 NAWL academic words from P3;
-   force-appending them as review tails would bloat every reading to 330+ words.
-   We therefore recycle P1+P2 (the same scope P3 used successfully) so readings
-   stay inside the 240-300 window. P3's NAWL words remain in the P3 pack. */
+/* ---- recycling: earlier-taught words that appear NATURALLY are blue popups ----
+   Option F (2026-08-30): cross-phase review is handled by the learner's own
+   flashcards, NOT by forced reading tails. We therefore ONLY count natural
+   coverage here (for the log) and append nothing. The approved plan once
+   targeted P1+P2+P3 (1251 words), but 12 B2 readings (~250 words each) cannot
+   naturally hold ~800 NAWL words from P3 anyway, and force-appending them would
+   bloat readings past the 240-300 window. P3's NAWL words stay consolidated in
+   the Phase 3 pack; whatever P1+P2 words surface naturally still get blue popups. */
 function taughtWordsOf(file){
   const p = JSON.parse(fs.readFileSync(path.join(DIR,"content",file),"utf8"));
   return p.words.filter(w=>w.def).map(w=>w.word.toLowerCase());
@@ -83,23 +87,12 @@ function coveredTaught(){
   });
   return cov;
 }
+// Option F (2026-08-30): no forced tail. Count natural coverage for the log only.
 let cov = coveredTaught();
 const missing = taughtList.filter(w=>!cov.has(w));
-if(missing.length){
-  // distribute missing taught words into review tails across readings
-  const per = Math.ceil(missing.length / readings.length);
-  let idx = 0;
-  for(let ri=0; ri<readings.length && idx<missing.length; ri++){
-    const chunk = missing.slice(idx, idx+per); idx += per;
-    readings[ri].text += "\n🔁 Review: " + chunk.join(", ") + ".";
-  }
-  cov = coveredTaught();
-  const still = taughtList.filter(w=>!cov.has(w));
-  if(still.length) bad("RECYCLING: "+still.length+" earlier taught words still not covered: "+still.slice(0,20).join(","));
-  console.log("Recycling: covered "+(taughtList.length - still.length)+"/"+taughtList.length+" earlier taught words");
-} else {
-  console.log("Recycling: all "+taughtList.length+" earlier taught words already appear naturally");
-}
+console.log("Recycling (natural only, Option F): "+cov.size+"/"+taughtList.length+
+  " earlier taught words appear naturally ("+(100*cov.size/taughtList.length).toFixed(1)+"%); "+
+  missing.length+" reinforced via flashcards.");
 
 /* ---- build readings JSON (vocab from p4) ---- */
 const readingsJSON = readings.map(r=>{
@@ -128,8 +121,8 @@ const areaLabel = {
 };
 const pack = {
   id:"freq4k", name:"高频词·第4阶 (COCA 学术拓展)", nameEn:"High-Frequency 4 (COCA expansion)",
-  desc:"基于 COCA 3000–5000 高频段 + NAWL 学术词尾部（共 800 词）：12 篇 B2 分级阅读，每篇 3 道题。并循环复现第 1–3 阶已学词。蓝词即每日重点。",
-  descEn:"Phase 4 on the COCA 3000–5000 band plus the NAWL academic tail (800 words total): 12 B2 graded readings, each 3 questions. Recycles every Phase 1–3 taught word. Blue words are the daily focus.",
+  desc:"基于 COCA 3000–5000 高频段 + NAWL 学术词尾部（共 800 词）：12 篇 B2 分级阅读，每篇 3 道题。阅读中自然复现的第 1–2 阶词以蓝词呈现（点击看释义/发音）；跨阶段复习由你的生词卡完成。蓝词即每日重点。",
+  descEn:"Phase 4 on the COCA 3000–5000 band plus the NAWL academic tail (800 words total): 12 B2 graded readings, each 3 questions. Phase 1–2 words that surface naturally are blue popups (tap for meaning/audio); cross-phase review is handled by your own flashcards. Blue words are the daily focus.",
   words:words, readings:readingsJSON, areaTasks:areaTasks, areaLabel:areaLabel
 };
 const out = JSON.stringify(pack, null, 1);

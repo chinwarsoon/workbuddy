@@ -1,0 +1,702 @@
+[
+ {
+  "word": "article",
+  "def": "文章",
+  "defEn": "nonfictional prose forming an independent part of a publication",
+  "pos": "n.",
+  "ipa": "/'ɑ:tikl/"
+ },
+ {
+  "word": "attack",
+  "def": "攻击",
+  "defEn": "(military) an offensive against an enemy (using weapons)",
+  "pos": "n.",
+  "ipa": "/ə'tæk/"
+ },
+ {
+  "word": "surprise",
+  "def": "惊奇",
+  "defEn": "the astonishment you feel when something totally unexpected happens to you",
+  "pos": "n.",
+  "ipa": "/sə'praiz/"
+ },
+ {
+  "word": "factor",
+  "def": "因素",
+  "defEn": "anything that contributes causally to a result",
+  "pos": "n.",
+  "ipa": "/'fæktə/"
+ },
+ {
+  "word": "pretty",
+  "def": "漂亮的",
+  "defEn": "a common English word.",
+  "pos": "adj.",
+  "ipa": "/'priti/"
+ },
+ {
+  "word": "affect",
+  "def": "影响",
+  "defEn": "the conscious subjective aspect of feeling or emotion",
+  "pos": "n.",
+  "ipa": "/ə'fekt/"
+ },
+ {
+  "word": "drop",
+  "def": "滴",
+  "defEn": "a shape that is spherical and small",
+  "pos": "n.",
+  "ipa": "/drɒp/"
+ },
+ {
+  "word": "recent",
+  "def": "最近的",
+  "defEn": "a common English word.",
+  "pos": "adj.",
+  "ipa": "/'ri:snt/"
+ },
+ {
+  "word": "relate",
+  "def": "讲",
+  "defEn": "give an account of",
+  "pos": "v.",
+  "ipa": "/ri'leit/"
+ },
+ {
+  "word": "official",
+  "def": "官员",
+  "defEn": "a worker who holds or is invested with an office",
+  "pos": "n.",
+  "ipa": "/ə'fiʃəl/"
+ },
+ {
+  "word": "financial",
+  "def": "财政的",
+  "defEn": "a involving financial matters",
+  "pos": "adj.",
+  "ipa": "/fai'nænʃəl/"
+ },
+ {
+  "word": "miss",
+  "def": "失误",
+  "defEn": "a failure to hit (or meet or find etc)",
+  "pos": "n.",
+  "ipa": "/mis/"
+ },
+ {
+  "word": "art",
+  "def": "艺术",
+  "defEn": "the products of human creativity; works of art collectively",
+  "pos": "n.",
+  "ipa": "/ɑ:t/"
+ },
+ {
+  "word": "campaign",
+  "def": "战役",
+  "defEn": "a series of actions advancing a principle or tending toward a particular end",
+  "pos": "n.",
+  "ipa": "/kæm'pein/"
+ },
+ {
+  "word": "private",
+  "def": "私人的",
+  "defEn": "personal; not public",
+  "pos": "n.",
+  "ipa": "/'praivit/"
+ },
+ {
+  "word": "pause",
+  "def": "暂停",
+  "defEn": "a time interval during which there is a temporary cessation of something",
+  "pos": "n.",
+  "ipa": "/pɒ:z/"
+ },
+ {
+  "word": "everyone",
+  "def": "每个人",
+  "defEn": "Everybody; -- commonly separated, every one",
+  "pos": "n.",
+  "ipa": "/'evriwʌn/"
+ },
+ {
+  "word": "forget",
+  "def": "忘记",
+  "defEn": "dismiss from the mind; stop remembering",
+  "pos": "v.",
+  "ipa": "/fə'get/"
+ },
+ {
+  "word": "page",
+  "def": "页",
+  "defEn": "one side of one leaf (of a book or magazine or newspaper or letter etc.) or the written or pictorial matter it contains",
+  "pos": "n.",
+  "ipa": "/peidʒ/"
+ },
+ {
+  "word": "worry",
+  "def": "担心",
+  "defEn": "a strong feeling of anxiety",
+  "pos": "n.",
+  "ipa": "/'wʌri/"
+ },
+ {
+  "word": "represent",
+  "def": "表现",
+  "defEn": "take the place of or be parallel or equivalent to",
+  "pos": "v.",
+  "ipa": "/.repri'zent/"
+ },
+ {
+  "word": "key",
+  "def": "钥匙",
+  "defEn": "metal device shaped in such a way that when it is inserted into the appropriate lock the lock's mechanism can be rotated",
+  "pos": "n.",
+  "ipa": "/ki:/"
+ },
+ {
+  "word": "inside",
+  "def": "内部",
+  "defEn": "the region that is inside of something",
+  "pos": "n.",
+  "ipa": "/'in'said/"
+ },
+ {
+  "word": "international",
+  "def": "国际的",
+  "defEn": "any of several international socialist organizations",
+  "pos": "n.",
+  "ipa": "/.intə'næʃənəl/"
+ },
+ {
+  "word": "contain",
+  "def": "包含",
+  "defEn": "be divisible by",
+  "pos": "v.",
+  "ipa": "/kən'tein/"
+ },
+ {
+  "word": "notice",
+  "def": "注意",
+  "defEn": "an announcement containing information about an event",
+  "pos": "n.",
+  "ipa": "/'nəutis/"
+ },
+ {
+  "word": "wonder",
+  "def": "奇迹",
+  "defEn": "the feeling aroused by something strange and surprising",
+  "pos": "n.",
+  "ipa": "/'wʌndə/"
+ },
+ {
+  "word": "nature",
+  "def": "自然",
+  "defEn": "the essential qualities or characteristics by which something is recognized",
+  "pos": "n.",
+  "ipa": "/'neitʃə/"
+ },
+ {
+  "word": "structure",
+  "def": "结构",
+  "defEn": "a thing constructed; a complex entity constructed of many parts",
+  "pos": "n.",
+  "ipa": "/'strʌktʃə/"
+ },
+ {
+  "word": "section",
+  "def": "区段",
+  "defEn": "a self-contained part of a larger composition (written or musical)",
+  "pos": "n.",
+  "ipa": "/'sekʃən/"
+ },
+ {
+  "word": "myself",
+  "def": "我自己",
+  "defEn": "I or me in person; -- used for emphasis, my own self or",
+  "pos": "pron.",
+  "ipa": "/mai'self/"
+ },
+ {
+  "word": "exactly",
+  "def": "确切地",
+  "defEn": "r indicating exactness or preciseness",
+  "pos": "adv.",
+  "ipa": "/i^'zæktli/"
+ },
+ {
+  "word": "paint",
+  "def": "油漆",
+  "defEn": "a substance used as a coating to protect or decorate a surface (especially a mixture of pigment suspended in a",
+  "pos": "n.",
+  "ipa": "/peint/"
+ },
+ {
+  "word": "worker",
+  "def": "工人",
+  "defEn": "a person who works at a specific occupation",
+  "pos": "n.",
+  "ipa": "/'wə:kə/"
+ },
+ {
+  "word": "press",
+  "def": "压",
+  "defEn": "the print media responsible for gathering and publishing news in the form of newspapers or magazines",
+  "pos": "n.",
+  "ipa": "/pres/"
+ },
+ {
+  "word": "whatever",
+  "def": "无论什么",
+  "defEn": "s one or some or every or all without specification",
+  "pos": "pron.",
+  "ipa": "/hwɒt'evə/"
+ },
+ {
+  "word": "region",
+  "def": "区域",
+  "defEn": "the extended spatial location of something",
+  "pos": "n.",
+  "ipa": "/'ri:dʒən/"
+ },
+ {
+  "word": "evening",
+  "def": "傍晚",
+  "defEn": "the latter part of the day (the period of decreasing daylight from late afternoon until nightfall)",
+  "pos": "n.",
+  "ipa": "/'i:vniŋ/"
+ },
+ {
+  "word": "influence",
+  "def": "影响力",
+  "defEn": "a power to affect persons or events especially power based on prestige etc",
+  "pos": "n.",
+  "ipa": "/'influəns/"
+ },
+ {
+  "word": "respect",
+  "def": "尊敬",
+  "defEn": "(usually preceded by `in') a detail or point",
+  "pos": "n.",
+  "ipa": "/ri'spekt/"
+ },
+ {
+  "word": "various",
+  "def": "不同的",
+  "defEn": "s of many different kinds purposefully arranged but lacking any uniformity",
+  "pos": "adj.",
+  "ipa": "/'vєəriəs/"
+ },
+ {
+  "word": "catch",
+  "def": "捕捉",
+  "defEn": "a drawback or difficulty that is not readily evident",
+  "pos": "n.",
+  "ipa": "/kætʃ/"
+ },
+ {
+  "word": "skill",
+  "def": "技术",
+  "defEn": "an ability that has been acquired by training",
+  "pos": "n.",
+  "ipa": "/'skil/"
+ },
+ {
+  "word": "attempt",
+  "def": "尝试",
+  "defEn": "earnest and conscientious activity intended to do or accomplish something",
+  "pos": "n.",
+  "ipa": "/ə'tempt/"
+ },
+ {
+  "word": "son",
+  "def": "儿子",
+  "defEn": "a male human offspring",
+  "pos": "n.",
+  "ipa": "/sʌn/"
+ },
+ {
+  "word": "simple",
+  "def": "简单的",
+  "defEn": "any herbaceous plant having medicinal properties",
+  "pos": "n.",
+  "ipa": "/'simpl/"
+ },
+ {
+  "word": "medium",
+  "def": "媒体",
+  "defEn": "a means or instrumentality for storing or communicating information",
+  "pos": "n.",
+  "ipa": "/'mi:diəm/"
+ },
+ {
+  "word": "average",
+  "def": "平均",
+  "defEn": "a statistic describing the location of a distribution",
+  "pos": "n.",
+  "ipa": "/'ævəridʒ/"
+ },
+ {
+  "word": "stock",
+  "def": "树干",
+  "defEn": "the capital raised by a corporation through the issue of shares entitling holders to an ownership interest (equity)",
+  "pos": "n.",
+  "ipa": "/stɒk/"
+ },
+ {
+  "word": "management",
+  "def": "经营",
+  "defEn": "the act of managing something",
+  "pos": "n.",
+  "ipa": "/'mænidʒmənt/"
+ },
+ {
+  "word": "hit",
+  "def": "打击",
+  "defEn": "(baseball) a successful stroke in an athletic contest (especially in baseball)",
+  "pos": "n.",
+  "ipa": "/hit/"
+ },
+ {
+  "word": "establish",
+  "def": "建立",
+  "defEn": "set up or found",
+  "pos": "v.",
+  "ipa": "/i'stæbliʃ/"
+ },
+ {
+  "word": "indeed",
+  "def": "的确",
+  "defEn": "truly; without doubt",
+  "pos": "adv.",
+  "ipa": "/in'di:d/"
+ },
+ {
+  "word": "final",
+  "def": "期末考试",
+  "defEn": "the final match between the winners of all previous matches in an elimination tournament",
+  "pos": "n.",
+  "ipa": "/'fainl/"
+ },
+ {
+  "word": "economy",
+  "def": "经济",
+  "defEn": "the system of production and distribution and consumption",
+  "pos": "n.",
+  "ipa": "/i'kɒnəmi/"
+ },
+ {
+  "word": "fit",
+  "def": "适宜",
+  "defEn": "a display of bad temper",
+  "pos": "n.",
+  "ipa": "/fit/"
+ },
+ {
+  "word": "guy",
+  "def": "家伙",
+  "defEn": "an informal term for a youth or man",
+  "pos": "n.",
+  "ipa": "/gai/"
+ },
+ {
+  "word": "function",
+  "def": "官能",
+  "defEn": "(mathematics) a mathematical relation such that each element of a given set (the domain of the function) is",
+  "pos": "n.",
+  "ipa": "/'fʌŋkʃən/"
+ },
+ {
+  "word": "yesterday",
+  "def": "昨天",
+  "defEn": "the day immediately before today",
+  "pos": "n.",
+  "ipa": "/'jestədi/"
+ },
+ {
+  "word": "image",
+  "def": "影像",
+  "defEn": "an iconic mental representation",
+  "pos": "n.",
+  "ipa": "/'imidʒ/"
+ },
+ {
+  "word": "behavior",
+  "def": "行为",
+  "defEn": "manner of acting or controlling yourself",
+  "pos": "n.",
+  "ipa": "/bi'heivjə/"
+ },
+ {
+  "word": "addition",
+  "def": "加法",
+  "defEn": "a component that is added to something to improve it",
+  "pos": "n.",
+  "ipa": "/ə'diʃən/"
+ },
+ {
+  "word": "determine",
+  "def": "决定",
+  "defEn": "establish after a calculation, investigation, experiment, survey, or study",
+  "pos": "v.",
+  "ipa": "/di'tə:min/"
+ },
+ {
+  "word": "fail",
+  "def": "失败",
+  "defEn": "fail to do something; leave something undone",
+  "pos": "v.",
+  "ipa": "/feil/"
+ },
+ {
+  "word": "environment",
+  "def": "环境",
+  "defEn": "the totality of surrounding conditions",
+  "pos": "n.",
+  "ipa": "/in'vairənmənt/"
+ },
+ {
+  "word": "production",
+  "def": "制造",
+  "defEn": "the act or process of producing something",
+  "pos": "n.",
+  "ipa": "/prə'dʌkʃən/"
+ },
+ {
+  "word": "player",
+  "def": "竞赛者",
+  "defEn": "a person who participates in or is skilled at some game",
+  "pos": "n.",
+  "ipa": "/'pleiə/"
+ },
+ {
+  "word": "comment",
+  "def": "注解",
+  "defEn": "a written explanation or criticism or illustration that is added to a book or other textual material",
+  "pos": "n.",
+  "ipa": "/'kɒment/"
+ },
+ {
+  "word": "enter",
+  "def": "进入",
+  "defEn": "to come or go into",
+  "pos": "v.",
+  "ipa": "/'entə/"
+ },
+ {
+  "word": "occur",
+  "def": "发生",
+  "defEn": "come to one's mind; suggest itself",
+  "pos": "v.",
+  "ipa": "/ə'kə:/"
+ },
+ {
+  "word": "alone",
+  "def": "孤独的",
+  "defEn": "a common English word.",
+  "pos": "adj.",
+  "ipa": "/ə'ləun/"
+ },
+ {
+  "word": "wall",
+  "def": "墙",
+  "defEn": "an architectural partition with a height and length greater than its thickness; used to divide or enclose an area or",
+  "pos": "n.",
+  "ipa": "/wɒ:l/"
+ },
+ {
+  "word": "series",
+  "def": "串联",
+  "defEn": "similar things placed in order or happening one after another",
+  "pos": "n.",
+  "ipa": "/'siəri:z/"
+ },
+ {
+  "word": "direct",
+  "def": "直接的",
+  "defEn": "command with authority",
+  "pos": "v.",
+  "ipa": "/di'rekt/"
+ },
+ {
+  "word": "tomorrow",
+  "def": "明天",
+  "defEn": "the day after today",
+  "pos": "n.",
+  "ipa": "/tə'mɒ:rəu/"
+ },
+ {
+  "word": "director",
+  "def": "主管",
+  "defEn": "someone who controls resources and expenditures",
+  "pos": "n.",
+  "ipa": "/di'rektə/"
+ },
+ {
+  "word": "clearly",
+  "def": "清楚地",
+  "defEn": "in a clear way",
+  "pos": "adv.",
+  "ipa": "/'kliəli/"
+ },
+ {
+  "word": "lack",
+  "def": "缺乏",
+  "defEn": "the state of needing something that is absent or unavailable",
+  "pos": "n.",
+  "ipa": "/læk/"
+ },
+ {
+  "word": "review",
+  "def": "检讨",
+  "defEn": "an essay or article that gives a critical evaluation (as of a book or play)",
+  "pos": "n.",
+  "ipa": "/ri'vju:/"
+ },
+ {
+  "word": "depend",
+  "def": "靠",
+  "defEn": "be contingent upon (something that is elided)",
+  "pos": "v.",
+  "ipa": "/di'pend/"
+ },
+ {
+  "word": "recognize",
+  "def": "认出",
+  "defEn": "be fully aware or cognizant of",
+  "pos": "v.",
+  "ipa": "/'rekəgnaiz/"
+ },
+ {
+  "word": "department",
+  "def": "部门",
+  "defEn": "a specialized division of a large organization",
+  "pos": "n.",
+  "ipa": "/di'pɑ:tmənt/"
+ },
+ {
+  "word": "gain",
+  "def": "增益",
+  "defEn": "the amount by which the revenue of a business exceeds its cost of operating",
+  "pos": "n.",
+  "ipa": "/gein/"
+ },
+ {
+  "word": "tree",
+  "def": "树",
+  "defEn": "a tall perennial woody plant having a main trunk and branches forming a distinct elevated crown; includes both",
+  "pos": "n.",
+  "ipa": "/tri:/"
+ },
+ {
+  "word": "college",
+  "def": "学院",
+  "defEn": "the body of faculty and students of a college",
+  "pos": "n.",
+  "ipa": "/'kɒlidʒ/"
+ },
+ {
+  "word": "argue",
+  "def": "提出理由",
+  "defEn": "present reasons and arguments",
+  "pos": "v.",
+  "ipa": "/'ɑ:gju/"
+ },
+ {
+  "word": "board",
+  "def": "木板",
+  "defEn": "a committee having supervisory powers",
+  "pos": "n.",
+  "ipa": "/bɒ:d/"
+ },
+ {
+  "word": "holiday",
+  "def": "假日",
+  "defEn": "a day on which work is suspended by law or custom",
+  "pos": "n.",
+  "ipa": "/'hɒlədi/"
+ },
+ {
+  "word": "mark",
+  "def": "标志",
+  "defEn": "a number or letter indicating quality (especially of a student's performance)",
+  "pos": "n.",
+  "ipa": "/mɑ:k/"
+ },
+ {
+  "word": "church",
+  "def": "教堂",
+  "defEn": "a building for Christian worship",
+  "pos": "n.",
+  "ipa": "/tʃə:tʃ/"
+ },
+ {
+  "word": "achieve",
+  "def": "完成",
+  "defEn": "to gain with effort",
+  "pos": "v.",
+  "ipa": "/ə'tʃi:v/"
+ },
+ {
+  "word": "item",
+  "def": "项目",
+  "defEn": "a distinct part that can be specified separately in a group of things that could be enumerated on a list",
+  "pos": "n.",
+  "ipa": "/'aitəm/"
+ },
+ {
+  "word": "prove",
+  "def": "证明",
+  "defEn": "be shown or be found to be",
+  "pos": "v.",
+  "ipa": "/pru:v/"
+ },
+ {
+  "word": "cent",
+  "def": "分",
+  "defEn": "a fractional monetary unit of several countries",
+  "pos": "n.",
+  "ipa": "/sent/"
+ },
+ {
+  "word": "stuff",
+  "def": "原料",
+  "defEn": "miscellaneous unspecified objects",
+  "pos": "n.",
+  "ipa": "/stʌf/"
+ },
+ {
+  "word": "wide",
+  "def": "宽的",
+  "defEn": "having great (or a certain) extent from one side to the other",
+  "pos": "adj.",
+  "ipa": "/waid/"
+ },
+ {
+  "word": "anyone",
+  "def": "任何人",
+  "defEn": "One taken at random rather than by selection; anybody",
+  "pos": "n.",
+  "ipa": "/'eniwʌn/"
+ },
+ {
+  "word": "method",
+  "def": "方法",
+  "defEn": "a way of doing something, especially a systematic way; implies an orderly logical arrangement (usually in steps)",
+  "pos": "n.",
+  "ipa": "/'meθəd/"
+ },
+ {
+  "word": "analysis",
+  "def": "分析",
+  "defEn": "the detailed study of something",
+  "pos": "n.",
+  "ipa": "/ə'næləsis/"
+ },
+ {
+  "word": "election",
+  "def": "选举",
+  "defEn": "a vote to select the winner of a position or political office",
+  "pos": "n.",
+  "ipa": "/i'lekʃən/"
+ }
+]

@@ -1,0 +1,91 @@
+=========================================================
+  Per-Pack Per-Word Completeness Audit (content)
+=========================================================
+
+Per-pack summary (count of words missing each field; !! = fake-complete template):
+
+pack    | total  | complete | !!tpl  | !def   | !defEn | !ex    | !exzh  | !exEn 
+--------+--------+----------+--------+--------+--------+--------+--------+-------
+freq-1k | 1056   | 558      | 0      | 0      | 0      | 498    | 498    | 498   
+freq-2k | 1879   | 1879     | 0      | 0      | 0      | 0      | 0      | 0     
+freq-3k | 956    | 956      | 164    | 0      | 0      | 0      | 0      | 0     
+freq-4k | 800    | 800      | 143    | 0      | 0      | 0      | 0      | 0     
+general | 40     | 40       | 0      | 0      | 0      | 0      | 0      | 0     
+nce2    | 97     | 97       | 0      | 0      | 0      | 0      | 0      | 0     
+nce3    | 79     | 79       | 0      | 0      | 0      | 0      | 0      | 0     
+nce4    | 65     | 65       | 0      | 0      | 0      | 0      | 0      | 0     
+
+Words appearing in 2+ packs with DIFFERENT completeness flag (D=def E=defEn X=ex Xz=exzh Xe=exEn; . = present):
+
+  27 word(s):
+    achieve        freq-1k:..EEE  nce3:.....
+    argue          freq-1k:..EEE  nce4:.....
+    attempt        freq-1k:..EEE  nce2:.....
+    bear           freq-1k:..EEE  nce2:.....
+    campaign       freq-1k:..EEE  nce3:.....
+    claim          freq-1k:..EEE  nce3:.....
+    community      freq-1k:..EEE  nce3:.....
+    conversation   freq-1k:..EEE  nce2:.....
+    effort         freq-1k:..EEE  nce3:.....
+    encourage      freq-1k:..EEE  nce3:.....
+    environment    freq-1k:..EEE  nce3:.....
+    gain           freq-1k:..EEE  nce2:.....
+    immediately    freq-1k:..EEE  nce2:.....
+    note           freq-1k:..EEE  nce2:.....
+    notice         freq-1k:..EEE  nce2:.....
+    organize       freq-1k:..EEE  nce3:.....
+    piece          freq-1k:..EEE  nce2:.....
+    private        freq-1k:..EEE  nce2:.....
+    recognize      freq-1k:..EEE  nce2:.....
+    release        freq-1k:..EEE  nce3:.....
+    seat           freq-1k:..EEE  nce2:.....
+    sign           freq-1k:..EEE  nce2:.....
+    similar        freq-1k:..EEE  nce3:.....
+    surprise       freq-1k:..EEE  nce2:.....
+    trouble        freq-1k:..EEE  nce2:.....
+    weight         freq-1k:..EEE  nce2:.....
+    worry          freq-1k:..EEE  nce2:.....
+
+!! FAKE-COMPLETE words (all fields filled, but example is a known placeholder template):
+
+  [freq-3k] 164 word(s) to fix in Phase 2:
+    - utility        ex="This utility helps explain the result." / exzh="这个utility有助于解释结果。"
+    - corpus         ex="This corpus helps explain the result." / exzh="这个corpus有助于解释结果。"
+    - methodology    ex="This methodology helps explain the result." / exzh="这个methodology有助于解释结果。"
+    - fiber          ex="This fiber helps explain the result." / exzh="这个fiber有助于解释结果。"
+    - continuity     ex="This continuity helps explain the result." / exzh="这个continuity有助于解释结果。"
+    - notation       ex="This notation helps explain the result." / exzh="这个notation有助于解释结果。"
+    - magnitude      ex="This magnitude helps explain the result." / exzh="这个magnitude有助于解释结果。"
+    - emission       ex="This emission helps explain the result." / exzh="这个emission有助于解释结果。"
+    ... and 156 more
+  [freq-4k] 143 word(s) to fix in Phase 2:
+    - incumbent      ex="This incumbent helps explain the result." / exzh="这个incumbent有助于解释结果。"
+    - credibility    ex="This credibility helps explain the result." / exzh="这个credibility有助于解释结果。"
+    - fin            ex="This fin helps explain the result." / exzh="这个fin有助于解释结果。"
+    - biologist      ex="This biologist helps explain the result." / exzh="这个biologist有助于解释结果。"
+    - ghost          ex="This ghost helps explain the result." / exzh="这个ghost有助于解释结果。"
+    - instinct       ex="This instinct helps explain the result." / exzh="这个instinct有助于解释结果。"
+    - stripe         ex="This stripe helps explain the result." / exzh="这个stripe有助于解释结果。"
+    - kilometer      ex="This kilometer helps explain the result." / exzh="这个kilometer有助于解释结果。"
+    ... and 135 more
+
+Per-pack incomplete words (each word lists which fields are empty):
+
+  [freq-1k] 498 word(s) need fix:
+    - return         missing: ex,exzh,exEn
+    - mother         missing: ex,exzh,exEn
+    - matter         missing: ex,exzh,exEn
+    - mind           missing: ex,exzh,exEn
+    - value          missing: ex,exzh,exEn
+    - record         missing: ex,exzh,exEn
+    - several        missing: ex,exzh,exEn
+    - remember       missing: ex,exzh,exEn
+    - bit            missing: ex,exzh,exEn
+    - share          missing: ex,exzh,exEn
+    - real           missing: ex,exzh,exEn
+    - figure         missing: ex,exzh,exEn
+    ... and 486 more
+
+Critical — words incomplete in EVERY pack they appear in (Option B targets):
+  count: 471
+  examples: return, mother, matter, mind, value, record, several, remember, bit, share, real, figure, decide, language, subject, development, town, half, break, clear, future, ago, remain, top, among, involve, reach, social, period, history, create, along, type, sound, political, receive, moment, sale, policy, further

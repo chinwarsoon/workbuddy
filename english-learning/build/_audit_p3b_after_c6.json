@@ -1,0 +1,240 @@
+{
+  "dir": "content",
+  "packs": [
+    "freq-1k",
+    "freq-2k",
+    "freq-3k",
+    "freq-4k",
+    "general",
+    "nce2",
+    "nce3",
+    "nce4"
+  ],
+  "totals": {
+    "freq-1k": {
+      "total": 1056,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 1056,
+        "templatedWords": 0
+      },
+      "complete": 1056,
+      "templated": 0
+    },
+    "freq-2k": {
+      "total": 1879,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 1879,
+        "templatedWords": 0
+      },
+      "complete": 1879,
+      "templated": 0
+    },
+    "freq-3k": {
+      "total": 956,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 956,
+        "templatedWords": 0
+      },
+      "complete": 956,
+      "templated": 0
+    },
+    "freq-4k": {
+      "total": 800,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 800,
+        "templatedWords": 13
+      },
+      "complete": 800,
+      "templated": 13
+    },
+    "general": {
+      "total": 40,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 40,
+        "templatedWords": 0
+      },
+      "complete": 40,
+      "templated": 0
+    },
+    "nce2": {
+      "total": 97,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 97,
+        "templatedWords": 0
+      },
+      "complete": 97,
+      "templated": 0
+    },
+    "nce3": {
+      "total": 79,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 79,
+        "templatedWords": 0
+      },
+      "complete": 79,
+      "templated": 0
+    },
+    "nce4": {
+      "total": 65,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 65,
+        "templatedWords": 0
+      },
+      "complete": 65,
+      "templated": 0
+    }
+  },
+  "crossPackDiff": [],
+  "perPackIncomplete": {
+    "freq-1k": [],
+    "freq-2k": [],
+    "freq-3k": [],
+    "freq-4k": [],
+    "general": [],
+    "nce2": [],
+    "nce3": [],
+    "nce4": []
+  },
+  "perPackTemplated": {
+    "pid": {
+      "freq-1k": 0,
+      "freq-2k": 0,
+      "freq-3k": 0,
+      "freq-4k": 13,
+      "general": 0,
+      "nce2": 0,
+      "nce3": 0,
+      "nce4": 0
+    },
+    "words": {
+      "freq-1k": [],
+      "freq-2k": [],
+      "freq-3k": [],
+      "freq-4k": [
+        {
+          "word": "ali",
+          "ex": "We studied the ali in detail.",
+          "exzh": "我们详细研究了这个ali。",
+          "exEn": "We studied the ali in detail."
+        },
+        {
+          "word": "blocked",
+          "ex": "This is a  blocked example of the method.",
+          "exzh": "这是该方法一个blocked的例子。",
+          "exEn": "This is a  blocked example of the method."
+        },
+        {
+          "word": "boards",
+          "ex": "We studied the boards in detail.",
+          "exzh": "我们详细研究了这个boards。",
+          "exEn": "We studied the boards in detail."
+        },
+        {
+          "word": "checks",
+          "ex": "We studied the checks in detail.",
+          "exzh": "我们详细研究了这个checks。",
+          "exEn": "We studied the checks in detail."
+        },
+        {
+          "word": "distributed",
+          "ex": "This is a  distributed example of the method.",
+          "exzh": "这是该方法一个distributed的例子。",
+          "exEn": "This is a  distributed example of the method."
+        },
+        {
+          "word": "documentary",
+          "ex": "We studied the documentary in detail.",
+          "exzh": "我们详细研究了这个documentary。",
+          "exEn": "We studied the documentary in detail."
+        },
+        {
+          "word": "favour",
+          "ex": "We studied the favour in detail.",
+          "exzh": "我们详细研究了这个favour。",
+          "exEn": "We studied the favour in detail."
+        },
+        {
+          "word": "giants",
+          "ex": "We studied the giants in detail.",
+          "exzh": "我们详细研究了这个giants。",
+          "exEn": "We studied the giants in detail."
+        },
+        {
+          "word": "mask",
+          "ex": "We studied the mask in detail.",
+          "exzh": "我们详细研究了这个mask。",
+          "exEn": "We studied the mask in detail."
+        },
+        {
+          "word": "saudi",
+          "ex": "We studied the saudi in detail.",
+          "exzh": "我们详细研究了这个saudi。",
+          "exEn": "We studied the saudi in detail."
+        },
+        {
+          "word": "toilet",
+          "ex": "We studied the toilet in detail.",
+          "exzh": "我们详细研究了这个toilet。",
+          "exEn": "We studied the toilet in detail."
+        },
+        {
+          "word": "vietnam",
+          "ex": "We studied the vietnam in detail.",
+          "exzh": "我们详细研究了这个vietnam。",
+          "exEn": "We studied the vietnam in detail."
+        },
+        {
+          "word": "calendar",
+          "ex": "We studied the calendar in detail.",
+          "exzh": "我们详细研究了这个calendar。",
+          "exEn": "We studied the calendar in detail."
+        }
+      ],
+      "general": [],
+      "nce2": [],
+      "nce3": [],
+      "nce4": []
+    }
+  },
+  "orphanCount": 0
+}

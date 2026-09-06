@@ -1,0 +1,1559 @@
+[
+  {
+    "word": "incumbent",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "现任的",
+    "defEn": "the official who holds an office",
+    "ipa": "/in'kʌmbənt/",
+    "pos": "n.",
+    "sampleEx": "This incumbent helps explain the result."
+  },
+  {
+    "word": "credibility",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "可信用",
+    "defEn": "the quality of being believable or trustworthy",
+    "ipa": "/.kredi'biliti/",
+    "pos": "n.",
+    "sampleEx": "This credibility helps explain the result."
+  },
+  {
+    "word": "fin",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "鳍",
+    "defEn": "a stabilizer on a ship that resembles the fin of a fish",
+    "ipa": "/fin/",
+    "pos": "n.",
+    "sampleEx": "This fin helps explain the result."
+  },
+  {
+    "word": "biologist",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "生物学家",
+    "defEn": "(biology) a scientist who studies living organisms",
+    "ipa": "/bai'ɒlədʒist/",
+    "pos": "n.",
+    "sampleEx": "This biologist helps explain the result."
+  },
+  {
+    "word": "ghost",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "鬼",
+    "defEn": "a mental representation of some haunting experience",
+    "ipa": "/gəust/",
+    "pos": "n.",
+    "sampleEx": "This ghost helps explain the result."
+  },
+  {
+    "word": "instinct",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "本能",
+    "defEn": "inborn pattern of behavior often responsive to specific stimuli",
+    "ipa": "/'instiŋkt/",
+    "pos": "n.",
+    "sampleEx": "This instinct helps explain the result."
+  },
+  {
+    "word": "stripe",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "斑纹",
+    "defEn": "a piece of braid, usually on the sleeve, indicating military rank or length of service",
+    "ipa": "/straip/",
+    "pos": "n.",
+    "sampleEx": "This stripe helps explain the result."
+  },
+  {
+    "word": "kilometer",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "千米",
+    "defEn": "a metric unit of length equal to 1000 meters (or 0.621371 miles)",
+    "ipa": "/'kiləmi:tə/",
+    "pos": "n.",
+    "sampleEx": "This kilometer helps explain the result."
+  },
+  {
+    "word": "spray",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "水沫",
+    "defEn": "a pesticide in suspension or solution; intended for spraying",
+    "ipa": "/sprei/",
+    "pos": "n.",
+    "sampleEx": "This spray helps explain the result."
+  },
+  {
+    "word": "powder",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "粉",
+    "defEn": "a solid substance in the form of tiny loose particles; a solid that has been pulverized",
+    "ipa": "/'paudə/",
+    "pos": "n.",
+    "sampleEx": "This powder helps explain the result."
+  },
+  {
+    "word": "solute",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "溶解物",
+    "defEn": "the dissolved matter in a solution; the component of a solution that changes its state",
+    "ipa": "/'sɒlju:t/",
+    "pos": "n.",
+    "sampleEx": "This solute helps explain the result."
+  },
+  {
+    "word": "portrayal",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "描绘",
+    "defEn": "a word picture of a person's appearance and character",
+    "ipa": "/pɔ:'treiəl/",
+    "pos": "n.",
+    "sampleEx": "This portrayal helps explain the result."
+  },
+  {
+    "word": "skip",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "跳跃",
+    "defEn": "a gait in which steps and hops alternate",
+    "ipa": "/skip/",
+    "pos": "n.",
+    "sampleEx": "This skip helps explain the result."
+  },
+  {
+    "word": "mentor",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "指导者",
+    "defEn": "a wise and trusted guide and advisor",
+    "ipa": "/'mentɔ:/",
+    "pos": "n.",
+    "sampleEx": "This mentor helps explain the result."
+  },
+  {
+    "word": "quiz",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "考查",
+    "defEn": "an examination consisting of a few short questions",
+    "ipa": "/kwiz/",
+    "pos": "n.",
+    "sampleEx": "This quiz helps explain the result."
+  },
+  {
+    "word": "headquarters",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "总部",
+    "defEn": "(usually plural) the office that serves as the administrative center of an enterprise",
+    "ipa": "/hed'kwɒ:təz/",
+    "pos": "n.",
+    "sampleEx": "This headquarters helps explain the result."
+  },
+  {
+    "word": "comma",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "逗点",
+    "defEn": "a punctuation mark (,) used to indicate the separation of elements within the grammatical structure of a sentence",
+    "ipa": "/'kɒmə/",
+    "pos": "n.",
+    "sampleEx": "This comma helps explain the result."
+  },
+  {
+    "word": "rope",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "绳",
+    "defEn": "a strong line",
+    "ipa": "/rəup/",
+    "pos": "n.",
+    "sampleEx": "This rope helps explain the result."
+  },
+  {
+    "word": "mole",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "痣",
+    "defEn": "spicy sauce often containing chocolate",
+    "ipa": "/məul/",
+    "pos": "n.",
+    "sampleEx": "This mole helps explain the result."
+  },
+  {
+    "word": "deflection",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "歪斜",
+    "defEn": "a twist or aberration; especially a perverse or abnormal way of judging or acting",
+    "ipa": "/di'flekʃən/",
+    "pos": "n.",
+    "sampleEx": "This deflection helps explain the result."
+  },
+  {
+    "word": "descriptor",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "描述符",
+    "defEn": "a piece of stored information that is used to identify an item in an information storage and retrieval system",
+    "ipa": "/dis'kriptə/",
+    "pos": "n.",
+    "sampleEx": "This descriptor helps explain the result."
+  },
+  {
+    "word": "reactor",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "反应者",
+    "defEn": "an electrical device used to introduce reactance into a circuit",
+    "ipa": "/ri'æktə/",
+    "pos": "n.",
+    "sampleEx": "This reactor helps explain the result."
+  },
+  {
+    "word": "cheat",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "欺骗",
+    "defEn": "a deception for profit to yourself",
+    "ipa": "/tʃi:t/",
+    "pos": "n.",
+    "sampleEx": "This cheat helps explain the result."
+  },
+  {
+    "word": "radar",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "雷达",
+    "defEn": "measuring instrument in which the echo of a pulse of microwave radiation is used to detect and locate distant objects",
+    "ipa": "/'reidə/",
+    "pos": "n.",
+    "sampleEx": "This radar helps explain the result."
+  },
+  {
+    "word": "whoever",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "任何人",
+    "defEn": "Whatever person; any person who; be or she who; any one",
+    "ipa": "/hu'evə/",
+    "pos": "pron.",
+    "sampleEx": "This whoever helps explain the result."
+  },
+  {
+    "word": "punch",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "打洞器",
+    "defEn": "(boxing) a blow with the fist",
+    "ipa": "/pʌntʃ/",
+    "pos": "n.",
+    "sampleEx": "This punch helps explain the result."
+  },
+  {
+    "word": "pardon",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "原谅",
+    "defEn": "a warrant granting release from punishment for an offense",
+    "ipa": "/'pɑ:dn/",
+    "pos": "n.",
+    "sampleEx": "This pardon helps explain the result."
+  },
+  {
+    "word": "aerosol",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "烟",
+    "defEn": "a cloud of solid or liquid particles in a gas",
+    "ipa": "/'єərəusɒl/",
+    "pos": "n.",
+    "sampleEx": "This aerosol helps explain the result."
+  },
+  {
+    "word": "scroll",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "卷轴",
+    "defEn": "a document that can be rolled up (as for storage)",
+    "ipa": "/skrəul/",
+    "pos": "n.",
+    "sampleEx": "This scroll helps explain the result."
+  },
+  {
+    "word": "entrant",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "新会员",
+    "defEn": "a commodity that enters competition with established merchandise",
+    "ipa": "/'entrənt/",
+    "pos": "n.",
+    "sampleEx": "This entrant helps explain the result."
+  },
+  {
+    "word": "demonstrator",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "论证者",
+    "defEn": "a teacher or teacher's assistant who demonstrates the principles that are being taught",
+    "ipa": "/'demənstreitə/",
+    "pos": "n.",
+    "sampleEx": "This demonstrator helps explain the result."
+  },
+  {
+    "word": "sneeze",
+    "packs": [
+      "freq-3k",
+      "freq-4k"
+    ],
+    "def": "喷嚏",
+    "defEn": "a symptom consisting of the involuntary expulsion of air from the nose",
+    "ipa": "/sni:z/",
+    "pos": "n.",
+    "sampleEx": "This sneeze helps explain the result."
+  },
+  {
+    "word": "clients",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "客户端；顾客；救济对象；应受账款；委托方（client的复数）",
+    "defEn": "n a person who seeks the advice of a lawyer",
+    "pos": "n.",
+    "sampleEx": "This clients helps explain the result."
+  },
+  {
+    "word": "covering",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "覆盖物, 掩蔽物 a. 掩护的",
+    "defEn": "a natural object that covers or envelops",
+    "ipa": "/'kʌvəriŋ/",
+    "pos": "n.",
+    "sampleEx": "This covering helps explain the result."
+  },
+  {
+    "word": "featuring",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "feature的现在分词形式",
+    "defEn": "v have as a feature",
+    "ipa": "/ˈfi:tʃərɪŋ/",
+    "pos": "n.",
+    "sampleEx": "This featuring helps explain the result."
+  },
+  {
+    "word": "governments",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "政权；政府；可转让政府证券（government的复数）",
+    "defEn": "n the organization that is the governing authority of a political unit",
+    "pos": "n.",
+    "sampleEx": "This governments helps explain the result."
+  },
+  {
+    "word": "losses",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "损失；损耗（loss的复数）",
+    "defEn": "n something lost (especially money lost at gambling)",
+    "pos": "n.",
+    "sampleEx": "This losses helps explain the result."
+  },
+  {
+    "word": "mistakes",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "错误( mistake的名词复数 ); 过失; 误解; （用词或数字上的）错误弄错, 误解( mistake的第三人称单",
+    "defEn": "n a wrong action attributable to bad judgment or ignorance or inattention",
+    "ipa": "/misˈteiks/",
+    "pos": "n.",
+    "sampleEx": "This mistakes helps explain the result."
+  },
+  {
+    "word": "waters",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "大片的水, 领海",
+    "defEn": "United States actress and singer (1896-1977)",
+    "ipa": "/'wɔ:təz/",
+    "pos": "n.",
+    "sampleEx": "This waters helps explain the result."
+  },
+  {
+    "word": "assault",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "攻击, 袭击袭击",
+    "defEn": "close fighting during the culmination of a military attack",
+    "ipa": "/ə'sɒ:t/",
+    "pos": "n.",
+    "sampleEx": "This assault helps explain the result."
+  },
+  {
+    "word": "expectations",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "希望( expectation的复数形式 ); 预料; （被）预期; 期望的事情",
+    "defEn": "belief about (or mental picture of) the future",
+    "ipa": "/ekspek'teɪʃnz/",
+    "pos": "n.",
+    "sampleEx": "This expectations helps explain the result."
+  },
+  {
+    "word": "injuries",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "伤害, 损害( injury的名词复数 ); 受伤处",
+    "defEn": "pl. of Injury",
+    "ipa": "/ˈindʒəriz/",
+    "pos": "n.",
+    "sampleEx": "This injuries helps explain the result."
+  },
+  {
+    "word": "muslims",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "穆斯林（muslim复数）",
+    "defEn": "a believer in or follower of Islam",
+    "pos": "n.",
+    "sampleEx": "This muslims helps explain the result."
+  },
+  {
+    "word": "singles",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "单打比赛",
+    "defEn": "badminton played with one person on each side",
+    "pos": "n.",
+    "sampleEx": "This singles helps explain the result."
+  },
+  {
+    "word": "wings",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "舞台两侧, 侧景",
+    "defEn": "a means of flight or ascent",
+    "pos": "n.",
+    "sampleEx": "This wings helps explain the result."
+  },
+  {
+    "word": "beating",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "打, 挫败",
+    "defEn": "the act of overcoming or outdoing",
+    "ipa": "/'bi:tiŋ/",
+    "pos": "n.",
+    "sampleEx": "This beating helps explain the result."
+  },
+  {
+    "word": "boring",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "烦人的, 无聊的",
+    "defEn": "the act of drilling a hole in the earth in the hope of producing petroleum",
+    "ipa": "/'bɒ:riŋ/",
+    "pos": "n.",
+    "sampleEx": "This boring helps explain the result."
+  },
+  {
+    "word": "containing",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "包含",
+    "defEn": "v include or contain; have as a component",
+    "pos": "n.",
+    "sampleEx": "This containing helps explain the result."
+  },
+  {
+    "word": "episodes",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "发作, 插曲（episode复数）",
+    "defEn": "n a happening that is distinctive in a series of related events",
+    "pos": "n.",
+    "sampleEx": "This episodes helps explain the result."
+  },
+  {
+    "word": "gym",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "+体育馆, 体育训练",
+    "defEn": "n athletic facility equipped for sports or physical training",
+    "ipa": "/dʒim/",
+    "pos": "n.",
+    "sampleEx": "This gym helps explain the result."
+  },
+  {
+    "word": "opens",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "打开；公开赛事；旷野（open的复数形式）",
+    "defEn": "n a clear or unobstructed space or expanse of land or water",
+    "pos": "n.",
+    "sampleEx": "This opens helps explain the result."
+  },
+  {
+    "word": "behalf",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "利益, 方面",
+    "defEn": "as the agent of or on someone's part (usually expressed as \"on behalf of\" rather than \"in behalf of\")",
+    "ipa": "/bi'hɑ:f/",
+    "pos": "n.",
+    "sampleEx": "This behalf helps explain the result."
+  },
+  {
+    "word": "cops",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "堆, 顶",
+    "defEn": "n uncomplimentary terms for a policeman",
+    "ipa": "/kɔps/",
+    "pos": "n.",
+    "sampleEx": "This cops helps explain the result."
+  },
+  {
+    "word": "entering",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "进入, 键入",
+    "defEn": "n a movement into or inward",
+    "pos": "n.",
+    "sampleEx": "This entering helps explain the result."
+  },
+  {
+    "word": "guests",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "客人；来宾（guest的复数）",
+    "defEn": "n a visitor to whom hospitality is extended",
+    "pos": "n.",
+    "sampleEx": "This guests helps explain the result."
+  },
+  {
+    "word": "hunting",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "狩猎, 猎狐",
+    "defEn": "n the pursuit and killing or capture of wild animals regarded as a sport",
+    "ipa": "/'hʌntiŋ/",
+    "pos": "n.",
+    "sampleEx": "This hunting helps explain the result."
+  },
+  {
+    "word": "kit",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "装备, 工具箱",
+    "defEn": "a case for containing a set of articles",
+    "ipa": "/kit/",
+    "pos": "n.",
+    "sampleEx": "This kit helps explain the result."
+  },
+  {
+    "word": "min",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "部长（Minister）；部（Ministry）",
+    "defEn": "any of the forms of Chinese spoken in Fukien province",
+    "pos": "n.",
+    "sampleEx": "This min helps explain the result."
+  },
+  {
+    "word": "references",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "参考文献；参照；推荐信（reference的复数）",
+    "defEn": "n a remark that calls attention to something or someone",
+    "pos": "n.",
+    "sampleEx": "This references helps explain the result."
+  },
+  {
+    "word": "supports",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "支承结构；支持；忍受；赡养（support的复数）",
+    "defEn": "n the activity of providing for or maintaining by supplying with money or necessities",
+    "pos": "n.",
+    "sampleEx": "This supports helps explain the result."
+  },
+  {
+    "word": "amounts",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "数量, 总额（amount的复数）",
+    "defEn": "n a quantity of money",
+    "pos": "n.",
+    "sampleEx": "This amounts helps explain the result."
+  },
+  {
+    "word": "controls",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "控制；控制元件；控制装置（control的复数）",
+    "defEn": "n power to direct or determine",
+    "pos": "n.",
+    "sampleEx": "This controls helps explain the result."
+  },
+  {
+    "word": "engineers",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "工程师；机械师（engineer的复数）",
+    "defEn": "n a person who uses scientific knowledge to solve practical problems",
+    "pos": "n.",
+    "sampleEx": "This engineers helps explain the result."
+  },
+  {
+    "word": "kings",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "《列王纪》（《圣经》中的篇章）",
+    "defEn": "n a male sovereign; ruler of a kingdom",
+    "pos": "n.",
+    "sampleEx": "This kings helps explain the result."
+  },
+  {
+    "word": "memorial",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "纪念物, 请愿书 a. 记念的",
+    "defEn": "a recognition of meritorious service",
+    "ipa": "/mi'mɒ:riəl/",
+    "pos": "n.",
+    "sampleEx": "This memorial helps explain the result."
+  },
+  {
+    "word": "opinions",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "意见；舆论；评价（opinion的复数）",
+    "defEn": "n a personal belief or judgment that is not founded on proof or certainty",
+    "pos": "n.",
+    "sampleEx": "This opinions helps explain the result."
+  },
+  {
+    "word": "readers",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "读者, 读物（reader的复数形式）",
+    "defEn": "n a person who enjoys reading",
+    "pos": "n.",
+    "sampleEx": "This readers helps explain the result."
+  },
+  {
+    "word": "buddy",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "好朋友, 伙伴",
+    "defEn": "a close friend who accompanies his buddies in their activities",
+    "ipa": "/'bʌdi/",
+    "pos": "n.",
+    "sampleEx": "This buddy helps explain the result."
+  },
+  {
+    "word": "cares",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "（等于Central Advisory Referral Service）中心咨询服务",
+    "defEn": "n the work of providing treatment for or attending to someone or something",
+    "pos": "n.",
+    "sampleEx": "This cares helps explain the result."
+  },
+  {
+    "word": "dean",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "院长, 主持牧师 外交团长",
+    "defEn": "an administrator in charge of a division of a university or college",
+    "ipa": "/di:n/",
+    "pos": "n.",
+    "sampleEx": "This dean helps explain the result."
+  },
+  {
+    "word": "gods",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "上帝们；众神, 诸神",
+    "defEn": "n the supernatural being conceived as the perfect and omnipotent and omniscient originator and ruler of the universe",
+    "ipa": "/ɡɔdz/",
+    "pos": "n.",
+    "sampleEx": "This gods helps explain the result."
+  },
+  {
+    "word": "rugby",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "橄榄球, 橄榄球赛",
+    "defEn": "a form of football played with an oval ball",
+    "ipa": "/'rʌ^bi/",
+    "pos": "n.",
+    "sampleEx": "This rugby helps explain the result."
+  },
+  {
+    "word": "stops",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "站点；停靠站（stop的复数）",
+    "defEn": "n a gambling card game in which chips are placed on the ace and king and queen and jack of separate suits (taken from a separate deck",
+    "pos": "n.",
+    "sampleEx": "This stops helps explain the result."
+  },
+  {
+    "word": "vacation",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "假期, 休假 假期",
+    "defEn": "leisure time away from work devoted to rest or pleasure",
+    "ipa": "/vei'keiʃən/",
+    "pos": "n.",
+    "sampleEx": "This vacation helps explain the result."
+  },
+  {
+    "word": "cleaning",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "清洁, 扫除",
+    "defEn": "the act of making something clean",
+    "ipa": "/'kli:niŋ/",
+    "pos": "n.",
+    "sampleEx": "This cleaning helps explain the result."
+  },
+  {
+    "word": "fitness",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "适合, 合宜",
+    "defEn": "the quality of being suitable",
+    "ipa": "/'fitnis/",
+    "pos": "n.",
+    "sampleEx": "This fitness helps explain the result."
+  },
+  {
+    "word": "keys",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "关键帧；（钢琴等的）键；密钥（key的复数）",
+    "defEn": "n metal device shaped in such a way that when it is inserted into the appropriate lock the lock's mechanism can be rotated",
+    "pos": "n.",
+    "sampleEx": "This keys helps explain the result."
+  },
+  {
+    "word": "medal",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "奖牌, 勋章授勋予",
+    "defEn": "n an award for winning a championship or commemorating some other event",
+    "ipa": "/'medl/",
+    "pos": "n.",
+    "sampleEx": "This medal helps explain the result."
+  },
+  {
+    "word": "researchers",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "研究员, 调查者( researcher的复数形式 )",
+    "defEn": "a scientist who devotes himself to doing research",
+    "ipa": "/'rɪsɜ:tʃəz/",
+    "pos": "n.",
+    "sampleEx": "This researchers helps explain the result."
+  },
+  {
+    "word": "adds",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "高级数据显示系统（Advanced Data Display System）；美国陆军数据分发系统；应用数字数据系统（A",
+    "defEn": "n a condition (mostly in boys) characterized by behavioral and learning disorders",
+    "pos": "abbr.",
+    "sampleEx": "This adds helps explain the result."
+  },
+  {
+    "word": "designs",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "阴谋, 诡计",
+    "defEn": "n the act of working out the form of something (as by making a sketch or outline or plan)",
+    "pos": "n.",
+    "sampleEx": "This designs helps explain the result."
+  },
+  {
+    "word": "findings",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "发现, 调查结果；检验发现的情况（finding复数）",
+    "defEn": "a collection of tools and other articles used by an artisan to make jewelry or clothing or shoes",
+    "pos": "n.",
+    "sampleEx": "This findings helps explain the result."
+  },
+  {
+    "word": "jay",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "鸟, 喋喋不休的人",
+    "defEn": "United States diplomat and jurist who negotiated peace treaties with Britain and served as the first chief justice of the United States Supreme Court",
+    "ipa": "/dʒei/",
+    "pos": "n.",
+    "sampleEx": "This jay helps explain the result."
+  },
+  {
+    "word": "lists",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "竞技场",
+    "defEn": "n a database containing an ordered array of items (names or topics)",
+    "ipa": "/lists/",
+    "pos": "n.",
+    "sampleEx": "This lists helps explain the result."
+  },
+  {
+    "word": "rocks",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "岩石, 岩礁；岩石礁石（rock复数形式）",
+    "defEn": "n a lump or mass of hard consolidated mineral matter",
+    "pos": "n.",
+    "sampleEx": "This rocks helps explain the result."
+  },
+  {
+    "word": "sucks",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "不好；差劲（suck的复数）",
+    "defEn": "n the act of sucking",
+    "pos": "n.",
+    "sampleEx": "This sucks helps explain the result."
+  },
+  {
+    "word": "christians",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "基督教徒( Christian的复数形式 )",
+    "defEn": "a religious person who believes Jesus is the Christ and who is a member of a Christian denomination",
+    "ipa": "/ˈkristʃənz/",
+    "pos": "n.",
+    "sampleEx": "This christians helps explain the result."
+  },
+  {
+    "word": "creek",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "小溪, 小河",
+    "defEn": "any member of the Creek Confederacy (especially the Muskogee) formerly living in Georgia and Alabama but now chiefly in Oklahoma",
+    "ipa": "/kri:k/",
+    "pos": "n.",
+    "sampleEx": "This creek helps explain the result."
+  },
+  {
+    "word": "funeral",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "葬礼, 出殡",
+    "defEn": "a ceremony at which a dead person is buried or cremated",
+    "ipa": "/'fju:nərəl/",
+    "pos": "n.",
+    "sampleEx": "This funeral helps explain the result."
+  },
+  {
+    "word": "hunter",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "猎人, 猎犬",
+    "defEn": "someone who hunts game",
+    "ipa": "/'hʌntə/",
+    "pos": "n.",
+    "sampleEx": "This hunter helps explain the result."
+  },
+  {
+    "word": "lands",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "平原；平面；土地（land的复数形式）",
+    "defEn": "n the land on which real estate is located",
+    "pos": "n.",
+    "sampleEx": "This lands helps explain the result."
+  },
+  {
+    "word": "phil",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "哲学（philosophy）",
+    "defEn": "a term used in general English.",
+    "ipa": "/fil/",
+    "pos": "abbr.",
+    "sampleEx": "This phil helps explain the result."
+  },
+  {
+    "word": "publishing",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "出版, 刊印",
+    "defEn": "n the business of issuing printed matter for sale or distribution",
+    "ipa": "/'pʌbliʃiŋ/",
+    "pos": "n.",
+    "sampleEx": "This publishing helps explain the result."
+  },
+  {
+    "word": "cents",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "分, 一分钱的硬币( cent的复数形式 )",
+    "defEn": "a fractional monetary unit of several countries",
+    "ipa": "/sents/",
+    "pos": "n.",
+    "sampleEx": "This cents helps explain the result."
+  },
+  {
+    "word": "doc",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "通信部, 数字输出控制",
+    "defEn": "n a licensed medical practitioner",
+    "pos": "n.",
+    "sampleEx": "This doc helps explain the result."
+  },
+  {
+    "word": "fate",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "命运, 运气注定",
+    "defEn": "n an event (or a course of events) that will inevitably happen in the future",
+    "ipa": "/feit/",
+    "pos": "n.",
+    "sampleEx": "This fate helps explain the result."
+  },
+  {
+    "word": "interviews",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "接见( interview的名词复数 ); 采访; 面谈; 会谈面试( interview的第三人称单数 ); 访问; ",
+    "defEn": "n the questioning of a person (or a conversation in which information is elicited); often conducted by journalists",
+    "ipa": "/ˈintəvju:z/",
+    "pos": "n.",
+    "sampleEx": "This interviews helps explain the result."
+  },
+  {
+    "word": "procedures",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "程序；规程（procedure的复数）",
+    "defEn": "n a particular course of action intended to achieve a result",
+    "pos": "n.",
+    "sampleEx": "This procedures helps explain the result."
+  },
+  {
+    "word": "script",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "手迹, 手稿",
+    "defEn": "a written version of a play or other dramatic composition; used in preparing for a performance",
+    "ipa": "/skript/",
+    "pos": "n.",
+    "sampleEx": "This script helps explain the result."
+  },
+  {
+    "word": "universities",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "大学( university的名词复数 )",
+    "defEn": "n the body of faculty and students at a university",
+    "ipa": "/juːnɪˈvɜː(r)sətiz/",
+    "pos": "n.",
+    "sampleEx": "This universities helps explain the result."
+  },
+  {
+    "word": "carter",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "运货马车夫",
+    "defEn": "Englishman and Egyptologist who in 1922 discovered and excavated the tomb of Tutankhamen (1873-1939)",
+    "ipa": "/'kɑ:tə/",
+    "pos": "n.",
+    "sampleEx": "This carter helps explain the result."
+  },
+  {
+    "word": "heroes",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "英雄（hero的复数形式）",
+    "defEn": "n a man distinguished by exceptional courage and nobility and strength",
+    "pos": "n.",
+    "sampleEx": "This heroes helps explain the result."
+  },
+  {
+    "word": "lips",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "嘴唇（lip的复数）",
+    "defEn": "n either of two fleshy folds of tissue that surround the mouth and play a role in speaking",
+    "ipa": "/lips/",
+    "pos": "n.",
+    "sampleEx": "This lips helps explain the result."
+  },
+  {
+    "word": "movements",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "运动, 运转；运动健身；动作（movement的复数形式）",
+    "defEn": "n a change of position that does not entail a change of location",
+    "pos": "n.",
+    "sampleEx": "This movements helps explain the result."
+  },
+  {
+    "word": "rep",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "棱纹平布, 浪荡子",
+    "defEn": "informal abbreviation of `representative'",
+    "ipa": "/rep/",
+    "pos": "n.",
+    "sampleEx": "This rep helps explain the result."
+  },
+  {
+    "word": "ties",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "结",
+    "defEn": "n neckwear consisting of a long narrow piece of material worn (mostly by men) under a collar and tied in knot at the front",
+    "pos": "n.",
+    "sampleEx": "This ties helps explain the result."
+  },
+  {
+    "word": "virgin",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "处女 a. 处女的, 贞洁的",
+    "defEn": "a person who has never had sex",
+    "ipa": "/'və:dʒin/",
+    "pos": "n.",
+    "sampleEx": "This virgin helps explain the result."
+  },
+  {
+    "word": "wolf",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "狼, 残忍贪婪之人",
+    "defEn": "any of various predatory carnivorous canine mammals of North America and Eurasia that usually hunt in packs",
+    "ipa": "/wulf/",
+    "pos": "n.",
+    "sampleEx": "This wolf helps explain the result."
+  },
+  {
+    "word": "bears",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "空头（卖空的证券交易投机）；熊（bear的复数）",
+    "defEn": "n massive plantigrade carnivorous or omnivorous mammals with long shaggy coats and strong claws",
+    "pos": "n.",
+    "sampleEx": "This bears helps explain the result."
+  },
+  {
+    "word": "cameras",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "照相机, 暗箱",
+    "defEn": "n equipment for taking photographs (usually consisting of a lightproof box with a lens at one end and light-sensitive film at the other)",
+    "pos": "n.",
+    "sampleEx": "This cameras helps explain the result."
+  },
+  {
+    "word": "couples",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "一对, 一双；夫妻；力偶（couple的复数）",
+    "defEn": "n a pair who associate with one another",
+    "pos": "n.",
+    "sampleEx": "This couples helps explain the result."
+  },
+  {
+    "word": "fame",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "名望, 名声",
+    "defEn": "the state or quality of being widely honored and acclaimed",
+    "ipa": "/feim/",
+    "pos": "n.",
+    "sampleEx": "This fame helps explain the result."
+  },
+  {
+    "word": "investors",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "投资者, 出资者( investor的复数形式 )",
+    "defEn": "someone who commits capital in order to gain financial returns",
+    "ipa": "/ɪn'vestəz/",
+    "pos": "n.",
+    "sampleEx": "This investors helps explain the result."
+  },
+  {
+    "word": "liberty",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "自由, 特权",
+    "defEn": "freedom of choice",
+    "ipa": "/'libəli/",
+    "pos": "n.",
+    "sampleEx": "This liberty helps explain the result."
+  },
+  {
+    "word": "producers",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "生产者, 制造者( producer的复数形式 ); 制片人",
+    "defEn": "someone who manufactures something",
+    "ipa": "/prəˈdu:səz/",
+    "pos": "n.",
+    "sampleEx": "This producers helps explain the result."
+  },
+  {
+    "word": "shops",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "商店；商店用包装纸（shop的复数）",
+    "defEn": "n a mercantile establishment for the retail sale of goods or services",
+    "pos": "n.",
+    "sampleEx": "This shops helps explain the result."
+  },
+  {
+    "word": "veterans",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "经验丰富的人, 老兵( veteran的复数形式 ); 退伍军人",
+    "defEn": "a serviceman who has seen considerable active service",
+    "ipa": "/'vetərənz/",
+    "pos": "n.",
+    "sampleEx": "This veterans helps explain the result."
+  },
+  {
+    "word": "arguments",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "参数",
+    "defEn": "n a fact or assertion offered as evidence that something is true",
+    "pos": "n.",
+    "sampleEx": "This arguments helps explain the result."
+  },
+  {
+    "word": "brave",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "勇敢的, 美好的",
+    "defEn": "a North American Indian warrior",
+    "ipa": "/breiv/",
+    "pos": "n.",
+    "sampleEx": "This brave helps explain the result."
+  },
+  {
+    "word": "constitutional",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "宪法的, 立宪的",
+    "defEn": "a regular walk taken as a form of exercise",
+    "ipa": "/.kɒnsti'tju:ʃənl/",
+    "pos": "n.",
+    "sampleEx": "This constitutional helps explain the result."
+  },
+  {
+    "word": "dropping",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "点滴, 滴下",
+    "defEn": "s. coming down freely under the influence of gravity",
+    "ipa": "/'drɒpiŋ/",
+    "pos": "n.",
+    "sampleEx": "This dropping helps explain the result."
+  },
+  {
+    "word": "fleet",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "舰队, 港湾",
+    "defEn": "group of aircraft operating together under the same ownership",
+    "ipa": "/fli:t/",
+    "pos": "n.",
+    "sampleEx": "This fleet helps explain the result."
+  },
+  {
+    "word": "genius",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "天才, 天赋",
+    "defEn": "someone who has exceptional intellectual ability and originality",
+    "ipa": "/'dʒi:njəs/",
+    "pos": "n.",
+    "sampleEx": "This genius helps explain the result."
+  },
+  {
+    "word": "periods",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "周期（period的复数）",
+    "defEn": "n an amount of time",
+    "pos": "n.",
+    "sampleEx": "This periods helps explain the result."
+  },
+  {
+    "word": "rings",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "吊环（ring的复数）",
+    "defEn": "gymnastic apparatus consisting of a pair of heavy metal circles (usually covered with leather) suspended by ropes; used for gymnastic exercises",
+    "pos": "n.",
+    "sampleEx": "This rings helps explain the result."
+  },
+  {
+    "word": "wildlife",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "野生动植物",
+    "defEn": "all living things (except people) that are undomesticated",
+    "ipa": "/'waildlaif/",
+    "pos": "n.",
+    "sampleEx": "This wildlife helps explain the result."
+  },
+  {
+    "word": "blast",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "一阵风, 爆炸",
+    "defEn": "a very long fly ball",
+    "ipa": "/blæst/",
+    "pos": "n.",
+    "sampleEx": "This blast helps explain the result."
+  },
+  {
+    "word": "courage",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "勇气, 胆量",
+    "defEn": "a quality of spirit that enables you to face danger or pain without showing fear",
+    "ipa": "/'kʌridʒ/",
+    "pos": "n.",
+    "sampleEx": "This courage helps explain the result."
+  },
+  {
+    "word": "duties",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "关税（duty的复数）",
+    "defEn": "n the social force that binds you to the courses of action demanded by that force",
+    "pos": "n.",
+    "sampleEx": "This duties helps explain the result."
+  },
+  {
+    "word": "fighter",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "斗士, 战士",
+    "defEn": "a high-speed military or naval airplane designed to destroy enemy aircraft in the air",
+    "ipa": "/'faitə/",
+    "pos": "n.",
+    "sampleEx": "This fighter helps explain the result."
+  },
+  {
+    "word": "hiding",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "隐匿, 隐藏之事",
+    "defEn": "the state of being hidden",
+    "ipa": "/'haidiŋ/",
+    "pos": "n.",
+    "sampleEx": "This hiding helps explain the result."
+  },
+  {
+    "word": "releases",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "释放；豁免；发泄（release的复数形式）",
+    "defEn": "n merchandise issued for sale or public showing (especially a record or film)",
+    "pos": "n.",
+    "sampleEx": "This releases helps explain the result."
+  },
+  {
+    "word": "technologies",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "技术；科技（technology的复数）",
+    "defEn": "n the practical application of science to commerce or industry",
+    "pos": "n.",
+    "sampleEx": "This technologies helps explain the result."
+  },
+  {
+    "word": "trials",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "尝试, 努力；考验；审判；顿顽（trial的复数）",
+    "defEn": "n the act of testing something",
+    "pos": "n.",
+    "sampleEx": "This trials helps explain the result."
+  },
+  {
+    "word": "walks",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "搭板, 跳板",
+    "defEn": "n the act of traveling by foot",
+    "pos": "n.",
+    "sampleEx": "This walks helps explain the result."
+  },
+  {
+    "word": "attracted",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "吸引 的兴趣 被吸引的",
+    "defEn": "v direct toward itself or oneself by means of some psychological power or physical attributes",
+    "ipa": "/ə'træktɪd/",
+    "pos": "n.",
+    "sampleEx": "This attracted helps explain the result."
+  },
+  {
+    "word": "burned",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "burn的过去式和过去分词 焦化",
+    "defEn": "s. treated by heating to a high temperature but below the melting or fusing point",
+    "pos": "n.",
+    "sampleEx": "This burned helps explain the result."
+  },
+  {
+    "word": "concerning",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "关于 关于",
+    "defEn": "v be relevant to",
+    "ipa": "/kən'sə:niŋ/",
+    "pos": "prep.",
+    "sampleEx": "This concerning helps explain the result."
+  },
+  {
+    "word": "grave",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "墓穴, 坟墓",
+    "defEn": "death of a person",
+    "ipa": "/greiv/",
+    "pos": "n.",
+    "sampleEx": "This grave helps explain the result."
+  },
+  {
+    "word": "midnight",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "午夜, 子夜",
+    "defEn": "12 o'clock at night; the middle of the night",
+    "ipa": "/'midnait/",
+    "pos": "n.",
+    "sampleEx": "This midnight helps explain the result."
+  },
+  {
+    "word": "restrictions",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "限制；限制条件（restriction的复数形式）",
+    "defEn": "n a principle that limits the extent of something",
+    "pos": "n.",
+    "sampleEx": "This restrictions helps explain the result."
+  },
+  {
+    "word": "sec",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "秒, 辅助 尺寸排阻色谱法",
+    "defEn": "s. (of champagne) moderately dry",
+    "ipa": "/sek/",
+    "pos": "n.",
+    "sampleEx": "This sec helps explain the result."
+  },
+  {
+    "word": "triple",
+    "packs": [
+      "freq-4k"
+    ],
+    "def": "三倍数, 三个一组 a. 三倍的使增至三倍增至三倍",
+    "defEn": "a base hit at which the batter stops safely at third base",
+    "ipa": "/'tripl/",
+    "pos": "n.",
+    "sampleEx": "This triple helps explain the result."
+  }
+]

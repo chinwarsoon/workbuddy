@@ -1,0 +1,900 @@
+{
+  "overview": {
+    "totalUniqueLemmas": 4558,
+    "multiPackLemmas": 407,
+    "crossPackSameDef": 28,
+    "crossPackDifferentDef": 379
+  },
+  "highFreqSamples": [
+    {
+      "word": "one",
+      "lemma": "one",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "一(个)",
+          "defEn": "the smallest whole number or a numeral representing this number",
+          "ex": "I only have one chance left.",
+          "exzh": "我只剩一次机会了。"
+        }
+      ]
+    },
+    {
+      "word": "way",
+      "lemma": "way",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "路",
+          "defEn": "the condition of things generally",
+          "ex": "Can you show me the way to the station?",
+          "exzh": "你能告诉我去车站的路吗？"
+        }
+      ]
+    },
+    {
+      "word": "year",
+      "lemma": "year",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "年",
+          "defEn": "a period of time containing 365 (or 366) days",
+          "ex": "This year I'm studying English every day.",
+          "exzh": "今年我每天都在学英语。"
+        }
+      ]
+    },
+    {
+      "word": "well",
+      "lemma": "well",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "井",
+          "defEn": "a deep hole or shaft dug or drilled to obtain water or oil or gas or brine",
+          "ex": "We drew water from an old stone well.",
+          "exzh": "我们从一口老石井里打水。"
+        }
+      ]
+    },
+    {
+      "word": "thing",
+      "lemma": "thing",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "事物",
+          "defEn": "a special situation",
+          "ex": "That's a strange thing to say.",
+          "exzh": "说这话挺奇怪。"
+        }
+      ]
+    },
+    {
+      "word": "time",
+      "lemma": "time",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "时间",
+          "defEn": "hours, minutes and seconds",
+          "ex": "I do not have much time.",
+          "exzh": "我没有很多时间。"
+        }
+      ]
+    },
+    {
+      "word": "good",
+      "lemma": "good",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "好的",
+          "defEn": "of a high quality",
+          "ex": "This is a good idea.",
+          "exzh": "这是个好主意。"
+        }
+      ]
+    },
+    {
+      "word": "make",
+      "lemma": "make",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "做；制造",
+          "defEn": "produce something",
+          "ex": "I make a cake today.",
+          "exzh": "我今天做了个蛋糕。"
+        }
+      ]
+    },
+    {
+      "word": "back",
+      "lemma": "back",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "后面的",
+          "defEn": "the posterior part of a human (or animal) body from the neck to the end of the spine",
+          "ex": "She lay on her back and looked at the sky.",
+          "exzh": "她仰面躺着看天空。"
+        }
+      ]
+    },
+    {
+      "word": "work",
+      "lemma": "work",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "工作",
+          "defEn": "do a job; a job",
+          "ex": "I work in a small office.",
+          "exzh": "我在一间小办公室工作。"
+        }
+      ]
+    },
+    {
+      "word": "right",
+      "lemma": "right",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "右边",
+          "defEn": "the side opposite the left",
+          "ex": "Turn right at the shop.",
+          "exzh": "在商店右转。"
+        }
+      ]
+    },
+    {
+      "word": "think",
+      "lemma": "think",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "想；认为",
+          "defEn": "use your mind",
+          "ex": "I think it is a good plan.",
+          "exzh": "我认为这是个好计划。"
+        }
+      ]
+    },
+    {
+      "word": "come",
+      "lemma": "come",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "来",
+          "defEn": "move to this place",
+          "ex": "Come here, please.",
+          "exzh": "请过来。"
+        }
+      ]
+    },
+    {
+      "word": "take",
+      "lemma": "take",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "拿；乘坐",
+          "defEn": "carry or use (a bus, a train)",
+          "ex": "I take the bus to work.",
+          "exzh": "我坐公交上班。"
+        }
+      ]
+    },
+    {
+      "word": "place",
+      "lemma": "place",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "地方",
+          "defEn": "a location or area",
+          "ex": "This is a quiet place.",
+          "exzh": "这是个安静的地方。"
+        }
+      ]
+    },
+    {
+      "word": "water",
+      "lemma": "water",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "水",
+          "defEn": "the clear liquid we drink",
+          "ex": "Please give me some water.",
+          "exzh": "请给我一些水。"
+        }
+      ]
+    },
+    {
+      "word": "run",
+      "lemma": "run",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "跑",
+          "defEn": "move fast on your feet",
+          "ex": "I run for thirty minutes.",
+          "exzh": "我跑三十分钟。"
+        }
+      ]
+    },
+    {
+      "word": "see",
+      "lemma": "see",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "看见",
+          "defEn": "notice with your eyes",
+          "ex": "I see a car outside.",
+          "exzh": "我看见外面有辆车。"
+        }
+      ]
+    },
+    {
+      "word": "look",
+      "lemma": "look",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "看",
+          "defEn": "use your eyes",
+          "ex": "Look at the map.",
+          "exzh": "看看地图。"
+        }
+      ]
+    },
+    {
+      "word": "use",
+      "lemma": "use",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "使用",
+          "defEn": "do something with a tool",
+          "ex": "I use a map to find it.",
+          "exzh": "我用地图找到它。"
+        }
+      ]
+    },
+    {
+      "word": "long",
+      "lemma": "long",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "长的",
+          "defEn": "not short in length",
+          "ex": "The road is very long.",
+          "exzh": "这条路很长。"
+        }
+      ]
+    },
+    {
+      "word": "day",
+      "lemma": "day",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "一天；白天",
+          "defEn": "a period of twenty-four hours",
+          "ex": "I read English every day.",
+          "exzh": "我每天读英语。"
+        }
+      ]
+    },
+    {
+      "word": "say",
+      "lemma": "say",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "说",
+          "defEn": "make words with your mouth",
+          "ex": "What did you say?",
+          "exzh": "你说什么？"
+        }
+      ]
+    },
+    {
+      "word": "find",
+      "lemma": "find",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "找到",
+          "defEn": "see something you looked for",
+          "ex": "I cannot find my card.",
+          "exzh": "我找不到我的卡。"
+        }
+      ]
+    },
+    {
+      "word": "have",
+      "lemma": "have",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "有；吃；经历",
+          "defEn": "to possess or experience",
+          "ex": "I have a dog.",
+          "exzh": "我有一只狗。"
+        }
+      ]
+    }
+  ],
+  "crossPackPolysemyExamples": [
+    {
+      "word": "park",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "公园",
+          "defEn": "a green public place",
+          "ex": "Children play in the park."
+        },
+        {
+          "pack": "nce2",
+          "def": "停放（车辆）",
+          "defEn": "to leave a vehicle in a place",
+          "ex": "You can't park here — it's a bus stop."
+        }
+      ]
+    },
+    {
+      "word": "business",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "生意；商务",
+          "defEn": "buying and selling work",
+          "ex": "He has a small business."
+        },
+        {
+          "pack": "nce2",
+          "def": "生意；事务",
+          "defEn": "trade or one's work affairs",
+          "ex": "It's none of your business."
+        }
+      ]
+    },
+    {
+      "word": "play",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "玩；踢（球）",
+          "defEn": "have fun; do a sport",
+          "ex": "The children play in the park."
+        },
+        {
+          "pack": "nce2",
+          "def": "戏剧",
+          "defEn": "a story performed by actors",
+          "ex": "The play began at eight o'clock."
+        }
+      ]
+    },
+    {
+      "word": "trip",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "旅行",
+          "defEn": "a journey to a place",
+          "ex": "We take a short trip on Sunday."
+        },
+        {
+          "pack": "freq-2k",
+          "def": "旅行, 绊倒",
+          "defEn": "a journey for some purpose (usually including the return)",
+          "ex": "We took a short trip to the coast."
+        }
+      ]
+    },
+    {
+      "word": "village",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "村庄",
+          "defEn": "a very small town",
+          "ex": "The village has one small shop."
+        },
+        {
+          "pack": "freq-2k",
+          "def": "村庄 a. 乡村的, 村庄的",
+          "defEn": "a community of people smaller than a town",
+          "ex": "The village has only two hundred people."
+        }
+      ]
+    },
+    {
+      "word": "rest",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "休息",
+          "defEn": "relax after work",
+          "ex": "We rest for an hour."
+        },
+        {
+          "pack": "freq-2k",
+          "def": "休息, 睡眠",
+          "defEn": "freedom from activity (work or strain or responsibility)",
+          "ex": "You need more rest after the operation."
+        }
+      ]
+    },
+    {
+      "word": "hospital",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "医院",
+          "defEn": "a place for sick people",
+          "ex": "He works in a big hospital."
+        },
+        {
+          "pack": "freq-2k",
+          "def": "医院 医院",
+          "defEn": "a health facility where patients receive treatment",
+          "ex": "He was taken to hospital last night."
+        }
+      ]
+    },
+    {
+      "word": "doctor",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "医生",
+          "defEn": "a person who treats illness",
+          "ex": "The doctor asks about the pain."
+        },
+        {
+          "pack": "freq-2k",
+          "def": "医生, 博士授以博士学位",
+          "defEn": "a licensed medical practitioner",
+          "ex": "The doctor told me to rest."
+        }
+      ]
+    },
+    {
+      "word": "patient",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "病人",
+          "defEn": "a person getting care",
+          "ex": "Every patient gets a bed."
+        },
+        {
+          "pack": "freq-2k",
+          "def": "病人, 承受者 a. 忍耐的",
+          "defEn": "a person who requires medical care",
+          "ex": "The patient is recovering well."
+        },
+        {
+          "pack": "nce2",
+          "def": "耐心的",
+          "defEn": "able to wait calmly",
+          "ex": "Be patient; results take time."
+        }
+      ]
+    },
+    {
+      "word": "disease",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "疾病",
+          "defEn": "an illness of the body",
+          "ex": "This disease is not common now."
+        },
+        {
+          "pack": "freq-2k",
+          "def": "疾病, 弊病 病",
+          "defEn": "an impairment of health or a condition of abnormal functioning",
+          "ex": "The disease spreads through water."
+        }
+      ]
+    },
+    {
+      "word": "drug",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "药；药物",
+          "defEn": "a chemical used as medicine",
+          "ex": "The drug works very fast."
+        },
+        {
+          "pack": "freq-2k",
+          "def": "药, 麻药",
+          "defEn": "a substance that is used as a medicine or narcotic",
+          "ex": "The drug is sold in most pharmacies."
+        }
+      ]
+    },
+    {
+      "word": "damage",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "损害",
+          "defEn": "harm done to something",
+          "ex": "The storm caused a lot of damage."
+        },
+        {
+          "pack": "freq-2k",
+          "def": "损害, 伤害损害",
+          "defEn": "the occurrence of a change for the worse",
+          "ex": "The storm caused serious damage."
+        }
+      ]
+    },
+    {
+      "word": "career",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "职业",
+          "defEn": "your working life",
+          "ex": "She has a long career in teaching."
+        },
+        {
+          "pack": "freq-2k",
+          "def": "事业, 生涯",
+          "defEn": "the particular occupation for which you are trained",
+          "ex": "She built a career in engineering."
+        }
+      ]
+    },
+    {
+      "word": "choice",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "选择",
+          "defEn": "the act of picking one",
+          "ex": "It was a difficult choice."
+        },
+        {
+          "pack": "freq-2k",
+          "def": "选择, 精选品",
+          "defEn": "the person or thing chosen or selected",
+          "ex": "You have a choice between the two."
+        }
+      ]
+    },
+    {
+      "word": "consider",
+      "packs": [
+        {
+          "pack": "freq-1k",
+          "def": "考虑",
+          "defEn": "think about carefully",
+          "ex": "Please consider my idea."
+        },
+        {
+          "pack": "freq-2k",
+          "def": "考虑, 思考",
+          "defEn": "take into consideration for exemplifying purposes",
+          "ex": "Please consider my suggestion."
+        }
+      ]
+    }
+  ],
+  "contextualRiskWords": [
+    {
+      "word": "light",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "光；灯",
+      "defEn": "brightness that lets you see",
+      "ex": "The light in this room is soft.",
+      "exzh": "这房间的光线很柔和。"
+    },
+    {
+      "word": "early",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "早",
+      "defEn": "before the usual time",
+      "ex": "I get up early.",
+      "exzh": "我起得早。"
+    },
+    {
+      "word": "late",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "晚",
+      "defEn": "after the usual time",
+      "ex": "Do not come home late.",
+      "exzh": "不要回家太晚。"
+    },
+    {
+      "word": "always",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "总是",
+      "defEn": "every time",
+      "ex": "She always helps me.",
+      "exzh": "她总是帮助我。"
+    },
+    {
+      "word": "usually",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "通常",
+      "defEn": "most of the time",
+      "ex": "I usually walk to work.",
+      "exzh": "我通常走路去上班。"
+    },
+    {
+      "word": "often",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "经常",
+      "defEn": "many times",
+      "ex": "We often eat together.",
+      "exzh": "我们经常一起吃饭。"
+    },
+    {
+      "word": "never",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "从不",
+      "defEn": "not at any time",
+      "ex": "He never drinks coffee.",
+      "exzh": "他从不喝咖啡。"
+    },
+    {
+      "word": "near",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "靠近",
+      "defEn": "not far away",
+      "ex": "My house is near the school.",
+      "exzh": "我家在学校附近。"
+    },
+    {
+      "word": "right",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "右边",
+      "defEn": "the side opposite the left",
+      "ex": "Turn right at the shop.",
+      "exzh": "在商店右转。"
+    },
+    {
+      "word": "hot",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "热的",
+      "defEn": "with a high temperature",
+      "ex": "It is hot in summer.",
+      "exzh": "夏天很热。"
+    },
+    {
+      "word": "cold",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "冷的",
+      "defEn": "with a low temperature",
+      "ex": "The water is cold.",
+      "exzh": "水是冷的。"
+    },
+    {
+      "word": "good",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "好的",
+      "defEn": "of a high quality",
+      "ex": "This is a good idea.",
+      "exzh": "这是个好主意。"
+    },
+    {
+      "word": "bad",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "坏的",
+      "defEn": "not good",
+      "ex": "The weather is bad today.",
+      "exzh": "今天天气不好。"
+    },
+    {
+      "word": "sure",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "确定的",
+      "defEn": "knowing something is true",
+      "ex": "I am sure he will come.",
+      "exzh": "我确定他会来。"
+    },
+    {
+      "word": "open",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "打开",
+      "defEn": "move so people can go in",
+      "ex": "I open the window.",
+      "exzh": "我打开窗户。"
+    },
+    {
+      "word": "close",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "关闭",
+      "defEn": "move so people cannot go in",
+      "ex": "Please close the door.",
+      "exzh": "请关门。"
+    },
+    {
+      "word": "clean",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "干净的；打扫",
+      "defEn": "not dirty; make not dirty",
+      "ex": "My room is very clean.",
+      "exzh": "我的房间很干净。"
+    },
+    {
+      "word": "big",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "大的",
+      "defEn": "large in size",
+      "ex": "They live in a big house.",
+      "exzh": "他们住在一栋大房子。"
+    },
+    {
+      "word": "small",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "小的",
+      "defEn": "not large",
+      "ex": "I have a small room.",
+      "exzh": "我有个小房间。"
+    },
+    {
+      "word": "long",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "长的",
+      "defEn": "not short in length",
+      "ex": "The road is very long.",
+      "exzh": "这条路很长。"
+    },
+    {
+      "word": "new",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "新的",
+      "defEn": "made or had not long ago",
+      "ex": "I have a new phone.",
+      "exzh": "我有一部新手机。"
+    },
+    {
+      "word": "old",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "旧的；年老的",
+      "defEn": "not new; not young",
+      "ex": "That building is very old.",
+      "exzh": "那栋楼很旧。"
+    },
+    {
+      "word": "young",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "年轻的",
+      "defEn": "not old",
+      "ex": "She is young and kind.",
+      "exzh": "她年轻又善良。"
+    },
+    {
+      "word": "high",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "高的",
+      "defEn": "far above the ground",
+      "ex": "The price is too high.",
+      "exzh": "价格太高。"
+    },
+    {
+      "word": "low",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "低的",
+      "defEn": "near the ground; not high",
+      "ex": "The price is very low.",
+      "exzh": "价格很低。"
+    },
+    {
+      "word": "fast",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "快的",
+      "defEn": "moving quickly",
+      "ex": "The car is very fast.",
+      "exzh": "这辆车很快。"
+    },
+    {
+      "word": "hard",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "难的",
+      "defEn": "not easy",
+      "ex": "The test was hard.",
+      "exzh": "那次测验很难。"
+    },
+    {
+      "word": "full",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "满的",
+      "defEn": "with no empty space",
+      "ex": "The shop is full of people.",
+      "exzh": "商店里挤满了人。"
+    },
+    {
+      "word": "great",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "很棒的",
+      "defEn": "very good",
+      "ex": "We had a great time.",
+      "exzh": "我们玩得很开心。"
+    },
+    {
+      "word": "before",
+      "packsFound": [
+        "freq-1k"
+      ],
+      "def": "在…之前",
+      "defEn": "earlier than",
+      "ex": "Wash your hands before eating.",
+      "exzh": "吃饭前洗手。"
+    }
+  ]
+}

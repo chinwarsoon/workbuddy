@@ -1,0 +1,702 @@
+[
+ {
+  "word": "outside",
+  "def": "外面",
+  "defEn": "the region that is outside of something",
+  "pos": "n.",
+  "ipa": "/'aut'said/"
+ },
+ {
+  "word": "behind",
+  "def": "在后地",
+  "defEn": "a common English word.",
+  "pos": "adv.",
+  "ipa": "/bi'haind/"
+ },
+ {
+  "word": "economic",
+  "def": "经济上的",
+  "defEn": "of or relating to an economy, the system of production and management of material wealth",
+  "pos": "adj.",
+  "ipa": "/.i:kə'nɒmik/"
+ },
+ {
+  "word": "site",
+  "def": "位置",
+  "defEn": "the piece of land on which something is located (or is to be located)",
+  "pos": "n.",
+  "ipa": "/sait/"
+ },
+ {
+  "word": "land",
+  "def": "陆地",
+  "defEn": "the land on which real estate is located",
+  "pos": "n.",
+  "ipa": "/lænd/"
+ },
+ {
+  "word": "finally",
+  "def": "最后",
+  "defEn": "at the end; after a long time",
+  "pos": "adv.",
+  "ipa": "/'fainəli/"
+ },
+ {
+  "word": "sign",
+  "def": "符号",
+  "defEn": "a perceptible indication of something not immediately apparent (as a visible clue that something has happened)",
+  "pos": "n.",
+  "ipa": "/sain/"
+ },
+ {
+  "word": "claim",
+  "def": "要求",
+  "defEn": "an assertion of a right (as to money or property)",
+  "pos": "n.",
+  "ipa": "/kleim/"
+ },
+ {
+  "word": "relationship",
+  "def": "关系",
+  "defEn": "a relation between people; (`relationship' is often used where `relation' would serve, as in `the relationship",
+  "pos": "n.",
+  "ipa": "/ri'leiʃənʃip/"
+ },
+ {
+  "word": "enjoy",
+  "def": "享受",
+  "defEn": "derive or receive pleasure from; get enjoyment from; take pleasure in",
+  "pos": "v.",
+  "ipa": "/in'dʒɒi/"
+ },
+ {
+  "word": "death",
+  "def": "死亡",
+  "defEn": "the event of dying or departure from life",
+  "pos": "n.",
+  "ipa": "/deθ/"
+ },
+ {
+  "word": "nice",
+  "def": "美好的",
+  "defEn": "pleasant; good",
+  "pos": "n.",
+  "ipa": "/nais/"
+ },
+ {
+  "word": "amount",
+  "def": "总数",
+  "defEn": "the relative magnitude of something with reference to a criterion",
+  "pos": "n.",
+  "ipa": "/ə'maunt/"
+ },
+ {
+  "word": "regard",
+  "def": "关心",
+  "defEn": "(usually plural) a polite expression of desire for someone's welfare",
+  "pos": "n.",
+  "ipa": "/ri'gɑ:d/"
+ },
+ {
+  "word": "couple",
+  "def": "对",
+  "defEn": "a pair who associate with one another",
+  "pos": "n.",
+  "ipa": "/'kʌpl/"
+ },
+ {
+  "word": "act",
+  "def": "行动",
+  "defEn": "a legal document codifying the result of deliberations of a committee or society or legislative body",
+  "pos": "n.",
+  "ipa": "/ækt/"
+ },
+ {
+  "word": "range",
+  "def": "排",
+  "defEn": "the limits within which something can be effective",
+  "pos": "n.",
+  "ipa": "/'reindʒ/"
+ },
+ {
+  "word": "quality",
+  "def": "品质",
+  "defEn": "an essential and distinguishing attribute of something or someone",
+  "pos": "n.",
+  "ipa": "/'kwɒləti/"
+ },
+ {
+  "word": "project",
+  "def": "计划",
+  "defEn": "a planned undertaking",
+  "pos": "n.",
+  "ipa": "/'prɒdʒekt/"
+ },
+ {
+  "word": "round",
+  "def": "圆",
+  "defEn": "a charge of ammunition for a single shot",
+  "pos": "n.",
+  "ipa": "/raund/"
+ },
+ {
+  "word": "accord",
+  "def": "一致",
+  "defEn": "concurrence of opinion",
+  "pos": "n.",
+  "ipa": "/ə'kɒ:d/"
+ },
+ {
+  "word": "list",
+  "def": "目录",
+  "defEn": "a database containing an ordered array of items (names or topics)",
+  "pos": "n.",
+  "ipa": "/list/"
+ },
+ {
+  "word": "wish",
+  "def": "希望",
+  "defEn": "a specific feeling of desire",
+  "pos": "n.",
+  "ipa": "/wiʃ/"
+ },
+ {
+  "word": "fund",
+  "def": "基金",
+  "defEn": "a reserve of money set aside for some purpose",
+  "pos": "n.",
+  "ipa": "/fʌnd/"
+ },
+ {
+  "word": "kid",
+  "def": "小山羊",
+  "defEn": "soft smooth leather from the hide of a young goat",
+  "pos": "n.",
+  "ipa": "/kid/"
+ },
+ {
+  "word": "industry",
+  "def": "勤劳",
+  "defEn": "the people or companies engaged in a particular kind of commercial enterprise",
+  "pos": "n.",
+  "ipa": "/'indəstri/"
+ },
+ {
+  "word": "education",
+  "def": "教育",
+  "defEn": "the activities of educating or instructing; activities that impart knowledge or skill",
+  "pos": "n.",
+  "ipa": "/.edju'keiʃən/"
+ },
+ {
+  "word": "measure",
+  "def": "尺寸",
+  "defEn": "any maneuver made as part of progress toward a goal",
+  "pos": "n.",
+  "ipa": "/'meʒə/"
+ },
+ {
+  "word": "kill",
+  "def": "杀",
+  "defEn": "the destruction of an enemy plane or ship or tank or missile",
+  "pos": "n.",
+  "ipa": "/kil/"
+ },
+ {
+  "word": "serve",
+  "def": "可作...用",
+  "defEn": "(sports) a stroke that puts the ball in play",
+  "pos": "n.",
+  "ipa": "/sə:v/"
+ },
+ {
+  "word": "certainly",
+  "def": "确定地",
+  "defEn": "r definitely or positively (`sure' is sometimes used informally for `surely')",
+  "pos": "adv.",
+  "ipa": "/'sə:tənli/"
+ },
+ {
+  "word": "national",
+  "def": "国家的",
+  "defEn": "a person who owes allegiance to that nation",
+  "pos": "n.",
+  "ipa": "/'næʃənəl/"
+ },
+ {
+  "word": "itself",
+  "def": "它本身",
+  "defEn": "The neuter reciprocal pronoun of It; as, the thing is",
+  "pos": "pron.",
+  "ipa": "/it'self/"
+ },
+ {
+  "word": "teach",
+  "def": "教",
+  "defEn": "to help someone learn",
+  "pos": "n.",
+  "ipa": "/ti:tʃ/"
+ },
+ {
+  "word": "field",
+  "def": "领域",
+  "defEn": "a piece of land cleared of trees and usually enclosed",
+  "pos": "n.",
+  "ipa": "/fi:ld/"
+ },
+ {
+  "word": "security",
+  "def": "安全",
+  "defEn": "the state of being free from danger or injury",
+  "pos": "n.",
+  "ipa": "/si'kjuriti/"
+ },
+ {
+  "word": "benefit",
+  "def": "利益",
+  "defEn": "financial assistance in time of need",
+  "pos": "n.",
+  "ipa": "/'benifit/"
+ },
+ {
+  "word": "trade",
+  "def": "贸易",
+  "defEn": "the commercial exchange (buying and selling on domestic or international markets) of goods and services",
+  "pos": "n.",
+  "ipa": "/treid/"
+ },
+ {
+  "word": "risk",
+  "def": "冒险",
+  "defEn": "a venture undertaken without regard to possible loss or injury",
+  "pos": "n.",
+  "ipa": "/risk/"
+ },
+ {
+  "word": "news",
+  "def": "新闻",
+  "defEn": "information about recent and important events",
+  "pos": "n.",
+  "ipa": "/nju:z/"
+ },
+ {
+  "word": "standard",
+  "def": "标准",
+  "defEn": "a basis for comparison; a reference point against which other things can be evaluated",
+  "pos": "n.",
+  "ipa": "/'stændəd/"
+ },
+ {
+  "word": "vote",
+  "def": "投票",
+  "defEn": "a choice that is made by counting the number of people in favor of each alternative",
+  "pos": "n.",
+  "ipa": "/vəut/"
+ },
+ {
+  "word": "percent",
+  "def": "百分比",
+  "defEn": "n a proportion in relation to a whole (which is usually the amount per hundred)",
+  "pos": "n.",
+  "ipa": "/pə'sent/"
+ },
+ {
+  "word": "focus",
+  "def": "焦点",
+  "defEn": "the concentration of attention or energy on something",
+  "pos": "n.",
+  "ipa": "/'fəukəs/"
+ },
+ {
+  "word": "space",
+  "def": "位置",
+  "defEn": "the unlimited expanse in which everything is located",
+  "pos": "n.",
+  "ipa": "/speis/"
+ },
+ {
+  "word": "realize",
+  "def": "了解",
+  "defEn": "make real or concrete; give reality or substance to",
+  "pos": "v.",
+  "ipa": "/'riəlaiz/"
+ },
+ {
+  "word": "data",
+  "def": "资料",
+  "defEn": "a collection of facts from which conclusions may be drawn",
+  "pos": "n.",
+  "ipa": "/'deitə/"
+ },
+ {
+  "word": "single",
+  "def": "单身的",
+  "defEn": "a base hit on which the batter stops safely at first base",
+  "pos": "n.",
+  "ipa": "/'siŋgl/"
+ },
+ {
+  "word": "address",
+  "def": "住址",
+  "defEn": "(computer science) the code that identifies where a piece of information is stored",
+  "pos": "n.",
+  "ipa": "/ə'dres/"
+ },
+ {
+  "word": "performance",
+  "def": "施行",
+  "defEn": "a dramatic or musical entertainment",
+  "pos": "n.",
+  "ipa": "/pə'fɒ:məns/"
+ },
+ {
+  "word": "accept",
+  "def": "接受",
+  "defEn": "consider or hold as true",
+  "pos": "v.",
+  "ipa": "/ək'sept/"
+ },
+ {
+  "word": "society",
+  "def": "社会",
+  "defEn": "an extended social group having a distinctive cultural and economic organization",
+  "pos": "n.",
+  "ipa": "/sə'saiəti/"
+ },
+ {
+  "word": "technology",
+  "def": "技术",
+  "defEn": "the practical application of science to commerce or industry",
+  "pos": "n.",
+  "ipa": "/tek'nɒlədʒi/"
+ },
+ {
+  "word": "mention",
+  "def": "提到",
+  "defEn": "a remark that calls attention to something or someone",
+  "pos": "n.",
+  "ipa": "/'menʃən/"
+ },
+ {
+  "word": "common",
+  "def": "通常的",
+  "defEn": "belonging to or participated in by a community as a whole; public",
+  "pos": "adj.",
+  "ipa": "/'kɒmən/"
+ },
+ {
+  "word": "total",
+  "def": "全体的",
+  "defEn": "add up in number or quantity",
+  "pos": "v.",
+  "ipa": "/'təutl/"
+ },
+ {
+  "word": "demand",
+  "def": "要求",
+  "defEn": "an urgent or peremptory request",
+  "pos": "n.",
+  "ipa": "/di'mɑ:nd/"
+ },
+ {
+  "word": "material",
+  "def": "材料",
+  "defEn": "the tangible substance that goes into the makeup of a physical object",
+  "pos": "n.",
+  "ipa": "/mə'tiəriəl/"
+ },
+ {
+  "word": "limit",
+  "def": "界限",
+  "defEn": "the greatest possible degree of something",
+  "pos": "n.",
+  "ipa": "/'limit/"
+ },
+ {
+  "word": "due",
+  "def": "应得的东西",
+  "defEn": "that which is deserved or owed",
+  "pos": "n.",
+  "ipa": "/dju:/"
+ },
+ {
+  "word": "wrong",
+  "def": "错误的",
+  "defEn": "that which is contrary to the principles of justice or law",
+  "pos": "n.",
+  "ipa": "/rɒŋ/"
+ },
+ {
+  "word": "foot",
+  "def": "脚",
+  "defEn": "the part of the leg of a human being below the ankle joint",
+  "pos": "n.",
+  "ipa": "/fut/"
+ },
+ {
+  "word": "effort",
+  "def": "努力",
+  "defEn": "use of physical or mental energy; hard work",
+  "pos": "n.",
+  "ipa": "/'efət/"
+ },
+ {
+  "word": "attention",
+  "def": "注意",
+  "defEn": "the process whereby a person concentrates on some features of the environment to the (relative) exclusion of others",
+  "pos": "n.",
+  "ipa": "/ə'tenʃən/"
+ },
+ {
+  "word": "check",
+  "def": "检查",
+  "defEn": "a written order directing a bank to pay money",
+  "pos": "n.",
+  "ipa": "/tʃek/"
+ },
+ {
+  "word": "complete",
+  "def": "完全的",
+  "defEn": "come or bring to a finish or an end; others finished in over 4 hours\"",
+  "pos": "v.",
+  "ipa": "/kəm'pli:t/"
+ },
+ {
+  "word": "lie",
+  "def": "谎言",
+  "defEn": "a statement that deviates from or perverts the truth",
+  "pos": "n.",
+  "ipa": "/lai/"
+ },
+ {
+  "word": "pick",
+  "def": "精选",
+  "defEn": "a small thin device (of metal or plastic or ivory) used to pluck a stringed instrument",
+  "pos": "n.",
+  "ipa": "/pik/"
+ },
+ {
+  "word": "reduce",
+  "def": "减少",
+  "defEn": "cut down on; make a reduction in",
+  "pos": "v.",
+  "ipa": "/ri'dju:s/"
+ },
+ {
+  "word": "personal",
+  "def": "私人的",
+  "defEn": "a short newspaper article about a particular person or group",
+  "pos": "n.",
+  "ipa": "/'pə:snl/"
+ },
+ {
+  "word": "arrive",
+  "def": "到达",
+  "defEn": "reach a destination; arrive by movement or progress",
+  "pos": "v.",
+  "ipa": "/ə'raiv/"
+ },
+ {
+  "word": "current",
+  "def": "涌流",
+  "defEn": "a flow of electricity through a conductor",
+  "pos": "n.",
+  "ipa": "/'kʌrənt/"
+ },
+ {
+  "word": "exist",
+  "def": "存在",
+  "defEn": "have an existence, be extant",
+  "pos": "v.",
+  "ipa": "/ig'zist/"
+ },
+ {
+  "word": "similar",
+  "def": "相似的",
+  "defEn": "marked by correspondence or resemblance",
+  "pos": "adj.",
+  "ipa": "/'similə/"
+ },
+ {
+  "word": "fight",
+  "def": "打架",
+  "defEn": "the act of fighting; any contest or struggle",
+  "pos": "n.",
+  "ipa": "/fait/"
+ },
+ {
+  "word": "leader",
+  "def": "领导者",
+  "defEn": "a person who rules or guides or inspires others",
+  "pos": "n.",
+  "ipa": "/'li:də/"
+ },
+ {
+  "word": "fine",
+  "def": "罚款",
+  "defEn": "money extracted as a penalty",
+  "pos": "n.",
+  "ipa": "/fain/"
+ },
+ {
+  "word": "former",
+  "def": "从前的",
+  "defEn": "the first of two or the first mentioned of two",
+  "pos": "n.",
+  "ipa": "/'fɒ:mə/"
+ },
+ {
+  "word": "contact",
+  "def": "联系",
+  "defEn": "close interaction",
+  "pos": "n.",
+  "ipa": "/'kɒntækt/"
+ },
+ {
+  "word": "particularly",
+  "def": "特别",
+  "defEn": "especially",
+  "pos": "adv.",
+  "ipa": "/pə'tikjjləli/"
+ },
+ {
+  "word": "wife",
+  "def": "妻子",
+  "defEn": "a married woman; a man's partner in marriage",
+  "pos": "n.",
+  "ipa": "/waif/"
+ },
+ {
+  "word": "sport",
+  "def": "运动",
+  "defEn": "an active diversion requiring physical exertion and competition",
+  "pos": "n.",
+  "ipa": "/spɒ:t/"
+ },
+ {
+  "word": "prepare",
+  "def": "准备",
+  "defEn": "to prepare verbally, either for written or spoken delivery",
+  "pos": "v.",
+  "ipa": "/pri'pєə/"
+ },
+ {
+  "word": "discuss",
+  "def": "讨论",
+  "defEn": "n an athletic competition in which a disk-shaped object is thrown as far as possible",
+  "pos": "v.",
+  "ipa": "/dis'kʌs/"
+ },
+ {
+  "word": "response",
+  "def": "反应",
+  "defEn": "a result",
+  "pos": "n.",
+  "ipa": "/ri'spɒns/"
+ },
+ {
+  "word": "piece",
+  "def": "块",
+  "defEn": "a separate part of a whole",
+  "pos": "n.",
+  "ipa": "/pi:s/"
+ },
+ {
+  "word": "finish",
+  "def": "完成",
+  "defEn": "the place designated as the end (as of a race or journey)",
+  "pos": "n.",
+  "ipa": "/'finiʃ/"
+ },
+ {
+  "word": "suppose",
+  "def": "推想",
+  "defEn": "express a supposition",
+  "pos": "v.",
+  "ipa": "/sə'pəuz/"
+ },
+ {
+  "word": "president",
+  "def": "总统",
+  "defEn": "an executive officer of a firm or corporation",
+  "pos": "n.",
+  "ipa": "/'prezidənt/"
+ },
+ {
+  "word": "compare",
+  "def": "比较",
+  "defEn": "examine and note the similarities or differences of",
+  "pos": "v.",
+  "ipa": "/kəm'pєə/"
+ },
+ {
+  "word": "court",
+  "def": "法院",
+  "defEn": "an assembly (including one or more judges) to conduct judicial business",
+  "pos": "n.",
+  "ipa": "/kɒ:t/"
+ },
+ {
+  "word": "poor",
+  "def": "贫穷的",
+  "defEn": "having little money or few possessions",
+  "pos": "adj.",
+  "ipa": "/puə. pɒ:/"
+ },
+ {
+  "word": "knowledge",
+  "def": "知识",
+  "defEn": "n the psychological result of perception and learning and reasoning",
+  "pos": "n.",
+  "ipa": "/'nɒlidʒ/"
+ },
+ {
+  "word": "laugh",
+  "def": "笑",
+  "defEn": "the sound of laughing",
+  "pos": "n.",
+  "ipa": "/lɑ:f/"
+ },
+ {
+  "word": "arm",
+  "def": "手臂",
+  "defEn": "a human limb; technically the part of the superior limb between the shoulder and the elbow but commonly used to",
+  "pos": "n.",
+  "ipa": "/ɑ:m/"
+ },
+ {
+  "word": "source",
+  "def": "来源",
+  "defEn": "a document (or organization) from which information is obtained",
+  "pos": "n.",
+  "ipa": "/sɒ:s/"
+ },
+ {
+  "word": "employee",
+  "def": "职员",
+  "defEn": "a worker who is hired to perform a job",
+  "pos": "n.",
+  "ipa": "/.emplɒi'i:/"
+ },
+ {
+  "word": "manage",
+  "def": "处理",
+  "defEn": "be in charge of, act on, or dispose of",
+  "pos": "v.",
+  "ipa": "/'mænidʒ/"
+ },
+ {
+  "word": "firm",
+  "def": "公司",
+  "defEn": "the members of a business organization that owns or operates one or more establishments",
+  "pos": "n.",
+  "ipa": "/fə:m/"
+ },
+ {
+  "word": "cell",
+  "def": "单元",
+  "defEn": "any small compartment",
+  "pos": "n.",
+  "ipa": "/sel/"
+ }
+]

@@ -1,0 +1,10 @@
+{
+  "well":   { "def": "井;adv.好;adj.健康的",                 "defEn": "n. a deep hole or shaft for water; adv. in a good or satisfactory way; adj. in good health",                  "pos": "n./adv./adj." },
+  "right":  { "def": "右边;a.正确的;adv.正好;n.权利",       "defEn": "n. the side opposite the left; a thing that is morally correct; adv. exactly; n. a moral or legal claim",      "pos": "n./a./adv." },
+  "open":   { "def": "打开;a.开着的;v.开业",                 "defEn": "v. move so people can go in; adj. not closed or blocked; v. start operating (a shop, business)",                "pos": "v./adj." },
+  "close":  { "def": "关闭;a.接近的;v.结束",                 "defEn": "v. move so people cannot go in; adj. near in relationship or time; v. bring to an end",                       "pos": "v./adj." },
+  "like":   { "def": "喜欢;prep.像",                         "defEn": "v. enjoy something; prep. similar to; in the manner of",                                                     "pos": "v./prep." },
+  "leave":  { "def": "离开;n.假期",                          "defEn": "v. go away from; n. period of time absent from work (vacation)",                                               "pos": "v./n." },
+  "mean":   { "def": "v.意思是;n.平均数",                    "defEn": "v. intend to convey or indicate; n. the average of a set of numbers",                                          "pos": "v./n." },
+  "set":    { "def": "v.放置;v.落下;n.一套",                 "defEn": "v. put in a particular position; v. (of the sun) go down below the horizon; n. a group of related things",       "pos": "v./n." }
+}

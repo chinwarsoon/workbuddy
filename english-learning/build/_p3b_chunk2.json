@@ -1,0 +1,362 @@
+[
+ {
+  "pack": "freq-3k",
+  "word": "contradiction",
+  "def": "反驳",
+  "defEn": "opposition between two conflicting forces or ideas"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "problematic",
+  "def": "成问题的, 未定的",
+  "defEn": "s open to doubt or debate"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "correction",
+  "def": "订正, 改正",
+  "defEn": "the act of offering an improvement to replace a mistake; setting right"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "primitive",
+  "def": "原始人, 早期艺术家 a. 原始的",
+  "defEn": "a person who belongs to an early stage of civilization"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "static",
+  "def": "静电, 静电干扰 a. 静态的",
+  "defEn": "a crackling or hissing noise caused by electrical interference"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "peripheral",
+  "def": "周边的, 周围的",
+  "defEn": "(computer science) electronic equipment connected by cable to the CPU of a computer"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "spontaneous",
+  "def": "自然的, 自发的",
+  "defEn": "happening or arising without apparent external cause"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "reliability",
+  "def": "信度",
+  "defEn": "n the quality of being dependable or reliable"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "reproduction",
+  "def": "再现, 复制",
+  "defEn": "the process of generating offspring"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "lung",
+  "def": "肺, 肺脏",
+  "defEn": "either of two saclike respiratory organs in the chest of vertebrates; serves to remove carbon dioxide and provide oxygen to the blood"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "circulation",
+  "def": "流通, 循环",
+  "defEn": "the dissemination of copies of periodicals (as newspapers or magazines)"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "metaphor",
+  "def": "隐喻",
+  "defEn": "a figure of speech in which an expression is used to refer to something that it does not literally denote in order to suggest a similarity"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "complication",
+  "def": "复杂化, 复杂情况 并发症",
+  "defEn": "the act or process of complicating"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "absorption",
+  "def": "吸收, 专心",
+  "defEn": "(chemistry) a process in which one substance permeates another; a fluid permeates or is dissolved by a liquid or solid"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "donor",
+  "def": "捐赠人 给体; 供体",
+  "defEn": "person who makes a gift of property"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "manipulation",
+  "def": "操作, 处理 (用手)操作; 使用",
+  "defEn": "exerting shrewd or devious influence especially for one's own advantage"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "analogy",
+  "def": "相似, 类似 模拟",
+  "defEn": "an inference that if things agree in some respects they probably agree in others"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "plausible",
+  "def": "貌似真实的, 貌似合理的",
+  "defEn": "apparently reasonable and valid, and truthful"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "nitrogen",
+  "def": "氮 氮N-2",
+  "defEn": "a common nonmetallic element that is normally a colorless odorless tasteless inert diatomic gas"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "wheat",
+  "def": "小麦",
+  "defEn": "annual or biennial grass having erect flower spikes and light brown grains"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "sketch",
+  "def": "素描, 草图",
+  "defEn": "preliminary drawing for later elaboration"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "binary",
+  "def": "由两部分组成的, 二进位的",
+  "defEn": "a pre-compiled"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "execution",
+  "def": "实行, 完成",
+  "defEn": "putting a condemned person to death"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "dictionary",
+  "def": "字典",
+  "defEn": "a reference book containing an alphabetical list of words with information about them"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "strand",
+  "def": "(绳索的)股, 绳",
+  "defEn": "a pattern forming a unity within a larger structural whole"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "philosopher",
+  "def": "哲学家, 哲人",
+  "defEn": "a specialist in philosophy"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "objection",
+  "def": "异议, 反对",
+  "defEn": "the speech act of objecting"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "replication",
+  "def": "回答, 反响",
+  "defEn": "(genetics) the process whereby DNA makes a copy of itself before cell division"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "curriculum",
+  "def": "课程 课程, 学程",
+  "defEn": "n an integrated course of academic studies"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "coherent",
+  "def": "互相耦合的, 清晰的",
+  "defEn": "marked by an orderly, logical, and aesthetically consistent relation of parts"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "sophisticate",
+  "def": "久经世故的人, 精于...之道的人篡改",
+  "defEn": "a worldly-wise person"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "cylinder",
+  "def": "圆筒, 圆筒状物",
+  "defEn": "a solid bounded by a cylindrical surface and two parallel planes (the bases)"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "theorist",
+  "def": "理论家, 理论工作者",
+  "defEn": "someone who theorizes (especially in science or art)"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "crystal",
+  "def": "水晶, 水晶装饰品",
+  "defEn": "a solid formed by the solidification of a chemical and having a highly regular atomic structure"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "drift",
+  "def": "漂流物, 漂流",
+  "defEn": "a force that moves something along"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "resistant",
+  "def": "抵抗者, 反抗者 a. 抵抗的",
+  "defEn": "s. impervious to being affected"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "rhetoric",
+  "def": "修辞, 修辞学",
+  "defEn": "using language effectively to please or persuade"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "turbulent",
+  "def": "狂暴的, 骚乱的",
+  "defEn": "s characterized by unrest or disorder or insubordination"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "quantum",
+  "def": "量",
+  "defEn": "a discrete amount of something that is analogous to the quantities in quantum theory"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "conserve",
+  "def": "蜜饯, 果酱保存",
+  "defEn": "fruit preserved by cooking with sugar"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "bulk",
+  "def": "大小, 体积",
+  "defEn": "the property of something that is great in magnitude"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "triangle",
+  "def": "三角形, 三个一组",
+  "defEn": "a three-sided polygon"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "metabolism",
+  "def": "新陈代谢, 变态 新陈代谢; 代谢",
+  "defEn": "the organic processes (in a cell or organism) that are necessary for life"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "dilemma",
+  "def": "困境, (进退两难的)窘境",
+  "defEn": "state of uncertainty or perplexity especially as requiring a choice between equally unfavorable options"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "hydrogen",
+  "def": "氢 氢H-2",
+  "defEn": "a nonmetallic univalent element that is normally a colorless and odorless highly flammable diatomic gas"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "susceptible",
+  "def": "易受影响的, 易感动的",
+  "defEn": "(often followed by `of' or `to') yielding readily to or capable of"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "architect",
+  "def": "建筑师, 设计者",
+  "defEn": "someone who creates plans to be used in making something (such as buildings)"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "morality",
+  "def": "道德, 教训",
+  "defEn": "concern with the distinction between good and evil or right and wrong; right or good conduct"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "rainfall",
+  "def": "降雨",
+  "defEn": "n water falling in drops from vapor condensed in the atmosphere"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "inferior",
+  "def": "次等的, 较差的",
+  "defEn": "one of lesser rank or station or quality"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "composite",
+  "def": "合成的, 混合成的",
+  "defEn": "considered the most highly evolved dicotyledonous plants, characterized by florets arranged in dense heads that resemble single flowers"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "bundle",
+  "def": "捆, 束包扎",
+  "defEn": "a package of several things tied together for carrying or storing"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "flexibility",
+  "def": "弹性, 适应性 灵活性; 适应性",
+  "defEn": "the property of being flexible; easily bent or shaped"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "realistic",
+  "def": "现实的, 逼真的",
+  "defEn": "aware or expressing awareness of things as they really are"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "initiation",
+  "def": "开始, 指引",
+  "defEn": "a formal entry into an organization or position or office"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "ruler",
+  "def": "统治者, 管理者",
+  "defEn": "a person who rules or commands"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "commodity",
+  "def": "农产品, 商品",
+  "defEn": "articles of commerce"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "trivial",
+  "def": "琐碎的, 不重要的",
+  "defEn": "s. concerned with trivialities"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "stance",
+  "def": "准备击球姿势, 站立的姿势",
+  "defEn": "standing posture"
+ },
+ {
+  "pack": "freq-3k",
+  "word": "profound",
+  "def": "极深的, 深厚的",
+  "defEn": "showing intellectual penetration or emotional depth"
+ }
+]

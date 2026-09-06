@@ -1,0 +1,15 @@
+[
+  { "word": "ali",           "ex": "Ali is a friendly cat who lives in our neighbourhood.",                          "exzh": "Ali 是一只住在我们这片小区的友善小猫。",                                "exEn": "Ali is a friendly cat who lives in our neighbourhood." },
+  { "word": "blocked",       "ex": "The road is blocked by fallen trees after the storm.",                           "exzh": "风暴过后道路被倒下的树堵住了。",                                    "exEn": "The road is blocked by fallen trees after the storm." },
+  { "word": "boards",        "ex": "He nailed a few wooden boards across the broken window.",                         "exzh": "他用几块木板把破窗钉了起来。",                                    "exEn": "He nailed a few wooden boards across the broken window." },
+  { "word": "checks",        "ex": "I wrote two checks for the rent this month.",                                    "exzh": "我这个月开了两张房租支票。",                                      "exEn": "I wrote two checks for the rent this month." },
+  { "word": "distributed",   "ex": "The teacher distributed the test papers to the class.",                          "exzh": "老师把试卷发给了全班。",                                        "exEn": "The teacher distributed the test papers to the class." },
+  { "word": "documentary",   "ex": "We watched a documentary about life in the Arctic.",                             "exzh": "我们看了一部关于北极生活的纪录片。",                                "exEn": "We watched a documentary about life in the Arctic." },
+  { "word": "favour",        "ex": "Can you do me a favour and open the door?",                                       "exzh": "能帮我个忙把门打开吗？",                                        "exEn": "Can you do me a favour and open the door?" },
+  { "word": "giants",        "ex": "The book tells tales of giants who lived in the mountains.",                     "exzh": "这本书讲述了住在山里的巨人的故事。",                                 "exEn": "The book tells tales of giants who lived in the mountains." },
+  { "word": "mask",          "ex": "The doctor wore a blue mask during the surgery.",                                "exzh": "医生在手术中戴着蓝色口罩。",                                      "exEn": "The doctor wore a blue mask during the surgery." },
+  { "word": "saudi",         "ex": "The Saudi embassy is located downtown.",                                         "exzh": "沙特大使馆位于市中心。",                                        "exEn": "The Saudi embassy is located downtown." },
+  { "word": "toilet",        "ex": "The toilet is on the second floor of the house.",                                "exzh": "厕所在房子二楼。",                                            "exEn": "The toilet is on the second floor of the house." },
+  { "word": "vietnam",       "ex": "She took a long holiday in Vietnam last summer.",                                "exzh": "她去年夏天在越南度过了一个长假。",                                  "exEn": "She took a long holiday in Vietnam last summer." },
+  { "word": "calendar",      "ex": "Mark the date on your calendar so you don't forget.",                            "exzh": "在日历上把这个日期标好，免得忘。",                                  "exEn": "Mark the date on your calendar so you don't forget." }
+]

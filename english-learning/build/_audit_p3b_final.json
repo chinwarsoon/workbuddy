@@ -1,0 +1,161 @@
+{
+  "dir": "content",
+  "packs": [
+    "freq-1k",
+    "freq-2k",
+    "freq-3k",
+    "freq-4k",
+    "general",
+    "nce2",
+    "nce3",
+    "nce4"
+  ],
+  "totals": {
+    "freq-1k": {
+      "total": 1056,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 1056,
+        "templatedWords": 0
+      },
+      "complete": 1056,
+      "templated": 0
+    },
+    "freq-2k": {
+      "total": 1879,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 1879,
+        "templatedWords": 0
+      },
+      "complete": 1879,
+      "templated": 0
+    },
+    "freq-3k": {
+      "total": 956,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 956,
+        "templatedWords": 0
+      },
+      "complete": 956,
+      "templated": 0
+    },
+    "freq-4k": {
+      "total": 800,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 800,
+        "templatedWords": 0
+      },
+      "complete": 800,
+      "templated": 0
+    },
+    "general": {
+      "total": 40,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 40,
+        "templatedWords": 0
+      },
+      "complete": 40,
+      "templated": 0
+    },
+    "nce2": {
+      "total": 97,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 97,
+        "templatedWords": 0
+      },
+      "complete": 97,
+      "templated": 0
+    },
+    "nce3": {
+      "total": 79,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 79,
+        "templatedWords": 0
+      },
+      "complete": 79,
+      "templated": 0
+    },
+    "nce4": {
+      "total": 65,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 65,
+        "templatedWords": 0
+      },
+      "complete": 65,
+      "templated": 0
+    }
+  },
+  "crossPackDiff": [],
+  "perPackIncomplete": {
+    "freq-1k": [],
+    "freq-2k": [],
+    "freq-3k": [],
+    "freq-4k": [],
+    "general": [],
+    "nce2": [],
+    "nce3": [],
+    "nce4": []
+  },
+  "perPackTemplated": {
+    "pid": {
+      "freq-1k": 0,
+      "freq-2k": 0,
+      "freq-3k": 0,
+      "freq-4k": 0,
+      "general": 0,
+      "nce2": 0,
+      "nce3": 0,
+      "nce4": 0
+    },
+    "words": {
+      "freq-1k": [],
+      "freq-2k": [],
+      "freq-3k": [],
+      "freq-4k": [],
+      "general": [],
+      "nce2": [],
+      "nce3": [],
+      "nce4": []
+    }
+  },
+  "orphanCount": 0
+}

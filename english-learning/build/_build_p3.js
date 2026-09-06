@@ -1,7 +1,9 @@
 /* Build Phase 3 pack (freq-3k) from NAWL top-800 entries + 12 B1 readings.
    Guarantees: (1) every blue word is a taught NAWL word;
-   (2) every Phase 1+2 taught word reappears at least once as plain text
-       (spiraling) — missing ones are appended as review tails. */
+   (2) earlier-taught (Phase 1+2) words that appear naturally in a reading are
+       rendered as blue CROSS_DICT popups (spiraling). Per Option F (2026-08-30)
+       no forced "🔁 Review:" tail is appended — cross-phase review is the
+       learner's own flashcards, and the app skips the tail anyway. */
 const fs = require("fs");
 const path = require("path");
 const DIR = "C:/Users/frank/WorkBuddy/workbuddy/english-learning";
@@ -52,7 +54,10 @@ readings.forEach((r,i)=>{
   });
 });
 
-/* ---- recycling: cover every Phase 1+2 TAUGHT WORD (lemma) at least once ---- */
+/* ---- recycling: earlier-taught words that appear NATURALLY are blue popups ----
+   Option F (2026-08-30): cross-phase review is handled by the learner's own
+   flashcards, NOT by forced reading tails. We only count natural coverage here
+   (for the log) and append nothing. */
 function taughtWordsOf(file){
   const p = JSON.parse(fs.readFileSync(path.join(DIR,"content",file),"utf8"));
   return p.words.filter(w=>w.def).map(w=>w.word.toLowerCase());
@@ -81,23 +86,12 @@ function coveredTaught(){
   });
   return cov;
 }
+// Option F (2026-08-30): no forced tail. Count natural coverage for the log only.
 let cov = coveredTaught();
 const missing = taughtList.filter(w=>!cov.has(w));
-if(missing.length){
-  // distribute missing taught words into review tails across readings
-  const per = Math.ceil(missing.length / readings.length);
-  let idx = 0;
-  for(let ri=0; ri<readings.length && idx<missing.length; ri++){
-    const chunk = missing.slice(idx, idx+per); idx += per;
-    readings[ri].text += "\n🔁 Review: " + chunk.join(", ") + ".";
-  }
-  cov = coveredTaught();
-  const still = taughtList.filter(w=>!cov.has(w));
-  if(still.length) bad("RECYCLING: "+still.length+" earlier taught words still not covered: "+still.slice(0,20).join(","));
-  console.log("Recycling: covered "+(taughtList.length - still.length)+"/"+taughtList.length+" earlier taught words");
-} else {
-  console.log("Recycling: all "+taughtList.length+" earlier taught words already appear naturally");
-}
+console.log("Recycling (natural only, Option F): "+cov.size+"/"+taughtList.length+
+  " earlier taught words appear naturally ("+(100*cov.size/taughtList.length).toFixed(1)+"%); "+
+  missing.length+" reinforced via flashcards.");
 
 /* ---- build readings JSON (vocab from p3) ---- */
 const readingsJSON = readings.map(r=>{
@@ -126,8 +120,8 @@ const areaLabel = {
 };
 const pack = {
   id:"freq3k", name:"高频词·第3阶 (NAWL 学术词)", nameEn:"High-Frequency 3 (NAWL academic)",
-  desc:"基于 New Academic Word List（NAWL）前 800 学术词：12 篇 B1 分级阅读，每篇 3 道题。并循环复现第 1–2 阶已学词。蓝词即每日重点。",
-  descEn:"Phase 3 on the New Academic Word List (NAWL) top 800: 12 B1 graded readings, each 3 questions. Recycles every Phase 1–2 taught word. Blue words are the daily focus.",
+  desc:"基于 New Academic Word List（NAWL）前 800 学术词：12 篇 B1 分级阅读，每篇 3 道题。阅读中自然复现的第 1–2 阶词以蓝词呈现（点击看释义/发音）；跨阶段复习由你的生词卡完成。蓝词即每日重点。",
+  descEn:"Phase 3 on the New Academic Word List (NAWL) top 800: 12 B1 graded readings, each 3 questions. Phase 1–2 words that surface naturally are blue popups (tap for meaning/audio); cross-phase review is handled by your own flashcards. Blue words are the daily focus.",
   words:words, readings:readingsJSON, areaTasks:areaTasks, areaLabel:areaLabel
 };
 const out = JSON.stringify(pack, null, 1);

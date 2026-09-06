@@ -1,0 +1,63 @@
+=========================================================
+  Per-Pack Per-Word Completeness Audit (content)
+=========================================================
+
+Per-pack summary (count of words missing each field; !! = fake-complete template):
+
+pack    | total  | complete | !!tpl  | !def   | !defEn | !ex    | !exzh  | !exEn 
+--------+--------+----------+--------+--------+--------+--------+--------+-------
+freq-1k | 1056   | 458      | 0      | 0      | 0      | 598    | 598    | 598   
+freq-2k | 1879   | 1879     | 0      | 0      | 0      | 0      | 0      | 0     
+freq-3k | 956    | 956      | 164    | 0      | 0      | 0      | 0      | 0     
+freq-4k | 800    | 800      | 143    | 0      | 0      | 0      | 0      | 0     
+general | 40     | 40       | 0      | 0      | 0      | 0      | 0      | 0     
+nce2    | 97     | 97       | 0      | 0      | 0      | 0      | 0      | 0     
+nce3    | 79     | 79       | 0      | 0      | 0      | 0      | 0      | 0     
+nce4    | 65     | 65       | 0      | 0      | 0      | 0      | 0      | 0     
+
+Words appearing in 2+ packs with DIFFERENT completeness flag (D=def E=defEn X=ex Xz=exzh Xe=exEn; . = present):
+
+  (none — every shared word is equally complete across packs)
+
+!! FAKE-COMPLETE words (all fields filled, but example is a known placeholder template):
+
+  [freq-3k] 164 word(s) to fix in Phase 2:
+    - utility        ex="This utility helps explain the result." / exzh="这个utility有助于解释结果。"
+    - corpus         ex="This corpus helps explain the result." / exzh="这个corpus有助于解释结果。"
+    - methodology    ex="This methodology helps explain the result." / exzh="这个methodology有助于解释结果。"
+    - fiber          ex="This fiber helps explain the result." / exzh="这个fiber有助于解释结果。"
+    - continuity     ex="This continuity helps explain the result." / exzh="这个continuity有助于解释结果。"
+    - notation       ex="This notation helps explain the result." / exzh="这个notation有助于解释结果。"
+    - magnitude      ex="This magnitude helps explain the result." / exzh="这个magnitude有助于解释结果。"
+    - emission       ex="This emission helps explain the result." / exzh="这个emission有助于解释结果。"
+    ... and 156 more
+  [freq-4k] 143 word(s) to fix in Phase 2:
+    - incumbent      ex="This incumbent helps explain the result." / exzh="这个incumbent有助于解释结果。"
+    - credibility    ex="This credibility helps explain the result." / exzh="这个credibility有助于解释结果。"
+    - fin            ex="This fin helps explain the result." / exzh="这个fin有助于解释结果。"
+    - biologist      ex="This biologist helps explain the result." / exzh="这个biologist有助于解释结果。"
+    - ghost          ex="This ghost helps explain the result." / exzh="这个ghost有助于解释结果。"
+    - instinct       ex="This instinct helps explain the result." / exzh="这个instinct有助于解释结果。"
+    - stripe         ex="This stripe helps explain the result." / exzh="这个stripe有助于解释结果。"
+    - kilometer      ex="This kilometer helps explain the result." / exzh="这个kilometer有助于解释结果。"
+    ... and 135 more
+
+Per-pack incomplete words (each word lists which fields are empty):
+
+  [freq-1k] 598 word(s) need fix:
+    - one            missing: ex,exzh,exEn
+    - year           missing: ex,exzh,exEn
+    - well           missing: ex,exzh,exEn
+    - way            missing: ex,exzh,exEn
+    - thing          missing: ex,exzh,exEn
+    - back           missing: ex,exzh,exEn
+    - mean           missing: ex,exzh,exEn
+    - really         missing: ex,exzh,exEn
+    - life           missing: ex,exzh,exEn
+    - problem        missing: ex,exzh,exEn
+    - lot            missing: ex,exzh,exEn
+    - try            missing: ex,exzh,exEn
+    ... and 586 more
+
+Critical — words incomplete in EVERY pack they appear in (Option B targets):
+  count: 0

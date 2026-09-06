@@ -1,0 +1,7121 @@
+{
+  "dir": "content",
+  "packs": [
+    "freq-1k",
+    "freq-2k",
+    "freq-3k",
+    "freq-4k",
+    "general",
+    "nce2",
+    "nce3",
+    "nce4"
+  ],
+  "totals": {
+    "freq-1k": {
+      "total": 1056,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 598,
+        "exzh": 598,
+        "exEn": 598,
+        "completeWords": 458,
+        "templatedWords": 0
+      },
+      "complete": 458,
+      "templated": 0
+    },
+    "freq-2k": {
+      "total": 1879,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 1879,
+        "templatedWords": 0
+      },
+      "complete": 1879,
+      "templated": 0
+    },
+    "freq-3k": {
+      "total": 956,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 956,
+        "templatedWords": 164
+      },
+      "complete": 956,
+      "templated": 164
+    },
+    "freq-4k": {
+      "total": 800,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 800,
+        "templatedWords": 143
+      },
+      "complete": 800,
+      "templated": 143
+    },
+    "general": {
+      "total": 40,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 40,
+        "templatedWords": 0
+      },
+      "complete": 40,
+      "templated": 0
+    },
+    "nce2": {
+      "total": 97,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 97,
+        "templatedWords": 0
+      },
+      "complete": 97,
+      "templated": 0
+    },
+    "nce3": {
+      "total": 79,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 79,
+        "templatedWords": 0
+      },
+      "complete": 79,
+      "templated": 0
+    },
+    "nce4": {
+      "total": 65,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 65,
+        "templatedWords": 0
+      },
+      "complete": 65,
+      "templated": 0
+    }
+  },
+  "crossPackDiff": [
+    {
+      "word": "achieve",
+      "packs": [
+        "freq-1k",
+        "nce3"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "argue",
+      "packs": [
+        "freq-1k",
+        "nce4"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "attempt",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "bear",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "campaign",
+      "packs": [
+        "freq-1k",
+        "nce3"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "claim",
+      "packs": [
+        "freq-1k",
+        "nce3"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "community",
+      "packs": [
+        "freq-1k",
+        "nce3"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "conversation",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "effort",
+      "packs": [
+        "freq-1k",
+        "nce3"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "encourage",
+      "packs": [
+        "freq-1k",
+        "nce3"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "environment",
+      "packs": [
+        "freq-1k",
+        "nce3"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "gain",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "immediately",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "note",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "notice",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "organize",
+      "packs": [
+        "freq-1k",
+        "nce3"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "piece",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "private",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "public",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "recognize",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "release",
+      "packs": [
+        "freq-1k",
+        "nce3"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "seat",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "sign",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "similar",
+      "packs": [
+        "freq-1k",
+        "nce3"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "suggest",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "surprise",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "trouble",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "weight",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "whole",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    },
+    {
+      "word": "worry",
+      "packs": [
+        "freq-1k",
+        "nce2"
+      ],
+      "flags": [
+        "..EEE",
+        "....."
+      ]
+    }
+  ],
+  "perPackIncomplete": {
+    "freq-1k": [
+      {
+        "word": "one",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "year",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "well",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "way",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "thing",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "back",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "mean",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "really",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "life",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "problem",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "lot",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "try",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "leave",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "number",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "part",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "point",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "something",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "interest",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "week",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "include",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "course",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "report",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "group",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "case",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "around",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "seem",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "let",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "kind",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "system",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "set",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "state",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "fact",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "however",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "provide",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "month",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "large",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "information",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "government",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "issue",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "build",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "hold",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "service",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "second",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "increase",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "result",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "away",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "example",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "happen",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "offer",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "program",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "lead",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "thank",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "far",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "hope",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "form",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "level",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "person",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "experience",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "member",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "able",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "support",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "whether",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "line",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "present",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "side",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "term",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "least",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "age",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "process",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "public",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "possible",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "actually",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "view",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "parent",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "party",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "local",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "control",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "already",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "concern",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "product",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "lose",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "whole",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "rate",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "care",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "expect",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "sort",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "ever",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "anything",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "cause",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "fall",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "deal",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "send",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "soon",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "base",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "suggest",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "past",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "power",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "center",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "grow",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "nothing",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "return",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "mother",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "matter",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "mind",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "value",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "record",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "several",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "remember",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "bit",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "share",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "real",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "figure",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "decide",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "language",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "subject",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "development",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "town",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "half",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "break",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "clear",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "future",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "ago",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "remain",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "top",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "among",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "involve",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "reach",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "social",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "period",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "note",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "history",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "create",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "along",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "type",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "sound",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "political",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "receive",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "moment",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "sale",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "policy",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "further",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "require",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "general",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "appear",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "individual",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "black",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "sense",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "perhaps",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "add",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "rule",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "pass",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "produce",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "sell",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "agree",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "law",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "everything",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "research",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "cover",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "position",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "human",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "situation",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "film",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "war",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "account",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "major",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "someone",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "above",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "design",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "event",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "special",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "sometimes",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "choose",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "father",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "forward",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "main",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "die",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "bear",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "describe",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "himself",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "available",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "especially",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "rise",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "maybe",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "community",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "join",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "please",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "detail",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "difference",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "action",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "step",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "TRUE",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "themselves",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "draw",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "white",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "date",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "practice",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "model",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "raise",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "front",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "explain",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "outside",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "behind",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "economic",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "site",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "land",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "finally",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "sign",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "claim",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "relationship",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "enjoy",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "death",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "nice",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "amount",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "regard",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "couple",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "act",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "range",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "quality",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "project",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "round",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "accord",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "list",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "wish",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "fund",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "kid",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "industry",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "education",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "measure",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "kill",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "serve",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "certainly",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "national",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "itself",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "teach",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "field",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "security",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "benefit",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "trade",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "risk",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "news",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "standard",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "vote",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "percent",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "focus",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "space",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "realize",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "data",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "single",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "address",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "performance",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "accept",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "society",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "technology",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "mention",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "common",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "total",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "demand",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "material",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "limit",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "due",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "wrong",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "foot",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "effort",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "attention",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "check",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "complete",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "lie",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "pick",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "reduce",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "personal",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "arrive",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "current",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "exist",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "similar",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "fight",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "leader",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "fine",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "former",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "contact",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "particularly",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "wife",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "sport",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "prepare",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "discuss",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "response",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "piece",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "finish",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "suppose",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "president",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "compare",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "court",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "poor",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "knowledge",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "laugh",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "arm",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "source",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "employee",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "manage",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "firm",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "cell",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "article",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "attack",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "surprise",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "factor",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "pretty",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "affect",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "drop",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "recent",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "relate",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "official",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "financial",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "miss",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "art",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "campaign",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "private",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "pause",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "everyone",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "forget",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "page",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "worry",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "represent",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "key",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "inside",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "international",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "contain",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "notice",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "wonder",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "nature",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "structure",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "section",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "myself",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "exactly",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "paint",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "worker",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "press",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "whatever",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "region",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "evening",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "influence",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "respect",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "various",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "catch",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "skill",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "attempt",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "son",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "simple",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "medium",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "average",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "stock",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "management",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "hit",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "establish",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "indeed",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "final",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "economy",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "fit",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "guy",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "function",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "yesterday",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "image",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "behavior",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "addition",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "determine",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "fail",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "environment",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "production",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "player",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "comment",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "enter",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "occur",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "alone",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "wall",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "series",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "direct",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "tomorrow",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "director",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "clearly",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "lack",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "review",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "depend",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "recognize",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "department",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "gain",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "tree",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "college",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "argue",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "board",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "holiday",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "mark",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "church",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "achieve",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "item",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "prove",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "cent",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "stuff",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "wide",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "anyone",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "method",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "analysis",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "election",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "military",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "club",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "below",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "discussion",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "sorry",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "challenge",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "nation",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "nearly",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "statement",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "link",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "despite",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "introduce",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "advantage",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "marry",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "strike",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "mile",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "seek",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "unit",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "card",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "quickly",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "agreement",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "release",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "tax",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "popular",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "specific",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "fear",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "aim",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "television",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "serious",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "degree",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "pull",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "red",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "husband",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "access",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "movement",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "treat",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "identify",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "loss",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "bus",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "treatment",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "conference",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "yourself",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "worth",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "natural",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "express",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "indicate",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "attend",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "brother",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "organize",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "beyond",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "fish",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "promise",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "potential",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "energy",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "trouble",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "relation",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "touch",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "file",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "middle",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "bar",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "suffer",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "except",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "tend",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "advance",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "fill",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "star",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "network",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "generally",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "avoid",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "seat",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "throw",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "task",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "goal",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "associate",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "blue",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "option",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "box",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "huge",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "message",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "instance",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "style",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "refer",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "push",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "quarter",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "assume",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "successful",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "sing",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "doubt",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "competition",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "theory",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "propose",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "reference",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "argument",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "adult",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "fly",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "document",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "pattern",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "application",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "obviously",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "unclear",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "bill",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "search",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "separate",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "central",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "anyway",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "speech",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "dog",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "officer",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "throughout",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "oil",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "dress",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "profit",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "guess",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "fun",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "protect",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "resource",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "science",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "balance",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "author",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "basic",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "encourage",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "hair",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "male",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "operate",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "reflect",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "property",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "previous",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "dark",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "imagine",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "okay",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "earn",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "daughter",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "post",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "newspaper",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "define",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "conclusion",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "clock",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "everybody",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "weekend",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "perform",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "professional",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "debate",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "memory",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "green",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "song",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "object",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "maintain",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "credit",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "ring",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "discover",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "dead",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "afternoon",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "prefer",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "extend",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "possibility",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "direction",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "facility",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "variety",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "daily",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "clothes",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "track",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "dance",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "completely",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "female",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "original",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "sister",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "rock",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "dream",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "university",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "easily",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "agency",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "dollar",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "garden",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "fix",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "ahead",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "cross",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "yeah",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "candidate",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "weight",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "legal",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "proposal",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "version",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "conversation",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "somebody",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "pound",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "magazine",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "shape",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "immediately",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "welcome",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "smile",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "agent",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "traditional",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "replace",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "judge",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "herself",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "suddenly",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "generation",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      },
+      {
+        "word": "estimate",
+        "missing": [
+          "ex",
+          "exzh",
+          "exEn"
+        ]
+      }
+    ],
+    "freq-2k": [],
+    "freq-3k": [],
+    "freq-4k": [],
+    "general": [],
+    "nce2": [],
+    "nce3": [],
+    "nce4": []
+  },
+  "perPackTemplated": {
+    "pid": {
+      "freq-1k": 0,
+      "freq-2k": 0,
+      "freq-3k": 164,
+      "freq-4k": 143,
+      "general": 0,
+      "nce2": 0,
+      "nce3": 0,
+      "nce4": 0
+    },
+    "words": {
+      "freq-1k": [],
+      "freq-2k": [],
+      "freq-3k": [
+        {
+          "word": "utility",
+          "ex": "This utility helps explain the result.",
+          "exzh": "这个utility有助于解释结果。",
+          "exEn": "This utility helps explain the result."
+        },
+        {
+          "word": "corpus",
+          "ex": "This corpus helps explain the result.",
+          "exzh": "这个corpus有助于解释结果。",
+          "exEn": "This corpus helps explain the result."
+        },
+        {
+          "word": "methodology",
+          "ex": "This methodology helps explain the result.",
+          "exzh": "这个methodology有助于解释结果。",
+          "exEn": "This methodology helps explain the result."
+        },
+        {
+          "word": "fiber",
+          "ex": "This fiber helps explain the result.",
+          "exzh": "这个fiber有助于解释结果。",
+          "exEn": "This fiber helps explain the result."
+        },
+        {
+          "word": "continuity",
+          "ex": "This continuity helps explain the result.",
+          "exzh": "这个continuity有助于解释结果。",
+          "exEn": "This continuity helps explain the result."
+        },
+        {
+          "word": "notation",
+          "ex": "This notation helps explain the result.",
+          "exzh": "这个notation有助于解释结果。",
+          "exEn": "This notation helps explain the result."
+        },
+        {
+          "word": "magnitude",
+          "ex": "This magnitude helps explain the result.",
+          "exzh": "这个magnitude有助于解释结果。",
+          "exEn": "This magnitude helps explain the result."
+        },
+        {
+          "word": "emission",
+          "ex": "This emission helps explain the result.",
+          "exzh": "这个emission有助于解释结果。",
+          "exEn": "This emission helps explain the result."
+        },
+        {
+          "word": "consciousness",
+          "ex": "This consciousness helps explain the result.",
+          "exzh": "这个consciousness有助于解释结果。",
+          "exEn": "This consciousness helps explain the result."
+        },
+        {
+          "word": "hierarchy",
+          "ex": "This hierarchy helps explain the result.",
+          "exzh": "这个hierarchy有助于解释结果。",
+          "exEn": "This hierarchy helps explain the result."
+        },
+        {
+          "word": "modification",
+          "ex": "This modification helps explain the result.",
+          "exzh": "这个modification有助于解释结果。",
+          "exEn": "This modification helps explain the result."
+        },
+        {
+          "word": "autonomy",
+          "ex": "This autonomy helps explain the result.",
+          "exzh": "这个autonomy有助于解释结果。",
+          "exEn": "This autonomy helps explain the result."
+        },
+        {
+          "word": "biology",
+          "ex": "This biology helps explain the result.",
+          "exzh": "这个biology有助于解释结果。",
+          "exEn": "This biology helps explain the result."
+        },
+        {
+          "word": "contrary",
+          "ex": "This contrary helps explain the result.",
+          "exzh": "这个contrary有助于解释结果。",
+          "exEn": "This contrary helps explain the result."
+        },
+        {
+          "word": "effectiveness",
+          "ex": "This effectiveness helps explain the result.",
+          "exzh": "这个effectiveness有助于解释结果。",
+          "exEn": "This effectiveness helps explain the result."
+        },
+        {
+          "word": "calculus",
+          "ex": "This calculus helps explain the result.",
+          "exzh": "这个calculus有助于解释结果。",
+          "exEn": "This calculus helps explain the result."
+        },
+        {
+          "word": "neutral",
+          "ex": "This neutral helps explain the result.",
+          "exzh": "这个neutral有助于解释结果。",
+          "exEn": "This neutral helps explain the result."
+        },
+        {
+          "word": "characterization",
+          "ex": "This characterization helps explain the result.",
+          "exzh": "这个characterization有助于解释结果。",
+          "exEn": "This characterization helps explain the result."
+        },
+        {
+          "word": "formulation",
+          "ex": "This formulation helps explain the result.",
+          "exzh": "这个formulation有助于解释结果。",
+          "exEn": "This formulation helps explain the result."
+        },
+        {
+          "word": "immune",
+          "ex": "This immune helps explain the result.",
+          "exzh": "这个immune有助于解释结果。",
+          "exEn": "This immune helps explain the result."
+        },
+        {
+          "word": "derivative",
+          "ex": "This derivative helps explain the result.",
+          "exzh": "这个derivative有助于解释结果。",
+          "exEn": "This derivative helps explain the result."
+        },
+        {
+          "word": "diffusion",
+          "ex": "This diffusion helps explain the result.",
+          "exzh": "这个diffusion有助于解释结果。",
+          "exEn": "This diffusion helps explain the result."
+        },
+        {
+          "word": "fusion",
+          "ex": "This fusion helps explain the result.",
+          "exzh": "这个fusion有助于解释结果。",
+          "exEn": "This fusion helps explain the result."
+        },
+        {
+          "word": "virtue",
+          "ex": "This virtue helps explain the result.",
+          "exzh": "这个virtue有助于解释结果。",
+          "exEn": "This virtue helps explain the result."
+        },
+        {
+          "word": "pre",
+          "ex": "This pre helps explain the result.",
+          "exzh": "这个pre有助于解释结果。",
+          "exEn": "This pre helps explain the result."
+        },
+        {
+          "word": "critique",
+          "ex": "This critique helps explain the result.",
+          "exzh": "这个critique有助于解释结果。",
+          "exEn": "This critique helps explain the result."
+        },
+        {
+          "word": "ritual",
+          "ex": "This ritual helps explain the result.",
+          "exzh": "这个ritual有助于解释结果。",
+          "exEn": "This ritual helps explain the result."
+        },
+        {
+          "word": "questionnaire",
+          "ex": "This questionnaire helps explain the result.",
+          "exzh": "这个questionnaire有助于解释结果。",
+          "exEn": "This questionnaire helps explain the result."
+        },
+        {
+          "word": "tense",
+          "ex": "This tense helps explain the result.",
+          "exzh": "这个tense有助于解释结果。",
+          "exEn": "This tense helps explain the result."
+        },
+        {
+          "word": "nutrient",
+          "ex": "This nutrient helps explain the result.",
+          "exzh": "这个nutrient有助于解释结果。",
+          "exEn": "This nutrient helps explain the result."
+        },
+        {
+          "word": "terminal",
+          "ex": "This terminal helps explain the result.",
+          "exzh": "这个terminal有助于解释结果。",
+          "exEn": "This terminal helps explain the result."
+        },
+        {
+          "word": "progressive",
+          "ex": "This progressive helps explain the result.",
+          "exzh": "这个progressive有助于解释结果。",
+          "exEn": "This progressive helps explain the result."
+        },
+        {
+          "word": "agriculture",
+          "ex": "This agriculture helps explain the result.",
+          "exzh": "这个agriculture有助于解释结果。",
+          "exEn": "This agriculture helps explain the result."
+        },
+        {
+          "word": "equivalence",
+          "ex": "This equivalence helps explain the result.",
+          "exzh": "这个equivalence有助于解释结果。",
+          "exEn": "This equivalence helps explain the result."
+        },
+        {
+          "word": "arrow",
+          "ex": "This arrow helps explain the result.",
+          "exzh": "这个arrow有助于解释结果。",
+          "exEn": "This arrow helps explain the result."
+        },
+        {
+          "word": "residue",
+          "ex": "This residue helps explain the result.",
+          "exzh": "这个residue有助于解释结果。",
+          "exEn": "This residue helps explain the result."
+        },
+        {
+          "word": "harvest",
+          "ex": "This harvest helps explain the result.",
+          "exzh": "这个harvest有助于解释结果。",
+          "exEn": "This harvest helps explain the result."
+        },
+        {
+          "word": "monkey",
+          "ex": "This monkey helps explain the result.",
+          "exzh": "这个monkey有助于解释结果。",
+          "exEn": "This monkey helps explain the result."
+        },
+        {
+          "word": "cattle",
+          "ex": "This cattle helps explain the result.",
+          "exzh": "这个cattle有助于解释结果。",
+          "exEn": "This cattle helps explain the result."
+        },
+        {
+          "word": "scatter",
+          "ex": "This scatter helps explain the result.",
+          "exzh": "这个scatter有助于解释结果。",
+          "exEn": "This scatter helps explain the result."
+        },
+        {
+          "word": "linguistics",
+          "ex": "This linguistics helps explain the result.",
+          "exzh": "这个linguistics有助于解释结果。",
+          "exEn": "This linguistics helps explain the result."
+        },
+        {
+          "word": "ethics",
+          "ex": "This ethics helps explain the result.",
+          "exzh": "这个ethics有助于解释结果。",
+          "exEn": "This ethics helps explain the result."
+        },
+        {
+          "word": "consent",
+          "ex": "This consent helps explain the result.",
+          "exzh": "这个consent有助于解释结果。",
+          "exEn": "This consent helps explain the result."
+        },
+        {
+          "word": "discrimination",
+          "ex": "This discrimination helps explain the result.",
+          "exzh": "这个discrimination有助于解释结果。",
+          "exEn": "This discrimination helps explain the result."
+        },
+        {
+          "word": "mineral",
+          "ex": "This mineral helps explain the result.",
+          "exzh": "这个mineral有助于解释结果。",
+          "exEn": "This mineral helps explain the result."
+        },
+        {
+          "word": "clone",
+          "ex": "This clone helps explain the result.",
+          "exzh": "这个clone有助于解释结果。",
+          "exEn": "This clone helps explain the result."
+        },
+        {
+          "word": "dominance",
+          "ex": "This dominance helps explain the result.",
+          "exzh": "这个dominance有助于解释结果。",
+          "exEn": "This dominance helps explain the result."
+        },
+        {
+          "word": "thickness",
+          "ex": "This thickness helps explain the result.",
+          "exzh": "这个thickness有助于解释结果。",
+          "exEn": "This thickness helps explain the result."
+        },
+        {
+          "word": "offspring",
+          "ex": "This offspring helps explain the result.",
+          "exzh": "这个offspring有助于解释结果。",
+          "exEn": "This offspring helps explain the result."
+        },
+        {
+          "word": "tract",
+          "ex": "This tract helps explain the result.",
+          "exzh": "这个tract有助于解释结果。",
+          "exEn": "This tract helps explain the result."
+        },
+        {
+          "word": "replacement",
+          "ex": "This replacement helps explain the result.",
+          "exzh": "这个replacement有助于解释结果。",
+          "exEn": "This replacement helps explain the result."
+        },
+        {
+          "word": "valve",
+          "ex": "This valve helps explain the result.",
+          "exzh": "这个valve有助于解释结果。",
+          "exEn": "This valve helps explain the result."
+        },
+        {
+          "word": "tolerance",
+          "ex": "This tolerance helps explain the result.",
+          "exzh": "这个tolerance有助于解释结果。",
+          "exEn": "This tolerance helps explain the result."
+        },
+        {
+          "word": "flux",
+          "ex": "This flux helps explain the result.",
+          "exzh": "这个flux有助于解释结果。",
+          "exEn": "This flux helps explain the result."
+        },
+        {
+          "word": "vein",
+          "ex": "This vein helps explain the result.",
+          "exzh": "这个vein有助于解释结果。",
+          "exEn": "This vein helps explain the result."
+        },
+        {
+          "word": "rewrite",
+          "ex": "This rewrite helps explain the result.",
+          "exzh": "这个rewrite有助于解释结果。",
+          "exEn": "This rewrite helps explain the result."
+        },
+        {
+          "word": "peasant",
+          "ex": "This peasant helps explain the result.",
+          "exzh": "这个peasant有助于解释结果。",
+          "exEn": "This peasant helps explain the result."
+        },
+        {
+          "word": "justification",
+          "ex": "This justification helps explain the result.",
+          "exzh": "这个justification有助于解释结果。",
+          "exEn": "This justification helps explain the result."
+        },
+        {
+          "word": "rhythm",
+          "ex": "This rhythm helps explain the result.",
+          "exzh": "这个rhythm有助于解释结果。",
+          "exEn": "This rhythm helps explain the result."
+        },
+        {
+          "word": "constitution",
+          "ex": "This constitution helps explain the result.",
+          "exzh": "这个constitution有助于解释结果。",
+          "exEn": "This constitution helps explain the result."
+        },
+        {
+          "word": "disadvantage",
+          "ex": "This disadvantage helps explain the result.",
+          "exzh": "这个disadvantage有助于解释结果。",
+          "exEn": "This disadvantage helps explain the result."
+        },
+        {
+          "word": "accent",
+          "ex": "This accent helps explain the result.",
+          "exzh": "这个accent有助于解释结果。",
+          "exEn": "This accent helps explain the result."
+        },
+        {
+          "word": "basin",
+          "ex": "This basin helps explain the result.",
+          "exzh": "这个basin有助于解释结果。",
+          "exEn": "This basin helps explain the result."
+        },
+        {
+          "word": "displacement",
+          "ex": "This displacement helps explain the result.",
+          "exzh": "这个displacement有助于解释结果。",
+          "exEn": "This displacement helps explain the result."
+        },
+        {
+          "word": "civilization",
+          "ex": "This civilization helps explain the result.",
+          "exzh": "这个civilization有助于解释结果。",
+          "exEn": "This civilization helps explain the result."
+        },
+        {
+          "word": "deficiency",
+          "ex": "This deficiency helps explain the result.",
+          "exzh": "这个deficiency有助于解释结果。",
+          "exEn": "This deficiency helps explain the result."
+        },
+        {
+          "word": "progression",
+          "ex": "This progression helps explain the result.",
+          "exzh": "这个progression有助于解释结果。",
+          "exEn": "This progression helps explain the result."
+        },
+        {
+          "word": "scholarship",
+          "ex": "This scholarship helps explain the result.",
+          "exzh": "这个scholarship有助于解释结果。",
+          "exEn": "This scholarship helps explain the result."
+        },
+        {
+          "word": "oscillation",
+          "ex": "This oscillation helps explain the result.",
+          "exzh": "这个oscillation有助于解释结果。",
+          "exEn": "This oscillation helps explain the result."
+        },
+        {
+          "word": "nest",
+          "ex": "This nest helps explain the result.",
+          "exzh": "这个nest有助于解释结果。",
+          "exEn": "This nest helps explain the result."
+        },
+        {
+          "word": "artifact",
+          "ex": "This artifact helps explain the result.",
+          "exzh": "这个artifact有助于解释结果。",
+          "exEn": "This artifact helps explain the result."
+        },
+        {
+          "word": "coordination",
+          "ex": "This coordination helps explain the result.",
+          "exzh": "这个coordination有助于解释结果。",
+          "exEn": "This coordination helps explain the result."
+        },
+        {
+          "word": "sediment",
+          "ex": "This sediment helps explain the result.",
+          "exzh": "这个sediment有助于解释结果。",
+          "exEn": "This sediment helps explain the result."
+        },
+        {
+          "word": "primer",
+          "ex": "This primer helps explain the result.",
+          "exzh": "这个primer有助于解释结果。",
+          "exEn": "This primer helps explain the result."
+        },
+        {
+          "word": "terminology",
+          "ex": "This terminology helps explain the result.",
+          "exzh": "这个terminology有助于解释结果。",
+          "exEn": "This terminology helps explain the result."
+        },
+        {
+          "word": "revolutionary",
+          "ex": "This revolutionary helps explain the result.",
+          "exzh": "这个revolutionary有助于解释结果。",
+          "exEn": "This revolutionary helps explain the result."
+        },
+        {
+          "word": "motif",
+          "ex": "This motif helps explain the result.",
+          "exzh": "这个motif有助于解释结果。",
+          "exEn": "This motif helps explain the result."
+        },
+        {
+          "word": "clinic",
+          "ex": "This clinic helps explain the result.",
+          "exzh": "这个clinic有助于解释结果。",
+          "exEn": "This clinic helps explain the result."
+        },
+        {
+          "word": "dissertation",
+          "ex": "This dissertation helps explain the result.",
+          "exzh": "这个dissertation有助于解释结果。",
+          "exEn": "This dissertation helps explain the result."
+        },
+        {
+          "word": "economist",
+          "ex": "This economist helps explain the result.",
+          "exzh": "这个economist有助于解释结果。",
+          "exEn": "This economist helps explain the result."
+        },
+        {
+          "word": "capitalism",
+          "ex": "This capitalism helps explain the result.",
+          "exzh": "这个capitalism有助于解释结果。",
+          "exEn": "This capitalism helps explain the result."
+        },
+        {
+          "word": "cord",
+          "ex": "This cord helps explain the result.",
+          "exzh": "这个cord有助于解释结果。",
+          "exEn": "This cord helps explain the result."
+        },
+        {
+          "word": "horizon",
+          "ex": "This horizon helps explain the result.",
+          "exzh": "这个horizon有助于解释结果。",
+          "exEn": "This horizon helps explain the result."
+        },
+        {
+          "word": "elevation",
+          "ex": "This elevation helps explain the result.",
+          "exzh": "这个elevation有助于解释结果。",
+          "exEn": "This elevation helps explain the result."
+        },
+        {
+          "word": "ancestor",
+          "ex": "This ancestor helps explain the result.",
+          "exzh": "这个ancestor有助于解释结果。",
+          "exEn": "This ancestor helps explain the result."
+        },
+        {
+          "word": "phosphate",
+          "ex": "This phosphate helps explain the result.",
+          "exzh": "这个phosphate有助于解释结果。",
+          "exEn": "This phosphate helps explain the result."
+        },
+        {
+          "word": "puzzle",
+          "ex": "This puzzle helps explain the result.",
+          "exzh": "这个puzzle有助于解释结果。",
+          "exEn": "This puzzle helps explain the result."
+        },
+        {
+          "word": "exit",
+          "ex": "This exit helps explain the result.",
+          "exzh": "这个exit有助于解释结果。",
+          "exEn": "This exit helps explain the result."
+        },
+        {
+          "word": "trauma",
+          "ex": "This trauma helps explain the result.",
+          "exzh": "这个trauma有助于解释结果。",
+          "exEn": "This trauma helps explain the result."
+        },
+        {
+          "word": "physics",
+          "ex": "This physics helps explain the result.",
+          "exzh": "这个physics有助于解释结果。",
+          "exEn": "This physics helps explain the result."
+        },
+        {
+          "word": "stereotype",
+          "ex": "This stereotype helps explain the result.",
+          "exzh": "这个stereotype有助于解释结果。",
+          "exEn": "This stereotype helps explain the result."
+        },
+        {
+          "word": "faculty",
+          "ex": "This faculty helps explain the result.",
+          "exzh": "这个faculty有助于解释结果。",
+          "exEn": "This faculty helps explain the result."
+        },
+        {
+          "word": "axiom",
+          "ex": "This axiom helps explain the result.",
+          "exzh": "这个axiom有助于解释结果。",
+          "exEn": "This axiom helps explain the result."
+        },
+        {
+          "word": "transplant",
+          "ex": "This transplant helps explain the result.",
+          "exzh": "这个transplant有助于解释结果。",
+          "exEn": "This transplant helps explain the result."
+        },
+        {
+          "word": "epidemic",
+          "ex": "This epidemic helps explain the result.",
+          "exzh": "这个epidemic有助于解释结果。",
+          "exEn": "This epidemic helps explain the result."
+        },
+        {
+          "word": "mechanic",
+          "ex": "This mechanic helps explain the result.",
+          "exzh": "这个mechanic有助于解释结果。",
+          "exEn": "This mechanic helps explain the result."
+        },
+        {
+          "word": "fatigue",
+          "ex": "This fatigue helps explain the result.",
+          "exzh": "这个fatigue有助于解释结果。",
+          "exEn": "This fatigue helps explain the result."
+        },
+        {
+          "word": "trans",
+          "ex": "This trans helps explain the result.",
+          "exzh": "这个trans有助于解释结果。",
+          "exEn": "This trans helps explain the result."
+        },
+        {
+          "word": "treaty",
+          "ex": "This treaty helps explain the result.",
+          "exzh": "这个treaty有助于解释结果。",
+          "exEn": "This treaty helps explain the result."
+        },
+        {
+          "word": "bat",
+          "ex": "This bat helps explain the result.",
+          "exzh": "这个bat有助于解释结果。",
+          "exEn": "This bat helps explain the result."
+        },
+        {
+          "word": "paradox",
+          "ex": "This paradox helps explain the result.",
+          "exzh": "这个paradox有助于解释结果。",
+          "exEn": "This paradox helps explain the result."
+        },
+        {
+          "word": "ton",
+          "ex": "This ton helps explain the result.",
+          "exzh": "这个ton有助于解释结果。",
+          "exEn": "This ton helps explain the result."
+        },
+        {
+          "word": "elasticity",
+          "ex": "This elasticity helps explain the result.",
+          "exzh": "这个elasticity有助于解释结果。",
+          "exEn": "This elasticity helps explain the result."
+        },
+        {
+          "word": "sensation",
+          "ex": "This sensation helps explain the result.",
+          "exzh": "这个sensation有助于解释结果。",
+          "exEn": "This sensation helps explain the result."
+        },
+        {
+          "word": "machinery",
+          "ex": "This machinery helps explain the result.",
+          "exzh": "这个machinery有助于解释结果。",
+          "exEn": "This machinery helps explain the result."
+        },
+        {
+          "word": "prey",
+          "ex": "This prey helps explain the result.",
+          "exzh": "这个prey有助于解释结果。",
+          "exEn": "This prey helps explain the result."
+        },
+        {
+          "word": "friction",
+          "ex": "This friction helps explain the result.",
+          "exzh": "这个friction有助于解释结果。",
+          "exEn": "This friction helps explain the result."
+        },
+        {
+          "word": "potassium",
+          "ex": "This potassium helps explain the result.",
+          "exzh": "这个potassium有助于解释结果。",
+          "exEn": "This potassium helps explain the result."
+        },
+        {
+          "word": "bacteria",
+          "ex": "This bacteria helps explain the result.",
+          "exzh": "这个bacteria有助于解释结果。",
+          "exEn": "This bacteria helps explain the result."
+        },
+        {
+          "word": "realism",
+          "ex": "This realism helps explain the result.",
+          "exzh": "这个realism有助于解释结果。",
+          "exEn": "This realism helps explain the result."
+        },
+        {
+          "word": "surplus",
+          "ex": "This surplus helps explain the result.",
+          "exzh": "这个surplus有助于解释结果。",
+          "exEn": "This surplus helps explain the result."
+        },
+        {
+          "word": "globalization",
+          "ex": "This globalization helps explain the result.",
+          "exzh": "这个globalization有助于解释结果。",
+          "exEn": "This globalization helps explain the result."
+        },
+        {
+          "word": "monopoly",
+          "ex": "This monopoly helps explain the result.",
+          "exzh": "这个monopoly有助于解释结果。",
+          "exEn": "This monopoly helps explain the result."
+        },
+        {
+          "word": "thread",
+          "ex": "This thread helps explain the result.",
+          "exzh": "这个thread有助于解释结果。",
+          "exEn": "This thread helps explain the result."
+        },
+        {
+          "word": "damp",
+          "ex": "This damp helps explain the result.",
+          "exzh": "这个damp有助于解释结果。",
+          "exEn": "This damp helps explain the result."
+        },
+        {
+          "word": "helix",
+          "ex": "This helix helps explain the result.",
+          "exzh": "这个helix有助于解释结果。",
+          "exEn": "This helix helps explain the result."
+        },
+        {
+          "word": "undergraduate",
+          "ex": "This undergraduate helps explain the result.",
+          "exzh": "这个undergraduate有助于解释结果。",
+          "exEn": "This undergraduate helps explain the result."
+        },
+        {
+          "word": "dioxide",
+          "ex": "This dioxide helps explain the result.",
+          "exzh": "这个dioxide有助于解释结果。",
+          "exEn": "This dioxide helps explain the result."
+        },
+        {
+          "word": "layout",
+          "ex": "This layout helps explain the result.",
+          "exzh": "这个layout有助于解释结果。",
+          "exEn": "This layout helps explain the result."
+        },
+        {
+          "word": "fungus",
+          "ex": "This fungus helps explain the result.",
+          "exzh": "这个fungus有助于解释结果。",
+          "exEn": "This fungus helps explain the result."
+        },
+        {
+          "word": "jazz",
+          "ex": "This jazz helps explain the result.",
+          "exzh": "这个jazz有助于解释结果。",
+          "exEn": "This jazz helps explain the result."
+        },
+        {
+          "word": "forum",
+          "ex": "This forum helps explain the result.",
+          "exzh": "这个forum有助于解释结果。",
+          "exEn": "This forum helps explain the result."
+        },
+        {
+          "word": "republic",
+          "ex": "This republic helps explain the result.",
+          "exzh": "这个republic有助于解释结果。",
+          "exEn": "This republic helps explain the result."
+        },
+        {
+          "word": "slot",
+          "ex": "This slot helps explain the result.",
+          "exzh": "这个slot有助于解释结果。",
+          "exEn": "This slot helps explain the result."
+        },
+        {
+          "word": "media",
+          "ex": "This media helps explain the result.",
+          "exzh": "这个media有助于解释结果。",
+          "exEn": "This media helps explain the result."
+        },
+        {
+          "word": "precipitation",
+          "ex": "This precipitation helps explain the result.",
+          "exzh": "这个precipitation有助于解释结果。",
+          "exEn": "This precipitation helps explain the result."
+        },
+        {
+          "word": "apple",
+          "ex": "This apple helps explain the result.",
+          "exzh": "这个apple有助于解释结果。",
+          "exEn": "This apple helps explain the result."
+        },
+        {
+          "word": "gut",
+          "ex": "This gut helps explain the result.",
+          "exzh": "这个gut有助于解释结果。",
+          "exEn": "This gut helps explain the result."
+        },
+        {
+          "word": "altitude",
+          "ex": "This altitude helps explain the result.",
+          "exzh": "这个altitude有助于解释结果。",
+          "exEn": "This altitude helps explain the result."
+        },
+        {
+          "word": "sub",
+          "ex": "This sub helps explain the result.",
+          "exzh": "这个sub有助于解释结果。",
+          "exEn": "This sub helps explain the result."
+        },
+        {
+          "word": "precipitate",
+          "ex": "This precipitate helps explain the result.",
+          "exzh": "这个precipitate有助于解释结果。",
+          "exEn": "This precipitate helps explain the result."
+        },
+        {
+          "word": "lab",
+          "ex": "This lab helps explain the result.",
+          "exzh": "这个lab有助于解释结果。",
+          "exEn": "This lab helps explain the result."
+        },
+        {
+          "word": "incumbent",
+          "ex": "This incumbent helps explain the result.",
+          "exzh": "这个incumbent有助于解释结果。",
+          "exEn": "This incumbent helps explain the result."
+        },
+        {
+          "word": "credibility",
+          "ex": "This credibility helps explain the result.",
+          "exzh": "这个credibility有助于解释结果。",
+          "exEn": "This credibility helps explain the result."
+        },
+        {
+          "word": "fin",
+          "ex": "This fin helps explain the result.",
+          "exzh": "这个fin有助于解释结果。",
+          "exEn": "This fin helps explain the result."
+        },
+        {
+          "word": "biologist",
+          "ex": "This biologist helps explain the result.",
+          "exzh": "这个biologist有助于解释结果。",
+          "exEn": "This biologist helps explain the result."
+        },
+        {
+          "word": "ghost",
+          "ex": "This ghost helps explain the result.",
+          "exzh": "这个ghost有助于解释结果。",
+          "exEn": "This ghost helps explain the result."
+        },
+        {
+          "word": "instinct",
+          "ex": "This instinct helps explain the result.",
+          "exzh": "这个instinct有助于解释结果。",
+          "exEn": "This instinct helps explain the result."
+        },
+        {
+          "word": "stripe",
+          "ex": "This stripe helps explain the result.",
+          "exzh": "这个stripe有助于解释结果。",
+          "exEn": "This stripe helps explain the result."
+        },
+        {
+          "word": "kilometer",
+          "ex": "This kilometer helps explain the result.",
+          "exzh": "这个kilometer有助于解释结果。",
+          "exEn": "This kilometer helps explain the result."
+        },
+        {
+          "word": "spray",
+          "ex": "This spray helps explain the result.",
+          "exzh": "这个spray有助于解释结果。",
+          "exEn": "This spray helps explain the result."
+        },
+        {
+          "word": "powder",
+          "ex": "This powder helps explain the result.",
+          "exzh": "这个powder有助于解释结果。",
+          "exEn": "This powder helps explain the result."
+        },
+        {
+          "word": "solute",
+          "ex": "This solute helps explain the result.",
+          "exzh": "这个solute有助于解释结果。",
+          "exEn": "This solute helps explain the result."
+        },
+        {
+          "word": "portrayal",
+          "ex": "This portrayal helps explain the result.",
+          "exzh": "这个portrayal有助于解释结果。",
+          "exEn": "This portrayal helps explain the result."
+        },
+        {
+          "word": "skip",
+          "ex": "This skip helps explain the result.",
+          "exzh": "这个skip有助于解释结果。",
+          "exEn": "This skip helps explain the result."
+        },
+        {
+          "word": "mentor",
+          "ex": "This mentor helps explain the result.",
+          "exzh": "这个mentor有助于解释结果。",
+          "exEn": "This mentor helps explain the result."
+        },
+        {
+          "word": "quiz",
+          "ex": "This quiz helps explain the result.",
+          "exzh": "这个quiz有助于解释结果。",
+          "exEn": "This quiz helps explain the result."
+        },
+        {
+          "word": "headquarters",
+          "ex": "This headquarters helps explain the result.",
+          "exzh": "这个headquarters有助于解释结果。",
+          "exEn": "This headquarters helps explain the result."
+        },
+        {
+          "word": "comma",
+          "ex": "This comma helps explain the result.",
+          "exzh": "这个comma有助于解释结果。",
+          "exEn": "This comma helps explain the result."
+        },
+        {
+          "word": "rope",
+          "ex": "This rope helps explain the result.",
+          "exzh": "这个rope有助于解释结果。",
+          "exEn": "This rope helps explain the result."
+        },
+        {
+          "word": "mole",
+          "ex": "This mole helps explain the result.",
+          "exzh": "这个mole有助于解释结果。",
+          "exEn": "This mole helps explain the result."
+        },
+        {
+          "word": "deflection",
+          "ex": "This deflection helps explain the result.",
+          "exzh": "这个deflection有助于解释结果。",
+          "exEn": "This deflection helps explain the result."
+        },
+        {
+          "word": "descriptor",
+          "ex": "This descriptor helps explain the result.",
+          "exzh": "这个descriptor有助于解释结果。",
+          "exEn": "This descriptor helps explain the result."
+        },
+        {
+          "word": "reactor",
+          "ex": "This reactor helps explain the result.",
+          "exzh": "这个reactor有助于解释结果。",
+          "exEn": "This reactor helps explain the result."
+        },
+        {
+          "word": "cheat",
+          "ex": "This cheat helps explain the result.",
+          "exzh": "这个cheat有助于解释结果。",
+          "exEn": "This cheat helps explain the result."
+        },
+        {
+          "word": "radar",
+          "ex": "This radar helps explain the result.",
+          "exzh": "这个radar有助于解释结果。",
+          "exEn": "This radar helps explain the result."
+        },
+        {
+          "word": "whoever",
+          "ex": "This whoever helps explain the result.",
+          "exzh": "这个whoever有助于解释结果。",
+          "exEn": "This whoever helps explain the result."
+        },
+        {
+          "word": "punch",
+          "ex": "This punch helps explain the result.",
+          "exzh": "这个punch有助于解释结果。",
+          "exEn": "This punch helps explain the result."
+        },
+        {
+          "word": "pardon",
+          "ex": "This pardon helps explain the result.",
+          "exzh": "这个pardon有助于解释结果。",
+          "exEn": "This pardon helps explain the result."
+        },
+        {
+          "word": "aerosol",
+          "ex": "This aerosol helps explain the result.",
+          "exzh": "这个aerosol有助于解释结果。",
+          "exEn": "This aerosol helps explain the result."
+        },
+        {
+          "word": "scroll",
+          "ex": "This scroll helps explain the result.",
+          "exzh": "这个scroll有助于解释结果。",
+          "exEn": "This scroll helps explain the result."
+        },
+        {
+          "word": "entrant",
+          "ex": "This entrant helps explain the result.",
+          "exzh": "这个entrant有助于解释结果。",
+          "exEn": "This entrant helps explain the result."
+        },
+        {
+          "word": "demonstrator",
+          "ex": "This demonstrator helps explain the result.",
+          "exzh": "这个demonstrator有助于解释结果。",
+          "exEn": "This demonstrator helps explain the result."
+        },
+        {
+          "word": "sneeze",
+          "ex": "This sneeze helps explain the result.",
+          "exzh": "这个sneeze有助于解释结果。",
+          "exEn": "This sneeze helps explain the result."
+        }
+      ],
+      "freq-4k": [
+        {
+          "word": "incumbent",
+          "ex": "This incumbent helps explain the result.",
+          "exzh": "这个incumbent有助于解释结果。",
+          "exEn": "This incumbent helps explain the result."
+        },
+        {
+          "word": "credibility",
+          "ex": "This credibility helps explain the result.",
+          "exzh": "这个credibility有助于解释结果。",
+          "exEn": "This credibility helps explain the result."
+        },
+        {
+          "word": "fin",
+          "ex": "This fin helps explain the result.",
+          "exzh": "这个fin有助于解释结果。",
+          "exEn": "This fin helps explain the result."
+        },
+        {
+          "word": "biologist",
+          "ex": "This biologist helps explain the result.",
+          "exzh": "这个biologist有助于解释结果。",
+          "exEn": "This biologist helps explain the result."
+        },
+        {
+          "word": "ghost",
+          "ex": "This ghost helps explain the result.",
+          "exzh": "这个ghost有助于解释结果。",
+          "exEn": "This ghost helps explain the result."
+        },
+        {
+          "word": "instinct",
+          "ex": "This instinct helps explain the result.",
+          "exzh": "这个instinct有助于解释结果。",
+          "exEn": "This instinct helps explain the result."
+        },
+        {
+          "word": "stripe",
+          "ex": "This stripe helps explain the result.",
+          "exzh": "这个stripe有助于解释结果。",
+          "exEn": "This stripe helps explain the result."
+        },
+        {
+          "word": "kilometer",
+          "ex": "This kilometer helps explain the result.",
+          "exzh": "这个kilometer有助于解释结果。",
+          "exEn": "This kilometer helps explain the result."
+        },
+        {
+          "word": "spray",
+          "ex": "This spray helps explain the result.",
+          "exzh": "这个spray有助于解释结果。",
+          "exEn": "This spray helps explain the result."
+        },
+        {
+          "word": "powder",
+          "ex": "This powder helps explain the result.",
+          "exzh": "这个powder有助于解释结果。",
+          "exEn": "This powder helps explain the result."
+        },
+        {
+          "word": "solute",
+          "ex": "This solute helps explain the result.",
+          "exzh": "这个solute有助于解释结果。",
+          "exEn": "This solute helps explain the result."
+        },
+        {
+          "word": "portrayal",
+          "ex": "This portrayal helps explain the result.",
+          "exzh": "这个portrayal有助于解释结果。",
+          "exEn": "This portrayal helps explain the result."
+        },
+        {
+          "word": "skip",
+          "ex": "This skip helps explain the result.",
+          "exzh": "这个skip有助于解释结果。",
+          "exEn": "This skip helps explain the result."
+        },
+        {
+          "word": "mentor",
+          "ex": "This mentor helps explain the result.",
+          "exzh": "这个mentor有助于解释结果。",
+          "exEn": "This mentor helps explain the result."
+        },
+        {
+          "word": "quiz",
+          "ex": "This quiz helps explain the result.",
+          "exzh": "这个quiz有助于解释结果。",
+          "exEn": "This quiz helps explain the result."
+        },
+        {
+          "word": "headquarters",
+          "ex": "This headquarters helps explain the result.",
+          "exzh": "这个headquarters有助于解释结果。",
+          "exEn": "This headquarters helps explain the result."
+        },
+        {
+          "word": "comma",
+          "ex": "This comma helps explain the result.",
+          "exzh": "这个comma有助于解释结果。",
+          "exEn": "This comma helps explain the result."
+        },
+        {
+          "word": "rope",
+          "ex": "This rope helps explain the result.",
+          "exzh": "这个rope有助于解释结果。",
+          "exEn": "This rope helps explain the result."
+        },
+        {
+          "word": "mole",
+          "ex": "This mole helps explain the result.",
+          "exzh": "这个mole有助于解释结果。",
+          "exEn": "This mole helps explain the result."
+        },
+        {
+          "word": "deflection",
+          "ex": "This deflection helps explain the result.",
+          "exzh": "这个deflection有助于解释结果。",
+          "exEn": "This deflection helps explain the result."
+        },
+        {
+          "word": "descriptor",
+          "ex": "This descriptor helps explain the result.",
+          "exzh": "这个descriptor有助于解释结果。",
+          "exEn": "This descriptor helps explain the result."
+        },
+        {
+          "word": "reactor",
+          "ex": "This reactor helps explain the result.",
+          "exzh": "这个reactor有助于解释结果。",
+          "exEn": "This reactor helps explain the result."
+        },
+        {
+          "word": "cheat",
+          "ex": "This cheat helps explain the result.",
+          "exzh": "这个cheat有助于解释结果。",
+          "exEn": "This cheat helps explain the result."
+        },
+        {
+          "word": "radar",
+          "ex": "This radar helps explain the result.",
+          "exzh": "这个radar有助于解释结果。",
+          "exEn": "This radar helps explain the result."
+        },
+        {
+          "word": "whoever",
+          "ex": "This whoever helps explain the result.",
+          "exzh": "这个whoever有助于解释结果。",
+          "exEn": "This whoever helps explain the result."
+        },
+        {
+          "word": "punch",
+          "ex": "This punch helps explain the result.",
+          "exzh": "这个punch有助于解释结果。",
+          "exEn": "This punch helps explain the result."
+        },
+        {
+          "word": "pardon",
+          "ex": "This pardon helps explain the result.",
+          "exzh": "这个pardon有助于解释结果。",
+          "exEn": "This pardon helps explain the result."
+        },
+        {
+          "word": "aerosol",
+          "ex": "This aerosol helps explain the result.",
+          "exzh": "这个aerosol有助于解释结果。",
+          "exEn": "This aerosol helps explain the result."
+        },
+        {
+          "word": "scroll",
+          "ex": "This scroll helps explain the result.",
+          "exzh": "这个scroll有助于解释结果。",
+          "exEn": "This scroll helps explain the result."
+        },
+        {
+          "word": "entrant",
+          "ex": "This entrant helps explain the result.",
+          "exzh": "这个entrant有助于解释结果。",
+          "exEn": "This entrant helps explain the result."
+        },
+        {
+          "word": "demonstrator",
+          "ex": "This demonstrator helps explain the result.",
+          "exzh": "这个demonstrator有助于解释结果。",
+          "exEn": "This demonstrator helps explain the result."
+        },
+        {
+          "word": "sneeze",
+          "ex": "This sneeze helps explain the result.",
+          "exzh": "这个sneeze有助于解释结果。",
+          "exEn": "This sneeze helps explain the result."
+        },
+        {
+          "word": "clients",
+          "ex": "This clients helps explain the result.",
+          "exzh": "这个clients有助于解释结果。",
+          "exEn": "This clients helps explain the result."
+        },
+        {
+          "word": "covering",
+          "ex": "This covering helps explain the result.",
+          "exzh": "这个covering有助于解释结果。",
+          "exEn": "This covering helps explain the result."
+        },
+        {
+          "word": "featuring",
+          "ex": "This featuring helps explain the result.",
+          "exzh": "这个featuring有助于解释结果。",
+          "exEn": "This featuring helps explain the result."
+        },
+        {
+          "word": "governments",
+          "ex": "This governments helps explain the result.",
+          "exzh": "这个governments有助于解释结果。",
+          "exEn": "This governments helps explain the result."
+        },
+        {
+          "word": "losses",
+          "ex": "This losses helps explain the result.",
+          "exzh": "这个losses有助于解释结果。",
+          "exEn": "This losses helps explain the result."
+        },
+        {
+          "word": "mistakes",
+          "ex": "This mistakes helps explain the result.",
+          "exzh": "这个mistakes有助于解释结果。",
+          "exEn": "This mistakes helps explain the result."
+        },
+        {
+          "word": "waters",
+          "ex": "This waters helps explain the result.",
+          "exzh": "这个waters有助于解释结果。",
+          "exEn": "This waters helps explain the result."
+        },
+        {
+          "word": "assault",
+          "ex": "This assault helps explain the result.",
+          "exzh": "这个assault有助于解释结果。",
+          "exEn": "This assault helps explain the result."
+        },
+        {
+          "word": "expectations",
+          "ex": "This expectations helps explain the result.",
+          "exzh": "这个expectations有助于解释结果。",
+          "exEn": "This expectations helps explain the result."
+        },
+        {
+          "word": "injuries",
+          "ex": "This injuries helps explain the result.",
+          "exzh": "这个injuries有助于解释结果。",
+          "exEn": "This injuries helps explain the result."
+        },
+        {
+          "word": "muslims",
+          "ex": "This muslims helps explain the result.",
+          "exzh": "这个muslims有助于解释结果。",
+          "exEn": "This muslims helps explain the result."
+        },
+        {
+          "word": "singles",
+          "ex": "This singles helps explain the result.",
+          "exzh": "这个singles有助于解释结果。",
+          "exEn": "This singles helps explain the result."
+        },
+        {
+          "word": "wings",
+          "ex": "This wings helps explain the result.",
+          "exzh": "这个wings有助于解释结果。",
+          "exEn": "This wings helps explain the result."
+        },
+        {
+          "word": "beating",
+          "ex": "This beating helps explain the result.",
+          "exzh": "这个beating有助于解释结果。",
+          "exEn": "This beating helps explain the result."
+        },
+        {
+          "word": "boring",
+          "ex": "This boring helps explain the result.",
+          "exzh": "这个boring有助于解释结果。",
+          "exEn": "This boring helps explain the result."
+        },
+        {
+          "word": "containing",
+          "ex": "This containing helps explain the result.",
+          "exzh": "这个containing有助于解释结果。",
+          "exEn": "This containing helps explain the result."
+        },
+        {
+          "word": "episodes",
+          "ex": "This episodes helps explain the result.",
+          "exzh": "这个episodes有助于解释结果。",
+          "exEn": "This episodes helps explain the result."
+        },
+        {
+          "word": "gym",
+          "ex": "This gym helps explain the result.",
+          "exzh": "这个gym有助于解释结果。",
+          "exEn": "This gym helps explain the result."
+        },
+        {
+          "word": "opens",
+          "ex": "This opens helps explain the result.",
+          "exzh": "这个opens有助于解释结果。",
+          "exEn": "This opens helps explain the result."
+        },
+        {
+          "word": "behalf",
+          "ex": "This behalf helps explain the result.",
+          "exzh": "这个behalf有助于解释结果。",
+          "exEn": "This behalf helps explain the result."
+        },
+        {
+          "word": "cops",
+          "ex": "This cops helps explain the result.",
+          "exzh": "这个cops有助于解释结果。",
+          "exEn": "This cops helps explain the result."
+        },
+        {
+          "word": "entering",
+          "ex": "This entering helps explain the result.",
+          "exzh": "这个entering有助于解释结果。",
+          "exEn": "This entering helps explain the result."
+        },
+        {
+          "word": "guests",
+          "ex": "This guests helps explain the result.",
+          "exzh": "这个guests有助于解释结果。",
+          "exEn": "This guests helps explain the result."
+        },
+        {
+          "word": "hunting",
+          "ex": "This hunting helps explain the result.",
+          "exzh": "这个hunting有助于解释结果。",
+          "exEn": "This hunting helps explain the result."
+        },
+        {
+          "word": "kit",
+          "ex": "This kit helps explain the result.",
+          "exzh": "这个kit有助于解释结果。",
+          "exEn": "This kit helps explain the result."
+        },
+        {
+          "word": "min",
+          "ex": "This min helps explain the result.",
+          "exzh": "这个min有助于解释结果。",
+          "exEn": "This min helps explain the result."
+        },
+        {
+          "word": "references",
+          "ex": "This references helps explain the result.",
+          "exzh": "这个references有助于解释结果。",
+          "exEn": "This references helps explain the result."
+        },
+        {
+          "word": "supports",
+          "ex": "This supports helps explain the result.",
+          "exzh": "这个supports有助于解释结果。",
+          "exEn": "This supports helps explain the result."
+        },
+        {
+          "word": "amounts",
+          "ex": "This amounts helps explain the result.",
+          "exzh": "这个amounts有助于解释结果。",
+          "exEn": "This amounts helps explain the result."
+        },
+        {
+          "word": "controls",
+          "ex": "This controls helps explain the result.",
+          "exzh": "这个controls有助于解释结果。",
+          "exEn": "This controls helps explain the result."
+        },
+        {
+          "word": "engineers",
+          "ex": "This engineers helps explain the result.",
+          "exzh": "这个engineers有助于解释结果。",
+          "exEn": "This engineers helps explain the result."
+        },
+        {
+          "word": "kings",
+          "ex": "This kings helps explain the result.",
+          "exzh": "这个kings有助于解释结果。",
+          "exEn": "This kings helps explain the result."
+        },
+        {
+          "word": "memorial",
+          "ex": "This memorial helps explain the result.",
+          "exzh": "这个memorial有助于解释结果。",
+          "exEn": "This memorial helps explain the result."
+        },
+        {
+          "word": "opinions",
+          "ex": "This opinions helps explain the result.",
+          "exzh": "这个opinions有助于解释结果。",
+          "exEn": "This opinions helps explain the result."
+        },
+        {
+          "word": "readers",
+          "ex": "This readers helps explain the result.",
+          "exzh": "这个readers有助于解释结果。",
+          "exEn": "This readers helps explain the result."
+        },
+        {
+          "word": "buddy",
+          "ex": "This buddy helps explain the result.",
+          "exzh": "这个buddy有助于解释结果。",
+          "exEn": "This buddy helps explain the result."
+        },
+        {
+          "word": "cares",
+          "ex": "This cares helps explain the result.",
+          "exzh": "这个cares有助于解释结果。",
+          "exEn": "This cares helps explain the result."
+        },
+        {
+          "word": "dean",
+          "ex": "This dean helps explain the result.",
+          "exzh": "这个dean有助于解释结果。",
+          "exEn": "This dean helps explain the result."
+        },
+        {
+          "word": "gods",
+          "ex": "This gods helps explain the result.",
+          "exzh": "这个gods有助于解释结果。",
+          "exEn": "This gods helps explain the result."
+        },
+        {
+          "word": "rugby",
+          "ex": "This rugby helps explain the result.",
+          "exzh": "这个rugby有助于解释结果。",
+          "exEn": "This rugby helps explain the result."
+        },
+        {
+          "word": "stops",
+          "ex": "This stops helps explain the result.",
+          "exzh": "这个stops有助于解释结果。",
+          "exEn": "This stops helps explain the result."
+        },
+        {
+          "word": "vacation",
+          "ex": "This vacation helps explain the result.",
+          "exzh": "这个vacation有助于解释结果。",
+          "exEn": "This vacation helps explain the result."
+        },
+        {
+          "word": "cleaning",
+          "ex": "This cleaning helps explain the result.",
+          "exzh": "这个cleaning有助于解释结果。",
+          "exEn": "This cleaning helps explain the result."
+        },
+        {
+          "word": "fitness",
+          "ex": "This fitness helps explain the result.",
+          "exzh": "这个fitness有助于解释结果。",
+          "exEn": "This fitness helps explain the result."
+        },
+        {
+          "word": "keys",
+          "ex": "This keys helps explain the result.",
+          "exzh": "这个keys有助于解释结果。",
+          "exEn": "This keys helps explain the result."
+        },
+        {
+          "word": "medal",
+          "ex": "This medal helps explain the result.",
+          "exzh": "这个medal有助于解释结果。",
+          "exEn": "This medal helps explain the result."
+        },
+        {
+          "word": "researchers",
+          "ex": "This researchers helps explain the result.",
+          "exzh": "这个researchers有助于解释结果。",
+          "exEn": "This researchers helps explain the result."
+        },
+        {
+          "word": "adds",
+          "ex": "This adds helps explain the result.",
+          "exzh": "这个adds有助于解释结果。",
+          "exEn": "This adds helps explain the result."
+        },
+        {
+          "word": "designs",
+          "ex": "This designs helps explain the result.",
+          "exzh": "这个designs有助于解释结果。",
+          "exEn": "This designs helps explain the result."
+        },
+        {
+          "word": "findings",
+          "ex": "This findings helps explain the result.",
+          "exzh": "这个findings有助于解释结果。",
+          "exEn": "This findings helps explain the result."
+        },
+        {
+          "word": "jay",
+          "ex": "This jay helps explain the result.",
+          "exzh": "这个jay有助于解释结果。",
+          "exEn": "This jay helps explain the result."
+        },
+        {
+          "word": "lists",
+          "ex": "This lists helps explain the result.",
+          "exzh": "这个lists有助于解释结果。",
+          "exEn": "This lists helps explain the result."
+        },
+        {
+          "word": "rocks",
+          "ex": "This rocks helps explain the result.",
+          "exzh": "这个rocks有助于解释结果。",
+          "exEn": "This rocks helps explain the result."
+        },
+        {
+          "word": "sucks",
+          "ex": "This sucks helps explain the result.",
+          "exzh": "这个sucks有助于解释结果。",
+          "exEn": "This sucks helps explain the result."
+        },
+        {
+          "word": "christians",
+          "ex": "This christians helps explain the result.",
+          "exzh": "这个christians有助于解释结果。",
+          "exEn": "This christians helps explain the result."
+        },
+        {
+          "word": "creek",
+          "ex": "This creek helps explain the result.",
+          "exzh": "这个creek有助于解释结果。",
+          "exEn": "This creek helps explain the result."
+        },
+        {
+          "word": "funeral",
+          "ex": "This funeral helps explain the result.",
+          "exzh": "这个funeral有助于解释结果。",
+          "exEn": "This funeral helps explain the result."
+        },
+        {
+          "word": "hunter",
+          "ex": "This hunter helps explain the result.",
+          "exzh": "这个hunter有助于解释结果。",
+          "exEn": "This hunter helps explain the result."
+        },
+        {
+          "word": "lands",
+          "ex": "This lands helps explain the result.",
+          "exzh": "这个lands有助于解释结果。",
+          "exEn": "This lands helps explain the result."
+        },
+        {
+          "word": "phil",
+          "ex": "This phil helps explain the result.",
+          "exzh": "这个phil有助于解释结果。",
+          "exEn": "This phil helps explain the result."
+        },
+        {
+          "word": "publishing",
+          "ex": "This publishing helps explain the result.",
+          "exzh": "这个publishing有助于解释结果。",
+          "exEn": "This publishing helps explain the result."
+        },
+        {
+          "word": "cents",
+          "ex": "This cents helps explain the result.",
+          "exzh": "这个cents有助于解释结果。",
+          "exEn": "This cents helps explain the result."
+        },
+        {
+          "word": "doc",
+          "ex": "This doc helps explain the result.",
+          "exzh": "这个doc有助于解释结果。",
+          "exEn": "This doc helps explain the result."
+        },
+        {
+          "word": "fate",
+          "ex": "This fate helps explain the result.",
+          "exzh": "这个fate有助于解释结果。",
+          "exEn": "This fate helps explain the result."
+        },
+        {
+          "word": "interviews",
+          "ex": "This interviews helps explain the result.",
+          "exzh": "这个interviews有助于解释结果。",
+          "exEn": "This interviews helps explain the result."
+        },
+        {
+          "word": "procedures",
+          "ex": "This procedures helps explain the result.",
+          "exzh": "这个procedures有助于解释结果。",
+          "exEn": "This procedures helps explain the result."
+        },
+        {
+          "word": "script",
+          "ex": "This script helps explain the result.",
+          "exzh": "这个script有助于解释结果。",
+          "exEn": "This script helps explain the result."
+        },
+        {
+          "word": "universities",
+          "ex": "This universities helps explain the result.",
+          "exzh": "这个universities有助于解释结果。",
+          "exEn": "This universities helps explain the result."
+        },
+        {
+          "word": "carter",
+          "ex": "This carter helps explain the result.",
+          "exzh": "这个carter有助于解释结果。",
+          "exEn": "This carter helps explain the result."
+        },
+        {
+          "word": "heroes",
+          "ex": "This heroes helps explain the result.",
+          "exzh": "这个heroes有助于解释结果。",
+          "exEn": "This heroes helps explain the result."
+        },
+        {
+          "word": "lips",
+          "ex": "This lips helps explain the result.",
+          "exzh": "这个lips有助于解释结果。",
+          "exEn": "This lips helps explain the result."
+        },
+        {
+          "word": "movements",
+          "ex": "This movements helps explain the result.",
+          "exzh": "这个movements有助于解释结果。",
+          "exEn": "This movements helps explain the result."
+        },
+        {
+          "word": "rep",
+          "ex": "This rep helps explain the result.",
+          "exzh": "这个rep有助于解释结果。",
+          "exEn": "This rep helps explain the result."
+        },
+        {
+          "word": "ties",
+          "ex": "This ties helps explain the result.",
+          "exzh": "这个ties有助于解释结果。",
+          "exEn": "This ties helps explain the result."
+        },
+        {
+          "word": "virgin",
+          "ex": "This virgin helps explain the result.",
+          "exzh": "这个virgin有助于解释结果。",
+          "exEn": "This virgin helps explain the result."
+        },
+        {
+          "word": "wolf",
+          "ex": "This wolf helps explain the result.",
+          "exzh": "这个wolf有助于解释结果。",
+          "exEn": "This wolf helps explain the result."
+        },
+        {
+          "word": "bears",
+          "ex": "This bears helps explain the result.",
+          "exzh": "这个bears有助于解释结果。",
+          "exEn": "This bears helps explain the result."
+        },
+        {
+          "word": "cameras",
+          "ex": "This cameras helps explain the result.",
+          "exzh": "这个cameras有助于解释结果。",
+          "exEn": "This cameras helps explain the result."
+        },
+        {
+          "word": "couples",
+          "ex": "This couples helps explain the result.",
+          "exzh": "这个couples有助于解释结果。",
+          "exEn": "This couples helps explain the result."
+        },
+        {
+          "word": "fame",
+          "ex": "This fame helps explain the result.",
+          "exzh": "这个fame有助于解释结果。",
+          "exEn": "This fame helps explain the result."
+        },
+        {
+          "word": "investors",
+          "ex": "This investors helps explain the result.",
+          "exzh": "这个investors有助于解释结果。",
+          "exEn": "This investors helps explain the result."
+        },
+        {
+          "word": "liberty",
+          "ex": "This liberty helps explain the result.",
+          "exzh": "这个liberty有助于解释结果。",
+          "exEn": "This liberty helps explain the result."
+        },
+        {
+          "word": "producers",
+          "ex": "This producers helps explain the result.",
+          "exzh": "这个producers有助于解释结果。",
+          "exEn": "This producers helps explain the result."
+        },
+        {
+          "word": "shops",
+          "ex": "This shops helps explain the result.",
+          "exzh": "这个shops有助于解释结果。",
+          "exEn": "This shops helps explain the result."
+        },
+        {
+          "word": "veterans",
+          "ex": "This veterans helps explain the result.",
+          "exzh": "这个veterans有助于解释结果。",
+          "exEn": "This veterans helps explain the result."
+        },
+        {
+          "word": "arguments",
+          "ex": "This arguments helps explain the result.",
+          "exzh": "这个arguments有助于解释结果。",
+          "exEn": "This arguments helps explain the result."
+        },
+        {
+          "word": "brave",
+          "ex": "This brave helps explain the result.",
+          "exzh": "这个brave有助于解释结果。",
+          "exEn": "This brave helps explain the result."
+        },
+        {
+          "word": "constitutional",
+          "ex": "This constitutional helps explain the result.",
+          "exzh": "这个constitutional有助于解释结果。",
+          "exEn": "This constitutional helps explain the result."
+        },
+        {
+          "word": "dropping",
+          "ex": "This dropping helps explain the result.",
+          "exzh": "这个dropping有助于解释结果。",
+          "exEn": "This dropping helps explain the result."
+        },
+        {
+          "word": "fleet",
+          "ex": "This fleet helps explain the result.",
+          "exzh": "这个fleet有助于解释结果。",
+          "exEn": "This fleet helps explain the result."
+        },
+        {
+          "word": "genius",
+          "ex": "This genius helps explain the result.",
+          "exzh": "这个genius有助于解释结果。",
+          "exEn": "This genius helps explain the result."
+        },
+        {
+          "word": "periods",
+          "ex": "This periods helps explain the result.",
+          "exzh": "这个periods有助于解释结果。",
+          "exEn": "This periods helps explain the result."
+        },
+        {
+          "word": "rings",
+          "ex": "This rings helps explain the result.",
+          "exzh": "这个rings有助于解释结果。",
+          "exEn": "This rings helps explain the result."
+        },
+        {
+          "word": "wildlife",
+          "ex": "This wildlife helps explain the result.",
+          "exzh": "这个wildlife有助于解释结果。",
+          "exEn": "This wildlife helps explain the result."
+        },
+        {
+          "word": "blast",
+          "ex": "This blast helps explain the result.",
+          "exzh": "这个blast有助于解释结果。",
+          "exEn": "This blast helps explain the result."
+        },
+        {
+          "word": "courage",
+          "ex": "This courage helps explain the result.",
+          "exzh": "这个courage有助于解释结果。",
+          "exEn": "This courage helps explain the result."
+        },
+        {
+          "word": "duties",
+          "ex": "This duties helps explain the result.",
+          "exzh": "这个duties有助于解释结果。",
+          "exEn": "This duties helps explain the result."
+        },
+        {
+          "word": "fighter",
+          "ex": "This fighter helps explain the result.",
+          "exzh": "这个fighter有助于解释结果。",
+          "exEn": "This fighter helps explain the result."
+        },
+        {
+          "word": "hiding",
+          "ex": "This hiding helps explain the result.",
+          "exzh": "这个hiding有助于解释结果。",
+          "exEn": "This hiding helps explain the result."
+        },
+        {
+          "word": "releases",
+          "ex": "This releases helps explain the result.",
+          "exzh": "这个releases有助于解释结果。",
+          "exEn": "This releases helps explain the result."
+        },
+        {
+          "word": "technologies",
+          "ex": "This technologies helps explain the result.",
+          "exzh": "这个technologies有助于解释结果。",
+          "exEn": "This technologies helps explain the result."
+        },
+        {
+          "word": "trials",
+          "ex": "This trials helps explain the result.",
+          "exzh": "这个trials有助于解释结果。",
+          "exEn": "This trials helps explain the result."
+        },
+        {
+          "word": "walks",
+          "ex": "This walks helps explain the result.",
+          "exzh": "这个walks有助于解释结果。",
+          "exEn": "This walks helps explain the result."
+        },
+        {
+          "word": "attracted",
+          "ex": "This attracted helps explain the result.",
+          "exzh": "这个attracted有助于解释结果。",
+          "exEn": "This attracted helps explain the result."
+        },
+        {
+          "word": "burned",
+          "ex": "This burned helps explain the result.",
+          "exzh": "这个burned有助于解释结果。",
+          "exEn": "This burned helps explain the result."
+        },
+        {
+          "word": "concerning",
+          "ex": "This concerning helps explain the result.",
+          "exzh": "这个concerning有助于解释结果。",
+          "exEn": "This concerning helps explain the result."
+        },
+        {
+          "word": "grave",
+          "ex": "This grave helps explain the result.",
+          "exzh": "这个grave有助于解释结果。",
+          "exEn": "This grave helps explain the result."
+        },
+        {
+          "word": "midnight",
+          "ex": "This midnight helps explain the result.",
+          "exzh": "这个midnight有助于解释结果。",
+          "exEn": "This midnight helps explain the result."
+        },
+        {
+          "word": "restrictions",
+          "ex": "This restrictions helps explain the result.",
+          "exzh": "这个restrictions有助于解释结果。",
+          "exEn": "This restrictions helps explain the result."
+        },
+        {
+          "word": "sec",
+          "ex": "This sec helps explain the result.",
+          "exzh": "这个sec有助于解释结果。",
+          "exEn": "This sec helps explain the result."
+        },
+        {
+          "word": "triple",
+          "ex": "This triple helps explain the result.",
+          "exzh": "这个triple有助于解释结果。",
+          "exEn": "This triple helps explain the result."
+        }
+      ],
+      "general": [],
+      "nce2": [],
+      "nce3": [],
+      "nce4": []
+    }
+  },
+  "orphanCount": 568
+}

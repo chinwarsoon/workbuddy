@@ -1,0 +1,702 @@
+[
+ {
+  "word": "return",
+  "def": "回来",
+  "defEn": "a coming to or returning home",
+  "pos": "n.",
+  "ipa": "/ri'tə:n/"
+ },
+ {
+  "word": "mother",
+  "def": "母亲",
+  "defEn": "a woman who has given birth to a child (also used as a term of address to your mother)",
+  "pos": "n.",
+  "ipa": "/'mʌðə/"
+ },
+ {
+  "word": "matter",
+  "def": "事件",
+  "defEn": "a vaguely specified concern",
+  "pos": "n.",
+  "ipa": "/'mætə/"
+ },
+ {
+  "word": "mind",
+  "def": "思想",
+  "defEn": "that which is responsible for one's thoughts and feelings; the seat of the faculty of reason",
+  "pos": "n.",
+  "ipa": "/maind/"
+ },
+ {
+  "word": "value",
+  "def": "价值",
+  "defEn": "a numerical quantity measured or assigned or computed",
+  "pos": "n.",
+  "ipa": "/'vælju:/"
+ },
+ {
+  "word": "record",
+  "def": "记录",
+  "defEn": "anything (such as a document or a phonograph record or a photograph) providing permanent evidence of or information",
+  "pos": "n.",
+  "ipa": "/ri'kɒ:d/"
+ },
+ {
+  "word": "several",
+  "def": "几个的",
+  "defEn": "a common English word.",
+  "pos": "adj.",
+  "ipa": "/'sevərəl/"
+ },
+ {
+  "word": "remember",
+  "def": "记得",
+  "defEn": "recall knowledge from memory; have a recollection",
+  "pos": "v.",
+  "ipa": "/ri'membə/"
+ },
+ {
+  "word": "bit",
+  "def": "少量",
+  "defEn": "a small fragment of something broken off from the whole",
+  "pos": "n.",
+  "ipa": "/bit/"
+ },
+ {
+  "word": "share",
+  "def": "部分",
+  "defEn": "assets belonging to or due to or contributed by an individual person or group",
+  "pos": "n.",
+  "ipa": "/ʃєə/"
+ },
+ {
+  "word": "real",
+  "def": "真的",
+  "defEn": "true; not fake",
+  "pos": "n.",
+  "ipa": "/'riəl/"
+ },
+ {
+  "word": "figure",
+  "def": "数字",
+  "defEn": "a diagram or picture illustrating textual material",
+  "pos": "n.",
+  "ipa": "/'figə/"
+ },
+ {
+  "word": "decide",
+  "def": "决定",
+  "defEn": "reach, make, or come to a decision about something",
+  "pos": "v.",
+  "ipa": "/di'said/"
+ },
+ {
+  "word": "language",
+  "def": "语言",
+  "defEn": "a systematic means of communicating by the use of sounds or conventional symbols",
+  "pos": "n.",
+  "ipa": "/'læŋgwidʒ/"
+ },
+ {
+  "word": "subject",
+  "def": "科目",
+  "defEn": "the subject matter of a conversation or discussion",
+  "pos": "n.",
+  "ipa": "/'sʌbdʒekt/"
+ },
+ {
+  "word": "development",
+  "def": "发展",
+  "defEn": "act of improving by expanding or enlarging or refining",
+  "pos": "n.",
+  "ipa": "/di'veləpmənt/"
+ },
+ {
+  "word": "town",
+  "def": "城镇",
+  "defEn": "an urban area with a fixed boundary that is smaller than a city",
+  "pos": "n.",
+  "ipa": "/taun/"
+ },
+ {
+  "word": "half",
+  "def": "一半",
+  "defEn": "one of two divisions into which some games or performances are divided: the two divisions are separated by an interval",
+  "pos": "n.",
+  "ipa": "/hɑ:f/"
+ },
+ {
+  "word": "break",
+  "def": "休息",
+  "defEn": "an unexpected piece of good luck",
+  "pos": "n.",
+  "ipa": "/breik/"
+ },
+ {
+  "word": "clear",
+  "def": "清楚的",
+  "defEn": "the state of being free of suspicion",
+  "pos": "n.",
+  "ipa": "/kliə/"
+ },
+ {
+  "word": "future",
+  "def": "未来",
+  "defEn": "the time yet to come",
+  "pos": "n.",
+  "ipa": "/'fju:tʃə/"
+ },
+ {
+  "word": "ago",
+  "def": "以前",
+  "defEn": "a common English word.",
+  "pos": "adv.",
+  "ipa": "/ə'gəu/"
+ },
+ {
+  "word": "remain",
+  "def": "保持",
+  "defEn": "be left; of persons, questions, problems, results, evidence, etc",
+  "pos": "v.",
+  "ipa": "/ri'mein/"
+ },
+ {
+  "word": "top",
+  "def": "顶部",
+  "defEn": "the upper part of anything",
+  "pos": "n.",
+  "ipa": "/tɒp/"
+ },
+ {
+  "word": "among",
+  "def": "在...之中",
+  "defEn": "Alt",
+  "pos": "prep.",
+  "ipa": "/ə'mʌŋ/"
+ },
+ {
+  "word": "involve",
+  "def": "包括",
+  "defEn": "connect closely and often incriminatingly",
+  "pos": "v.",
+  "ipa": "/in'vɒlv/"
+ },
+ {
+  "word": "reach",
+  "def": "伸出",
+  "defEn": "the act of physically reaching or thrusting out",
+  "pos": "n.",
+  "ipa": "/ri:tʃ/"
+ },
+ {
+  "word": "social",
+  "def": "社会的",
+  "defEn": "relating to human society and its members",
+  "pos": "adj.",
+  "ipa": "/'səuʃəl/"
+ },
+ {
+  "word": "period",
+  "def": "时期",
+  "defEn": "the interval taken to complete one cycle of a regularly repeating phenomenon",
+  "pos": "n.",
+  "ipa": "/'piəriəd/"
+ },
+ {
+  "word": "note",
+  "def": "笔记",
+  "defEn": "a brief written record",
+  "pos": "n.",
+  "ipa": "/nəut/"
+ },
+ {
+  "word": "history",
+  "def": "历史",
+  "defEn": "the aggregate of past events",
+  "pos": "n.",
+  "ipa": "/'histəri/"
+ },
+ {
+  "word": "create",
+  "def": "创造",
+  "defEn": "bring into existence",
+  "pos": "v.",
+  "ipa": "/kri:'eit/"
+ },
+ {
+  "word": "along",
+  "def": "沿着",
+  "defEn": "moving forward on a line; together with",
+  "pos": "adv.",
+  "ipa": "/ə'lɒŋ/"
+ },
+ {
+  "word": "type",
+  "def": "类型",
+  "defEn": "a subdivision of a particular kind of thing",
+  "pos": "n.",
+  "ipa": "/taip/"
+ },
+ {
+  "word": "sound",
+  "def": "声音",
+  "defEn": "the particular auditory effect produced by a given cause",
+  "pos": "n.",
+  "ipa": "/saund/"
+ },
+ {
+  "word": "political",
+  "def": "政治的",
+  "defEn": "involving or characteristic of politics or parties or politicians",
+  "pos": "adj.",
+  "ipa": "/pə'litikl/"
+ },
+ {
+  "word": "receive",
+  "def": "收到",
+  "defEn": "get something; come into possession of",
+  "pos": "v.",
+  "ipa": "/ri'si:v/"
+ },
+ {
+  "word": "moment",
+  "def": "片刻",
+  "defEn": "a particular point in time",
+  "pos": "n.",
+  "ipa": "/'məumənt/"
+ },
+ {
+  "word": "sale",
+  "def": "出售",
+  "defEn": "a particular instance of selling",
+  "pos": "n.",
+  "ipa": "/seil/"
+ },
+ {
+  "word": "policy",
+  "def": "政策",
+  "defEn": "a plan of action adopted by an individual or social group",
+  "pos": "n.",
+  "ipa": "/'pɒlisi/"
+ },
+ {
+  "word": "further",
+  "def": "更远的",
+  "defEn": "a common English word.",
+  "pos": "adj.",
+  "ipa": "/'fə:ðə/"
+ },
+ {
+  "word": "require",
+  "def": "需要",
+  "defEn": "v require as useful, just, or proper",
+  "pos": "v.",
+  "ipa": "/ri'kwaiə/"
+ },
+ {
+  "word": "general",
+  "def": "一般",
+  "defEn": "a general officer of the highest rank",
+  "pos": "n.",
+  "ipa": "/'dʒenərəl/"
+ },
+ {
+  "word": "appear",
+  "def": "出现",
+  "defEn": "come into sight or view",
+  "pos": "v.",
+  "ipa": "/ə'piə/"
+ },
+ {
+  "word": "individual",
+  "def": "人",
+  "defEn": "a single organism",
+  "pos": "n.",
+  "ipa": "/.indi'vidʒuəl/"
+ },
+ {
+  "word": "black",
+  "def": "黑色",
+  "defEn": "the quality or state of the achromatic color of least lightness (bearing the least resemblance to white)",
+  "pos": "n.",
+  "ipa": "/blæk/"
+ },
+ {
+  "word": "sense",
+  "def": "感应",
+  "defEn": "a general conscious awareness",
+  "pos": "n.",
+  "ipa": "/sens/"
+ },
+ {
+  "word": "perhaps",
+  "def": "也许",
+  "defEn": "r by chance",
+  "pos": "adv.",
+  "ipa": "/pə'hæps/"
+ },
+ {
+  "word": "add",
+  "def": "增加",
+  "defEn": "make an addition (to); join or combine or unite with others; increase the quality, quantity, size or scope of",
+  "pos": "v.",
+  "ipa": "/æd/"
+ },
+ {
+  "word": "rule",
+  "def": "规则",
+  "defEn": "a principle or condition that customarily governs behavior",
+  "pos": "n.",
+  "ipa": "/ru:l/"
+ },
+ {
+  "word": "pass",
+  "def": "经过",
+  "defEn": "(military) a written leave of absence",
+  "pos": "n.",
+  "ipa": "/pæs/"
+ },
+ {
+  "word": "produce",
+  "def": "生产品",
+  "defEn": "fresh fruits and vegetable grown for the market",
+  "pos": "n.",
+  "ipa": "/prə'dju:s/"
+ },
+ {
+  "word": "sell",
+  "def": "卖",
+  "defEn": "the activity of persuading someone to buy",
+  "pos": "n.",
+  "ipa": "/sel/"
+ },
+ {
+  "word": "agree",
+  "def": "同意",
+  "defEn": "be in accord; be in agreement",
+  "pos": "v.",
+  "ipa": "/ə'gri:/"
+ },
+ {
+  "word": "law",
+  "def": "法律",
+  "defEn": "the collection of rules imposed by authority",
+  "pos": "n.",
+  "ipa": "/lɒ:/"
+ },
+ {
+  "word": "everything",
+  "def": "每件事物",
+  "defEn": "Whatever pertains to the subject under consideration",
+  "pos": "n.",
+  "ipa": "/'evriθiŋ/"
+ },
+ {
+  "word": "research",
+  "def": "研究",
+  "defEn": "systematic investigation to establish facts",
+  "pos": "n.",
+  "ipa": "/ri'sə:tʃ/"
+ },
+ {
+  "word": "cover",
+  "def": "盖子",
+  "defEn": "the act of concealing the existence of something by obstructing the view of it",
+  "pos": "n.",
+  "ipa": "/'kʌvə/"
+ },
+ {
+  "word": "position",
+  "def": "位置",
+  "defEn": "the particular portion of space occupied by something",
+  "pos": "n.",
+  "ipa": "/pə'ziʃən/"
+ },
+ {
+  "word": "human",
+  "def": "人",
+  "defEn": "characteristic of humanity",
+  "pos": "adj.",
+  "ipa": "/'hju:mən/"
+ },
+ {
+  "word": "situation",
+  "def": "情形",
+  "defEn": "the general state of things; the combination of circumstances at a given time",
+  "pos": "n.",
+  "ipa": "/.sitju'eiʃən/"
+ },
+ {
+  "word": "film",
+  "def": "软片",
+  "defEn": "a medium that disseminates moving pictures",
+  "pos": "n.",
+  "ipa": "/film/"
+ },
+ {
+  "word": "war",
+  "def": "战争",
+  "defEn": "the waging of armed conflict against an enemy",
+  "pos": "n.",
+  "ipa": "/wɒ:/"
+ },
+ {
+  "word": "account",
+  "def": "报告",
+  "defEn": "a formal contractual relationship established to provide for regular banking or brokerage or business services",
+  "pos": "n.",
+  "ipa": "/ə'kaunt/"
+ },
+ {
+  "word": "major",
+  "def": "主要的",
+  "defEn": "very important; main",
+  "pos": "n.",
+  "ipa": "/'meidʒə/"
+ },
+ {
+  "word": "someone",
+  "def": "有人",
+  "defEn": "n a human being",
+  "pos": "pron.",
+  "ipa": "/'sʌmwʌn/"
+ },
+ {
+  "word": "above",
+  "def": "在上方",
+  "defEn": "an earlier section of a written text",
+  "pos": "n.",
+  "ipa": "/ə'bʌv/"
+ },
+ {
+  "word": "design",
+  "def": "设计",
+  "defEn": "the act of working out the form of something (as by making a sketch or outline or plan)",
+  "pos": "n.",
+  "ipa": "/di'zain/"
+ },
+ {
+  "word": "event",
+  "def": "事件",
+  "defEn": "something that happens at a given place and time",
+  "pos": "n.",
+  "ipa": "/i'vent/"
+ },
+ {
+  "word": "special",
+  "def": "专辑",
+  "defEn": "a special offering (usually temporary and at a reduced price) that is featured in advertising",
+  "pos": "n.",
+  "ipa": "/'speʃəl/"
+ },
+ {
+  "word": "sometimes",
+  "def": "有时",
+  "defEn": "on some occasions",
+  "pos": "adv.",
+  "ipa": "/'sʌmtaimz/"
+ },
+ {
+  "word": "choose",
+  "def": "选择",
+  "defEn": "pick out, select, or choose from a number of alternatives",
+  "pos": "v.",
+  "ipa": "/tʃu:z/"
+ },
+ {
+  "word": "father",
+  "def": "父亲",
+  "defEn": "a male parent (also used as a term of address to your father)",
+  "pos": "n.",
+  "ipa": "/'fɑ:ðə/"
+ },
+ {
+  "word": "forward",
+  "def": "向前的",
+  "defEn": "the person who plays the position of forward in certain games, such as basketball, soccer, or hockey",
+  "pos": "n.",
+  "ipa": "/'fɒ:wəd/"
+ },
+ {
+  "word": "main",
+  "def": "主要部分",
+  "defEn": "any very large body of (salt) water",
+  "pos": "n.",
+  "ipa": "/mein/"
+ },
+ {
+  "word": "die",
+  "def": "死亡",
+  "defEn": "a small cube with 1 to 6 spots on the six faces; used in gambling to generate random numbers",
+  "pos": "n.",
+  "ipa": "/dai/"
+ },
+ {
+  "word": "bear",
+  "def": "熊",
+  "defEn": "massive plantigrade carnivorous or omnivorous mammals with long shaggy coats and strong claws",
+  "pos": "n.",
+  "ipa": "/bєə/"
+ },
+ {
+  "word": "describe",
+  "def": "描述",
+  "defEn": "give a description of",
+  "pos": "v.",
+  "ipa": "/di'skraib/"
+ },
+ {
+  "word": "himself",
+  "def": "他自己",
+  "defEn": "An emphasized form of the third person masculine",
+  "pos": "pron.",
+  "ipa": "/him'self/"
+ },
+ {
+  "word": "available",
+  "def": "可利用的",
+  "defEn": "obtainable or accessible and ready for use or service",
+  "pos": "adj.",
+  "ipa": "/ə'veiləbl/"
+ },
+ {
+  "word": "especially",
+  "def": "尤其",
+  "defEn": "r to a distinctly greater extent or degree than is common",
+  "pos": "adv.",
+  "ipa": "/i'speʃəli/"
+ },
+ {
+  "word": "rise",
+  "def": "上升",
+  "defEn": "a growth in strength or number or importance",
+  "pos": "n.",
+  "ipa": "/raiz/"
+ },
+ {
+  "word": "maybe",
+  "def": "也许",
+  "defEn": "r by chance",
+  "pos": "adv.",
+  "ipa": "/'meibi:/"
+ },
+ {
+  "word": "community",
+  "def": "社区",
+  "defEn": "a group of people living in a particular local area",
+  "pos": "n.",
+  "ipa": "/kə'mju:niti/"
+ },
+ {
+  "word": "join",
+  "def": "参加",
+  "defEn": "become part of; become a member of a group or organization",
+  "pos": "v.",
+  "ipa": "/dʒɒin/"
+ },
+ {
+  "word": "please",
+  "def": "请",
+  "defEn": "give pleasure to or be pleasing to",
+  "pos": "v.",
+  "ipa": "/pli:z/"
+ },
+ {
+  "word": "detail",
+  "def": "细节",
+  "defEn": "an isolated fact that is considered separately from the whole",
+  "pos": "n.",
+  "ipa": "/'di:teil/"
+ },
+ {
+  "word": "difference",
+  "def": "不同",
+  "defEn": "the quality of being unlike or dissimilar",
+  "pos": "n.",
+  "ipa": "/'difərəns/"
+ },
+ {
+  "word": "action",
+  "def": "行动",
+  "defEn": "something done (usually as opposed to something said)",
+  "pos": "n.",
+  "ipa": "/'ækʃən/"
+ },
+ {
+  "word": "step",
+  "def": "步骤",
+  "defEn": "the act of changing location by raising the foot and setting it down",
+  "pos": "n.",
+  "ipa": "/step/"
+ },
+ {
+  "word": "TRUE",
+  "def": "真实的",
+  "defEn": "proper alignment; the property possessed by something that is in correct or proper alignment",
+  "pos": "n.",
+  "ipa": "/tru:/"
+ },
+ {
+  "word": "themselves",
+  "def": "他们自己",
+  "defEn": "The plural of himself, herself, and itself",
+  "pos": "pron.",
+  "ipa": "/ðəm'selvz/"
+ },
+ {
+  "word": "draw",
+  "def": "拉",
+  "defEn": "a gully that is shallower than a ravine",
+  "pos": "n.",
+  "ipa": "/drɒ:/"
+ },
+ {
+  "word": "white",
+  "def": "白色",
+  "defEn": "the color of snow or milk",
+  "pos": "n.",
+  "ipa": "/hwait/"
+ },
+ {
+  "word": "date",
+  "def": "日期",
+  "defEn": "the specified day of the month",
+  "pos": "n.",
+  "ipa": "/deit/"
+ },
+ {
+  "word": "practice",
+  "def": "实践",
+  "defEn": "a customary way of operation or behavior",
+  "pos": "n.",
+  "ipa": "/'præktis/"
+ },
+ {
+  "word": "model",
+  "def": "模型",
+  "defEn": "a hypothetical description of a complex entity or process",
+  "pos": "n.",
+  "ipa": "/'mɒdəl/"
+ },
+ {
+  "word": "raise",
+  "def": "上升",
+  "defEn": "the amount a salary is increased",
+  "pos": "n.",
+  "ipa": "/reiz/"
+ },
+ {
+  "word": "front",
+  "def": "前面",
+  "defEn": "the side that is forward or prominent",
+  "pos": "n.",
+  "ipa": "/frʌnt/"
+ },
+ {
+  "word": "explain",
+  "def": "解释",
+  "defEn": "make plain and comprehensible",
+  "pos": "v.",
+  "ipa": "/ik'splein/"
+ }
+]

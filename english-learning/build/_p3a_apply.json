@@ -1,0 +1,126 @@
+{
+  "targetFile": "C:\\Users\\frank\\WorkBuddy\\workbuddy\\english-learning\\content\\freq-1k.json",
+  "changed": 8,
+  "log": [
+    {
+      "word": "right",
+      "before": {
+        "word": "right",
+        "def": "右边",
+        "defEn": "the side opposite the left",
+        "pos": "n."
+      },
+      "after": {
+        "word": "right",
+        "def": "右边;a.正确的;adv.正好;n.权利",
+        "defEn": "n. the side opposite the left; a thing that is morally correct; adv. exactly; n. a moral or legal claim",
+        "pos": "n./a./adv."
+      }
+    },
+    {
+      "word": "like",
+      "before": {
+        "word": "like",
+        "def": "喜欢",
+        "defEn": "enjoy something",
+        "pos": "v."
+      },
+      "after": {
+        "word": "like",
+        "def": "喜欢;prep.像",
+        "defEn": "v. enjoy something; prep. similar to; in the manner of",
+        "pos": "v./prep."
+      }
+    },
+    {
+      "word": "open",
+      "before": {
+        "word": "open",
+        "def": "打开",
+        "defEn": "move so people can go in",
+        "pos": "v."
+      },
+      "after": {
+        "word": "open",
+        "def": "打开;a.开着的;v.开业",
+        "defEn": "v. move so people can go in; adj. not closed or blocked; v. start operating (a shop, business)",
+        "pos": "v./adj."
+      }
+    },
+    {
+      "word": "close",
+      "before": {
+        "word": "close",
+        "def": "关闭",
+        "defEn": "move so people cannot go in",
+        "pos": "v."
+      },
+      "after": {
+        "word": "close",
+        "def": "关闭;a.接近的;v.结束",
+        "defEn": "v. move so people cannot go in; adj. near in relationship or time; v. bring to an end",
+        "pos": "v./adj."
+      }
+    },
+    {
+      "word": "well",
+      "before": {
+        "word": "well",
+        "def": "井",
+        "defEn": "a deep hole or shaft dug or drilled to obtain water or oil or gas or brine",
+        "pos": "n."
+      },
+      "after": {
+        "word": "well",
+        "def": "井;adv.好;adj.健康的",
+        "defEn": "n. a deep hole or shaft for water; adv. in a good or satisfactory way; adj. in good health",
+        "pos": "n./adv./adj."
+      }
+    },
+    {
+      "word": "mean",
+      "before": {
+        "word": "mean",
+        "def": "低劣的",
+        "defEn": "an average of n numbers computed by adding some function of the numbers and dividing by some function of n",
+        "pos": "n."
+      },
+      "after": {
+        "word": "mean",
+        "def": "v.意思是;n.平均数",
+        "defEn": "v. intend to convey or indicate; n. the average of a set of numbers",
+        "pos": "v./n."
+      }
+    },
+    {
+      "word": "leave",
+      "before": {
+        "word": "leave",
+        "def": "许可",
+        "defEn": "the period of time during which you are absent from work or duty",
+        "pos": "n."
+      },
+      "after": {
+        "word": "leave",
+        "def": "离开;n.假期",
+        "defEn": "v. go away from; n. period of time absent from work (vacation)",
+        "pos": "v./n."
+      }
+    },
+    {
+      "word": "set",
+      "before": {
+        "word": "set",
+        "def": "日落",
+        "defEn": "a group of things of the same kind that belong together and are so used",
+        "pos": "n."
+      },
+      "after": {
+        "word": "set",
+        "def": "v.放置;v.落下;n.一套",
+        "defEn": "v. put in a particular position; v. (of the sun) go down below the horizon; n. a group of related things",
+        "pos": "v./n."
+      }
+    }
+  ]
+}

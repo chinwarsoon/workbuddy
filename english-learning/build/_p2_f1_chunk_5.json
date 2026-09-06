@@ -1,0 +1,702 @@
+[
+ {
+  "word": "military",
+  "def": "军队",
+  "defEn": "the military forces of a nation",
+  "pos": "n.",
+  "ipa": "/'militəri/"
+ },
+ {
+  "word": "club",
+  "def": "俱乐部",
+  "defEn": "a formal association of people with similar interests",
+  "pos": "n.",
+  "ipa": "/klʌb/"
+ },
+ {
+  "word": "below",
+  "def": "在下面",
+  "defEn": "in or to a lower place",
+  "pos": "prep.",
+  "ipa": "/bi'ləu/"
+ },
+ {
+  "word": "discussion",
+  "def": "讨论",
+  "defEn": "an extended communication (often interactive) dealing with some particular topic",
+  "pos": "n.",
+  "ipa": "/dis'kʌʃən/"
+ },
+ {
+  "word": "sorry",
+  "def": "难过的",
+  "defEn": "a feeling or expressing regret or sorrow or a sense of loss over something done or undone",
+  "pos": "adj.",
+  "ipa": "/'sɒri/"
+ },
+ {
+  "word": "challenge",
+  "def": "挑战",
+  "defEn": "a demanding or stimulating situation",
+  "pos": "n.",
+  "ipa": "/'tʃælindʒ/"
+ },
+ {
+  "word": "nation",
+  "def": "国家",
+  "defEn": "the people who live in a nation or country",
+  "pos": "n.",
+  "ipa": "/'neiʃən/"
+ },
+ {
+  "word": "nearly",
+  "def": "几乎",
+  "defEn": "r (of actions or states) slightly short of or not quite accomplished; all but",
+  "pos": "adv.",
+  "ipa": "/'niəli/"
+ },
+ {
+  "word": "statement",
+  "def": "陈述",
+  "defEn": "a message that is stated or declared; a communication (oral or written) setting forth particulars or facts etc",
+  "pos": "n.",
+  "ipa": "/'steitmənt/"
+ },
+ {
+  "word": "link",
+  "def": "环",
+  "defEn": "the means of connection between things linked in series",
+  "pos": "n.",
+  "ipa": "/liŋk/"
+ },
+ {
+  "word": "despite",
+  "def": "轻视",
+  "defEn": "contemptuous disregard",
+  "pos": "n.",
+  "ipa": "/di'spait/"
+ },
+ {
+  "word": "introduce",
+  "def": "介绍",
+  "defEn": "cause to come to know personally",
+  "pos": "v.",
+  "ipa": "/.intrə'dju:s/"
+ },
+ {
+  "word": "advantage",
+  "def": "优点",
+  "defEn": "the quality of having a superior or more favorable position",
+  "pos": "n.",
+  "ipa": "/əd'vɑ:ntidʒ/"
+ },
+ {
+  "word": "marry",
+  "def": "与...结婚",
+  "defEn": "take in marriage",
+  "pos": "v.",
+  "ipa": "/'mæri/"
+ },
+ {
+  "word": "strike",
+  "def": "罢工",
+  "defEn": "a group's refusal to work in protest against low pay or bad work conditions",
+  "pos": "n.",
+  "ipa": "/straik/"
+ },
+ {
+  "word": "mile",
+  "def": "英里",
+  "defEn": "a unit of length equal to 1,760 yards or 5,280 feet; exactly 1609.344 meters",
+  "pos": "n.",
+  "ipa": "/mail/"
+ },
+ {
+  "word": "seek",
+  "def": "寻求",
+  "defEn": "the movement of a read/write head to a specific data track on a disk",
+  "pos": "n.",
+  "ipa": "/si:k/"
+ },
+ {
+  "word": "unit",
+  "def": "单位",
+  "defEn": "an individual or group or structure or other entity regarded as a structural or functional constituent of a whole",
+  "pos": "n.",
+  "ipa": "/'ju:nit/"
+ },
+ {
+  "word": "card",
+  "def": "卡片",
+  "defEn": "one of a set of small pieces of stiff paper marked in various ways and used for playing games or for telling fortunes",
+  "pos": "n.",
+  "ipa": "/kɑ:d/"
+ },
+ {
+  "word": "quickly",
+  "def": "很快地",
+  "defEn": "fast; in a short time",
+  "pos": "adv.",
+  "ipa": "/'kwikli/"
+ },
+ {
+  "word": "agreement",
+  "def": "同意",
+  "defEn": "the statement (oral or written) of an exchange of promises",
+  "pos": "n.",
+  "ipa": "/ə'gri:mənt/"
+ },
+ {
+  "word": "release",
+  "def": "释放",
+  "defEn": "merchandise issued for sale or public showing (especially a record or film)",
+  "pos": "n.",
+  "ipa": "/ri'li:s/"
+ },
+ {
+  "word": "tax",
+  "def": "税",
+  "defEn": "charge against a citizen's person or property or activity for the support of government",
+  "pos": "n.",
+  "ipa": "/tæks/"
+ },
+ {
+  "word": "popular",
+  "def": "通俗的",
+  "defEn": "regarded with great favor, approval, or affection especially by the general public",
+  "pos": "adj.",
+  "ipa": "/'pɒpjulə/"
+ },
+ {
+  "word": "specific",
+  "def": "特效药",
+  "defEn": "a medicine that has a mitigating effect on a specific disease",
+  "pos": "n.",
+  "ipa": "/spi'sifik/"
+ },
+ {
+  "word": "fear",
+  "def": "恐怖",
+  "defEn": "an emotion experienced in anticipation of some specific pain or danger (usually accompanied by a desire to flee or",
+  "pos": "n.",
+  "ipa": "/fiə/"
+ },
+ {
+  "word": "aim",
+  "def": "目标",
+  "defEn": "the goal intended to be attained (and which is believed to be attainable)",
+  "pos": "n.",
+  "ipa": "/eim/"
+ },
+ {
+  "word": "television",
+  "def": "电视",
+  "defEn": "broadcasting visual images of stationary or moving objects",
+  "pos": "n.",
+  "ipa": "/'teli.viʒən/"
+ },
+ {
+  "word": "serious",
+  "def": "严肃的",
+  "defEn": "concerned with work or important matters rather than play or trivialities",
+  "pos": "adj.",
+  "ipa": "/'siəriəs/"
+ },
+ {
+  "word": "degree",
+  "def": "程度",
+  "defEn": "a position on a scale of intensity or amount or quality",
+  "pos": "n.",
+  "ipa": "/di'gri:/"
+ },
+ {
+  "word": "pull",
+  "def": "拉",
+  "defEn": "the act of pulling; applying force to move something toward or with you",
+  "pos": "n.",
+  "ipa": "/pul/"
+ },
+ {
+  "word": "red",
+  "def": "红的",
+  "defEn": "red color or pigment; the chromatic color resembling the hue of blood",
+  "pos": "n.",
+  "ipa": "/red/"
+ },
+ {
+  "word": "husband",
+  "def": "丈夫",
+  "defEn": "a married man; a woman's partner in marriage",
+  "pos": "n.",
+  "ipa": "/'hʌzbənd/"
+ },
+ {
+  "word": "access",
+  "def": "通路",
+  "defEn": "the right to obtain or make use of or take advantage of something (as services or membership)",
+  "pos": "n.",
+  "ipa": "/'ækses/"
+ },
+ {
+  "word": "movement",
+  "def": "运动",
+  "defEn": "a natural event that involves a change in the position or location of something",
+  "pos": "n.",
+  "ipa": "/'mu:vmənt/"
+ },
+ {
+  "word": "treat",
+  "def": "宴请",
+  "defEn": "an occurrence that causes special pleasure or delight",
+  "pos": "n.",
+  "ipa": "/tri:t/"
+ },
+ {
+  "word": "identify",
+  "def": "识别",
+  "defEn": "recognize as being; establish the identity of someone or something",
+  "pos": "v.",
+  "ipa": "/ai'dentifai/"
+ },
+ {
+  "word": "loss",
+  "def": "损失",
+  "defEn": "something that is lost",
+  "pos": "n.",
+  "ipa": "/lɒs/"
+ },
+ {
+  "word": "bus",
+  "def": "公共汽车",
+  "defEn": "a large vehicle that carries passengers",
+  "pos": "n.",
+  "ipa": "/bʌs/"
+ },
+ {
+  "word": "treatment",
+  "def": "治疗",
+  "defEn": "care provided to improve a situation (especially medical procedures or applications that are intended to relieve",
+  "pos": "n.",
+  "ipa": "/'tri:tmənt/"
+ },
+ {
+  "word": "conference",
+  "def": "会议",
+  "defEn": "a prearranged meeting for consultation or exchange of information or discussion (especially one with a formal agenda)",
+  "pos": "n.",
+  "ipa": "/'kɒnfərəns/"
+ },
+ {
+  "word": "yourself",
+  "def": "你自己",
+  "defEn": "An emphasized or reflexive form of the pronoun of the",
+  "pos": "pron.",
+  "ipa": "/juə'self/"
+ },
+ {
+  "word": "worth",
+  "def": "价值",
+  "defEn": "an indefinite quantity of something having a specified value",
+  "pos": "n.",
+  "ipa": "/wə:θ/"
+ },
+ {
+  "word": "natural",
+  "def": "白痴",
+  "defEn": "someone regarded as certain to succeed",
+  "pos": "n.",
+  "ipa": "/'nætʃərəl/"
+ },
+ {
+  "word": "express",
+  "def": "快车",
+  "defEn": "mail that is distributed by a rapid and efficient system",
+  "pos": "n.",
+  "ipa": "/ik'spres/"
+ },
+ {
+  "word": "indicate",
+  "def": "显示",
+  "defEn": "indicate a place, direction, person, or thing; either spatially or figuratively",
+  "pos": "v.",
+  "ipa": "/'indikeit/"
+ },
+ {
+  "word": "attend",
+  "def": "参加",
+  "defEn": "be present at (meetings, church services, university), etc",
+  "pos": "v.",
+  "ipa": "/ə'tend/"
+ },
+ {
+  "word": "brother",
+  "def": "兄弟",
+  "defEn": "a male with the same parents as someone else",
+  "pos": "n.",
+  "ipa": "/'brʌðə/"
+ },
+ {
+  "word": "organize",
+  "def": "组织",
+  "defEn": "cause to be structured or ordered or operating according to some principle or idea",
+  "pos": "v.",
+  "ipa": "/'ɒ:gənaiz/"
+ },
+ {
+  "word": "beyond",
+  "def": "超过",
+  "defEn": "farther than; on the far side of",
+  "pos": "prep.",
+  "ipa": "/bi'jɒnd/"
+ },
+ {
+  "word": "fish",
+  "def": "鱼",
+  "defEn": "any of various mostly cold-blooded aquatic vertebrates usually having scales and breathing through gills",
+  "pos": "n.",
+  "ipa": "/fiʃ/"
+ },
+ {
+  "word": "promise",
+  "def": "诺言",
+  "defEn": "a verbal commitment by one person to another agreeing to do (or not to do) something in the future",
+  "pos": "n.",
+  "ipa": "/'prɒmis/"
+ },
+ {
+  "word": "potential",
+  "def": "潜在性",
+  "defEn": "the inherent capacity for coming into being",
+  "pos": "n.",
+  "ipa": "/pə'tenʃəl/"
+ },
+ {
+  "word": "energy",
+  "def": "精力",
+  "defEn": "(physics) a thermodynamic quantity equivalent to the capacity of a physical system to do work; the units of energy",
+  "pos": "n.",
+  "ipa": "/'enədʒi/"
+ },
+ {
+  "word": "trouble",
+  "def": "烦恼",
+  "defEn": "a source of difficulty",
+  "pos": "n.",
+  "ipa": "/'trʌbl/"
+ },
+ {
+  "word": "relation",
+  "def": "关系",
+  "defEn": "an abstraction belonging to or characteristic of two entities or parts together",
+  "pos": "n.",
+  "ipa": "/ri'leiʃən/"
+ },
+ {
+  "word": "touch",
+  "def": "触觉",
+  "defEn": "the event of something coming in contact with the body",
+  "pos": "n.",
+  "ipa": "/tʌtʃ/"
+ },
+ {
+  "word": "file",
+  "def": "档案",
+  "defEn": "a set of related records (either written or electronic) kept together",
+  "pos": "n.",
+  "ipa": "/fail/"
+ },
+ {
+  "word": "middle",
+  "def": "中央",
+  "defEn": "an intermediate part or section",
+  "pos": "n.",
+  "ipa": "/'midl/"
+ },
+ {
+  "word": "bar",
+  "def": "条",
+  "defEn": "a counter where you can obtain food or drink",
+  "pos": "n.",
+  "ipa": "/bɑ:/"
+ },
+ {
+  "word": "suffer",
+  "def": "遭受",
+  "defEn": "undergo or be subjected to",
+  "pos": "v.",
+  "ipa": "/'sʌfə/"
+ },
+ {
+  "word": "except",
+  "def": "除",
+  "defEn": "v take exception to",
+  "pos": "v.",
+  "ipa": "/ik'sept/"
+ },
+ {
+  "word": "tend",
+  "def": "走向",
+  "defEn": "have a tendency or disposition to do or be something; be inclined",
+  "pos": "v.",
+  "ipa": "/tend/"
+ },
+ {
+  "word": "advance",
+  "def": "前进",
+  "defEn": "an amount paid before it is earned",
+  "pos": "n.",
+  "ipa": "/əd'vɑ:ns/"
+ },
+ {
+  "word": "fill",
+  "def": "装满",
+  "defEn": "a quantity sufficient to satisfy",
+  "pos": "n.",
+  "ipa": "/fil/"
+ },
+ {
+  "word": "star",
+  "def": "星",
+  "defEn": "(astronomy) a celestial body of hot gases that radiates energy derived from thermonuclear reactions in the interior",
+  "pos": "n.",
+  "ipa": "/stɑ:/"
+ },
+ {
+  "word": "network",
+  "def": "网络",
+  "defEn": "an interconnected system of things or people",
+  "pos": "n.",
+  "ipa": "/'netwə:k/"
+ },
+ {
+  "word": "generally",
+  "def": "通常",
+  "defEn": "usually; in most cases",
+  "pos": "adv.",
+  "ipa": "/'dʒenərəli/"
+ },
+ {
+  "word": "avoid",
+  "def": "避免",
+  "defEn": "stay clear from; keep away from; keep out of the way of someone or something",
+  "pos": "v.",
+  "ipa": "/ə'vɒid/"
+ },
+ {
+  "word": "seat",
+  "def": "座",
+  "defEn": "a space reserved for sitting (as in a theater or on a train or airplane)",
+  "pos": "n.",
+  "ipa": "/si:t/"
+ },
+ {
+  "word": "throw",
+  "def": "投",
+  "defEn": "the act of throwing (propelling something with a rapid movement of the arm and wrist)",
+  "pos": "n.",
+  "ipa": "/θrəu/"
+ },
+ {
+  "word": "task",
+  "def": "工作",
+  "defEn": "assign a task to",
+  "pos": "v.",
+  "ipa": "/tɑ:sk/"
+ },
+ {
+  "word": "goal",
+  "def": "目标",
+  "defEn": "the state of affairs that a plan is intended to achieve and that (when achieved) terminates behavior intended to",
+  "pos": "n.",
+  "ipa": "/gəul/"
+ },
+ {
+  "word": "associate",
+  "def": "同伴",
+  "defEn": "a person who joins with others in some activity or endeavor",
+  "pos": "n.",
+  "ipa": "/ə'səuʃieit/"
+ },
+ {
+  "word": "blue",
+  "def": "蓝色",
+  "defEn": "blue color or pigment; resembling the color of the clear sky in the daytime",
+  "pos": "n.",
+  "ipa": "/blu:/"
+ },
+ {
+  "word": "option",
+  "def": "选择权",
+  "defEn": "the right to buy or sell property at an agreed price; the right is purchased and if it is not exercised by a stated",
+  "pos": "n.",
+  "ipa": "/'ɒpʃən/"
+ },
+ {
+  "word": "box",
+  "def": "盒子",
+  "defEn": "a (usually rectangular) container; may have a lid",
+  "pos": "n.",
+  "ipa": "/bɒks/"
+ },
+ {
+  "word": "huge",
+  "def": "极大的",
+  "defEn": "a common English word.",
+  "pos": "adj.",
+  "ipa": "/hju:dʒ/"
+ },
+ {
+  "word": "message",
+  "def": "消息",
+  "defEn": "a communication (usually brief) that is written or spoken or signaled",
+  "pos": "n.",
+  "ipa": "/'mesidʒ/"
+ },
+ {
+  "word": "instance",
+  "def": "建议",
+  "defEn": "n an occurrence of something",
+  "pos": "n.",
+  "ipa": "/'instəns/"
+ },
+ {
+  "word": "style",
+  "def": "风格",
+  "defEn": "a particular kind (as to appearance)",
+  "pos": "n.",
+  "ipa": "/stail/"
+ },
+ {
+  "word": "refer",
+  "def": "提交",
+  "defEn": "be relevant to",
+  "pos": "v.",
+  "ipa": "/ri'fə:/"
+ },
+ {
+  "word": "push",
+  "def": "推",
+  "defEn": "the act of applying force in order to move something away",
+  "pos": "n.",
+  "ipa": "/puʃ/"
+ },
+ {
+  "word": "quarter",
+  "def": "四分之一",
+  "defEn": "a district of a city having some distinguishing character",
+  "pos": "n.",
+  "ipa": "/'kwɒ:tə/"
+ },
+ {
+  "word": "assume",
+  "def": "假定",
+  "defEn": "take to be the case or to be true; accept without verification or proof",
+  "pos": "v.",
+  "ipa": "/ə'sju:m/"
+ },
+ {
+  "word": "successful",
+  "def": "成功的",
+  "defEn": "having succeeded or being marked by a favorable outcome",
+  "pos": "adj.",
+  "ipa": "/sək'sesful/"
+ },
+ {
+  "word": "sing",
+  "def": "唱",
+  "defEn": "deliver by singing",
+  "pos": "v.",
+  "ipa": "/siŋ/"
+ },
+ {
+  "word": "doubt",
+  "def": "怀疑",
+  "defEn": "the state of being unsure of something",
+  "pos": "n.",
+  "ipa": "/daut/"
+ },
+ {
+  "word": "competition",
+  "def": "竞争",
+  "defEn": "a business relation in which two parties compete to gain customers",
+  "pos": "n.",
+  "ipa": "/.kɒmpi'tiʃən/"
+ },
+ {
+  "word": "theory",
+  "def": "理论",
+  "defEn": "a well-substantiated explanation of some aspect of the natural world; an organized system of accepted knowledge that",
+  "pos": "n.",
+  "ipa": "/'θiəri/"
+ },
+ {
+  "word": "propose",
+  "def": "计划",
+  "defEn": "make a proposal, declare a plan for something",
+  "pos": "v.",
+  "ipa": "/prə'pəuz/"
+ },
+ {
+  "word": "reference",
+  "def": "参考",
+  "defEn": "the most direct or specific meaning of a word or expression; the class of objects that an expression refers to",
+  "pos": "n.",
+  "ipa": "/'refərəns/"
+ },
+ {
+  "word": "argument",
+  "def": "争论",
+  "defEn": "a fact or assertion offered as evidence that something is true",
+  "pos": "n.",
+  "ipa": "/'ɑ:gjumənt/"
+ },
+ {
+  "word": "adult",
+  "def": "成人",
+  "defEn": "a fully developed person from maturity onward",
+  "pos": "n.",
+  "ipa": "/'ædʌlt/"
+ },
+ {
+  "word": "fly",
+  "def": "苍蝇",
+  "defEn": "two-winged insects characterized by active flight",
+  "pos": "n.",
+  "ipa": "/flai/"
+ },
+ {
+  "word": "document",
+  "def": "文件",
+  "defEn": "writing that provides information (especially information of an official nature)",
+  "pos": "n.",
+  "ipa": "/'dɒkjumənt/"
+ },
+ {
+  "word": "pattern",
+  "def": "模范",
+  "defEn": "a model considered worthy of imitation",
+  "pos": "n.",
+  "ipa": "/'pætən/"
+ },
+ {
+  "word": "application",
+  "def": "应用",
+  "defEn": "the act of bringing something to bear; using it for a particular purpose",
+  "pos": "n.",
+  "ipa": "/.æpli'keiʃən/"
+ },
+ {
+  "word": "obviously",
+  "def": "显而易见地",
+  "defEn": "clearly; easily seen",
+  "pos": "adv.",
+  "ipa": "/'ɔbviəsli/"
+ },
+ {
+  "word": "unclear",
+  "def": "不易了解的",
+  "defEn": "not clear to the mind",
+  "pos": "adj.",
+  "ipa": "/.ʌn'kliə/"
+ }
+]

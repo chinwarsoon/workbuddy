@@ -1,0 +1,702 @@
+[
+ {
+  "word": "one",
+  "def": "一(个)",
+  "defEn": "the smallest whole number or a numeral representing this number",
+  "pos": "n.",
+  "ipa": "/wʌn/"
+ },
+ {
+  "word": "year",
+  "def": "年",
+  "defEn": "a period of time containing 365 (or 366) days",
+  "pos": "n.",
+  "ipa": "/jiə/"
+ },
+ {
+  "word": "well",
+  "def": "井",
+  "defEn": "a deep hole or shaft dug or drilled to obtain water or oil or gas or brine",
+  "pos": "n.",
+  "ipa": "/wel/"
+ },
+ {
+  "word": "way",
+  "def": "路",
+  "defEn": "the condition of things generally",
+  "pos": "n.",
+  "ipa": "/wei/"
+ },
+ {
+  "word": "thing",
+  "def": "事物",
+  "defEn": "a special situation",
+  "pos": "n.",
+  "ipa": "/θiŋ/"
+ },
+ {
+  "word": "back",
+  "def": "后面的",
+  "defEn": "the posterior part of a human (or animal) body from the neck to the end of the spine",
+  "pos": "n.",
+  "ipa": "/bæk/"
+ },
+ {
+  "word": "mean",
+  "def": "低劣的",
+  "defEn": "an average of n numbers computed by adding some function of the numbers and dividing by some function of n",
+  "pos": "n.",
+  "ipa": "/mi:n/"
+ },
+ {
+  "word": "really",
+  "def": "实际上",
+  "defEn": "r in accordance with truth or fact or reality",
+  "pos": "adv.",
+  "ipa": "/'riəli/"
+ },
+ {
+  "word": "life",
+  "def": "生活",
+  "defEn": "a characteristic state or mode of living",
+  "pos": "n.",
+  "ipa": "/laif/"
+ },
+ {
+  "word": "problem",
+  "def": "问题",
+  "defEn": "a state of difficulty that needs to be resolved",
+  "pos": "n.",
+  "ipa": "/'prɒbləm/"
+ },
+ {
+  "word": "lot",
+  "def": "运气",
+  "defEn": "a parcel of land having fixed boundaries",
+  "pos": "n.",
+  "ipa": "/lɒt/"
+ },
+ {
+  "word": "try",
+  "def": "尝试",
+  "defEn": "make an effort or attempt",
+  "pos": "v.",
+  "ipa": "/trai/"
+ },
+ {
+  "word": "leave",
+  "def": "许可",
+  "defEn": "the period of time during which you are absent from work or duty",
+  "pos": "n.",
+  "ipa": "/li:v/"
+ },
+ {
+  "word": "number",
+  "def": "数",
+  "defEn": "the property possessed by a sum or total or indefinite quantity of units or individuals",
+  "pos": "n.",
+  "ipa": "/'nʌmbə/"
+ },
+ {
+  "word": "part",
+  "def": "部分",
+  "defEn": "something determined in relation to something that includes it",
+  "pos": "n.",
+  "ipa": "/pɑ:t/"
+ },
+ {
+  "word": "point",
+  "def": "点",
+  "defEn": "a geometric element that has position but no extension",
+  "pos": "n.",
+  "ipa": "/pɒint/"
+ },
+ {
+  "word": "something",
+  "def": "某事",
+  "defEn": "Anything unknown, undetermined, or not specifically",
+  "pos": "n.",
+  "ipa": "/'sʌmθiŋ/"
+ },
+ {
+  "word": "interest",
+  "def": "兴趣",
+  "defEn": "a sense of concern with and curiosity about someone or something",
+  "pos": "n.",
+  "ipa": "/'intrist/"
+ },
+ {
+  "word": "week",
+  "def": "星期",
+  "defEn": "any period of seven consecutive days",
+  "pos": "n.",
+  "ipa": "/wi:k/"
+ },
+ {
+  "word": "include",
+  "def": "包括",
+  "defEn": "have as a part, be made up out of",
+  "pos": "v.",
+  "ipa": "/in'klu:d/"
+ },
+ {
+  "word": "course",
+  "def": "课程",
+  "defEn": "education imparted in a series of lessons or meetings",
+  "pos": "n.",
+  "ipa": "/kɒ:s/"
+ },
+ {
+  "word": "report",
+  "def": "报告",
+  "defEn": "a written document describing the findings of some individual or group",
+  "pos": "n.",
+  "ipa": "/ri'pɒ:t/"
+ },
+ {
+  "word": "group",
+  "def": "团体",
+  "defEn": "any number of entities (members) considered as a unit",
+  "pos": "n.",
+  "ipa": "/gru:p/"
+ },
+ {
+  "word": "case",
+  "def": "情形",
+  "defEn": "an occurrence of something",
+  "pos": "n.",
+  "ipa": "/keis/"
+ },
+ {
+  "word": "around",
+  "def": "围绕；大约",
+  "defEn": "on all sides of; approximately",
+  "pos": "prep.",
+  "ipa": "/ə'raund/"
+ },
+ {
+  "word": "seem",
+  "def": "象是",
+  "defEn": "appear to exist",
+  "pos": "v.",
+  "ipa": "/si:m/"
+ },
+ {
+  "word": "let",
+  "def": "让",
+  "defEn": "a serve that strikes the net before falling into the receiver's court; the ball must be served again",
+  "pos": "n.",
+  "ipa": "/let/"
+ },
+ {
+  "word": "kind",
+  "def": "种类",
+  "defEn": "a category of things distinguished by some common characteristic or quality",
+  "pos": "n.",
+  "ipa": "/kaind/"
+ },
+ {
+  "word": "system",
+  "def": "系统",
+  "defEn": "instrumentality that combines interrelated interacting artifacts designed to work as a coherent entity",
+  "pos": "n.",
+  "ipa": "/'sistəm/"
+ },
+ {
+  "word": "set",
+  "def": "日落",
+  "defEn": "a group of things of the same kind that belong together and are so used",
+  "pos": "n.",
+  "ipa": "/set/"
+ },
+ {
+  "word": "state",
+  "def": "州",
+  "defEn": "the territory occupied by one of the constituent administrative districts of a nation",
+  "pos": "n.",
+  "ipa": "/steit/"
+ },
+ {
+  "word": "fact",
+  "def": "事实",
+  "defEn": "a piece of information about circumstances that exist or events that have occurred",
+  "pos": "n.",
+  "ipa": "/fækt/"
+ },
+ {
+  "word": "however",
+  "def": "然而",
+  "defEn": "despite that; but",
+  "pos": "adv.",
+  "ipa": "/hau'evə/"
+ },
+ {
+  "word": "provide",
+  "def": "提供",
+  "defEn": "give what is desired or needed, especially support, food or sustenance",
+  "pos": "v.",
+  "ipa": "/prə'vaid/"
+ },
+ {
+  "word": "month",
+  "def": "月",
+  "defEn": "a time unit of approximately 30 days",
+  "pos": "n.",
+  "ipa": "/mʌnθ/"
+ },
+ {
+  "word": "large",
+  "def": "大的",
+  "defEn": "a garment size for a large person",
+  "pos": "n.",
+  "ipa": "/lɑ:dʒ/"
+ },
+ {
+  "word": "information",
+  "def": "消息",
+  "defEn": "a message received and understood",
+  "pos": "n.",
+  "ipa": "/.infə'meiʃən/"
+ },
+ {
+  "word": "government",
+  "def": "政府",
+  "defEn": "the organization that is the governing authority of a political unit",
+  "pos": "n.",
+  "ipa": "/'gʌvənmənt/"
+ },
+ {
+  "word": "issue",
+  "def": "发行",
+  "defEn": "an important question that is in dispute and must be settled",
+  "pos": "n.",
+  "ipa": "/'isju/"
+ },
+ {
+  "word": "build",
+  "def": "建立",
+  "defEn": "build or establish something abstract",
+  "pos": "v.",
+  "ipa": "/bild/"
+ },
+ {
+  "word": "hold",
+  "def": "把握",
+  "defEn": "power by which something or someone is affected or dominated",
+  "pos": "n.",
+  "ipa": "/həuld/"
+ },
+ {
+  "word": "service",
+  "def": "服务",
+  "defEn": "work done by one person or group that benefits another",
+  "pos": "n.",
+  "ipa": "/'sə:vis/"
+ },
+ {
+  "word": "second",
+  "def": "秒",
+  "defEn": "1/60 of a minute; the basic unit of time adopted under the Systeme International d'Unites",
+  "pos": "n.",
+  "ipa": "/'sekənd/"
+ },
+ {
+  "word": "increase",
+  "def": "增加",
+  "defEn": "a change resulting in an increase",
+  "pos": "n.",
+  "ipa": "/in'kri:s/"
+ },
+ {
+  "word": "result",
+  "def": "结果",
+  "defEn": "something that results",
+  "pos": "n.",
+  "ipa": "/ri'zʌlt/"
+ },
+ {
+  "word": "away",
+  "def": "离去",
+  "defEn": "used of an opponent's ground",
+  "pos": "adv.",
+  "ipa": "/ə'wei/"
+ },
+ {
+  "word": "example",
+  "def": "例子",
+  "defEn": "an item of information that is typical of a class or group",
+  "pos": "n.",
+  "ipa": "/ig'zæmpl/"
+ },
+ {
+  "word": "happen",
+  "def": "发生",
+  "defEn": "come to pass",
+  "pos": "v.",
+  "ipa": "/'hæpən/"
+ },
+ {
+  "word": "offer",
+  "def": "给予(物)",
+  "defEn": "the verbal act of offering",
+  "pos": "n.",
+  "ipa": "/'ɒfə/"
+ },
+ {
+  "word": "program",
+  "def": "节目",
+  "defEn": "a system of projects or services intended to meet a public need",
+  "pos": "n.",
+  "ipa": "/'prəugræm/"
+ },
+ {
+  "word": "lead",
+  "def": "铅",
+  "defEn": "an advantage held by a competitor in a race",
+  "pos": "n.",
+  "ipa": "/li:d. led/"
+ },
+ {
+  "word": "thank",
+  "def": "谢意",
+  "defEn": "express gratitude or show appreciation to",
+  "pos": "v.",
+  "ipa": "/θæŋk/"
+ },
+ {
+  "word": "far",
+  "def": "远的",
+  "defEn": "located at a great distance in time or space or degree",
+  "pos": "adj.",
+  "ipa": "/fɑ:/"
+ },
+ {
+  "word": "hope",
+  "def": "希望",
+  "defEn": "a specific instance of feeling hopeful",
+  "pos": "n.",
+  "ipa": "/həup/"
+ },
+ {
+  "word": "form",
+  "def": "形状",
+  "defEn": "the phonological or orthographic sound or appearance of a word that can be used to describe or identify something",
+  "pos": "n.",
+  "ipa": "/fɒ:m/"
+ },
+ {
+  "word": "level",
+  "def": "水平",
+  "defEn": "height above ground",
+  "pos": "n.",
+  "ipa": "/'levl/"
+ },
+ {
+  "word": "person",
+  "def": "人",
+  "defEn": "a human being",
+  "pos": "n.",
+  "ipa": "/'pə:sn/"
+ },
+ {
+  "word": "experience",
+  "def": "经历",
+  "defEn": "the accumulation of knowledge or skill that results from direct participation in events or activities",
+  "pos": "n.",
+  "ipa": "/ik'spiəriəns/"
+ },
+ {
+  "word": "member",
+  "def": "成员",
+  "defEn": "one of the persons who compose a social group (especially individuals who have joined and participate in a group",
+  "pos": "n.",
+  "ipa": "/'membə/"
+ },
+ {
+  "word": "able",
+  "def": "能干的",
+  "defEn": "(usually followed by `to') having the necessary means or skill or know-how or authority to do something",
+  "pos": "adj.",
+  "ipa": "/'eibl/"
+ },
+ {
+  "word": "support",
+  "def": "支持",
+  "defEn": "the activity of providing for or maintaining by supplying with money or necessities",
+  "pos": "n.",
+  "ipa": "/sə'pɒ:t/"
+ },
+ {
+  "word": "whether",
+  "def": "是否",
+  "defEn": "Which (of two); which one (of two); -- used",
+  "pos": "pron.",
+  "ipa": "/'hweðə/"
+ },
+ {
+  "word": "line",
+  "def": "列",
+  "defEn": "a formation of people or things one beside another",
+  "pos": "n.",
+  "ipa": "/lain/"
+ },
+ {
+  "word": "present",
+  "def": "现在",
+  "defEn": "the period of time that is happening now; any continuous stretch of time including the moment of speech",
+  "pos": "n.",
+  "ipa": "/'preznt/"
+ },
+ {
+  "word": "side",
+  "def": "旁边",
+  "defEn": "a place within a region identified relative to a center or reference location",
+  "pos": "n.",
+  "ipa": "/said/"
+ },
+ {
+  "word": "term",
+  "def": "术语",
+  "defEn": "a word or expression used for some particular thing",
+  "pos": "n.",
+  "ipa": "/tə:m/"
+ },
+ {
+  "word": "least",
+  "def": "最少",
+  "defEn": "something that is of no importance",
+  "pos": "n.",
+  "ipa": "/li:st/"
+ },
+ {
+  "word": "age",
+  "def": "年龄",
+  "defEn": "how long something has existed",
+  "pos": "n.",
+  "ipa": "/eidʒ/"
+ },
+ {
+  "word": "process",
+  "def": "程序",
+  "defEn": "(psychology) the performance of some composite cognitive activity; an operation that affects mental contents",
+  "pos": "n.",
+  "ipa": "/'prɒses/"
+ },
+ {
+  "word": "public",
+  "def": "公众",
+  "defEn": "a body of people sharing some common interest",
+  "pos": "n.",
+  "ipa": "/'pʌblik/"
+ },
+ {
+  "word": "possible",
+  "def": "可能的",
+  "defEn": "something that can be done",
+  "pos": "n.",
+  "ipa": "/'pɒsəbl/"
+ },
+ {
+  "word": "actually",
+  "def": "事实上",
+  "defEn": "in fact; really",
+  "pos": "adv.",
+  "ipa": "/'æktʃuəli/"
+ },
+ {
+  "word": "view",
+  "def": "视野",
+  "defEn": "the visual percept of a region",
+  "pos": "n.",
+  "ipa": "/vju:/"
+ },
+ {
+  "word": "parent",
+  "def": "父母",
+  "defEn": "a father or mother; one who begets or one who gives birth to or nurtures and raises a child; a relative who plays",
+  "pos": "n.",
+  "ipa": "/'perənt/"
+ },
+ {
+  "word": "party",
+  "def": "宴会",
+  "defEn": "an organization to gain political power",
+  "pos": "n.",
+  "ipa": "/'pɑ:ti/"
+ },
+ {
+  "word": "local",
+  "def": "地方性的",
+  "defEn": "public transport consisting of a bus or train that stops at all stations or stops",
+  "pos": "n.",
+  "ipa": "/'ləukəl/"
+ },
+ {
+  "word": "control",
+  "def": "控制",
+  "defEn": "power to direct or determine",
+  "pos": "n.",
+  "ipa": "/kən'trəul/"
+ },
+ {
+  "word": "already",
+  "def": "已经",
+  "defEn": "by this time; before now",
+  "pos": "adv.",
+  "ipa": "/ɒ:l'redi/"
+ },
+ {
+  "word": "concern",
+  "def": "关心",
+  "defEn": "something that interests you because it is important or affects you",
+  "pos": "n.",
+  "ipa": "/kən'sə:n/"
+ },
+ {
+  "word": "product",
+  "def": "产品",
+  "defEn": "an artifact that has been created by someone or some process",
+  "pos": "n.",
+  "ipa": "/'prɒdʌkt/"
+ },
+ {
+  "word": "lose",
+  "def": "遗失",
+  "defEn": "fail to keep or to maintain; cease to have, either physically or in an abstract sense",
+  "pos": "v.",
+  "ipa": "/lu:z/"
+ },
+ {
+  "word": "whole",
+  "def": "全部",
+  "defEn": "all of something including all its component elements or parts",
+  "pos": "n.",
+  "ipa": "/həul/"
+ },
+ {
+  "word": "rate",
+  "def": "比率",
+  "defEn": "a magnitude or frequency relative to a time unit",
+  "pos": "n.",
+  "ipa": "/reit/"
+ },
+ {
+  "word": "care",
+  "def": "小心",
+  "defEn": "the work of providing treatment for or attending to someone or something",
+  "pos": "n.",
+  "ipa": "/kєə/"
+ },
+ {
+  "word": "expect",
+  "def": "预期",
+  "defEn": "regard something as probable or likely",
+  "pos": "v.",
+  "ipa": "/iks'pekt/"
+ },
+ {
+  "word": "sort",
+  "def": "种类",
+  "defEn": "an approximate definition or example",
+  "pos": "n.",
+  "ipa": "/sɒ:t/"
+ },
+ {
+  "word": "ever",
+  "def": "曾经",
+  "defEn": "at any time",
+  "pos": "adv.",
+  "ipa": "/'evə/"
+ },
+ {
+  "word": "anything",
+  "def": "任何事",
+  "defEn": "Any object, act, state, event, or fact whatever; thing of",
+  "pos": "n.",
+  "ipa": "/'eniθiŋ/"
+ },
+ {
+  "word": "cause",
+  "def": "原因",
+  "defEn": "events that provide the generative force that is the origin of something",
+  "pos": "n.",
+  "ipa": "/kɒ:z/"
+ },
+ {
+  "word": "fall",
+  "def": "落下",
+  "defEn": "the season when the leaves fall from the trees",
+  "pos": "n.",
+  "ipa": "/fɒ:l/"
+ },
+ {
+  "word": "deal",
+  "def": "交易",
+  "defEn": "a particular instance of buying or selling",
+  "pos": "n.",
+  "ipa": "/di:l/"
+ },
+ {
+  "word": "send",
+  "def": "发送",
+  "defEn": "cause to go somewhere",
+  "pos": "v.",
+  "ipa": "/send/"
+ },
+ {
+  "word": "soon",
+  "def": "不久",
+  "defEn": "in a short time",
+  "pos": "adv.",
+  "ipa": "/su:n/"
+ },
+ {
+  "word": "base",
+  "def": "底部",
+  "defEn": "installation from which a military force initiates operations",
+  "pos": "n.",
+  "ipa": "/beis/"
+ },
+ {
+  "word": "suggest",
+  "def": "提议",
+  "defEn": "imply as a possibility",
+  "pos": "v.",
+  "ipa": "/səg'dʒest/"
+ },
+ {
+  "word": "past",
+  "def": "过去",
+  "defEn": "the time that has elapsed",
+  "pos": "n.",
+  "ipa": "/pɑ:st/"
+ },
+ {
+  "word": "power",
+  "def": "力",
+  "defEn": "possession of controlling influence",
+  "pos": "n.",
+  "ipa": "/'pauə/"
+ },
+ {
+  "word": "center",
+  "def": "中心",
+  "defEn": "an area that is approximately central within some larger region",
+  "pos": "n.",
+  "ipa": "/'sentə/"
+ },
+ {
+  "word": "grow",
+  "def": "种植",
+  "defEn": "become larger, greater, or bigger; expand or gain",
+  "pos": "v.",
+  "ipa": "/grəu/"
+ },
+ {
+  "word": "nothing",
+  "def": "无",
+  "defEn": "a quantity of no importance",
+  "pos": "n.",
+  "ipa": "/'nʌθiŋ/"
+ }
+]

@@ -1,0 +1,576 @@
+{
+  "dir": "content",
+  "packs": [
+    "freq-1k",
+    "freq-2k",
+    "freq-3k",
+    "freq-4k",
+    "general",
+    "nce2",
+    "nce3",
+    "nce4"
+  ],
+  "totals": {
+    "freq-1k": {
+      "total": 1056,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 1056,
+        "templatedWords": 0
+      },
+      "complete": 1056,
+      "templated": 0
+    },
+    "freq-2k": {
+      "total": 1879,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 1879,
+        "templatedWords": 0
+      },
+      "complete": 1879,
+      "templated": 0
+    },
+    "freq-3k": {
+      "total": 956,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 956,
+        "templatedWords": 0
+      },
+      "complete": 956,
+      "templated": 0
+    },
+    "freq-4k": {
+      "total": 800,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 800,
+        "templatedWords": 69
+      },
+      "complete": 800,
+      "templated": 69
+    },
+    "general": {
+      "total": 40,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 40,
+        "templatedWords": 0
+      },
+      "complete": 40,
+      "templated": 0
+    },
+    "nce2": {
+      "total": 97,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 97,
+        "templatedWords": 0
+      },
+      "complete": 97,
+      "templated": 0
+    },
+    "nce3": {
+      "total": 79,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 79,
+        "templatedWords": 0
+      },
+      "complete": 79,
+      "templated": 0
+    },
+    "nce4": {
+      "total": 65,
+      "missing": {
+        "def": 0,
+        "defEn": 0,
+        "ex": 0,
+        "exzh": 0,
+        "exEn": 0,
+        "completeWords": 65,
+        "templatedWords": 0
+      },
+      "complete": 65,
+      "templated": 0
+    }
+  },
+  "crossPackDiff": [],
+  "perPackIncomplete": {
+    "freq-1k": [],
+    "freq-2k": [],
+    "freq-3k": [],
+    "freq-4k": [],
+    "general": [],
+    "nce2": [],
+    "nce3": [],
+    "nce4": []
+  },
+  "perPackTemplated": {
+    "pid": {
+      "freq-1k": 0,
+      "freq-2k": 0,
+      "freq-3k": 0,
+      "freq-4k": 69,
+      "general": 0,
+      "nce2": 0,
+      "nce3": 0,
+      "nce4": 0
+    },
+    "words": {
+      "freq-1k": [],
+      "freq-2k": [],
+      "freq-3k": [],
+      "freq-4k": [
+        {
+          "word": "behaviour",
+          "ex": "We studied the behaviour in detail.",
+          "exzh": "我们详细研究了这个behaviour。",
+          "exEn": "We studied the behaviour in detail."
+        },
+        {
+          "word": "diseases",
+          "ex": "We studied the diseases in detail.",
+          "exzh": "我们详细研究了这个diseases。",
+          "exEn": "We studied the diseases in detail."
+        },
+        {
+          "word": "ears",
+          "ex": "We studied the ears in detail.",
+          "exzh": "我们详细研究了这个ears。",
+          "exEn": "We studied the ears in detail."
+        },
+        {
+          "word": "heritage",
+          "ex": "We studied the heritage in detail.",
+          "exzh": "我们详细研究了这个heritage。",
+          "exEn": "We studied the heritage in detail."
+        },
+        {
+          "word": "juice",
+          "ex": "We studied the juice in detail.",
+          "exzh": "我们详细研究了这个juice。",
+          "exEn": "We studied the juice in detail."
+        },
+        {
+          "word": "privacy",
+          "ex": "We studied the privacy in detail.",
+          "exzh": "我们详细研究了这个privacy。",
+          "exEn": "We studied the privacy in detail."
+        },
+        {
+          "word": "reducing",
+          "ex": "We studied the reducing in detail.",
+          "exzh": "我们详细研究了这个reducing。",
+          "exEn": "We studied the reducing in detail."
+        },
+        {
+          "word": "scoring",
+          "ex": "We studied the scoring in detail.",
+          "exzh": "我们详细研究了这个scoring。",
+          "exEn": "We studied the scoring in detail."
+        },
+        {
+          "word": "searching",
+          "ex": "This is a  searching example of the method.",
+          "exzh": "这是该方法一个searching的例子。",
+          "exEn": "This is a  searching example of the method."
+        },
+        {
+          "word": "sections",
+          "ex": "We studied the sections in detail.",
+          "exzh": "我们详细研究了这个sections。",
+          "exEn": "We studied the sections in detail."
+        },
+        {
+          "word": "threatened",
+          "ex": "This is a  threatened example of the method.",
+          "exzh": "这是该方法一个threatened的例子。",
+          "exEn": "This is a  threatened example of the method."
+        },
+        {
+          "word": "transferred",
+          "ex": "We studied the transferred in detail.",
+          "exzh": "我们详细研究了这个transferred。",
+          "exEn": "We studied the transferred in detail."
+        },
+        {
+          "word": "apps",
+          "ex": "We studied the apps in detail.",
+          "exzh": "我们详细研究了这个apps。",
+          "exEn": "We studied the apps in detail."
+        },
+        {
+          "word": "cant",
+          "ex": "We studied the cant in detail.",
+          "exzh": "我们详细研究了这个cant。",
+          "exEn": "We studied the cant in detail."
+        },
+        {
+          "word": "cotton",
+          "ex": "We studied the cotton in detail.",
+          "exzh": "我们详细研究了这个cotton。",
+          "exEn": "We studied the cotton in detail."
+        },
+        {
+          "word": "masters",
+          "ex": "We studied the masters in detail.",
+          "exzh": "我们详细研究了这个masters。",
+          "exEn": "We studied the masters in detail."
+        },
+        {
+          "word": "preferred",
+          "ex": "This is a  preferred example of the method.",
+          "exzh": "这是该方法一个preferred的例子。",
+          "exEn": "This is a  preferred example of the method."
+        },
+        {
+          "word": "pulling",
+          "ex": "We studied the pulling in detail.",
+          "exzh": "我们详细研究了这个pulling。",
+          "exEn": "We studied the pulling in detail."
+        },
+        {
+          "word": "removal",
+          "ex": "We studied the removal in detail.",
+          "exzh": "我们详细研究了这个removal。",
+          "exEn": "We studied the removal in detail."
+        },
+        {
+          "word": "risks",
+          "ex": "We studied the risks in detail.",
+          "exzh": "我们详细研究了这个risks。",
+          "exEn": "We studied the risks in detail."
+        },
+        {
+          "word": "screaming",
+          "ex": "This is a  screaming example of the method.",
+          "exzh": "这是该方法一个screaming的例子。",
+          "exEn": "This is a  screaming example of the method."
+        },
+        {
+          "word": "sept",
+          "ex": "We studied the sept in detail.",
+          "exzh": "我们详细研究了这个sept。",
+          "exEn": "We studied the sept in detail."
+        },
+        {
+          "word": "versions",
+          "ex": "We studied the versions in detail.",
+          "exzh": "我们详细研究了这个versions。",
+          "exEn": "We studied the versions in detail."
+        },
+        {
+          "word": "wishes",
+          "ex": "We studied the wishes in detail.",
+          "exzh": "我们详细研究了这个wishes。",
+          "exEn": "We studied the wishes in detail."
+        },
+        {
+          "word": "athletes",
+          "ex": "We studied the athletes in detail.",
+          "exzh": "我们详细研究了这个athletes。",
+          "exEn": "We studied the athletes in detail."
+        },
+        {
+          "word": "bull",
+          "ex": "We studied the bull in detail.",
+          "exzh": "我们详细研究了这个bull。",
+          "exEn": "We studied the bull in detail."
+        },
+        {
+          "word": "contributions",
+          "ex": "We studied the contributions in detail.",
+          "exzh": "我们详细研究了这个contributions。",
+          "exEn": "We studied the contributions in detail."
+        },
+        {
+          "word": "generated",
+          "ex": "This is a  generated example of the method.",
+          "exzh": "这是该方法一个generated的例子。",
+          "exEn": "This is a  generated example of the method."
+        },
+        {
+          "word": "glasses",
+          "ex": "We studied the glasses in detail.",
+          "exzh": "我们详细研究了这个glasses。",
+          "exEn": "We studied the glasses in detail."
+        },
+        {
+          "word": "instant",
+          "ex": "We studied the instant in detail.",
+          "exzh": "我们详细研究了这个instant。",
+          "exEn": "We studied the instant in detail."
+        },
+        {
+          "word": "kills",
+          "ex": "We studied the kills in detail.",
+          "exzh": "我们详细研究了这个kills。",
+          "exEn": "We studied the kills in detail."
+        },
+        {
+          "word": "monitoring",
+          "ex": "We studied the monitoring in detail.",
+          "exzh": "我们详细研究了这个monitoring。",
+          "exEn": "We studied the monitoring in detail."
+        },
+        {
+          "word": "photographs",
+          "ex": "We studied the photographs in detail.",
+          "exzh": "我们详细研究了这个photographs。",
+          "exEn": "We studied the photographs in detail."
+        },
+        {
+          "word": "restaurants",
+          "ex": "We studied the restaurants in detail.",
+          "exzh": "我们详细研究了这个restaurants。",
+          "exEn": "We studied the restaurants in detail."
+        },
+        {
+          "word": "samples",
+          "ex": "We studied the samples in detail.",
+          "exzh": "我们详细研究了这个samples。",
+          "exEn": "We studied the samples in detail."
+        },
+        {
+          "word": "arena",
+          "ex": "We studied the arena in detail.",
+          "exzh": "我们详细研究了这个arena。",
+          "exEn": "We studied the arena in detail."
+        },
+        {
+          "word": "boots",
+          "ex": "We studied the boots in detail.",
+          "exzh": "我们详细研究了这个boots。",
+          "exEn": "We studied the boots in detail."
+        },
+        {
+          "word": "computers",
+          "ex": "We studied the computers in detail.",
+          "exzh": "我们详细研究了这个computers。",
+          "exEn": "We studied the computers in detail."
+        },
+        {
+          "word": "expenses",
+          "ex": "We studied the expenses in detail.",
+          "exzh": "我们详细研究了这个expenses。",
+          "exEn": "We studied the expenses in detail."
+        },
+        {
+          "word": "gen",
+          "ex": "We studied the gen in detail.",
+          "exzh": "我们详细研究了这个gen。",
+          "exEn": "We studied the gen in detail."
+        },
+        {
+          "word": "hospitals",
+          "ex": "We studied the hospitals in detail.",
+          "exzh": "我们详细研究了这个hospitals。",
+          "exEn": "We studied the hospitals in detail."
+        },
+        {
+          "word": "precious",
+          "ex": "This is a  precious example of the method.",
+          "exzh": "这是该方法一个precious的例子。",
+          "exEn": "This is a  precious example of the method."
+        },
+        {
+          "word": "premium",
+          "ex": "We studied the premium in detail.",
+          "exzh": "我们详细研究了这个premium。",
+          "exEn": "We studied the premium in detail."
+        },
+        {
+          "word": "proven",
+          "ex": "We studied the proven in detail.",
+          "exzh": "我们详细研究了这个proven。",
+          "exEn": "We studied the proven in detail."
+        },
+        {
+          "word": "requested",
+          "ex": "This is a  requested example of the method.",
+          "exzh": "这是该方法一个requested的例子。",
+          "exEn": "This is a  requested example of the method."
+        },
+        {
+          "word": "spots",
+          "ex": "We studied the spots in detail.",
+          "exzh": "我们详细研究了这个spots。",
+          "exEn": "We studied the spots in detail."
+        },
+        {
+          "word": "temperatures",
+          "ex": "We studied the temperatures in detail.",
+          "exzh": "我们详细研究了这个temperatures。",
+          "exEn": "We studied the temperatures in detail."
+        },
+        {
+          "word": "connections",
+          "ex": "We studied the connections in detail.",
+          "exzh": "我们详细研究了这个connections。",
+          "exEn": "We studied the connections in detail."
+        },
+        {
+          "word": "desperate",
+          "ex": "We studied the desperate in detail.",
+          "exzh": "我们详细研究了这个desperate。",
+          "exEn": "We studied the desperate in detail."
+        },
+        {
+          "word": "eve",
+          "ex": "We studied the eve in detail.",
+          "exzh": "我们详细研究了这个eve。",
+          "exEn": "We studied the eve in detail."
+        },
+        {
+          "word": "frozen",
+          "ex": "This is a  frozen example of the method.",
+          "exzh": "这是该方法一个frozen的例子。",
+          "exEn": "This is a  frozen example of the method."
+        },
+        {
+          "word": "guards",
+          "ex": "We studied the guards in detail.",
+          "exzh": "我们详细研究了这个guards。",
+          "exEn": "We studied the guards in detail."
+        },
+        {
+          "word": "instruments",
+          "ex": "We studied the instruments in detail.",
+          "exzh": "我们详细研究了这个instruments。",
+          "exEn": "We studied the instruments in detail."
+        },
+        {
+          "word": "mothers",
+          "ex": "We studied the mothers in detail.",
+          "exzh": "我们详细研究了这个mothers。",
+          "exEn": "We studied the mothers in detail."
+        },
+        {
+          "word": "romance",
+          "ex": "We studied the romance in detail.",
+          "exzh": "我们详细研究了这个romance。",
+          "exEn": "We studied the romance in detail."
+        },
+        {
+          "word": "trends",
+          "ex": "We studied the trends in detail.",
+          "exzh": "我们详细研究了这个trends。",
+          "exEn": "We studied the trends in detail."
+        },
+        {
+          "word": "ali",
+          "ex": "We studied the ali in detail.",
+          "exzh": "我们详细研究了这个ali。",
+          "exEn": "We studied the ali in detail."
+        },
+        {
+          "word": "blocked",
+          "ex": "This is a  blocked example of the method.",
+          "exzh": "这是该方法一个blocked的例子。",
+          "exEn": "This is a  blocked example of the method."
+        },
+        {
+          "word": "boards",
+          "ex": "We studied the boards in detail.",
+          "exzh": "我们详细研究了这个boards。",
+          "exEn": "We studied the boards in detail."
+        },
+        {
+          "word": "checks",
+          "ex": "We studied the checks in detail.",
+          "exzh": "我们详细研究了这个checks。",
+          "exEn": "We studied the checks in detail."
+        },
+        {
+          "word": "distributed",
+          "ex": "This is a  distributed example of the method.",
+          "exzh": "这是该方法一个distributed的例子。",
+          "exEn": "This is a  distributed example of the method."
+        },
+        {
+          "word": "documentary",
+          "ex": "We studied the documentary in detail.",
+          "exzh": "我们详细研究了这个documentary。",
+          "exEn": "We studied the documentary in detail."
+        },
+        {
+          "word": "favour",
+          "ex": "We studied the favour in detail.",
+          "exzh": "我们详细研究了这个favour。",
+          "exEn": "We studied the favour in detail."
+        },
+        {
+          "word": "giants",
+          "ex": "We studied the giants in detail.",
+          "exzh": "我们详细研究了这个giants。",
+          "exEn": "We studied the giants in detail."
+        },
+        {
+          "word": "mask",
+          "ex": "We studied the mask in detail.",
+          "exzh": "我们详细研究了这个mask。",
+          "exEn": "We studied the mask in detail."
+        },
+        {
+          "word": "saudi",
+          "ex": "We studied the saudi in detail.",
+          "exzh": "我们详细研究了这个saudi。",
+          "exEn": "We studied the saudi in detail."
+        },
+        {
+          "word": "toilet",
+          "ex": "We studied the toilet in detail.",
+          "exzh": "我们详细研究了这个toilet。",
+          "exEn": "We studied the toilet in detail."
+        },
+        {
+          "word": "vietnam",
+          "ex": "We studied the vietnam in detail.",
+          "exzh": "我们详细研究了这个vietnam。",
+          "exEn": "We studied the vietnam in detail."
+        },
+        {
+          "word": "calendar",
+          "ex": "We studied the calendar in detail.",
+          "exzh": "我们详细研究了这个calendar。",
+          "exEn": "We studied the calendar in detail."
+        }
+      ],
+      "general": [],
+      "nce2": [],
+      "nce3": [],
+      "nce4": []
+    }
+  },
+  "orphanCount": 0
+}
