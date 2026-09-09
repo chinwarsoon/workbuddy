@@ -6,6 +6,8 @@
   const cap = s => (s||"").charAt(0).toUpperCase()+ (s||"").slice(1);
   const todayStr = () => new Date().toISOString().slice(0,10);
   let edDirty = false;
+  let saving = false;          // true while a Save (Actions/Settings) is in flight
+  let saveErrorMsg = '';       // transient "Save failed" message shown in the status bar
   let exportSel = new Set();
 
   // ---- State ----
@@ -27,6 +29,7 @@
     migrated: false,
     dataDirty: false,
     setupDirty: false,
+    lastSavedAt: '',   // most recent successful Save time (actions or settings), shown in status bar
     customFields: [],
     actionTypes: [],
     // UI settings — loaded from setup.json; falls back to these built-in defaults.
@@ -466,27 +469,48 @@
     if(p==='help') return renderHelpMain();
   }
   function refresh(){ renderSideBody(); renderMain(); updateSaveButtons(); }
-  function markDataDirty(){ state.dataDirty=true; updateSaveButtons(); }
-  function markSetupDirty(){ state.setupDirty=true; updateSaveButtons(); }
+  function markDataDirty(){ state.dataDirty=true; updateSaveButtons(); updateStatusbar(); }
+  function markSetupDirty(){ state.setupDirty=true; updateSaveButtons(); updateStatusbar(); }
   function updateSaveButtons(){
-    ['tbSaveActions','rpSaveActions'].forEach(id=>{ const a=$(id); if(a){ const was=a.dataset.d; a.disabled = !state.dataDirty; if(state.dataDirty && was!=='1') flashBtn(a); a.dataset.d = state.dataDirty?'1':'0'; } });
-    ['tbSaveSettings','rpSaveSettings'].forEach(id=>{ const s=$(id); if(s){ const was=s.dataset.d; s.disabled = !state.setupDirty; if(state.setupDirty && was!=='1') flashBtn(s); s.dataset.d = state.setupDirty?'1':'0'; } });
-    const es=$('aeSave'); if(es){ const was=es.dataset.d; es.disabled = !edDirty; if(edDirty && was!=='1') flashBtn(es); es.dataset.d = edDirty?'1':'0'; }
+    // While a save is in flight: show the in-progress state and block re-entry.
+    // The button stays clickable=false via pointer-events (see CSS) so the spinner
+    // stays visible at full opacity (not dimmed like a disabled button).
+    if(saving){
+      ['tbSaveActions','rpSaveActions','tbSaveSettings','rpSaveSettings'].forEach(id=>{ const b=$(id); if(b) b.classList.add('is-saving'); });
+      syncTopbarUnsaved();
+      return;
+    }
+    const setBtn = (id, dirty) => {
+      const b = $(id); if(!b) return;
+      b.classList.remove('is-saving');
+      const was = b.dataset.d;
+      b.disabled = !dirty;
+      if(dirty && was!=='1') flashBtn(b);
+      b.dataset.d = dirty?'1':'0';
+    };
+    setBtn('tbSaveActions', state.dataDirty);
+    setBtn('rpSaveActions', state.dataDirty);
+    setBtn('tbSaveSettings', state.setupDirty);
+    setBtn('rpSaveSettings', state.setupDirty);
     syncTopbarUnsaved();
   }
   function flashBtn(el){ if(!el) return; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
-  // Guard: if there are unsaved changes (actions or settings) and the user tries to
-  // navigate away (switch perspective/selection or close the window), inform them.
-  async function confirmSaveBeforeLeave(){
-    if(!state.dataDirty && !state.setupDirty) return true;
-    const which=[state.dataDirty?'Actions':'', state.setupDirty?'Settings':''].filter(Boolean).join(' + ');
-    if(!confirm('You have unsaved '+which+' changes. Save before leaving?')) return false;
-    try{ if(state.dataDirty) await writeDataFile(); }catch(e){}
-    if(state.dataDirty) return false; // save was cancelled (picker aborted) — stay
-    try{ if(state.setupDirty) await saveSetupFile(); }catch(e){}
-    return !state.setupDirty;
+  // ---- Save-lifecycle state helpers (ISS-85) ----
+  function setSaving(on){ saving = !!on; updateSaveButtons(); updateStatusbar(); }
+  function showSaveError(msg){
+    saveErrorMsg = msg || 'Save failed';
+    updateStatusbar(); toast(saveErrorMsg);
+    setTimeout(()=>{ if(saveErrorMsg===msg){ saveErrorMsg=''; updateStatusbar(); } }, 4000);
   }
-  window.addEventListener('beforeunload', e=>{ if(state.dataDirty || state.setupDirty){ e.preventDefault(); e.returnValue=''; } });
+  // Guard: if there are unsaved changes (actions, settings, or inline ae-log edits)
+  // and the user tries to navigate away (switch perspective/selection or close the
+  // window), block navigation and tell them to save first. No auto-save (decision 2).
+  async function confirmSaveBeforeLeave(){
+    if(!state.dataDirty && !state.setupDirty && !edDirty) return true;
+    await appAlert('You have unsaved changes. Save before switching to another panel.');
+    return false;
+  }
+  window.addEventListener('beforeunload', e=>{ if(state.dataDirty || state.setupDirty || edDirty){ e.preventDefault(); e.returnValue=''; } });
   async function setPerspective(p){
     if(!await confirmSaveBeforeLeave()) return false;
     state.perspective=p;
@@ -545,3 +569,77 @@
   // ---- Toast ----
   let toastT;
   function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1800); }
+  // Clipboard copy helper — uses the async Clipboard API when available (secure
+  // contexts incl. http://localhost), and falls back to a hidden textarea + execCommand
+  // for non-secure contexts (e.g. Firefox/file://) where navigator.clipboard is absent.
+  async function copyText(text){
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){ await navigator.clipboard.writeText(text); return true; }
+    }catch(e){}
+    try{
+      const ta=document.createElement('textarea');
+      ta.value=text; ta.style.position='fixed'; ta.style.top='0'; ta.style.left='0'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      const ok=document.execCommand('copy'); document.body.removeChild(ta); return ok;
+    }catch(e){ return false; }
+  }
+  const DEPLOY_PATH='Z:\\7. Engineering\\01-Eng Mgmt\\01 Action Log';
+
+  // ---- Standardized in-app message popups (ISS-80): replace native confirm()/alert() ----
+  // appAlert  → informational message, single OK (cancel has no meaning here).
+  // appConfirm → yes/no question, OK + Cancel. Reuses the #appMsg modal.
+  function appAlert(msg){
+    return new Promise(res=>{
+      const pop=$('appMsg'); if(!pop){ alert(msg); res(); return; }
+      $('appMsgBody').innerHTML = '<p class="app-msg-text">'+esc(msg)+'</p>';
+      $('appMsgCancel').style.display='none';
+      $('appMsgOk').textContent='OK';
+      const done=()=>{ pop.classList.remove('open'); $('appMsgOk').onclick=null; res(); };
+      $('appMsgOk').onclick=done;
+      pop.classList.add('open');
+    });
+  }
+  function appConfirm(msg){
+    return new Promise(res=>{
+      const pop=$('appMsg'); if(!pop){ res(confirm(msg)); return; }
+      $('appMsgBody').innerHTML = '<p class="app-msg-text">'+esc(msg)+'</p>';
+      $('appMsgCancel').style.display='';
+      const cleanup=()=>{ pop.classList.remove('open'); if($('appMsgOk')) $('appMsgOk').onclick=null; if($('appMsgCancel')) $('appMsgCancel').onclick=null; };
+      const ok=()=>{ cleanup(); res(true); };
+      const cancel=()=>{ cleanup(); res(false); };
+      if($('appMsgOk')){ $('appMsgOk').textContent='OK'; $('appMsgOk').onclick=ok; }
+      if($('appMsgCancel')) $('appMsgCancel').onclick=cancel;
+      pop.classList.add('open');
+    });
+  }
+  // Working-folder popup (decision 3/9): shows the current folder, lets the user choose a
+  // new one (any drive), and notes that choosing it does NOT save anything.
+  function openWfPop(){
+    const pop=$('wfPop'); if(!pop) return;
+    const body=$('wfPopBody');
+    if(body){
+      body.innerHTML =
+        '<div class="wf-current"><span class="wf-k">Current folder</span><span class="wf-v">'+(dataDirHandle?esc(dataDirHandle.name):'Not set')+'</span></div>'+
+        '<p class="form-hint">Sets the folder where <b>Save Actions</b> / <b>Save Settings</b> write <code>action.json</code> / <code>setup.json</code>. This does not save anything — use Save to write the files. You can switch drives any time (it is not tied to Z:).</p>'+
+        '<p class="wf-deploy-hint"><b>Default deploy folder:</b> <code id="wfDeployPath" class="wf-path" title="Click to copy">'+esc(DEPLOY_PATH)+'</code> <button class="wf-copy" id="wfCopyPath" type="button">Copy</button><span class="wf-copy-ok" id="wfCopyOk" style="display:none">✓ Copied</span> — the launcher serves the app from here. Save writes to the working folder you choose above, which can be a different drive.</p>'+
+        '<button class="btn primary" id="wfChoose">Choose folder…</button>';
+      const ch=$('wfChoose');
+      if(ch) ch.onclick = async () => {
+        await setDataFolder(false);
+        if(dataDirHandle){
+          const v=body.querySelector('.wf-v'); if(v) v.textContent=dataDirHandle.name;
+          toast('Working folder set: '+dataDirHandle.name);
+          closeModalBox('wfPop'); updateStatusbar();
+        }
+      };
+      const copyPath = () => {
+        copyText(DEPLOY_PATH).then(ok=>{
+          if(ok){ const o=$('wfCopyOk'); if(o){ o.style.display=''; setTimeout(()=>{ if(o) o.style.display='none'; }, 1600); } toast('Deploy path copied'); }
+          else toast('Copy failed — select and copy manually');
+        });
+      };
+      const cp=$('wfCopyPath'); if(cp) cp.onclick=copyPath;
+      const code=$('wfDeployPath'); if(code) code.onclick=copyPath;
+    }
+    openModalBox('wfPop');
+  }

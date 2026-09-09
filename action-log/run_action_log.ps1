@@ -5,9 +5,13 @@
   System.Net.HttpListener from the .NET Framework that ships with Windows).
 
   Usage:
-    .\run_action_log.ps1                 # defaults below
+    .\run_action_log.ps1                 # defaults below (deploy from Src, serve Z:)
     .\run_action_log.ps1 -Port 8080      # start on a fixed port
     .\run_action_log.ps1 -Dst "D:\tmp\al" # serve from a local folder instead of Z:
+
+  Self-launch: if run FROM the Z: deploy folder, it skips re-deploy and just
+  serves whatever is already there - so end users can launch directly from Z:.
+  The dev Source is optional; if missing it serves the existing Z: files.
 
   Press Ctrl+C to stop the server.
 #>
@@ -29,35 +33,51 @@ Write-Host " Deploy : $Dst"
 Write-Host " Port   : $Port (auto-advances if busy, up to $PortMax)"
 Write-Host "============================================================"
 
-# ---- Step 1: Deploy run-ready files (index.html, css\, js\) ----
+# ---- Step 1: Deploy run-ready files (index.html, css\, js\, launchers) ----
 # Mirrors the .bat: copy only the run artifacts, NOT action.json / setup.json.
 Write-Host "`n[1/2] Deploying run-ready files..."
-# Require the source to exist.
-if (-not (Test-Path $Src)) {
-    Write-Host "  ERROR: Source folder not found: $Src"
-    exit 1
-}
 
-# Require the deploy (Z:) folder to exist / be creatable. No silent fallback.
-if (-not (Test-Path $Dst)) {
-    Write-Host "  Creating destination: $Dst"
-    New-Item -ItemType Directory -Path $Dst -Force -ErrorAction SilentlyContinue | Out-Null
-}
-if (-not (Test-Path $Dst)) {
-    Write-Host "  ERROR: cannot create deploy folder: $Dst"
-    Write-Host "  The Z: drive is probably not mapped. Map it (or pass -Dst) and retry."
-    exit 1
-}
+# If launched from inside the deploy folder, skip re-deploy and serve in place.
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$selfInDst = $false
+try { if (Test-Path $Dst) { $selfInDst = ((Resolve-Path $scriptDir).ProviderPath -ieq (Resolve-Path -LiteralPath $Dst).ProviderPath) } } catch { }
 
-# remove previous deploy artifacts only (leave any action.json/setup.json alone)
-if (Test-Path (Join-Path $Dst 'index.html')) { Remove-Item (Join-Path $Dst 'index.html') -Force }
-if (Test-Path (Join-Path $Dst 'css')) { Remove-Item (Join-Path $Dst 'css') -Recurse -Force }
-if (Test-Path (Join-Path $Dst 'js'))  { Remove-Item (Join-Path $Dst 'js')  -Recurse -Force }
+if ($selfInDst) {
+    Write-Host "  [SELF] Running from the deploy folder - skipping copy, serving in place."
+} else {
+    # Source is optional: if missing, just serve whatever is already on Dst.
+    if (-not (Test-Path $Src)) {
+        Write-Host "  Source not found: $Src"
+        Write-Host "  Serving the existing files already on $Dst (no re-deploy)."
+    } else {
+        # Require the deploy (Z:) folder to exist / be creatable. No silent fallback.
+        if (-not (Test-Path $Dst)) {
+            Write-Host "  Creating destination: $Dst"
+            New-Item -ItemType Directory -Path $Dst -Force -ErrorAction SilentlyContinue | Out-Null
+        }
+        if (-not (Test-Path $Dst)) {
+            Write-Host "  ERROR: cannot create deploy folder: $Dst"
+            Write-Host "  The Z: drive is probably not mapped. Map it (or pass -Dst) and retry."
+            exit 1
+        }
 
-Copy-Item (Join-Path $Src 'index.html') $Dst -Force -ErrorAction SilentlyContinue
-if (Test-Path (Join-Path $Src 'css')) { Copy-Item (Join-Path $Src 'css') (Join-Path $Dst 'css') -Recurse -Force }
-if (Test-Path (Join-Path $Src 'js'))  { Copy-Item (Join-Path $Src 'js')  (Join-Path $Dst 'js')  -Recurse -Force }
-Write-Host "  NOTE: action.json / setup.json are NOT copied."
+        # remove previous deploy artifacts only (leave any action.json/setup.json alone)
+        if (Test-Path (Join-Path $Dst 'index.html')) { Remove-Item (Join-Path $Dst 'index.html') -Force }
+        if (Test-Path (Join-Path $Dst 'css')) { Remove-Item (Join-Path $Dst 'css') -Recurse -Force }
+        if (Test-Path (Join-Path $Dst 'js'))  { Remove-Item (Join-Path $Dst 'js')  -Recurse -Force }
+
+        Copy-Item (Join-Path $Src 'index.html') $Dst -Force -ErrorAction SilentlyContinue
+        if (Test-Path (Join-Path $Src 'css')) { Copy-Item (Join-Path $Src 'css') (Join-Path $Dst 'css') -Recurse -Force }
+        if (Test-Path (Join-Path $Src 'js'))  { Copy-Item (Join-Path $Src 'js')  (Join-Path $Dst 'js')  -Recurse -Force }
+        # launchers: also deploy so users can run directly from Z:
+        foreach ($f in @('run_action_log.bat','run_action_log_ps.bat','run_action_log.ps1')) {
+            if (Test-Path (Join-Path $Src $f)) { Copy-Item (Join-Path $Src $f) $Dst -Force -ErrorAction SilentlyContinue; Write-Host "  OK: $f" }
+        }
+        Write-Host "  Deployed from $Src"
+    }
+    Write-Host "  NOTE: action.json / setup.json are NOT copied."
+    Write-Host "  NOTE: launcher scripts ARE copied so users can launch from Z:."
+}
 
 $serveRoot = (Resolve-Path -LiteralPath $Dst).ProviderPath
 Write-Host "  Serve root: $serveRoot"

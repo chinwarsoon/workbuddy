@@ -6,15 +6,15 @@
   bindEl('rpExport', exportData);
   bindEl('rpSaveActions', writeDataFile);
   bindEl('rpSaveSettings', saveSetupFile);
+  bindEl('rpFolder', openWfPop);   // standardized Working Folder popup (decision 3/9)
   bindEl('rpImport', importViaPicker);
   bindEl('rpExportMenu', openExportModal);
-  // Top bar actions
-  bindEl('tbSaveActions', writeDataFile);
-  bindEl('tbSaveSettings', saveSetupFile);
+  // Top bar actions — note: the top-bar Save buttons were removed (decision 5);
+  // Save lives in the right panel (Quick Actions) and the Ctrl/Cmd+S shortcut.
   bindEl('tbExportMenu', openExportModal);
   bindEl('tbImport', importViaPicker);
   bindEl('tbCreate', createDataFile);
-  bindEl('tbFolder', setDataFolder);
+  bindEl('tbFolder', openWfPop);
   bindEl('tbDark', ()=>{ state.layout.dark=!state.layout.dark; applyLayout(); markSetupDirty(); });
   bindEl('tbLayout', ()=>{ syncLayoutModal(); openModalBox('layoutModal'); });
   bindEl('tbSettings', ()=>{ setPerspective('settings'); });
@@ -433,60 +433,139 @@
     if(msg) toast(msg);
   }
 
-  // Save Actions writes the data file (action.json) into the local folder.
+  // Write text into a folder handle WITHOUT opening a picker (Chromium only).
+  // Used when a working folder is already known — no re-prompt (decision 1).
+  async function writeIntoFolder(folder, name, text){
+    try{
+      const fh = await folder.getFileHandle(name, { create:true });
+      const w = await fh.createWritable();
+      await w.write(text); await w.close();
+      return { ok:true, err:null };
+    }catch(e){ return { ok:false, err:e }; }
+  }
+  // Local save timestamp in YYYY-MM-DD HH:MM:SS (status bar).
+  function saveTimeNow(){
+    const d=new Date(), p=n=>String(n).padStart(2,'0');
+    return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+  }
+  // Save Actions writes the data file (action.json).
+  //  - Working folder known  → write directly into it, no prompt.
+  //  - No folder yet         → ask to choose one, then save into it (decision 8).
+  //  - No File System Access API (Firefox / file://) → download + status hint.
   async function writeDataFile(){
-    const text = JSON.stringify(serializeData(), null, 2);
-    if(window.showSaveFilePicker){
-      try{
-        const handle = await window.showSaveFilePicker({
-          suggestedName: DEFAULT_DATA_FILE,
-          startIn: dataDirHandle || undefined,
-          types: [{ description:'JSON', accept: { 'application/json': ['.json'] } }]
-        });
-        const w = await handle.createWritable(); await w.write(text); await w.close();
-        state.loadedFile = { name: handle.name || DEFAULT_DATA_FILE, path: '(local file)', source: 'external' };
-        state.dataDirty = false; updateSaveButtons();
-        toast('Saved ' + (handle.name || DEFAULT_DATA_FILE));
-      }catch(e){ if(e && e.name !== 'AbortError') toast('Save failed: ' + e.message); }
-      return;
+    if(saving) return;                 // guard: ignore repeated clicks while a save is in flight
+    setSaving(true);
+    try{
+      if(typeof flushInlineEdits === 'function') flushInlineEdits();   // commit pending inline edits to state first
+      const text = JSON.stringify(serializeData(), null, 2);
+      if(window.showSaveFilePicker && dataDirHandle){
+        const r = await writeIntoFolder(dataDirHandle, DEFAULT_DATA_FILE, text);
+        if(r.ok){
+          state.loadedFile = { name: DEFAULT_DATA_FILE, path: dataDirHandle.name, source: 'external' };
+          state.dataDirty = false; state.lastSavedAt = saveTimeNow(); saveErrorMsg='';
+          toast('Saved '+DEFAULT_DATA_FILE+' → '+dataDirHandle.name);
+        } else {
+          // Direct write failed (e.g. VPN/network-mapped folder unreachable or read-only).
+          // Fall back to a download so the data is never lost; clear the error state.
+          downloadJson(DEFAULT_DATA_FILE, text, 'Direct write failed ('+((r.err && r.err.message) || r.err)+') — downloaded '+DEFAULT_DATA_FILE+' instead (set a Working Folder on this PC for disk writes)');
+          state.dataDirty = false; state.lastSavedAt = saveTimeNow(); saveErrorMsg='';
+        }
+      } else if(window.showSaveFilePicker && !dataDirHandle){
+        await setDataFolder(false);
+        if(dataDirHandle){
+          const r = await writeIntoFolder(dataDirHandle, DEFAULT_DATA_FILE, text);
+          if(r.ok){
+            state.loadedFile = { name: DEFAULT_DATA_FILE, path: dataDirHandle.name, source: 'external' };
+            state.dataDirty = false; state.lastSavedAt = saveTimeNow(); saveErrorMsg='';
+            toast('Saved '+DEFAULT_DATA_FILE+' → '+dataDirHandle.name);
+          } else {
+            downloadJson(DEFAULT_DATA_FILE, text, 'Direct write failed ('+((r.err && r.err.message) || r.err)+') — downloaded '+DEFAULT_DATA_FILE+' instead (set a Working Folder on this PC for disk writes)');
+            state.dataDirty = false; state.lastSavedAt = saveTimeNow(); saveErrorMsg='';
+          }
+        } else {
+          // user cancelled the folder picker → download so data isn't lost.
+          downloadJson(DEFAULT_DATA_FILE, text, 'Saved '+DEFAULT_DATA_FILE+' (downloaded — set a Working Folder for direct disk writes)');
+          state.dataDirty = false; state.lastSavedAt = saveTimeNow(); saveErrorMsg='';
+        }
+      } else {
+        // Firefox / file:// — browser cannot write to disk directly.
+        downloadJson(DEFAULT_DATA_FILE, text, 'Saved '+DEFAULT_DATA_FILE+' (downloaded — browser can\'t write directly)');
+        state.dataDirty = false; state.lastSavedAt = saveTimeNow(); saveErrorMsg='';
+      }
+    } finally {
+      setSaving(false);
     }
-    downloadJson(DEFAULT_DATA_FILE, text, 'Saved '+DEFAULT_DATA_FILE);
-    state.dataDirty = false; updateSaveButtons();
   }
 
-  // Save Settings writes the UI configuration (setup.json). On Chromium it uses
-  // the File System Access API; elsewhere it falls back to a DOWNLOAD (the browser
-  // cannot write directly), and we tell the user that explicitly.
+  // Save Settings writes the UI configuration (setup.json). Same folder-aware logic.
   async function saveSetupFile(){
-    const text = JSON.stringify(serializeSetup(), null, 2);
-    if(window.showSaveFilePicker){
-      const r = await saveViaPicker('setup.json', text, 'application/json');
-      if(r.ok){ state.setupDirty = false; updateSaveButtons(); toast('Saved setup.json'); return; }
-      if(r.aborted) return;
+    if(saving) return;                 // guard: ignore repeated clicks while a save is in flight
+    setSaving(true);
+    try{
+      const text = JSON.stringify(serializeSetup(), null, 2);
+      if(window.showSaveFilePicker && dataDirHandle){
+        const r = await writeIntoFolder(dataDirHandle, 'setup.json', text);
+        if(r.ok){ state.setupDirty = false; state.lastSavedAt = saveTimeNow(); saveErrorMsg=''; toast('Saved setup.json → '+dataDirHandle.name); }
+        else { downloadJson('setup.json', text, 'Direct write failed ('+((r.err && r.err.message) || r.err)+') — downloaded setup.json instead (set a Working Folder on this PC for disk writes)'); state.setupDirty = false; state.lastSavedAt = saveTimeNow(); saveErrorMsg=''; }
+      } else if(window.showSaveFilePicker && !dataDirHandle){
+        await setDataFolder(false);
+        if(dataDirHandle){
+          const r = await writeIntoFolder(dataDirHandle, 'setup.json', text);
+          if(r.ok){ state.setupDirty = false; state.lastSavedAt = saveTimeNow(); saveErrorMsg=''; toast('Saved setup.json → '+dataDirHandle.name); }
+          else { downloadJson('setup.json', text, 'Direct write failed ('+((r.err && r.err.message) || r.err)+') — downloaded setup.json instead (set a Working Folder on this PC for disk writes)'); state.setupDirty = false; state.lastSavedAt = saveTimeNow(); saveErrorMsg=''; }
+        } else {
+          downloadJson('setup.json', text, 'Downloading setup.json (set a Working Folder for direct disk writes)');
+          state.setupDirty = false; state.lastSavedAt = saveTimeNow(); saveErrorMsg='';
+        }
+      } else {
+        downloadJson('setup.json', text, 'Downloading setup.json (browser can\'t write directly)');
+        state.setupDirty = false; state.lastSavedAt = saveTimeNow(); saveErrorMsg='';
+      }
+    } finally {
+      setSaving(false);
     }
-    downloadJson('setup.json', text, 'Downloading setup.json (browser can\'t write directly)');
-    state.setupDirty = false; updateSaveButtons();
   }
 
   function updateStatusbar(){
     const el = $('statusbar'); if(!el) return;
     const f = state.loadedFile;
     const src = f ? f.source : 'none';
-    const dot  = src==='external' ? 'sb-ext' : src==='imported' ? 'sb-imp' : src==='embedded' ? 'sb-emb' : 'sb-none';
+    const dirty = state.dataDirty || state.setupDirty || edDirty;
+    // Dot: blue + spinner while Saving (in flight), amber when dirty, else encodes the source.
+    const dot  = saving ? 'sb-saving' : (dirty ? 'sb-unsaved' : (src==='external' ? 'sb-ext' : src==='imported' ? 'sb-imp' : src==='embedded' ? 'sb-emb' : 'sb-none'));
     const name = f ? f.name : 'No data file';
     const path = f ? (f.path||'') : '';
     const srcTxt  = srcLabel(src);
-    const migTag  = state.migrated ? '<span class="sb-mig" title="Upgraded from a legacy schema. Click Save to persist the new v1 format.">⚠ legacy → v1</span>' : '';
     const counts = state.projects.length+' projects · '+liveActions().length+' actions';
-    const folderChip = dataDirHandle ? '<span class="sb-src">📁 '+esc(dataDirHandle.name)+'</span>' : '';
-    // Pure status: source dot + file + folder + legacy tag + counts (no buttons)
+    // Working folder: browsers expose only the folder NAME (not the full OS path) for
+    // security — so we show the name plus a clear "Not set" state. See USER_MANUAL.md.
+    const folderName = dataDirHandle ? esc(dataDirHandle.name) : 'Not set';
+    // On a fresh open the in-memory data IS the saved baseline: show "Loaded" rather
+    // than "Not saved yet" (which wrongly implies pending unsaved edits). "Not saved yet"
+    // is reserved for the genuine empty state (no file opened / source === 'none').
+    const justLoaded = !state.lastSavedAt && src!=='none';
+    const savedTxt = state.lastSavedAt ? ('Saved '+esc(state.lastSavedAt)) : (src==='none' ? 'Not saved yet' : 'Loaded');
+    // Single unambiguous save-state phrase — Saving (in flight) > Save failed > Unsaved > (none).
+    // The direct-disk-write capability stays as its own message panel (not just a tooltip).
+    const canWrite = !!window.showDirectoryPicker;
+    const capNote = canWrite ? 'Direct disk write available' : 'Download-only mode (browser blocked folder access)';
+    const capPanel = '<span class="sb-panel sb-cap '+(canWrite?'sb-cap-ok':'sb-cap-no')+'" title="'+esc(capNote)+'">'+(canWrite?'✓ Direct write':'⚠ Download-only')+'</span>';
+    let stateCls, stateTitle, stateInner;
+    if(saving){ stateCls='sb-saving-txt'; stateTitle='Writing to disk…'; stateInner='<span class="sb-spin"></span>Saving…'; }
+    else if(saveErrorMsg){ stateCls='sb-err-txt'; stateTitle=saveErrorMsg; stateInner='⚠ Save failed'; }
+    else if(dirty){ stateCls='sb-unsaved-txt'; stateTitle='Unsaved changes — Save before switching panels'; stateInner='● unsaved'; }
+    else { stateCls=justLoaded?'sb-loaded':''; stateTitle=justLoaded?'Loaded from file — matches disk, no unsaved changes':'Last successful save (Actions or Settings)'; stateInner=esc(savedTxt); }
+    const srcSuffix = (src==='none') ? '' : ' <span class="sb-src-suffix" title="'+esc(srcTxt)+'">'+esc(srcTxt)+'</span>';
+    const dotTitle = saving ? 'Writing to disk…' : (dirty ? 'Unsaved changes — Save before switching panels' : 'Source: '+srcTxt+' · '+capNote);
+    const migPanel = state.migrated ? '<span class="sb-mig" title="Upgraded from a legacy schema. Click Save to persist the new v1 format.">⚠ legacy → v1</span>' : '';
+    // Each message is its own bordered panel: [file] [folder] [save-state] [capability] [counts].
     el.innerHTML =
-      '<span class="sb-left"><span class="sb-dot '+dot+'"></span>'+
-      '<span class="sb-file" title="'+esc(path)+'">Loaded: '+esc(name)+'</span>'+
-      folderChip +
-      '<span class="sb-src">'+esc(srcTxt)+'</span>'+ migTag +'</span>'+
-      '<span class="sb-right"><span class="sb-counts">'+counts+'</span></span>';
-    // Top bar brand meta mirrors the same state
+      '<span class="sb-panel sb-id"><span class="sb-dot '+dot+'" title="'+esc(dotTitle)+'"></span><span class="sb-file" title="'+esc(path)+'">'+esc(name)+'</span></span>'+
+      '<span class="sb-panel sb-loc" title="Working folder where Save writes action.json / setup.json"><svg class="sb-folder-ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="sb-folder">'+folderName+'</span></span>'+
+      '<span class="sb-panel sb-state"><span class="sb-state-txt '+stateCls+'" title="'+esc(stateTitle)+'">'+stateInner+'</span>'+srcSuffix+'</span>'+
+      migPanel +
+      capPanel +
+      '<span class="sb-panel sb-meta">'+counts+'</span>';
     const tf=$('tbFile'); if(tf){ const fname=tf.querySelector('.tb-fname'); if(fname) fname.textContent=name; }
     syncTopbarUnsaved();
   }
@@ -496,6 +575,6 @@
     const tm=$('tbMeta'); if(!tm) return;
     const src = state.loadedFile ? state.loadedFile.source : 'none';
     const counts = state.projects.length+' projects · '+liveActions().length+' actions';
-    const dirty = state.dataDirty || state.setupDirty;
+    const dirty = state.dataDirty || state.setupDirty || edDirty;
     tm.innerHTML = (src==='none'?'no data · ':'')+esc(counts)+(dirty?' · <span class="tb-unsaved" title="Unsaved changes — Save Actions / Save Settings">● unsaved</span>':'');
   }

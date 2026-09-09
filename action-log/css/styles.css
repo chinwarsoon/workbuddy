@@ -60,7 +60,7 @@
     body.m-show-right .rightpanel{ right:0; width:78vw; max-width:300px; }
   }
   /* Status bar */
-  #statusbar{grid-column:1 / -1; grid-row:3; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:0 14px; background:var(--bar); color:#E6E6EA; font-size:12px; user-select:none; overflow:hidden;}
+  #statusbar{grid-column:1 / -1; grid-row:3; display:flex; align-items:center; justify-content:flex-start; gap:8px; padding:0 14px; background:var(--bar); color:#E6E6EA; font-size:12px; user-select:none; overflow:hidden;}
   .sb-left{display:flex; align-items:center; gap:8px; min-width:0;}
   .sb-dot{width:8px; height:8px; border-radius:50%; flex:none; background:#8E8E93;}
   .sb-dot.sb-ext{background:#34C759;}
@@ -68,10 +68,49 @@
   .sb-dot.sb-emb{background:#FF9F0A;}
   .sb-dot.sb-none{background:#8E8E93;}
   .sb-file{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:46vw;}
-  .sb-src{color:#9A9AA0; white-space:nowrap;}
-  .sb-mig{color:#FF9F0A; background:rgba(255,159,10,0.14); border:1px solid rgba(255,159,10,0.4); border-radius:6px; padding:1px 7px; font-size:11px; white-space:nowrap; flex:none;}
+  /* ISS-87: each status message is its own bordered panel on the (dark) bar.
+     Every panel is flex:none so it auto-fits its content (no stretching); the
+     folder panel is capped, the rest rely on inner ellipsis. */
+  .sb-panel{display:inline-flex; align-items:center; gap:6px; flex:none; max-width:100%; background:rgba(255,255,255,0.06); border:0.5px solid rgba(255,255,255,0.14); border-radius:7px; padding:3px 9px; min-height:22px;}
+  .sb-id{flex:none; min-width:0;}
+  .sb-loc{flex:none; min-width:0; max-width:240px;}
+  .sb-folder{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;}
+  .sb-folder-ico{color:#9A9AA0; flex:none;}
+  .sb-state{flex:none; min-width:0;}
+  .sb-state-txt{white-space:nowrap; flex:none;}
+  .sb-src-suffix{color:#9A9AA0; white-space:nowrap; flex:none; overflow:hidden; text-overflow:ellipsis; max-width:120px;}
+  .sb-cap{flex:none; font-weight:600;}
+  .sb-meta{flex:none; margin-left:auto; color:#C7C7CC; white-space:nowrap;}
+  .sb-state-txt.sb-loaded{color:#34C759;}
+  .sb-mig{display:inline-flex; align-items:center; color:#FF9F0A; background:rgba(255,159,10,0.14); border:0.5px solid rgba(255,159,10,0.4); border-radius:7px; padding:3px 9px; min-height:22px; font-size:11px; white-space:nowrap; flex:none;}
   .sb-right{display:flex; align-items:center; gap:10px; flex:none;}
   .sb-counts{color:#C7C7CC; white-space:nowrap;}
+  /* ISS-80 status-bar extensions: unsaved amber dot + working-folder + save-time + capability badge */
+  .sb-dot.sb-unsaved{background:#FF9F0A; box-shadow:0 0 0 3px rgba(255,159,10,0.28);}
+  .sb-saved{color:#9A9AA0; white-space:nowrap; flex:none; font-variant-numeric:tabular-nums;}
+  /* ISS-86: fresh-open baseline state — file just opened, matches disk, no unsaved edits.
+     Green signals "clean" (same palette as sb-ext / sb-cap-ok) so it never reads as an error. */
+  .sb-saved.sb-loaded{color:#34C759;}
+  /* Capability panel reuses .sb-panel base; colour alone signals ok / limited. */
+  .sb-cap-ok{color:#34C759;}
+  .sb-cap-no{color:#FF9F0A;}
+  .sb-unsaved-txt{color:#FF9F0A; font-weight:600; white-space:nowrap; flex:none;}
+  /* ISS-85: save-lifecycle feedback — "Saving…" (in flight) + "Save failed" (error) plus a
+     spinner, so the status bar always reflects the real save state (not just after a save). */
+  .sb-dot.sb-saving{background:var(--accent); box-shadow:0 0 0 3px rgba(0,102,204,0.28); animation:sb-pulse 1s ease-in-out infinite;}
+  .sb-saving-txt{color:var(--accent); font-weight:600; white-space:nowrap; flex:none; display:inline-flex; align-items:center; gap:5px;}
+  .sb-err-txt{color:#FF3B30; font-weight:600; white-space:nowrap; flex:none;}
+  .sb-spin{width:11px; height:11px; display:inline-block; border:2px solid currentColor; border-top-color:transparent; border-radius:50%; animation:sb-spin .7s linear infinite;}
+  @keyframes sb-spin{to{transform:rotate(360deg);}}
+  @keyframes sb-pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+  @media (prefers-reduced-motion: reduce){ .sb-dot.sb-saving{animation:none;} .sb-spin{animation:none;} .rp-btn.is-saving::after, .btn.is-saving::after{animation:none;} }
+  /* ISS-87: on narrow widths, drop low-priority panels (folder, counts) first so the
+     save-state panel (the critical info) never gets clipped. */
+  @media (max-width:680px){ .sb-loc{display:none;} .sb-meta{display:none;} }
+  /* Save buttons: while a save is in flight, show a spinner (pointer-events:none blocks re-click,
+     keeps the button at full opacity so the spinner stays visible). */
+  .rp-btn.is-saving, .btn.is-saving{position:relative; pointer-events:none;}
+  .rp-btn.is-saving::after, .btn.is-saving::after{content:""; display:inline-block; width:13px; height:13px; margin-left:8px; border:2px solid currentColor; border-top-color:transparent; border-radius:50%; animation:sb-spin .7s linear infinite; vertical-align:middle;}
   body.hide-activity{--aw:0px;} body.hide-sidebar{--sw:0px;} body.hide-right{--rw:0px;}
   body.hide-activity .activitybar{display:none;} body.hide-sidebar .sidebar{display:none;} body.hide-right .rightpanel{display:none;}
 
@@ -102,6 +141,12 @@
   .tchev{width:18px; text-align:center; color:var(--muted); font-size:11px; flex:none; user-select:none;}
   .tdot{width:8px; height:8px; border-radius:50%; background:var(--accent); margin:0 6px 0 10px; flex:none;}
   .tname{flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:13px;}
+  /* ISS-79: action number chip in the tree — mirrors the `#id` shown in the subhead
+     and used by the dependency editor / exports. Sits left of the title, after the
+     chevron/dot. Muted at rest; solid accent + white when the row is selected. */
+  .tnum{display:inline-flex; align-items:center; flex:none; margin-left:6px; padding:1px 6px; border-radius:6px;
+        font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--muted); background:var(--chip);}
+  .tnode.action.sel .tnum{color:#fff; background:var(--accent);}
   .tnode.project{ background:var(--tile-bg); border-radius:8px; height:34px; margin:2px 2px; }
   .tnode.project:hover{ background:var(--tile-hover); }
   .tnode.project.sel{ background:var(--tile-sel); box-shadow: inset 3px 0 0 var(--accent); }
@@ -290,13 +335,17 @@
   .ae-log textarea.ae-log-text{width:100%; border:none; background:transparent; font:inherit; resize:vertical; min-height:38px; padding:2px 0; color:var(--text); overflow:hidden;}
   .ae-log textarea.ae-log-text:focus{outline:none; box-shadow:inset 0 -2px 0 var(--accent);}
   .ae-log-hint{font-size:11px; color:var(--muted); margin:6px 0 8px;}
-  /* --- Attachments in the dated detail log (ISS-75): two labeled groups + divider --- */
-  .ae-attach{display:flex; flex-direction:column; gap:8px; margin-top:6px; padding-top:6px; border-top:1px dashed var(--border);}
-  /* When a row has no attachments at all, drop the divider/border so the cell stays minimal. */
-  .ae-attach:not(.has-any){border-top:none; margin-top:6px; padding-top:0;}
-  .ae-attach-group{display:flex; flex-direction:column; gap:6px;}
-  .ae-attach-h{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--muted);}
-  .ae-attach-div{height:1px; background:var(--border); margin:1px 0;}
+  /* --- Attachments popover (ISS-75 / Card C hybrid layout) --- */
+  /* Two clearly separated cards. Each card keeps its own header (title + a single
+     primary action on the right) so the content is grouped inline; only the Done
+     button lives in the modal footer. Cards stay visible when empty (so the user can
+     always add) and collapse their chip row automatically when there are no items. */
+  .ae-attach{display:flex; flex-direction:column; gap:14px; margin-top:4px;}
+  .ae-attach-card{display:flex; flex-direction:column; gap:10px; background:var(--chip); border:1px solid var(--border); border-radius:14px; padding:12px 14px;}
+  .ae-attach-card-h{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .ae-attach-card-t{font-size:13px; font-weight:700; color:var(--text);}
+  .ae-attach-tip{font-size:12px; line-height:1.5; color:var(--muted); margin:0; max-width:560px;}
+  .ae-attach-tip code{background:var(--code-bg); border-radius:5px; padding:1px 5px; font-size:11px; color:var(--text);}
   .ae-img-row{display:flex; flex-wrap:wrap; gap:8px; margin:0;}
   .ae-link-row{display:flex; flex-wrap:wrap; gap:8px; margin:0;}
   .ae-img-chip{display:inline-flex; align-items:center; gap:6px; max-width:220px; padding:4px 8px 4px 4px; border:1px solid var(--border); border-radius:10px; background:#fff; cursor:pointer; font-size:12px; color:var(--text);}
@@ -308,19 +357,16 @@
   .ae-link-open{color:var(--accent); text-decoration:none; word-break:break-all;}
   .ae-link-open:hover{text-decoration:underline;}
   .ae-img-rm{border:none; background:transparent; color:#C0392B; cursor:pointer; font-size:12px; padding:0 2px; margin-left:2px;}
-  .ae-attach-group .ae-add-img, .ae-attach-group .ae-add-link, .ae-attach-group .ae-browse-link{border:1px solid var(--border); background:var(--chip); color:var(--text); border-radius:9px; padding:5px 10px; cursor:pointer; font-size:12px;}
-  .ae-attach-group .ae-add-img{align-self:flex-end; margin-top:2px;}
-  .ae-attach-group .ae-add-img:hover, .ae-attach-group .ae-add-link:hover, .ae-attach-group .ae-browse-link:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
-  /* Empty chip rows reserve no space; a group hides its header + chip row until it has items
-     (ISS-75 follow-up: keep Picture/File-link rows minimized automatically). */
-  .ae-img-row:empty, .ae-link-row:empty{display:none;}
-  .ae-attach-group:not(.has-items) .ae-attach-h{display:none;}
-  .ae-attach-group:not(.has-items) .ae-img-row,
-  .ae-attach-group:not(.has-items) .ae-link-row{display:none;}
-  .ae-attach:not(.has-any) .ae-attach-div{display:none;}
-  .ae-link-inputs{display:flex; flex-wrap:wrap; gap:6px; align-items:center;}
-  .ae-link-img{flex:1 1 200px; min-width:160px; border:1px solid var(--border); border-radius:9px; padding:5px 9px; font:inherit; font-size:12px; color:var(--text); background:#fff;}
+  /* Card action buttons — consistent sizing, right-aligned in the header */
+  .ae-attach-card .ae-add-img, .ae-attach-card .ae-add-link, .ae-attach-card .ae-browse-link{border:1px solid var(--border); background:var(--panel); color:var(--text); border-radius:9px; padding:6px 12px; cursor:pointer; font-size:12px; font-weight:600; white-space:nowrap;}
+  .ae-attach-card .ae-add-img:hover, .ae-attach-card .ae-add-link:hover, .ae-attach-card .ae-browse-link:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
+  /* Link add row (paste input + Add link) */
+  .ae-link-add{display:flex; gap:8px; align-items:center;}
+  .ae-link-img{flex:1 1 200px; min-width:160px; border:1px solid var(--border); border-radius:9px; padding:6px 9px; font:inherit; font-size:12px; color:var(--text); background:#fff;}
   .ae-link-img:focus{outline:none; border-color:var(--accent);}
+  /* Empty chip rows reserve no space; only the chip row collapses (the card header
+     stays visible so the user can always add). */
+  .ae-img-row:empty, .ae-link-row:empty{display:none;}
   .ae-rep-imgs{display:flex; flex-wrap:wrap; gap:8px; margin-top:6px;}
   .ae-rep-img{display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border:1px solid var(--border); border-radius:9px; background:var(--chip); color:var(--accent); text-decoration:none; font-size:12px; cursor:pointer;}
   .ae-rep-img:hover{background:var(--accent); color:#fff;}
@@ -396,6 +442,10 @@
   /* Modal */
   .backdrop{position:fixed; inset:0; background:rgba(0,0,0,0.4); display:none; align-items:center; justify-content:center; z-index:50;}
   .backdrop.open{display:flex;}
+  /* Image-review lightbox is a sub-modal (opened FROM other modals such as the
+     attachment popup). It must sit above the .backdrop it was launched from, so it
+     gets a higher z-index than the shared 50. (Bug: it opened behind #aeAttachPop.) */
+  #imgReviewModal{z-index:70;}
   .modal{background:var(--panel); border-radius:18px; width:560px; max-width:94vw; max-height:92vh; overflow:auto; padding:24px 28px;}
   .modal.sm{width:420px;}
   /* Delete-confirm modal: dependency impact list (ISS-24) */
@@ -456,6 +506,20 @@
   .proj-block{border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin:10px 0; display:flex; align-items:center; gap:10px;}
   .proj-block .nm{flex:1; font-weight:600;}
   .link{color:var(--accent); font-size:13px; cursor:pointer; margin-top:6px; display:inline-block;}
+  /* Working Folder popup (ISS-80) */
+  .wf-current{display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--chip); border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin:4px 0 14px;}
+  .wf-k{font-size:13px; color:var(--muted); font-weight:600; flex:none;}
+  .wf-v{font-size:14px; font-weight:600; color:var(--text); max-width:62%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .wf-deploy-hint{font-size:12px; line-height:1.6; color:var(--muted); background:var(--chip); border:1px dashed var(--border); border-radius:10px; padding:10px 12px; margin:0 0 14px;}
+  .wf-deploy-hint code.wf-path{cursor:pointer; border:1px solid var(--border); background:var(--panel); border-radius:5px; padding:1px 6px; font-size:11px; word-break:break-all; transition:.15s;}
+  .wf-deploy-hint code.wf-path:hover{border-color:var(--accent); color:var(--text);}
+  .wf-copy{margin-left:6px; border:1px solid var(--border); background:var(--panel); color:var(--accent); border-radius:7px; padding:2px 9px; font-size:11px; font-weight:600; cursor:pointer;}
+  .wf-copy:hover{border-color:var(--accent); background:var(--chip);}
+  .wf-copy-ok{margin-left:6px; color:#1D7A38; font-size:11px; font-weight:600;}
+  .form-hint code{background:var(--chip); border-radius:5px; padding:1px 5px; font-size:12px;}
+  /* Standardized in-app message popup (ISS-80): replaces native confirm()/alert() */
+  .app-msg-modal .m-head{margin-bottom:10px;}
+  .app-msg-text{font-size:15px; line-height:1.55; color:var(--text); margin:0; white-space:pre-wrap;}
   .m-foot{display:flex; justify-content:flex-end; gap:10px; margin-top:18px; position:sticky; bottom:-24px; margin-left:-28px; margin-right:-28px; padding:14px 28px 24px; background:var(--panel); border-top:1px solid var(--border);}
   .lm-list{display:flex; flex-direction:column; gap:8px; max-height:340px; overflow:auto; margin:10px 0;}
   .lm-item{display:flex; align-items:center; gap:8px; background:var(--chip); border-radius:10px; padding:8px 12px;}

@@ -19,13 +19,11 @@
         <div class="tb-overflow">
           <button class="tb-more" id="tbMore" title="More">⋯</button>
           <div class="tb-pop" id="tbPop">
-            <div class="tb-item" id="tbSaveActions">Save Actions</div>
-            <div class="tb-item" id="tbSaveSettings">Save Settings</div>
             <div class="tb-item" id="tbExportMenu">Export</div>
             <div class="tb-sep"></div>
             <div class="tb-item" id="tbImport">Import data…</div>
             <div class="tb-item" id="tbCreate">Create empty data file</div>
-            <div class="tb-item" id="tbFolder">Set data folder…</div>
+            <div class="tb-item" id="tbFolder">Working folder…</div>
             <div class="tb-item" id="tbDark">Toggle dark theme</div>
             <div class="tb-item" id="tbLayout">Layout & settings…</div>
             <div class="tb-item" id="tbSettings">Settings</div>
@@ -72,6 +70,7 @@
       <div class="rp-sub">Quick Actions</div>
       <button class="rp-btn primary" id="rpSaveActions" disabled title="Save data (action.json)">Save Actions</button>
       <button class="rp-btn" id="rpSaveSettings" disabled title="Save UI settings (setup.json)">Save Settings</button>
+      <button class="rp-btn" id="rpFolder" title="Choose the folder where Save writes action.json / setup.json">Select Working Folder</button>
       <button class="rp-btn" id="rpExportMenu">Export</button>
       <button class="rp-btn" id="rpImport">Import…</button>
       <button class="rp-btn" id="rpSetting">Layout…</button>
@@ -253,6 +252,27 @@
       <div class="m-head"><h2 class="m-title" id="aeAttachPopTitle">Attachments</h2><div class="m-close" id="aeAttachPopClose">✕</div></div>
       <div id="aeAttachPopBody"></div>
       <div class="m-foot"><button class="btn primary" id="aeAttachPopDone">Done</button></div>
+    </div>
+  </div>
+
+  <!-- Working Folder popup (ISS-80): choose the folder where Save writes files -->
+  <div class="backdrop" id="wfPop">
+    <div class="modal sm" role="dialog" aria-modal="true" aria-label="Working folder">
+      <div class="m-head"><h2 class="m-title">Working folder</h2><div class="m-close" id="wfPopClose">✕</div></div>
+      <div id="wfPopBody"></div>
+      <div class="m-foot"><button class="btn primary" id="wfPopDone">Done</button></div>
+    </div>
+  </div>
+
+  <!-- Standardized in-app message popup (ISS-80): replaces native confirm()/alert() -->
+  <div class="backdrop" id="appMsg">
+    <div class="modal sm app-msg-modal" role="alertdialog" aria-modal="true" aria-label="Message">
+      <div class="m-head"><h2 class="m-title" id="appMsgTitle">Message</h2></div>
+      <div id="appMsgBody"></div>
+      <div class="m-foot">
+        <button class="btn" id="appMsgCancel">Cancel</button>
+        <button class="btn primary" id="appMsgOk">OK</button>
+      </div>
     </div>
   </div>
 

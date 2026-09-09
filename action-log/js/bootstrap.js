@@ -10,12 +10,16 @@
   $('rwRight').oninput=e=>{ state.layout.rw=+e.target.value; $('rwRightVal').textContent=state.layout.rw; applyLayout(); markSetupDirty(); };
   $('layoutClose').onclick=()=>closeModalBox('layoutModal');
 
+  // ---- Working Folder popup (ISS-80) ----
+  $('wfPopClose').onclick=()=>closeModalBox('wfPop');
+  $('wfPopDone').onclick=()=>closeModalBox('wfPop');
+
   // ---- Right panel + Help modal ----
   bindEl('rpSetting', ()=>{ syncLayoutModal(); openModalBox('layoutModal'); });
   bindEl('rpHelp', ()=>{ openModalBox('helpModal'); });
   $('helpClose').onclick=()=>closeModalBox('helpModal');
   // ---- Modals backdrop close ----
-  ['actionModal','layoutModal','helpModal','exportModal','openJsonModal','projectModal','reassignModal'].forEach(id=>{
+  ['actionModal','layoutModal','helpModal','exportModal','openJsonModal','projectModal','reassignModal','wfPop'].forEach(id=>{
     $(id).addEventListener('click', e=>{ if(e.target===$(id)) closeModalBox(id); });
   });
   // ---- Keyboard shortcuts ----

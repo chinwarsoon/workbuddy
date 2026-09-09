@@ -112,6 +112,7 @@
     const badge = hasKids ? `<span class="tcount sum" title="${r.count} sub-action(s), ${r.pct}% complete">∑ ${r.count}</span>` : '';
     const lead = hasKids ? `<span class="tchev act-chev" data-act="toggle-action" data-id="${a.id}" title="Toggle sub-actions">${open?'▾':'▸'}</span>` : `<span class="tdot"></span>`;
     let html = `<div class="tnode action${sel}" data-type="action" data-id="${a.id}" data-key="${akey}" style="padding-left:${treePad(2+depth)}px">${lead}`
+      + `<span class="tnum">#${a.id}</span>`
       + `<span class="tname">${esc(a.title)}</span>${badge}`
       + `<span class="tcount" style="${aPriorityStyle(a)}">${esc(aPriorityLabel(a))}</span>`
       + `<span class="tcount">${esc(aStatusLabel(a))}</span>`
@@ -205,6 +206,7 @@
     return `<div class="ae-report-title">${esc(a.title)}</div>${meta}<div class="ae-report-h">Description (dated detail log)</div>${logTable}${customTable}`;
   }
   function renderActionsMain(){
+    flushInlineEdits();   // commit any pending inline edits to the previously-open action before re-rendering
     edDirty=false;
     const a=state.actions.find(x=>x.id===state.selection.actions);
     if(!a){ renderActionTop(null); renderActionSubhead(null); $('edBody').innerHTML=`<p class="ed-desc">Select an action from the tree, or create a new one.</p>`; return; }
@@ -217,7 +219,6 @@
     const isChild = !!(a && a.parentId!=null);
     t.innerHTML = `<div class="ed-bread" id="edBread">${esc(a?('Actions / '+a.title):'Actions')}</div>`
       + `<div class="ed-top-actions">`
-      + `<button class="btn primary" id="aeSave"${dis?' disabled':''}>Save</button>`
       + `<button class="btn" id="aeNew">+ New Action</button>`
       + `<button class="btn" id="aeAddSub"${dis||atMax?' disabled':''} title="Add a sub-action under this action">+ Sub-action</button>`
       + `<button class="btn" id="aeSplit"${dis||atMax?' disabled':''} title="Split this action into 2 sub-actions">Split</button>`
@@ -226,7 +227,7 @@
       + `</div>`;
     const cr=$('tbCrumb'); if(cr) cr.innerHTML = renderTopbarCrumb(a?('Actions / '+a.title):'Actions');
     $('aeNew').onclick=()=>openModalCreate(null,null);
-    if(a){ $('aeSave').onclick=()=>saveInlineAction(a); $('aeDelete').onclick=()=>deleteAction(a); $('aeAddSub').onclick=()=>addSubAction(a.id); $('aeSplit').onclick=()=>splitIntoSubactions(a); if(isChild) $('aePromote').onclick=()=>promoteAction(a); }
+    if(a){ $('aeDelete').onclick=()=>deleteAction(a); $('aeAddSub').onclick=()=>addSubAction(a.id); $('aeSplit').onclick=()=>splitIntoSubactions(a); if(isChild) $('aePromote').onclick=()=>promoteAction(a); }
   }
   // --- Subhead (sticky, read-only identity bar) — ISS-42 / ISS-45 ---
   function renderActionSubhead(a){
@@ -249,6 +250,7 @@
   }
   // --- Focus cells: click-to-edit popovers with focus management (ISS-39/41/44/47) ---
   let __focusDocBound = false;
+  let _openActionId = null;   // id of the action currently open in the inline editor (for flushInlineEdits)
   function closeAllFocusPops(){
     document.querySelectorAll('#edBody .focus-cell.open').forEach(c=>{
       c.classList.remove('open'); c.setAttribute('aria-expanded','false');
@@ -645,6 +647,7 @@
     });
   }
   function bindActionEditor(a){
+    _openActionId = a.id;
     populateSelect($('aeProject'), state.projects, a.projectId);
     populateDisciplineSelect($('aeDiscipline'), a.projectId, a.disciplineId);
     populateMemberSelect($('aeCreator'), a.createdById, a.projectId, a.createdByName);
@@ -685,7 +688,6 @@
     if(!isParent) updateDepBadge(a);
     // Preview (live report) image links open the review lightbox.
     const rep=$('aeReport'); if(rep) rep.addEventListener('click', e=>{ const t=e.target.closest('.ae-rep-img'); if(t){ e.preventDefault(); openImgReview(t.dataset.src, t.dataset.name); } });
-    const save=$('aeSave'); if(save){ save.disabled=!edDirty; save.onclick=()=>saveInlineAction(a); }
     const del=$('aeDelete'); if(del) del.onclick=()=>deleteAction(a);
   }
   // ---- ISS-67/69: user-resizable ae-log columns (drag handles on the 4 th) ----
@@ -744,8 +746,7 @@
 
   function markDirty(a){
     edDirty=true;
-    state.dataDirty=true; updateSaveButtons();
-    const b=$('aeSave'); if(b) b.disabled=false;
+    state.dataDirty=true; updateSaveButtons(); updateStatusbar();
     if(a) syncPreview(a);
   }
   function bindLogRow(row,a){
@@ -899,7 +900,7 @@
         `${esc(im.name||'image')}<button class="ae-img-rm" title="Remove">✕</button></span>`
       : '').join('');
     if(linkRow) linkRow.innerHTML = arr.map((im,idx)=> (im.type==='file')
-      ? `<span class="ae-link-chip" data-idx="${idx}" data-name="${esc(im.name||'file')}" title="${esc(normalizeLinkSrc(im.src))}">`+
+      ? `<span class="ae-link-chip" data-idx="${idx}" data-name="${esc(im.name||'file')}" title="${esc(prettyLinkName(im.src))}">`+
         `<a class="ae-link-open" href="${esc(normalizeLinkSrc(im.src))}" target="_blank" rel="noopener" onclick="event.stopPropagation()">`+
         `<svg class="ae-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h5a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 3v5a1 1 0 0 0 1 1h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`+
         `${esc(im.name||'file')} ↗</a>`+
@@ -925,23 +926,33 @@
     const arr = collectLogAttachments(row);
     const pop = $('aeAttachPop'); if(!pop) return;
     const body = $('aeAttachPopBody');
+    // Card C (hybrid) layout: two clearly separated cards. Each card keeps its own
+    // header (title + a single primary action on the right) so the content is grouped
+    // inline; only the Done button lives in the modal footer. Cards stay visible when
+    // empty (so the user can always add), and collapse their chip row automatically.
     body.innerHTML =
       `<div class="ae-attach">` +
-        `<div class="ae-attach-group" data-g="pic"><div class="ae-attach-h">Pictures</div>` +
-          `<button class="ae-add-img" type="button" id="aeAddPics">+ Add pictures</button>` +
-          `<input type="file" id="aePicsInput" accept="image/*" multiple style="display:none" />` +
+        `<section class="ae-attach-group ae-attach-card" data-g="pic">` +
+          `<header class="ae-attach-card-h">` +
+            `<span class="ae-attach-card-t">Pictures</span>` +
+            `<button class="ae-add-img" type="button" id="aeAddPics">+ Add pictures</button>` +
+            `<input type="file" id="aePicsInput" accept="image/*" multiple style="display:none" />` +
+          `</header>` +
           `<div class="ae-img-row"></div>` +
-        `</div>` +
-        `<div class="ae-attach-group" data-g="link"><div class="ae-attach-h">File links</div>` +
-          `<div class="ae-link-inputs">` +
-            `<input class="ae-link-img" id="aeLinkUrl" placeholder="Paste a URL or file path…" />` +
-            `<button class="ae-add-link" type="button" id="aeAddLink">Add link</button>` +
+        `</section>` +
+        `<section class="ae-attach-group ae-attach-card" data-g="link">` +
+          `<header class="ae-attach-card-h">` +
+            `<span class="ae-attach-card-t">File links</span>` +
             `<button class="ae-browse-link" type="button" id="aeBrowseFile">Browse files</button>` +
             `<input type="file" id="aeFileInput" multiple style="display:none" />` +
+          `</header>` +
+          `<div class="ae-link-add">` +
+            `<input class="ae-link-img" id="aeLinkUrl" placeholder="Paste a URL or local path…" />` +
+            `<button class="ae-add-link" type="button" id="aeAddLink">Add link</button>` +
           `</div>` +
-          `<p class="form-hint">Tip: paste a local path like <code>C:\folder\file.pdf</code> — it opens as a file:// link.</p>` +
+          `<p class="ae-attach-tip">Tip: paste a web URL or a local path. <code>C:\\folder\\file.pdf</code> becomes a <code>file://</code> link that opens only when the app runs as a local file — on a server, use a relative path like <code>files/report.pdf</code> instead.</p>` +
           `<div class="ae-link-row"></div>` +
-        `</div>` +
+        `</section>` +
       `</div>`;
     renderChips(arr, body, row);
     const write = newArr => { row.dataset.attach=JSON.stringify(newArr); renderChips(newArr, body, row); updateAttachCount(row); markDirty(a); };
@@ -956,7 +967,7 @@
     // Link (URL or local path)
     body.querySelector('#aeAddLink').addEventListener('click', ()=>{
       const v=body.querySelector('#aeLinkUrl').value.trim(); if(!v) return;
-      arr.push({name:v.split(/[\\/]/).pop()||v, src:v, type:'file'}); write(arr.slice());
+      arr.push({name:prettyLinkName(v), src:v, type:'file'}); write(arr.slice());
       body.querySelector('#aeLinkUrl').value='';
     });
     // Browse files (embed as data URLs)
@@ -989,8 +1000,20 @@
     s = stripQuotes(s);
     if(!s) return s;
     if(/^(https?:|mailto:|file:|blob:|data:)/i.test(s)) return s;
-    if(/^[a-z]:[\\/]/i.test(s)) return 'file:///' + s.split('\\').join('/');
+    if(/^[a-z]:[\\/]/i.test(s)) return 'file:///' + s.split('\\').join('/').replace(/ /g,'%20');
     return s;
+  }
+  // Friendly display label for a linked source (ISS-84): a raw file:// URL (or a Windows
+  // path) becomes a clean, human-readable path — scheme stripped, %20 decoded, backslashes
+  // restored. Web/blob/data sources keep the existing behaviour (last path segment), so
+  // the link text/tooltip no longer shows the raw "file:///…" prefix or "%20" escapes.
+  function prettyLinkName(s){
+    s = stripQuotes(s);
+    if(!s) return s;
+    const fm = s.match(/^file:\/\/(.+)$/i);
+    if(fm){ let p = fm[1].replace(/^\/+/, ''); try { p = decodeURIComponent(p); } catch(e){} return p.split('/').join('\\'); }
+    if(/^[a-z]:[\\/]/i.test(s)){ try { return decodeURIComponent(s).split('/').join('\\'); } catch(e){ return s.split('/').join('\\'); } }
+    return s.split(/[\\/]/).pop() || s;
   }
   // --- Image review lightbox ---
   function openImgReview(src, name){
@@ -1099,8 +1122,16 @@
     const b=$('edBread'); if(b) b.textContent='Actions / '+$('aeTitle').value;
     const cr=$('tbCrumb'); if(cr) cr.innerHTML = renderTopbarCrumb('Actions / '+$('aeTitle').value);
   }
-  async function saveInlineAction(a){
-    const title=$('aeTitle').value.trim(); if(!title){ toast('Title required'); return; }
+  // Commit pending inline-editor DOM edits into the action object WITHOUT writing the
+  // file. Called automatically before a global Save (writeDataFile) and before re-rendering
+  // (renderActionsMain), so removing the top "Save" button never loses edits. The actual
+  // file write still happens via Save Actions / Ctrl+S.
+  function flushInlineEdits(){
+    if(_openActionId==null) return;
+    const a = state.actions.find(x=>x.id===_openActionId);
+    if(!a) return;
+    const titleEl=$('aeTitle'); if(!titleEl) return;          // no editor currently open
+    const title=titleEl.value.trim(); if(!title) return;       // can't commit without a title
     a.title=title;
     a.projectId=$('aeProject').value;
     a.disciplineId=$('aeDiscipline').value;
@@ -1113,17 +1144,10 @@
     readDepsInto(a);
     readCustomFieldsInto(a);
     const isParent = childrenOf(a.id).length > 0;
-    if(!isParent){
-      readScheduleInto(a);
-      readProgressInto(a);
-    }
+    if(!isParent){ readScheduleInto(a); readProgressInto(a); }
     delete a.dependsOn;
     a.detailLog=[...document.querySelectorAll('#aeLogBody .ae-log-row')].map(tr=>{ const att=collectLogAttachments(tr); const rd=readLogRowData(tr, a); return { date: tr.querySelector('.ae-log-date').value, text: tr.querySelector('.ae-log-text').value, attachments: att, editedBy:rd.editedBy, typeIds:rd.typeIds, actionBy:rd.actionBy, due:rd.due, dueHistory:(Array.isArray(rd.dueHistory)?rd.dueHistory:[]), status:rd.status }; });
-    a.history=a.history||[]; a.history.push({d:todayStr(), t:'Edited inline'});
-    edDirty=false; state.dataDirty=false; updateSaveButtons();
-    refresh();
-    toast('Action updated');
-    try{ await writeDataFile(); }catch(e){}
+    edDirty=false;
   }
   function renderProjectsMain(){
     const p=state.projects.find(x=>x.id===state.selection.projects);

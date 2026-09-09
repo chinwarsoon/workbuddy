@@ -3,12 +3,17 @@ setlocal EnableExtensions
 
 rem ============================================================
 rem  run_action_log.bat
-rem  (1) DEPLOY - copy run-ready files (index.html, css\, js\) to the
-rem      Z: deploy folder. action.json / setup.json are NOT copied.
+rem  (1) DEPLOY - copy run-ready files (index.html, css\, js\) AND the
+rem      launcher trio (run_action_log.bat / _ps.bat / .ps1) to the
+rem      Z: deploy folder, so users can launch directly from Z:.
+rem      action.json / setup.json are NOT copied.
 rem      If the source dev folder is missing, the copy is skipped.
 rem  (2) SERVE  - start a local HTTP server from the Z: folder and
 rem      open index.html in the browser. Auto-picks a free port if
 rem      8000 is already held by a stale server.
+rem  Self-launch: if run FROM the Z: deploy folder, it skips re-deploy
+rem      and just serves whatever is already there (Z: is the source of
+rem      truth for end users).
 rem  Linear flow - every step prints to the screen; always pauses.
 rem ============================================================
 
@@ -26,6 +31,12 @@ echo ============================================================
 echo.
 
 echo [1/2] Deploying run-ready files...
+rem --- if launched from the deploy folder itself, do not re-deploy; just serve ---
+set "SELF=%~dp0"
+if /i "%SELF%"=="%DST%\" (
+  echo   [SELF] Running from the deploy folder - skipping copy, serving in place.
+  goto :serve
+)
 if not exist "%SRC%\" (
   echo   [SKIP] Source folder not found: %SRC%
   echo   Will serve whatever already exists on Z:.
@@ -41,13 +52,19 @@ if not exist "%SRC%\" (
     xcopy "%SRC%\index.html" "%DST%\" /y /q >nul && echo   OK: index.html
     if exist "%SRC%\css" ( xcopy "%SRC%\css" "%DST%\css\" /e /i /y /q >nul && echo   OK: css\ ) else echo   WARN: css\ missing in source
     if exist "%SRC%\js"  ( xcopy "%SRC%\js"  "%DST%\js\"  /e /i /y /q >nul && echo   OK: js\  ) else echo   WARN: js\ missing in source
+    rem --- launchers: also deploy so users can run directly from Z: ---
+    if exist "%SRC%\run_action_log.bat"    ( xcopy "%SRC%\run_action_log.bat"    "%DST%\" /y /q >nul && echo   OK: run_action_log.bat ) else echo   WARN: run_action_log.bat missing in source
+    if exist "%SRC%\run_action_log_ps.bat" ( xcopy "%SRC%\run_action_log_ps.bat" "%DST%\" /y /q >nul && echo   OK: run_action_log_ps.bat ) else echo   WARN: run_action_log_ps.bat missing in source
+    if exist "%SRC%\run_action_log.ps1"    ( xcopy "%SRC%\run_action_log.ps1"    "%DST%\" /y /q >nul && echo   OK: run_action_log.ps1 ) else echo   WARN: run_action_log.ps1 missing in source
     echo   NOTE: action.json / setup.json are NOT copied.
+    echo   NOTE: launcher scripts ARE copied so users can launch from Z:.
   ) else (
     echo   ERROR: could not create %DST% - check the Z: drive is mapped.
   )
 )
 echo.
 
+:serve
 echo [2/2] Preparing local server from: %DST%
 if not exist "%DST%\" (
   echo   ERROR: deploy folder missing: %DST%
