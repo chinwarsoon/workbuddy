@@ -368,6 +368,17 @@
       <hr class="ae-divider" />
       <div class="ae-log-wrap">
         <div class="ed-section-h">Description — dated detail log</div>
+        <div class="ae-log-tools" id="aeLogTools">
+          <span class="ae-tool-cap">Filter / sort</span>
+          <label class="ae-tool">Type<select id="aeFType" class="input ae-tool-sel"></select></label>
+          <label class="ae-tool">By<select id="aeFActionBy" class="input ae-tool-sel"></select></label>
+          <label class="ae-tool">Status<select id="aeFStatus" class="input ae-tool-sel"></select></label>
+          <label class="ae-tool">From<input type="date" id="aeFDateFrom" class="input ae-tool-date" /></label>
+          <label class="ae-tool">To<input type="date" id="aeFDateTo" class="input ae-tool-date" /></label>
+          <label class="ae-tool">Sort<select id="aeFSort" class="input ae-tool-sel"><option value="">— none —</option><option value="date">Date</option><option value="type">Type</option><option value="by">Action by</option><option value="status">Status</option></select></label>
+          <button type="button" id="aeFDir" class="btn ae-tool-dir" title="Toggle sort direction">↓ Desc</button>
+          <button type="button" id="aeFClear" class="btn ghost ae-tool-clear" title="Reset filters and sort">Clear</button>
+        </div>
         <table class="ae-log" id="aeLog"><thead><tr><th class="ae-log-row-h"><span class="ae-col-resizer" data-col="row"></span></th><th class="ae-log-date">Date<span class="ae-col-resizer" data-col="date"></span></th><th>Detail<span class="ae-col-resizer" data-col="detail"></span></th><th class="ae-log-meta-h">Meta<span class="ae-col-resizer" data-col="meta"></span></th></tr></thead><tbody id="aeLogBody">${logRows}</tbody></table>
         <div class="ae-log-hint">Enter = new line inside a cell · Ctrl+Enter (or + Add row) = append a row · Row column reorders / deletes · click a Meta line to edit it</div>
         <button class="btn" id="aeAddRow">+ Add row</button>
@@ -684,11 +695,31 @@
     bindCustomFields(a);
     bindFocusCells(a);
     bindColResizers(a);
+    buildAeLogTools(a);
+    applyAeLogFilterSort(a);
     syncFocusDisplays(a);
     if(!isParent) updateDepBadge(a);
     // Preview (live report) image links open the review lightbox.
     const rep=$('aeReport'); if(rep) rep.addEventListener('click', e=>{ const t=e.target.closest('.ae-rep-img'); if(t){ e.preventDefault(); openImgReview(t.dataset.src, t.dataset.name); } });
     const del=$('aeDelete'); if(del) del.onclick=()=>deleteAction(a);
+    // ISS-63: Export minutes — Word doc of THIS action's detail log, respecting the current
+    // ISS-62 filter/sort view. #edTop is filled by setEdTop (which runs before this), so we
+    // append the button idempotently and re-wire its click on every (re)render.
+    const aeMb = (() => {
+      let b = $('aeExportMinutes');
+      if(!b){
+        const top = $('edTop');
+        if(top){
+          b = document.createElement('button');
+          b.id = 'aeExportMinutes'; b.type = 'button'; b.className = 'btn';
+          b.textContent = 'Export minutes';
+          b.style.borderRadius = '18px'; b.style.padding = '8px 16px';
+          top.appendChild(b);
+        }
+      }
+      return b;
+    })();
+    if(aeMb) aeMb.onclick = () => { const rows = exportOrderedDetailLog(a); exportMinutes(a, rows); };
   }
   // ---- ISS-67/69: user-resizable ae-log columns (drag handles on the 4 th) ----
   // Widths stored as percentages in localStorage['aeLogColWidths']; the dragged column
@@ -879,6 +910,109 @@
     tb.insertAdjacentHTML('beforeend', logRowHtml(i, blank, a));
     bindLogRow(tb.lastElementChild, a);
     markDirty(a);
+  }
+  // ---- ISS-62: view-only filter / sort toolbar above #aeLog ----
+  // aeLogView is a PURE view transform: it never mutates a.detailLog.
+  //  - Filtering hides rows (display:none) WITHOUT removing them from the DOM, so a flush
+  //    still reads every row — data order/content is unchanged.
+  //  - Sorting reorders the DOM for display only. To keep "view-only" honest, collectLogRows()
+  //    restores the original data order (by each row's data-i) whenever a sort is active, so a
+  //    Save never persists the sorted display order back into a.detailLog.
+  //  - The ↑/↓ manual reorder (ISS-61, "DOM order = data order") is disabled while a sort is
+  //    active, so the two orderings can't fight each other.
+  let aeLogView = { type:'', actionBy:'', status:'', dateFrom:'', dateTo:'', sort:'', dir:'desc' };
+  function collectLogRows(){
+    const rows=[...document.querySelectorAll('#aeLogBody .ae-log-row')];
+    if(aeLogView.sort) rows.sort((x,y)=> (+x.dataset.i)-(+y.dataset.i));
+    return rows;
+  }
+  function _logRowMatch(row, a, v){
+    const d=readLogRowData(row,a);
+    const date=(row.querySelector('.ae-log-date')||{}).value||'';
+    if(v.type && !(d.typeIds||[]).includes(v.type)) return false;
+    if(v.actionBy && !(d.actionBy||[]).includes(v.actionBy)) return false;
+    if(v.status && d.status!==v.status) return false;
+    if(v.dateFrom && (!date || date<v.dateFrom)) return false;
+    if(v.dateTo && (!date || date>v.dateTo)) return false;
+    return true;
+  }
+  function _logRowSortVal(row, a, field){
+    if(field==='date') return (row.querySelector('.ae-log-date')||{}).value||'';
+    const d=readLogRowData(row,a);
+    if(field==='type') return (d.typeIds||[]).map(id=>(getActionTypesForProject(a.projectId).find(t=>t.id===id)||{}).label||'').join(',');
+    if(field==='by') return (d.actionBy||[]).map(id=>memberNameById(id)).join(',');
+    if(field==='status') return statusLabel(d.status);
+    return '';
+  }
+  function applyAeLogFilterSort(a){
+    const tb=$('aeLogBody'); if(!tb) return;
+    const rows=[...tb.querySelectorAll('.ae-log-row')];
+    const v=aeLogView;
+    rows.forEach(row=>{ row.style.display = _logRowMatch(row,a,v) ? '' : 'none'; });
+    const mv=()=>tb.querySelectorAll('.ae-row-mv');
+    if(v.sort){
+      const dir = v.dir==='asc' ? 1 : -1;
+      const sorted = rows.slice().sort((x,y)=>{ const xv=_logRowSortVal(x,a,v.sort).toLowerCase(), yv=_logRowSortVal(y,a,v.sort).toLowerCase(); return xv<yv? -dir : xv>yv? dir : 0; });
+      sorted.forEach(r=>tb.appendChild(r));
+      mv().forEach(b=>b.disabled=true);
+    } else {
+      mv().forEach(b=>b.disabled=false);
+    }
+  }
+  function updateDirBtn(){ const b=$('aeFDir'); if(b) b.textContent = aeLogView.dir==='asc'?'↑ Asc':'↓ Desc'; }
+  function rebuildLogBody(a){
+    const tb=$('aeLogBody'); if(!tb) return;
+    tb.innerHTML = (a.detailLog||[]).map((r,i)=>logRowHtml(i,r,a)).join('');
+    tb.querySelectorAll('.ae-log-row').forEach(row=>bindLogRow(row,a));
+    requestAnimationFrame(autosizeAllLogTextareas);
+  }
+  function buildAeLogTools(a){
+    const box=$('aeLogTools'); if(!box) return;
+    const types=getActionTypesForProject(a.projectId);
+    const members=projectMembers(projById(a.projectId)).filter(m=>m.name && !m.left);
+    const typeSel=$('aeFType'), bySel=$('aeFActionBy'), stSel=$('aeFStatus');
+    // Drop a saved filter whose option no longer exists in this action's project (cross-project safety).
+    if(aeLogView.type && !types.find(t=>t.id===aeLogView.type)) aeLogView.type='';
+    if(aeLogView.actionBy && !members.find(m=>m.id===aeLogView.actionBy)) aeLogView.actionBy='';
+    typeSel.innerHTML='<option value="">— all —</option>'+types.map(t=>`<option value="${esc(t.id)}">${esc(t.label)}</option>`).join('');
+    bySel.innerHTML='<option value="">— all —</option>'+members.map(m=>`<option value="${esc(m.id)}">${esc(m.name)}</option>`).join('');
+    stSel.innerHTML='<option value="">— all —</option>'+state.statuses.map(s=>`<option value="${esc(s.id)}">${esc(s.label)}</option>`).join('');
+    typeSel.value=aeLogView.type; bySel.value=aeLogView.actionBy; stSel.value=aeLogView.status;
+    $('aeFDateFrom').value=aeLogView.dateFrom; $('aeFDateTo').value=aeLogView.dateTo;
+    $('aeFSort').value=aeLogView.sort; updateDirBtn();
+    const onFilter=()=>{ aeLogView.type=typeSel.value; aeLogView.actionBy=bySel.value; aeLogView.status=stSel.value; aeLogView.dateFrom=$('aeFDateFrom').value; aeLogView.dateTo=$('aeFDateTo').value; applyAeLogFilterSort(a); };
+    [typeSel,bySel,stSel].forEach(s=>s.addEventListener('change',onFilter));
+    ['aeFDateFrom','aeFDateTo'].forEach(id=>{ const el=$(id); if(el) el.addEventListener('change',onFilter); });
+    const sortSel=$('aeFSort'); if(sortSel) sortSel.addEventListener('change',()=>{ aeLogView.sort=sortSel.value; applyAeLogFilterSort(a); });
+    const dirBtn=$('aeFDir'); if(dirBtn) dirBtn.addEventListener('click',()=>{ aeLogView.dir = aeLogView.dir==='asc'?'desc':'asc'; updateDirBtn(); applyAeLogFilterSort(a); });
+    const clr=$('aeFClear'); if(clr) clr.addEventListener('click',()=>{ aeLogView={type:'',actionBy:'',status:'',dateFrom:'',dateTo:'',sort:'',dir:'desc'}; rebuildLogBody(a); applyAeLogFilterSort(a); });
+  }
+  // ---- ISS-63: Export minutes — read the CURRENT (filtered + view-ordered) detail-log rows ----
+  // Reads LIVE DOM values (date input, textarea, Meta dataset) so unsaved inline edits are
+  // included; view-only, never mutates a.detailLog. applyAeLogFilterSort already hides
+  // non-matching rows (display:none) and reorders the DOM to the sorted order, so we simply
+  // skip hidden rows and read the DOM order. Filtered-out (hidden) rows are excluded.
+  function exportOrderedDetailLog(a){
+    const tb = $('aeLogBody'); if(!tb) return (a.detailLog||[]).slice();
+    const rows = [...tb.querySelectorAll('.ae-log-row')].filter(r => r.style.display !== 'none');
+    return rows.map(row => {
+      const d = readLogRowData(row, a);
+      const i = +row.dataset.i;
+      const orig = (a.detailLog||[])[i] || {};
+      const date = (row.querySelector('.ae-log-date') || {}).value || '';
+      const text = (row.querySelector('.ae-log-text') || {}).value || '';
+      return {
+        date: date,
+        text: text,
+        typeIds: d.typeIds || [],
+        actionBy: d.actionBy || [],
+        due: d.due || '',
+        status: d.status || '',
+        editedBy: d.editedBy || '',
+        attachments: collectLogAttachments(row),
+        dueHistory: (orig.dueHistory || [])
+      };
+    });
   }
   // --- Picture helpers ---
   function fileToDataUrl(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
@@ -1116,7 +1250,7 @@
       title:$('aeTitle').value, statusId:status, priorityId:priority, projectId:pid, disciplineId:did, due,
       assignedToIds:as.ids, assignedToNames:as.orphans, createdById:creator, deps: a.deps.slice(),
       schedule: a.schedule||{}, progress: a.progress||0,
-      detailLog:[...document.querySelectorAll('#aeLogBody .ae-log-row')].map(tr=>{ const att=collectLogAttachments(tr); const rd=readLogRowData(tr, a); return { date:tr.querySelector('.ae-log-date').value, text:tr.querySelector('.ae-log-text').value, attachments: att, editedBy:rd.editedBy, typeIds:rd.typeIds, actionBy:rd.actionBy, due:rd.due, dueHistory:(Array.isArray(rd.dueHistory)?rd.dueHistory:[]), status:rd.status }; })
+      detailLog:collectLogRows().map(tr=>{ const att=collectLogAttachments(tr); const rd=readLogRowData(tr, a); return { date:tr.querySelector('.ae-log-date').value, text:tr.querySelector('.ae-log-text').value, attachments: att, editedBy:rd.editedBy, typeIds:rd.typeIds, actionBy:rd.actionBy, due:rd.due, dueHistory:(Array.isArray(rd.dueHistory)?rd.dueHistory:[]), status:rd.status }; })
     });
     const rep=$('aeReport'); if(rep) rep.innerHTML=reportHtml(live);
     const b=$('edBread'); if(b) b.textContent='Actions / '+$('aeTitle').value;

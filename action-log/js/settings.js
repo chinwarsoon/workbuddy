@@ -63,7 +63,7 @@
       $('dtExp').onclick=writeDataFile;
       $('dtExpS').onclick=saveSetupFile;
       $('dtImp').onclick=importViaPicker;
-      const df=$('dtFolder'); if(df) df.onclick=setDataFolder;
+      const df=$('dtFolder'); if(df) df.onclick=openWfPop;
     } else if(sec==='deleted'){
       const del = state.actions.filter(a=>a.deleted);
       const rows = del.map(a=>`<label class="lm-item del-row" style="cursor:pointer">

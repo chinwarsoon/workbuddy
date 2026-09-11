@@ -94,6 +94,12 @@
   /* Capability panel reuses .sb-panel base; colour alone signals ok / limited. */
   .sb-cap-ok{color:#34C759;}
   .sb-cap-no{color:#FF9F0A;}
+  .sb-cap-ask{color:#FF9F0A;}
+  .sb-downloaded{color:#FF9F0A;}
+  /* ISS-89/C: info note inside the Working-Folder popup that previews the upcoming native
+     browser permission prompt, so it no longer reads as a stray/non-standard window. */
+  .wf-perm-hint{margin:6px 0 2px; color:#C7C7CC; font-size:11px; line-height:1.45; background:rgba(0,102,204,0.10); border:0.5px solid rgba(0,102,204,0.30); border-radius:7px; padding:7px 9px;}
+  .wf-perm-hint b{color:#E6E6EA;}
   .sb-unsaved-txt{color:#FF9F0A; font-weight:600; white-space:nowrap; flex:none;}
   /* ISS-85: save-lifecycle feedback — "Saving…" (in flight) + "Save failed" (error) plus a
      spinner, so the status bar always reflects the real save state (not just after a save). */
@@ -665,4 +671,19 @@
   .ae-attach-pop .ae-attach{margin-top:4px;}
   /* Status short-code input in Settings → Statuses (ISS-75) */
   .cl-code{text-transform:uppercase; text-align:center; font-weight:600; letter-spacing:.04em;}
+
+  /* ===== ISS-62 view-only filter / sort toolbar above #aeLog ===== */
+  .ae-log-tools{display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px;
+    background:var(--panel); border:1px solid var(--border); border-radius:12px;
+    padding:9px 11px; margin:0 0 10px; font-size:12px; color:var(--muted);}
+  .ae-log-tools .ae-tool-cap{font-weight:600; color:var(--text); margin-right:2px;}
+  .ae-log-tools .ae-tool{display:inline-flex; align-items:center; gap:5px; white-space:nowrap;}
+  .ae-log-tools .ae-tool-sel, .ae-log-tools .ae-tool-date{padding:5px 7px; font-size:12px; min-height:30px; border-radius:8px;}
+  .ae-log-tools .ae-tool-date{width:auto;}
+  .ae-log-tools .ae-tool-dir, .ae-log-tools .ae-tool-clear{padding:5px 11px; font-size:12px; min-height:30px;}
+  .ae-log-tools .ae-tool-clear{margin-left:auto;}
+  @media (max-width:900px){
+    .ae-log-tools .ae-tool-clear{margin-left:0;}
+    .ae-log-tools{gap:6px 8px; padding:8px 9px;}
+  }
 

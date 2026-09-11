@@ -84,6 +84,45 @@
     const html = `<!DOCTYPE html><html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Actions</title></head><body><table border="1" cellspacing="0" cellpadding="4">${header}${rows}</table></body></html>`;
     msoDownload('Actions.xls', html, 'application/vnd.ms-excel');
   }
+  // ---- ISS-63: Export minutes (Word) for a single action ----
+  // Reuses the same metadata block as exportWord but emits an EXTENDED log table
+  // (Date / Type / Action by / Due / Status / Detail) so the detail log reads like minutes.
+  function minutesImgsHtml(r){
+    const att = (Array.isArray(r.attachments) ? r.attachments
+      : (Array.isArray(r.images) ? r.images.map(im => ({ name:im.name, src:im.src, type:'image' })) : []));
+    if(!att.length) return '';
+    return att.map(im => {
+      if((im.type||'image') === 'file') return `<br/>🔗 <a href="${esc(normalizeLinkSrc(im.src))}">${esc(im.name||'file')}</a>`;
+      if(String(im.src||'').indexOf('data:') === 0) return `<br/><img src="${esc(im.src)}" alt="${esc(im.name||'image')}" style="max-width:420px;max-height:320px;border:1px solid #ccc;border-radius:6px" />`;
+      return `<br/>📎 ${esc(im.name||'image')} — ${esc(im.src)}`;
+    }).join('');
+  }
+  function minutesLogRows(rows){
+    if(!rows || !rows.length) return `<tr><td colspan="6">No entries match the current filter.</td></tr>`;
+    return rows.map(r => {
+      const types = (Array.isArray(r.typeIds) ? r.typeIds : []).map(id => { const t = (state.actionTypes||[]).find(x => x.id === id); return t ? t.label : id; }).filter(Boolean).join(', ');
+      const bys = (Array.isArray(r.actionBy) ? r.actionBy : []).map(id => memberNameById(id)).filter(Boolean).join(', ');
+      const st = r.status ? statusLabel(r.status) : '';
+      const detail = esc(r.text || '') + minutesImgsHtml(r);
+      return `<tr><td>${esc(r.date||'')}</td><td>${esc(types)}</td><td>${esc(bys)}</td><td>${esc(r.due||'')}</td><td>${esc(st)}</td><td>${detail}</td></tr>`;
+    }).join('');
+  }
+  function exportMinutes(a, rows){
+    rows = rows || (a.detailLog || []);
+    const meta = `<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;font-family:Calibri;width:100%">`
+      + `<tr><td><b>Project</b></td><td>${esc(projName(a.projectId))}</td><td><b>Discipline</b></td><td>${esc(discName(a.disciplineId))}</td></tr>`
+      + `<tr><td><b>Status</b></td><td>${esc(aStatusLabel(a))}</td><td><b>Due</b></td><td>${esc(a.due||'—')}</td></tr>`
+      + `<tr><td><b>Assigned to</b></td><td>${esc(assigneesTxt(a))}</td><td><b>Created by</b></td><td>${esc(creatorName(a))}</td></tr>`
+      + `<tr><td><b>Created on</b></td><td>${esc(createdOnOf(a)||'—')}</td><td><b>Dependencies</b></td><td>${esc(actionDeps(a).length ? actionDeps(a).map(d => depLabel(d)).join('; ') : '—')}</td></tr>`
+      + `</table>`;
+    const log = `<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;font-family:Calibri;width:100%">`
+      + `<tr><th style="text-align:left">Date</th><th style="text-align:left">Type</th><th style="text-align:left">Action by</th><th style="text-align:left">Due</th><th style="text-align:left">Status</th><th style="text-align:left">Detail</th></tr>`
+      + minutesLogRows(rows)
+      + `</table>`;
+    const safe = (a.title || 'minutes').replace(/[^\w\-]+/g, '_');
+    const html = `<!DOCTYPE html><html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${esc(a.title||'Minutes')}</title></head><body><h2>${esc(a.title||'Minutes')}</h2>${meta}<p style="font-family:Calibri"><b>Description (dated detail log)</b></p>${log}</body></html>`;
+    msoDownload('Minutes - ' + safe + '.doc', html, 'application/msword');
+  }
   function openExportModal(){
     exportSel = new Set();
     renderExportFilters();

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en" data-page-node-id="uNJVIguqEywqtDU3v73AZ6">
+<head data-page-node-id="ej8WXR72QMXFq9NrRf7EwI">
+<meta charset="UTF-8" data-page-node-id="0WKuvW3UCvJCLzte51MPqX" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="9h6R1SzoWZnTeE9r2xO6mU" />
+<title>Action Log — User Manual</title>
+<style>
+  :root{
+    --accent:#0066CC;
+    --accent-soft:rgba(0,102,204,0.10);
+    --accent-soft-2:rgba(0,102,204,0.16);
+    --bg:#F5F5F7;
+    --card:#FFFFFF;
+    --ink:#1D1D1F;
+    --ink-2:#515154;
+    --ink-3:#86868B;
+    --line:#E3E3E8;
+    --green:#1E8E3E;
+    --green-soft:rgba(30,142,62,0.12);
+    --amber:#B25E00;
+    --amber-soft:rgba(178,94,0,0.12);
+    --blue:#0066CC;
+    --blue-soft:rgba(0,102,204,0.10);
+    --radius:18px;
+    --radius-sm:12px;
+    --shadow:0 1px 2px rgba(0,0,0,0.04),0 8px 24px rgba(0,0,0,0.06);
+    --mono:'SF Mono',ui-monospace,'Cascadia Code','Roboto Mono',Menlo,Consolas,monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --accent:#0A84FF;
+      --accent-soft:rgba(10,132,255,0.16);
+      --accent-soft-2:rgba(10,132,255,0.22);
+      --bg:#1D1D1F;
+      --card:#2C2C2E;
+      --ink:#F5F5F7;
+      --ink-2:#C7C7CC;
+      --ink-3:#8E8E93;
+      --line:#3A3A3C;
+      --green:#30D158;
+      --green-soft:rgba(48,209,88,0.16);
+      --amber:#FFD60A;
+      --amber-soft:rgba(255,214,10,0.14);
+      --blue:#0A84FF;
+      --blue-soft:rgba(10,132,255,0.16);
+      --shadow:0 1px 2px rgba(0,0,0,0.4),0 10px 30px rgba(0,0,0,0.45);
+    }
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;scroll-padding-top:84px;}
+  body{
+    margin:0;
+    font-family:var(--sans);
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.65;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  a{color:var(--accent);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  /* ---- sticky jump nav ---- */
+  .jumpnav{
+    position:sticky;top:0;z-index:20;
+    background:color-mix(in srgb,var(--bg) 86%,transparent);
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    border-bottom:1px solid var(--line);
+    overflow-x:auto;overflow-y:hidden;
+    scrollbar-width:none;
+  }
+  .jumpnav::-webkit-scrollbar{display:none;}
+  .jumpnav ul{
+    list-style:none;margin:0;padding:10px 16px;
+    display:flex;gap:8px;align-items:center;white-space:nowrap;
+  }
+  .jumpnav li{margin:0;}
+  .jumpnav a{
+    display:inline-flex;align-items:center;
+    min-height:36px;padding:0 14px;border-radius:999px;
+    font-size:13.5px;font-weight:500;color:var(--ink-2);
+    background:var(--card);border:1px solid var(--line);
+    transition:background .15s,color .15s,border-color .15s;
+  }
+  .jumpnav a:hover{color:var(--accent);border-color:var(--accent);text-decoration:none;}
+
+  /* ---- hero ---- */
+  header.hero{
+    max-width:880px;margin:0 auto;padding:48px 20px 8px;
+  }
+  .brand{display:flex;align-items:center;gap:14px;}
+  .logo{
+    width:46px;height:46px;border-radius:13px;flex:none;
+    background:linear-gradient(145deg,var(--accent),color-mix(in srgb,var(--accent) 70%,#000));
+    color:#fff;font-weight:700;font-size:19px;letter-spacing:.5px;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 16px var(--accent-soft-2);
+  }
+  .hero h1{font-size:30px;line-height:1.2;margin:0;letter-spacing:-.02em;font-weight:700;}
+  .hero p.sub{margin:10px 0 0;color:var(--ink-2);font-size:16px;max-width:620px;}
+
+  /* ---- layout ---- */
+  main{max-width:880px;margin:0 auto;padding:8px 20px 72px;}
+  section{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:26px 28px;margin:22px 0;
+    box-shadow:var(--shadow);
+    scroll-margin-top:84px;
+  }
+  section > h2{
+    margin:0 0 16px;font-size:21px;letter-spacing:-.01em;
+    display:flex;align-items:center;gap:10px;
+  }
+  section > h2 .num{
+    font-size:13px;font-weight:700;color:var(--accent);
+    background:var(--accent-soft);border-radius:8px;padding:3px 9px;flex:none;
+  }
+  h3{font-size:16.5px;margin:22px 0 10px;letter-spacing:-.01em;}
+  p{margin:10px 0;color:var(--ink-2);}
+  strong{color:var(--ink);font-weight:600;}
+  ul,ol{margin:10px 0;padding-left:22px;color:var(--ink-2);}
+  li{margin:6px 0;}
+  code{
+    font-family:var(--mono);font-size:13.5px;
+    background:var(--accent-soft);color:var(--accent);
+    padding:1.5px 6px;border-radius:6px;white-space:nowrap;
+  }
+  /* inline code inside list/para that is dark on dark theme still readable */
+  @media (prefers-color-scheme: dark){ code{color:#7AB8FF;background:rgba(10,132,255,0.16);} }
+
+  pre{
+    background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);
+    padding:14px 16px;overflow-x:auto;margin:12px 0;
+  }
+  pre code{background:none;color:var(--ink);white-space:pre;padding:0;font-size:13px;}
+
+  /* ---- tables ---- */
+  .tbl-wrap{overflow-x:auto;margin:14px 0;border-radius:var(--radius-sm);border:1px solid var(--line);}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:520px;}
+  thead th{
+    background:var(--accent);color:#fff;text-align:left;font-weight:600;
+    padding:11px 14px;white-space:nowrap;
+  }
+  thead th:first-child{border-top-left-radius:var(--radius-sm);}
+  thead th:last-child{border-top-right-radius:var(--radius-sm);}
+  tbody td{padding:11px 14px;border-top:1px solid var(--line);color:var(--ink-2);vertical-align:top;}
+  tbody tr:nth-child(even){background:color-mix(in srgb,var(--bg) 55%,transparent);}
+  tbody td:first-child{color:var(--ink);font-weight:500;}
+
+  /* ---- badges / chips ---- */
+  .badge{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:13px;font-weight:600;padding:3px 11px;border-radius:999px;
+    border:1px solid transparent;
+  }
+  .badge.ok{color:var(--green);background:var(--green-soft);}
+  .badge.warn{color:var(--amber);background:var(--amber-soft);}
+  .badge.blue{color:var(--blue);background:var(--blue-soft);}
+  .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .dot.g{background:var(--green);}
+  .dot.a{background:var(--amber);}
+  .dot.b{background:var(--blue);}
+
+  /* ---- callout / note ---- */
+  .note{
+    margin:14px 0;padding:12px 16px;border-radius:var(--radius-sm);
+    background:var(--accent-soft);border:1px solid var(--accent-soft-2);
+    color:var(--ink-2);font-size:14.5px;
+  }
+  .note b{color:var(--ink);}
+  .note.plain{background:var(--bg);border-color:var(--line);}
+
+  .step{display:flex;gap:12px;align-items:flex-start;margin:12px 0;}
+  .step .i{
+    flex:none;width:26px;height:26px;border-radius:50%;
+    background:var(--accent-soft);color:var(--accent);
+    font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;
+  }
+  .step .t{color:var(--ink-2);}
+
+  .caps{display:grid;gap:10px;margin:14px 0;}
+  .cap{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--bg);}
+  .cap .badge{flex:none;margin-top:1px;}
+
+  footer{
+    max-width:880px;margin:0 auto;padding:0 20px 60px;
+    color:var(--ink-3);font-size:13.5px;
+  }
+  footer .files{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);
+    padding:14px 16px;color:var(--ink-2);
+  }
+  footer code{font-size:13px;}
+
+  @media (max-width:600px){
+    .hero h1{font-size:25px;}
+    section{padding:20px 18px;border-radius:14px;}
+    section > h2{font-size:18.5px;}
+    html{scroll-padding-top:74px;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body data-page-node-id="74eAzTaf3YPSCGnaXFF29V">
+
+<nav class="jumpnav" aria-label="Sections" data-page-node-id="HSFHc48aBzEU96ONboFCZR">
+  <ul data-page-node-id="0hybeWEcZL5iQOfuuRhpaK">
+    <li data-page-node-id="gkeQ7RzVHvYrBMzeEmi5ai"><a href="#quick" data-page-node-id="lV813kEYPotz2kx9xjJpT5">Quick reference</a></li>
+    <li data-page-node-id="v5UeN1ZFmQKISO0EKjWEEO"><a href="#case1" data-page-node-id="SCzi8TJSrKWhLclS9Z3X5H">Deploy (dev)</a></li>
+    <li data-page-node-id="hFJH5cLIcjCl9S3dP1eZju"><a href="#case2" data-page-node-id="Ih1h9GPHILY3Jl4dFbPeIk">PowerShell</a></li>
+    <li data-page-node-id="t8OP8q9zJrGH6KMedWFpT1"><a href="#case3" data-page-node-id="T4Ldpb5MauMnMYY3ikkKy3">End user (Z:)</a></li>
+    <li data-page-node-id="GEUEykIquRLHyHaPBC3UuO"><a href="#case4" data-page-node-id="7ZTMjBtoGR3qAzWPk9gGrl">Open file</a></li>
+    <li data-page-node-id="wpMbWTsN3VApv5SBcFe6NI"><a href="#custom" data-page-node-id="sUWMjeu0HkGUqtqlooSH4b">Customize</a></li>
+    <li data-page-node-id="Pt0bTuULVp45DGLHdZvOMF"><a href="#trouble" data-page-node-id="AZcKIjivXDIrspDVm9SsCZ">Troubleshoot</a></li>
+    <li data-page-node-id="NTGDlqhtiR64jRg10tb9S7"><a href="#saving" data-page-node-id="tNnPkYHMLqDdWkwZDaECLU">Saving</a></li>
+    <li data-page-node-id="7Gud3KO9PdXpyHJupUwUyW"><a href="#data" data-page-node-id="sCSKQ48TMV8qAcebnzyioo">Data notes</a></li>
+  </ul>
+</nav>
+
+<header class="hero" data-page-node-id="8pCEdRISD3qjBZwvDCyAzO">
+  <div class="brand" data-page-node-id="SBbEuMAx1KyEOVGeZSLm3K">
+    <div class="logo" data-page-node-id="UIg18F8KwGOxEQ2QPrULXB">AT</div>
+    <h1 data-page-node-id="B5TsJRESNmF4FRbY3Ooio9">Action Log — User Manual</h1>
+  </div>
+  <p class="sub" data-page-node-id="S1L3FRxvsVtpBQyjK3LjyL"><strong data-page-node-id="6kQtDlTT1Cw5oTSKPJ4WNF">Action Log</strong> (a.k.a. <em data-page-node-id="ajH6tv8Van4YDAglUs5wqI">ActionTracker</em>) is a single-page web app for tracking project actions. This manual explains how to start it in different situations — pick the case that matches you.</p>
+</header>
+
+<main data-page-node-id="TKUzJSyANywDDz2oTzliYF">
+
+  <section id="quick" data-page-node-id="3PWwXrIVkHfwLLgGjtdaMh">
+    <h2 data-page-node-id="8jgMglYufnXUqqdNSBhL7e"><span class="num" data-page-node-id="pkq1XTAQ0gndQZPzmphZuW">↗</span>Quick reference</h2>
+    <div class="tbl-wrap" data-page-node-id="kWqFPR5ecRi1G2hmJe0a11">
+      <table data-page-node-id="mJS8LUQBhxA7T5wv75YTdI">
+        <thead data-page-node-id="M4jechJOmNOE10ypDiBiBp"><tr data-page-node-id="kRHdIRYw9gFG0ZPPpn9oqM"><th data-page-node-id="ZRLRLguGuo6Z0VAGaGdflL">You are…</th><th data-page-node-id="Nsw4o6lyPQNAw1wPWIhb78">Run this</th><th data-page-node-id="xsONCwaUnEtzyazAHdNXsp">From where</th><th data-page-node-id="6WdooRVE5SM6LMTQVWhaCx">Requires</th></tr></thead>
+        <tbody data-page-node-id="ZEjGbVaMyluWoeImw76Fix">
+          <tr data-page-node-id="EqKPxxf7ZZwrlQjeEYwFN0"><td data-page-node-id="xvZBYRIWMt4ZfqoKWACb13">Developer deploying an update</td><td data-page-node-id="WSHYPXSr3G6BfEjsF5qB7X"><code data-page-node-id="ezkDHwzcXtuG7iwSfMVhA5">run_action_log.bat</code></td><td data-page-node-id="yBDZ6cQl8Mi7PFSBliHS05">dev folder</td><td data-page-node-id="JugHNfYNLeXYlG7gIkEA0W">Python on PATH</td></tr>
+          <tr data-page-node-id="CBLA6rvn7xPfwmU1AEw1Mp"><td data-page-node-id="ogMcDWyOAa5B6m9RKMV7eC">Anyone, no Python installed</td><td data-page-node-id="qY4DAv6pAbxOhSJXoJ6Gnd"><code data-page-node-id="sxvw6BvXKWrcieSDrffwH7">run_action_log_ps.bat</code></td><td data-page-node-id="awGlQ2eMRmjtjTqJAYqXKA">dev folder <strong data-page-node-id="jMqHl9FSr02XOxGdU0pkIQ">or</strong> Z: folder</td><td data-page-node-id="FQUlZwSjMWAaB5meYuA8kR">Windows only (.NET built-in)</td></tr>
+          <tr data-page-node-id="PQYZWjdlrWGXa7hzfbev2p"><td data-page-node-id="hTobt7TPHkbbhQiFOd6yuD">Team member (end user)</td><td data-page-node-id="IB0nLWRFFOsyDFvbOWprNW"><code data-page-node-id="UF8bq2ZtSR2UzjTo8MBqYk">run_action_log_ps.bat</code></td><td data-page-node-id="YFBJfV2F9m6G7XoBukz2Rr">Z: shared folder</td><td data-page-node-id="Pdlskpt62FDR3gT72egg73">Mapped Z: drive</td></tr>
+          <tr data-page-node-id="MrT1TihthRZ9GbFl6ZxS0W"><td data-page-node-id="cPy2RVT8Cei7C6wXP6oQq8">Quick read-only look</td><td data-page-node-id="HLpxFsbB6YjkFF7eMHMEZF">open <code data-page-node-id="CuJWdLqcpo1NY7tFv64e8T">index.html</code></td><td data-page-node-id="d74OqkeBMCScFD8PSLHpMf">any folder</td><td data-page-node-id="bwWjGFtZ835fwF57ej5mdf">just a browser</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p data-page-node-id="dgPvfZf2Y1FAp8898iK0Qj">The Z: deploy folder is:<br data-page-node-id="iLkdw2i7D23ucpBzrBWVqr"><code data-page-node-id="fUOz2jGrkIBOUvQmU8HxDw">Z:\7. Engineering\01-Eng Mgmt\01 Action Log</code></p>
+    <p data-page-node-id="yZJCOD4CKLsKROQ0S8h9M4">The dev folder is:<br data-page-node-id="3ojbuIr0knsWrrmT01UQRD"><code data-page-node-id="nFwonW3Sn8IE1j1mRqlubD">C:\Users\qinghua.song\DSAI\workbuddy\action-log</code></p>
+  </section>
+
+  <section id="case1" data-page-node-id="TwYTXDlQQejCJ1KZyhTC92">
+    <h2 data-page-node-id="AzNGZYKFPuGqahN6HYnIpO"><span class="num" data-page-node-id="3fMXy9nmZXFBtC37xs0Rte">1</span>Developer: deploy to Z: and launch (full update)</h2>
+    <p data-page-node-id="1dYKag3Y4YZidDDUd8eDdU">Use this when you changed the code (<code data-page-node-id="XRNoJJenIMG1QsiLy5N9Tg">index.html</code>, <code data-page-node-id="LoElhZocksmLtckHGKEW26">css\</code>, <code data-page-node-id="jW5uoU3Ri22CqgxEhW68Yh">js\</code>) and want to push it to the shared Z: drive.</p>
+    <div class="step" data-page-node-id="aYbYdgpaqP5CDZfNdQgi7q"><span class="i" data-page-node-id="GY3n8Rd6qnB8bT98x9idiN">1</span><span class="t" data-page-node-id="cy9s7URXjhLuWVZORrnweQ">Open the <strong data-page-node-id="vpQkLyqB77UbJZ1DKkAtdP">dev folder</strong>: <code data-page-node-id="KGi9nygptqJjOC2FcN8Dzn">C:\Users\qinghua.song\DSAI\workbuddy\action-log</code></span></div>
+    <div class="step" data-page-node-id="7B4DGa6wtyxmteQE6ESyf8"><span class="i" data-page-node-id="GEpdGy7OdFEzFC7vJOoBjp">2</span><span class="t" data-page-node-id="q9MQpVEvZTZVPnxW3j7uYf">Double-click <strong data-page-node-id="EL7FI7SIugIJWqguALUjlm"><code data-page-node-id="EDJkMTimlGMBLHUBz5IdUn">run_action_log.bat</code></strong>.</span></div>
+    <div class="step" data-page-node-id="cBjX3EY8FgCMtAjmxaDRRv"><span class="i" data-page-node-id="oIFvNH9DP4XXzdxMC3R9bA">3</span><span class="t" data-page-node-id="qzY12yV3dgJtbdR6z0L54P">It copies <code data-page-node-id="IWcSncmfHI9nBZYfELRbX6">index.html</code>, <code data-page-node-id="s8cfDYfpXDEcEHxArubFzL">css\</code>, <code data-page-node-id="6XXcOsS6kzmVPTdBWbdMbZ">js\</code>, and the launcher trio to the Z: folder, then starts a local server and opens the app in your browser.</span></div>
+    <div class="step" data-page-node-id="ICAQDZAuHRy78cmboFgoIV"><span class="i" data-page-node-id="kfSOzghqRVaQ5wwkGvzx4o">4</span><span class="t" data-page-node-id="fVhha4xUjpNy8quuQaRsn1">Keep the <strong data-page-node-id="pQuwMp4SHOZfjV5Xha4MpU">“ActionLogServer”</strong> window open while using the app. Close it to stop.</span></div>
+    <div class="note" data-page-node-id="OZANJ0U65KQ8oNDwHVnzGP">Requires <strong data-page-node-id="4coWrEBhkDWLSg5EWGQCRi">Python</strong> on PATH. If it says <em data-page-node-id="WVAzptk3gFXIQs8c20XWts">“no Python interpreter found”</em>, use Case 2 instead.</div>
+  </section>
+
+  <section id="case2" data-page-node-id="ANtRo7HiY4D8Sz2LESvhCo">
+    <h2 data-page-node-id="HZyP4EoAZzo3PwZIsMXcxc"><span class="num" data-page-node-id="m5JAmD6KpJ5rKiDqz04KuL">2</span>No Python? Use the PowerShell launcher (recommended for most)</h2>
+    <p data-page-node-id="yuSkVvhFAWMbv0hFNRQJ5p">This uses Windows’ built-in <code data-page-node-id="MtaPAZGQGnehVEiIGUvVar">.NET</code> web server — <strong data-page-node-id="0QjQorNGLDaG9j6pxTWyOD">no Python, no install</strong>.</p>
+    <div class="step" data-page-node-id="ouEBmRoQ7xbEhkiXsjKpEC"><span class="i" data-page-node-id="G5tzAsuyRHdOmzEwPHoi10">1</span><span class="t" data-page-node-id="LrvlbFlDQRqfo8LPt1xdtL">Double-click <strong data-page-node-id="5MVAHhG3bS8ZnSyBcgFzZq"><code data-page-node-id="ECCugBIsQGMZeJbhdFdtBZ">run_action_log_ps.bat</code></strong> (same folder).</span></div>
+    <div class="step" data-page-node-id="r6MVFaWCjKTx8vaA5PJ6GH"><span class="i" data-page-node-id="iZl1tcEeyltsvuIXKUJsR7">2</span><span class="t" data-page-node-id="F0UF8pLE03AHGdqzfBAH92">It runs <code data-page-node-id="bPjQFN4BqR1J8Vrqx8yacv">run_action_log.ps1</code>, which starts the server and opens the app automatically.</span></div>
+    <div class="step" data-page-node-id="0OGiNFTBMWHraZOTh4ulWa"><span class="i" data-page-node-id="pR0H1i28Qxw9FRzu3lxgps">3</span><span class="t" data-page-node-id="qTI3DuW4eovfGMmONn8rWS">Press <strong data-page-node-id="T6mnlbh4SXegrFqfvDJ7Ff">Ctrl+C</strong> in that window to stop the server.</span></div>
+    <p data-page-node-id="F2ypxYRtmxFuTN0FlPtPl9">You can run this from the <strong data-page-node-id="CH9R0NAiEbXCUnIEd691xy">dev folder</strong> (it deploys to Z: first) <strong data-page-node-id="NB6PD59T90NIN3aMNiDP5P">or directly from the Z: folder</strong> (it just serves what is already there).</p>
+  </section>
+
+  <section id="case3" data-page-node-id="akCUyVIwHh3sSFfeIHVm9y">
+    <h2 data-page-node-id="r7BaS7fStwpMHxFmlZWLc9"><span class="num" data-page-node-id="Dn8P2lSx8W92amyaATH0tQ">3</span>End user: run directly from the Z: shared drive</h2>
+    <p data-page-node-id="ZhNdQEu7QSZeHHzD5zNCSA">This is the normal way team members use the app. Nothing to install.</p>
+    <div class="step" data-page-node-id="Gwt9Oehi9WY3EhCc8BdMH5"><span class="i" data-page-node-id="vgEgFSSSNprhl1JlcUkQ6E">1</span><span class="t" data-page-node-id="MEZ3PLcSEOJR9RvCkAvDb2">Make sure the <strong data-page-node-id="AzSLdJmNM8A2ootSQWnF6I">Z: drive is mapped</strong> (network drive to the shared location).</span></div>
+    <div class="step" data-page-node-id="lIAohcDKA7vUC6T2Ofl525"><span class="i" data-page-node-id="HmfGQRdGXKpWysjT7lwrKv">2</span><span class="t" data-page-node-id="4Jhy4fg9C5NCpcF3VTf5ME">Open <code data-page-node-id="FEsnll5uyuzVHFZyEaEMYc">Z:\7. Engineering\01-Eng Mgmt\01 Action Log</code>.</span></div>
+    <div class="step" data-page-node-id="XmZ3Ws2rI1ZivaOuGs0PZG"><span class="i" data-page-node-id="Y19i13lwdQ7lMRnuIYxzre">3</span><span class="t" data-page-node-id="IEO3bMzfC11b2SAoLWlHRG">Double-click <strong data-page-node-id="hfX8ZTROHKpUDZhyxDD0FE"><code data-page-node-id="Lbc4qbYIlgu2qqnw7VmWLw">run_action_log_ps.bat</code></strong>.</span></div>
+    <div class="step" data-page-node-id="Ijt49OpgSc2MDl3mgXtEdD"><span class="i" data-page-node-id="qiAgcpcWCkclCw4HNOr0uL">4</span><span class="t" data-page-node-id="TNXi65R8OxWmFtvJoa9Vba">The app launches from Z: and opens in the browser.</span></div>
+    <div class="note plain" data-page-node-id="kBMsxE4G8bDinCtSceqV6x"><code data-page-node-id="yCIpqxNa0oFsuDnbjfofp2">run_action_log.bat</code> also works from Z:, but it needs Python. Prefer the <code data-page-node-id="djH6qvHcPnLTLLo5Ejg0qX">_ps</code> version for end users.</div>
+  </section>
+
+  <section id="case4" data-page-node-id="AQb0vZSVhp9uBfQwfpZLgy">
+    <h2 data-page-node-id="jAQA5NKN82MpnBhiSAUx2u"><span class="num" data-page-node-id="IXPpvYk7l8jzUTY5Pp4AeH">4</span>Just open the file (file://, read-only quick look)</h2>
+    <ul data-page-node-id="hcG0pDWSu0dXCyCgkAZ9E6">
+      <li data-page-node-id="JBS0onqxEURbadJy9E5Hyo">Double-click <strong data-page-node-id="c7ZaclL8qcrLPxX6kOWQLY"><code data-page-node-id="hg90oq5cPyGbdqFGqJCRpU">index.html</code></strong> from Z: or the dev folder.</li>
+      <li data-page-node-id="yyXdPrrpHAY1ckQTWYvw9s">Good for a <strong data-page-node-id="ut7NVtuX7giEqk2F9O2wkW">quick read-only view</strong> with zero setup.</li>
+      <li data-page-node-id="35GUzDx8j4eS0YGLGPwzX4"><strong data-page-node-id="bPH3vP2j1OLzpXKlmvvEZk">Limitations in <code data-page-node-id="zwOINYjkJnDk4KS2tXz5QY">file://</code> mode:</strong> the browser blocks some features — e.g. “save picture to folder” (needs a server context) and clicking <code data-page-node-id="Zc9ZoA1Yz9Lp0QHxDbHi4a">file://</code> links. For full functionality, use Case 2 or 3.</li>
+    </ul>
+  </section>
+
+  <section id="custom" data-page-node-id="6pT1x1kbeUYwJ8doRgIgAU">
+    <h2 data-page-node-id="8zkTMez6EmNhj6Uwwn7MV0"><span class="num" data-page-node-id="gRxr03kjwPsXHohRTNd8Kd">⚙</span>Customizing</h2>
+    <div class="tbl-wrap" data-page-node-id="bpr8Gy2x7K3NiF4bMCVJQK">
+      <table data-page-node-id="XwpKLESvAyWLkLa2XFdsCC">
+        <thead data-page-node-id="4JdEeK5yBMSA62UYLJBeaY"><tr data-page-node-id="S5zZnJzqjH68ZfIfqS0QHx"><th data-page-node-id="rgXw2QEesc2ozq7OyFHfDt">Goal</th><th data-page-node-id="lVRMUF6cHJoLvmGOsuT4Um">How</th></tr></thead>
+        <tbody data-page-node-id="hiox6ERXEu5nXnPZhuGy2Q">
+          <tr data-page-node-id="r4FZnLyszL1BfG6RXeEhQA"><td data-page-node-id="LQ6FqAUkA9aUBiO6UU4U5O">Different port (ps1)</td><td data-page-node-id="9v9gO3ZzjBEfTGDQCm8giF"><code data-page-node-id="hIplumrLotg8hxCvIPAxUM">.\run_action_log.ps1 -Port 8080</code></td></tr>
+          <tr data-page-node-id="Ee696U7Dq9PbxOXm7MUUFH"><td data-page-node-id="BPMtrNcIrlqu0oZ0rrK40W">Different folder (ps1)</td><td data-page-node-id="4INkaCNQ0BsmInWKHqL11o"><code data-page-node-id="loRTt3hjQ8ubSvBhBEOQxR">.\run_action_log.ps1 -Dst "D:\some\folder"</code></td></tr>
+          <tr data-page-node-id="eIPzZUBtZTJAaPod8uRbGB"><td data-page-node-id="qYGVPNv0cV1648NKxWgMsA">Different port (bat)</td><td data-page-node-id="9TEFUYgPXFtfW2A8BP8ENe">edit <code data-page-node-id="RfSmVN2qcx4nsbKXSdwFgm">set "PORT=8000"</code> near the top of <code data-page-node-id="yOTou0xylxJTJhmjUrCACj">run_action_log.bat</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="trouble" data-page-node-id="Y74KJd7izAFNwD8IfSvlK3">
+    <h2 data-page-node-id="GJ13OBd0k6FiYId5yl21PS"><span class="num" data-page-node-id="blrBJgcmFDO0yBwWQ3tSEe">!</span>Troubleshooting</h2>
+    <ul data-page-node-id="HU0MF87Dl3E1wV12jxEAT1">
+      <li data-page-node-id="xDgqniSGJym0cEtvACd4OV"><strong data-page-node-id="fpbZ6NHLV0qFyNWFMg9CTE">Port busy</strong> → the server auto-tries 8001…8015. If all are busy, close other servers or set a fixed port with <code data-page-node-id="8XLKFB3mSznBEqjYOL3vHR">-Port</code>.</li>
+      <li data-page-node-id="QXyOlsBq5s7G18tFc3t3Lc"><strong data-page-node-id="iRAGY83mopbthGtUZlNf5W">Z: not mapped</strong> → map the network drive first, or pass <code data-page-node-id="xqcBUESVJwWJl1RJxskhEE">-Dst "real\path"</code> to the ps1.</li>
+      <li data-page-node-id="kGYe5bQUTtZqcciEt35GwH"><strong data-page-node-id="HIAkdwYsWBkfxyUVtYB1Pt">Browser shows an old page</strong> → press <strong data-page-node-id="Psc5CpWIhO1bxoyFyrrFxK">Ctrl+Shift+R</strong> (hard refresh) to bypass the cache.</li>
+      <li data-page-node-id="KwYTMGFiHLmiC2QYWnlV8V"><strong data-page-node-id="1he9KNvpyGoNBLjF8KWgxD">“No Python interpreter found”</strong> → use <code data-page-node-id="FWzjxDwdYrGFoAMNuJZAnF">run_action_log_ps.bat</code> instead.</li>
+      <li data-page-node-id="OlWDlJ940omjrgZEBptxgb"><strong data-page-node-id="h9cc1DXCrigwq6ECEQ5sxW">Server window closed</strong> → the app stops; re-run the launcher.</li>
+    </ul>
+  </section>
+
+  <section id="saving" data-page-node-id="ZSJiwdRaGZfQ46iF5cf8gm">
+    <h2 data-page-node-id="V6Ebt4jpjlknapN71HmlG2"><span class="num" data-page-node-id="42IJsSa3nC7BSwCWns2YnC">💾</span>Saving &amp; working folder <span style="font-size:14px;font-weight:500;color:var(--ink-3);" data-page-node-id="MMSeHRNQTO33Xi82QJ9Dfi">(read this before you lose work)</span></h2>
+    <p data-page-node-id="1Uew7wvnEFDFHD3WROXcoM">Action Log never auto-saves. You decide when to write your data to disk.</p>
+
+    <h3 data-page-node-id="gOSxFKUGtLSzh64jvwR5tU">Where the Save buttons are</h3>
+    <ul data-page-node-id="zhwKGTqHCCLyxXxWDWeW1h">
+      <li data-page-node-id="adjVoKuuYK9AKDKrJljkQn"><strong data-page-node-id="uKeVFO4GGAG3vQiHjRirH6">Save Actions</strong> — writes <code data-page-node-id="NPFMB3XCcKEe3adXM1XVXd">action.json</code> (the data). Disabled until you make a change.</li>
+      <li data-page-node-id="lgB9zKzMHYBjeKK2G7gBEV"><strong data-page-node-id="nh6cDjBsJ0YrHaqLNqRMRh">Save Settings</strong> — writes <code data-page-node-id="Aguj34xz0hc63rrz3ujdfI">setup.json</code> (the UI config). Disabled until you change a setting.</li>
+      <li data-page-node-id="Mn4UQ48b8g8DeEjynvv1aX">Both live in the <strong data-page-node-id="GhISbLTdErS9EmWXHhE8Cx">right panel (Quick Actions)</strong>. The top-bar <strong data-page-node-id="KuCtrvQ6BKuAgBs86ZiBEB">⋯</strong> menu no longer has Save buttons — use the right panel or the keyboard.</li>
+      <li data-page-node-id="yFrSSp5MF1pkOIo0ePH8up"><strong data-page-node-id="YjAkZnHRVCWEEmDaO7sbm4">Inline action editor</strong> — there is <strong data-page-node-id="Lpk37hrde9Vh8CzrWa8QHr">no Save button at the top of the editor</strong> either. As you edit a field inline, the change is held in memory and is written into the data automatically the moment you click <strong data-page-node-id="CHgzSimNSmzxxypGTMX4Z9">Save Actions</strong> / <strong data-page-node-id="tbzMzDwdLD3UxdcWW9XLA4">Save Settings</strong> or press <strong data-page-node-id="WqUmpGvILxXK3HL01Xck9v">Ctrl/Cmd+S</strong>. Switching to another action also keeps your edits (they are flushed before the switch). The only save controls are the right panel and the keyboard shortcuts above.</li>
+      <li data-page-node-id="WPLoBCzk2Tqs9IKu3SqFvr">Keyboard: <strong data-page-node-id="wHpGvJ0jC4XEGPaA3Yb47x">Ctrl/Cmd + S</strong> = Save Actions · <strong data-page-node-id="avJYID1FNg1nttd5IlyONt">Ctrl/Cmd + Shift + S</strong> = Save Settings.</li>
+      <li data-page-node-id="aLlin7Uwux9VRaImiVytgE"><strong data-page-node-id="vcFAfvOx2doNd6LTQLSiiB">While a save is running</strong> the Save buttons show a spinner and become briefly unclickable (to block a double save). You can keep editing during the save — a slow save (e.g. over a VPN-mapped drive) captures whatever you type <strong data-page-node-id="EX5CdVxMKTv1o1Gu2arKDH">up to the moment it finishes</strong>, so nothing typed mid-save is lost. The Save Actions button also stays enabled whenever you have an unsaved inline edit, so it never ends up “disabled while the status bar says unsaved”.</li>
+    </ul>
+
+    <h3 data-page-node-id="LCjDBiwFk9AjIadtzbIwJ2">The Working Folder (where files are written)</h3>
+    <ul data-page-node-id="2D4dE0Cvzffi2B1k73gY8j">
+      <li data-page-node-id="ZN34PRv0i04fxb1VsA8nwC">Click <strong data-page-node-id="GYA0bzMMxbV7FeByaKTHKA">Select Working Folder</strong> (right panel) or <strong data-page-node-id="Dj03c6RJIUEkAMEUAgAi03">Working folder…</strong> (⋯ menu). A popup shows the current folder and a <strong data-page-node-id="tgCMyfKHaUs8Z4ACfrzX6I">Choose folder…</strong> button.</li>
+      <li data-page-node-id="OTbFldZhAe9NKEIHhFXO3F">Setting the folder does <strong data-page-node-id="oM2o4XPtQqPgbp5S9hBfe1">not</strong> save anything — it only tells Save where to write.</li>
+      <li data-page-node-id="mADfDe98RDFnG66H0dImAj">You can pick <strong data-page-node-id="dK0sSy5BnSHTey0XWqOGx0">any drive</strong> (it is not locked to Z:). Use a different folder per project.</li>
+      <li data-page-node-id="eBKFccdXXGFDwtqKZjQllk">The folder is remembered by the browser (Chromium) between sessions.</li>
+      <li data-page-node-id="Z1CAxTgrggpNNdqjPRsnAH">The Working Folder popup also shows the <strong data-page-node-id="YNdRoMBdpY8tlfH8SH0Kt4">default deploy folder</strong> (<code data-page-node-id="DMooDRSMMbMzsSlB1lLgz4">Z:\7. Engineering\01-Eng Mgmt\01 Action Log</code> — the folder the launcher serves the app from). That line is a <strong data-page-node-id="wuMpPe3HrJFz0I6ljqG5Y8">read-only reference</strong> to help you match the status-bar folder name to the real on-disk location; it does <strong data-page-node-id="H4GevHAc87rpjBo225vRge">not</strong> take part in saving. You may choose any folder — the chosen working folder need not be that deploy folder.</li>
+      <li data-page-node-id="XBjtjXVdkxz2ULVjGAjB1A"><strong data-page-node-id="AeKO6MVCuXAWgz4xguz424">Click-to-copy:</strong> in that popup, click the deploy-path text or the <strong data-page-node-id="xpBkAonlQO3t5YmLGaP4s6">Copy</strong> button to copy the full path to your clipboard (a <code data-page-node-id="vS08DGoD6CCeaFTr8HqBTv">✓ Copied</code> label flashes and a toast confirms). On <code data-page-node-id="v8SGYLdrhgjjP5W7LBmd0s">file://</code> / Firefox the app falls back to a compatible copy method automatically.</li>
+      <li data-page-node-id="YpLBpYVleRsHLqFNXPqCSn"><strong data-page-node-id="aw9CUOl7bWBPmqLhtSpVHh">If you click Save without a folder set, the app opens this same popup for you</strong> — pick a folder to write directly, or close it to leave your edits in memory (no file is written and no silent download happens).</li>
+    </ul>
+
+    <h3 data-page-node-id="RJRlDJbUL1Q83Q5fCxSTGy">File links — display is cleaned automatically</h3>
+    <ul data-page-node-id="PEdp2BUyn9fZG8fMLdOWoc">
+      <li data-page-node-id="4QSD1VIuMBxOd2cMBsa1kj">When you paste a <code data-page-node-id="SSzJCqSk5bD5q8p1I53uHd">file:///</code> folder/file URL (or a Windows path like <code data-page-node-id="CTCpToIu2Jc28u0n5Oq6a9">Z:\…</code>) into the <strong data-page-node-id="gR2t0JwtALX1hVvICJe6WF">File links → Add link</strong> box, the link chip shows a <strong data-page-node-id="HyKhtRuIcfpOQT1pAkk1Ln">clean path</strong> — no <code data-page-node-id="4BYEdxXpCs2JAEn4xkbojo">file:///</code> prefix and no <code data-page-node-id="xoXEYyqfgfVyugjABGzSOk">%20</code> escapes (e.g. <code data-page-node-id="6WWXMfvytZm14IzxgXg5Po">Z:\7. Engineering\01-Eng Mgmt\03 Master List\01-PPP</code>). The link still opens the real file/folder on click; only the <em data-page-node-id="HyxzER068Dk1DvstOgqngv">display</em> is prettified. Web URLs keep showing their file name.</li>
+    </ul>
+
+    <h3 data-page-node-id="h34nOVcBQKthZNvm1AgQyv">Browser limits — why a status bar badge exists</h3>
+    <div class="tbl-wrap" data-page-node-id="rl9JcXG0USck59wl8umm0H">
+      <table data-page-node-id="ETAUBkZg0smU3XEFhqBsCZ">
+        <thead data-page-node-id="lb88vpriyJVVCt4usAtofu"><tr data-page-node-id="yx3kjzrlDPl5G3bfbM9ngW"><th data-page-node-id="ADRCWf6HrjHspDJGXOVfnd">Browser / mode</th><th data-page-node-id="JyBTKEDpF1UFyysrHnFudm">Working folder picker</th><th data-page-node-id="zPi4eBH1Yhu32pJHptDjlI">Save behaviour (folder already set)</th></tr></thead>
+        <tbody data-page-node-id="nz4sUNYp8Ev4dWWYTaSfEm">
+          <tr data-page-node-id="NU8LBoXFufK8g7uWeUisXy"><td data-page-node-id="sVfa7sMcjI717Q9tcIUeXd">Chromium (Edge/Chrome/Brave) over <code data-page-node-id="O0j2Eku3peyHt38N0beZ1U">http(s):</code> or <code data-page-node-id="0EcGr2Y01bdHhk19QrERU4">file://</code></td><td data-page-node-id="ENrqftDx5ANMWr1JMSzLxG">Yes</td><td data-page-node-id="mp2A3wvVJaif5flEUxuM2B">Writes <code data-page-node-id="fIvT3X9hrMLZbDJ6zR2iZu">action.json</code> / <code data-page-node-id="owAsWa0FhVubxPKwGWaEhs">setup.json</code> <strong data-page-node-id="SvG16kwmIWPecEkD3Mal5G">directly into the chosen folder</strong> — no re-prompt</td></tr>
+          <tr data-page-node-id="HMo7u6wtZjprapyKsZHkFj"><td data-page-node-id="2NwPwAf5YXRIrD8Ct0qn9L">Firefox</td><td data-page-node-id="JNw0JAmLjWBcI7KerIRauN">No</td><td data-page-node-id="ZGHQoFz810lUChe6VG9TYC"><strong data-page-node-id="qBnXfHzl9Fa7FLdCWoxsEh">Downloads</strong> the file — save it next to <code data-page-node-id="Bb6dQlgnBe5Nb2dNq2MwTA">index.html</code></td></tr>
+          <tr data-page-node-id="Gq1SJDj8oVaTkglJ0q3L5L"><td data-page-node-id="TkRttKRrSAbiIz2zVk5fYs"><code data-page-node-id="FSjPrK48WQ0Jwr5SAibeUa">file://</code> double-click (Chrome)</td><td data-page-node-id="eFW9ERvJolHASPciFqI5VD">No</td><td data-page-node-id="duKfRfC6xh1cSEuxwTXBDs"><strong data-page-node-id="BbYS3SRvmLcyWJhgfkTwPg">Downloads</strong> the file — save it next to <code data-page-node-id="hFSyyX5kerBIlbL87f7JNg">index.html</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p data-page-node-id="2tJVB0VKlp1Wv0yu1xgj35">If you use Chromium but have <strong data-page-node-id="2qf5iF5xCCOUaxnJqqdkhm">not yet set a working folder</strong>, Save does <strong data-page-node-id="InwEIXbAYvQk4v1eU4nx09">not</strong> write to disk — it opens the Working Folder popup (see above). Choose a folder and it writes directly; close the popup and nothing is saved (you get a toast, and the app never silently downloads behind your back).</p>
+
+    <h3 data-page-node-id="3YJBvw8xpmUgXjymVH0oU5">The capability badge (three states)</h3>
+    <div class="caps" data-page-node-id="JEYIQaPanc7gOaHJr7X36g">
+      <div class="cap" data-page-node-id="ZrfTetffTLFfGkfwK55p1s"><span class="badge ok" data-page-node-id="PlazE3MlkAMiKcTjYsv42m"><span class="dot g" data-page-node-id="O6M8lDJMyACR1tfUhArTeN"></span>✓ Direct write</span><span data-page-node-id="ZcIHLwITOwGojh4OPAGMgV">green — a working folder is set and Chromium can write straight to disk.</span></div>
+      <div class="cap" data-page-node-id="GNCzFmqfv18tiTjZbjeSzU"><span class="badge warn" data-page-node-id="VK3C5ok1zHhYXpvqk8qhlL"><span class="dot a" data-page-node-id="9aRGGCyVH56pXWUXT6KXG6"></span>⚠ Set folder</span><span data-page-node-id="Gqxcmc5yqUdOIjoofRarSj">amber — Chromium supports disk write but no folder is set yet; Save will prompt for one (or download if you skip).</span></div>
+      <div class="cap" data-page-node-id="zZUhKjAxLq6c0JbwCUVa4I"><span class="badge warn" data-page-node-id="OzNVWTLrFlg8yMbOjTMoOi"><span class="dot a" data-page-node-id="7vsRoKTUJpuXpHgTfg70R5"></span>⚠ Download-only</span><span data-page-node-id="DggzMlxPLQMHKDAjU3o5tX">amber — Firefox / <code data-page-node-id="L6z6MuUkwYj0PtaI8yO3XB">file://</code> can’t write to disk, so Save drops a file in your Downloads folder. Move it next to <code data-page-node-id="Eqp2ecQMjQIPLuzIdFSglf">index.html</code> so the app loads it next time.</span></div>
+    </div>
+
+    <div class="note" data-page-node-id="vTByNinSpN8t2fvL0QExlj">
+      <b data-page-node-id="HLWKbaoxgEF4P3hDLymXQM">Why only the folder <em data-page-node-id="Kbux7ObnxrLYa9hBg49G0a">name</em> shows, not the full path:</b> browsers refuse to reveal the real OS path of a chosen folder (security). The status bar shows the folder name plus the file name and the last save time. That is all the browser exposes.
+    </div>
+
+    <h3 data-page-node-id="jI3UF7e1PVrP1SRUWuDBk2">The status bar (bottom of the screen) tells you at a glance</h3>
+    <ul data-page-node-id="I5vhBYuJuVhmLUrAi3WGGH">
+      <li data-page-node-id="g36ugfPsyeIg0KhpCUeNRq"><strong data-page-node-id="yXMXdVXBmOXNQPZJHO4xS4">Source dot</strong> — amber <span class="badge warn" data-page-node-id="xuHVGNL44PIK8QOJkkYjqq"><span class="dot a" data-page-node-id="cZiUTZRztEZx27V3hXuUAE"></span>●</span> means you have <strong data-page-node-id="ZiU5tlDHqWjlGmdQ1FxUQu">unsaved changes</strong>; green/blue/grey means the loaded source.</li>
+      <li data-page-node-id="ZSGZLCyLPlJ98rBqNEWZK3"><strong data-page-node-id="sYzlZfxDcRkb99B04MbsLl">📁 folder name</strong> — the current working folder, or <em data-page-node-id="zbIwERnInxXD2BQr0kEC2Y">Not set</em>.</li>
+      <li data-page-node-id="CRiGAbFFKmVnKBJRV2y2WC"><strong data-page-node-id="G3eDz1iQP5VopuhY6H0mwQ">Saved YYYY-MM-DD HH:MM:SS</strong> (green) — last successful write <strong data-page-node-id="45OGkfrASglFuAV8zxFw4U">to disk</strong>; <strong data-page-node-id="MhV4MGdSz92WwD8CTX6PFd">Downloaded YYYY-MM-DD HH:MM:SS</strong> (amber) — last save fell back to a downloaded file (no working folder, or the disk write failed). On a fresh open with a file already loaded the bar shows <strong data-page-node-id="5sApA4zCAf3oETphtnEhjj">Loaded</strong> (green), meaning it matches disk; <strong data-page-node-id="CBJEu73T5SPs0KqNTxBGCm">Not saved yet</strong> only appears when nothing was ever loaded.</li>
+      <li data-page-node-id="sgtExQBXsaSTrJcKdfnAVo"><strong data-page-node-id="TYE0enCVI2RanCu884LAWi">● unsaved</strong> — appears whenever there are changes to save.</li>
+      <li data-page-node-id="jTA9snFUC0oYs9GBOhUMk6"><strong data-page-node-id="a0fIENaVCTOYf8LG9oWF8S">Saving…</strong> (blue, with a spinner) — a save is in progress; the four Save buttons also spin and are briefly unclickable.</li>
+    </ul>
+
+    <h3 data-page-node-id="0xnaIjd0jpwxUHzE08mKAs">Switching panels with unsaved changes</h3>
+    <p data-page-node-id="vHEwQacxQU1Q0qTTMwcnbe">If you try to switch perspective (e.g. Actions → Reports) or open Settings while there are unsaved changes, a message pops up: <em data-page-node-id="1liXUQ6x3T2z3MT59qUVae">“You have unsaved changes. Save before switching to another panel.”</em> Click <strong data-page-node-id="hDCSwjaqQVT7E38D5ZYp2D">OK</strong> to stay, then use Save. There is no auto-save.</p>
+  </section>
+
+  <section id="data" data-page-node-id="7y6g9WdshnQHbubtyn1eed">
+    <h2 data-page-node-id="yMyQxLsk9kUtOhDyhBFYc8"><span class="num" data-page-node-id="qQS8coZUvwYPObhxnGgsib">⛁</span>Notes on data</h2>
+    <ul data-page-node-id="a2WDEBH8DbCJGixKQJVJE8">
+      <li data-page-node-id="6qknURig93BwvrcIGiQDh7"><code data-page-node-id="D7PhwgBuW8EwSJPJL1Dl5i">action.json</code> / <code data-page-node-id="oS9TIMfdnxgy6TVQx6Rsv0">setup.json</code> are <strong data-page-node-id="uA8AwJNwsOSbImdXjcdkRU">NOT</strong> copied by the launchers. They hold your live data and UI config and are git-ignored. They live in whatever folder the app runs from (Z: for the team).</li>
+      <li data-page-node-id="l7qdS6HNjwyNFyo4BNV6Eu">The dev folder ships with <strong data-page-node-id="6pXVy61sXuCXOhzc7npFV1">embedded seed data</strong>, so the app works even before any <code data-page-node-id="BoZNyZGQ4vaEB9m6FJC4D4">action.json</code> exists.</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer data-page-node-id="ptvEZNxo2DDQqjD4Ih7gBb">
+  <div class="files" data-page-node-id="evZP5mRvcGzdLHKTB6B1Tx">
+    <strong data-page-node-id="CqdHcf5PqRUwA6iN2EJfOn">Files involved:</strong> <code data-page-node-id="O3Fg4AZeRqfT7hZLhfYnLM">run_action_log.bat</code> (Python launcher), <code data-page-node-id="sdY1NTlqHsdvDlDTQiepqP">run_action_log_ps.bat</code> (PowerShell launcher stub), <code data-page-node-id="OasFN4kribASMY5rfwPCB4">run_action_log.ps1</code> (PowerShell server). All three are copied to Z: automatically during deploy.
+  </div>
+</footer>
+
+</body>
+</html>

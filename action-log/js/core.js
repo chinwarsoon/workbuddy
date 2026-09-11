@@ -30,6 +30,7 @@
     dataDirty: false,
     setupDirty: false,
     lastSavedAt: '',   // most recent successful Save time (actions or settings), shown in status bar
+    lastSavedVia: '',  // how the last save happened: '' (none) | 'disk' (wrote to working folder) | 'download' (browser download)
     customFields: [],
     actionTypes: [],
     // UI settings — loaded from setup.json; falls back to these built-in defaults.
@@ -488,8 +489,14 @@
       if(dirty && was!=='1') flashBtn(b);
       b.dataset.d = dirty?'1':'0';
     };
-    setBtn('tbSaveActions', state.dataDirty);
-    setBtn('rpSaveActions', state.dataDirty);
+    // Save Actions must stay clickable whenever EITHER dirty flag is true.
+    // edDirty (pending inline ae-log edits not yet committed to the action object)
+    // implies dataDirty by construction, but a slow in-flight save clears dataDirty
+    // in its finally-block while edDirty can still be true — so gating on dataDirty
+    // alone would leave the button disabled while the status bar screams "unsaved".
+    // OR-ing edDirty removes that inconsistent state and the silent-loss path. (ISS-90 #1)
+    setBtn('tbSaveActions', state.dataDirty || edDirty);
+    setBtn('rpSaveActions', state.dataDirty || edDirty);
     setBtn('tbSaveSettings', state.setupDirty);
     setBtn('rpSaveSettings', state.setupDirty);
     syncTopbarUnsaved();
@@ -614,23 +621,29 @@
   }
   // Working-folder popup (decision 3/9): shows the current folder, lets the user choose a
   // new one (any drive), and notes that choosing it does NOT save anything.
+  // Returns a Promise resolving `true` once a working folder is set (by the time the popup
+  // closes) and `false` otherwise — so Save can await it and only write when ready (this
+  // fixes the "Save silently downloaded / hijacked the folder picker" problem, ISS-89/B).
   function openWfPop(){
-    const pop=$('wfPop'); if(!pop) return;
+    const pop=$('wfPop'); if(!pop) return Promise.resolve(false);
     const body=$('wfPopBody');
     if(body){
       body.innerHTML =
         '<div class="wf-current"><span class="wf-k">Current folder</span><span class="wf-v">'+(dataDirHandle?esc(dataDirHandle.name):'Not set')+'</span></div>'+
         '<p class="form-hint">Sets the folder where <b>Save Actions</b> / <b>Save Settings</b> write <code>action.json</code> / <code>setup.json</code>. This does not save anything — use Save to write the files. You can switch drives any time (it is not tied to Z:).</p>'+
         '<p class="wf-deploy-hint"><b>Default deploy folder:</b> <code id="wfDeployPath" class="wf-path" title="Click to copy">'+esc(DEPLOY_PATH)+'</code> <button class="wf-copy" id="wfCopyPath" type="button">Copy</button><span class="wf-copy-ok" id="wfCopyOk" style="display:none">✓ Copied</span> — the launcher serves the app from here. Save writes to the working folder you choose above, which can be a different drive.</p>'+
+        '<p class="wf-perm-hint">ⓘ After you pick a folder, your browser (e.g. Edge) will ask <b>“Allow this site to save changes to &lt;folder&gt;?”</b> — this is a one-time <b>browser</b> permission, rendered by the browser (not a separate app window). Click <b>Allow</b> so Save can write the file directly. Declining it sends that save to a download instead.</p>'+
         '<button class="btn primary" id="wfChoose">Choose folder…</button>';
       const ch=$('wfChoose');
       if(ch) ch.onclick = async () => {
-        await setDataFolder(false);
-        if(dataDirHandle){
+        const ok = await setDataFolder(false);
+        if(ok && dataDirHandle){
           const v=body.querySelector('.wf-v'); if(v) v.textContent=dataDirHandle.name;
           toast('Working folder set: '+dataDirHandle.name);
           closeModalBox('wfPop'); updateStatusbar();
         }
+        // If the user cancels the system picker (AbortError), the popup stays open so they
+        // can retry or close it — no silent download, no lost state.
       };
       const copyPath = () => {
         copyText(DEPLOY_PATH).then(ok=>{
@@ -641,5 +654,14 @@
       const cp=$('wfCopyPath'); if(cp) cp.onclick=copyPath;
       const code=$('wfDeployPath'); if(code) code.onclick=copyPath;
     }
-    openModalBox('wfPop');
+    // Resolve the pending await when the popup closes for ANY reason (Choose, Done, X, or
+    // backdrop) — reporting whether a folder ended up set. A MutationObserver is robust to
+    // every close path, so Save never hangs waiting on the promise.
+    return new Promise(res=>{
+      const obs = new MutationObserver(()=>{
+        if(!pop.classList.contains('open')){ obs.disconnect(); res(!!dataDirHandle); }
+      });
+      obs.observe(pop, { attributes:true, attributeFilter:['class'] });
+      openModalBox('wfPop');
+    });
   }
