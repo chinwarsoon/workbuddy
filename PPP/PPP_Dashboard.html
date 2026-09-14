@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" data-page-node-id="m7zLpyDDyWxK8i31UG4Y2F">
+<head data-page-node-id="AKUQiwBPqt8MfxoeQiSdqv">
+<meta charset="UTF-8" data-page-node-id="nbNqrh0EShSD0bTGZxAUCo" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="pZ1LdVAy0hpCQ8iUh5pEAg" />
+<title>Procurement Package Plan — Dashboard</title>
+<style>
+  :root{
+    --bg:#F5F5F7; --card:#FFFFFF; --ink:#1D1D1F; --muted:#6E6E73;
+    --line:#E3E3E6; --accent:#0066CC; --accent-soft:#E8F1FD;
+    --good:#34C759; --warn:#FF9F0A; --bad:#FF3B30; --idle:#C7C7CC;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 6px 18px rgba(0,0,0,.05);
+    --radius:18px;
+    font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);line-height:1.45;padding:28px 20px 60px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto}
+  header{margin-bottom:22px}
+  header h1{font-size:26px;font-weight:700;letter-spacing:-.02em}
+  header p{color:var(--muted);font-size:14px;margin-top:4px}
+
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:26px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 14px;box-shadow:var(--shadow)}
+  .kpi .v{font-size:27px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+  .kpi .l{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.3}
+  .kpi .s{font-size:11px;margin-top:6px;font-weight:600}
+  .s-good{color:var(--good)} .s-warn{color:var(--warn)} .s-bad{color:var(--bad)} .s-idle{color:var(--muted)}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow)}
+  .card h2{font-size:15px;font-weight:700;margin-bottom:4px}
+  .card .sub{font-size:12px;color:var(--muted);margin-bottom:14px}
+  .full{grid-column:1 / -1}
+
+  .row{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px}
+  .row .name{width:230px;flex:none;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .track{flex:1;background:var(--accent-soft);border-radius:6px;height:16px;overflow:hidden}
+  .row .bar{height:100%;background:linear-gradient(90deg,#0066CC,#4DA3FF);border-radius:6px}
+  .row .num{width:64px;flex:none;text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:12px}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+
+  .flag{background:#FFF6E5;border:1px solid #FFE2A8;border-radius:12px;padding:14px 16px;font-size:13px;color:#7A5A00}
+  .flag b{color:#8A5A00}
+
+  .note{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:10px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+  footer{margin-top:30px;font-size:11.5px;color:var(--muted);text-align:center}
+  @media(max-width:840px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr}.row .name{width:150px}}
+</style>
+</head>
+<body data-page-node-id="HWFNA641um9mOIpqetk1Yg">
+<div class="wrap" data-page-node-id="XZR3wX6dkZXnDZuLHgoTZp">
+  <header data-page-node-id="p6DtX41B5NQNGger7EVxUD">
+    <h1 data-page-node-id="pxXFVE7bMEPcal8JBSeuXV">Procurement Package Plan — Dashboard</h1>
+    <p data-page-node-id="oX0jwkS1rocMrpd9ami7hf">TWRP C3B2 · 121 packages · generated from worksheet <b data-page-node-id="3CwF66jdvoyEEtT3dbzZz7">PPP</b> · companion view to the in-workbook Dashboard</p>
+  </header>
+
+  <div class="kpis" id="kpis" data-page-node-id="KO9jBvUbF67Mna8bhtDZGm"></div>
+
+  <div class="grid" data-page-node-id="IHV8BksQLcH9A3OkLTM6Ut">
+    <div class="card" data-page-node-id="klwFVQL0yrYbBHp2XngEpY">
+      <h2 data-page-node-id="ZzpwGStaHG2NhypFT8IrVr">Package Status</h2>
+      <div class="sub" data-page-node-id="DUnXNfmSFTgkDe6z9xYKdW">Distribution across the procurement workflow</div>
+      <div id="status" data-page-node-id="TMZ6b3TYPhQwruguWHYF4D"></div>
+    </div>
+    <div class="card" data-page-node-id="iD5cNrHjBFBjg4C7YoAIoQ">
+      <h2 data-page-node-id="Ebrn3GOidGckI33fuadAto">Discipline</h2>
+      <div class="sub" data-page-node-id="t5lcy3xZEXYoZEa0zGKqGZ">Package count by engineering discipline</div>
+      <div id="discipline" data-page-node-id="CIDFdeWA89i0VnrdfYRTCt"></div>
+    </div>
+  </div>
+
+  <div class="grid" data-page-node-id="tIRp3j9LNG9U7nvSeKLMrH">
+    <div class="card" data-page-node-id="Q6WL7EE9NFq9x7TELQX7xr">
+      <h2 data-page-node-id="8daVJSV8cs4FvRR6U262mZ">Engineer Workload</h2>
+      <div class="sub" data-page-node-id="Am1DbZvuL67X9I3yksOwsb">Packages per responsible engineer (column N)</div>
+      <div id="engineer" data-page-node-id="3fHRdo78bQqD758XmWDEGk"></div>
+      <div class="note" data-page-node-id="ajSqxGi9gVMsM7ehFq1SNj">⚠ Names are inconsistent (e.g. "Dilip/Siva" vs "Dilip / Siva" counted separately). Standardise to a pick-list to get true per-engineer load.</div>
+    </div>
+    <div class="card" data-page-node-id="ePGyISM995mJDhNSABWKlN">
+      <h2 data-page-node-id="EOztCoYUMlQ6h4AfCvPyYz">Criticality (Inspection Level)</h2>
+      <div class="sub" data-page-node-id="3H3CFGzJTTU8wjZZdC6V8h">Column I — 1 Factory QC · 2 TPI · 3 Witness · 4 FAT record</div>
+      <div id="criticality" data-page-node-id="2IAkrEPHQ5Zyi8Bc8hoh6F"></div>
+      <div class="note" data-page-node-id="MhnBuju77MzC3bcZlmmka4">All 121 packages have no criticality assigned → inspection-planning view is empty. Populate to unlock.</div>
+    </div>
+  </div>
+
+  <div class="grid" data-page-node-id="Ett4NfZFL2HHroUURfE0Qs">
+    <div class="card" data-page-node-id="tdBF5nhfqZpduaJ3r131JE">
+      <h2 data-page-node-id="ilNN0s3cxtjsHeulKjbnoQ">Lead Time Estimate</h2>
+      <div class="sub" data-page-node-id="oTrJhITFNo2L4mSwHRURaq">Column K — only 16 of 121 packages have an estimate</div>
+      <div id="leadtime" data-page-node-id="M727Fvge5tY6BP3HFvSagF"></div>
+      <div class="note" data-page-node-id="klp510uCJDkZwJhEMmpdAj">Average of estimated packages ≈ 156 days (22.3 weeks). Without estimates on 105 packages, schedule risk is unquantified.</div>
+    </div>
+    <div class="card" data-page-node-id="J2eEJaz8CLHhseHaJjJvai">
+      <h2 data-page-node-id="4DyMOozYEkd42dMv9jK4vZ">Stage Plan Coverage</h2>
+      <div class="sub" data-page-node-id="tG7Sij8mOOVyJE6DuNpS2z">Planned dates present per milestone (Actual = 0/121)</div>
+      <div id="stage" data-page-node-id="t3G36cSfeghxudJIvwFOzU"></div>
+      <div class="note" data-page-node-id="sRYLnT3BFYsiPa1HsssUAh">MR Plan exists for only 17 packages while PO/VD/FAT/ROS show 82 — likely back-filled downstream. Actual dates are all empty, so execution progress = 0.</div>
+    </div>
+  </div>
+
+  <div class="card full" data-page-node-id="n5ZsSleLT5JZwLdCWZTYDL">
+    <h2 data-page-node-id="z3bgQGYuoCyC0eRKl0P1YW">Lead Time Benchmark — 2026 Industry</h2>
+    <div class="sub" data-page-node-id="JqRhaDremCLbitLG6IeDHX">External reference for the estimated packages (confirm with vendor at quotation)</div>
+    <table id="benchmark" data-page-node-id="7S6enzHthjQ7QkmGQCUt9T">
+      <thead data-page-node-id="gSzY74HKL6GfXMMqFIg18s"><tr data-page-node-id="7faEXzXXctrQzBXZDhQRxn"><th data-page-node-id="cJzhEUS2meN2qPR6gFDduM">Equipment Category</th><th class="num" data-page-node-id="i5JrroRLtB5tqUeQhiKIa8">Typical Lead Time</th><th class="num" data-page-node-id="AbBERzh9UXA9GJFAVjmiUO">≈ Days</th></tr></thead>
+      <tbody data-page-node-id="0KkkwxHCbNPTMnJVWGaz80"></tbody>
+    </table>
+    <div class="note" data-page-node-id="MrnIpdjyVs4aGBKaVSWCCj">Sources: BuildVision, ConstructionPlacements, iRecruit (2026). Use as a sanity check against the 156-day average above.</div>
+  </div>
+
+  <div class="flag full" style="margin-top:18px" data-page-node-id="Hfouu5evesnfDcSVkFbIrk">
+    <b data-page-node-id="ADyLBDJPTu6L02KDsqet7x">DATA-QUALITY FLAGS:</b> Actual-date columns (MR/PO/VD/FAT/ROS) 0/121 → stage progress = 0 · Criticality 0/121 · Engineer 28/121 unassigned · Lead Time 105/121 blank · Engineer naming inconsistent · MR Plan only 17/121 while downstream 82/121 (possible back-fill). Populate these fields to unlock the full dashboard value.
+  </div>
+
+  <footer data-page-node-id="gjMtlKaGGCwEE1TANLxkaM">本内容由 AI 生成，请核实后使用 · Dashboard generated from TWRP C3B2 - Procurement Package Plan.xlsx</footer>
+</div>
+
+<script>
+const DATA = {
+  total:121,
+  statusCount:{"(blank)":29,"Requisition in Progress":40,"Not Start":24,"Pending Vendor Approval":25,"PO Issued, Prepare Vendor Data Submission":3},
+  discCount:{"Design Management":6,"Project Management":6,"Civil":1,"Structural":1,"Mechanical":24,"Process":1,"Piping":25,"Electrical":4,"Instrument, Control & Automation (ICA)":48,"Building Services":5},
+  engCount:{"(blank)":28,"Kenny":1,"Ricarte":49,"Wang Yiqian":4,"Wu Hongqing":6,"Fadhli":25,"Kenny / Franklin":1,"Dilip / Siva":1,"Dilip/Siva":6},
+  critCount:{1:0,2:0,3:0,4:0,blank:121},
+  lt:{with:16,blank:105,avg:156.25,buckets:{le90:8,b91_180:6,b181_270:0,gt270:2}},
+  stage:{MR:17,PO:82,VD:82,FAT:82,ROS:82},
+  stageActual:{MR:0,PO:0,VD:0,FAT:0,ROS:0}
+};
+
+const T = DATA.total;
+const startedPct = Math.round((T - DATA.statusCount["Not Start"] - DATA.statusCount["(blank)"]) / T * 100);
+const deliveredPct = 0; // no Delivered / Receive Inspection Done
+const notStarted = DATA.statusCount["Not Start"] + DATA.statusCount["(blank)"];
+const engAssigned = T - DATA.engCount["(blank)"];
+const ltCov = Math.round(DATA.lt.with / T * 100);
+
+const kpis = [
+  {v:T, l:"Total Packages", s:"", c:""},
+  {v:startedPct+"%", l:"Started (status set & ≠ Not Start)", s:startedPct>=60?"on track":startedPct>=40?"watch":"behind", c:startedPct>=60?"s-good":startedPct>=40?"s-warn":"s-bad"},
+  {v:deliveredPct+"%", l:"Delivered / Receive-Inspection", s:"none yet", c:"s-bad"},
+  {v:notStarted, l:"Not Started / blank", s:Math.round(notStarted/T*100)+"% of total", c:"s-warn"},
+  {v:DATA.lt.with+"/"+T, l:"Lead-time estimated", s:ltCov+"% coverage", c:ltCov>=50?"s-good":"s-bad"},
+  {v:engAssigned+"/"+T, l:"Engineer assigned", s:Math.round(engAssigned/T*100)+"% covered", c:"s-good"}
+];
+document.getElementById("kpis").innerHTML = kpis.map(k=>
+  `<div class="kpi"><div class="v">${k.v}</div><div class="l">${k.l}</div>${k.s?`<div class="s ${k.c}">${k.s}</div>`:""}</div>`
+).join("");
+
+function bars(elId, obj, opts={}){
+  const entries = Object.entries(obj).filter(([k])=> opts.keepBlank || k!=="(blank)");
+  const max = Math.max(...entries.map(([,v])=>v),1);
+  const order = opts.order || null;
+  let list = entries;
+  if(order){ list = order.filter(k=>obj[k]!=null).map(k=>[k,obj[k]]); }
+  document.getElementById(elId).innerHTML = list.map(([k,v])=>{
+    const pct = Math.round(v/max*100);
+    const label = opts.label && opts.label[k] ? opts.label[k] : k;
+    return `<div class="row"><div class="name" title="${label}">${label}</div><div class="track"><div class="bar" style="width:${pct}%"></div></div><div class="num">${v}</div></div>`;
+  }).join("");
+}
+
+const statusOrder = ["Not Start","Requisition in Progress","Pending Vendor Approval","PO Issued, Prepare Vendor Data Submission","(blank)"];
+const statusLabel = {"Not Start":"Not Start","Requisition in Progress":"Requisition in Progress","Pending Vendor Approval":"Pending Vendor Approval","PO Issued, Prepare Vendor Data Submission":"PO Issued","(blank)":"Not Specified (blank)"};
+bars("status", DATA.statusCount, {order:statusOrder, label:statusLabel});
+
+bars("discipline", DATA.discCount, {order:Object.keys(DATA.discCount).sort((a,b)=>DATA.discCount[b]-DATA.discCount[a])});
+
+const engLabel = Object.fromEntries(Object.keys(DATA.engCount).map(k=>[k,k==="(blank)"?"Unassigned (blank)":k]));
+bars("engineer", DATA.engCount, {order:Object.keys(DATA.engCount).sort((a,b)=>DATA.engCount[b]-DATA.engCount[a]), label:engLabel});
+
+// Criticality
+document.getElementById("criticality").innerHTML =
+  `<div class="row"><div class="name">1 — Factory In-house QC</div><div class="track"><div class="bar" style="width:0%"></div></div><div class="num">0</div></div>`+
+  `<div class="row"><div class="name">2 — Third Party Inspection</div><div class="track"><div class="bar" style="width:0%"></div></div><div class="num">0</div></div>`+
+  `<div class="row"><div class="name">3 — Witness Point</div><div class="track"><div class="bar" style="width:0%"></div></div><div class="num">0</div></div>`+
+  `<div class="row"><div class="name">4 — FAT Record Submission</div><div class="track"><div class="bar" style="width:0%"></div></div><div class="num">0</div></div>`+
+  `<div class="row"><div class="name" style="color:var(--muted)">Not Specified (blank)</div><div class="track"><div class="bar" style="width:100%;background:linear-gradient(90deg,#C7C7CC,#E3E3E6)"></div></div><div class="num">121</div></div>`;
+
+// Lead time
+const b = DATA.lt.buckets;
+const ltBars = [
+  ["≤ 90 days", b.le90],
+  ["91 – 180 days", b.b91_180],
+  ["181 – 270 days", b.b181_270],
+  ["> 270 days", b.gt270]
+];
+document.getElementById("leadtime").innerHTML =
+  `<div class="row"><div class="name">Estimated</div><div class="track"><div class="bar" style="width:${Math.round(DATA.lt.with/T*100)}%"></div></div><div class="num">${DATA.lt.with}</div></div>`+
+  `<div class="row"><div class="name" style="color:var(--muted)">Not estimated</div><div class="track"><div class="bar" style="width:${100-Math.round(DATA.lt.with/T*100)}%;background:linear-gradient(90deg,#C7C7CC,#E3E3E6)"></div></div><div class="num">${DATA.lt.blank}</div></div>`+
+  `<div class="note" style="margin:12px 0 4px">Avg of estimated: <b>${DATA.lt.avg} days</b> (${Math.round(DATA.lt.avg/7*10)/10} weeks)</div>`+
+  ltBars.map(([k,v])=>`<div class="row"><div class="name">${k}</div><div class="track"><div class="bar" style="width:${Math.round(v/Math.max(...ltBars.map(x=>x[1]),1)*100)}%"></div></div><div class="num">${v}</div></div>`).join("");
+
+// Stage coverage
+const stageOrder = ["MR","PO","VD","FAT","ROS"];
+document.getElementById("stage").innerHTML = stageOrder.map(s=>{
+  const p = DATA.stage[s]; const a = DATA.stageActual[s];
+  const pPct = Math.round(p/T*100);
+  return `<div class="row"><div class="name">${s} — Plan</div><div class="track"><div class="bar" style="width:${pPct}%"></div></div><div class="num">${p}</div></div>`+
+         `<div class="row"><div class="name" style="color:var(--muted)">${s} — Actual</div><div class="track"><div class="bar" style="width:0%;background:linear-gradient(90deg,#C7C7CC,#E3E3E6)"></div></div><div class="num">${a}</div></div>`;
+}).join("");
+
+// Benchmark table
+const bench = [
+  ["Power transformer","36–78 weeks","252–546"],
+  ["MV/HV switchgear","20–40 weeks","140–280"],
+  ["Generator (std)","12–20 weeks","84–140"],
+  ["Chiller","16–24 weeks","112–168"],
+  ["Pump (std)","8–14 weeks","56–98"],
+  ["Cooling tower","12–20 weeks","84–140"],
+  ["Air handling unit","12–18 weeks","84–126"],
+  ["Motor control center","26–40 weeks","182–280"],
+  ["SCADA / PLC","20–30 weeks","140–210"],
+  ["Structural steel","16–36 weeks","112–252"],
+  ["Elevator / escalator","24–40 weeks","168–280"],
+  ["Fire & life-safety","16–30 weeks","112–210"]
+];
+document.querySelector("#benchmark tbody").innerHTML = bench.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td></tr>`).join("");
+</script>
+</body>
+</html>
