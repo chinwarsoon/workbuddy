@@ -1,16 +1,25 @@
 <!DOCTYPE html>
-<html lang="en" data-page-node-id="EDG8rZx76Eg7Dn1FNA3QM5">
-<head data-page-node-id="nHVgPgbyD7rVcpfl8vqu54">
-<meta charset="UTF-8" data-page-node-id="sCZG2gMCslGg4GCkZEA3qe" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="WtsEmka3ODf4DMYkywXGm5" />
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Procurement Package Plan — Dashboard</title>
 <style>
   :root{
     --bg:#F5F5F7; --card:#FFFFFF; --ink:#1D1D1F; --muted:#6E6E73;
     --line:#E3E3E6; --accent:#0066CC; --accent2:#34C759; --warn:#FF9F0A; --bad:#FF3B30;
     --soft:#E8F1FD; --shadow:0 1px 2px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.05);
-    --radius:18px; --radius-sm:12px;
+    --radius:18px;
     --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    /* semantic tokens added in Wave 2 (I-34): the hardcoded hex used across
+       the validation panel, flags, charts and SVG builders now live in one place */
+    --warn-bg:#FFF6E5; --warn-border:#FFE2A8; --warn-fg:#7A5A00; --warn-fg-strong:#8A5A00;
+    --error-bg:#FFECEA; --error-fg:#A32D2D;
+    --ok-bg:#E6F7EC; --ok-fg:#1E7F3C;
+    --chart-grey:#C7C7CC;
+    --accent-dark:#004999; --good-dark:#1A7F3C; --accent-grad-end:#4DA3FF;
+    --accent-soft-border:#CFE3FA; --accent-ink:#0A4E8F;
+    --grid:#F0F0F2;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -20,7 +29,7 @@
   /* ---------- Welcome ---------- */
   #welcome{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
   .wcard{background:var(--card);border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow);padding:46px 44px;text-align:center;max-width:480px;width:100%}
-  .wicon{width:84px;height:84px;border-radius:22px;margin:0 auto 22px;background:linear-gradient(135deg,#0066CC,#4DA3FF);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(0,102,204,.32)}
+  .wicon{width:84px;height:84px;border-radius:22px;margin:0 auto 22px;background:linear-gradient(135deg,var(--accent),var(--accent-grad-end));display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(0,102,204,.32)}
   .wicon svg{width:44px;height:44px;fill:#fff}
   .wcard h1{font-size:25px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
   .wcard p{color:var(--muted);font-size:14px;margin-bottom:26px}
@@ -28,6 +37,8 @@
   .drop.hover{border-color:var(--accent);background:var(--soft)}
   .drop .big{font-weight:600;font-size:14px;margin-bottom:4px}
   .drop .small{font-size:12px;color:var(--muted)}
+  .expect{background:var(--soft);border:1px solid var(--accent-soft-border);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--accent-ink);margin-bottom:20px;text-align:left}
+  .expect b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#0066CC;margin-bottom:3px}
   .btn{display:inline-block;background:var(--accent);color:#fff;font:inherit;font-weight:600;font-size:14px;padding:12px 22px;border:none;border-radius:13px;cursor:pointer;transition:.15s}
   .btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
   .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
@@ -37,169 +48,303 @@
   /* ---------- Top bar ---------- */
   header.bar{position:sticky;top:0;z-index:30;background:rgba(245,245,247,.82);backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px);border-bottom:1px solid var(--line)}
   header.bar .inner{max-width:1120px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:12px}
-  header.bar .ttl{font-weight:700;font-size:16px;letter-spacing:-.01em;flex:1;white-space:nowrap;overflow:hidden;text-ellipsis}
+  header.bar .ttl{font-weight:700;font-size:16px;letter-spacing:-.01em;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   header.bar .meta{font-size:12px;color:var(--muted)}
+  .tf-wrap{position:relative;flex-shrink:0}
+  .tf-btn{font:inherit;font-size:12px;font-weight:600;padding:6px 12px;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:.15s}
+  .tf-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .tf-btn.active{border-color:var(--accent);color:var(--accent);background:var(--soft)}
+  .tf-btn svg{width:12px;height:12px;fill:currentColor;flex-shrink:0}
+  .tf-panel{display:none;position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,.12);padding:8px 0;min-width:220px;max-width:min(340px,90vw);max-height:320px;overflow-y:auto;z-index:40}
+  .tf-panel.open{display:block}
+  .tf-panel label{display:flex;align-items:center;gap:9px;padding:7px 14px;font-size:13px;cursor:pointer;transition:.1s}
+  .tf-panel label:hover{background:var(--soft)}
+  .tf-panel label input{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0}
+  .tf-divider{height:1px;background:var(--line);margin:4px 0}
 
   /* ---------- Layout ---------- */
   .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin:22px 0 24px}
-  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px;box-shadow:var(--shadow)}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
   .kpi .v{font-size:27px;font-weight:700;letter-spacing:-.02em;line-height:1.05}
   .kpi .l{font-size:11.5px;color:var(--muted);margin-top:7px;line-height:1.3}
   .kpi .s{font-size:11px;margin-top:7px;font-weight:600}
   .s-good{color:var(--accent2)} .s-warn{color:var(--warn)} .s-bad{color:var(--bad)}
 
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow)}
-  .card.full{grid-column:1 / -1}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);margin-bottom:18px}
+  .grid .card{margin-bottom:0}
+  .grid .card.full{grid-column:1 / -1}
   .card h2{font-size:15.5px;font-weight:700;letter-spacing:-.01em}
   .card .sub{font-size:12.5px;color:var(--muted);margin:3px 0 14px}
-  .ctool{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .ctool{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+  .vmap-note{margin:8px 0 0}
+  .ctool-footer{margin-top:12px;margin-bottom:0}
   .ctool button{font:inherit;font-size:12px;font-weight:600;padding:6px 12px;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--accent);cursor:pointer;transition:.15s}
   .ctool button:hover{background:var(--soft);border-color:var(--accent)}
   .chartwrap{width:100%;overflow-x:auto}
 
-  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
-  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
-  th{color:var(--muted);font-weight:600;font-size:12px}
-  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
-  tr.over td{background:#FFF6E5}
+  /* ---------- segmented bar/pie toggle ---------- */
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff}
+  .seg button{font:inherit;font-size:12px;font-weight:600;padding:6px 13px;border:none;border-radius:0;background:#fff;color:var(--muted);cursor:pointer}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button.on{background:var(--accent);color:#fff}
 
-  .flag{background:#FFF6E5;border:1px solid #FFE2A8;border-radius:12px;padding:13px 15px;font-size:13px;color:#7A5A00;margin-top:8px}
-  .flag b{color:#8A5A00}
+  /* tables are scoped to .ds-table so the design-system styles never leak onto
+     unrelated markup; grid `gap` owns card spacing (I-38) */
+  .ds-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+  .ds-table th,.ds-table td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+  .ds-table th{color:var(--muted);font-weight:600;font-size:12px}
+  .ds-table td.num,.ds-table th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .ds-table tr.over td{background:var(--warn-bg)}
+
+  .flag{background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:12px;padding:13px 15px;font-size:13px;color:var(--warn-fg);margin-top:8px}
+  .flag b{color:var(--warn-fg-strong)}
   .note{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5}
   .empty{font-size:13px;color:var(--muted);padding:14px 0}
   footer{margin-top:34px;font-size:11.5px;color:var(--muted);text-align:center}
 
+  /* ---------- validation panel ---------- */
+  .vchips{display:flex;gap:10px;flex-wrap:wrap;margin:2px 0 6px}
+  .vchip{font-size:12px;font-weight:600;padding:5px 12px;border-radius:999px}
+  .vchip.e{background:var(--error-bg);color:var(--error-fg)}
+  .vchip.w{background:var(--warn-bg);color:var(--warn-fg-strong)}
+  .vchip.i{background:var(--soft);color:#0066CC}
+  .vchip.ok{background:var(--ok-bg);color:var(--ok-fg)}
+  details.vd{margin-top:10px}
+  details.vd summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--accent);padding:6px 0}
+  details.vd summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .vtableWrap{max-height:340px;overflow:auto;margin-top:8px;border:1px solid var(--line);border-radius:10px}
+  .vtableWrap table{margin:0;font-size:12.5px}
+  .vtableWrap th{position:sticky;top:0;background:#FAFAFC}
+  .sev{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;text-transform:capitalize}
+  .sev-error{background:var(--error-bg);color:var(--error-fg)}
+  .sev-warning{background:var(--warn-bg);color:var(--warn-fg-strong)}
+  .sev-info{background:var(--soft);color:#0066CC}
+  /* rule reference (I-11) — the Code sheet Error-table wording, one line per rule
+     that actually fired (deduplicated: the table below repeats the same rule a lot) */
+  .vref{margin:10px 0 2px;font-size:12.5px;color:var(--muted)}
+  .vref-list{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:4px}
+  .vref-list li{line-height:1.45}
+  .vref-list code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;font-weight:700;color:var(--ink);margin-right:7px}
+  /* the rule code in the detail table carries its Error-table wording as a tooltip */
+  .rulecell{cursor:help}
+
+  .hidden{display:none}
+  #fileInput{display:none}
+  /* design-system status / note classes (I-37): .ds-* = primitives,
+     .s-* = status state, .note = caption. Deprecated .text-bad/.warn-text/.note-lead. */
+  .ds-bad{color:var(--bad)}
+  .ds-warn{color:var(--warn)}
   #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:rgba(29,29,31,.92);color:#fff;font-size:13px;padding:10px 18px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s;z-index:50}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  #errBanner{display:none;position:fixed;top:0;left:0;right:0;z-index:60;background:#FF3B30;color:#fff;font-size:13px;padding:12px 18px;box-shadow:0 2px 10px rgba(0,0,0,.2);line-height:1.4}
+  #errBanner{display:none;position:fixed;top:0;left:0;right:0;z-index:60;background:var(--bad);color:#fff;font-size:13px;padding:12px 18px;box-shadow:0 2px 10px rgba(0,0,0,.2);line-height:1.4}
+
+  /* focus-visible baseline (I-40) */
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  button:focus-visible,.btn:focus-visible,.tf-btn:focus-visible,.ctool button:focus-visible,.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* filter panel label truncation (I-47) — the panel itself sets a max-width
+     and the long Item-Category names ellipsis instead of pushing the edge */
+  .tf-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 
   @media(max-width:880px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr}}
+
+  /* honour reduced-motion preference (I-39) */
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
+
+  /* print stylesheet (I-39) */
+  @media print{
+    body{background:#fff;color:#000;padding-bottom:0}
+    header.bar{position:static}
+    .tf-wrap,.ctool,#reloadBtn,#toast,#errBanner{display:none}
+    .card{break-inside:avoid;box-shadow:none;border:1px solid #ccc}
+    .kpis{grid-template-columns:repeat(3,1fr)}
+  }
+
+  /* dark theme token block (I-39) — cheap now that tokens are centralised */
+  [data-theme="dark"]{
+    --bg:#0b0b0d; --card:#1c1c1e; --ink:#f5f5f7; --muted:#a1a1a6;
+    --line:#3a3a3c; --soft:#16263a; --shadow:0 1px 2px rgba(0,0,0,.5),0 8px 24px rgba(0,0,0,.4);
+    --warn-bg:#3a2e12; --warn-border:#5a4519; --warn-fg:#ffcc80; --warn-fg-strong:#ffd9a0;
+    --error-bg:#3a1818; --error-fg:#ff8a8a;
+    --ok-bg:#10301c; --ok-fg:#7ee0a0;
+    --accent-soft-border:#1c3a55; --accent-ink:#7fb6ff;
+    --grid:#2a2a2c;
+  }
+  [data-theme="dark"] header.bar{background:rgba(20,20,22,.82)}
+  /* charts serialise to PNG with literal colours, so keep their area light in dark mode */
+  [data-theme="dark"] .chartwrap{background:#fff;border-radius:12px;padding:4px}
 </style>
 </head>
-<body data-page-node-id="OdxU5mO5WSRu6A99jGGXPn">
+<body>
 
-<div id="errBanner"></div>
+<div id="errBanner" role="alert" aria-live="assertive"></div>
 
 <!-- ===================== WELCOME ===================== -->
-<div id="welcome" data-page-node-id="b0ZCHzWAQ8LLM2c2S82sw1">
-  <div class="wcard" data-page-node-id="zscAZGyFRQ5FxCNWgbsTEw">
-    <div class="wicon" data-page-node-id="d7opcS1YiXnIycy5vBafXs"><svg viewBox="0 0 24 24" data-page-node-id="RMVTjbvc3HvdptSrRHibFj"><path d="M3 3h2v18H3V3zm14.5 8.5L13 9l-4 4-2-2-2 2v6h16v-6l-3.5-3.5z" data-page-node-id="Fx0DDDXLa4B9IcJkDBzVRg"/></svg></div>
-    <h1 data-page-node-id="wJ8LXGwKolJQG2cGxVpwtL">Procurement Package Plan</h1>
-    <p data-page-node-id="2vp6eS3Juo78FfRIQcgDG2">Interactive dashboard for your project's package plan. Load the workbook to explore status, workload, lead time and PO targets.</p>
-    <div class="drop" id="drop" data-page-node-id="mhH9LbPph03NHb3AdOFYs8">
-      <div class="big" data-page-node-id="HZZ8LEv9wBNWk4jYOmBRgp">Drop your .xlsx here</div>
-      <div class="small" data-page-node-id="ntkDmVAh5C3eoZQD3WCW2z">or click to browse · Excel, or CSV export</div>
+<div id="welcome">
+  <div class="wcard">
+    <div class="wicon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h2v18H3V3zm14.5 8.5L13 9l-4 4-2-2-2 2v6h16v-6l-3.5-3.5z"/></svg></div>
+    <h1>Procurement Package Plan</h1>
+    <p>Interactive dashboard for your project's package plan. Load the workbook to explore status, workload, lead time and PO targets.</p>
+    <div class="expect"><b>Expected file</b>TWRP C3B2 - Procurement Package Plan.xlsx — keep it in the same folder as this page, then select it below.</div>
+    <div class="drop" id="drop">
+      <div class="big">Drop your .xlsx here</div>
+      <div class="small">or click to browse · Excel (.xlsx) or CSV export</div>
     </div>
-    <button class="btn" id="openBtn" data-page-node-id="3Sjm4wrRtZlApRMmLDP9kr">Select Package Plan file…</button>
-    <div class="privacy" data-page-node-id="SZNFE1ZiIYSAAXPIiYgCU2"><svg viewBox="0 0 24 24" data-page-node-id="3M7Tx2cARxVDElGdTjvjiZ"><path d="M12 1 3 5v6c0 5 3.4 9.7 9 11 5.6-1.3 9-6 9-11V5l-9-4zm0 10.9h7c-.5 4-3 7.3-7 8.3V12H5V6.3l7-3.1V12z" data-page-node-id="zFzMoog3T39AIkT8xBUrBI"/></svg> Works fully offline — your data never leaves this browser</div>
-    <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" style="display:none" data-page-node-id="ZCWoChfdJ97OLMciIlERTg" />
+    <button class="btn" type="button" id="openBtn">Select Package Plan file…</button>
+    <div class="privacy"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 3 5v6c0 5 3.4 9.7 9 11 5.6-1.3 9-6 9-11V5l-9-4zm0 10.9h7c-.5 4-3 7.3-7 8.3V12H5V6.3l7-3.1V12z"/></svg> Works fully offline — your data never leaves this browser</div>
+    <input id="fileInput" type="file" accept=".xlsx,.csv" />
   </div>
 </div>
 
 <!-- ===================== DASHBOARD ===================== -->
-<div id="dash" style="display:none" data-page-node-id="9iAOzk4HvX0rT83gk8Zkvl">
-  <header class="bar" data-page-node-id="vMJQAnWVzIwRKBHdhAc077"><div class="inner" data-page-node-id="YFiYYZJLh4BBB8Wf2T7EXO">
-    <div class="ttl" id="projTitle" data-page-node-id="Meo1BfCCJZYaTNBPzUYouA">Project</div>
-    <div class="meta" id="metaLine" data-page-node-id="OsXsK6gcBF1iSudqy7G8ck"></div>
-    <button class="btn ghost" id="reloadBtn" data-page-node-id="XZnMaVbozyoNre1S3F5QLQ">Load another file</button>
+<div id="dash" class="hidden">
+  <header class="bar"><div class="inner">
+    <div class="ttl" id="projTitle">Project</div>
+    <div class="meta" id="metaLine"></div>
+    <div class="tf-wrap" id="tfWrap">
+      <button class="tf-btn" id="tfBtn" aria-expanded="false" aria-controls="tfPanel">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v2H3V6zm3 5h12v2H6v-2zm3 5h6v2H9v-2z"/></svg>
+        <span id="tfLabel">All Categories</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+      </button>
+      <div class="tf-panel" id="tfPanel" role="group" aria-label="Filter packages by item category"></div>
+    </div>
+    <button class="btn ghost" type="button" id="reloadBtn">Load another file</button>
   </div></header>
 
-  <div class="wrap" data-page-node-id="qbZm8JOsx2GvwSlFGeWdnp">
-    <div class="kpis" id="kpis" data-page-node-id="EYH2ba5E8VlT3Jm49sdMIg"></div>
+  <div class="wrap">
+    <!-- validation — runs before charts, never blocks -->
+    <div class="card full" id="vcard">
+      <h2>Data Validation</h2>
+      <div class="sub" id="vsub"></div>
+      <div class="vchips" id="vchips"></div>
+      <div class="note vmap-note" id="vmap"></div>
+      <details class="vd" id="vdetails">
+        <summary>View validation details</summary>
+        <div class="vref" id="vref"></div>
+        <div class="vtableWrap" id="vtable"></div>
+      </details>
+      <div class="ctool ctool-footer"><button type="button" id="vExport">Export CSV</button></div>
+    </div>
 
-    <div class="grid" data-page-node-id="dlLfanmKLvO9KwwrOEFLi4">
-      <div class="card" data-page-node-id="zFJH49jO3clLTkez290dlH">
-        <h2 data-page-node-id="54scp8k9Cp6fpN68L7Nmff">Package Status</h2>
-        <div class="sub" data-page-node-id="I9l7hlv2vSeYE0GuhYWDk4">Distribution across the procurement workflow</div>
-        <div class="ctool" data-page-node-id="6mNAYYqQQB5Z6SYfTwCt6O"><button class="copyBtn" data-svg="svg-status" data-page-node-id="2OZQMXUdCBGx2EcCKHgZKm">Copy image</button><button class="dlBtn" data-svg="svg-status" data-page-node-id="eUDEvEdtRIm4IH0vAoSz8R">Download</button></div>
-        <div class="chartwrap" id="statusChart" data-page-node-id="d5otXRAgftzYXwfktktght"></div>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Package Status</h2>
+        <div class="sub">Distribution across the procurement workflow</div>
+        <div class="ctool">
+          <div class="seg" data-key="status"><button type="button" data-t="bar" class="on">Bar</button><button type="button" data-t="pie">Pie</button></div>
+          <button type="button" class="copyBtn" data-svg="svg-status">Copy image</button><button type="button" class="dlBtn" data-svg="svg-status">Download</button>
+        </div>
+        <div class="chartwrap" id="statusChart"></div>
       </div>
-      <div class="card" data-page-node-id="BXNSB7ZwQONxHz0lPT74gz">
-        <h2 data-page-node-id="xxJsdTOKJNTeCrU5wowrtk">Discipline</h2>
-        <div class="sub" data-page-node-id="Q9hb321jpEtsVDUtlliSBV">Packages by engineering discipline</div>
-        <div class="ctool" data-page-node-id="I5mKiYPQVjL6uWiiEC0bhk"><button class="copyBtn" data-svg="svg-disc" data-page-node-id="gdTCZRdYLm9t0xw0z0s619">Copy image</button><button class="dlBtn" data-svg="svg-disc" data-page-node-id="dqrj5bOHKPlQxLP0kO9ZCk">Download</button></div>
-        <div class="chartwrap" id="discipline" data-page-node-id="HYeIuVWOIF6JvrkL5aOogP"></div>
+      <div class="card">
+        <h2>Discipline</h2>
+        <div class="sub">Packages by engineering discipline</div>
+        <div class="ctool">
+          <div class="seg" data-key="discipline"><button type="button" data-t="bar" class="on">Bar</button><button type="button" data-t="pie">Pie</button></div>
+          <button type="button" class="copyBtn" data-svg="svg-disc">Copy image</button><button type="button" class="dlBtn" data-svg="svg-disc">Download</button>
+        </div>
+        <div class="chartwrap" id="discipline"></div>
       </div>
     </div>
 
-    <div class="grid" data-page-node-id="Aqbbp5ONlgDGVefJH8H8kk">
-      <div class="card" data-page-node-id="25QrsXdWkqCwrAtdtiogCa">
-        <h2 data-page-node-id="Bks0dwkbLhjDvd88lDbXc2">Engineer Workload</h2>
-        <div class="sub" data-page-node-id="uerv0BsWKRkiQRuTUVkpHz">Packages per responsible engineer</div>
-        <div class="ctool" data-page-node-id="SFVO5WCuqT6GPg361wsPwN"><button class="copyBtn" data-svg="svg-eng" data-page-node-id="8DVaB1S4EFV2wIXNXrP2Q2">Copy image</button><button class="dlBtn" data-svg="svg-eng" data-page-node-id="glRVoOwNoyX0szck29aAqe">Download</button></div>
-        <div class="chartwrap" id="engineer" data-page-node-id="zEaY5Kw7kaBXNIvReJp1kk"></div>
-        <div class="note" data-page-node-id="6heclPIrJzn6NeQ39q1NJd">⚠ Names inconsistent (e.g. "Dilip/Siva" vs "Dilip / Siva" counted separately). Standardise to a pick-list for true load.</div>
+    <div class="grid">
+      <div class="card">
+        <h2>Engineer Workload</h2>
+        <div class="sub">Packages per responsible engineer</div>
+        <div class="ctool">
+          <div class="seg" data-key="engineer"><button type="button" data-t="bar" class="on">Bar</button><button type="button" data-t="pie">Pie</button></div>
+          <button type="button" class="copyBtn" data-svg="svg-eng">Copy image</button><button type="button" class="dlBtn" data-svg="svg-eng">Download</button>
+        </div>
+        <div class="chartwrap" id="engineer"></div>
       </div>
-      <div class="card" data-page-node-id="pJhviIxjwLFkV2k5eq2u7i">
-        <h2 data-page-node-id="I474c9AIWfYvgN6DHnz01A">Criticality (Inspection Level)</h2>
-        <div class="sub" data-page-node-id="AFNMLAXJ1c51cuV1O0YrQt">1 Factory QC · 2 TPI · 3 Witness · 4 FAT record</div>
-        <div class="ctool" data-page-node-id="zKSFuJX4f07p2XsqlrotnI"><button class="copyBtn" data-svg="svg-crit" data-page-node-id="MHNtMlAVUPGKqjVj2ybsLY">Copy image</button><button class="dlBtn" data-svg="svg-crit" data-page-node-id="hFGADdGfec3B6jey9h66Zy">Download</button></div>
-        <div class="chartwrap" id="criticality" data-page-node-id="R8IygLW27ZVgRpxuSVB5nb"></div>
-        <div class="note" data-page-node-id="4BMq8q3JrLeyQ0jLzTrUm4">Empty for all packages → inspection-planning view is empty. Populate to unlock.</div>
-      </div>
-    </div>
-
-    <div class="grid" data-page-node-id="4q8DCVdkLXoMbmFn5wiJTT">
-      <div class="card" data-page-node-id="EamgoCPKG7dXBeLAuiAiUI">
-        <h2 data-page-node-id="MZrUh9Hr4AG6r7ksHLmR1i">Lead Time Estimate</h2>
-        <div class="sub" data-page-node-id="JoBrlf3BfYyg4XUXWtGKE8">Only some packages have an estimate</div>
-        <div class="ctool" data-page-node-id="QZxNNfSusf3aVWxyRv5hVa"><button class="copyBtn" data-svg="svg-lead" data-page-node-id="XpL6pwmnLRm3aITcbeypoa">Copy image</button><button class="dlBtn" data-svg="svg-lead" data-page-node-id="SI1qwbnPKAd2MmWWMxuPJ3">Download</button></div>
-        <div class="chartwrap" id="leadtime" data-page-node-id="NcPJZdJX1LKwLz32kRB8uM"></div>
-      </div>
-      <div class="card" data-page-node-id="ZdvkTlGIsONXnikwS6FbzA">
-        <h2 data-page-node-id="uvfXIYFSjWKgAx46gGgF4b">Stage Plan Coverage</h2>
-        <div class="sub" data-page-node-id="tmz6ekKZBWteOfwThZjES5">Planned vs actual dates per milestone</div>
-        <div class="ctool" data-page-node-id="BdeArLz4DG0cHQigs3baTD"><button class="copyBtn" data-svg="svg-stage" data-page-node-id="tfaHo4sSMbiiuz3B1N1yhm">Copy image</button><button class="dlBtn" data-svg="svg-stage" data-page-node-id="N2Z11JfdmQqcY8K2XQiC9K">Download</button></div>
-        <div class="chartwrap" id="stage" data-page-node-id="CfEAojrdl5Fu0eG6mpVeVW"></div>
-        <div class="note" data-page-node-id="6PyOmrAIPkaVCT4xFU0TkW">If MR Plan is sparse while downstream is full, dates may be back-filled. Actual dates drive real progress.</div>
+      <div class="card">
+        <h2>Criticality (Inspection Level)</h2>
+        <div class="sub" id="critSub">0 Not applicable · 1 Factory QC · 2 TPI · 3 Witness · 4 FAT record</div>
+        <div class="ctool">
+          <div class="seg" data-key="criticality"><button type="button" data-t="bar" class="on">Bar</button><button type="button" data-t="pie">Pie</button></div>
+          <button type="button" class="copyBtn" data-svg="svg-crit">Copy image</button><button type="button" class="dlBtn" data-svg="svg-crit">Download</button>
+        </div>
+        <div class="chartwrap" id="criticality"></div>
+        <div class="note" id="critNote">Empty for all packages → this view stays empty until the Criticality column is filled.</div>
       </div>
     </div>
 
-    <div class="card full" data-page-node-id="YBNihVX4F4tLfu6OJDtJXc">
-      <h2 data-page-node-id="qqkZzCEDwZbstlM592hpeS">PO Plan vs Actual — by Month</h2>
-      <div class="sub" id="poChartSub" data-page-node-id="342ifmlm2lyox83JRBSxtW">Critical view for hitting the PO-issuance target</div>
-      <div class="ctool" data-page-node-id="dfCuJ9GElkpseKuArAwfef"><button class="copyBtn" data-svg="svg-po" data-page-node-id="BS83kdIJxCv8GxfFx7cBNb">Copy image</button><button class="dlBtn" data-svg="svg-po" data-page-node-id="MTMgkSthjIGAe3HHryanYE">Download</button></div>
-      <div class="chartwrap" id="poChart" data-page-node-id="HtD5mhGhzveKs4BDxUmnYd"></div>
-    </div>
-
-    <div class="grid" data-page-node-id="tJychHt52BHHFiIOpeEaJ7">
-      <div class="card" data-page-node-id="4KEu7SJA6xb2Q7FoCQUP9E">
-        <h2 data-page-node-id="cGGZ7CJ3HrrPfTJ7jQzNCl">3-Month PO Look-Ahead</h2>
-        <div class="sub" id="lookSub" data-page-node-id="ejRjp5f7ES4iBaECkrWuRD"></div>
-        <div id="lookahead" data-page-node-id="0yLInlR6OT4A7EB9vWCALJ"></div>
+    <div class="grid">
+      <div class="card">
+        <h2>Lead Time Estimate</h2>
+        <div class="sub">Coverage and distribution of estimated lead times</div>
+        <div class="ctool">
+          <div class="seg" data-key="leadtime"><button type="button" data-t="bar" class="on">Bar</button><button type="button" data-t="pie">Pie</button></div>
+          <button type="button" class="copyBtn" data-svg="svg-lead">Copy image</button><button type="button" class="dlBtn" data-svg="svg-lead">Download</button>
+        </div>
+        <div class="chartwrap" id="leadtime"></div>
       </div>
-      <div class="card" data-page-node-id="El3fDEz121zAEu3TrAIp9S">
-        <h2 data-page-node-id="mLmB1B2AB8jTl0Ppe4OW16">PO Issuance Delays</h2>
-        <div class="sub" id="delaySub" data-page-node-id="DKb1ufgAAdnhTojg6i8Ag0"></div>
-        <div id="delays" data-page-node-id="CS201XkyiH9tItvqsqpkam"></div>
+      <div class="card">
+        <h2>Stage Plan Coverage</h2>
+        <div class="sub">Planned vs actual dates per milestone</div>
+        <div class="ctool">
+          <button type="button" class="copyBtn" data-svg="svg-stage">Copy image</button><button type="button" class="dlBtn" data-svg="svg-stage">Download</button>
+        </div>
+        <div class="chartwrap" id="stage"></div>
+        <div class="note">If MR Plan is sparse while downstream is full, dates may be back-filled. Actual dates drive real progress.</div>
       </div>
     </div>
 
-    <div class="card full" data-page-node-id="HBqsQ9N9EWpT2HTbuDpzyT">
-      <h2 data-page-node-id="OiYsbiIN4E0lFlrGyY0tat">Lead Time Benchmark — 2026 Industry</h2>
-      <div class="sub" data-page-node-id="DVcbYCcAmWiUGbrow6Me9F">External reference for the estimated packages (confirm with vendor at quotation)</div>
-      <table id="benchmark" data-page-node-id="uFo7Q1yOKgbQ5DmMALEmAJ"><thead data-page-node-id="5wCSSqsUuObeyLeGlkKoyE"><tr data-page-node-id="VlAACdPAgHlxz3Fs3HU3L4"><th data-page-node-id="p6wb4qJCDaalxs79IanyTV">Equipment Category</th><th class="num" data-page-node-id="SMTIzIFNnnItRWbPjKiUcv">Typical Lead Time</th><th class="num" data-page-node-id="WTWu7s7GitXi7Fmd3LFEYM">≈ Days</th></tr></thead><tbody data-page-node-id="h5gX2giaiVYYdB1PB3oqlu"></tbody></table>
+    <div class="card full">
+      <h2>PO Plan vs Actual — by Month</h2>
+      <div class="sub" id="poChartSub">Critical view for hitting the PO-issuance target</div>
+      <div class="ctool">
+        <button type="button" class="copyBtn" data-svg="svg-po">Copy image</button><button type="button" class="dlBtn" data-svg="svg-po">Download</button>
+      </div>
+      <div class="chartwrap" id="poChart"></div>
     </div>
 
-    <div class="card full" data-page-node-id="oL73RURK50djDoJxB4ONhp">
-      <h2 data-page-node-id="WUY2q108cDmC1wGXADCimw">Data-Quality Flags</h2>
-      <div id="dq" data-page-node-id="gkjzfzEEMHQMCZDTRhi9mo"></div>
+    <div class="grid">
+      <div class="card">
+        <h2>3-Month PO Look-Ahead</h2>
+        <div class="sub" id="lookSub"></div>
+        <div id="lookahead"></div>
+      </div>
+      <div class="card">
+        <h2>PO Issuance Delays</h2>
+        <div class="sub" id="delaySub"></div>
+        <div id="delays"></div>
+      </div>
     </div>
 
-    <footer data-page-node-id="h2exj9WpNQCLBEFE7ceeFl">本内容由 AI 生成，请核实后使用 · Standalone dashboard — data parsed locally from your file</footer>
+    <div class="card full">
+      <h2>Lead Time Benchmark — 2026 Industry</h2>
+      <div class="sub">External reference for the estimated packages (confirm with vendor at quotation)</div>
+      <table id="benchmark" class="ds-table"><thead><tr><th scope="col">Equipment Category</th><th scope="col" class="num">Typical Lead Time</th><th scope="col" class="num">≈ Days</th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <div class="card full">
+      <h2>Data-Quality Flags</h2>
+      <div id="dq"></div>
+    </div>
+
   </div>
+  <footer role="contentinfo">本内容由 AI 生成，请核实后使用 · Standalone dashboard — data parsed locally from your file</footer>
 </div>
 
-<div id="toast" data-page-node-id="R12FsWplKX4KaPDr6elOq7"></div>
+<div id="toast"></div>
 
 <script>
-/* ============== offline XLSX parser (no CDN) ============== */
+/* All app code lives inside one IIFE (I-33) so nothing leaks onto the global
+   scope. Every listener is wired with addEventListener (no inline handlers),
+   so a private scope is safe. */
+(function(){
+/* ============== offline XLSX parser (no CDN, no library) ============== */
 function colToIndex(ref){ const letters=ref.match(/[A-Z]+/)[0]; let n=0; for(const ch of letters) n=n*26+(ch.charCodeAt(0)-64); return n-1; }
+function unescXml(s){ return s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'"); }
 function parseSharedStrings(xml){
   const out=[]; const siRe=/<si>([\s\S]*?)<\/si>/g; let m;
   while((m=siRe.exec(xml))){ const inner=m[1]; let txt=''; const tRe=/<t[^>]*>([\s\S]*?)<\/t>/g; let t;
-    while((t=tRe.exec(inner))) txt+=t[1]; out.push(txt); }
+    while((t=tRe.exec(inner))) txt+=unescXml(t[1]); out.push(txt); }
   return out;
 }
 function parseWorkbookSheets(wb, rels){
@@ -212,18 +357,31 @@ function parseWorkbookSheets(wb, rels){
 }
 function parseSheet(xml, shared){
   const sd=xml.match(/<sheetData>([\s\S]*?)<\/sheetData>/); if(!sd) return [];
-  const body=sd[1]; const rowRe=/<row[^>]*r="(\d+)"[^>]*>([\s\S]*?)<\/row>/g;
+  const body=sd[1]; const rowRe=/<row\b([^>]*?)(?:\/>|>([\s\S]*?)<\/row>)/g;
   const rowsTmp=[]; let maxCol=0,maxRow=0; let m;
   while((m=rowRe.exec(body))){
-    const r=parseInt(m[1],10); const rbody=m[2]; const cRe=/<c\b([^>]*)>([\s\S]*?)<\/c>/g; let c; const obj={};
+    const rowIdxM=/\br="(\d+)"/.exec(m[1]); if(!rowIdxM) continue;
+    const r=parseInt(rowIdxM[1],10); const rbody=m[2]||'';
+    /* note (?: \/> | > ... </c> ): empty styled cells are written as <c r="N2" s="7"/> and must not swallow the next cell */
+    const cRe=/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g; let c; const obj={};
     while((c=cRe.exec(rbody))){
-      const attrs=c[1], cbody=c[2];
+      const attrs=c[1], cbody=c[2]||'';
       const refM=/r="([A-Z]+\d+)"/.exec(attrs); const typeM=/\bt="([^"]+)"/.exec(attrs);
       if(!refM) continue; const ref=refM[1]; const col=colToIndex(ref); const row=parseInt(ref.match(/\d+/)[0],10);
       let val=null; const type=typeM?typeM[1]:null;
       if(type==='s'){ const vM=/<v>(\d+)<\/v>/.exec(cbody); if(vM) val=shared[parseInt(vM[1],10)] ?? ''; }
       else if(type==='inlineStr'){ const tM=/<t[^>]*>([\s\S]*?)<\/t>/.exec(cbody); val=tM?tM[1]:''; }
-      else { const vM=/<v>([\s\S]*?)<\/v>/.exec(cbody); if(vM){ val=vM[1]; if(type!=='str'){ val=isNaN(Number(vM[1]))?vM[1]:Number(vM[1]); } } }
+      else if(type==='e'){ val=null; }
+      else {
+        /* A number cell may carry a cached <v> AND, when it is a formula, an <f>.
+           We read ONLY <v> (the last cached result Excel wrote) and deliberately
+           ignore <f>: the value is what Excel last computed, the formula text is
+           not a value. Known limit — a workbook written by a tool that stores the
+           formula WITHOUT caching a result yields null, and such cells surface as
+           "not numeric" (V-04) rather than being silently invented. */
+        const vM=/<v>([\s\S]*?)<\/v>/.exec(cbody);
+        if(vM){ val=vM[1]; if(type!=='str'){ val=isNaN(Number(vM[1]))?vM[1]:Number(vM[1]); } }
+      }
       obj[col]=val; if(col>maxCol)maxCol=col; if(row>maxRow)maxRow=row;
     }
     rowsTmp.push({row:r,obj});
@@ -266,47 +424,66 @@ async function parseXlsx(buf){
   return result;
 }
 function parseCSV(text){
-  const lines=text.split(/\r?\n/).filter(l=>l.trim().length); const grid=[];
-  for(const line of lines){ grid.push(line.split(/(?<!"),(?=")|,(?=\d|\w)/).map(c=>c.replace(/^"|"$/g,''))); }
-  return grid;
+  /* RFC 4180 state machine — handles quoted fields, embedded commas/newlines,
+     and escaped "" quotes. No lookbehind, so it parses on every browser (incl. Safari < 16.4). */
+  const rows=[]; let row=[]; let field=''; let inQuotes=false; const n=text.length; let i=0;
+  const pushField=()=>{ row.push(field); field=''; };
+  const pushRow=()=>{ pushField(); rows.push(row); row=[]; };
+  while(i<n){
+    const c=text[i];
+    if(inQuotes){
+      if(c==='"'){ if(text[i+1]==='"'){ field+='"'; i+=2; continue; } inQuotes=false; i++; continue; }
+      field+=c; i++; continue;
+    }
+    if(c==='"'){ inQuotes=true; i++; continue; }
+    if(c===','){ pushField(); i++; continue; }
+    if(c==='\r'){ i++; continue; }
+    if(c==='\n'){ pushRow(); i++; continue; }
+    field+=c; i++;
+  }
+  if(field!=='' || row.length>0) pushRow();
+  return rows.filter(r=>r.some(c=>c!==''));
 }
 
-/* ============== mapping ============== */
-const DATE_FIELDS=['mrPlan','mrForecast','mrActual','poPlan','poForecast','poActual','vdPlan','vdForecast','vdActual','fatPlan','fatForecast','fatActual','rosPlan','rosForecast','rosActual'];
-
+/* ============== Code-sheet contract (v2) ==============
+   Row 1 = headers for the whole sheet.
+   A = Title / field label   B = Value   C = Data Type (Date / Text / Number)
+     · Rows 2–8    : project metadata  (A=label, B=value,  C=type)
+     · Rows 9+     : PPP column map    (A=label, B="Column-X", C=type)
+   Extra columns may be inserted after C in future, therefore every lookup
+   block is located by its ROW-1 TITLE, never by a fixed column letter:
+     "Discipline Description" · "Criticality" · "Package Status" · "Item Category"
+======================================================== */
 const CODE_SHEET_KEYS = {
-  title: 'Package Title',
-  discipline: 'Discipline',
-  criticality: 'Criticality',
-  leadTime: 'Estimate Lead Time',
-  status: 'Package Status',
-  engineer: 'Design Engineer',
-  supplier: 'Supplier',
-  buyer: 'Buyer',
-  pe: 'Project Engineer',
-  mrPlan: 'MR Plan Date',
-  mrForecast: 'MR Forecast Date',
-  mrActual: 'MR Actual Date',
-  poPlan: 'PO Plan Date',
-  poForecast: 'PO Forecast Date',
-  poActual: 'PO Actual Date',
-  vdPlan: 'VD Approval Plan Date',
-  vdForecast: 'VD Approval Forecast Date',
-  vdActual: 'VD Approval Actual Date',
-  fatPlan: 'FAT Plan Date',
-  fatForecast: 'FAT Forecast Date',
-  fatActual: 'FAT Actual Date',
-  rosPlan: 'ROS Plan Date',
-  rosForecast: 'ROS Forecast Date',
-  rosActual: 'ROS Actual Date',
-  sNo: 'S No.',
-  packageNo: 'Package No.',
-  itemCategory: 'Item Category',
-  area: 'Area',
-  equipmentTags: 'Equipment Tags',
-  packageNotes: 'Package Notes',
-  quantity: 'Quantity'
+  title:'Package Title', discipline:'Discipline', criticality:'Criticality', leadTime:'Estimate Lead Time',
+  status:'Package Status', engineer:'Design Engineer', supplier:'Supplier', buyer:'Buyer', pe:'Project Engineer',
+  mrPlan:'MR Plan Date', mrForecast:'MR Forecast Date', mrActual:'MR Actual Date',
+  poPlan:'PO Plan Date', poForecast:'PO Forecast Date', poActual:'PO Actual Date',
+  vdPlan:'VD Approval Plan Date', vdForecast:'VD Approval Forecast Date', vdActual:'VD Approval Actual Date',
+  fatPlan:'FAT Plan Date', fatForecast:'FAT Forecast Date', fatActual:'FAT Actual Date',
+  rosPlan:'ROS Plan Date', rosForecast:'ROS Forecast Date', rosActual:'ROS Actual Date',
+  sNo:'S No.', packageNo:'Package No.', itemCategory:'Item Category', area:'Area',
+  equipmentTags:'Equipment Tags', packageNotes:'Package Notes', quantity:'Quantity'
 };
+const REV_CODE_KEYS = Object.fromEntries(Object.entries(CODE_SHEET_KEYS).map(([f,l])=>[String(l).trim().toLowerCase(), f]));
+
+
+const LOOKUP_HEADERS = {
+  discipline:     ['discipline description','discipline desc','discipline name'],
+  disciplineCode: ['discipline code','discipline'],
+  criticality:    ['criticality','criticality description','criticality desc'],
+  criticalityCode:['criticality code','criticality'],
+  status:         ['package status','package status description','status description'],
+  statusCode:     ['status code','status'],
+  category:       ['item category','item category description','category description'],
+  categoryCode:   ['category code','category code description'],
+  /* I-11: the Error table (Code!Q:R) — a code -> rule-text MAP, not a value list.
+     Located by row-1 header text like every other block, so the pair may move. */
+  errorCode:      ['error code','error id','validation code'],
+  errorDescription:['error description','error message','error text']
+};
+/* header text is matched case-insensitively; exact match wins, then prefix match */
+function colLetter(i){ let n=i+1,s=''; while(n>0){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=(n-m-1)/26; } return s; }
 
 function colRefToIndex(ref){
   if(!ref) return -1;
@@ -316,17 +493,19 @@ function colRefToIndex(ref){
   for(const ch of m[1].toUpperCase()) idx = idx*26 + (ch.charCodeAt(0)-64);
   return idx-1;
 }
-
 function parseCodeSheet(codeGrid){
-  const meta = {};
+  const meta = {}, metaTypes = {};
   for(let r=0;r<codeGrid.length;r++){
-    const key = codeGrid[r][0];
-    const val = codeGrid[r][1];
-    if(key!=null && key!=='') meta[String(key).trim()] = val;
+    const row=codeGrid[r]; if(!row) continue;
+    const key=row[0]; const val=row[1];
+    if(key==null || String(key).trim()==='') continue;
+    if(val==null || String(val).trim()==='') continue;
+    meta[String(key).trim()] = val;
+    const t=normType(row[2]);            /* column C = Data Type */
+    if(t) metaTypes[String(key).trim()] = t;
   }
-  return meta;
+  return {meta, metaTypes};
 }
-
 function buildFieldToCol(meta){
   const map = {};
   for(const [field, codeKey] of Object.entries(CODE_SHEET_KEYS)){
@@ -338,6 +517,70 @@ function buildFieldToCol(meta){
   }
   return map;
 }
+const TYPE_ALIASES={date:'Date',datetime:'Date',d:'Date',number:'Number',numeric:'Number',num:'Number',int:'Number',integer:'Number',n:'Number',text:'Text',string:'Text',str:'Text',t:'Text',s:'Text'};
+function normType(v){
+  if(v==null) return '';
+  const k=String(v).trim().toLowerCase();
+  if(!k) return '';
+  if(TYPE_ALIASES[k]) return TYPE_ALIASES[k];
+  for(const key in TYPE_ALIASES){ if(k.indexOf(key)===0) return TYPE_ALIASES[key]; }
+  return '';
+}
+function parseFieldTypes(codeGrid){
+  const types={}; let found=0;
+  for(let r=0;r<codeGrid.length;r++){
+    const row=codeGrid[r]; if(!row) continue;
+    const a=row[0]; if(a==null||a==='') continue;
+    const b=row[1];
+    if(!(typeof b==='string' && /^column-/i.test(b))) continue;
+    const field=REV_CODE_KEYS[String(a).trim().toLowerCase()];
+    if(!field) continue;
+    const t=normType(row[2]);
+    if(t){ types[field]=t; found++; }
+  }
+  return {types,found};
+}
+function findLookupColumns(codeGrid){
+  const hdr=codeGrid[0]||[]; const idx={}, src={};
+  const N=h=>String(h==null?'':h).replace(/\s+/g,' ').trim().toLowerCase();
+  for(const [k,names] of Object.entries(LOOKUP_HEADERS)){
+    let found=-1;
+    for(let c=0;c<hdr.length;c++){ const h=N(hdr[c]); if(h && names.indexOf(h)>=0){ found=c; break; } }
+    if(found<0){ for(let c=0;c<hdr.length;c++){ const h=N(hdr[c]); if(h && names.some(n=>h.indexOf(n)===0)){ found=c; break; } } }
+    if(found>=0){ idx[k]=found; src[k]=colLetter(found); }
+  }
+  return {idx,src};
+}
+function readLookupCol(grid,c,start){
+  if(c==null) return [];
+  const out=[]; let blankRun=0;
+  for(let r=start;r<grid.length && r<start+300;r++){
+    const row=grid[r]; if(!row){ blankRun++; if(blankRun>=3) break; continue; }
+    const v=row[c];
+    if(v==null||String(v).trim()===''){ blankRun++; if(blankRun>=3) break; continue; }
+    blankRun=0; out.push(String(v).trim());
+  }
+  return out;
+}
+/* I-11: read a code column paired with a description column into { CODE: text }.
+   Read ROW BY ROW on purpose: zipping two independently-skipped columns would
+   shift every later entry if a single description cell were blank. Stops after
+   3 consecutive blank code cells, same rule as readLookupCol(). */
+function readLookupMap(grid,codeCol,descCol,start){
+  if(codeCol==null) return {};
+  const map={}; let blankRun=0;
+  for(let r=start;r<grid.length && r<start+300;r++){
+    const row=grid[r];
+    const c=row?row[codeCol]:null;
+    if(c==null||String(c).trim()===''){ blankRun++; if(blankRun>=3) break; continue; }
+    blankRun=0;
+    const d=(descCol==null||!row||row[descCol]==null)?'':String(row[descCol]).trim();
+    map[String(c).trim()]=d;
+  }
+  return map;
+}
+
+/* ============== utils ============== */
 function toDate(v){
   if(v==null||v==='') return null;
   if(v instanceof Date) return v;
@@ -347,39 +590,186 @@ function toDate(v){
 function fmt(d){ if(!(d instanceof Date)) return '—'; return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
 function monthShort(d){ return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+' '+String(d.getFullYear()).slice(2); }
 function sameMonth(d,m){ return d.getFullYear()===m.getFullYear()&&d.getMonth()===m.getMonth(); }
-function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function safeCall(fn, errId){ try{ fn(); }catch(e){ const el=document.getElementById(errId); if(el) el.innerHTML='<div class="empty" style="color:#FF3B30">Chart error: '+esc(e.message)+'</div>'; console.error(e); } }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function trunc(s,n){ s=String(s==null?'':s); return s.length>n? s.slice(0,n-1)+'…' : s; }
+/* I-25 (cleaned 2026-09-16): the former `normPerson()` helper was dead code —
+   defined and never called, so V-12 could never fire. The engineer tally keys on
+   the raw trimmed string, so variants like "Dilip/Siva" vs "Dilip / Siva" are
+   reported as distinct values by design (the workbook is the place to fix them,
+   and V-12 surfaces them when they appear). Removed rather than wired up: adding
+   a normaliser here would silently merge genuinely different entries. */
+function safeCall(fn, errId){ try{ fn(); }catch(e){ const el=document.getElementById(errId); if(el) el.innerHTML='<div class="empty ds-bad">Chart error: '+esc(e.message)+'</div>'; console.error(e); } }
 function showError(msg){ const b=document.getElementById('errBanner'); if(b){ b.innerHTML='<b>Load failed:</b> '+esc(msg)+' &nbsp;·&nbsp; press F12 → Console for the full trace.'; b.style.display='block'; } document.getElementById('welcome').style.display='flex'; document.getElementById('dash').style.display='none'; }
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2200); }
 
 /* ============== build ============== */
-let DB=null;
-function buildDashboard(result, filename){
+/* STATE (I-30): single source of truth. The view is a pure function of
+   STATE — handlers mutate STATE, then call render(); the DOM is write-only.
+   Replaces the old trio DB / LAST_REPORT / SELECTED_CATS + scattered
+   localStorage reads. */
+const STATE = {
+  model:null,                       // {project, packages, lookups, lookupMeta, statusCanon, codeInfo}
+  report:null,                      // validation report
+  filter:{ cats:null },             // null = all categories selected
+  prefs:{ chartType:{} }            // key -> 'bar' | 'pie' (persisted)
+};
+
+/* ---- chart-type preference (persisted, I-30) ---- */
+function prefKey(k){ return 'ppp-chart-'+k; }
+function getPref(k){
+  if(STATE.prefs.chartType[k]==null){
+    let v='bar'; try{ v=localStorage.getItem(prefKey(k))||'bar'; }catch(e){}
+    STATE.prefs.chartType[k]=v;
+  }
+  return STATE.prefs.chartType[k];
+}
+function setPref(k,v){ STATE.prefs.chartType[k]=v; try{ localStorage.setItem(prefKey(k),v); }catch(e){} }
+
+function filteredPackages(){
+  if(!STATE.filter.cats) return STATE.model.packages;
+  return STATE.model.packages.filter(p=>{
+    const cat=p.itemCategory||'__blank__';
+    return STATE.filter.cats.has(cat);
+  });
+}
+
+function allCats(){
+  return [...new Set(STATE.model.packages.map(p=>p.itemCategory||'__blank__'))]
+    .sort((a,b)=>{ if(a==='__blank__') return 1; if(b==='__blank__') return -1; return a.localeCompare(b); });
+}
+
+function catLabel(k){ return k==='__blank__'?'(Unassigned)':k; }
+
+function buildTypeFilter(){
+  const cats=allCats();
+  const allChk=!STATE.filter.cats || STATE.filter.cats.size===cats.length;
+  let html='<label><input type="checkbox" id="tfAll" '+(allChk?'checked':'')+'> <b>All Categories</b></label>';
+  html+='<div class="tf-divider"></div>';
+  cats.forEach(k=>{
+    const chk=allChk||STATE.filter.cats.has(k);
+    html+='<label title="'+esc(catLabel(k))+'"><input type="checkbox" class="tf-cat" data-cat="'+esc(k)+'" '+(chk?'checked':'')+'><span class="tf-name">'+esc(catLabel(k))+'</span></label>';
+  });
+  document.getElementById('tfPanel').innerHTML=html;
+  updateTfLabel();
+
+  document.getElementById('tfAll').addEventListener('change', e=>{
+    const boxes=document.querySelectorAll('.tf-cat');
+    boxes.forEach(b=>b.checked=e.target.checked);
+    STATE.filter.cats = e.target.checked ? null : new Set();
+    updateTfLabel(); render();
+  });
+  document.querySelectorAll('.tf-cat').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      const checked=[...document.querySelectorAll('.tf-cat:checked')].map(b=>b.getAttribute('data-cat'));
+      const all=document.querySelectorAll('.tf-cat');
+      if(checked.length===all.length){ STATE.filter.cats=null; document.getElementById('tfAll').checked=true; }
+      else { STATE.filter.cats=new Set(checked); document.getElementById('tfAll').checked=false; }
+      updateTfLabel(); render();
+    });
+  });
+}
+
+function updateTfLabel(){
+  const cats=allCats();
+  const allChk=!STATE.filter.cats||STATE.filter.cats.size===cats.length;
+  const btn=document.getElementById('tfBtn');
+  const lbl=document.getElementById('tfLabel');
+  if(allChk){ lbl.textContent='All Categories'; btn.classList.remove('active'); }
+  else if(STATE.filter.cats.size===0){ lbl.textContent='None selected'; btn.classList.add('active'); }
+  else { lbl.textContent=STATE.filter.cats.size+' of '+cats.length+' selected'; btn.classList.add('active'); }
+}
+
+/* Single render entry (I-30): every view is derived from STATE. */
+function render(){
+  const pkgs=filteredPackages();
+  safeCall(()=>renderValidation(STATE.report), 'vcard');
+  safeCall(()=>renderKPIs(pkgs), 'kpis');
+  METRICS.forEach(m=> safeCall(()=>renderCat(m.key, pkgs), m.el));
+  safeCall(()=>{ document.getElementById('stage').innerHTML=svgStage(pkgs); }, 'stage');
+  safeCall(()=>renderPOMonthly(pkgs), 'poChart');
+  safeCall(()=>renderLookAhead(pkgs, STATE.model.project.asOf), 'lookahead');
+  safeCall(()=>renderDelays(pkgs, STATE.model.project.asOf), 'delays');
+  safeCall(()=>renderBenchmark(), 'benchmark');
+  safeCall(()=>renderDQ(pkgs), 'dq');
+}
+
+/* I-31 (Wave 2): split the former buildDashboard() into three single-purpose
+   functions so the data layer (03) and logic layer (04) become unit-testable:
+     parseWorkbook()  -> locate the PPP + Code sheets
+     buildModel()     -> parse contract, map columns, read lookups, build packages
+     buildDashboard() -> thin orchestrator: wire the view, validate, render */
+function parseWorkbook(result){
   const pppKey = Object.keys(result).find(k=>/ppp/i.test(k)) || Object.keys(result).find(k=>!/code/i.test(k)) || Object.keys(result)[0];
   const ppp = result[pppKey];
   const codeKey = Object.keys(result).find(k=>/code/i.test(k));
   const code = codeKey ? result[codeKey] : (Object.values(result)[1]||null);
   if(!ppp||ppp.length<2) throw new Error('No PPP sheet with data found.');
   if(!code||!code.length) throw new Error('No Code sheet found — column mappings required.');
+  return {ppp, code, codeKey, pppKey};
+}
 
-  const codeMeta = parseCodeSheet(code);
+function buildModel(result, filename){
+  const {ppp, code} = parseWorkbook(result);
+
+  const cs = parseCodeSheet(code);
+  const codeMeta = cs.meta, metaTypes = cs.metaTypes;
   const fieldToCol = buildFieldToCol(codeMeta);
   if(fieldToCol.title == null) throw new Error('Code sheet missing "Package Title" column mapping.');
 
-  const headerRow = (Number(codeMeta['Header Row']) || 1) - 1;
-  const lastRow = (Number(codeMeta['List End Row']) || ppp.length) - 1;
+  const ft = parseFieldTypes(code);
+  const hasTypes = ft.found>0;
+  const typeFor = f => ft.types[f] || 'Text';
+  const dateFields = Object.keys(fieldToCol).filter(f=>typeFor(f)==='Date');
 
-  const packages=[];
+  const lk = findLookupColumns(code); const li = lk.idx, lsrc = lk.src;
+  /* I-11: the rule text lives in the workbook, so the business owns the wording.
+     Deliberately NOT part of lookupMeta — lookupMeta describes the four symbol
+     lookups (exactly what V-18 checks); the Error table is a code -> text map. */
+  const errorTable = readLookupMap(code, li.errorCode, li.errorDescription, 1);
+  const lookups = {
+    discipline: readLookupCol(code, li.discipline, 1),
+    disciplineCode: readLookupCol(code, li.disciplineCode, 1),
+    criticalityCode: readLookupCol(code, li.criticalityCode, 1),
+    criticality: readLookupCol(code, li.criticality, 1),
+    statusCode: readLookupCol(code, li.statusCode, 1),
+    status: readLookupCol(code, li.status, 1),
+    category: readLookupCol(code, li.category, 1),
+    categoryCode: readLookupCol(code, li.categoryCode, 1)
+  };
+  /* n = values in the DESCRIPTION column, codeN = values in the paired CODE column.
+     They are two different numbers and must never be conflated: a workbook can
+     carry the header for a code column and leave the body blank (Category Code N
+     is exactly that), so reporting the description count against the code column
+     letter would claim data that is not there. */
+  const lookupMeta = {
+    discipline:{col:lsrc.discipline||null, n:lookups.discipline.length, title:'Discipline Description', codeCol:lsrc.disciplineCode||null, codeN:lookups.disciplineCode.length},
+    criticality:{col:lsrc.criticality||null, n:lookups.criticality.length, title:'Criticality', codeCol:lsrc.criticalityCode||null, codeN:lookups.criticalityCode.length},
+    status:{col:lsrc.status||null, n:lookups.status.length, title:'Package Status', codeCol:lsrc.statusCode||null, codeN:lookups.statusCode.length},
+    category:{col:lsrc.category||null, n:lookups.category.length, title:'Item Category', codeCol:lsrc.categoryCode||null, codeN:lookups.categoryCode.length}
+  };
+
+  const hrRaw=codeMeta['Header Row'], lrRaw=codeMeta['List End Row'];
+  const hrNum=Number(hrRaw), lrNum=Number(lrRaw);
+  const headerRowValid = hrRaw!=null && hrRaw!=='' && Number.isFinite(hrNum);
+  const lastRowValid = lrRaw!=null && lrRaw!=='' && Number.isFinite(lrNum);
+  const headerRow = headerRowValid ? hrNum-1 : 0;
+  const lastRow = lastRowValid ? lrNum-1 : Math.max(0, ppp.length-1);
+
+  const packages=[]; let skipped=0;
   for(let r=headerRow+1; r<=lastRow && r<ppp.length; r++){
     const row=ppp[r]; if(!row) continue;
     const title = row[fieldToCol.title];
-    if(title==null||title==='') continue;
-    const pkg={};
+    if(title==null||title===''){ skipped++; continue; }
+    const pkg={ _raw:{}, _row:r+1 };
     for(const [field, colIdx] of Object.entries(fieldToCol)){
-      let v = row[colIdx];
-      if(DATE_FIELDS.includes(field)) v = toDate(v);
-      else v = (v==null?'':String(v));
-      pkg[field] = v;
+      const raw = row[colIdx];
+      pkg._raw[field] = raw;
+      const t = typeFor(field);
+      if(t==='Date') pkg[field] = toDate(raw);
+      else if(t==='Number') pkg[field] = (raw==null||raw==='') ? null : (isNaN(Number(raw)) ? null : Number(raw));
+      else pkg[field] = (raw==null?'':String(raw));
     }
+
     packages.push(pkg);
   }
   if(!packages.length) throw new Error('No packages with a Package Title found in the specified range.');
@@ -389,101 +779,524 @@ function buildDashboard(result, filename){
   if(!asOfDate) throw new Error('Invalid AsOf Date in Code sheet.');
 
   const projectTitle = codeMeta['Project Title'] || filename.replace(/\.xlsx?$/i,'').replace(/\.csv$/i,'');
-  const projectCode = codeMeta['Project Code'] || '';
-  const projectClient = codeMeta['Client'] || '';
+  /* canonical status: accepts either the code (NS) or the full description */
+  const statusCanon=(function(){
+    const m={}; const descs=lookups.status||[], codes=lookups.statusCode||[];
+    descs.forEach((d,i)=>{ const dd=String(d).trim(); m[dd.toLowerCase()]=dd; if(codes[i]!=null) m[String(codes[i]).trim().toLowerCase()]=dd; });
+    return v=>{ const s=String(v==null?'':v).trim(); return m[s.toLowerCase()]||s; };
+  })();
 
-  DB={project:{title:projectTitle,code:projectCode,client:projectClient,asOf:asOfDate},packages};
+  const model = { project:{title:projectTitle, code:codeMeta['Project Code']||'', client:codeMeta['Client']||'', asOf:asOfDate},
+       packages, lookups, lookupMeta, statusCanon, errorTable,
+       codeInfo:{ hasTypes, typeCount:ft.found, fieldCount:Object.keys(fieldToCol).length, metaTypes,
+                  errorCount:Object.keys(errorTable).length, errorCodeCol:lsrc.errorCode||null, errorDescCol:lsrc.errorDescription||null } };
+
+  /* validation inputs that are not part of the clean domain model */
+  const vctx = { lookups, asOf:asOfDate, headerRow, lastRow, pppGrid:ppp, titleCol:fieldToCol.title,
+    hasTypes, typeCount:ft.found, skipped, dateFields, metaTypes, lookupMeta, codeMeta,
+    errorTable, errorCodeCol:lsrc.errorCode||null, errorDescCol:lsrc.errorDescription||null,
+    hrRaw, lrRaw, headerRowDefault:!headerRowValid, lastRowDefault:!lastRowValid };
+
+  return {model, vctx};
+}
+
+function buildDashboard(result, filename){
+  const {model, vctx} = buildModel(result, filename);
+  STATE.model = model;
 
   document.getElementById('welcome').style.display='none';
-  document.getElementById('dash').style.display='block';
-  document.getElementById('projTitle').textContent=DB.project.title;
-  document.getElementById('metaLine').textContent=(DB.project.client?DB.project.client+' · ':'')+(DB.project.code?DB.project.code+' · ':'')+'As-of '+fmt(DB.project.asOf);
+  document.getElementById('dash').classList.remove('hidden');
+  document.getElementById('projTitle').textContent=STATE.model.project.title;
+  document.getElementById('metaLine').textContent=(STATE.model.project.client?STATE.model.project.client+' · ':'')+(STATE.model.project.code?STATE.model.project.code+' · ':'')+'As-of '+fmt(STATE.model.project.asOf);
 
-  renderKPIs(packages);
-  safeCall(()=>{ document.getElementById('statusChart').innerHTML=svgHBar(tallyItems(packages,'status',{order:['Not Start','Requisition in Progress','Pending Vendor Approval','PO Issued, Prepare Vendor Data Submission','(blank)'],label:{'Not Start':'Not Start','Requisition in Progress':'Requisition in Progress','Pending Vendor Approval':'Pending Vendor Approval','PO Issued, Prepare Vendor Data Submission':'PO Issued','(blank)':'Not Specified (blank)'}}),{svgId:'svg-status'}); }, 'statusChart');
-  safeCall(()=>{ document.getElementById('discipline').innerHTML=svgHBar(tallyItems(packages,'discipline',{sort:true}),{svgId:'svg-disc'}); }, 'discipline');
-  safeCall(()=>{ document.getElementById('engineer').innerHTML=svgHBar(tallyItems(packages,'engineer',{sort:true,blankLabel:'Unassigned (blank)'}),{svgId:'svg-eng'}); }, 'engineer');
-  safeCall(()=>{ document.getElementById('criticality').innerHTML=svgCriticality(packages); }, 'criticality');
-  safeCall(()=>{ document.getElementById('leadtime').innerHTML=svgLeadTime(packages); }, 'leadtime');
-  safeCall(()=>{ document.getElementById('stage').innerHTML=svgStage(packages); }, 'stage');
-  safeCall(()=>renderPOMonthly(packages), 'poChart');
-  safeCall(()=>renderLookAhead(packages, asOfDate), 'lookahead');
-  safeCall(()=>renderDelays(packages, asOfDate), 'delays');
-  safeCall(()=>renderBenchmark(), 'benchmark');
-  safeCall(()=>renderDQ(packages), 'dq');
+  STATE.filter.cats=null;
+  buildTypeFilter();
+
+  /* validate first — never blocks the dashboard */
+  STATE.report = validate(model.packages, vctx);
+  render();
 
   window.scrollTo(0,0);
 }
 
-/* ---------- helpers ---------- */
+/* ============== validation ============== */
+function validate(pkgs, ctx){
+  const issues=[];
+  /* I-11: the Code sheet Error table (cols Q:R) is the authoritative wording for
+     every rule code. Each issue carries it as `desc` so the panel can show the
+     same text the business maintains in Excel. A code with no row gets `desc`
+     = '' -> the rule's own built-in message stands, and V-21 warns (never errors). */
+  const errTable=(ctx&&ctx.errorTable)||{};
+  const ruleText=code=>{ const t=errTable[String(code)]; return t==null?'':String(t).trim(); };
+  const add=(sev,code,pkg,field,value,msg)=>issues.push({sev,code,pkg:pkg||'—',field:field||'—',value:value==null?'':String(value),msg,desc:ruleText(code)});
+  const T=pkgs.length;
+  const L=ctx.lookups||{};
+  const norm=s=>String(s==null?'':s).trim().toLowerCase();
+  const set=a=>new Set((a||[]).map(norm));
+  const stages=[['mr','MR'],['po','PO'],['vd','VD'],['fat','FAT'],['ros','ROS']];
+
+  if(ctx.headerRowDefault) add('error','V-15','—','Code!Header Row', ctx.hrRaw==null?'':ctx.hrRaw, 'Header Row missing or not numeric — used default (row 1 as header).');
+  if(ctx.lastRowDefault) add('error','V-15','—','Code!List End Row', ctx.lrRaw==null?'':ctx.lrRaw, 'List End Row missing or not numeric — used default (last data row).');
+  if(!ctx.asOf) add('error','V-15','—','Code!AsOf Date','','AsOf Date missing or invalid');
+  if(!ctx.hasTypes) add('warning','V-16','—','Code!C (Data Type)','','Column C has no Data Type values — all fields default to Text. Fill column C to make parsing and validation data-driven.');
+
+  const mt=ctx.metaTypes||{};
+  if(mt['AsOf Date'] && mt['AsOf Date']!=='Date') add('warning','V-15','—','Code!AsOf Date',mt['AsOf Date'],'Data Type in column C is "'+mt['AsOf Date']+'" — expected Date');
+  ['Header Row','List End Row'].forEach(k=>{ if(mt[k] && mt[k]!=='Number') add('warning','V-15','—','Code!'+k,mt[k],'Data Type in column C is "'+mt[k]+'" — expected Number'); });
+  Object.entries(ctx.lookupMeta||{}).forEach(([k,v])=>{
+    if(!v.col||!v.n) add('warning','V-18','—','Code!'+v.title,'not found','Lookup block "'+v.title+'" was not found in row 1 — '+k+' values cannot be checked against the Code sheet');
+  });
+
+  const noCount={}, noRaw={}; const personVariants={};
+  let ltMissing=0, critBlank=0;
+  /* Per-package validation rules (I-32): each rule is self-contained — it
+     receives the package, its display id, the validation context and the issue
+     emitter. Adding a rule = one entry here; the traversal and the panel /
+     counter / CSV export all derive automatically from add(). (I-46 folds in:
+     the duplicate-Package-No key is normalised so " PKG-01 " and "PKG-01"
+     collapse, while the raw value is still shown on the report.) */
+  const RULES = [
+    { code:'V-07', sev:'error', run(p,id,ctx,add){
+        const L=ctx.lookups||{}; const stSet=set(L.status), stCodeSet=set(L.statusCode);
+        if(p.status && (stSet.size||stCodeSet.size) && !stSet.has(norm(p.status)) && !stCodeSet.has(norm(p.status)))
+          add('error','V-07',id,'Package Status',p.status,'Status not found in the Code sheet list');
+    }},
+    { code:'V-06', sev:'warning', run(p,id,ctx,add){
+        const L=ctx.lookups||{}; const discSet=set(L.discipline), discCodeSet=set(L.disciplineCode);
+        if(p.discipline && discSet.size && !discSet.has(norm(p.discipline)) && !discCodeSet.has(norm(p.discipline)))
+          add('warning','V-06',id,'Discipline',p.discipline,'Discipline not found in the Code sheet list');
+    }},
+    { code:'V-17', sev:'info', run(p,id,ctx,add){
+        const L=ctx.lookups||{}; const catSet=set(L.category);
+        if(p.itemCategory && catSet.size && !catSet.has(norm(p.itemCategory)))
+          add('info','V-17',id,'Item Category',p.itemCategory,'Item Category not found in the Code sheet list — for reference only');
+    }},
+    { code:'V-05', sev:'error', run(p,id,ctx,add){
+        const L=ctx.lookups||{}; const critSet=set(L.criticalityCode), critDescSet=set(L.criticality);
+        if(p.criticality!=null && p.criticality!==''){
+          if((critSet.size||critDescSet.size) && !critSet.has(norm(p.criticality)) && !critDescSet.has(norm(p.criticality)))
+            add('error','V-05',id,'Criticality',p.criticality,'Criticality must be one of: '+Array.from(critSet).join(', '));
+        }
+    }},
+    { code:'V-04', sev:'error', run(p,id,ctx,add){
+        ['quantity','leadTime'].forEach(f=>{
+          const raw=p._raw[f];
+          if(raw!=null && raw!=='' && isNaN(Number(raw))) add('error','V-04',id,f,raw,'Value is not numeric');
+        });
+    }},
+    { code:'V-02', sev:'error', run(p,id,ctx,add){
+        ctx.dateFields.forEach(f=>{
+          const raw=p._raw[f];
+          if(raw==null||raw==='') return;
+          if(p[f]==null){
+            if(typeof raw==='number') add('error','V-02',id,f,raw,'Not a real Excel date — the number '+raw+' looks like a placeholder (e.g. 60 / 90 / 120)');
+            else add('error','V-03',id,f,raw,'Text value cannot be read as a date');
+          }
+        });
+    }},
+    { code:'V-08', sev:'warning', run(p,id,ctx,add){
+        for(let i=0;i<stages.length-1;i++){
+          const a=p[stages[i][0]+'Plan'], b=p[stages[i+1][0]+'Plan'];
+          if(a&&b&&a>b) add('warning','V-08',id,stages[i][1]+' → '+stages[i+1][1]+' Plan',fmt(a)+' > '+fmt(b),'Stage plan dates are out of sequence');
+        }
+    }},
+    { code:'V-09', sev:'warning', run(p,id,ctx,add){
+        stages.forEach(([k,n])=>{ const pl=p[k+'Plan'], ac=p[k+'Actual']; if(ac&&!pl) add('warning','V-09',id,n+' Actual',fmt(ac),'Actual date entered but '+n+' Plan is empty'); });
+    }},
+    { code:'V-10', sev:'warning', run(p,id,ctx,add){
+        stages.forEach(([k,n])=>{ const ac=p[k+'Actual']; if(ac&&ctx.asOf&&ac>ctx.asOf) add('warning','V-10',id,n+' Actual',fmt(ac),'Actual date is later than the As-of date ('+fmt(ctx.asOf)+')'); });
+    }}
+  ];
+
+  pkgs.forEach(p=>{
+    const id = p.packageNo || p.title || ('row '+p._row);
+    /* I-46: normalise the duplicate-detection key; keep the raw value for display */
+    if(p.packageNo){ const nk=norm(p.packageNo); noCount[nk]=(noCount[nk]||0)+1; if(noRaw[nk]==null) noRaw[nk]=p.packageNo; }
+
+    if(p.criticality==null||p.criticality==='') critBlank++;
+    if(p.leadTime==null) ltMissing++;
+
+    /* V-12 (I-25): group engineer spellings that differ ONLY in whitespace or
+       slash spacing ("Dilip/Siva" vs "Dilip / Siva" vs "Siva /Dilip").
+       The key is a loose form (separators + runs of spaces collapsed to one
+       space); the Set holds the DISTINCT RAW spellings seen under that key.
+       This is what makes V-12 reachable: the previous code added the raw string
+       to a Set keyed by that same raw string, so every Set had size 1 and the
+       rule could never fire. The key is used for comparison only — the report
+       always shows the untouched values. */
+    const rawE=p._raw['engineer'];
+    if(rawE!=null&&String(rawE).trim()!==''){
+      const shown=String(rawE).trim();
+      const key=shown.toLowerCase().replace(/\s*\/\s*/g,'/').replace(/\s+/g,' ');
+      (personVariants[key]=personVariants[key]||new Set()).add(shown);
+    }
+
+    RULES.forEach(r=>r.run(p,id,ctx,add));
+  });
+
+  Object.entries(noCount).forEach(([k,v])=>{ if(v>1) add('warning','V-11',noRaw[k],'Package No.',noRaw[k],'Duplicate Package No. — appears '+v+' times'); });
+  Object.values(personVariants).forEach(s=>{ if(s.size>1) add('warning','V-12','—','Design Engineer',Array.from(s).join('  |  '),'Same engineer written different ways — counted as '+s.size+' separate people in the Engineer chart. Align the spelling in Excel.'); });
+  if(critBlank>0) add('warning','V-05','—','Criticality',critBlank+' / '+T,'Criticality empty on '+critBlank+' package(s) — the inspection view stays empty');
+  if(T && ltMissing > T*0.5) add('warning','V-14','—','Estimate Lead Time',ltMissing+' / '+T,'Lead time missing on '+ltMissing+' packages ('+Math.round(ltMissing/T*100)+'%)');
+
+  if(ctx.pppGrid && ctx.lastRow!=null){
+    let extra=0;
+    for(let r=ctx.lastRow+1;r<ctx.pppGrid.length;r++){
+      const row=ctx.pppGrid[r]; if(!row) continue;
+      const v=row[ctx.titleCol];
+      if(v!=null&&String(v).trim()!=='') extra++;
+    }
+    if(extra>0) add('warning','V-13','—','PPP rows beyond List End Row',extra+' row(s)','Row(s) after row '+(ctx.lastRow+1)+' contain a Package Title but are excluded by List End Row');
+  }
+  if(ctx.skipped) add('info','V-01','—','Package Title',ctx.skipped+' row(s)','Row(s) inside the range have no Package Title and were skipped');
+
+  // V-19: verify Header Row points at a real header (title column must be non-blank)
+  if(ctx.pppGrid && ctx.headerRow!=null && !isNaN(ctx.headerRow)){
+    const hrow=ctx.pppGrid[ctx.headerRow];
+    const hval=hrow ? hrow[ctx.titleCol] : null;
+    if(hval==null||String(hval).trim()==='')
+      add('warning','V-19','—','PPP Header Row',ctx.codeMeta&&ctx.codeMeta['Header Row'],
+        'Header Row '+((ctx.headerRow)+1)+' in the PPP sheet has no value in the Package Title column — Code sheet Header Row may be out of sync with the PPP layout');
+  }
+
+  // V-20: expected row count vs actual parsed
+  if(ctx.headerRow!=null && ctx.lastRow!=null && !isNaN(ctx.headerRow) && !isNaN(ctx.lastRow)){
+    const expected=ctx.lastRow - ctx.headerRow;
+    const actual=T + (ctx.skipped||0);
+    if(actual < expected)
+      add('warning','V-20','—','PPP row count',actual+' of '+expected,
+        'Expected '+(expected)+' data rows (Header Row '+(ctx.headerRow+1)+' to List End Row '+(ctx.lastRow+1)+') but only '+actual+' rows had content — '+(expected-actual)+' row(s) were completely blank and ignored');
+  }
+
+  /* V-21 (I-11): a rule code that appears in this report but has no row in the
+     Code sheet Error table falls back to the wording built into the dashboard.
+     Severity is WARNING only, by agreement — the dashboard must never error
+     merely because the worksheet lags behind. The message names the exact codes
+     to add under "Error Code" / "Error Description".
+     V-21 excludes itself from the check: a rule should not audit its own
+     documentation, otherwise the worksheet could never reach a clean state. */
+  if(!ctx.errorCodeCol){
+    add('warning','V-21','—','Code!Q:R','not found','No "Error Code" / "Error Description" block was found in Code row 1 — every rule falls back to the wording built into the dashboard.');
+  } else {
+    const undocumented=[...new Set(issues.map(i=>i.code))].filter(c=>c!=='V-21'&&!ruleText(c)).sort();
+    if(undocumented.length)
+      add('warning','V-21','—','Code!Q:R',undocumented.join(', '),undocumented.length+' rule code(s) used in this report have no row in the Code sheet Error table — the built-in wording is shown instead. Add '+undocumented.join(', ')+' under "Error Code" / "Error Description" to make the worksheet the single source of truth.');
+  }
+
+  const counts={error:0,warning:0,info:0};
+  issues.forEach(i=>counts[i.sev]++);
+  const order={error:0,warning:1,info:2};
+  issues.sort((a,b)=> (order[a.sev]-order[b.sev]) || a.code.localeCompare(b.code));
+  return {counts, issues, total:issues.length, packages:T};
+}
+function renderCodeMap(){
+  const ci=STATE.model.codeInfo||{}, LM=STATE.model.lookupMeta||{};
+  const parts=[];
+  parts.push('<b>Code sheet:</b> '+(ci.fieldCount||0)+' field mapping(s) read from A/B');
+  parts.push(ci.hasTypes ? ('Data Type (C): '+ci.typeCount+' value(s)') : 'Data Type (C): <span class="ds-warn">empty — all fields default to Text</span>');
+  /* I-11: report where the Error table was found, so the rule wording's origin
+     is verifiable on screen just like the lookup blocks below. */
+  parts.push(ci.errorCodeCol
+    ? ('Error table: col '+(ci.errorDescCol||'?')+' · code col '+ci.errorCodeCol+' · '+ci.errorCount+' code(s)')
+    : 'Error table: <span class="ds-warn">not found</span>');
+  /* Derived from lookupMeta itself — no hardcoded key list, so a block added or
+     removed in one place (LOOKUP_HEADERS) shows up here automatically (I-49).
+     Each block reports its description column AND its paired code column, with
+     each column's OWN value count — a code column whose header exists but whose
+     body is blank renders "(empty)" instead of silently borrowing the
+     description column's count, which would claim data that is not in the sheet. */
+  const lk=Object.values(LM).map(v=>{
+    if(!v.col) return v.title+': <span class="ds-warn">not found</span>';
+    let s=v.title+': col '+v.col+' ('+v.n+')';
+    if(v.codeCol && v.codeCol!==v.col)
+      s+=' · code col '+v.codeCol+(v.codeN ? ' ('+v.codeN+')' : ' <span class="ds-warn">(empty)</span>');
+    return s;
+  });
+  return parts.join(' · ')+'<br>'+lk.join(' · ');
+}
+/* I-11: one line per rule code that appears in this report, showing the wording
+   the business maintains in the Code sheet Error table (Code!Q:R).
+   Deduplicated on purpose — the table below can legitimately list the same rule
+   100+ times, so repeating the definition on every row would be pure noise. */
+function renderRuleRef(rep){
+  const el=document.getElementById('vref'); if(!el) return;
+  const seen=[], desc={};
+  rep.issues.forEach(i=>{ if(!(i.code in desc)){ desc[i.code]=i.desc||''; seen.push(i.code); } });
+  if(!seen.length){ el.innerHTML=''; return; }
+  seen.sort();
+  el.innerHTML='<b>Rule reference</b> — wording from the Code sheet Error table'+
+    '<ul class="vref-list">'+seen.map(c=>
+      '<li><code>'+esc(c)+'</code>'+(desc[c]?esc(desc[c]):'<span class="ds-warn">not listed in the Error table — the dashboard\u2019s built-in wording is used</span>')
+      +'</li>').join('')+'</ul>';
+}
+function renderValidation(rep){
+  const c=rep.counts;
+  document.getElementById('vmap').innerHTML = renderCodeMap();
+  renderRuleRef(rep);
+  document.getElementById('vsub').textContent = rep.total
+    ? 'Checks run against the PPP data and the Code sheet lists. The dashboard below is generated anyway — fix the data in Excel and reload to clear these.'
+    : 'All checks passed — no issues found.';
+  document.getElementById('vchips').innerHTML =
+    (c.error?'<span class="vchip e">'+c.error+' Error'+(c.error>1?'s':'')+'</span>':'')+
+    (c.warning?'<span class="vchip w">'+c.warning+' Warning'+(c.warning>1?'s':'')+'</span>':'')+
+    (c.info?'<span class="vchip i">'+c.info+' Info</span>':'')+
+    (rep.total?'':'<span class="vchip ok">No issues</span>');
+  const rows=rep.issues.slice(0,80);
+  document.getElementById('vtable').innerHTML =
+    '<table class="ds-table"><thead><tr><th scope="col">Sev</th><th scope="col">Rule</th><th scope="col">Package</th><th scope="col">Field</th><th scope="col">Value</th><th scope="col">Message</th></tr></thead><tbody>'+
+    rows.map(i=>'<tr><td><span class="sev sev-'+i.sev+'">'+esc(i.sev)+'</span></td><td class="rulecell"'+(i.desc?' title="'+esc(i.desc)+'"':'')+'>'+esc(i.code)+'</td><td>'+esc(trunc(i.pkg,28))+'</td><td>'+esc(i.field)+'</td><td>'+esc(trunc(i.value,26))+'</td><td>'+esc(i.msg)+'</td></tr>').join('')+
+    '</tbody></table>'+
+    (rep.issues.length>rows.length?'<div class="note">Showing the first '+rows.length+' of '+rep.issues.length+' — use Export CSV for the full list.</div>':'');
+  document.getElementById('vdetails').open = c.error>0;
+}
+
+/* ============== charts ============== */
+const PIE_COLORS=['#0066CC','#34C759','#FF9F0A','#5E5CE6','#FF3B30','#30B0C7','#AF52DE','#FF9500','#8E8E93'];
+/* Chart geometry + colour palette (I-35 / I-34). Centralised so a dimension
+   or colour is changed in one place. Colours stay literal hex (not CSS vars)
+   because the chart SVG is serialised to a PNG, where document CSS custom
+   properties do not resolve. */
+const CHART = {
+  W:760, RW:46, padT:12, RH:30, BH:18,
+  pie:{ R:100, r:58, cx:130, legendX:290, rowH:24 },
+  group:{ h:280, padL:34, padR:10, padT:18, padB:48 },
+  ink:'#1D1D1F', muted:'#6E6E73', grey:'#C7C7CC', accent:'#0066CC',
+  accentDark:'#004999', goodDark:'#1A7F3C',
+  axis:'#E3E3E6', grid:'#F0F0F2', white:'#FFFFFF'
+};
+/* ============== Wave 1 (I-27): METRICS registry ==============
+   Single source of truth for every categorical chart. Adding a chart =
+   one entry here; the toggle, render and re-render are all derived from
+   this table (no parallel CAT_META array, no renderCat() if/else chain
+   to keep in sync). Optional `decorate(pkgs, mode)` handles card-specific
+   UI bits (e.g. criticality sub/note) as a capability, not a branch. */
+const METRICS = [
+  { key:'status',      title:'Package Status',      sub:'Distribution across the procurement workflow',
+    charts:['bar','pie'], svg:'svg-status', el:'statusChart', provider: statusItems },
+  { key:'discipline',  title:'Discipline',          sub:'Packages by engineering discipline',
+    charts:['bar','pie'], svg:'svg-disc',   el:'discipline', provider: p=>tallyItems(p,'discipline',{sort:true}) },
+  { key:'engineer',    title:'Engineer Workload',   sub:'Packages per responsible engineer',
+    charts:['bar','pie'], svg:'svg-eng',    el:'engineer',   provider: p=>tallyItems(p,'engineer',{sort:true,blankLabel:'Unassigned (blank)'}) },
+  { key:'criticality', title:'Criticality (Inspection Level)',
+    charts:['bar','pie'], svg:'svg-crit',   el:'criticality', provider: critItems,
+    decorate:(pkgs,mode)=>{
+      const L=STATE.model.lookups||{}, codes=(L.criticalityCode||[]).map(s=>String(s).trim()), descs=(L.criticality||[]).map(s=>String(s).trim());
+      if(codes.length) document.getElementById('critSub').textContent = codes.map((c,i)=>c+' '+(descs[i]?trunc(descs[i],30):'')).join(' · ');
+      const filled=pkgs.filter(p=>p.criticality!=null&&p.criticality!=='').length;
+      document.getElementById('critNote').textContent = filled===0
+        ? 'Empty for all packages → this view stays empty until the Criticality column is filled.'
+        : filled+' of '+pkgs.length+' packages have a Criticality value.';
+    } },
+  { key:'leadtime',    title:'Lead Time Estimate',  sub:'Coverage and distribution of estimated lead times',
+    charts:['bar','pie'], svg:'svg-lead',   el:'leadtime', provider:(pkgs,mode)=>leadItems(pkgs,mode),
+    note:(pkgs,mode)=>{
+      if(mode==='pie') return 'Pie shows the lead-time buckets only — the coverage rows are excluded to avoid double counting.';
+      const st=leadStats(pkgs);
+      return 'Avg of estimated: <b>'+st.avg+' days</b> ('+Math.round(st.avg/7*10)/10+' weeks)';
+    } }
+];
+const METRICS_BY_KEY = Object.fromEntries(METRICS.map(m=>[m.key,m]));
+
 function tally(pkgs, field){ const m={}; pkgs.forEach(p=>{ const v=p[field]; const k=(v==null||v==='')?'(blank)':v; m[k]=(m[k]||0)+1; }); return m; }
+function tallyBy(pkgs, fn){ const m={}; pkgs.forEach(p=>{ const v=fn(p); const k=(v==null||v==='')?'(blank)':String(v); m[k]=(m[k]||0)+1; }); return m; }
+function isIssued(p){
+  /* I-13 / I-49 / I-53: the contract has no `Status Category` block, so "issued"
+     is decided by the status wording alone. Two cleanups here:
+       · the dead branch that read lookups.statusCategory is gone (I-49 residue);
+       · the value is canonicalised first (I-53), like every other view, so a
+         status stored as a short code ("DEL") is recognised too. Previously the
+         raw value was matched, so coded statuses fell through to the overdue
+         table. No effect on the current workbook (statuses are stored as text). */
+  const canon=STATE.model.statusCanon||(v=>String(v==null?'':v));
+  const d=canon(p.status).trim().toLowerCase();
+  return d.includes('po issued')||d.includes('delivered')||d.includes('receive inspection')||d.includes('fabrication')||d.includes('fat completed')||d.includes('vendor data approval');
+}
 function tallyItems(pkgs, field, opts={}){
-  let list=Object.entries(tally(pkgs,field));
-  if(opts.order) list=opts.order.filter(k=>tally(pkgs,field)[k]!=null).map(k=>[k,tally(pkgs,field)[k]]);
+  const t=tally(pkgs,field);
+  let list=Object.entries(t);
+  if(opts.order) list=opts.order.filter(k=>t[k]!=null).map(k=>[k,t[k]]);
   else if(opts.sort) list.sort((a,b)=>b[1]-a[1]);
   return list.map(([k,v])=>({label:(opts.label&&opts.label[k])?opts.label[k]:(k==='(blank)'&&opts.blankLabel?opts.blankLabel:k), value:v}));
 }
 function svgHBar(items, opts={}){
-  const W=760, LW=opts.LW||240, RW=46, padT=12, RH=30, BH=18;
+  const W=CHART.W, RW=CHART.RW, padT=CHART.padT, RH=CHART.RH, BH=CHART.BH;
+  const maxLen=Math.max(8,...items.map(i=>String(i.label).length));
+  const LW=opts.LW||Math.min(360, Math.max(160, maxLen*7+16));
   const H=padT+items.length*RH+8;
   const maxV=Math.max(1,...items.map(i=>i.value));
   const plotX=LW, plotW=W-LW-RW;
   const id=opts.svgId||('svg-'+Math.random().toString(36).slice(2));
-  let s=`<svg id="${id}" xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;display:block">`;
+  let s='<svg id="'+id+'" role="img" aria-label="'+esc(opts.ariaLabel||'bar chart')+'" xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" style="width:100%;height:'+H+'px;display:block">';
   items.forEach((it,idx)=>{
-    const y=padT+idx*RH; const bw=Math.max(2,(it.value/maxV)*plotW); const col=it.color||'#0066CC';
-    s+=`<text x="${LW-10}" y="${y+BH-4}" text-anchor="end" fill="#1D1D1F">${esc(it.label)}</text>`;
-    s+=`<rect x="${plotX}" y="${y}" width="${bw}" height="${BH}" rx="4" fill="${col}"/>`;
-    s+=`<text x="${plotX+bw+8}" y="${y+BH-4}" fill="#6E6E73">${it.value}</text>`;
+    const y=padT+idx*RH; const bw=Math.max(2,(it.value/maxV)*plotW); const col=it.color||CHART.accent;
+    const maxChars=Math.floor((LW-16)/7);
+    s+='<text x="'+(LW-10)+'" y="'+(y+BH-4)+'" text-anchor="end" fill="'+CHART.ink+'"><title>'+esc(it.label)+'</title>'+esc(trunc(it.label,maxChars))+'</text>';
+    s+='<rect x="'+plotX+'" y="'+y+'" width="'+bw+'" height="'+BH+'" rx="4" fill="'+col+'"/>';
+    s+='<text x="'+(plotX+bw+8)+'" y="'+(y+BH-4)+'" fill="'+CHART.muted+'">'+it.value+'</text>';
   });
   return s+'</svg>';
 }
-function svgCriticality(pkgs){
-  const labels={'1':'1 — Factory In-house QC','2':'2 — Third Party Inspection','3':'3 — Witness Point','4':'4 — FAT Record Submission'};
-  const blank=pkgs.filter(p=>p.criticality==null||p.criticality==='').length;
-  const items=[];
-  for(const k of ['1','2','3','4']){ items.push({label:labels[k],value:pkgs.filter(p=>String(p.criticality)===k).length,color:'#0066CC'}); }
-  items.push({label:'Not Specified (blank)',value:blank,color:'#C7C7CC'});
-  return svgHBar(items,{svgId:'svg-crit'});
+function polar(cx,cy,r,a){ return [cx+r*Math.cos(a), cy+r*Math.sin(a)]; }
+function donutPath(cx,cy,R,r,a0,a1){
+  const large=(a1-a0)>Math.PI?1:0;
+  const p0=polar(cx,cy,R,a0), p1=polar(cx,cy,R,a1), p2=polar(cx,cy,r,a1), p3=polar(cx,cy,r,a0);
+  return 'M'+p0[0].toFixed(2)+' '+p0[1].toFixed(2)+' A'+R+' '+R+' 0 '+large+' 1 '+p1[0].toFixed(2)+' '+p1[1].toFixed(2)+
+         ' L'+p2[0].toFixed(2)+' '+p2[1].toFixed(2)+' A'+r+' '+r+' 0 '+large+' 0 '+p3[0].toFixed(2)+' '+p3[1].toFixed(2)+' Z';
 }
-function svgLeadTime(pkgs){
-  const vals=pkgs.map(p=>p.leadTime).filter(v=>v!=null&&!isNaN(v));
-  const withN=vals.length, blankN=pkgs.length-withN, avg=withN?Math.round(vals.reduce((a,b)=>a+Number(b),0)/withN):0;
-  const buckets={le90:0,b91_180:0,b181_270:0,gt270:0};
-  vals.forEach(v=>{ v=Number(v); if(v<=90)buckets.le90++; else if(v<=180)buckets.b91_180++; else if(v<=270)buckets.b181_270++; else buckets.gt270++; });
-  const items=[{label:'Estimated',value:withN,color:'#0066CC'},{label:'Not estimated',value:blankN,color:'#C7C7CC'},
-    {label:'≤ 90 days',value:buckets.le90},{label:'91 – 180 days',value:buckets.b91_180},{label:'181 – 270 days',value:buckets.b181_270},{label:'> 270 days',value:buckets.gt270}];
-  const sub=`<div class="note" style="margin:2px 0 10px">Avg of estimated: <b>${avg} days</b> (${Math.round(avg/7*10)/10} weeks)</div>`;
-  return sub+svgHBar(items,{svgId:'svg-lead'});
+function topN(items,n){
+  if(items.length<=n) return items.slice();
+  const sorted=items.slice().sort((a,b)=>b.value-a.value);
+  const top=sorted.slice(0,n), rest=sorted.slice(n);
+  const otherVal=rest.reduce((s,i)=>s+i.value,0);
+  const out=top.slice();
+  if(otherVal>0) out.push({label:'Other ('+rest.length+' categories)',value:otherVal,color:CHART.grey});
+  return out;
+}
+function svgPie(items, opts={}){
+  const W=CHART.W;
+  const data=topN(items.filter(i=>i.value>0),8).filter(i=>i.value>0);
+  const total=data.reduce((s,i)=>s+i.value,0);
+  if(!total) return '<div class="empty">No data to chart.</div>';
+  const R=CHART.pie.R, r=CHART.pie.r, cx=CHART.pie.cx, legendX=CHART.pie.legendX, rowH=CHART.pie.rowH;
+  const H=Math.max(230, 24+data.length*rowH+20);
+  const cy=H/2;
+  const id=opts.svgId||('svg-'+Math.random().toString(36).slice(2));
+  let s='<svg id="'+id+'" role="img" aria-label="'+esc(opts.ariaLabel||'pie chart')+'" xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" style="width:100%;height:'+H+'px;display:block">';
+  let a0=-Math.PI/2;
+  data.forEach((it,i)=>{
+    const frac=it.value/total; const a1=a0+frac*Math.PI*2;
+    const col=it.color||PIE_COLORS[i%PIE_COLORS.length];
+    const d = frac>=0.9999 ? (donutPath(cx,cy,R,r,a0,a0+Math.PI)+' '+donutPath(cx,cy,R,r,a0+Math.PI,a0+Math.PI*2)) : donutPath(cx,cy,R,r,a0,a1);
+    s+='<path d="'+d+'" fill="'+col+'" stroke="'+CHART.white+'" stroke-width="1.5"><title>'+esc(it.label)+': '+it.value+' ('+Math.round(frac*100)+'%)</title></path>';
+    a0=a1;
+  });
+  s+='<text x="'+cx+'" y="'+(cy-3)+'" text-anchor="middle" fill="'+CHART.ink+'" style="font-size:21px;font-weight:700">'+total+'</text>';
+  s+='<text x="'+cx+'" y="'+(cy+15)+'" text-anchor="middle" fill="'+CHART.muted+'" style="font-size:11px">packages</text>';
+  data.forEach((it,i)=>{
+    const y=24+i*rowH; const col=it.color||PIE_COLORS[i%PIE_COLORS.length];
+    s+='<rect x="'+legendX+'" y="'+(y-9)+'" width="11" height="11" rx="2.5" fill="'+col+'"/>';
+    s+='<text x="'+(legendX+18)+'" y="'+y+'" fill="'+CHART.ink+'" style="font-size:12.5px"><title>'+esc(it.label)+'</title>'+esc(trunc(it.label,32))+'</text>';
+    s+='<text x="'+(W-10)+'" y="'+y+'" text-anchor="end" fill="'+CHART.muted+'" style="font-size:12.5px">'+it.value+' · '+Math.round(it.value/total*100)+'%</text>';
+  });
+  return s+'</svg>';
+}
+function svgGrouped(cats, opts, series, lines){
+  const id=opts&&opts.svgId?opts.svgId:('svg-'+Math.random().toString(36).slice(2));
+  const w=Math.max(380, cats.length*64+50), h=CHART.group.h, padL=CHART.group.padL, padR=CHART.group.padR, padT=CHART.group.padT, padB=CHART.group.padB;
+  const plotW=w-padL-padR, plotH=h-padT-padB;
+  const maxV=Math.max(1,...series.flatMap(s=>s.values),...(lines||[]).flatMap(l=>l.values));
+  let s='<svg id="'+id+'" role="img" aria-label="'+esc((opts&&opts.ariaLabel)||'chart')+'" xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" style="width:100%;height:'+h+'px;display:block">';
+  s+='<line x1="'+padL+'" y1="'+padT+'" x2="'+padL+'" y2="'+(padT+plotH)+'" stroke="'+CHART.axis+'"/>';
+  s+='<line x1="'+padL+'" y1="'+(padT+plotH)+'" x2="'+(w-padR)+'" y2="'+(padT+plotH)+'" stroke="'+CHART.axis+'"/>';
+  for(let i=0;i<=4;i++){ const v=Math.round(maxV*i/4), y=padT+plotH-(v/maxV)*plotH; s+='<text x="'+(padL-6)+'" y="'+(y+3)+'" text-anchor="end" fill="'+CHART.muted+'">'+v+'</text><line x1="'+padL+'" y1="'+y+'" x2="'+(w-padR)+'" y2="'+y+'" stroke="'+CHART.grid+'"/>'; }
+  const gw=plotW/cats.length, n=series.length, bw=Math.min(18,(gw*0.66)/n);
+  cats.forEach((c,ci)=>{ const gx=padL+ci*gw+gw/2; series.forEach((ser,si)=>{ const v=ser.values[ci], bh=(v/maxV)*plotH, x=gx-(n*bw)/2+si*bw, y=padT+plotH-bh;
+    s+='<rect x="'+x+'" y="'+y+'" width="'+(bw-2)+'" height="'+bh+'" fill="'+ser.color+'" rx="2"><title>'+esc(c)+': '+ser.name+' = '+v+'</title></rect>'; });
+    s+='<text x="'+gx+'" y="'+(padT+plotH+15)+'" text-anchor="middle" fill="'+CHART.muted+'">'+esc(c)+'</text>'; });
+  /* overlay lines */
+  if(lines&&lines.length){
+    lines.forEach(line=>{
+      const pts=line.values.map((v,ci)=>{ const gx=padL+ci*gw+gw/2; const y=padT+plotH-(v/maxV)*plotH; return gx+','+y; });
+      if(pts.length>1) s+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+line.color+'" stroke-width="2" stroke-dasharray="'+(line.dash||'')+'" stroke-linejoin="round" stroke-linecap="round"/>';
+      pts.forEach((pt,ci)=>{ const [cx2,cy2]=pt.split(','); s+='<circle cx="'+cx2+'" cy="'+cy2+'" r="3" fill="'+line.color+'"><title>'+esc(cats[ci])+': '+line.name+' = '+line.values[ci]+'</title></circle>'; });
+    });
+  }
+  let lx=padL;
+  series.forEach(ser=>{ s+='<rect x="'+lx+'" y="'+(h-12)+'" width="10" height="10" fill="'+ser.color+'" rx="2"/><text x="'+(lx+14)+'" y="'+(h-3)+'" fill="'+CHART.ink+'">'+ser.name+'</text>'; lx+=14+ser.name.length*6+18; });
+  if(lines&&lines.length) lines.forEach(line=>{ s+='<line x1="'+lx+'" y1="'+(h-7)+'" x2="'+(lx+16)+'" y2="'+(h-7)+'" stroke="'+line.color+'" stroke-width="2" stroke-dasharray="'+(line.dash||'')+'"/><text x="'+(lx+20)+'" y="'+(h-3)+'" fill="'+CHART.ink+'">'+line.name+'</text>'; lx+=20+line.name.length*6+18; });
+  return s+'</svg>';
+}
+
+/* ---- categorical providers ---- */
+function statusItems(pkgs){
+  const L=STATE.model.lookups||{};
+  const descs=(L.status||[]).map(s=>String(s).trim());
+  const canon=STATE.model.statusCanon||(v=>String(v==null?'':v));
+  const t=tally(pkgs,'status');
+  const items=[], used=new Set();
+  if(descs.length){
+    descs.forEach(d=>{
+      let n=0;
+      Object.entries(t).forEach(([k,v])=>{ if(canon(k)===d){ n+=v; used.add(k); } });
+      items.push({label:d,value:n});
+    });
+  }
+  Object.entries(t).forEach(([k,v])=>{
+    if(used.has(k)) return;
+    if(k==='(blank)'){ items.push({label:'Not Specified (blank)',value:v,color:CHART.grey}); return; }
+    items.push({label:canon(k)||k, value:v});
+  });
+  return items;
+}
+function critItems(pkgs){
+  const L=STATE.model.lookups||{};
+  const codes=(L.criticalityCode||[]).map(s=>String(s).trim());
+  const descs=(L.criticality||[]).map(s=>String(s).trim());
+  const keys=codes.length?codes:['0','1','2','3','4'];
+  const fb={'0':'Not Applicable','1':'Factory In-house QC','2':'Third Party Inspection','3':'Witness Point','4':'FAT Record Submission'};
+  const known=new Set(keys);
+  const items=keys.map((k,i)=>{
+    const d=descs[i]||fb[k]||'';
+    return {label:k+(d?' — '+trunc(d,38):''), value:pkgs.filter(p=>String(p.criticality==null?'':p.criticality).trim()===k).length};
+  });
+  const extra={};
+  pkgs.forEach(p=>{ const v=p.criticality; if(v==null||v==='') return; const s=String(v).trim(); if(!known.has(s)) extra[s]=(extra[s]||0)+1; });
+  Object.entries(extra).forEach(([k,v])=>items.push({label:k+' (not in Code list)',value:v,color:'#FF9F0A'}));
+  items.push({label:'Not Specified (blank)',value:pkgs.filter(p=>p.criticality==null||p.criticality==='').length,color:'#C7C7CC'});
+  return items;
+}
+function leadStats(pkgs){
+  const vals=pkgs.map(p=>p.leadTime).filter(v=>v!=null&&!isNaN(v)).map(Number);
+  const avg=vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):0;
+  return {vals,avg,withN:vals.length,blankN:pkgs.length-vals.length};
+}
+function leadItems(pkgs, mode){
+  const st=leadStats(pkgs);
+  const b={le90:0,b91_180:0,b181_270:0,gt270:0};
+  st.vals.forEach(v=>{ if(v<=90)b.le90++; else if(v<=180)b.b91_180++; else if(v<=270)b.b181_270++; else b.gt270++; });
+  const buckets=[{label:'≤ 90 days',value:b.le90},{label:'91 – 180 days',value:b.b91_180},{label:'181 – 270 days',value:b.b181_270},{label:'> 270 days',value:b.gt270}];
+  if(mode==='pie') return buckets;
+  return [{label:'Estimated',value:st.withN},{label:'Not estimated',value:st.blankN,color:'#C7C7CC'}].concat(buckets);
+}
+function renderCat(key, pkgs){
+  const meta=METRICS_BY_KEY[key];
+  if(!meta) return;
+  pkgs = pkgs || filteredPackages();
+  const pref=getPref(key);
+  const items=meta.provider(pkgs, pref) || [];
+  /* I-28: per-metric behaviour is a registry capability (`note`), not a
+     `key===…` branch. The note renders above the bar chart / below the pie,
+     matching the previous layout exactly. */
+  const note = meta.note ? meta.note(pkgs, pref) : '';
+  let html;
+  if(pref==='pie'){
+    html=svgPie(items,{svgId:meta.svg, ariaLabel:meta.title+' — pie chart'});
+    if(note) html+='<div class="note">'+note+'</div>';
+  }else{
+    html='';
+    if(note) html+='<div class="note">'+note+'</div>';
+    html+=svgHBar(items,{svgId:meta.svg, ariaLabel:meta.title+' — bar chart'});
+  }
+  document.getElementById(meta.el).innerHTML=html;
+  if(meta.decorate) meta.decorate(pkgs, pref);
+  document.querySelectorAll('.seg[data-key="'+key+'"] button').forEach(b=>{
+    if(b.getAttribute('data-t')===pref) b.classList.add('on'); else b.classList.remove('on');
+  });
 }
 function svgStage(pkgs){
   const stages=['MR','PO','VD','FAT','ROS'];
   const plan=stages.map(s=>pkgs.filter(p=>p[s.toLowerCase()+'Plan']).length);
   const act=stages.map(s=>pkgs.filter(p=>p[s.toLowerCase()+'Actual']).length);
-  return svgGrouped(stages,{svgId:'svg-stage'},[{name:'Planned',color:'#0066CC',values:plan},{name:'Actual',color:'#34C759',values:act}]);
+  return svgGrouped(stages,{svgId:'svg-stage', ariaLabel:'Stage plan coverage — planned vs actual'},[{name:'Planned',color:'#0066CC',values:plan},{name:'Actual',color:'#34C759',values:act}]);
 }
-function svgGrouped(cats, opts, series){
-  const id=opts&&opts.svgId?opts.svgId:('svg-'+Math.random().toString(36).slice(2));
-  const w=Math.max(380, cats.length*64+50), h=280, padL=34, padR=10, padT=18, padB=48;
-  const plotW=w-padL-padR, plotH=h-padT-padB;
-  const maxV=Math.max(1,...series.flatMap(s=>s.values));
-  let s=`<svg id="${id}" xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="width:100%;height:${h}px;display:block">`;
-  s+=`<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+plotH}" stroke="#E3E3E6"/>`;
-  s+=`<line x1="${padL}" y1="${padT+plotH}" x2="${w-padR}" y2="${padT+plotH}" stroke="#E3E3E6"/>`;
-  for(let i=0;i<=4;i++){ const v=Math.round(maxV*i/4), y=padT+plotH-(v/maxV)*plotH; s+=`<text x="${padL-6}" y="${y+3}" text-anchor="end" fill="#6E6E73">${v}</text><line x1="${padL}" y1="${y}" x2="${w-padR}" y2="${y}" stroke="#F0F0F2"/>`; }
-  const gw=plotW/cats.length, n=series.length, bw=Math.min(18,(gw*0.66)/n);
-  cats.forEach((c,ci)=>{ const gx=padL+ci*gw+gw/2; series.forEach((ser,si)=>{ const v=ser.values[ci], bh=(v/maxV)*plotH, x=gx-(n*bw)/2+si*bw, y=padT+plotH-bh;
-    s+=`<rect x="${x}" y="${y}" width="${bw-2}" height="${bh}" fill="${ser.color}" rx="2"><title>${esc(c)}: ${ser.name} = ${v}</title></rect>`; });
-    s+=`<text x="${gx}" y="${padT+plotH+15}" text-anchor="middle" fill="#6E6E73">${esc(c)}</text>`; });
-  let lx=padL; series.forEach(ser=>{ s+=`<rect x="${lx}" y="${h-12}" width="10" height="10" fill="${ser.color}" rx="2"/><text x="${lx+14}" y="${h-3}" fill="#1D1D1F">${ser.name}</text>`; lx+=14+ser.name.length*6+18; });
-  return s+'</svg>';
-}
+
+/* ============== KPI / tables ============== */
 function renderKPIs(pkgs){
   const T=pkgs.length;
-  const st=tally(pkgs,'status');
+  const canon=STATE.model.statusCanon||(v=>String(v==null?'':v));
+  const st=tallyBy(pkgs,p=>canon(p.status));
   const notStart=st['Not Start']||0, blank=st['(blank)']||0;
-  const iss=d=>String(d==null?'':d).toLowerCase();
-  const delivered=pkgs.filter(p=>iss(p.status).includes('delivered')||iss(p.status).includes('receive inspection')).length;
+  const delivered=pkgs.filter(p=>{ const d=String(canon(p.status)).toLowerCase(); return d.includes('delivered')||d.includes('receive inspection'); }).length;
   const startedPct=Math.round((T-notStart-blank)/T*100);
   const notStarted=notStart+blank;
   const lt=pkgs.filter(p=>p.leadTime!=null&&!isNaN(p.leadTime)).length;
@@ -496,7 +1309,7 @@ function renderKPIs(pkgs){
     {v:lt+'/'+T,l:'Lead-time estimated',s:Math.round(lt/T*100)+'% coverage',c:lt/T>=0.5?'s-good':'s-bad'},
     {v:eng+'/'+T,l:'Engineer assigned',s:Math.round(eng/T*100)+'% covered',c:'s-good'}
   ];
-  document.getElementById('kpis').innerHTML=kpis.map(k=>`<div class="kpi"><div class="v">${k.v}</div><div class="l">${k.l}</div>${k.s?`<div class="s ${k.c}">${k.s}</div>`:''}</div>`).join('');
+  document.getElementById('kpis').innerHTML=kpis.map(k=>'<div class="kpi"><div class="v">'+k.v+'</div><div class="l">'+k.l+'</div>'+(k.s?'<div class="s '+k.c+'">'+k.s+'</div>':'')+'</div>').join('');
 }
 function renderPOMonthly(pkgs){
   const planDates=pkgs.filter(p=>p.poPlan).map(p=>p.poPlan).sort((a,b)=>a-b);
@@ -514,25 +1327,31 @@ function renderPOMonthly(pkgs){
   const planVals=months.map(m=>pkgs.filter(p=>p.poPlan&&sameMonth(p.poPlan,m)).length);
   const actVals=months.map(m=>pkgs.filter(p=>p.poActual&&sameMonth(p.poActual,m)).length);
   sub.textContent='Planned vs actual PO issuance by month · '+planDates.length+' planned'+(actualDates.length?', '+actualDates.length+' actual':'')+' · PO Actual '+(actualDates.length?'populated':'empty');
-  document.getElementById('poChart').innerHTML=svgGrouped(cats,{svgId:'svg-po'},[{name:'Planned',color:'#0066CC',values:planVals},{name:'Actual',color:'#34C759',values:actVals}]);
+  const cumPlan=planVals.reduce((a,v,i)=>{ a.push((a[i-1]||0)+v); return a; },[]);
+  const cumAct=actVals.reduce((a,v,i)=>{ a.push((a[i-1]||0)+v); return a; },[]);
+  const lines=[
+    {name:'Cumul. Plan',color:CHART.accentDark,dash:'5,3',values:cumPlan},
+    {name:'Cumul. Actual',color:CHART.goodDark,dash:'',values:cumAct}
+  ];
+  document.getElementById('poChart').innerHTML=svgGrouped(cats,{svgId:'svg-po', ariaLabel:'PO plan vs actual by month'},[{name:'Planned',color:'#0066CC',values:planVals},{name:'Actual',color:'#34C759',values:actVals}],lines);
 }
 function renderLookAhead(pkgs, asOf){
   const end=new Date(asOf); end.setDate(end.getDate()+90);
   const list=pkgs.filter(p=>p.poPlan&&p.poPlan>=asOf&&p.poPlan<=end).sort((a,b)=>a.poPlan-b.poPlan);
   document.getElementById('lookSub').textContent='PO Plan from '+fmt(asOf)+' to '+fmt(end)+' ('+list.length+' packages)';
   if(!list.length){ document.getElementById('lookahead').innerHTML='<div class="empty">No POs planned in the next 3 months.</div>'; return; }
-  document.getElementById('lookahead').innerHTML='<table><thead><tr><th>Package</th><th>Discipline</th><th>PO Plan</th><th>Status</th></tr></thead><tbody>'+list.map(p=>`<tr><td>${esc(p.title)}</td><td>${esc(p.discipline||'—')}</td><td>${fmt(p.poPlan)}</td><td>${esc(p.status||'—')}</td></tr>`).join('')+'</tbody></table>';
+  document.getElementById('lookahead').innerHTML='<table class="ds-table"><thead><tr><th scope="col">Package</th><th scope="col">Discipline</th><th scope="col">PO Plan</th><th scope="col">Status</th></tr></thead><tbody>'+list.map(p=>'<tr><td>'+esc(p.title)+'</td><td>'+esc(p.discipline||'—')+'</td><td>'+fmt(p.poPlan)+'</td><td>'+esc(p.status||'—')+'</td></tr>').join('')+'</tbody></table>';
 }
 function renderDelays(pkgs, asOf){
-  const iss=d=>String(d==null?'':d).toLowerCase(); const isIssued=s=>iss(s).includes('po issued')||iss(s).includes('delivered')||iss(s).includes('receive inspection');
-  const list=pkgs.filter(p=>p.poPlan&&p.poPlan<asOf&&!isIssued(p.status)).sort((a,b)=>a.poPlan-b.poPlan);
+  const issued=s=>isIssued({status:s});
+  const list=pkgs.filter(p=>p.poPlan&&p.poPlan<asOf&&!issued(p.status)).sort((a,b)=>a.poPlan-b.poPlan);
   document.getElementById('delaySub').textContent='PO Plan past but not yet issued ('+list.length+' packages)';
-  if(!list.length){ document.getElementById('delays').innerHTML='<div class="empty">No overdue PO issuances. 🎉</div>'; return; }
-  document.getElementById('delays').innerHTML='<table><thead><tr><th>Package</th><th>Discipline</th><th>PO Plan</th><th>Overdue</th><th>Status</th></tr></thead><tbody>'+list.map(p=>{ const days=Math.round((asOf-p.poPlan)/86400000); return `<tr class="over"><td>${esc(p.title)}</td><td>${esc(p.discipline||'—')}</td><td>${fmt(p.poPlan)}</td><td>${days} d</td><td>${esc(p.status||'—')}</td></tr>`; }).join('')+'</tbody></table>';
+  if(!list.length){ document.getElementById('delays').innerHTML='<div class="empty">No overdue PO issuances.</div>'; return; }
+  document.getElementById('delays').innerHTML='<table class="ds-table"><thead><tr><th scope="col">Package</th><th scope="col">Discipline</th><th scope="col">PO Plan</th><th scope="col">Overdue</th><th scope="col">Status</th></tr></thead><tbody>'+list.map(p=>{ const days=Math.round((asOf-p.poPlan)/86400000); return '<tr class="over"><td>'+esc(p.title)+'</td><td>'+esc(p.discipline||'—')+'</td><td>'+fmt(p.poPlan)+'</td><td>'+days+' d</td><td>'+esc(p.status||'—')+'</td></tr>'; }).join('')+'</tbody></table>';
 }
 function renderBenchmark(){
   const bench=[['Power transformer','36–78 weeks','252–546'],['MV/HV switchgear','20–40 weeks','140–280'],['Generator (std)','12–20 weeks','84–140'],['Chiller','16–24 weeks','112–168'],['Pump (std)','8–14 weeks','56–98'],['Cooling tower','12–20 weeks','84–140'],['Air handling unit','12–18 weeks','84–126'],['Motor control center','26–40 weeks','182–280'],['SCADA / PLC','20–30 weeks','140–210'],['Structural steel','16–36 weeks','112–252'],['Elevator / escalator','24–40 weeks','168–280'],['Fire & life-safety','16–30 weeks','112–210']];
-  document.querySelector('#benchmark tbody').innerHTML=bench.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td></tr>`).join('');
+  document.querySelector('#benchmark tbody').innerHTML=bench.map(r=>'<tr><td>'+r[0]+'</td><td class="num">'+r[1]+'</td><td class="num">'+r[2]+'</td></tr>').join('');
 }
 function renderDQ(pkgs){
   const flags=[]; const T=pkgs.length;
@@ -543,11 +1362,10 @@ function renderDQ(pkgs){
   const engBlank=pkgs.filter(p=>p.engineer==null||p.engineer==='').length; if(engBlank>0) flags.push('<b>Engineer unassigned:</b> '+engBlank+'/'+T+' packages.');
   const mrPlan=pkgs.filter(p=>p.mrPlan).length, poPlan=pkgs.filter(p=>p.poPlan).length;
   if(mrPlan<T*0.3&&poPlan>T*0.5) flags.push('<b>Plan-date inconsistency:</b> MR Plan present for only '+mrPlan+' but PO Plan for '+poPlan+' — likely back-filled downstream dates.');
-  document.getElementById('dq').innerHTML = flags.length? flags.map(f=>`<div class="flag">${f}</div>`).join('') : '<div class="empty">No major data-quality gaps detected.</div>';
+  document.getElementById('dq').innerHTML = flags.length? flags.map(f=>'<div class="flag">'+f+'</div>').join('') : '<div class="empty">No major data-quality gaps detected.</div>';
 }
 
 /* ============== chart → image ============== */
-function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2200); }
 async function chartToPng(svgEl){
   const xml=new XMLSerializer().serializeToString(svgEl);
   const svg64='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);
@@ -555,7 +1373,7 @@ async function chartToPng(svgEl){
     const img=new Image();
     img.onload=()=>{ const scale=2; const w=svgEl.width.baseVal.value||svgEl.viewBox.baseVal.width||760; const h=svgEl.height.baseVal.value||svgEl.viewBox.baseVal.height||280;
       const canvas=document.createElement('canvas'); canvas.width=w*scale; canvas.height=h*scale; const ctx=canvas.getContext('2d');
-      ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.scale(scale,scale); ctx.drawImage(img,0,0,w,h);
+      ctx.fillStyle=CHART.white; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.scale(scale,scale); ctx.drawImage(img,0,0,w,h);
       canvas.toBlob(b=>b?res(b):rej(new Error('toBlob failed')),'image/png'); };
     img.onerror=()=>rej(new Error('image load failed'));
     img.src=svg64;
@@ -563,16 +1381,37 @@ async function chartToPng(svgEl){
 }
 function downloadBlob(blob,name){ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); }
 async function copyChart(svgId,name){
-  const el=document.getElementById(svgId); if(!el) return;
+  const el=document.getElementById(svgId); if(!el){ toast('Nothing to export'); return; }
   try{ const blob=await chartToPng(el);
     if(navigator.clipboard && window.ClipboardItem){ await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); toast('Chart copied to clipboard'); }
     else { downloadBlob(blob,name+'.png'); toast('Clipboard unavailable — downloaded PNG'); }
   }catch(e){ try{ const blob=await chartToPng(el); downloadBlob(blob,name+'.png'); toast('Clipboard blocked — downloaded PNG'); }catch(e2){ toast('Copy failed: '+e2.message); } }
 }
+document.getElementById('tfBtn').addEventListener('click',e=>{
+  e.stopPropagation();
+  const panel=document.getElementById('tfPanel');
+  const open=panel.classList.toggle('open');
+  document.getElementById('tfBtn').setAttribute('aria-expanded', open);
+});
+document.addEventListener('click',e=>{
+  if(!document.getElementById('tfWrap').contains(e.target)){
+    document.getElementById('tfPanel').classList.remove('open');
+    document.getElementById('tfBtn').setAttribute('aria-expanded','false');
+  }
+});
 document.getElementById('dash').addEventListener('click',e=>{
+  const seg=e.target.closest('.seg');
+  if(seg){ const btn=e.target.closest('button'); if(btn){ setPref(seg.getAttribute('data-key'), btn.getAttribute('data-t')); renderCat(seg.getAttribute('data-key')); } return; }
   const copy=e.target.closest('.copyBtn'), dl=e.target.closest('.dlBtn');
-  if(copy){ const id=copy.getAttribute('data-svg'); const name=(document.getElementById('projTitle').textContent||'chart')+' '+(id||'chart'); copyChart(id,name); }
-  if(dl){ const id=dl.getAttribute('data-svg'); const el=document.getElementById(id); if(el){ chartToPng(el).then(b=>{ downloadBlob(b,(document.getElementById('projTitle').textContent||'chart')+' '+(id||'chart')+'.png'); toast('Downloaded PNG'); }).catch(err=>toast('Export failed: '+err.message)); } }
+  if(copy){ const id=copy.getAttribute('data-svg'); copyChart(id,(document.getElementById('projTitle').textContent||'chart')+' '+(id||'chart')); }
+  if(dl){ const id=dl.getAttribute('data-svg'); const el=document.getElementById(id); if(el){ chartToPng(el).then(b=>{ downloadBlob(b,(document.getElementById('projTitle').textContent||'chart')+' '+(id||'chart')+'.png'); toast('Downloaded PNG'); }).catch(err=>toast('Export failed: '+err.message)); } else { toast('Nothing to export'); } }
+});
+document.getElementById('vExport').addEventListener('click',()=>{
+  if(!STATE.report||!STATE.report.issues.length){ toast('Nothing to export'); return; }
+  const rows=[['Severity','Rule','Package','Field','Value','Message']].concat(STATE.report.issues.map(i=>[i.sev,i.code,i.pkg,i.field,i.value,i.msg]));
+  const csv=rows.map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  downloadBlob(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}), (document.getElementById('projTitle').textContent||'validation')+' - validation report.csv');
+  toast('Validation report exported');
 });
 
 /* ============== load flow ============== */
@@ -596,6 +1435,7 @@ drop.onclick=()=>fileInput.click();
 ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('hover');}));
 ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('hover');}));
 drop.addEventListener('drop',e=>{ const f=e.dataTransfer.files[0]; if(f) handleFile(f); });
+})();
 </script>
 </body>
 </html>
