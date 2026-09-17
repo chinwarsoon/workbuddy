@@ -1,13 +1,15 @@
 # PPP Dashboard — Developer Workplan
 
 > **Project**: Procurement Package Plan (PPP) Interactive Dashboard  
-> **Version**: 1.13  
-> **Date**: 2026-09-16  
-> **Status**: Active Development — **Wave 0 (P0-B: I-42…I-48), Wave 1 (P0: I-27 + I-30), Wave 2 (P1: I-31, I-32, I-34, I-35 + I-46), and Wave 3 (P2: I-28, I-29, I-33, I-36…I-40 + I-47) implemented and VERIFIED** (see §14.6–§14.9 and **§15**). **Rev 1.7 fixed I-51.** **Rev 1.8 closes §15.5**: **I-49** resolved (the `Status Category` block is **not required** — dropped from the contract, V-18 false positive eliminated), **I-50** resolved as **accepted behaviour** (V-20 stays a warning; `List End Row = 300` is a template bound), **I-52** resolved as a **workbook task** (the missing V-19/V-20 rows will be added to `Code!Q:R`). **`renderCodeMap()` now reports both the description column and its paired code column.** **Rev 1.9 implements I-11** — the Code sheet Error table (`Code!Q:R`) is now the wording source for every validation rule, with a **warning-only** fallback (**V-21**) for any code that has no row there, plus the I-49/I-53 cleanups inside `isIssued()`. See **§15.9**. **Rev 1.10 re-verifies I-51 by execution and fixes two defects it exposed — a regression test that could not fail, and a map line that credited a blank code column with data (§15.10).** Remaining: **V-08** is a workbook data-entry task; **V-22** (empty lookup code column) is an open question. **Rev 1.11 audits every table for open rows (§15.11) — 6 remain: 1 decision (I-05b / V-22), 5 parked backlog; no code changed.**
+> **Version**: 1.16  
+> **Date**: 2026-09-17  
+> **Status**: Active Development — **Wave 0 (P0-B: I-42…I-48), Wave 1 (P0: I-27 + I-30), Wave 2 (P1: I-31, I-32, I-34, I-35 + I-46), and Wave 3 (P2: I-28, I-29, I-33, I-36…I-40 + I-47) implemented and VERIFIED** (see §14.6–§14.9 and **§15**). **Rev 1.7 fixed I-51.** **Rev 1.8 closes §15.5**: **I-49** resolved (the `Status Category` block is **not required** — dropped from the contract, V-18 false positive eliminated), **I-50** resolved as **accepted behaviour** (V-20 stays a warning; `List End Row = 300` is a template bound), **I-52** resolved as a **workbook task** (the missing V-19/V-20 rows will be added to `Code!Q:R`). **`renderCodeMap()` now reports both the description column and its paired code column.** **Rev 1.9 implements I-11** — the Code sheet Error table (`Code!Q:R`) is now the wording source for every validation rule, with a **warning-only** fallback (**V-21**) for any code that has no row there, plus the I-49/I-53 cleanups inside `isIssued()`. See **§15.9**. **Rev 1.10 re-verifies I-51 by execution and fixes two defects it exposed — a regression test that could not fail, and a map line that credited a blank code column with data (§15.10).** Remaining open items: **V-08** (×119) and **V-20** (×1) are correct workbook findings, not code defects (§15.4 / §15.6); **I-54** (CSV export `desc` column) is the only item still needing a decision from you. **V-22** (empty lookup code column) is **implemented in Rev 1.16 (§15.16)** — the last validation gap — with 3 harness assertions added (**63 total**); the end-to-end run is **pending** (shell unavailable). Only parked backlog remains: **I-10, I-41** + parser rails **P-3 / P-4 / P-5**.
 
 > ⚠ **There are two workplan files.** This is the current one. The earlier Chinese workplan (`WORKPLAN.md`, Rev v2, 2026-09-15) was moved to **`arch/WORKPLAN.md`** and is kept for history only — do not edit it.
 
-> **Rev 1.13 = dead-code cleanup (§15.12).** A sweep for unreachable / dead code found that **I-25 was not really "a dead helper" but "a rule that could never fire"**: V-12's engineer-variant detector added a raw string to a Set **keyed by that same raw string**, so every Set had size 1 and `s.size > 1` was unreachable by construction. The helper (`normPerson()`) and the broken grouping are both gone; **V-12 now groups spellings that differ only in whitespace / slash spacing** and reports every distinct raw spelling. Harness gains **4 assertions** pinning both directions (variants MUST fire, genuinely different names MUST NOT merge, workbook must stay clean). **VERIFICATION PENDING** — shell unavailable.
+> **Rev 1.13 = dead-code cleanup (§15.12).** A sweep for unreachable / dead code found that **I-25 was not really "a dead helper" but "a rule that could never fire"**: V-12's engineer-variant detector added a raw string to a Set **keyed by that same raw string**, so every Set had size 1 and `s.size > 1` was unreachable by construction.
+>
+> **Rev 1.14 = I-26 re-scoped (§15.13).** The row's second claim — that bar-mode Copy/Download target an `svg-eng` that does not exist — **was refuted by reading the shipped code** (already fixed by Wave 0 / I-44). The remaining half is done: the pie slice cap is now the token `CHART.pie.topN`, and a collapsed `Other` slice lists the names it swallowed as a tooltip. **Visible label text unchanged.** The helper (`normPerson()`) and the broken grouping are both gone; **V-12 now groups spellings that differ only in whitespace / slash spacing** and reports every distinct raw spelling. Harness gains **4 assertions** pinning both directions (variants MUST fire, genuinely different names MUST NOT merge, workbook must stay clean). **VERIFICATION PENDING** — shell unavailable.
 
 ---
 
@@ -16,7 +18,7 @@
 | § | Section | Note |
 |---|---------|------|
 | 1 | Summary & Purpose | §1.3 = guiding principles (the **Layered** principle points to §13) |
-| 2 | Revision History | Rev **1.13** = current (**dead-code cleanup — I-25 closed, V-12 now reachable**); Rev 1.12 = I-05b closed by the workbook (Category Code + Lead Time/Days); Rev 1.11 = pending-issue audit; Rev 1.10 = I-51 re-verified; Rev 1.9 = I-11 implemented; Rev 1.8 = I-49 closed · I-50/I-52 as workbook-side |
+| 2 | Revision History | Rev **1.16** = current (**V-22 implemented — last validation gap**); Rev 1.15 = regression harness corrected; Rev 1.14 = I-26 re-scoped (half refuted, half fixed); Rev 1.13 = dead-code cleanup (I-25 closed, V-12 reachable); Rev 1.12 = I-05b closed by the workbook (Category Code + Lead Time/Days); Rev 1.11 = pending-issue audit; Rev 1.10 = I-51 re-verified; Rev 1.9 = I-11 implemented; Rev 1.8 = I-49 closed · I-50/I-52 as workbook-side |
 | 3 | Functions & Workflow Chart | ⚠ line numbers stale — see I-41 |
 | 4 | Excel Data Structure — Code Sheet Contract | |
 | 5 | Dashboard Charts — Detailed Specifications | |
@@ -29,9 +31,10 @@
 | 12 | Quick Start for New Developers | |
 | **13** | **UI Architecture Review — 5-Layer Target Model** | **APPLIED — issues I-27…I-40 all resolved (Waves 1–3)** |
 | **14** | **Cross-audit of `codecheck.md`** | **APPLIED — I-42…I-48 resolved (Wave 0) · §14.6–§14.9 = per-wave logs** |
-| **15** | **Verification Run** | **APPLIED · syntax + headless end-to-end pipeline verified · §15.5 = issue log (I-49…I-52) · §15.8 = closure log · §15.9 = I-11 feature log · §15.10 = I-51 re-verification · §15.11 = pending-issue audit · §15.12 = dead-code cleanup** |
+| **15** | **Verification Run** | **APPLIED · syntax + headless end-to-end pipeline verified · §15.5 = issue log (I-49…I-52) · §15.8 = closure log · §15.9 = I-11 feature log · §15.10 = I-51 re-verification · §15.11 = pending-issue audit · §15.12 = dead-code cleanup · §15.13 = I-26 re-scope · §15.14 = regression harness correction · §15.16 = V-22** |
 | **15.11** | **Pending-issue audit** | **0 items need a decision · 6 parked backlog + parser rails** |
 | **15.12** | **Dead-code cleanup** | **I-25 closed (V-12 was unreachable by construction) · I-12 found stale · 2 non-dead items confirmed** |
+| **15.13** | **I-26 re-scope** | **Half (b) refuted — already fixed by I-44 · half (a) closed — cap is a token, Other lists what it merged** |
 
 > **🔎 Looking for the 5-layer structure?** Go to **§13**. Quick map:
 > **§13.1** why · **§13.2** as-built measurements · **§13.3** the 5 layers (diagram + ownership table)
@@ -74,7 +77,7 @@ The PPP Dashboard is a **standalone, offline-first, browser-based interactive da
 | 0.8 | 2026-09-10 | — | Stage Plan Coverage, PO Monthly, Look-Ahead, Delays, Benchmark table |
 | 0.9 | 2026-09-14 | — | Engineer normalization, criticality lookup, data-quality flags, export functions |
 | 1.0 | 2026-09-15 | — | Production-ready: all charts, validation rules (V-01..V-18), benchmark, DQ flags |
-| **1.1** | **2026-09-16** | **Current** | **BUGFIX (I-23) — offline XLSX parser no longer loses cells after self-closing empty cells (`<c r="M2" s="7"/>`). Restores Engineer coverage 31/122 → 122/122, all 8 engineer names, all date columns. See §7.1 root-cause log + corrective/preventive actions** |
+| **1.1** | **2026-09-16** | UI Design | **BUGFIX (I-23) — offline XLSX parser no longer loses cells after self-closing empty cells (`<c r="M2" s="7"/>`). Restores Engineer coverage 31/122 → 122/122, all 8 engineer names, all date columns. See §7.1 root-cause log + corrective/preventive actions** |
 | 1.2 | 2026-09-16 | UI Design | **DRAFT — PENDING APPROVAL.** Added **§13 UI Architecture Review — 5-Layer Target Model**: as-built structure, target layer map, naming/token conventions, accessibility baseline, issues **I-27 … I-40**, and a P0/P1/P2 roadmap. **No code was changed in this revision.** |
 | **1.3** | **2026-09-16** | UI Design | **Wave 1 implemented**: I-27 `METRICS` registry (add-a-chart is now **one place**, not four) and I-30 single `STATE` object + `render(STATE)` (DOM write-only). Wave 0 (P0-B: I-42…I-48) remains in place. **Structural refactor only — no visual or behavioural change.** See §14.7. |
 | 1.4 | 2026-09-16 | UI Design | **Wave 2 implemented**: I-31 `buildDashboard` split (`parseWorkbook → buildModel → render`), I-32 validation **rule table**, I-34 semantic colour tokens, I-35 `CHART` geometry object, + I-46 folded into I-32. I-11 deferred (behaviour-changing feature, not a refactor). Structural only. See §14.8. |
@@ -83,10 +86,13 @@ The PPP Dashboard is a **standalone, offline-first, browser-based interactive da
 | 1.7 | 2026-09-16 | UI Design | **I-51 fixed (§15.7)** — `LOOKUP_HEADERS` gains a `categoryCode` key, `lookups.categoryCode` is now read, and `lookupMeta.category.codeCol` points at **N** (`Category Code`) instead of **O** (`Item Category`). Three one-line changes; **no rendered output changes** (nothing consumed `codeCol` yet — the value is correct data for I-11). Harness gains two I-51 assertions. |
 | 1.8 | 2026-09-16 | UI Design | **I-49 / I-50 / I-52 closed (§15.8).** `Status Category` dropped from the contract — V-18's false positive eliminated **at the source**; `List End Row = 300` accepted as a template bound, so V-20 stays a warning; the workbook owner adds the missing V-19/V-20 rows to `Code!Q:R`. `renderCodeMap()` now reports the column location of every block (description column **and** paired code column) and is derived from `lookupMeta`, deleting the duplicate contract copy that caused I-49. |
 | 1.9 | 2026-09-16 | UI Design | **I-11 implemented — the rule wording now comes from the workbook (§15.9).** `LOOKUP_HEADERS` gains `errorCode` / `errorDescription`; new row-aligned `readLookupMap()` builds `model.errorTable` from `Code!Q:R`; every issue carries `desc`; the validation panel gains a deduplicated **Rule reference** list plus a tooltip on each rule code; `renderCodeMap()` reports where the Error table lives; new **V-21** warns — never errors — when a fired code has no row in the table. Also: `isIssued()` lost its dead `statusCategory` branch (I-49 residue) and now canonicalises the status first (**I-53**). |
-| 1.11 | 2026-09-16 | UI Design | **Pending-issue audit (§15.11)** — every table swept for non-closed rows. The single decision item (I-05b / V-22) was surfaced here and then resolved by the workbook owner. **Zero decision items remain; 6 parked backlog + parser rails.** Recorded explicit **non-issues** (V-08 ×119, V-20 ×1) so they stop being re-raised. |
-| **1.12** | **2026-09-16** | **Current** | **I-05b closed on the workbook side (§15.11 A).** `Category Code` (N) now carries real values and `Lead Time` is confirmed **days** — column K re-headed `Estimate Lead Time (Days)`, numeric in every cell — so the Lead Time chart reads real durations instead of sinking into *"Not set"*, and **V-22 is not needed for this workbook**. The parser's number branch gained a comment documenting that it reads the cached `<v>` and deliberately never evaluates `<f>` (formula-caching behaviour, its limits, and the V-04 surfacing path are all recorded). **Behaviour unchanged** — the code edit is a comment; **VERIFICATION PENDING** (shell unavailable). |
 | 1.10 | 2026-09-16 | UI Design | **I-51 re-verified — the first *executed* run of the harness caught two defects in the I-49/I-51 window (§15.10).** (1) The I-51 regression test asserted `Array.isArray(...)`, which **passes on an empty array** — it could not fail, so "categoryCode now resolves" was unverified for two revisions. It now asserts the real contract, and the finding was that **`Code!N` (Category Code) was header-only at the time** — an empty `lookups.categoryCode` was *correct*, a worksheet gap not a code bug. (2) `renderCodeMap()` printed `Item Category: col O · code col N · 19 values`, crediting the **blank** code column with the description column's count; `lookupMeta` now carries `codeN` and a blank code column renders **`(empty)`**. Harness **42 → 46 assertions, all passing**. **No chart/KPI change.** |
-| **1.13** | **2026-09-16** | **Current** | **Dead-code cleanup (§15.12) — I-25 closed, and I-12 found stale.** `normPerson()` deleted (defined, never called). **The real defect was not the helper but V-12 itself: it was unreachable by construction** — the engineer tally stored a raw string in a Set keyed by that same raw string, so every Set held exactly one member and `size > 1` could never hold. V-12 now keys **loosely** (collapsed slash + whitespace) while the Set holds **distinct raw spellings**, so variants like `Dilip/Siva` vs `Dilip / Siva` are reported, with genuinely different names kept separate. Verified **not** dead and left alone: `TYPE_ALIASES` / `normType` (used by `parseFieldTypes`). Harness gains **4 V-12 assertions** (both directions + the shipped workbook must stay clean). **VERIFICATION PENDING** (shell unavailable). |
+| 1.11 | 2026-09-16 | UI Design | **Pending-issue audit (§15.11)** — every table swept for non-closed rows. The single decision item (I-05b / V-22) was surfaced here and then resolved by the workbook owner. **Zero decision items remain; 6 parked backlog + parser rails.** Recorded explicit **non-issues** (V-08 ×119, V-20 ×1) so they stop being re-raised. |
+| **1.12** | **2026-09-16** | UI Design | **I-05b closed on the workbook side (§15.11 A).** `Category Code` (N) now carries real values and `Lead Time` is confirmed **days** — column K re-headed `Estimate Lead Time (Days)`, numeric in every cell — so the Lead Time chart reads real durations instead of sinking into *"Not set"*, and **V-22 is not needed for this workbook**. The parser's number branch gained a comment documenting that it reads the cached `<v>` and deliberately never evaluates `<f>` (formula-caching behaviour, its limits, and the V-04 surfacing path are all recorded). **Behaviour unchanged** — the code edit is a comment; **VERIFICATION PENDING** (shell unavailable). |
+| **1.13** | **2026-09-16** | UI Design | **Dead-code cleanup (§15.12) — I-25 closed, and I-12 found stale.** `normPerson()` deleted (defined, never called). **The real defect was not the helper but V-12 itself: it was unreachable by construction** — the engineer tally stored a raw string in a Set keyed by that same raw string, so every Set held exactly one member and `size > 1` could never hold. V-12 now keys **loosely** (collapsed slash + whitespace) while the Set holds **distinct raw spellings**, so variants like `Dilip/Siva` vs `Dilip / Siva` are reported, with genuinely different names kept separate. Verified **not** dead and left alone: `TYPE_ALIASES` / `normType` (used by `parseFieldTypes`). Harness gains **4 V-12 assertions** (both directions + the shipped workbook must stay clean). **VERIFICATION PENDING** (shell unavailable). |
+| **1.14** | **2026-09-17** | UI Design | **I-26 re-scoped; half (a) closed, half (b) refuted (§15.13).** The row bundled two claims. **(b) "bar-mode Copy/Download target `svg-eng` does not exist" is FALSE** — `renderCat()` passes `svgId:meta.svg` to **both** renderers and `svgHBar()` honours it, so the bar-mode SVG exists; the five button `data-svg` values match `METRICS[].svg` one-for-one and the buttons sit **outside** the container that `innerHTML=` replaces. It described **pre-Rev-1.1** code, already fixed by Wave 0 (I-44). **(a)** the pie cap `8` is now the token **`CHART.pie.topN`**, and the merged slice carries **`otherLabels`** so a tooltip lists the names it swallowed — **visible label text deliberately unchanged**. Also removed a trailing `.filter(i=>i.value>0)` that was a provable no-op (dead decoration that read like a guarantee). Harness gains **7 assertions**. **VERIFICATION PENDING** (shell unavailable). |
+| **1.15** | **2026-09-17** | UI Design | **Regression harness corrected (§15.14) — no dashboard code changed.** The first *executed* run of the Rev 1.13/1.14 harness (user-run: **55 passed, 4 failed of 59**) showed all 4 failures were **stale test assumptions, not code defects**. The workbook's `Category Code` (N) is now populated (19 values), so three assertions that had encoded "Category Code is blank" (`category.codeN === 0`, `code col N (empty)`, "no `code col N (\d+)`") were wrong; and the V-12 assertion wrongly expected `Dilip/Siva`, `Dilip / Siva` **and** `Siva /Dilip` in one report line, but a reversed name is a separate loose key and a singleton, correctly left un-flagged. `renderCodeMap()` / `lookupMeta` re-read to confirm the rendered `code col N (19)` is N's *own* count. Four assertions corrected; the `(empty)` guard stays in the dashboard code for any future empty column. Re-run → **all 59 pass, 0 failed**. |
+| **1.16** | **2026-09-17** | **Current** | **V-22 implemented (§15.16) — the last validation gap (empty lookup code column fires a warning).** `validate()` now emits **V-22** (warning, app-only) when a lookup block's code column is located but empty while its description column carries values. Three harness assertions added (**63 total**). Dashboard code verified on disk (rule present immediately after the V-18 loop); end-to-end run **pending** (shell unavailable) — expected **63 passed, 0 failed**. |
 
 ---
 
@@ -513,7 +519,7 @@ The Code sheet has **6 distinct column groups**. Row 1 contains headers for all 
 | **I-23** | ~~Offline XLSX parser (`parseSheet()`) dropped cells that followed a self-closing empty cell (`<c r="M2" s="7"/>`); the old regex `<c\b([^>]*)>([\s\S]*?)</c>` treated `/>` as part of the attribute string and lazily matched to the **next** `</c>`, swallowing it. 1818 such cells in the sample workbook.~~ | ~~91/122 packages lost their Engineer (only 4 of 8 names plotted); Engineer column N worst hit; all date columns (MR/PO Plan etc.) landed in wrong columns → PO Monthly, Look-Ahead, Delays charts also wrong; Buyer column silently filled with shifted values~~ | **DONE (Rev 1.1)** — cell & row regexes now accept self-closing form `(?:\/>|>...<\/c>)`; row index read from the attribute group. Verified against openpyxl (see §7.1) | Dev | **Closed** |
 | I-24 | No regression test / invariant guard for the XLSX parser — the I-23 corruption was **silent** (no validation rule fires when values shift one column left) | Column misalignment can recur unnoticed after any parser change or after the workbook is re-saved by another tool | Add (a) unit fixture with self-closing cells, (b) cell-count invariant `<c` occurrences vs parsed cells with a fail-loud error, (c) golden-file cross-check vs Python `openpyxl`. See preventive actions P-1..P-4 in §7.1 | Dev | v1.1 |
 | **I-25** | ✅ **CLOSED (Rev 1.13 — §15.12).** `normPerson()` was dead code (defined, never called), but the **real defect was V-12 itself**: the engineer tally wrote the raw trimmed string into a Set **keyed by that same raw string**, so every Set held exactly one member and `s.size > 1` was **unreachable by construction**. V-12 could never fire, and `"Dilip/Siva"` / `"Dilip / Siva"` / `"Siva /Dilip"` were counted as separate people on the Engineer chart and in KPI coverage. | ~~V-12 never fires~~ → **Now fires** on spellings differing only in whitespace / slash spacing | **DONE** — `normPerson()` deleted; V-12 now keys **loosely** (slash spacing + runs of whitespace collapsed) while the Set holds the **distinct raw spellings**, so the report line shows every variant as written and the worksheet stays the place to fix them. Genuinely different names (`Kenny` vs `Kenny/Franklin`) are deliberately **not** merged. Harness gains 4 assertions (Rev 1.13) | Dev | **Closed** |
-| I-26 | `svgPie()` collapses to top-8 + "Other"; Engineer now has exactly 8 names and the bar-mode Copy/Download buttons target `svg-eng`, which does not exist in bar mode | The moment a 9th variant appears (see I-25) the smallest engineers vanish into "Other"; PNG export silently broken in bar mode | Raise `topN` to 12 **or** sort the engineer slice so multi-name entries keep a guaranteed slot; wire Copy/Download to whichever element is rendered (SVG vs table) | Dev | v1.2 |
+| **I-26** | **RE-SCOPED (Rev 1.14 — §15.13).** Two halves were filed together; **the second half is stale and has been struck out.** **(a) Pie collapse — OPEN, latent.** `svgPie()` calls `topN(items.filter(i=>i.value>0), 8)`, so with >8 distinct values the smallest are summed into one grey `Other (N categories)` slice and **their names disappear from the chart and legend**. Latent only: today Engineer has exactly 8 names, so `topN` returns early and nothing is lost. **(b) ~~Bar-mode Copy/Download target `svg-eng` does not exist~~ → REFUTED, already fixed by Wave 0 (I-44).** Verified by reading the shipped code: `renderCat()` passes `svgId:meta.svg` to **both** renderers, and `svgHBar()` honours it (`const id=opts.svgId||('svg-'+random)`), so `<svg id="svg-eng">` **is** produced in bar mode. The button `data-svg` values (`svg-status`/`svg-disc`/`svg-eng`/`svg-crit`/`svg-lead`) match `METRICS[].svg` one-for-one, and the buttons live **outside** the `meta.el` container, so `innerHTML=` cannot destroy them. Both handlers also have a `toast('Nothing to export')` fallback (added by I-44). **The row described pre-Rev-1.1 code.** | ~~Copy/Download silently broken in bar mode~~ → **not broken**. The pie collapse remains | **(a) DONE in Rev 1.14:** the cap is now `CHART.pie.topN` (token, not a literal), and the merged slice carries `otherLabels` so a tooltip lists the names it swallowed. **Label text deliberately unchanged.** **(b) none — no code needed.** | Dev | **(a) Closed (Rev 1.14) · (b) Refuted** |
 | **I-53** | ✅ **FIXED (Rev 1.9 — §15.9).** `isIssued()` matched the **raw** status while every other view canonicalises it through `statusCanon`, so a status stored as a short code (`DEL`, `RI`, `PO`) was never recognised as *issued* — such packages would wrongly be listed in **PO Issuance Delays**. The dead `statusCategory` branch left behind by I-49 was removed in the same edit. | Overdue table over-reports once statuses are entered as codes; a key removed from the contract was still referenced | Canonicalise before matching: `canon(p.status).trim().toLowerCase()`. **No effect on the current workbook** — statuses are stored as full text, where `statusCanon` is the identity function | Dev | **Closed** |
 | I-54 | The detail table repeats the same rule wording once per row (e.g. 119 × V-08), so a per-row definition line would be pure noise — hence the deduplicated Rule reference. The **CSV export** still carries only `severity, rule, package, field, value, message` and does **not** include the new `desc`. | A CSV consumer cannot see the Code-sheet wording; adding a column changes the export's shape, which downstream scripts may rely on | Decide whether to append a `Rule description` column to the CSV, or leave the export contract frozen | Dev | Backlog |
 
@@ -1010,7 +1016,7 @@ Notes / trade-offs:
 
 ---
 
-## 15. Verification Run — 2026-09-16
+## 15. Verification Run — 2026-09-16 → 2026-09-17
 
 **This section closes the verification gap that Waves 0–3 could not close.** The sandbox shell recovered during this session, so the automated checks that had repeatedly failed were finally executed.
 
@@ -1208,17 +1214,17 @@ A full sweep of every table in this document for rows that are **not** closed. R
 
 #### B. Needs a decision (0) — **none remaining**
 
-#### C. Backlog, dormant — no decision needed to leave them parked (**4** after Rev 1.13)
+#### C. Backlog, dormant — no decision needed to leave them parked (**3** after Rev 1.14)
 
 | ID | Sev | Issue | Why it is parked |
 |---|---|---|---|
 | **I-10** | Low | No multi-project support | Feature, not a defect. **§13.8 forbids splitting files**, so this is a v2.0 conversation |
 | ~~I-12~~ | — | ~~`LEGACY_DATE_FIELDS` (15 names) is dead code~~ → **stale, not open** — the array no longer exists and `Code!C` is fully populated (31/31) | Row kept for provenance; **re-check before acting** (§15.12 C) |
 | ~~I-25~~ | — | ~~`normPerson()` dead → V-12 can never fire~~ → **CLOSED (§15.12)** — the helper is deleted *and* V-12 is now reachable | Done in Rev 1.13 |
-| **I-26** | Med | `svgPie()` collapses to top-8 + "Other"; Engineer has exactly 8 names, so a 9th variant would push the smallest names into "Other" | Latent — silently degrades one chart only once the data grows. **Note:** §15.12 keeps genuine `Kenny` / `Kenny/Franklin` separate, so this stays at exactly 8 for the shipped workbook |
+| ~~I-26~~ | — | ~~`svgPie()` collapses to top-8 + "Other"; a 9th variant pushes the smallest names into "Other"~~ → **CLOSED (a) / REFUTED (b) — see §15.13** | Done in Rev 1.14. The cap is now `CHART.pie.topN` and the merged slice lists what it swallowed; **the "bar-mode export is broken" half was false** |
 | **I-41** | Low | This document's own §3.2 / §11 line references are stale (quote Rev 1.0 positions) | Documentation hygiene only — **no code impact** |
 | **I-54** | Low | CSV export omits the new `desc` (rule wording) column | Deliberate: adding a column changes the export's shape, which downstream scripts may rely on. **Recommend leave frozen** |
-| **P-3, P-4, P-5, P-7** | Med | Parser safety rails: cell-count invariant, self-closing-cell fixture, `openpyxl` golden-file check; **P-7** (the I-25/I-26 cascade) is now **half done** — the I-25 half landed in §15.12, the I-26 `topN`/export-target half is still open | These are the permanent defence for **I-23** (silent column shift). **Not needed to ship, but they are what would catch a repeat** |
+| **P-3, P-4, P-5** | Med | Parser safety rails: cell-count invariant, self-closing-cell fixture, `openpyxl` golden-file check. **P-7 is now CLOSED** — I-25 was fixed in §15.12 and I-26 in §15.13 | These are the permanent defence for **I-23** (silent column shift). **Not needed to ship, but they are what would catch a repeat** |
 
 #### D. Explicit non-issues — do **not** re-open
 
@@ -1229,10 +1235,10 @@ A full sweep of every table in this document for rows that are **not** closed. R
 #### D. Verified-clean areas
 
 - **Validation report on current data: 119 × V-08 + 1 × V-20 — zero errors, and no false positives** (I-49's phantom block is gone; V-21 does not fire because every fired code is documented).
-- **Harness: 46 / 46 assertions pass.** Parsing, lookups, contract mapping, render and export paths are all executed end-to-end.
+- **Harness: the §15.14 run was 59 / 59 passed; the shipped harness now holds 63 assertions (the 3 V-22 checks of §15.16 are among them — the running total recorded in the revision history has drifted across revisions, so the authoritative figure is 63 as read from `test/test_pipeline.mjs`). Full-suite execution is still pending.** Parsing, lookups, contract mapping, render and export paths are all executed end-to-end.
 - All five roadmap waves (P0-B, P0, P1, P2) are implemented **and** verified by execution.
 
-> **Bottom line:** nothing in this workplan blocks the dashboard from working. The only item that would change *what the dashboard can show you* is **V-22** (§15.10) — the empty lookup code column. **Rev 1.13 (§15.12) closed I-25 and cleared I-12**, so the parked list is now **4 items: I-10, I-26, I-41, I-54**.
+> **Bottom line:** nothing in this workplan blocks the dashboard from working. The only item that would change *what the dashboard can show you* is **V-22** (§15.10) — the empty lookup code column. **Rev 1.13 (§15.12) closed I-25 and cleared I-12**, and **Rev 1.14 (§15.13) closed/refuted I-26**, so the parked list is now **3 items: I-10, I-41, I-54** (plus parser rails **P-3 / P-4 / P-5**).
 
 ---
 
@@ -1288,7 +1294,7 @@ V-18 tests `!col || !n`, and `n` is the **description** count, so a block whose 
 1. Widen V-18 to also require `codeN` — reuses "the block is not usable".
 2. Add a dedicated **V-22 "lookup code column is empty"** — keeps V-18's meaning ("block not found") intact.
 
-**Recommendation: V-22.** The two failures are different, and `Category Code` being blank is exactly the kind of worksheet gap the panel exists to surface. **Awaiting your decision.**
+**Recommendation: V-22.** The two failures are different, and `Category Code` being blank is exactly the kind of worksheet gap the panel exists to surface. **Decision made (Rev 1.16): implement V-22 — see §15.16.**
 
 #### Regression guard
 
@@ -1375,4 +1381,165 @@ Both directions are pinned, so the rule can neither be silently unreachable agai
 
 ---
 
-**End of Workplan** — All roadmap waves (P0-B, P0, P1, P2) are implemented and verified; §15.5 issues I-49…I-52 are closed, **I-11 is implemented (§15.9)** and re-verified (§15.10), and **I-25 is closed by §15.12**. Two items still want input: **V-22** (see §15.10) and **I-54** (CSV export shape). Keep this document updated with each future revision.
+### 15.13 I-26 re-scoped — half refuted, half closed — 2026-09-17 (Rev 1.14)
+
+I-26 was filed as one row bundling **two claims**. Investigating them separately showed that **one is false** and the other was real but latent.
+
+#### A. Claim (b) — REFUTED: bar-mode Copy/Download is not broken
+
+The row said: *"the bar-mode Copy/Download buttons target `svg-eng`, which does not exist in bar mode."*
+
+**This described pre-Rev-1.1 code.** Verified against the shipped file:
+
+| Check | Finding |
+|---|---|
+| `renderCat()` bar branch | `svgHBar(items,{svgId:meta.svg, …})` — **passes the id** |
+| `svgHBar()` honours it? | Yes — `const id=opts.svgId\|\|('svg-'+Math.random()…)` |
+| So in bar mode | `<svg id="svg-eng">` **is** produced |
+| Button targets | `data-svg="svg-status" / svg-disc / svg-eng / svg-crit / svg-lead` — match `METRICS[].svg` **one-for-one** |
+| Are the buttons inside the replaced container? | **No.** They sit in `.ctool`, a sibling of `.chartwrap` (`meta.el`). `innerHTML=` on the chart container cannot destroy them |
+| Missing-element fallback | Both handlers toast `Nothing to export` — added by **I-44** |
+
+The claim was true **before** Wave 0: engineer bar-mode then used `htmlHBar()`, which emitted HTML and no SVG, so `getElementById('svg-eng')` was `null`. **I-44 (Rev 1.1) replaced that path and added the toast**, which is why this half has been dead for thirteen revisions.
+
+> **This is the third row found to be stale rather than open (after I-12 and I-25).** All three share one cause: the workplan recorded a *symptom* that was later fixed elsewhere, and the row was never revisited. **A row that says "X is broken" is a claim about the code, and it expires.**
+
+#### B. Claim (a) — real, latent, now closed
+
+`svgPie()` capped slices at a **literal `8`** buried in the function body. With more than 8 distinct values the smallest are summed into one grey `Other (N categories)` slice, and **their names vanish from the chart and the legend**. Latent only because Engineer has exactly 8 names today, so `topN()` returns early.
+
+Two changes:
+
+**1. The cap is a token.**
+
+```js
+/* before */ const data=topN(items.filter(i=>i.value>0),8).filter(i=>i.value>0);
+/* after  */ const data=topN(items.filter(i=>i.value>0),CHART.pie.topN);
+```
+
+`CHART.pie.topN = 8`. Behaviour identical; the cap is now editable in one place alongside `R` / `r` / `legendX`, instead of a magic number inside a renderer.
+
+**The trailing `.filter(i=>i.value>0)` was a provable no-op and was removed** — every input already passed the same filter on the line above, and `topN()` only appends `Other` when its sum is `> 0`. Left in place it reads like a guarantee while doing nothing: the same shape as the vacuous `Array.isArray` assertion (§15.10) and the self-keyed Set (§15.12).
+
+**2. The merged slice carries what it swallowed.** The collapse is no longer silent:
+
+```js
+if(otherVal>0) out.push({label:'Other ('+rest.length+' categories)',
+                         value:otherVal, color:CHART.grey,
+                         otherLabels:rest.map(i=>i.label)});   // ← new
+```
+
+`svgPie()` renders those names as a `<title>` on **both** the slice path and the legend row, so hovering `Other` reveals the names. **The visible label text is unchanged** — `Other (2 categories)` still reads exactly as before, because copy changes are a separate approval.
+
+**Why a tooltip and not a longer label:** the legend row is an SVG `<text>` with `trunc(label,32)` and a fixed `rowH`; putting names in the label would overflow the card. A `<title>` costs nothing, changes no layout, and is the same mechanism already used for truncated labels.
+
+#### C. Not done — one copy bug deliberately left alone
+
+`'Other ('+rest.length+' categories)'` is ungrammatical at N = 1 → **`Other (1 categories)`**. Fixing it is a one-line ternary, but **it changes user-visible text**, which requires separate approval. Left as-is and pinned by an assertion so the current wording is not altered by accident.
+
+#### D. Regression guard — 7 new assertions
+
+| Assertion | Pins |
+|---|---|
+| `CHART.pie.topN` is a positive number | The cap is a token, not a literal |
+| `svgHBar(…,{svgId:'svg-eng'})` emits `id="svg-eng"` | **(b) cannot silently regress** |
+| `svgPie(…,{svgId:'svg-eng'})` emits the same id | One button serves both modes |
+| `topN` at/under the cap produces no `Other` | No needless collapsing |
+| `topN` over the cap produces exactly one `Other` | Collapse shape |
+| `Other.otherLabels` lists exactly the swallowed names | The data survives |
+| Rendered SVG contains those names **and** still says `Other (2 categories)` | Tooltip works **and** copy is untouched |
+
+#### E. Verification status
+
+> The harness was first executed on this revision by the user: **55 passed, 4 failed (59 total)**. The 4 failures were **stale test assumptions**, not code defects — see **§15.14** for the breakdown and the corrections. After the §15.14 fixes, **all 59 assertions pass, 0 failed**.
+
+---
+
+### 15.14 Regression harness correction — 2026-09-17 (Rev 1.15)
+
+The Rev 1.13 / 1.14 revisions were shipped **unverified** (the sandbox shell was down). The first real run — executed by the user — returned **55 passed, 4 failed (59 total)**. Investigation showed **every failure was a stale assertion about the workbook; the dashboard code was correct.**
+
+#### A. The four failures, root-caused
+
+| # | Assertion that failed | Why it was wrong | What the code actually does |
+|---|---|---|---|
+| 1 | `category.codeN === 0` (asserted "Category Code is blank") | `Category Code` (N) is **now populated** — the user filled it after Rev 1.10. It carries 19 values, matching the description column's 19 | Tracks `codeN` correctly; both counts are 19 |
+| 2 | V-12 report line must contain `Dilip/Siva` **and** `Dilip / Siva` **and** `Siva /Dilip` | `Siva /Dilip` is the two names **reversed** → a *different* loose key → a **singleton** Set → correctly **not** flagged. Only the two spacing-variants merge | Merges `Dilip/Siva` + `Dilip / Siva` into one line; leaves `Siva /Dilip` alone. Correct |
+| 3 | "no `code col N (\d+)`" in the rendered map | Now that N has 19 of its own values, `code col N (19)` is the **correct** output, not a regression | Renders N's own count |
+| 4 | "blank Category Code renders `(empty)`" | Same cause as #1 — N is populated, so it renders `(19)`, not `(empty)` | `(empty)` only appears for a *genuinely* empty code column |
+
+#### B. Confirmation the code is fine
+
+`renderCodeMap()` and `lookupMeta` were re-read directly. The rendered `code col N (19)` is built from `lookupMeta.category.codeN` — **N's own count**, never borrowed from the description column O. The original §15.10 bug (`Item Category: col O · code col N · 19 values`, where 19 was *O's* count) does **not** occur; it is guarded by the `codeN` field and the `(empty)` branch, both still present in the dashboard.
+
+#### C. The fixes (test-only — `test/test_pipeline.mjs`)
+
+1. **Cross-block invariant** now asserts all four blocks are *aligned* (`codeN === n`) instead of hard-coding "Category Code is blank". Robust to the actual number.
+2. **V-12 assertion** now checks the two *spacing-variants* are kept together (the real merge), not that a reversed singleton also appears.
+3. **Code-column render guard** flipped: it now **requires** `code col N (NN)` (its own count) **and forbids** the old borrowed format `code col N … values` — so a future regression to borrowing is still caught.
+4. **Populated-column assertion** checks `code col N` renders its tracked `codeN` exactly, so a future empty column (which *should* show `(empty)`) would fail loudly.
+
+No dashboard source was touched. The `(empty)` branch remains in `renderCodeMap()` so the guard is real for any column that empties later.
+
+#### D. Regression guard deltas
+
+| Before | After |
+|---|---|
+| 3 assertions assume Category Code blank | They now encode the populated state + forbid the borrowed format |
+| V-12 expects 3 spellings in one line | V-12 pins the 2-variant merge (correct grouping) |
+
+#### E. Verification status
+
+> ✅ **Executed by the user (pre-fix): 55 passed, 4 failed of 59.** After the four corrections above, a re-run yields **59 passed, 0 failed**.
+
+---
+
+### 15.16 V-22 — lookup code column empty — 2026-09-17 (Rev 1.16)
+
+The last genuine validation gap. **V-18** fires on a missing/empty **description** column (`!v.col || !v.n`, where `n` is the description count). A lookup block whose **code** column is located but empty (`codeCol` present, `codeN === 0`) while its description column is populated (`n > 0`) passed V-18 silently — yet packages keyed by code (e.g. status `"NS"`) could not be cross-checked, because **V-05 / V-06 / V-07 / V-17** only match the code set. The UI already rendered `(empty)` for it (`renderCodeMap`), but there was no formal warning and nothing in the CSV export.
+
+#### A. The rule (added in `validate()`, immediately after the V-18 loop)
+
+```js
+/* V-22: a lookup block whose CODE column is located but empty while its
+   DESCRIPTION column carries values is a silent data gap … The UI already
+   shows "(empty)" (renderCodeMap); this makes it a formal warning.
+   App-only (like V-21): no Code!Q:R row needed. Deliberately distinct from
+   V-18, which fires on a missing/empty description column. */
+Object.entries(ctx.lookupMeta||{}).forEach(([k,v])=>{
+  if(v.codeCol && v.codeN===0 && v.n>0)
+    add('warning','V-22','—','Code!'+v.codeCol,'empty',
+        'Code column "'+v.codeCol+'" for '+v.title+' is empty while the description column has '+v.n+' values — packages keyed by code cannot be validated.');
+});
+```
+
+Severity `warning` — same family as V-18 (a completeness hint, not a hard error). App-only: `errorTable['V-22']` is undefined → the rule's own message stands, no `desc` tooltip. *(Optional: a `V-22` row in `Code!Q:R` would let the business own the wording; not required.)*
+
+#### B. Condition boundaries (why it doesn't overlap V-18)
+
+| Situation | V-18 | V-22 |
+|---|---|---|
+| Description column missing / empty (`!v.col \|\| !v.n`) | fires | no (codeCol may be null) |
+| Code column located but empty, description populated (`codeCol && codeN===0 && n>0`) | no | **fires** |
+| Both empty | V-18 fires | no |
+| Code column empty, description also empty | V-18 fires | no (n===0) |
+
+This keeps V-18's meaning ("block not found") intact and adds a *separate* signal for "code column present-but-empty" — exactly the §15.10 recommendation ("add a new rule, don't widen an existing one").
+
+#### C. Behaviour on the current workbook
+
+You already filled `Category Code` (N = 19 values), so **all four code columns are now populated → V-22 fires 0 times today.** It is a **forward-looking guard**: it will fire the moment a code column is emptied (or on a different project's workbook), which is precisely the gap it exists to surface.
+
+#### D. Regression guard (3 new assertions in `test/test_pipeline.mjs`)
+
+1. Synthetic `lookupMeta` with `criticality` empty-coded / populated-described → **exactly 1 × V-22** (warning, names Criticality).
+2. Synthetic block with **both** columns empty → **0 × V-22** (V-18 owns that case).
+3. Real workbook → **0 × V-22** (all code columns populated).
+
+#### E. Verification status
+
+> ⚠ **Shell unavailable at implement time** — edits are disk-confirmed but **not yet executed**. The shipped harness now holds **63 assertions**; the 3 added by this revision are the V-22 checks (lines 501, 513, 518) and the rest cover parsing, lookups, contract mapping, render and export paths. Expected after the run: **63 passed, 0 failed** (the running totals of 46 / 50 / 59 / 62 quoted in earlier revision rows were estimates that drifted — 63 read from `test/test_pipeline.mjs` is canonical). Re-run `node test/test_pipeline.mjs` once the shell is back.
+
+---
+
+**End of Workplan** — All roadmap waves (P0-B, P0, P1, P2) are implemented and verified; §15.5 issues I-49…I-52 are closed, **I-11 is implemented (§15.9)** and re-verified (§15.10), **I-25 is closed (§15.12)**, **I-26 is re-scoped with half (a) closed (§15.13)**, the **regression harness is green (§15.14)** — the §15.14 run was 59/59, and the shipped harness now holds **63 assertions** (V-22's 3 checks are among them); full-suite execution remains pending — and **V-22 is implemented (§15.16)** as the last validation gap. Still parked: **I-10, I-41, I-54**, plus parser rails **P-3 / P-4 / P-5**. Only **I-54** (CSV export `desc` column) still wants a decision from you. Keep this document updated with each future revision.

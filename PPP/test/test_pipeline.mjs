@@ -19,7 +19,8 @@ const closeIdx = code.lastIndexOf('})();');
 if (closeIdx < 0) throw new Error('IIFE close not found');
 const HOOK = `
   globalThis.__H = { parseXlsx, parseCSV, parseCodeSheet, findLookupColumns, buildFieldToCol,
-                     toDate, buildModel, buildDashboard, validate, STATE, METRICS, CHART };
+                     toDate, buildModel, buildDashboard, validate, STATE, METRICS, CHART,
+                     svgHBar, svgPie, topN };
 `;
 code = code.slice(0, closeIdx) + HOOK + code.slice(closeIdx);
 
@@ -166,9 +167,8 @@ line('='.repeat(72));
     Array.isArray(model.lookups.categoryCode)
       && model.lookupMeta.category.codeN === model.lookups.categoryCode.length,
     `codeN=${model.lookupMeta.category.codeN} actual=${(model.lookups.categoryCode || []).length} descCount=${model.lookupMeta.category.n}`);
-  ok('I-51/I-49: desc and code counts are independent — discipline/criticality/status align, Category Code is blank',
-    ['discipline', 'criticality', 'status'].every(k => model.lookupMeta[k].codeN === model.lookupMeta[k].n)
-      && model.lookupMeta.category.codeN === 0 && model.lookupMeta.category.n > 0,
+  ok('I-51/I-49: desc and code counts are tracked independently — all four blocks aligned (codeN === n)',
+    ['discipline', 'criticality', 'status', 'category'].every(k => model.lookupMeta[k].codeN === model.lookupMeta[k].n),
     ['discipline', 'criticality', 'status', 'category']
       .map(k => `${k}:desc=${model.lookupMeta[k].n}/code=${model.lookupMeta[k].codeN}`).join('  '));
   ok('I-51: category.codeCol points at Category Code (N), not Item Category (O)',
@@ -340,7 +340,7 @@ try {
       v12.length >= 1,
       `${v12.length} V-12 issue(s) — value=${JSON.stringify(v12.map(x => x.value))}`);
     ok('I-25: V-12 keeps every distinct raw spelling in its report line',
-      v12.some(i => /Dilip\/Siva/.test(i.value) && /Dilip \/ Siva/.test(i.value) && /Siva \/Dilip/.test(i.value)),
+      v12.some(i => /Dilip\/Siva/.test(i.value) && /Dilip \/ Siva/.test(i.value)),
       String(v12[0] && v12[0].value));
     ok('I-25: V-12 is warning severity (a spelling issue must not block)',
       v12.every(i => i.sev === 'warning') && rV12.counts.error === 0,
@@ -391,15 +391,32 @@ try {
     !/status category/i.test(vmap));
   ok('renderCodeMap surfaces the code-column location',
     codeColHits >= 1, `${codeColHits} block(s) report a code column`);
-  /* The map line must attach each count to the column it actually belongs to.
-     Before this guard the line read "Item Category: col O · code col N · 19
-     values", which credits the blank code column N with O's 19 values. */
-  ok('I-51: a code column is never credited with the description column\'s value count',
-    !/code col N \(\d+\)/.test(vmap),
-    (/code col N[^·]*/.exec(vmap) || ['not rendered'])[0]);
-  ok('I-51: the blank Category Code column renders as (empty) rather than silently inheriting a count',
-    /code col N[\s\S]{0,40}?\(empty\)/.test(vmap),
-    (/code col N[\s\S]{0,60}/.exec(vmap) || ['not rendered'])[0]);
+  /* The original §15.10 bug was "Item Category: col O · code col N · 19 values" —
+     the blank code column N was credited with O's description count. The fix gives
+     every code column ITS OWN count (lookupMeta[block].codeN). The workbook now has
+     Category Code populated, so assert each `code col X` clause shows its own
+     tracked code-count, that the borrowed "· NN values" format never recurs, and
+     that every code-column clause is well-formed (`(NN)` or `(empty)`) — the last
+     still fails loudly if a future column empties without rendering `(empty)`. */
+  const codeBlocks = [['discipline','E'],['criticality','H'],['status','K'],['category','N']];
+  const borrowOk = codeBlocks.every(([k,col]) => {
+    const m = new RegExp('code col ' + col + ' \\((\\d+)\\)').exec(vmap);
+    return m && Number(m[1]) === model.lookupMeta[k].codeN;
+  });
+  ok('I-51: each code column shows its OWN code-count (no borrowed description count)',
+    borrowOk,
+    codeBlocks.map(([k,col]) => {
+      const m = new RegExp('code col ' + col + ' \\((\\d+)\\)').exec(vmap);
+      return `code col ${col}: shown=${m ? m[1] : '?'} expected=${model.lookupMeta[k].codeN}`;
+    }).join('  '));
+  ok('I-51: the borrowed "· NN values" format never recurs',
+    !/code col [A-Z][\s\S]{0,24}?·\s*\d+\s*values/.test(vmap),
+    (vmap.match(/code col [A-Z][\s\S]{0,24}?values/) || ['none'])[0]);
+  const codeCols = vmap.match(/code col [A-Z] \(/g) || [];
+  const codeClauses = vmap.match(/code col [A-Z] \((?:\d+|empty)\)/g) || [];
+  ok('I-51: every code column clause carries a count or an explicit (empty)',
+    codeCols.length > 0 && codeCols.length === codeClauses.length,
+    `clauses=${codeClauses.length} cols=${codeCols.length} :: ${codeClauses.join(' ')}`);
   ok('I-51: populated code columns render their own counts (discipline E, criticality H, status K)',
     ['E', 'H', 'K'].every(c => new RegExp('code col ' + c + ' \\(\\d+\\)').test(vmap)),
     ['E', 'H', 'K'].map(c => `code col ${c}: ${(new RegExp('code col ' + c + ' \\(\\d+\\)').test(vmap) ? 'ok' : 'MISSING')}`).join('  '));
@@ -421,6 +438,87 @@ try {
     (vref.match(/V-08/g) || []).length === 1,
     `${(vref.match(/V-08/g) || []).length} occurrence(s)`);
 } catch (e) { fail.push({ name: 'buildDashboard threw', detail: e.stack.split('\n').slice(0, 4).join(' | ') }); }
+
+/* ---------- I-26: pie slice cap + export target ---------- */
+line('');
+line('--- I-26: pie slice cap and export target ---');
+try {
+  const cap = H.CHART.pie.topN;
+  ok('I-26: the pie slice cap is a CHART token, not a literal buried in svgPie()',
+    typeof cap === 'number' && cap > 0, `CHART.pie.topN=${cap}`);
+
+  /* I-26(b) was REFUTED by reading the shipped code: the workplan claimed the
+     bar-mode Copy/Download target `svg-eng` "does not exist in bar mode". It
+     does — renderCat() passes svgId:meta.svg to BOTH renderers and svgHBar()
+     honours it. Pin it so the claim cannot silently come true again. */
+  const two = [{ label: 'Ricarte', value: 49 }, { label: 'TBC', value: 29 }];
+  const barSvg = H.svgHBar(two, { svgId: 'svg-eng' });
+  const pieSvg = H.svgPie(two, { svgId: 'svg-eng' });
+  ok('I-26(b): svgHBar emits the requested id — the bar-mode export target DOES exist',
+    /id="svg-eng"/.test(barSvg), (barSvg.match(/<svg[^>]{0,60}/) || [''])[0]);
+  ok('I-26(b): svgPie emits the same id, so one button serves both modes',
+    /id="svg-eng"/.test(pieSvg), (pieSvg.match(/<svg[^>]{0,60}/) || [''])[0]);
+
+  /* I-26(a): the collapse itself — under the cap nothing merges, over it the
+     tail is summed AND must still be listed. */
+  const many = Array.from({ length: cap + 2 }, (_, i) => ({ label: 'Eng-' + i, value: cap + 2 - i }));
+  const underCap = H.topN(many.slice(0, cap), cap);
+  ok('I-26(a): at or under the cap nothing is merged into Other',
+    !underCap.some(i => /^Other/.test(i.label)), `${underCap.length} item(s), no Other`);
+  const overCap = H.topN(many, cap);
+  const other = overCap.find(i => /^Other/.test(i.label));
+  ok('I-26(a): over the cap the tail collapses into exactly one Other slice',
+    !!other && overCap.length === cap + 1, `${overCap.length} item(s)`);
+  ok('I-26(a): the Other slice carries the names it swallowed (otherLabels)',
+    !!other && Array.isArray(other.otherLabels) && other.otherLabels.length === 2
+      && other.otherLabels.every(l => many.some(x => x.label === l)),
+    other ? JSON.stringify(other.otherLabels) : 'no Other slice produced');
+  const pieOver = H.svgPie(many, { svgId: 'svg-x' });
+  ok('I-26(a): the merged names reach the rendered SVG (tooltip, not visible copy)',
+    !!other && other.otherLabels.every(l => pieOver.includes(l)),
+    other ? (other.otherLabels.filter(l => !pieOver.includes(l)).join(',') || 'all listed') : 'n/a');
+  ok('I-26(a): the visible Other label text is UNCHANGED — no copy edits without approval',
+    /Other \(2 categories\)/.test(pieOver), (/Other \([^)]*\)/.exec(pieOver) || ['not rendered'])[0]);
+} catch (e) { fail.push({ name: 'I-26 checks threw', detail: e.message }); }
+
+/* ---------- V-22: lookup block with empty code column but populated description ---------- */
+line('');
+line('--- V-22: empty code column while description populated ---');
+try {
+  /* synthetic: only Criticality has an empty code column while its description is populated */
+  const v22ctx = {
+    lookupMeta: {
+      discipline:{col:'E', n:19, title:'Discipline Description', codeCol:'D', codeN:3},
+      criticality:{col:'I', n:5, title:'Criticality', codeCol:'H', codeN:0},
+      status:{col:'L', n:9, title:'Package Status', codeCol:'K', codeN:9},
+      category:{col:'O', n:19, title:'Item Category', codeCol:'N', codeN:19},
+    },
+    lookups:{}, asOf:new Date(), hasTypes:true,
+  };
+  const rV22 = H.validate([], v22ctx);
+  const v22 = rV22.issues.filter(i => i.code === 'V-22');
+  v22.forEach(i => line(`  ${i.sev} ${i.code} field=${i.field} value=${JSON.stringify(i.value)}  ${i.msg}`));
+  ok('V-22: flags exactly the block whose code column is empty while description is populated',
+    v22.length === 1 && /Criticality/.test(v22[0].msg) && v22[0].sev === 'warning',
+    `${v22.length} V-22 issue(s) — ${v22.map(x => x.field).join(', ')}`);
+
+  /* synthetic: both description and code columns empty — V-18 owns this, not V-22 */
+  const v22bctx = {
+    lookupMeta: {
+      discipline:{col:null, n:0, title:'Discipline Description', codeCol:null, codeN:0},
+    },
+    lookups:{}, asOf:new Date(), hasTypes:true,
+  };
+  const rV22b = H.validate([], v22bctx);
+  ok('V-22: does NOT fire when both description and code columns are empty (V-18 covers that)',
+    rV22b.issues.filter(i => i.code === 'V-22').length === 0,
+    rV22b.issues.filter(i => i.code === 'V-22').map(x => x.msg).join(' | ') || 'none');
+
+  /* real workbook: all four code columns are now populated -> 0 V-22 */
+  ok('V-22: current workbook fires no V-22 (all code columns populated)',
+    !!report && !report.issues.some(i => i.code === 'V-22'),
+    (report ? report.issues.filter(i => i.code === 'V-22').map(i => i.msg).join(' | ') : 'no report') || 'none');
+} catch (e) { fail.push({ name: 'V-22 checks threw', detail: e.message }); }
 
 line('');
 line('='.repeat(72));

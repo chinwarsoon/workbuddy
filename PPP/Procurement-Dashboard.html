@@ -29,8 +29,7 @@
   /* ---------- Welcome ---------- */
   #welcome{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
   .wcard{background:var(--card);border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow);padding:46px 44px;text-align:center;max-width:480px;width:100%}
-  .wicon{width:84px;height:84px;border-radius:22px;margin:0 auto 22px;background:linear-gradient(135deg,var(--accent),var(--accent-grad-end));display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(0,102,204,.32)}
-  .wicon svg{width:44px;height:44px;fill:#fff}
+  .wlogo{height:52px;width:auto;margin:0 auto 18px;display:block}
   .wcard h1{font-size:25px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
   .wcard p{color:var(--muted);font-size:14px;margin-bottom:26px}
   .drop{border:1.5px dashed var(--line);border-radius:16px;padding:26px 18px;margin-bottom:22px;transition:.2s;cursor:pointer}
@@ -50,6 +49,7 @@
   header.bar .inner{max-width:1120px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:12px}
   header.bar .ttl{font-weight:700;font-size:16px;letter-spacing:-.01em;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   header.bar .meta{font-size:12px;color:var(--muted)}
+  header.bar .logo{height:28px;width:auto;display:block;flex-shrink:0}
   .tf-wrap{position:relative;flex-shrink:0}
   .tf-btn{font:inherit;font-size:12px;font-weight:600;padding:6px 12px;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:.15s}
   .tf-btn:hover{border-color:var(--accent);color:var(--accent)}
@@ -172,6 +172,7 @@
     --grid:#2a2a2c;
   }
   [data-theme="dark"] header.bar{background:rgba(20,20,22,.82)}
+  [data-theme="dark"] header.bar .logo{background:#fff;border-radius:6px;padding:3px 7px;box-shadow:0 1px 3px rgba(0,0,0,.4)}
   /* charts serialise to PNG with literal colours, so keep their area light in dark mode */
   [data-theme="dark"] .chartwrap{background:#fff;border-radius:12px;padding:4px}
 </style>
@@ -183,10 +184,10 @@
 <!-- ===================== WELCOME ===================== -->
 <div id="welcome">
   <div class="wcard">
-    <div class="wicon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h2v18H3V3zm14.5 8.5L13 9l-4 4-2-2-2 2v6h16v-6l-3.5-3.5z"/></svg></div>
+    <img class="wlogo" src="asset/logo.jpg" alt="UES — Better Environments" />
     <h1>Procurement Package Plan</h1>
-    <p>Interactive dashboard for your project's package plan. Load the workbook to explore status, workload, lead time and PO targets.</p>
-    <div class="expect"><b>Expected file</b>TWRP C3B2 - Procurement Package Plan.xlsx — keep it in the same folder as this page, then select it below.</div>
+    <p>Interactive dashboard. Load the workbook to explore status, workload, lead time and PO targets.</p>
+    <div class="expect"><b>Select and Load Project Procurement Plan</b>keep it in the same folder as this page, then select it below.</div>
     <div class="drop" id="drop">
       <div class="big">Drop your .xlsx here</div>
       <div class="small">or click to browse · Excel (.xlsx) or CSV export</div>
@@ -200,6 +201,7 @@
 <!-- ===================== DASHBOARD ===================== -->
 <div id="dash" class="hidden">
   <header class="bar"><div class="inner">
+    <img class="logo" src="asset/logo.jpg" alt="UES" />
     <div class="ttl" id="projTitle">Project</div>
     <div class="meta" id="metaLine"></div>
     <div class="tf-wrap" id="tfWrap">
@@ -846,6 +848,18 @@ function validate(pkgs, ctx){
   Object.entries(ctx.lookupMeta||{}).forEach(([k,v])=>{
     if(!v.col||!v.n) add('warning','V-18','—','Code!'+v.title,'not found','Lookup block "'+v.title+'" was not found in row 1 — '+k+' values cannot be checked against the Code sheet');
   });
+  /* V-22: a lookup block whose CODE column is located but empty while its
+     DESCRIPTION column carries values is a silent data gap — packages keyed by
+     code (e.g. status "NS") cannot be cross-checked, and V-05/V-06/V-07/V-17
+     only match the code set. The UI already shows "(empty)" (renderCodeMap);
+     this makes it a formal warning. App-only (like V-21): no Code!Q:R row needed.
+     Deliberately distinct from V-18, which fires on a missing/empty description
+     column, not on an empty code column. */
+  Object.entries(ctx.lookupMeta||{}).forEach(([k,v])=>{
+    if(v.codeCol && v.codeN===0 && v.n>0)
+      add('warning','V-22','—','Code!'+v.codeCol,'empty',
+          'Code column "'+v.codeCol+'" for '+v.title+' is empty while the description column has '+v.n+' values — packages keyed by code cannot be validated.');
+  });
 
   const noCount={}, noRaw={}; const personVariants={};
   let ltMissing=0, critBlank=0;
@@ -1058,7 +1072,7 @@ const PIE_COLORS=['#0066CC','#34C759','#FF9F0A','#5E5CE6','#FF3B30','#30B0C7','#
    properties do not resolve. */
 const CHART = {
   W:760, RW:46, padT:12, RH:30, BH:18,
-  pie:{ R:100, r:58, cx:130, legendX:290, rowH:24 },
+  pie:{ R:100, r:58, cx:130, legendX:290, rowH:24, topN:8 },
   group:{ h:280, padL:34, padR:10, padT:18, padB:48 },
   ink:'#1D1D1F', muted:'#6E6E73', grey:'#C7C7CC', accent:'#0066CC',
   accentDark:'#004999', goodDark:'#1A7F3C',
@@ -1143,18 +1157,30 @@ function donutPath(cx,cy,R,r,a0,a1){
   return 'M'+p0[0].toFixed(2)+' '+p0[1].toFixed(2)+' A'+R+' '+R+' 0 '+large+' 1 '+p1[0].toFixed(2)+' '+p1[1].toFixed(2)+
          ' L'+p2[0].toFixed(2)+' '+p2[1].toFixed(2)+' A'+r+' '+r+' 0 '+large+' 0 '+p3[0].toFixed(2)+' '+p3[1].toFixed(2)+' Z';
 }
+/* I-26: `topN` collapses the tail into one grey slice. The merged slice now
+   carries the labels it swallowed, because otherwise the pie *deletes* them —
+   the reader sees "Other (2 categories)" and cannot tell which two.
+   `otherLabels` is rendered as a tooltip in svgPie(); the visible label text is
+   deliberately left alone (any copy change is a separate approval). */
 function topN(items,n){
   if(items.length<=n) return items.slice();
   const sorted=items.slice().sort((a,b)=>b.value-a.value);
   const top=sorted.slice(0,n), rest=sorted.slice(n);
   const otherVal=rest.reduce((s,i)=>s+i.value,0);
   const out=top.slice();
-  if(otherVal>0) out.push({label:'Other ('+rest.length+' categories)',value:otherVal,color:CHART.grey});
+  if(otherVal>0) out.push({label:'Other ('+rest.length+' categories)',value:otherVal,color:CHART.grey,otherLabels:rest.map(i=>i.label)});
   return out;
 }
 function svgPie(items, opts={}){
   const W=CHART.W;
-  const data=topN(items.filter(i=>i.value>0),8).filter(i=>i.value>0);
+  /* I-26: the slice cap is a token now (was a literal 8 buried here), so raising
+     or lowering it is one edit in CHART. The cap is a LEGIBILITY limit, not a
+     data limit — the bar chart shows every value; the pie answers "who are the
+     big ones". The trailing `.filter(i=>i.value>0)` that used to follow topN()
+     was a no-op: every input already passed the filter above, and topN() only
+     appends "Other" when its sum is > 0. Removed rather than left in place as a
+     decoration that reads like a guarantee. */
+  const data=topN(items.filter(i=>i.value>0),CHART.pie.topN);
   const total=data.reduce((s,i)=>s+i.value,0);
   if(!total) return '<div class="empty">No data to chart.</div>';
   const R=CHART.pie.R, r=CHART.pie.r, cx=CHART.pie.cx, legendX=CHART.pie.legendX, rowH=CHART.pie.rowH;
@@ -1166,16 +1192,20 @@ function svgPie(items, opts={}){
   data.forEach((it,i)=>{
     const frac=it.value/total; const a1=a0+frac*Math.PI*2;
     const col=it.color||PIE_COLORS[i%PIE_COLORS.length];
+    /* I-26: a merged slice lists what it swallowed, so the collapse is never
+       silent. The visible legend text is still `it.label` — unchanged copy. */
+    const ttl=it.label+(it.otherLabels&&it.otherLabels.length?' — '+it.otherLabels.join(', '):'');
     const d = frac>=0.9999 ? (donutPath(cx,cy,R,r,a0,a0+Math.PI)+' '+donutPath(cx,cy,R,r,a0+Math.PI,a0+Math.PI*2)) : donutPath(cx,cy,R,r,a0,a1);
-    s+='<path d="'+d+'" fill="'+col+'" stroke="'+CHART.white+'" stroke-width="1.5"><title>'+esc(it.label)+': '+it.value+' ('+Math.round(frac*100)+'%)</title></path>';
+    s+='<path d="'+d+'" fill="'+col+'" stroke="'+CHART.white+'" stroke-width="1.5"><title>'+esc(ttl)+': '+it.value+' ('+Math.round(frac*100)+'%)</title></path>';
     a0=a1;
   });
   s+='<text x="'+cx+'" y="'+(cy-3)+'" text-anchor="middle" fill="'+CHART.ink+'" style="font-size:21px;font-weight:700">'+total+'</text>';
   s+='<text x="'+cx+'" y="'+(cy+15)+'" text-anchor="middle" fill="'+CHART.muted+'" style="font-size:11px">packages</text>';
   data.forEach((it,i)=>{
     const y=24+i*rowH; const col=it.color||PIE_COLORS[i%PIE_COLORS.length];
+    const ttl=it.label+(it.otherLabels&&it.otherLabels.length?' — '+it.otherLabels.join(', '):'');
     s+='<rect x="'+legendX+'" y="'+(y-9)+'" width="11" height="11" rx="2.5" fill="'+col+'"/>';
-    s+='<text x="'+(legendX+18)+'" y="'+y+'" fill="'+CHART.ink+'" style="font-size:12.5px"><title>'+esc(it.label)+'</title>'+esc(trunc(it.label,32))+'</text>';
+    s+='<text x="'+(legendX+18)+'" y="'+y+'" fill="'+CHART.ink+'" style="font-size:12.5px"><title>'+esc(ttl)+'</title>'+esc(trunc(it.label,32))+'</text>';
     s+='<text x="'+(W-10)+'" y="'+y+'" text-anchor="end" fill="'+CHART.muted+'" style="font-size:12.5px">'+it.value+' · '+Math.round(it.value/total*100)+'%</text>';
   });
   return s+'</svg>';
