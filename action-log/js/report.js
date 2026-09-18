@@ -38,7 +38,44 @@
   function createdOnOf(a){
     return a.createdOn || (a.history && a.history[0] && typeof a.history[0].d==='string' && /^\d{4}-\d{2}-\d{2}$/.test(a.history[0].d) ? a.history[0].d : '');
   }
-  function detailLogRows(a){
+  // ---- ISS-64: @ref resolution (only at export) ----
+  // @<id> -> action, @img:<name> -> picture on the same row.
+  // Raw token is preserved when unresolvable; never silently dropped.
+  function findActionById(id){
+    return liveActions().find(a => String(a.id) === String(id)) || null;
+  }
+  function resolveActionRef(id){
+    const a = findActionById(id);
+    if(!a) return `<span style="color:#6E6E73">&rarr; #${esc(id)} [action not found]</span>`;
+    const title = esc(a.title || ('#' + id));
+    if(a.deleted) return `<span style="color:#6E6E73">&rarr; #${esc(id)} ${title} [deleted]</span>`;
+    return `<span style="background:#E6F1FB;color:#185FA5;border-radius:4px;padding:1px 6px">&rarr; #${esc(id)} ${title}</span>`;
+  }
+  function resolveImgRef(name, row){
+    const att = (Array.isArray(row.attachments) ? row.attachments
+      : (Array.isArray(row.images) ? row.images.map(im => ({ name:im.name, src:im.src, type:'image' })) : []));
+    const hit = att.find(im => im.name === name && (im.type || 'image') === 'image');
+    if(!hit) return `<span style="color:#6E6E73">&rarr; ${esc(name)} [image not found]</span>`;
+    const link = hit.src ? `<a href="${esc(normalizeLinkSrc(hit.src))}" style="color:#185FA5">IMG ${esc(name)}</a>` : `IMG ${esc(name)}`;
+    return `<span style="background:#E6F1FB;color:#185FA5;border-radius:4px;padding:1px 6px">&rarr; ${link}</span>`;
+  }
+  function expandRefs(text, row){
+    if(!text) return '';
+    const re = /(^|[\s(])(@img:([^\s]+)|@(\d+))/g;
+    let out = '', last = 0, m;
+    while((m = re.exec(text)) !== null){
+      const pre = m[1], imgName = m[3], id = m[4];
+      out += esc(text.slice(last, m.index)).replace(/\r\n|\r|\n/g, '<br/>');
+      out += esc(pre).replace(/\r\n|\r|\n/g, '<br/>');
+      if(imgName !== undefined) out += resolveImgRef(imgName, row);
+      else if(id !== undefined) out += resolveActionRef(id);
+      last = re.lastIndex;
+    }
+    out += esc(text.slice(last)).replace(/\r\n|\r|\n/g, '<br/>');
+    return out;
+  }
+
+  function detailLogRows(a, resolve){
     function addLabel(set, label, fn){
       if(!Array.isArray(set)) return '';
       const parts = set.map(fn).filter(Boolean);
@@ -60,7 +97,8 @@
           const st = r.status ? `<div class="rep-sub"><b>Status:</b> ${esc(statusLabel(r.status))}</div>` : '';
           const due = r.due ? `<div class="rep-sub"><b>Due:</b> ${esc(r.due)}</div>` : '';
           const by = r.editedBy ? `<div class="rep-sub"><b>Edited by:</b> ${esc(memberNameById(r.editedBy))}</div>` : '';
-          return `<tr><td>${esc(r.date||'')}</td><td>${typeIds}${byIds}${st}${due}${by}${esc(r.text||'')}${imgsHtml(r)}</td></tr>`;
+          const dtxt = resolve ? expandRefs(r.text || '', r) : esc(r.text||'').replace(/\r\n|\r|\n/g,'<br/>');
+          return `<tr><td>${esc(r.date||'')}</td><td>${typeIds}${byIds}${st}${due}${by}${dtxt}${imgsHtml(r)}</td></tr>`;
         }).join('')
       : `<tr><td colspan="2">No entries</td></tr>`;
   }
@@ -72,8 +110,8 @@
         + `<tr><td><b>Assigned to</b></td><td>${esc(assigneesTxt(a))}</td><td><b>Created by</b></td><td>${esc(creatorName(a))}</td></tr>`
         + `<tr><td><b>Created On</b></td><td>${esc(createdOnOf(a)||'—')}</td><td><b>Dependencies</b></td><td>${esc(actionDeps(a).length?actionDeps(a).map(d=>depLabel(d)).join('; '):'—')}</td></tr>`
         + `</table>`;
-      const log = `<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;font-family:Calibri;width:100%"><tr><th style="text-align:left">Date</th><th style="text-align:left">Detail</th></tr>${detailLogRows(a)}</table>`;
-      return `<h2>${esc(a.title)}</h2>${meta}<p style="font-family:Calibri"><b>Description (dated detail log)</b></p>${log}`;
+      const log = `<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;font-family:Calibri;width:100%"><tr><th style="text-align:left">Date</th><th style="text-align:left">Detail</th></tr>${detailLogRows(a, true)}</table>`;
+      return `<h2>#${esc(a.id)} — ${esc(a.title)}</h2>${meta}<p style="font-family:Calibri"><b>Description (dated detail log)</b></p>${log}`;
     }).join('<hr/>');
     const html = `<!DOCTYPE html><html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Actions</title></head><body>${sections}</body></html>`;
     msoDownload('Actions.doc', html, 'application/msword');
@@ -97,13 +135,13 @@
       return `<br/>📎 ${esc(im.name||'image')} — ${esc(im.src)}`;
     }).join('');
   }
-  function minutesLogRows(rows){
+  function minutesLogRows(rows, resolve){
     if(!rows || !rows.length) return `<tr><td colspan="6">No entries match the current filter.</td></tr>`;
     return rows.map(r => {
       const types = (Array.isArray(r.typeIds) ? r.typeIds : []).map(id => { const t = (state.actionTypes||[]).find(x => x.id === id); return t ? t.label : id; }).filter(Boolean).join(', ');
       const bys = (Array.isArray(r.actionBy) ? r.actionBy : []).map(id => memberNameById(id)).filter(Boolean).join(', ');
       const st = r.status ? statusLabel(r.status) : '';
-      const detail = esc(r.text || '') + minutesImgsHtml(r);
+      const detail = (resolve ? expandRefs(r.text || '', r) : esc(r.text || '').replace(/\r\n|\r|\n/g, '<br/>')) + minutesImgsHtml(r);
       return `<tr><td>${esc(r.date||'')}</td><td>${esc(types)}</td><td>${esc(bys)}</td><td>${esc(r.due||'')}</td><td>${esc(st)}</td><td>${detail}</td></tr>`;
     }).join('');
   }
@@ -117,10 +155,10 @@
       + `</table>`;
     const log = `<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;font-family:Calibri;width:100%">`
       + `<tr><th style="text-align:left">Date</th><th style="text-align:left">Type</th><th style="text-align:left">Action by</th><th style="text-align:left">Due</th><th style="text-align:left">Status</th><th style="text-align:left">Detail</th></tr>`
-      + minutesLogRows(rows)
+      + minutesLogRows(rows, true)
       + `</table>`;
     const safe = (a.title || 'minutes').replace(/[^\w\-]+/g, '_');
-    const html = `<!DOCTYPE html><html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${esc(a.title||'Minutes')}</title></head><body><h2>${esc(a.title||'Minutes')}</h2>${meta}<p style="font-family:Calibri"><b>Description (dated detail log)</b></p>${log}</body></html>`;
+    const html = `<!DOCTYPE html><html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${esc(a.title||'Minutes')}</title></head><body><h2>#${esc(a.id)} — ${esc(a.title||'Minutes')}</h2>${meta}<p style="font-family:Calibri"><b>Description (dated detail log)</b></p>${log}</body></html>`;
     msoDownload('Minutes - ' + safe + '.doc', html, 'application/msword');
   }
   function openExportModal(){
