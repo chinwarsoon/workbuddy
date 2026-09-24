@@ -94,7 +94,11 @@
     const p = state.actions.find(x=>x.id===parentId);
     if(!p) return null;
     if(actionTier(p) >= MAX_TIER){ toast('Max '+MAX_TIER+'-tier depth reached — a tier-'+MAX_TIER+' action cannot have sub-actions.'); return null; }
-    const child = { id: state.nextId++, title: title||'Sub-action', projectId:p.projectId, disciplineId:p.disciplineId, statusId:p.statusId, priorityId:p.priorityId, assignedToIds:(p.assignedToIds||[]).slice(), assignedToNames:(p.assignedToNames||[]).slice(), createdById:p.createdById, parentId:parentId, history:[{d:todayStr(), t:'Created (sub-action)'}], createdOn: todayStr(), detailLog:[], schedule:{duration:DEFAULT_DURATION}, progress:0 };
+    // ISS-94: a parent may have at most 99 direct sub-actions (suffix .01–.99). Guard on maxChildSeq
+    // (not the live count) so the cap holds even with frozen, non-reused ordinals after deletes.
+    if(maxChildSeq(parentId) >= 99){ toast('Max 99 sub-actions per action — create a new action and link it by dependency.'); return null; }
+    const childSeq = maxChildSeq(parentId) + 1;
+    const child = { id: state.nextId++, title: title||'Sub-action', projectId:p.projectId, disciplineId:p.disciplineId, statusId:p.statusId, priorityId:p.priorityId, assignedToIds:(p.assignedToIds||[]).slice(), assignedToNames:(p.assignedToNames||[]).slice(), createdById:p.createdById, parentId:parentId, childSeq, history:[{d:todayStr(), t:'Created (sub-action)'}], createdOn: todayStr(), detailLog:[], schedule:{duration:DEFAULT_DURATION}, progress:0 };
     state.actions.push(child);
     return child;
   }
@@ -104,8 +108,9 @@
   }
   function splitIntoSubactions(a){
     if(actionTier(a) >= MAX_TIER){ toast('Tier-'+MAX_TIER+' action cannot be split further — create a new top-level action and link it with a dependency.'); return; }
+    if(maxChildSeq(a.id) >= 98){ toast('Not enough room — max 99 sub-actions (need 2 free slots to split). Create a new action and link it by dependency.'); return; }
     const c1=createChild(a.id,'Sub-action 1'); if(!c1) return;
-    const c2=createChild(a.id,'Sub-action 2');
+    const c2=createChild(a.id,'Sub-action 2'); if(!c2) return;
     // ISS-34: 入向依赖（别人依赖原 action）复制给两个子项；出向依赖（原 action 依赖别人）保留在原 action（UI 隐藏）。
     state.actions.forEach(x=>{
       if(x.deps && x.deps.length){
@@ -125,7 +130,10 @@
     if(!a || a.parentId==null) return;
     const parent = state.actions.find(x=>x.id===a.parentId);
     // move up exactly one level: become a sibling of the current parent
-    a.parentId = parent ? (parent.parentId!=null ? parent.parentId : null) : null;
+    const newParentId = parent ? (parent.parentId!=null ? parent.parentId : null) : null;
+    if(newParentId != null && maxChildSeq(newParentId) >= 99){ toast('Max 99 sub-actions — cannot promote into that parent.'); return; }
+    a.parentId = newParentId;
+    a.childSeq = (newParentId==null) ? undefined : (maxChildSeq(newParentId) + 1);
     state.selection.actions = a.id;
     markDataDirty(); refresh(); toast('Promoted one level up');
   }

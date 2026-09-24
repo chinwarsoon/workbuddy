@@ -208,6 +208,16 @@
       if(!Number.isFinite(a.progress)) a.progress = 0;
       return a;
     });
+    // ---- ISS-94 backfill: assign a frozen per-parent childSeq (1..n by array order) to every
+    // child action. Pre-this-version data has no childSeq, so this is the first assignment;
+    // order follows current array (creation) order, yielding contiguous .01–.nn WBS codes. The
+    // cap of 99 direct children is enforced on NEW sub-actions in editor.js (createChild/split/promote).
+    state.actions.forEach(p=>{
+      const kids = childrenOf(p.id);
+      if(!kids.length) return;
+      let n = 0;
+      kids.forEach(k=>{ k.childSeq = ++n; });
+    });
     state.members = members;
     // Per-project member assignment: legacy/absent lists default to all ACTIVE members (members now loaded).
     state.projects.forEach(p=>{ if(!Array.isArray(p.memberIds)) p.memberIds = members.filter(m=>!m.left).map(m=>m.id); });
@@ -466,14 +476,32 @@
         return JSON.stringify(serializeData(), null, 2);
       };
       if(window.showSaveFilePicker && dataDirHandle){
-        const r = await writeIntoFolder(dataDirHandle, DEFAULT_DATA_FILE, snapshot());
+        let r = await writeIntoFolder(dataDirHandle, DEFAULT_DATA_FILE, snapshot());
+        if(!r.ok){
+          // Known working folder became unreadable/writable (e.g. a VPN / network-mapped
+          // drive dropped, or its permission was revoked). Re-offer the Working Folder popup
+          // so the user can repoint to a writable location instead of silently downloading.
+          // (ISS-93) Only download as a true last resort after the user actively chooses a
+          // *different* folder and the retry still fails.
+          const prev = dataDirHandle;
+          const chosen = await openWfPop();
+          if(chosen && dataDirHandle && dataDirHandle !== prev){
+            r = await writeIntoFolder(dataDirHandle, DEFAULT_DATA_FILE, snapshot());
+          } else {
+            // User dismissed the popup or kept the same (still-unwritable) folder — do NOT
+            // silently download. Leave the data unsaved and explain how to proceed. (ISS-93)
+            toast('Could not write to the working folder ('+((r.err && r.err.message) || r.err)+'). Nothing was saved — choose a writable Working Folder (Folder button), then Save.');
+            saveErrorMsg = 'Working folder write failed — data not saved';
+            r = { ok:false, err:r.err, skipped:true };
+          }
+        }
         if(r.ok){
           state.loadedFile = { name: DEFAULT_DATA_FILE, path: dataDirHandle.name, source: 'external' };
           state.dataDirty = false; state.lastSavedAt = saveTimeNow(); state.lastSavedVia='disk'; saveErrorMsg='';
           toast('Saved '+DEFAULT_DATA_FILE+' → '+dataDirHandle.name);
-        } else {
-          // Direct write failed (e.g. VPN/network-mapped folder unreachable or read-only).
-          // Fall back to a download so the data is never lost; mark it as a download.
+        } else if(!r.skipped){
+          // True last resort: the retry into a different folder also failed. Download so the
+          // data is never lost, but name the failure and tell the user to set a folder.
           downloadJson(DEFAULT_DATA_FILE, snapshot(), 'Direct write failed ('+((r.err && r.err.message) || r.err)+') — downloaded '+DEFAULT_DATA_FILE+' instead (set a Working Folder on this PC for disk writes)');
           state.dataDirty = false; state.lastSavedAt = saveTimeNow(); state.lastSavedVia='download'; saveErrorMsg='';
         }
@@ -503,6 +531,7 @@
       }
     } finally {
       setSaving(false);
+      updateStatusbar();
     }
   }
 
@@ -513,9 +542,22 @@
     try{
       const text = JSON.stringify(serializeSetup(), null, 2);
       if(window.showSaveFilePicker && dataDirHandle){
-        const r = await writeIntoFolder(dataDirHandle, 'setup.json', text);
+        let r = await writeIntoFolder(dataDirHandle, 'setup.json', text);
+        if(!r.ok){
+          // Known working folder became unreadable/writable. Re-offer the popup instead of
+          // silently downloading (ISS-93). Only download as a true last resort.
+          const prev = dataDirHandle;
+          const chosen = await openWfPop();
+          if(chosen && dataDirHandle && dataDirHandle !== prev){
+            r = await writeIntoFolder(dataDirHandle, 'setup.json', text);
+          } else {
+            toast('Could not write to the working folder ('+((r.err && r.err.message) || r.err)+'). Nothing was saved — choose a writable Working Folder (Folder button), then Save.');
+            saveErrorMsg = 'Working folder write failed — data not saved';
+            r = { ok:false, err:r.err, skipped:true };
+          }
+        }
         if(r.ok){ state.setupDirty = false; state.lastSavedAt = saveTimeNow(); state.lastSavedVia='disk'; saveErrorMsg=''; toast('Saved setup.json → '+dataDirHandle.name); }
-        else { downloadJson('setup.json', text, 'Direct write failed ('+((r.err && r.err.message) || r.err)+') — downloaded setup.json instead (set a Working Folder on this PC for disk writes)'); state.setupDirty = false; state.lastSavedAt = saveTimeNow(); state.lastSavedVia='download'; saveErrorMsg=''; }
+        else if(!r.skipped){ downloadJson('setup.json', text, 'Direct write failed ('+((r.err && r.err.message) || r.err)+') — downloaded setup.json instead (set a Working Folder on this PC for disk writes)'); state.setupDirty = false; state.lastSavedAt = saveTimeNow(); state.lastSavedVia='download'; saveErrorMsg=''; }
       } else if(window.showSaveFilePicker && !dataDirHandle){
         // No working folder yet: guide the user through the standardized popup (not a raw
         // system picker). The popup resolves `true` once a folder is chosen. (ISS-89/B)
@@ -533,6 +575,7 @@
       }
     } finally {
       setSaving(false);
+      updateStatusbar();
     }
   }
 

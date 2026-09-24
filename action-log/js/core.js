@@ -125,6 +125,50 @@
     }
     return { count:total, done, pct: total? Math.round(done/total*100):0, planStart, planFinish, duration, progress };
   }
+  // ---- Schema v3 hierarchical WBS display code (ISS-94) ----
+  // Top-level action → its own id (e.g. "12"). Child → "<parentWbs>.<nn>" (e.g. "12.01", "12.01.01"),
+  // where <nn> is the stored, frozen per-parent ordinal childSeq, zero-padded to 2 digits (.01–.99).
+  // Internal integer id stays the SSOT for all references (deps / parentId / @ref); this code is display-only.
+  function maxChildSeq(pid){
+    let m = 0;
+    childrenOf(pid).forEach(k => { if(Number.isFinite(+k.childSeq)) m = Math.max(m, +k.childSeq); });
+    return m;
+  }
+  function wbsCode(a, _seen){
+    if(!a) return '';
+    if(a.parentId == null) return String(a.id);
+    // Cycle guard (ISS-94 hardening): a corrupt parentId chain (self-parent, or A↔B)
+    // would otherwise recurse forever and blank the page at load. Stop at the loop.
+    _seen = _seen || new Set();
+    if(_seen.has(a.id)) return String(a.id);
+    _seen.add(a.id);
+    const p = state.actions.find(x => x.id === a.parentId);
+    let seq = Number.isFinite(+a.childSeq) ? +a.childSeq : (childrenOf(a.parentId).findIndex(x => x.id === a.id) + 1);
+    if(seq < 1) seq = 1;
+    return (p ? wbsCode(p, _seen) : String(a.parentId)) + '.' + String(seq).padStart(2,'0');
+  }
+  // Display label (ISS-96): visible id = WBS code; internal integer id shown in parentheses as a secondary/legacy ref.
+  // Top-level shows just the code (e.g. "12"); child/grandchild show "wbs (id)" (e.g. "14.01 (15)", "14.01.01 (16)").
+  function wbsLabel(a){
+    if(!a) return '';
+    const w = wbsCode(a);            // top-level = String(a.id); child = "14.01"
+    return (a.parentId == null) ? w : (w + ' (' + a.id + ')');
+  }
+  // ISS-96: numeric-hierarchical comparator so wbs sorts correctly (12 before 100; 14.01 before 14.01.01).
+  function wbsCompare(a, b){
+    const wa = String(wbsCode(a)).split('.').map(Number);
+    const wb = String(wbsCode(b)).split('.').map(Number);
+    const n = Math.max(wa.length, wb.length);
+    for(let i=0;i<n;i++){
+      const x = wa[i] || 0, y = wb[i] || 0;
+      if(x !== y) return x - y;
+    }
+    return 0;
+  }
+  function findActionByWbs(wbs){
+    const code = String(wbs);
+    return liveActions().find(a => String(wbsCode(a)) === code) || null;
+  }
   // ---- Schema v3 dependency network (ISS-14/16/17) ----
   const DEP_TYPES = ['FS','SS','FF','SF'];   // Finish-to-Start / Start-to-Start / Finish-to-Finish / Start-to-Finish
   function normReferencePoint(r){ const o=r||{}; return { id:o.id||uid('r'), name:o.name||'Reference', date:o.date||'', projectId:o.projectId||'' }; }
@@ -144,8 +188,9 @@
     return false;
   }
   function depLabel(d){
-    const pre = d.predKind==='reference' ? ('◇ '+((state.referencePoints.find(r=>r.id===d.predId)||{}).name||'Ref'))
-                                          : ('#'+d.predId+' '+((state.actions.find(x=>x.id===d.predId)||{}).title||'?'));
+    const pre = d.predKind==='reference'
+      ? ('◇ '+((state.referencePoints.find(r=>r.id===d.predId)||{}).name||'Ref'))
+      : (()=>{ const pa = state.actions.find(x=>x.id===d.predId); return pa ? (wbsLabel(pa)+' '+(pa.title||'?')) : ('#'+d.predId+' ?'); })();
     return pre + ' · ' + d.type + (d.lag ? ' ('+(d.lag>0?'+':'')+d.lag+'d)' : '');
   }
   // Info 状态常量（系统内置，ISS-22）

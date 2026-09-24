@@ -112,13 +112,15 @@
     const badge = hasKids ? `<span class="tcount sum" title="${r.count} sub-action(s), ${r.pct}% complete">∑ ${r.count}</span>` : '';
     const lead = hasKids ? `<span class="tchev act-chev" data-act="toggle-action" data-id="${a.id}" title="Toggle sub-actions">${open?'▾':'▸'}</span>` : `<span class="tdot"></span>`;
     let html = `<div class="tnode action${sel}" data-type="action" data-id="${a.id}" data-key="${akey}" style="padding-left:${treePad(2+depth)}px">${lead}`
-      + `<span class="tnum">#${a.id}</span>`
+      + `<span class="tnum">${esc(wbsLabel(a))}</span>`
       + `<span class="tname">${esc(a.title)}</span>${badge}`
       + `<span class="tcount" style="${aPriorityStyle(a)}">${esc(aPriorityLabel(a))}</span>`
       + `<span class="tcount">${esc(aStatusLabel(a))}</span>`
       + `<span class="tcontrols"><span class="tbtn edit" data-act="edit-action" title="Edit action">✎</span></span></div>`;
     if(hasKids && open){
-      kids.filter(branchMatches).sort((x,y)=>priorityRank(x)-priorityRank(y)).forEach(k=>{ html += renderActionNode(k, depth+1, branchMatches); });
+      // ISS-94: render children in frozen childSeq order so the .01 / .03 hierarchy reads
+      // correctly even after a middle sub-action is deleted (ordinal gaps are preserved).
+      kids.filter(branchMatches).sort((x,y)=>(+x.childSeq||0)-(+y.childSeq||0)).forEach(k=>{ html += renderActionNode(k, depth+1, branchMatches); });
     }
     return html;
   }
@@ -237,7 +239,7 @@
     el.innerHTML = `<div class="ed-sh-inner">
       <div class="ed-sh-row1">
         <input class="input ed-sh-title" id="aeTitle" value="${esc(a.title)}" aria-label="Action title" />
-        <span class="ed-sh-id">#${a.id}</span>
+        <span class="ed-sh-id">${esc(wbsLabel(a))}</span>
       </div>
       <div class="ed-sh-meta">
         <span class="sh-chip"><span class="sh-k">${esc(L('project','Project'))}</span><span class="sh-v">${esc(projName(a.projectId))}</span><span class="sh-lock" title="Locked — set at creation, cannot be changed">${FC_GLYPH_LOCK}</span></span>
@@ -1195,7 +1197,7 @@
     const obHtml = impact.outbound.length ? `<ul class="dc-list">${impact.outbound.map(d=>row('Outbound', d.text)).join('')}</ul>` : `<p class="dc-empty">— none</p>`;
     const ibHtml = impact.inbound.length ? `<ul class="dc-list">${impact.inbound.map(d=>row('Inbound', d.text, d.from)).join('')}</ul>` : `<p class="dc-empty">— none</p>`;
     $('dcBody').innerHTML =
-      `<p class="dc-intro">Delete <b>#${a.id} ${esc(a.title)}</b>? These dependency links will be removed:</p>`
+      `<p class="dc-intro">Delete <b>${esc(wbsLabel(a))} ${esc(a.title)}</b>? These dependency links will be removed:</p>`
       + `<div class="dc-sec-h">Outbound — this action depends on</div>${obHtml}`
       + `<div class="dc-sec-h">Inbound — other actions depend on this</div>${ibHtml}`
       + `<p class="dc-total"><b>${total}</b> link(s) in total will be removed. The action stays in action.json until physically removed in Settings → Deleted.</p>`;

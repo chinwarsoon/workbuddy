@@ -44,12 +44,13 @@
   function findActionById(id){
     return liveActions().find(a => String(a.id) === String(id)) || null;
   }
-  function resolveActionRef(id){
-    const a = findActionById(id);
-    if(!a) return `<span style="color:#6E6E73">&rarr; #${esc(id)} [action not found]</span>`;
-    const title = esc(a.title || ('#' + id));
-    if(a.deleted) return `<span style="color:#6E6E73">&rarr; #${esc(id)} ${title} [deleted]</span>`;
-    return `<span style="background:#E6F1FB;color:#185FA5;border-radius:4px;padding:1px 6px">&rarr; #${esc(id)} ${title}</span>`;
+  // ISS-96: resolve @ref by WBS code first, then fall back to the legacy integer id (silent backward-compat).
+  function resolveActionRef(token){
+    const a = findActionByWbs(token) || findActionById(token);
+    if(!a) return `<span style="color:#6E6E73">&rarr; @${esc(token)} [action not found]</span>`;
+    const title = esc(a.title || ('#' + token));
+    if(a.deleted) return `<span style="color:#6E6E73">&rarr; ${esc(wbsLabel(a))} ${title} [deleted]</span>`;
+    return `<span style="background:#E6F1FB;color:#185FA5;border-radius:4px;padding:1px 6px">&rarr; ${esc(wbsLabel(a))} ${title}</span>`;
   }
   function resolveImgRef(name, row){
     const att = (Array.isArray(row.attachments) ? row.attachments
@@ -61,7 +62,7 @@
   }
   function expandRefs(text, row){
     if(!text) return '';
-    const re = /(^|[\s(])(@img:([^\s]+)|@(\d+))/g;
+    const re = /(^|[\s(])(@img:([^\s]+)|@(\d+(?:\.\d+)*))/g;
     let out = '', last = 0, m;
     while((m = re.exec(text)) !== null){
       const pre = m[1], imgName = m[3], id = m[4];
@@ -111,14 +112,14 @@
         + `<tr><td><b>Created On</b></td><td>${esc(createdOnOf(a)||'—')}</td><td><b>Dependencies</b></td><td>${esc(actionDeps(a).length?actionDeps(a).map(d=>depLabel(d)).join('; '):'—')}</td></tr>`
         + `</table>`;
       const log = `<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;font-family:Calibri;width:100%"><tr><th style="text-align:left">Date</th><th style="text-align:left">Detail</th></tr>${detailLogRows(a, true)}</table>`;
-      return `<h2>#${esc(a.id)} — ${esc(a.title)}</h2>${meta}<p style="font-family:Calibri"><b>Description (dated detail log)</b></p>${log}`;
+      return `<h2>${esc(wbsLabel(a))} — ${esc(a.title)}</h2>${meta}<p style="font-family:Calibri"><b>Description (dated detail log)</b></p>${log}`;
     }).join('<hr/>');
     const html = `<!DOCTYPE html><html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Actions</title></head><body>${sections}</body></html>`;
     msoDownload('Actions.doc', html, 'application/msword');
   }
   function exportExcel(acts){
-    const header = `<tr><th>ID</th><th>Title</th><th>Project</th><th>Discipline</th><th>Status</th><th>Due</th><th>Assigned</th><th>Created By</th><th>Created On</th></tr>`;
-    const rows = acts.map(a=>`<tr><td>${a.id}</td><td>${esc(a.title)}</td><td>${esc(projName(a.projectId))}</td><td>${esc(discName(a.disciplineId))}</td><td>${esc(aStatusLabel(a))}</td><td>${esc(a.due||'')}</td><td>${esc(assigneeList(a).join(', '))}</td><td>${esc(a.createdByName||memberNameById(a.createdById)||'')}</td><td>${esc(createdOnOf(a)||'')}</td></tr>`).join('');
+    const header = `<tr><th>ID</th><th>WBS</th><th>Title</th><th>Project</th><th>Discipline</th><th>Status</th><th>Due</th><th>Assigned</th><th>Created By</th><th>Created On</th></tr>`;
+    const rows = acts.map(a=>`<tr><td>${a.id}</td><td>${esc(wbsCode(a))}</td><td>${esc(a.title)}</td><td>${esc(projName(a.projectId))}</td><td>${esc(discName(a.disciplineId))}</td><td>${esc(aStatusLabel(a))}</td><td>${esc(a.due||'')}</td><td>${esc(assigneeList(a).join(', '))}</td><td>${esc(a.createdByName||memberNameById(a.createdById)||'')}</td><td>${esc(createdOnOf(a)||'')}</td></tr>`).join('');
     const html = `<!DOCTYPE html><html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Actions</title></head><body><table border="1" cellspacing="0" cellpadding="4">${header}${rows}</table></body></html>`;
     msoDownload('Actions.xls', html, 'application/vnd.ms-excel');
   }
@@ -158,7 +159,7 @@
       + minutesLogRows(rows, true)
       + `</table>`;
     const safe = (a.title || 'minutes').replace(/[^\w\-]+/g, '_');
-    const html = `<!DOCTYPE html><html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${esc(a.title||'Minutes')}</title></head><body><h2>#${esc(a.id)} — ${esc(a.title||'Minutes')}</h2>${meta}<p style="font-family:Calibri"><b>Description (dated detail log)</b></p>${log}</body></html>`;
+    const html = `<!DOCTYPE html><html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${esc(a.title||'Minutes')}</title></head><body><h2>${esc(wbsLabel(a))} — ${esc(a.title||'Minutes')}</h2>${meta}<p style="font-family:Calibri"><b>Description (dated detail log)</b></p>${log}</body></html>`;
     msoDownload('Minutes - ' + safe + '.doc', html, 'application/msword');
   }
   function openExportModal(){
@@ -185,9 +186,9 @@
     });
   }
   function renderExportList(){
-    const all = exportFiltered();
+    const all = exportFiltered().slice().sort(wbsCompare);
     [...exportSel].forEach(id=>{ if(!all.find(a=>a.id===id)) exportSel.delete(id); });
-    const list = all.length ? all.map(a=>`<label class="ex-item"><input type="checkbox" class="ex-chk" value="${a.id}" ${exportSel.has(a.id)?'checked':''}/> <span>${esc(a.title)}</span> <span class="ex-sub">${esc(projName(a.projectId))} · ${esc(aStatusLabel(a))}</span></label>`).join('')
+    const list = all.length ? all.map(a=>`<label class="ex-item"><input type="checkbox" class="ex-chk" value="${a.id}" ${exportSel.has(a.id)?'checked':''}/> <span class="ex-id">${esc(wbsLabel(a))}</span> <span>${esc(a.title)}</span> <span class="ex-sub">${esc(projName(a.projectId))} · ${esc(aStatusLabel(a))}</span></label>`).join('')
                          : `<div class="lm-empty">No actions match the filters.</div>`;
     $('exList').innerHTML = list;
     $('exList').querySelectorAll('.ex-chk').forEach(c=>c.onchange=()=>{ if(c.checked) exportSel.add(+c.value); else exportSel.delete(+c.value); updateExportCount(); });
