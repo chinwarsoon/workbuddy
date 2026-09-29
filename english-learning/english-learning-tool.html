@@ -755,6 +755,11 @@ function applyPack(p){
   // recognized as known here — they join the review pool with their existing
   // schedule instead of being re-taught from scratch.
   captureLearnedInPack();
+  /* CROSS_DICT must always be built relative to the pack on screen, not to the
+     pack chosen at boot. applyPack() also runs on restore / pack switch /
+     import; without this line those paths kept a dictionary built for the old
+     pack, so the active pack's own words were flagged as "learned elsewhere". */
+  rebuildCrossDict(state.activePack);
 }
 /* CROSS_DICT = every word of the packs OTHER than the active one, so a later
    reading can surface earlier-taught words as tappable <b class="prior">. */
@@ -780,7 +785,9 @@ async function loadRemainingPacks(chosen){
       PACKS[meta.id] = normalizePack(data);
     }).catch(function(){ /* skip an unavailable pack, keep going */ });
   }));
-  rebuildCrossDict(chosen);
+  // Re-read the active pack: the user may have switched packs while these were
+  // still streaming in, and `chosen` captured the pack chosen at boot.
+  rebuildCrossDict(state.activePack || chosen);
   globalWordsCache=null; wordIndexCache=null; learnedKeySetCache=null; ctxIdxReady=false;
   packsLoaded = true;
   refreshAfterPacks();
@@ -3739,9 +3746,16 @@ function ensurePwaMeta(){
 function registerSW(){
   if(!("serviceWorker" in navigator)) return;
   if(!location.protocol.startsWith("http")) return; // skip on file:// — local mode stays plain
-  window.addEventListener("load", function(){
+  /* init() awaits loadContent() before it reaches this line, and the page has no
+     external sub-resources, so `load` fires while those fetches are still in
+     flight. A plain addEventListener("load") would be attached too late and the
+     worker would never register — leaving a first-time install with no offline
+     cache at all. Register straight away if load has already happened. */
+  var doRegister = function(){
     navigator.serviceWorker.register("sw.js").catch(function(){ /* offline file mode, ignore */ });
-  });
+  };
+  if(document.readyState === "complete") doRegister();
+  else window.addEventListener("load", doRegister, {once:true});
 }
 </script>
 </body>

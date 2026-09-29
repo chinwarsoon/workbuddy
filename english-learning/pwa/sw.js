@@ -6,7 +6,7 @@
    re-download ~2.4 MB before the app was usable offline again. Now a deploy
    re-downloads only the HTML.
 */
-const APP_CACHE = "ed-app-v36";
+const APP_CACHE = "ed-app-v37";
 const CONTENT_CACHE = "ed-content-v1";
 
 // Only reference files that actually exist. The manifest + touch-icon are
