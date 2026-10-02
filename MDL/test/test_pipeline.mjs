@@ -56,7 +56,6 @@ ok('known value present: approval APP', L.approval.codes.has('APP'));
 console.log('4) Review durations from Code!A9:C11');
 const rr = model.contract.reviewRules;
 ok('firstClientReview = 20', rr.firstClientReview === 20, JSON.stringify(rr));
-ok('subsequentClientReview = 14', rr.subsequentClientReview === 14);
 ok('resubmissionDuration = 14', rr.resubmissionDuration === 14);
 
 console.log('5) Discipline tab discovery');

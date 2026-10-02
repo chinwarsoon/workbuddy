@@ -6,7 +6,7 @@ import { buildModel } from './pipeline.mjs';
 const COLORS = { blue:'#1E88E5', green:'#2E7D32', amber:'#F9A825', red:'#C62828', slate:'#64748B', navy:'#0F2D52', grey:'#B8C2CC' };
 const PALETTE = ['#1E88E5','#2E7D32','#F9A825','#C62828','#64748B','#7E57C2','#26A69A','#EC407A','#8D6E63','#42A5F5','#9CCC65','#FF7043'];
 const F = 'font-family:Segoe UI,system-ui,sans-serif';
-const esc = s => (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const esc = s => (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const LOGO_DATA = '__LOGO_DATA__'; // replaced with an embedded base64 data-URI at build time
 const isoStrToDate = iso => { if(!iso) return null; const d = new Date(iso + 'T00:00:00Z'); return isNaN(d) ? null : d; };
 function wdBetween(d1, d2){ if(!d1||!d2) return null; let s=1; if(d2<d1){[d1,d2]=[d2,d1];s=-1;} let c=0,cur=new Date(d1.getTime()); while(cur<=d2){ const day=cur.getUTCDay(); if(day!==0&&day!==6)c++; cur.setUTCDate(cur.getUTCDate()+1);} return s*c; }

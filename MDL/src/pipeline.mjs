@@ -99,13 +99,12 @@ export function buildModel(workbook, options = {}){
   const typeOf = f => columnMap[f] ? columnMap[f].type : null;
 
   // --- review durations (rows 9-11) ---
-  const reviewRules = { firstClientReview: 20, subsequentClientReview: 14, resubmissionDuration: 14 };
+  const reviewRules = { firstClientReview: 20, resubmissionDuration: 14 };
   for(let r = 9; r <= 11; r++){
     const row = codeSheet.rows[r]; if(!row) continue;
     const name = String(row.A || ''); const val = parseInt(row.B, 10);
     if(isNaN(val)) continue;
     if(/first client review/i.test(name)) reviewRules.firstClientReview = val;
-    else if(/subsequent/i.test(name)) reviewRules.subsequentClientReview = val;
     else if(/resubmission/i.test(name)) reviewRules.resubmissionDuration = val;
   }
 

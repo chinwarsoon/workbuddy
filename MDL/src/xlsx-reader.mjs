@@ -42,6 +42,12 @@ async function unzip(buf){
     const extraLen = dv.getUint16(p+30, true);
     const commentLen = dv.getUint16(p+32, true);
     const lho = dv.getUint32(p+42, true);
+    const next = p + 46 + nameLen + extraLen + commentLen;
+    // The local file header must carry the LFH signature. If it doesn't, the
+    // offset recorded in the central directory is bogus, and reading
+    // nameLen/extraLen from it would silently slice the wrong bytes — skip
+    // this entry rather than trusting it (and keep walking the directory).
+    if(lho + 30 > bytes.length || dv.getUint32(lho, true) !== LFH){ p = next; continue; }
     const nameBytes = bytes.subarray(p+46, p+46+nameLen);
     const name = new TextDecoder().decode(nameBytes);
     // local header: nameLen/extraLen at +26/+28
@@ -51,7 +57,7 @@ async function unzip(buf){
     let data = bytes.subarray(dataStart, dataStart + compSize);
     if(method === 8) data = await inflateRaw(data);
     files[name] = data;
-    p = p + 46 + nameLen + extraLen + commentLen;
+    p = next;
   }
   return files;
 }
@@ -116,7 +122,7 @@ function cellValue(tagInner, shared){
   let vText = '';
   if(isMatch){
     const tRe = /<t[^>]*>([\s\S]*?)<\/t>/g; let tm;
-    while((tm = tRe.exec(isMatch[1]))) vText += tm[1];
+    while((tm = tRe.exec(isMatch[1]))) vText += unescXml(tm[1]);
   } else {
     const vMatch = /<v>([\s\S]*?)<\/v>/.exec(tagInner);
     if(vMatch) vText = vMatch[1];

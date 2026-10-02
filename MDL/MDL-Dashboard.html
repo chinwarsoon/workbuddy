@@ -54,6 +54,12 @@ async function unzip(buf){
     const extraLen = dv.getUint16(p+30, true);
     const commentLen = dv.getUint16(p+32, true);
     const lho = dv.getUint32(p+42, true);
+    const next = p + 46 + nameLen + extraLen + commentLen;
+    // The local file header must carry the LFH signature. If it doesn't, the
+    // offset recorded in the central directory is bogus, and reading
+    // nameLen/extraLen from it would silently slice the wrong bytes — skip
+    // this entry rather than trusting it (and keep walking the directory).
+    if(lho + 30 > bytes.length || dv.getUint32(lho, true) !== LFH){ p = next; continue; }
     const nameBytes = bytes.subarray(p+46, p+46+nameLen);
     const name = new TextDecoder().decode(nameBytes);
     // local header: nameLen/extraLen at +26/+28
@@ -63,7 +69,7 @@ async function unzip(buf){
     let data = bytes.subarray(dataStart, dataStart + compSize);
     if(method === 8) data = await inflateRaw(data);
     files[name] = data;
-    p = p + 46 + nameLen + extraLen + commentLen;
+    p = next;
   }
   return files;
 }
@@ -126,7 +132,7 @@ function cellValue(tagInner, shared){
   let vText = '';
   if(isMatch){
     const tRe = /<t[^>]*>([\s\S]*?)<\/t>/g; let tm;
-    while((tm = tRe.exec(isMatch[1]))) vText += tm[1];
+    while((tm = tRe.exec(isMatch[1]))) vText += unescXml(tm[1]);
   } else {
     const vMatch = /<v>([\s\S]*?)<\/v>/.exec(tagInner);
     if(vMatch) vText = vMatch[1];
@@ -282,13 +288,12 @@ function buildModel(workbook, options = {}){
   const typeOf = f => columnMap[f] ? columnMap[f].type : null;
 
   // --- review durations (rows 9-11) ---
-  const reviewRules = { firstClientReview: 20, subsequentClientReview: 14, resubmissionDuration: 14 };
+  const reviewRules = { firstClientReview: 20, resubmissionDuration: 14 };
   for(let r = 9; r <= 11; r++){
     const row = codeSheet.rows[r]; if(!row) continue;
     const name = String(row.A || ''); const val = parseInt(row.B, 10);
     if(isNaN(val)) continue;
     if(/first client review/i.test(name)) reviewRules.firstClientReview = val;
-    else if(/subsequent/i.test(name)) reviewRules.subsequentClientReview = val;
     else if(/resubmission/i.test(name)) reviewRules.resubmissionDuration = val;
   }
 
@@ -543,7 +548,7 @@ function buildModel(workbook, options = {}){
 const COLORS = { blue:'#1E88E5', green:'#2E7D32', amber:'#F9A825', red:'#C62828', slate:'#64748B', navy:'#0F2D52', grey:'#B8C2CC' };
 const PALETTE = ['#1E88E5','#2E7D32','#F9A825','#C62828','#64748B','#7E57C2','#26A69A','#EC407A','#8D6E63','#42A5F5','#9CCC65','#FF7043'];
 const F = 'font-family:Segoe UI,system-ui,sans-serif';
-const esc = s => (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const esc = s => (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const LOGO_DATA = 'data:image/jpeg;base64,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'; // replaced with an embedded base64 data-URI at build time
 const isoStrToDate = iso => { if(!iso) return null; const d = new Date(iso + 'T00:00:00Z'); return isNaN(d) ? null : d; };
 function wdBetween(d1, d2){ if(!d1||!d2) return null; let s=1; if(d2<d1){[d1,d2]=[d2,d1];s=-1;} let c=0,cur=new Date(d1.getTime()); while(cur<=d2){ const day=cur.getUTCDay(); if(day!==0&&day!==6)c++; cur.setUTCDate(cur.getUTCDate()+1);} return s*c; }
