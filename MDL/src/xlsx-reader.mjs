@@ -21,10 +21,12 @@ async function inflateRaw(bytes){
 async function unzip(buf){
   const bytes = new Uint8Array(buf);
   const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  // locate End Of Central Directory (scan from tail)
+  // locate End Of Central Directory — scan BACKWARD from the tail so the LAST
+  // occurrence is found, as required by the ZIP spec (a comment or data earlier
+  // in the file can contain the magic bytes; only the last match is the real EOCD).
   let eocd = -1;
   const min = Math.max(0, bytes.length - 65557);
-  for(let i=min; i<=bytes.length-22; i++){
+  for(let i=bytes.length-22; i>=min; i--){
     if(dv.getUint32(i, true) === EOCD){ eocd = i; break; }
   }
   if(eocd < 0) throw new Error('Not a valid ZIP/XLSX (EOCD not found)');
@@ -64,6 +66,12 @@ function attrs(str){
   return out;
 }
 
+function unescXml(s){
+  // XML entity decode — must run on every string extracted from raw XML text.
+  // Without this, any cell value containing & < > ' " arrives as &amp; &lt; etc.
+  return s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'");
+}
+
 function parseSharedStrings(xmlBytes){
   const xml = decodeUtf8(xmlBytes || new Uint8Array());
   const list = [];
@@ -72,7 +80,7 @@ function parseSharedStrings(xmlBytes){
     const inner = m[1];
     let text = '', t;
     const tRe = /<t[^>]*>([\s\S]*?)<\/t>/g;
-    while((t = tRe.exec(inner))) text += t[1];
+    while((t = tRe.exec(inner))) text += unescXml(t[1]);
     list.push(text);
   }
   return list;

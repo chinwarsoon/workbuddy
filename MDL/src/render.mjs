@@ -6,7 +6,7 @@ import { buildModel } from './pipeline.mjs';
 const COLORS = { blue:'#1E88E5', green:'#2E7D32', amber:'#F9A825', red:'#C62828', slate:'#64748B', navy:'#0F2D52', grey:'#B8C2CC' };
 const PALETTE = ['#1E88E5','#2E7D32','#F9A825','#C62828','#64748B','#7E57C2','#26A69A','#EC407A','#8D6E63','#42A5F5','#9CCC65','#FF7043'];
 const F = 'font-family:Segoe UI,system-ui,sans-serif';
-const esc = s => (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const esc = s => (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const LOGO_DATA = '__LOGO_DATA__'; // replaced with an embedded base64 data-URI at build time
 const isoStrToDate = iso => { if(!iso) return null; const d = new Date(iso + 'T00:00:00Z'); return isNaN(d) ? null : d; };
 function wdBetween(d1, d2){ if(!d1||!d2) return null; let s=1; if(d2<d1){[d1,d2]=[d2,d1];s=-1;} let c=0,cur=new Date(d1.getTime()); while(cur<=d2){ const day=cur.getUTCDay(); if(day!==0&&day!==6)c++; cur.setUTCDate(cur.getUTCDate()+1);} return s*c; }
@@ -205,7 +205,7 @@ function lineSVG(p, from, to){
   [['pCum',COLORS.blue],['fCum',COLORS.amber],['aCum',COLORS.green]].forEach(([k,c])=>{ const pts=idx.map(i=>`${X(i).toFixed(1)},${Y(p[k][i]).toFixed(1)}`).join(' '); g+=`<polyline fill="none" stroke="${c}" stroke-width="2" points="${pts}"/>`; });
   if(typeof p.projStartIdx==='number' && p.projStartIdx>=from && p.projStartIdx<=to){ const x=X(p.projStartIdx);
     g+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${T+ph}" stroke="#C62828" stroke-width="1.5" stroke-dasharray="4 3"/>`; }
-  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${g}</svg>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid meet">${g}</svg>`;
 }
 function barProgressSVG(p, from, to){
   const FF='font-family="Arial,Helvetica,sans-serif"';
@@ -223,7 +223,7 @@ function barProgressSVG(p, from, to){
   g+=`<line x1="${L}" y1="${T+ph}" x2="${L+pw}" y2="${T+ph}" stroke="#C9D4E0" stroke-width="1"/><line x1="${L}" y1="${T}" x2="${L}" y2="${T+ph}" stroke="#C9D4E0" stroke-width="1"/>`;
   if(typeof p.projStartIdx==='number' && p.projStartIdx>=from && p.projStartIdx<=to){ const x=Xc(p.projStartIdx);
     g+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${T+ph}" stroke="#C62828" stroke-width="1.5" stroke-dasharray="4 3"/>`; }
-  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${g}</svg>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid meet">${g}</svg>`;
 }
 function svgToBlob(svgEl, cb){
   const xml = new XMLSerializer().serializeToString(svgEl);
@@ -442,7 +442,7 @@ function sysBannerHTML(warnings){
   }).join('');
 }
 function renderDashboard(root, model){
-  MODEL = model; WRAP = null; collapsed.clear(); scurveWin = null;   // full IPS window again on a fresh load
+  MODEL = model; WRAP = null; collapsed.clear(); scurveWin = null; matrixMonthSel = '';   // full reset on a fresh load
   const defs = getFilterDefs(model);
   const initSet = d => new Set(d.items.concat(d.hasBlank?['']:[]));
   STATE = { disciplines:initSet(defs[0]), stages:initSet(defs[1]), authority:initSet(defs[2]), approval:initSet(defs[3]), search:'', includeExcluded:false, rule:null, sort:{col:null,dir:1} };
@@ -532,7 +532,7 @@ function filterSummary(){
 function renderStatusBar(v){
   if(!statusBarEl || !MODEL) return;
   const m=MODEL.meta, k=v.kpis||{};
-  const q = s => esc(s).replace(/"/g,'&quot;');
+  const q = s => esc(s);
   const total = MODEL.records ? MODEL.records.length : 0;
   const planned = k.totalPlanned||0, submitted = k.submitted||0;
   const pct = planned ? Math.round(submitted/planned*100) : 0;

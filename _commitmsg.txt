@@ -1,0 +1,19 @@
+fix(MDL): 6 bugs in xlsx-reader, pipeline, and render
+
+- xlsx-reader: EOCD scan was forward (first match); ZIP spec requires
+  backward scan (last match). Fixes parsing of workbooks where earlier
+  data accidentally contains the EOCD magic bytes.
+- xlsx-reader: parseSharedStrings did not XML-entity-decode text inside
+  <t> tags. Cell values containing special characters (&, <, >, quotes)
+  arrived corrupted, breaking document titles, stage names and lookups.
+- render: lineSVG and barProgressSVG emitted viewBox-only SVGs with no
+  explicit width/height attributes. svgToBlob read img.width/height as 0,
+  producing blank 0x0 PNGs for S-curve and monthly-bar chart exports.
+  Added width and height attributes to both SVG return strings.
+- pipeline: V-09 (date out of order) fired up to 3 times per document;
+  V-23 (future date) fired up to 4 times. Both now fire at most once per
+  document using OR / some, keeping issue counts accurate.
+- render: matrixMonthSel was not reset on workbook reload, persisting
+  the previous workbook month selector state into the new workbook.
+- render: esc() was missing double-quote escaping. Added replace for ".
+  Removed the now-redundant secondary replace in renderStatusBar.

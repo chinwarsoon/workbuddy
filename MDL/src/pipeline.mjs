@@ -238,12 +238,13 @@ export function buildModel(workbook, options = {}){
     if(W === 'RTR' && (Y === '' || /void/i.test(Y))) issues.push(mkIssue('V-16', rec));
     if(['APP', 'AWC', 'REJ', 'NAP'].includes(Y) && (U === '' || X === '')) issues.push(mkIssue('V-20', rec));
     if(X !== '' && (Y === '' || (U !== '' && isoToDate(X) < isoToDate(U)))) issues.push(mkIssue('V-21', rec));
-    // V-09 date order
-    if(S && T && isoToDate(T) < isoToDate(S)) issues.push(mkIssue('V-09', rec));
-    if(T && U && isoToDate(U) < isoToDate(T)) issues.push(mkIssue('V-09', rec));
-    if(S && U && isoToDate(U) < isoToDate(S)) issues.push(mkIssue('V-09', rec));
+    // V-09 date order — fire ONCE per document even if multiple pairs are out of order
+    if((S && T && isoToDate(T) < isoToDate(S)) ||
+       (T && U && isoToDate(U) < isoToDate(T)) ||
+       (S && U && isoToDate(U) < isoToDate(S))) issues.push(mkIssue('V-09', rec));
     if(U !== '' && (S === '' || T === '')) issues.push(mkIssue('V-22', rec));
-    [S, T, U, X].forEach(d => { if(d && isoToDate(d) && isoToDate(d) > today) issues.push(mkIssue('V-23', rec)); });
+    // V-23 — fire ONCE per document if any date is in the future
+    if([S, T, U, X].some(d => d && isoToDate(d) && isoToDate(d) > today)) issues.push(mkIssue('V-23', rec));
     // V-28: a 1st-issue date precedes the declared project start date (Code!B6). Fires once per
     // document if any of Planned/Forecast/Actual is earlier than projectStartDate (only when B6 set).
     if(projectStartDate){ const ps = isoToDate(projectStartDate);
