@@ -1,15 +1,15 @@
 # PPP Dashboard — Developer Workplan
 
 > **Project**: Procurement Package Plan (PPP) Interactive Dashboard  
-> **Version**: 1.16  
-> **Date**: 2026-09-17  
-> **Status**: Active Development — **Wave 0 (P0-B: I-42…I-48), Wave 1 (P0: I-27 + I-30), Wave 2 (P1: I-31, I-32, I-34, I-35 + I-46), and Wave 3 (P2: I-28, I-29, I-33, I-36…I-40 + I-47) implemented and VERIFIED** (see §14.6–§14.9 and **§15**). **Rev 1.7 fixed I-51.** **Rev 1.8 closes §15.5**: **I-49** resolved (the `Status Category` block is **not required** — dropped from the contract, V-18 false positive eliminated), **I-50** resolved as **accepted behaviour** (V-20 stays a warning; `List End Row = 300` is a template bound), **I-52** resolved as a **workbook task** (the missing V-19/V-20 rows will be added to `Code!Q:R`). **`renderCodeMap()` now reports both the description column and its paired code column.** **Rev 1.9 implements I-11** — the Code sheet Error table (`Code!Q:R`) is now the wording source for every validation rule, with a **warning-only** fallback (**V-21**) for any code that has no row there, plus the I-49/I-53 cleanups inside `isIssued()`. See **§15.9**. **Rev 1.10 re-verifies I-51 by execution and fixes two defects it exposed — a regression test that could not fail, and a map line that credited a blank code column with data (§15.10).** Remaining open items: **V-08** (×119) and **V-20** (×1) are correct workbook findings, not code defects (§15.4 / §15.6); **I-54** (CSV export `desc` column) is the only item still needing a decision from you. **V-22** (empty lookup code column) is **implemented in Rev 1.16 (§15.16)** — the last validation gap — with 3 harness assertions added (**63 total**); the end-to-end run is **VERIFIED 2026-09-24 — `node test/test_pipeline.mjs` → 63 passed, 0 failed** (see §15.16 §E / §15.11 §D). Parked backlog: **I-10, I-41, I-54** + parser rail **P-3** (P-4 / P-5 closed by the green run).
+> **Version**: 1.18  
+> **Date**: 2026-10-02  
+> **Status**: Maintenance — **Waves 0–3 and Rev 1.17 harness (63 passed, 0 failed) remain the baseline** (see §15.16 §E). **`codecheck.md` retired** — all original audit items live in **§14**; **§15.17** logs the 2026-10-02 independent review (**I-55…I-59**). Parked backlog: **I-10, I-41, I-54, I-55…I-59** + parser rail **P-3** (P-4 / P-5 closed). **I-54** (validation CSV `desc` column) still needs a product decision. Workbook noise (**V-08** ×119, **V-20** ×1) is data/template, not code defects (§15.11 §D).
 
 > ⚠ **There are two workplan files.** This is the current one. The earlier Chinese workplan (`WORKPLAN.md`, Rev v2, 2026-09-15) was moved to **`arch/WORKPLAN.md`** and is kept for history only — do not edit it.
 
 > **Rev 1.13 = dead-code cleanup (§15.12).** A sweep for unreachable / dead code found that **I-25 was not really "a dead helper" but "a rule that could never fire"**: V-12's engineer-variant detector added a raw string to a Set **keyed by that same raw string**, so every Set had size 1 and `s.size > 1` was unreachable by construction.
 >
-> **Rev 1.14 = I-26 re-scoped (§15.13).** The row's second claim — that bar-mode Copy/Download target an `svg-eng` that does not exist — **was refuted by reading the shipped code** (already fixed by Wave 0 / I-44). The remaining half is done: the pie slice cap is now the token `CHART.pie.topN`, and a collapsed `Other` slice lists the names it swallowed as a tooltip. **Visible label text unchanged.** The helper (`normPerson()`) and the broken grouping are both gone; **V-12 now groups spellings that differ only in whitespace / slash spacing** and reports every distinct raw spelling. Harness gains **4 assertions** pinning both directions (variants MUST fire, genuinely different names MUST NOT merge, workbook must stay clean). **VERIFICATION PENDING** — shell unavailable.
+> **Rev 1.14 = I-26 re-scoped (§15.13)** — pie cap is `CHART.pie.topN` with `otherLabels` tooltip; bar-mode export refuted (I-44). **Superseded by Rev 1.17 harness verification.**
 
 ---
 
@@ -18,7 +18,7 @@
 | § | Section | Note |
 |---|---------|------|
 | 1 | Summary & Purpose | §1.3 = guiding principles (the **Layered** principle points to §13) |
-| 2 | Revision History | Rev **1.17** = current (**harness green — 63 passed, 0 failed; I-24 / P-4 / P-5 closed**); Rev 1.16 = V-22 implemented (last validation gap); Rev 1.15 = regression harness corrected; Rev 1.14 = I-26 re-scoped (half refuted, half fixed); Rev 1.13 = dead-code cleanup (I-25 closed, V-12 reachable); Rev 1.12 = I-05b closed by the workbook (Category Code + Lead Time/Days); Rev 1.11 = pending-issue audit; Rev 1.10 = I-51 re-verified; Rev 1.9 = I-11 implemented; Rev 1.8 = I-49 closed · I-50/I-52 as workbook-side |
+| 2 | Revision History | Rev **1.18** = current (**§15.17 review; `codecheck.md` retired; I-55…I-59**); Rev 1.17 = harness green (63/63); Rev 1.16 = V-22; Rev 1.14 = I-26 re-scoped |
 | 3 | Functions & Workflow Chart | ⚠ line numbers stale — see I-41 |
 | 4 | Excel Data Structure — Code Sheet Contract | |
 | 5 | Dashboard Charts — Detailed Specifications | |
@@ -30,11 +30,12 @@
 | 11 | File Reference | ⚠ line numbers stale — see I-41 |
 | 12 | Quick Start for New Developers | |
 | **13** | **UI Architecture Review — 5-Layer Target Model** | **APPLIED — issues I-27…I-40 all resolved (Waves 1–3)** |
-| **14** | **Cross-audit of `codecheck.md`** | **APPLIED — I-42…I-48 resolved (Wave 0) · §14.6–§14.9 = per-wave logs** |
+| **14** | **Cross-audit of `codecheck.md` (archived)** | **APPLIED — I-42…I-48 resolved (Wave 0) · permanent audit record · source file **retired Rev 1.18** |
 | **15** | **Verification Run** | **APPLIED · syntax + headless end-to-end pipeline verified · §15.5 = issue log (I-49…I-52) · §15.8 = closure log · §15.9 = I-11 feature log · §15.10 = I-51 re-verification · §15.11 = pending-issue audit · §15.12 = dead-code cleanup · §15.13 = I-26 re-scope · §15.14 = regression harness correction · §15.16 = V-22** |
 | **15.11** | **Pending-issue audit** | **0 items need a decision · 6 parked backlog + parser rails** |
 | **15.12** | **Dead-code cleanup** | **I-25 closed (V-12 was unreachable by construction) · I-12 found stale · 2 non-dead items confirmed** |
 | **15.13** | **I-26 re-scope** | **Half (b) refuted — already fixed by I-44 · half (a) closed — cap is a token, Other lists what it merged** |
+| **15.17** | **Independent review (2026-10-02)** | **I-55…I-59 backlog · do not re-file §14/codecheck items** |
 
 > **🔎 Looking for the 5-layer structure?** Go to **§13**. Quick map:
 > **§13.1** why · **§13.2** as-built measurements · **§13.3** the 5 layers (diagram + ownership table)
@@ -93,7 +94,8 @@ The PPP Dashboard is a **standalone, offline-first, browser-based interactive da
 | **1.14** | **2026-09-17** | UI Design | **I-26 re-scoped; half (a) closed, half (b) refuted (§15.13).** The row bundled two claims. **(b) "bar-mode Copy/Download target `svg-eng` does not exist" is FALSE** — `renderCat()` passes `svgId:meta.svg` to **both** renderers and `svgHBar()` honours it, so the bar-mode SVG exists; the five button `data-svg` values match `METRICS[].svg` one-for-one and the buttons sit **outside** the container that `innerHTML=` replaces. It described **pre-Rev-1.1** code, already fixed by Wave 0 (I-44). **(a)** the pie cap `8` is now the token **`CHART.pie.topN`**, and the merged slice carries **`otherLabels`** so a tooltip lists the names it swallowed — **visible label text deliberately unchanged**. Also removed a trailing `.filter(i=>i.value>0)` that was a provable no-op (dead decoration that read like a guarantee). Harness gains **7 assertions**. **VERIFICATION PENDING** (shell unavailable). |
 | **1.15** | **2026-09-17** | UI Design | **Regression harness corrected (§15.14) — no dashboard code changed.** The first *executed* run of the Rev 1.13/1.14 harness (user-run: **55 passed, 4 failed of 59**) showed all 4 failures were **stale test assumptions, not code defects**. The workbook's `Category Code` (N) is now populated (19 values), so three assertions that had encoded "Category Code is blank" (`category.codeN === 0`, `code col N (empty)`, "no `code col N (\d+)`") were wrong; and the V-12 assertion wrongly expected `Dilip/Siva`, `Dilip / Siva` **and** `Siva /Dilip` in one report line, but a reversed name is a separate loose key and a singleton, correctly left un-flagged. `renderCodeMap()` / `lookupMeta` re-read to confirm the rendered `code col N (19)` is N's *own* count. Four assertions corrected; the `(empty)` guard stays in the dashboard code for any future empty column. Re-run → **all 59 pass, 0 failed**. |
 | **1.16** | **2026-09-17** | UI Design | **V-22 implemented (§15.16) — the last validation gap (empty lookup code column fires a warning).** `validate()` now emits **V-22** (warning, app-only) when a lookup block's code column is located but empty while its description column carries values. Three harness assertions added (**63 total**). Dashboard code verified on disk (rule present immediately after the V-18 loop); end-to-end run **pending** (shell unavailable) — expected **63 passed, 0 failed**. |
-| **1.17** | **2026-09-24** | verification · **Current** | **End-to-end harness executed and green — closes the test items (see §15.16 §E / §15.11 §D).** `node test/test_pipeline.mjs` runs the *shipped* script against the *real* workbook: **63 passed, 0 failed**, 14 chart renders, zero uncaught throws. Closes **I-24** (the regression harness now exists and runs), **P-4** (self-closing-cell fixture exercised by the real workbook's 1818 empty styled cells), **P-5** (the harness is the openpyxl-equivalent golden cross-check). **P-3 remains open** — the cell-count invariant needs a code change in `parseSheet()`, not covered by the harness. All prior "VERIFICATION PENDING" flags are superseded. |
+| 1.17 | 2026-09-24 | verification | **End-to-end harness executed and green — closes the test items (see §15.16 §E / §15.11 §D).** `node test/test_pipeline.mjs` runs the *shipped* script against the *real* workbook: **63 passed, 0 failed**, 14 chart renders, zero uncaught throws. Closes **I-24** (the regression harness now exists and runs), **P-4** (self-closing-cell fixture exercised by the real workbook's 1818 empty styled cells), **P-5** (the harness is the openpyxl-equivalent golden cross-check). **P-3 remains open** — the cell-count invariant needs a code change in `parseSheet()`, not covered by the harness. All prior "VERIFICATION PENDING" flags are superseded. |
+| **1.18** | **2026-10-02** | docs · review | **§15.17 independent review logged; `codecheck.md` retired (stub only).** All original codecheck findings remain in §14 (I-42…I-48). New backlog: **I-55** (criticality chart buckets by code while PPP may store descriptions), **I-56** (CSV load without Code sheet), **I-57** (category filter “none selected” → empty dashboard), **I-58** (`esc()` omits `"` in HTML attributes), **I-59** (welcome copy missing space after `</b>`). **No dashboard code changed.** |
 
 ---
 
@@ -523,6 +525,11 @@ The Code sheet has **6 distinct column groups**. Row 1 contains headers for all 
 | **I-26** | **RE-SCOPED (Rev 1.14 — §15.13).** Two halves were filed together; **the second half is stale and has been struck out.** **(a) Pie collapse — OPEN, latent.** `svgPie()` calls `topN(items.filter(i=>i.value>0), 8)`, so with >8 distinct values the smallest are summed into one grey `Other (N categories)` slice and **their names disappear from the chart and legend**. Latent only: today Engineer has exactly 8 names, so `topN` returns early and nothing is lost. **(b) ~~Bar-mode Copy/Download target `svg-eng` does not exist~~ → REFUTED, already fixed by Wave 0 (I-44).** Verified by reading the shipped code: `renderCat()` passes `svgId:meta.svg` to **both** renderers, and `svgHBar()` honours it (`const id=opts.svgId||('svg-'+random)`), so `<svg id="svg-eng">` **is** produced in bar mode. The button `data-svg` values (`svg-status`/`svg-disc`/`svg-eng`/`svg-crit`/`svg-lead`) match `METRICS[].svg` one-for-one, and the buttons live **outside** the `meta.el` container, so `innerHTML=` cannot destroy them. Both handlers also have a `toast('Nothing to export')` fallback (added by I-44). **The row described pre-Rev-1.1 code.** | ~~Copy/Download silently broken in bar mode~~ → **not broken**. The pie collapse remains | **(a) DONE in Rev 1.14:** the cap is now `CHART.pie.topN` (token, not a literal), and the merged slice carries `otherLabels` so a tooltip lists the names it swallowed. **Label text deliberately unchanged.** **(b) none — no code needed.** | Dev | **(a) Closed (Rev 1.14) · (b) Refuted** |
 | **I-53** | ✅ **FIXED (Rev 1.9 — §15.9).** `isIssued()` matched the **raw** status while every other view canonicalises it through `statusCanon`, so a status stored as a short code (`DEL`, `RI`, `PO`) was never recognised as *issued* — such packages would wrongly be listed in **PO Issuance Delays**. The dead `statusCategory` branch left behind by I-49 was removed in the same edit. | Overdue table over-reports once statuses are entered as codes; a key removed from the contract was still referenced | Canonicalise before matching: `canon(p.status).trim().toLowerCase()`. **No effect on the current workbook** — statuses are stored as full text, where `statusCanon` is the identity function | Dev | **Closed** |
 | I-54 | The detail table repeats the same rule wording once per row (e.g. 119 × V-08), so a per-row definition line would be pure noise — hence the deduplicated Rule reference. The **CSV export** still carries only `severity, rule, package, field, value, message` and does **not** include the new `desc`. | A CSV consumer cannot see the Code-sheet wording; adding a column changes the export's shape, which downstream scripts may rely on | Decide whether to append a `Rule description` column to the CSV, or leave the export contract frozen | Dev | Backlog |
+| **I-55** | `critItems()` counts packages where `String(criticality).trim() === code` only; PPP often stores **descriptions** while V-05 accepts code **or** description | Criticality chart shows “(not in Code list)” slices while validation is quiet | Match like `statusItems()`: group by code and description via lookups | Dev | v1.18 |
+| **I-56** | UI accepts `.csv` but `handleFile()` builds `{ PPP: parseCSV(...) }` only → **`No Code sheet found`** | “CSV export” in copy implies a working path that cannot succeed | Restrict to `.xlsx`, or require Code+PPP pair, or document limitation on welcome screen | Dev / UX | v1.18 |
+| **I-57** | Unchecking every category sets `STATE.filter.cats` to an empty `Set` → **zero packages** in all views | Looks like an empty project (“None selected”) | Treat empty set as “all”, block last uncheck, or dedicated empty-state message | Dev | v1.18 |
+| **I-58** | `esc()` does not escape `"` in `title="…"` / `data-cat="…"` | Broken attributes if field values contain double quotes | Attribute-safe escape or DOM APIs for labels | Dev | Backlog |
+| **I-59** | Welcome `.expect` line missing space after `</b>` (“Plankeep…”) | Cosmetic / polish | Add space in HTML | Dev | v1.18 |
 
 ---
 
@@ -703,12 +710,13 @@ Validation rule set V-01…V-20 checks *values*, never *structure*. A uniform on
 
 ```
 PPP/
-├── Procurement-Dashboard.html   # Single-file app (1199 lines @ Rev 1.1)
+├── Procurement-Dashboard.html   # Single-file app (~1,470 lines @ Rev 1.17)
 ├── TWRP C3B2 - Procurement Package Plan.xlsx   # Sample data workbook
 ├── PPP-Dashboard-Workplan.md    # This document — the ONLY active workplan
-├── codecheck.md                 # Code-review notes
+├── codecheck.md                 # RETIRED stub → see §14 + §15.17 (Rev 1.18)
 ├── arch/                        # Archived: static snapshot + early scripts (do not edit)
-│   └── WORKPLAN.md              # Legacy Chinese workplan (Rev v2, 2026-09-15) — history only
+│   ├── WORKPLAN.md              # Legacy Chinese workplan (Rev v2, 2026-09-15) — history only
+│   └── PPP_Dashboard.html       # Static snapshot — do not edit; use Procurement-Dashboard.html
 └── test/                        # Python scratch scripts used for parser cross-checks (see §7.1.5)
 ```
 
@@ -885,8 +893,8 @@ The 5-layer model gives several existing items a natural home — they are the s
 
 ## 14. Cross-audit of `codecheck.md` (verified against the code)
 
-> Logged **2026-09-16** · Status: **Draft — pending approval** · **No code changed.**
-> Method: every item in `codecheck.md` was re-read against `Procurement-Dashboard.html` (Rev 1.1, 1,199 lines) and either **reproduced** or **refuted with evidence**. Refuted items are kept in §14.3 so they are not re-raised in a future review.
+> Logged **2026-09-16** · Status: **Closed — permanent audit record** · **`codecheck.md` retired Rev 1.18** (stub points here). **No further edits to the retired file.**
+> Method: every item in the original `codecheck.md` was re-read against `Procurement-Dashboard.html` and either **reproduced** or **refuted with evidence**. Refuted items are kept in §14.3 so they are not re-raised. New findings after Rev 1.17 go in **§15.17** / **I-55…I-59**, not in a second audit doc.
 
 ### 14.1 Verdict summary
 
@@ -1225,6 +1233,7 @@ A full sweep of every table in this document for rows that are **not** closed. R
 | ~~I-26~~ | — | ~~`svgPie()` collapses to top-8 + "Other"; a 9th variant pushes the smallest names into "Other"~~ → **CLOSED (a) / REFUTED (b) — see §15.13** | Done in Rev 1.14. The cap is now `CHART.pie.topN` and the merged slice lists what it swallowed; **the "bar-mode export is broken" half was false** |
 | **I-41** | Low | This document's own §3.2 / §11 line references are stale (quote Rev 1.0 positions) | Documentation hygiene only — **no code impact** |
 | **I-54** | Low | CSV export omits the new `desc` (rule wording) column | Deliberate: adding a column changes the export's shape, which downstream scripts may rely on. **Recommend leave frozen** |
+| **I-55 … I-59** | Low–Med | Independent review 2026-10-02 (§15.17): criticality chart vs description values, CSV-without-Code, filter “none selected”, `esc()` quotes, welcome typo | Logged Rev 1.18 — **no code changed yet** |
 | **P-3** (Open) / **P-4, P-5** (Closed) | Med | Parser safety rails: cell-count invariant (P-3), self-closing-cell fixture (P-4), `openpyxl` golden-file check (P-5). **P-7 CLOSED**; **P-4 / P-5 CLOSED 2026-09-24** by the green harness run (63 / 63). **P-3 remains Open** — needs a code change in `parseSheet()`. | The permanent defence for **I-23** (silent column shift). P-4 / P-5 now catch repeats automatically via the harness; P-3 would catch them earlier, inside the parser. |
 
 #### D. Explicit non-issues — do **not** re-open
@@ -1239,7 +1248,7 @@ A full sweep of every table in this document for rows that are **not** closed. R
 - **Harness: the §15.14 run was 59 / 59 passed; the shipped harness now holds 63 assertions (the 3 V-22 checks of §15.16 are among them — the running total recorded in the revision history has drifted across revisions, so the authoritative figure is 63 as read from `test/test_pipeline.mjs`). Full-suite execution **completed 2026-09-24: `node test/test_pipeline.mjs` → 63 passed, 0 failed**, 14 chart renders, zero uncaught throws** — see §15.16 §E. Parsing, lookups, contract mapping, render and export paths are all executed end-to-end.
 - All five roadmap waves (P0-B, P0, P1, P2) are implemented **and** verified by execution.
 
-> **Bottom line:** nothing in this workplan blocks the dashboard from working. The only item that would change *what the dashboard can show you* is **V-22** (§15.10) — the empty lookup code column. **Rev 1.13 (§15.12) closed I-25 and cleared I-12**, and **Rev 1.14 (§15.13) closed/refuted I-26**, so the parked list is now **3 items: I-10, I-41, I-54** (plus parser rails **P-3 / P-4 / P-5**).
+> **Bottom line:** nothing in this workplan blocks the dashboard from working on the sample `.xlsx`. **V-22** is implemented (§15.16). Parked code/docs backlog: **I-10, I-41, I-54, I-55…I-59** (see §15.17) plus parser rail **P-3** (P-4 / P-5 closed).
 
 ---
 
@@ -1543,4 +1552,46 @@ You already filled `Category Code` (N = 19 values), so **all four code columns a
 
 ---
 
-**End of Workplan** — All roadmap waves (P0-B, P0, P1, P2) are implemented and verified; §15.5 issues I-49…I-52 are closed, **I-11 is implemented (§15.9)** and re-verified (§15.10), **I-25 is closed (§15.12)**, **I-26 is re-scoped with half (a) closed (§15.13)**, the **regression harness is green (§15.14)** — the §15.14 run was 59/59, and the shipped harness now holds **63 assertions** (V-22's 3 checks are among them); full-suite execution is **green — 63 passed, 0 failed (2026-09-24, see Rev 1.17 / §15.16 §E)** — and **V-22 is implemented (§15.16)** as the last validation gap. Parked: **I-10, I-41, I-54**, plus parser rail **P-3** (P-4 / P-5 closed by the green run). Only **I-54** (CSV export `desc` column) still wants a decision from you. Keep this document updated with each future revision.
+### 15.17 Independent review — 2026-10-02 (Rev 1.18)
+
+> Type: **read-only code + docs review** · **No dashboard code changed** · Harness **not re-run** in this session (last green: Rev 1.17, 63/63).
+
+#### Scope
+
+- Shipped app: `Procurement-Dashboard.html`
+- Compared against workplan §14 (former `codecheck.md` cross-audit) and §7 backlog
+
+#### Retired documentation
+
+- **`codecheck.md`** — all seven original findings mapped in **§14** (I-42…I-48; refutations §14.3). File replaced with a stub; **this workplan is the single source of truth** for audits.
+
+#### New backlog (I-55…I-59)
+
+| ID | Summary |
+|----|---------|
+| I-55 | Criticality chart buckets by **code**; PPP values may be **descriptions** → misleading “not in Code list” slices |
+| I-56 | `.csv` upload cannot load Code sheet → hard error; UI copy over-promises |
+| I-57 | All categories unchecked → empty dashboard |
+| I-58 | `esc()` missing `"` escape in attributes (low risk) |
+| I-59 | Welcome line missing space after `</b>` |
+
+#### Still open from prior revisions
+
+- **P-3** — cell-count invariant in `parseSheet()` (silent mis-parse guard for I-23 class failures)
+- **I-10, I-41, I-54** — unchanged
+- **I-13** — `isIssued()` keyword list closed by decision; PO Delays semantics are intentional
+
+#### Explicit non-issues (do not re-open)
+
+- **§14.3 #2** — number-vs-string criticality compare (already normalised); **I-55** is the distinct description-vs-code chart gap
+- **§14.3 #3** — `chartToPng()` viewBox/width fallbacks; shipped SVGs set explicit dimensions
+- **V-08 / V-20** on sample workbook — data/template noise (§15.11 §D)
+- Wave 0 fixes **I-42…I-48** — do not re-file from retired `codecheck.md`
+
+#### Repo hygiene
+
+- Edit **`Procurement-Dashboard.html`**, not `arch/PPP_Dashboard.html`
+
+---
+
+**End of Workplan** — Waves P0-B–P2 implemented; harness **63/63 green (2026-09-24, Rev 1.17)**; **V-22** implemented (§15.16); **`codecheck.md` retired (Rev 1.18)** — see §14 + §15.17. Parked: **I-10, I-41, I-54, I-55…I-59**, parser rail **P-3**. **I-54** (validation CSV `desc` column) still needs a product decision. Keep this document updated with each future revision.
