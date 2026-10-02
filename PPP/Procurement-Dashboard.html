@@ -187,7 +187,7 @@
     <img class="wlogo" src="asset/logo.jpg" alt="UES — Better Environments" />
     <h1>Procurement Package Plan</h1>
     <p>Interactive dashboard. Load the workbook to explore status, workload, lead time and PO targets.</p>
-    <div class="expect"><b>Select and Load Project Procurement Plan</b>keep it in the same folder as this page, then select it below.</div>
+    <div class="expect"><b>Select and Load Project Procurement Plan</b> keep it in the same folder as this page, then select it below.</div>
     <div class="drop" id="drop">
       <div class="big">Drop your .xlsx here</div>
       <div class="small">or click to browse · Excel (.xlsx) or CSV export</div>
@@ -592,7 +592,7 @@ function toDate(v){
 function fmt(d){ if(!(d instanceof Date)) return '—'; return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
 function monthShort(d){ return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+' '+String(d.getFullYear()).slice(2); }
 function sameMonth(d,m){ return d.getFullYear()===m.getFullYear()&&d.getMonth()===m.getMonth(); }
-function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function trunc(s,n){ s=String(s==null?'':s); return s.length>n? s.slice(0,n-1)+'…' : s; }
 /* I-25 (cleaned 2026-09-16): the former `normPerson()` helper was dead code —
    defined and never called, so V-12 could never fire. The engineer tally keys on
@@ -628,7 +628,11 @@ function getPref(k){
 function setPref(k,v){ STATE.prefs.chartType[k]=v; try{ localStorage.setItem(prefKey(k),v); }catch(e){} }
 
 function filteredPackages(){
-  if(!STATE.filter.cats) return STATE.model.packages;
+  /* I-57: an empty Set means "none selected" which would silently empty the
+     entire dashboard. Treat it the same as null (= all) so there is always
+     something to render. The label "None selected" still shows in the filter
+     button, giving the user a visible signal, but the charts stay populated. */
+  if(!STATE.filter.cats || STATE.filter.cats.size===0) return STATE.model.packages;
   return STATE.model.packages.filter(p=>{
     const cat=p.itemCategory||'__blank__';
     return STATE.filter.cats.has(cat);
@@ -1265,12 +1269,21 @@ function critItems(pkgs){
   const keys=codes.length?codes:['0','1','2','3','4'];
   const fb={'0':'Not Applicable','1':'Factory In-house QC','2':'Third Party Inspection','3':'Witness Point','4':'FAT Record Submission'};
   const known=new Set(keys);
+  /* I-55: match against BOTH the code (e.g. "2") AND the description (e.g.
+     "Third Party Inspection"). Workbooks that store descriptions in column I
+     were previously falling into "not in Code list" or blank, making the chart
+     silently wrong. Same dual-match pattern as statusItems(). */
+  const descSet=new Set(descs.map(d=>d.toLowerCase()));
   const items=keys.map((k,i)=>{
     const d=descs[i]||fb[k]||'';
-    return {label:k+(d?' — '+trunc(d,38):''), value:pkgs.filter(p=>String(p.criticality==null?'':p.criticality).trim()===k).length};
+    const dLower=d.toLowerCase();
+    return {label:k+(d?' — '+trunc(d,38):''), value:pkgs.filter(p=>{
+      const v=String(p.criticality==null?'':p.criticality).trim();
+      return v===k || (dLower && v.toLowerCase()===dLower);
+    }).length};
   });
   const extra={};
-  pkgs.forEach(p=>{ const v=p.criticality; if(v==null||v==='') return; const s=String(v).trim(); if(!known.has(s)) extra[s]=(extra[s]||0)+1; });
+  pkgs.forEach(p=>{ const v=p.criticality; if(v==null||v==='') return; const s=String(v).trim(); if(!known.has(s) && !descSet.has(s.toLowerCase())) extra[s]=(extra[s]||0)+1; });
   Object.entries(extra).forEach(([k,v])=>items.push({label:k+' (not in Code list)',value:v,color:'#FF9F0A'}));
   items.push({label:'Not Specified (blank)',value:pkgs.filter(p=>p.criticality==null||p.criticality==='').length,color:'#C7C7CC'});
   return items;
