@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TWRP C3B2 — Master Document List Dashboard</title>
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+
+/* ===== xlsx-reader.mjs ===== */
+// xlsx-reader.mjs — zero-dependency .xlsx reader (ZIP + XML).
+// Runs in Node (v18+) and modern browsers (DecompressionStream + Response are global).
+// Reads: sharedStrings, workbook sheet map, and any worksheet as { rows:[ {A:val,...} ] , maxRow }.
+// Dates are returned as Excel serial numbers; the pipeline converts them using the Code column-map "Date" type.
+
+const EOCD = 0x06054b50;
+const CDH  = 0x02014b50;
+const LFH  = 0x04034b50;
+
+function colToNum(letters){ let n=0; for(const ch of letters.toUpperCase()) n=n*26+(ch.charCodeAt(0)-64); return n; }
+function numToCol(n){ let s=''; while(n>0){ const r=(n-1)%26; s=String.fromCharCode(65+r)+s; n=Math.floor((n-1)/26); } return s; }
+
+async function inflateRaw(bytes){
+  const ds = new DecompressionStream('deflate-raw');
+  const w = ds.writable.getWriter();
+  w.write(bytes); w.close();
+  const buf = await new Response(ds.readable).arrayBuffer();
+  return new Uint8Array(buf);
+}
+
+async function unzip(buf){
+  const bytes = new Uint8Array(buf);
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  // locate End Of Central Directory (scan from tail)
+  let eocd = -1;
+  const min = Math.max(0, bytes.length - 65557);
+  for(let i=min; i<=bytes.length-22; i++){
+    if(dv.getUint32(i, true) === EOCD){ eocd = i; break; }
+  }
+  if(eocd < 0) throw new Error('Not a valid ZIP/XLSX (EOCD not found)');
+  const cdOffset = dv.getUint32(eocd+16, true);
+  const total = dv.getUint16(eocd+10, true);
+  const files = {};
+  let p = cdOffset;
+  for(let i=0; i<total; i++){
+    if(dv.getUint32(p, true) !== CDH) break;
+    const method = dv.getUint16(p+10, true);
+    const compSize = dv.getUint32(p+20, true);
+    const nameLen = dv.getUint16(p+28, true);
+    const extraLen = dv.getUint16(p+30, true);
+    const commentLen = dv.getUint16(p+32, true);
+    const lho = dv.getUint32(p+42, true);
+    const nameBytes = bytes.subarray(p+46, p+46+nameLen);
+    const name = new TextDecoder().decode(nameBytes);
+    // local header: nameLen/extraLen at +26/+28
+    const lNameLen = dv.getUint16(lho+26, true);
+    const lExtraLen = dv.getUint16(lho+28, true);
+    const dataStart = lho + 30 + lNameLen + lExtraLen;
+    let data = bytes.subarray(dataStart, dataStart + compSize);
+    if(method === 8) data = await inflateRaw(data);
+    files[name] = data;
+    p = p + 46 + nameLen + extraLen + commentLen;
+  }
+  return files;
+}
+
+function decodeUtf8(bytes){ return new TextDecoder().decode(bytes); }
+
+// minimal attribute extractor for a single tag's attribute string
+function attrs(str){
+  const out = {};
+  const re = /([\w:]+)\s*=\s*"([^"]*)"/g; let m;
+  while((m = re.exec(str))) out[m[1]] = m[2];
+  return out;
+}
+
+function parseSharedStrings(xmlBytes){
+  const xml = decodeUtf8(xmlBytes || new Uint8Array());
+  const list = [];
+  const siRe = /<si>([\s\S]*?)<\/si>/g; let m;
+  while((m = siRe.exec(xml))){
+    const inner = m[1];
+    let text = '', t;
+    const tRe = /<t[^>]*>([\s\S]*?)<\/t>/g;
+    while((t = tRe.exec(inner))) text += t[1];
+    list.push(text);
+  }
+  return list;
+}
+
+function parseWorkbook(xmlBytes){
+  const xml = decodeUtf8(xmlBytes || new Uint8Array());
+  const sheets = {}; // name -> rId
+  const sRe = /<sheet\b([^>]*)>/g; let m;
+  while((m = sRe.exec(xml))){
+    const a = attrs(m[1]);
+    if(a.name && a['r:id']) sheets[a.name] = a['r:id'];
+  }
+  return sheets;
+}
+
+function parseRels(xmlBytes){
+  const xml = decodeUtf8(xmlBytes || new Uint8Array());
+  const map = {}; // Id -> Target
+  const rRe = /<Relationship\b([^>]*)>/g; let m;
+  while((m = rRe.exec(xml))){
+    const a = attrs(m[1]);
+    if(a.Id && a.Target) map[a.Id] = a.Target;
+  }
+  return map;
+}
+
+function cellValue(tagInner, shared){
+  // tagInner is the text of a <c ...>...</c> block
+  const a = attrs(tagInner);
+  const t = a.t || '';
+  const isMatch = /<is>([\s\S]*?)<\/is>/.exec(tagInner);
+  let vText = '';
+  if(isMatch){
+    const tRe = /<t[^>]*>([\s\S]*?)<\/t>/g; let tm;
+    while((tm = tRe.exec(isMatch[1]))) vText += tm[1];
+  } else {
+    const vMatch = /<v>([\s\S]*?)<\/v>/.exec(tagInner);
+    if(vMatch) vText = vMatch[1];
+  }
+  const v = vText.trim();
+  if(v === '') return undefined;
+  if(t === 's') return shared[parseInt(v,10)] ?? v;
+  if(t === 'inlineStr' || t === 'str') return v;
+  if(t === 'b') return v === '1' || v === 'true';
+  // default: number (also covers date serials — pipeline converts by column type)
+  if(/^-?\d+(\.\d+)?$/.test(v)) return parseFloat(v);
+  return v;
+}
+
+function parseSheet(xmlBytes, shared){
+  const xml = decodeUtf8(xmlBytes || new Uint8Array());
+  const rows = []; // 1-based; rows[0] unused
+  // find each <c ...>...</c> OR self-closing (Excel never self-closes <c> with content, but be safe)
+  const cRe = /<c\b([\s\S]*?)<\/c>/g; let m;
+  while((m = cRe.exec(xml))){
+    const block = m[1] + '</c>'; // ensure we have closing for attrs+inner
+    const open = /<c\b([^>]*)>/.exec(m[1].split('>')[0] + '>');
+    const a = attrs(open ? open[1] : m[1]);
+    const ref = a.r; if(!ref) continue;
+    const col = ref.replace(/\d+$/, '');
+    const rowNum = parseInt(ref.match(/\d+$/)[0], 10);
+    const val = cellValue(block, shared);
+    if(val === undefined) continue;
+    if(!rows[rowNum]) rows[rowNum] = {};
+    rows[rowNum][col] = val;
+  }
+  let maxRow = 0;
+  for(let i=1;i<rows.length;i++) if(rows[i]) maxRow = i;
+  return { rows, maxRow };
+}
+
+async function readXlsx(buffer){
+  const files = await unzip(buffer);
+  const shared = parseSharedStrings(files['xl/sharedStrings.xml']);
+  const sheetRid = parseWorkbook(files['xl/workbook.xml']);
+  const rels = parseRels(files['xl/_rels/workbook.xml.rels']);
+  const sheets = {};
+  for(const name of Object.keys(sheetRid)){
+    const rid = sheetRid[name];
+    let target = rels[rid] || '';
+    target = target.replace(/^\//, '');
+    const key = (target.startsWith('xl/') ? target : 'xl/' + target);
+    const data = files[key];
+    sheets[name] = data ? parseSheet(data, shared) : { rows: [], maxRow: 0 };
+  }
+  return { sheets, sharedStrings: shared };
+}
+
+
+/* ===== pipeline.mjs ===== */
+// pipeline.mjs — builds the consolidated document model from a parsed workbook.
+// Pure logic (no DOM). Consumed by render (browser) and test_pipeline (Node).
+
+const EXCLUDE_STAGES = ['Deleted', 'Void', 'Superseded'];
+
+// ---- Excel serial date helpers ----
+function excelSerialToISO(serial){
+  if(typeof serial !== 'number' || !isFinite(serial)) return null;
+  const ms = Math.round((serial - 25569) * 86400 * 1000);
+  const d = new Date(ms);
+  if(isNaN(d)) return null;
+  return d.toISOString().slice(0, 10);
+}
+function isoToDate(iso){ if(!iso) return null; const d = new Date(iso + 'T00:00:00Z'); return isNaN(d) ? null : d; }
+// Tolerant parse of the project-start cell (Code!A6): Excel serial, ISO, or text date.
+function parseProjectStart(cell){
+  if(cell == null || cell === '') return null;
+  if(typeof cell === 'number' && isFinite(cell)) return excelSerialToISO(cell);
+  const s = String(cell).trim();
+  if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+  const d = new Date(s);
+  if(!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+  return null;
+}
+// Tolerant parse of the "List End Row" cell (Code!B8): numeric; default 4000.
+function parseListEndRow(cell){
+  if(cell == null || cell === '') return 4000;
+  const n = typeof cell === 'number' ? cell : parseInt(String(cell).replace(/[^\d]/g, ''), 10);
+  return (isFinite(n) && n > 0) ? n : 4000;
+}
+function workingDaysBetween(d1, d2){
+  // signed working-day count from d1 to d2 (Mon–Fri only), weekends excluded
+  if(!d1 || !d2) return null;
+  let sign = 1; if(d2 < d1){ [d1, d2] = [d2, d1]; sign = -1; }
+  let count = 0; let cur = new Date(d1.getTime());
+  while(cur <= d2){
+    const day = cur.getUTCDay();
+    if(day !== 0 && day !== 6) count++;
+    cur.setUTCDate(cur.getUTCDate() + 1);
+  }
+  return sign * count;
+}
+
+function normalizeBool(v){
+  if(v === true || v === 'YES' || v === 'TRUE') return 'YES';
+  if(v === false || v === 'NO' || v === 'FALSE') return 'NO';
+  if(v === '' || v == null) return '';
+  return String(v).toUpperCase().trim();
+}
+
+function readBlock(sheet, codeCol){
+  const items = []; const codes = new Set();
+  const labelCol = numToCol(colToNum(codeCol) + 1);
+  for(let r = 2; r <= sheet.maxRow; r++){
+    const row = sheet.rows[r]; if(!row) continue;
+    const code = row[codeCol];
+    if(code == null || code === '') continue;
+    const label = row[labelCol] != null ? String(row[labelCol]) : '';
+    items.push({ code: String(code), label });
+    codes.add(String(code));
+  }
+  return { items, codes };
+}
+
+function readErrorBlock(sheet){
+  const map = {}; const order = [];
+  for(let r = 2; r <= sheet.maxRow; r++){
+    const row = sheet.rows[r]; if(!row) continue;
+    const code = row.AI; if(code == null || code === '') continue;
+    map[String(code)] = { group: row.AJ != null ? String(row.AJ) : '', rule: row.AK != null ? String(row.AK) : '', severity: row.AL != null ? String(row.AL) : 'Warning' };
+    order.push(String(code));
+  }
+  return { map, order };
+}
+
+function buildModel(workbook, options = {}){
+  const today = options.today ? isoToDate(options.today) : new Date();
+  const todayISO = today.toISOString().slice(0, 10);
+  const codeSheet = workbook.sheets['Code'];
+
+  // --- project start date (Code!B6, value column) — x-axis anchor for time-based views ---
+  // Code!A6 is the label ("Project Start Date"); the actual date value is in B6.
+  const projectStartDate = parseProjectStart(codeSheet.rows[6] && codeSheet.rows[6].B);
+  // --- List End Row (Code!B8) — advisory row limit; data beyond it is kept, not dropped ---
+  const listEndRow = parseListEndRow(codeSheet.rows[8] && codeSheet.rows[8].B);
+
+  // --- column map (rows 12-36) ---
+  const columnMap = {}; const fieldOrder = [];
+  for(let r = 12; r <= 36; r++){
+    const row = codeSheet.rows[r]; if(!row) continue;
+    const field = row.A; const raw = row.B; const type = row.C;
+    if(!field || !raw) continue;
+    const letter = String(raw).replace(/^Column-/, '').replace(/[^A-Za-z]/g, '').toUpperCase();
+    columnMap[field] = { letter, type: (type || '').trim(), index: colToNum(letter) };
+    fieldOrder.push(field);
+  }
+  const letterOf = f => columnMap[f] ? columnMap[f].letter : null;
+  const typeOf = f => columnMap[f] ? columnMap[f].type : null;
+
+  // --- review durations (rows 9-11) ---
+  const reviewRules = { firstClientReview: 20, subsequentClientReview: 14, resubmissionDuration: 14 };
+  for(let r = 9; r <= 11; r++){
+    const row = codeSheet.rows[r]; if(!row) continue;
+    const name = String(row.A || ''); const val = parseInt(row.B, 10);
+    if(isNaN(val)) continue;
+    if(/first client review/i.test(name)) reviewRules.firstClientReview = val;
+    else if(/subsequent/i.test(name)) reviewRules.subsequentClientReview = val;
+    else if(/resubmission/i.test(name)) reviewRules.resubmissionDuration = val;
+  }
+
+  // --- lookup blocks ---
+  const lookups = {
+    stage: readBlock(codeSheet, 'E'),
+    uesh: readBlock(codeSheet, 'H'),
+    projectCode: readBlock(codeSheet, 'K'),
+    prefix: readBlock(codeSheet, 'N'),
+    docType: readBlock(codeSheet, 'Q'),
+    disciplineCode: readBlock(codeSheet, 'T'),
+    authority: readBlock(codeSheet, 'Z'),
+    submissionStatus: readBlock(codeSheet, 'AC'),
+    approval: readBlock(codeSheet, 'AF'),
+  };
+  const errorBlock = readErrorBlock(codeSheet);
+
+  // --- BQ reference set ---
+  const bqSheet = workbook.sheets['BQ'];
+  const bqSet = new Set();
+  if(bqSheet){ for(let r = 2; r <= bqSheet.maxRow; r++){ const v = bqSheet.rows[r] && bqSheet.rows[r].A; if(v != null && v !== '') bqSet.add(String(v)); } }
+
+  // --- discipline tab discovery ---
+  const ueshNames = [...lookups.uesh.codes];
+  const available = [], noListYet = [], excluded = ['BQ', 'Notes', 'Dashboard', 'Code'];
+  Object.keys(workbook.sheets).forEach(name => {
+    if(excluded.includes(name)) return;
+    if(ueshNames.includes(name)) available.push(name);
+    else noListYet.push(name); // a non-document-list tab that is not a known discipline
+  });
+  const noListYetDisciplines = ueshNames.filter(n => !available.includes(n));
+
+  // --- consolidate ---
+  const records = [];
+  const blankDocIssues = [];
+  const warnings = [];
+  for(const tab of available){
+    const sheet = workbook.sheets[tab]; if(!sheet) continue;
+    let tabMaxDataRow = 1;
+    for(let r = 2; r <= sheet.maxRow; r++){
+      const row = sheet.rows[r]; if(!row) continue;
+      const hasContent = Object.values(row).some(v => v !== '' && v != null);
+      if(hasContent && r > tabMaxDataRow) tabMaxDataRow = r;
+      const fields = {};
+      fieldOrder.forEach(f => {
+        let v = row[letterOf(f)];
+        if(v == null) return;
+        if(typeOf(f) === 'Date' && typeof v === 'number'){ const iso = excelSerialToISO(v); if(iso) v = iso; }
+        else if(typeOf(f) === 'Boolean'){ v = normalizeBool(v); }
+        else v = (typeof v === 'string') ? v : String(v);
+        fields[f] = v;
+      });
+      const docNo = fields['Document No.'];
+      if(docNo == null || docNo === ''){
+        // V-01: populated row with blank Document No. (still surfaced, not added)
+        const otherwise = Object.keys(fields).some(k => k !== 'Document No.' && fields[k] !== '' && fields[k] != null);
+        if(otherwise) blankDocIssues.push({ code: 'V-01', sourceTab: tab, rownum: r });
+        continue;
+      }
+      const stage = fields['Stage'] || '';
+      const isActive = !EXCLUDE_STAGES.includes(stage);
+      records.push({ sourceTab: tab, rownum: r, fields, discipline: fields['UESH Discipline'] || '', stage, isActive, docNo });
+    }
+    if(tabMaxDataRow > listEndRow){
+      warnings.push({ level:'warn', code:'W-ENDROW', tab, actual: tabMaxDataRow, limit: listEndRow,
+        message: `List End Row (Code!B8 = ${listEndRow}) exceeded on tab "${tab}": ${tabMaxDataRow} data rows found. All rows are included (none dropped); raise Code!B8 if this is expected.` });
+    }
+  }
+
+  // --- validation ---
+  const issues = [];
+  const severityOf = code => (errorBlock.map[code] && errorBlock.map[code].severity) || 'Warning';
+  const messageOf = code => (errorBlock.map[code] && errorBlock.map[code].rule) || (`Rule ${code} (generic message)`);
+  const mkIssue = (code, rec) => ({
+    code, severity: severityOf(code), message: messageOf(code),
+    sourceTab: rec ? rec.sourceTab : null, rownum: rec ? rec.rownum : null,
+    docNo: rec ? rec.docNo : null, discipline: rec ? rec.discipline : null
+  });
+  const inSet = (set, v) => v != null && v !== '' && set.has(String(v));
+
+  // V-13 (contract): lookup block with label but empty code
+  Object.entries(lookups).forEach(([key, blk]) => {
+    blk.items.forEach(it => { if(it.label && !it.code) issues.push({ code: 'V-13', severity: severityOf('V-13'), message: messageOf('V-13') + ` (block ${key})`, sourceTab: 'Code', rownum: null, docNo: null, discipline: null }); });
+  });
+  blankDocIssues.forEach(b => issues.push(mkIssue('V-01', b)));
+
+  // duplicate Document No. (V-26)
+  const docCount = {};
+  records.forEach(rec => { const k = rec.docNo; docCount[k] = (docCount[k] || 0) + 1; });
+
+  for(const rec of records){
+    const f = rec.fields;
+    const M = f['Document No.'];
+    const B = f['Stage'] || '';
+    const C = f['UESH Discipline'] || '';
+    const J = f['Discipline'] || '';
+    const I = f['Doc Type'] || '';
+    const Q = f['Authority'] || '';
+    const W = f['Submission Status'] || '';
+    const G = f['Project Code'] || '';
+    const H = f['Project Prefix'] || '';
+    const K = f['Number'] || '';
+    const Y = f['Latest Approval Status'] || '';
+    const E = f['BQ Number'] || '';
+    const P = f['As-Built'] || '';
+    const R = f['Vendor Data'] || '';
+    const S = f['Planned 1st Issue Date'] || '';
+    const T = f['Forecast 1st Issue Date'] || '';
+    const U = f['Actual 1st Issue Date'] || '';
+    const V = f['Prolog Number'] || '';
+    const X = f['Latest Approval Date'] || '';
+    const N = f['Document Title'] || '';
+
+    if(!inSet(lookups.stage.codes, B)) issues.push(mkIssue('V-02', rec));
+    if(!inSet(lookups.uesh.codes, C)) issues.push(mkIssue('V-03', rec));
+    if(J !== '' && !inSet(lookups.disciplineCode.codes, J)) issues.push(mkIssue('V-04', rec));
+    if(I !== '' && !inSet(lookups.docType.codes, I)) issues.push(mkIssue('V-05', rec));
+    if(Q !== '' && !inSet(lookups.authority.codes, Q)) issues.push(mkIssue('V-06', rec));
+    if(W !== '' && !inSet(lookups.submissionStatus.codes, W)) issues.push(mkIssue('V-07', rec));
+    if(Y !== '' && !inSet(lookups.approval.codes, Y)) issues.push(mkIssue('V-08', rec));
+    if(P === 'YES' && U === '') issues.push(mkIssue('V-10', rec));
+    if(EXCLUDE_STAGES.includes(B)) issues.push(mkIssue('V-12', rec));
+    if(G !== '' && !inSet(lookups.projectCode.codes, G)) issues.push(mkIssue('V-14', rec));
+    if(/xxxx/i.test(M)) issues.push(mkIssue('V-15', rec));
+    // V-17 composition G-H-I-J-K (J = client Discipline Code)
+    if(G && H && I && J && K){ const expected = [G, H, I, J, K].join('-'); if(M !== expected) issues.push(mkIssue('V-17', rec)); }
+    if((W !== '') !== (V !== '')) issues.push(mkIssue('V-19', rec));
+    if(U !== '' && (V === '' || W === '')) issues.push(mkIssue('V-18', rec));
+    if(Y === 'APP' && X === '') issues.push(mkIssue('V-11', rec));
+    if(W === 'RTR' && (Y === '' || /void/i.test(Y))) issues.push(mkIssue('V-16', rec));
+    if(['APP', 'AWC', 'REJ', 'NAP'].includes(Y) && (U === '' || X === '')) issues.push(mkIssue('V-20', rec));
+    if(X !== '' && (Y === '' || (U !== '' && isoToDate(X) < isoToDate(U)))) issues.push(mkIssue('V-21', rec));
+    // V-09 date order
+    if(S && T && isoToDate(T) < isoToDate(S)) issues.push(mkIssue('V-09', rec));
+    if(T && U && isoToDate(U) < isoToDate(T)) issues.push(mkIssue('V-09', rec));
+    if(S && U && isoToDate(U) < isoToDate(S)) issues.push(mkIssue('V-09', rec));
+    if(U !== '' && (S === '' || T === '')) issues.push(mkIssue('V-22', rec));
+    [S, T, U, X].forEach(d => { if(d && isoToDate(d) && isoToDate(d) > today) issues.push(mkIssue('V-23', rec)); });
+    // V-28: a 1st-issue date precedes the declared project start date (Code!B6). Fires once per
+    // document if any of Planned/Forecast/Actual is earlier than projectStartDate (only when B6 set).
+    if(projectStartDate){ const ps = isoToDate(projectStartDate);
+      if((S && isoToDate(S) && isoToDate(S) < ps) || (T && isoToDate(T) && isoToDate(T) < ps) || (U && isoToDate(U) && isoToDate(U) < ps))
+        issues.push(mkIssue('V-28', rec)); }
+    if(E !== '' && !bqSet.has(String(E))) issues.push(mkIssue('V-24', rec));
+    const required = [N, C, B, I, J, G, H, K];
+    if(required.some(v => v === '' || v == null)) issues.push(mkIssue('V-25', rec));
+    if(docCount[M] > 1) issues.push(mkIssue('V-26', rec));
+    const boolVal = v => (v === 'YES' || v === 'NO' || v === '');
+    if(!boolVal(P) || !boolVal(R)) issues.push(mkIssue('V-27', rec));
+  }
+
+  // --- KPIs (active only) ---
+  const active = records.filter(r => r.isActive);
+  const cnt = pred => active.filter(pred).length;
+  const kpis = {
+    totalPlanned: active.length,
+    submitted: cnt(r => (r.fields['Actual 1st Issue Date'] || '') !== ''),
+    approvedAPP: cnt(r => r.fields['Latest Approval Status'] === 'APP'),
+    approvedAWC: cnt(r => r.fields['Latest Approval Status'] === 'AWC'),
+    rejected: cnt(r => r.fields['Latest Approval Status'] === 'REJ'),
+    notApproved: cnt(r => r.fields['Latest Approval Status'] === 'NAP'),
+    asBuiltYes: cnt(r => r.fields['As-Built'] === 'YES'),
+    vendorYes: cnt(r => r.fields['Vendor Data'] === 'YES'),
+  };
+
+  // --- Overdue (3 flavours) ---
+  const dT = isoToDate(todayISO);
+  const firstOverdue = active.filter(r => { const t = r.fields['Forecast 1st Issue Date'] || r.fields['Planned 1st Issue Date']; return t && (r.fields['Actual 1st Issue Date'] || '') === '' && isoToDate(t) <= dT; });
+  const subsequentOverdue = active.filter(r => {
+    const y = r.fields['Latest Approval Status']; const x = r.fields['Latest Approval Date']; const u = r.fields['Actual 1st Issue Date'];
+    return u && ['REJ', 'RTR'].includes(y) && x && workingDaysBetween(isoToDate(x), dT) > reviewRules.resubmissionDuration;
+  });
+  const clientReviewOverdue = active.filter(r => {
+    const w = r.fields['Submission Status']; const u = r.fields['Actual 1st Issue Date'];
+    return w === 'SUR' && u && workingDaysBetween(isoToDate(u), dT) > reviewRules.firstClientReview;
+  });
+  kpis.overdueFirst = firstOverdue.length;
+  kpis.overdueResubmission = subsequentOverdue.length;
+  kpis.overdueClientReview = clientReviewOverdue.length;
+
+  // --- Data completeness % (passing V-17..V-27) ---
+  const completenessGroup = new Set(['V-17','V-18','V-19','V-20','V-21','V-22','V-23','V-24','V-25','V-26','V-27']);
+  const activeKeys = new Set(active.map(r => r.sourceTab + '!' + r.rownum));
+  const activeBad = new Set();
+  issues.forEach(i => { if(completenessGroup.has(i.code) && activeKeys.has(i.sourceTab + '!' + i.rownum)) activeBad.add(i.sourceTab + '!' + i.rownum); });
+  kpis.completeness = active.length ? Math.round((1 - activeBad.size / active.length) * 1000) / 10 : null;
+  kpis.activeDisciplines = new Set(active.map(r => r.discipline).filter(Boolean)).size;
+
+  // --- Charts ---
+  const groupCount = (keyFn, scope) => { const m = {}; scope.forEach(r => { const k = keyFn(r); if(k == null || k === '') return; m[k] = (m[k] || 0) + 1; }); return m; };
+  const toArr = m => Object.entries(m).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+  const approvalMap = groupCount(r => r.fields['Latest Approval Status'] || '—', active);
+  const approvalStatus = [
+    { name: 'APP', value: approvalMap['APP'] || 0 },
+    { name: 'AWC', value: approvalMap['AWC'] || 0 },
+    { name: 'REJ', value: approvalMap['REJ'] || 0 },
+    { name: 'NAP', value: approvalMap['NAP'] || 0 },
+    { name: 'Not Available', value: active.filter(r => !['APP','AWC','REJ','NAP'].includes(r.fields['Latest Approval Status'] || '')).length },
+  ];
+  const charts = {
+    docsByDiscipline: toArr(groupCount(r => r.discipline, active)),
+    issueProgress: [
+      { name: 'Planned', value: cnt(r => (r.fields['Planned 1st Issue Date'] || '') !== '') },
+      { name: 'Forecast', value: cnt(r => (r.fields['Forecast 1st Issue Date'] || '') !== '') },
+      { name: 'Actual', value: cnt(r => (r.fields['Actual 1st Issue Date'] || '') !== '') },
+    ],
+    approvalStatus,
+    asBuilt: [
+      { name: 'YES', value: cnt(r => r.fields['As-Built'] === 'YES') },
+      { name: 'NO', value: cnt(r => r.fields['As-Built'] === 'NO') },
+    ],
+    byAuthority: toArr(groupCount(r => r.fields['Authority'], active)),
+    byDocType: toArr(groupCount(r => r.fields['Doc Type'], active)),
+    scheduleVariance: (() => {
+      const ov = new Set([...firstOverdue, ...subsequentOverdue, ...clientReviewOverdue].map(r => r.sourceTab + '!' + r.rownum));
+      const atRisk = active.filter(r => { const t = r.fields['Forecast 1st Issue Date'] || r.fields['Planned 1st Issue Date']; return t && (r.fields['Actual 1st Issue Date'] || '') === '' && isoToDate(t) > dT && workingDaysBetween(dT, isoToDate(t)) <= 14; });
+      const onTrack = active.filter(r => { const k = r.sourceTab + '!' + r.rownum; return !ov.has(k) && !atRisk.includes(r); });
+      return [
+        { name: 'On track', value: onTrack.length },
+        { name: 'At risk', value: atRisk.length },
+        { name: 'Overdue – 1st', value: firstOverdue.length },
+        { name: 'Overdue – Resub', value: subsequentOverdue.length },
+        { name: 'Overdue – Client', value: clientReviewOverdue.length },
+      ];
+    })(),
+    dqByDiscipline: [],
+    dqByRule: toArr(groupCount(i => i.code, issues)),
+  };
+  const dqDisc = {}; issues.forEach(i => { if(i.discipline){ dqDisc[i.discipline] = (dqDisc[i.discipline] || 0) + 1; } });
+  charts.dqByDiscipline = toArr(dqDisc);
+
+  const overdueLists = {
+    first: firstOverdue.map(r => ({ docNo: r.docNo, discipline: r.discipline, forecast: r.fields['Forecast 1st Issue Date'], sourceTab: r.sourceTab })),
+    subsequent: subsequentOverdue.map(r => ({ docNo: r.docNo, discipline: r.discipline, lastOutcome: r.fields['Latest Approval Status'], approvalDate: r.fields['Latest Approval Date'], sourceTab: r.sourceTab })),
+    clientReview: clientReviewOverdue.map(r => ({ docNo: r.docNo, discipline: r.discipline, submitted: r.fields['Actual 1st Issue Date'], sourceTab: r.sourceTab })),
+  };
+
+  return {
+    meta: { generatedAt: new Date().toISOString(), workbookName: options.workbookName || '', today: todayISO, projectStartDate, listEndRow },
+    contract: { columnMap, fieldOrder, reviewRules, errorBlock, noListYetDisciplines, lookups },
+    tabs: { available, noListYet, excluded },
+    records, issues, warnings, kpis, charts, overdueLists, completenessGroup: [...completenessGroup],
+  };
+}
+
+
+/* ===== render.mjs ===== */
+// render.mjs — DOM rendering + filters + for the MDL dashboard (browser).
+// Uses pipeline.buildModel + xlsx-reader.readXlsx. No external dependencies.
+
+const COLORS = { blue:'#1E88E5', green:'#2E7D32', amber:'#F9A825', red:'#C62828', slate:'#64748B', navy:'#0F2D52', grey:'#B8C2CC' };
+const PALETTE = ['#1E88E5','#2E7D32','#F9A825','#C62828','#64748B','#7E57C2','#26A69A','#EC407A','#8D6E63','#42A5F5','#9CCC65','#FF7043'];
+const F = 'font-family:Segoe UI,system-ui,sans-serif';
+const esc = s => (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const LOGO_DATA = 'data:image/jpeg;base64,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'; // replaced with an embedded base64 data-URI at build time
+const isoStrToDate = iso => { if(!iso) return null; const d = new Date(iso + 'T00:00:00Z'); return isNaN(d) ? null : d; };
+function wdBetween(d1, d2){ if(!d1||!d2) return null; let s=1; if(d2<d1){[d1,d2]=[d2,d1];s=-1;} let c=0,cur=new Date(d1.getTime()); while(cur<=d2){ const day=cur.getUTCDay(); if(day!==0&&day!==6)c++; cur.setUTCDate(cur.getUTCDate()+1);} return s*c; }
+
+const CSS = `
+:root{--navy:#0F2D52;--blue:#1E88E5;--green:#2E7D32;--amber:#F9A825;--red:#C62828;--slate:#64748B;--bg:#F6F8FA;--surface:#fff;--border:#D9E1E8;--text:#1F2A37;--muted:#64748B}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:13px}
+header.app{background:var(--navy);color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:20}
+header.app h1{font-size:17px;margin:0;font-weight:600}
+header.app .meta{font-size:11px;opacity:.85}
+header.app .brand{display:flex;align-items:center;gap:12px}
+header.app .logo{height:36px;width:auto;border-radius:6px;background:#fff;padding:3px;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.welcome{max-width:640px;margin:40px auto;text-align:center}
+.welcome .drop{border:1px solid var(--border);border-radius:14px;padding:40px;background:#fff;box-shadow:0 6px 20px rgba(15,45,82,.10)}
+.welcome .wlogo{height:70px;width:auto;margin-bottom:14px}
+.welcome h2{color:var(--navy);margin:0 0 8px;font-size:22px}
+.welcome p{color:var(--muted);font-size:13px;line-height:1.55;margin:8px 0}
+.welcome .filebtn{display:inline-block;margin:18px 0 6px;background:var(--blue);color:#fff;padding:11px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600}
+.welcome .filebtn:hover{background:#1565c0}
+.welcome .drop .err{color:var(--red);font-size:12px;margin-top:10px}
+.sys-banner{font-size:12px;line-height:1.4}
+.sys-banner-item{padding:9px 20px;border-bottom:1px solid rgba(0,0,0,.10)}
+.sys-banner-item.warn{background:var(--amber);color:#5a3d00}
+.sys-banner-item.fatal{background:var(--red);color:#fff}
+.sys-banner-item b{font-weight:700;margin-right:4px}
+.wrap{max-width:1320px;margin:0 auto;padding:16px;padding-bottom:52px}
+.status-bar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;gap:8px;padding:6px 14px;background:var(--navy);color:#E8EDF3;font-size:12px;user-select:none;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
+.status-bar .sb-panel{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.20);border-radius:6px;white-space:nowrap}
+.status-bar .sb-panel b{font-weight:700;opacity:.92}
+.status-bar .sb-dot{width:8px;height:8px;border-radius:50%;background:#37d67a;flex:none}
+.status-bar .sb-file{max-width:240px;overflow:hidden;text-overflow:ellipsis}
+.status-bar .sb-bar{width:54px;height:6px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden;flex:none}
+.status-bar .sb-bar i{display:block;height:100%;background:#37d67a}
+@media print{.status-bar{display:none}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 14px 26px;margin:14px 0;box-shadow:0 1px 2px rgba(15,45,82,.04);position:relative}
+.panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:.04em;color:var(--muted);pointer-events:none}
+.panel h2{font-size:13px;margin:0 0 10px;color:var(--navy);text-transform:uppercase;letter-spacing:.04em;display:flex;justify-content:space-between}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;padding:10px}
+.kpi .v{font-size:22px;font-weight:700;color:var(--navy)} .kpi .l{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.kpi.warn{border-top-color:var(--red)} .kpi.ok{border-top-color:var(--green)} .kpi.amb{border-top-color:var(--amber)}
+.subkpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+.subkpi{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+.subkpi .v{font-size:16px;font-weight:700;color:var(--navy)} .subkpi .l{font-size:10px;color:var(--muted)}
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.panel-head h2{margin:0}
+.panel-head h3{margin:0;font-size:13px;font-weight:600;color:var(--navy)}
+.panel-head .toolbar{margin-bottom:0}
+.curve-note{font-size:11px;color:var(--muted);margin:2px 0 8px}
+.head-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.head-actions .lbl{display:inline-flex;align-items:center;gap:6px;margin:0;font-weight:600;font-size:12px;color:var(--navy)}
+.panel-body{display:block}
+.panel.collapsed .panel-body{display:none}
+.help-modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:24px}
+.help-modal[hidden]{display:none}
+.help-modal .box{background:#fff;border:1px solid var(--border);border-radius:12px;max-width:680px;width:100%;max-height:84vh;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.help-modal .box header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border)}
+.help-modal .box header h3{margin:0;font-size:15px;color:var(--navy)}
+.help-modal .box .close{font-size:16px;line-height:1;padding:4px 10px}
+.help-modal .box .body{overflow:auto;padding:16px 18px;font-size:13px;line-height:1.55;color:#22303f}
+.help-modal .body h4{margin:16px 0 6px;font-size:13px;color:var(--navy)}
+.help-modal .body h4:first-child{margin-top:0}
+.help-modal .body p{margin:6px 0}
+.help-modal .body ul{margin:6px 0;padding-left:20px}
+.help-modal .body li{margin:3px 0}
+.help-modal .body code{background:var(--bg);padding:1px 5px;border-radius:4px;font-size:12px}
+.help-modal .body .def{background:var(--bg);border-left:3px solid var(--navy);padding:8px 12px;border-radius:0 6px 6px 0;margin:8px 0}
+.help{font-weight:700}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:32px;padding:7px 14px;font-size:12px;font-weight:600;line-height:1.2;border:1px solid transparent;border-radius:6px;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.btn:hover{filter:brightness(.97)}
+.btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-primary:hover{background:#1565c0;border-color:#1565c0}
+.btn-secondary{background:#fff;color:var(--navy);border-color:var(--border)}
+.btn-secondary:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn-active:hover{background:#0b2240;border-color:#0b2240}
+.btn-mini{display:inline-flex;align-items:center;gap:4px;min-height:26px;padding:3px 9px;font-size:11px;font-weight:600;line-height:1.2;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--navy);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.btn-mini:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.toolbar .msg{font-size:10px;color:var(--green)}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.curve-body{display:flex;flex-direction:column;gap:12px}
+.curve-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.legend{display:flex;gap:14px;font-size:12px;margin-top:8px;flex-wrap:wrap;color:var(--navy)}
+.legend .sw{width:12px;height:12px;border-radius:3px;display:inline-block;margin-right:4px;vertical-align:-1px}
+.sc-win .lbl{margin-right:6px}
+.sc-win .rng{font-size:11px;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:4px}
+select.base{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--navy);cursor:pointer;max-width:260px}
+@media(max-width:920px){.charts{grid-template-columns:1fr}.curve-grid{grid-template-columns:1fr}}
+.chart{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;flex-direction:column}
+.chart h3{font-size:12px;margin:0 0 8px;color:var(--navy)}
+.chart svg{width:100%;height:auto;display:block}
+.filters{display:block}
+.filters .grp{border:1px solid var(--border);border-radius:8px;padding:6px 10px;background:#fff}
+.filters .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:4px}
+.filters select,.filters input{padding:5px 7px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:#fff;max-width:240px}
+.chips{display:flex;flex-wrap:wrap;gap:4px;max-width:420px;max-height:130px;overflow:auto;padding-right:4px}
+.chips label{font-size:11px;display:inline-flex;align-items:center;gap:3px;background:var(--bg);border:1px solid var(--border);padding:2px 6px;border-radius:12px;cursor:pointer}
+.filters .grp-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.filters .grp-head .lbl{margin-bottom:0}
+.filters .grp-actions{display:inline-flex;align-items:center;gap:6px}
+.filters .badge{font-size:10px;background:var(--bg);border:1px solid var(--border);color:var(--muted);padding:1px 6px;border-radius:10px;font-weight:600}
+.filters-help{font-size:11px;color:#7A8A99;margin:0 0 8px}
+.zone-label{font-size:10px;font-weight:700;color:#9AA7B4;letter-spacing:1px;text-transform:uppercase;margin:6px 0 6px}
+.filters-cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:12px}
+.filters-utils{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.filters-utils .grp.util:first-child{flex:1 1 420px;max-width:none}
+.filters-utils .grp.util.actions{margin-left:auto}
+.filters-utils .grp.util{border:none;background:transparent;padding:0}
+.filters #fSearch{width:100%;max-width:560px;margin-top:4px}
+.filters .grp.active{border-color:#E0A100;box-shadow:inset 4px 0 0 #E0A100}
+.filters .grp.active .badge{background:#FFF4D6;border-color:#E0A100;color:#9a6b00}
+.filtered-note{font-size:9px;color:#9A6B00;margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th,td{border:1px solid var(--border);padding:5px 7px;text-align:left}
+th{background:var(--navy);color:#fff;font-weight:600;position:sticky;top:0;cursor:pointer;user-select:none}
+tbody tr:nth-child(even){background:#F9FBFD}
+.pill{padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600}
+.p-app{background:#E6F4EA;color:var(--green)} .p-awc{background:#FFF4D6;color:#9a6b00}
+.p-rej{background:#FDE8E8;color:var(--red)} .p-nap{background:#EEF1F5;color:var(--slate)}
+.p-sur{background:#E3F0FB;color:var(--blue)} .p-rtr{background:#FFF0E0;color:#b5651d}
+.p-nts{background:#E6F4EA;color:var(--green)}
+.sev-err{color:var(--red);font-weight:700} .sev-warn{color:#9a6b00;font-weight:700} .sev-info{color:var(--blue);font-weight:700}
+.sev-ERR{color:var(--red);font-weight:700} .act{color:var(--green);font-weight:700} .ina{color:var(--slate)}
+.ovt{overflow:auto;max-height:520px;border:1px solid var(--border);border-radius:8px}
+.ovt table th{cursor:default}
+.note{background:#FFF8E1;border:1px solid var(--amber);color:#7a5b00;padding:8px 12px;border-radius:8px;font-size:12px;margin:10px 0}
+.expand{cursor:pointer;color:var(--blue);font-size:10px;white-space:nowrap;user-select:none}
+.expand.open{color:var(--navy);font-weight:600}
+.tbl-scroll{overflow-x:auto}
+.matrix{width:100%;border-collapse:collapse;font-size:12px;background:#fff}
+.matrix th,.matrix td{border:1px solid var(--border);padding:4px 8px;text-align:center;white-space:nowrap}
+.matrix th:first-child,.matrix td:first-child{text-align:left}
+.matrix th{background:var(--bg);color:var(--navy);font-weight:600}
+.matrix thead tr.group th{background:var(--navy);color:#fff;font-weight:700}
+.matrix thead tr.group th.tint{background:#FFF9C4;color:#7a5b12}
+.matrix th.tint{background:#FFF9C4;color:#7a5b12}
+.matrix td.col-tint{background:#FFF9C4}
+.matrix tfoot td{background:var(--bg);font-weight:700;border-top:2px solid var(--navy)}
+.matrix tbody tr:nth-child(even){background:#fafcff}
+.matrix tbody tr.sub{background:#F2F6FB}
+.matrix tbody tr.sub td.subname{text-align:left;padding-left:22px;color:var(--muted);font-style:italic}
+.matrix td.noexp{color:#c2ccd6;text-align:center}
+.detail-scroll{overflow:auto;max-height:520px}
+.welcome{max-width:560px;margin:80px auto;text-align:center}
+.welcome .drop{border:2px dashed var(--border);border-radius:12px;padding:40px;background:#fff}
+.welcome h2{color:var(--navy);margin-top:0}
+
+.hidden{display:none}
+@media print{body{background:#fff}.panel{break-inside:avoid;box-shadow:none}.filters,.toolbar{display:none}header.app{position:static}.panel.collapsed .panel-body{display:block}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+`;
+
+// ---------- SVG chart renderers ----------
+function barSVG(title, data){
+  const max = Math.max(1, ...data.map(d=>d.value));
+  const W=320, rowH=22, padTop=24, nameW=92, valW=44, trackX=nameW+4, trackW=W-nameW-valW-8, H=padTop+data.length*rowH+6;
+  let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+  s+=`<text x="0" y="16" ${F} font-size="12" font-weight="bold" fill="${COLORS.navy}">${esc(title)}</text>`;
+  data.forEach((d,i)=>{ const y=padTop+i*rowH, c=d.color||COLORS.blue;
+    s+=`<text x="0" y="${y+12}" ${F} font-size="11" fill="${COLORS.slate}">${esc(d.name)}</text>`;
+    s+=`<rect x="${trackX}" y="${y+1}" width="${trackW}" height="13" rx="2" fill="#F6F8FA"/>`;
+    s+=`<rect x="${trackX}" y="${y+1}" width="${(d.value/max)*trackW}" height="13" rx="2" fill="${c}"/>`;
+    s+=`<text x="${W-2}" y="${y+12}" text-anchor="end" ${F} font-size="11" font-weight="bold" fill="${COLORS.navy}">${d.value}</text>`;
+  });
+  s+=`</svg>`; return s;
+}
+function pieSVG(title, data){
+  const total = Math.max(1, data.reduce((a,b)=>a+b.value,0));
+  const cx=72, cy=84, r=60, W=320, H=180;
+  let a0=-Math.PI/2; let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+  s+=`<text x="0" y="16" ${F} font-size="12" font-weight="bold" fill="${COLORS.navy}">${esc(title)}</text>`;
+  data.forEach(d=>{ const a1=a0+(d.value/total)*2*Math.PI, c=d.color||COLORS.blue;
+    const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1),lg=(a1-a0)>Math.PI?1:0;
+    s+=`<path d="M${cx},${cy} L${x0.toFixed(2)},${y0.toFixed(2)} A${r},${r} 0 ${lg} 1 ${x1.toFixed(2)},${y1.toFixed(2)} Z" fill="${c}"/>`; a0=a1; });
+  let ly=40; data.forEach(d=>{ s+=`<rect x="156" y="${ly-9}" width="10" height="10" rx="2" fill="${d.color||COLORS.blue}"/>`;
+    s+=`<text x="172" y="${ly}" ${F} font-size="11" fill="${COLORS.slate}">${esc(d.name)} ${d.value}</text>`; ly+=20; });
+  s+=`</svg>`; return s;
+}
+function lineSVG(p, from, to){
+  const FF='font-family="Arial,Helvetica,sans-serif"';
+  const W=560,H=360,L=46,R=16,T=16,B=44, pw=W-L-R, ph=H-T-B;
+  const idx=[]; for(let i=from;i<=to;i++) idx.push(i);
+  const maxY=Math.max(1,...idx.map(i=>Math.max(p.pCum[i],p.fCum[i],p.aCum[i])));
+  const m=idx.length;
+  const X=i=> m>1 ? L+(idx.indexOf(i)/(m-1))*pw : L+pw/2;
+  const Y=v=> T+ph-(v/maxY)*ph;
+  let g='';
+  for(let s=0;s<=5;s++){ const v=Math.round(maxY*s/5), y=Y(v); g+=`<line x1="${L}" y1="${y}" x2="${L+pw}" y2="${y}" stroke="#EAEFF5" stroke-width="1"/><text x="${L-6}" y="${y+3}" text-anchor="end" ${FF} font-size="10" fill="#6b7785">${v}</text>`; }
+  const every=Math.max(1,Math.ceil(m/12));
+  idx.forEach(i=>{ if(i%every===0){ const x=X(i); g+=`<line x1="${x}" y1="${T}" x2="${x}" y2="${T+ph}" stroke="#EAEFF5" stroke-width="1"/><text x="${x}" y="${T+ph+14}" text-anchor="middle" ${FF} font-size="10" fill="#6b7785">${p.months[i].slice(2)}</text>`; } });
+  g+=`<line x1="${L}" y1="${T+ph}" x2="${L+pw}" y2="${T+ph}" stroke="#C9D4E0" stroke-width="1"/><line x1="${L}" y1="${T}" x2="${L}" y2="${T+ph}" stroke="#C9D4E0" stroke-width="1"/>`;
+  [['pCum',COLORS.blue],['fCum',COLORS.amber],['aCum',COLORS.green]].forEach(([k,c])=>{ const pts=idx.map(i=>`${X(i).toFixed(1)},${Y(p[k][i]).toFixed(1)}`).join(' '); g+=`<polyline fill="none" stroke="${c}" stroke-width="2" points="${pts}"/>`; });
+  if(typeof p.projStartIdx==='number' && p.projStartIdx>=from && p.projStartIdx<=to){ const x=X(p.projStartIdx);
+    g+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${T+ph}" stroke="#C62828" stroke-width="1.5" stroke-dasharray="4 3"/>`; }
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${g}</svg>`;
+}
+function barProgressSVG(p, from, to){
+  const FF='font-family="Arial,Helvetica,sans-serif"';
+  const W=560,H=360,L=46,R=16,T=16,B=44, pw=W-L-R, ph=H-T-B;
+  const idx=[]; for(let i=from;i<=to;i++) idx.push(i);
+  const maxY=Math.max(1,...idx.map(i=>Math.max(p.pNew[i],p.fNew[i],p.aNew[i])));
+  const m=idx.length, gw=pw/m, bw=Math.min(10,gw/3.4);
+  const Xc=i=> L+gw*idx.indexOf(i)+gw/2;
+  const Y=v=> T+ph-(v/maxY)*ph;
+  let g='';
+  for(let s=0;s<=5;s++){ const v=Math.round(maxY*s/5), y=Y(v); g+=`<line x1="${L}" y1="${y}" x2="${L+pw}" y2="${y}" stroke="#EAEFF5" stroke-width="1"/><text x="${L-6}" y="${y+3}" text-anchor="end" ${FF} font-size="10" fill="#6b7785">${v}</text>`; }
+  const every=Math.max(1,Math.ceil(m/12));
+  idx.forEach(i=>{ const xc=Xc(i); if(i%every===0) g+=`<text x="${xc}" y="${T+ph+14}" text-anchor="middle" ${FF} font-size="10" fill="#6b7785">${p.months[i].slice(2)}</text>`;
+    [['pNew',COLORS.blue],['fNew',COLORS.amber],['aNew',COLORS.green]].forEach(([k,c],bi)=>{ const v=p[k][i], x=xc-bw*1.5+bi*bw, y=Y(v), h=T+ph-y; g+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(bw-1.5).toFixed(1)}" height="${h.toFixed(1)}" fill="${c}"/>`; }); });
+  g+=`<line x1="${L}" y1="${T+ph}" x2="${L+pw}" y2="${T+ph}" stroke="#C9D4E0" stroke-width="1"/><line x1="${L}" y1="${T}" x2="${L}" y2="${T+ph}" stroke="#C9D4E0" stroke-width="1"/>`;
+  if(typeof p.projStartIdx==='number' && p.projStartIdx>=from && p.projStartIdx<=to){ const x=Xc(p.projStartIdx);
+    g+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${T+ph}" stroke="#C62828" stroke-width="1.5" stroke-dasharray="4 3"/>`; }
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${g}</svg>`;
+}
+function svgToBlob(svgEl, cb){
+  const xml = new XMLSerializer().serializeToString(svgEl);
+  const url = 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);
+  const img = new Image();
+  img.onload = ()=>{ const c=document.createElement('canvas'),scale=2; c.width=img.width*scale; c.height=img.height*scale;
+    const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height); ctx.scale(scale,scale); ctx.drawImage(img,0,0);
+    c.toBlob(b=>cb(b),'image/png'); };
+  img.onerror = ()=>cb(null); img.src = url;
+}
+function attachExport(root, getSVG, title){
+  const msg = root.querySelector('.msg'); if(!msg) return;
+  const fname = (typeof title==='function'?title():title).replace(/[\\/:*?"<>|·]/g,'_');
+  const run = fn => { const tmp=document.createElement('div'); tmp.innerHTML=getSVG(); const el=tmp.querySelector('svg'); if(!el){msg.textContent='Failed';return;} svgToBlob(el,fn); };
+  root.querySelector('.dl').addEventListener('click',()=>run(b=>{ if(!b){msg.textContent='Failed';return;}
+    const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=fname+'.png'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000); msg.textContent='Downloaded'; setTimeout(()=>msg.textContent='',1800); }));
+  root.querySelector('.cp').addEventListener('click',()=>{ if(!navigator.clipboard||!window.ClipboardItem){msg.textContent='Copy unsupported';return;}
+    run(async b=>{ if(!b){msg.textContent='Failed';return;} try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); msg.textContent='Copied ✓'; }
+      catch(e){ msg.textContent='Copy blocked — use PNG'; setTimeout(()=>msg.textContent='',2200);} setTimeout(()=>msg.textContent='',1800); }); });
+}
+function statusColor(name){
+  return ({APP:COLORS.green,AWC:COLORS.amber,REJ:COLORS.red,NAP:COLORS.slate,'Not Available':COLORS.grey,
+           YES:COLORS.green,NO:COLORS.slate,
+           'On track':COLORS.green,'At risk':COLORS.amber,
+           'Overdue – 1st':COLORS.red,'Overdue – Resub':COLORS.red,'Overdue – Client':COLORS.red})[name] || COLORS.blue;
+}
+
+// ---------- derived view from filtered records ----------
+function deriveView(model, state){
+  const todayISO = model.meta.today; const dT = isoStrToDate(todayISO);
+  const passSel=(set,v)=> set==null||set.size===0 ? true : set.has(v==null?'':v);
+  const recs = model.records.filter(r=>{
+    if(!passSel(state.disciplines, r.fields['UESH Discipline'])) return false;
+    if(!passSel(state.stages, r.stage)) return false;
+    if(!passSel(state.authority, r.fields['Authority'])) return false;
+    if(!passSel(state.approval, r.fields['Latest Approval Status']||'')) return false;
+    if(state.search){ const q=state.search.toLowerCase(); const hit=[r.docNo,r.fields['Document Title'],r.fields['UESH Discipline']].join(' ').toLowerCase(); if(!hit.includes(q)) return false; }
+    return true;
+  });
+  const active = recs.filter(r => state.includeExcluded ? true : r.isActive);
+  const activeSet = new Set(active.map(r=>r.sourceTab+'!'+r.rownum));
+  const issues = model.issues.filter(i => activeSet.has(i.sourceTab+'!'+i.rownum) && (!state.rule || i.code===state.rule));
+
+  // KPIs
+  const cnt = p => active.filter(p).length;
+  const kpis = {
+    totalPlanned: active.length,
+    submitted: cnt(r=>(r.fields['Actual 1st Issue Date']||'')!==''),
+    approvedAPP: cnt(r=>r.fields['Latest Approval Status']==='APP'),
+    approvedAWC: cnt(r=>r.fields['Latest Approval Status']==='AWC'),
+    rejected: cnt(r=>r.fields['Latest Approval Status']==='REJ'),
+    notApproved: cnt(r=>r.fields['Latest Approval Status']==='NAP'),
+    asBuiltYes: cnt(r=>r.fields['As-Built']==='YES'),
+    vendorYes: cnt(r=>r.fields['Vendor Data']==='YES'),
+    activeDisciplines: new Set(active.map(r=>r.discipline).filter(Boolean)).size,
+    completeness: null,
+  };
+  const cg = new Set(model.completenessGroup);
+  const bad = new Set(); issues.forEach(i=>{ if(cg.has(i.code)) bad.add(i.sourceTab+'!'+i.rownum); });
+  kpis.completeness = active.length ? Math.round((1-bad.size/active.length)*1000)/10 : null;
+  const firstOverdue = active.filter(r=>{const t=r.fields['Forecast 1st Issue Date']||r.fields['Planned 1st Issue Date'];return t&&(r.fields['Actual 1st Issue Date']||'')===''&&isoStrToDate(t)<=dT;});
+  const subOverdue = active.filter(r=>{const y=r.fields['Latest Approval Status'],x=r.fields['Latest Approval Date'],u=r.fields['Actual 1st Issue Date'];return u&&['REJ','RTR'].includes(y)&&x&&wdBetween(isoStrToDate(x),dT)>model.contract.reviewRules.resubmissionDuration;});
+  const cliOverdue = active.filter(r=>{const w=r.fields['Submission Status'],u=r.fields['Actual 1st Issue Date'];return w==='SUR'&&u&&wdBetween(isoStrToDate(u),dT)>model.contract.reviewRules.firstClientReview;});
+  const overdueDelay=(type,r)=>{
+    const f=r.fields;
+    if(type==='first'){ const t=f['Forecast 1st Issue Date']||f['Planned 1st Issue Date']; const d=isoStrToDate(t); return d?Math.max(0,Math.round((dT-d)/86400000)):''; }
+    if(type==='sub'){ const x=isoStrToDate(f['Latest Approval Date']); const w=x?wdBetween(x,dT):null; return w==null?'':Math.max(0,w-model.contract.reviewRules.resubmissionDuration); }
+    const u=isoStrToDate(f['Actual 1st Issue Date']); const w=u?wdBetween(u,dT):null; return w==null?'':Math.max(0,w-model.contract.reviewRules.firstClientReview);
+  };
+  firstOverdue.forEach(r=>r.delay=overdueDelay('first',r));
+  subOverdue.forEach(r=>r.delay=overdueDelay('sub',r));
+  cliOverdue.forEach(r=>r.delay=overdueDelay('cli',r));
+  const ov=new Set([...firstOverdue,...subOverdue,...cliOverdue].map(r=>r.sourceTab+'!'+r.rownum));
+  kpis.overdueFirst=firstOverdue.length; kpis.overdueResubmission=subOverdue.length; kpis.overdueClientReview=cliOverdue.length;
+  const keyOf=r=>r.sourceTab+'!'+r.rownum;
+  const foSet=new Set(firstOverdue.map(keyOf)), soSet=new Set(subOverdue.map(keyOf)), coSet=new Set(cliOverdue.map(keyOf));
+
+  // charts
+  const gc=(fn,scope)=>{const m={};scope.forEach(r=>{const k=fn(r);if(k==null||k==='')return;m[k]=(m[k]||0)+1;});return m;};
+  const toArr=m=>Object.entries(m).map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value);
+  const appM=gc(r=>r.fields['Latest Approval Status']||'—',active);
+  const appStatus=[{name:'APP',value:appM['APP']||0},{name:'AWC',value:appM['AWC']||0},{name:'REJ',value:appM['REJ']||0},{name:'NAP',value:appM['NAP']||0},{name:'Not Available',value:active.filter(r=>!['APP','AWC','REJ','NAP'].includes(r.fields['Latest Approval Status']||'')).length}];
+  const atRisk=active.filter(r=>{const t=r.fields['Forecast 1st Issue Date']||r.fields['Planned 1st Issue Date'];return t&&(r.fields['Actual 1st Issue Date']||'')===''&&isoStrToDate(t)>dT&&wdBetween(dT,isoStrToDate(t))<=14;});
+  const onTrack=active.filter(r=>{const k=r.sourceTab+'!'+r.rownum;return !ov.has(k)&&!atRisk.includes(r);});
+  const dqDisc={}; issues.forEach(i=>{if(i.discipline)dqDisc[i.discipline]=(dqDisc[i.discipline]||0)+1;});
+  const charts={
+    docsByDiscipline: toArr(gc(r=>r.discipline,active)),
+    issueProgress:[{name:'Planned',value:cnt(r=>(r.fields['Planned 1st Issue Date']||'')!=='')},{name:'Forecast',value:cnt(r=>(r.fields['Forecast 1st Issue Date']||'')!=='')},{name:'Actual',value:cnt(r=>(r.fields['Actual 1st Issue Date']||'')!=='')}],
+    approvalStatus: appStatus,
+    asBuilt:[{name:'YES',value:cnt(r=>r.fields['As-Built']==='YES')},{name:'NO',value:cnt(r=>r.fields['As-Built']==='NO')}],
+    byAuthority: toArr(gc(r=>r.fields['Authority'],active)),
+    byDocType: toArr(gc(r=>r.fields['Doc Type'],active)),
+    scheduleVariance:[{name:'On track',value:onTrack.length},{name:'At risk',value:atRisk.length},{name:'Overdue – 1st',value:firstOverdue.length},{name:'Overdue – Resub',value:subOverdue.length},{name:'Overdue – Client',value:cliOverdue.length}],
+    dqByDiscipline: toArr(dqDisc),
+    dqByRule: toArr(gc(i=>i.code,issues)),
+  };
+  // ----- Issue-progress timeline (S-curve + monthly bar) -----
+  const DATE_FIELDS=['Planned 1st Issue Date','Forecast 1st Issue Date','Actual 1st Issue Date'];
+  const pdate=v=>{ const d=isoStrToDate(v||''); return (d&&!isNaN(d.getTime()))?d:null; };
+  let dataMin=null, maxD=null;
+  model.records.forEach(r=>{ DATE_FIELDS.forEach(f=>{ const d=pdate(r.fields[f]); if(d){ if(!dataMin||d<dataMin)dataMin=d; if(!maxD||d>maxD)maxD=d; } }); });
+  // Project-start anchor = Code!B6 (meta.projectStartDate; A6 is the label cell); fall back to
+  // the earliest data month only when B6 is blank. B6 is the authoritative origin for date curves.
+  const psDate = model.meta.projectStartDate ? isoStrToDate(model.meta.projectStartDate) : null;
+  const projStart = psDate || dataMin || dT;   // anchor marked on the curve
+  if(!maxD) maxD=dT;
+  // Always show the whole month range (no clipping): the timeline starts at the earlier of the
+  // project-start anchor and the earliest document date, so documents dated before B6 are still
+  // plotted (never silently dropped). The project-start month is flagged with a marker.
+  const tlStart = (dataMin && dataMin < projStart) ? dataMin : projStart;
+  maxD=new Date(maxD.getFullYear(),maxD.getMonth()+1,1);                 // +1 month buffer
+  // The project-start month is ALWAYS part of the range, even when B6 lies beyond every
+  // document date — otherwise there would be no month slot to draw its marker on.
+  if(psDate){ const psMon=new Date(psDate.getFullYear(),psDate.getMonth(),1); if(psMon>maxD) maxD=psMon; }
+  const months=[]; { let c=new Date(tlStart.getFullYear(),tlStart.getMonth(),1), e=new Date(maxD.getFullYear(),maxD.getMonth(),1); while(c<=e){ months.push(c.getFullYear()+'-'+String(c.getMonth()+1).padStart(2,'0')); c.setMonth(c.getMonth()+1); } }
+  const mi=m=>months.indexOf(m);
+  const pMon=r=>mi((r.fields['Planned 1st Issue Date']||'').slice(0,7));
+  const fMon=r=>{ const f=r.fields['Forecast 1st Issue Date']||r.fields['Planned 1st Issue Date']; return f?mi(f.slice(0,7)):-1; };   // forecast missing -> plan fallback
+  const aMon=r=>{ const a=r.fields['Actual 1st Issue Date']; return a?mi(a.slice(0,7)):-1; };
+  const n=months.length;
+  const pCum=Array(n).fill(0), fCum=Array(n).fill(0), aCum=Array(n).fill(0), pNew=Array(n).fill(0), fNew=Array(n).fill(0), aNew=Array(n).fill(0);
+  active.forEach(r=>{ const pi=pMon(r); if(pi>=0){pCum[pi]++;pNew[pi]++;} const fi=fMon(r); if(fi>=0){fCum[fi]++;fNew[fi]++;} const ai=aMon(r); if(ai>=0){aCum[ai]++;aNew[ai]++;} });
+  for(let i=1;i<n;i++){ pCum[i]+=pCum[i-1]; fCum[i]+=fCum[i-1]; aCum[i]+=aCum[i-1]; }   // cumulative
+  const projStartIdx = months.indexOf((model.meta.projectStartDate||'').slice(0,7));
+  const monthlyProgress={ months, pCum, fCum, aCum, pNew, fNew, aNew, projStartIdx, projStartLabel: model.meta.projectStartDate || '' };
+  const asofMonth = (model.meta.today||'').slice(0,7);
+  const curMonth = matrixMonthSel || asofMonth;
+  const matrix = buildMatrix(active, foSet, soSet, coSet, curMonth);
+  const matrixMonths = monthOptions(model.records, asofMonth, model.meta.projectStartDate).map(ym=>({value:ym, label:monthLabel(ym)+(ym===asofMonth?' (as-of)':''), asof:ym===asofMonth}));
+  return { recs, active, issues, kpis, charts, matrix, monthlyProgress, firstOverdue, subOverdue, cliOverdue, curMonth, matrixMonths };
+}
+function buildMatrix(active, foSet, soSet, coSet, curMonth){
+  const map={};
+  const keyOf=r=>r.sourceTab+'!'+r.rownum;
+  const planMo = r => !!curMonth && (r.fields['Planned 1st Issue Date']||'').slice(0,7)===curMonth;
+  const fcastMo = r => !!curMonth && (r.fields['Forecast 1st Issue Date']||r.fields['Planned 1st Issue Date']||'').slice(0,7)===curMonth;
+  const actualMo = r => !!curMonth && (r.fields['Actual 1st Issue Date']||'').slice(0,7)===curMonth;
+  const bump=(o,r)=>{ const k=keyOf(r); o.Planned++;
+    if((r.fields['Actual 1st Issue Date']||'')!=='') o.Submitted++;
+    if(planMo(r)) o.PlanMo++; if(fcastMo(r)) o.FcastMo++; if(actualMo(r)) o.ActualMo++;
+    const y=r.fields['Latest Approval Status'];
+    if(y==='APP') o.Approved++; else if(y==='AWC') o.AWC++; else if(y==='REJ') o.REJ++; else if(y==='NAP') o.NAP++;
+    if(foSet.has(k)) o.ov1++; if(soSet.has(k)) o.ov2++; if(coSet.has(k)) o.ov3++;
+  };
+  active.forEach(r=>{
+    const d=r.discipline||'—';
+    if(!map[d]) map[d]={discipline:d,Planned:0,Submitted:0,PlanMo:0,FcastMo:0,ActualMo:0,Approved:0,AWC:0,REJ:0,NAP:0,ov1:0,ov2:0,ov3:0,stages:{}};
+    const m=map[d]; bump(m,r);
+    const st=r.stage||'—';
+    if(!m.stages[st]) m.stages[st]={stage:st,Planned:0,Submitted:0,PlanMo:0,FcastMo:0,ActualMo:0,Approved:0,AWC:0,REJ:0,NAP:0,ov1:0,ov2:0,ov3:0};
+    bump(m.stages[st],r);
+  });
+  return Object.values(map)
+    .map(m=>({ ...m, stages: Object.values(m.stages).sort((a,b)=> a.stage<b.stage?-1: a.stage>b.stage?1:0) }))
+    .sort((a,b)=> b.Planned - a.Planned);
+}
+
+// ---------- render ----------
+let MODEL=null, STATE=null, WRAP=null;
+let chartView={ doc:{base:'docsByDiscipline',type:'bar'}, iss:{base:'dqByDiscipline',type:'bar'} };
+let scurveWin=null;
+let matrixMonthSel='';   // '' => use as-of month; otherwise a YYYY-MM chosen in the Matrix header
+let matrixCurMonth='';   // effective month currently shown in the matrix (for the PNG/Copy export)
+const collapsed = new Set();
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function monthLabel(ym){ if(!ym||ym.length!==7) return 'This Mth'; const [y,m]=ym.split('-'); return MONTHS[(+m)-1]+' '+y; }
+function monthOptions(records, asof, projectStart){
+  // Continuous (gap-free) range so every month in the project's life is selectable, even
+  // with no submissions. The start month is the EARLIER of the project start (Code!B6) and
+  // the earliest planned/forecast/actual first-issue date in the data — matching the
+  // Issue-Progress "whole month range" rule, so months before B6 are reachable too.
+  let dMin=null, dMax=null;
+  for(const r of (records||[])){
+    for(const f of ['Planned 1st Issue Date','Forecast 1st Issue Date','Actual 1st Issue Date']){
+      const v=(r.fields&&r.fields[f])||''; const ym=v.slice(0,7); if(/^\d{4}-\d{2}$/.test(ym)){
+        if(dMin===null||ym<dMin) dMin=ym;
+        if(dMax===null||ym>dMax) dMax=ym;
+      }
+    }
+  }
+  const ps = (projectStart && /^\d{4}-\d{2}/.test(projectStart)) ? projectStart.slice(0,7) : null;
+  let start = (ps && dMin) ? (ps < dMin ? ps : dMin) : (ps || dMin);   // earlier of B6 and earliest data
+  let end = dMax;
+  if(asof){ if(end===null||asof>end) end=asof; if(start===null||asof<start) start=asof; }
+  const out=[];
+  if(start && end && start<=end){
+    let [y,m]=start.split('-').map(Number);
+    const [ey,em]=end.split('-').map(Number);
+    while(y<ey || (y===ey && m<=em)){
+      out.push(String(y).padStart(4,'0')+'-'+String(m).padStart(2,'0'));
+      if(++m>12){ m=1; y++; }
+    }
+  }
+  return out;
+}
+let statusBarEl = null;
+function getFilterDefs(model){
+  const disc=[...new Set(model.records.map(r=>r.discipline).filter(Boolean))].sort();
+  const stg=[...new Set(model.records.map(r=>r.stage).filter(Boolean))].sort();
+  const auth=[...new Set(model.records.map(r=>r.fields['Authority']).filter(Boolean))].sort();
+  const app=[...new Set(model.records.map(r=>r.fields['Latest Approval Status']).filter(Boolean))].sort();
+  return [
+    {key:'disciplines',label:'Discipline',items:disc,hasBlank:model.records.some(r=>!r.discipline)},
+    {key:'stages',label:'Stage',items:stg,hasBlank:model.records.some(r=>!r.stage)},
+    {key:'authority',label:'Authority',items:auth,hasBlank:model.records.some(r=>!r.fields['Authority'])},
+    {key:'approval',label:'Approval',items:app,hasBlank:model.records.some(r=>!r.fields['Latest Approval Status'])},
+  ];
+}
+function sysBannerHTML(warnings){
+  if(!warnings || !warnings.length) return '';
+  return warnings.map(w => {
+    const fatal = w.level === 'fatal';
+    const icon = fatal ? '⛔' : '⚠️';
+    return `<div class="sys-banner-item ${fatal ? 'fatal' : 'warn'}">${icon} <b>${esc(w.code || 'SYSTEM')}</b>${esc(w.message || '')}</div>`;
+  }).join('');
+}
+function renderDashboard(root, model){
+  MODEL = model; WRAP = null; collapsed.clear(); scurveWin = null;   // full IPS window again on a fresh load
+  const defs = getFilterDefs(model);
+  const initSet = d => new Set(d.items.concat(d.hasBlank?['']:[]));
+  STATE = { disciplines:initSet(defs[0]), stages:initSet(defs[1]), authority:initSet(defs[2]), approval:initSet(defs[3]), search:'', includeExcluded:false, rule:null, sort:{col:null,dir:1} };
+  root.innerHTML = `<style>${CSS}</style>`;
+  const header = document.createElement('header'); header.className='app';
+  header.innerHTML = `<div class="brand"><img class="logo" src="${LOGO_DATA}" alt="logo"><h1>TWRP C3B2 — Master Document List Dashboard</h1></div><div class="meta">${esc(model.meta.workbookName)} · as of ${esc(model.meta.today)} · <button id="reload" class="btn btn-secondary">Load workbook</button> <button id="aPrint" class="btn btn-secondary">Print / Save PDF</button></div>`;
+  root.appendChild(header);
+
+  // --- Top banner: system / fatal warnings only (data-validation lives in Panel 12) ---
+  const sysBanner = document.createElement('div'); sysBanner.id='sysBanner'; sysBanner.className='sys-banner';
+  sysBanner.innerHTML = sysBannerHTML(model.warnings);
+  root.appendChild(sysBanner);
+
+  const wrap = document.createElement('div'); wrap.className='wrap'; root.appendChild(wrap); WRAP = wrap;
+  statusBarEl = document.createElement('div'); statusBarEl.id='statusBar'; statusBarEl.className='status-bar'; root.appendChild(statusBarEl);
+
+  // note about no-list-yet disciplines
+  if(model.contract.noListYetDisciplines.length){
+    const n=document.createElement('div'); n.className='note';
+    n.innerHTML = `ℹ️ UESH disciplines with <b>no document list yet</b> (auto-discovered, shown for structure only): ${esc(model.contract.noListYetDisciplines.join(', '))}.`;
+    wrap.appendChild(n);
+  }
+
+  // KPI panel
+  const kp = document.createElement('div'); kp.className='panel'; kp.id='kpiPanel'; kp.dataset.panel='14';
+  wrap.appendChild(kp);
+  // Filter panel
+  const fp = document.createElement('div'); fp.className='panel'; fp.id='filterPanel'; fp.dataset.panel='15';
+  wrap.appendChild(fp);
+  // Matrix
+  const mp = document.createElement('div'); mp.className='panel'; mp.id='matrixPanel'; mp.dataset.panel='10';
+  wrap.appendChild(mp);
+  // Charts (Documents / Issues breakdowns, side by side)
+  const chartsPanel = document.createElement('div'); chartsPanel.className='panel'; chartsPanel.id='chartsPanel';
+  chartsPanel.innerHTML='<h2>Charts</h2>';
+  const grid=document.createElement('div'); grid.className='charts'; chartsPanel.appendChild(grid);
+  wrap.appendChild(chartsPanel);
+  // Issue Progress (S-Curve & Monthly), below charts
+  const curvePanel = document.createElement('div'); curvePanel.className='panel'; curvePanel.id='curvePanel';
+  curvePanel.innerHTML='<div class="panel-head"><h2>Issue Progress (S-Curve &amp; Monthly)</h2><div class="head-actions" id="curveActions"></div></div>';
+  const cbody=document.createElement('div'); cbody.className='curve-body'; curvePanel.appendChild(cbody);
+  wrap.appendChild(curvePanel);
+  // Overdue
+  const op=document.createElement('div'); op.className='panel'; op.id='overduePanel'; op.dataset.panel='13'; wrap.appendChild(op);
+  // Validation
+  const vp=document.createElement('div'); vp.className='panel'; vp.id='validationPanel'; vp.dataset.panel='12'; wrap.appendChild(vp);
+  // Detail
+  const dp=document.createElement('div'); dp.className='panel'; dp.id='detailPanel'; dp.dataset.panel='11'; wrap.appendChild(dp);
+
+  document.getElementById('reload').onclick = ()=> boot(root);
+  document.getElementById('aPrint').onclick = ()=> window.print();
+  renderAll(wrap);
+}
+function renderAll(wrap){
+  WRAP = wrap;
+  const v = deriveView(MODEL, STATE);
+  renderFilters(document.getElementById('filterPanel'), MODEL, STATE, ()=>renderAll(wrap), refreshData);
+  renderData(wrap, v);
+}
+function refreshData(){ renderData(WRAP, deriveView(MODEL, STATE)); }
+function renderData(wrap, v){
+  v = v || deriveView(MODEL, STATE);
+  renderKPIs(document.getElementById('kpiPanel'), v.kpis, MODEL);
+  renderMatrix(document.getElementById('matrixPanel'), v.matrix, v.matrixMonths, v.curMonth);
+  renderCharts(document.querySelector('#chartsPanel .charts'), v.charts);
+  renderCurvePanel(document.querySelector('#curvePanel .curve-body'), v.monthlyProgress);
+  renderOverdue(document.getElementById('overduePanel'), {first:v.firstOverdue,sub:v.subOverdue,cli:v.cliOverdue});
+  renderValidation(document.getElementById('validationPanel'), v.issues, MODEL);
+  renderDetail(document.getElementById('detailPanel'), v.recs, MODEL, STATE, ()=>renderAll(wrap));
+  ['kpiPanel','filterPanel','matrixPanel','chartsPanel','curvePanel','overduePanel','validationPanel','detailPanel'].forEach(id=>ensureCollapse(document.getElementById(id)));
+  renderStatusBar(v);
+}
+
+function filterSummary(){
+  const defs = getFilterDefs(MODEL);
+  const sel = {disciplines:STATE.disciplines, stages:STATE.stages, authority:STATE.authority, approval:STATE.approval};
+  const parts=[];
+  defs.forEach(d=>{
+    const s=sel[d.key]; const total=d.items.length+(d.hasBlank?1:0);
+    parts.push(d.label+': '+(!s||s.size===0||s.size===total?'All':s.size+'/'+total));
+  });
+  parts.push('Excl '+(STATE.includeExcluded?'on':'off'));
+  if(STATE.search) parts.push('Search: "'+STATE.search+'"');
+  const allDefault = defs.every(d=>{const s=sel[d.key];const t=d.items.length+(d.hasBlank?1:0);return !s||s.size===0||s.size===t;}) && !STATE.includeExcluded && !STATE.search;
+  return allDefault ? 'All documents (no filter applied)' : parts.join(' · ');
+}
+function renderStatusBar(v){
+  if(!statusBarEl || !MODEL) return;
+  const m=MODEL.meta, k=v.kpis||{};
+  const q = s => esc(s).replace(/"/g,'&quot;');
+  const total = MODEL.records ? MODEL.records.length : 0;
+  const planned = k.totalPlanned||0, submitted = k.submitted||0;
+  const pct = planned ? Math.round(submitted/planned*100) : 0;
+  const valid = v.active ? v.active.length : 0;
+  const asof = m.today||'';
+  const gen = m.generatedAt ? m.generatedAt.slice(0,19).replace('T',' ') : '';
+  const fsum = filterSummary();
+  const fileTitle = q(m.workbookName||'') + (gen? ' · Generated '+q(gen) : '');
+  statusBarEl.innerHTML =
+    '<span class="sb-panel"><span class="sb-dot" title="Workbook loaded"></span><span class="sb-file" title="'+fileTitle+'"><b>File:</b> '+esc(m.workbookName||'—')+'</span></span>'+
+    '<span class="sb-panel" title="Total planned active documents"><b>Planned:</b> '+planned+'</span>'+
+    '<span class="sb-panel" title="Documents with an Actual 1st Issue Date"><b>Submitted:</b> '+submitted+'</span>'+
+    '<span class="sb-panel" title="1st-submission progress = Submitted / Planned"><b>1st-sub:</b> '+pct+'% <span class="sb-bar"><i style="width:'+pct+'%"></i></span></span>'+
+    '<span class="sb-panel" title="Active documents (excluded stages removed) of '+total+' total rows"><b>Valid:</b> '+valid+'/'+total+'</span>'+
+    '<span class="sb-panel" title="Overdue 1st-submission count"><b>Overdue:</b> '+(k.overdueFirst||0)+'</span>'+
+    '<span class="sb-panel" title="Data completeness % (passing rules V-17…V-27)"><b>Completeness:</b> '+(k.completeness==null?'N/A':k.completeness+'%')+'</span>'+
+    '<span class="sb-panel" title="Distinct UESH disciplines among active documents"><b>Disciplines:</b> '+(k.activeDisciplines||0)+'</span>'+
+    '<span class="sb-panel" title="Reporting / as-of date used for overdue calculation"><b>As-of:</b> '+q(asof)+'</span>'+
+    '<span class="sb-panel sb-filter" title="'+q(fsum)+'"><b>Filter:</b> '+esc(fsum)+'</span>';
+}
+
+function wireCollapse(panel){
+  const btn = panel.querySelector('.collapse'); if(!btn) return;
+  const apply = ()=>{ const on = collapsed.has(panel.id); panel.classList.toggle('collapsed', on); btn.textContent = on ? '▸' : '▾'; btn.title = on ? 'Expand panel' : 'Collapse panel'; };
+  apply();
+  btn.onclick = ()=>{ if(collapsed.has(panel.id)) collapsed.delete(panel.id); else collapsed.add(panel.id); apply(); };
+}
+function ensureCollapse(panel){
+  if(!panel) return;
+  let head=null;
+  for(const ch of panel.children){ if(ch.classList && ch.classList.contains('panel-head')){ head=ch; break; } }
+  if(!head){
+    let h2=null;
+    for(const ch of panel.children){ if(ch.tagName==='H2'){ h2=ch; break; } }
+    if(!h2) return;
+    head=document.createElement('div'); head.className='panel-head';
+    panel.insertBefore(head, h2); head.appendChild(h2);
+  }
+  let ha=null;
+  for(const ch of head.children){ if(ch.classList && ch.classList.contains('head-actions')){ ha=ch; break; } }
+  if(!ha){ ha=document.createElement('div'); ha.className='head-actions'; head.appendChild(ha); }
+  let body=null;
+  for(const ch of panel.children){ if(ch.classList && ch.classList.contains('panel-body')){ body=ch; break; } }
+  if(!body){
+    body=document.createElement('div'); body.className='panel-body';
+    let nxt=head.nextSibling;
+    while(nxt){ const after=nxt.nextSibling; body.appendChild(nxt); nxt=after; }
+    panel.appendChild(body);
+  }
+  let help = ha.querySelector('.help');
+  if(!help){
+    help = document.createElement('button'); help.className='help btn btn-mini'; help.textContent='?'; help.title='Panel help';
+    const coll = ha.querySelector('.collapse');
+    if(coll) ha.insertBefore(help, coll); else ha.appendChild(help);
+  }
+  let has=false;
+  for(const ch of ha.children){ if(ch.classList && ch.classList.contains('collapse')){ has=true; break; } }
+  if(!has){
+    const cb=document.createElement('button'); cb.className='collapse btn btn-mini'; cb.textContent='▾'; cb.title='Collapse panel';
+    ha.appendChild(cb);
+  }
+  help.onclick = ()=>openHelp(panel.id);
+  wireCollapse(panel);
+}
+const HELP = {
+  kpiPanel:{title:'KPI Overview — Panel 14',body:`
+<h4>What it shows</h4>
+<p>Headline counts for the documents currently in view.</p>
+<h4>Source data</h4>
+<p>The active documents (definition below), from the document list on the Code sheet (columns A–Y). Every count respects the Filter Panel.</p>
+<h4>How the numbers are worked out</h4>
+<ul>
+<li><strong>Total Planned</strong> — number of active documents.</li>
+<li><strong>Submitted</strong> — active documents with a date in <em>Actual 1st Issue Date</em> (col U).</li>
+<li><strong>Approved (APP) / Approved w/ Comments (AWC) / Rejected (REJ) / Not Approved (NAP)</strong> — counted from <em>Latest Approval Status</em> (col Y).</li>
+<li><strong>Overdue – 1st Sub / Resub / Client</strong> — the three overdue counts (same rules as Panel 13).</li>
+<li><strong>As-Built Required / Vendor Data</strong> — active documents where <em>As-Built</em> (col P) / <em>Vendor Data</em> (col R) is "YES".</li>
+<li><strong>Active Disciplines</strong> — the number of different <em>UESH Discipline</em> (col C) values.</li>
+<li><strong>Data Completeness</strong> — the share of active documents that pass the completeness data-quality checks (rules V-17 to V-27 in the Code sheet Error Code block); see Panel 12.</li>
+</ul>
+<div class="def"><strong>Active document</strong> — a document whose <em>Stage</em> (col B) is not Deleted, Void, or Superseded. Those three stages are treated as excluded; the Filter Panel "Include excluded" checkbox brings them back into all counts.</div>
+`},
+  filterPanel:{title:'Filter Panel — Panel 15',body:`
+<h4>What it does</h4>
+<p>Narrows every other panel to the documents you want to study.</p>
+<h4>Source data</h4>
+<p>The four lists come from <em>UESH Discipline</em> (C), <em>Stage</em> (B), <em>Authority</em> (Q), <em>Latest Approval Status</em> (Y). Search looks at <em>Document No.</em> (M), <em>Document Title</em> (N), <em>UESH Discipline</em> (C).</p>
+<h4>How it works</h4>
+<ul>
+<li>Each list starts fully selected. <strong>Select All / Clear</strong> includes or excludes a whole list, or tick individual values.</li>
+<li>Choosing fewer values keeps only documents matching <strong>all four</strong> lists plus the Search text.</li>
+<li><strong>Search</strong> filters by Document Number, Title, or Discipline.</li>
+<li><strong>Include excluded</strong> adds back Deleted / Void / Superseded documents (see Active definition).</li>
+<li><strong>Reset filters</strong> returns to fully selected.</li>
+</ul>
+<h4>Effect</h4>
+<p>The selection is applied to KPI, Matrix, Charts, Issue Progress, Overdue, Validation, and Document Detail — they all read the same chosen documents. Changing a list updates only that list, so the page keeps your scroll position and focus.</p>
+`},
+  matrixPanel:{title:'Per-Discipline Summary Matrix — Panel 10',body:`
+<h4>What it shows</h4>
+<p>Documents grouped by <em>UESH Discipline</em> (C), with a per-stage breakdown you can open row by row.</p>
+<h4>Source data</h4>
+<p>The active documents; columns used are <em>Stage</em> (B), <em>UESH Discipline</em> (C), <em>Planned 1st Issue Date</em> (S), <em>Forecast 1st Issue Date</em> (T), <em>Actual 1st Issue Date</em> (U), <em>Latest Approval Status</em> (Y), and the three overdue markers.</p>
+<h4>How it is worked out</h4>
+<ul>
+<li>One row per discipline, ordered by number of planned documents (largest first). A bold <strong>TOTAL</strong> row at the bottom sums every column across all disciplines.</li>
+<li>The columns are grouped under header bands — <strong>Total Submission</strong>, <strong>Submission — (month) (selected month)</strong>, <strong>Approval</strong>, and <strong>Overdue</strong>. The three "this month" submission columns are shaded light yellow to show they react to the Month selector.</li>
+<li>Columns: <strong>Total Planned</strong> (all active documents in the discipline), <strong>Total Submitted</strong> shown as "count (percent)" — e.g. "95 (31%)" — where the percent is that discipline's submitted documents as a share of the project's <strong>Total Planned</strong> (all disciplines); and three "this month" submission counts — <strong>Plan (month)</strong> (documents whose <em>Planned 1st Issue Date</em> is in the chosen month), <strong>Forecast (month)</strong> (whose <em>Forecast 1st Issue Date</em>, or <em>Planned</em> if forecast is blank, is in the chosen month), and <strong>Actual (month)</strong> (whose <em>Actual 1st Issue Date</em> is in the chosen month) — then Approved (APP), Approved w/ Comments (AWC), Rejected (REJ), Not Approved (NAP), and three overdue counts (1st-sub, Resubmission, Client-review). All numbers are centre-aligned.</li>
+<li><strong>Month selector</strong> (top of the panel, left of the toolbar): chooses which month the three shaded "Plan / Forecast / Actual" columns count. It defaults to the as-of month (marked "(as-of)" in the list). The list is a <em>continuous</em> range from the <strong>earlier of the project start date (Code!B6) and the earliest planned/forecast/actual first-issue date in the data</strong> — so months before the declared project start are also reachable — through the as-of month, extended to the latest data month if it lies beyond as-of. Every month in the project's life is listed, including months with no submissions. Changing it only re-counts those three shaded columns — Total Planned, Total Submitted, the approval split, and the three overdue counts are all-time / as-of-today totals and do not change.</li>
+<li>Click <strong>▸ stages</strong> to reveal that discipline's per-<em>Stage</em> (col B) breakdown with the same columns.</li>
+<li><strong>▾ Expand all / ▸ Collapse all</strong> open or close every discipline's stages.</li>
+<li><strong>⤓ PNG (full) / ⧉ Copy</strong> save or copy a picture of the fully expanded table for the current selection.</li>
+</ul>
+<p>Disciplines with no stage recorded show "—"; the overdue counts match Panel 13 and the KPI figures.</p>
+`},
+  chartsPanel:{title:'Charts',body:`
+<h4>What it shows</h4>
+<p>Interactive bar / pie charts counting documents (or data-quality issues) by a category you choose.</p>
+<h4>Source data</h4>
+<p>Documents charts use the active documents and columns <em>UESH Discipline</em> (C), <em>Stage</em> (B), <em>Authority</em> (Q), <em>Latest Approval Status</em> (Y), <em>Doc Type</em> (I). Issues charts use the validation issues (Panel 12) and their discipline.</p>
+<h4>How it is worked out</h4>
+<ul>
+<li>Pick a category from the dropdown (Discipline, Stage, Authority, Approval, Doc Type, or a data-quality breakdown) — the chart shows how many documents fall in each value.</li>
+<li>The <strong>Approval</strong> chart always shows APP, AWC, REJ, NAP, and "Not Available" (no approval status).</li>
+<li>The <strong>Schedule Variance</strong> chart splits documents into On track, At risk, and the three Overdue groups.</li>
+<li>Switch <strong>Bar / Pie</strong>; if a category has more than 12 values the chart stays a bar.</li>
+<li><strong>⤓ PNG / ⧉ Copy</strong> the chart shown.</li>
+</ul>
+<div class="def"><strong>At risk</strong> — a document not yet issued whose forecast or planned date is still ahead but no more than 14 working days away.</div>
+`},
+  curvePanel:{title:'Issue Progress (S-Curve & Monthly)',body:`
+<h4>What it shows</h4>
+<p>Issuance progress over time — a cumulative S-curve and a per-month bar chart.</p>
+<h4>Source data</h4>
+<p><em>Planned 1st Issue Date</em> (S), <em>Forecast 1st Issue Date</em> (T), <em>Actual 1st Issue Date</em> (U) of the active documents.</p>
+<p>The time axis always shows the <strong>whole month range</strong> covered by the actual document log — from the earlier of the project start date (<strong>Code!B6</strong>) and the earliest document date, through the latest document date (plus one extra month). Documents dated before the project start are <strong>never dropped</strong>; they simply plot to the left of the project-start marker.</p>
+<h4>How it is worked out</h4>
+<ul>
+<li><strong>S-Curve</strong> — for each month, a running total of documents with a Planned, Forecast (or Planned if forecast blank), or Actual date in that month or earlier.</li>
+<li><strong>Monthly bar</strong> — the same three series counted only in the month they occur (not running totals).</li>
+<li>The <strong>window slider</strong> selects which months are shown; this is a view control only and does not change the data.</li>
+<li>A red dashed <strong>vertical line</strong> marks the <strong>project start date (Code!B6)</strong> on both charts; the project-start month is always included in the range, and the panel also prints the project start date as a caption.</li>
+</ul>
+<div class="def"><strong>Forecast fallback</strong> — when <em>Forecast 1st Issue Date</em> (T) is blank, <em>Planned 1st Issue Date</em> (S) is used in its place.</div>
+<div class="def"><strong>Pre-project-start dates</strong> — a document whose Planned/Forecast/Actual date is earlier than Code!B6 is flagged as <strong>V-28</strong> in the Validation panel (Panel 12); it still appears on the curve to the left of the PS marker.</div>
+`},
+  overduePanel:{title:'Overdue List — Panel 13',body:`
+<h4>What it shows</h4>
+<p>Every overdue document in one table, with its dates and how late it is.</p>
+<h4>Source data / columns (exact Code-sheet headers)</h4>
+<p><em>Prolog Number</em> (V), <em>Document No.</em> (M), <em>Number</em> (K), <em>Document Title</em> (N), <em>UESH Discipline</em> (C), <em>Overdue Type</em> (derived), <em>Planned 1st Issue Date</em> (S), <em>Forecast 1st Issue Date</em> (T), <em>Actual 1st Issue Date</em> (U), <em>Latest Approval Date</em> (X), <em>Latest Approval Status</em> (Y), <em>Submission Status</em> (W), <em>Delay (days)</em> (derived).</p>
+<h4>How a document becomes overdue</h4>
+<ul>
+<li><strong>1st-submission</strong>: forecast or planned first-issue date (T, or S if T blank) is on or before today, and <em>Actual 1st Issue Date</em> (U) is still empty.</li>
+<li><strong>Resubmission</strong>: <em>Latest Approval Status</em> (Y) is REJ or RTR, and working days since <em>Latest Approval Date</em> (X) exceed the resubmission window defined in the Code sheet (commonly 14 working days).</li>
+<li><strong>Client-review</strong>: <em>Submission Status</em> (W) is SUR, and working days since <em>Actual 1st Issue Date</em> (U) exceed the first client review window defined in the Code sheet (commonly 20 working days).</li>
+</ul>
+<h4>Delay (days)</h4>
+<p>1st-submission = calendar days from today back to the forecast/planned date; Resubmission = working days since latest approval date minus the resubmission window; Client-review = working days since actual first issue date minus the first client review window.</p>
+<h4>How it is grouped</h4>
+<p>Rows sorted by <em>UESH Discipline</em> (C), then Overdue Type, then Document Number; discipline shown on every row. The <strong>Overdue Type</strong> dropdown filters to one type; the Filter Panel narrows the whole list. <strong>⤓ CSV</strong> downloads the visible rows as <code>MDL_Overdue.csv</code> with the same columns.</p>
+<div class="def"><strong>Working days</strong> — Monday to Friday; Saturday and Sunday are not counted.</div>
+`},
+  validationPanel:{title:'Validation Issues — Panel 12',body:`
+<h4>What it shows</h4>
+<p>Data-quality problems found in the document list, with severity and the affected document.</p>
+<h4>Source data</h4>
+<p>Findings from checking every document row against the Code-sheet lookup tables — <em>Stage</em> (B), <em>UESH Discipline</em> (C), <em>Doc Type</em> (I), <em>Discipline (Code)</em> (J), <em>Authority</em> (Q), <em>Latest Approval Status</em> (Y), <em>Project Code</em> (G) — and the business rules in the <strong>Error Code block</strong> on the Code sheet (<code>Code!AI2:AL</code>: Error Code AI, Group AJ, Rule AK, Severity AL). That block holds the 28 rules V-01…V-28 (e.g., blank/missing document, invalid stage/discipline/doc-type/authority/approval/project code, document-number format mismatch, approval/date inconsistencies, future dates, duplicate document numbers, missing required fields, excluded-but-incomplete, and <strong>V-28</strong> — a Planned/Forecast/Actual 1st-issue date earlier than the project start date <code>Code!B6</code>).</p>
+<p class="note" style="margin-top:6px"><strong>Routing:</strong> this panel shows <em>data-quality</em> details only. <em>System / processing</em> warnings (e.g. “List End Row exceeded”) and fatal errors appear in the <strong>top banner</strong> above the panels, never here.</p>
+<h4>How it is worked out</h4>
+<ul>
+<li>Only issues whose document is among the documents currently chosen by the Filter Panel are shown (plus an optional rule-code filter).</li>
+<li>Each row shows severity, rule code, the message, <em>Document No.</em> (M), <em>UESH Discipline</em> (C), and the source tab/row.</li>
+<li><strong>⤓ CSV</strong> downloads the filtered issues as <code>MDL_issue_list.csv</code>.</li>
+</ul>
+<div class="def"><strong>Severity</strong> — Error, Warning, or Info, taken from the Code sheet Error Code block.</div>
+`},
+  detailPanel:{title:'Document Detail Table — Panel 11',body:`
+<h4>What it shows</h4>
+<p>The full document list for the current selection, one row per document, exactly as recorded.</p>
+<h4>Source data</h4>
+<p>The active documents, all columns A–Y of the Code-sheet document list plus the source tab and row.</p>
+<h4>How it is used</h4>
+<ul>
+<li>Click any column header to sort by that column.</li>
+<li>This table is the raw source behind every other panel (KPI, Matrix, Charts, Overdue, Validation all read these same rows).</li>
+<li><strong>⤓ CSV</strong> downloads the chosen rows as <code>MDL_document_list.csv</code>.</li>
+</ul>
+`}
+};
+let helpModalEl=null;
+function ensureHelpModal(){
+  if(helpModalEl) return helpModalEl;
+  const m=document.createElement('div'); m.className='help-modal'; m.hidden=true;
+  m.innerHTML=`<div class="box" role="dialog" aria-modal="true"><header><h3 id="helpTitle"></h3><button class="close btn btn-mini" title="Close">✕</button></header><div class="body" id="helpBody"></div></div>`;
+  m.addEventListener('click', e=>{ if(e.target===m) m.hidden=true; });
+  m.querySelector('.close').onclick=()=>{ m.hidden=true; };
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !m.hidden) m.hidden=true; });
+  (document.body||document.documentElement).appendChild(m);
+  helpModalEl=m; return m;
+}
+function openHelp(id){
+  const h=HELP[id]; if(!h) return;
+  const m=ensureHelpModal();
+  m.querySelector('#helpTitle').textContent=h.title;
+  m.querySelector('#helpBody').innerHTML=h.body;
+  m.hidden=false;
+}
+function renderKPIs(panel, k, model){
+  const cards = [
+    {l:'Total Planned',v:k.totalPlanned,c:''},{l:'Submitted',v:k.submitted,c:'ok'},
+    {l:'Approved (APP)',v:k.approvedAPP,c:'ok'},{l:'Approved w/ Comments',v:k.approvedAWC,c:'amb'},
+    {l:'Rejected (REJ)',v:k.rejected,c:'warn'},{l:'Not Approved (NAP)',v:k.notApproved,c:''},
+    {l:'Overdue – 1st Sub',v:k.overdueFirst,c:'warn'},{l:'Overdue – Resub',v:k.overdueResubmission,c:'warn'},
+    {l:'Overdue – Client',v:k.overdueClientReview,c:'warn'}];
+  const sub = [
+    {l:'As-Built Required',v:k.asBuiltYes},{l:'Vendor Data (by vendor)',v:k.vendorYes},
+    {l:'Data Completeness',v:(k.completeness==null?'N/A':k.completeness+'%')},{l:'Active Disciplines',v:k.activeDisciplines+' / 20'}];
+  panel.innerHTML = `<div class="panel-head"><h2>KPI Overview</h2><div class="head-actions"><button class="collapse btn btn-mini" title="Collapse panel">▾</button></div></div>
+    <div class="panel-body"><div class="kpis">${cards.map(c=>`<div class="kpi ${c.c}"><div class="v">${c.v}</div><div class="l">${esc(c.l)}</div></div>`).join('')}</div>
+    <div class="subkpis">${sub.map(s=>`<div class="subkpi"><div class="v">${esc(s.v)}</div><div class="l">${esc(s.l)}</div></div>`).join('')}</div></div>`;
+  wireCollapse(panel);
+}
+
+function renderFilters(panel, model, state, rerender, dataOnly){
+  const defs = getFilterDefs(model);
+  const updateGroup = def => {
+    const total = def.items.length + (def.hasBlank?1:0);
+    const count = state[def.key].size;
+    const grp = panel.querySelector(`.grp[data-grp="${def.key}"]`);
+    grp.querySelector('.badge').textContent = `${count}/${total}`;
+    const active = count < total;
+    grp.classList.toggle('active', active);
+    const note = grp.querySelector('.filtered-note');
+    note.style.display = active ? 'block' : 'none';
+    note.textContent = `● filtered — ${total-count} of ${total} ${def.label.toLowerCase()} hidden`;
+  };
+  const chipGroup = def => {
+    const total = def.items.length + (def.hasBlank?1:0);
+    const count = state[def.key].size;
+    const active = count < total;
+    const items = def.items.concat(def.hasBlank ? [''] : []);
+    const chips = items.map(v=>`<label><input type="checkbox" data-key="${def.key}" value="${esc(v)}" ${state[def.key].has(v)?'checked':''}> ${esc(v===''?'（blank）':v)}</label>`).join('');
+    return `<div class="grp${active?' active':''}" data-grp="${def.key}"><div class="grp-head"><span class="lbl">${def.label}</span>
+      <span class="grp-actions"><span class="badge">${count}/${total}</span>
+      <button class="btn btn-mini" data-act="all" data-key="${def.key}">All</button><button class="btn btn-mini" data-act="clear" data-key="${def.key}">Clear</button></span></div>
+      <div class="chips" data-key="${def.key}">${chips}</div>
+      <div class="filtered-note" style="display:${active?'block':'none'}">● filtered — ${total-count} of ${total} ${def.label.toLowerCase()} hidden</div></div>`;
+  };
+  panel.innerHTML = `<div class="panel-head"><h2>Filter Panel</h2>
+    <div class="head-actions">
+      <label class="lbl"><input type="checkbox" id="fInc" ${state.includeExcluded?'checked':''}> Include excluded (Deleted/Void/Superseded)</label>
+      <button id="fReset" class="btn btn-secondary">Reset filters</button>
+      <button class="collapse btn btn-mini" title="Collapse panel">▾</button>
+    </div></div>
+    <div class="panel-body"><div class="filters">
+    <div class="filters-help">All filters active by default — deselect to narrow the dashboard.</div>
+    <div class="zone-label">Categorical Filters</div>
+    <div class="filters-cats">${defs.map(chipGroup).join('')}</div>
+    <div class="zone-label">Utilities</div>
+    <div class="filters-utils">
+      <div class="grp util"><span class="lbl">Search (Doc No / Title / Discipline)</span><input id="fSearch" value="${esc(state.search)}" placeholder="type…"></div>
+    </div>
+    </div></div>`;
+  panel.querySelectorAll('input[type=checkbox][data-key]').forEach(cb=>{
+    cb.onchange = ()=>{ const set=state[cb.dataset.key]; cb.checked?set.add(cb.value):set.delete(cb.value); updateGroup(defs.find(d=>d.key===cb.dataset.key)); dataOnly(); };
+  });
+  panel.querySelectorAll('button.btn-mini').forEach(b=>{
+    b.onclick = ()=>{ const set=state[b.dataset.key], def=defs.find(d=>d.key===b.dataset.key);
+      if(b.dataset.act==='all'){ set.clear(); def.items.forEach(v=>set.add(v)); if(def.hasBlank) set.add(''); }
+      else set.clear();
+      panel.querySelectorAll(`input[type=checkbox][data-key="${def.key}"]`).forEach(c=>{ c.checked = set.has(c.value); });
+      updateGroup(def); dataOnly(); };
+  });
+  panel.querySelector('#fSearch').oninput = e=>{ state.search=e.target.value; dataOnly(); };
+  panel.querySelector('#fInc').onchange = e=>{ state.includeExcluded=e.target.checked; dataOnly(); };
+  panel.querySelector('#fReset').onclick = ()=>{ defs.forEach(d=>{ state[d.key].clear(); d.items.forEach(v=>state[d.key].add(v)); if(d.hasBlank) state[d.key].add(''); }); state.search=''; state.includeExcluded=false; state.rule=null; rerender(); };
+  wireCollapse(panel);
+}
+
+function matrixReportHTML(matrix){
+  const ml = monthLabel(matrixCurMonth);
+  const totalPlanned = matrix.reduce((a,m)=>a+(m.Planned||0),0) || 1;
+  const subFmt = v => v + ' (' + Math.round((v/totalPlanned)*100) + '%)';
+  const tint = ' class="col-tint"';
+  const head = `<thead>`
+    + `<tr class="group">`
+    + `<th rowspan="2">Discipline</th>`
+    + `<th colspan="2">Total Submission</th>`
+    + `<th colspan="3" class="tint">Submission — ${ml} (selected month)</th>`
+    + `<th colspan="4">Approval</th>`
+    + `<th colspan="3">Overdue</th>`
+    + `<th rowspan="2"></th>`
+    + `</tr>`
+    + `<tr class="detail">`
+    + `<th>Total Planned</th><th>Total Submitted</th>`
+    + `<th class="tint">Plan</th><th class="tint">Forecast</th><th class="tint">Actual</th>`
+    + `<th>APP</th><th>AWC</th><th>REJ</th><th>NAP</th>`
+    + `<th>1st</th><th>Resub</th><th>Client</th>`
+    + `</tr></thead>`;
+  const body = matrix.map(m=>{
+    const disc = `<tr><td>${esc(m.discipline)}</td><td>${m.Planned}</td><td>${subFmt(m.Submitted)}</td><td${tint}>${m.PlanMo}</td><td${tint}>${m.FcastMo}</td><td${tint}>${m.ActualMo}</td><td>${m.Approved}</td><td>${m.AWC}</td><td>${m.REJ}</td><td>${m.NAP}</td><td>${m.ov1}</td><td>${m.ov2}</td><td>${m.ov3}</td></tr>`;
+    const subs = m.stages.map(s=>`<tr class="sub"><td class="subname">${esc(s.stage)}</td><td>${s.Planned}</td><td>${s.Submitted}</td><td${tint}>${s.PlanMo}</td><td${tint}>${s.FcastMo}</td><td${tint}>${s.ActualMo}</td><td>${s.Approved}</td><td>${s.AWC}</td><td>${s.REJ}</td><td>${s.NAP}</td><td>${s.ov1}</td><td>${s.ov2}</td><td>${s.ov3}</td></tr>`).join('');
+    return disc + subs;
+  }).join('');
+  const tot = matrix.reduce((a,m)=>{ a.Planned+=m.Planned; a.Submitted+=m.Submitted; a.PlanMo+=m.PlanMo; a.FcastMo+=m.FcastMo; a.ActualMo+=m.ActualMo; a.Approved+=m.Approved; a.AWC+=m.AWC; a.REJ+=m.REJ; a.NAP+=m.NAP; a.ov1+=m.ov1; a.ov2+=m.ov2; a.ov3+=m.ov3; return a; }, {Planned:0,Submitted:0,PlanMo:0,FcastMo:0,ActualMo:0,Approved:0,AWC:0,REJ:0,NAP:0,ov1:0,ov2:0,ov3:0});
+  const tfoot = `<tfoot><tr><td>TOTAL</td><td>${tot.Planned}</td><td>${subFmt(tot.Submitted)}</td><td${tint}>${tot.PlanMo}</td><td${tint}>${tot.FcastMo}</td><td${tint}>${tot.ActualMo}</td><td>${tot.Approved}</td><td>${tot.AWC}</td><td>${tot.REJ}</td><td>${tot.NAP}</td><td>${tot.ov1}</td><td>${tot.ov2}</td><td>${tot.ov3}</td><td></td></tr></tfoot>`;
+  const css = `.matrix{width:100%;border-collapse:collapse;font-size:12px;background:#fff;font-family:Arial,Helvetica,sans-serif}
+    .matrix th,.matrix td{border:1px solid #d8e0ea;padding:4px 8px;text-align:center;white-space:nowrap}
+    .matrix th:first-child,.matrix td:first-child{text-align:left}
+    .matrix thead tr.group th{background:#1f3a5f;color:#fff;font-weight:700}
+    .matrix thead tr.group th.tint{background:#FFF9C4;color:#7a5b12}
+    .matrix th.tint{background:#FFF9C4;color:#7a5b12}
+    .matrix td.col-tint{background:#FFF9C4}
+    .matrix tfoot td{background:#eef2f7;font-weight:700;border-top:2px solid #1f3a5f}
+    .matrix tbody tr:nth-child(even){background:#fafcff}
+    .matrix tbody tr.sub{background:#f2f6fb}
+    .matrix tbody tr.sub td.subname{text-align:left;padding-left:22px;color:#6b7785;font-style:italic}`;
+  return `<div xmlns="http://www.w3.org/1999/xhtml"><style>${css}</style><table class="matrix">${head}<tbody>${body}</tbody>${tfoot}</table></div>`;
+}
+function matrixSVG(matrix){
+  const totalStages = matrix.reduce((a,m)=>a + m.stages.length, 0);
+  const totalRows = 3 + matrix.length + totalStages;   // group + detail + discipline rows + sub rows + TOTAL
+  const W = 1080, H = totalRows*24 + 24;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><foreignObject x="0" y="0" width="${W}" height="${H}">${matrixReportHTML(matrix)}</foreignObject></svg>`;
+}
+function matrixCSV(matrix, curMonth){
+  const cell = v => { const t = v==null?'' : String(v); return /[",\n\r]/.test(t) ? '"'+t.replace(/"/g,'""')+'"' : t; };
+  const totalPlanned = matrix.reduce((a,m)=>a+(m.Planned||0),0) || 1;
+  const pct = v => Math.round((v/totalPlanned)*100);
+  const mLabel = curMonth || 'all';
+  const cols = ['Discipline','Total Planned','Total Submitted','Submitted %','Plan ('+mLabel+')','Forecast ('+mLabel+')','Actual ('+mLabel+')','APP','AWC','REJ','NAP','Overdue 1st','Overdue Resub','Overdue Client'];
+  const out = [cols.map(cell).join(',')];
+  matrix.forEach(m=>{
+    out.push([m.discipline, m.Planned, m.Submitted, pct(m.Submitted), m.PlanMo, m.FcastMo, m.ActualMo, m.Approved, m.AWC, m.REJ, m.NAP, m.ov1, m.ov2, m.ov3].map(cell).join(','));
+    (m.stages||[]).forEach(s=> out.push(['  '+s.stage, s.Planned, s.Submitted, pct(s.Submitted), s.PlanMo, s.FcastMo, s.ActualMo, s.Approved, s.AWC, s.REJ, s.NAP, s.ov1, s.ov2, s.ov3].map(cell).join(',')));
+  });
+  const t = matrix.reduce((a,m)=>{ ['Planned','Submitted','PlanMo','FcastMo','ActualMo','Approved','AWC','REJ','NAP','ov1','ov2','ov3'].forEach(k=>a[k]+=(m[k]||0)); return a; }, {Planned:0,Submitted:0,PlanMo:0,FcastMo:0,ActualMo:0,Approved:0,AWC:0,REJ:0,NAP:0,ov1:0,ov2:0,ov3:0});
+  out.push(['TOTAL', t.Planned, t.Submitted, pct(t.Submitted), t.PlanMo, t.FcastMo, t.ActualMo, t.Approved, t.AWC, t.REJ, t.NAP, t.ov1, t.ov2, t.ov3].map(cell).join(','));
+  return out.join('\r\n');
+}
+function renderMatrix(panel, matrix, months, curMonth){
+  matrixCurMonth = curMonth;
+  const ml = monthLabel(curMonth);
+  const totalPlanned = matrix.reduce((a,m)=>a+(m.Planned||0),0) || 1;
+  const subFmt = v => v + ' (' + Math.round((v/totalPlanned)*100) + '%)';
+  const tint = ' class="col-tint"';
+  const head = `<thead>`
+    + `<tr class="group">`
+    + `<th rowspan="2">Discipline</th>`
+    + `<th colspan="2">Total Submission</th>`
+    + `<th colspan="3" class="tint">Submission — ${ml} (selected month)</th>`
+    + `<th colspan="4">Approval</th>`
+    + `<th colspan="3">Overdue</th>`
+    + `<th rowspan="2"></th>`
+    + `</tr>`
+    + `<tr class="detail">`
+    + `<th>Total Planned</th><th>Total Submitted</th>`
+    + `<th class="tint">Plan</th><th class="tint">Forecast</th><th class="tint">Actual</th>`
+    + `<th>APP</th><th>AWC</th><th>REJ</th><th>NAP</th>`
+    + `<th>1st</th><th>Resub</th><th>Client</th>`
+    + `</tr></thead>`;
+  const rows = matrix.map(m=>{
+    const exp = m.stages.length ? `<td class="expand" data-d="${esc(m.discipline)}" title="Expand stages">▸ stages</td>` : `<td class="noexp">—</td>`;
+    return `<tr><td>${esc(m.discipline)}</td><td>${m.Planned}</td><td>${subFmt(m.Submitted)}</td>`
+      + `<td${tint}>${m.PlanMo}</td><td${tint}>${m.FcastMo}</td><td${tint}>${m.ActualMo}</td>`
+      + `<td>${m.Approved}</td><td>${m.AWC}</td><td>${m.REJ}</td><td>${m.NAP}</td>`
+      + `<td>${m.ov1}</td><td>${m.ov2}</td><td>${m.ov3}</td>${exp}</tr>`;
+  }).join('');
+  const tot = matrix.reduce((a,m)=>{ a.Planned+=m.Planned; a.Submitted+=m.Submitted; a.PlanMo+=m.PlanMo; a.FcastMo+=m.FcastMo; a.ActualMo+=m.ActualMo; a.Approved+=m.Approved; a.AWC+=m.AWC; a.REJ+=m.REJ; a.NAP+=m.NAP; a.ov1+=m.ov1; a.ov2+=m.ov2; a.ov3+=m.ov3; return a; }, {Planned:0,Submitted:0,PlanMo:0,FcastMo:0,ActualMo:0,Approved:0,AWC:0,REJ:0,NAP:0,ov1:0,ov2:0,ov3:0});
+  const tfoot = `<tfoot><tr><td>TOTAL</td><td>${tot.Planned}</td><td>${subFmt(tot.Submitted)}</td>`
+    + `<td${tint}>${tot.PlanMo}</td><td${tint}>${tot.FcastMo}</td><td${tint}>${tot.ActualMo}</td>`
+    + `<td>${tot.Approved}</td><td>${tot.AWC}</td><td>${tot.REJ}</td><td>${tot.NAP}</td>`
+    + `<td>${tot.ov1}</td><td>${tot.ov2}</td><td>${tot.ov3}</td><td></td></tr></tfoot>`;
+  panel.innerHTML = `<div class="panel-head"><h2>Per-Discipline Summary Matrix</h2><div class="head-actions"></div></div><div class="panel-body"><div class="tbl-scroll"><table class="matrix">${head}<tbody>${rows}</tbody>${tfoot}</table></div></div>`;
+  const subRowsHTML = m => (m?m.stages:[]).map(s=>`<tr class="sub"><td class="subname">${esc(s.stage)}</td><td>${s.Planned}</td><td>${s.Submitted}</td><td${tint}>${s.PlanMo}</td><td${tint}>${s.FcastMo}</td><td${tint}>${s.ActualMo}</td><td>${s.Approved}</td><td>${s.AWC}</td><td>${s.REJ}</td><td>${s.NAP}</td><td>${s.ov1}</td><td>${s.ov2}</td><td>${s.ov3}</td><td></td></tr>`).join('');
+  const collapseAll = () => { panel.querySelectorAll('tr.sub').forEach(r=>r.remove());
+    panel.querySelectorAll('.expand').forEach(e=>{ e.classList.remove('open'); e.textContent='▸ stages'; }); };
+  const openOne = td => { const m=matrix.find(x=>x.discipline===td.dataset.d); td.parentElement.insertAdjacentHTML('afterend', subRowsHTML(m)); td.classList.add('open'); td.textContent='▾ stages'; };
+  panel.querySelectorAll('.expand').forEach(td=>td.onclick=()=>{
+    const wasOpen = td.classList.contains('open');
+    collapseAll();
+    if(!wasOpen) openOne(td);
+  });
+  const toolbar = document.createElement('div'); toolbar.className='toolbar';
+  toolbar.innerHTML = `<button class="ea btn btn-secondary" title="Expand every discipline">▾ Expand all</button><button class="ca btn btn-secondary" title="Collapse all disciplines">▸ Collapse all</button><button class="dl btn btn-secondary" title="Export fully-expanded report as PNG">⤓ PNG (full)</button><button class="cp btn btn-secondary" title="Copy fully-expanded report image">⧉ Copy</button><button class="csv btn btn-secondary" title="Download discipline summary matrix (disciplines + stages) as CSV">⤓ CSV</button><span class="msg"></span>`;
+  const headActions = panel.querySelector('.head-actions');
+  const msel=document.createElement('label'); msel.className='lbl month-sel';
+  msel.innerHTML='<span>Month:</span>';
+  const sel=document.createElement('select'); sel.className='month-select';
+  (months||[]).forEach(o=>{ const op=document.createElement('option'); op.value=o.value; op.textContent=o.label; if(o.value===curMonth) op.selected=true; sel.appendChild(op); });
+  sel.title='Choose the month for the Plan / Forecast / Actual columns';
+  msel.appendChild(sel);
+  headActions.insertBefore(msel, headActions.firstChild);
+  sel.onchange=()=>{ matrixMonthSel=sel.value; renderAll(WRAP); };
+  headActions.appendChild(toolbar);
+  const cb=document.createElement('button'); cb.className='collapse btn btn-mini'; cb.textContent='▾'; cb.title='Collapse panel'; headActions.appendChild(cb);
+  wireCollapse(panel);
+  toolbar.querySelector('.ea').onclick = ()=>{ collapseAll(); panel.querySelectorAll('.expand').forEach(openOne); };
+  toolbar.querySelector('.ca').onclick = ()=> collapseAll();
+  attachExport(toolbar, ()=> matrixSVG(matrix), 'MDL_Discipline_Matrix');
+  toolbar.querySelector('.csv').onclick = ()=>{ downloadCSV('MDL_Discipline_Matrix_'+(curMonth||'all')+'.csv', matrixCSV(matrix, curMonth)); const msg=toolbar.querySelector('.msg'); if(msg) msg.textContent='CSV downloaded'; setTimeout(()=>{ if(msg&&msg.textContent==='CSV downloaded') msg.textContent=''; }, 2500); };
+}
+
+function renderInteractive(host, charts, groupKey){
+  host.innerHTML='';
+  const BREAKDOWNS=[
+    {group:'Documents', items:[
+      {label:'Discipline', key:'docsByDiscipline', mode:'cycle'},
+      {label:'Approval Status', key:'approvalStatus', mode:'status'},
+      {label:'As-Built Status', key:'asBuilt', mode:'status'},
+      {label:'Authority', key:'byAuthority', mode:'cycle'},
+      {label:'Doc Type / Stage', key:'byDocType', mode:'cycle'},
+      {label:'Schedule Variance', key:'scheduleVariance', mode:'status'}]},
+    {group:'Issues', items:[
+      {label:'DQ by Rule', key:'dqByRule', mode:'cycle'},
+      {label:'DQ by Discipline', key:'dqByDiscipline', mode:'cycle'}]}];
+  const groups = groupKey==='iss' ? BREAKDOWNS.filter(g=>g.group==='Issues') : BREAKDOWNS.filter(g=>g.group==='Documents');
+  const view = chartView[groupKey];
+  const findItem = key => { for(const g of groups) for(const it of g.items) if(it.key===key) return it; return null; };
+  if(!findItem(view.base)) view.base = groups[0].items[0].key;
+
+  const card=document.createElement('div'); card.className='chart';
+  const h=document.createElement('h3');
+  const sel=document.createElement('select'); sel.className='base sel';
+  groups.forEach(g=>{ const og=document.createElement('optgroup'); og.label=g.group;
+    g.items.forEach(it=>{ const o=document.createElement('option'); o.value=it.key; o.textContent=it.label; if(it.key===view.base) o.selected=true; og.appendChild(o); });
+    sel.appendChild(og); });
+  const toolbar=document.createElement('div'); toolbar.className='toolbar';
+  toolbar.innerHTML=`<button class="bar btn btn-active">Bar</button><button class="pie btn btn-secondary">Pie</button><button class="dl btn btn-secondary">⤓ PNG</button><button class="cp btn btn-secondary">⧉ Copy</button><span class="msg"></span>`;
+  const chartHost=document.createElement('div');
+  const draw=()=>{
+    const it=findItem(view.base); const data=charts[it.key]||[];
+    const colored=data.map((d,i)=>({...d, color: it.mode==='status'? statusColor(d.name) : (d.color||PALETTE[i%PALETTE.length])}));
+    const tooMany=data.length>12; const type=(tooMany&&view.type==='pie')?'bar':view.type;
+    h.textContent=it.label+(tooMany&&view.type==='pie'?' — pie hidden (too many categories)':'');
+    chartHost.innerHTML=type==='pie'? pieSVG(it.label, colored) : barSVG(it.label, colored);
+    toolbar.querySelector('.bar').classList.toggle('btn-active', type==='bar');
+    toolbar.querySelector('.pie').classList.toggle('btn-active', type==='pie');
+  };
+  sel.onchange=()=>{ view.base=sel.value; draw(); };
+  toolbar.querySelector('.bar').onclick=()=>{ view.type='bar'; draw(); };
+  toolbar.querySelector('.pie').onclick=()=>{ view.type='pie'; draw(); };
+  attachExport(toolbar, ()=>chartHost.innerHTML, ()=>findItem(view.base).label);
+  const head=document.createElement('div'); head.className='head-actions'; head.appendChild(sel); head.appendChild(toolbar);
+  card.appendChild(h); card.appendChild(head); card.appendChild(chartHost);
+  host.appendChild(card);
+  draw();
+}
+
+function renderCharts(grid, charts){
+  grid.innerHTML='';
+  const docCard=document.createElement('div'); docCard.className='chart';
+  renderInteractive(docCard, charts, 'doc');
+  const issCard=document.createElement('div'); issCard.className='chart';
+  renderInteractive(issCard, charts, 'iss');
+  grid.appendChild(docCard); grid.appendChild(issCard);
+}
+
+function renderCurvePanel(body, progress){
+  body.innerHTML='';
+  const n=progress.months.length;
+  if(!scurveWin) scurveWin={from:0,to:n-1};
+  if(scurveWin.to>n-1) scurveWin.to=n-1;
+  if(scurveWin.from>n-1) scurveWin.from=n-1;
+  if(scurveWin.from>scurveWin.to){ const t=scurveWin.from; scurveWin.from=scurveWin.to; scurveWin.to=t; }
+  // Period-window controls live inline in the panel header (common .panel-head rule); the collapse
+  // button is added by ensureCollapse into the same head-actions, so remove any prior copy first.
+  const actions=document.getElementById('curveActions');
+  const win=document.createElement('div'); win.className='toolbar sc-win';
+  win.innerHTML=`<span class="lbl">Period window</span><label class="rng">From <input type="range" class="wf" min="0" max="${n-1}" value="${scurveWin.from}"></label><label class="rng">To <input type="range" class="wt" min="0" max="${n-1}" value="${scurveWin.to}"></label><button class="reset btn btn-secondary">Reset</button><span class="msg"></span>`;
+  if(actions){ actions.querySelectorAll('.sc-win').forEach(e=>e.remove()); actions.appendChild(win); }
+  const draw=()=>{ const a=scurveWin.from, b=scurveWin.to;
+    sc.host.innerHTML=lineSVG(progress,a,b); mb.host.innerHTML=barProgressSVG(progress,a,b);
+    const msg=win.querySelector('.msg'); if(msg) msg.textContent=`${progress.months[a]} → ${progress.months[b]}  (${b-a+1}/${n} months)`; };
+  win.querySelector('.wf').oninput=e=>{ scurveWin.from=+e.target.value; draw(); };
+  win.querySelector('.wt').oninput=e=>{ scurveWin.to=+e.target.value; draw(); };
+  win.querySelector('.reset').onclick=()=>{ scurveWin={from:0,to:n-1}; win.querySelector('.wf').value=0; win.querySelector('.wt').value=n-1; draw(); };
+  const grid=document.createElement('div'); grid.className='curve-grid';
+  const leg=`<div class="legend"><span><i class="sw" style="background:${COLORS.blue}"></i>Planned</span><span><i class="sw" style="background:${COLORS.amber}"></i>Forecast</span><span><i class="sw" style="background:${COLORS.green}"></i>Actual</span></div>`;
+  const mkCard=(title,hostCls)=>{ const c=document.createElement('div'); c.className='chart';
+    const head=document.createElement('div'); head.className='panel-head';
+    const t=document.createElement('h3'); t.textContent=title; head.appendChild(t);
+    const tb=document.createElement('div'); tb.className='toolbar head-actions'; tb.innerHTML=`<button class="dl btn btn-secondary">⤓ PNG</button><button class="cp btn btn-secondary">⧉ Copy</button><span class="msg"></span>`; head.appendChild(tb);
+    const host=document.createElement('div'); host.className=hostCls;
+    c.appendChild(head); c.appendChild(host); c.insertAdjacentHTML('beforeend', leg);
+    grid.appendChild(c); return {host, tb}; };
+  const sc=mkCard('Cumulative Issue Progress (S-Curve)','sc-host');
+  const mb=mkCard('Monthly Plan / Forecast / Actual','mb-host');
+  body.appendChild(grid);
+  if(progress.projStartLabel) body.insertAdjacentHTML('afterbegin', `<div class="curve-note">Project start: <b>${esc(progress.projStartLabel)}</b> — marked by the red dashed vertical line on the charts.</div>`);
+  attachExport(sc.tb, ()=>sc.host.innerHTML, 'MDL_SCurve');
+  attachExport(mb.tb, ()=>mb.host.innerHTML, 'MDL_MonthlyBar');
+  draw();
+}
+const OVERDUE_COLS=[
+  {h:'Prolog Number', f:'Prolog Number'},
+  {h:'Document No.', f:'Document No.'},
+  {h:'Number', f:'Number'},
+  {h:'Document Title', f:'Document Title'},
+  {h:'UESH Discipline', f:'UESH Discipline'},
+  {h:'Overdue Type', f:null},
+  {h:'Planned 1st Issue Date', f:'Planned 1st Issue Date'},
+  {h:'Forecast 1st Issue Date', f:'Forecast 1st Issue Date'},
+  {h:'Actual 1st Issue Date', f:'Actual 1st Issue Date'},
+  {h:'Latest Approval Date', f:'Latest Approval Date'},
+  {h:'Latest Approval Status', f:'Latest Approval Status'},
+  {h:'Submission Status', f:'Submission Status'},
+  {h:'Delay (days)', f:null}
+];
+const OVERDUE_TYPES=[
+  {key:'first', label:'1st-submission'},
+  {key:'sub', label:'Resubmission'},
+  {key:'cli', label:'Client-review'}
+];
+function renderOverdue(panel, o){
+  const rows=[];
+  OVERDUE_TYPES.forEach(t=> (o[t.key]||[]).forEach(r=> rows.push({r, type:t.label})));
+  rows.sort((a,b)=>{
+    const da=a.r.fields['UESH Discipline']||'', db=b.r.fields['UESH Discipline']||'';
+    if(da<db)return -1; if(da>db)return 1;
+    if(a.type<b.type)return -1; if(a.type>b.type)return 1;
+    const na=a.r.docNo||'', nb=b.r.docNo||''; return na<nb?-1:na>nb?1:0;
+  });
+  const colVal=(c,x)=>{
+    if(c.f===null){ if(c.h==='Overdue Type') return x.type; if(c.h==='Delay (days)') return (x.r.delay==null?'':x.r.delay); }
+    return x.r.fields[c.f]||'';
+  };
+  const head=`<thead><tr>${OVERDUE_COLS.map(c=>`<th>${esc(c.h)}</th>`).join('')}</tr></thead>`;
+  const cells=x=>OVERDUE_COLS.map(c=>`<td>${esc(colVal(c,x))}</td>`).join('');
+  const tbody=tf=>{ const rs=rows.filter(x=>!tf||x.type===tf);
+    return rs.length?rs.map(x=>`<tr>${cells(x)}</tr>`).join(''):`<tr><td colspan="${OVERDUE_COLS.length}" style="color:#999">No overdue documents</td></tr>`; };
+  panel.innerHTML=`<div class="panel-head">
+      <h2>Overdue List</h2>
+      <div class="head-actions">
+        <label class="lbl">Overdue Type:
+          <select class="base" id="ovType">
+            <option value="">All</option>
+            ${OVERDUE_TYPES.map(t=>`<option value="${t.label}">${t.label}</option>`).join('')}
+          </select>
+        </label>
+        <button class="csv btn btn-secondary" id="ovCsv" title="Download consolidated overdue list as CSV">⤓ CSV</button>
+      </div>
+    </div>
+    <div class="ovt"><table>${head}<tbody id="ovBody">${tbody('')}</tbody></table></div>`;
+  const sel=panel.querySelector('#ovType');
+  sel.onchange=()=>{ panel.querySelector('#ovBody').innerHTML=tbody(sel.value); };
+  panel.querySelector('#ovCsv').onclick=()=>{
+    const tf=sel.value; const rs=rows.filter(x=>!tf||x.type===tf);
+    const header=OVERDUE_COLS.map(c=>c.h);
+    const lines=[header.join(',')].concat(rs.map(x=>OVERDUE_COLS.map(c=>colVal(c,x)).map(csvCell).join(',')));
+    downloadCSV('MDL_Overdue.csv', lines.join('\n'));
+  };
+}
+function renderValidation(panel, issues, model){
+  const grouped={}; issues.forEach(i=>{ const g=grouped[i.code]||(grouped[i.code]={code:i.code,severity:i.severity,message:i.message,count:0,samples:[]}); g.count++; if(g.samples.length<5)g.samples.push(i); });
+  const rows=Object.values(grouped).sort((a,b)=>b.count-a.count);
+  panel.innerHTML=`<div class="panel-head"><h2>Validation Issues</h2>
+      <div class="head-actions"><button id="vCsv" class="csv btn btn-secondary" title="Download validation issue list as CSV">⤓ CSV</button></div></div>
+    <div class="detail-scroll"><table><thead><tr><th>Error Code</th><th>Severity</th><th>Count</th><th>Rule (source: Code!AK)</th></tr></thead><tbody>
+    ${rows.map(g=>`<tr><td>${esc(g.code)}</td><td class="sev-${g.severity==='Error'?'err':(g.severity==='Warning'?'warn':'info')}">${esc(g.severity)}</td><td>${g.count}</td><td>${esc(g.message)}</td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="note">${issues.length} issues across ${rows.length} rules. All wording &amp; severity sourced from the Code sheet Error block (Code!AI:AL) — none hard-coded.</div>`;
+  panel.querySelector('#vCsv').onclick=()=>downloadCSV('MDL_issue_list.csv', issuesCSV(model, issues));
+}
+function renderDetail(panel, recs, model, state, rerender){
+  const cols = model.contract.fieldOrder;
+  const sr = state.sort;
+  let rows = recs.slice();
+  if(sr.col){ const idx=cols.indexOf(sr.col); rows.sort((a,b)=> (a.fields[sr.col]||'')<(b.fields[sr.col]||'')?-sr.dir:(a.fields[sr.col]||'')>(b.fields[sr.col]||'')?sr.dir:0); }
+  panel.innerHTML=`<div class="panel-head"><h2>Document Detail Table</h2>
+      <div class="head-actions"><button id="dCsv" class="csv btn btn-secondary" title="Download document list as CSV">⤓ CSV</button></div></div>
+    <div class="detail-scroll"><table><thead><tr><th>Source Tab</th><th>Active</th>${cols.map(c=>`<th data-col="${esc(c)}">${esc(c)}</th>`).join('')}</tr></thead><tbody>
+    ${rows.map(r=>`<tr><td>${esc(r.sourceTab)}</td><td class="${r.isActive?'act':'ina'}">${r.isActive?'Y':'N'}</td>${cols.map(c=>{const val=r.fields[c]; const cls=statusPill(c,val); return `<td class="${cls}">${esc(val)}</td>`;}).join('')}</tr>`).join('')}
+    </tbody></table></div>`;
+  panel.querySelectorAll('th[data-col]').forEach(th=>th.onclick=()=>{ const col=th.dataset.col; if(state.sort.col===col)state.sort.dir*=-1; else state.sort={col,dir:1}; rerender(); });
+  panel.querySelector('#dCsv').onclick=()=>downloadCSV('MDL_document_list.csv', docsCSV(model, recs));
+}
+function statusPill(field, val){
+  if(field==='Latest Approval Status'){ return ({APP:'p-app',AWC:'p-awc',REJ:'p-rej',NAP:'p-nap'})[val]||''; }
+  if(field==='Submission Status'){ return ({SUR:'p-sur',RTR:'p-rtr',NTS:'p-nts'})[val]||''; }
+  return '';
+}
+
+// ---------- CSV ----------
+function csvCell(v){ const s=v==null?'':String(v); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
+function issuesCSV(model, issues){ const head=['Error Code','Severity','Message','Doc No','Discipline','Source Tab','Row'];
+  const lines=[head.join(',')]; issues.forEach(i=>lines.push([i.code,i.severity,i.message,i.docNo,i.discipline,i.sourceTab,i.rownum].map(csvCell).join(','))); return lines.join('\n'); }
+function docsCSV(model, recs){ const cols=model.contract.fieldOrder; const head=['Source Tab','Active',...cols];
+  const lines=[head.join(',')]; recs.forEach(r=>lines.push([r.sourceTab,r.isActive?1:0,...cols.map(c=>r.fields[c])].map(csvCell).join(','))); return lines.join('\n'); }
+function downloadCSV(name, text){ const b=new Blob(['\uFEFF'+text],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
+
+// ---------- boot / welcome ----------
+function boot(root){
+  root.innerHTML = `<style>${CSS}</style>
+  <header class="app"><div class="brand"><img class="logo" src="${LOGO_DATA}" alt="logo"><h1>TWRP C3B2 — Master Document List Dashboard</h1></div><div class="meta">Welcome</div></header>
+  <div class="wrap"><div class="welcome"><div class="drop">
+    <img class="wlogo" src="${LOGO_DATA}" alt="logo">
+    <h2>Master Document List Dashboard</h2>
+    <p>Select the <b>TWRP C3B2 - Master Document List.xlsx</b> workbook to build the dashboard entirely in your browser. No data leaves this machine.</p>
+    <label class="filebtn">Choose workbook<input type="file" id="file" accept=".xlsx,.xlsm" style="display:none"></label>
+    <div id="err" class="err"></div>
+    <p>Offline · zero-dependency · contract-driven (reads Code sheet at runtime)</p>
+  </div></div></div>`;
+  const input = root.querySelector('#file');
+  input.onchange = async e => {
+    const f = e.target.files[0]; if(!f) return;
+    try{
+      const buf = await f.arrayBuffer();
+      const wb = await readXlsx(buf);
+      const model = buildModel(wb, { workbookName: f.name });
+      renderDashboard(root, model);
+    }catch(err){ root.querySelector('#err').textContent = 'Failed to parse workbook: ' + err.message; console.error(err); }
+  };
+}
+
+
+boot(document.getElementById("app"));
+
+</script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Matrix Sample Page — Proposed P1+P2+P3</title>
+<style>
+  :root{ --navy:#1f3a5f; --navy2:#2c5282; --bg:#eef2f7; --border:#d8e0ea; --muted:#6b7785; --amber:#FFF9C4; --amberb:#e8c97a; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#22303f;background:#e9eef4}
+  .titlebar{background:var(--navy);color:#fff;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+  .titlebar .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:30px;height:30px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--navy);font-weight:700}
+  .titlebar h1{font-size:16px;margin:0}
+  .titlebar .meta{font-size:12px;opacity:.9}
+  .titlebar button{margin-left:8px}
+  .wrap{padding:16px 16px 70px}
+  .panel{background:#fff;border:1px solid var(--border);border-radius:10px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border)}
+  .panel-head h2{margin:0;font-size:15px;color:var(--navy)}
+  .head-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .head-actions .lbl{display:inline-flex;align-items:center;gap:6px;margin:0;font-weight:600;font-size:12px;color:var(--navy)}
+  .btn{background:#fff;border:1px solid var(--border);color:#22303f;border-radius:7px;height:32px;padding:0 12px;font-size:12px;cursor:pointer}
+  .btn-secondary{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .btn-mini{height:26px;padding:0 9px;font-weight:700}
+  .panel-body{padding:12px 14px}
+  .tbl-scroll{overflow-x:auto}
+  table.matrix{border-collapse:collapse;font-size:12px;width:100%;background:#fff}
+  th,td{border:1px solid var(--border);padding:4px 8px;text-align:center;white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  thead tr.group th{background:var(--navy2);color:#fff;font-weight:700;text-align:center}
+  thead tr.group th.tint{background:var(--amber);color:#7a5b12}
+  thead tr.detail th{background:var(--bg);color:var(--navy);font-weight:600}
+  thead tr.detail th.tint{background:var(--amber);color:#7a5b12}
+  tbody tr:nth-child(even){background:#fafcff}
+  tbody tr.sub{background:#f2f6fb}
+  tbody tr.sub td.subname{text-align:left;padding-left:22px;color:var(--muted);font-style:italic}
+  td.dis{text-align:left;color:var(--navy);font-weight:600}
+  .col-tint{background:var(--amber)}
+  tfoot td{background:var(--bg);font-weight:700;border-top:2px solid var(--navy)}
+  .c-app{color:#1e7a46}.c-awc{color:#2c6fb0}.c-rej{color:#c0392b}.c-nap{color:#b9770e}.c-ov{color:#c0392b}
+  .legend{margin-top:10px;font-size:12px;color:#22303f}
+  .swatch{display:inline-block;width:14px;height:14px;background:var(--amber);border:1px solid var(--amberb);vertical-align:middle;margin-right:6px}
+  .note{color:var(--muted);font-size:12px;margin:2px 0 10px}
+  .panel.collapsed .panel-body{display:none}
+  .status-bar{position:fixed;left:0;right:0;bottom:0;background:var(--navy);color:#fff;font-size:12px;display:flex;gap:0;align-items:stretch;flex-wrap:nowrap;overflow:hidden}
+  .status-bar .sb-panel{border-right:1px solid rgba(255,255,255,.18);padding:8px 12px;display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .status-bar b{font-weight:700}
+  .sb-dot{width:8px;height:8px;border-radius:50%;background:#39d98a;display:inline-block}
+  .sb-bar{display:inline-block;width:60px;height:8px;background:rgba(255,255,255,.2);border-radius:4px;overflow:hidden;vertical-align:middle}
+  .sb-bar i{display:block;height:100%;background:#39d98a}
+</style>
+</head>
+<body>
+  <div class="titlebar">
+    <div class="brand"><div class="logo">T</div><h1>TWRP C3B2 — Master Document List Dashboard</h1></div>
+    <div class="meta">sample_workbook.xlsm · as of 2026-10-01
+      <button class="btn btn-secondary">Load workbook</button>
+      <button class="btn btn-secondary">Print / Save PDF</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="panel" id="matrixPanel">
+      <div class="panel-head">
+        <h2>Per-Discipline Summary Matrix</h2>
+        <div class="head-actions">
+          <label class="lbl">Month:
+            <select>
+              <option>Jan 2026</option><option>Feb 2026</option><option>Mar 2026</option>
+              <option>Apr 2026</option><option>May 2026</option><option>Jun 2026</option>
+              <option>Jul 2026</option><option>Aug 2026</option><option>Sep 2026</option>
+              <option selected>Oct 2026 (as-of)</option>
+            </select>
+          </label>
+          <button class="btn btn-secondary">▾ Expand all</button>
+          <button class="btn btn-secondary">▸ Collapse all</button>
+          <button class="btn btn-secondary">⤓ PNG (full)</button>
+          <button class="btn btn-secondary">⧉ Copy</button>
+          <button class="btn btn-mini" title="Panel help">?</button>
+          <button class="btn btn-mini" title="Collapse panel">▾</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="note">Shaded columns = the selected month (Oct 2026). ¹ Submitted % = Total Submitted ÷ Total Planned (all disciplines) × 100.</div>
+        <div class="tbl-scroll">
+          <table class="matrix">
+            <thead>
+              <tr class="group">
+                <th rowspan="2">Discipline</th>
+                <th colspan="2">Total Submission</th>
+                <th colspan="3" class="tint">Submission — Oct 2026 (selected month)</th>
+                <th colspan="4">Approval</th>
+                <th colspan="3">Overdue</th>
+                <th rowspan="2"></th>
+              </tr>
+              <tr class="detail">
+                <th>Total Planned</th><th>Total Submitted</th>
+                <th class="tint">Plan</th><th class="tint">Forecast</th><th class="tint">Actual</th>
+                <th>APP</th><th>AWC</th><th>REJ</th><th>NAP</th>
+                <th>1st</th><th>Resub</th><th>Client</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="dis">Mechanical</td><td>120</td><td>95 (31%)</td><td>31%</td>
+                <td class="col-tint">12</td><td class="col-tint">10</td><td class="col-tint">11</td>
+                <td class="c-app">70</td><td class="c-awc">10</td><td class="c-rej">5</td><td class="c-nap">10</td>
+                <td class="c-ov">3</td><td class="c-ov">1</td><td class="c-ov">2</td>
+                <td class="expand" data-d="Mechanical" style="cursor:pointer;color:#2c6fb0">▸ stages</td>
+              </tr>
+              <tr class="sub" data-disc="Mechanical"><td class="subname">Stage A</td><td>50</td><td>40</td><td>13%</td><td class="col-tint">5</td><td class="col-tint">4</td><td class="col-tint">5</td><td class="c-app">30</td><td class="c-awc">4</td><td class="c-rej">2</td><td class="c-nap">4</td><td class="c-ov">1</td><td class="c-ov">0</td><td class="c-ov">1</td><td></td></tr>
+              <tr class="sub" data-disc="Mechanical"><td class="subname">Stage B</td><td>70</td><td>55</td><td>18%</td><td class="col-tint">7</td><td class="col-tint">6</td><td class="col-tint">6</td><td class="c-app">40</td><td class="c-awc">6</td><td class="c-rej">3</td><td class="c-nap">6</td><td class="c-ov">2</td><td class="c-ov">1</td><td class="c-ov">1</td><td></td></tr>
+              <tr>
+                <td class="dis">Electrical</td><td>80</td><td>60 (19%)</td><td>19%</td>
+                <td class="col-tint">8</td><td class="col-tint">7</td><td class="col-tint">6</td>
+                <td class="c-app">45</td><td class="c-awc">8</td><td class="c-rej">2</td><td class="c-nap">5</td>
+                <td class="c-ov">2</td><td>0</td><td class="c-ov">1</td><td>—</td>
+              </tr>
+              <tr>
+                <td class="dis">Civil</td><td>60</td><td>40 (13%)</td><td>13%</td>
+                <td class="col-tint">5</td><td class="col-tint">4</td><td class="col-tint">4</td>
+                <td class="c-app">30</td><td class="c-awc">5</td><td class="c-rej">1</td><td class="c-nap">4</td>
+                <td class="c-ov">1</td><td class="c-ov">1</td><td>0</td><td>—</td>
+              </tr>
+              <tr>
+                <td class="dis">Structural</td><td>50</td><td>30 (10%)</td><td>10%</td>
+                <td class="col-tint">4</td><td class="col-tint">3</td><td class="col-tint">3</td>
+                <td class="c-app">20</td><td class="c-awc">4</td><td>0</td><td class="c-nap">6</td>
+                <td>0</td><td>0</td><td>0</td><td>—</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td class="dis">TOTAL</td><td>310</td><td>225 (73%)</td><td>73%</td>
+                <td class="col-tint">29</td><td class="col-tint">24</td><td class="col-tint">24</td>
+                <td class="c-app">165</td><td class="c-awc">27</td><td class="c-rej">8</td><td class="c-nap">25</td>
+                <td class="c-ov">6</td><td class="c-ov">2</td><td class="c-ov">3</td><td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <div class="legend">
+          <span class="swatch"></span>Selected-month columns (Plan / Forecast / Actual) change with the Month selector.
+          &nbsp; Colour cues: APP green, AWC blue, REJ red, NAP amber, any Overdue &gt; 0 red.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <span class="sb-panel"><span class="sb-dot"></span><b>File:</b> sample_workbook.xlsm</span>
+    <span class="sb-panel"><b>Planned:</b> 310</span>
+    <span class="sb-panel"><b>Submitted:</b> 225</span>
+    <span class="sb-panel"><b>1st-sub:</b> 73% <span class="sb-bar"><i style="width:73%"></i></span></span>
+    <span class="sb-panel"><b>Valid:</b> 310/312</span>
+    <span class="sb-panel"><b>Overdue:</b> 6</span>
+    <span class="sb-panel"><b>Completeness:</b> 88%</span>
+    <span class="sb-panel"><b>Disciplines:</b> 4</span>
+    <span class="sb-panel"><b>As-of:</b> 2026-10-01</span>
+    <span class="sb-panel"><b>Filter:</b> All documents (no filter applied)</span>
+  </div>
+
+  <script>
+    // collapse panel
+    document.querySelector('#matrixPanel .head-actions .btn-mini[title="Collapse panel"]')
+      .addEventListener('click', e=>{ const p=document.getElementById('matrixPanel'); const on=p.classList.toggle('collapsed'); e.target.textContent=on?'▸':'▾'; });
+    // expand / collapse stage rows
+    const subRows = ()=>[...document.querySelectorAll('tr.sub')];
+    document.querySelector('.btn-secondary[title^="Expand all"]')?.addEventListener('click',()=>subRows().forEach(r=>r.style.display=''));
+    const collapseAllBtn = [...document.querySelectorAll('.btn-secondary')].find(b=>b.textContent.includes('Collapse all'));
+    collapseAllBtn?.addEventListener('click',()=>subRows().forEach(r=>r.style.display='none'));
+    document.querySelectorAll('td.expand').forEach(td=>td.addEventListener('click',()=>{
+      const open=td.classList.toggle('open'); td.textContent=open?'▾ stages':'▸ stages';
+      subRows().forEach(r=>{ if(r.dataset.disc===td.dataset.d) r.style.display=open?'':'none'; });
+    }));
+  </script>
+</body>
+</html>

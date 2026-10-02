@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sample — Issue-Progress S-Curve & Monthly Bar (review)</title>
+<style>
+  :root{ --navy:#1f3a5f; --blue:#2f6fb0; --green:#2e8b57; --amber:#e0a106; --red:#d1495b; --border:#d8e0ea; --bg:#eef2f7; --muted:#6b7785; --surface:#fff; }
+  *{box-sizing:border-box}
+  body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f4f7fb;color:var(--navy)}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px}
+  h1{font-size:18px;margin:0 0 4px}
+  .note{font-size:12px;color:var(--muted);margin:0 0 14px}
+  .controls{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px}
+  .ctl{display:flex;flex-direction:column;gap:4px}
+  .ctl label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+  select,input[type=range]{font-size:13px}
+  select{padding:5px 8px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--navy)}
+  .win{display:flex;gap:14px;align-items:center}
+  .win .ctl{min-width:200px}
+  .winout{font-size:12px;color:var(--navy);font-weight:600;margin-top:2px}
+  .btn{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:6px 12px;cursor:pointer;font-size:12px;color:var(--navy)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:920px){.grid{grid-template-columns:1fr}}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px}
+  .panel h2{font-size:14px;margin:0 0 8px;display:flex;justify-content:space-between;align-items:center}
+  .tag{font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:2px 9px;color:var(--muted)}
+  .legend{display:flex;gap:14px;font-size:12px;margin-top:6px;flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+  svg{width:100%;height:auto;display:block}
+  .axis{stroke:var(--border);stroke-width:1}
+  .gridln{stroke:#eef2f7;stroke-width:1}
+  .tick{font-size:10px;fill:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Issue-Progress S-Curve &amp; Monthly Bar — <span style="color:var(--red)">SAMPLE / PROTOTYPE</span></h1>
+  <p class="note">Mock data only. Demonstrates: (1) timeline = project start → max date + 1 month buffer; forecast falls back to plan when missing; (2) three cumulative curves; (3) counts react to a global filter; (4) period-window slider to zoom a long timeline. Two separate panels. Not yet wired to the real workbook.</p>
+
+  <div class="controls">
+    <div class="ctl">
+      <label>Global filter (sample) — Discipline</label>
+      <select id="fDisc"><option value="">All disciplines</option></select>
+    </div>
+    <div class="win">
+      <div class="ctl">
+        <label>Period window — From month</label>
+        <input type="range" id="winFrom" min="0" max="0" value="0">
+      </div>
+      <div class="ctl">
+        <label>Period window — To month</label>
+        <input type="range" id="winTo" min="0" max="0" value="0">
+      </div>
+    </div>
+    <div class="ctl">
+      <label>&nbsp;</label>
+      <button class="btn" id="winReset">Reset window (full)</button>
+    </div>
+    <div class="winout" id="winOut"></div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>Cumulative Issue Progress (S-Curve) <span class="tag">Panel A</span></h2>
+      <div id="scurve"></div>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--blue)"></i>Planned (cumulative)</span>
+        <span><i class="sw" style="background:var(--amber)"></i>Forecast (cumulative)</span>
+        <span><i class="sw" style="background:var(--green)"></i>Actual (cumulative)</span>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Monthly Plan / Forecast / Actual <span class="tag">Panel B</span></h2>
+      <div id="mbar"></div>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--blue)"></i>Planned</span>
+        <span><i class="sw" style="background:var(--amber)"></i>Forecast</span>
+        <span><i class="sw" style="background:var(--green)"></i>Actual</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---------- mock data ----------
+const PROJECT_START = '2025-04-01';
+const DISC = ['ARCH','CIVL','STRU','MEPF','ELCV','PROC'];
+const rnd = (a,b)=>a+Math.floor(Math.random()*(b-a+1));
+function addMonths(s,n){ const d=new Date(s+'T00:00:00'); d.setMonth(d.getMonth()+n); return d; }
+function fmt(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function ym(s){ return s.slice(0,7); }
+function parseD(s){ if(!s) return null; const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+
+const docs=[];
+let id=1;
+for(let i=0;i<460;i++){
+  const disc=DISC[i%DISC.length];
+  const pm=rnd(0,18);                                   // planned month offset
+  const planned=addMonths(PROJECT_START, pm);
+  planned.setDate(rnd(1,28));
+  const plannedS=fmt(planned);
+  // forecast: 15% missing -> fallback to plan; else +/- a couple months
+  let forecastS='';
+  if(Math.random()>0.15){ const f=addMonths(plannedS, rnd(-1,2)); f.setDate(rnd(1,28)); forecastS=fmt(f); }
+  // actual: ~62% issued, near forecast/plan
+  let actualS='';
+  if(Math.random()<0.62){ const a=addMonths(forecastS||plannedS, rnd(-1,1)); a.setDate(rnd(1,28)); actualS=fmt(a); }
+  docs.push({id:id++,discipline:disc,planned:plannedS,forecast:forecastS,actual:actualS});
+}
+
+// ---------- timeline ----------
+const months=[];
+let maxDT=parseD(PROJECT_START);
+docs.forEach(d=>[d.planned,d.forecast,d.actual].forEach(x=>{ const dt=parseD(x); if(dt&&dt>maxDT) maxDT=dt; }));
+maxDT=addMonths(fmt(maxDT),1);                            // +1 month buffer
+{ let cur=new Date(PROJECT_START+'T00:00:00'); cur=new Date(cur.getFullYear(),cur.getMonth(),1);
+  while(cur<=maxDT){ months.push(ym(fmt(cur))); cur.setMonth(cur.getMonth()+1); } }
+
+// ---------- compute (respects filter) ----------
+function effForecast(d){ return d.forecast || d.planned; }   // fallback
+function compute(filterDisc){
+  const set = filterDisc ? docs.filter(d=>d.discipline===filterDisc) : docs;
+  const n=months.length;
+  const pCum=new Array(n).fill(0), fCum=new Array(n).fill(0), aCum=new Array(n).fill(0);
+  const pNew=new Array(n).fill(0), fNew=new Array(n).fill(0), aNew=new Array(n).fill(0);
+  set.forEach(d=>{
+    const pi=months.indexOf(ym(d.planned));                if(pi>=0){ pCum[pi]++; pNew[pi]++; }
+    const fi=months.indexOf(ym(effForecast(d)));           if(fi>=0){ fCum[fi]++; fNew[fi]++; }
+    if(d.actual){ const ai=months.indexOf(ym(d.actual));   if(ai>=0){ aCum[ai]++; aNew[ai]++; } }
+  });
+  for(let i=1;i<n;i++){ pCum[i]+=pCum[i-1]; fCum[i]+=fCum[i-1]; aCum[i]+=aCum[i-1]; }  // cumulative
+  return {pCum,fCum,aCum,pNew,fNew,aNew};
+}
+
+// ---------- line (S-curve) ----------
+function lineSVG(data, from, to){
+  const W=560,H=360,L=46,R=14,T=14,B=42; const pw=W-L-R, ph=H-T-B;
+  const idx=[]; for(let i=from;i<=to;i++) idx.push(i);
+  const maxY=Math.max(1,...idx.map(i=>Math.max(data.pCum[i],data.fCum[i],data.aCum[i])));
+  const n=idx.length;
+  const X=i=> n>1 ? L+(idx.indexOf(i)/(n-1))*pw : L+pw/2;
+  const Y=v=> T+ph-(v/maxY)*ph;
+  const series=[['pCum','var(--blue)'],['fCum','var(--amber)'],['aCum','var(--green)']];
+  let g='';
+  // gridlines + y ticks
+  const steps=5;
+  for(let s=0;s<=steps;s++){ const v=Math.round(maxY*s/steps); const y=Y(v);
+    g+=`<line class="gridln" x1="${L}" y1="${y}" x2="${L+pw}" y2="${y}"/>`;
+    g+=`<text class="tick" x="${L-6}" y="${y+3}" text-anchor="end">${v}</text>`; }
+  // x ticks (thin out if crowded)
+  const every=Math.max(1,Math.ceil(n/12));
+  idx.forEach(i=>{ if(i%every===0){ const x=X(i);
+    g+=`<line class="gridln" x1="${x}" y1="${T}" x2="${x}" y2="${T+ph}"/>`;
+    g+=`<text class="tick" x="${x}" y="${T+ph+14}" text-anchor="middle">${months[i].slice(2)}</text>`; } });
+  // axis
+  g+=`<line class="axis" x1="${L}" y1="${T+ph}" x2="${L+pw}" y2="${T+ph}"/>`;
+  g+=`<line class="axis" x1="${L}" y1="${T}" x2="${L}" y2="${T+ph}"/>`;
+  series.forEach(([k,c])=>{ const pts=idx.map(i=>`${X(i)},${Y(data[k][i])}`).join(' ');
+    g+=`<polyline fill="none" stroke="${c}" stroke-width="2" points="${pts}"/>`; });
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${g}</svg>`;
+}
+
+// ---------- grouped bar (monthly) ----------
+function barSVG(data, from, to){
+  const W=560,H=360,L=46,R=14,T=14,B=42; const pw=W-L-R, ph=H-T-B;
+  const idx=[]; for(let i=from;i<=to;i++) idx.push(i);
+  const maxY=Math.max(1,...idx.map(i=>Math.max(data.pNew[i],data.fNew[i],data.aNew[i])));
+  const n=idx.length; const gw=pw/n; const bw=Math.min(10,gw/3.4);
+  const Xc=i=> L+gw*idx.indexOf(i)+gw/2;
+  const Y=v=> T+ph-(v/maxY)*ph;
+  let g='';
+  const steps=5;
+  for(let s=0;s<=steps;s++){ const v=Math.round(maxY*s/steps); const y=Y(v);
+    g+=`<line class="gridln" x1="${L}" y1="${y}" x2="${L+pw}" y2="${y}"/>`;
+    g+=`<text class="tick" x="${L-6}" y="${y+3}" text-anchor="end">${v}</text>`; }
+  const every=Math.max(1,Math.ceil(n/12));
+  idx.forEach(i=>{ const xc=Xc(i);
+    if(i%every===0) g+=`<text class="tick" x="${xc}" y="${T+ph+14}" text-anchor="middle">${months[i].slice(2)}</text>`;
+    const bars=[['pNew','var(--blue)'],['fNew','var(--amber)'],['aNew','var(--green)']];
+    bars.forEach(([k,c],bi)=>{ const v=data[k][i]; const x=xc-bw*1.5+bi*bw; const y=Y(v); const h=T+ph-y;
+      g+=`<rect x="${x}" y="${y}" width="${bw-1.5}" height="${h}" fill="${c}"/>`; });
+  });
+  g+=`<line class="axis" x1="${L}" y1="${T+ph}" x2="${L+pw}" y2="${T+ph}"/>`;
+  g+=`<line class="axis" x1="${L}" y1="${T}" x2="${L}" y2="${T+ph}"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${g}</svg>`;
+}
+
+// ---------- wire ----------
+const fDisc=document.getElementById('fDisc');
+const winFrom=document.getElementById('winFrom'), winTo=document.getElementById('winTo');
+const winOut=document.getElementById('winOut');
+DISC.forEach(d=>{ const o=document.createElement('option'); o.value=d; o.textContent=d; fDisc.appendChild(o); });
+const N=months.length; winFrom.max=N-1; winTo.max=N-1; winTo.value=N-1;
+
+function render(){
+  let a=+winFrom.value, b=+winTo.value; if(a>b){ [a,b]=[b,a]; }
+  const data=compute(fDisc.value);
+  document.getElementById('scurve').innerHTML=lineSVG(data,a,b);
+  document.getElementById('mbar').innerHTML=barSVG(data,a,b);
+  winOut.textContent=`Showing ${months[a]} → ${months[b]}  (${b-a+1} of ${N} months)`+
+    (fDisc.value?`  ·  filter: ${fDisc.value}`:`  ·  filter: All`);
+}
+fDisc.onchange=render; winFrom.oninput=render; winTo.oninput=render;
+document.getElementById('winReset').onclick=()=>{ winFrom.value=0; winTo.value=N-1; render(); };
+render();
+</script>
+</body>
+</html>

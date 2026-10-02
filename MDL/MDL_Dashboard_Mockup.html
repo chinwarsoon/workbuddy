@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TWRP C3B2 MDL Dashboard — Panel Mockups</title>
+<style>
+  :root{
+    --navy:#0F2D52; --blue:#1E88E5; --green:#2E7D32; --amber:#F9A825;
+    --red:#C62828; --slate:#64748B; --bg:#F6F8FA; --surface:#FFFFFF;
+    --border:#D9E1E8; --text:#1F2A37; --muted:#64748B;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:13px}
+  .wrap{max-width:1280px;margin:0 auto;padding:16px}
+  header.app{background:var(--navy);color:#fff;padding:14px 20px;border-radius:10px;display:flex;justify-content:space-between;align-items:center}
+  header.app h1{font-size:18px;margin:0;font-weight:600}
+  header.app .meta{font-size:12px;opacity:.85}
+  .note{background:#FFF8E1;border:1px solid var(--amber);color:#7a5b00;padding:8px 12px;border-radius:8px;margin:12px 0;font-size:12px}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin:14px 0;box-shadow:0 1px 2px rgba(15,45,82,.04)}
+  .panel h2{font-size:13px;margin:0 0 10px;color:var(--navy);text-transform:uppercase;letter-spacing:.04em;display:flex;justify-content:space-between}
+  .panel h2 .tag{font-size:10px;background:var(--bg);border:1px solid var(--border);color:var(--muted);padding:2px 6px;border-radius:6px;font-weight:400;letter-spacing:0}
+  /* KPI cards */
+  .kpis{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+  .kpi{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;padding:10px}
+  .kpi .v{font-size:22px;font-weight:700;color:var(--navy)}
+  .kpi .l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-top:2px}
+  .kpi.warn{border-top-color:var(--red)} .kpi.ok{border-top-color:var(--green)} .kpi.amb{border-top-color:var(--amber)}
+  .subkpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+  .subkpi{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+  .subkpi .v{font-size:16px;font-weight:700;color:var(--navy)} .subkpi .l{font-size:10px;color:var(--muted)}
+  /* filter bar */
+  .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .filters select,.filters input{padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:#fff}
+  .filters .grp{border:1px solid var(--border);border-radius:8px;padding:6px 10px;background:#fff}
+  .filters .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;margin-right:6px}
+  .toggle{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  .toggle button{border:0;background:#fff;padding:5px 10px;font-size:11px;cursor:pointer}
+  .toggle button.active{background:var(--blue);color:#fff}
+  /* chart grid */
+  .charts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .chart{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px}
+  .chart h3{font-size:12px;margin:0 0 8px;color:var(--navy)}
+  .bar{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:11px}
+  .bar .name{width:90px;color:var(--muted)} .bar .track{flex:1;background:var(--bg);border-radius:4px;height:14px;overflow:hidden}
+  .bar .fill{height:100%;background:var(--blue)}
+  .bar .val{width:42px;text-align:right;color:var(--navy);font-weight:600}
+  .pie{width:120px;height:120px;border-radius:50%;margin:0 auto;
+    background:conic-gradient(var(--green) 0 55%, var(--amber) 55% 70%, var(--red) 70% 80%, var(--slate) 80% 100%);}
+  .legend{font-size:10px;color:var(--muted);margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px;vertical-align:middle}
+  /* tables */
+  table{width:100%;border-collapse:collapse;font-size:11px}
+  th,td{border:1px solid var(--border);padding:5px 7px;text-align:left}
+  th{background:var(--navy);color:#fff;font-weight:600;position:sticky;top:0}
+  tbody tr:nth-child(even){background:#F9FBFD}
+  .pill{padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600}
+  .p-app{background:#E6F4EA;color:var(--green)} .p-awc{background:#FFF4D6;color:#9a6b00}
+  .p-rej{background:#FDE8E8;color:var(--red)} .p-nap{background:#EEF1F5;color:var(--slate)}
+  .p-sur{background:#E3F0FB;color:var(--blue)} .p-rtr{background:#FFF0E0;color:#b5651d}
+  .p-nts{background:#E6F4EA;color:var(--green)}
+  .sev-err{color:var(--red);font-weight:700} .sev-warn{color:#9a6b00;font-weight:700} .sev-info{color:var(--blue);font-weight:700}
+  .ovd{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .ovd .blk{border:1px solid var(--border);border-radius:8px;padding:10px}
+  .ovd .blk h4{margin:0 0 6px;font-size:12px;color:var(--red)}
+  .ovd .blk ul{margin:0;padding-left:16px;font-size:11px;color:var(--text)}
+  .expand{cursor:pointer;color:var(--blue);font-size:10px}
+  footer{color:var(--muted);font-size:11px;text-align:center;margin:20px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="app">
+  <h1>TWRP C3B2 — Master Document List Dashboard</h1>
+  <div class="meta">Mockup · sample data · PPP token palette</div>
+</header>
+
+<section class="welcome-wrap" style="background:var(--bg);padding-bottom:24px">
+<style>
+.app .brand{display:flex;align-items:center;gap:12px}
+.app .logo{height:36px;width:auto;border-radius:6px;background:#fff;padding:3px;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.welcome{max-width:640px;margin:40px auto;text-align:center}
+.welcome .drop{border:1px solid var(--border);border-radius:14px;padding:40px;background:#fff;box-shadow:0 6px 20px rgba(15,45,82,.10)}
+.welcome .wlogo{height:70px;width:auto;margin-bottom:14px}
+.welcome h2{color:var(--navy);margin:0 0 8px;font-size:22px}
+.welcome p{color:var(--muted);font-size:13px;line-height:1.55;margin:8px 0}
+.welcome .filebtn{display:inline-block;margin:18px 0 6px;background:var(--blue);color:#fff;padding:11px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600}
+</style>
+<header class="app"><div class="brand"><img class="logo" src="asset/logo.jpg" alt="logo"><h1>TWRP C3B2 — Master Document List Dashboard</h1></div><div class="meta">Welcome</div></header>
+<div class="wrap"><div class="welcome"><div class="drop">
+  <img class="wlogo" src="asset/logo.jpg" alt="logo">
+  <h2>Master Document List Dashboard</h2>
+  <p>Select the <b>TWRP C3B2 - Master Document List.xlsx</b> workbook to build the dashboard entirely in your browser. No data leaves this machine.</p>
+  <label class="filebtn">Choose workbook<input type="file" accept=".xlsx,.xlsm" style="display:none"></label>
+  <p>Offline · zero-dependency · contract-driven (reads Code sheet at runtime)</p>
+</div></div></div>
+</section>
+
+<div class="note">This is a static mockup of the 15 in-scope panels (9 charts + 6 list/panel components). Sample numbers only — not from the live workbook. Open in a browser to view; each chart card supports a bar⇄pie toggle and PNG download (per reviewer 5e).</div>
+
+<!-- ============ PANEL 14: KPI CARDS ============ -->
+<div class="panel" data-export data-x="kpi" data-title="14 · KPI Cards">
+  <h2>KPI Cards <span class="tag">Panel 14 · Primary + Secondary</span></h2>
+  <div class="kpis">
+    <div class="kpi"><div class="v">1,850</div><div class="l">Total Planned</div></div>
+    <div class="kpi"><div class="v">1,420</div><div class="l">Submitted</div></div>
+    <div class="kpi ok"><div class="v">980</div><div class="l">Approved (APP)</div></div>
+    <div class="kpi amb"><div class="v">145</div><div class="l">Approved w/ Comments</div></div>
+    <div class="kpi warn"><div class="v">32</div><div class="l">Rejected (REJ)</div></div>
+    <div class="kpi"><div class="v">60</div><div class="l">Not Approved (NAP)</div></div>
+    <div class="kpi warn"><div class="v">88</div><div class="l">Overdue</div></div>
+  </div>
+  <div class="subkpis">
+    <div class="subkpi"><div class="v">210</div><div class="l">As-Built = YES</div></div>
+    <div class="subkpi"><div class="v">95</div><div class="l">Vendor Data = YES</div></div>
+    <div class="subkpi"><div class="v">96.2%</div><div class="l">Data Completeness</div></div>
+    <div class="subkpi"><div class="v">12 / 20</div><div class="l">Active Disciplines</div></div>
+  </div>
+</div>
+
+<!-- ============ PANEL 15: FILTER PANEL ============ -->
+<div class="panel">
+  <h2>Filter Panel <span class="tag">Panel 15 · Controls</span></h2>
+  <div class="filters">
+    <div class="grp"><span class="lbl">Discipline</span>
+      <select multiple size="1"><option>Process</option><option>Mech</option><option>Piping</option><option>ICA</option></select></div>
+    <div class="grp"><span class="lbl">Stage</span>
+      <select multiple size="1"><option>SD</option><option>DD</option><option>IFC</option></select></div>
+    <div class="grp"><span class="lbl">Authority</span>
+      <select><option>BCA</option><option>FSSD</option><option>NEA</option><option>NPK</option><option>LTA</option><option>URA</option></select></div>
+    <div class="grp"><span class="lbl">Approval</span>
+      <select><option>APP</option><option>AWC</option><option>REJ</option><option>NAP</option></select></div>
+    <div class="grp"><span class="lbl">Date range</span><input type="date"> → <input type="date"></div>
+    <div class="grp"><span class="lbl">Search</span><input placeholder="Doc No / Title / Discipline…"></div>
+    <div class="grp"><span class="lbl">Include Excluded</span><input type="checkbox"></div>
+    <div class="toggle"><button class="active">Bar</button><button>Pie</button></div>
+  </div>
+</div>
+
+<!-- ============ PANEL 10: PER-DISCIPLINE MATRIX ============ -->
+<div class="panel" data-export data-x="table" data-title="10 · Per-Discipline Summary Matrix">
+  <h2>Per-Discipline Summary Matrix <span class="tag">Panel 10 · Primary view</span></h2>
+  <table>
+    <thead><tr><th>Discipline</th><th>Planned</th><th>Submitted</th><th>Approved</th><th>AWC</th><th>REJ</th><th>NAP</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>Process</td><td>220</td><td>180</td><td>120</td><td>18</td><td>4</td><td>8</td><td class="expand">▸ expand stages</td></tr>
+      <tr><td>Mech</td><td>310</td><td>250</td><td>170</td><td>22</td><td>6</td><td>10</td><td class="expand">▸ expand stages</td></tr>
+      <tr><td>Piping</td><td>280</td><td>210</td><td>150</td><td>20</td><td>5</td><td>9</td><td class="expand">▸ expand stages</td></tr>
+      <tr><td>ICA</td><td>160</td><td>120</td><td>80</td><td>12</td><td>3</td><td>5</td><td class="expand">▸ expand stages</td></tr>
+      <tr><td>Electrical</td><td>140</td><td>100</td><td>70</td><td>10</td><td>2</td><td>4</td><td class="expand">▸ expand stages</td></tr>
+      <tr><td>CSA</td><td>120</td><td>90</td><td>60</td><td>9</td><td>2</td><td>3</td><td class="expand">▸ expand stages</td></tr>
+      <tr><td>…+ 6 more</td><td>620</td><td>470</td><td>330</td><td>54</td><td>10</td><td>21</td><td></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============ CHARTS 1-9 (SVG, download/copy enabled) ============ -->
+<div class="charts">
+  <div class="chart" data-chart data-type="bar" data-title="1 · Documents by Discipline"
+       data-bars='[{"n":"Mech","v":310},{"n":"Piping","v":280},{"n":"Process","v":220},{"n":"ICA","v":160},{"n":"Elect","v":140}]'></div>
+  <div class="chart" data-chart data-type="bar" data-title="2 · Issue Progress"
+       data-bars='[{"n":"Planned","v":1850,"c":"slate"},{"n":"Forecast","v":1620,"c":"amber"},{"n":"Actual","v":1420,"c":"green"}]'></div>
+  <div class="chart" data-chart data-type="pie" data-title="3 · Approval Status"
+       data-slices='[{"n":"APP","v":980,"c":"green"},{"n":"AWC","v":145,"c":"amber"},{"n":"REJ","v":32,"c":"red"},{"n":"NAP/NA","v":733,"c":"slate"}]'></div>
+  <div class="chart" data-chart data-type="bar" data-title="4 · As-Built Status"
+       data-bars='[{"n":"YES","v":210,"c":"green"},{"n":"NO","v":950,"c":"slate"}]'></div>
+  <div class="chart" data-chart data-type="bar" data-title="5 · By Authority"
+       data-bars='[{"n":"BCA","v":630},{"n":"FSSD","v":480},{"n":"NEA","v":330},{"n":"LTA","v":220},{"n":"URA","v":130},{"n":"NPK","v":110}]'></div>
+  <div class="chart" data-chart data-type="bar" data-title="6 · By Doc Type / Stage"
+       data-bars='[{"n":"DWG","v":890},{"n":"SPC","v":410},{"n":"PRP","v":300},{"n":"CAL","v":250}]'></div>
+  <div class="chart" data-chart data-type="bar" data-title="7 · Schedule Variance / Look-Ahead"
+       data-bars='[{"n":"On track","v":1340,"c":"green"},{"n":"At risk","v":200,"c":"amber"},{"n":"Overdue","v":88,"c":"red"}]'
+       data-note="Also rendered as the Overdue list (Panel 13) below."></div>
+  <div class="chart" data-chart data-type="bar" data-title="8 · Data Quality — by Discipline"
+       data-bars='[{"n":"Piping","v":42,"c":"red"},{"n":"Mech","v":33,"c":"red"},{"n":"Process","v":26,"c":"red"},{"n":"ICA","v":19,"c":"red"}]'></div>
+  <div class="chart" data-chart data-type="bar" data-title="9 · Data Quality — by Rule"
+       data-bars='[{"n":"V-25","v":38,"c":"red"},{"n":"V-24","v":27,"c":"red"},{"n":"V-19","v":20,"c":"red"},{"n":"Other","v":15,"c":"red"}]'></div>
+</div>
+
+<style>
+  .chart{display:flex;flex-direction:column}
+  .toolbar{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+  .toolbar button{border:1px solid var(--border);background:#fff;color:var(--navy);
+    font-size:10px;padding:3px 8px;border-radius:6px;cursor:pointer}
+  .toolbar button:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .toolbar .msg{font-size:10px;color:var(--green)}
+  .chart svg{width:100%;height:auto;display:block}
+</style>
+
+<script>
+(function(){
+  const COLORS={blue:'#1E88E5',green:'#2E7D32',amber:'#F9A825',red:'#C62828',slate:'#64748B',navy:'#0F2D52'};
+  const color=c=>COLORS[c]||COLORS.blue;
+  const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const F='font-family="Segoe UI,sans-serif"';
+
+  /* ---- chart renderers ---- */
+  function barSVG(spec){
+    const rows=spec.bars, max=Math.max(...rows.map(r=>r.v));
+    const W=300, rowH=24, padTop=26, nameW=78, valW=42, trackX=nameW+4, trackW=W-nameW-valW-8;
+    const H=padTop+rows.length*rowH+6;
+    let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    s+=`<text x="0" y="16" ${F} font-size="12" font-weight="bold" fill="${COLORS.navy}">${esc(spec.title)}</text>`;
+    rows.forEach((r,i)=>{
+      const y=padTop+i*rowH, col=color(r.c);
+      s+=`<text x="0" y="${y+12}" ${F} font-size="11" fill="${COLORS.slate}">${esc(r.n)}</text>`;
+      s+=`<rect x="${trackX}" y="${y+1}" width="${trackW}" height="13" rx="2" fill="#F6F8FA"/>`;
+      s+=`<rect x="${trackX}" y="${y+1}" width="${(r.v/max)*trackW}" height="13" rx="2" fill="${col}"/>`;
+      s+=`<text x="${W-2}" y="${y+12}" text-anchor="end" ${F} font-size="11" font-weight="bold" fill="${COLORS.navy}">${r.v}</text>`;
+    });
+    s+=`</svg>`; return s;
+  }
+
+  function pieSVG(spec){
+    const sl=spec.slices, total=sl.reduce((a,b)=>a+b.v,0);
+    const cx=70, cy=80, r=58, W=300, H=170;
+    let a0=-Math.PI/2;
+    let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    s+=`<text x="0" y="16" ${F} font-size="12" font-weight="bold" fill="${COLORS.navy}">${esc(spec.title)}</text>`;
+    sl.forEach(p=>{
+      const a1=a0+(p.v/total)*2*Math.PI, col=color(p.c);
+      const x0=cx+r*Math.cos(a0), y0=cy+r*Math.sin(a0), x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1);
+      const large=(a1-a0)>Math.PI?1:0;
+      s+=`<path d="M${cx},${cy} L${x0.toFixed(2)},${y0.toFixed(2)} A${r},${r} 0 ${large} 1 ${x1.toFixed(2)},${y1.toFixed(2)} Z" fill="${col}"/>`;
+      a0=a1;
+    });
+    let ly=40;
+    sl.forEach(p=>{
+      s+=`<rect x="150" y="${ly-9}" width="10" height="10" rx="2" fill="${color(p.c)}"/>`;
+      s+=`<text x="166" y="${ly}" ${F} font-size="11" fill="${COLORS.slate}">${esc(p.n)} ${p.v}</text>`;
+      ly+=20;
+    });
+    s+=`</svg>`; return s;
+  }
+
+  /* ---- table -> SVG ---- */
+  const PILL={
+    'p-app':['#E6F4EA','#2E7D32'],'p-awc':['#FFF4D6','#9a6b00'],
+    'p-rej':['#FDE8E8','#C62828'],'p-nap':['#EEF1F5','#64748B'],
+    'p-sur':['#E3F0FB','#1E88E5'],'p-rtr':['#FFF0E0','#b5651d'],
+    'p-nts':['#E6F4EA','#2E7D32'],
+    'sev-err':['','#C62828'],'sev-warn':['','#9a6b00'],'sev-info':['','#1E88E5']
+  };
+  function tableToSVG(table,title){
+    const data=[];
+    table.querySelectorAll('tr').forEach(tr=>{
+      const cells=[];
+      tr.querySelectorAll('th,td').forEach(cell=>{
+        let cls='';
+        const inner=cell.querySelector('[class]');
+        if(inner){const cn=inner.className.split(/\s+/).find(x=>x.startsWith('p-')||x.startsWith('sev-'));if(cn)cls=cn;}
+        cells.push({text:cell.textContent.trim(),cls});
+      });
+      data.push(cells);
+    });
+    return gridToSVG(data,title);
+  }
+  function gridToSVG(data,title){
+    const pad=6,charW=6.4,rowH=20,headerH=22,titleH=20;
+    const colW=[];
+    data.forEach(r=>r.forEach((c,i)=>{
+      const w=c.cls?Math.max(c.text.length*charW+14,52):c.text.length*charW+2*pad;
+      if(!colW[i]||w>colW[i])colW[i]=w;
+    }));
+    const W=colW.reduce((a,b)=>a+b,0)+2;
+    const H=titleH+headerH+(data.length-1)*rowH+6;
+    let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    s+=`<text x="0" y="16" ${F} font-size="12" font-weight="bold" fill="${COLORS.navy}">${esc(title)}</text>`;
+    const headY=titleH;
+    s+=`<rect x="0" y="${headY}" width="${W}" height="${headerH}" fill="${COLORS.navy}"/>`;
+    let x=1;
+    data[0].forEach((c,i)=>{
+      s+=`<text x="${x+pad}" y="${headY+15}" ${F} font-size="11" font-weight="bold" fill="#fff">${esc(c.text)}</text>`;
+      x+=colW[i];
+    });
+    for(let ri=1;ri<data.length;ri++){
+      const ry=headY+headerH+(ri-1)*rowH;
+      if(ri%2===0) s+=`<rect x="0" y="${ry}" width="${W}" height="${rowH}" fill="#F9FBFD"/>`;
+      let cx=1;
+      data[ri].forEach((c,i)=>{
+        const colX=cx, colWd=colW[i];
+        if(c.cls && PILL[c.cls]){
+          const [bg,fg]=PILL[c.cls];
+          if(bg){
+            const pw=Math.min(colWd-4,c.text.length*charW+14);
+            s+=`<rect x="${colX+(colWd-pw)/2}" y="${ry+3}" width="${pw}" height="14" rx="7" fill="${bg}"/>`;
+            s+=`<text x="${colX+colWd/2}" y="${ry+13}" text-anchor="middle" ${F} font-size="10" font-weight="bold" fill="${fg}">${esc(c.text)}</text>`;
+          }else{
+            s+=`<text x="${colX+pad}" y="${ry+13}" ${F} font-size="11" font-weight="bold" fill="${fg}">${esc(c.text)}</text>`;
+          }
+        }else{
+          s+=`<text x="${colX+pad}" y="${ry+13}" ${F} font-size="11" fill="#1F2A37">${esc(c.text)}</text>`;
+        }
+        cx+=colWd;
+      });
+    }
+    x=1; data[0].forEach((c,i)=>{ s+=`<line x1="${x}" y1="${headY}" x2="${x}" y2="${H-2}" stroke="#D9E1E8" stroke-width="1"/>`; x+=colW[i]; });
+    s+=`<line x1="${x-1}" y1="${headY}" x2="${x-1}" y2="${H-2}" stroke="#D9E1E8" stroke-width="1"/>`;
+    s+=`<line x1="0" y1="${headY+headerH}" x2="${W}" y2="${headY+headerH}" stroke="#D9E1E8" stroke-width="1"/>`;
+    s+=`</svg>`; return s;
+  }
+
+  /* ---- KPI cards -> SVG ---- */
+  function kpiToSVG(panel,title){
+    const kpis=[...panel.querySelectorAll('.kpi')].map(k=>({v:k.querySelector('.v').textContent,l:k.querySelector('.l').textContent}));
+    const subs=[...panel.querySelectorAll('.subkpi')].map(k=>({v:k.querySelector('.v').textContent,l:k.querySelector('.l').textContent}));
+    const cardW=120,cardH=52,gap=10,padT=24;
+    const cols=Math.max(kpis.length,subs.length);
+    const W=cols*cardW+(cols-1)*gap+2;
+    const H=padT+cardH*2+gap+6;
+    let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    s+=`<text x="0" y="16" ${F} font-size="12" font-weight="bold" fill="${COLORS.navy}">${esc(title)}</text>`;
+    const draw=(arr,rowY)=>arr.forEach((k,i)=>{
+      const x=i*(cardW+gap);
+      s+=`<rect x="${x}" y="${rowY}" width="${cardW}" height="${cardH}" fill="#fff" stroke="#D9E1E8" rx="8"/>`;
+      s+=`<rect x="${x}" y="${rowY}" width="${cardW}" height="3" fill="${COLORS.blue}" rx="1.5"/>`;
+      s+=`<text x="${x+cardW/2}" y="${rowY+26}" text-anchor="middle" ${F} font-size="18" font-weight="bold" fill="${COLORS.navy}">${esc(k.v)}</text>`;
+      s+=`<text x="${x+cardW/2}" y="${rowY+42}" text-anchor="middle" ${F} font-size="9" fill="${COLORS.slate}">${esc(k.l)}</text>`;
+    });
+    draw(kpis,padT); draw(subs,padT+cardH+gap);
+    s+=`</svg>`; return s;
+  }
+
+  /* ---- Overdue list -> SVG ---- */
+  function overdueToSVG(panel,title){
+    const blks=[...panel.querySelectorAll('.blk')].map(b=>({h:b.querySelector('h4').textContent,items:[...b.querySelectorAll('li')].map(li=>li.textContent)}));
+    const colW=210,gap=14,padT=24,headH=20,itemH=16;
+    const W=blks.length*colW+(blks.length-1)*gap+2;
+    const maxItems=Math.max(...blks.map(b=>b.items.length));
+    const H=padT+headH+maxItems*itemH+10;
+    let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+    s+=`<text x="0" y="16" ${F} font-size="12" font-weight="bold" fill="${COLORS.navy}">${esc(title)}</text>`;
+    blks.forEach((b,i)=>{
+      const x=i*(colW+gap);
+      s+=`<rect x="${x}" y="${padT}" width="${colW}" height="${H-padT-4}" fill="#fff" stroke="#D9E1E8" rx="8"/>`;
+      s+=`<text x="${x+8}" y="${padT+14}" ${F} font-size="12" font-weight="bold" fill="${COLORS.red}">${esc(b.h)}</text>`;
+      b.items.forEach((it,j)=>{ s+=`<text x="${x+10}" y="${padT+headH+8+j*itemH}" ${F} font-size="11" fill="#1F2A37">• ${esc(it)}</text>`; });
+    });
+    s+=`</svg>`; return s;
+  }
+
+  /* ---- rasterize + download/copy ---- */
+  function svgToBlob(svgEl,cb){
+    const xml=new XMLSerializer().serializeToString(svgEl);
+    const url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement('canvas'),scale=2;
+      c.width=img.width*scale; c.height=img.height*scale;
+      const ctx=c.getContext('2d');
+      ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,c.width,c.height);
+      ctx.scale(scale,scale); ctx.drawImage(img,0,0);
+      c.toBlob(b=>cb(b),'image/png');
+    };
+    img.onerror=()=>cb(null); img.src=url;
+  }
+  function attachExport(root,getSVG,title){
+    root.insertAdjacentHTML('afterbegin',`<div class="toolbar"><button class="dl">⤓ PNG</button><button class="cp">⧉ Copy</button><span class="msg"></span></div>`);
+    const msg=root.querySelector('.msg');
+    const fname=title.replace(/[\\/:*?"<>|·]/g,'_');
+    const run=fn=>{ const tmp=document.createElement('div'); tmp.innerHTML=getSVG(); const el=tmp.querySelector('svg'); if(!el){msg.textContent='Failed';return;} svgToBlob(el,fn); };
+    root.querySelector('.dl').addEventListener('click',()=>run(b=>{ if(!b){msg.textContent='Failed';return;}
+      const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=fname+'.png';
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+      msg.textContent='Downloaded'; setTimeout(()=>msg.textContent='',1800); }));
+    root.querySelector('.cp').addEventListener('click',()=>{ if(!navigator.clipboard||!window.ClipboardItem){msg.textContent='Copy unsupported';return;}
+      run(async b=>{ if(!b){msg.textContent='Failed';return;}
+        try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); msg.textContent='Copied ✓'; }
+        catch(e){ msg.textContent='Copy blocked — use PNG'; setTimeout(()=>msg.textContent='',2200); }
+        setTimeout(()=>msg.textContent='',1800); }); });
+  }
+
+  /* ---- wire charts ---- */
+  document.querySelectorAll('[data-chart]').forEach(card=>{
+    const spec={title:card.dataset.title,bars:card.dataset.bars?JSON.parse(card.dataset.bars):null,slices:card.dataset.slices?JSON.parse(card.dataset.slices):null};
+    const svg=(card.dataset.type==='pie'?pieSVG(spec):barSVG(spec));
+    if(card.dataset.note) card.insertAdjacentHTML('beforeend',`<p style="font-size:10px;color:var(--muted);margin:8px 0 0">${esc(card.dataset.note)}</p>`);
+    attachExport(card,()=>svg,card.dataset.title);
+    const host=document.createElement('div'); host.innerHTML=svg; card.appendChild(host.firstChild);
+  });
+
+  /* ---- wire panels (kpi / table / overdue) ---- */
+  document.querySelectorAll('[data-export]').forEach(panel=>{
+    const x=panel.dataset.x, title=panel.dataset.title;
+    const getSVG=()=> x==='kpi'?kpiToSVG(panel,title) : x==='table'?tableToSVG(panel.querySelector('table'),title) : x==='overdue'?overdueToSVG(panel,title) : '';
+    attachExport(panel,getSVG,title);
+  });
+})();
+</script>
+
+<!-- ============ PANEL 11: DOCUMENT DETAIL TABLE ============ -->
+<div class="panel" data-export data-x="table" data-title="11 · Document Detail Table">
+  <h2>Document Detail Table (register) <span class="tag">Panel 11 · A–Y columns</span></h2>
+  <table>
+    <thead><tr>
+      <th>SNo</th><th>Stage</th><th>Discipline</th><th>Doc Type</th><th>Number</th><th>Rev</th>
+      <th>Document No.</th><th>Title</th><th>Authority</th><th>As-Built</th><th>Vendor</th>
+      <th>Planned</th><th>Forecast</th><th>Actual</th><th>Subm. Status</th><th>Appr. Date</th><th>Review Code (Y)</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>1</td><td>IFC</td><td>Piping</td><td>DWG</td><td>001</td><td>2</td><td>PRJ-P-PIP-DWG-001</td><td>Piping Plan A3</td><td>BCA</td><td>NO</td><td>NO</td><td>2026-01-10</td><td>2026-02-01</td><td>2026-01-28</td><td><span class="pill p-sur">SUR</span></td><td>2026-03-15</td><td><span class="pill p-app">APP</span></td></tr>
+      <tr><td>2</td><td>DD</td><td>Mech</td><td>SPC</td><td>014</td><td>1</td><td>PRJ-M-MEC-SPC-014</td><td>Pump Spec</td><td>FSSD</td><td>NO</td><td>YES</td><td>2026-02-05</td><td>2026-03-01</td><td>—</td><td><span class="pill p-rtr">RTR</span></td><td>—</td><td><span class="pill p-nap">NAP</span></td></tr>
+      <tr><td>3</td><td>IFC</td><td>ICA</td><td>DWG</td><td>007</td><td>3</td><td>PRJ-I-ICA-DWG-007</td><td>Controls Layout</td><td>NEA</td><td>NO</td><td>NO</td><td>2026-01-20</td><td>2026-02-15</td><td>2026-02-10</td><td><span class="pill p-nts">NTS</span></td><td>2026-04-02</td><td><span class="pill p-awc">AWC</span></td></tr>
+      <tr><td>4</td><td>SD</td><td>Elect</td><td>PRP</td><td>002</td><td>0</td><td>PRJ-E-ELE-PRP-002</td><td>Load Calc</td><td>LTA</td><td>NO</td><td>NO</td><td>2026-03-01</td><td>2026-04-01</td><td>—</td><td><span class="pill p-sur">SUR</span></td><td>—</td><td><span class="pill p-nap">NAP</span></td></tr>
+      <tr><td>5</td><td>IFC</td><td>CSA</td><td>DWG</td><td>021</td><td>2</td><td>PRJ-C-CSA-DWG-021</td><td>Foundation Dwg</td><td>BCA</td><td>YES</td><td>NO</td><td>2025-11-01</td><td>2025-12-01</td><td>2025-11-25</td><td><span class="pill p-nts">NTS</span></td><td>2026-01-10</td><td><span class="pill p-rej">REJ</span></td></tr>
+      <tr><td>6</td><td>DD</td><td>Process</td><td>CAL</td><td>009</td><td>1</td><td>PRJ-P-PRO-CAL-009</td><td>P&ID Calcs</td><td>URA</td><td>NO</td><td>NO</td><td>2026-02-12</td><td>2026-03-10</td><td>2026-03-05</td><td><span class="pill p-sur">SUR</span></td><td>—</td><td><span class="pill p-nap">NAP</span></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:10px;color:var(--muted)">Columns follow the §3.2 contract (A–Y); "Review Code" = Approval Status (Y). Originator/Reviewer excluded (no such columns).</p>
+</div>
+
+<!-- ============ PANEL 12: VALIDATION ISSUES / ERROR TABLE ============ -->
+<div class="panel" data-export data-x="table" data-title="12 · Validation Issues">
+  <h2>Validation Issues / Error Table <span class="tag">Panel 12 · from Code!AI:AL</span></h2>
+  <table>
+    <thead><tr><th>Error Code</th><th>Group</th><th>Severity</th><th>Count</th><th>Rule (sample message)</th></tr></thead>
+    <tbody>
+      <tr><td>V-25</td><td>E</td><td class="sev-warn">Warning</td><td>38</td><td>Valid record missing a required field (Title/Discipline/Stage/Type/…)</td></tr>
+      <tr><td>V-24</td><td>E</td><td class="sev-warn">Warning</td><td>27</td><td>BQ Number present but not found in BQ sheet</td></tr>
+      <tr><td>V-19</td><td>B</td><td class="sev-warn">Warning</td><td>20</td><td>Submission Status ⇔ Prolog Number must both be present</td></tr>
+      <tr><td>V-18</td><td>C</td><td class="sev-err">Error</td><td>12</td><td>Actual 1st Issue Date set ⇒ Prolog No & Submission Status required</td></tr>
+      <tr><td>V-07</td><td>A</td><td class="sev-warn">Warning</td><td>9</td><td>Submission Status not in Code!AC list</td></tr>
+      <tr><td>V-26</td><td>F</td><td class="sev-err">Error</td><td>6</td><td>Duplicate Document No. within active records</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============ PANEL 13: OVERDUE LIST (3 flavours) ============ -->
+<div class="panel" data-export data-x="overdue" data-title="13 · Overdue List">
+  <h2>Overdue List <span class="tag">Panel 13 · 3 flavours (in scope)</span></h2>
+  <div class="ovd">
+    <div class="blk"><h4>① 1st-submission overdue (40)</h4>
+      <ul><li>PRJ-P-PIP-DWG-031</li><li>PRJ-M-MEC-SPC-018</li><li>PRJ-I-ICA-DWG-012</li><li>PRJ-E-ELE-PRP-007</li></ul></div>
+    <div class="blk"><h4>② Subsequent-submission overdue (30)</h4>
+      <ul><li>PRJ-M-MEC-SPC-014</li><li>PRJ-P-PRO-CAL-009</li><li>PRJ-C-CSA-DWG-025</li><li>PRJ-I-ICA-DWG-019</li></ul></div>
+    <div class="blk"><h4>③ Client-review-return overdue (18)</h4>
+      <ul><li>PRJ-P-PIP-DWG-005</li><li>PRJ-M-MEC-DWG-022</li><li>PRJ-E-ELE-PRP-002</li><li>PRJ-C-CSA-DWG-021</li></ul></div>
+  </div>
+</div>
+
+<footer>Mockup only — panels 1–15 per MDL-Dashboard-Workplan-v0.3 §4. Deferred (not shown): left-nav, SLA status panel, unified Current Status. Colour tokens reused from PPP dashboard.</footer>
+
+</div>
+</body>
+</html>

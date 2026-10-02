@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="620" viewBox="0 0 920 620" font-family="Segoe UI, Arial, sans-serif">
+  <!-- page bg -->
+  <rect x="0" y="0" width="920" height="620" fill="#EEF2F7"/>
+  <!-- panel -->
+  <rect x="20" y="20" width="880" height="580" rx="12" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <!-- title -->
+  <text x="40" y="60" font-size="18" font-weight="700" fill="#0F2D52">Filter Panel</text>
+  <rect x="180" y="42" width="220" height="22" rx="11" fill="#EEF2F7" stroke="#D9E2EC"/>
+  <text x="192" y="57" font-size="10" fill="#5A6B7B">Panel 15 · drives all views</text>
+  <!-- helper -->
+  <text x="40" y="86" font-size="11" fill="#7A8A99">All filters active by default — deselect to narrow the dashboard.</text>
+  <!-- divider -->
+  <line x1="40" y1="102" x2="880" y2="102" stroke="#E3E9F0"/>
+  <!-- section label -->
+  <text x="40" y="126" font-size="10" font-weight="700" fill="#9AA7B4" letter-spacing="1">CATEGORICAL FILTERS</text>
+
+  <!-- ===== Group 1: Discipline (ACTIVE / narrowed) ===== -->
+  <rect x="40" y="140" width="420" height="170" rx="10" fill="#FFFFFF" stroke="#E0A100" stroke-width="1.5"/>
+  <rect x="40" y="140" width="6" height="170" rx="3" fill="#E0A100"/>
+  <text x="58" y="166" font-size="12" font-weight="700" fill="#0F2D52">Discipline</text>
+  <rect x="388" y="150" width="34" height="22" rx="6" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <text x="397" y="165" font-size="10" fill="#0F2D52">All</text>
+  <rect x="428" y="150" width="44" height="22" rx="6" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <text x="438" y="165" font-size="10" fill="#0F2D52">Clear</text>
+  <rect x="478" y="150" width="54" height="22" rx="11" fill="#FFF4D6" stroke="#E0A100"/>
+  <text x="491" y="165" font-size="10" font-weight="700" fill="#9a6b00">3 / 20</text>
+  <!-- chips: 3 selected (blue) + others light -->
+  <g font-size="11">
+    <rect x="58" y="182" width="64" height="24" rx="12" fill="#2F6FB0"/><text x="74" y="198" fill="#FFFFFF">Mech</text>
+    <rect x="128" y="182" width="54" height="24" rx="12" fill="#2F6FB0"/><text x="142" y="198" fill="#FFFFFF">Elec</text>
+    <rect x="188" y="182" width="60" height="24" rx="12" fill="#2F6FB0"/><text x="202" y="198" fill="#FFFFFF">Civil</text>
+    <rect x="254" y="182" width="64" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="270" y="198" fill="#5A6B7B">Proc</text>
+    <rect x="324" y="182" width="64" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="340" y="198" fill="#5A6B7B">Stru</text>
+    <rect x="58" y="214" width="64" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="74" y="230" fill="#5A6B7B">Arch</text>
+    <rect x="128" y="214" width="64" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="144" y="230" fill="#5A6B7B">Hvac</text>
+    <rect x="198" y="214" width="64" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="214" y="230" fill="#5A6B7B">Fire</text>
+    <rect x="268" y="214" width="70" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="284" y="230" fill="#5A6B7B">Tele</text>
+  </g>
+  <text x="58" y="296" font-size="9" fill="#9A6B00">● filtered — 17 of 20 hidden</text>
+
+  <!-- ===== Group 2: Stage (all on) ===== -->
+  <rect x="480" y="140" width="420" height="170" rx="10" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <text x="498" y="166" font-size="12" font-weight="700" fill="#0F2D52">Stage</text>
+  <rect x="828" y="150" width="34" height="22" rx="6" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <text x="837" y="165" font-size="10" fill="#0F2D52">All</text>
+  <rect x="868" y="150" width="44" height="22" rx="6" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <text x="878" y="165" font-size="10" fill="#0F2D52">Clear</text>
+  <rect x="780" y="150" width="64" height="22" rx="11" fill="#EEF2F7" stroke="#D9E2EC"/>
+  <text x="796" y="165" font-size="10" font-weight="700" fill="#5A6B7B">19 / 19</text>
+  <g font-size="11">
+    <rect x="498" y="182" width="74" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="514" y="198" fill="#5A6B7B">IFC</text>
+    <rect x="578" y="182" width="84" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="594" y="198" fill="#5A6B7B">IFU</text>
+    <rect x="668" y="182" width="74" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="684" y="198" fill="#5A6B7B">IFS</text>
+    <rect x="748" y="182" width="74" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="764" y="198" fill="#5A6B7B">IFC</text>
+    <rect x="498" y="214" width="74" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="514" y="230" fill="#5A6B7B">IFR</text>
+    <rect x="578" y="214" width="84" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="594" y="230" fill="#5A6B7B">IFA</text>
+    <rect x="668" y="214" width="90" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="684" y="230" fill="#5A6B7B">… +12</text>
+  </g>
+
+  <!-- ===== Group 3: Authority ===== -->
+  <rect x="40" y="326" width="420" height="150" rx="10" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <text x="58" y="352" font-size="12" font-weight="700" fill="#0F2D52">Authority</text>
+  <rect x="388" y="336" width="34" height="22" rx="6" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <text x="397" y="351" font-size="10" fill="#0F2D52">All</text>
+  <rect x="428" y="336" width="44" height="22" rx="6" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <text x="438" y="351" font-size="10" fill="#0F2D52">Clear</text>
+  <rect x="466" y="336" width="54" height="22" rx="11" fill="#EEF2F7" stroke="#D9E2EC"/>
+  <text x="479" y="351" font-size="10" font-weight="700" fill="#5A6B7B">6 / 6</text>
+  <g font-size="11">
+    <rect x="58" y="372" width="64" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="74" y="388" fill="#5A6B7B">BCA</text>
+    <rect x="128" y="372" width="74" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="144" y="388" fill="#5A6B7B">CIDB</text>
+    <rect x="208" y="372" width="74" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="224" y="388" fill="#5A6B7B">FIDIC</text>
+    <rect x="288" y="372" width="64" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="304" y="388" fill="#5A6B7B">IEC</text>
+    <rect x="358" y="372" width="64" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="374" y="388" fill="#5A6B7B">ISO</text>
+    <rect x="58" y="404" width="64" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="74" y="420" fill="#5A6B7B">JKR</text>
+  </g>
+
+  <!-- ===== Group 4: Approval ===== -->
+  <rect x="480" y="326" width="420" height="150" rx="10" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <text x="498" y="352" font-size="12" font-weight="700" fill="#0F2D52">Approval</text>
+  <rect x="828" y="336" width="34" height="22" rx="6" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <text x="837" y="351" font-size="10" fill="#0F2D52">All</text>
+  <rect x="868" y="336" width="44" height="22" rx="6" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <text x="878" y="351" font-size="10" fill="#0F2D52">Clear</text>
+  <rect x="800" y="336" width="64" height="22" rx="11" fill="#EEF2F7" stroke="#D9E2EC"/>
+  <text x="816" y="351" font-size="10" font-weight="700" fill="#5A6B7B">4 / 4</text>
+  <g font-size="11">
+    <rect x="498" y="372" width="64" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="514" y="388" fill="#5A6B7B">APP</text>
+    <rect x="568" y="372" width="64" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="584" y="388" fill="#5A6B7B">AWC</text>
+    <rect x="638" y="372" width="64" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="654" y="388" fill="#5A6B7B">REJ</text>
+    <rect x="708" y="372" width="64" height="24" rx="12" fill="#F4F7FB" stroke="#D9E2EC"/><text x="724" y="388" fill="#5A6B7B">NAP</text>
+  </g>
+
+  <!-- ===== Utilities row ===== -->
+  <line x1="40" y1="492" x2="880" y2="492" stroke="#E3E9F0"/>
+  <text x="40" y="514" font-size="10" font-weight="700" fill="#9AA7B4" letter-spacing="1">UTILITIES</text>
+  <rect x="40" y="524" width="430" height="36" rx="8" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <text x="56" y="547" font-size="12" fill="#9AA7B4">Search Doc No / Title / Discipline…</text>
+  <rect x="490" y="532" width="18" height="18" rx="4" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <text x="516" y="546" font-size="11" fill="#0F2D52">Include excluded (Deleted/Void/Superseded)</text>
+  <rect x="760" y="524" width="120" height="36" rx="8" fill="#FFFFFF" stroke="#D9E2EC"/>
+  <text x="784" y="547" font-size="11" font-weight="700" fill="#0F2D52">Reset filters</text>
+
+  <!-- legend -->
+  <text x="40" y="588" font-size="10" fill="#9AA7B4">Selected chips are filled (blue). A group turns amber with a “● filtered” note when selection &lt; total, so you always see what’s narrowing the data.</text>
+</svg>

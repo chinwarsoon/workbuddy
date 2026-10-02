@@ -1,0 +1,78 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Overdue List — consolidated sample</title>
+<style>
+  :root{--navy:#0d2a4a;--red:#c0392b;--border:#d8dee6;--surface:#fff;--muted:#5b6b7d;--bg:#f4f6f9}
+  *{box-sizing:border-box}
+  body{font:13px/1.45 system-ui,Segoe UI,Arial,sans-serif;margin:0;background:var(--bg);color:var(--navy)}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin:18px}
+  .panel h2{margin:0 0 4px;font-size:16px}
+  .tag{font-size:11px;color:var(--muted);font-weight:400}
+  .head-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0 14px}
+  select.base{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--navy);cursor:pointer}
+  .btn{background:#eef2f7;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--navy);cursor:pointer}
+  .btn:hover{background:#e2e8f1}
+  table{border-collapse:collapse;width:100%;font-size:12px}
+  th,td{border-bottom:1px solid var(--border);padding:5px 7px;text-align:left;vertical-align:top}
+  th{background:#f0f3f8;color:var(--muted);font-weight:600;position:sticky;top:0}
+  .combined{max-height:520px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+  .disc-group td{background:#e9eef5;font-weight:700;color:var(--navy)}
+  .note{color:var(--muted);font-size:11px;margin-top:8px}
+</style></head>
+<body>
+<div class="panel">
+  <h2>Overdue List <span class="tag" id="modeTag">sample · consolidated</span></h2>
+  <div class="head-actions">
+    <label>Overdue Type:
+      <select class="base" id="typeFilter">
+        <option value="">All</option>
+        <option value="1st">1st-submission</option>
+        <option value="Resub">Resubmission</option>
+        <option value="Client">Client-review</option>
+      </select>
+    </label>
+    <button class="btn" id="csvBtn">⤓ CSV</button>
+  </div>
+  <div id="view"></div>
+  <div class="note">Sample only — mock data. Single consolidated list; discipline is repeated per row and is filtered by the global Filter Panel (no extra discipline control here). The Overdue Type filter is the only local control.</div>
+</div>
+
+<script>
+const COLS=['Prolog #','Document Number','Document','Title','UESH Discipline','Overdue Type'];
+const DATA=[
+  {prolog:'P-1001',docNo:'TWRP-D-CV-0001',doc:'CV-0001',title:'Civil Works General Arrangement Drawing',disc:'Civil',type:'1st'},
+  {prolog:'P-1002',docNo:'TWRP-D-CV-0002',doc:'CV-0002',title:'Civil Foundation Layout, Pump House',disc:'Civil',type:'Resub'},
+  {prolog:'P-1003',docNo:'TWRP-D-ST-0010',doc:'ST-0010',title:'Structural Steel Frame Analysis Report',disc:'Structural',type:'1st'},
+  {prolog:'P-1004',docNo:'TWRP-D-ST-0011',doc:'ST-0011',title:'Structural Connection Details (Revised)',disc:'Structural',type:'Client'},
+  {prolog:'P-1005',docNo:'TWRP-D-AR-0005',doc:'AR-0005',title:'Architectural Facade Treatment Drawing',disc:'Architectural',type:'1st'},
+  {prolog:'P-1006',docNo:'TWRP-D-AR-0006',doc:'AR-0006',title:'Architectural Internal Finishes Schedule',disc:'Architectural',type:'Resub'},
+  {prolog:'P-1007',docNo:'TWRP-D-ME-0020',doc:'ME-0020',title:'HVAC Ductwork Layout, Level 2',disc:'Mechanical',type:'1st'},
+  {prolog:'P-1008',docNo:'TWRP-D-ME-0021',doc:'ME-0021',title:'Mechanical Plant Room Arrangement',disc:'Mechanical',type:'Client'},
+  {prolog:'P-1009',docNo:'TWRP-D-EL-0030',doc:'EL-0030',title:'Electrical Single Line Diagram (Main)',disc:'Electrical',type:'1st'},
+  {prolog:'P-1010',docNo:'TWRP-D-EL-0031',doc:'EL-0031',title:'Electrical Cable Tray Routing Plan',disc:'Electrical',type:'Resub'},
+  {prolog:'P-1011',docNo:'TWRP-D-PL-0040',doc:'PL-0040',title:'Plumbing Riser Diagram, Block C',disc:'Plumbing',type:'1st'},
+  {prolog:'P-1012',docNo:'TWRP-D-FS-0050',doc:'FS-0050',title:'Fire Strategy Report and Layout',disc:'Fire',type:'Client'}
+];
+const TYPES={'1st':'1st-submission','Resub':'Resubmission','Client':'Client-review'};
+let typeFilter='';
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function visible(){return DATA.filter(r=>!typeFilter||r.type===typeFilter);}
+function csvCell(v){const s=v==null?'':String(v);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
+function download(name,text){const b=new Blob([text],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+function rowCells(r){return [r.prolog,r.docNo,r.doc,r.title,r.disc,TYPES[r.type]];}
+function render(){
+  const rows=visible().slice().sort((a,b)=>a.disc<b.disc?-1:a.disc>b.disc?1:a.type<b.type?-1:a.type>b.type?1:a.docNo<b.docNo?-1:1);
+  const head=COLS.map(c=>`<th>${c}</th>`).join('');
+  const body=rows.length?rows.map(r=>`<tr>${rowCells(r).map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="6" style="color:#999">No overdue documents</td></tr>`;
+  document.getElementById('view').innerHTML=`<div class="combined"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+  document.getElementById('modeTag').textContent=`sample · consolidated (${rows.length})`;
+}
+document.getElementById('typeFilter').onchange=e=>{typeFilter=e.target.value;render();};
+document.getElementById('csvBtn').onclick=()=>{
+  const rows=visible();
+  const lines=[COLS.join(',')].concat(rows.map(r=>rowCells(r).map(csvCell).join(',')));
+  download('MDL_Overdue.csv',lines.join('\n'));
+};
+render();
+</script>
+</body></html>

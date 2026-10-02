@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MDL Control Center — TWRP C3B2 Master Document List</title>
+<style>
+/* ============================================================================
+   LAYER 01 — DESIGN TOKENS
+   Values come from MDL_UI_Design_Spec.md §15 (colours), §16 (typography),
+   §17 (spacing). Every colour in the app resolves through these variables so a
+   token change is a one-line edit; chart SVG uses literal hex because the SVG
+   is serialised to PNG, where document CSS variables do not resolve.
+   ============================================================================ */
+:root{
+  /* primary / accent / semantic — UI spec §15 */
+  --navy:#0F2D52;          /* primary            */
+  --blue:#1E88E5;          /* engineering accent */
+  --green:#2E7D32;         /* success            */
+  --amber:#F9A825;         /* warning            */
+  --red:#C62828;           /* critical           */
+  --slate:#64748B;         /* neutral            */
+  --bg:#F6F8FA;            /* background         */
+  --surface:#FFFFFF;       /* surface            */
+  --border:#D9E1E8;        /* light grey         */
+
+  /* derived tints (kept here, not inline, so dark mode can flip them) */
+  --ink:#10233A;
+  --muted:var(--slate);
+  --soft:#EAF2FB;
+  --soft-border:#C6DDF6;
+  --accent-ink:#0B4C8C;
+  --navy-ink:#0F2D52;
+
+  --ok-bg:#E8F5E9;   --ok-border:#B7DFB9;   --ok-fg:#1B5E20;
+  --warn-bg:#FFF6E0; --warn-border:#F5DFA0; --warn-fg:#7A5A00; --warn-fg-strong:#8A5A00;
+  --err-bg:#FDECEA;  --err-border:#F3C3BE;  --err-fg:#8E1F1F;
+  --info-bg:#EAF2FB; --info-border:#C6DDF6; --info-fg:#0B4C8C;
+  --neutral-bg:#EEF2F6; --neutral-border:#D9E1E8; --neutral-fg:#475569;
+
+  --shadow:0 1px 2px rgba(15,45,82,.05), 0 4px 16px rgba(15,45,82,.05);
+  --radius:14px;
+  --radius-sm:10px;
+
+  /* spacing scale — UI spec §17 */
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
+
+  /* typography — UI spec §16 */
+  --font:"Segoe UI",Inter,"Source Sans Pro",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+
+  --row-h:40px;   /* table row height    — UI spec §18 */
+  --head-h:44px;  /* table header height — UI spec §18 */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:var(--font); font-size:14px; line-height:1.45;
+  -webkit-font-smoothing:antialiased; padding-bottom:var(--s7);
+}
+.wrap{max-width:1280px;margin:0 auto;padding:0 var(--s4)}
+
+/* ============================================================================
+   LAYER 02 — PRIMITIVES
+   .ds-* = design-system primitives · .s-* = status state · .note = caption
+   (mirrors the PPP convention so the two dashboards read as one family)
+   ============================================================================ */
+
+/* ---- welcome / drop zone ---- */
+#welcome{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:var(--s4)}
+.wcard{background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);padding:var(--s7) var(--s6);text-align:center;max-width:520px;width:100%}
+.wlogo{height:48px;width:auto;margin:0 auto var(--s4);display:block}
+.wcard h1{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-bottom:var(--s2)}
+.wcard p{color:var(--muted);font-size:14px;margin-bottom:var(--s5)}
+.expect{background:var(--soft);border:1px solid var(--soft-border);border-radius:var(--radius-sm);padding:var(--s3) var(--s4);font-size:12px;color:var(--accent-ink);margin-bottom:var(--s4);text-align:left}
+.expect b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--blue);margin-bottom:3px}
+.drop{border:1.5px dashed var(--border);border-radius:var(--radius);padding:var(--s5) var(--s4);margin-bottom:var(--s4);transition:.15s;cursor:pointer}
+.drop.hover{border-color:var(--blue);background:var(--soft)}
+.drop .big{font-weight:600;font-size:14px;margin-bottom:4px}
+.drop .small{font-size:12px;color:var(--muted)}
+.privacy{font-size:11.5px;color:var(--muted);margin-top:var(--s4);display:flex;gap:6px;align-items:center;justify-content:center}
+.privacy svg{width:13px;height:13px;fill:var(--muted);flex-shrink:0}
+
+/* ---- buttons — UI spec §19 ---- */
+.btn{display:inline-block;background:var(--blue);color:#fff;font:inherit;font-weight:600;font-size:14px;padding:11px 22px;border:1px solid transparent;border-radius:var(--radius-sm);cursor:pointer;transition:.15s}
+.btn:hover{filter:brightness(1.07)}
+.btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--border)}
+.btn.ghost:hover{border-color:var(--blue);color:var(--blue);filter:none}
+.btn.sm{font-size:12px;padding:6px 12px}
+
+/* ---- header bar ---- */
+header.bar{position:sticky;top:0;z-index:30;background:rgba(246,248,250,.9);backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px);border-bottom:1px solid var(--border)}
+header.bar .inner{max-width:1280px;margin:0 auto;padding:var(--s3) var(--s4);display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
+header.bar .brand{display:flex;align-items:center;gap:var(--s3);flex:1;min-width:0}
+header.bar .logo{height:30px;width:auto;display:block;flex-shrink:0}
+.brand .txt{min-width:0}
+.brand .ttl{font-weight:700;font-size:15px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand .meta{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---- filter panel ---- */
+.tf-wrap{position:relative;flex-shrink:0}
+.tf-btn{font:inherit;font-size:12px;font-weight:600;padding:7px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--ink);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:.15s}
+.tf-btn:hover{border-color:var(--blue);color:var(--blue)}
+.tf-btn.active{border-color:var(--blue);color:var(--blue);background:var(--soft)}
+.tf-btn svg{width:11px;height:11px;fill:currentColor;flex-shrink:0}
+.tf-panel{display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 6px 28px rgba(15,45,82,.14);padding:var(--s2) 0;min-width:250px;max-width:min(360px,92vw);max-height:340px;overflow-y:auto;z-index:40}
+.tf-panel.open{display:block}
+.tf-panel label{display:flex;align-items:center;gap:var(--s2);padding:7px var(--s3);font-size:13px;cursor:pointer;transition:.1s}
+.tf-panel label:hover{background:var(--soft)}
+.tf-panel label input{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0}
+.tf-panel .cnt{margin-left:auto;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tf-panel .head{padding:6px var(--s3);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+.tf-divider{height:1px;background:var(--border);margin:var(--s1) 0}
+.tf-actions{padding:var(--s2) var(--s3) 4px;display:flex;gap:var(--s2)}
+.tf-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---- search ---- */
+.search{position:relative;flex-shrink:0}
+.search input{font:inherit;font-size:12.5px;padding:7px 11px 7px 30px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--ink);width:230px;transition:.15s}
+.search input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--soft)}
+.search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:13px;height:13px;fill:var(--muted);pointer-events:none}
+
+/* ---- layout ---- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:var(--s3);margin:var(--s4) 0}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:var(--s4);box-shadow:var(--shadow);position:relative;overflow:hidden}
+.kpi.clickable{cursor:pointer;transition:.15s}
+.kpi.clickable:hover{border-color:var(--blue);transform:translateY(-1px)}
+.kpi .v{font-size:30px;font-weight:700;letter-spacing:-.025em;line-height:1.05;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.3}
+.kpi .s{font-size:11px;margin-top:6px;font-weight:600;font-variant-numeric:tabular-nums}
+.kpi .accent{position:absolute;left:0;top:0;bottom:0;width:3px}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);margin-bottom:var(--s3)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:var(--s4) var(--s5);box-shadow:var(--shadow);margin-bottom:var(--s3)}
+.grid .card{margin-bottom:0}
+.grid .card.full{grid-column:1 / -1}
+.card h2{font-size:15.5px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:var(--s2)}
+.card h2 .tag{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:5px;background:var(--neutral-bg);color:var(--neutral-fg)}
+.card .sub{font-size:12.5px;color:var(--muted);margin:5px 0 var(--s3);line-height:1.5}
+.ctool{display:flex;gap:var(--s2);margin-bottom:var(--s3);flex-wrap:wrap;align-items:center}
+.ctool button{font:inherit;font-size:12px;font-weight:600;padding:6px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--blue);cursor:pointer;transition:.15s}
+.ctool button:hover{background:var(--soft);border-color:var(--blue)}
+.chartwrap{width:100%;overflow-x:auto}
+
+/* ---- tables — UI spec §18 ---- */
+.ds-table{width:100%;border-collapse:collapse;font-size:13px}
+.ds-table th,.ds-table td{text-align:left;padding:0 var(--s3);height:var(--row-h);border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:340px}
+.ds-table thead th{height:var(--head-h);color:var(--muted);font-weight:600;font-size:12px;position:sticky;top:0;background:#F8FAFC;z-index:2;border-bottom:1px solid var(--border)}
+.ds-table thead th.sortable{cursor:pointer;user-select:none}
+.ds-table thead th.sortable:hover{color:var(--blue)}
+.ds-table thead th .arrow{opacity:.35;margin-left:3px}
+.ds-table thead th[aria-sort] .arrow{opacity:1;color:var(--blue)}
+.ds-table td.num,.ds-table th.num{text-align:right;font-variant-numeric:tabular-nums}
+.ds-table tbody tr:hover td{background:var(--soft)}
+.ds-table tbody tr.clk{cursor:pointer}
+.ds-table .t-main{font-weight:600;color:var(--navy-ink)}
+.ds-tableWrap{max-height:460px;overflow:auto;border:1px solid var(--border);border-radius:var(--radius-sm)}
+
+/* ---- status library — UI spec §14 (never colour alone: icon + text + colour) ---- */
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:6px;border:1px solid transparent;white-space:nowrap}
+.badge .ic{font-size:10px;line-height:1}
+.badge.ok{background:var(--ok-bg);color:var(--ok-fg);border-color:var(--ok-border)}
+.badge.warn{background:var(--warn-bg);color:var(--warn-fg-strong);border-color:var(--warn-border)}
+.badge.crit{background:var(--err-bg);color:var(--err-fg);border-color:var(--err-border)}
+.badge.info{background:var(--info-bg);color:var(--info-fg);border-color:var(--info-border)}
+.badge.neutral{background:var(--neutral-bg);color:var(--neutral-fg);border-color:var(--neutral-border)}
+.sev{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;text-transform:capitalize;display:inline-block}
+.sev-error{background:var(--err-bg);color:var(--err-fg)}
+.sev-warning{background:var(--warn-bg);color:var(--warn-fg-strong)}
+.sev-info{background:var(--info-bg);color:var(--info-fg)}
+.s-ok{color:var(--ok-fg)} .s-warn{color:var(--warn-fg-strong)} .s-crit{color:var(--err-fg)} .s-muted{color:var(--muted)}
+
+/* ---- action list — UI spec §7 ---- */
+.action{border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.action .row{display:flex;align-items:center;gap:var(--s3);padding:11px var(--s3);border-bottom:1px solid var(--border);cursor:pointer;transition:.12s}
+.action .row:last-child{border-bottom:none}
+.action .row:hover{background:var(--soft)}
+.action .row .ic{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.action .row .tx{flex:1;min-width:0}
+.action .row .tx .t{font-size:13px;font-weight:600}
+.action .row .tx .d{font-size:11.5px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.action .row .n{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;flex-shrink:0}
+
+/* ---- validation panel ---- */
+.vchips{display:flex;gap:var(--s2);flex-wrap:wrap;margin-bottom:var(--s3)}
+.vchip{font-size:12px;font-weight:600;padding:5px 12px;border-radius:999px;border:1px solid transparent}
+.vchip.e{background:var(--err-bg);color:var(--err-fg);border-color:var(--err-border)}
+.vchip.w{background:var(--warn-bg);color:var(--warn-fg-strong);border-color:var(--warn-border)}
+.vchip.i{background:var(--info-bg);color:var(--info-fg);border-color:var(--info-border)}
+.vchip.ok{background:var(--ok-bg);color:var(--ok-fg);border-color:var(--ok-border)}
+details.vd{margin-top:var(--s2)}
+details.vd summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--blue);padding:6px 0;list-style:none}
+details.vd summary::-webkit-details-marker{display:none}
+details.vd summary::before{content:"▸ ";display:inline-block;transition:.15s}
+details.vd[open] summary::before{content:"▾ "}
+details.vd summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:3px}
+.rulecell{cursor:help}
+
+/* ---- misc ---- */
+.flag{background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:var(--radius-sm);padding:var(--s3) var(--s4);font-size:13px;color:var(--warn-fg);margin-top:var(--s2)}
+.flag b{color:var(--warn-fg-strong)}
+.flag.info{background:var(--info-bg);border-color:var(--info-border);color:var(--info-fg)}
+.flag.info b{color:var(--info-fg)}
+.flag.crit{background:var(--err-bg);border-color:var(--err-border);color:var(--err-fg)}
+.flag.crit b{color:var(--err-fg)}
+.note{font-size:12px;color:var(--muted);margin-top:var(--s2);line-height:1.55}
+.note b{color:var(--ink)}
+.empty{font-size:13px;color:var(--muted);padding:var(--s4) 0;text-align:center}
+.mono{font-family:var(--font-mono);font-size:12px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px var(--s3);font-size:12.5px}
+.kv .k{color:var(--muted)}
+.kv .v{font-weight:600;font-variant-numeric:tabular-nums}
+.hidden{display:none}
+#fileInput{display:none}
+#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:rgba(16,35,58,.94);color:#fff;font-size:13px;padding:10px 18px;border-radius:var(--radius-sm);opacity:0;pointer-events:none;transition:.25s;z-index:50}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#errBanner{display:none;position:fixed;top:0;left:0;right:0;z-index:60;background:var(--red);color:#fff;font-size:13px;padding:12px 18px;line-height:1.4;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+footer{margin-top:var(--s6);font-size:11.5px;color:var(--muted);text-align:center;line-height:1.7}
+
+/* ---- a11y / motion / print ---- */
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:3px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media(max-width:1000px){
+  .grid{grid-template-columns:1fr}
+  .search input{width:170px}
+  .brand .meta{display:none}
+}
+@media print{
+  body{background:#fff;color:#000;padding-bottom:0}
+  header.bar{position:static;background:#fff}
+  .tf-wrap,.search,.ctool,#toast,#errBanner,.no-print{display:none!important}
+  .card{break-inside:avoid;box-shadow:none;border:1px solid #ccc}
+  .kpis{grid-template-columns:repeat(4,1fr)}
+  .ds-tableWrap{max-height:none;overflow:visible}
+  .ds-table thead th{position:static}
+  .chartwrap{overflow:visible}
+  .action .row:hover{background:none}
+}
+/* ---- dark theme (token flip only) ---- */
+[data-theme="dark"]{
+  --bg:#0D1723; --surface:#152234; --ink:#E8EEF5; --muted:#93A4B8;
+  --border:#26374D; --soft:#16283C; --soft-border:#274A6B;
+  --accent-ink:#8CC2F0;
+  --ok-bg:#14301F; --ok-border:#24512F; --ok-fg:#7BD98F;
+  --warn-bg:#332708; --warn-border:#5A4413; --warn-fg:#F5C860; --warn-fg-strong:#FFD98A;
+  --err-bg:#331414; --err-border:#5C2626; --err-fg:#F08A8A;
+  --info-bg:#132B42; --info-border:#26496B; --info-fg:#8CC2F0;
+  --neutral-bg:#1E2C3D; --neutral-border:#2C3D52; --neutral-fg:#9FB2C7;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.3);
+}
+[data-theme="dark"] .ds-table thead th{background:#1A2939}
+[data-theme="dark"] .ds-table tbody tr:hover td{background:var(--soft)}
+[data-theme="dark"] .chartwrap{background:#fff;border-radius:var(--radius-sm);padding:var(--s1)}
+</style>
+</head>
+<body>
+<div id="errBanner" role="alert" aria-live="assertive"></div>
+
+<!-- ===================== WELCOME ===================== -->
+<div id="welcome">
+  <div class="wcard">
+    <img class="wlogo" src="data:image/jpeg;base64,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" alt="UES — Better Environments" />
+    <h1>MDL Control Center</h1>
+    <p>Master Document List dashboard. Load the workbook to review document health, submission schedule and data quality.</p>
+    <div class="expect"><b>Select and load the Master Document List</b>Keep <span class="mono">TWRP C3B2 - Master Document List.xlsx</span> in the same folder as this page, then select it below.</div>
+    <div class="drop" id="drop">
+      <div class="big">Drop your .xlsx here</div>
+      <div class="small">or click to browse &middot; Excel (.xlsx) or CSV export</div>
+    </div>
+    <button class="btn" type="button" id="openBtn">Select Master Document List&hellip;</button>
+    <div class="privacy"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 3 5v6c0 5 3.4 9.7 9 11 5.6-1.3 9-6 9-11V5l-9-4zm0 10.9h7c-.5 4-3 7.3-7 8.3V12H5V6.3l7-3.1V12z"/></svg>Works fully offline &mdash; your data never leaves this browser</div>
+    <input id="fileInput" type="file" accept=".xlsx,.csv" />
+  </div>
+</div>
+
+<!-- ===================== DASHBOARD ===================== -->
+<div id="dash" class="hidden">
+  <header class="bar">
+    <div class="inner">
+      <div class="brand">
+        <img class="logo" src="data:image/jpeg;base64,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" alt="" />
+        <div class="txt">
+          <div class="ttl">MDL Control Center <span class="s-muted" id="projTitle"></span></div>
+          <div class="meta" id="metaLine"></div>
+        </div>
+      </div>
+      <div class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"/></svg>
+        <input id="search" type="search" placeholder="Search document no. or title&hellip;" aria-label="Search documents" />
+      </div>
+      <div class="tf-wrap" id="tfWrap">
+        <button class="tf-btn" id="tfBtn" aria-expanded="false" aria-haspopup="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 18h4v-2h-4zM3 6v2h18V6zm3 7h12v-2H6z"/></svg>
+          Filters <span id="tfCount"></span>
+        </button>
+        <div class="tf-panel" id="tfPanel" role="group" aria-label="Filters"></div>
+      </div>
+      <button class="tf-btn" id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode">&#9681;</button>
+      <button class="tf-btn" id="reloadBtn" title="Load a different workbook">Reload</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- decisions banner: the resolved open questions, stated in-product -->
+    <div id="decisions" class="flag info" style="margin-top:16px"></div>
+
+    <!-- KPI overview — UI spec §6 -->
+    <section class="kpis" id="kpis" aria-label="Document control KPIs"></section>
+
+    <!-- Action required — UI spec §7 (most important section) -->
+    <section class="card" aria-labelledby="actH">
+      <h2 id="actH">Action Required <span class="tag">Today</span></h2>
+      <p class="sub">Sorted by severity. Select any row to open the affected documents.</p>
+      <div class="action" id="actions"></div>
+    </section>
+
+    <!-- Schedule health -->
+    <div class="grid">
+      <div class="card">
+        <h2>Submission Status <span class="tag">Schedule</span></h2>
+        <p class="sub" id="subStatusSub">Where active documents stand against their planned and forecast first-issue dates.</p>
+        <div class="chartwrap" id="subStatusChart"></div>
+        <div id="subStatusNote"></div>
+      </div>
+      <div class="card">
+        <h2>Forecast Slip <span class="tag">Variance</span></h2>
+        <p class="sub" id="slipSub">Forecast 1st Issue Date minus Planned 1st Issue Date, in calendar days.</p>
+        <div class="chartwrap" id="slipChart"></div>
+        <div id="slipNote"></div>
+      </div>
+    </div>
+
+    <!-- Discipline analysis — UI spec §12 -->
+    <div class="grid">
+      <div class="card">
+        <h2>Documents by Discipline <span class="tag" id="discTag">UESH</span></h2>
+        <p class="sub">Aggregated on <b>col C (UESH Discipline)</b>, which is authoritative &mdash; not the source tab name.</p>
+        <div class="ctool" id="discTool"></div>
+        <div class="chartwrap" id="discChart"></div>
+        <div id="discNote"></div>
+      </div>
+      <div class="card">
+        <h2>Approval Status <span class="tag">Outcome</span></h2>
+        <p class="sub">Latest Approval Status (col Y) across active documents.</p>
+        <div class="ctool" id="apprTool"></div>
+        <div class="chartwrap" id="apprChart"></div>
+        <div id="apprNote"></div>
+      </div>
+    </div>
+
+    <!-- Prolog / transmission + document mix -->
+    <div class="grid">
+      <div class="card">
+        <h2>Prolog Transmission <span class="tag">Submitted</span></h2>
+        <p class="sub">Prolog Submission Status (col W) for documents that have been issued.</p>
+        <div class="chartwrap" id="prologChart"></div>
+        <div id="prologNote"></div>
+      </div>
+      <div class="card">
+        <h2>Document Mix <span class="tag">Doc Type &amp; Stage</span></h2>
+        <p class="sub">Composition of the active register by doc type (col I) and stage (col B).</p>
+        <div class="ctool" id="mixTool"></div>
+        <div class="chartwrap" id="mixChart"></div>
+        <div id="mixNote"></div>
+      </div>
+    </div>
+
+    <!-- Upcoming submissions — UI spec §8 -->
+    <section class="card" aria-labelledby="upH">
+      <h2 id="upH">Upcoming Submissions <span class="tag">Look-Ahead</span></h2>
+      <p class="sub" id="upSub">Active documents not yet issued, by working days remaining to their forecast date.</p>
+      <div class="ctool" id="upChips"></div>
+      <div class="ds-tableWrap"><table class="ds-table" id="upTable"></table></div>
+    </section>
+
+    <!-- Duplicate register (first-class: 45 groups / 92 rows in current data) -->
+    <section class="card" aria-labelledby="dupH">
+      <h2 id="dupH">Duplicate Document Numbers <span class="tag">V-26</span></h2>
+      <p class="sub" id="dupSub">Active rows sharing a Document No. Because <b>Rev</b> (col L) is unpopulated, these cannot be resolved as revisions.</p>
+      <div class="ds-tableWrap"><table class="ds-table" id="dupTable"></table></div>
+      <div class="note" id="dupNote"></div>
+    </section>
+
+    <!-- Validation — UI spec §13 -->
+    <section class="card" aria-labelledby="valH">
+      <h2 id="valH">Validation <span class="tag" id="valTag">27 rules</span></h2>
+      <p class="sub">Every rule's wording and severity is read at runtime from the <b>Code!AI:AL</b> error block &mdash; nothing is hard-coded.</p>
+      <div class="ctool">
+        <button id="vExport" class="btn ghost sm" type="button">Export issues (CSV)</button>
+      </div>
+      <div id="vSummary"></div>
+      <div id="vDetail"></div>
+    </section>
+
+    <!-- Workbook integrity: derived-column health (dashboard-level, not a workbook rule) -->
+    <section class="card" aria-labelledby="wbH">
+      <h2 id="wbH">Workbook Integrity <span class="tag">Derived columns</span></h2>
+      <p class="sub">Detects formula-driven columns that would make a metric meaningless. This is a dashboard check, not a workbook validation rule.</p>
+      <div id="wbIntegrity"></div>
+    </section>
+
+    <!-- Document register — UI spec §10 (largest module) -->
+    <section class="card" aria-labelledby="regH">
+      <h2 id="regH">Document Register <span class="tag" id="regTag"></span></h2>
+      <p class="sub">Full active register, in the Code sheet's column order. Only fields the workbook actually populates are shown.</p>
+      <div class="ctool">
+        <button id="regExport" class="btn ghost sm" type="button">Export register (CSV)</button>
+        <span class="note" style="margin:0" id="regCount"></span>
+      </div>
+      <div class="ds-tableWrap"><table class="ds-table" id="regTable"></table></div>
+    </section>
+
+    <!-- Contract / provenance -->
+    <section class="card" aria-labelledby="conH">
+      <h2 id="conH">Data Contract <span class="tag">Provenance</span></h2>
+      <p class="sub">What the dashboard read from the workbook, so the numbers can be audited.</p>
+      <div class="grid" style="margin:0">
+        <div><div class="kv" id="conSheets"></div></div>
+        <div><div class="kv" id="conLookups"></div></div>
+      </div>
+    </section>
+
+    <footer id="foot"></footer>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================================
+   MDL CONTROL CENTER — TWRP C3B2 Master Document List
+   Single file · zero dependencies · fully offline.
+
+   Layering (workplan §6). Dependencies flow downward only:
+     01 Tokens      (CSS custom properties, head)
+     02 Primitives  (.ds-* / .s-* / .badge, head)
+     03 Data        parser + Code contract + consolidated model   <-- this file
+     04 Logic       validation (V-01..V-27) + schedule derivation
+     05 View        render(STATE); the DOM is write-only
+
+   Everything configurable — lookup value lists, rule wording, rule severity,
+   review durations — is READ FROM THE WORKBOOK at runtime. Nothing is
+   hard-coded except the two documented business constants in LAYOUT_RULES.
+   ============================================================================ */
+(function(){
+'use strict';
+
+/* ============================================================================
+   LAYER 03a — OFFLINE XLSX / CSV PARSER
+   An .xlsx is a ZIP of XML. We scan the central directory, inflate the parts we
+   need with the native DecompressionStream, and read cell values with regexes.
+   We deliberately read ONLY the cached <v> result and ignore <f>: the value is
+   what Excel last computed, the formula text is not a value.
+   ============================================================================ */
+function colToIndex(ref){ const letters=ref.match(/[A-Z]+/)[0]; let n=0; for(const ch of letters) n=n*26+(ch.charCodeAt(0)-64); return n-1; }
+function unescXml(s){ return s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'" ).replace(/&amp;/g,'&'); }
+function parseSharedStrings(xml){
+  const out=[]; const siRe=/<si>([\s\S]*?)<\/si>/g; let m;
+  while((m=siRe.exec(xml))){
+    const inner=m[1]; let txt=''; const tRe=/<t[^>]*>([\s\S]*?)<\/t>/g; let t;
+    while((t=tRe.exec(inner))) txt+=unescXml(t[1]);
+    out.push(txt);
+  }
+  return out;
+}
+function parseWorkbookSheets(wb, rels){
+  const map={}; const relMap={};
+  const relRe=/<Relationship[^>]*Id="([^"]+)"[^>]*Target="([^"]+)"[^>]*\/?>/g; let r;
+  while((r=relRe.exec(rels))) relMap[r[1]]=r[2];
+  const sheetRe=/<sheet[^>]*name="([^"]+)"[^>]*r:id="([^"]+)"[^>]*\/?>/g; let m;
+  while((m=sheetRe.exec(wb))){
+    let target=relMap[m[2]]||''; if(!target) continue;
+    if(target.startsWith('/')) target=target.slice(1);
+    else if(!target.startsWith('xl/')) target='xl/'+target.replace(/^\.\//,'');
+    map[m[1]]=target;
+  }
+  return map;
+}
+function parseSheet(xml, shared){
+  const sd=xml.match(/<sheetData>([\s\S]*?)<\/sheetData>/); if(!sd) return [];
+  const body=sd[1];
+  const rowRe=/<row\b([^>]*?)(?:\/>|>([\s\S]*?)<\/row>)/g;
+  const rowsTmp=[]; let maxCol=0, maxRow=0, m;
+  while((m=rowRe.exec(body))){
+    const rowIdxM=/\br="(\d+)"/.exec(m[1]); if(!rowIdxM) continue;
+    const r=parseInt(rowIdxM[1],10); const rbody=m[2]||'';
+    /* the self-closing alternative matters: an empty styled cell is written as
+       <c r="N2" s="7"/> and a greedy <c>...</c> match would swallow the next cell */
+    const cRe=/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g; let c; const obj={};
+    while((c=cRe.exec(rbody))){
+      const attrs=c[1], cbody=c[2]||'';
+      const refM=/r="([A-Z]+\d+)"/.exec(attrs); if(!refM) continue;
+      const typeM=/\bt="([^"]+)"/.exec(attrs);
+      const ref=refM[1], col=colToIndex(ref), type=typeM?typeM[1]:null;
+      let val=null;
+      if(type==='s'){ const vM=/<v>(\d+)<\/v>/.exec(cbody); if(vM) val=(shared[parseInt(vM[1],10)] ?? ''); }
+      else if(type==='inlineStr'){ const tM=/<t[^>]*>([\s\S]*?)<\/t>/.exec(cbody); val=tM?tM[1]:''; }
+      else if(type==='e'){ val=null; }
+      else if(type==='str'){ const vM=/<v>([\s\S]*?)<\/v>/.exec(cbody); val=vM?vM[1]:''; }
+      else{
+        const vM=/<v>([\s\S]*?)<\/v>/.exec(cbody);
+        if(vM){ val=vM[1]; if(!isNaN(Number(vM[1]))) val=Number(vM[1]); }
+      }
+      obj[col]=val;
+      if(col>maxCol) maxCol=col;
+    }
+    if(r>maxRow) maxRow=r;
+    rowsTmp.push({row:r,obj});
+  }
+  const grid=[];
+  for(const rt of rowsTmp){
+    if(!grid[rt.row-1]) grid[rt.row-1]=new Array(maxCol+1).fill(null);
+    const arr=grid[rt.row-1];
+    for(const k in rt.obj) if(arr[k]===null||arr[k]==='') arr[k]=rt.obj[k];
+  }
+  for(let i=0;i<maxRow;i++) if(!grid[i]) grid[i]=new Array(maxCol+1).fill(null);
+  return grid;
+}
+async function inflateRaw(bytes){
+  if(typeof DecompressionStream==='undefined')
+    throw new Error('This browser lacks DecompressionStream. Open the dashboard in a current Chrome, Edge, Firefox or Safari.');
+  const ds=new DecompressionStream('deflate-raw');
+  const w=ds.writable.getWriter(); w.write(bytes); w.close();
+  const r=ds.readable.getReader(); const chunks=[]; let total=0, x;
+  while(!(x=await r.read()).done){ chunks.push(x.value); total+=x.value.length; }
+  const out=new Uint8Array(total); let off=0;
+  for(const c of chunks){ out.set(c,off); off+=c.length; }
+  return out;
+}
+async function parseXlsx(buf){
+  const bytes=new Uint8Array(buf); const dv=new DataView(buf);
+  let eocd=-1;
+  for(let i=bytes.length-22;i>=0 && i>bytes.length-65558;i--){
+    if(bytes[i]===0x50&&bytes[i+1]===0x4B&&bytes[i+2]===0x05&&bytes[i+3]===0x06){eocd=i;break;}
+  }
+  if(eocd<0) throw new Error('File is not a valid .xlsx (ZIP). Save as .xlsx or use a CSV export.');
+  const cdCount=dv.getUint16(eocd+10,true); const cdOffset=dv.getUint32(eocd+16,true);
+  const entries=[]; let p=cdOffset;
+  for(let i=0;i<cdCount;i++){
+    if(dv.getUint32(p,true)!==0x02014B50) break;
+    const compMethod=dv.getUint16(p+10,true), compSize=dv.getUint32(p+20,true);
+    const fnameLen=dv.getUint16(p+28,true), extraLen=dv.getUint16(p+30,true), commentLen=dv.getUint16(p+32,true);
+    const localOffset=dv.getUint32(p+42,true);
+    const name=new TextDecoder().decode(bytes.subarray(p+46,p+46+fnameLen));
+    entries.push({name,compMethod,compSize,localOffset});
+    p+=46+fnameLen+extraLen+commentLen;
+  }
+  const getEntry=n=>entries.find(e=>e.name===n||e.name.endsWith('/'+n));
+  async function readEntry(e){
+    const lh=e.localOffset; const fl=dv.getUint16(lh+26,true), el=dv.getUint16(lh+28,true);
+    const start=lh+30+fl+el; const data=bytes.subarray(start,start+e.compSize);
+    if(e.compMethod===0) return data;
+    if(e.compMethod===8) return await inflateRaw(data);
+    throw new Error('Unsupported ZIP compression method '+e.compMethod);
+  }
+  const dec=v=>new TextDecoder().decode(v);
+  const ssE=getEntry('xl/sharedStrings.xml');
+  const shared=ssE?parseSharedStrings(dec(await readEntry(ssE))):[];
+  const wbE=getEntry('xl/workbook.xml');
+  if(!wbE) throw new Error('Workbook is missing xl/workbook.xml');
+  const wb=dec(await readEntry(wbE));
+  const relsE=getEntry('xl/_rels/workbook.xml.rels');
+  const rels=relsE?dec(await readEntry(relsE)):'';
+  const sheetMap=parseWorkbookSheets(wb,rels);
+  const result={};
+  for(const [name,path] of Object.entries(sheetMap)){
+    const e=getEntry(path)||getEntry(path.replace('xl/',''));
+    if(!e) continue;
+    result[name]=parseSheet(dec(await readEntry(e)),shared);
+  }
+  return result;
+}
+function parseCSV(text){
+  /* RFC 4180 state machine. No lookbehind, so it runs on every browser. */
+  const rows=[]; let row=[]; let field=''; let inQuotes=false;
+  const n=text.length; let i=0;
+  const pushField=()=>{ row.push(field); field=''; };
+  const pushRow=()=>{ pushField(); rows.push(row); row=[]; };
+  while(i<n){
+    const c=text[i];
+    if(inQuotes){
+      if(c==='"'){ if(text[i+1]==='"'){ field+='"'; i+=2; continue; } inQuotes=false; i++; continue; }
+      field+=c; i++; continue;
+    }
+    if(c==='"'){ inQuotes=true; i++; continue; }
+    if(c===','){ pushField(); i++; continue; }
+    if(c==='\r'){ i++; continue; }
+    if(c==='\n'){ pushRow(); i++; continue; }
+    field+=c; i++;
+  }
+  if(field!=='' || row.length>0) pushRow();
+  return rows.filter(r=>r.some(c=>c!==''));
+}
+
+/* ============================================================================
+   LAYER 03b — CODE SHEET CONTRACT
+   The Code sheet is the single source of truth. Its blocks are located by their
+   ROW-1 HEADER TEXT, never by a fixed column letter, so a block may be moved or
+   a new column inserted without touching code.
+
+     rows 2-8   project metadata      A=label B=value C=type
+     rows 9-11  review durations      A=label B=working days C=type
+     rows 12-36 column map            A=field B="Column-X" C=type
+     row 1 + body, one block per concept, code column then description column
+   ============================================================================ */
+const LOOKUP_SPECS = [
+  {key:'stage',       code:['stage code','stage'],                desc:['description']},
+  {key:'uesh',        code:['uesh discipline','uesh discipline code'], desc:['uesh discipline description']},
+  {key:'wbs',         code:['wbs contract code','wbs code'],      desc:['contract title']},
+  {key:'prefix',      code:['project prefix'],                    desc:['facility/building description','facility description']},
+  {key:'docType',     code:['doc code','document type code'],      desc:['doc description']},
+  {key:'discCode',    code:['discipline code'],                   desc:['discipline description']},
+  {key:'series',      code:['series'],                            desc:['series description']},
+  {key:'authority',   code:['authority code'],                    desc:['authority submission','authority']},
+  {key:'prolog',      code:['prolog submission code'],            desc:['prolog submission status']},
+  {key:'approval',    code:['approval code'],                     desc:['approval status']},
+  {key:'errorCode',   code:['error code'],                        desc:[]},
+  {key:'errorGroup',  code:[],                                    desc:['group']},
+  {key:'errorRule',   code:[],                                    desc:['rule']},
+  {key:'errorSev',    code:[],                                    desc:['severity']}
+];
+/* the Code sheet's own column-map labels, in the A12:A36 order */
+const COLMAP_KEYS = [
+  ['sno','SNo.'],['stage','Stage'],['uesh','UESH Discipline'],['p6','P6 Activity ID'],
+  ['bq','BQ Number'],['system','System'],['projCode','Project Code'],['prefix','Project Prefix'],
+  ['docType','Doc Type'],['discCode','Discipline'],['number','Number'],['rev','Rev'],
+  ['docNo','Document No.'],['title','Document Title'],['notes','Notes'],['asBuilt','As-Built'],
+  ['authority','Authority'],['vendorData','Vendor Data'],
+  ['planned','Planned 1st Issue Date'],['forecast','Forecast 1st Issue Date'],
+  ['actual','Actual 1st Issue Date'],['prologNo','Prolog Number'],
+  ['prologStatus','Prolog Submission Status'],
+  ['apprDate','Latest Approval Date'],['apprStatus','Latest Approval Status']
+];
+const COLMAP_LABEL_TO_KEY = Object.fromEntries(COLMAP_KEYS.map(([k,l])=>[l.toLowerCase(),k]));
+
+/* ---- the two documented business constants (workplan §3.7) ----
+   LAYOUT_RULES.excludeStage : lifecycle states that never count as an active
+                               document. Read from the Code sheet's Stage block.
+   TEMPLATE_RULE            : unpopulated worksheet scaffolding — see §LAYOUT
+                               below. Both are stated in the UI, not hidden. */
+const LAYOUT_RULES = {
+  excludeStage:['Deleted','Void','Superseded'],
+  templateNote:'Unpopulated template rows are excluded from all counts.'
+};
+
+function colLetter(i){ let n=i+1,s=''; while(n>0){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=(n-m-1)/26; } return s; }
+function normHeader(v){ return String(v==null?'':v).replace(/\s+/g,' ').trim().toLowerCase(); }
+function colRefToIndex(ref){
+  if(ref==null) return -1;
+  const m=String(ref).match(/Column-([A-Z]+)/i); if(!m) return -1;
+  let idx=0; for(const ch of m[1].toUpperCase()) idx=idx*26+(ch.charCodeAt(0)-64);
+  return idx-1;
+}
+const TYPE_ALIASES={date:'Date',datetime:'Date',d:'Date',number:'Number',numeric:'Number',num:'Number',int:'Number',integer:'Number',n:'Number',text:'Text',string:'Text',str:'Text',t:'Text',s:'Text',boolean:'Boolean',bool:'Boolean',b:'Boolean'};
+function normType(v){
+  if(v==null) return '';
+  const k=String(v).trim().toLowerCase(); if(!k) return '';
+  if(TYPE_ALIASES[k]) return TYPE_ALIASES[k];
+  for(const key in TYPE_ALIASES) if(k.indexOf(key)===0) return TYPE_ALIASES[key];
+  return '';
+}
+/* read a contiguous code column, stopping after 3 consecutive blanks (the
+   Code sheet is 16395 rows but its blocks end within the first ~64) */
+function readColumn(grid, colIdx, start){
+  if(colIdx==null||colIdx<0) return [];
+  const out=[]; let blankRun=0;
+  for(let r=start;r<grid.length && r<start+400;r++){
+    const row=grid[r]; const v=row?row[colIdx]:null;
+    if(v==null||String(v).trim()===''){ if(++blankRun>=3) break; continue; }
+    blankRun=0; out.push(String(v).trim());
+  }
+  return out;
+}
+function readRuleMap(grid, codeCol, groupCol, ruleCol, sevCol, start){
+  const map={};
+  if(codeCol==null||codeCol<0) return map;
+  let blankRun=0;
+  for(let r=start;r<grid.length && r<start+400;r++){
+    const row=grid[r]; const c=row?row[codeCol]:null;
+    if(c==null||String(c).trim()===''){ if(++blankRun>=3) break; continue; }
+    blankRun=0;
+    const g=(groupCol==null||!row)?'':String(row[groupCol]??'').trim();
+    const m=(ruleCol==null||!row)?'':String(row[ruleCol]??'').trim();
+    const raw=(sevCol==null||!row)?'':String(row[sevCol]??'').trim();
+    const sl=raw.toLowerCase();
+    /* severity is normalised, not hard-coded: anything that is not plainly an
+       error or info is treated as a warning (fail-soft) */
+    const sev = sl.indexOf('error')===0 ? 'Error' : (sl.indexOf('info')===0 ? 'Info' : 'Warning');
+    map[String(c).trim()]={group:g, rule:m, severity:sev, rawSeverity:raw};
+  }
+  return map;
+}
+function findCodeSheet(result){
+  const k=Object.keys(result).find(n=>normHeader(n)==='code');
+  return k?result[k]:null;
+}
+/* find each lookup block by its row-1 header text */
+function findLookupCols(grid){
+  const hdr=grid[0]||[]; const found={};
+  const matchCol=(cands)=>{
+    for(const c of cands){
+      for(let i=0;i<hdr.length;i++) if(normHeader(hdr[i])===c) return i;
+    }
+    for(const c of cands){
+      for(let i=0;i<hdr.length;i++){ const h=normHeader(hdr[i]); if(h&&h.indexOf(c)===0) return i; }
+    }
+    return -1;
+  };
+  for(const spec of LOOKUP_SPECS){
+    const c = spec.code.length? matchCol(spec.code) : -1;
+    const d = spec.desc.length? matchCol(spec.desc) : -1;
+    if(c>=0||d>=0) found[spec.key]={code:c, desc:d};
+  }
+  return found;
+}
+function parseCodeContract(codeGrid){
+  const meta={}, metaTypes={};
+  const colMap={}, colMapRaw={}, colTypes={};
+  for(let r=0;r<codeGrid.length;r++){
+    const row=codeGrid[r]; if(!row) continue;
+    const a=row[0]; if(a==null||String(a).trim()==='') continue;
+    const label=String(a).trim();
+    const b=row[1];
+    /* a row whose col B is "Column-X" is part of the 12-36 column map */
+    if(typeof b==='string' && /^column-/i.test(b.trim())){
+      const key=COLMAP_LABEL_TO_KEY[label.toLowerCase()];
+      if(key){ colMap[key]=colRefToIndex(b); colMapRaw[key]=b.trim(); const t=normType(row[2]); if(t) colTypes[key]=t; }
+      continue;
+    }
+    if(b==null||String(b).trim()==='') continue;
+    meta[label]=b;
+    const t=normType(row[2]); if(t) metaTypes[label]=t;
+  }
+  /* review durations (rows 9-11): label -> working-day count */
+  const reviewRules={};
+  const asNum=v=>{ const n=Number(v); return Number.isFinite(n)?n:null; };
+  const fcr=asNum(meta['First Client Review']);
+  const scr=asNum(meta['Subsequent Client Review']);
+  const res=asNum(meta['Resubmission Duration']);
+  if(fcr!=null) reviewRules.firstClientReviewWD=fcr;
+  if(scr!=null) reviewRules.subsequentClientReviewWD=scr;
+  if(res!=null) reviewRules.resubmissionWD=res;
+
+  const cols=findLookupCols(codeGrid);
+  const lookups={
+    stage:readColumn(codeGrid,cols.stage&&cols.stage.code,1),
+    uesh:readColumn(codeGrid,cols.uesh&&cols.uesh.code,1),
+    ueshDesc:readColumn(codeGrid,cols.uesh&&cols.uesh.desc,1),
+    wbs:readColumn(codeGrid,cols.wbs&&cols.wbs.code,1),
+    prefix:readColumn(codeGrid,cols.prefix&&cols.prefix.code,1),
+    docType:readColumn(codeGrid,cols.docType&&cols.docType.code,1),
+    discCode:readColumn(codeGrid,cols.discCode&&cols.discCode.code,1),
+    discCodeDesc:readColumn(codeGrid,cols.discCode&&cols.discCode.desc,1),
+    authority:readColumn(codeGrid,cols.authority&&cols.authority.code,1),
+    prolog:readColumn(codeGrid,cols.prolog&&cols.prolog.code,1),
+    approval:readColumn(codeGrid,cols.approval&&cols.approval.code,1),
+    approvalDesc:readColumn(codeGrid,cols.approval&&cols.approval.desc,1)
+  };
+  const lookupMeta={};
+  for(const k of Object.keys(lookups)) lookupMeta[k]={n:lookups[k].length, col:cols[k]?colLetter(cols[k].code):null};
+  /* The error block is a 4-column MAP (Code | Group | Rule | Severity), not a
+     code/description pair. Each of its columns is declared as the "desc" side of
+     its own spec, so resolve either side — reading .code alone silently yields
+     -1 and every rule falls back to a blank message + Warning. */
+  const errCol=(k)=>{ const c=cols[k]; if(!c) return -1; return c.code>=0?c.code:(c.desc>=0?c.desc:-1); };
+  const errorTable=readRuleMap(codeGrid, errCol('errorCode'), errCol('errorGroup'), errCol('errorRule'), errCol('errorSev'), 1);
+  return {meta, metaTypes, colMap, colMapRaw, colTypes, lookups, lookupMeta, errorTable, reviewRules, hasColMap:Object.keys(colMap).length>0};
+}
+
+/* ============================================================================
+   LAYER 03c — NORMALISATION + CONSOLIDATED MODEL
+
+   A document's authoritative discipline is col C (UESH Discipline), NOT the tab
+   it sits on. All discipline tabs share the identical A-Y layout, so they are
+   unioned into ONE table before any aggregation.
+
+   Two value-normalisation maps are applied for GROUPING and VALIDATION only.
+   They never rewrite the stored value: the raw value is always kept and shown,
+   and the affected rows are reported as data-quality issues so the workbook can
+   be corrected at source. See §RESOLVED DECISIONS below.
+   ============================================================================ */
+function toDate(v){
+  if(v==null||v==='') return null;
+  if(v instanceof Date) return isNaN(v)?null:v;
+  if(typeof v==='number'){
+    if(v>20000&&v<80000){ /* Excel serial; 25569 = 1970-01-01 */
+      let s=v; if(s>=60) s-=1; /* Excel's phantom 1900-02-29 */
+      return new Date(Math.round((s-25569)*86400000));
+    }
+    return null;
+  }
+  const d=new Date(v); return isNaN(d)?null:d;
+}
+function str(v){ return v==null?'':String(v).trim(); }
+
+/* ---------- RESOLVED DECISIONS (see the in-product banner) ----------
+   1. TEMPLATE ROWS EXCLUDED. An unpopulated worksheet is 12 identical
+      scaffolding rows: Document No. resolves to the literal
+      "131236-WIL21-SN-IM-xxxx", Number is "xxxx", Document Title is empty,
+      Stage is "NA". A genuinely on-hold document (V-15) always carries a real
+      title, so "placeholder number AND no title" is a safe discriminator. These
+      rows are dropped from counts and surfaced as an explicit note rather than
+      being silently counted as 84 real documents.
+   2. VALUE ALIASES. Two lookup-domain violations in the current workbook are
+      resolved for grouping only, and reported:
+        col C "Mechanical" -> canonical "Mech"   (Code!H has no "Mechanical")
+        col J "P"          -> canonical "PR"     (Code!T has no "P"; PR=Process)
+   3. APPROVAL TURNAROUND SUPPRESSED. Latest Approval Date (col X) is the
+      formula =U+90 on every issued row, so issue->approval is a constant and
+      any average/SLA metric built on it is meaningless. The dashboard detects
+      this and shows N/A instead of a fabricated 90 days.
+   4. REVIEW-CYCLE / RESUBMISSION PANELS OMITTED. The workbook holds no review
+      history, so cycles, resubmission clocks and timelines cannot be derived
+      without inventing events. Submission-side schedule control IS shown, since
+      Planned/Forecast/Actual are real data.
+   -------------------------------------------------------------------- */
+const VALUE_ALIASES = {
+  uesh:{'mechanical':'Mech'},
+  discCode:{'p':'PR'}
+};
+function canonValue(domain, v){
+  const s=str(v); if(!s) return '';
+  const m=VALUE_ALIASES[domain];
+  if(!m) return s;
+  /* keys are stored lower-cased and looked up lower-cased, so an alias never
+     silently no-ops on a differently-cased workbook value (e.g. 'P' vs 'p') */
+  return m[s.toLowerCase()] || s;
+}
+function isTemplateRow(fields){
+  return /xxxx/i.test(str(fields.docNo)) && str(fields.number).toLowerCase()==='xxxx' && !str(fields.title);
+}
+function isExcludedStage(stage, excludeSet){
+  return excludeSet.has(str(stage));
+}
+
+function discoverDisciplineTabs(result, ueshUniverse){
+  /* A tab is a discipline document list iff its name is in the Code sheet's
+     UESH Discipline list AND it carries the A-Y column layout. */
+  const names=Object.keys(result);
+  const found=[], skipped=[];
+  for(const name of names){
+    if(normHeader(name)==='code'||normHeader(name)==='bq'||normHeader(name)==='notes'||normHeader(name)==='dashboard'){ skipped.push(name); continue; }
+    const grid=result[name]; if(!grid||!grid.length) continue;
+    const hdr=grid[0]||[];
+    const heads=hdr.map(normHeader);
+    const hasLayout = heads.indexOf('document no.')>=0 && heads.indexOf('stage')>=0;
+    if(ueshUniverse.has(name)){ if(hasLayout) found.push(name); else skipped.push(name); }
+    else skipped.push(name);
+  }
+  return {found, skipped};
+}
+
+function buildModel(result, filename){
+  const codeGrid=findCodeSheet(result);
+  if(!codeGrid||!codeGrid.length) throw new Error('No Code sheet found. The workbook column map and lookup lists are required.');
+  const contract=parseCodeContract(codeGrid);
+  const {colMap,colTypes,lookups,errorTable,reviewRules,meta}=contract;
+
+  const ueshUniverse=new Set(lookups.uesh.map(s=>str(s)));
+  const {found:tabs, skipped}=discoverDisciplineTabs(result, ueshUniverse);
+  if(!tabs.length) throw new Error('No discipline document list found. A tab is a document list only if its name matches a UESH Discipline in the Code sheet.');
+
+  const excludeSet=new Set(LAYOUT_RULES.excludeStage);
+  const headerRow=Math.max(0,(Number(meta['Header Row'])||1)-1);
+  const declaredEnd=Number(meta['List End Row'])||0;
+
+  /* ---- consolidate every discovered tab into ONE table ---- */
+  const docs=[]; const perTab=[]; let templateCount=0, emptyCount=0;
+  for(const tab of tabs){
+    const grid=result[tab];
+    const last=declaredEnd>0? Math.min(declaredEnd, grid.length) : grid.length;
+    let tRows=0, tActive=0, tTemplate=0;
+    for(let r=headerRow+1;r<last;r++){
+      const row=grid[r]; if(!row) continue;
+      /* a wholly empty row is padding, not a record with a missing Document No.
+         — the two are counted separately so the data-quality panel reports the
+         real problem (a populated row with no document number) and not the
+         spreadsheet's trailing whitespace */
+      let anyValue=false;
+      for(let c=0;c<row.length;c++){ const v=row[c]; if(v!=null&&String(v).trim()!==''){ anyValue=true; break; } }
+      if(!anyValue){ emptyCount++; continue; }
+      const f={};
+      for(const [key,colIdx] of Object.entries(colMap)){
+        if(colIdx==null||colIdx<0) continue;
+        const raw=row[colIdx];
+        const t=colTypes[key]||'Text';
+        f[key] = (t==='Date') ? toDate(raw)
+               : (t==='Number') ? (raw==null||raw===''?null:Number(raw))
+               : (raw==null?'':String(raw));
+      }
+      f.stage=str(f.stage);
+      f.docNo=str(f.docNo);
+      if(!f.docNo) continue;            /* valid-record gate: populated but no doc no */
+      f._tab=tab; f._row=r+1;
+      if(isTemplateRow(f)){ tTemplate++; templateCount++; continue; }  /* DECISION 1 */
+      /* the workbook writes the literal string "Deleted" into col M for deleted
+         rows (the =IF(Stage="Deleted","Deleted",...) formula); such rows are
+         lifecycle records, not documents */
+      const isLifecycleMarker = f.docNo.toLowerCase()==='deleted';
+      f.isActive = !isExcludedStage(f.stage, excludeSet) && !isLifecycleMarker;
+      f._template=false; f._lifecycleMarker=isLifecycleMarker;
+      f._ueshCanon=canonValue('uesh', f.uesh);
+      f._discCanon=canonValue('discCode', f.discCode);
+      tRows++; if(f.isActive) tActive++;
+      docs.push(f);
+    }
+    perTab.push({tab, rows:tRows, active:tActive, template:tTemplate});
+  }
+  if(!docs.length) throw new Error('No document records with a Document No. were found in the discipline tabs.');
+
+  /* ---- the discipline universe, for the "no list yet" note ---- */
+  const presentTabs=new Set(tabs);
+  const noListYet=Array.from(ueshUniverse).filter(u=>!presentTabs.has(u));
+
+  /* ---- derived dates & schedule fields (DECISION 4: submission side only) ---- */
+  const today=new Date(); today.setHours(0,0,0,0);
+  for(const d of docs){
+    d._planned=d.planned instanceof Date?d.planned:null;
+    d._forecast=d.forecast instanceof Date?d.forecast:null;
+    d._actual=d.actual instanceof Date?d.actual:null;
+    d._apprDate=d.apprDate instanceof Date?d.apprDate:null;
+    d._issued=!!d._actual;
+    d._slip=(d._planned&&d._forecast)? Math.round((d._forecast-d._planned)/86400000) : null;
+    d._issueVsForecast=(d._forecast&&d._actual)? Math.round((d._actual-d._forecast)/86400000) : null;
+    if(!d._issued && d._forecast){
+      const days=Math.round((d._forecast-today)/86400000);
+      d._subState = days<0 ? 'overdue' : (days<=14 ? 'dueSoon' : 'scheduled');
+      d._daysToForecast=days;
+    } else if(!d._issued){
+      d._subState='noDate'; d._daysToForecast=null;
+    } else {
+      d._subState = (d._issueVsForecast!=null && d._issueVsForecast>0) ? 'issuedLate' : 'issuedOnTime';
+      d._daysToForecast=null;
+    }
+  }
+
+  /* ---- DECISION 3: is Latest Approval Date a constant-offset formula? ----
+     If X-U is identical on every issued row, turnaround carries no signal.
+     Detected from the values, so the check survives the workbook being fixed. */
+  let apprOffsetSet=new Set(), apprPairs=0;
+  for(const d of docs){
+    if(d._actual&&d._apprDate){ apprOffsetSet.add(Math.round((d._apprDate-d._actual)/86400000)); apprPairs++; }
+  }
+  const approvalDerived = apprPairs>2 && apprOffsetSet.size===1;
+  const approvalOffsetDays = approvalDerived ? apprOffsetSet.values().next().value : null;
+
+  /* ---- duplicates (V-26) ---- */
+  const byDocNo=new Map();
+  for(const d of docs){
+    if(!d.docNo) continue;
+    const k=d.docNo;
+    if(!byDocNo.has(k)) byDocNo.set(k,[]);
+    byDocNo.get(k).push(d);
+  }
+  const dupGroups=Array.from(byDocNo.entries())
+    .filter(([,arr])=>arr.filter(x=>x.isActive).length>1)
+    .map(([k,arr])=>({docNo:k, rows:arr, active:arr.filter(x=>x.isActive)}));
+
+  const projectTitle=str(meta['Project Title']) || filename.replace(/\.(xlsx?|csv)$/i,'');
+  const asOf = toDate(meta['AsOf Date']) || today;
+
+  const model={
+    project:{title:projectTitle, code:str(meta['Project Code']), client:str(meta['Client']),
+             consultant:str(meta['Consultant']), asOf, listEndRow:declaredEnd||null},
+    docs, tabs, skipped, perTab, noListYet,
+    lookups, lookupMeta:contract.lookupMeta, errorTable, reviewRules,
+    colMap, colTypes, contractMeta:meta,
+    today, approvalDerived, approvalOffsetDays,
+    templateCount, emptyCount, universeSize:ueshUniverse.size
+  };
+  return model;
+}
+
+/* ============================================================================
+   LAYER 04a — VALIDATION ENGINE (V-01 .. V-27)
+   Every message and severity is read from the Code!AI:AL error block at
+   runtime. A rule with no row there falls back to a generic message + Warning.
+   Validation NEVER blocks rendering: the report is produced first, then the
+   dashboard draws regardless of the outcome.
+   ============================================================================ */
+function validate(model){
+  const L=model.lookups, T=model.today;
+  const S=new Set(L.stage.map(s=>str(s)));
+  const U=new Set(L.uesh.map(s=>str(s)));
+  const D=new Set(L.docType.map(s=>str(s)));
+  const C=new Set(L.discCode.map(s=>str(s)));
+  const P=new Set(L.prolog.map(s=>str(s)));
+  const A=new Set(L.approval.map(s=>str(s)));
+  const AU=new Set(L.authority.map(s=>str(s)));
+  const W=new Set(L.prefix.map(s=>str(s)));
+  const WB=new Set(L.wbs.map(s=>str(s)));
+  const issues=[]; const fired=new Set();
+
+  function add(code, doc, field, value, extra){
+    fired.add(code);
+    const meta=model.errorTable[code]||{group:'', rule:'', severity:'Warning'};
+    issues.push({code, sev:meta.severity, group:meta.group, msg:meta.rule,
+      doc: doc? (doc.docNo||'('+doc._tab+' row '+doc._row+')') : '-',
+      tab: doc? doc._tab : '-', row: doc? doc._row : '-',
+      discipline: doc? str(doc.uesh) : '-',
+      field, value: (value==null||value==='')?'(blank)':String(value),
+      extra: extra||'', active: doc? !!doc.isActive : true});
+  }
+  const d2s=d=> d instanceof Date ? d.toISOString().slice(0,10) : null;
+
+  for(const d of model.docs){
+    const active=d.isActive;
+    /* --- A. domain / format --- */
+    if(!S.has(str(d.stage))) add('V-02', d, 'Stage', d.stage);
+    if(!U.has(str(d.uesh))) add('V-03', d, 'UESH Discipline', d.uesh);
+    if(!C.has(str(d.discCode))) add('V-04', d, 'Discipline Code', d.discCode,
+      canonValue('discCode',d.discCode)!==str(d.discCode) ? 'grouped as '+canonValue('discCode',d.discCode) : '');
+    if(!D.has(str(d.docType))) add('V-05', d, 'Doc Type', d.docType);
+    if(str(d.authority) && !AU.has(str(d.authority))) add('V-06', d, 'Authority', d.authority);
+    if(str(d.prologStatus) && !P.has(str(d.prologStatus))) add('V-07', d, 'Prolog Submission Status', d.prologStatus);
+    if(str(d.apprStatus) && !A.has(str(d.apprStatus))) add('V-08', d, 'Latest Approval Status', d.apprStatus);
+    if(!WB.has(str(d.projCode))) add('V-14', d, 'Project Code', d.projCode);
+    if(!W.has(str(d.prefix))) add('V-14', d, 'Project Prefix', d.prefix);
+    if(/xxxx/i.test(str(d.docNo))) add('V-15', d, 'Document No.', d.docNo);
+    if(!active) add('V-12', d, 'Stage', d.stage, 'lifecycle state - excluded from counts');
+
+    /* --- B. cross-field --- */
+    if(str(d.docNo) && str(d.docNo).toLowerCase()!=='deleted'){
+      const composed=[str(d.projCode),str(d.prefix),str(d.docType),str(d.discCode),str(d.number)]
+        .filter(x=>x!=='').join('-');
+      if(composed && str(d.docNo)!==composed) add('V-17', d, 'Document No.', d.docNo, 'expected '+composed);
+    }
+    if(!!str(d.prologStatus) !== !!str(d.prologNo)) add('V-19', d, 'Prolog Number', d.prologNo);
+
+    /* --- C. transmission & state machine --- */
+    if(d._actual && (!str(d.prologNo) || !str(d.prologStatus))) add('V-18', d, 'Prolog', d.prologNo, 'issued without a Prolog transmittal');
+    if(str(d.apprStatus)==='APP' && !d._apprDate) add('V-11', d, 'Latest Approval Date', d.apprDate);
+    if(str(d.prologStatus)==='RTR' && (!str(d.apprStatus)||str(d.apprStatus)==='VOID')) add('V-16', d, 'Latest Approval Status', d.apprStatus);
+    if(['APP','AWC','REJ','NAP'].includes(str(d.apprStatus)) && (!d._actual || !d._apprDate)) add('V-20', d, 'Latest Approval Status', d.apprStatus);
+    if(d._apprDate && (!str(d.apprStatus) || (d._actual && d._apprDate < d._actual))) add('V-21', d, 'Latest Approval Date', d2s(d._apprDate));
+
+    /* --- D. timeline --- */
+    if(d._planned && d._forecast && d._planned > d._forecast) add('V-09', d, 'Planned/Forecast', d2s(d._planned)+' / '+d2s(d._forecast));
+    if(d._forecast && d._actual && d._forecast > d._actual) add('V-09', d, 'Forecast/Actual', d2s(d._forecast)+' / '+d2s(d._actual), 'issued ahead of forecast');
+    if(d._actual && (!d._planned || !d._forecast)) add('V-22', d, 'Actual 1st Issue Date', d2s(d._actual));
+    for(const f of ['_planned','_forecast','_actual','_apprDate']){
+      if(d[f] && d[f] > T) add('V-23', d, f.replace(/^_/,''), d2s(d[f]));
+    }
+
+    /* --- F. metadata completeness (required fields per the column map) --- */
+    const req=['title','uesh','stage','docType','discCode','projCode','prefix','number'];
+    const missing=req.filter(k=>!str(d[k]));
+    if(missing.length) add('V-25', d, 'Required fields', missing.join(', '));
+    if(!str(d.asBuilt)) add('V-27', d, 'As-Built', d.asBuilt);
+    if(str(d.asBuilt) && !['YES','NO'].includes(str(d.asBuilt).toUpperCase())) add('V-27', d, 'As-Built', d.asBuilt);
+    if(str(d.vendorData) && !['YES','NO'].includes(str(d.vendorData).toUpperCase())) add('V-27', d, 'Vendor Data', d.vendorData);
+  }
+  /* --- G. duplicates (consolidated table, active rows only) --- */
+  const seen=new Map();
+  for(const d of model.docs){
+    if(!d.isActive||!d.docNo) continue;
+    if(seen.has(d.docNo)) add('V-26', d, 'Document No.', d.docNo, 'also on row '+seen.get(d.docNo));
+    else seen.set(d.docNo, d._row);
+  }
+  /* --- E. BQ referential integrity (col E) is skipped: the BQ sheet holds 2117
+     rows of BoQ line text and the BQ Number column is unpopulated in this
+     workbook; when it is populated the check is available via model.bqNos --- */
+
+  const order={Error:0, Warning:1, Info:2};
+  issues.sort((a,b)=> (order[a.sev]-order[b.sev]) || String(a.code).localeCompare(String(b.code)) || String(a.doc).localeCompare(String(b.doc)));
+  const bySeverity={Error:0, Warning:0, Info:0};
+  issues.forEach(i=>bySeverity[i.sev]++);
+  const byRule={};
+  for(const i of issues){ (byRule[i.code]=byRule[i.code]||{code:i.code,sev:i.sev,group:i.group,msg:i.msg,n:0}).n++; }
+  const activeTotal=model.docs.filter(d=>d.isActive).length;
+  const docsWithError=new Set(issues.filter(i=>i.sev==='Error'&&i.active).map(i=>i.doc)).size;
+  return {
+    issues, bySeverity, byRule:Object.values(byRule).sort((a,b)=>b.n-a.n),
+    total:issues.length, activeTotal,
+    completeness: activeTotal? Math.round((activeTotal-docsWithError)/activeTotal*100) : null,
+    rulesDefined:Object.keys(model.errorTable).length, firedCount:fired.size
+  };
+}
+
+/* ============================================================================
+   LAYER 04b — AGGREGATION
+   All counts read the ONE consolidated table and respect isActive.
+   ============================================================================ */
+function activeDocs(model){ return model.docs.filter(d=>d.isActive); }
+function tally(list, keyFn){
+  const m=new Map();
+  for(const d of list){ const k=keyFn(d); m.set(k,(m.get(k)||0)+1); }
+  return m;
+}
+function sumBy(list, fn){ let s=0,n=0; for(const d of list){ const v=fn(d); if(v!=null&&Number.isFinite(v)){ s+=v; n++; } } return {sum:s,n,avg:n? s/n : null}; }
+function pct(a,b){ return b>0 ? Math.round(a/b*100) : null; }
+
+function computeSummary(list){
+  const total=list.length;
+  const submitted=list.filter(d=>d._issued);
+  const approved=list.filter(d=>['APP','AWC'].includes(str(d.apprStatus)));
+  const app=list.filter(d=>str(d.apprStatus)==='APP');
+  const awc=list.filter(d=>str(d.apprStatus)==='AWC');
+  const rej=list.filter(d=>str(d.apprStatus)==='REJ');
+  const overdue=list.filter(d=>d._subState==='overdue');
+  const dueSoon=list.filter(d=>d._subState==='dueSoon');
+  const notIssued=list.filter(d=>!d._issued);
+  const lateIssued=list.filter(d=>d._subState==='issuedLate');
+  const slip=sumBy(list,d=>d._slip);
+  const asBuiltYes=list.filter(d=>str(d.asBuilt).toUpperCase()==='YES').length;
+  return {
+    total, submitted:submitted.length, approved:approved.length, app:app.length, awc:awc.length,
+    rej:rej.length, overdue:overdue.length, dueSoon:dueSoon.length, notIssued:notIssued.length,
+    lateIssued:lateIssued.length, onTimeIssued:submitted.length-lateIssued.length,
+    submitPct:pct(submitted.length,total), apprPct:pct(approved.length,total),
+    slipAvg:slip.avg, slipMax:slip.n?Math.max(...list.map(d=>d._slip).filter(x=>x!=null)) : null,
+    slipN:slip.n, asBuiltYes, asBuiltPct:pct(asBuiltYes,total)
+  };
+}
+function workingDaysBetween(a,b){
+  let n=0; const cur=new Date(a);
+  while(cur < b){ cur.setDate(cur.getDate()+1); const day=cur.getDay(); if(day!==0&&day!==6) n++; }
+  return n;
+}
+function upHorizon(list, model, days){
+  const limit=new Date(model.today); limit.setDate(limit.getDate()+days);
+  return list.filter(d=>!d._issued && d._forecast && d._forecast>=model.today && d._forecast<=limit);
+}
+
+/* ============================================================================
+   LAYER 05a — CHART PRIMITIVES (inline SVG, no library)
+   Colours are literal hex: the SVG is serialised to PNG for export, where
+   document CSS custom properties do not resolve.
+   ============================================================================ */
+const CHART={
+  W:640, RW:132, padT:10, RH:28, BH:18,
+  stack:{ R:100, r:60, cx:150, legendX:330, rowH:26 },
+  group:{ h:250, padL:38, padR:12, padT:18, padB:52 },
+  ink:'#10233A', muted:'#64748B', grey:'#CBD5E1', axis:'#D9E1E8', grid:'#EEF2F6', white:'#FFFFFF',
+  accent:'#1E88E5', accentDark:'#0F2D52', good:'#2E7D32', goodDark:'#1B5E20',
+  warn:'#F9A825', warnDark:'#7A5A00', crit:'#C62828', critDark:'#8E1F1F', info:'#0B4C8C'
+};
+const PALETTE=[CHART.accent, CHART.good, CHART.warn, CHART.accentDark, CHART.crit, '#30B0C7', '#7C4DFF', '#8E8E93', '#00ACC1', '#AB47BC'];
+
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function trunc(s,n){ s=String(s==null?'':s); return s.length>n? s.slice(0,n-1)+'\u2026' : s; }
+function fmtD(d){ if(!(d instanceof Date)) return '\u2014'; return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
+function fmtN(n){ return (n==null||!Number.isFinite(n)) ? '\u2014' : Math.round(n).toLocaleString('en-GB'); }
+function svgHBar(items, opts){
+  opts=opts||{};
+  const W=CHART.W, padT=CHART.padT, RH=CHART.RH, BH=CHART.BH, LW=opts.labelW||CHART.RW;
+  const H=padT+items.length*RH+6;
+  if(!items.length) return '<div class="empty">No data to chart.</div>';
+  const maxV=Math.max.apply(null,items.map(i=>i.value).concat([1]));
+  const plotX=LW+6, plotW=W-plotX-44;
+  let s='<svg role="img" aria-label="'+esc(opts.ariaLabel||'bar chart')+'" xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:'+W+'px;height:auto">';
+  items.forEach((it,i)=>{
+    const y=padT+i*RH, bw=Math.max(2,(it.value/maxV)*plotW), col=it.color||CHART.accent;
+    s+='<text x="'+(LW-8)+'" y="'+(y+BH-4)+'" text-anchor="end" fill="'+CHART.ink+'" style="font-size:12px"><title>'+esc(it.label)+'</title>'+esc(trunc(it.label,Math.floor(LW/6.4)))+'</text>';
+    s+='<rect x="'+plotX+'" y="'+y+'" width="'+bw+'" height="'+BH+'" fill="'+col+'" rx="3"><title>'+esc(it.label)+': '+it.value+'</title></rect>';
+    s+='<text x="'+(plotX+bw+7)+'" y="'+(y+BH-4)+'" fill="'+CHART.muted+'" style="font-size:12px;font-variant-numeric:tabular-nums">'+it.value+'</text>';
+  });
+  return s+'</svg>';
+}
+function polar(cx,cy,r,a){ return [cx+r*Math.cos(a), cy+r*Math.sin(a)]; }
+function donutPath(cx,cy,R,r,a0,a1){
+  const large=(a1-a0)>Math.PI?1:0;
+  const [x0,y0]=polar(cx,cy,R,a0), [x1,y1]=polar(cx,cy,R,a1);
+  const [x2,y2]=polar(cx,cy,r,a1), [x3,y3]=polar(cx,cy,r,a0);
+  return 'M'+x0+','+y0+' A'+R+','+R+' 0 '+large+' 1 '+x1+','+y1+' L'+x2+','+y2+' A'+r+','+r+' 0 '+large+' 0 '+x3+','+y3+' Z';
+}
+function svgDonut(items, opts){
+  opts=opts||{};
+  const W=CHART.W, S=CHART.stack, H=S.R*2+34;
+  const list=items.filter(i=>i.value>0);
+  const total=list.reduce((a,b)=>a+b.value,0);
+  if(!total) return '<div class="empty">No data to chart.</div>';
+  let a=-Math.PI/2;
+  let s='<svg role="img" aria-label="'+esc(opts.ariaLabel||'distribution chart')+'" xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:'+W+'px;height:auto">';
+  list.forEach(it=>{
+    const frac=it.value/total, a1=a+frac*Math.PI*2;
+    const d=donutPath(S.cx,H/2,S.R,S.r,a,a1);
+    s+='<path d="'+d+'" fill="'+(it.color||CHART.accent)+'" stroke="'+CHART.white+'" stroke-width="1.5"><title>'+esc(it.label)+': '+it.value+' ('+Math.round(frac*100)+'%)</title></path>';
+    a=a1;
+  });
+  s+='<text x="'+S.cx+'" y="'+(H/2-2)+'" text-anchor="middle" fill="'+CHART.ink+'" style="font-size:22px;font-weight:700">'+total+'</text>';
+  s+='<text x="'+S.cx+'" y="'+(H/2+16)+'" text-anchor="middle" fill="'+CHART.muted+'" style="font-size:11px">'+esc(opts.centerLabel||'documents')+'</text>';
+  let y=30;
+  list.forEach(it=>{
+    const frac=it.value/total;
+    s+='<rect x="'+(S.legendX-14)+'" y="'+(y-9)+'" width="10" height="10" rx="2" fill="'+(it.color||CHART.accent)+'"/>';
+    s+='<text x="'+S.legendX+'" y="'+y+'" fill="'+CHART.ink+'" style="font-size:12.5px"><title>'+esc(it.label)+'</title>'+esc(trunc(it.label,26))+'</text>';
+    s+='<text x="'+(W-12)+'" y="'+y+'" text-anchor="end" fill="'+CHART.muted+'" style="font-size:12.5px;font-variant-numeric:tabular-nums">'+it.value+' \u00b7 '+Math.round(frac*100)+'%</text>';
+    y+=S.rowH;
+  });
+  return s+'</svg>';
+}
+function svgBars(cats, series, opts){
+  opts=opts||{};
+  const G=CHART.group;
+  const w=Math.max(360, cats.length*66+60), h=G.h;
+  if(!cats.length) return '<div class="empty">No data to chart.</div>';
+  const totals=cats.map((_,i)=>series.reduce((a,s)=>a+(s.values[i]||0),0));
+  const maxV=Math.max.apply(null,totals.concat([1]));
+  const plotH=h-G.padT-G.padB, plotW=w-G.padL-G.padR;
+  const slot=plotW/cats.length, bw=Math.max(4,Math.min(20,slot/(series.length+0.6)));
+  let s='<svg role="img" aria-label="'+esc(opts.ariaLabel||'bar chart')+'" xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" style="width:100%;min-width:'+Math.min(w,600)+'px;height:auto">';
+  for(let i=0;i<=4;i++){
+    const v=maxV*i/4, y=G.padT+plotH-(v/maxV)*plotH;
+    s+='<text x="'+(G.padL-6)+'" y="'+(y+4)+'" text-anchor="end" fill="'+CHART.muted+'" style="font-size:11px">'+Math.round(v)+'</text>';
+    s+='<line x1="'+G.padL+'" y1="'+y+'" x2="'+(w-G.padR)+'" y2="'+y+'" stroke="'+CHART.grid+'"/>';
+  }
+  s+='<line x1="'+G.padL+'" y1="'+G.padT+'" x2="'+G.padL+'" y2="'+(G.padT+plotH)+'" stroke="'+CHART.axis+'"/>';
+  s+='<line x1="'+G.padL+'" y1="'+(G.padT+plotH)+'" x2="'+(w-G.padR)+'" y2="'+(G.padT+plotH)+'" stroke="'+CHART.axis+'"/>';
+  cats.forEach((c,i)=>{
+    const cx=G.padL+slot*i+slot/2;
+    const groupW=bw*series.length;
+    series.forEach((ser,j)=>{
+      const v=ser.values[i]||0;
+      const bh=(v/maxV)*plotH;
+      if(bh<=0) return;
+      const x=cx-groupW/2+j*bw;
+      s+='<rect x="'+x+'" y="'+(G.padT+plotH-bh)+'" width="'+(bw-1)+'" height="'+bh+'" fill="'+(ser.color||CHART.accent)+'" rx="2"><title>'+esc(c+' \u00b7 '+ser.name)+': '+v+'</title></rect>';
+    });
+    s+='<text x="'+cx+'" y="'+(G.padT+plotH+15)+'" text-anchor="middle" fill="'+CHART.muted+'" style="font-size:11px"><title>'+esc(c)+'</title>'+esc(trunc(c,9))+'</text>';
+  });
+  let lx=G.padL;
+  series.forEach(ser=>{
+    s+='<rect x="'+lx+'" y="'+(h-13)+'" width="10" height="10" fill="'+(ser.color||CHART.accent)+'" rx="2"/>';
+    s+='<text x="'+(lx+14)+'" y="'+(h-4)+'" fill="'+CHART.ink+'" style="font-size:11.5px">'+esc(ser.name)+'</text>';
+    lx+=14+ser.name.length*6.2+16;
+  });
+  return s+'</svg>';
+}
+function badgeFor(kind, label){
+  const map={
+    ok:['ok','\u2713'], crit:['crit','\u25b2'], warn:['warn','\u25b2'],
+    info:['info','\u2139'], neutral:['neutral','\u25cf']
+  };
+  const m=map[kind]||map.neutral;
+  return '<span class="badge '+m[0]+'"><span class="ic" aria-hidden="true">'+m[1]+'</span>'+esc(label)+'</span>';
+}
+
+/* ============================================================================
+   LAYER 05b — STATE + RENDER
+   STATE is the single source of truth. Handlers mutate STATE then call
+   render(); the DOM is write-only.
+   ============================================================================ */
+const STATE={
+  model:null, report:null,
+  filter:{ disciplines:null, stages:null, search:'' },  /* null = all */
+  sort:{ key:null, dir:1 },
+  focus:null      /* 'overdue' | 'dup' | ... — highlights a KPI/action row */
+};
+function filtered(){
+  const m=STATE.model; if(!m) return [];
+  const f=STATE.filter;
+  return m.docs.filter(d=>{
+    if(!d.isActive) return false;
+    if(f.disciplines && f.disciplines.size && !f.disciplines.has(d._ueshCanon)) return false;
+    if(f.stages && f.stages.size && !f.stages.has(str(d.stage))) return false;
+    if(f.search){
+      const q=f.search.toLowerCase();
+      if(!((d.docNo||'').toLowerCase().includes(q) || (d.title||'').toLowerCase().includes(q))) return false;
+    }
+    return true;
+  });
+}
+function setHTML(id, html){ const el=document.getElementById(id); if(el) el.innerHTML=html; }
+function show(id, v){ const el=document.getElementById(id); if(el) el.style.display=v?'block':'none'; }
+
+function render(){
+  const m=STATE.model, list=filtered(), s=computeSummary(list);
+  renderHeader(s);
+  renderDecisions();
+  renderKPIs(s, list);
+  renderActions(s, list);
+  renderSchedule(list, s);
+  renderDiscipline(list);
+  renderApproval(list);
+  renderProlog(list);
+  renderMix(list);
+  renderUpcoming(list);
+  renderDuplicates();
+  renderValidation();
+  renderIntegrity();
+  renderRegister(list);
+  renderContract();
+}
+
+function renderHeader(s){
+  const m=STATE.model;
+  document.getElementById('projTitle').textContent=m.project.title;
+  document.getElementById('metaLine').textContent=
+    [m.project.client, m.project.code, m.project.consultant].filter(Boolean).join(' \u00b7 ')+
+    ' \u00b7 Workbook as-of '+fmtD(m.project.asOf)+' \u00b7 Today '+fmtD(m.today);
+  document.getElementById('regTag').textContent=s.total+' active';
+  document.getElementById('foot').innerHTML=
+    'MDL Control Center \u00b7 TWRP C3B2 Master Document List \u00b7 '+s.total+' active documents<br/>'+
+    'All value lists, rule wording and severities read at runtime from the workbook. Nothing is hard-coded.<br/>'+
+    'Runs fully offline \u2014 no network requests, no data leaves this browser.';
+  document.getElementById('valTag').textContent=(STATE.report?STATE.report.rulesDefined:0)+' rules from Code!AI:AL';
+}
+function renderDecisions(){
+  const m=STATE.model, s=computeSummary(activeDocs(m));
+  setHTML('decisions',
+    '<b>Data decisions applied.</b> '+
+    (m.templateCount>0
+      ? '<b>'+m.templateCount+' unpopulated template rows</b> (placeholder document number, no title) are excluded from all counts \u2014 they are worksheet scaffolding, not documents. '
+      : '')+
+    'Discipline values are grouped on a canonical key: <span class="mono">Mechanical</span>\u2192<span class="mono">Mech</span> and '+
+    '<span class="mono">P</span>\u2192<span class="mono">PR</span>, because neither exists in the Code lookup lists; the raw value is preserved and every affected row is reported under V-03/V-04. '+
+    (m.approvalDerived
+      ? '<b>Approval turnaround is suppressed:</b> Latest Approval Date is a constant '+m.approvalOffsetDays+'-day offset of the issue date on all '+s.submitted+' issued rows, so any average would be meaningless. See Workbook Integrity below.'
+      : ''));
+}
+
+function renderKPIs(s, list){
+  const cards=[
+    {k:'total', l:'Active Documents', v:fmtN(s.total), s:'Excludes '+fmtN(STATE.model.docs.filter(d=>!d.isActive).length)+' lifecycle rows', c:CHART.accentDark},
+    {k:'submit', l:'Submitted', v:fmtN(s.submitted), s:s.submitPct==null?'\u2014':s.submitPct+'% of active', c:CHART.accent},
+    {k:'appr', l:'Approved (APP+AWC)', v:fmtN(s.approved), s:s.apprPct==null?'\u2014':s.apprPct+'% \u00b7 '+s.app+' APP / '+s.awc+' AWC', c:CHART.good},
+    {k:'overdue', l:'Overdue Submissions', v:fmtN(s.overdue), s:s.overdue?('Forecast date passed, not issued'):'None overdue', c:s.overdue?CHART.crit:CHART.grey},
+    {k:'dueSoon', l:'Due in 14 days', v:fmtN(s.dueSoon), s:'Not yet issued', c:s.dueSoon?CHART.warn:CHART.grey},
+    {k:'slip', l:'Avg Forecast Slip', v:s.slipAvg==null?'\u2014':fmtN(s.slipAvg)+'d', s:s.slipMax!=null?('max '+s.slipMax+'d'):'\u2014', c:CHART.warnDark},
+    {k:'asbuilt', l:'As-Built = YES', v:fmtN(s.asBuiltYes), s:s.asBuiltPct==null?'\u2014':s.asBuiltPct+'% of active', c:CHART.info},
+    {k:'comp', l:'Data Completeness', v:STATE.report&&STATE.report.completeness!=null?STATE.report.completeness+'%':'\u2014', s:'Active rows with no Error-severity issue', c:CHART.accent}
+  ];
+  setHTML('kpis', cards.map(c=>
+    '<div class="kpi'+(c.k==='overdue'||c.k==='total'?' clickable':'')+'" data-kpi="'+c.k+'"'+(c.k==='overdue'&&s.overdue?' tabindex="0" role="button"':'')+'>'+
+    '<div class="accent" style="background:'+c.c+'"></div>'+
+    '<div class="v">'+c.v+'</div><div class="l">'+esc(c.l)+'</div>'+
+    '<div class="s" style="color:'+c.c+'">'+esc(c.s)+'</div></div>').join(''));
+}
+
+function renderActions(s, list){
+  const m=STATE.model;
+  const dupCount=(STATE.report?Object.values(STATE.report.byRule).find(r=>r.code==='V-26'):null);
+  const errCount=STATE.report?STATE.report.bySeverity.Error:0;
+  const warnCount=STATE.report?STATE.report.bySeverity.Warning:0;
+  const rows=[
+    {k:'overdue', ic:'\u25b2', c:'crit', t:'Overdue \u2014 Submission', d:s.overdue+' documents past their forecast date, still not issued', n:s.overdue},
+    {k:'dueSoon', ic:'\u25b2', c:'warn', t:'Due Soon \u2014 Submission', d:s.dueSoon+' documents due within 14 working days', n:s.dueSoon},
+    {k:'errors', ic:'\u26a0', c:'crit', t:'Validation Errors', d:errCount+' Error-severity findings (see Validation)', n:errCount},
+    {k:'dup', ic:'\u2261', c:'warn', t:'Duplicate Document Numbers', d:(dupCount?dupCount.n:0)+' active rows share a Document No.; Rev is unpopulated so these are unresolvable', n:dupCount?dupCount.n:0},
+    {k:'late', ic:'\u25b2', c:'warn', t:'Issued Late vs Forecast', d:s.lateIssued+' documents were issued after their forecast date', n:s.lateIssued},
+    {k:'rej', ic:'\u2715', c:'crit', t:'Rejected \u2014 Awaiting Resubmission', d:s.rej+' documents carry a REJ approval status', n:s.rej},
+    {k:'warn', ic:'\u26a0', c:'warn', t:'Validation Warnings', d:warnCount+' Warning-severity findings', n:warnCount}
+  ].filter(r=>r.n>0);
+  if(!rows.length){ setHTML('actions','<div class="empty">No documents require action.</div>'); return; }
+  setHTML('actions', rows.map(r=>
+    '<div class="row" data-act="'+r.k+'" tabindex="0" role="button">'+
+    '<div class="ic" style="background:var(--'+r.c+'-bg);color:var(--'+r.c+'-fg)">'+r.ic+'</div>'+
+    '<div class="tx"><div class="t">'+esc(r.t)+'</div><div class="d">'+esc(r.d)+'</div></div>'+
+    '<div class="n" style="color:var(--'+r.c+'-fg)">'+fmtN(r.n)+'</div>'+
+    '<div style="color:var(--muted);font-size:18px">&rsaquo;</div></div>').join(''));
+}
+
+function renderSchedule(list, s){
+  const st=[
+    {label:'Issued on/before forecast', value:s.onTimeIssued, color:CHART.good},
+    {label:'Issued late vs forecast', value:s.lateIssued, color:CHART.warn},
+    {label:'Due within 14 days', value:s.dueSoon, color:'#FBC02D'},
+    {label:'Overdue (forecast passed)', value:s.overdue, color:CHART.crit},
+    {label:'No forecast date', value:list.filter(d=>!d._issued&&!d._forecast).length, color:CHART.grey}
+  ];
+  setHTML('subStatusChart', svgHBar(st,{ariaLabel:'Submission status of active documents'}));
+  setHTML('subStatusNote','<p class="note">Every active document has a Planned date. '+
+    (s.total? Math.round(s.submitted/s.total*100):0)+'% have been issued; of those, '+
+    (s.submitted?Math.round(s.lateIssued/s.submitted*100):0)+'% landed after their forecast date.</p>');
+
+  const buckets=[
+    {label:'Pulled forward (<0d)', f:v=>v<0},
+    {label:'No change (0d)', f:v=>v===0},
+    {label:'1\u201330 days', f:v=>v>0&&v<=30},
+    {label:'31\u201390 days', f:v=>v>30&&v<=90},
+    {label:'91\u2013180 days', f:v=>v>90&&v<=180},
+    {label:'Over 180 days', f:v=>v>180}
+  ];
+  const slips=list.map(d=>d._slip).filter(v=>v!=null);
+  const items=buckets.map((b,i)=>({label:b.label, value:slips.filter(b.f).length,
+    color:[CHART.good, CHART.grey, '#FBC02D', CHART.warn, CHART.warnDark, CHART.crit][i]}));
+  setHTML('slipChart', svgHBar(items,{ariaLabel:'Forecast slip distribution in days'}));
+  const worse=slips.filter(v=>v>0);
+  setHTML('slipNote','<p class="note">Mean slip <b>'+(worse.length?fmtN(worse.reduce((a,c)=>a+c,0)/worse.length):0)+' days</b> across '+
+    worse.length+' slipped documents; '+slips.filter(v=>v===0).length+' held their planned date and '+
+    slips.filter(v=>v<0).length+' were pulled forward.</p>');
+}
+
+function renderDiscipline(list){
+  const m=STATE.model;
+  const map=tally(list,d=>d._ueshCanon||'(unassigned)');
+  const items=Array.from(map.entries()).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value);
+  setHTML('discChart', svgHBar(items,{ariaLabel:'Active documents by UESH discipline'}));
+  setHTML('discTag','UESH \u00b7 '+items.length+' of '+m.universeSize);
+  const notes=[];
+  notes.push('<p class="note">Aggregated on <b>col C</b>, not the source tab. A row in the <span class="mono">Process</span> tab may carry a different discipline.');
+  if(m.noListYet.length) notes.push('<p class="note"><b>'+m.noListYet.length+' UESH disciplines have no document list yet</b> \u2014 they contribute no rows, so no bars are drawn: '+esc(m.noListYet.join(', '))+'. They will appear automatically when their tab is added.</p>');
+  const unlisted=items.filter(i=>!m.lookups.uesh.map(str).includes(i.label));
+  if(unlisted.length) notes.push('<p class="note"><b>Values not in the Code!H list:</b> '+esc(unlisted.map(i=>i.label).join(', '))+'. Grouped via the alias map and reported under V-03.</p>');
+  setHTML('discNote', notes.join(''));
+}
+
+function renderApproval(list){
+  const m=STATE.model;
+  const map=tally(list,d=>str(d.apprStatus)||'(blank)');
+  const canon=L=>m.lookups.approval.map(str);
+  const items=Array.from(map.entries()).sort((a,b)=>b[1]-a[1]).map(([k,v],i)=>{
+    let color=PALETTE[i%PALETTE.length];
+    if(k==='APP') color=CHART.good;
+    else if(k==='AWC') color='#66BB6A';
+    else if(k==='REJ') color=CHART.crit;
+    else if(k==='NAP') color=CHART.warn;
+    return {label:k, value:v, color};
+  });
+  setHTML('apprTool','');
+  setHTML('apprChart', svgDonut(items,{ariaLabel:'Approval status distribution', centerLabel:'issued'}) );
+  const known=canon(m.lookups.approval);
+  const unknown=items.filter(i=>i.label!=='(blank)'&&!known.includes(i.label));
+  const n=[];
+  n.push('<p class="note">'+(m.approvalDerived
+    ? '<b>Turnaround is not charted.</b> Latest Approval Date is a constant '+m.approvalOffsetDays+'-day offset of the issue date, so approval speed carries no signal.'
+    : 'Latest Approval Date is real data, so turnaround can be measured.')+'</p>');
+  if(unknown.length) n.push('<p class="note"><b>Not in the Code!AF list:</b> '+esc(unknown.map(i=>i.label+' ('+i.value+')').join(', '))+'. Add the code to the Approval Code block to accept it with no code change (reported as V-08).</p>');
+  setHTML('apprNote', n.join(''));
+}
+
+function renderProlog(list){
+  const m=STATE.model;
+  const issued=list.filter(d=>d._issued);
+  const map=tally(issued,d=>str(d.prologStatus)||'(blank)');
+  const colFor=k=> k==='RTR'?CHART.accent : k==='SUR'?CHART.warn : k==='NTS'?CHART.grey : CHART.crit;
+  const items=Array.from(map.entries()).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:k,value:v,color:colFor(k)}));
+  setHTML('prologChart', svgHBar(items,{ariaLabel:'Prolog transmission status of issued documents'}));
+  const blankNo=issued.filter(d=>!str(d.prologNo)&&!str(d.prologStatus)).length;
+  setHTML('prologNote','<p class="note">Applies to the '+issued.length+' documents already issued. '+
+    (blankNo? blankNo+' issued documents carry no Prolog number or status (V-18).'
+             : 'Every issued document has a Prolog transmittal recorded.')+
+    ' Codes come from the workbook: '+esc(m.lookups.prolog.join(' \u00b7 ')||'\u2014')+'.</p>');
+}
+
+function renderMix(list){
+  const m=STATE.model;
+  const types=Array.from(tally(list,d=>str(d.docType)||'(blank)').entries()).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value);
+  const stageOrder=m.lookups.stage.map(str);
+  const stages=Array.from(tally(list,d=>str(d.stage)||'(blank)').entries())
+    .sort((a,b)=>{ const ia=stageOrder.indexOf(a[0]), ib=stageOrder.indexOf(b[0]); return (ia<0?99:ia)-(ib<0?99:ib); })
+    .map(([k,v])=>({label:k,value:v}));
+  const totalTypes=types.reduce((a,c)=>a+c.value,0);
+  const totalStages=stages.reduce((a,c)=>a+c.value,0);
+  setHTML('mixChart', svgBars(['Doc Type','Stage'],
+    [{name:'Documents', color:CHART.accent, values:[totalTypes,totalStages]}],
+    {ariaLabel:'Document mix by doc type and stage'}));
+  const top=types.slice(0,4).map(t=>t.label+' '+t.value).join(' \u00b7 ');
+  setHTML('mixNote','<p class="note"><b>Doc type:</b> '+esc(top)+'. <b>Stage:</b> '+esc(stages.map(s=>s.label+' '+s.value).join(' \u00b7 '))+
+    '. Both totals equal the active count, so this is a composition view, not a status view.</p>');
+  setHTML('mixTool','');
+}
+
+function renderUpcoming(list){
+  const m=STATE.model;
+  const pending=list.filter(d=>!d._issued&&d._forecast);
+  const h7=upHorizon(list,m,7), h14=upHorizon(list,m,14), h30=upHorizon(list,m,30);
+  setHTML('upChips',
+    '<span class="vchip info">Next 7 days: '+h7.length+'</span>'+
+    '<span class="vchip w">Next 14 days: '+h14.length+'</span>'+
+    '<span class="vchip e" style="background:var(--info-bg);color:var(--info-fg);border-color:var(--info-border)">Next 30 days: '+h30.length+'</span>'+
+    (pending.length?'<span class="note" style="margin:0">Calendar-day windows; no project holiday calendar is defined in the workbook.</span>':''));
+  if(!pending.length){ setHTML('upTable','<tbody><tr><td class="empty">Every active document with a forecast date has been issued.</td></tr></tbody>'); return; }
+  const rows=pending.slice().sort((a,b)=>a._forecast-b._forecast);
+  setHTML('upTable',
+    '<thead><tr><th>Document No.</th><th>Title</th><th>Discipline</th><th>Stage</th>'+
+    '<th class="num">Planned</th><th class="num">Forecast</th><th class="num">Slip</th>'+
+    '<th class="num">Days</th><th>Status</th></tr></thead><tbody>'+
+    rows.map(d=>{
+      const days=Math.round((d._forecast-m.today)/86400000);
+      const b= days<0?badgeFor('crit','Overdue '+Math.abs(days)+'d') : (days<=14?badgeFor('warn','Due in '+days+'d'):badgeFor('info',days+'d ahead'));
+      return '<tr class="clk"><td class="t-main mono">'+esc(d.docNo)+'</td>'+
+        '<td title="'+esc(d.title)+'">'+esc(trunc(d.title,52))+'</td>'+
+        '<td>'+esc(d._ueshCanon||'\u2014')+'</td><td>'+esc(str(d.stage))+'</td>'+
+        '<td class="num">'+fmtD(d._planned)+'</td><td class="num">'+fmtD(d._forecast)+'</td>'+
+        '<td class="num'+(d._slip>0?' s-warn':'')+'">'+(d._slip==null?'\u2014':(d._slip>0?'+':'')+d._slip+'d')+'</td>'+
+        '<td class="num'+(days<0?' s-crit':'')+'">'+days+'</td><td>'+b+'</td></tr>';
+    }).join('')+'</tbody>');
+  setHTML('upSub','Active documents not yet issued, by days remaining to their forecast date. '+
+    rows.filter(d=>d._forecast<m.today).length+' are already overdue.');
+}
+
+function renderDuplicates(){
+  const groups=new Map();
+  STATE.model.docs.forEach(d=>{
+    if(!d.isActive||!d.docNo) return;
+    if(!groups.has(d.docNo)) groups.set(d.docNo,[]);
+    groups.get(d.docNo).push(d);
+  });
+  const dups=Array.from(groups.entries()).filter(([,a])=>a.length>1).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0]));
+  if(!dups.length){ setHTML('dupTable','<tbody><tr><td class="empty">No duplicate document numbers among active rows.</td></tr></tbody>'); setHTML('dupNote',''); return; }
+  setHTML('dupTable',
+    '<thead><tr><th>Document No.</th><th class="num">Copies</th><th>Titles found</th><th>Stages</th><th>Sheets</th></tr></thead><tbody>'+
+    dups.map(([no,arr])=>{
+      const titles=Array.from(new Set(arr.map(d=>str(d.title).toLowerCase())));
+      const sameTitle=titles.length===1;
+      return '<tr><td class="t-main mono">'+esc(no)+'</td><td class="num">'+arr.length+'</td>'+
+        '<td title="'+esc(Array.from(new Set(arr.map(d=>str(d.title)))).join(' | '))+'">'+
+        (sameTitle? esc(trunc(arr[0].title,50)) : badgeFor('crit',arr.length+' different titles'))+'</td>'+
+        '<td>'+esc(Array.from(new Set(arr.map(d=>str(d.stage)))).join(', '))+'</td>'+
+        '<td>'+esc(Array.from(new Set(arr.map(d=>d._tab))).join(', '))+'</td></tr>';
+    }).join('')+'</tbody>');
+  const multiTitle=dups.filter(([,a])=>new Set(a.map(d=>str(d.title).toLowerCase())).size>1).length;
+  setHTML('dupNote','<p class="note"><b>'+dups.length+' document numbers</b> are shared by more than one active row ('+
+    dups.reduce((n,[,a])=>n+a.length,0)+' rows in total). '+
+    (multiTitle
+      ? '<b>'+multiTitle+' of them have entirely different titles</b> \u2014 these are numbering collisions, not revisions of one document, and cannot be reconciled from the data. Rev (col L) is unpopulated project-wide, so there is no revision key to disambiguate. Assign unique numbers at source.'
+      : 'These share a title and differ only in stage.')+'</p>');
+}
+
+function renderValidation(){
+  const r=STATE.report; if(!r) return;
+  const n=r.bySeverity;
+  setHTML('vSummary',
+    '<div class="vchips">'+
+    '<span class="vchip e">Error: '+fmtN(n.Error)+'</span>'+
+    '<span class="vchip w">Warning: '+fmtN(n.Warning)+'</span>'+
+    '<span class="vchip i">Info: '+fmtN(n.Info)+'</span>'+
+    (r.total?'<span class="vchip ok">'+r.firedCount+' of '+r.rulesDefined+' rules fired</span>':'')+
+    '</div>'+
+    '<p class="note">Denominator: <b>'+r.activeTotal+'</b> active documents. '+
+    (r.completeness!=null?'Data completeness is <b>'+r.completeness+'%</b> \u2014 the share of active rows with no Error-severity finding.':'')+'</p>');
+  if(!r.total){ setHTML('vDetail','<div class="empty">No validation issues found.</div>'); return; }
+  const groups=new Map();
+  r.issues.forEach(i=>{ if(!groups.has(i.code)) groups.set(i.code,[]); groups.get(i.code).push(i); });
+  setHTML('vDetail',
+    '<p class="note" style="margin-bottom:8px">Select a rule to expand the affected rows. Wording and severity come from the workbook.</p>'+
+    Array.from(groups.entries()).map(([code,items])=>{
+      const m0=items[0];
+      const sample=items.slice(0,60).map(i=>
+        '<tr><td class="mono" style="max-width:250px">'+esc(i.doc)+'</td><td>'+esc(i.discipline)+'</td>'+
+        '<td>'+esc(i.field)+'</td><td class="mono" style="max-width:220px">'+esc(trunc(i.value,34))+'</td>'+
+        '<td>'+esc(i.extra||'')+'</td><td>'+esc(i.tab)+'</td></tr>').join('');
+      const more=items.length>60?'<div class="note">Showing first 60 of '+items.length+'. Export the CSV for the complete list.</div>':'';
+      return '<details class="vd"><summary><span class="sev sev-'+m0.sev.toLowerCase()+'">'+m0.sev+'</span> '+
+        '<span class="mono">'+esc(code)+'</span> \u00b7 '+esc(trunc(m0.msg,72))+' \u00b7 <b>'+items.length+'</b>'+
+        (m0.group?' <span class="badge neutral"><span class="ic">\u25cf</span>Group '+esc(m0.group)+'</span>':'')+
+        '</summary>'+
+        '<div class="vtableWrap"><table class="ds-table"><thead><tr><th>Document</th><th>Discipline</th><th>Field</th><th>Value</th><th>Detail</th><th>Sheet</th></tr></thead><tbody>'+
+        sample+'</tbody></table></div>'+more+'</details>';
+    }).join(''));
+}
+
+function renderIntegrity(){
+  const m=STATE.model, s=computeSummary(activeDocs(m));
+  const out=[];
+  if(m.approvalDerived){
+    out.push('<div class="flag crit"><b>Latest Approval Date (col X) is a constant offset.</b> On all '+s.submitted+
+      ' issued rows it equals the issue date plus exactly <b>'+m.approvalOffsetDays+' days</b> \u2014 it is the workbook formula '+
+      '<span class="mono">=U+90</span>, not a recorded approval. '+
+      'Average turnaround, approval SLA and "completed late" metrics are therefore not reported anywhere in this dashboard. '+
+      '<b>Fix:</b> replace the formula with the real client approval date, or add a review-history table.</div>');
+  }
+  const revPop=m.docs.filter(d=>str(d.rev)).length;
+  if(revPop===0) out.push('<div class="flag"><b>Rev (col L) is empty on every row.</b> The column exists in the contract but carries no data, '+
+    'so document revisions cannot be distinguished and duplicate numbers cannot be resolved. Fill it at source.</div>');
+  const emptyCols=[['P6 Activity ID','p6'],['BQ Number','bq'],['System','system'],['Authority','authority'],['Notes','notes'],['Vendor Data','vendorData']]
+    .filter(([,k])=>!m.docs.some(d=>str(d[k])));
+  if(emptyCols.length) out.push('<div class="flag info"><b>Contract columns that are never populated:</b> '+
+    esc(emptyCols.map(c=>c[0]).join(', '))+'. They are validated but always blank, so any view filtered on them stays empty.</div>');
+  const emptyTabs=m.perTab.filter(t=>t.active===0);
+  if(emptyTabs.length) out.push('<div class="flag info"><b>'+emptyTabs.length+' discipline tabs contain no active documents</b> ('+
+    esc(emptyTabs.map(t=>t.tab+' ('+t.template+' template rows)').join(', '))+'. They were discovered from the Code!H list but contribute nothing to the counts.</div>');
+  setHTML('wbIntegrity', out.length? out.join('') : '<div class="empty">No derived-column problems detected.</div>');
+}
+
+const REG_COLS=[
+  {k:'docNo', h:'Document No.', cls:'mono', main:true},
+  {k:'title', h:'Title'},
+  {k:'_ueshCanon', h:'Discipline'},
+  {k:'stage', h:'Stage'},
+  {k:'docType', h:'Type'},
+  {k:'_discCanon', h:'Disc Code'},
+  {k:'number', h:'No.'},
+  {k:'_planned', h:'Planned', d:true},
+  {k:'_forecast', h:'Forecast', d:true},
+  {k:'_slip', h:'Slip', num:true},
+  {k:'_actual', h:'Actual', d:true},
+  {k:'_subState', h:'Submission'},
+  {k:'prologNo', h:'Prolog No.', cls:'mono'},
+  {k:'prologStatus', h:'Prolog St.'},
+  {k:'apprStatus', h:'Approval'},
+  {k:'_apprDate', h:'Appr. Date', d:true},
+  {k:'asBuilt', h:'As-Built'},
+  {k:'_tab', h:'Sheet'}
+];
+function subBadge(st){
+  if(st==='overdue') return badgeFor('crit','Overdue');
+  if(st==='dueSoon') return badgeFor('warn','Due soon');
+  if(st==='issuedLate') return badgeFor('warn','Issued late');
+  if(st==='issuedOnTime') return badgeFor('ok','Issued');
+  return badgeFor('neutral','No date');
+}
+function apprBadge(v){
+  v=str(v);
+  if(v==='APP') return badgeFor('ok','APP');
+  if(v==='AWC') return badgeFor('info','AWC');
+  if(v==='REJ') return badgeFor('crit','REJ');
+  if(v==='NAP') return badgeFor('warn','NAP');
+  if(!v) return badgeFor('neutral','\u2014');
+  return badgeFor('crit',v);
+}
+function renderRegister(list){
+  let rows=list.slice();
+  const sk=STATE.sort.key;
+  if(sk){
+    rows.sort((a,b)=>{
+      const c=REG_COLS.find(c=>c.k===sk);
+      let x=a[sk], y=b[sk];
+      if(c&&c.d){ x=x?x.getTime():null; y=y?y.getTime():null; }
+      if(x==null&&y==null) return 0;
+      if(x==null) return 1; if(y==null) return -1;
+      if(typeof x==='number'&&typeof y==='number') return (x-y)*STATE.sort.dir;
+      return String(x).localeCompare(String(y))*STATE.sort.dir;
+    });
+  }
+  const shown=rows.slice(0,500);
+  setHTML('regCount', rows.length+' active document'+(rows.length===1?'':'s')+
+    (rows.length>shown.length?' \u00b7 showing first '+shown.length+' \u2014 narrow the filters to see the rest':''));
+  setHTML('regTable',
+    '<thead><tr>'+REG_COLS.map(c=>{
+      const on=sk===c.k;
+      return '<th class="sortable'+(c.num?' num':'')+'" data-sort="'+c.k+'"'+(on?' aria-sort="'+(STATE.sort.dir===1?'ascending':'descending')+'"':'')+' tabindex="0">'+esc(c.h)+
+        '<span class="arrow">'+(on?(STATE.sort.dir===1?'\u25b2':'\u25bc'):'\u2195')+'</span></th>';
+    }).join('')+'</tr></thead><tbody>'+
+    shown.map(d=>'<tr>'+REG_COLS.map(c=>{
+      const v=d[c.k];
+      if(c.k==='_subState') return '<td>'+subBadge(v)+'</td>';
+      if(c.k==='apprStatus') return '<td>'+apprBadge(v)+'</td>';
+      if(c.d) return '<td class="num">'+fmtD(v)+'</td>';
+      if(c.num) return '<td class="num'+(v>0?' s-warn':'')+'">'+(v==null?'\u2014':(v>0?'+':'')+v+'d')+'</td>';
+      const t=String(v==null||v===''?'\u2014':v);
+      return '<td class="'+(c.cls||'')+(c.main?' t-main':'')+'" title="'+esc(t)+'">'+esc(trunc(t,c.k==='title'?70:40))+'</td>';
+    }).join('')+'</tr>').join('')+'</tbody>');
+}
+
+function renderContract(){
+  const m=STATE.model;
+  const sheets=m.perTab.map(t=>({tab:t.tab, rows:t.rows, active:t.active, template:t.template}));
+  setHTML('conSheets',
+    '<div class="kv"><span class="k">Project</span><span class="v">'+esc(m.project.title)+'</span>'+
+    '<span class="k">Client / Consultant</span><span class="v">'+esc([m.project.client,m.project.consultant].filter(Boolean).join(' / ')||'\u2014')+'</span>'+
+    '<span class="k">Workbook as-of</span><span class="v">'+fmtD(m.project.asOf)+'</span>'+
+    '<span class="k">Discipline tabs read</span><span class="v">'+sheets.length+' of '+m.universeSize+' UESH codes</span>'+
+    '<span class="k">Rows with a Document No.</span><span class="v">'+fmtN(m.docs.length)+'</span>'+
+    '<span class="k">Lifecycle rows excluded</span><span class="v">'+fmtN(m.docs.filter(d=>!d.isActive).length)+'</span>'+
+    '<span class="k">Template rows excluded</span><span class="v">'+fmtN(m.templateCount)+'</span>'+
+    '<span class="k">Empty rows skipped</span><span class="v">'+fmtN(m.emptyCount)+'</span>'+
+    '<span class="k">Column map</span><span class="v">'+Object.keys(m.colMap).length+' fields from Code!A12:C36</span></div>');
+  setHTML('conLookups',
+    '<div class="kv"><span class="k">Validation rules</span><span class="v">'+Object.keys(m.errorTable).length+' from Code!AI:AL</span>'+
+    '<span class="k">First client review</span><span class="v">'+(m.reviewRules.firstClientReviewWD!=null?m.reviewRules.firstClientReviewWD+' WD':'\u2014')+'</span>'+
+    '<span class="k">Subsequent review</span><span class="v">'+(m.reviewRules.subsequentClientReviewWD!=null?m.reviewRules.subsequentClientReviewWD+' WD':'\u2014')+'</span>'+
+    '<span class="k">Resubmission</span><span class="v">'+(m.reviewRules.resubmissionWD!=null?m.reviewRules.resubmissionWD+' WD':'\u2014')+'</span>'+
+    sheets.map(s2=>'<span class="k" title="'+esc(s2.tab)+'">'+esc(s2.tab)+'</span><span class="v">'+s2.active+' active / '+s2.rows+' rows</span>').join('')+
+    '<span class="k">Stage / UESH / DocType</span><span class="v">'+m.lookups.stage.length+' / '+m.lookups.uesh.length+' / '+m.lookups.docType.length+' values</span>'+
+    '<span class="k">Prolog / Approval / Authority</span><span class="v">'+m.lookups.prolog.join(' ')+' / '+m.lookups.approval.join(' ')+' / '+m.lookups.authority.join(' ')+'</span></div>');
+}
+
+/* ============== 05c — FILTER PANEL ============== */
+function buildFilterPanel(){
+  const m=STATE.model;
+  const all=activeDocs(m);
+  const discMap=tally(all,d=>d._ueshCanon||'(unassigned)');
+  const stageMap=tally(all,d=>str(d.stage)||'(blank)');
+  const activeDisc=(STATE.filter.disciplines&&STATE.filter.disciplines.size)?STATE.filter.disciplines:null;
+  const activeStage=(STATE.filter.stages&&STATE.filter.stages.size)?STATE.filter.stages:null;
+  const dc=Array.from(discMap.entries()).sort((a,b)=>b[1]-a[1]);
+  const sc=Array.from(stageMap.entries()).sort((a,b)=>b[1]-a[1]);
+  setHTML('tfPanel',
+    '<div class="head">Discipline (col C)</div>'+
+    dc.map(([k,v])=>'<label><input type="checkbox" data-f="d" value="'+esc(k)+'"'+(activeDisc&&activeDisc.has(k)?' checked':'')+'/>'+
+      '<span class="tf-name">'+esc(k)+'</span><span class="cnt">'+v+'</span></label>').join('')+
+    '<div class="tf-divider"></div><div class="head">Stage (col B)</div>'+
+    sc.map(([k,v])=>'<label><input type="checkbox" data-f="s" value="'+esc(k)+'"'+(activeStage&&activeStage.has(k)?' checked':'')+'/>'+
+      '<span class="tf-name">'+esc(k)+'</span><span class="cnt">'+v+'</span></label>').join('')+
+    '<div class="tf-divider"></div>'+
+    '<div class="tf-actions"><button class="btn ghost sm" id="tfClear" type="button">Clear all</button></div>');
+  const n=(activeDisc?activeDisc.size:0)+(activeStage?activeStage.size:0);
+  document.getElementById('tfCount').textContent=n?('('+n+')'):'';
+  document.getElementById('tfBtn').classList.toggle('active', !!n);
+}
+
+/* ============== 05d — EXPORT ============== */
+function downloadBlob(blob,name){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+  a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+function toCSV(rows){
+  return rows.map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+}
+async function chartToPng(svgEl){
+  const xml=new XMLSerializer().serializeToString(svgEl);
+  const svg64='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);
+  return await new Promise((res,rej)=>{
+    const img=new Image();
+    img.onload=()=>{
+      const scale=2;
+      const w=svgEl.width.baseVal.value||svgEl.viewBox.baseVal.width||640;
+      const h=svgEl.height.baseVal.value||svgEl.viewBox.baseVal.height||250;
+      const cv=document.createElement('canvas'); cv.width=w*scale; cv.height=h*scale;
+      const cx=cv.getContext('2d');
+      cx.fillStyle=CHART.white; cx.fillRect(0,0,cv.width,cv.height);
+      cx.scale(scale,scale); cx.drawImage(img,0,0,w,h);
+      cv.toBlob(b=>b?res(b):rej(new Error('toBlob failed')),'image/png');
+    };
+    img.onerror=()=>rej(new Error('image load failed'));
+    img.src=svg64;
+  });
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2400);
+}
+function showError(msg){
+  const b=document.getElementById('errBanner');
+  if(b){ b.innerHTML='<b>Load failed:</b> '+esc(msg)+' &nbsp;&middot;&nbsp; press F12 \u2192 Console for the full trace.'; b.style.display='block'; }
+  show('welcome',true); show('dash',false);
+}
+
+/* ============== 05e — EVENTS ============== */
+document.addEventListener('click',e=>{
+  const t=e.target;
+  /* filter toggles */
+  const cb=t.closest('input[type=checkbox][data-f]');
+  if(cb){
+    const set=cb.dataset.f==='d'?STATE.filter.disciplines:STATE.filter.stages;
+    if(cb.checked){ if(!set) {} }
+    const key=cb.value;
+    if(cb.checked){ if(!STATE.filter[cb.dataset.f==='d'?'disciplines':'stages']) STATE.filter[cb.dataset.f==='d'?'disciplines':'stages']=new Set(); }
+    const target=STATE.filter[cb.dataset.f==='d'?'disciplines':'stages'];
+    if(cb.checked) target.add(key); else target.delete(key);
+    if(target.size===0) STATE.filter[cb.dataset.f==='d'?'disciplines':'stages']=null;
+    render(); buildFilterPanel(); return;
+  }
+  if(t.closest('#tfClear')){ STATE.filter.disciplines=null; STATE.filter.stages=null; STATE.filter.search=''; document.getElementById('search').value=''; render(); buildFilterPanel(); return; }
+  /* sortable register header */
+  const th=t.closest('th[data-sort]');
+  if(th){
+    const k=th.dataset.sort;
+    if(STATE.sort.key===k) STATE.sort.dir*=-1;
+    else { STATE.sort.key=k; STATE.sort.dir=1; }
+    render(); return;
+  }
+  /* action row / KPI drill */
+  const row=t.closest('[data-act]');
+  if(row){
+    const k=row.dataset.act;
+    if(k==='overdue'||k==='dueSoon'){
+      STATE.filter.disciplines=null; STATE.filter.stages=null;
+      STATE.filter.search=''; document.getElementById('search').value='';
+      STATE.sort.key='_subState'; STATE.sort.dir=1;
+      render(); buildFilterPanel();
+      document.getElementById('upH').scrollIntoView({behavior:'smooth',block:'start'});
+      return;
+    }
+    if(k==='dup'){ document.getElementById('dupH').scrollIntoView({behavior:'smooth',block:'start'}); return; }
+    if(k==='errors'||k==='warn'){ document.getElementById('valH').scrollIntoView({behavior:'smooth',block:'start'}); return; }
+    if(k==='late'||k==='rej'){
+      const want=k==='late'?'issuedLate':'REJ';
+      STATE.filter.search=''; document.getElementById('search').value='';
+      render();
+      const body=document.getElementById('regTable').querySelector('tbody');
+      if(body){
+        const trs=Array.from(body.querySelectorAll('tr'));
+        for(const tr of trs){
+          const hit = k==='late' ? tr.textContent.indexOf('Issued late')>=0 : tr.textContent.indexOf(want)>=0;
+          tr.style.background = hit? 'var(--warn-bg)' : '';
+        }
+      }
+      document.getElementById('regH').scrollIntoView({behavior:'smooth',block:'start'});
+      return;
+    }
+  }
+  const kpi=t.closest('[data-kpi]');
+  if(kpi && kpi.dataset.kpi==='overdue'){
+    document.getElementById('actH').scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
+});
+/* keyboard activation for interactive rows */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter'&&e.key!==' ') return;
+  const el=e.target;
+  if(el && el.matches && (el.matches('[data-act]')||el.matches('th[data-sort]'))) e.preventDefault();
+  if(el && el.matches && el.matches('th[data-sort]')){ el.click(); return; }
+  if(el && el.matches && el.matches('[data-act]')) el.click();
+});
+document.getElementById('tfBtn').addEventListener('click',e=>{
+  e.stopPropagation();
+  const panel=document.getElementById('tfPanel');
+  const open=panel.classList.toggle('open');
+  document.getElementById('tfBtn').setAttribute('aria-expanded',open?'true':'false');
+});
+document.addEventListener('click',e=>{
+  if(!document.getElementById('tfWrap').contains(e.target)){
+    document.getElementById('tfPanel').classList.remove('open');
+    document.getElementById('tfBtn').setAttribute('aria-expanded','false');
+  }
+});
+document.getElementById('search').addEventListener('input',e=>{
+  STATE.filter.search=e.target.value.trim();
+  render();
+});
+document.getElementById('vExport').addEventListener('click',()=>{
+  const r=STATE.report;
+  if(!r||!r.total){ toast('No validation issues to export'); return; }
+  const rows=[['Severity','Group','Rule Code','Message','Document','Discipline','Field','Value','Detail','Sheet','Row','Active']]
+    .concat(r.issues.map(i=>[i.sev,i.group,i.code,i.msg,i.doc,i.discipline,i.field,i.value,i.extra,i.tab,i.row,i.active?'yes':'no']));
+  downloadBlob(new Blob(['\ufeff'+toCSV(rows)],{type:'text/csv;charset=utf-8'}),'MDL-validation-report.csv');
+  toast('Validation report exported');
+});
+document.getElementById('regExport').addEventListener('click',()=>{
+  const list=filtered();
+  if(!list.length){ toast('No rows to export'); return; }
+  const cols=[['SNo.','_row'],['Source Sheet','_tab'],['Stage','stage'],['UESH Discipline','uesh'],['Discipline Code','discCode'],
+    ['Doc Type','docType'],['Number','number'],['Rev','rev'],['Document No.','docNo'],['Document Title','title'],
+    ['As-Built','asBuilt'],['Vendor Data','vendorData'],['Planned 1st Issue Date','_planned'],['Forecast 1st Issue Date','_forecast'],
+    ['Slip (days)','_slip'],['Actual 1st Issue Date','_actual'],['Submission State','_subState'],
+    ['Prolog Number','prologNo'],['Prolog Submission Status','prologStatus'],['Latest Approval Status','apprStatus'],['Latest Approval Date','_apprDate']];
+  const rows=[cols.map(c=>c[0])].concat(list.map(d=>cols.map(c=>{
+    const v=d[c[1]];
+    return v instanceof Date? v.toISOString().slice(0,10) : (v==null?'':v);
+  })));
+  downloadBlob(new Blob(['\ufeff'+toCSV(rows)],{type:'text/csv;charset=utf-8'}),'MDL-document-register.csv');
+  toast('Register exported ('+list.length+' rows)');
+});
+document.getElementById('themeBtn').addEventListener('click',()=>{
+  const cur=document.documentElement.getAttribute('data-theme');
+  const next=cur==='dark'?'':'dark';
+  if(next) document.documentElement.setAttribute('data-theme','dark');
+  else document.documentElement.removeAttribute('data-theme');
+  try{ localStorage.setItem('mdl-theme',next); }catch(e){}
+});
+try{ const th=localStorage.getItem('mdl-theme'); if(th) document.documentElement.setAttribute('data-theme','dark'); }catch(e){}
+
+/* ============== 05f — LOAD FLOW ============== */
+function buildDashboard(result, filename){
+  const model=buildModel(result, filename);
+  const report=validate(model);          /* validate first, never blocks */
+  STATE.model=model; STATE.report=report;
+  STATE.filter.disciplines=null; STATE.filter.stages=null; STATE.filter.search='';
+  STATE.sort={key:null,dir:1};
+  document.getElementById('search').value='';
+  show('welcome',false); show('dash',true);
+  render();
+  buildFilterPanel();
+  document.getElementById('errBanner').style.display='none';
+  window.scrollTo(0,0);
+  const s=computeSummary(activeDocs(model));
+  toast('Loaded '+s.total+' active documents from '+model.tabs.length+' discipline tab'+(model.tabs.length===1?'':'s'));
+}
+const fileInput=document.getElementById('fileInput');
+async function handleFile(f){
+  if(!f) return;
+  try{
+    const buf=await f.arrayBuffer();
+    let result;
+    if(f.name.toLowerCase().endsWith('.csv')) result={Process:parseCSV(new TextDecoder().decode(buf))};
+    else result=await parseXlsx(buf);
+    if(!result||Object.keys(result).length===0) throw new Error('No sheets parsed from the file.');
+    buildDashboard(result, f.name);
+  }catch(err){ showError(err.message); console.error(err); }
+}
+document.getElementById('openBtn').onclick=()=>fileInput.click();
+document.getElementById('reloadBtn').onclick=()=>fileInput.click();
+fileInput.onchange=e=>{ const f=e.target.files[0]; if(f) handleFile(f); e.target.value=''; };
+const drop=document.getElementById('drop');
+drop.onclick=()=>fileInput.click();
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('hover');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('hover');}));
+drop.addEventListener('drop',e=>{ const f=e.dataTransfer.files[0]; if(f) handleFile(f); });
+
+/* expose a tiny surface for the offline test harness (MDL/test) */
+window.__MDL__ = {
+  parseXlsx, parseCSV, buildModel, validate, computeSummary, activeDocs, STATE,
+  get model(){ return STATE.model; }, get report(){ return STATE.report; },
+  filtered, tally
+};
+})();
+</script>
+</body>
+</html>
