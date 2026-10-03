@@ -687,3 +687,32 @@ Cross-pack diff dropped 186 → 30 (all 30 are freq-1k vs nce2/3/4, where freq-1
 ### 17.9.1 freq-1k example-sentence gap (OPEN, deferred until external corpus decision)
 598/1056 NGSL function words still have empty `ex`/`exzh`/`exEn`. The audit tool will keep flagging these until a corpus is integrated. Re-run `node build/_audit_completeness.js --dir content` after any content patch to confirm the count has not regressed.
 
+---
+
+## 18. Issues & Bug Log
+
+> Captures defects found after the latest English-learning design update (design notes tracked in §12–§17). Each item below is **root-caused but not yet fixed** unless marked DONE. Editing convention (per §17.4): fix in `english-learning/pwa/index.html` (hosted source) → mirror to `english-learning-tool.html` → redeploy. Line numbers below are from `english-learning-tool.html` and match the byte-identical mirror.
+
+### 18.1 Quiz card shows a blank option / "⚠ 缺释义" (OPEN — root-caused 2026-10-03)
+
+**Symptom.** In Practice ▸ ✍️ Quiz, a round sometimes renders an **empty option button** (a 4th choice with nothing in it), and the prompt may fall back to `⚠ 缺释义 → (empty)`. Intermittent — not every round, and it tends to appear on *early* sessions.
+
+**Root cause — a scope asymmetry in `buildQuiz()`** (`english-learning-tool.html` ≈ line 3044–3068):
+- **全部包 (all packs)** branch resolves the pool through `allWordsGlobal()` (≈ line 2365). That resolver skips records with no usable headword (`if(!w || !w.word) continue;`, line 2382) and merges duplicates to keep the copy that carries a definition (line 2368–2377). So a `word`/`def` gap can never reach the quiz from this scope — *exactly the protection the inline comment at line 2368–2371 describes for "imported/custom pack whose word has no usable def (e.g. fin)"*.
+- **本包 (current pack)** branch (≈ line 3055–3065) builds `wordPool = WORDS.filter(notSkipped)` directly and then `pool = (known.length>=4 ? known : wordPool.map(x=>x.word))`. Two gaps:
+  1. **No `!w.word` guard.** If the active pack contains a word record missing a `word` field (e.g. an imported/custom pack — the documented risk above), that blank record flows straight into `options` → `esc(undefined)` / `esc("")` renders an empty choice button.
+  2. **The `known.length>=4` fallback surfaces the whole pool.** When fewer than 4 words are learned in the pack, the code switches to `wordPool.map(x=>x.word)`, which includes any blank-word record. So the blank option appears precisely on **early** quiz sessions (few learned words) and vanishes once ≥4 pack words are learned — matching "sometimes".
+
+`renderQuiz()` (≈ line 2896–2916) only guards an empty `def` (line 2907–2910: `⚠ 缺释义` when `!q.def`), **not** an empty `word`/`options`, so a blank option passes through untouched.
+
+**Trigger.** Active pack has ≥1 word record with a missing/empty `word` field **and** (that record is among the ≤4 most-recently-learned, or fewer than 4 pack words are learned). Reproducible with imported/custom packs; official packs are safe unless a record was hand-edited.
+
+**Why it looks broken but isn't dangerous.** Tapping a blank option is a no-op score-wise: `quizAnswer()` (≈ line 3069) only scores against `q.answer`, so no crash and no data loss. Still erodes trust, so worth a quick fix.
+
+**Recommended fix (small, behavior-neutral for healthy data):**
+1. Remove the scope asymmetry: derive both pools from one safe resolver. Add a `currentPackWords()` that mirrors `allWordsGlobal`'s `if(!w||!w.word) continue;` guard but scans only the active pack, then `const wordPool = (scope==="all" ? allWordsGlobal() : currentPackWords()).filter(w=>w && w.word && notSkipped(w));`.
+2. Belt-and-braces at choice-build time: `const opts = shuffle([w, ...wrong]).filter(Boolean).slice(0,4);` and top up from a clean pool if `opts.length<4` (choices currently render exactly 4 via line 2914).
+3. Make `renderQuiz` also skip/relabel a card whose `q.word` is empty, so a malformed record never reaches the screen even if it slips past the pool filter.
+
+**Severity:** Low. **Status:** OPEN — fix pending go-ahead. Reproducible on `pwa/index.html` (live build) and the mirrored `english-learning-tool.html`.
+
