@@ -36,6 +36,7 @@
 | **15.12** | **Dead-code cleanup** | **I-25 closed (V-12 was unreachable by construction) · I-12 found stale · 2 non-dead items confirmed** |
 | **15.13** | **I-26 re-scope** | **Half (b) refuted — already fixed by I-44 · half (a) closed — cap is a token, Other lists what it merged** |
 | **15.17** | **Independent review (2026-10-02)** | **I-55…I-59 backlog · do not re-file §14/codecheck items** |
+| **16** | **MDL Parity — P1–P10 Reconciliation & Issues** | **authoritative parity log; supersedes arch/WORKPLAN.md §0d/§0e** |
 
 > **🔎 Looking for the 5-layer structure?** Go to **§13**. Quick map:
 > **§13.1** why · **§13.2** as-built measurements · **§13.3** the 5 layers (diagram + ownership table)
@@ -156,10 +157,10 @@ The PPP Dashboard is a **standalone, offline-first, browser-based interactive da
 | `renderValidation(rep)` | L671 | Chips + detail table + code map summary |
 | `renderKPIs(pkgs)` | L897 | 6 KPI cards with status classes |
 | `renderCat(key)` | L855 | Status/Discipline/Engineer/Criticality/Leadtime → Bar or Pie |
-| `svgStage(pkgs)` | L889 | Grouped bar: MR/PO/VD/FAT/ROS Planned vs Actual |
+| `svgStage(pkgs)` | — | **Removed** — Stage Plan Coverage retired (consolidated into interactive panel, §16.7-F) |
 | `renderPOMonthly(pkgs)` | L918 | Monthly grouped bar: PO Plan vs Actual |
-| `renderLookAhead(pkgs, asOf)` | L936 | Table: POs planned in next 90 days |
-| `renderDelays(pkgs, asOf)` | L943 | Table: PO Plan < AsOf but status not issued |
+| `renderLookAhead(pkgs, from)` | L1546 | Table: POs planned in next 90 days (from = today) |
+| `renderDelays(pkgs, asOf)` | — | **Removed** — PO Issuance Delays retired (§16.7-A); one canonical overdue source remains |
 | `renderBenchmark()` | L950 | Static 2026 industry reference table |
 | `renderDQ(pkgs)` | L954 | Heuristic data-quality flags |
 | `chartToPng(svgEl)` | L967 | SVG → blob (PNG @ 2×) for clipboard/download |
@@ -199,7 +200,7 @@ The Code sheet has **6 distinct column groups**. Row 1 contains headers for all 
 | 3 | Project Code | `C3B2` | Text | Short project code |
 | 4 | Client | `PUB` | Text | Client name |
 | 5 | Consultant | `Jacobs` | Text | Consultant name |
-| 6 | AsOf Date | `2026-09-14` | **Date** | **Required** — dashboard reference date (Excel serial 46280) |
+| 6 | Project Start Date | `2026-09-14` | **Date** | **Required** — project start date (Excel serial 46280). The dashboard's operational reference date (as-of) is always **today**, not this cell. Legacy label "AsOf Date" still accepted by the parser. |
 | 7 | Header Row | `1` | **Int** | 1-indexed row of PPP column headers |
 | 8 | List End Row | `300` | **Int** | 1-indexed last PPP data row (inclusive). **A template bound** — only 122 rows hold data, so V-20 warns on every load **by design** (see **I-50**, §15.8) |
 | 9 | S No. | `Column-A` | Int | → PPP Column A |
@@ -344,12 +345,12 @@ The Code sheet has **6 distinct column groups**. Row 1 contains headers for all 
 | 8 | V-07 | Package Status not found in Code sheet lookup |
 | 9 | V-08 | Stage plan dates out of sequence (e.g., MR Plan > PO Plan) |
 | 10 | V-09 | Actual date entered but corresponding Plan date is empty |
-| 11 | V-10 | Actual date is later than AsOf Date |
+| 11 | V-10 | Actual date is later than the as-of date (today) |
 | 12 | V-11 | Duplicate Package No. appears multiple times |
 | 13 | V-12 | Same engineer written different ways (normalized together) |
 | 14 | V-13 | PPP rows with Package Title exist beyond List End Row |
 | 15 | V-14 | Lead time missing on >50% of packages |
-| 16 | V-15 | Code sheet metadata missing or Data Type mismatch (Header Row, List End Row, AsOf Date) |
+| 16 | V-15 | Code sheet config missing/invalid: Header Row, List End Row, **Project Start Date** (Code sheet "Project Start Date" cell; legacy "AsOf Date" still accepted); and Data Type mismatch in column C |
 | 17 | V-16 | Code sheet Column C (Data Type) empty — using built-in fallback |
 | 18 | V-17 | Item Category not found in Code sheet lookup |
 | 19 | V-18 | Lookup block (Discipline/Criticality/Status/Category) not found in row 1 |
@@ -392,6 +393,8 @@ The Code sheet has **6 distinct column groups**. Row 1 contains headers for all 
 
 ### 5.2 Categorical Charts (Bar ↔ Pie toggle, persisted)
 
+> These five charts are now rendered inside the single **Interactive Chart Panel** (§16.7-F), which sits above the S-curve (§5.4). The per-card bar↔pie toggle (persisted) and the data providers are unchanged — only the container changed.
+
 | Chart | Key | Data Source | Ordering | Special Handling |
 |-------|-----|-------------|----------|------------------|
 | Package Status | `status` | `tally(pkgs, 'status')` → canonicalized via Code sheet status list | Code sheet order (NS, MR, VI, PO, VDA, FAB, FAT, DEL, RI) | Blanks → "Not Specified (blank)" grey |
@@ -403,7 +406,9 @@ The Code sheet has **6 distinct column groups**. Row 1 contains headers for all 
 **Bar Chart SVG** (`svgHBar`): 760×dynamic, left label column (240px), horizontal bars, value labels right-aligned.
 **Pie Chart SVG** (`svgPie`): 760×dynamic, donut (R=100, r=58), center total, legend right, top-8 + "Other".
 
-### 5.3 Stage Plan Coverage (Grouped Bar)
+### 5.3 Stage Plan Coverage (Grouped Bar) — **RETIRED**
+
+> Removed in the 2026-10-04 consolidation (§16.7-F). The Stage Plan Coverage card was retired and replaced by the interactive panel's **Stage Overdue** and **Schedule Health** breakdowns, both built on the shared `stageIsOverdue`/`stageDue` helpers. The spec below is retained for history.
 
 | Stage | Plan Field | Actual Field |
 |-------|------------|--------------|
@@ -415,21 +420,38 @@ The Code sheet has **6 distinct column groups**. Row 1 contains headers for all 
 
 **SVG** (`svgGrouped`): 5 categories × 2 series (Planned=#0066CC, Actual=#34C759), Y-axis 0–max, legend bottom.
 
-### 5.4 PO Plan vs Actual — by Month (Grouped Bar)
+### 5.4 PO Plan-vs-Actual S-Curve Panel (two side-by-side charts)
 
-- **X-axis**: Months from first `poPlan` to last `poPlan`/`poActual` (inclusive), `MMM YY` format
-- **Series**: Planned (count of `poPlan` in month), Actual (count of `poActual` in month)
-- **Empty state**: If no `poPlan` dates are real Excel dates → shows guidance message
+- **Chart 1 — Cumulative S-curve** (`svgLine`): Plan / Forecast / Actual cumulative PO counts across months. Forecast blanks fall back to the plan date.
+- **Chart 2 — Monthly grouped bars** (`svgGrouped`): PO Plan vs Actual counts per month.
+- **Period window** (MDL-style dual-range): From/To month + Reset + range message. Start = project start; end = last PO date **+ 3 months** (earlier PO dates still shown).
+- **Markers**: **red dashed** = project start (Code sheet `Project Start Date`); **grey** = today (the operational as-of).
+- **Empty state**: If no `poPlan` dates are real Excel dates → guidance message.
 
-### 5.5 3-Month PO Look-Ahead (Table)
+### 5.5 PO Look-Ahead (Table) — horizon 1 / 2 / 3 / 4 / 6 months
 
-- **Filter**: `poPlan >= AsOf` AND `poPlan <= AsOf + 90 days`
-- **Columns**: Package, Discipline, PO Plan, Status
-- **Sort**: PO Plan ascending
+> Updated 2026-10-04: the window is no longer a hard-coded 3 months (§16.7-H). The panel is now a
+> bounded data table with a user-selectable horizon.
 
-### 5.6 PO Issuance Delays (Table)
+- **Horizon**: user-selectable **1, 2, 3, 4 or 6 calendar months** from today — a segmented
+  control (`1m / 2m / 3m / 4m / 6m`) in the panel's control row. Default **3**, persisted via
+  `getPref('look')`. Measured in **calendar months** (`new Date(y, m + n, d)`), never a fixed day
+  count: the former `+90 days` drifted against the calendar and did not mean "3 months".
+- **Filter**: `poPlan >= today` AND `poPlan <= today + horizon` (as-of is always the current
+  date), **and no PO Actual** — a package whose PO is already issued is no longer upcoming.
+- **Columns**: Package, Discipline, PO Plan, **In (days)**, Status
+- **Sort**: PO Plan ascending (soonest first)
+- **Rendering (UI spec §4.3)**: bounded, scrollable data table (`.tableScroll`,
+  `max-height:340px`, sticky header) so a long package list never stretches the page. The row
+  count is reported next to the horizon control. The panel is full width (`.card.full`) — it
+  previously sat alone in the 2-column grid and therefore rendered at half width.
+- **Title**: `PO Look-Ahead` — the title must not hard-code the selected horizon (§4.3).
 
-- **Filter**: `poPlan < AsOf` AND `status` not in issued set
+### 5.6 PO Issuance Delays (Table) — **RETIRED**
+
+> Removed in the 2026-10-04 consolidation (§16.7-A). The PO Issuance Delays table has been retired; overdue now has a single canonical date-based source (`renderOverdueList` + shared `stageIsOverdue`). The spec below is retained for history.
+
+- **Filter**: `poPlan < today` AND `status` not in issued set
 - **Issued statuses** (case-insensitive): contains "po issued", "delivered", "receive inspection", "fabrication", "fat completed", "vendor data approval"
 - **Columns**: Package, Discipline, PO Plan, Overdue (days), Status
 - **Highlight**: `.over` row class → `#FFF6E5` background
@@ -476,12 +498,12 @@ The Code sheet has **6 distinct column groups**. Row 1 contains headers for all 
 | V-07 | error | Status not in Code sheet (code or desc) | `Status not found in the Code sheet list` |
 | V-08 | warning | Stage plan out of sequence (e.g., MR Plan > PO Plan) | `Stage plan dates are out of sequence` |
 | V-09 | warning | Actual date present but Plan empty | `Actual date entered but X Plan is empty` |
-| V-10 | warning | Actual date > AsOf Date | `Actual date is later than the As-of date` |
+| V-10 | warning | Actual date > today | `Actual date is later than today (the as-of date)` |
 | V-11 | warning | Duplicate Package No. | `Duplicate Package No. — appears N times` |
 | V-12 | warning | Same engineer written differently — spellings that differ **only** in whitespace / slash spacing (`Dilip/Siva` vs `Dilip / Siva`) are grouped by a loose comparison key while the Set keeps the **distinct raw spellings**. Genuinely different names (`Kenny` vs `Kenny/Franklin`) are deliberately **not** merged. **Was unreachable before Rev 1.13 — see §15.12** | `Same engineer written different ways — counted as N separate people in the Engineer chart` |
 | V-13 | warning | PPP rows with Title beyond List End Row | `N row(s) after row X contain a Package Title but are excluded` |
 | V-14 | warning | Lead time missing on >50% packages | `Lead time missing on N packages (X%)` |
-| V-15 | error/warn | Code sheet metadata missing/invalid type | `Header Row missing or not a number` / `Data Type is "X" — expected Date/Number` |
+| V-15 | error/warn | Code sheet config / Data Type mismatch | `Header Row missing or not numeric — used default (row 1 as header)` / `List End Row missing or not numeric — used default (last data row)` / `Project Start Date missing or invalid` / `Data Type in column C is "X" — expected Date` |
 | V-16 | warning | Code sheet column C empty (no Data Types) | `Column C has no Data Type values — fell back to built-in` |
 | V-17 | warning | Item Category not in Code sheet | `Item Category not found in the Code sheet list` |
 | V-18 | warning | A lookup block (Discipline / Criticality / Status / Category) is absent from Code row 1 — **or** present but unusable: `!col \|\| !n`, where `n` is the *description* column's count, so an empty **code** column passes silently | `Lookup block "X" was not found in row 1` |
@@ -515,7 +537,7 @@ The Code sheet has **6 distinct column groups**. Row 1 contains headers for all 
 | I-15 | Benchmark table hardcoded (12 equipment categories) | Industry updates require code deploy | Move to separate "Benchmark" sheet or extend Code sheet with Equipment Category / Typical Lead Time / Days columns | Dev | v1.1 |
 | I-16 | KPI thresholds hardcoded (Started ≥60%/≥40%, Lead time ≥50%) | Project-specific targets not configurable | Add KPI Threshold metadata rows to Code sheet Group 1 (e.g., `KPI Started Green` = 60, `KPI Started Yellow` = 40, `KPI LeadTime Coverage` = 50) | Dev | v1.2 |
 | I-17 | DQ flag thresholds hardcoded (MR Plan <30%, PO Plan >50%, Lead time >50%) | Heuristics not adaptable per project | Add DQ Threshold metadata rows to Code sheet Group 1 | Dev | v1.2 |
-| I-18 | Look-ahead window hardcoded (90 days) | Fixed 3-month window; some projects need 60/120 days | Add `LookAhead Days` metadata row to Code sheet Group 1 | Dev | v1.2 |
+| I-18 | ~~Look-ahead window hardcoded (90 days)~~ | ~~Fixed 3-month window; some projects need 60/120 days~~ | **DONE (2026-10-04)** — the horizon is now a **user control**, so no Code-sheet metadata row is needed: a segmented `1m / 2m / 3m / 4m / 6m` selector (default `3m`) in the panel's control row, persisted via `getPref('look')`, computed in **calendar months** (`new Date(y, m + n, d)`) rather than `+90 days`. | Dev | **Closed** |
 | I-19 | Stage order for Stage Plan Coverage hardcoded (MR, PO, VD, FAT, ROS) | Adding/removing stages requires code change | Derive from field mappings: detect all `*Plan`/`*Actual` field pairs in `CODE_SHEET_KEYS` | Dev | v1.2 |
 | I-20 | `TYPE_ALIASES` hardcoded (Date/Number/Text synonyms) | New type aliases require code change | Add Type Alias lookup table to Code sheet (Code / Alias / Canonical Type) | Dev | v1.3 |
 | I-21 | `LOOKUP_HEADERS` fuzzy matching hardcoded | Header naming discipline required; synonyms fixed in code | Standardize Code sheet row 1 headers to exact names; remove fuzzy matching | Dev | v1.3 |
@@ -637,7 +659,7 @@ Validation rule set V-01…V-20 checks *values*, never *structure*. A uniform on
 ### 8.2 Adding a Validation Rule
 
 1. In `validate()`, add `add(sev, 'V-XX', pkgId, field, value, msg)`
-2. Use `ctx` params: `lookups`, `asOf`, `headerRow`, `lastRow`, `dateFields`, `metaTypes`, `lookupMeta`
+2. Use `ctx` params: `lookups`, `projStart`, `headerRow`, `lastRow`, `dateFields`, `metaTypes`, `lookupMeta` (note: `projStart` is the Code sheet **Project Start Date**; the operational as-of is `todayMidnight()`, not a `ctx` field)
 3. Increment severity counts, issues auto-sorted by severity then code
 4. Test: introduce bad data in Excel, reload, check Validation panel
 
@@ -678,7 +700,7 @@ Validation rule set V-01…V-20 checks *values*, never *structure*. A uniform on
 |------|------------|
 | **File Load** | .xlsx with 3 sheets, .xlsx missing Code sheet, .csv export, corrupted .xlsx, empty file |
 | **XLSX Structure (I-23 regression)** | Workbook containing **self-closing formatting-only cells** (`<c r="M2" s="7"/>`) immediately before populated cells in every column — each value must land in its own column; workbook containing self-closing `<row .../>`; cell count in `sheetData` must equal cells parsed (P-3); **golden-file cross-check vs Python `openpyxl`** (P-5); workbook re-saved by another tool (Google Sheets / LibreOffice / Smartsheet export) — alignment must be preserved |
-| **Code Sheet** | All Data Types filled, column C empty (fallback), Header Row/List End Row non-numeric, AsOf Date invalid |
+| **Code Sheet** | All Data Types filled, column C empty (fallback), Header Row/List End Row non-numeric, Project Start Date invalid |
 | **PPP Data** | Rows before Header Row, rows after List End Row, blank Package Title, duplicate Package No. |
 | **Dates** | Real Excel dates, serial numbers (40000+), placeholder numbers (60, 90, 120), text dates, empty |
 | **Lookups** | All 4 lookup blocks present, one missing, extra columns in lookup, case variations |
@@ -700,7 +722,7 @@ Validation rule set V-01…V-20 checks *values*, never *structure*. A uniform on
 | High | Cumulative PO S-curve | Add line series to PO Monthly: cumulative Plan vs Actual |
 | Medium | Multi-file session | Load multiple project files, switch via dropdown |
 | Medium | Drill-down table | Click chart bar → filter package table below |
-| Medium | Custom date range | Override AsOf for scenario analysis |
+| Medium | Custom date range | Override the as-of (today) for scenario analysis |
 | Low | Dark mode | Toggle theme (CSS variables already support) |
 | Low | PDF report | Generate one-page PDF summary (jsPDF) |
 | Low | i18n | Externalize strings for EN/ZH toggle |
@@ -1059,7 +1081,7 @@ The re-run revealed the source workbook has been updated. These change the app's
 | **Column C (Data Type) is now populated** — 31 of 31 fields typed (`Text`/`Date`/`Int`) | ✅ **V-16 is resolved.** The built-in `LEGACY_DATE_FIELDS` fallback is no longer used. |
 | **Error Code / Error Description table now populated — `Code!Q2:R19`, V-01 … V-18** | 🔓 **I-11 is unblocked.** The authoritative rule text now lives in the workbook. |
 | `List End Row` = **300** (was 122) | ⚠️ Creates permanent V-20 noise — see **I-50**. |
-| New metadata: `Consultant` = Jacobs; `AsOf Date` = 46280 (2026-09-14) | As-of rendering confirmed correct. |
+| New metadata: `Consultant` = Jacobs; `Project Start Date` = 46280 (2026-09-14) | As-of rendering confirmed correct. |
 | New header `Category Code` at **N** (paired with `Item Category` at O) | ⚠️ Exposes a latent mapping gap — see **I-51**. |
 
 ### 15.4 What the validation engine reports on current data
@@ -1595,4 +1617,64 @@ You already filled `Category Code` (N = 19 values), so **all four code columns a
 
 ---
 
-**End of Workplan** — Waves P0-B–P2 implemented; harness **63/63 green (2026-09-24, Rev 1.17)**; **V-22** implemented (§15.16); **`codecheck.md` retired (Rev 1.18)** — see §14 + §15.17. Parked: **I-10, I-41, I-54, I-55…I-59**, parser rail **P-3**. **I-54** (validation CSV `desc` column) still needs a product decision. Keep this document updated with each future revision.
+## 16. MDL Parity Programme — P1–P10 Reconciliation & Issues (2026-10-03)
+
+> **Authoritative parity log.** Supersedes the historical notes in `arch/WORKPLAN.md` §0d/§0e. This document is the single source of truth for the MDL-parity workstream.
+
+### 16.1 Context
+- An **"Overdue by Stage"** feature was implemented in `Procurement-Dashboard.html` ahead of the formal plan (`OVL_STAGES` `1416`, `buildOverdueFilter` `1418`, `renderOverdueList` `1439`).
+- A 10-item parity plan (**doc-B**) was then proposed, anchored to MDL workplan requests (P1 Action Required panel … P10 layered architecture).
+- This section reconciles the already-built feature against P1–P10 and logs the issues it surfaced.
+
+### 16.2 Reconciled mapping (doc-B P → current PPP → action)
+| Doc P | Current PPP | Action |
+|---|---|---|
+| P1 Action Required panel | counts split in Look-Ahead/Delays | Summary panel reads shared helper; clickable → filter (needs P5). Built list = detail. |
+| P2 WD horizons + Due-Soon/Overdue | 90-day hardcode `1398`; Delays = any `poPlan<today` | Add `dueSoonStages()` (7/14/30 working days); Overdue side already built. |
+| P3 Overdue PO KPI | none | KPI cards from shared helper (per-stage). |
+| P4 Completeness % | `renderDQ` flags `1466` | KPI from `validate()` output. |
+| P5 filter + search | only Item-Category `649` | Extend `STATE.filter` + `filteredPackages`; add search box. |
+| P6 icon+text+color | `.s-good/.s-warn/.s-bad` | Apply to chips + Status/Criticality labels (a11y). |
+| P7 contract config | hard-coded `OVL_STAGES` `1416`, benchmark `1462`, `isIssued` `1120` | Move to Code sheet (Wave D). |
+| P8 shared tokens | consumer tokens | `:root` tokens both files import (Wave C). |
+| P9 date note | `As-of` shown `829` | Doc note only — already done. |
+| P10 src modules | inline | Extract to `src/` (Wave D). |
+
+### 16.3 Issues
+| ID | Sev | Issue | Where | Fix / Decision |
+|---|---|---|---|---|
+| **I-60** | Med | **Two conflicting "overdue" definitions.** `renderDelays` uses `poPlan < asOf && !isIssued(status)` (status-based); `renderOverdueList` uses `due=Forecast‖Plan && !Actual && due<asOf` (date-based, MDL-consistent). Counts can disagree. | `renderDelays` `1404:1410`; `renderOverdueList` `1439:1460` | **Resolved (2026-10-04):** canonical = date-based (`due=Forecast‖Plan`, `!Actual`, `due<today`, measured vs real `today` not AsOf). Shared `stageIsOverdue`/`stageDue`/`todayMidnight` helpers; `renderDelays` + `renderOverdueList` both call them → PO counts identical. `isIssued()` removed (was the conflict source). See §16.7. |
+| **I-61** | Low | **Naming collision.** The built feature was labelled "P1", colliding with doc-B P1 "Action Required panel". Confusion risk. | `OVL_STAGES` `1416` | Stage set consolidated into a single `STAGES` constant (kills the 3× duplicated stage list / label drift — see §16.7-B). Literal "P1"→"Overdue engine" label rename still open (cosmetic). |
+| **I-62** | Med | **No per-package detail page.** MDL §4A.6 "links to detail" cannot be a true drill-down. | dashboard has no detail view | **Resolved (2026-10-04):** Overdue list rows are clickable → inline expand showing full package record, 5-stage Plan/Forecast/Actual grid (overdue flagged), and that package's validation issues. PO Delays panel retired (PO overdue already in Overdue list). See §16.7-C. |
+| **I-63** | Low | **Triple Overdue-PO count risk.** P1 panel + P3 KPI + list would each recompute independently. | P1/P3/list | **Resolved (2026-10-04):** PO Delays panel retired → only one overdue source (`stageIsOverdue`); no triple-count possible. Future P1/P3 counters must call the same helper. See §16.7-A. |
+
+### 16.4 Open decisions
+- **D1** — Canonical overdue definition: **date-based ✅ (decided 2026-10-04)** — MDL-consistent (`due=Forecast‖Plan`, `!Actual`, `due<today`). The status-based `renderDelays` path was removed entirely; `isIssued()` deleted.
+- **D2** — P1 click behaviour: set a **filter preset** vs **scroll-to-section**.
+
+### 16.5 Reconciled roadmap
+- **Wave 0 (reconcile/refactor):** extract `overdueStages()` / `dueSoonStages()`; unify overdue definition (D1); rename feature to "Overdue engine"; record this section.
+- **Wave A:** P9 (note) · **P4** (Completeness %) · **P3** (Overdue KPI).
+- **Wave B:** **P5** (filter+search) → **P1** (summary panel, clickable) → **P2** (Due-Soon/Overdue split).
+- **Wave C:** **P6** (a11y icon+text+color) → **P8** (shared tokens).
+- **Wave D:** **P7** · **P10**.
+
+### 16.6 Current implementation status
+- **Implemented (updated 2026-10-04):** Overdue by Stage list with shared date-based `stageIsOverdue` helper (covers doc-B P1 overdue / P2 / P3 per-stage); per-row inline expand with validation (I-62); single `STAGES` constant (I-61); validation two-tier split — top `sysBanner` (system/config) + bottom `Data Validation` card (per-package DQ) (I-64–I-67). PO Delays panel retired. Five per-category metric cards + Stage Coverage consolidated into one **Interactive Chart** panel above the S-curve (§16.7-F).
+- **Verified:** lint clean; dashboard loads (welcome-stall regression fixed). `test/test_pipeline.mjs` harness **not re-run this session** — re-run before next release.
+
+### 16.7 Resolutions log (2026-10-03 → 2026-10-04)
+All items implemented in `Procurement-Dashboard.html`. `arch/WORKPLAN.md` §0d/§0e is **superseded scratch** — this §16 is the authoritative record.
+
+- **A. Overdue canonicalization (I-60 / I-63).** Single date-based rule: `due = Forecast‖Plan`; `!Actual`; `due < today` (real `today`, not `AsOf`). Shared helpers `todayMidnight()`, `stageDue(p,k)`, `stageIsOverdue(p,k,today)`. `renderDelays` deleted; `renderOverdueList` uses the helper; `isIssued()` removed. PO Delays panel retired → one overdue source, no triple count.
+- **B. Single `STAGES` constant (session I-61).** `STAGES=[['mr','MR','MR Issue'],['po','PO','PO Issue'],['vd','VD','VD Approval'],['fat','FAT','FAT'],['ros','ROS','ROS']]`; `OVL_STAGES`, validation V-09/V-10 and `svgStage` all derive from it — kills 3× duplicated stage list / label drift.
+- **C. Inline per-package expand (I-62).** Each Overdue row clickable (delegated listener on `#ovlList`, keyboard Enter/Space) → hidden sibling `<tr>` with `pkgDetailHTML`: metadata, 5-stage Plan/Forecast/Actual grid (overdue flagged via `stageIsOverdue`), and that package's validation issues (`STATE.report.issues.filter(i=>i.pkg===p.id)`). Stable `pkg.id` added at parse; validation loop tags issues with the same id.
+- **D. Validation two-tier split (session I-64–I-67).** `validate().add` gained a `kind` field (`system` for config/parse issues, `data` for per-package DQ). New top `#sysBanner` shows only `kind==='system'` (MDL "system on top"); `Data Validation` card moved to page bottom, `vtable` filtered to `kind==='data'`; `vchips` counts data severities only (no double count). V-15/V-16/V-18/V-20/V-22/V-13/V-01/V-19 → system; V-04…V-12 → data.
+- **F. Interactive Chart panel (consolidation, 2026-10-04).** The five per-category metric cards (Package Status, Discipline, Engineer Workload, Criticality, Lead Time) **and** the Stage Plan Coverage card were replaced by one interactive panel (`#charts`, `renderInteractive`) placed **above** the S-curve (`PO Plan vs Actual — by Month`). Card A — Packages: full breakdown list = Status, Discipline, Item Category, Criticality, Engineer, Supplier/Buyer/PE, **Stage Overdue**, **Schedule Health**. Card B — Data Quality: By Rule, By Package, By Discipline. A `<select>` picks the dimension; the bar/pie `seg` is stored **per card** (`getPref('inter-<id>')`, replacing the original shared `getPref('interactive')`) so each card keeps its own chart type; `⤓ PNG` / `⧉ Copy` export each card. The panel shell owns the shared `?` help and collapse toggle — the chart cards own only their own controls (no per-card help or toggle). **Stage Overdue** and **Schedule Health** both reuse the canonical `stageIsOverdue`/`stageDue` helpers, so the chart and the Overdue-by-Stage list can never disagree. KPIs, S-curve, 3-month Look-Ahead, Overdue list, benchmark, validation, and the top `#sysBanner` are unchanged. The `METRICS` registry, `renderCat`, and `svgStage` were deleted; the providers (`statusItems`/`critItems`/`tallyItems`) and chart helpers (`svgHBar`/`svgPie`) are retained and reused. The bottom status bar was explicitly **deferred** for later discussion.
+- **G. PO Plan-vs-Actual S-Curve panel (2026-10-04).** Rebuilt to mirror MDL's `renderCurvePanel`: two side-by-side charts — (1) cumulative S-curve (Plan/Forecast/Actual polylines via new `svgLine`) and (2) monthly grouped bars (`svgGrouped`) — inside a `.curve-grid` with a MDL-style dual-range **period window** (From/To month + Reset + range message). Date range: start = project start (`STATE.model.project.startDate`, read from the Code sheet **Project Start Date** cell) but **earlier PO dates are still shown**; end = last PO date **+ 3 months**. Forecast blanks fall back to plan date. Markers: **red dashed** = project start, **grey** = today. **Two distinct dates, never mixed:** *Project Start Date* = Code sheet cell (renamed from the old "AsOf Date"; legacy label still accepted); *operational as-of* = **today** (`todayMidnight()`) and is **not** read from the Code sheet. `renderLookAhead` and V-10 compare against `todayMidnight()`, and the meta line shows "Project start {startDate} · As-of {today}". Overdue engine already used `todayMidnight()` (unaffected).
+- **H. PO Look-Ahead — bounded table + horizon filter (2026-10-04).** Closes **I-18**. The panel was an open-ended list that grew with the data and the window was a hard-coded `+90 days`. Now: (1) the rows render as a **data table inside a bounded scroller** — `.tableScroll` (`max-height:340px`, sticky `thead`), generalised from the validation table's `.vtableWrap`, so a long list never stretches the page; the row count is reported in the control row instead. (2) The window is a **user control** — a segmented `1m / 2m / 3m / 4m / 6m` horizon (default `3m`) in a single-row `.look-win` control row, persisted via `getPref('look')`, computed in **calendar months** (`new Date(y, m + n, d)`) rather than a day count. (3) Added an **In (days)** column (right-aligned `.num`) and made the panel full width (`.card.full`) — it previously sat alone in the 2-column grid and rendered at half width. (4) **Forward-looking only**: packages that already have a PO **Actual** date are excluded (same canonical done-rule as Overdue — *Actual present ⇒ stage complete*). (5) Title is `PO Look-Ahead`, no longer hard-coding the horizon. Re-render is scoped to the panel via a cached `LOOK_LAST={pkgs,from}`. Rules now live in UI spec §4.3 (bounded data tables, horizon filters, look-ahead general requirement).
+- **E. Regression fix — welcome stall.** Moving the `Data Validation` card accidentally dropped the `Export CSV` button (`#vExport`); `getElementById('vExport').addEventListener` then threw at init, aborting the IIFE so the file-select listeners never attached (dead "Select file" button). Fixed by restoring the button + null-guarding the listener. Lesson: when moving a card with buttons, keep JS id references in sync; top-level `getElementById(...).addEventListener` should be null-safe.
+
+---
+
+**End of Workplan** — Waves P0-B–P2 implemented; harness **63/63 green (2026-09-24, Rev 1.17)**; **V-22** implemented (§15.16); **`codecheck.md` retired (Rev 1.18)** — see §14 + §15.17. Parked: **I-10, I-41, I-54, I-55…I-59**, parser rail **P-3**. **I-54** (validation CSV `desc` column) still needs a product decision. MDL-parity backlog **I-60…I-63 resolved (2026-10-04, see §16.7)**; validation two-tier **I-64–I-67 resolved**. Keep this document updated with each future revision.

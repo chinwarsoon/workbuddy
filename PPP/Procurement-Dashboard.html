@@ -6,25 +6,42 @@
 <title>Procurement Package Plan — Dashboard</title>
 <style>
   :root{
-    --bg:#F5F5F7; --card:#FFFFFF; --ink:#1D1D1F; --muted:#6E6E73;
-    --line:#E3E3E6; --accent:#0066CC; --accent2:#34C759; --warn:#FF9F0A; --bad:#FF3B30;
-    --soft:#E8F1FD; --shadow:0 1px 2px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.05);
-    --radius:18px;
-    --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    /* semantic tokens added in Wave 2 (I-34): the hardcoded hex used across
-       the validation panel, flags, charts and SVG builders now live in one place */
-    --warn-bg:#FFF6E5; --warn-border:#FFE2A8; --warn-fg:#7A5A00; --warn-fg-strong:#8A5A00;
-    --error-bg:#FFECEA; --error-fg:#A32D2D;
-    --ok-bg:#E6F7EC; --ok-fg:#1E7F3C;
-    --chart-grey:#C7C7CC;
-    --accent-dark:#004999; --good-dark:#1A7F3C; --accent-grad-end:#4DA3FF;
-    --accent-soft-border:#CFE3FA; --accent-ink:#0A4E8F;
-    --grid:#F0F0F2;
+    /* ── MDL Control Center design tokens — mirrored from MDL-Dashboard.html
+       + MDL_UI_Design_Spec.md §15 (Primary #0F2D52, Accent #1E88E5, Success
+       #2E7D32, Warning #F9A825, Critical #C62828, Neutral #64748B, BG #F6F8FA,
+       Surface #FFFFFF, Border #D9E1E8). Font per §16 (Segoe UI / Inter / Source Sans Pro). ── */
+    --navy:#0F2D52;      /* Primary — Dark Navy */
+    --blue:#1E88E5;      /* Accent — Engineering Blue */
+    --green:#2E7D32;     /* Success — Green */
+    --amber:#F9A825;     /* Warning — Amber */
+    --red:#C62828;       /* Critical — Red */
+    --slate:#64748B;     /* Neutral — Slate Grey */
+    --bg:#F6F8FA;        /* Background — Off White */
+    --surface:#FFFFFF;   /* Surface — White */
+    --border:#D9E1E8;    /* Border — Light Grey */
+    --text:#1F2A37;      /* Body text */
+    --muted:#64748B;     /* Secondary text */
+    /* aliases kept so existing selectors keep working */
+    --card:#FFFFFF; --line:#D9E1E8; --ink:#0F2D52;   /* brand/heading colour = navy */
+    --accent:#1E88E5; --accent2:#2E7D32;
+    --warn:#F9A825; --bad:#C62828;
+    --soft:#E8F1FD;      /* light-blue highlight tint */
+    --shadow:0 1px 2px rgba(15,45,82,.04);
+    --radius:10px;
+    --font:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;
+    /* semantic status tokens (MDL palette) */
+    --warn-bg:#FFF4D6; --warn-border:#F0D38A; --warn-fg:#9a6b00; --warn-fg-strong:#9a6b00;
+    --error-bg:#FDE8E8; --error-fg:#C62828;
+    --ok-bg:#E6F4EA; --ok-fg:#2E7D32;
+    --chart-grey:#B8C2CC;
+    --accent-dark:#0b2240; --good-dark:#2E7D32; --accent-grad-end:#42A5F5;
+    --accent-soft-border:#BFD8F2; --accent-ink:#1E88E5;
+    --grid:#EDF1F5;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
-  body{background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.45;-webkit-font-smoothing:antialiased;padding-bottom:60px}
-  .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1320px;margin:0 auto;padding:16px;padding-bottom:52px}
 
   /* ---------- Welcome ---------- */
   #welcome{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
@@ -37,22 +54,24 @@
   .drop .big{font-weight:600;font-size:14px;margin-bottom:4px}
   .drop .small{font-size:12px;color:var(--muted)}
   .expect{background:var(--soft);border:1px solid var(--accent-soft-border);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--accent-ink);margin-bottom:20px;text-align:left}
-  .expect b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#0066CC;margin-bottom:3px}
-  .btn{display:inline-block;background:var(--accent);color:#fff;font:inherit;font-weight:600;font-size:14px;padding:12px 22px;border:none;border-radius:13px;cursor:pointer;transition:.15s}
-  .btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+  .expect b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--blue);margin-bottom:3px}
+  .btn{display:inline-block;background:var(--accent);color:#fff;font:inherit;font-weight:600;font-size:14px;padding:12px 22px;border:none;border-radius:6px;cursor:pointer;transition:.15s}
+  .btn:hover{filter:brightness(1.06)}
   .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
   .privacy{font-size:11.5px;color:var(--muted);margin-top:18px;display:flex;gap:6px;align-items:center;justify-content:center}
   .privacy svg{width:13px;height:13px;fill:var(--muted)}
 
   /* ---------- Top bar ---------- */
-  header.bar{position:sticky;top:0;z-index:30;background:rgba(245,245,247,.82);backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px);border-bottom:1px solid var(--line)}
-  header.bar .inner{max-width:1120px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:12px}
-  header.bar .ttl{font-weight:700;font-size:16px;letter-spacing:-.01em;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  header.bar .meta{font-size:12px;color:var(--muted)}
-  header.bar .logo{height:28px;width:auto;display:block;flex-shrink:0}
+  header.bar{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff}
+  header.bar .inner{max-width:none;margin:0 auto;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  header.bar .ttl{font-weight:600;font-size:17px;flex:1;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  header.bar .meta{font-size:11px;opacity:.85}
+  header.bar .logo{height:36px;width:auto;display:block;flex-shrink:0;background:#fff;padding:3px;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .btn.secondary{background:#fff;color:var(--navy);border:1px solid var(--line)}
+  .btn.secondary:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
   .tf-wrap{position:relative;flex-shrink:0}
-  .tf-btn{font:inherit;font-size:12px;font-weight:600;padding:6px 12px;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:.15s}
-  .tf-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .tf-btn{font:inherit;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:5px 11px;border-radius:6px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:.15s}
+  .tf-btn:hover{border-color:var(--line)}
   .tf-btn.active{border-color:var(--accent);color:var(--accent);background:var(--soft)}
   .tf-btn svg{width:12px;height:12px;fill:currentColor;flex-shrink:0}
   .tf-panel{display:none;position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,.12);padding:8px 0;min-width:220px;max-width:min(340px,90vw);max-height:320px;overflow-y:auto;z-index:40}
@@ -63,43 +82,116 @@
   .tf-divider{height:1px;background:var(--line);margin:4px 0}
 
   /* ---------- Layout ---------- */
-  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin:22px 0 24px}
-  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
-  .kpi .v{font-size:27px;font-weight:700;letter-spacing:-.02em;line-height:1.05}
-  .kpi .l{font-size:11.5px;color:var(--muted);margin-top:7px;line-height:1.3}
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:0}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--blue);border-radius:8px;padding:10px;box-shadow:none}
+  .kpi .v{font-size:22px;font-weight:700;letter-spacing:-.01em;line-height:1.1;color:var(--navy)}
+  .kpi .l{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-top:2px;line-height:1.35}
   .kpi .s{font-size:11px;margin-top:7px;font-weight:600}
-  .s-good{color:var(--accent2)} .s-warn{color:var(--warn)} .s-bad{color:var(--bad)}
+  .s-good{color:var(--green)} .s-warn{color:var(--amber)} .s-bad{color:var(--red)}
+  .kpi.warn{border-top-color:var(--red)} .kpi.ok{border-top-color:var(--green)} .kpi.amb{border-top-color:var(--amber)}
+
+  /* ---------- MDL panel chrome: title-row buttons + corner panel number ---------- */
+  .panel-head-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .panel-actions{display:inline-flex;gap:6px;align-items:center}
+  .icon-btn{width:26px;height:26px;border-radius:6px;border:1px solid var(--line);background:#fff;color:var(--muted);font:inherit;font-size:13px;font-weight:600;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
+  .icon-btn:hover{background:var(--soft);border-color:var(--line);color:var(--navy)}
+  .panel-no{position:absolute;right:10px;bottom:8px;font-size:10px;font-weight:600;color:var(--muted);opacity:.9;letter-spacing:.04em;font-variant-numeric:tabular-nums;pointer-events:none}
+  .kpi-ov{padding-bottom:26px}
+  .kpi-ov.collapsed .kpis,.kpi-ov.collapsed .sub{display:none}
+  @media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
 
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);margin-bottom:18px}
+  .card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px 26px;box-shadow:var(--shadow);margin-bottom:18px}
   .grid .card{margin-bottom:0}
   .grid .card.full{grid-column:1 / -1}
-  .card h2{font-size:15.5px;font-weight:700;letter-spacing:-.01em}
+  #charts{position:relative;padding-bottom:26px}
+  .card h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--navy);margin:0 0 10px}
   .card .sub{font-size:12.5px;color:var(--muted);margin:3px 0 14px}
+  .ovl-row{cursor:pointer}
+  .ovl-row:hover{background:#f3f7fc}
+  .ovl-chev{width:18px;text-align:center;color:var(--muted);transition:transform .12s;font-size:11px}
+  .ovl-row[aria-expanded="true"] .ovl-chev{transform:rotate(90deg)}
+  .ovl-detail td{padding:0;background:#fafbfc;border-top:1px dashed var(--line)}
+  .ovl-detail-inner{padding:14px 18px 18px}
+  .ovl-meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:12px}
+  .ovl-meta .kv{font-size:12.5px;color:var(--muted)}
+  .ovl-meta .kv b{color:#334155;font-weight:600;margin-right:4px}
+  .stage-grid{margin:0 0 12px;font-size:12.5px}
+  .stage-grid th{text-align:left}
+  .ovl-vh{font-size:12.5px;font-weight:700;margin-bottom:6px;color:#334155}
+  .ovl-vlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+  .ovl-vlist li{font-size:12.5px;line-height:1.4}
+  .ovl-vlist .muted{color:var(--muted)}
+  .ovl-vlist .vchip{margin-right:6px}
   .ctool{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
   .vmap-note{margin:8px 0 0}
   .ctool-footer{margin-top:12px;margin-bottom:0}
-  .ctool button{font:inherit;font-size:12px;font-weight:600;padding:6px 12px;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--accent);cursor:pointer;transition:.15s}
-  .ctool button:hover{background:var(--soft);border-color:var(--accent)}
+  /* MDL action button — single source of truth for every outlined secondary button
+     (Copy / Download / Reset / Export / Filter / Load-another-file). The filled `.btn`
+     is the MDL primary; the segmented control (`.seg`) and round `.icon-btn` are their
+     own MDL control types and keep their shapes. */
+  .ctool button, .sc-win .reset, .head-actions button, .btn.ghost{
+    font:inherit;font-size:12px;font-weight:600;line-height:1.2;text-transform:none;letter-spacing:normal;
+    min-height:32px;padding:7px 14px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    border:1px solid var(--line);background:#fff;color:var(--navy);cursor:pointer;
+    transition:background .15s,border-color .15s,color .15s}
+  .ctool button:hover, .sc-win .reset:hover, .head-actions button:hover, .btn.ghost:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
   .chartwrap{width:100%;overflow-x:auto}
 
+  /* ---------- interactive chart panel ---------- */
+  .inter-sel{font:inherit;font-size:12px;font-weight:600;padding:6px 10px;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;max-width:260px}
+  .inter-sel:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .inter-body{margin-top:4px}
+  /* Panel 2 owns the collapse toggle — it hides the grid of chart cards */
+  #charts.collapsed .grid{display:none}
+  #charts>.panel-head-row{margin-bottom:12px}
+
+  /* ---------- S-curve panel (mirrors MDL: two charts + period window) ---------- */
+  .sc-win,.look-win,.ovl-win{flex-wrap:nowrap;align-items:center;gap:10px 14px}
+  .sc-win .lbl,.look-win .lbl,.ovl-win .lbl{font-size:12px;font-weight:600;color:var(--muted)}
+  .sc-win .rng{display:inline-flex;flex-direction:column;gap:2px;font-size:11px;color:var(--muted)}
+  .sc-win .rng input[type=range]{width:140px;accent-color:var(--accent)}
+
+  .sc-win .msg,.look-win .msg,.ovl-win .msg{font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap}
+  .curve-note{font-size:12px;color:var(--muted);margin:2px 0 8px}
+  .curve-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:4px}
+  .curve-grid .chart{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .panel-head h3{font-size:13px;font-weight:700;color:var(--navy);margin:0}
+  [data-theme="dark"] .panel-head h3{color:#DDE5EE}
+  .head-actions{display:flex;gap:8px}
+  .chart-actions{justify-content:flex-end;margin-bottom:6px}
+  /* collapse: keep only the title row (with its action cluster) + the corner panel number */
+  .card.collapsed > *:not(.panel-head-row):not(.panel-no){display:none}
+
+  @media(max-width:880px){.curve-grid{grid-template-columns:1fr}}
+
   /* ---------- segmented bar/pie toggle ---------- */
-  .seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff}
-  .seg button{font:inherit;font-size:12px;font-weight:600;padding:6px 13px;border:none;border-radius:0;background:#fff;color:var(--muted);cursor:pointer}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#fff}
+  /* Segmented control = MDL .btn-active (navy fill) + .btn-secondary (white/navy). Explicit
+     text-transform/letter-spacing resets stop it inheriting the shared text-action rule's
+     uppercase when a .seg sits inside a .ctool row. */
+  .seg button{font:inherit;font-size:12px;font-weight:600;line-height:1.2;min-height:32px;padding:7px 14px;border:none;border-radius:0;background:#fff;color:var(--navy);cursor:pointer;text-transform:none;letter-spacing:normal;transition:background .15s,color .15s}
   .seg button+button{border-left:1px solid var(--line)}
-  .seg button.on{background:var(--accent);color:#fff}
+  .seg button:not(.on):hover{background:var(--accent);color:#fff}
+  .seg button.on{background:var(--navy);color:#fff}
+  .seg button.on:hover{background:#0b2240}
 
   /* tables are scoped to .ds-table so the design-system styles never leak onto
      unrelated markup; grid `gap` owns card spacing (I-38) */
   .ds-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
   .ds-table th,.ds-table td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
-  .ds-table th{color:var(--muted);font-weight:600;font-size:12px}
+  .ds-table thead th{background:var(--navy);color:#fff;font-weight:600;font-size:12px}
+  .ds-table tbody tr:nth-child(even){background:#F9FBFD}
+  .ds-table tbody tr:hover{background:var(--soft)}
   .ds-table td.num,.ds-table th.num{text-align:right;font-variant-numeric:tabular-nums}
   .ds-table tr.over td{background:var(--warn-bg)}
+  .vtableWrap .ds-table thead th{position:sticky;top:0;z-index:1}
 
   .flag{background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:12px;padding:13px 15px;font-size:13px;color:var(--warn-fg);margin-top:8px}
   .flag b{color:var(--warn-fg-strong)}
-  .note{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5}
+  .note{background:#FFF8E1;border:1px solid var(--amber);color:#7a5b00;padding:8px 12px;border-radius:8px;font-size:12px;line-height:1.4;margin:10px 0}
   .empty{font-size:13px;color:var(--muted);padding:14px 0}
   footer{margin-top:34px;font-size:11.5px;color:var(--muted);text-align:center}
 
@@ -108,18 +200,31 @@
   .vchip{font-size:12px;font-weight:600;padding:5px 12px;border-radius:999px}
   .vchip.e{background:var(--error-bg);color:var(--error-fg)}
   .vchip.w{background:var(--warn-bg);color:var(--warn-fg-strong)}
-  .vchip.i{background:var(--soft);color:#0066CC}
+  .vchip.i{background:var(--soft);color:var(--blue)}
   .vchip.ok{background:var(--ok-bg);color:var(--ok-fg)}
   details.vd{margin-top:10px}
-  details.vd summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--accent);padding:6px 0}
+  details.vd summary{list-style:none;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--accent);padding:6px 0;display:flex;align-items:center;gap:6px}
+  details.vd summary::-webkit-details-marker{display:none}
+  details.vd summary::before{content:"\25B8";transition:transform .15s;font-size:11px;line-height:1}  /* ▸ collapsed */
+  details.vd[open]>summary::before{content:"\25BE"}  /* ▾ expanded */
+  details.vd summary:hover{color:var(--blue)}
   details.vd summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
-  .vtableWrap{max-height:340px;overflow:auto;margin-top:8px;border:1px solid var(--line);border-radius:10px}
-  .vtableWrap table{margin:0;font-size:12.5px}
-  .vtableWrap th{position:sticky;top:0;background:#FAFAFC}
+  /* Bounded, scrollable data table (§4.3). Any long list of rows goes in here so the panel
+     keeps a fixed height — the list scrolls instead of stretching the page. */
+  .vtableWrap,.tableScroll{max-height:340px;overflow:auto;margin-top:8px;border:1px solid var(--line);border-radius:10px}
+  .vtableWrap table,.tableScroll table{margin:0;font-size:12.5px}
+  .vtableWrap th,.tableScroll th{position:sticky;top:0;background:#FAFAFC}
   .sev{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;text-transform:capitalize}
   .sev-error{background:var(--error-bg);color:var(--error-fg)}
+  .sev-error::before{content:"\26A0\00A0"}
   .sev-warning{background:var(--warn-bg);color:var(--warn-fg-strong)}
-  .sev-info{background:var(--soft);color:#0066CC}
+  .sev-warning::before{content:"\26A0\00A0"}
+  .sev-info{background:var(--soft);color:var(--blue)}
+  .sev-info::before{content:"\2139\00A0"}
+  /* §14 — every status carries Icon + Text + Colour */
+  .s-good::before{content:"\2714\00A0"}
+  .s-warn::before{content:"\26A0\00A0"}
+  .s-bad::before{content:"\2716\00A0"}
   /* rule reference (I-11) — the Code sheet Error-table wording, one line per rule
      that actually fired (deduplicated: the table below repeats the same rule a lot) */
   .vref{margin:10px 0 2px;font-size:12.5px;color:var(--muted)}
@@ -138,6 +243,35 @@
   #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:rgba(29,29,31,.92);color:#fff;font-size:13px;padding:10px 18px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s;z-index:50}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   #errBanner{display:none;position:fixed;top:0;left:0;right:0;z-index:60;background:var(--bad);color:#fff;font-size:13px;padding:12px 18px;box-shadow:0 2px 10px rgba(0,0,0,.2);line-height:1.4}
+  /* system / config banner (MDL sysBanner equivalent) — top-of-page, validation-system notices only */
+  .sys-banner{display:block;margin:0 0 16px;font-size:12px;line-height:1.4}
+  .sys-banner[hidden]{display:none}
+  .sys-banner-item{display:block;padding:9px 20px;border-bottom:1px solid rgba(0,0,0,.10)}
+  .sys-banner-item:last-child{border-bottom:none}
+  .sys-banner-item.warn{background:var(--amber,#F9A825);color:#5a3d00}
+  .sys-banner-item.fatal{background:var(--red,#C62828);color:#fff}
+  .sys-banner-item b{font-weight:700;margin-right:4px}
+  /* live status bar (MDL .status-bar equivalent) — fixed bottom, navy, white text */
+  .status-bar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;gap:8px;padding:6px 14px;background:var(--navy);color:#E8EDF3;font-size:12px;user-select:none;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
+  .status-bar[hidden]{display:none}
+  .status-bar span{white-space:nowrap}
+
+  /* ---------- help modal (MDL .help-modal: centred popup, overlay) ---------- */
+  .help-modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:24px}
+  .help-modal[hidden]{display:none}
+  .help-modal .box{background:#fff;border:1px solid var(--line);border-radius:12px;max-width:680px;width:100%;max-height:84vh;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+  .help-modal .box header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}
+  .help-modal .box header h3{margin:0;font-size:15px;color:var(--navy)}
+  .help-modal .box .close{font-size:16px;line-height:1;padding:4px 10px}
+  .help-modal .box .body{overflow:auto;padding:16px 18px;font-size:13px;line-height:1.55;color:#22303f}
+  .help-modal .body h4{margin:16px 0 6px;font-size:13px;color:var(--navy)}
+  .help-modal .body h4:first-child{margin-top:0}
+  .help-modal .body p{margin:6px 0}
+  .help-modal .body ul{margin:6px 0;padding-left:20px}
+  .help-modal .body li{margin:3px 0}
+  .help-modal .body code{background:var(--bg);padding:1px 5px;border-radius:4px;font-size:12px}
+  .help-modal .body .def{background:var(--bg);border-left:3px solid var(--navy);padding:8px 12px;border-radius:0 6px 6px 0;margin:8px 0}
+  .help-modal .help{font-weight:700}
 
   /* focus-visible baseline (I-40) */
   :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
@@ -156,7 +290,7 @@
   @media print{
     body{background:#fff;color:#000;padding-bottom:0}
     header.bar{position:static}
-    .tf-wrap,.ctool,#reloadBtn,#toast,#errBanner{display:none}
+    .tf-wrap,.ctool,#reloadBtn,#toast,#errBanner,#sysBanner{display:none}
     .card{break-inside:avoid;box-shadow:none;border:1px solid #ccc}
     .kpis{grid-template-columns:repeat(3,1fr)}
   }
@@ -171,8 +305,9 @@
     --accent-soft-border:#1c3a55; --accent-ink:#7fb6ff;
     --grid:#2a2a2c;
   }
-  [data-theme="dark"] header.bar{background:rgba(20,20,22,.82)}
-  [data-theme="dark"] header.bar .logo{background:#fff;border-radius:6px;padding:3px 7px;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+  [data-theme="dark"] .inter-sel{background:#1c1c1e;color:#f5f5f7}
+  [data-theme="dark"] header.bar{background:var(--navy)}
+  [data-theme="dark"] header.bar .logo{background:#fff;padding:3px 6px;border-radius:6px}
   /* charts serialise to PNG with literal colours, so keep their area light in dark mode */
   [data-theme="dark"] .chartwrap{background:#fff;border-radius:12px;padding:4px}
 </style>
@@ -212,13 +347,86 @@
       </button>
       <div class="tf-panel" id="tfPanel" role="group" aria-label="Filter packages by item category"></div>
     </div>
-    <button class="btn ghost" type="button" id="reloadBtn">Load another file</button>
+    <button class="btn secondary" type="button" id="reloadBtn">Load another file</button>
   </div></header>
 
   <div class="wrap">
-    <!-- validation — runs before charts, never blocks -->
+    <!-- system / config banner (MDL sysBanner equivalent) — sits above all panels -->
+    <div id="sysBanner" class="sys-banner" hidden></div>
+
+    <!-- KPI Overview panel (MDL layout: title-row buttons + corner panel number) -->
+    <section class="card full kpi-ov" id="kpiPanel">
+      <div class="panel-head-row">
+        <h2>KPI Overview</h2>
+        <div class="panel-actions">
+          <button type="button" class="icon-btn" id="kpiToggle" aria-label="Collapse or expand KPI cards" title="Collapse / expand" aria-expanded="true" aria-controls="kpis">&#8722;</button>
+        </div>
+      </div>
+      <div class="kpis" id="kpis"></div>
+      <span class="panel-no">Panel 1</span>
+    </section>
+
+    <!-- Interactive chart panel (replaces the 5 metric cards + Stage Coverage; sits above the S-curve) -->
+    <div id="charts" class="card full"></div>
+
+    <div class="card full" id="scPanel">
+      <h2>PO Plan vs Actual — Plan / Forecast / Actual</h2>
+      <span class="panel-no">Panel 3</span>
+      <div class="ctool sc-win" id="poWin">
+        <span class="lbl">Period window</span>
+        <label class="rng">From <input type="range" class="wf" min="0" max="0" value="0"></label>
+        <label class="rng">To <input type="range" class="wt" min="0" max="0" value="0"></label>
+        <button type="button" class="reset ctl-bars" id="poBarsBtn" aria-pressed="true" title="Show / hide the monthly bars">Bars</button>
+        <button type="button" class="reset">Reset</button>
+        <span class="msg" id="poWinMsg"></span>
+      </div>
+      <div class="curve-note" id="poProjNote"></div>
+      <div class="head-actions chart-actions"><button type="button" class="dlBtn" data-svg="svg-po">⤓ PNG</button><button type="button" class="copyBtn" data-svg="svg-po">⧉ Copy</button></div>
+      <div class="chartwrap" id="poChart"></div>
+    </div>
+
+    <div class="grid">
+      <div class="card full" id="lookPanel">
+        <h2>PO Look-Ahead</h2>
+        <span class="panel-no">Panel 4</span>
+        <div class="ctool look-win" id="lookWin">
+          <span class="lbl">Horizon</span>
+          <div class="seg" data-key="look" role="group" aria-label="Look-ahead horizon in months">
+            <button type="button" data-t="1" aria-pressed="false">1m</button>
+            <button type="button" data-t="2" aria-pressed="false">2m</button>
+            <button type="button" data-t="3" aria-pressed="false">3m</button>
+            <button type="button" data-t="4" aria-pressed="false">4m</button>
+            <button type="button" data-t="6" aria-pressed="false">6m</button>
+          </div>
+          <button type="button" id="lookExport" title="Download the look-ahead list as CSV">⤓ CSV</button>
+          <span class="msg" id="lookSub"></span>
+        </div>
+        <div class="tableScroll" id="lookahead"></div>
+      </div>
+    </div>
+
+    <div class="card full" id="ovlPanel">
+      <h2>Overdue by Stage</h2>
+      <span class="panel-no">Panel 5</span>
+      <div class="ctool ovl-win">
+        <span class="lbl">Stage</span>
+        <div class="seg" id="ovlFilter" data-key="ovlStage" role="group" aria-label="Filter overdue list by stage"></div>
+        <span class="msg" id="ovlSub"></span>
+      </div>
+      <div class="tableScroll" id="ovlList"></div>
+    </div>
+
+    <div class="card full" id="benchPanel">
+      <h2>Lead Time Benchmark — 2026 Industry</h2>
+      <span class="panel-no">Panel 6</span>
+      <div class="sub">External reference for the estimated packages (confirm with vendor at quotation)</div>
+      <table id="benchmark" class="ds-table"><thead><tr><th scope="col">Equipment Category</th><th scope="col" class="num">Typical Lead Time</th><th scope="col" class="num">≈ Days</th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <!-- validation — data issues live at the bottom (MDL Panel 12 pattern); system/config notices go to the top banner -->
     <div class="card full" id="vcard">
       <h2>Data Validation</h2>
+      <span class="panel-no">Panel 7</span>
       <div class="sub" id="vsub"></div>
       <div class="vchips" id="vchips"></div>
       <div class="note vmap-note" id="vmap"></div>
@@ -227,113 +435,21 @@
         <div class="vref" id="vref"></div>
         <div class="vtableWrap" id="vtable"></div>
       </details>
-      <div class="ctool ctool-footer"><button type="button" id="vExport">Export CSV</button></div>
+      <div class="ctool ctool-footer"><button type="button" id="vExport" title="Download the validation list as CSV">⤓ CSV</button></div>
     </div>
 
-    <div class="kpis" id="kpis"></div>
-
-    <div class="grid">
-      <div class="card">
-        <h2>Package Status</h2>
-        <div class="sub">Distribution across the procurement workflow</div>
-        <div class="ctool">
-          <div class="seg" data-key="status"><button type="button" data-t="bar" class="on">Bar</button><button type="button" data-t="pie">Pie</button></div>
-          <button type="button" class="copyBtn" data-svg="svg-status">Copy image</button><button type="button" class="dlBtn" data-svg="svg-status">Download</button>
-        </div>
-        <div class="chartwrap" id="statusChart"></div>
-      </div>
-      <div class="card">
-        <h2>Discipline</h2>
-        <div class="sub">Packages by engineering discipline</div>
-        <div class="ctool">
-          <div class="seg" data-key="discipline"><button type="button" data-t="bar" class="on">Bar</button><button type="button" data-t="pie">Pie</button></div>
-          <button type="button" class="copyBtn" data-svg="svg-disc">Copy image</button><button type="button" class="dlBtn" data-svg="svg-disc">Download</button>
-        </div>
-        <div class="chartwrap" id="discipline"></div>
-      </div>
-    </div>
-
-    <div class="grid">
-      <div class="card">
-        <h2>Engineer Workload</h2>
-        <div class="sub">Packages per responsible engineer</div>
-        <div class="ctool">
-          <div class="seg" data-key="engineer"><button type="button" data-t="bar" class="on">Bar</button><button type="button" data-t="pie">Pie</button></div>
-          <button type="button" class="copyBtn" data-svg="svg-eng">Copy image</button><button type="button" class="dlBtn" data-svg="svg-eng">Download</button>
-        </div>
-        <div class="chartwrap" id="engineer"></div>
-      </div>
-      <div class="card">
-        <h2>Criticality (Inspection Level)</h2>
-        <div class="sub" id="critSub">0 Not applicable · 1 Factory QC · 2 TPI · 3 Witness · 4 FAT record</div>
-        <div class="ctool">
-          <div class="seg" data-key="criticality"><button type="button" data-t="bar" class="on">Bar</button><button type="button" data-t="pie">Pie</button></div>
-          <button type="button" class="copyBtn" data-svg="svg-crit">Copy image</button><button type="button" class="dlBtn" data-svg="svg-crit">Download</button>
-        </div>
-        <div class="chartwrap" id="criticality"></div>
-        <div class="note" id="critNote">Empty for all packages → this view stays empty until the Criticality column is filled.</div>
-      </div>
-    </div>
-
-    <div class="grid">
-      <div class="card">
-        <h2>Lead Time Estimate</h2>
-        <div class="sub">Coverage and distribution of estimated lead times</div>
-        <div class="ctool">
-          <div class="seg" data-key="leadtime"><button type="button" data-t="bar" class="on">Bar</button><button type="button" data-t="pie">Pie</button></div>
-          <button type="button" class="copyBtn" data-svg="svg-lead">Copy image</button><button type="button" class="dlBtn" data-svg="svg-lead">Download</button>
-        </div>
-        <div class="chartwrap" id="leadtime"></div>
-      </div>
-      <div class="card">
-        <h2>Stage Plan Coverage</h2>
-        <div class="sub">Planned vs actual dates per milestone</div>
-        <div class="ctool">
-          <button type="button" class="copyBtn" data-svg="svg-stage">Copy image</button><button type="button" class="dlBtn" data-svg="svg-stage">Download</button>
-        </div>
-        <div class="chartwrap" id="stage"></div>
-        <div class="note">If MR Plan is sparse while downstream is full, dates may be back-filled. Actual dates drive real progress.</div>
-      </div>
-    </div>
-
-    <div class="card full">
-      <h2>PO Plan vs Actual — by Month</h2>
-      <div class="sub" id="poChartSub">Critical view for hitting the PO-issuance target</div>
-      <div class="ctool">
-        <button type="button" class="copyBtn" data-svg="svg-po">Copy image</button><button type="button" class="dlBtn" data-svg="svg-po">Download</button>
-      </div>
-      <div class="chartwrap" id="poChart"></div>
-    </div>
-
-    <div class="grid">
-      <div class="card">
-        <h2>3-Month PO Look-Ahead</h2>
-        <div class="sub" id="lookSub"></div>
-        <div id="lookahead"></div>
-      </div>
-      <div class="card">
-        <h2>PO Issuance Delays</h2>
-        <div class="sub" id="delaySub"></div>
-        <div id="delays"></div>
-      </div>
-    </div>
-
-    <div class="card full">
-      <h2>Lead Time Benchmark — 2026 Industry</h2>
-      <div class="sub">External reference for the estimated packages (confirm with vendor at quotation)</div>
-      <table id="benchmark" class="ds-table"><thead><tr><th scope="col">Equipment Category</th><th scope="col" class="num">Typical Lead Time</th><th scope="col" class="num">≈ Days</th></tr></thead><tbody></tbody></table>
-    </div>
-
-    <div class="card full">
+    <div class="card full" id="dqPanel">
       <h2>Data-Quality Flags</h2>
+      <span class="panel-no">Panel 8</span>
       <div id="dq"></div>
     </div>
 
+    <footer role="contentinfo">本内容由 AI 生成，请核实后使用 · Standalone dashboard — data parsed locally from your file</footer>
   </div>
-  <footer role="contentinfo">本内容由 AI 生成，请核实后使用 · Standalone dashboard — data parsed locally from your file</footer>
 </div>
 
 <div id="toast"></div>
+<div class="status-bar" id="statusBar" hidden></div>
 
 <script>
 /* All app code lives inside one IIFE (I-33) so nothing leaks onto the global
@@ -612,7 +728,8 @@ function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg
 const STATE = {
   model:null,                       // {project, packages, lookups, lookupMeta, statusCanon, codeInfo}
   report:null,                      // validation report
-  filter:{ cats:null },             // null = all categories selected
+  filter:{ cats:null }, // cats:null = all categories. Stage selection is NOT here — it is the `ovlStage` seg preference (§7.5)
+  chartView:{ packages:'status', data:'dqByRule' }, // interactive panel selected breakdowns
   prefs:{ chartType:{} }            // key -> 'bar' | 'pie' (persisted)
 };
 
@@ -690,13 +807,30 @@ function render(){
   const pkgs=filteredPackages();
   safeCall(()=>renderValidation(STATE.report), 'vcard');
   safeCall(()=>renderKPIs(pkgs), 'kpis');
-  METRICS.forEach(m=> safeCall(()=>renderCat(m.key, pkgs), m.el));
-  safeCall(()=>{ document.getElementById('stage').innerHTML=svgStage(pkgs); }, 'stage');
-  safeCall(()=>renderPOMonthly(pkgs), 'poChart');
-  safeCall(()=>renderLookAhead(pkgs, STATE.model.project.asOf), 'lookahead');
-  safeCall(()=>renderDelays(pkgs, STATE.model.project.asOf), 'delays');
+  safeCall(()=>renderInteractive(), 'charts');
+  safeCall(()=>renderPOMonthly(pkgs), 'poCum');
+  safeCall(()=>renderLookAhead(pkgs, todayMidnight()), 'lookahead'); // operational as-of = today; horizon = user-selected calendar months (1/2/3/4/6, default 3)
+  safeCall(()=>renderOverdueList(pkgs), 'ovlList'); // P1 — overdue measured against real TODAY
   safeCall(()=>renderBenchmark(), 'benchmark');
   safeCall(()=>renderDQ(pkgs), 'dq');
+  safeCall(()=>updateStatusBar(), 'statusBar');
+}
+
+/* Live status bar (MDL .status-bar equivalent): fixed bottom, navy, white text. */
+function updateStatusBar(){
+  const bar=document.getElementById('statusBar'); if(!bar) return;
+  const all=STATE.model.packages, pkgs=filteredPackages();
+  const total=all.length||0, shown=pkgs.length||0;
+  const started=pkgs.filter(p=>p.status&&p.status!=='Not Start').length;
+  const pct=total?Math.round(started/total*100):0;
+  const cats=STATE.filter.cats;
+  const filt=(!cats||cats.size===0)?'All categories':cats.size+' categor'+(cats.size>1?'ies':'y')+' selected';
+  bar.hidden=false;
+  bar.innerHTML='<span>'+total+' packages</span>'
+    +'<span>'+shown+' shown</span>'
+    +'<span>'+started+' started ('+pct+'%)</span>'
+    +'<span>As-of '+fmt(todayMidnight())+'</span>'
+    +'<span>Filter: '+filt+'</span>';
 }
 
 /* I-31 (Wave 2): split the former buildDashboard() into three single-purpose
@@ -776,13 +910,18 @@ function buildModel(result, filename){
       else pkg[field] = (raw==null?'':String(raw));
     }
 
+    pkg.id = pkg.packageNo || pkg.title || ('row '+pkg._row);
     packages.push(pkg);
   }
   if(!packages.length) throw new Error('No packages with a Package Title found in the specified range.');
 
-  const asOfVal = codeMeta['AsOf Date'];
-  const asOfDate = asOfVal ? toDate(asOfVal) : new Date();
-  if(!asOfDate) throw new Error('Invalid AsOf Date in Code sheet.');
+  /* Project Start Date lives in the Code sheet (cell "Project Start Date",
+     with a fallback to the legacy "AsOf Date" label for older files). The
+     operational reporting date (asOf) is always today and is NOT read from
+     the Code sheet. */
+  const pStartVal = codeMeta['Project Start Date'] || codeMeta['AsOf Date'];
+  const projStartDate = pStartVal ? toDate(pStartVal) : null;
+  if(pStartVal && (!projStartDate || isNaN(projStartDate))) throw new Error('Invalid Project Start Date in Code sheet.');
 
   const projectTitle = codeMeta['Project Title'] || filename.replace(/\.xlsx?$/i,'').replace(/\.csv$/i,'');
   /* canonical status: accepts either the code (NS) or the full description */
@@ -792,13 +931,13 @@ function buildModel(result, filename){
     return v=>{ const s=String(v==null?'':v).trim(); return m[s.toLowerCase()]||s; };
   })();
 
-  const model = { project:{title:projectTitle, code:codeMeta['Project Code']||'', client:codeMeta['Client']||'', asOf:asOfDate},
+  const model = { project:{title:projectTitle, code:codeMeta['Project Code']||'', client:codeMeta['Client']||'', startDate:projStartDate},
        packages, lookups, lookupMeta, statusCanon, errorTable,
        codeInfo:{ hasTypes, typeCount:ft.found, fieldCount:Object.keys(fieldToCol).length, metaTypes,
                   errorCount:Object.keys(errorTable).length, errorCodeCol:lsrc.errorCode||null, errorDescCol:lsrc.errorDescription||null } };
 
   /* validation inputs that are not part of the clean domain model */
-  const vctx = { lookups, asOf:asOfDate, headerRow, lastRow, pppGrid:ppp, titleCol:fieldToCol.title,
+  const vctx = { lookups, projStart:projStartDate, headerRow, lastRow, pppGrid:ppp, titleCol:fieldToCol.title,
     hasTypes, typeCount:ft.found, skipped, dateFields, metaTypes, lookupMeta, codeMeta,
     errorTable, errorCodeCol:lsrc.errorCode||null, errorDescCol:lsrc.errorDescription||null,
     hrRaw, lrRaw, headerRowDefault:!headerRowValid, lastRowDefault:!lastRowValid };
@@ -813,10 +952,12 @@ function buildDashboard(result, filename){
   document.getElementById('welcome').style.display='none';
   document.getElementById('dash').classList.remove('hidden');
   document.getElementById('projTitle').textContent=STATE.model.project.title;
-  document.getElementById('metaLine').textContent=(STATE.model.project.client?STATE.model.project.client+' · ':'')+(STATE.model.project.code?STATE.model.project.code+' · ':'')+'As-of '+fmt(STATE.model.project.asOf);
+  const ps=STATE.model.project.startDate;
+  document.getElementById('metaLine').textContent=(STATE.model.project.client?STATE.model.project.client+' · ':'')+(STATE.model.project.code?STATE.model.project.code+' · ':'')+'Project start '+(ps&&!isNaN(ps)?fmt(ps):'—')+' · As-of '+fmt(todayMidnight());
 
   STATE.filter.cats=null;
   buildTypeFilter();
+  buildOverdueFilter(); // P1
 
   /* validate first — never blocks the dashboard */
   STATE.report = validate(model.packages, vctx);
@@ -834,20 +975,21 @@ function validate(pkgs, ctx){
      = '' -> the rule's own built-in message stands, and V-21 warns (never errors). */
   const errTable=(ctx&&ctx.errorTable)||{};
   const ruleText=code=>{ const t=errTable[String(code)]; return t==null?'':String(t).trim(); };
-  const add=(sev,code,pkg,field,value,msg)=>issues.push({sev,code,pkg:pkg||'—',field:field||'—',value:value==null?'':String(value),msg,desc:ruleText(code)});
+  const add=(sev,code,pkg,field,value,msg,kind)=>issues.push({sev,code,pkg:pkg||'—',field:field||'—',value:value==null?'':String(value),msg,desc:ruleText(code),kind:kind||((pkg==null||pkg==='—')?'system':'data')});
   const T=pkgs.length;
   const L=ctx.lookups||{};
   const norm=s=>String(s==null?'':s).trim().toLowerCase();
   const set=a=>new Set((a||[]).map(norm));
-  const stages=[['mr','MR'],['po','PO'],['vd','VD'],['fat','FAT'],['ros','ROS']];
+  const stages=STAGES; // canonical stage set (I-61)
 
   if(ctx.headerRowDefault) add('error','V-15','—','Code!Header Row', ctx.hrRaw==null?'':ctx.hrRaw, 'Header Row missing or not numeric — used default (row 1 as header).');
   if(ctx.lastRowDefault) add('error','V-15','—','Code!List End Row', ctx.lrRaw==null?'':ctx.lrRaw, 'List End Row missing or not numeric — used default (last data row).');
-  if(!ctx.asOf) add('error','V-15','—','Code!AsOf Date','','AsOf Date missing or invalid');
+  if(!ctx.projStart) add('error','V-15','—','Code!Project Start Date','','Project Start Date missing or invalid');
   if(!ctx.hasTypes) add('warning','V-16','—','Code!C (Data Type)','','Column C has no Data Type values — all fields default to Text. Fill column C to make parsing and validation data-driven.');
 
   const mt=ctx.metaTypes||{};
-  if(mt['AsOf Date'] && mt['AsOf Date']!=='Date') add('warning','V-15','—','Code!AsOf Date',mt['AsOf Date'],'Data Type in column C is "'+mt['AsOf Date']+'" — expected Date');
+  const psType = mt['Project Start Date'] || mt['AsOf Date'];
+  if(psType && psType!=='Date') add('warning','V-15','—','Code!Project Start Date',psType,'Data Type in column C is "'+psType+'" — expected Date');
   ['Header Row','List End Row'].forEach(k=>{ if(mt[k] && mt[k]!=='Number') add('warning','V-15','—','Code!'+k,mt[k],'Data Type in column C is "'+mt[k]+'" — expected Number'); });
   Object.entries(ctx.lookupMeta||{}).forEach(([k,v])=>{
     if(!v.col||!v.n) add('warning','V-18','—','Code!'+v.title,'not found','Lookup block "'+v.title+'" was not found in row 1 — '+k+' values cannot be checked against the Code sheet');
@@ -922,12 +1064,12 @@ function validate(pkgs, ctx){
         stages.forEach(([k,n])=>{ const pl=p[k+'Plan'], ac=p[k+'Actual']; if(ac&&!pl) add('warning','V-09',id,n+' Actual',fmt(ac),'Actual date entered but '+n+' Plan is empty'); });
     }},
     { code:'V-10', sev:'warning', run(p,id,ctx,add){
-        stages.forEach(([k,n])=>{ const ac=p[k+'Actual']; if(ac&&ctx.asOf&&ac>ctx.asOf) add('warning','V-10',id,n+' Actual',fmt(ac),'Actual date is later than the As-of date ('+fmt(ctx.asOf)+')'); });
+        stages.forEach(([k,n])=>{ const ac=p[k+'Actual']; if(ac&&ac>todayMidnight()) add('warning','V-10',id,n+' Actual',fmt(ac),'Actual date is later than today ('+fmt(todayMidnight())+')'); });
     }}
   ];
 
   pkgs.forEach(p=>{
-    const id = p.packageNo || p.title || ('row '+p._row);
+    const id = p.id;
     /* I-46: normalise the duplicate-detection key; keep the raw value for display */
     if(p.packageNo){ const nk=norm(p.packageNo); noCount[nk]=(noCount[nk]||0)+1; if(noRaw[nk]==null) noRaw[nk]=p.packageNo; }
 
@@ -954,8 +1096,8 @@ function validate(pkgs, ctx){
 
   Object.entries(noCount).forEach(([k,v])=>{ if(v>1) add('warning','V-11',noRaw[k],'Package No.',noRaw[k],'Duplicate Package No. — appears '+v+' times'); });
   Object.values(personVariants).forEach(s=>{ if(s.size>1) add('warning','V-12','—','Design Engineer',Array.from(s).join('  |  '),'Same engineer written different ways — counted as '+s.size+' separate people in the Engineer chart. Align the spelling in Excel.'); });
-  if(critBlank>0) add('warning','V-05','—','Criticality',critBlank+' / '+T,'Criticality empty on '+critBlank+' package(s) — the inspection view stays empty');
-  if(T && ltMissing > T*0.5) add('warning','V-14','—','Estimate Lead Time',ltMissing+' / '+T,'Lead time missing on '+ltMissing+' packages ('+Math.round(ltMissing/T*100)+'%)');
+  if(critBlank>0) add('warning','V-05','—','Criticality',critBlank+' / '+T,'Criticality empty on '+critBlank+' package(s) — the inspection view stays empty','data');
+  if(T && ltMissing > T*0.5) add('warning','V-14','—','Estimate Lead Time',ltMissing+' / '+T,'Lead time missing on '+ltMissing+' packages ('+Math.round(ltMissing/T*100)+'%)','data');
 
   if(ctx.pppGrid && ctx.lastRow!=null){
     let extra=0;
@@ -1048,28 +1190,37 @@ function renderRuleRef(rep){
       +'</li>').join('')+'</ul>';
 }
 function renderValidation(rep){
-  const c=rep.counts;
+  const sys=rep.issues.filter(i=>i.kind==='system');
+  const data=rep.issues.filter(i=>i.kind==='data');
   document.getElementById('vmap').innerHTML = renderCodeMap();
   renderRuleRef(rep);
-  document.getElementById('vsub').textContent = rep.total
-    ? 'Checks run against the PPP data and the Code sheet lists. The dashboard below is generated anyway — fix the data in Excel and reload to clear these.'
-    : 'All checks passed — no issues found.';
+  document.getElementById('vsub').textContent =
+    (rep.total ? 'Checks run against the PPP data and the Code sheet lists. ' : 'All checks passed — no issues found. ') +
+    'System/config notices appear in the banner above; per-package data issues are listed below. Fix the data in Excel and reload to clear these.';
+  const dc={error:0,warning:0,info:0}; data.forEach(i=>{ if(dc[i.sev]!=null) dc[i.sev]++; });
   document.getElementById('vchips').innerHTML =
-    (c.error?'<span class="vchip e">'+c.error+' Error'+(c.error>1?'s':'')+'</span>':'')+
-    (c.warning?'<span class="vchip w">'+c.warning+' Warning'+(c.warning>1?'s':'')+'</span>':'')+
-    (c.info?'<span class="vchip i">'+c.info+' Info</span>':'')+
+    (dc.error?'<span class="vchip e">'+dc.error+' Error'+(dc.error>1?'s':'')+'</span>':'')+
+    (dc.warning?'<span class="vchip w">'+dc.warning+' Warning'+(dc.warning>1?'s':'')+'</span>':'')+
+    (dc.info?'<span class="vchip i">'+dc.info+' Info</span>':'')+
     (rep.total?'':'<span class="vchip ok">No issues</span>');
-  const rows=rep.issues.slice(0,80);
+  const sb=document.getElementById('sysBanner');
+  if(sb){
+    if(sys.length){
+      sb.hidden=false;
+      sb.innerHTML=sys.map(i=>{const f=i.sev==='error'||i.level==='fatal';const ic=f?'⛔':(i.sev==='info'?'ℹ️':'⚠️');return f?'<div class="sys-banner-item fatal">'+ic+' <b>'+esc(i.code||'SYSTEM')+'</b>'+esc(i.msg||'')+'</div>':'<div class="note">'+ic+' <b>'+esc(i.code||'SYSTEM')+'</b>'+esc(i.msg||'')+'</div>';}).join('');
+    } else { sb.hidden=true; sb.innerHTML=''; }
+  }
+  const rows=data.slice(0,80);
   document.getElementById('vtable').innerHTML =
     '<table class="ds-table"><thead><tr><th scope="col">Sev</th><th scope="col">Rule</th><th scope="col">Package</th><th scope="col">Field</th><th scope="col">Value</th><th scope="col">Message</th></tr></thead><tbody>'+
     rows.map(i=>'<tr><td><span class="sev sev-'+i.sev+'">'+esc(i.sev)+'</span></td><td class="rulecell"'+(i.desc?' title="'+esc(i.desc)+'"':'')+'>'+esc(i.code)+'</td><td>'+esc(trunc(i.pkg,28))+'</td><td>'+esc(i.field)+'</td><td>'+esc(trunc(i.value,26))+'</td><td>'+esc(i.msg)+'</td></tr>').join('')+
     '</tbody></table>'+
-    (rep.issues.length>rows.length?'<div class="note">Showing the first '+rows.length+' of '+rep.issues.length+' — use Export CSV for the full list.</div>':'');
-  document.getElementById('vdetails').open = c.error>0;
+    (data.length>rows.length?'<div class="note">Showing the first '+rows.length+' of '+data.length+' data issues — use Export CSV for the full list.</div>':'');
+  document.getElementById('vdetails').open = dc.error>0;
 }
 
 /* ============== charts ============== */
-const PIE_COLORS=['#0066CC','#34C759','#FF9F0A','#5E5CE6','#FF3B30','#30B0C7','#AF52DE','#FF9500','#8E8E93'];
+const PIE_COLORS=['#1E88E5','#2E7D32','#F9A825','#C62828','#64748B','#7E57C2','#26A69A','#EC407A','#8D6E63','#42A5F5','#9CCC65','#FF7043'];
 /* Chart geometry + colour palette (I-35 / I-34). Centralised so a dimension
    or colour is changed in one place. Colours stay literal hex (not CSS vars)
    because the chart SVG is serialised to a PNG, where document CSS custom
@@ -1078,57 +1229,17 @@ const CHART = {
   W:760, RW:46, padT:12, RH:30, BH:18,
   pie:{ R:100, r:58, cx:130, legendX:290, rowH:24, topN:8 },
   group:{ h:280, padL:34, padR:10, padT:18, padB:48 },
-  ink:'#1D1D1F', muted:'#6E6E73', grey:'#C7C7CC', accent:'#0066CC',
-  accentDark:'#004999', goodDark:'#1A7F3C',
-  axis:'#E3E3E6', grid:'#F0F0F2', white:'#FFFFFF'
+  ink:'#0F2D52', muted:'#64748B', grey:'#B8C2CC', accent:'#1E88E5',
+  accentDark:'#0b2240', goodDark:'#2E7D32',
+  axis:'#D9E1E8', grid:'#EDF1F5', white:'#FFFFFF'
 };
-/* ============== Wave 1 (I-27): METRICS registry ==============
-   Single source of truth for every categorical chart. Adding a chart =
-   one entry here; the toggle, render and re-render are all derived from
-   this table (no parallel CAT_META array, no renderCat() if/else chain
-   to keep in sync). Optional `decorate(pkgs, mode)` handles card-specific
-   UI bits (e.g. criticality sub/note) as a capability, not a branch. */
-const METRICS = [
-  { key:'status',      title:'Package Status',      sub:'Distribution across the procurement workflow',
-    charts:['bar','pie'], svg:'svg-status', el:'statusChart', provider: statusItems },
-  { key:'discipline',  title:'Discipline',          sub:'Packages by engineering discipline',
-    charts:['bar','pie'], svg:'svg-disc',   el:'discipline', provider: p=>tallyItems(p,'discipline',{sort:true}) },
-  { key:'engineer',    title:'Engineer Workload',   sub:'Packages per responsible engineer',
-    charts:['bar','pie'], svg:'svg-eng',    el:'engineer',   provider: p=>tallyItems(p,'engineer',{sort:true,blankLabel:'Unassigned (blank)'}) },
-  { key:'criticality', title:'Criticality (Inspection Level)',
-    charts:['bar','pie'], svg:'svg-crit',   el:'criticality', provider: critItems,
-    decorate:(pkgs,mode)=>{
-      const L=STATE.model.lookups||{}, codes=(L.criticalityCode||[]).map(s=>String(s).trim()), descs=(L.criticality||[]).map(s=>String(s).trim());
-      if(codes.length) document.getElementById('critSub').textContent = codes.map((c,i)=>c+' '+(descs[i]?trunc(descs[i],30):'')).join(' · ');
-      const filled=pkgs.filter(p=>p.criticality!=null&&p.criticality!=='').length;
-      document.getElementById('critNote').textContent = filled===0
-        ? 'Empty for all packages → this view stays empty until the Criticality column is filled.'
-        : filled+' of '+pkgs.length+' packages have a Criticality value.';
-    } },
-  { key:'leadtime',    title:'Lead Time Estimate',  sub:'Coverage and distribution of estimated lead times',
-    charts:['bar','pie'], svg:'svg-lead',   el:'leadtime', provider:(pkgs,mode)=>leadItems(pkgs,mode),
-    note:(pkgs,mode)=>{
-      if(mode==='pie') return 'Pie shows the lead-time buckets only — the coverage rows are excluded to avoid double counting.';
-      const st=leadStats(pkgs);
-      return 'Avg of estimated: <b>'+st.avg+' days</b> ('+Math.round(st.avg/7*10)/10+' weeks)';
-    } }
-];
-const METRICS_BY_KEY = Object.fromEntries(METRICS.map(m=>[m.key,m]));
+/* The METRICS registry + renderCat + svgStage were replaced by the interactive
+   breakdown panel (INTER_BREAK / renderInteractive) — see above. The shared
+   providers (statusItems, critItems, tallyItems) and chart helpers (svgHBar,
+   svgPie) are still used by that panel. */
 
 function tally(pkgs, field){ const m={}; pkgs.forEach(p=>{ const v=p[field]; const k=(v==null||v==='')?'(blank)':v; m[k]=(m[k]||0)+1; }); return m; }
 function tallyBy(pkgs, fn){ const m={}; pkgs.forEach(p=>{ const v=fn(p); const k=(v==null||v==='')?'(blank)':String(v); m[k]=(m[k]||0)+1; }); return m; }
-function isIssued(p){
-  /* I-13 / I-49 / I-53: the contract has no `Status Category` block, so "issued"
-     is decided by the status wording alone. Two cleanups here:
-       · the dead branch that read lookups.statusCategory is gone (I-49 residue);
-       · the value is canonicalised first (I-53), like every other view, so a
-         status stored as a short code ("DEL") is recognised too. Previously the
-         raw value was matched, so coded statuses fell through to the overdue
-         table. No effect on the current workbook (statuses are stored as text). */
-  const canon=STATE.model.statusCanon||(v=>String(v==null?'':v));
-  const d=canon(p.status).trim().toLowerCase();
-  return d.includes('po issued')||d.includes('delivered')||d.includes('receive inspection')||d.includes('fabrication')||d.includes('fat completed')||d.includes('vendor data approval');
-}
 function tallyItems(pkgs, field, opts={}){
   const t=tally(pkgs,field);
   let list=Object.entries(t);
@@ -1146,7 +1257,11 @@ function svgHBar(items, opts={}){
   const id=opts.svgId||('svg-'+Math.random().toString(36).slice(2));
   let s='<svg id="'+id+'" role="img" aria-label="'+esc(opts.ariaLabel||'bar chart')+'" xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" style="width:100%;height:'+H+'px;display:block">';
   items.forEach((it,idx)=>{
-    const y=padT+idx*RH; const bw=Math.max(2,(it.value/maxV)*plotW); const col=it.color||CHART.accent;
+    const y=padT+idx*RH; const bw=Math.max(2,(it.value/maxV)*plotW);
+    /* Each bar gets its OWN categorical colour, drawn from the same palette (and the same
+       position indexing) the pie uses, so a category keeps one colour across bar ↔ pie.
+       A semantic per-item colour (e.g. status counts) still overrides the palette. */
+    const col=it.color||PIE_COLORS[idx%PIE_COLORS.length];
     const maxChars=Math.floor((LW-16)/7);
     s+='<text x="'+(LW-10)+'" y="'+(y+BH-4)+'" text-anchor="end" fill="'+CHART.ink+'"><title>'+esc(it.label)+'</title>'+esc(trunc(it.label,maxChars))+'</text>';
     s+='<rect x="'+plotX+'" y="'+y+'" width="'+bw+'" height="'+BH+'" rx="4" fill="'+col+'"/>';
@@ -1241,6 +1356,145 @@ function svgGrouped(cats, opts, series, lines){
   return s+'</svg>';
 }
 
+/* ============== Interactive chart panel ==============
+   One panel replaces the 5 per-category metric cards + Stage Coverage.
+   Pick a breakdown from the dropdown, toggle bar/pie **per card** via
+   getPref('inter-<id>') — each chart keeps its own chart type. Card A = Packages (full breakdown list incl.
+   Stage Overdue / Schedule Health, both built on the shared stageIsOverdue());
+   Card B = Data Quality (by Rule / Package / Discipline). */
+const INTER_BREAK = {
+  packages: [
+    ['status','Status'], ['discipline','Discipline'], ['itemCategory','Item Category'],
+    ['criticality','Criticality'], ['engineer','Engineer'],
+    ['supplierBuyerPE','Supplier / Buyer / PE'],
+    ['stageOverdue','Stage Overdue'], ['scheduleHealth','Schedule Health']
+  ],
+  data: [
+    ['dqByRule','By Rule'], ['dqByPackage','By Package'], ['dqByDiscipline','By Discipline']
+  ]
+};
+
+function interItems(card, view, pkgs, today){
+  if(card==='packages'){
+    switch(view){
+      case 'status':          return statusItems(pkgs);
+      case 'discipline':      return tallyItems(pkgs,'discipline',{sort:true});
+      case 'itemCategory':    return tallyItems(pkgs,'itemCategory',{sort:true, blankLabel:'Unassigned'});
+      case 'criticality':     return critItems(pkgs);
+      case 'engineer':        return tallyItems(pkgs,'engineer',{sort:true, blankLabel:'Unassigned'});
+      case 'supplierBuyerPE': return supplierBuyerPEItems(pkgs);
+      case 'stageOverdue':    return stageOverdueItems(pkgs, today);
+      case 'scheduleHealth':  return scheduleHealthItems(pkgs, today);
+    }
+  } else {
+    switch(view){
+      case 'dqByRule':        return dqByRuleItems();
+      case 'dqByPackage':     return dqByPackageItems();
+      case 'dqByDiscipline':  return dqByDisciplineItems();
+    }
+  }
+  return [];
+}
+function supplierBuyerPEItems(pkgs){
+  const m={};
+  pkgs.forEach(p=>['supplier','buyer','pe'].forEach(f=>{ const v=p[f]; if(v!=null&&String(v).trim()!==''){ const k=String(v).trim(); m[k]=(m[k]||0)+1; } }));
+  return Object.entries(m).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value);
+}
+function stageOverdueItems(pkgs, today){
+  return STAGES.map(([k,,lab])=>({label:lab, value:pkgs.filter(p=>stageIsOverdue(p,k,today)).length, color:'#C62828'}));
+}
+function scheduleHealth(p, today){
+  if(STAGES.some(([k])=>stageIsOverdue(p,k,today))) return 'Overdue';
+  const atRisk=STAGES.some(([k])=>{
+    const f=p[k+'Forecast'], pl=p[k+'Plan'];
+    if(f&&pl&&f>pl) return true;
+    const due=stageDue(p,k);
+    return !!(due && (due-today)>=0 && (due-today)<=30*86400000);
+  });
+  return atRisk ? 'At-risk' : 'On-track';
+}
+function scheduleHealthItems(pkgs, today){
+  const t={'On-track':0,'At-risk':0,'Overdue':0};
+  pkgs.forEach(p=>{ t[scheduleHealth(p,today)]++; });
+  const col={'On-track':'#2E7D32','At-risk':'#F9A825','Overdue':'#C62828'};
+  return ['On-track','At-risk','Overdue'].map(k=>({label:k,value:t[k],color:col[k]}));
+}
+function dqByRuleItems(){
+  const iss=(STATE.report&&STATE.report.issues)||[];
+  const m={}; iss.forEach(i=>{ const k=i.code||'(none)'; m[k]=(m[k]||0)+1; });
+  return Object.entries(m).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value);
+}
+function dqByPackageItems(){
+  const iss=(STATE.report&&STATE.report.issues)||[];
+  const byId=Object.fromEntries(STATE.model.packages.map(p=>[p.id,p]));
+  const m={}; iss.forEach(i=>{ if(i.pkg!=null&&i.pkg!=='—'){ m[i.pkg]=(m[i.pkg]||0)+1; } });
+  let list=Object.entries(m).map(([id,v])=>({label:(byId[id]&&byId[id].title)||('pkg '+id), value:v})).sort((a,b)=>b.value-a.value);
+  if(list.length>20) list=list.slice(0,20);
+  return list;
+}
+function dqByDisciplineItems(){
+  const iss=(STATE.report&&STATE.report.issues)||[];
+  const byId=Object.fromEntries(STATE.model.packages.map(p=>[p.id,p.discipline||'(blank)']));
+  const m={}; iss.forEach(i=>{ if(i.pkg!=null&&i.pkg!=='—'){ const d=byId[i.pkg]||'(unknown)'; m[d]=(m[d]||0)+1; } });
+  return Object.entries(m).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value);
+}
+function interCardBody(card, view, mode, pkgs, today, svgId){
+  const items=interItems(card, view, pkgs, today);
+  if(!items.length) return '<div class="empty">No data for this breakdown.</div>';
+  /* No separate HTML legend: bar and pie both label each slice / bar directly inside the SVG,
+     so an extra legend below the chart just duplicates it. */
+  return mode==='pie' ? svgPie(items,{svgId, ariaLabel:view+' distribution — pie'}) : svgHBar(items,{svgId, ariaLabel:view+' distribution — bar'});
+}
+/* Panel 2 = "Interactive Chart": a bordered panel that owns the shared controls
+   (Help ?, Collapse −/+), exactly like MDL, while each chart card inside keeps only its
+   own controls (breakdown select, per-card Bar/Pie, Copy image, Download PNG).
+   The collapsed flag is carried as a class on #charts itself, which is NOT replaced when
+   renderInteractive() rewrites the innerHTML — so collapse survives every filter change. */
+function renderInteractive(){
+  const host=document.getElementById('charts'); if(!host) return;
+  const pkgs=filteredPackages();
+  const today=todayMidnight();
+  const collapsed=host.classList.contains('collapsed');
+  const cards=[
+    {id:'packages', title:'Packages',     breaks:INTER_BREAK.packages, view:STATE.chartView.packages, svgId:'svg-inter-pkg',  bodyId:'inter-body-pkg'},
+    {id:'data',     title:'Data Quality', breaks:INTER_BREAK.data,     view:STATE.chartView.data,     svgId:'svg-inter-data', bodyId:'inter-body-data'}
+  ];
+  /* §4 / §7.7: title row = title left, action cluster pinned far right, help LEFT of toggle. */
+  const head='<div class="panel-head-row"><h2>Interactive Chart</h2>'
+    + '<div class="panel-actions">'
+    +   '<button type="button" class="icon-btn" data-help="charts" aria-label="Panel help" title="Panel help">?</button>'
+    +   '<button type="button" class="icon-btn" data-collapse-panel aria-label="Collapse or expand Interactive Chart" title="Collapse / expand" aria-expanded="'+(!collapsed)+'">'+(collapsed?'+':'&#8722;')+'</button>'
+    + '</div></div>';
+  host.innerHTML = head + '<div class="grid">' + cards.map(c=>{
+    /* I-58: chart type is stored PER CARD (`inter-<id>`) so switching one chart no longer
+       flips every other chart on the page. */
+    const mode=getPref('inter-'+c.id);
+    const sel='<select class="inter-sel" data-card="'+c.id+'" aria-label="'+c.title+' breakdown dimension">'
+      + c.breaks.map(([k,l])=>'<option value="'+k+'"'+(k===c.view?' selected':'')+'>'+l+'</option>').join('')
+      + '</select>';
+    const seg='<div class="seg" data-key="inter-'+c.id+'" role="group" aria-label="'+c.title+' chart type">'
+      + '<button type="button" data-t="bar" class="'+(mode==='bar'?'on':'')+'" aria-pressed="'+(mode==='bar')+'">Bar</button>'
+      + '<button type="button" data-t="pie" class="'+(mode==='pie'?'on':'')+'" aria-pressed="'+(mode==='pie')+'">Pie</button></div>';
+    /* §7.8: per-chart exports are text-actions in the .ctool row. */
+    const tools='<div class="ctool">'+sel+seg
+      + '<button type="button" class="dlBtn" data-svg="'+c.svgId+'">⤓ PNG</button>'
+      + '<button type="button" class="copyBtn" data-svg="'+c.svgId+'">⧉ Copy</button></div>';
+    return '<section class="card" data-card="'+c.id+'">'
+      + '<h2>'+c.title+'</h2>'
+      + tools
+      + '<div class="inter-body" id="'+c.bodyId+'">'+interCardBody(c.id,c.view,mode,pkgs,today,c.svgId)+'</div>'
+      + '</section>';
+  }).join('') + '</div><span class="panel-no">Panel 2</span>';
+  document.querySelectorAll('#charts .inter-sel').forEach(sel=>{
+    sel.addEventListener('change',()=>{ const card=sel.getAttribute('data-card'); STATE.chartView[card]=sel.value; renderInteractive(); });
+  });
+  document.querySelectorAll('#charts [data-collapse-panel]').forEach(b=>{
+    b.onclick=()=>{ const col=host.classList.toggle('collapsed');
+      b.textContent=col?'+':'−'; b.setAttribute('aria-expanded',String(!col)); };
+  });
+  document.querySelectorAll('#charts [data-help]').forEach(b=>{ b.onclick=()=>openHelp(b.dataset.help); });
+}
+
 /* ---- categorical providers ---- */
 function statusItems(pkgs){
   const L=STATE.model.lookups||{};
@@ -1284,8 +1538,8 @@ function critItems(pkgs){
   });
   const extra={};
   pkgs.forEach(p=>{ const v=p.criticality; if(v==null||v==='') return; const s=String(v).trim(); if(!known.has(s) && !descSet.has(s.toLowerCase())) extra[s]=(extra[s]||0)+1; });
-  Object.entries(extra).forEach(([k,v])=>items.push({label:k+' (not in Code list)',value:v,color:'#FF9F0A'}));
-  items.push({label:'Not Specified (blank)',value:pkgs.filter(p=>p.criticality==null||p.criticality==='').length,color:'#C7C7CC'});
+  Object.entries(extra).forEach(([k,v])=>items.push({label:k+' (not in Code list)',value:v,color:'#F9A825'}));
+  items.push({label:'Not Specified (blank)',value:pkgs.filter(p=>p.criticality==null||p.criticality==='').length,color:'#B8C2CC'});
   return items;
 }
 function leadStats(pkgs){
@@ -1299,39 +1553,10 @@ function leadItems(pkgs, mode){
   st.vals.forEach(v=>{ if(v<=90)b.le90++; else if(v<=180)b.b91_180++; else if(v<=270)b.b181_270++; else b.gt270++; });
   const buckets=[{label:'≤ 90 days',value:b.le90},{label:'91 – 180 days',value:b.b91_180},{label:'181 – 270 days',value:b.b181_270},{label:'> 270 days',value:b.gt270}];
   if(mode==='pie') return buckets;
-  return [{label:'Estimated',value:st.withN},{label:'Not estimated',value:st.blankN,color:'#C7C7CC'}].concat(buckets);
+  return [{label:'Estimated',value:st.withN},{label:'Not estimated',value:st.blankN,color:'#B8C2CC'}].concat(buckets);
 }
-function renderCat(key, pkgs){
-  const meta=METRICS_BY_KEY[key];
-  if(!meta) return;
-  pkgs = pkgs || filteredPackages();
-  const pref=getPref(key);
-  const items=meta.provider(pkgs, pref) || [];
-  /* I-28: per-metric behaviour is a registry capability (`note`), not a
-     `key===…` branch. The note renders above the bar chart / below the pie,
-     matching the previous layout exactly. */
-  const note = meta.note ? meta.note(pkgs, pref) : '';
-  let html;
-  if(pref==='pie'){
-    html=svgPie(items,{svgId:meta.svg, ariaLabel:meta.title+' — pie chart'});
-    if(note) html+='<div class="note">'+note+'</div>';
-  }else{
-    html='';
-    if(note) html+='<div class="note">'+note+'</div>';
-    html+=svgHBar(items,{svgId:meta.svg, ariaLabel:meta.title+' — bar chart'});
-  }
-  document.getElementById(meta.el).innerHTML=html;
-  if(meta.decorate) meta.decorate(pkgs, pref);
-  document.querySelectorAll('.seg[data-key="'+key+'"] button').forEach(b=>{
-    if(b.getAttribute('data-t')===pref) b.classList.add('on'); else b.classList.remove('on');
-  });
-}
-function svgStage(pkgs){
-  const stages=['MR','PO','VD','FAT','ROS'];
-  const plan=stages.map(s=>pkgs.filter(p=>p[s.toLowerCase()+'Plan']).length);
-  const act=stages.map(s=>pkgs.filter(p=>p[s.toLowerCase()+'Actual']).length);
-  return svgGrouped(stages,{svgId:'svg-stage', ariaLabel:'Stage plan coverage — planned vs actual'},[{name:'Planned',color:'#0066CC',values:plan},{name:'Actual',color:'#34C759',values:act}]);
-}
+/* renderCat() and svgStage() were removed with the per-category metric cards;
+   the interactive panel (renderInteractive) now owns all categorical charts. */
 
 /* ============== KPI / tables ============== */
 function renderKPIs(pkgs){
@@ -1352,46 +1577,357 @@ function renderKPIs(pkgs){
     {v:lt+'/'+T,l:'Lead-time estimated',s:Math.round(lt/T*100)+'% coverage',c:lt/T>=0.5?'s-good':'s-bad'},
     {v:eng+'/'+T,l:'Engineer assigned',s:Math.round(eng/T*100)+'% covered',c:'s-good'}
   ];
-  document.getElementById('kpis').innerHTML=kpis.map(k=>'<div class="kpi"><div class="v">'+k.v+'</div><div class="l">'+k.l+'</div>'+(k.s?'<div class="s '+k.c+'">'+k.s+'</div>':'')+'</div>').join('');
+  const bar=c=>c==='s-good'?'var(--accent2)':c==='s-warn'?'var(--warn)':c==='s-bad'?'var(--bad)':'var(--accent)';
+  document.getElementById('kpis').innerHTML=kpis.map(k=>'<div class="kpi" style="border-top-color:'+bar(k.c)+'"><div class="v">'+k.v+'</div><div class="l">'+k.l+'</div>'+(k.s?'<div class="s '+k.c+'">'+k.s+'</div>':'')+'</div>').join('');
 }
+let pppScurveWin=null;        // {from,to,_n} — MDL-style period window over month indices
+let pppScurveProgress=null;    // cached progress object for redraw
+
+/* S-Curve panel (mirrors MDL renderCurvePanel): two side-by-side charts —
+   cumulative S-curve + monthly bars — over a project-start-anchored month
+   range whose end = last PO date + 3 months. Project start (Code!Project Start Date)
+   = red dashed vertical line; today = grey line.
+   Operational "as-of" is the current date, not the project start date. */
+function ym(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function mLabel(ymStr){ const a=ymStr.split('-'); return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][(+a[1])-1]+" '"+a[0].slice(2); }
+
 function renderPOMonthly(pkgs){
-  const planDates=pkgs.filter(p=>p.poPlan).map(p=>p.poPlan).sort((a,b)=>a-b);
-  const actualDates=pkgs.filter(p=>p.poActual).map(p=>p.poActual).sort((a,b)=>a-b);
-  const sub=document.getElementById('poChartSub');
-  if(planDates.length===0){
-    sub.textContent='No PO Plan dates found as real dates — cannot chart by month.';
-    document.getElementById('poChart').innerHTML='<div class="empty">PO Plan dates are not stored as Excel dates in this file (e.g. plain numbers like 60). Update the PO Plan column to real dates, then reload. The Look-Ahead and Delays views still work from status.</div>';
+  // gather every PO date (plan / forecast / actual)
+  const dates=[];
+  pkgs.forEach(p=>['poPlan','poForecast','poActual'].forEach(f=>{ const d=p[f]; if(d instanceof Date && !isNaN(d)) dates.push(d); }));
+  if(!dates.length){
+    document.getElementById('poChart').innerHTML='<div class="empty">PO dates are not stored as Excel dates in this file. Update the PO Plan / Forecast / Actual columns to real dates, then reload.</div>';
+    document.getElementById('poProjNote').textContent='';
+    document.getElementById('poWinMsg').textContent='';
     return;
   }
-  const last = actualDates.length ? (actualDates[actualDates.length-1] > planDates[planDates.length-1] ? actualDates[actualDates.length-1] : planDates[planDates.length-1]) : planDates[planDates.length-1];
-  const months=[]; let d=new Date(planDates[0].getFullYear(),planDates[0].getMonth(),1); const end=new Date(last.getFullYear(),last.getMonth(),1);
-  while(d<=end){ months.push(new Date(d)); d=new Date(d.getFullYear(),d.getMonth()+1,1); }
-  const cats=months.map(monthShort);
-  const planVals=months.map(m=>pkgs.filter(p=>p.poPlan&&sameMonth(p.poPlan,m)).length);
-  const actVals=months.map(m=>pkgs.filter(p=>p.poActual&&sameMonth(p.poActual,m)).length);
-  sub.textContent='Planned vs actual PO issuance by month · '+planDates.length+' planned'+(actualDates.length?', '+actualDates.length+' actual':'')+' · PO Actual '+(actualDates.length?'populated':'empty');
-  const cumPlan=planVals.reduce((a,v,i)=>{ a.push((a[i-1]||0)+v); return a; },[]);
-  const cumAct=actVals.reduce((a,v,i)=>{ a.push((a[i-1]||0)+v); return a; },[]);
-  const lines=[
-    {name:'Cumul. Plan',color:CHART.accentDark,dash:'5,3',values:cumPlan},
-    {name:'Cumul. Actual',color:CHART.goodDark,dash:'',values:cumAct}
+  const psVal=STATE.model.project.startDate;
+  const projStart=(psVal instanceof Date && !isNaN(psVal))?psVal:null;
+  const today=todayMidnight();
+  let dataMin=null,maxD=null;
+  dates.forEach(d=>{ if(!dataMin||d<dataMin)dataMin=d; if(!maxD||d>maxD)maxD=d; });
+  // start = earlier of project start and earliest data (earlier dates still shown)
+  let tlStart=(projStart&&dataMin&&dataMin<projStart)?dataMin:(projStart||dataMin);
+  // end = last PO date + ONE extra month of headroom so the last bar is never flush against
+  // the plot edge (exactly one month, not three or four).
+  let end=new Date(maxD.getFullYear(),maxD.getMonth()+1,1);
+  if(projStart){ const ps=new Date(projStart.getFullYear(),projStart.getMonth(),1); if(ps>end) end=ps; }
+  // continuous month list
+  const months=[]; { let c=new Date(tlStart.getFullYear(),tlStart.getMonth(),1), e=new Date(end.getFullYear(),end.getMonth(),1); while(c<=e){ months.push(ym(c)); c.setMonth(c.getMonth()+1); } }
+  const n=months.length;
+  const idx=m=>months.indexOf(m);
+  const pMonth=Array(n).fill(0), fMonth=Array(n).fill(0), aMonth=Array(n).fill(0);
+  pkgs.forEach(r=>{
+    let i;
+    if(r.poPlan instanceof Date&&!isNaN(r.poPlan)&&(i=idx(ym(r.poPlan)))>=0) pMonth[i]++;
+    const f=r.poForecast||r.poPlan;                       // forecast blanks fall back to plan
+    if(f instanceof Date&&!isNaN(f)&&(i=idx(ym(f)))>=0) fMonth[i]++;
+    if(r.poActual instanceof Date&&!isNaN(r.poActual)&&(i=idx(ym(r.poActual)))>=0) aMonth[i]++;
+  });
+  /* Keep the two representations strictly SEPARATE: bars = that single month's count, lines =
+     running total. They used to be accumulated in place and then aliased (pCum:pNew), so both
+     chart series silently became cumulative and the bars were no longer "this month". */
+  const pCum=pMonth.slice(), fCum=fMonth.slice(), aCum=aMonth.slice();
+  for(let i=1;i<n;i++){ pCum[i]+=pCum[i-1]; fCum[i]+=fCum[i-1]; aCum[i]+=aCum[i-1]; }
+  const hasForecast=pkgs.some(p=>p.poForecast instanceof Date&&!isNaN(p.poForecast));
+  const projStartIdx=projStart?idx(ym(projStart)):-1;
+  const todayIdx=idx(ym(today));
+  /* Last month that genuinely has each kind of date — a series stops there so no curve is drawn
+     as a misleading flat tail. Cumulative ACTUAL runs through TODAY (not merely the last actual
+     month) so achieved progress stays readable right up to the reporting date. */
+  const lastIdxOf=arr=>{ let k=-1; for(let i=0;i<arr.length;i++) if(arr[i]>0) k=i; return k; };
+  const lastPlanIdx=lastIdxOf(pMonth), lastForecastIdx=lastIdxOf(fMonth), lastActualIdx=lastIdxOf(aMonth);
+  const actualEndIdx=Math.max(lastActualIdx, todayIdx);
+  pppScurveProgress={months,pNew:pMonth,fNew:fMonth,aNew:aMonth,pCum,fCum,aCum,projStartIdx,todayIdx,hasForecast,lastPlanIdx,lastForecastIdx,lastActualIdx,actualEndIdx,projStartLabel:projStart?fmt(projStart):''};
+  // default / reset window when month count changes
+  if(!pppScurveWin||pppScurveWin._n!==n){ pppScurveWin={from:0,to:n-1,_n:n}; }
+  pppScurveWin.from=Math.min(pppScurveWin.from,n-1); pppScurveWin.to=Math.min(pppScurveWin.to,n-1);
+  if(pppScurveWin.from>pppScurveWin.to){ const t=pppScurveWin.from; pppScurveWin.from=pppScurveWin.to; pppScurveWin.to=t; }
+  // slider bounds
+  const wf=document.querySelector('#poWin .wf'), wt=document.querySelector('#poWin .wt');
+  if(wf){ wf.min=0; wf.max=n-1; wf.value=pppScurveWin.from; }
+  if(wt){ wt.min=0; wt.max=n-1; wt.value=pppScurveWin.to; }
+  // caption
+  const note=document.getElementById('poProjNote');
+  if(note) note.innerHTML = projStart ? ('Project start: <b>'+esc(pppScurveProgress.projStartLabel)+'</b> &middot; red dashed line = project start, grey line = today') : 'Grey line = today';
+  drawPPSCurve();
+}
+/* Panel 3 = ONE combined chart sharing a single time axis AND a single y-scale: monthly BARS
+   (that month's count) + cumulative S-curve LINES (running total) are plotted against the same
+   numbers, so a bar and a curve point with equal value sit at the same height. All three series
+   are ALWAYS drawn: when a package has no Forecast date the data already falls back to the Plan
+   date, so Forecast can never be "missing" — it mirrors Plan when the column is blank. */
+let PO_SHOW_BARS=true;
+function svgPoCombo(P,a,b){
+  const cats=P.months.slice(a,b+1), m=cats.length;
+  if(m<=0) return '<div class="empty">No months in range.</div>';
+  const h=CHART.group.h+34, padL=CHART.group.padL, padR=18, padT=CHART.group.padT, padB=CHART.group.padB;
+  const w=Math.max(440, m*64+padL+padR), plotW=w-padL-padR, plotH=h-padT-padB;
+  /* All three series are ALWAYS drawn: when a package has no Forecast date the data already
+     falls back to the Plan date, so Forecast can never be "missing" — it mirrors Plan when the
+     column is blank. Each series is cut off at the last month holding that kind of date. */
+  const bars=[
+    {name:'Planned', color:'#1E88E5',v:P.pNew,cut:P.lastPlanIdx},
+    {name:'Forecast',color:'#F9A825',v:P.fNew,cut:P.lastForecastIdx},
+    {name:'Actual',  color:'#2E7D32',v:P.aNew,cut:P.lastActualIdx}
   ];
-  document.getElementById('poChart').innerHTML=svgGrouped(cats,{svgId:'svg-po', ariaLabel:'PO plan vs actual by month'},[{name:'Planned',color:'#0066CC',values:planVals},{name:'Actual',color:'#34C759',values:actVals}],lines);
+  const lines=[
+    {name:'Cum. Plan',    color:'#1E88E5',v:P.pCum,dash:'6,3',cut:P.lastPlanIdx},
+    {name:'Cum. Forecast',color:'#F9A825',v:P.fCum,dash:'2,2',cut:P.lastForecastIdx},
+    {name:'Cum. Actual',  color:'#2E7D32',v:P.aCum,dash:'',   cut:P.actualEndIdx}
+  ];
+  const sl=o=>o.v.slice(a,b+1);
+  /* SINGLE shared y-scale (§4.2). Two independent axes (bars on barMax, curves on cumMax) made
+     the same number render at two different heights — a bar of 5 looked taller than a cumulative
+     point of 5, which read as "the cumulative curve is lower than the bar". One scale keeps
+     monthly and cumulative values directly comparable. */
+  const maxV=Math.max(1,...bars.flatMap(sl),...lines.flatMap(sl));
+  const gw=plotW/m, cx=i=>padL+i*gw+gw/2;
+  const y=v=>padT+plotH-(v/maxV)*plotH;
+  let s='<svg id="svg-po" role="img" aria-label="PO plan, forecast and actual: monthly bars with cumulative S-curve" xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" style="width:100%;height:auto;display:block">';
+  s+='<line x1="'+padL+'" y1="'+padT+'" x2="'+padL+'" y2="'+(padT+plotH)+'" stroke="'+CHART.axis+'"/>';
+  s+='<line x1="'+padL+'" y1="'+(padT+plotH)+'" x2="'+(padL+plotW)+'" y2="'+(padT+plotH)+'" stroke="'+CHART.axis+'"/>';
+  for(let i=0;i<=4;i++){
+    const gv=Math.round(maxV*i/4), gy=y(gv);
+    s+='<text x="'+(padL-6)+'" y="'+(gy+3)+'" text-anchor="end" fill="'+CHART.muted+'" style="font-size:10px">'+gv+'</text>';
+    s+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(padL+plotW)+'" y2="'+gy+'" stroke="'+CHART.grid+'"/>';
+  }
+  s+='<text x="'+(padL-6)+'" y="'+(padT-6)+'" text-anchor="end" fill="'+CHART.muted+'" style="font-size:10px">pkgs</text>';
+  cats.forEach((c,ci)=>{
+    const ai=a+ci, lab=mLabel(c);
+    if(PO_SHOW_BARS){
+      const nb=bars.length, bw=Math.min(18,(gw*0.62)/nb);
+      bars.forEach((se,si)=>{
+        if(se.cut!==undefined && ai>se.cut) return;   // stop at this series' last real date
+        const v=se.v[ai], bh=(v/maxV)*plotH, x=cx(ci)-(nb*bw)/2+si*bw, y=padT+plotH-bh;
+        s+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+(bw-2).toFixed(1)+'" height="'+Math.max(0,bh).toFixed(1)+'" fill="'+se.color+'" rx="2"><title>'+esc(lab+': '+se.name+' = '+v)+'</title></rect>';
+        /* value printed above every non-zero bar */
+        if(v>0&&bw>=9) s+='<text x="'+(x+(bw-2)/2).toFixed(1)+'" y="'+(y-3).toFixed(1)+'" text-anchor="middle" fill="'+CHART.ink+'" style="font-size:9px">'+v+'</text>';
+      });
+    }
+    s+='<text x="'+cx(ci).toFixed(1)+'" y="'+(padT+plotH+15)+'" text-anchor="middle" fill="'+CHART.muted+'" style="font-size:10px">'+esc(lab)+'</text>';
+  });
+  lines.forEach(se=>{
+    const xs=[],vals=[];
+    for(let abs=a;abs<=b;abs++){
+      if(se.cut!==undefined && abs>se.cut) break;   // stop at this series' last real date
+      xs.push(abs); vals.push(se.v[abs]);
+    }
+    if(!vals.length) return;   // nothing recorded yet -> draw nothing, never a flat zero line
+    const pts=vals.map((v,i)=>cx(xs[i]-a).toFixed(1)+','+y(v).toFixed(1));
+    if(pts.length>1) s+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+se.color+'" stroke-width="2.5" stroke-dasharray="'+se.dash+'" stroke-linejoin="round" stroke-linecap="round"/>';
+    vals.forEach((v,i)=>{ s+='<circle cx="'+cx(xs[i]-a).toFixed(1)+'" cy="'+y(v).toFixed(1)+'" r="3" fill="'+se.color+'"><title>'+esc(mLabel(cats[xs[i]-a])+': '+se.name+' = '+v)+'</title></circle>'; });
+  });
+  const mkY=(idx,color,dash,label)=>{ if(idx<a||idx>b) return ''; const x=cx(idx-a).toFixed(1); return '<line x1="'+x+'" y1="'+padT+'" x2="'+x+'" y2="'+(padT+plotH)+'" stroke="'+color+'" stroke-width="1.5" stroke-dasharray="'+dash+'"/><text x="'+x+'" y="'+(padT+11)+'" text-anchor="middle" fill="'+color+'" style="font-size:10px">'+label+'</text>'; };
+  if(P.projStartIdx>=0) s+=mkY(P.projStartIdx,'#C62828','5,3','start');
+  if(P.todayIdx>=0) s+=mkY(P.todayIdx,'#8E8E93','2,2','today');
+  let lx=padL;
+  if(PO_SHOW_BARS) bars.forEach(se=>{ s+='<rect x="'+lx+'" y="'+(h-13)+'" width="10" height="10" fill="'+se.color+'" rx="2"><title>'+se.name+' (per month)</title></rect><text x="'+(lx+14)+'" y="'+(h-4)+'" fill="'+CHART.ink+'" style="font-size:11px">'+se.name+'</text>'; lx+=14+se.name.length*6+20; });
+  lines.forEach(se=>{ s+='<line x1="'+lx+'" y1="'+(h-8)+'" x2="'+(lx+16)+'" y2="'+(h-8)+'" stroke="'+se.color+'" stroke-width="2.5" stroke-dasharray="'+se.dash+'"/><text x="'+(lx+20)+'" y="'+(h-4)+'" fill="'+CHART.ink+'" style="font-size:11px">'+se.name+'</text>'; lx+=20+se.name.length*6+20; });
+  return s+'</svg>';
 }
-function renderLookAhead(pkgs, asOf){
-  const end=new Date(asOf); end.setDate(end.getDate()+90);
-  const list=pkgs.filter(p=>p.poPlan&&p.poPlan>=asOf&&p.poPlan<=end).sort((a,b)=>a.poPlan-b.poPlan);
-  document.getElementById('lookSub').textContent='PO Plan from '+fmt(asOf)+' to '+fmt(end)+' ('+list.length+' packages)';
-  if(!list.length){ document.getElementById('lookahead').innerHTML='<div class="empty">No POs planned in the next 3 months.</div>'; return; }
-  document.getElementById('lookahead').innerHTML='<table class="ds-table"><thead><tr><th scope="col">Package</th><th scope="col">Discipline</th><th scope="col">PO Plan</th><th scope="col">Status</th></tr></thead><tbody>'+list.map(p=>'<tr><td>'+esc(p.title)+'</td><td>'+esc(p.discipline||'—')+'</td><td>'+fmt(p.poPlan)+'</td><td>'+esc(p.status||'—')+'</td></tr>').join('')+'</tbody></table>';
+function drawPPSCurve(){
+  const P=pppScurveProgress; if(!P) return;
+  const a=pppScurveWin.from, b=pppScurveWin.to;
+  document.getElementById('poChart').innerHTML=svgPoCombo(P,a,b);
+  const msg=document.getElementById('poWinMsg'); if(msg) msg.textContent=P.months[a]+' → '+P.months[b]+'  ('+(b-a+1)+'/'+P.months.length+' months)';
 }
-function renderDelays(pkgs, asOf){
-  const issued=s=>isIssued({status:s});
-  const list=pkgs.filter(p=>p.poPlan&&p.poPlan<asOf&&!issued(p.status)).sort((a,b)=>a.poPlan-b.poPlan);
-  document.getElementById('delaySub').textContent='PO Plan past but not yet issued ('+list.length+' packages)';
-  if(!list.length){ document.getElementById('delays').innerHTML='<div class="empty">No overdue PO issuances.</div>'; return; }
-  document.getElementById('delays').innerHTML='<table class="ds-table"><thead><tr><th scope="col">Package</th><th scope="col">Discipline</th><th scope="col">PO Plan</th><th scope="col">Overdue</th><th scope="col">Status</th></tr></thead><tbody>'+list.map(p=>{ const days=Math.round((asOf-p.poPlan)/86400000); return '<tr class="over"><td>'+esc(p.title)+'</td><td>'+esc(p.discipline||'—')+'</td><td>'+fmt(p.poPlan)+'</td><td>'+days+' d</td><td>'+esc(p.status||'—')+'</td></tr>'; }).join('')+'</tbody></table>';
+/* "Bars" toggle — hides the monthly bars so the cumulative S-curve can be read on its own. */
+(function(){
+  const btn=document.getElementById('poBarsBtn'); if(!btn) return;
+  const sync=()=>{ btn.setAttribute('aria-pressed',String(PO_SHOW_BARS)); btn.style.opacity=PO_SHOW_BARS?'1':'.55'; };
+  btn.addEventListener('click',()=>{ PO_SHOW_BARS=!PO_SHOW_BARS; sync(); drawPPSCurve(); });
+  sync();
+})();
+function svgLine(P,a,b){
+  const cats=P.months.slice(a,b+1), m=cats.length;
+  if(m<=0) return '<div class="empty">No months in range.</div>';
+  const H=CHART.group.h, padL=CHART.group.padL, padR=CHART.group.padR, padT=CHART.group.padT, padB=CHART.group.padB;
+  const W=Math.max(380, m*46+padL+padR), plotW=W-padL-padR, plotH=H-padT-padB;
+  const maxV=Math.max(1,...P.pCum.slice(a,b+1),...(P.hasForecast?P.fCum.slice(a,b+1):[]),...P.aCum.slice(a,b+1));
+  let s='<svg role="img" aria-label="Cumulative PO S-curve" xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block">';
+  s+='<line x1="'+padL+'" y1="'+padT+'" x2="'+padL+'" y2="'+(padT+plotH)+'" stroke="'+CHART.axis+'"/>';
+  s+='<line x1="'+padL+'" y1="'+(padT+plotH)+'" x2="'+(W-padR)+'" y2="'+(padT+plotH)+'" stroke="'+CHART.axis+'"/>';
+  for(let i=0;i<=4;i++){ const v=Math.round(maxV*i/4), y=padT+plotH-(v/maxV)*plotH;
+    s+='<text x="'+(padL-6)+'" y="'+(y+3)+'" text-anchor="end" fill="'+CHART.muted+'" style="font-size:10px">'+v+'</text>';
+    s+='<line x1="'+padL+'" y1="'+y+'" x2="'+(W-padR)+'" y2="'+y+'" stroke="'+CHART.grid+'"/>'; }
+  const xAt=i=> padL + (m===1?plotW/2: i*plotW/(m-1));
+  const yAt=v=> padT+plotH-(v/maxV)*plotH;
+  const mk=(absIdx,color,dash,label)=>{ if(absIdx<a||absIdx>b) return ''; const x=xAt(absIdx-a); return '<line x1="'+x+'" y1="'+padT+'" x2="'+x+'" y2="'+(padT+plotH)+'" stroke="'+color+'" stroke-width="1.5" stroke-dasharray="'+dash+'"/><text x="'+x+'" y="'+(padT-5)+'" text-anchor="middle" fill="'+color+'" style="font-size:10px">'+label+'</text>'; };
+  if(P.projStartIdx>=0) s+=mk(P.projStartIdx,'#C62828','5,3','start');
+  if(P.todayIdx>=0) s+=mk(P.todayIdx,'#8E8E93','2,2','today');
+  const series=[{name:'Plan',color:CHART.accent,vals:P.pCum}];
+  if(P.hasForecast) series.splice(1,0,{name:'Forecast',color:'#F9A825',vals:P.fCum});
+  series.push({name:'Actual',color:CHART.goodDark,vals:P.aCum});
+  series.forEach(se=>{
+    const pts=se.vals.slice(a,b+1).map((v,i)=>xAt(i)+','+yAt(v)).join(' ');
+    s+='<polyline points="'+pts+'" fill="none" stroke="'+se.color+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+    s+='<circle cx="'+xAt(m-1)+'" cy="'+yAt(se.vals[b])+'" r="3" fill="'+se.color+'"/>';
+  });
+  const step=Math.max(1,Math.ceil(m/12));
+  cats.forEach((c,i)=>{ if(i%step===0||i===m-1){ s+='<text x="'+xAt(i)+'" y="'+(padT+plotH+15)+'" text-anchor="middle" fill="'+CHART.muted+'" style="font-size:10px">'+mLabel(c)+'</text>'; } });
+  let lx=padL;
+  series.forEach(se=>{ s+='<rect x="'+lx+'" y="'+(H-12)+'" width="10" height="10" fill="'+se.color+'" rx="2"/><text x="'+(lx+14)+'" y="'+(H-3)+'" fill="'+CHART.ink+'" style="font-size:11px">'+se.name+'</text>'; lx+=14+se.name.length*6+18; });
+  s+='</svg>';
+  return s;
 }
+/* Panel 4 = PO Look-Ahead: a bounded, scrollable DATA TABLE (§4.3) over a selectable horizon.
+   A long package list must never stretch the page, so the rows live in a fixed-height scroller
+   with a sticky header. The horizon is a persisted preference, like every other chart control. */
+const LOOK_HORIZONS=[1,2,3,4,6];
+const LOOK_DEFAULT=3;
+let LOOK_LAST=null;               // last {pkgs, from} so the horizon filter can re-render
+function lookHorizon(){
+  const v=parseInt(getPref('look'),10);
+  return LOOK_HORIZONS.indexOf(v)>=0 ? v : LOOK_DEFAULT;
+}
+function syncLookSeg(){
+  const cur=lookHorizon();
+  document.querySelectorAll('#lookWin .seg button').forEach(b=>{
+    const on=b.getAttribute('data-t')===String(cur);
+    b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on));
+  });
+}
+function renderLookAhead(pkgs, from){
+  const host=document.getElementById('lookahead'); if(!host) return;
+  const h=lookHorizon();
+  /* CALENDAR months, not a fixed day count — "6 months" must mean 6 calendar months from today,
+     so the window is built by adding to the month (the old +90 days drifted vs the calendar). */
+  const end=new Date(from.getFullYear(), from.getMonth()+h, from.getDate());
+  /* Forward-looking ONLY: a package whose PO is ALREADY issued (an Actual date exists) is done
+     and is not "upcoming", so it is excluded (§4.3). This mirrors the canonical done-rule used
+     by Overdue — "Actual present ⇒ stage complete". */
+  const isDate=d=>d instanceof Date&&!isNaN(d);
+  const list=pkgs.filter(p=>isDate(p.poPlan)&&p.poPlan>=from&&p.poPlan<=end&&!isDate(p.poActual)).sort((a,b)=>a.poPlan-b.poPlan);
+  const sub=document.getElementById('lookSub');
+  if(sub) sub.textContent='PO Plan from '+fmt(from)+' to '+fmt(end)+' ('+list.length+' packages)';
+  LOOK_LAST={pkgs:pkgs,from:from,list:list,end:end,h:h};   // cached so ⤓ CSV can export the exact same rows
+  syncLookSeg();
+  const lbl=h===1?'month':h+' months';
+  if(!list.length){ host.innerHTML='<div class="empty">No POs planned in the next '+lbl+'.</div>'; return; }
+  const DAY=86400000;
+  host.innerHTML='<table class="ds-table"><thead><tr>'
+    +'<th scope="col">Package</th><th scope="col">Discipline</th><th scope="col">PO Plan</th>'
+    +'<th scope="col" class="num">In (days)</th><th scope="col">Status</th></tr></thead><tbody>'
+    +list.map(p=>'<tr><td>'+esc(p.title)+'</td><td>'+esc(p.discipline||'—')+'</td><td>'+fmt(p.poPlan)+'</td>'
+      +'<td class="num">'+Math.max(0,Math.round((p.poPlan-from)/DAY))+'</td><td>'+esc(p.status||'—')+'</td></tr>').join('')
+    +'</tbody></table>';
+}
+/* Canonical overdue test (MDL rule, date-based, measured vs real TODAY):
+   due = Forecast || Plan ; if Actual is present the stage is DONE -> NOT overdue ;
+   overdue only when due < today. Shared by Delays (PO) and Overdue-by-Stage list
+   so both views use the exact same calculation (I-60). */
+function todayMidnight(){ const t=new Date(); t.setHours(0,0,0,0); return t; }
+function stageDue(p,k){ return p[k+'Forecast']||p[k+'Plan']; }
+function stageIsOverdue(p,k,today){ const due=stageDue(p,k); return !!(due && !p[k+'Actual'] && due<today); }
+
+
+/* ---- P1: Overdue-by-Stage list (follows the MDL overdue rule) ----
+   MDL computes "overdue" as: due = Forecast || Planned, Actual blank.
+   PPP carries Forecast + Plan + Actual for each of the 5 stages, so we mirror that
+   per stage. Overdue is measured against the REAL current date (today), NOT the
+   project snapshot: due = Forecast||Plan; Actual blank; due < today.
+   The inline filter (buildOverdueFilter) lets the user surface only the
+   stage(s) they care about (e.g. PO Issue, MR Issue). */
+/* Canonical 5-stage definition (I-61): single source of truth.
+   Each entry = [key, shortLabel, overdueLabel]. Consumers derive what they need
+   so the stage set can never drift between validation, the stage chart, and the
+   overdue list. */
+const STAGES=[['mr','MR','MR Issue'],['po','PO','PO Issue'],['vd','VD','VD Approval'],['fat','FAT','FAT'],['ros','ROS','ROS']];
+const OVL_STAGES=STAGES.map(s=>[s[0],s[2]]); // overdue-list view uses the "Issue/Approval" wording
+
+/* Stage selector = the standard SEGMENTED CONTROL (§7.5): single-select, ONE stage at a time.
+   Options come from the shared STAGES constant, so the stage set can never drift. Behaviour comes
+   from the delegated `.seg` handler — no per-button listeners. */
+const OVL_KEYS=OVL_STAGES.map(s=>s[0]);
+let OVL_STAGE=OVL_KEYS.indexOf(getPref('ovlStage'))>=0 ? getPref('ovlStage') : null;
+function buildOverdueFilter(){
+  const el=document.getElementById('ovlFilter'); if(!el) return;
+  const cur=OVL_STAGE;
+  el.innerHTML=OVL_STAGES.map(([k,lab])=>{
+    const on=(k===cur);
+    return '<button type="button" data-t="'+k+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'">'+esc(lab)+'</button>';
+  }).join('');
+}
+
+function renderOverdueList(pkgs){
+  const today=todayMidnight(); // overdue measured against real TODAY, not the project start date
+  /* Collect every overdue row first, then pick the ONE stage to display (§7.5 single-select).
+     Counting before selecting lets the default land on a stage that actually has rows. */
+  const all=[];
+  pkgs.forEach(p=>{
+    OVL_STAGES.forEach(([k,lab])=>{
+      if(stageIsOverdue(p,k,today)){
+        const due=stageDue(p,k);
+        all.push({p,k,lab,due,days:Math.round((today-due)/86400000)});
+      }
+    });
+  });
+  all.sort((a,b)=>a.due-b.due);
+  const counts={}; OVL_STAGES.forEach(([k])=>counts[k]=0); all.forEach(r=>counts[r.k]++);
+  if(OVL_KEYS.indexOf(OVL_STAGE)<0){ OVL_STAGE=(OVL_STAGES.find(([k])=>counts[k]>0)||OVL_STAGES[0])[0]; }
+  const sel=OVL_STAGE;
+  const rows=all.filter(r=>r.k===sel);
+  buildOverdueFilter();   // keep the seg in sync with the resolved selection
+  const selLab=(OVL_STAGES.find(([k])=>k===sel)||['',''])[1];
+  const sub=document.getElementById('ovlSub');
+  const el=document.getElementById('ovlList');
+  if(sub) sub.textContent='Overdue by stage — '+OVL_STAGES.map(([k,lab])=>lab+' '+counts[k]).join(' · ')+'  ·  showing '+selLab+' ('+rows.length+' rows · click a row to expand)';
+  if(!rows.length){ if(el) el.innerHTML='<div class="empty">No overdue packages for '+esc(selLab)+'.</div>'; return; }
+  if(el) el.innerHTML='<table class="ds-table"><thead><tr><th scope="col"></th><th scope="col">Package</th><th scope="col">Discipline</th><th scope="col">Overdue Stage</th><th scope="col">Plan</th><th scope="col">Forecast</th><th scope="col">Overdue</th><th scope="col">Status</th></tr></thead><tbody>'
+    + rows.map(r=>{
+        const did='ovld-'+String(r.p.id).replace(/[^\w-]/g,'_');
+        return '<tr class="ovl-row" data-pkg="'+esc(r.p.id)+'" aria-expanded="false" tabindex="0">'
+          + '<td class="ovl-chev">▸</td>'
+          + '<td>'+esc(r.p.title)+'</td><td>'+esc(r.p.discipline||'—')+'</td><td>'+esc(r.lab)+'</td>'
+          + '<td>'+(r.p[r.k+'Plan']?fmt(r.p[r.k+'Plan']):'—')+'</td><td>'+(r.p[r.k+'Forecast']?fmt(r.p[r.k+'Forecast']):'—')+'</td>'
+          + '<td>'+r.days+' d</td><td>'+esc(r.p.status||'—')+'</td></tr>'
+          + '<tr class="ovl-detail" id="'+did+'" hidden><td colspan="8">'+pkgDetailHTML(r.p, today)+'</td></tr>';
+      }).join('')
+    + '</tbody></table>';
+}
+
+/* Inline detail for an expanded overdue row (I-62): full package record,
+   the 5-stage Plan/Forecast/Actual grid (overdue cells flagged via the shared
+   stageIsOverdue), and this package's own data-quality findings. */
+function pkgDetailHTML(p, today){
+  const meta=[['Package No.',p.packageNo],['Discipline',p.discipline],['Item Category',p.itemCategory],
+              ['Criticality',p.criticality],['Status',p.status],['Lead Time',p.leadTime!=null?p.leadTime+' wk':''],
+              ['Engineer',p.engineer],['Supplier',p.supplier],['Buyer',p.buyer],['PE',p.pe]];
+  const metaHtml=meta.filter(m=>m[1]!=null&&m[1]!=='').map(m=>'<span class="kv"><b>'+esc(m[0])+':</b> '+esc(m[1])+'</span>').join('');
+  const stageRows=STAGES.map(([k,short])=>{
+    const od=stageIsOverdue(p,k,today);
+    return '<tr'+(od?' class="over"':'')+'><td>'+esc(short)+'</td><td>'+(p[k+'Plan']?fmt(p[k+'Plan']):'—')+'</td><td>'+(p[k+'Forecast']?fmt(p[k+'Forecast']):'—')+'</td><td>'+(p[k+'Actual']?fmt(p[k+'Actual']):'—')+'</td><td>'+(od?'⚠ overdue':'')+'</td></tr>';
+  }).join('');
+  const issues=(STATE.report&&STATE.report.issues)?STATE.report.issues.filter(i=>i.pkg===p.id):[];
+  const issueHtml=issues.length
+    ? issues.map(i=>'<li><span class="vchip '+(i.sev==='error'?'e':i.sev==='warning'?'w':'i')+'">'+esc(i.sev)+'</span> <b>'+esc(i.code)+'</b> '+esc(i.msg)+'</li>').join('')
+    : '<li class="muted">No data-quality issues.</li>';
+  return '<div class="ovl-detail-inner">'
+    + '<div class="ovl-meta">'+metaHtml+'</div>'
+    + '<table class="ds-table stage-grid"><thead><tr><th scope="col">Stage</th><th scope="col">Plan</th><th scope="col">Forecast</th><th scope="col">Actual</th><th scope="col">Flag</th></tr></thead><tbody>'+stageRows+'</tbody></table>'
+    + '<div class="ovl-v"><div class="ovl-vh">Validation — this package</div><ul class="ovl-vlist">'+issueHtml+'</ul></div>'
+    + '</div>';
+}
+
+/* ACCORDION (§4.4): only ONE detail panel may be open at a time — opening a row closes any
+   other open row, so the table never grows into a wall of nested detail. */
+function toggleOvlDetail(row){
+  const id=row.getAttribute('data-pkg');
+  const d=document.getElementById('ovld-'+String(id).replace(/[^\w-]/g,'_'));
+  if(!d) return;
+  const willOpen=d.hasAttribute('hidden');
+  const list=document.getElementById('ovlList');
+  if(list) list.querySelectorAll('.ovl-detail:not([hidden])').forEach(o=>{
+    if(o===d) return;
+    o.setAttribute('hidden','');
+    const prev=o.previousElementSibling;
+    if(prev&&prev.classList.contains('ovl-row')) prev.setAttribute('aria-expanded','false');
+  });
+  d.toggleAttribute('hidden');
+  row.setAttribute('aria-expanded', String(willOpen));
+}
+
 function renderBenchmark(){
   const bench=[['Power transformer','36–78 weeks','252–546'],['MV/HV switchgear','20–40 weeks','140–280'],['Generator (std)','12–20 weeks','84–140'],['Chiller','16–24 weeks','112–168'],['Pump (std)','8–14 weeks','56–98'],['Cooling tower','12–20 weeks','84–140'],['Air handling unit','12–18 weeks','84–126'],['Motor control center','26–40 weeks','182–280'],['SCADA / PLC','20–30 weeks','140–210'],['Structural steel','16–36 weeks','112–252'],['Elevator / escalator','24–40 weeks','168–280'],['Fire & life-safety','16–30 weeks','112–210']];
   document.querySelector('#benchmark tbody').innerHTML=bench.map(r=>'<tr><td>'+r[0]+'</td><td class="num">'+r[1]+'</td><td class="num">'+r[2]+'</td></tr>').join('');
@@ -1442,14 +1978,39 @@ document.addEventListener('click',e=>{
     document.getElementById('tfBtn').setAttribute('aria-expanded','false');
   }
 });
+document.getElementById('ovlList').addEventListener('click', e=>{
+  const row=e.target.closest('.ovl-row'); if(!row) return;
+  toggleOvlDetail(row);
+});
+document.getElementById('ovlList').addEventListener('keydown', e=>{
+  if(e.key!=='Enter' && e.key!==' ') return;
+  const row=e.target.closest('.ovl-row'); if(!row) return;
+  e.preventDefault(); toggleOvlDetail(row);
+});
 document.getElementById('dash').addEventListener('click',e=>{
   const seg=e.target.closest('.seg');
-  if(seg){ const btn=e.target.closest('button'); if(btn){ setPref(seg.getAttribute('data-key'), btn.getAttribute('data-t')); renderCat(seg.getAttribute('data-key')); } return; }
+  if(seg){ const btn=e.target.closest('button'); if(btn){ const key=seg.getAttribute('data-key'), t=btn.getAttribute('data-t');
+    if(key==='interactive'||key.indexOf('inter-')===0){ setPref(key,t); renderInteractive(); }
+    else if(key==='look'){ setPref(key,t); if(LOOK_LAST) renderLookAhead(LOOK_LAST.pkgs, LOOK_LAST.from); }  /* horizon change re-renders the table */
+    else if(key==='ovlStage'){ setPref(key,t); OVL_STAGE=t; safeCall(()=>renderOverdueList(filteredPackages()), 'ovlList'); }  /* stage change re-renders the overdue list */
+    else { setPref(key,t); } } return; }
   const copy=e.target.closest('.copyBtn'), dl=e.target.closest('.dlBtn');
   if(copy){ const id=copy.getAttribute('data-svg'); copyChart(id,(document.getElementById('projTitle').textContent||'chart')+' '+(id||'chart')); }
   if(dl){ const id=dl.getAttribute('data-svg'); const el=document.getElementById(id); if(el){ chartToPng(el).then(b=>{ downloadBlob(b,(document.getElementById('projTitle').textContent||'chart')+' '+(id||'chart')+'.png'); toast('Downloaded PNG'); }).catch(err=>toast('Export failed: '+err.message)); } else { toast('Nothing to export'); } }
 });
-document.getElementById('vExport').addEventListener('click',()=>{
+/* §7.8 — CSV export of the look-ahead list: same UTF-8 BOM rule as the validation report, and
+   the exported rows are exactly the rows on screen (same filter, same sort, same horizon). */
+const lookExp=document.getElementById('lookExport'); if(lookExp) lookExp.addEventListener('click',()=>{
+  if(!LOOK_LAST||!LOOK_LAST.list||!LOOK_LAST.list.length){ toast('Nothing to export'); return; }
+  const iso=d=>{ if(!(d instanceof Date)||isNaN(d)) return ''; const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); };
+  const from=LOOK_LAST.from, DAY=86400000;
+  const rows=[['Package','Discipline','PO Plan','In (days)','Status']].concat(
+    LOOK_LAST.list.map(p=>[p.title,p.discipline||'',iso(p.poPlan),Math.max(0,Math.round((p.poPlan-from)/DAY)),p.status||'']));
+  const csv=rows.map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  downloadBlob(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}), (document.getElementById('projTitle').textContent||'packages')+' - PO look-ahead '+LOOK_LAST.h+'m.csv');
+  toast('Look-ahead exported ('+LOOK_LAST.list.length+' rows)');
+});
+const vExp=document.getElementById('vExport'); if(vExp) vExp.addEventListener('click',()=>{
   if(!STATE.report||!STATE.report.issues.length){ toast('Nothing to export'); return; }
   const rows=[['Severity','Rule','Package','Field','Value','Message']].concat(STATE.report.issues.map(i=>[i.sev,i.code,i.pkg,i.field,i.value,i.msg]));
   const csv=rows.map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
@@ -1479,6 +2040,164 @@ async function handleFile(f){
 document.getElementById('openBtn').onclick=()=>fileInput.click();
 document.getElementById('reloadBtn').onclick=()=>fileInput.click();
 fileInput.onchange=e=>{ const f=e.target.files[0]; if(f) handleFile(f); e.target.value=''; };
+
+/* S-curve period window (MDL-style dual range) — wired once; redraws both charts */
+(function(){
+  const win=document.getElementById('poWin'); if(!win) return;
+  const wf=win.querySelector('.wf'), wt=win.querySelector('.wt'), rst=win.querySelector('.reset');
+  if(wf) wf.addEventListener('input',()=>{ if(!pppScurveWin)return; pppScurveWin.from=+wf.value; drawPPSCurve(); });
+  if(wt) wt.addEventListener('input',()=>{ if(!pppScurveWin)return; pppScurveWin.to=+wt.value; drawPPSCurve(); });
+  if(rst) rst.addEventListener('click',()=>{ if(!pppScurveWin||!pppScurveProgress)return; const n=pppScurveProgress.months.length; pppScurveWin={from:0,to:n-1,_n:n}; if(wf)wf.value=0; if(wt)wt.value=n-1; drawPPSCurve(); });
+})();
+/* Help modal (MDL pattern): one shared popup opened per-panel via the HELP map */
+const HELP = {
+  kpiPanel:{title:'KPI Overview — Panel 1',body:`
+<h4>What it shows</h4>
+<p>Six headline metrics for the procurement package plan currently in view.</p>
+<ul>
+  <li><b>Total Packages</b> — every package loaded from the Package Plan sheet.</li>
+  <li><b>Started (≠ Not Start)</b> — share progressed beyond "Not Start". Green ≥60% · Amber ≥40% · Red &lt;40%.</li>
+  <li><b>Delivered / RI</b> — share with status Delivered or Receive Inspection.</li>
+  <li><b>Not Started / blank</b> — count (and % of total) still "Not Start" or with no status.</li>
+  <li><b>Lead-time estimated</b> — packages with an Estimate Lead Time value (coverage %).</li>
+  <li><b>Engineer assigned</b> — packages with a Design Engineer filled (coverage %).</li>
+</ul>`},
+  charts:{title:'Interactive Chart — Panel 2',body:`
+<h4>What it shows</h4>
+<p>Two chart cards side by side: <b>Packages</b> (any breakdown of the package set) and
+<b>Data Quality</b> (open issues by rule / package / discipline).</p>
+<h4>Per-card controls</h4>
+<ul>
+  <li><b>Breakdown</b> dropdown — the dimension each card groups by (status, item category,
+      discipline, engineer, lead-time band, …).</li>
+  <li><b>Bar / Pie</b> — applies to <em>that chart only</em>; each card keeps its own choice.</li>
+  <li><b>⤓ PNG</b> / <b>⧉ Copy</b> — export that single chart (PNG file or clipboard).</li>
+</ul>
+<h4>Panel-level controls</h4>
+<ul>
+  <li><b>?</b> — this help popup.</li>
+  <li><b>Collapse</b> (<code>−</code>/<code>+</code>) — hides both chart cards.</li>
+</ul>`},
+  scPanel:{title:'PO Plan vs Actual — Panel 3',body:`
+<h4>What it shows</h4>
+<p>One combined chart on a single time axis and a <b>single y-scale</b>: <b>monthly bars</b> = POs
+due in that month, and <b>cumulative S-curve lines</b> = running totals. Both use the same scale
+and the one value axis on the left, so a bar and a curve point with the same value sit at the
+same height. Plan, Forecast and Actual are each drawn as both a bar series and a cumulative
+line.</p>
+<p>Drag the <b>Period window</b> From / To sliders to focus a date range; <b>Reset</b> restores the
+full range. <b>Bars</b> toggles the monthly bars off so the cumulative S-curve can be read alone.
+Forecast is always shown — a package with no Forecast date falls back to its <b>Plan</b> date, so
+the Forecast series mirrors Plan when that column is blank. Plan and Forecast stop at their last
+real date; the cumulative <b>Actual</b> line runs through <b>today</b>, while Actual bars stop at
+the latest month with an actual PO. Each bar shows its count above it. The red dashed line marks
+project start, the grey line marks today. Use ⤓ PNG / ⧉ Copy to export.</p>
+<ul>
+  <li>Drag the <b>Period window</b> sliders to focus a date range.</li>
+  <li>The red dashed line marks project start; the grey line marks today.</li>
+</ul>`},
+  lookPanel:{title:'PO Look-Ahead — Panel 4',body:`
+<h4>What it shows</h4>
+<p>Packages whose <b>PO Plan</b> date falls inside the selected horizon, earliest first, in a
+scrollable data table. It is <b>forward-looking only</b>: a package whose PO has already been
+issued (it has a PO Actual date) is complete and is not listed.</p>
+<h4>Controls</h4>
+<ul>
+  <li><b>Horizon</b> (<code>1m</code> / <code>2m</code> / <code>3m</code> / <code>4m</code> /
+      <code>6m</code>) — how far ahead to look, in <b>calendar months</b> from today. The choice
+      is remembered between sessions.</li>
+  <li><b>⤓ CSV</b> — download the list exactly as shown (same horizon, same filter, same sort)
+      as a CSV file, ready to open in Excel.</li>
+</ul>
+<h4>Columns</h4>
+<ul>
+  <li><b>Package</b>, <b>Discipline</b>, <b>PO Plan</b> (the planned PO date).</li>
+  <li><b>In (days)</b> — days from today to that PO Plan date; sort the eye by the smallest
+      number to see what is most urgent.</li>
+  <li><b>Status</b> — current procurement status.</li>
+</ul>
+<p>The row count is shown next to the horizon control. The table is a fixed-height scroller, so a
+long list never stretches the page — scroll inside it to see the rest.</p>`},
+  ovlPanel:{title:'Overdue by Stage — Panel 5',body:`
+<h4>What it shows</h4>
+<p>Packages past their due date, with a drill-down into each package.</p>
+<h4>Controls</h4>
+<ul>
+  <li><b>Stage</b> (<code>MR Issue</code> / <code>PO Issue</code> / <code>VD Approval</code> /
+      <code>FAT</code> / <code>ROS</code>) — shows <b>one stage at a time</b>. The choice is
+      remembered between sessions. The count for <em>every</em> stage stays visible next to the
+      control, so you can see where the overdue work sits without switching.</li>
+  <li>Click a row (or press <b>Enter</b> / <b>Space</b>) to expand its detail: the full package
+      record, the 5-stage Plan / Forecast / Actual grid, and that package's validation issues.
+      <b>Only one row can be open at a time</b> — opening another closes the previous one.</li>
+</ul>
+<p>The table is a fixed-height scroller, so a long overdue list never stretches the page.</p>`},
+  benchPanel:{title:'Lead Time Benchmark — Panel 6',body:`
+<h4>What it shows</h4>
+<p>External 2026 industry reference lead times for equipment categories. Use to sanity-check the Estimated Lead Time on each package and confirm with the vendor at quotation.</p>`},
+  vcard:{title:'Data Validation — Panel 7',body:`
+<h4>What it shows</h4>
+<p>System / config checks run against the PPP data and the Code sheet. Per-package data issues are listed below; use <b>Export CSV</b> for the full list.</p>`},
+  dqPanel:{title:'Data-Quality Flags — Panel 8',body:`
+<h4>What it shows</h4>
+<p>Cross-field data-quality flags (e.g. missing engineer, status vs stage mismatch). Fix the source data in Excel and reload to clear them.</p>`},
+};
+let helpModalEl=null;
+function ensureHelpModal(){
+  if(helpModalEl) return helpModalEl;
+  const m=document.createElement('div'); m.className='help-modal'; m.hidden=true;
+  m.innerHTML='<div class="box" role="dialog" aria-modal="true"><header><h3 id="helpTitle"></h3><button class="close" title="Close" aria-label="Close help">✕</button></header><div class="body" id="helpBody"></div></div>';
+  m.addEventListener('click',e=>{ if(e.target===m) m.hidden=true; });
+  m.querySelector('.close').onclick=()=>{ m.hidden=true; };
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!m.hidden) m.hidden=true; });
+  (document.body||document.documentElement).appendChild(m);
+  helpModalEl=m; return m;
+}
+function openHelp(id){
+  const h=HELP[id]; if(!h) return;
+  const m=ensureHelpModal();
+  m.querySelector('#helpTitle').textContent=h.title;
+  m.querySelector('#helpBody').innerHTML=h.body;
+  m.hidden=false;
+}
+/* inject a "?" help button into every top-level panel header (MDL pattern) */
+function attachHelp(){
+  ['kpiPanel','charts','scPanel','lookPanel','ovlPanel','benchPanel','vcard','dqPanel'].forEach(id=>{
+    const sec=document.getElementById(id); if(!sec) return;
+    const head=sec.querySelector(':scope > .panel-head-row')||sec.querySelector(':scope > h2')||sec.querySelector(':scope > .panel-head');
+    if(!head) return;
+    let row=head.classList.contains('panel-head-row')?head:head.parentElement;
+    if(row!==head){ const wrap=document.createElement('div'); wrap.className='panel-head-row'; head.replaceWith(wrap); wrap.appendChild(head); row=wrap; }
+    let actions=row.querySelector(':scope > .panel-actions');
+    if(!actions){ actions=document.createElement('div'); actions.className='panel-actions'; row.appendChild(actions); }
+    if(actions.querySelector('[data-help]')) return;
+    /* §7.7: help is the LEFTMOST control, collapse the RIGHTMOST — insert help first, then the toggle. */
+    const b=document.createElement('button'); b.type='button'; b.className='icon-btn'; b.textContent='?';
+    b.setAttribute('aria-label','Panel help'); b.title='Panel help'; b.dataset.help=id;
+    actions.insertBefore(b, actions.firstChild);
+    b.onclick=()=>openHelp(id);
+    /* collapse toggle — reuse an existing one (KPI ships #kpiToggle) so we never add a duplicate */
+    let tog=actions.querySelector('#kpiToggle')||actions.querySelector('[data-collapse]');
+    if(!tog){
+      tog=document.createElement('button'); tog.type='button'; tog.className='icon-btn'; tog.setAttribute('data-collapse','');
+      tog.innerHTML='&#8722;'; tog.setAttribute('aria-label','Collapse or expand panel'); tog.title='Collapse / expand';
+      tog.setAttribute('aria-expanded','true');
+      actions.appendChild(tog);
+    }
+    if(tog.hasAttribute('data-collapse')) tog.onclick=()=>{
+      const col=sec.classList.toggle('collapsed');
+      tog.innerHTML=col?'+':'&#8722;'; tog.setAttribute('aria-expanded',String(!col));
+    };
+  });
+}
+attachHelp();
+
+/* KPI Overview panel (MDL chrome): collapse / expand */
+(function(){
+  const panel=document.getElementById('kpiPanel'); if(!panel) return;
+  const tog=document.getElementById('kpiToggle');
+  if(tog) tog.addEventListener('click',()=>{ const collapsed=panel.classList.toggle('collapsed'); tog.textContent=collapsed?'+':'−'; tog.setAttribute('aria-expanded',String(!collapsed)); });
+})();
 const drop=document.getElementById('drop');
 drop.onclick=()=>fileInput.click();
 ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('hover');}));

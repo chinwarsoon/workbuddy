@@ -1,4 +1,4 @@
-# WORKPLAN — Procurement Package Plan Dashboard 升级
+﻿# WORKPLAN — Procurement Package Plan Dashboard 升级
 
 | 项 | 内容 |
 |---|---|
@@ -330,7 +330,3 @@ Get-ChildItem $d | Select-Object -ExpandProperty Name
 ```
 
 执行后目录里只剩：`Procurement-Dashboard.html`、`WORKPLAN.md`、`TWRP C3B2 - Procurement Package Plan.xlsx`、`arch\`。
-
----
-
-**本文件为主工作plan，后续就地更新，不另建临时 md。**
