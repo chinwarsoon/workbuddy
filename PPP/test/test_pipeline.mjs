@@ -19,7 +19,7 @@ const closeIdx = code.lastIndexOf('})();');
 if (closeIdx < 0) throw new Error('IIFE close not found');
 const HOOK = `
   globalThis.__H = { parseXlsx, parseCSV, parseCodeSheet, findLookupColumns, buildFieldToCol,
-                     toDate, buildModel, buildDashboard, validate, STATE, METRICS, CHART,
+                     toDate, buildModel, buildDashboard, validate, STATE, CHART,
                      svgHBar, svgPie, topN };
 `;
 code = code.slice(0, closeIdx) + HOOK + code.slice(closeIdx);
@@ -95,9 +95,8 @@ line('='.repeat(72));
 line('LOAD');
 line('='.repeat(72));
 ok('script evaluated + export hook reached', !!H);
-ok('METRICS registry present', Array.isArray(H.METRICS));
 ok('CHART geometry present', !!H.CHART);
-line(`METRICS entries : ${H.METRICS.map(x => x.key).join(', ')}`);
+line('METRICS registry : removed (replaced by interactive charts per dashboard §16.7-F)');
 line(`HTML exports ok : STATE=${!!H.STATE} parseXlsx=${typeof H.parseXlsx}`);
 
 line('');
@@ -431,13 +430,34 @@ try {
   line('--- Rule reference as rendered by renderRuleRef() ---');
   vref.replace(/<\/li>/g, '\n').replace(/<\/code>/g, '  ').replace(/<[^>]+>/g, '')
     .split('\n').forEach(l => { if (l.trim()) line('  ' + l.trim()); });
+  const v08w = (vctx.errorTable && vctx.errorTable['V-08']) || '';
   ok('I-11: rule reference shows the Error-table wording for each fired rule',
-    /V-08/.test(vref) && /Stage plan dates out of sequence/.test(vref),
-    `${vref.length} chars`);
+    /V-08/.test(vref) && !!v08w && vref.indexOf(v08w) >= 0,
+    `V-08 wording from Error table (source of truth per I-65) = ${JSON.stringify(v08w)}`);
   ok('I-11: rule reference is deduplicated — V-08 appears once, not 119 times',
     (vref.match(/V-08/g) || []).length === 1,
     `${(vref.match(/V-08/g) || []).length} occurrence(s)`);
 } catch (e) { fail.push({ name: 'buildDashboard threw', detail: e.stack.split('\n').slice(0, 4).join(' | ') }); }
+
+/* ---------- I-66: Error-table Kind (U) + Trigger (V) consumed from the worksheet ---------- */
+line('');
+line('--- I-66: Error-table Kind/Trigger read from the Code sheet (Code!U:V) ---');
+ok('I-66: errorKind map built from Code!U (Kind column)',
+  !!(vctx.errorKind && Object.keys(vctx.errorKind).length),
+  `${vctx.errorKind ? Object.keys(vctx.errorKind).length : 0} entries`);
+ok('I-66: errorTrigger map built from Code!V (Trigger Check column)',
+  !!(vctx.errorTrigger && Object.keys(vctx.errorTrigger).length),
+  `${vctx.errorTrigger ? Object.keys(vctx.errorTrigger).length : 0} entries`);
+ok("I-66: errorKind['V-08'] sourced from the worksheet (not hard-coded)",
+  !!(vctx.errorKind && vctx.errorKind['V-08'] != null),
+  `V-08 kind = ${JSON.stringify(vctx.errorKind && vctx.errorKind['V-08'])}`);
+const rep66 = H.validate(model.packages, vctx);
+ok('I-66: every validation issue carries a sheet-derived kind (system|data)',
+  rep66.issues.every(i => i.kind === 'system' || i.kind === 'data'),
+  `${rep66.issues.length} issues`);
+ok('I-66: every validation issue carries a sheet-derived trigger string',
+  rep66.issues.every(i => typeof i.trigger === 'string'),
+  `${rep66.issues.length} issues`);
 
 /* ---------- I-26: pie slice cap + export target ---------- */
 line('');

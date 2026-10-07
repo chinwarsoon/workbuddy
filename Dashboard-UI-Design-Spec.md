@@ -89,18 +89,36 @@ Document-Control Systems · Enterprise Project-Management Platforms
 ### 3.5 System / Config Banner (`.sys-banner`) & Notes (`.note`)
 - Region **directly below the header**, above all panels. Hidden / not rendered when there
   are no notices.
-- Two visual tiers, by severity:
+- Three visual tiers, by severity (all render icon + bold code + message):
   - **Fatal / error-level** → full-width `.sys-banner-item.fatal` strip: `--red` background,
     white text, `⛔` icon.
-  - **Non-fatal (warning / info)** → MDL `.note` **card**: `#FFF8E1` background,
-    `1px solid --amber` border, `border-radius:8px`, `padding:8px 12px`, `#7a5b00` text,
-    `margin:10px 0` — soft and contained, **not** a full-bleed strip. Icon: `⚠️` for
-    warnings, `ℹ️` for info.
+  - **Warning** → full-width `.sys-banner-item.warn` strip: `--amber` background (`#F9A825`),
+    dark text, `⚠️` icon. In the MDL in-flow variant this is a contained `.note` **card**
+    (`#FFF8E1`, `1px solid --amber`, `border-radius:8px`, `padding:8px 12px`, `#7a5b00` text,
+    `margin:10px 0`) — soft and **not** full-bleed.
+  - **Info** → calmer, neutral tier distinct from warning: full-width `.sys-banner-item.info`
+    strip `#e8eef5` background, `#33526b` text, `ℹ️` icon. In the MDL in-flow variant this is
+    also a contained `.note` card using the same neutral palette. Used for FYI notices that need
+    no action (e.g. skipped rows), so they read *below* warnings.
 - **Item format** (matches MDL exactly): an **icon** + **bold code** + **message** —
   icon prefix, code wrapped in `<b>` (default `SYSTEM`), then the message. No leading
   severity word and no separator — the icon already conveys severity.
 - Shows *system / config* issues only (e.g. missing columns, row-count mismatches);
   per-package data issues live in the Validation panel.
+- **Fixed / persistent variant** — a dashboard may render this banner as a **fixed top
+  warning bar** (permitted when it is unified with the fatal *load-error* banner, §7.10
+  `#errBanner`). It sits just below the header; on a screen with no header (the
+  load/onboarding screen, §3.7) it is pinned to `top:0`. In this variant both tiers are
+  full-width strips — fatal `--red`, warning `--amber` (`.sys-banner-item.warn`),
+  info neutral blue-grey (`.sys-banner-item.info`, `#e8eef5`/`#33526b`) — rather than
+  the in-flow `.note` card above, so the three severities keep one visual language.
+- **Clearance rule (overlap prevention)** — mandatory, mirrors §3.6: because the bar is
+  `position:fixed`, it must **reserve its own rendered height in layout** so it never
+  overlaps the first panel or any content beneath it. Measure the bar's height and add it
+  as top padding (or an equivalent spacer) to the content wrapper / first flow child,
+  **preserving** the existing `16px` header-to-content gap beneath the reserved space.
+  Do **not** let the fixed bar simply float over content, and remove the reserved space
+  when the banner is dismissed.
 
 ### 3.6 Status Bar (`.status-bar`)
 - **Fixed bottom** (`position:fixed;left:0;right:0;bottom:0`), full width, `z-index:40`,
@@ -564,8 +582,11 @@ Standardised on the PPP implementation. Every segmented control follows this exa
 - **Help**: the trigger is the `?` icon-btn in the panel title row (§7.7); it opens the centred
   **modal** described in §7.9 (help is a popup window, never an inline disclosure).
 - **Toast** (`#toast`): transient message, fixed bottom-centre, high contrast, auto-dismiss.
-- **Error banner** (`#errBanner`): fatal *load* errors only — fixed top, full-width, `--red`.
-  Distinct from the system / config banner (§3.5), which is for data/config notices.
+- **Error banner** (`#errBanner`): when kept separate, fatal *load* errors only — fixed
+  top, full-width, `--red`. May instead be **unified** with the system / config banner
+  (§3.5) into a single fixed top warning bar; in that case it also carries data/config
+  notices (fatal = red strip, non-fatal = `--amber` strip). Either way it follows the
+  §3.5 clearance rule so it never overlaps content.
 
 ---
 
@@ -716,5 +737,327 @@ Two pill uses, both `border-radius:999px`:
 - **MDL Control Center** — source of the tokens; aligned.
 - **Future dashboards** — import §6 `:root` and follow §3–§5 layout; define own status
   vocabulary per §1.
+
+---
+
+## 13. Compliance Audit & Remediation Plan (v1.0)
+
+> **Status of this section:** audit-only. No application code was changed. The phased
+> plans in §13.4–§13.5 are proposed; code changes start only after approval.
+
+### 13.1 Purpose, scope & method
+
+This section records a three-way review of the spec against the two shipping
+implementations:
+
+| Artefact | File | Notes |
+|---|---|---|
+| Spec | `Dashboard-UI-Design-Spec.md` | v1.0, §1–§12 |
+| PPP | `PPP/Procurement-Dashboard.html` | hand-authored single file; `:root` L8–40, dark theme L299–312 |
+| MDL | `MDL/MDL-Dashboard.html` | **generated** by `build.mjs` from `src/render.mjs` (CSS template literal at bundle ≈ L556–706 ⇒ source `src/render.mjs` L14–164; subtract 542 for source line) |
+
+The older `MDL/MDL_UI_Design_Spec.md` was also consulted to find content the v1.0
+spec dropped. The review is static (CSS / markup / JS); no runtime smoke test was run.
+
+Priority key used below: **P0** blocker or correctness bug · **P1** high · **P2** medium ·
+**P3** low / cleanup · **G** governance / spec text only.
+
+---
+
+### 13.2 UI / UX design evaluation (professional review)
+
+The comparison in §13.3 lists *what differs*. This subsection judges *whether those
+differences matter to the user* — using information hierarchy, cognitive load,
+scanability, consistency, affordance, feedback and accessibility as the lens, not
+line-for-line parity.
+
+#### 13.2.1 Design-system integrity (tokens)
+A token set **is** the design language; "copy it verbatim" is not pedantry. MDL ships
+only 11 of ~33 tokens and then hard-codes literal hex for surfaces, shadows and
+greys. The practical UX consequence is **colour and surface drift**: the same
+component cannot be guaranteed consistent across states, and the dark theme cannot be
+re-mapped without touching every rule. That directly defeats the spec's stated goal
+of one visual family across PPP, MDL and future apps. PPP is fully tokenised, so the
+two apps already look like two different systems. **Verdict: this is the root cause of
+most MDL deviations, not a cosmetic nit.**
+
+#### 13.2.2 Visual hierarchy & information density
+- **Panel subtitles (PPP).** The spec bans explanatory subtitles and funnels all
+  explanation into the Help modal precisely so the main view stays a *scan surface*,
+  not a *reading surface*. PPP's two `.sub` lines re-introduce competing text beside
+  the data and raise cognitive load on the primary screen — a real regression against
+  the "document control first, dashboard second" philosophy.
+- **Nested chart titles (both).** Hierarchy must read at a glance: a chart card is a
+  *sub*-level and must use the non-uppercase `h3`. PPP renders nested titles as
+  uppercase `h2`, so a chart card looks like a top-level panel and the page flattens.
+  MDL uses two different nested-title sizes in the same app. Either way the user
+  cannot instantly tell *section* from *card*.
+- **Shadow / radius outliers.** The spec's "subtle shadow only" and restrained radii
+  exist to keep the dense, enterprise register and to ban the Apple-Bento soft-tile
+  look. MDL's dead `.welcome` block carries a `0 6px 20px` shadow and 14–16 px radii;
+  PPP's hero hits 26 px. These add visual weight and noise that work against
+  all-day readability.
+
+#### 13.2.3 Consistency & learnability (affordances, glyphs, buttons)
+- **Glyph semantics (MDL).** Using `▾`/`▸` for *panel collapse* **and** *row
+  drill-down* **and** *bulk expand/collapse* means one symbol carries three meanings.
+  Icon consistency is a foundational UX principle (recognition over recall); the
+  collision invites mis-clicks ("did I collapse the whole panel?"). This is a genuine
+  usability defect, not a style preference. PPP correctly reserves `−`/`+` for panels.
+- **Two secondary button styles (PPP).** When the same control looks two different
+  ways, users cannot predict behaviour. Consolidating to the one conformant secondary
+  (12 px / 600 / 32 px / 7×14 / hover→blue) removes ambiguity.
+- **Segmented control (MDL).** Beyond engineering, the `.seg` contract gives users
+  *persistent* selection (survives reload) and a single, predictable selection
+  pattern. MDL's per-instance bar/pie with in-memory state loses the user's chart-type
+  choice on every reload — minor, but annoying across daily sessions.
+
+#### 13.2.4 Scanability & data legibility
+- **Table base (MDL).** MDL's bare table — full four-side grid lines, 11 px type,
+  5×7 padding, ~24 px rows, no numeric alignment — is **busier and noisier** than
+  PPP's `.ds-table` (single bottom rule, 9×10, ~40 px rows, `.num` + tabular figures).
+  For a tool whose core task is *spotting overdue counts in ≤5 s*, right-aligned
+  tabular numbers are not decoration — they are how the eye compares magnitudes.
+  MDL's lack of `.num`/tabular-nums measurably slows numeric scanning.
+- **One shared y-axis (MDL curve).** The spec's single-axis rule is a *perception*
+  rule: with dual axes the same number renders at two heights and reads as a bug
+  ("the curve is lower than the bar"). MDL's two-card layout avoids the dual-axis trap
+  but at the cost of redundancy and extra vertical space, and it adds an HTML legend
+  under a chart. A legend is *justified* for a multi-series curve (Planned/Forecast/
+  Actual) where inline labels are hard — the spec should grandfather that case rather
+  than forbid all legends.
+
+#### 13.2.5 Feedback & state (status bar, toast, exports)
+- **Status bar (MDL).** A live status bar (total / filtered / started% / as-of /
+  filter) is excellent at-a-glance state and supports the 5-second exception goal.
+  MDL renders it **before data loads** (empty navy strip) which reads as "something is
+  broken". Hidden-until-first-render is the correct UX and is what PPP does.
+- **Toast (both).** Transient feedback is good practice, but PPP's toast sits ~28 px
+  up and **overlaps the ~30 px fixed status bar**, and it has no `aria-live` — so the
+  message is either visually colliding or invisible to screen readers (fails WCAG
+  4.1.3 perceivable feedback). MDL abandons a toast entirely and writes into an inline
+  `.msg` that is easy to miss and auto-dismisses never. The spec references the toast
+  three times but never defines it.
+
+#### 13.2.6 Accessibility (focus, semantics, motion)
+- **Focus visibility (MDL).** Only `.btn` has `:focus-visible`; selects, text inputs
+  and filter controls do not. For an all-day professional tool used heavily by
+  keyboard, an invisible focus position is a hard blocker (WCAG 2.4.7).
+- **Table semantics (both).** Neither app emits `scope` on headers. Screen-reader
+  users lose the row/column relationships entirely — a clear §7.2 miss.
+- **Reduced motion** is correctly honoured by both; good.
+
+#### 13.2.7 Responsive behaviour & cross-device use
+- **PPP cascade bug.** The 2-column KPI rule is cancelled by a later, equal-specificity
+  rule, so phones stay at 3-up KPIs — cramped numbers, harder to read at a glance.
+  This fails the "readable across a full working day" aim on the smallest screens.
+- **MDL auto-fit + 920 px only.** Auto-fit is fluid and robust for arbitrary KPI
+  counts, but it abandons the *predictable, testable* 6/3/2 breakpoint contract and
+  the panel 2→1 collapse, so on tablets panels stay 2-up and get narrow enough that
+  tables may overflow with no clear collapse. Predictable breakpoints matter for QA and
+  for tablet-using document controllers.
+
+#### 13.2.8 Onboarding & first-run
+- The `.expect` instructions callout (present in PPP) sets expectations and lowers
+  first-run anxiety — a real onboarding asset. MDL omits it, and its hero carries a
+  heavy shadow / wrong headline size, weakening the calm, professional first impression
+  the spec wants.
+
+#### 13.2.9 Summary judgement
+- **PPP** is ~90% aligned and, from a UX standpoint, the stronger of the two: its
+  deviations are mostly contained (responsive cascade, incomplete dark theme, a couple
+  of radii, two button styles). Fixing them is low-risk.
+- **MDL** is ~55–60% aligned. Because it is the *source* of the visual language, its
+  gaps are more damaging: missing tokens, missing panel numbering (a wayfinding /
+  support-reference aid), no `.seg`, a divergent table system, a glyph collision, and a
+  broken hidden status bar. These are not cosmetic — they affect legibility, learnability
+  and accessibility.
+- **Process gap:** §12 currently claims both are "aligned", which is false and should be
+  corrected so future reviewers are not misled.
+
+---
+
+### 13.3 Compliance comparison table
+
+Columns: **Component · Spec requirement (or gap) · Current PPP · Current MDL · Issue
+summary · Suggestion & priority.**
+
+| Component | Spec requirement (or gap) | Current PPP | Current MDL | Issue summary | Suggestion & priority |
+|---|---|---|---|---|---|
+| Design tokens | ~33 tokens copied verbatim; add-only. | All 33 exact. | Only 11 present; rest hard-coded as literal hex. | MDL breaks the "one family" rule. | MDL: add full `:root` (P0). Both: replace literal hex (P2). |
+| Font stack | Exact Segoe/Inter/Source Sans/Roboto/Helvetica/Arial stack. | Exact. | Shortened to Segoe/system/apple. | MDL font differs. | MDL: adopt stack (P2). |
+| Dark theme | Optional; remap tokens only; brand navy/blue fixed. | Remapped + theme toggle added; hex patches → tokens (Phase B). ✅ | None. | PPP dark mode looks broken; rule not written. | PPP: DONE (Phase B). |
+| App bar | Sticky navy, `12px 20px`, no border, `z20`; brand + `.meta` + filter + Load file. | Structure matches; `.meta` shows wrong fields. | Other class names; **no filter trigger / no load action**; no footer. | PPP meta off; MDL missing bar actions + footer. | Align names (P2); MDL add actions + footer (P1/P2). |
+| Navigation | Left sidebar OR top-bar nav; collapse <880. | Inline top-bar nav; condensed at <880 px (Phase B). ✅ | No `<nav>`. | Neither ships real nav. | PPP: DONE (Phase B); MDL: define nav + collapse (P1). |
+| Content wrapper & footer | `1320` centred, `16`/`52` pad; footer = last child inside wrapper. | Exact; footer last child. | Correct wrapper; **no footer**. | MDL omits mandatory disclaimer footer. | MDL: add `role=contentinfo` footer (P1). |
+| Responsive | ≥1100 6/2-col; 880–1099 3/1-col; <880 2/1-col + nav collapse. | Cascade fixed: 6/3/2 + panels 2→1 at 1100/880 (Phase A). ✅ | KPI auto-fit (no 6/3/2); only 920 px charts breakpoint. | PPP cascade bug; both miss the contract. | PPP: DONE (Phase A); MDL: implement cascade (P1). |
+| System banner | Fatal = full-bleed red; non-fatal = `.note` card; icon+bold code+msg. | Unified top warning bar (below app bar; red=fatal, amber=warning, neutral-blue=info); `.sys-banner` removed (Phase B); info tier added 2026-10-07. ✅ | `.note` ok; non-fatal wrongly full-bleed amber strip; unused `.warn` tier. | Two fatal mechanisms; amber misused; dead tiers. | PPP: DONE (Phase B); MDL → `.note`; remove dead (P1). |
+| Status bar | Fixed bottom, `z40`, navy, hidden until first render, `[hidden]` reset. | Compliant; hidden works. | Created without hidden; **no `[hidden]` rule** → empty bar shows early. | MDL bar visible before load. | Spec add global `[hidden]` (P1); MDL hidden (P0). |
+| Onboarding | Hero card, headline 24–26/700, `.expect` callout, dashed dropzone, primary; hero ≤~24 px. | Hero + `.expect` + dropzone; card **26 px** (over cap), dropzone 16 px. | Hero defined twice (dead copy, heavy shadow); headline 22 px; no `.expect`; custom pill CTA. | Both over radius; MDL misses callout. | Cap 24; MDL add `.expect`; kill dead CSS (P2/P3). |
+| Panel base | White, 1px, r10, `…26px` bottom, `margin:14px 0`, `position:relative`, uppercase 13/700. | `16px 16px 24px`, `margin:14px 0` (Phase D). ✅ | Matches reference exactly (the model). | PPP pad/margin slightly off. | PPP: DONE (Phase D). |
+| Panel numbering | Sequential Panel 1,2,3… in document order; static corner; sub-panels not numbered. | `.panel-no` 1→8 correct. | **No number rendered**; numbers only in HELP titles and inconsistent (KPI = Panel 14). | MDL never shows numbers; contradicts rule. | MDL: add `data-panel`/`.panel-no` in order (P1). |
+| Panel subtitles | No explanatory subtitle; explanation → Help modal. | Short hint kept; fuller text → Help (Phase C). ✅ | None (ok). | PPP adds forbidden text. | PPP: DONE (Phase C). |
+| Chart-card titles | Nested `h3` `.panel-head h3` 13/700 navy, not uppercase. | Chart cards emit `<h3>` in `.panel-head`; panel title `<h2>` (Phase C). ✅ | Two styles: `.chart h3` 12 px and `.panel-head h3` 13/600. | Both render nested title wrong; MDL inconsistent. | PPP: DONE (Phase C); MDL: convert (P2). |
+| Combined chart | One chart, **one shared y-axis**; Bars toggle; legend only if inline impossible. | Single S-curve, one axis, Bars toggle. | **Two separate cards** (line + bars) + HTML legend. | MDL layout ≠ §4.2; legend case uncovered. | Spec rule on two-card + legend; MDL align/grandfather (P1). |
+| Bounded scroller | `.tableScroll`: `340px`, r10, `margin-top:8px`, sticky head. | Compliant. | `.ovt`/`.detail-scroll` at 520 px, r8, no margin. | MDL scroller different. | MDL: adopt `.tableScroll` (P2). |
+| Table base | One `.ds-table`: navy sticky head, single bottom rule, 9×10, `.num` tabular, zebra, hover, `.over`, `.empty`, `.sev`. | Fully compliant. | **No `.ds-table`**: bare table, full grid, 11 px, 5×7, ~24 px, no `.num`/hover/`.over`/`.sev`. | Biggest cross-app split. | MDL: adopt `.ds-table` (P0). |
+| Table semantics | `<th scope="col">`; leading label `<th scope="row">`. | `scope="row"` on Benchmark/Look-Ahead/Stage-grid (Phase C). ✅ | No `scope` at all. | A11y item unmet both. | PPP: DONE (Phase C); MDL: add `scope` (P2). |
+| Row count | Bounded list shows full count in control row. | Shown "(N packages)". | Not evident. | MDL may hide clipped count. | MDL: show count in control row (P2). |
+| Look-ahead | Forward-only, sorted, distance col, status col, horizon seg (calendar months), CSV = on-screen rows. | Fully compliant (all 9 rules). | Not present (document-focused). | N/A to MDL. | — |
+| Drill accordion | One detail open at a time; `aria-expanded` synced; keyboard; chevron rotates. | Mostly ok; chevron coded two ways; cell not `aria-hidden`. | Inserts rows, **many open at once**, no `aria-expanded`, no keyboard. | MDL not a true accordion. | MDL: one-open + `aria-expanded` + keyboard (P2). |
+| Collapse vs drill glyphs | `−`/`+` collapse; `▸`/`▾` drill; `▾` menu. One glyph per meaning. | `−`/`+` correct; chevron coding only inconsistency. | `▾`/`▸` used for **panel collapse** and reused for drill + bulk. | MDL glyph collision. | MDL: use `−`/`+` for collapse (P1). |
+| KPI panel | First; "KPI OVERVIEW"; `?` left + `−` right; corner no.; no subtitle; cards 6→3→2, 3 px strip, 22/700, 10 upper. | Compliant; KPI content changed (2026-10-06): Not Started/blank → PO Issues; still 6 cards. | Card tokens ok; `?` injected left of collapse ok; undocumented `.subkpi`. | Minor sub-tier undocumented. | Spec: document 2nd KPI tier (P3). |
+| Primary/Secondary btn | Primary blue 32 px; Secondary white/navy, hover→blue, 12/600/32/7×14/r6. | Standardised on `.btn.ghost`; `.btn.secondary` removed (Phase B). ✅ | `.btn`/`.btn-secondary`/`.btn-active` match. | PPP duplicate secondary. | PPP: DONE (Phase B). |
+| Icon button | 26 px **square**, 1px, muted, hover→soft + navy. | `.icon-btn` square 26 ✅. | `.btn-mini` 26 px auto-width, hover→blue. | MDL differs from spec & PPP. | MDL: square + soft hover (P2). |
+| Focus visibility | `:focus-visible` 2 px blue on **all** interactive. | Buttons + selects covered. | Only `.btn`; selects/inputs/filters lack it. | MDL leaves controls unringed. | MDL: add to all controls (P2). |
+| Segmented control | `.seg` + `data-key`/`data-t`, delegated listener, per-card keys, `getPref`/`setPref`+localStorage, re-derived `.on`/`aria-pressed`, validated, proper-case, 2–6. | Fully compliant. | **No `.seg`**: per-instance bar/pie, in-memory only, no persistence. | MDL ignores mandatory contract. | MDL: implement `.seg` (P0). |
+| Filters/dropdown | Multi = `.tf-btn`+`.tf-panel` popover; single = native select. | `.tf-btn`+`.tf-panel` ✅; `.inter-sel` r8 (Phase C). ✅ | Inline checkbox chip wall; `select.base` no weight/focus ring. | MDL idiom not in spec; PPP r off by 1. | PPP: DONE (Phase C); MDL: adopt `.tf-btn` popover (P2). |
+| Toast | Referenced 3× but **never specified** (pos, contrast, auto-dismiss, `aria-live`, clearance vs status bar). | `role=status` + `aria-live=polite`; lifted clear of status bar (Phase C). ✅ (spec gap still to document) | None; inline `.msg` only. | Spec gap; PPP unannounced + overlap. | PPP: DONE (Phase C); Spec: define toast (G). |
+| Exports | `⤓ PNG`/`⧉ Copy`/`⤓ CSV`; UTF-8 BOM; `<project> - name.csv`; clipboard fallback→PNG+toast; PNG before Copy. | Fully compliant. | Glyphs/order/BOM ok; static filenames; also exports a *table* as PNG (uncovered). | MDL filenames not project-prefixed. | MDL: prefix filenames (P3). |
+| Help modal | Centred popup, overlay `rgba(15,23,42,.45)`, box r12/680/84vh, `role=dialog aria-modal`, Esc + click-outside, `HELP[id]`. | Compliant; appended to `body`. | Near-exact; missing `aria-labelledby`; `✕` no `aria-label`. | Minor a11y gaps. | Add `aria-labelledby`/`aria-label` (P3). |
+| Icon convention | One glyph per control; icon btn `aria-label`+`title`; chevron `aria-expanded`. | Mostly ok; chevron cell not `aria-hidden`. | `?`/exports ok; `✕` no `aria-label`; glyph collisions above. | Small a11y omissions. | Add labels/`aria-hidden` (P3). |
+| Chips | Filter `.ovl-btn` + summary `.vchip`, both r999. | `.vchip` present; `.ovl-btn` absent (stage filter → `.seg`, intentional). | `.chips label` r12; no `.vchip`. | Spec filter-chip row may be stale. | Spec confirm `.seg` replaces `.ovl-btn`; MDL use 999 (P3). |
+| Print & reduced-motion | Print B/W, hide toolbars, no shadow, landscape; honour reduced-motion. | Compliant. | Compliant. | None. | — |
+| Repo / governance | "Single source of truth" — but MDL HTML is generated; 3 other HTML copies exist. | Single hand-authored file. | HTML built by `build.mjs`; edits lost; `Arch/…html` stale. | No provenance rule. | Spec §1 state editable artefact; fix in `src/` (G/P2). |
+| Spec internal defects | — | — | — | Duplicate §7.9; dangling "§16" note; `.meta` 11 vs 12 conflict; two warning palettes; naming conflict; §12 "aligned" false. | Fix doc: renumber, correct conflicts, rewrite §12 (G/P1). |
+| Spec gaps to add | — | — | — | No global `[hidden]` reset; no z-index/stacking table; no toast spec; no dark remap list; no radius budget for non-panels; no `scope=row` criterion; no build rule; content dropped from old MDL spec. | Add S-7…S-21 (G). |
+
+---
+
+### 13.4 Phased remediation — PPP (separate plan)
+
+> **Status (2026-10-06): all four PPP phases COMPLETE.** PPP is now 100% aligned to the
+> radius/spacing scale; all originally-flagged off-scale tokens (including the post-plan
+> `#toast` / `.grid` / `.curve-grid` items) have been snapped. MDL remediation has NOT started.
+
+**Phase A — P0 blockers — ✅ DONE**
+- Responsive cascade fixed: KPI columns now 6 → 3 → 2 and panels 2 → 1 at the 1100 / 880 px
+  breakpoints; the narrower `<880 px` rule wins the cascade and the missing 880–1099 1-column
+  panel band is added. No desktop regression.
+
+**Phase B — P1 — ✅ DONE**
+- Dark theme: full token remap + a persisted **theme toggle**; the four literal-hex per-component
+  patches (`.panel-head h3`, `.inter-sel`, logo, `.chartwrap`) converted to tokens.
+- Fatal banner reconciled to a **single unified top warning bar** (fixed just below the navy app
+  bar; visible on both welcome and dashboard; red = fatal/load-failure, amber = warning, neutral-blue = info). The
+  in-wrapper `.sys-banner` and its builder were removed. §3.5 clearance rule added.
+- Duplicate secondary button removed: standardised on `.btn.ghost`; `#reloadBtn` → `class="btn ghost"`.
+- Top-bar nav condensed at <880 px (hide `.meta` detail text; let filter + Load wrap).
+
+**Phase C — P2 — ✅ DONE**
+- Panel `.sub` subtitles: kept a short inline hint on the benchmark + validation panels; fuller
+  text moved into the Help modal (HELP `benchPanel` / `vcard`).
+- Chart-card titles now emit `<h3>` inside `.panel-head` (13/700 navy, non-uppercase); the
+  Panel-2 title stays `<h2>`. Note: `.card h2` and `.panel-head h3` are **live** (not dead) — the
+  original plan bullet was inaccurate; both were retained.
+- `.inter-sel` radius 9 → 8; `.tf-btn:hover` → `--soft` background.
+- Today reference line colour `#8E8E93` → `#B8C2CC` (PNG-safe; literal used because SVG `stroke`
+  attributes cannot resolve `var()`).
+- `#toast` given `role="status"` + `aria-live="polite"` and lifted clear of the fixed status bar.
+- `th scope="row"` added to the Benchmark, Look-Ahead and Stage-grid leading cells; added
+  `.ds-table th[scope="row"]{font-weight:400}` so they keep `td` styling; `attachHelp` now detects
+  `[data-collapse-panel]` to prevent a duplicate collapse button on re-render.
+
+**Phase D — P3 — ✅ DONE (strict snap)**
+- Radius/spacing snapped to the 4/8/12/16/24/32/48 scale: `.wcard` 26→24 (pad 48/48),
+  `.drop` pad 24/16, `.expect` pad 12/16, `.tf-panel` 14→12, `.card` pad 16/16/24 + `margin:14px 0`,
+  `.flag` pad 12/16. Confirmed (no code change): help-modal ownership singleton; BOM + project-prefixed
+  export filenames already compliant.
+
+**Out-of-plan change (2026-10-06)**
+- KPI strip: removed the **Not Started / blank** card and inserted a **PO Issues** card before
+  **Delivered / RI** (still 6 cards). PO Issues = packages with an overdue PO today via the shared
+  `stageIsOverdue(p,'po',today)` (due = PO Forecast‖PO Plan; overdue if due < today with no PO Actual);
+  red if any, green if none — identical to the Overdue-by-Stage "PO Issue" count. KPI Help updated.
+
+**Open items (PPP, low priority)**
+- ~~A few off-scale tokens remain outside the Phase D table: `#toast` padding `10px 18px` and
+  `.grid` `gap / margin-bottom: 18px`.~~ ✅ Snapped 2026-10-06 → `#toast` now `padding:12px 16px`,
+  `.grid` now `gap:16px; margin-bottom:16px`. All originally-planned off-scale tokens are on the
+  4/8/12/16/24 scale.
+- `.curve-grid` `gap:18px → 16px` snapped 2026-10-06 — the last remaining off-scale token. PPP is
+  now 100% on the radius/spacing scale.
+
+---
+
+### 13.5 Phased remediation — MDL (separate plan)
+
+> MDL changes must be made in **`src/render.mjs`** (and `src/*.mjs`), never in the
+> generated `MDL-Dashboard.html`. Re-run `node build.mjs` after edits.
+
+> **Status (2026-10-06): NOT STARTED.** PPP remediation is complete; all four MDL phases
+> (A–D) below remain open.
+
+**Phase A — P0 blockers (mandatory rule / correctness)**
+- Add the full canonical `:root` token block (copy §6 verbatim) and stop hard-coding hex.
+- Add a global `[hidden]{display:none}` reset and set the status bar `hidden` until the
+  first successful render.
+- Implement the `.seg` contract: replace the per-instance bar/pie buttons with
+  `.seg`+`data-key`/`data-t`, one delegated listener, `getPref`/`setPref` + localStorage,
+  and re-derived `.on`/`aria-pressed`. Do this for chart type and for any other
+  single-choice selector.
+- Replace the bare `table` style with the `.ds-table` base (navy sticky header, single
+  bottom rule, 9×10 padding, `.num` + tabular figures, zebra, hover tint, `.over`
+  override, `.sev` chips, `.empty` state).
+
+**Phase B — P1 (high-impact alignment)**
+- Add panel numbering: emit `data-panel` (or `.panel-no`) sequentially from Panel 1 in
+  document order; fix the HELP-map titles to match (KPI must be Panel 1, etc.).
+- Add a `role="contentinfo"` footer as the last child inside the content wrapper.
+- Render non-fatal notices as the contained `.note` card; pick one fatal mechanism.
+- Implement the responsive cascade (6/3/2 KPI + 2-col→1-col panels at 1100/880, using
+  880/1100 instead of the current 920).
+- Implement real navigation (left sidebar or top-bar) and its <880 px collapse.
+- Use `−`/`+` for panel collapse (not `▾`/`▸`); reserve `▸`/`▾` for row drill-down only.
+- Add the app-bar category filter trigger and a "Load file" action.
+
+**Phase C — P2 (medium)**
+- Adopt `.tableScroll` (340 px / r10 / `margin-top:8px`) for long lists.
+- Convert chart-card titles to `.panel-head h3` (13/700, non-uppercase).
+- Add `scope` to every header; report the row count in each long-list control row.
+- Add `:focus-visible` to selects, inputs and filter controls.
+- Make the icon button square (26 px) with `--soft`/navy hover.
+- Convert the checkbox chip wall to the spec's `.tf-btn` + `.tf-panel` popover (or to a
+  999 px filter chip per §7.10).
+- Enforce the drill-down accordion: one open at a time, `aria-expanded` kept in sync,
+  keyboard operable.
+- Decide the curve-chart ruling (one shared-axis chart, or grandfather the two-card
+  layout + legend) and align accordingly; prefix CSV/export filenames with the project.
+
+**Phase D — P3 (low / cleanup)**
+- Delete dead CSS: the duplicated `.welcome`/`.welcome .drop` block and the unused
+  `.sys-banner-item.warn` tier.
+- Add `aria-labelledby` to the help modal and `aria-label` to the `✕` close button.
+- Replace the inline `.msg` copy-failure feedback with the spec's toast (PNG fallback +
+  toast) or at minimum make it perceivable.
+- Add a repository note: the canonical, editable file is `src/render.mjs`; the bundled
+  `MDL-Dashboard.html` and `Arch/` copies are build artefacts.
+
+---
+
+### 13.6 Defects & gaps to fix in this document (governance)
+
+1. **§7.9 is duplicated** (Help Modal at L603 and Range/Time selection at L641) and
+   §7.8 Exports sits *after* §7.9. Renumber so §7.8 Exports, §7.9 Help Modal, §7.10
+   Range/Time selection, §7.11 Chips — and fix the ambiguous "§7.9" cross-references.
+2. **Dangling reference:** §5's note cites "Design spec §16" but this doc has 12
+   sections (it meant the old MDL spec §16). Repoint or remove.
+3. **Internal contradiction:** §3.1 says `.meta` = 11 px / opacity .85; §8 says
+   `.meta` = 12 px / 400 / `--muted`. Pick one (recommend 11 px / .85, the implemented
+   value).
+4. **Two warning palettes:** §3.5 `.note` = `#FFF8E1`/`#7a5b00` vs §6 tokens
+   `--warn-bg:#FFF4D6`/`--warn-fg:#9a6b00`. State which governs notes, chips and row
+   highlights (recommend the §6 tokens).
+5. **Naming policy conflict:** §4 says panel class name is free, §7.2 mandates `.ds-table`.
+   State which class names are normative.
+6. **§12 adoption claim is false for MDL.** Rewrite to an explicit exception list once the
+   Phase A/B work lands.
+7. **Add the missing spec sections** (the "S-" gaps from §13.3): global `[hidden]` reset;
+   z-index / stacking table (header 20, status bar 40, modal 50, toast, banner); toast
+   component; dark-theme required remap set; radius budget for non-panel surfaces;
+   `<th scope="row">` acceptance criterion + the "—" empty-value convention; build /
+   provenance governance; and the content dropped from the superseded MDL spec (table
+   header height 44 px, success criteria, review-SLA vocabulary, print/PDF detail, mobile
+   minimum feature set).
 
 *This standard supersedes ad-hoc styling. Any new dashboard MUST comply before release.*

@@ -37,6 +37,8 @@
     --accent-dark:#0b2240; --good-dark:#2E7D32; --accent-grad-end:#42A5F5;
     --accent-soft-border:#BFD8F2; --accent-ink:#1E88E5;
     --grid:#EDF1F5;
+    /* Phase B token additions: dark-theme remap targets + app-bar height for banner */
+    --heading:#0F2D52; --sel-bg:#FFFFFF; --sel-fg:var(--ink); --chart-bg:transparent; --bar-h:64px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -45,15 +47,15 @@
 
   /* ---------- Welcome ---------- */
   #welcome{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-  .wcard{background:var(--card);border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow);padding:46px 44px;text-align:center;max-width:480px;width:100%}
+  .wcard{background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:48px 48px;text-align:center;max-width:480px;width:100%}
   .wlogo{height:52px;width:auto;margin:0 auto 18px;display:block}
   .wcard h1{font-size:25px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
   .wcard p{color:var(--muted);font-size:14px;margin-bottom:26px}
-  .drop{border:1.5px dashed var(--line);border-radius:16px;padding:26px 18px;margin-bottom:22px;transition:.2s;cursor:pointer}
+  .drop{border:1.5px dashed var(--line);border-radius:16px;padding:24px 16px;margin-bottom:22px;transition:.2s;cursor:pointer}
   .drop.hover{border-color:var(--accent);background:var(--soft)}
   .drop .big{font-weight:600;font-size:14px;margin-bottom:4px}
   .drop .small{font-size:12px;color:var(--muted)}
-  .expect{background:var(--soft);border:1px solid var(--accent-soft-border);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--accent-ink);margin-bottom:20px;text-align:left}
+  .expect{background:var(--soft);border:1px solid var(--accent-soft-border);border-radius:12px;padding:12px 16px;font-size:12px;color:var(--accent-ink);margin-bottom:20px;text-align:left}
   .expect b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--blue);margin-bottom:3px}
   .btn{display:inline-block;background:var(--accent);color:#fff;font:inherit;font-weight:600;font-size:14px;padding:12px 22px;border:none;border-radius:6px;cursor:pointer;transition:.15s}
   .btn:hover{filter:brightness(1.06)}
@@ -62,19 +64,21 @@
   .privacy svg{width:13px;height:13px;fill:var(--muted)}
 
   /* ---------- Top bar ---------- */
-  header.bar{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff}
+  header.bar{position:sticky;top:0;z-index:31;background:var(--navy);color:#fff}
   header.bar .inner{max-width:none;margin:0 auto;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
   header.bar .ttl{font-weight:600;font-size:17px;flex:1;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   header.bar .meta{font-size:11px;opacity:.85}
+  header.bar .ttl-wrap{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  header.bar .ttl-wrap .ttl{flex:none}
+  header.bar .sub{font-size:12px;font-weight:500;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   header.bar .logo{height:36px;width:auto;display:block;flex-shrink:0;background:#fff;padding:3px;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.2)}
-  .btn.secondary{background:#fff;color:var(--navy);border:1px solid var(--line)}
-  .btn.secondary:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
   .tf-wrap{position:relative;flex-shrink:0}
   .tf-btn{font:inherit;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:5px 11px;border-radius:6px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:.15s}
-  .tf-btn:hover{border-color:var(--line)}
+  .tf-btn:hover{background:var(--soft)}
   .tf-btn.active{border-color:var(--accent);color:var(--accent);background:var(--soft)}
   .tf-btn svg{width:12px;height:12px;fill:currentColor;flex-shrink:0}
-  .tf-panel{display:none;position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,.12);padding:8px 0;min-width:220px;max-width:min(340px,90vw);max-height:320px;overflow-y:auto;z-index:40}
+  .tf-panel{display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);padding:8px 0;min-width:220px;max-width:min(340px,90vw);max-height:320px;overflow-y:auto;z-index:40;color:var(--ink)}
   .tf-panel.open{display:block}
   .tf-panel label{display:flex;align-items:center;gap:9px;padding:7px 14px;font-size:13px;cursor:pointer;transition:.1s}
   .tf-panel label:hover{background:var(--soft)}
@@ -98,11 +102,11 @@
   .panel-no{position:absolute;right:10px;bottom:8px;font-size:10px;font-weight:600;color:var(--muted);opacity:.9;letter-spacing:.04em;font-variant-numeric:tabular-nums;pointer-events:none}
   .kpi-ov{padding-bottom:26px}
   .kpi-ov.collapsed .kpis,.kpi-ov.collapsed .sub{display:none}
-  @media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}}
-  @media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr}}
+  @media(max-width:880px){.kpis{grid-template-columns:repeat(2,1fr)}}
 
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
-  .card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px 26px;box-shadow:var(--shadow);margin-bottom:18px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px 24px;box-shadow:var(--shadow);margin:14px 0}
   .grid .card{margin-bottom:0}
   .grid .card.full{grid-column:1 / -1}
   #charts{position:relative;padding-bottom:26px}
@@ -137,10 +141,10 @@
     border:1px solid var(--line);background:#fff;color:var(--navy);cursor:pointer;
     transition:background .15s,border-color .15s,color .15s}
   .ctool button:hover, .sc-win .reset:hover, .head-actions button:hover, .btn.ghost:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .chartwrap{width:100%;overflow-x:auto}
+  .chartwrap{width:100%;overflow-x:auto;background:var(--chart-bg);border-radius:12px;padding:4px}
 
   /* ---------- interactive chart panel ---------- */
-  .inter-sel{font:inherit;font-size:12px;font-weight:600;padding:6px 10px;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;max-width:260px}
+  .inter-sel{font:inherit;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--sel-bg);color:var(--sel-fg);cursor:pointer;max-width:260px}
   .inter-sel:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .inter-body{margin-top:4px}
   /* Panel 2 owns the collapse toggle — it hides the grid of chart cards */
@@ -155,11 +159,11 @@
 
   .sc-win .msg,.look-win .msg,.ovl-win .msg{font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap}
   .curve-note{font-size:12px;color:var(--muted);margin:2px 0 8px}
-  .curve-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:4px}
+  .curve-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px}
   .curve-grid .chart{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
   .panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px}
-  .panel-head h3{font-size:13px;font-weight:700;color:var(--navy);margin:0}
-  [data-theme="dark"] .panel-head h3{color:#DDE5EE}
+  .panel-head h3{font-size:13px;font-weight:700;color:var(--heading);margin:0}
+
   .head-actions{display:flex;gap:8px}
   .chart-actions{justify-content:flex-end;margin-bottom:6px}
   /* collapse: keep only the title row (with its action cluster) + the corner panel number */
@@ -183,14 +187,14 @@
   .ds-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
   .ds-table th,.ds-table td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
   .ds-table thead th{background:var(--navy);color:#fff;font-weight:600;font-size:12px}
+  .ds-table th[scope="row"]{font-weight:400}
   .ds-table tbody tr:nth-child(even){background:#F9FBFD}
   .ds-table tbody tr:hover{background:var(--soft)}
   .ds-table td.num,.ds-table th.num{text-align:right;font-variant-numeric:tabular-nums}
   .ds-table tr.over td{background:var(--warn-bg)}
   .vtableWrap .ds-table thead th{position:sticky;top:0;z-index:1}
 
-  .flag{background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:12px;padding:13px 15px;font-size:13px;color:var(--warn-fg);margin-top:8px}
-  .flag b{color:var(--warn-fg-strong)}
+
   .note{background:#FFF8E1;border:1px solid var(--amber);color:#7a5b00;padding:8px 12px;border-radius:8px;font-size:12px;line-height:1.4;margin:10px 0}
   .empty{font-size:13px;color:var(--muted);padding:14px 0}
   footer{margin-top:34px;font-size:11.5px;color:var(--muted);text-align:center}
@@ -213,7 +217,7 @@
      keeps a fixed height — the list scrolls instead of stretching the page. */
   .vtableWrap,.tableScroll{max-height:340px;overflow:auto;margin-top:8px;border:1px solid var(--line);border-radius:10px}
   .vtableWrap table,.tableScroll table{margin:0;font-size:12.5px}
-  .vtableWrap th,.tableScroll th{position:sticky;top:0;background:#FAFAFC}
+  .vtableWrap thead th,.tableScroll thead th{position:sticky;top:0}
   .sev{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;text-transform:capitalize}
   .sev-error{background:var(--error-bg);color:var(--error-fg)}
   .sev-error::before{content:"\26A0\00A0"}
@@ -231,6 +235,7 @@
   .vref-list{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:4px}
   .vref-list li{line-height:1.45}
   .vref-list code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;font-weight:700;color:var(--ink);margin-right:7px}
+  .vref-grp{color:var(--muted);font-size:.8em;margin-left:.4em}
   /* the rule code in the detail table carries its Error-table wording as a tooltip */
   .rulecell{cursor:help}
 
@@ -240,17 +245,21 @@
      .s-* = status state, .note = caption. Deprecated .text-bad/.warn-text/.note-lead. */
   .ds-bad{color:var(--bad)}
   .ds-warn{color:var(--warn)}
-  #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:rgba(29,29,31,.92);color:#fff;font-size:13px;padding:10px 18px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s;z-index:50}
+  #toast{position:fixed;left:50%;bottom:52px;transform:translateX(-50%) translateY(20px);background:rgba(29,29,31,.92);color:#fff;font-size:13px;padding:12px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s;z-index:50}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  #errBanner{display:none;position:fixed;top:0;left:0;right:0;z-index:60;background:var(--bad);color:#fff;font-size:13px;padding:12px 18px;box-shadow:0 2px 10px rgba(0,0,0,.2);line-height:1.4}
-  /* system / config banner (MDL sysBanner equivalent) — top-of-page, validation-system notices only */
-  .sys-banner{display:block;margin:0 0 16px;font-size:12px;line-height:1.4}
-  .sys-banner[hidden]{display:none}
+  /* unified top warning bar (B2): fixed just below the navy app bar; visible on
+     both welcome and dashboard. Red strip = fatal / load-failure; amber = system. */
+  #errBanner{display:none;position:fixed;top:var(--bar-h);left:0;right:0;z-index:30;font-size:12px;line-height:1.4;box-shadow:0 2px 10px rgba(0,0,0,.18)}
   .sys-banner-item{display:block;padding:9px 20px;border-bottom:1px solid rgba(0,0,0,.10)}
   .sys-banner-item:last-child{border-bottom:none}
   .sys-banner-item.warn{background:var(--amber,#F9A825);color:#5a3d00}
   .sys-banner-item.fatal{background:var(--red,#C62828);color:#fff}
+  .sys-banner-item.info{background:#e8eef5;color:#33526b}
   .sys-banner-item b{font-weight:700;margin-right:4px}
+  /* reserve space so the fixed warning bar never overlaps the first panel (B2 fix) */
+  body.banner-open .wrap{padding-top:calc(16px + var(--banner-h,0px))}
+  body.banner-open #welcome{padding-top:calc(24px + var(--banner-h,0px))}
+  body.banner-welcome #errBanner{top:0}
   /* live status bar (MDL .status-bar equivalent) — fixed bottom, navy, white text */
   .status-bar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;gap:8px;padding:6px 14px;background:var(--navy);color:#E8EDF3;font-size:12px;user-select:none;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
   .status-bar[hidden]{display:none}
@@ -281,7 +290,12 @@
      and the long Item-Category names ellipsis instead of pushing the edge */
   .tf-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 
-  @media(max-width:880px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr}}
+  @media(max-width:880px){.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
+  @media(max-width:880px){
+    header.bar .meta{display:none}
+    header.bar .inner{flex-wrap:wrap;gap:8px}
+    .tf-wrap{flex:1 1 auto}
+  }
 
   /* honour reduced-motion preference (I-39) */
   @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
@@ -290,12 +304,13 @@
   @media print{
     body{background:#fff;color:#000;padding-bottom:0}
     header.bar{position:static}
-    .tf-wrap,.ctool,#reloadBtn,#toast,#errBanner,#sysBanner{display:none}
+    .tf-wrap,.ctool,#reloadBtn,#toast,#errBanner{display:none}
     .card{break-inside:avoid;box-shadow:none;border:1px solid #ccc}
     .kpis{grid-template-columns:repeat(3,1fr)}
   }
 
-  /* dark theme token block (I-39) — cheap now that tokens are centralised */
+  /* dark theme token block (I-39 / Phase B) — pure token remap, no per-component
+     literals. Brand anchors --navy/--blue stay; structural tokens flip to dark. */
   [data-theme="dark"]{
     --bg:#0b0b0d; --card:#1c1c1e; --ink:#f5f5f7; --muted:#a1a1a6;
     --line:#3a3a3c; --soft:#16263a; --shadow:0 1px 2px rgba(0,0,0,.5),0 8px 24px rgba(0,0,0,.4);
@@ -304,12 +319,9 @@
     --ok-bg:#10301c; --ok-fg:#7ee0a0;
     --accent-soft-border:#1c3a55; --accent-ink:#7fb6ff;
     --grid:#2a2a2c;
+    --heading:#DDE5EE; --sel-bg:#1c1c1e; --sel-fg:#f5f5f7; --chart-bg:#fff;
   }
-  [data-theme="dark"] .inter-sel{background:#1c1c1e;color:#f5f5f7}
   [data-theme="dark"] header.bar{background:var(--navy)}
-  [data-theme="dark"] header.bar .logo{background:#fff;padding:3px 6px;border-radius:6px}
-  /* charts serialise to PNG with literal colours, so keep their area light in dark mode */
-  [data-theme="dark"] .chartwrap{background:#fff;border-radius:12px;padding:4px}
 </style>
 </head>
 <body>
@@ -337,7 +349,10 @@
 <div id="dash" class="hidden">
   <header class="bar"><div class="inner">
     <img class="logo" src="asset/logo.jpg" alt="UES" />
-    <div class="ttl" id="projTitle">Project</div>
+    <div class="ttl-wrap" id="ttlWrap">
+      <div class="ttl" id="projTitle">Project</div>
+      <div class="sub" id="dashTitle"></div>
+    </div>
     <div class="meta" id="metaLine"></div>
     <div class="tf-wrap" id="tfWrap">
       <button class="tf-btn" id="tfBtn" aria-expanded="false" aria-controls="tfPanel">
@@ -347,12 +362,12 @@
       </button>
       <div class="tf-panel" id="tfPanel" role="group" aria-label="Filter packages by item category"></div>
     </div>
-    <button class="btn secondary" type="button" id="reloadBtn">Load another file</button>
+    <button class="btn ghost" type="button" id="reloadBtn">Load another file</button>
+    <button class="icon-btn" type="button" id="themeBtn" title="Toggle dark theme" aria-label="Toggle dark theme">🌙</button>
   </div></header>
 
   <div class="wrap">
-    <!-- system / config banner (MDL sysBanner equivalent) — sits above all panels -->
-    <div id="sysBanner" class="sys-banner" hidden></div>
+    <!-- unified system / load-failure notices now render in #errBanner (fixed top warning bar) -->
 
     <!-- KPI Overview panel (MDL layout: title-row buttons + corner panel number) -->
     <section class="card full kpi-ov" id="kpiPanel">
@@ -419,15 +434,17 @@
     <div class="card full" id="benchPanel">
       <h2>Lead Time Benchmark — 2026 Industry</h2>
       <span class="panel-no">Panel 6</span>
-      <div class="sub">External reference for the estimated packages (confirm with vendor at quotation)</div>
+      <div class="sub">Industry reference lead times for equipment categories.</div>
+      <div class="tableScroll">
       <table id="benchmark" class="ds-table"><thead><tr><th scope="col">Equipment Category</th><th scope="col" class="num">Typical Lead Time</th><th scope="col" class="num">≈ Days</th></tr></thead><tbody></tbody></table>
+      </div>
     </div>
 
     <!-- validation — data issues live at the bottom (MDL Panel 12 pattern); system/config notices go to the top banner -->
     <div class="card full" id="vcard">
       <h2>Data Validation</h2>
       <span class="panel-no">Panel 7</span>
-      <div class="sub" id="vsub"></div>
+      <div class="sub" id="vsub">Per-package data-quality checks against the PPP file.</div>
       <div class="vchips" id="vchips"></div>
       <div class="note vmap-note" id="vmap"></div>
       <details class="vd" id="vdetails">
@@ -438,17 +455,11 @@
       <div class="ctool ctool-footer"><button type="button" id="vExport" title="Download the validation list as CSV">⤓ CSV</button></div>
     </div>
 
-    <div class="card full" id="dqPanel">
-      <h2>Data-Quality Flags</h2>
-      <span class="panel-no">Panel 8</span>
-      <div id="dq"></div>
-    </div>
-
     <footer role="contentinfo">本内容由 AI 生成，请核实后使用 · Standalone dashboard — data parsed locally from your file</footer>
   </div>
 </div>
 
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 <div class="status-bar" id="statusBar" hidden></div>
 
 <script>
@@ -595,10 +606,14 @@ const LOOKUP_HEADERS = {
   statusCode:     ['status code','status'],
   category:       ['item category','item category description','category description'],
   categoryCode:   ['category code','category code description'],
-  /* I-11: the Error table (Code!Q:R) — a code -> rule-text MAP, not a value list.
+  /* I-11: the Error table (Code!Q:V) — a code -> rule-text MAP, not a value list.
      Located by row-1 header text like every other block, so the pair may move. */
   errorCode:      ['error code','error id','validation code'],
-  errorDescription:['error description','error message','error text']
+  errorDescription:['error description','error message','error text'],
+  errorSeverity:  ['severity'],
+  errorGroup:     ['group'],
+  errorKind:      ['kind'],
+  errorTrigger:   ['trigger','trigger check']
 };
 /* header text is matched case-insensitively; exact match wins, then prefix match */
 function colLetter(i){ let n=i+1,s=''; while(n>0){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=(n-m-1)/26; } return s; }
@@ -701,9 +716,24 @@ function readLookupMap(grid,codeCol,descCol,start){
 /* ============== utils ============== */
 function toDate(v){
   if(v==null||v==='') return null;
-  if(v instanceof Date) return v;
-  if(typeof v==='number'){ if(v>40000&&v<70000){ let s=v; if(s>=60)s-=1; return new Date((s-25569)*86400000); } return null; }
-  const d=new Date(v); return isNaN(d)?null:d;
+  // (1) Excel serial number — epoch 1899-12-30. The canonical conversion is (serial - 25569):
+  //     the 25569 constant already absorbs Excel's 1900 leap-year bug, so NO extra -1 is
+  //     needed (an extra s-=1 shifts every date back by one day — the old off-by-one bug).
+  //     Re-anchor the resulting UTC midnight to LOCAL midnight so display is timezone-stable.
+  if(typeof v==='number'){
+    if(v>40000&&v<70000){ const d=new Date((v-25569)*86400000); return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); }
+    return null;
+  }
+  // (2) ISO / text date — take the WRITTEN calendar day, ignoring any time or zone suffix
+  //     (e.g. "2026-03-19", "2026-03-19T00:00:00", "2026-03-19T00:00:00Z" all => 19 Mar 2026).
+  if(typeof v==='string'){
+    const m=/^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(v.trim());
+    if(m) return new Date(+m[1], (+m[2])-1, +m[3]);
+    const d=new Date(v); if(isNaN(d)) return null; return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+  // (3) already a Date — normalize to its LOCAL calendar-day midnight.
+  if(v instanceof Date) return new Date(v.getFullYear(), v.getMonth(), v.getDate());
+  return null;
 }
 function fmt(d){ if(!(d instanceof Date)) return '—'; return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
 function monthShort(d){ return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+' '+String(d.getFullYear()).slice(2); }
@@ -717,7 +747,9 @@ function trunc(s,n){ s=String(s==null?'':s); return s.length>n? s.slice(0,n-1)+'
    and V-12 surfaces them when they appear). Removed rather than wired up: adding
    a normaliser here would silently merge genuinely different entries. */
 function safeCall(fn, errId){ try{ fn(); }catch(e){ const el=document.getElementById(errId); if(el) el.innerHTML='<div class="empty ds-bad">Chart error: '+esc(e.message)+'</div>'; console.error(e); } }
-function showError(msg){ const b=document.getElementById('errBanner'); if(b){ b.innerHTML='<b>Load failed:</b> '+esc(msg)+' &nbsp;·&nbsp; press F12 → Console for the full trace.'; b.style.display='block'; } document.getElementById('welcome').style.display='flex'; document.getElementById('dash').style.display='none'; }
+function openBanner(b, ctx){ b.style.display='block'; const h=b.offsetHeight; if(h){ document.documentElement.style.setProperty('--banner-h', h+'px'); document.body.classList.add('banner-open'); document.body.classList.toggle('banner-welcome', ctx==='welcome'); } }
+function closeBanner(b){ b.style.display='none'; b.innerHTML=''; document.body.classList.remove('banner-open','banner-welcome'); document.documentElement.style.removeProperty('--banner-h'); }
+function showError(msg){ const b=document.getElementById('errBanner'); if(b){ b.innerHTML='<div class="sys-banner-item fatal">⛔ <b>Load failed</b> '+esc(msg)+' &nbsp;·&nbsp; press F12 → Console for the full trace.</div>'; openBanner(b,'welcome'); } document.getElementById('welcome').style.display='flex'; document.getElementById('dash').style.display='none'; }
 function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2200); }
 
 /* ============== build ============== */
@@ -812,7 +844,6 @@ function render(){
   safeCall(()=>renderLookAhead(pkgs, todayMidnight()), 'lookahead'); // operational as-of = today; horizon = user-selected calendar months (1/2/3/4/6, default 3)
   safeCall(()=>renderOverdueList(pkgs), 'ovlList'); // P1 — overdue measured against real TODAY
   safeCall(()=>renderBenchmark(), 'benchmark');
-  safeCall(()=>renderDQ(pkgs), 'dq');
   safeCall(()=>updateStatusBar(), 'statusBar');
 }
 
@@ -866,6 +897,10 @@ function buildModel(result, filename){
      Deliberately NOT part of lookupMeta — lookupMeta describes the four symbol
      lookups (exactly what V-18 checks); the Error table is a code -> text map. */
   const errorTable = readLookupMap(code, li.errorCode, li.errorDescription, 1);
+  const errorSeverity = readLookupMap(code, li.errorCode, li.errorSeverity, 1);
+  const errorGroup = readLookupMap(code, li.errorCode, li.errorGroup, 1);
+  const errorKind = readLookupMap(code, li.errorCode, li.errorKind, 1);
+  const errorTrigger = readLookupMap(code, li.errorCode, li.errorTrigger, 1);
   const lookups = {
     discipline: readLookupCol(code, li.discipline, 1),
     disciplineCode: readLookupCol(code, li.disciplineCode, 1),
@@ -934,12 +969,15 @@ function buildModel(result, filename){
   const model = { project:{title:projectTitle, code:codeMeta['Project Code']||'', client:codeMeta['Client']||'', startDate:projStartDate},
        packages, lookups, lookupMeta, statusCanon, errorTable,
        codeInfo:{ hasTypes, typeCount:ft.found, fieldCount:Object.keys(fieldToCol).length, metaTypes,
-                  errorCount:Object.keys(errorTable).length, errorCodeCol:lsrc.errorCode||null, errorDescCol:lsrc.errorDescription||null } };
+                  errorCount:Object.keys(errorTable).length, errorCodeCol:lsrc.errorCode||null, errorDescCol:lsrc.errorDescription||null,
+                  errorSeverityCol:lsrc.errorSeverity||null, errorGroupCol:lsrc.errorGroup||null, errorKindCol:lsrc.errorKind||null, errorTriggerCol:lsrc.errorTrigger||null } };
 
   /* validation inputs that are not part of the clean domain model */
   const vctx = { lookups, projStart:projStartDate, headerRow, lastRow, pppGrid:ppp, titleCol:fieldToCol.title,
     hasTypes, typeCount:ft.found, skipped, dateFields, metaTypes, lookupMeta, codeMeta,
     errorTable, errorCodeCol:lsrc.errorCode||null, errorDescCol:lsrc.errorDescription||null,
+    errorSeverity, errorGroup, errorSeverityCol:lsrc.errorSeverity||null, errorGroupCol:lsrc.errorGroup||null,
+    errorKind, errorTrigger, errorKindCol:lsrc.errorKind||null, errorTriggerCol:lsrc.errorTrigger||null,
     hrRaw, lrRaw, headerRowDefault:!headerRowValid, lastRowDefault:!lastRowValid };
 
   return {model, vctx};
@@ -949,18 +987,25 @@ function buildDashboard(result, filename){
   const {model, vctx} = buildModel(result, filename);
   STATE.model = model;
 
-  document.getElementById('welcome').style.display='none';
-  document.getElementById('dash').classList.remove('hidden');
-  document.getElementById('projTitle').textContent=STATE.model.project.title;
-  const ps=STATE.model.project.startDate;
-  document.getElementById('metaLine').textContent=(STATE.model.project.client?STATE.model.project.client+' · ':'')+(STATE.model.project.code?STATE.model.project.code+' · ':'')+'Project start '+(ps&&!isNaN(ps)?fmt(ps):'—')+' · As-of '+fmt(todayMidnight());
-
   STATE.filter.cats=null;
   buildTypeFilter();
   buildOverdueFilter(); // P1
 
   /* validate first — never blocks the dashboard */
-  STATE.report = validate(model.packages, vctx);
+  let report;
+  try { report = validate(model.packages, vctx); }
+  catch(err){ showError('Validation failed: '+err.message); console.error(err); return; }
+  STATE.report = report;
+
+  /* reveal ONLY after validation has succeeded — no empty-dashboard flash */
+  document.getElementById('welcome').style.display='none';
+  document.getElementById('dash').classList.remove('hidden');
+  const dashTitle=(vctx.codeMeta&&vctx.codeMeta['Dashboard Title'])?String(vctx.codeMeta['Dashboard Title']).trim():'';
+  document.getElementById('projTitle').textContent=STATE.model.project.title||'—';
+  document.getElementById('dashTitle').textContent=dashTitle;
+  const ps=STATE.model.project.startDate;
+  document.getElementById('metaLine').textContent=(STATE.model.project.client?STATE.model.project.client+' · ':'')+(STATE.model.project.code?STATE.model.project.code+' · ':'')+'Project start '+(ps&&!isNaN(ps)?fmt(ps):'—')+' · As-of '+fmt(todayMidnight());
+
   render();
 
   window.scrollTo(0,0);
@@ -969,13 +1014,23 @@ function buildDashboard(result, filename){
 /* ============== validation ============== */
 function validate(pkgs, ctx){
   const issues=[];
-  /* I-11: the Code sheet Error table (cols Q:R) is the authoritative wording for
+  /* I-11: the Code sheet Error table (cols Q:V) is the authoritative wording for
      every rule code. Each issue carries it as `desc` so the panel can show the
      same text the business maintains in Excel. A code with no row gets `desc`
      = '' -> the rule's own built-in message stands, and V-21 warns (never errors). */
   const errTable=(ctx&&ctx.errorTable)||{};
+  const errSev=(ctx&&ctx.errorSeverity)||{};
+  const errGroup=(ctx&&ctx.errorGroup)||{};
+  const errKind=(ctx&&ctx.errorKind)||{};
+  const errTrigger=(ctx&&ctx.errorTrigger)||{};
   const ruleText=code=>{ const t=errTable[String(code)]; return t==null?'':String(t).trim(); };
-  const add=(sev,code,pkg,field,value,msg,kind)=>issues.push({sev,code,pkg:pkg||'—',field:field||'—',value:value==null?'':String(value),msg,desc:ruleText(code),kind:kind||((pkg==null||pkg==='—')?'system':'data')});
+  const normSev=s=>{ const w=String(s==null?'':s).trim().toLowerCase(); return (w==='error'||w==='warning'||w==='info')?w:null; };
+  const normKind=k=>{ const w=String(k==null?'':k).trim().toLowerCase(); return (w==='system'||w==='data')?w:null; };
+  const add=(sev,code,pkg,field,value,msg)=>{
+    const s=normSev(errSev[String(code)])||sev;   // worksheet Severity is the single source of truth (I-11/I-65)
+    const k=normKind(errKind[String(code)])||((pkg==null||pkg==='—')?'system':'data'); // worksheet Kind is the single source of truth (I-66)
+    issues.push({sev:s,code,pkg:pkg||'—',field:field||'—',value:value==null?'':String(value),msg,desc:ruleText(code),group:String(errGroup[String(code)]||'').trim(),kind:k,trigger:String(errTrigger[String(code)]||'').trim()});
+  };
   const T=pkgs.length;
   const L=ctx.lookups||{};
   const norm=s=>String(s==null?'':s).trim().toLowerCase();
@@ -1008,7 +1063,7 @@ function validate(pkgs, ctx){
   });
 
   const noCount={}, noRaw={}; const personVariants={};
-  let ltMissing=0, critBlank=0;
+  let ltMissing=0, critBlank=0; let anyActual=0, mrPlanCount=0, poPlanCount=0;
   /* Per-package validation rules (I-32): each rule is self-contained — it
      receives the package, its display id, the validation context and the issue
      emitter. Adding a rule = one entry here; the traversal and the panel /
@@ -1030,6 +1085,10 @@ function validate(pkgs, ctx){
         const L=ctx.lookups||{}; const catSet=set(L.category);
         if(p.itemCategory && catSet.size && !catSet.has(norm(p.itemCategory)))
           add('info','V-17',id,'Item Category',p.itemCategory,'Item Category not found in the Code sheet list — for reference only');
+    }},
+    { code:'V-24', sev:'warning', run(p,id,ctx,add){
+        const rawE=p._raw['engineer'];
+        if(rawE==null || String(rawE).trim()==='') add('warning','V-24',id,'Design Engineer','','Engineer unassigned — package has no Design Engineer');
     }},
     { code:'V-05', sev:'error', run(p,id,ctx,add){
         const L=ctx.lookups||{}; const critSet=set(L.criticalityCode), critDescSet=set(L.criticality);
@@ -1075,6 +1134,9 @@ function validate(pkgs, ctx){
 
     if(p.criticality==null||p.criticality==='') critBlank++;
     if(p.leadTime==null) ltMissing++;
+    if(STAGES.some(([k])=> p[k+'Actual'])) anyActual++;
+    if(p.mrPlan) mrPlanCount++;
+    if(p.poPlan) poPlanCount++;
 
     /* V-12 (I-25): group engineer spellings that differ ONLY in whitespace or
        slash spacing ("Dilip/Siva" vs "Dilip / Siva" vs "Siva /Dilip").
@@ -1096,8 +1158,10 @@ function validate(pkgs, ctx){
 
   Object.entries(noCount).forEach(([k,v])=>{ if(v>1) add('warning','V-11',noRaw[k],'Package No.',noRaw[k],'Duplicate Package No. — appears '+v+' times'); });
   Object.values(personVariants).forEach(s=>{ if(s.size>1) add('warning','V-12','—','Design Engineer',Array.from(s).join('  |  '),'Same engineer written different ways — counted as '+s.size+' separate people in the Engineer chart. Align the spelling in Excel.'); });
-  if(critBlank>0) add('warning','V-05','—','Criticality',critBlank+' / '+T,'Criticality empty on '+critBlank+' package(s) — the inspection view stays empty','data');
-  if(T && ltMissing > T*0.5) add('warning','V-14','—','Estimate Lead Time',ltMissing+' / '+T,'Lead time missing on '+ltMissing+' packages ('+Math.round(ltMissing/T*100)+'%)','data');
+  if(critBlank>0) add('warning','V-05','—','Criticality',critBlank+' / '+T,'Criticality empty on '+critBlank+' package(s) — the inspection view stays empty');
+  if(T && ltMissing > T*0.5) add('warning','V-14','—','Estimate Lead Time',ltMissing+' / '+T,'Lead time missing on '+ltMissing+' packages ('+Math.round(ltMissing/T*100)+'%)');
+  if(T && anyActual===0) add('warning','V-23','—','All stages',T+' pkgs','Execution progress = 0 — no Actual dates entered in any stage for any package');
+  if(T && mrPlanCount < T*0.3 && poPlanCount > T*0.5) add('warning','V-25','—','Plan dates',mrPlanCount+' / '+poPlanCount,'Plan-date inconsistency — MR Plan entered for only '+mrPlanCount+' of '+T+' packages while PO Plan is entered for '+poPlanCount);
 
   if(ctx.pppGrid && ctx.lastRow!=null){
     let extra=0;
@@ -1136,11 +1200,11 @@ function validate(pkgs, ctx){
      V-21 excludes itself from the check: a rule should not audit its own
      documentation, otherwise the worksheet could never reach a clean state. */
   if(!ctx.errorCodeCol){
-    add('warning','V-21','—','Code!Q:R','not found','No "Error Code" / "Error Description" block was found in Code row 1 — every rule falls back to the wording built into the dashboard.');
+    add('warning','V-21','—','Code!Q:V','not found','No "Error Code" / "Error Description" block was found in Code row 1 — every rule falls back to the wording built into the dashboard.');
   } else {
     const undocumented=[...new Set(issues.map(i=>i.code))].filter(c=>c!=='V-21'&&!ruleText(c)).sort();
     if(undocumented.length)
-      add('warning','V-21','—','Code!Q:R',undocumented.join(', '),undocumented.length+' rule code(s) used in this report have no row in the Code sheet Error table — the built-in wording is shown instead. Add '+undocumented.join(', ')+' under "Error Code" / "Error Description" to make the worksheet the single source of truth.');
+      add('warning','V-21','—','Code!Q:V',undocumented.join(', '),undocumented.length+' rule code(s) used in this report have no row in the Code sheet Error table — the built-in wording is shown instead. Add '+undocumented.join(', ')+' under "Error Code" / "Error Description" to make the worksheet the single source of truth.');
   }
 
   const counts={error:0,warning:0,info:0};
@@ -1157,7 +1221,7 @@ function renderCodeMap(){
   /* I-11: report where the Error table was found, so the rule wording's origin
      is verifiable on screen just like the lookup blocks below. */
   parts.push(ci.errorCodeCol
-    ? ('Error table: col '+(ci.errorDescCol||'?')+' · code col '+ci.errorCodeCol+' · '+ci.errorCount+' code(s)')
+    ? ('Error table: col '+(ci.errorDescCol||'?')+' · code col '+ci.errorCodeCol+' · '+ci.errorCount+' code(s)'+(ci.errorSeverityCol?' · sev col '+ci.errorSeverityCol:'')+(ci.errorGroupCol?' · group col '+ci.errorGroupCol:''))
     : 'Error table: <span class="ds-warn">not found</span>');
   /* Derived from lookupMeta itself — no hardcoded key list, so a block added or
      removed in one place (LOOKUP_HEADERS) shows up here automatically (I-49).
@@ -1175,18 +1239,18 @@ function renderCodeMap(){
   return parts.join(' · ')+'<br>'+lk.join(' · ');
 }
 /* I-11: one line per rule code that appears in this report, showing the wording
-   the business maintains in the Code sheet Error table (Code!Q:R).
+   the business maintains in the Code sheet Error table (Code!Q:V).
    Deduplicated on purpose — the table below can legitimately list the same rule
    100+ times, so repeating the definition on every row would be pure noise. */
 function renderRuleRef(rep){
   const el=document.getElementById('vref'); if(!el) return;
-  const seen=[], desc={};
-  rep.issues.forEach(i=>{ if(!(i.code in desc)){ desc[i.code]=i.desc||''; seen.push(i.code); } });
+  const seen=[], desc={}, grp={}, trig={}, kind={};
+  rep.issues.forEach(i=>{ if(!(i.code in desc)){ desc[i.code]=i.desc||''; grp[i.code]=i.group||''; trig[i.code]=i.trigger||''; kind[i.code]=i.kind||''; seen.push(i.code); } });
   if(!seen.length){ el.innerHTML=''; return; }
   seen.sort();
-  el.innerHTML='<b>Rule reference</b> — wording from the Code sheet Error table'+
+  el.innerHTML='<b>Rule reference</b> — wording, group, kind &amp; trigger from the Code sheet Error table (Code!Q:V)'+
     '<ul class="vref-list">'+seen.map(c=>
-      '<li><code>'+esc(c)+'</code>'+(desc[c]?esc(desc[c]):'<span class="ds-warn">not listed in the Error table — the dashboard\u2019s built-in wording is used</span>')
+      '<li><code>'+esc(c)+'</code>'+(grp[c]?'<span class="vref-grp">'+esc(grp[c])+'</span>':'')+(kind[c]?'<span class="vref-kind">'+esc(kind[c])+'</span>':'')+(desc[c]?esc(desc[c]):'<span class="ds-warn">not listed in the Error table — the dashboard\u2019s built-in wording is used</span>')+(trig[c]?' <span class="vref-trig">['+esc(trig[c])+']</span>':'')
       +'</li>').join('')+'</ul>';
 }
 function renderValidation(rep){
@@ -1194,21 +1258,18 @@ function renderValidation(rep){
   const data=rep.issues.filter(i=>i.kind==='data');
   document.getElementById('vmap').innerHTML = renderCodeMap();
   renderRuleRef(rep);
-  document.getElementById('vsub').textContent =
-    (rep.total ? 'Checks run against the PPP data and the Code sheet lists. ' : 'All checks passed — no issues found. ') +
-    'System/config notices appear in the banner above; per-package data issues are listed below. Fix the data in Excel and reload to clear these.';
   const dc={error:0,warning:0,info:0}; data.forEach(i=>{ if(dc[i.sev]!=null) dc[i.sev]++; });
   document.getElementById('vchips').innerHTML =
     (dc.error?'<span class="vchip e">'+dc.error+' Error'+(dc.error>1?'s':'')+'</span>':'')+
     (dc.warning?'<span class="vchip w">'+dc.warning+' Warning'+(dc.warning>1?'s':'')+'</span>':'')+
     (dc.info?'<span class="vchip i">'+dc.info+' Info</span>':'')+
     (rep.total?'':'<span class="vchip ok">No issues</span>');
-  const sb=document.getElementById('sysBanner');
+  const sb=document.getElementById('errBanner');
   if(sb){
     if(sys.length){
-      sb.hidden=false;
-      sb.innerHTML=sys.map(i=>{const f=i.sev==='error'||i.level==='fatal';const ic=f?'⛔':(i.sev==='info'?'ℹ️':'⚠️');return f?'<div class="sys-banner-item fatal">'+ic+' <b>'+esc(i.code||'SYSTEM')+'</b>'+esc(i.msg||'')+'</div>':'<div class="note">'+ic+' <b>'+esc(i.code||'SYSTEM')+'</b>'+esc(i.msg||'')+'</div>';}).join('');
-    } else { sb.hidden=true; sb.innerHTML=''; }
+      sb.innerHTML=sys.map(i=>{const cls=i.sev==='error'?'fatal':(i.sev==='info'?'info':'warn');const ic=i.sev==='error'?'⛔':(i.sev==='info'?'ℹ️':'⚠️');return '<div class="sys-banner-item '+cls+'">'+ic+' <b>'+esc(i.code||'SYSTEM')+'</b>'+esc(i.msg||'')+'</div>';}).join('');
+      openBanner(sb,'dash');
+    } else { closeBanner(sb); }
   }
   const rows=data.slice(0,80);
   document.getElementById('vtable').innerHTML =
@@ -1263,9 +1324,9 @@ function svgHBar(items, opts={}){
        A semantic per-item colour (e.g. status counts) still overrides the palette. */
     const col=it.color||PIE_COLORS[idx%PIE_COLORS.length];
     const maxChars=Math.floor((LW-16)/7);
-    s+='<text x="'+(LW-10)+'" y="'+(y+BH-4)+'" text-anchor="end" fill="'+CHART.ink+'"><title>'+esc(it.label)+'</title>'+esc(trunc(it.label,maxChars))+'</text>';
+    s+='<text x="'+(LW-10)+'" y="'+(y+BH-4)+'" text-anchor="end" fill="'+CHART.ink+'" style="font-size:13px"><title>'+esc(it.label)+'</title>'+esc(trunc(it.label,maxChars))+'</text>';
     s+='<rect x="'+plotX+'" y="'+y+'" width="'+bw+'" height="'+BH+'" rx="4" fill="'+col+'"/>';
-    s+='<text x="'+(plotX+bw+8)+'" y="'+(y+BH-4)+'" fill="'+CHART.muted+'">'+it.value+'</text>';
+    s+='<text x="'+(plotX+bw+8)+'" y="'+(y+BH-4)+'" fill="'+CHART.muted+'" style="font-size:13px">'+it.value+'</text>';
   });
   return s+'</svg>';
 }
@@ -1318,14 +1379,14 @@ function svgPie(items, opts={}){
     s+='<path d="'+d+'" fill="'+col+'" stroke="'+CHART.white+'" stroke-width="1.5"><title>'+esc(ttl)+': '+it.value+' ('+Math.round(frac*100)+'%)</title></path>';
     a0=a1;
   });
-  s+='<text x="'+cx+'" y="'+(cy-3)+'" text-anchor="middle" fill="'+CHART.ink+'" style="font-size:21px;font-weight:700">'+total+'</text>';
-  s+='<text x="'+cx+'" y="'+(cy+15)+'" text-anchor="middle" fill="'+CHART.muted+'" style="font-size:11px">packages</text>';
+  s+='<text x="'+cx+'" y="'+(cy-3)+'" text-anchor="middle" fill="'+CHART.ink+'" style="font-size:26px;font-weight:700">'+total+'</text>';
+  s+='<text x="'+cx+'" y="'+(cy+15)+'" text-anchor="middle" fill="'+CHART.muted+'" style="font-size:13px">packages</text>';
   data.forEach((it,i)=>{
     const y=24+i*rowH; const col=it.color||PIE_COLORS[i%PIE_COLORS.length];
     const ttl=it.label+(it.otherLabels&&it.otherLabels.length?' — '+it.otherLabels.join(', '):'');
     s+='<rect x="'+legendX+'" y="'+(y-9)+'" width="11" height="11" rx="2.5" fill="'+col+'"/>';
-    s+='<text x="'+(legendX+18)+'" y="'+y+'" fill="'+CHART.ink+'" style="font-size:12.5px"><title>'+esc(ttl)+'</title>'+esc(trunc(it.label,32))+'</text>';
-    s+='<text x="'+(W-10)+'" y="'+y+'" text-anchor="end" fill="'+CHART.muted+'" style="font-size:12.5px">'+it.value+' · '+Math.round(it.value/total*100)+'%</text>';
+    s+='<text x="'+(legendX+18)+'" y="'+y+'" fill="'+CHART.ink+'" style="font-size:14px"><title>'+esc(ttl)+'</title>'+esc(trunc(it.label,32))+'</text>';
+    s+='<text x="'+(W-10)+'" y="'+y+'" text-anchor="end" fill="'+CHART.muted+'" style="font-size:14px">'+it.value+' · '+Math.round(it.value/total*100)+'%</text>';
   });
   return s+'</svg>';
 }
@@ -1337,11 +1398,11 @@ function svgGrouped(cats, opts, series, lines){
   let s='<svg id="'+id+'" role="img" aria-label="'+esc((opts&&opts.ariaLabel)||'chart')+'" xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" style="width:100%;height:'+h+'px;display:block">';
   s+='<line x1="'+padL+'" y1="'+padT+'" x2="'+padL+'" y2="'+(padT+plotH)+'" stroke="'+CHART.axis+'"/>';
   s+='<line x1="'+padL+'" y1="'+(padT+plotH)+'" x2="'+(w-padR)+'" y2="'+(padT+plotH)+'" stroke="'+CHART.axis+'"/>';
-  for(let i=0;i<=4;i++){ const v=Math.round(maxV*i/4), y=padT+plotH-(v/maxV)*plotH; s+='<text x="'+(padL-6)+'" y="'+(y+3)+'" text-anchor="end" fill="'+CHART.muted+'">'+v+'</text><line x1="'+padL+'" y1="'+y+'" x2="'+(w-padR)+'" y2="'+y+'" stroke="'+CHART.grid+'"/>'; }
+  for(let i=0;i<=4;i++){ const v=Math.round(maxV*i/4), y=padT+plotH-(v/maxV)*plotH; s+='<text x="'+(padL-6)+'" y="'+(y+3)+'" text-anchor="end" fill="'+CHART.muted+'" style="font-size:13px">'+v+'</text><line x1="'+padL+'" y1="'+y+'" x2="'+(w-padR)+'" y2="'+y+'" stroke="'+CHART.grid+'"/>'; }
   const gw=plotW/cats.length, n=series.length, bw=Math.min(18,(gw*0.66)/n);
   cats.forEach((c,ci)=>{ const gx=padL+ci*gw+gw/2; series.forEach((ser,si)=>{ const v=ser.values[ci], bh=(v/maxV)*plotH, x=gx-(n*bw)/2+si*bw, y=padT+plotH-bh;
     s+='<rect x="'+x+'" y="'+y+'" width="'+(bw-2)+'" height="'+bh+'" fill="'+ser.color+'" rx="2"><title>'+esc(c)+': '+ser.name+' = '+v+'</title></rect>'; });
-    s+='<text x="'+gx+'" y="'+(padT+plotH+15)+'" text-anchor="middle" fill="'+CHART.muted+'">'+esc(c)+'</text>'; });
+    s+='<text x="'+gx+'" y="'+(padT+plotH+15)+'" text-anchor="middle" fill="'+CHART.muted+'" style="font-size:13px">'+esc(c)+'</text>'; });
   /* overlay lines */
   if(lines&&lines.length){
     lines.forEach(line=>{
@@ -1351,8 +1412,8 @@ function svgGrouped(cats, opts, series, lines){
     });
   }
   let lx=padL;
-  series.forEach(ser=>{ s+='<rect x="'+lx+'" y="'+(h-12)+'" width="10" height="10" fill="'+ser.color+'" rx="2"/><text x="'+(lx+14)+'" y="'+(h-3)+'" fill="'+CHART.ink+'">'+ser.name+'</text>'; lx+=14+ser.name.length*6+18; });
-  if(lines&&lines.length) lines.forEach(line=>{ s+='<line x1="'+lx+'" y1="'+(h-7)+'" x2="'+(lx+16)+'" y2="'+(h-7)+'" stroke="'+line.color+'" stroke-width="2" stroke-dasharray="'+(line.dash||'')+'"/><text x="'+(lx+20)+'" y="'+(h-3)+'" fill="'+CHART.ink+'">'+line.name+'</text>'; lx+=20+line.name.length*6+18; });
+  series.forEach(ser=>{ s+='<rect x="'+lx+'" y="'+(h-12)+'" width="10" height="10" fill="'+ser.color+'" rx="2"/><text x="'+(lx+14)+'" y="'+(h-3)+'" fill="'+CHART.ink+'" style="font-size:13px">'+ser.name+'</text>'; lx+=14+ser.name.length*6+18; });
+  if(lines&&lines.length) lines.forEach(line=>{ s+='<line x1="'+lx+'" y1="'+(h-7)+'" x2="'+(lx+16)+'" y2="'+(h-7)+'" stroke="'+line.color+'" stroke-width="2" stroke-dasharray="'+(line.dash||'')+'"/><text x="'+(lx+20)+'" y="'+(h-3)+'" fill="'+CHART.ink+'" style="font-size:13px">'+line.name+'</text>'; lx+=20+line.name.length*6+18; });
   return s+'</svg>';
 }
 
@@ -1480,7 +1541,7 @@ function renderInteractive(){
       + '<button type="button" class="dlBtn" data-svg="'+c.svgId+'">⤓ PNG</button>'
       + '<button type="button" class="copyBtn" data-svg="'+c.svgId+'">⧉ Copy</button></div>';
     return '<section class="card" data-card="'+c.id+'">'
-      + '<h2>'+c.title+'</h2>'
+      + '<div class="panel-head"><h3>'+c.title+'</h3></div>'
       + tools
       + '<div class="inter-body" id="'+c.bodyId+'">'+interCardBody(c.id,c.view,mode,pkgs,today,c.svgId)+'</div>'
       + '</section>';
@@ -1566,14 +1627,15 @@ function renderKPIs(pkgs){
   const notStart=st['Not Start']||0, blank=st['(blank)']||0;
   const delivered=pkgs.filter(p=>{ const d=String(canon(p.status)).toLowerCase(); return d.includes('delivered')||d.includes('receive inspection'); }).length;
   const startedPct=Math.round((T-notStart-blank)/T*100);
-  const notStarted=notStart+blank;
   const lt=pkgs.filter(p=>p.leadTime!=null&&!isNaN(p.leadTime)).length;
   const eng=pkgs.filter(p=>p.engineer!=null&&p.engineer!=='').length;
+  const today=todayMidnight();
+  const poIssued=pkgs.filter(p=>p.poActual!=null&&p.poActual!=='').length;
   const kpis=[
     {v:T,l:'Total Packages',c:''},
     {v:startedPct+'%',l:'Started (≠ Not Start)',s:startedPct>=60?'on track':startedPct>=40?'watch':'behind',c:startedPct>=60?'s-good':startedPct>=40?'s-warn':'s-bad'},
+    {v:poIssued,l:'PO Issued',s:Math.round(poIssued/T*100)+'% of packages',c:poIssued/T>=0.5?'s-good':'s-bad'},
     {v:Math.round(delivered/T*100)+'%',l:'Delivered / RI',s:delivered>0?'progress':'none yet',c:delivered>0?'s-good':'s-bad'},
-    {v:notStarted,l:'Not Started / blank',s:Math.round(notStarted/T*100)+'% of total',c:'s-warn'},
     {v:lt+'/'+T,l:'Lead-time estimated',s:Math.round(lt/T*100)+'% coverage',c:lt/T>=0.5?'s-good':'s-bad'},
     {v:eng+'/'+T,l:'Engineer assigned',s:Math.round(eng/T*100)+'% covered',c:'s-good'}
   ];
@@ -1592,10 +1654,14 @@ function ym(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'
 function mLabel(ymStr){ const a=ymStr.split('-'); return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][(+a[1])-1]+" '"+a[0].slice(2); }
 
 function renderPOMonthly(pkgs){
-  // gather every PO date (plan / forecast / actual)
-  const dates=[];
-  pkgs.forEach(p=>['poPlan','poForecast','poActual'].forEach(f=>{ const d=p[f]; if(d instanceof Date && !isNaN(d)) dates.push(d); }));
-  if(!dates.length){
+  // DOMAIN is project-level: computed from the FULL package set (STATE.model.packages) so the
+  // S-curve axis range stays fixed regardless of the category filter (I-70). COUNTS below are
+  // computed from the (possibly filtered) `pkgs` passed by render().
+  const allPkgs = (STATE.model && STATE.model.packages) ? STATE.model.packages : pkgs;
+  // gather every PO date (plan / forecast / actual) for the DOMAIN
+  const domDates=[];
+  allPkgs.forEach(p=>['poPlan','poForecast','poActual'].forEach(f=>{ const d=p[f]; if(d instanceof Date && !isNaN(d)) domDates.push(d); }));
+  if(!domDates.length){
     document.getElementById('poChart').innerHTML='<div class="empty">PO dates are not stored as Excel dates in this file. Update the PO Plan / Forecast / Actual columns to real dates, then reload.</div>';
     document.getElementById('poProjNote').textContent='';
     document.getElementById('poWinMsg').textContent='';
@@ -1605,7 +1671,7 @@ function renderPOMonthly(pkgs){
   const projStart=(psVal instanceof Date && !isNaN(psVal))?psVal:null;
   const today=todayMidnight();
   let dataMin=null,maxD=null;
-  dates.forEach(d=>{ if(!dataMin||d<dataMin)dataMin=d; if(!maxD||d>maxD)maxD=d; });
+  domDates.forEach(d=>{ if(!dataMin||d<dataMin)dataMin=d; if(!maxD||d>maxD)maxD=d; });
   // start = earlier of project start and earliest data (earlier dates still shown)
   let tlStart=(projStart&&dataMin&&dataMin<projStart)?dataMin:(projStart||dataMin);
   // end = last PO date + ONE extra month of headroom so the last bar is never flush against
@@ -1616,6 +1682,7 @@ function renderPOMonthly(pkgs){
   const months=[]; { let c=new Date(tlStart.getFullYear(),tlStart.getMonth(),1), e=new Date(end.getFullYear(),end.getMonth(),1); while(c<=e){ months.push(ym(c)); c.setMonth(c.getMonth()+1); } }
   const n=months.length;
   const idx=m=>months.indexOf(m);
+  // COUNTS — from the filtered packages, accumulated over the fixed domain above
   const pMonth=Array(n).fill(0), fMonth=Array(n).fill(0), aMonth=Array(n).fill(0);
   pkgs.forEach(r=>{
     let i;
@@ -1629,7 +1696,7 @@ function renderPOMonthly(pkgs){
      chart series silently became cumulative and the bars were no longer "this month". */
   const pCum=pMonth.slice(), fCum=fMonth.slice(), aCum=aMonth.slice();
   for(let i=1;i<n;i++){ pCum[i]+=pCum[i-1]; fCum[i]+=fCum[i-1]; aCum[i]+=aCum[i-1]; }
-  const hasForecast=pkgs.some(p=>p.poForecast instanceof Date&&!isNaN(p.poForecast));
+  const hasForecast=allPkgs.some(p=>p.poForecast instanceof Date&&!isNaN(p.poForecast));
   const projStartIdx=projStart?idx(ym(projStart)):-1;
   const todayIdx=idx(ym(today));
   /* Last month that genuinely has each kind of date — a series stops there so no curve is drawn
@@ -1639,7 +1706,8 @@ function renderPOMonthly(pkgs){
   const lastPlanIdx=lastIdxOf(pMonth), lastForecastIdx=lastIdxOf(fMonth), lastActualIdx=lastIdxOf(aMonth);
   const actualEndIdx=Math.max(lastActualIdx, todayIdx);
   pppScurveProgress={months,pNew:pMonth,fNew:fMonth,aNew:aMonth,pCum,fCum,aCum,projStartIdx,todayIdx,hasForecast,lastPlanIdx,lastForecastIdx,lastActualIdx,actualEndIdx,projStartLabel:projStart?fmt(projStart):''};
-  // default / reset window when month count changes
+  // default / reset window ONLY when the DOMAIN month count changes (i.e. a new file is loaded),
+  // never on a category-filter change — the domain is now filter-independent.
   if(!pppScurveWin||pppScurveWin._n!==n){ pppScurveWin={from:0,to:n-1,_n:n}; }
   pppScurveWin.from=Math.min(pppScurveWin.from,n-1); pppScurveWin.to=Math.min(pppScurveWin.to,n-1);
   if(pppScurveWin.from>pppScurveWin.to){ const t=pppScurveWin.from; pppScurveWin.from=pppScurveWin.to; pppScurveWin.to=t; }
@@ -1684,15 +1752,15 @@ function svgPoCombo(P,a,b){
   const maxV=Math.max(1,...bars.flatMap(sl),...lines.flatMap(sl));
   const gw=plotW/m, cx=i=>padL+i*gw+gw/2;
   const y=v=>padT+plotH-(v/maxV)*plotH;
-  let s='<svg id="svg-po" role="img" aria-label="PO plan, forecast and actual: monthly bars with cumulative S-curve" xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" style="width:100%;height:auto;display:block">';
+  let s='<svg id="svg-po" role="img" aria-label="PO plan, forecast and actual: monthly bars with cumulative S-curve" xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" style="width:'+w+'px;height:'+h+'px;display:block">';
   s+='<line x1="'+padL+'" y1="'+padT+'" x2="'+padL+'" y2="'+(padT+plotH)+'" stroke="'+CHART.axis+'"/>';
   s+='<line x1="'+padL+'" y1="'+(padT+plotH)+'" x2="'+(padL+plotW)+'" y2="'+(padT+plotH)+'" stroke="'+CHART.axis+'"/>';
   for(let i=0;i<=4;i++){
     const gv=Math.round(maxV*i/4), gy=y(gv);
-    s+='<text x="'+(padL-6)+'" y="'+(gy+3)+'" text-anchor="end" fill="'+CHART.muted+'" style="font-size:10px">'+gv+'</text>';
+    s+='<text x="'+(padL-6)+'" y="'+(gy+3)+'" text-anchor="end" fill="'+CHART.muted+'" style="font-size:13px">'+gv+'</text>';
     s+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(padL+plotW)+'" y2="'+gy+'" stroke="'+CHART.grid+'"/>';
   }
-  s+='<text x="'+(padL-6)+'" y="'+(padT-6)+'" text-anchor="end" fill="'+CHART.muted+'" style="font-size:10px">pkgs</text>';
+  s+='<text x="'+(padL-6)+'" y="'+(padT-6)+'" text-anchor="end" fill="'+CHART.muted+'" style="font-size:13px">Pkgs</text>';
   cats.forEach((c,ci)=>{
     const ai=a+ci, lab=mLabel(c);
     if(PO_SHOW_BARS){
@@ -1702,10 +1770,10 @@ function svgPoCombo(P,a,b){
         const v=se.v[ai], bh=(v/maxV)*plotH, x=cx(ci)-(nb*bw)/2+si*bw, y=padT+plotH-bh;
         s+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+(bw-2).toFixed(1)+'" height="'+Math.max(0,bh).toFixed(1)+'" fill="'+se.color+'" rx="2"><title>'+esc(lab+': '+se.name+' = '+v)+'</title></rect>';
         /* value printed above every non-zero bar */
-        if(v>0&&bw>=9) s+='<text x="'+(x+(bw-2)/2).toFixed(1)+'" y="'+(y-3).toFixed(1)+'" text-anchor="middle" fill="'+CHART.ink+'" style="font-size:9px">'+v+'</text>';
+        if(v>0&&bw>=9) s+='<text x="'+(x+(bw-2)/2).toFixed(1)+'" y="'+(y-3).toFixed(1)+'" text-anchor="middle" fill="'+CHART.ink+'" style="font-size:12px">'+v+'</text>';
       });
     }
-    s+='<text x="'+cx(ci).toFixed(1)+'" y="'+(padT+plotH+15)+'" text-anchor="middle" fill="'+CHART.muted+'" style="font-size:10px">'+esc(lab)+'</text>';
+    s+='<text x="'+cx(ci).toFixed(1)+'" y="'+(padT+plotH+15)+'" text-anchor="middle" fill="'+CHART.muted+'" style="font-size:13px">'+esc(lab)+'</text>';
   });
   lines.forEach(se=>{
     const xs=[],vals=[];
@@ -1718,12 +1786,12 @@ function svgPoCombo(P,a,b){
     if(pts.length>1) s+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+se.color+'" stroke-width="2.5" stroke-dasharray="'+se.dash+'" stroke-linejoin="round" stroke-linecap="round"/>';
     vals.forEach((v,i)=>{ s+='<circle cx="'+cx(xs[i]-a).toFixed(1)+'" cy="'+y(v).toFixed(1)+'" r="3" fill="'+se.color+'"><title>'+esc(mLabel(cats[xs[i]-a])+': '+se.name+' = '+v)+'</title></circle>'; });
   });
-  const mkY=(idx,color,dash,label)=>{ if(idx<a||idx>b) return ''; const x=cx(idx-a).toFixed(1); return '<line x1="'+x+'" y1="'+padT+'" x2="'+x+'" y2="'+(padT+plotH)+'" stroke="'+color+'" stroke-width="1.5" stroke-dasharray="'+dash+'"/><text x="'+x+'" y="'+(padT+11)+'" text-anchor="middle" fill="'+color+'" style="font-size:10px">'+label+'</text>'; };
-  if(P.projStartIdx>=0) s+=mkY(P.projStartIdx,'#C62828','5,3','start');
-  if(P.todayIdx>=0) s+=mkY(P.todayIdx,'#8E8E93','2,2','today');
+  const mkY=(idx,color,dash,label)=>{ if(idx<a||idx>b) return ''; const x=cx(idx-a).toFixed(1); return '<line x1="'+x+'" y1="'+padT+'" x2="'+x+'" y2="'+(padT+plotH)+'" stroke="'+color+'" stroke-width="1.5" stroke-dasharray="'+dash+'"/><text x="'+x+'" y="'+(padT+11)+'" text-anchor="middle" fill="'+color+'" style="font-size:13px">'+label+'</text>'; };
+  if(P.projStartIdx>=0) s+=mkY(P.projStartIdx,'#C62828','5,3','Start');
+  if(P.todayIdx>=0) s+=mkY(P.todayIdx,'#B8C2CC','2,2','Today');
   let lx=padL;
-  if(PO_SHOW_BARS) bars.forEach(se=>{ s+='<rect x="'+lx+'" y="'+(h-13)+'" width="10" height="10" fill="'+se.color+'" rx="2"><title>'+se.name+' (per month)</title></rect><text x="'+(lx+14)+'" y="'+(h-4)+'" fill="'+CHART.ink+'" style="font-size:11px">'+se.name+'</text>'; lx+=14+se.name.length*6+20; });
-  lines.forEach(se=>{ s+='<line x1="'+lx+'" y1="'+(h-8)+'" x2="'+(lx+16)+'" y2="'+(h-8)+'" stroke="'+se.color+'" stroke-width="2.5" stroke-dasharray="'+se.dash+'"/><text x="'+(lx+20)+'" y="'+(h-4)+'" fill="'+CHART.ink+'" style="font-size:11px">'+se.name+'</text>'; lx+=20+se.name.length*6+20; });
+  if(PO_SHOW_BARS) bars.forEach(se=>{ s+='<rect x="'+lx+'" y="'+(h-13)+'" width="10" height="10" fill="'+se.color+'" rx="2"><title>'+se.name+' (per month)</title></rect><text x="'+(lx+14)+'" y="'+(h-4)+'" fill="'+CHART.ink+'" style="font-size:13px">'+se.name+'</text>'; lx+=14+se.name.length*7+20; });
+  lines.forEach(se=>{ s+='<line x1="'+lx+'" y1="'+(h-8)+'" x2="'+(lx+16)+'" y2="'+(h-8)+'" stroke="'+se.color+'" stroke-width="2.5" stroke-dasharray="'+se.dash+'"/><text x="'+(lx+20)+'" y="'+(h-4)+'" fill="'+CHART.ink+'" style="font-size:13px">'+se.name+'</text>'; lx+=20+se.name.length*7+20; });
   return s+'</svg>';
 }
 function drawPPSCurve(){
@@ -1749,13 +1817,13 @@ function svgLine(P,a,b){
   s+='<line x1="'+padL+'" y1="'+padT+'" x2="'+padL+'" y2="'+(padT+plotH)+'" stroke="'+CHART.axis+'"/>';
   s+='<line x1="'+padL+'" y1="'+(padT+plotH)+'" x2="'+(W-padR)+'" y2="'+(padT+plotH)+'" stroke="'+CHART.axis+'"/>';
   for(let i=0;i<=4;i++){ const v=Math.round(maxV*i/4), y=padT+plotH-(v/maxV)*plotH;
-    s+='<text x="'+(padL-6)+'" y="'+(y+3)+'" text-anchor="end" fill="'+CHART.muted+'" style="font-size:10px">'+v+'</text>';
+    s+='<text x="'+(padL-6)+'" y="'+(y+3)+'" text-anchor="end" fill="'+CHART.muted+'" style="font-size:13px">'+v+'</text>';
     s+='<line x1="'+padL+'" y1="'+y+'" x2="'+(W-padR)+'" y2="'+y+'" stroke="'+CHART.grid+'"/>'; }
   const xAt=i=> padL + (m===1?plotW/2: i*plotW/(m-1));
   const yAt=v=> padT+plotH-(v/maxV)*plotH;
-  const mk=(absIdx,color,dash,label)=>{ if(absIdx<a||absIdx>b) return ''; const x=xAt(absIdx-a); return '<line x1="'+x+'" y1="'+padT+'" x2="'+x+'" y2="'+(padT+plotH)+'" stroke="'+color+'" stroke-width="1.5" stroke-dasharray="'+dash+'"/><text x="'+x+'" y="'+(padT-5)+'" text-anchor="middle" fill="'+color+'" style="font-size:10px">'+label+'</text>'; };
-  if(P.projStartIdx>=0) s+=mk(P.projStartIdx,'#C62828','5,3','start');
-  if(P.todayIdx>=0) s+=mk(P.todayIdx,'#8E8E93','2,2','today');
+  const mk=(absIdx,color,dash,label)=>{ if(absIdx<a||absIdx>b) return ''; const x=xAt(absIdx-a); return '<line x1="'+x+'" y1="'+padT+'" x2="'+x+'" y2="'+(padT+plotH)+'" stroke="'+color+'" stroke-width="1.5" stroke-dasharray="'+dash+'"/><text x="'+x+'" y="'+(padT-5)+'" text-anchor="middle" fill="'+color+'" style="font-size:13px">'+label+'</text>'; };
+  if(P.projStartIdx>=0) s+=mk(P.projStartIdx,'#C62828','5,3','Start');
+  if(P.todayIdx>=0) s+=mk(P.todayIdx,'#B8C2CC','2,2','Today');
   const series=[{name:'Plan',color:CHART.accent,vals:P.pCum}];
   if(P.hasForecast) series.splice(1,0,{name:'Forecast',color:'#F9A825',vals:P.fCum});
   series.push({name:'Actual',color:CHART.goodDark,vals:P.aCum});
@@ -1765,9 +1833,9 @@ function svgLine(P,a,b){
     s+='<circle cx="'+xAt(m-1)+'" cy="'+yAt(se.vals[b])+'" r="3" fill="'+se.color+'"/>';
   });
   const step=Math.max(1,Math.ceil(m/12));
-  cats.forEach((c,i)=>{ if(i%step===0||i===m-1){ s+='<text x="'+xAt(i)+'" y="'+(padT+plotH+15)+'" text-anchor="middle" fill="'+CHART.muted+'" style="font-size:10px">'+mLabel(c)+'</text>'; } });
+  cats.forEach((c,i)=>{ if(i%step===0||i===m-1){ s+='<text x="'+xAt(i)+'" y="'+(padT+plotH+15)+'" text-anchor="middle" fill="'+CHART.muted+'" style="font-size:13px">'+mLabel(c)+'</text>'; } });
   let lx=padL;
-  series.forEach(se=>{ s+='<rect x="'+lx+'" y="'+(H-12)+'" width="10" height="10" fill="'+se.color+'" rx="2"/><text x="'+(lx+14)+'" y="'+(H-3)+'" fill="'+CHART.ink+'" style="font-size:11px">'+se.name+'</text>'; lx+=14+se.name.length*6+18; });
+  series.forEach(se=>{ s+='<rect x="'+lx+'" y="'+(H-12)+'" width="10" height="10" fill="'+se.color+'" rx="2"/><text x="'+(lx+14)+'" y="'+(H-3)+'" fill="'+CHART.ink+'" style="font-size:13px">'+se.name+'</text>'; lx+=14+se.name.length*7+18; });
   s+='</svg>';
   return s;
 }
@@ -1809,26 +1877,27 @@ function renderLookAhead(pkgs, from){
   host.innerHTML='<table class="ds-table"><thead><tr>'
     +'<th scope="col">Package</th><th scope="col">Discipline</th><th scope="col">PO Plan</th>'
     +'<th scope="col" class="num">In (days)</th><th scope="col">Status</th></tr></thead><tbody>'
-    +list.map(p=>'<tr><td>'+esc(p.title)+'</td><td>'+esc(p.discipline||'—')+'</td><td>'+fmt(p.poPlan)+'</td>'
+    +list.map(p=>'<tr><th scope="row">'+esc(p.title)+'</th><td>'+esc(p.discipline||'—')+'</td><td>'+fmt(p.poPlan)+'</td>'
       +'<td class="num">'+Math.max(0,Math.round((p.poPlan-from)/DAY))+'</td><td>'+esc(p.status||'—')+'</td></tr>').join('')
     +'</tbody></table>';
 }
-/* Canonical overdue test (MDL rule, date-based, measured vs real TODAY):
-   due = Forecast || Plan ; if Actual is present the stage is DONE -> NOT overdue ;
-   overdue only when due < today. Shared by Delays (PO) and Overdue-by-Stage list
-   so both views use the exact same calculation (I-60). */
+/* Canonical overdue test (date-based, measured vs real TODAY):
+   OVERDUE IS ANCHORED TO THE PLAN (committed baseline) DATE ONLY — a Forecast is a
+   managerial estimate and must NOT clear or re-baseline overdue (product decision
+   2026-10-07). Rule: Plan present && Plan < today && Actual absent => overdue. An
+   Actual present => stage DONE => NOT overdue. Shared by the Overdue-by-Stage list,
+   the Stage-Overdue chart and Schedule Health so all views use the same test. */
 function todayMidnight(){ const t=new Date(); t.setHours(0,0,0,0); return t; }
 function stageDue(p,k){ return p[k+'Forecast']||p[k+'Plan']; }
-function stageIsOverdue(p,k,today){ const due=stageDue(p,k); return !!(due && !p[k+'Actual'] && due<today); }
+function stageIsOverdue(p,k,today){ const plan=p[k+'Plan']; return !!(plan && !p[k+'Actual'] && plan<today); }
 
 
-/* ---- P1: Overdue-by-Stage list (follows the MDL overdue rule) ----
-   MDL computes "overdue" as: due = Forecast || Planned, Actual blank.
-   PPP carries Forecast + Plan + Actual for each of the 5 stages, so we mirror that
-   per stage. Overdue is measured against the REAL current date (today), NOT the
-   project snapshot: due = Forecast||Plan; Actual blank; due < today.
-   The inline filter (buildOverdueFilter) lets the user surface only the
-   stage(s) they care about (e.g. PO Issue, MR Issue). */
+/* ---- P1: Overdue-by-Stage list ----
+   Overdue is anchored to the PLAN date (committed baseline), measured against the
+   REAL current date (today), not the project snapshot: Plan present && Plan < today &&
+   Actual absent. A Forecast estimate does NOT remove a row (only an Actual does) —
+   see stageIsOverdue. The inline filter (buildOverdueFilter) lets the user surface
+   only the stage(s) they care about (e.g. PO Issue, MR Issue). */
 /* Canonical 5-stage definition (I-61): single source of truth.
    Each entry = [key, shortLabel, overdueLabel]. Consumers derive what they need
    so the stage set can never drift between validation, the stage chart, and the
@@ -1858,7 +1927,7 @@ function renderOverdueList(pkgs){
   pkgs.forEach(p=>{
     OVL_STAGES.forEach(([k,lab])=>{
       if(stageIsOverdue(p,k,today)){
-        const due=stageDue(p,k);
+        const due=p[k+'Plan'];
         all.push({p,k,lab,due,days:Math.round((today-due)/86400000)});
       }
     });
@@ -1897,16 +1966,26 @@ function pkgDetailHTML(p, today){
   const metaHtml=meta.filter(m=>m[1]!=null&&m[1]!=='').map(m=>'<span class="kv"><b>'+esc(m[0])+':</b> '+esc(m[1])+'</span>').join('');
   const stageRows=STAGES.map(([k,short])=>{
     const od=stageIsOverdue(p,k,today);
-    return '<tr'+(od?' class="over"':'')+'><td>'+esc(short)+'</td><td>'+(p[k+'Plan']?fmt(p[k+'Plan']):'—')+'</td><td>'+(p[k+'Forecast']?fmt(p[k+'Forecast']):'—')+'</td><td>'+(p[k+'Actual']?fmt(p[k+'Actual']):'—')+'</td><td>'+(od?'⚠ overdue':'')+'</td></tr>';
+    return '<tr'+(od?' class="over"':'')+'><th scope="row">'+esc(short)+'</th><td>'+(p[k+'Plan']?fmt(p[k+'Plan']):'—')+'</td><td>'+(p[k+'Forecast']?fmt(p[k+'Forecast']):'—')+'</td><td>'+(p[k+'Actual']?fmt(p[k+'Actual']):'—')+'</td><td>'+(od?'⚠ overdue':'')+'</td></tr>';
   }).join('');
-  const issues=(STATE.report&&STATE.report.issues)?STATE.report.issues.filter(i=>i.pkg===p.id):[];
+  const allIss=(STATE.report&&STATE.report.issues)?STATE.report.issues:[];
+  const issues=allIss.filter(i=>i.pkg===p.id);
   const issueHtml=issues.length
     ? issues.map(i=>'<li><span class="vchip '+(i.sev==='error'?'e':i.sev==='warning'?'w':'i')+'">'+esc(i.sev)+'</span> <b>'+esc(i.code)+'</b> '+esc(i.msg)+'</li>').join('')
-    : '<li class="muted">No data-quality issues.</li>';
+    : '<li class="muted">No data-quality issues for this package.</li>';
+  /* I-61: surface project-wide data tallies (pkg:'—' && kind:'data': V-05, V-14, V-23, V-25)
+     inside the drill-down too, so a package-level reviewer always sees them. System aggregate
+     issues (kind:'system') stay in the top banner, not here. */
+  const agg=allIss.filter(i=>i.pkg==='—' && i.kind==='data');
+  const aggHtml=agg.length
+    ? agg.map(i=>'<li><span class="vchip '+(i.sev==='error'?'e':i.sev==='warning'?'w':'i')+'">'+esc(i.sev)+'</span> <b>'+esc(i.code)+'</b> '+esc(i.msg)+'</li>').join('')
+    : '';
   return '<div class="ovl-detail-inner">'
     + '<div class="ovl-meta">'+metaHtml+'</div>'
     + '<table class="ds-table stage-grid"><thead><tr><th scope="col">Stage</th><th scope="col">Plan</th><th scope="col">Forecast</th><th scope="col">Actual</th><th scope="col">Flag</th></tr></thead><tbody>'+stageRows+'</tbody></table>'
-    + '<div class="ovl-v"><div class="ovl-vh">Validation — this package</div><ul class="ovl-vlist">'+issueHtml+'</ul></div>'
+    + '<div class="ovl-v"><div class="ovl-vh">Validation — this package</div><ul class="ovl-vlist">'+issueHtml+'</ul>'
+    + (aggHtml?'<div class="ovl-vh">Validation — project-wide</div><ul class="ovl-vlist">'+aggHtml+'</ul>':'')
+    + '</div>'
     + '</div>';
 }
 
@@ -1930,19 +2009,9 @@ function toggleOvlDetail(row){
 
 function renderBenchmark(){
   const bench=[['Power transformer','36–78 weeks','252–546'],['MV/HV switchgear','20–40 weeks','140–280'],['Generator (std)','12–20 weeks','84–140'],['Chiller','16–24 weeks','112–168'],['Pump (std)','8–14 weeks','56–98'],['Cooling tower','12–20 weeks','84–140'],['Air handling unit','12–18 weeks','84–126'],['Motor control center','26–40 weeks','182–280'],['SCADA / PLC','20–30 weeks','140–210'],['Structural steel','16–36 weeks','112–252'],['Elevator / escalator','24–40 weeks','168–280'],['Fire & life-safety','16–30 weeks','112–210']];
-  document.querySelector('#benchmark tbody').innerHTML=bench.map(r=>'<tr><td>'+r[0]+'</td><td class="num">'+r[1]+'</td><td class="num">'+r[2]+'</td></tr>').join('');
+  document.querySelector('#benchmark tbody').innerHTML=bench.map(r=>'<tr><th scope="row">'+r[0]+'</th><td class="num">'+r[1]+'</td><td class="num">'+r[2]+'</td></tr>').join('');
 }
-function renderDQ(pkgs){
-  const flags=[]; const T=pkgs.length;
-  const anyActual=pkgs.filter(p=>p.poActual||p.mrActual||p.vdActual||p.fatActual||p.rosActual).length;
-  if(anyActual===0) flags.push('<b>Execution progress = 0:</b> no Actual dates entered in any stage column.');
-  const critBlank=pkgs.filter(p=>p.criticality==null||p.criticality==='').length; if(critBlank===T) flags.push('<b>Criticality empty:</b> all '+T+' packages lack an inspection-level value.');
-  const ltBlank=pkgs.filter(p=>p.leadTime==null||isNaN(p.leadTime)).length; if(ltBlank>T*0.5) flags.push('<b>Lead time sparse:</b> '+ltBlank+'/'+T+' packages have no estimate.');
-  const engBlank=pkgs.filter(p=>p.engineer==null||p.engineer==='').length; if(engBlank>0) flags.push('<b>Engineer unassigned:</b> '+engBlank+'/'+T+' packages.');
-  const mrPlan=pkgs.filter(p=>p.mrPlan).length, poPlan=pkgs.filter(p=>p.poPlan).length;
-  if(mrPlan<T*0.3&&poPlan>T*0.5) flags.push('<b>Plan-date inconsistency:</b> MR Plan present for only '+mrPlan+' but PO Plan for '+poPlan+' — likely back-filled downstream dates.');
-  document.getElementById('dq').innerHTML = flags.length? flags.map(f=>'<div class="flag">'+f+'</div>').join('') : '<div class="empty">No major data-quality gaps detected.</div>';
-}
+
 
 /* ============== chart → image ============== */
 async function chartToPng(svgEl){
@@ -2041,6 +2110,13 @@ document.getElementById('openBtn').onclick=()=>fileInput.click();
 document.getElementById('reloadBtn').onclick=()=>fileInput.click();
 fileInput.onchange=e=>{ const f=e.target.files[0]; if(f) handleFile(f); e.target.value=''; };
 
+/* Phase B: dark-theme toggle (persisted in localStorage) */
+function getTheme(){ try{ return localStorage.getItem('ppp-chart-theme'); }catch(e){ return null; } }
+function applyTheme(t){ const d=document.documentElement; if(t==='dark'){ d.setAttribute('data-theme','dark'); } else { d.removeAttribute('data-theme'); } const b=document.getElementById('themeBtn'); if(b) b.textContent = (t==='dark') ? '☀' : '🌙'; }
+function toggleTheme(){ const cur = document.documentElement.getAttribute('data-theme')==='dark' ? 'dark' : 'light'; const next = cur==='dark' ? 'light' : 'dark'; try{ localStorage.setItem('ppp-chart-theme', next); }catch(e){} applyTheme(next); }
+const themeBtn=document.getElementById('themeBtn'); if(themeBtn) themeBtn.onclick=toggleTheme;
+applyTheme(getTheme()==='dark' ? 'dark' : 'light');
+
 /* S-curve period window (MDL-style dual range) — wired once; redraws both charts */
 (function(){
   const win=document.getElementById('poWin'); if(!win) return;
@@ -2057,8 +2133,15 @@ const HELP = {
 <ul>
   <li><b>Total Packages</b> — every package loaded from the Package Plan sheet.</li>
   <li><b>Started (≠ Not Start)</b> — share progressed beyond "Not Start". Green ≥60% · Amber ≥40% · Red &lt;40%.</li>
+  <li><b>PO Issued</b> — packages that have a PO Actual date recorded (PO issued), regardless of due date.
+    <ul>
+      <li><b>Due date</b> = PO Forecast if present, otherwise PO Plan.</li>
+      <li>Counts only when the due date is before today <em>and</em> there is no PO Actual — a PO Actual means the PO is complete, so it is never an issue.</li>
+      <li>Packages with <em>no</em> PO Plan/Forecast date are not counted here (cannot determine a due date).</li>
+      <li>Red if any, green if none — this is the same number shown in the Overdue-by-Stage "PO Issue" row and the Schedule-Health "Overdue" tally.</li>
+    </ul>
+  </li>
   <li><b>Delivered / RI</b> — share with status Delivered or Receive Inspection.</li>
-  <li><b>Not Started / blank</b> — count (and % of total) still "Not Start" or with no status.</li>
   <li><b>Lead-time estimated</b> — packages with an Estimate Lead Time value (coverage %).</li>
   <li><b>Engineer assigned</b> — packages with a Design Engineer filled (coverage %).</li>
 </ul>`},
@@ -2137,10 +2220,7 @@ long list never stretches the page — scroll inside it to see the rest.</p>`},
 <p>External 2026 industry reference lead times for equipment categories. Use to sanity-check the Estimated Lead Time on each package and confirm with the vendor at quotation.</p>`},
   vcard:{title:'Data Validation — Panel 7',body:`
 <h4>What it shows</h4>
-<p>System / config checks run against the PPP data and the Code sheet. Per-package data issues are listed below; use <b>Export CSV</b> for the full list.</p>`},
-  dqPanel:{title:'Data-Quality Flags — Panel 8',body:`
-<h4>What it shows</h4>
-<p>Cross-field data-quality flags (e.g. missing engineer, status vs stage mismatch). Fix the source data in Excel and reload to clear them.</p>`},
+<p>System / config checks run against the PPP data and the Code sheet. Per-package data issues are listed below; use <b>Export CSV</b> for the full list. System / config notices now appear in the top warning bar above the dashboard; fix the source data in Excel and reload to clear per-package issues.</p>`},
 };
 let helpModalEl=null;
 function ensureHelpModal(){
@@ -2162,7 +2242,7 @@ function openHelp(id){
 }
 /* inject a "?" help button into every top-level panel header (MDL pattern) */
 function attachHelp(){
-  ['kpiPanel','charts','scPanel','lookPanel','ovlPanel','benchPanel','vcard','dqPanel'].forEach(id=>{
+  ['kpiPanel','charts','scPanel','lookPanel','ovlPanel','benchPanel','vcard'].forEach(id=>{
     const sec=document.getElementById(id); if(!sec) return;
     const head=sec.querySelector(':scope > .panel-head-row')||sec.querySelector(':scope > h2')||sec.querySelector(':scope > .panel-head');
     if(!head) return;
@@ -2177,7 +2257,7 @@ function attachHelp(){
     actions.insertBefore(b, actions.firstChild);
     b.onclick=()=>openHelp(id);
     /* collapse toggle — reuse an existing one (KPI ships #kpiToggle) so we never add a duplicate */
-    let tog=actions.querySelector('#kpiToggle')||actions.querySelector('[data-collapse]');
+    let tog=actions.querySelector('#kpiToggle')||actions.querySelector('[data-collapse],[data-collapse-panel]');
     if(!tog){
       tog=document.createElement('button'); tog.type='button'; tog.className='icon-btn'; tog.setAttribute('data-collapse','');
       tog.innerHTML='&#8722;'; tog.setAttribute('aria-label','Collapse or expand panel'); tog.title='Collapse / expand';
