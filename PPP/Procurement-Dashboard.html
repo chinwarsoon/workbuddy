@@ -61,6 +61,7 @@
   .btn:hover{filter:brightness(1.06)}
   .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
   .privacy{font-size:11.5px;color:var(--muted);margin-top:18px;display:flex;gap:6px;align-items:center;justify-content:center}
+  .copyright{font-size:11.5px;color:var(--muted);margin-top:6px}
   .privacy svg{width:13px;height:13px;fill:var(--muted)}
 
   /* ---------- Top bar ---------- */
@@ -331,16 +332,17 @@
 <!-- ===================== WELCOME ===================== -->
 <div id="welcome">
   <div class="wcard">
-    <img class="wlogo" src="asset/logo.jpg" alt="UES — Better Environments" />
-    <h1>Procurement Package Plan</h1>
-    <p>Interactive dashboard. Load the workbook to explore status, workload, lead time and PO targets.</p>
-    <div class="expect"><b>Select and Load Project Procurement Plan</b> keep it in the same folder as this page, then select it below.</div>
+    <img class="wlogo" src="data:image/jpeg;base64,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" alt="UES — Better Environments" />
+    <h1>Procurement Package Plan Dashboard</h1>
+    <p>Interactive dashboard. Load the workbook to validate data, explore status and details.</p>
+    <div class="expect"><b>What this does</b> — Select your Procurement Package Plan workbook (.xlsx)… Drop it below or click to browse.</div>
     <div class="drop" id="drop">
-      <div class="big">Drop your .xlsx here</div>
-      <div class="small">or click to browse · Excel workbook (.xlsx) only</div>
+      <div class="big">Drop your workbook here</div>
+      <div class="small">or click to browse</div>
+      <button class="btn" type="button" id="openBtn">Choose Workbook</button>
     </div>
-    <button class="btn" type="button" id="openBtn">Select Package Plan file…</button>
     <div class="privacy"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 3 5v6c0 5 3.4 9.7 9 11 5.6-1.3 9-6 9-11V5l-9-4zm0 10.9h7c-.5 4-3 7.3-7 8.3V12H5V6.3l7-3.1V12z"/></svg> Works fully offline — your data never leaves this browser</div>
+    <div class="copyright">© <span id="cpyYear"></span> UESH</div>
     <input id="fileInput" type="file" accept=".xlsx" />
   </div>
 </div>
@@ -348,7 +350,7 @@
 <!-- ===================== DASHBOARD ===================== -->
 <div id="dash" class="hidden">
   <header class="bar"><div class="inner">
-    <img class="logo" src="asset/logo.jpg" alt="UES" />
+    <img class="logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAagBqAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCABcAJsDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9U6KKKACiiigAooooAKKKKACiiigBgAUHApp+mKcW7d68i+Mvx50/4Xx/YreJdS16VN8Vpu+WNf78p7Cuihh6uKqeyoq8mcOLxmHwFL22IlyxO18b/ELw/wDDXQ5NX8TavZ6LpyHHnXkwTd/srk/M3sK+W/HP/BSHRtOd4vB/gPxB4pRfu3lzbvZwP/ufI7v+KLXknjHxNqPj7XhrOtz/AGy/H+p3rlLdP7kKfw1leY39+v0LCcMUIRvinzTPy3F8d2nbDUvdNe6/4KjeNrSfy5vh5o9sP+ec93cI/wD6BXa+Cf8AgqXo9zJDD4u8D3umI/3rzSrlLmNf+APsevLL6xtNVheK9t4bqB/4J0315L47+CcXkvqHhpHR0+d9Pd/v/wC5/wDEV6k+H8vnD4Tty/jOliqnJW93/wBJP1l+GXxf8I/GPRRqnhHXLfWLdOJRCdssTf3XRvmQ/Wu6GK/CD4f/ABE8RfCrxZa+JPC2pS6Rq9u/3/4Jk/54zJ/Gn+xX7Afs2fHzS/2hPh1b69bRpZanC/kanpu8MbW4H/srcMp9CK+CzXJ55c+eOsD9Io4hV1dHsFFFFfPHWFFFFABRRRQAUUUUAFFJS0AFFFFAGTrk17aaNeyafbJd6gkLGC3d9iu/8Klu1fn94+8N+LNL1m8v/FWm3kF5dS75byVN8LP/ALDJ8lfokWAOO9Vp7SG6jeOeKOWJxtZXXcrCvbyrNHllSUuTmPk8+yKOdwiva8vKfmfRX2P8Rf2WvDficTXWigeHtSb5v3C/uHP+2nT/AL5xXy747+G2vfDbUfsus2Xko7/uryEboZf9xv8A2Sv03A5xhMfZLSZ+J5rw9jcq96pG8P5jmqKKK9s+aPDfjh4OTTb+DXbRNkF8+y4RP4Jv7/8AwOu//YC+KMvw8/aA0/SZZWTSfFCf2ZcIR/y2+/bP/wB9ZT/gdT/FGxTUfAGto/8Ayyh85P8AgFfPnhLWX8OeLdB1hH8t9P1G2ut/+5Mj15mPw8a1CdL+Y/buFsdOvg/f+x7p+9g6UtZmi61YeI9JtdS0q8g1Cwuk3w3NtLvSVfVWFadfiDVtD9OQwnAr84fiF/wUh+IPhX4geJ9Ds/DvhyWy0vU7iyhknM290jfZl/nr9Hjwhr8MPjV/yWPx5/2H7/8A9HPX0/D+Eo4qpNVocxx4qc4L3D9Wf2PfjvrX7QvwuuvEuu6fZadewanNYbLAv5bKiIwf5+ed9e7t0r4//wCCYf8AyQLVv+xiuf8A0TBX1+e9eNjqUaOKnCGyZvSfNA/MzWf+CmnxGstb1C0i8NeHDDbXc0KF1m5RHZP7/tX2n+yx8YdU+OvwY0nxfrdna2V/dz3MLw2W/wAoeVM8fG/n+Cvxv8T/APIz61/1/XP/AKOev1Y/4J2f8mteH/8Ar9v/AP0qkr6vO8BhsNhYVKMbNnFh6s5zPKf2mv27PG/wW+Neu+DdG0LRLzT9PhtnSa+83zn3wpI/3H/268w/4ef/ABN/6Frwz/3xc/8Axdef/t9f8nYeMf8ArjYf+kyVJ+yJ+yzpv7TE3ihb/wARX2hf2N9m2/Yokfzd+/7+/wD3K9KlgMuo4GGKrw+zEznOt7bkgegWX/BTn4ky31tHL4a8NNG8qRvhZv7+P79fptFIJUVv7wzXw3af8EsfDkN3BMfiBrcixSo/lm0t/m2Nn0r7H8aa6fCPg3XdWjTzX03TprtE/vbI2bH/AI7XyOaSwNapD6grI7aXtftny7+1P+3rZ/B/Wrnwj4OsYPEHii3H+mXFy5FpYtj7h28vJ/sV8lz/APBQP443F356+JLGGP8A59YdIh2f+P8Az/8Aj9fPd3qVxrl5Pqd9K897fTPdXE7/AH3d/nd6+5/2TP2Jfhx8WfhBp3i3xFqN7q+o6kHzbWF55KWRRynl/J/Hx/H/AH6+ulg8uynDqeIhztnE51a0/cM34Y/8FMvGkWq2Vh4s8KWPiOK4lSBJNF321y7u+xNiPvR//HK/RHXNBsPE+lTWOqWcV3ZzpiW3mTeDXyn8L/8Agnt4d+F/xr0/xjaa7catommo8tppOowK00Vz/A/nLjcqem373NfYDcAH0r4zMq2ElVjPAKyOynCVSnyVlc+J/jV+z3d/D5ptX0YTX/h7H71MbpbP3b++n+11FeOV+l8kKTxKjFXjbhlYda+O/wBob4G/8IHcyeIdDi/4kE7/AL6FP+XJvX/c/wDQK+vyTPPbNYXFP3ujPx3ibhf6pH65gvg+1H+U8J1Gxi1WwurK7R3tbhPJl2Ps+SvnP4h/Dy48D3iOjvdaXcf8e839z/Yf/br6XrD8a6HF4j8K6pp7p87w74f9h0+dK+6mfJ5HmtXLcRb7E/iND/gnd8d7/wAFfEyH4e6hdu/hvxBuNpC7/JaXmzf8ns/3P9/ZX6kYJr8PP2eUnf48/Df7L/x8/wBvWe3/AL7r9wd2K/J+JKUKGIVSH2kf0XhJ81O4p/pX4YfGr/ksfjz/ALD9/wD+jnr9zz/Svw6+PunS6X8dPiFay/fi1+8/8fff/wCz108Kv99VXkLF/AfoP/wTDH/FgtW/7GK6/wDRMFfXx+6a+HP+CW3jKxuPAPizwkZI11Oy1P8AtLyS3ztDMiJv/wC+oTX2N4x8U6f4G8Latr+q3C2unabbvc3Ezt0REya8LNKc1mFSHmdFL+EfhZ4n/wCRn1r/AK/rn/0c9fqx/wAE7P8Ak1nw/wD9ft//AOlUlfk1PdvfXM92/wB+4med/wDgb76/W3/gnxZS6f8AsreFjMuwXE95PGP9h7mTbX2nEWmAh/iPPwv8Vnwl+31/ydf4x/642H/pMleZ/DP43eN/g3/aH/CFa+2hf2hs+17LaGbzdn3Pvo/9+vTP2+v+Tr/GP/XGw/8ASZK639gz9nzwX8eJPGq+MdNkv00w2wt/Kuni2b9+/wC4R/cr0YVaVHK4TrwvHliQ4ynW9w5/4ffto/GnV/iB4VsL7x1Nc2N5q1na3MLWNoC6PMiOmfJr9X9Z0i38QaNqGm3a77a+gktpV/2HXaw/I14Nov7BPwZ0HWrDVLTw9dLd2VwlzAX1O5dQ6PvQ4L+tfRQ4r4DNcVhcTUhPBw5LHo0ozj8Z+G3xk+DHiX4DeL7rQPEVlNBAsrpY6hs/0a+h/gdH/wDZP4KyPBnxF8VfDfUXvfCviLU/D90/330+4dEm/wB9PuPX7UJ4j8CfFWfXvDH2nSPE8+lzfZtT0qUJP9nkx0dG/wB6vnr49/sDfDDWfCetax4btP8AhB9XsrSa5R7Jv9DbYhfDwv8AIicfwbK+mw2f06iVDG07nJPCyvz0zw34Lf8ABSjxRoOo22n/ABJtYtf0Z38t9XsYfJvLf/beNPkdP9zZX6QaXq1nrum22o2Fwl1ZXUSTQTxNlJEcZVh+FfgbHJvRH/v1+wH7CNxdXX7LPgg3W47IZYoi3XylmcJ+gri4hy7D4aMK1BctzTC1pz9yZ9BAVS1PTLXWrC5s72FLi1nRopYZBlWU9c1eBpCea+LTad0dzSmrM/Pj4u/Da4+F/jCbTvnfT5f31lM/8cP9z/fSvP8AUrpNN029u5fkSGF3f/vivvL9oP4cH4h+A7hbeJZNVsP9Is/9o/xp/wACXI/GvkH4QfCex+PnjG88P6ncOnh/S44bvWIEba92ju/k22P4UcId/wDsfJ/HX6zl2cxqYH29beHxfofhGYcNThnMMLR+Cb5v+3ftfcYv/BOH9n2+17xhH8UdXtHh0bTEeHSfOT/j7uX+R5k/2ETf/wADf/Yr9LcVnaRpNpoOmWtjp9tFZWVtEsMNvAm1I0XoqqOnFaO6vzXMcZPMK7rTP3KjTVOCSDHFfnB/wUH/AGZNZg8VXfxQ8OWE2paTexL/AGxbWyb3tJUTYJtn9x04c/w4zX6QdqYRnrSwWNqYCr7amOrD2keQ/A/w94l1TwvqkOr6Bqt1pOpxcRXlhcPC6/8AA0rpPG/xm8ffEexSy8T+LtY12yV9621zcfud/wDf2V+tHjX9kX4Q/EC9kvdX8D6ab2U7nubMPaO/++YXTd+Nc7pv7BPwP0udZv8AhDEu2QfIt3e3Eyj/AICXxX2f+sOCm/aVKXvnB9Vq9z8vfg98G/Evx18XweHfDFq0zu/+l6gU/c2MP8bu/wD7J/HX7SfD7wZYfDnwVovhjS18vT9KtY7OHI6hUA3Vb8L+D9E8GaWmnaDpFlounxjCW1hAsMY/Ba2h8tfMZpms8xnqrROujR9kfkF+3yc/tX+Mf+uNh/6TJXiegeLtd8K+f/Ymt6jon2j/AF39n3bw7/8Af2V+0/ir4B/Djx1rU2teIfA2ha1qsqokl5f6fFLO4T7nzkdqyv8AhlX4PD/mmXhX/wAFEH/xFe7huIaFHDQoTp35TlnhZOfOj8i9O+L3j2PUrJ/+E48SfJcQ/wDMUm/v/wC/X7G/GXxF4g8LfCbxDq/hfSptc8R21mz2NlEm92mPAYJ/Ftzu2d9uKybf9lv4Q2s0c0Pw08KrNE/mI40qH5W/74r1TjpXj5nmVLGzhOELcp1UqcoH4Jad4m13wz4mfVbLVdQ0jxJFM7zXsMzw3KTP9/f/AB/fruPGH7S/xU8feHH0DX/HOp6hpEqbJbX5IfNT+47oiO//AAOv1z+InwB+HvxVJl8UeD9L1e6xxdSQ7Jv+/qYf9a84h/YC+B0Fx5n/AAhxlX/njJqFyU/LzK96Gf4Gfv1qHvnM8LV+xM/LH4a/DHxJ8X/F1t4b8Lae97qFw/zvszDaJ/z2mf8AgSv2p+FngCx+GPw/8O+FbAZtdIsktUcry5UfM/1Zst+NWPBnw68NfDrTP7O8NaHp+h2X/PHT7ZIg3+9j71dOBg5r57Nc1nmTUUrRR1UaXsR1IRS0hrwjpIiASR3r89/jfo2q/Af41av4s8J3E2l6pCq3kUaP+51C3d9720yfxpv3on9yv0GZ8BgByBXI+JfhZ4c8XeItL1nVrBbu907/AFG9vkHzBvmXo3zAV62W4uODnP2seaMlseDmmCq4yNKeHnyzjL8PtHXWk/n20MhTy96btp/hqxSClryme6gooopDGVyPxMLp4aDRyNEwurf5luHt+syfxrzXXelVb+2iu7fyZ4kmhk4aORQyn8K0pS5ZxkYYiPtKUonlGl+L9T052063Ilna9uUSaa4+1IiqiOqI7uhf7/8AwDDJ2qzfeLNcEOru9/aWLxLYSrE6bxbBynmZfd86ff8Am/wr0X+xdOm09bd7C2a2VsiAxLsB/wB3GKlOk2UmN1pA2YfL5jX7n9zp932rs9vT5vgPK+p4jk5fanAp451e71XUEghtVtbW4ltXaQ8rtTd5v3/m7fIF+7/HVvVNV1K++Ft7qN5JHbXktibpTYyNEIvk3rh+o/3q7H+xbD7Yt19jg+0hfL87y137fTOKnEEU0DQPGjQ42eXj5cemKylVppxtE6KeHqOMlKZ51Z6te2ctjaaXPALi/uXS4W7v3vjB+5LqyZf/AGPu+9OtPiPqE8VlE8No17qP7qz2btjypM6TfgiDfXe2Wi2Fkv8Aotlb2vOf3MSr/IUqabaxONlvGpjLOpC9C2dx/Gr9rT/lM1QrU/hmeer471iAyeVHbT20FreXU6Dc8zmKZk2p8/8AHj/gNJc+ONZtf3ccukajPLHbypNBu8ld8yJtb5++75H/ANg5r0iKzt4cyRwRo5HJVcVBaaRYWYKW9lb26SHzHWOIKGb1NL2tO/wlfVcR/wA/Til8Wa+2qDSVewe7S9e2lnMLbQn2ZJlfZv8A9vb1qifiTq9jo6aldwWcjXFlLPFDBuO1kdE+9/Enz7vWvSRbw+cZfJj80/x7Rn86b/Ztruz9njzHu2/L03fe/Oj2tPrEKmFxC+GqcMninxHNNa2qpYpJcXTQrcupPyeTv3hFf/2esyy8daze3RnjuLHA0yVhZSnajXEVw6O+/d0+WvSLHSbGyXy7Wzt7VEfhYYlUfoKcdF0+VSj2UDKd3BjH8X3vzp+1p/yh9VxC/wCXpk+Ddbk1zTDPPKks6yvC4WLyjGynBRl3v83410uOKqWVlBZQpFbQpbxJ92OJQqj8BVs9BXLNpy0O6imoWY6iiiszoP/Z" alt="UES" />
     <div class="ttl-wrap" id="ttlWrap">
       <div class="ttl" id="projTitle">Project</div>
       <div class="sub" id="dashTitle"></div>
@@ -594,6 +596,12 @@ const CODE_SHEET_KEYS = {
   sNo:'S No.', packageNo:'Package No.', itemCategory:'Item Category', area:'Area',
   equipmentTags:'Equipment Tags', packageNotes:'Package Notes', quantity:'Quantity'
 };
+/* Every Code field whose label ends in "Date" is a date column. We always parse these as
+   Dates in buildModel — independent of the (sometimes blank/missing) Data Type column — so the
+   model field is a real Date that the S-curve, Look-Ahead and Overdue-by-Stage views (all of
+   which require `instanceof Date`) can rely on. Without this, those views silently render empty
+   ("Nothing to export") while the tables still show dates because they normalise via toDate(). */
+const DATE_FIELDS = Object.keys(CODE_SHEET_KEYS).filter(f => /Date$/.test(CODE_SHEET_KEYS[f]));
 const REV_CODE_KEYS = Object.fromEntries(Object.entries(CODE_SHEET_KEYS).map(([f,l])=>[String(l).trim().toLowerCase(), f]));
 
 
@@ -727,9 +735,12 @@ function toDate(v){
   // (2) ISO / text date — take the WRITTEN calendar day, ignoring any time or zone suffix
   //     (e.g. "2026-03-19", "2026-03-19T00:00:00", "2026-03-19T00:00:00Z" all => 19 Mar 2026).
   if(typeof v==='string'){
-    const m=/^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(v.trim());
+    const t=v.trim();
+    // bare Excel serial stored as TEXT (e.g. "46218") — still a date, parse it as a serial.
+    if(/^\d{5}(\.\d+)?$/.test(t)){ const n=parseFloat(t); if(n>40000&&n<70000){ const d=new Date((n-25569)*86400000); return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); } return null; }
+    const m=/^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(t);
     if(m) return new Date(+m[1], (+m[2])-1, +m[3]);
-    const d=new Date(v); if(isNaN(d)) return null; return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const d=new Date(t); if(isNaN(d)) return null; return new Date(d.getFullYear(), d.getMonth(), d.getDate());
   }
   // (3) already a Date — normalize to its LOCAL calendar-day midnight.
   if(v instanceof Date) return new Date(v.getFullYear(), v.getMonth(), v.getDate());
@@ -940,7 +951,11 @@ function buildModel(result, filename){
       const raw = row[colIdx];
       pkg._raw[field] = raw;
       const t = typeFor(field);
-      if(t==='Date') pkg[field] = toDate(raw);
+      // Date columns are parsed as Dates regardless of the (often blank/missing) Data Type column.
+      // Otherwise pkg.<dateField> stays a raw serial/string and the S-curve, Look-Ahead and
+      // Overdue-by-Stage views (which all require a real Date) silently render empty.
+      if(DATE_FIELDS.includes(field)) pkg[field] = toDate(raw);
+      else if(t==='Date') pkg[field] = toDate(raw);
       else if(t==='Number') pkg[field] = (raw==null||raw==='') ? null : (isNaN(Number(raw)) ? null : Number(raw));
       else pkg[field] = (raw==null?'':String(raw));
     }
@@ -2014,26 +2029,46 @@ function renderBenchmark(){
 
 
 /* ============== chart → image ============== */
-async function chartToPng(svgEl){
+async function chartToCanvas(svgEl){
   const xml=new XMLSerializer().serializeToString(svgEl);
-  const svg64='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);
-  return await new Promise((res,rej)=>{
-    const img=new Image();
-    img.onload=()=>{ const scale=2; const w=svgEl.width.baseVal.value||svgEl.viewBox.baseVal.width||760; const h=svgEl.height.baseVal.value||svgEl.viewBox.baseVal.height||280;
-      const canvas=document.createElement('canvas'); canvas.width=w*scale; canvas.height=h*scale; const ctx=canvas.getContext('2d');
-      ctx.fillStyle=CHART.white; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.scale(scale,scale); ctx.drawImage(img,0,0,w,h);
-      canvas.toBlob(b=>b?res(b):rej(new Error('toBlob failed')),'image/png'); };
-    img.onerror=()=>rej(new Error('image load failed'));
-    img.src=svg64;
-  });
+  const src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);
+  const natW=svgEl.width.baseVal.value||svgEl.viewBox.baseVal.width||760;
+  const natH=svgEl.height.baseVal.value||svgEl.viewBox.baseVal.height||280;
+  // Clamp the raster size so a long S-curve timeline can't exceed the browser's max canvas
+  // dimension (which silently yields a 0-sized / null canvas and breaks export).
+  const MAX=16000; let scale=2; while(scale>0.5 && (natW*scale>MAX||natH*scale>MAX)) scale-=0.25;
+  const w=Math.max(1,Math.round(natW*scale)), h=Math.max(1,Math.round(natH*scale));
+  const img=new Image();
+  await new Promise((res,rej)=>{ img.onload=res; img.onerror=()=>rej(new Error('SVG could not be rasterised')); img.src=src; });
+  const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle=CHART.white; ctx.fillRect(0,0,w,h);
+  ctx.drawImage(img,0,0,w,h);
+  return canvas;
 }
-function downloadBlob(blob,name){ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); }
+/* Accepts either a Blob or a data: URL. The anchor is attached to the document before the
+   click so downloads work reliably even when the dashboard is opened directly from disk
+   (file:// / opaque origin), where a detached anchor is sometimes ignored. */
+function downloadBlob(blobOrUrl,name){
+  const a=document.createElement('a');
+  a.href=(typeof blobOrUrl==='string')?blobOrUrl:URL.createObjectURL(blobOrUrl);
+  a.download=name; a.rel='noopener';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ a.remove(); if(typeof blobOrUrl!=='string'){ try{ URL.revokeObjectURL(a.href); }catch(e){} } }, 4000);
+}
 async function copyChart(svgId,name){
   const el=document.getElementById(svgId); if(!el){ toast('Nothing to export'); return; }
-  try{ const blob=await chartToPng(el);
-    if(navigator.clipboard && window.ClipboardItem){ await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); toast('Chart copied to clipboard'); }
-    else { downloadBlob(blob,name+'.png'); toast('Clipboard unavailable — downloaded PNG'); }
-  }catch(e){ try{ const blob=await chartToPng(el); downloadBlob(blob,name+'.png'); toast('Clipboard blocked — downloaded PNG'); }catch(e2){ toast('Copy failed: '+e2.message); } }
+  let canvas;
+  try{ canvas=await chartToCanvas(el); }catch(e){ toast('Export failed: '+e.message); return; }
+  // Prefer the OS clipboard (image). Fall back to a PNG file download everywhere else.
+  try{
+    if(navigator.clipboard && window.ClipboardItem && canvas.toBlob){
+      const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
+      if(blob){ await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); toast('Chart copied to clipboard'); return; }
+    }
+  }catch(e){ /* fall through to file download */ }
+  try{ downloadBlob(canvas.toDataURL('image/png'), name+'.png'); toast('Copied as PNG download'); }
+  catch(e2){ toast('Copy failed: '+e2.message); }
 }
 document.getElementById('tfBtn').addEventListener('click',e=>{
   e.stopPropagation();
@@ -2065,7 +2100,7 @@ document.getElementById('dash').addEventListener('click',e=>{
     else { setPref(key,t); } } return; }
   const copy=e.target.closest('.copyBtn'), dl=e.target.closest('.dlBtn');
   if(copy){ const id=copy.getAttribute('data-svg'); copyChart(id,(document.getElementById('projTitle').textContent||'chart')+' '+(id||'chart')); }
-  if(dl){ const id=dl.getAttribute('data-svg'); const el=document.getElementById(id); if(el){ chartToPng(el).then(b=>{ downloadBlob(b,(document.getElementById('projTitle').textContent||'chart')+' '+(id||'chart')+'.png'); toast('Downloaded PNG'); }).catch(err=>toast('Export failed: '+err.message)); } else { toast('Nothing to export'); } }
+  if(dl){ const id=dl.getAttribute('data-svg'); const el=document.getElementById(id); if(el){ chartToCanvas(el).then(c=>{ downloadBlob(c.toDataURL('image/png'), (document.getElementById('projTitle').textContent||'chart')+' '+(id||'chart')+'.png'); toast('Downloaded PNG'); }).catch(err=>toast('Export failed: '+err.message)); } else { toast('Nothing to export'); } }
 });
 /* §7.8 — CSV export of the look-ahead list: same UTF-8 BOM rule as the validation report, and
    the exported rows are exactly the rows on screen (same filter, same sort, same horizon). */
@@ -2109,6 +2144,7 @@ async function handleFile(f){
 document.getElementById('openBtn').onclick=()=>fileInput.click();
 document.getElementById('reloadBtn').onclick=()=>fileInput.click();
 fileInput.onchange=e=>{ const f=e.target.files[0]; if(f) handleFile(f); e.target.value=''; };
+const _cpy=document.getElementById('cpyYear'); if(_cpy) _cpy.textContent=new Date().getFullYear();
 
 /* Phase B: dark-theme toggle (persisted in localStorage) */
 function getTheme(){ try{ return localStorage.getItem('ppp-chart-theme'); }catch(e){ return null; } }
@@ -2279,7 +2315,7 @@ attachHelp();
   if(tog) tog.addEventListener('click',()=>{ const collapsed=panel.classList.toggle('collapsed'); tog.textContent=collapsed?'+':'−'; tog.setAttribute('aria-expanded',String(!collapsed)); });
 })();
 const drop=document.getElementById('drop');
-drop.onclick=()=>fileInput.click();
+drop.onclick=e=>{ if(e.target.id!=='openBtn') fileInput.click(); };
 ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('hover');}));
 ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('hover');}));
 drop.addEventListener('drop',e=>{ const f=e.dataTransfer.files[0]; if(f) handleFile(f); });

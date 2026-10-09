@@ -102,16 +102,24 @@ console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 // ---------- interactive filter derivation (no DOM) ----------
 console.log('9) Interactive filtering (deriveView)');
 const base = model.records.filter(r=>r.isActive).length;
-const all = deriveView(model, { disciplines:new Set(), stages:new Set(), authority:new Set(), approval:new Set(), search:'', includeExcluded:false, rule:null });
+// Filter state contract: every counted value is listed in the sets (no set = nothing selected).
+const EXCL_STAGES = ['Deleted','Void','Superseded'];
+const fullDisc = new Set([...new Set(model.records.map(r=>r.discipline).filter(Boolean))]);
+const fullStg  = new Set([...new Set(model.records.map(r=>r.stage).filter(Boolean))].filter(s=>!EXCL_STAGES.includes(s)));
+const st = (o={}) => ({ disciplines:o.disciplines||fullDisc, stages:o.stages||fullStg, search:o.search||'', rule:o.rule||null, sort:{col:null,dir:1} });
+const all = deriveView(model, st());
 ok('default filter → active count', all.active.length === base, `${all.active.length} vs ${base}`);
-const oneDisc = deriveView(model, { disciplines:new Set(['Process']), stages:new Set(), authority:new Set(), approval:new Set(), search:'', includeExcluded:false, rule:null });
+ok('excluded stages excluded by default', all.active.every(r=>r.isActive));
+const oneDisc = deriveView(model, st({ disciplines:new Set(['Process']) }));
 ok('discipline filter narrows', oneDisc.active.length > 0 && oneDisc.active.length < base, 'got ' + oneDisc.active.length);
 ok('discipline filter only Process', oneDisc.active.every(r=>r.discipline==='Process'));
-const incExc = deriveView(model, { disciplines:new Set(), stages:new Set(), authority:new Set(), approval:new Set(), search:'', includeExcluded:true, rule:null });
-ok('includeExcluded grows the set', incExc.active.length > base, `${incExc.active.length} vs ${base}`);
-const search = deriveView(model, { disciplines:new Set(), stages:new Set(), authority:new Set(), approval:new Set(), search:'IM', includeExcluded:false, rule:null });
-ok('search narrows by doc no/title/discipline', search.active.every(r=>[r.docNo,r.fields['Document Title'],r.fields['UESH Discipline']].join(' ').toLowerCase().includes('im')));
-const withIssues = deriveView(model, { disciplines:new Set(), stages:new Set(), authority:new Set(), approval:new Set(), search:'', includeExcluded:false, rule:'V-26' });
+const incExc = deriveView(model, st({ stages:new Set([...fullStg, ...EXCL_STAGES]) }));
+ok('ticking excluded stages grows the set', incExc.active.length > base, `${incExc.active.length} vs ${base}`);
+const none = deriveView(model, st({ disciplines:new Set() }));
+ok('empty selection → zero rows', none.active.length === 0, `got ${none.active.length}`);
+const search = deriveView(model, st({ search:'IM' }));
+ok('search narrows by doc no/title/discipline', search.active.length > 0 && search.active.every(r=>[r.docNo,r.fields['Document Title'],r.fields['UESH Discipline']].join(' ').toLowerCase().includes('im')));
+const withIssues = deriveView(model, st({ rule:'V-26' }));
 ok('rule filter keeps only that rule’s issues', withIssues.issues.every(i=>i.code==='V-26'));
 
 console.log('9b) deriveView KPI split reflects filtered active set');

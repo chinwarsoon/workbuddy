@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MDL — top-bar filters SAMPLE (review only)</title>
+<style>
+:root{--navy:#0F2D52;--blue:#1E88E5;--muted:#64748B;--bg:#F6F8FA;--border:#D9E1E8;--text:#1F2A37;--card:#FFFFFF;--accent:#1E88E5;--soft:#E8F1FD;--shadow:0 1px 2px rgba(15,45,82,.04);--accent-soft-border:#BFD8F2;--accent-ink:#1E88E5;--font:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;padding-bottom:60px}
+
+/* ---- production app bar (unchanged apart from the filter controls) ---- */
+header.app{background:var(--navy);color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:0;z-index:20}
+header.app .brand{display:flex;align-items:center;gap:12px;min-width:0}
+header.app .logo{height:36px;border-radius:6px;background:#fff;padding:3px;flex-shrink:0}
+header.app .ttl-stack{display:flex;flex-direction:column;gap:2px;min-width:0}
+header.app h1.ttl{font-size:17px;margin:0;font-weight:600;color:#fff;line-height:1.2}
+header.app .sub{font-size:12px;font-weight:500;opacity:.85}
+header.app .meta{font-size:11px;opacity:.85}
+header.app .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--navy);padding:7px 12px;min-height:32px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-secondary{background:#fff;color:var(--navy)}
+.sample-logo{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:6px;background:#fff;color:var(--navy);font-weight:700;font-size:10px;flex-shrink:0}
+
+/* ---- NEW: individual filter buttons (spec §7.5 dropdown, one per dimension) ---- */
+.tf-wrap{position:relative}
+.tf-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--navy);padding:7px 12px;min-height:32px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
+.tf-btn:hover{background:var(--soft)}
+.tf-btn[aria-expanded="true"]{border-color:var(--accent);background:var(--soft)}
+.tf-btn.is-filtered{border-color:var(--accent);color:var(--accent);background:#fff}
+.tf-btn .chev{width:12px;height:12px;fill:currentColor;flex-shrink:0}
+.tf-btn .cnt{font-size:10px;background:var(--bg);border:1px solid var(--border);color:var(--muted);padding:1px 6px;border-radius:10px;font-weight:600}
+.tf-btn.is-filtered .cnt{background:var(--soft);border-color:var(--accent-soft-border);color:var(--accent-ink)}
+.tf-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:30;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);min-width:220px;max-width:min(340px,90vw);max-height:320px;overflow:auto;padding:10px;color:var(--text)}
+.tf-panel[hidden]{display:none}
+.filters-help{font-size:11px;color:var(--muted);margin:0 0 8px}
+.tf-search{width:100%;padding:5px 7px;border:1px solid var(--border);border-radius:6px;font-size:12px;margin-bottom:6px;font-family:inherit}
+.tf-panel .item{display:flex;align-items:center;gap:8px;padding:5px 4px;font-size:12px;cursor:pointer;border-radius:4px}
+.tf-panel .item:hover{background:var(--soft)}
+.tf-panel .item input{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0}
+.tf-panel .item[hidden]{display:none}
+.excl{font-size:9px;color:var(--muted);background:var(--bg);border:1px solid var(--border);padding:0 4px;border-radius:8px;margin-left:auto}
+.grp-actions{display:flex;gap:6px;margin:8px 0 4px}
+.btn-mini{font-size:10px;font-weight:600;padding:2px 7px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--navy);cursor:pointer;font-family:inherit}
+.btn-mini:hover{background:var(--soft)}
+.filtered-note{font-size:9px;color:#9A6B00;margin-top:6px}
+#btnClearAll[hidden]{display:none}
+
+/* ---- placeholder dashboard context (not part of the proposal) ---- */
+.wrap{max-width:1320px;margin:0 auto;padding:16px}
+.hint{font-size:11px;color:var(--muted);margin:0 0 12px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kpi{background:var(--card);border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;padding:10px}
+.kpi .v{font-size:22px;font-weight:700;color:var(--navy);line-height:1.1}
+.kpi .l{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.panel-ph{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:12px;color:var(--muted);font-size:12px}
+.notes{margin-top:16px;background:#FFF8E7;border:1px solid #F0D38A;border-radius:8px;padding:12px 14px;font-size:12px;line-height:1.55}
+.notes h3{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#9a6b00}
+.notes ul{margin:0;padding-left:18px}
+.status-bar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;gap:10px;padding:6px 14px;background:var(--navy);color:#E8EDF3;font-size:12px}
+</style>
+</head>
+<body>
+
+<!-- ===================== PROPOSED TOP BAR ===================== -->
+<header class="app">
+  <div class="brand">
+    <div class="sample-logo">UES</div>
+    <div class="ttl-stack">
+      <h1 class="ttl">TWRP C3B2</h1>
+      <div class="sub">Master Document List Dashboard</div>
+      <div class="meta">TWRP C3B2 - Master Document List.xlsx · as of 2026-10-09</div>
+    </div>
+  </div>
+  <div class="actions">
+    <!-- filter 1 -->
+    <div class="tf-wrap">
+      <button class="tf-btn" id="btnDiscipline" aria-expanded="false" aria-controls="panelDiscipline">
+        Discipline <span class="cnt" id="cntDiscipline">All</span>
+        <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+      </button>
+      <div class="tf-panel" id="panelDiscipline" role="group" aria-label="Filter documents by discipline" hidden></div>
+    </div>
+    <!-- filter 2 -->
+    <div class="tf-wrap">
+      <button class="tf-btn" id="btnStage" aria-expanded="false" aria-controls="panelStage">
+        Stage <span class="cnt" id="cntStage">All</span>
+        <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+      </button>
+      <div class="tf-panel" id="panelStage" role="group" aria-label="Filter documents by stage" hidden></div>
+    </div>
+    <button class="btn" id="btnClearAll" hidden>Clear all ×</button>
+    <button class="btn btn-secondary">Load workbook</button>
+    <button class="btn btn-secondary">Print / Save PDF</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <p class="hint">Below is placeholder content — only the top bar above is the proposal.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="v">315</div><div class="l">Active documents</div></div>
+    <div class="kpi"><div class="v">11</div><div class="l">Disciplines</div></div>
+    <div class="kpi"><div class="v">37</div><div class="l">Overdue</div></div>
+    <div class="kpi"><div class="v">0</div><div class="l">Fatal issues</div></div>
+  </div>
+  <div class="panel-ph">Panels (matrix / charts / overdue / validation / detail) render here — unchanged by this proposal.</div>
+
+  <div class="notes">
+    <h3>Review notes (not part of the UI)</h3>
+    <ul>
+      <li><b>Try it:</b> open <b>Discipline</b>, deselect a few → the trigger turns accent-blue and shows <code>2 of 11</code>; the note appears in the panel; <b>Clear all ×</b> appears in the bar; the bottom status bar summary updates. Reopen <b>Stage</b> to see only one dropdown open at a time. Use the search box (Discipline only, because it has 11 items).</li>
+      <li><b>Two filters only</b> per your instruction: Discipline + Stage. The current single <code>Filters ▾</code> button would be replaced by these two.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="status-bar">
+  <span><b>Total:</b> 462</span><span><b>Active:</b> 315</span>
+  <span id="sbFilter"><b>Filter:</b> All documents (no filter applied)</span>
+</div>
+
+<script>
+const DATA = {
+  Discipline: ['BS','CSA','Electrical','General','ICA','Mech','Mechanical','Piping','Process','Project','QAQC'],
+  Stage: ['Deleted','Hold','NA','Stage 1','Stage 2','Superseded','Void']
+};
+const EXCLUDED = ['Deleted','Void','Superseded'];
+const META = {
+  Discipline: { btn:'btnDiscipline', panel:'panelDiscipline', cnt:'cntDiscipline', search:true },
+  Stage:      { btn:'btnStage',      panel:'panelStage',      cnt:'cntStage',      search:false }
+};
+const state = {};
+Object.keys(DATA).forEach(k => state[k] = new Set(DATA[k]));
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+const total = k => DATA[k].length;
+const isFiltered = k => state[k].size < total(k);
+const anyFiltered = () => Object.keys(DATA).some(isFiltered);
+
+function buildPanel(k){
+  const m = META[k];
+  const p = document.getElementById(m.panel);
+  p.innerHTML = `
+    <p class="filters-help">All selected by default — deselect to narrow the dashboard.</p>
+    ${m.search ? `<input class="tf-search" placeholder="Search discipline…" aria-label="Search disciplines">` : ''}
+    <div class="tf-list">
+      ${DATA[k].map(v => `<label class="item" data-val="${esc(v)}"><input type="checkbox" data-key="${k}" value="${esc(v)}" checked> <span>${esc(v)}</span>${k==='Stage' && EXCLUDED.includes(v) ? '<span class="excl">excluded</span>' : ''}</label>`).join('')}
+    </div>
+    <div class="grp-actions">
+      <button class="btn-mini" data-act="all" data-key="${k}">All</button>
+      <button class="btn-mini" data-act="clear" data-key="${k}">Clear</button>
+    </div>
+    <div class="filtered-note" style="display:none"></div>`;
+
+  if(m.search){
+    p.querySelector('.tf-search').addEventListener('input', e => {
+      const q = e.target.value.toLowerCase();
+      p.querySelectorAll('.item').forEach(l => { l.hidden = !l.dataset.val.toLowerCase().includes(q); });
+    });
+  }
+  p.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      cb.checked ? state[k].add(cb.value) : state[k].delete(cb.value);
+      sync(k);
+    });
+  });
+  p.querySelectorAll('.btn-mini').forEach(b => {
+    b.addEventListener('click', () => {
+      const all = b.dataset.act === 'all';
+      state[k] = new Set(all ? DATA[k] : []);
+      p.querySelectorAll('input[type=checkbox]').forEach(c => { c.checked = all; });
+      sync(k);
+    });
+  });
+}
+
+function sync(k){
+  const m = META[k];
+  const btn = document.getElementById(m.btn);
+  const note = document.getElementById(m.panel).querySelector('.filtered-note');
+  document.getElementById(m.cnt).textContent = isFiltered(k) ? `${state[k].size} of ${total(k)}` : 'All';
+  btn.classList.toggle('is-filtered', isFiltered(k));
+  note.style.display = isFiltered(k) ? 'block' : 'none';
+  note.textContent = `● filtered — ${total(k) - state[k].size} of ${total(k)} ${k.toLowerCase()}s hidden`;
+  document.getElementById('btnClearAll').hidden = !anyFiltered();
+  updateSummary();
+}
+
+function updateSummary(){
+  const parts = Object.keys(DATA).filter(isFiltered)
+    .map(k => `${k}: ${[...state[k]].sort().join(', ') || 'none'}`);
+  document.getElementById('sbFilter').innerHTML = '<b>Filter:</b> ' +
+    (parts.length ? String(parts.join(' · ')).replace(/</g,'&lt;') : 'All documents (no filter applied)');
+}
+
+function closeAll(except){
+  Object.keys(META).forEach(k => {
+    if(k === except) return;
+    document.getElementById(META[k].panel).hidden = true;
+    document.getElementById(META[k].btn).setAttribute('aria-expanded','false');
+  });
+}
+
+Object.keys(META).forEach(k => {
+  buildPanel(k);
+  const btn = document.getElementById(META[k].btn);
+  const panel = document.getElementById(META[k].panel);
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = panel.hidden;
+    closeAll(k);
+    panel.hidden = !open;
+    btn.setAttribute('aria-expanded', String(open));
+  });
+  panel.addEventListener('click', e => e.stopPropagation());
+});
+
+document.addEventListener('click', () => closeAll(null));
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeAll(null); });
+
+document.getElementById('btnClearAll').addEventListener('click', () => {
+  Object.keys(DATA).forEach(k => {
+    state[k] = new Set(DATA[k]);
+    document.getElementById(META[k].panel).querySelectorAll('input[type=checkbox]').forEach(c => { c.checked = true; });
+    sync(k);
+  });
+});
+
+Object.keys(DATA).forEach(sync);
+</script>
+</body>
+</html>

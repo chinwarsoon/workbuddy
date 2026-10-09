@@ -1,10 +1,11 @@
-/* Renders the dashboard against the real workbook in a sandbox and asserts the
-   OUTPUT DOM — that each panel receives real content, that charts contain bars,
-   and that the data-decision banner and integrity warnings appear. This catches
-   render-layer breakage that the model-level test cannot see.                  */
+// Runtime regression test for the built MDL dashboard.
+// Loads MDL-Dashboard.html, executes its <script type="module"> bundle under a jsdom
+// + node-vm context, renders the real workbook, and asserts key DOM/Spec facts.
+// Run from the MDL directory:  node test/test_render.mjs
+import { JSDOM } from 'jsdom';
 import fs from 'node:fs';
-import vm from 'node:vm';
 import path from 'node:path';
+import vm from 'node:vm';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
@@ -13,134 +14,194 @@ const ROOT = path.resolve(__dirname, '..');
 const HTML = path.join(ROOT, 'MDL-Dashboard.html');
 const XLSX = path.join(ROOT, 'TWRP C3B2 - Master Document List.xlsx');
 
-let pass = 0, fail = 0;
-const ok = (n, c, d) => { if (c) { pass++; console.log('  \u2713 ' + n); } else { fail++; console.log('  \u2717 ' + n + (d !== undefined ? '  -> ' + JSON.stringify(d) : '')); } };
-
-if (typeof globalThis.DecompressionStream === 'undefined') {
-  globalThis.DecompressionStream = class {
-    constructor() { this._c = []; this.writable = new WritableStream({ write: (c) => this._c.push(Buffer.from(c)) }); this.readable = new ReadableStream({ start: (ctl) => { ctl.enqueue(zlib.inflateRawSync(Buffer.concat(this._c))); ctl.close(); } }); }
-  };
-}
-
 const html = fs.readFileSync(HTML, 'utf8');
-const src = html.match(/<script>([\s\S]*)<\/script>/)[1];
+const scriptMatch = html.match(/<script type="module">([\s\S]*?)<\/script>/);
+if (!scriptMatch) { console.error('FAIL: no module script found in bundle'); process.exit(1); }
+// Expose the internals the test needs (the bundle strips exports during build).
+let code = scriptMatch[1] + '\nglobalThis.__rd=renderDashboard; globalThis.__rx=readXlsx; globalThis.__bm=buildModel; globalThis.__gf=getFilterDefs;';
 
-/* A DOM stub that RECORDS what each container received, so we can assert the
-   render layer wrote into the right elements. */
-const store = new Map();
-const noop = () => {};
-function el(id) {
-  if (!store.has(id)) {
-    store.set(id, {
-      id, innerHTML: '', textContent: '', value: '', style: { display: '' }, className: '',
-      classList: { add: noop, remove: noop, toggle: noop, contains: () => false },
-      dataset: {}, setAttribute: noop, getAttribute: () => null, addEventListener: noop,
-      querySelector: () => null, querySelectorAll: () => [], closest: () => null,
-      scrollIntoView: noop, getContext: () => ({}), toBlob: noop,
-      width: { baseVal: { value: 0 } }, height: { baseVal: { value: 0 } }
-    });
-  }
-  return store.get(id);
-}
-const doc = {
-  documentElement: { getAttribute: () => null, setAttribute: noop, removeAttribute: noop },
-  getElementById: el, addEventListener: noop, createElement: () => el('_created'),
-  querySelector: () => null, querySelectorAll: () => []
-};
+const dom = new JSDOM('<!doctype html><html><body><div id="app"></div></body></html>',
+  { url: 'http://localhost/', pretendToBeVisual: true });
+const { window } = dom;
 const ctx = {
-  window: { scrollTo: noop, __MDL__: null, scrollY: 0 }, document: doc,
-  localStorage: { getItem: () => null, setItem: noop }, navigator: {}, console,
-  setTimeout, clearTimeout, Blob: class {}, URL: { createObjectURL: () => '', revokeObjectURL: noop },
-  TextDecoder, Image: function () {}, XMLSerializer: function () {},
-  DecompressionStream: globalThis.DecompressionStream, WritableStream: globalThis.WritableStream, ReadableStream: globalThis.ReadableStream
+  window, document: window.document, navigator: window.navigator, localStorage: window.localStorage,
+  HTMLElement: window.HTMLElement, Image: window.Image, XMLSerializer: window.XMLSerializer,
+  Blob: window.Blob, URL: window.URL, console,
+  requestAnimationFrame: cb => setTimeout(() => cb(Date.now()), 0),
+  cancelAnimationFrame: id => clearTimeout(id),
+  setTimeout, clearTimeout, TextDecoder, Response: globalThis.Response,
+  WritableStream: globalThis.WritableStream, ReadableStream: globalThis.ReadableStream,
+};
+ctx.DecompressionStream = class {
+  constructor() { this._c = []; let ctrl = null;
+    this.writable = new globalThis.WritableStream({ write: c => this._c.push(Buffer.from(c)), close: () => { try { ctrl.enqueue(zlib.inflateRawSync(Buffer.concat(this._c))); ctrl.close(); } catch (e) { ctrl.error(e); } } });
+    this.readable = new globalThis.ReadableStream({ start: c => { ctrl = c; } });
+  }
 };
 ctx.globalThis = ctx;
 vm.createContext(ctx);
-vm.runInContext(src, ctx, { filename: 'inline.js' });
-const M = ctx.window.__MDL__;
+vm.runInContext(code, ctx, { filename: 'bundle.js' });
 
-/* drive the real load path exactly as the browser would */
 const buf = fs.readFileSync(XLSX);
-const sheets = await M.parseXlsx(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
-M.buildModel; /* exposed */
-const model = M.buildModel(sheets, 'TWRP C3B2 - Master Document List.xlsx');
-M.STATE.model = model;
-M.STATE.report = M.validate(model);
-el('welcome').style.display = 'none';
-el('dash').classList.remove('hidden');
+const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+const wb = await ctx.__rx(ab);
+const model = ctx.__bm(wb, { workbookName: XLSX });
 
-/* call the real render() via the registered pipeline: buildDashboard is not
-   exposed, so invoke render through the module's own path */
-const renderSrc = src.replace('const fileInput=document.getElementById(\'fileInput\');',
-  'window.__render=render;window.__buildFilter=buildFilterPanel;const fileInput=document.getElementById(\'fileInput\');');
-const ctx2 = { ...ctx, window: { scrollTo: noop, __MDL__: null } };
-ctx2.document = { ...doc, getElementById: el };
-ctx2.globalThis = ctx2;
-vm.createContext(ctx2);
-vm.runInContext(renderSrc, ctx2, { filename: 'inline2.js' });
-ctx2.window.__MDL__.STATE.model = model;
-ctx2.window.__MDL__.STATE.report = ctx2.window.__MDL__.validate(model);
-ctx2.window.__render();
-ctx2.window.__buildFilter();
+ctx.__rd(window.document.getElementById('app'), model);
+await new Promise(r => setTimeout(r, 400));
 
-const txt = (id) => String(store.get(id)?.innerHTML || '');
-console.log('MDL dashboard — render-layer verification\n');
+const D = window.document;
+const checks = [];
+const ok = (name, cond, extra = '') => checks.push({ name, pass: !!cond, extra });
 
-console.log('1. Panels render content');
-const panels = ['kpis', 'actions', 'subStatusChart', 'slipChart', 'discChart', 'apprChart', 'prologChart', 'mixChart', 'upTable', 'dupTable', 'vSummary', 'vDetail', 'wbIntegrity', 'regTable', 'conSheets', 'conLookups', 'decisions', 'tfPanel'];
-for (const p of panels) ok('#' + p + ' has content', txt(p).length > 0, txt(p).length);
-ok('dashboard unhidden', store.get('dash').className.indexOf('hidden') === -1);
+// --- S-curve regression guard (I-48) ---
+const curve = D.getElementById('curvePanel');
+ok('Issue Progress panel renders an SVG', curve && curve.innerHTML.includes('<svg'));
+ok('Issue Progress panel has no error box', curve && !curve.innerHTML.includes('panel-error'));
 
-console.log('\n2. Charts contain real SVG geometry');
-for (const p of ['subStatusChart', 'slipChart', 'discChart', 'apprChart', 'prologChart', 'mixChart']) {
-  const h = txt(p);
-  const rects = (h.match(/<rect/g) || []).length;
-  const paths = (h.match(/<path/g) || []).length;
-  ok('#' + p + ' drew shapes (rect ' + rects + ', path ' + paths + ')', rects + paths > 0);
-  ok('#' + p + ' is accessible (role=img + aria-label)', h.includes('role="img"') && h.includes('aria-label='));
+// --- status bar ---
+const status = D.getElementById('statusBar');
+ok('status bar shows no render issues', status && !status.textContent.includes('Render issues'));
+
+// --- 8 numbered panels ---
+ok('all 8 panels numbered', D.querySelectorAll('.panel[data-panel]').length === 8,
+   `count=${D.querySelectorAll('.panel[data-panel]').length}`);
+
+// --- I-43: focus-visible + icon-btn square (spec §7.1) ---
+ok('global :focus-visible rule present', html.includes(':focus-visible{outline'));
+ok('icon-btn is 26px square', html.includes('width:26px;height:26px'));
+ok('icon buttons use spec class .icon-btn', D.querySelectorAll('.icon-btn').length > 0, `count=${D.querySelectorAll('.icon-btn').length}`);
+ok('no legacy .btn-mini in bundle', !html.includes('btn-mini'));
+
+// --- I-44: scrollers use spec class .tableScroll (§4.3) ---
+ok('scrollers use spec class .tableScroll', D.querySelectorAll('.tableScroll').length >= 3, `count=${D.querySelectorAll('.tableScroll').length}`);
+ok('no legacy scroller classes in bundle', !html.includes('"ovt"') && !html.includes('detail-scroll') && !html.includes('tbl-scroll'));
+
+// --- G1/G2/G3: app-bar title from worksheet + meta-left layout (rev spec §3.1) ---
+const appHeader = D.querySelector('header.app');
+const hdrH1 = appHeader && appHeader.querySelector('h1.ttl');
+ok('app title sourced from worksheet Project Title', !!hdrH1 && hdrH1.textContent.trim() === (model.meta.projectTitle || ''), `title=${hdrH1 && hdrH1.textContent.trim()}`);
+ok('no hard-coded full dashboard title in app header', !!appHeader && !appHeader.innerHTML.includes('— Master Document List Dashboard'));
+ok('meta line sits in left brand block (.ttl-stack)', !!appHeader && !!appHeader.querySelector('.ttl-stack .meta'));
+ok('action buttons grouped in right .actions', !!appHeader && appHeader.querySelectorAll('.actions button').length >= 3, `btns=${appHeader && appHeader.querySelectorAll('.actions button').length}`);
+ok('dashboard title not hard-coded when absent', (!model.meta.dashboardTitle) ? !appHeader.querySelector('.sub') : !!appHeader.querySelector('.sub'));
+
+// --- I-51: spec-compliant onboarding (§3.7) — dashed dropzone + .expect + Primary CTA ---
+ok('welcome dropzone is dashed', html.includes('.welcome .drop{border:1.5px dashed'));
+ok('welcome dropzone has drag-over highlight', html.includes('.welcome .drop.hover{border-color:var(--accent)'));
+ok('welcome shows .expect callout', html.includes('class="expect"'));
+ok('welcome CTA is standard Primary button', html.includes('class="btn btn-primary">Choose Workbook'));
+ok('welcome headline is 25/700', html.includes('.welcome h1{margin:0 0 8px;font-size:25px;font-weight:700;letter-spacing:-.02em}'));
+ok('welcome hero radius is 24 (spec)', html.includes('.welcome{max-width:480px;width:100%;margin:0;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:24px'));
+ok('no stale legacy .welcome override (560/80px)', !html.includes('.welcome{max-width:560px'));
+ok('welcome sub-text is standardized', html.includes('Interactive dashboard. Load the workbook to validate data, explore status and details.'));
+ok('welcome .expect body standardized', html.includes('<b>What this does</b> — Select your Code-sheet workbook (.xlsx)… Drop it below or click to browse.'));
+ok('welcome has privacy claim', html.includes('Works fully offline — your data never leaves this browser'));
+ok('welcome privacy shield is sized (PPP parity)', html.includes('.welcome .privacy svg{width:13px;height:13px;fill:var(--muted)}'));
+
+// --- I-58: top-bar filters = two individual dropdowns (Discipline, Stage) ---
+const pDisc = D.getElementById('tfPanel_disciplines'), pStg = D.getElementById('tfPanel_stages');
+const cntDisc = D.getElementById('tfCnt_disciplines'), cntStg = D.getElementById('tfCnt_stages');
+ok('two individual filter buttons in top bar', D.querySelectorAll('header.app .actions .tf-wrap').length === 2, `count=${D.querySelectorAll('header.app .actions .tf-wrap').length}`);
+ok('Discipline + Stage triggers exist', !!D.getElementById('tfBtn_disciplines') && !!D.getElementById('tfBtn_stages'));
+ok('no single combined Filters button', !html.includes('>Filters ▾<'));
+ok('each trigger owns an anchored panel', !!pDisc && !!pStg);
+ok('filter panels start closed', !!pDisc && pDisc.hidden && !!pStg && pStg.hidden);
+ok('trigger badge shows All by default', !!cntDisc && cntDisc.textContent.trim() === 'All' && !!cntStg && cntStg.textContent.trim() === 'All');
+ok('All/Clear sit at top of each dropdown', html.includes('<div class="tf-actions">') && html.includes('data-act="clear"'));
+ok('no search box inside dropdown', !html.includes('tf-search'));
+ok('no explanation text inside dropdown', !!pDisc && !pDisc.innerHTML.includes('filters-help'));
+ok('no bottom filtered-note in dropdown', !html.includes('● filtered —'));
+ok('no Clear-all button in the bar', !!appHeader && !appHeader.innerHTML.includes('Clear all'));
+const stgBoxes = pStg ? [...pStg.querySelectorAll('input[type=checkbox]')] : [];
+const EXCL = ['Deleted','Void','Superseded'];
+const exclBoxes = stgBoxes.filter(b => EXCL.includes(b.value));
+const cntBoxes  = stgBoxes.filter(b => !EXCL.includes(b.value));
+ok('excluded stages are still offered in the Stage filter', exclBoxes.length > 0, `excluded options=${exclBoxes.map(b=>b.value).join(',')}`);
+ok('excluded stages load DESELECTED (not counted)', exclBoxes.every(b => !b.checked), `state=${exclBoxes.map(b=>b.value+':'+(b.checked?'on':'off')).join(',')}`);
+ok('counted stages load selected', cntBoxes.length > 0 && cntBoxes.every(b => b.checked));
+// The three never-counted stages must be offered even when the workbook has NO such rows yet.
+const noExclModel = { ...model, records: model.records.filter(r => !EXCL.includes(r.stage)) };
+const stgDefNo = (ctx.__gf(noExclModel) || []).find(d => d.key === 'stages');
+ok('excluded stages still offered when no row uses them', !!stgDefNo && EXCL.every(s => stgDefNo.items.includes(s)), `items=${stgDefNo && stgDefNo.items.join(',')}`);
+ok('those are flagged never-counted too', !!stgDefNo && EXCL.every(s => stgDefNo.noCount.includes(s)));
+ok('never-counted rows carry a visible "not counted" hint', !!pStg && (pStg.innerHTML.match(/class="nc"/g) || []).length === exclBoxes.length, `hints=${(pStg && pStg.innerHTML.match(/class="nc"/g) || []).length}`);
+ok('include-excluded toggle removed', !D.getElementById('fInc') && !html.includes('includeExcluded'));
+ok('authority/approval filters removed', !html.includes("key:'authority'") && !html.includes('state.approval'));
+
+// --- I-58 semantics via the live DOM: AND-combined, empty = zero rows ---
+const kpiVal = label => {
+  const card = [...D.querySelectorAll('.kpi')].find(el => {
+    const l = el.querySelector('.l');
+    return l && l.textContent.trim() === label;
+  });
+  return card ? Number(card.querySelector('.v').textContent.trim()) : NaN;
+};
+const before = kpiVal('Total Planned');
+const optCount = pDisc ? pDisc.querySelectorAll('input[type=checkbox]').length : 0;
+const btnClearDisc = pDisc && pDisc.querySelector('.tf-act[data-act="clear"]');
+const btnAllDisc = pDisc && pDisc.querySelector('.tf-act[data-act="all"]');
+if (btnClearDisc) btnClearDisc.click();
+const afterClear = kpiVal('Total Planned');
+const badgeAfterClear = cntDisc && cntDisc.textContent.trim();
+if (btnAllDisc) btnAllDisc.click();
+const afterAll = kpiVal('Total Planned');
+ok('Total Planned starts at full active set', before > 0, `before=${before}`);
+ok('Clear (nothing selected) → zero documents', afterClear === 0, `afterClear=${afterClear}`);
+ok('badge shows 0 of N after Clear', badgeAfterClear === `0 of ${optCount}`, `badge=${badgeAfterClear}`);
+ok('All restores the full set (single combined pass)', afterAll === before, `afterAll=${afterAll}`);
+// Excluded stages are opt-in: ticking one deliberately pulls those rows into the dashboard.
+const exclBox = exclBoxes[0];
+const basePlanned = kpiVal('Total Planned');
+if (exclBox) exclBox.click();
+const tickedPlanned = kpiVal('Total Planned');
+const badgeTicked = cntStg && cntStg.textContent.trim();
+if (exclBox) exclBox.click();
+const untickedPlanned = kpiVal('Total Planned');
+ok('ticking an excluded stage adds its documents', !exclBox || tickedPlanned > basePlanned, `base=${basePlanned} ticked=${tickedPlanned}`);
+ok('Stage badge leaves "All" once an excluded stage is ticked', !exclBox || /^\d+ of \d+$/.test(badgeTicked || ''), `badge=${badgeTicked}`);
+ok('unticking it restores the baseline count', !exclBox || untickedPlanned === basePlanned, `restored=${untickedPlanned} base=${basePlanned}`);
+ok('welcome has copyright', html.includes('© ${year} UESH'));
+ok('welcome has no app bar (hero only)', !html.includes('<div class="meta">Welcome — choose a workbook to begin</div>'));
+
+// --- .ds-table adoption (§7.2) ---
+const tables = [...D.querySelectorAll('table')];
+ok('every on-screen table uses .ds-table', tables.length > 0 && tables.every(t => t.classList.contains('ds-table')), `tables=${tables.length}`);
+ok('.ds-table base rule present', html.includes('.ds-table{'));
+ok('.ds-table navy sticky header', html.includes('.ds-table thead th{background:var(--navy)'));
+ok('.ds-table single bottom rule', html.includes('.ds-table th,.ds-table td{border-bottom'));
+const sevCells = [...D.querySelectorAll('td[class^="sev-"]')];
+ok('severity chips use spec .sev-error/.sev-warning/.sev-info', sevCells.every(c => /^sev-(error|warning|info)$/.test(c.className)), `sev cells=${sevCells.length}`);
+ok('no legacy .sev-err/.sev-warn in bundle', !/(sev-err(?!or)|sev-warn(?!ing)|sev-ERR)/.test(html));
+
+// --- I-44: drill accordion a11y + row counts ---
+const expand = [...D.querySelectorAll('.expand')];
+ok('matrix drill cells exist', expand.length > 0, `count=${expand.length}`);
+ok('drill cells expose aria-expanded', expand.length > 0 && expand.every(e => e.getAttribute('aria-expanded') === 'false'));
+ok('drill cells are keyboard-operable', expand.length > 0 && expand.every(e => e.getAttribute('tabindex') === '0' && e.getAttribute('role') === 'button'));
+// accordion behaviour: clicking one opens it and collapses others
+if (expand.length) {
+  expand[0].click();
+  const openAfter = [...D.querySelectorAll('.expand')].filter(e => e.getAttribute('aria-expanded') === 'true');
+  ok('clicking a drill opens exactly one row', openAfter.length === 1, `open=${openAfter.length}`);
+  ok('opened drill has aria-expanded=true', expand[0].getAttribute('aria-expanded') === 'true');
 }
+ok('clipped-list row-count chips present', D.querySelectorAll('.cnt').length >= 3, `count=${D.querySelectorAll('.cnt').length}`);
 
-console.log('\n3. Numbers reach the screen');
-ok('KPI shows 231 active', txt('kpis').includes('>231<'));
-ok('KPI shows 225 submitted', txt('kpis').includes('>225<'));
-ok('KPI shows 221 approved', txt('kpis').includes('>221<'));
-ok('KPI shows 6 overdue', txt('kpis').includes('>6<'));
-ok('register tag shows 231', store.get('regTag').textContent.indexOf('231') >= 0, store.get('regTag').textContent);
-ok('header shows the project title', store.get('projTitle').textContent === 'TWRP C3B2', store.get('projTitle').textContent);
+// --- I-45: project-prefixed exports + help-modal a11y ---
+ok('no legacy MDL_Overdue.csv literal', !html.includes("'MDL_Overdue.csv'"));
+ok('no legacy MDL_issue_list.csv literal', !html.includes("'MDL_issue_list.csv'"));
+ok('no legacy MDL_document_list.csv literal', !html.includes("'MDL_document_list.csv'"));
+ok('export helper xp() used', html.includes("xp('Overdue')") && html.includes("xp('Issue_Progress')"));
+const helpBtn = D.querySelector('.help');
+ok('help trigger present', !!helpBtn);
+if (helpBtn) helpBtn.click();
+const box = D.querySelector('.help-modal .box');
+ok('help modal labelled by title', box && box.getAttribute('aria-labelledby') === 'helpTitle');
+const closeBtn = D.querySelector('.help-modal .close');
+ok('help close has aria-label', closeBtn && closeBtn.getAttribute('aria-label') === 'Close help');
 
-console.log('\n4. Decisions are stated in-product, not hidden');
-const dec = txt('decisions');
-ok('banner states the 84 template rows are excluded', dec.includes('84'));
-ok('banner states the Mechanical\u2192Mech alias', dec.indexOf('Mechanical') >= 0 && dec.indexOf('Mech') >= 0);
-ok('banner states the 90-day derived approval date', dec.includes('90'));
-ok('integrity panel flags the =U+90 formula', txt('wbIntegrity').includes('U+90'));
-ok('integrity panel flags the empty Rev column', txt('wbIntegrity').includes('Rev (col L) is empty'));
-ok('integrity panel flags the 7 empty tabs', txt('wbIntegrity').includes('contain no active documents'));
-ok('integrity panel flags unpopulated contract columns', txt('wbIntegrity').includes('never populated'));
-
-console.log('\n5. Suppressed metrics are genuinely absent');
-ok('no fabricated average turnaround anywhere', !/average turnaround of \d/i.test(txt('kpis') + txt('actions')));
-ok('approval chart explains why turnaround is not shown', txt('apprNote').includes('Turnaround is not charted'));
-
-console.log('\n6. Validation surfaces workbook wording');
-ok('V-26 wording comes from the workbook', txt('vDetail').includes('duplicated within the consolidated table'));
-ok('severity chips rendered', txt('vSummary').includes('vchip e') && txt('vSummary').includes('vchip w'));
-ok('duplicate register lists the collisions', txt('dupTable').includes('DR-P-6000'));
-ok('duplicate note explains Rev is missing', txt('dupNote').includes('Rev (col L) is unpopulated'));
-
-console.log('\n7. Accessibility & status design (UI spec §14)');
-ok('statuses use icon + text, not colour alone', txt('regTable').includes('badge ') && txt('regTable').includes('Overdue'));
-ok('table headers expose aria-sort hooks', txt('regTable').includes('data-sort='));
-ok('filter checkboxes are labelled', txt('tfPanel').includes('data-f="d"') && txt('tfPanel').includes('data-f="s"'));
-ok('no list-yet disciplines are named', txt('discNote').includes('no document list yet'));
-
-console.log('\n8. Single-file integrity');
-ok('no external script/link references', !/<script[^>]+src=/i.test(html) && !/<link[^>]+href=/i.test(html));
-ok('no CDN or http(s) asset URLs', !/(src|href)\s*=\s*["']https?:\/\//i.test(html));
-ok('logo is inlined as a data URI', html.includes('src="data:image/jpeg;base64,'));
-ok('no network APIs used', !/\bfetch\s*\(|XMLHttpRequest|WebSocket/.test(src));
-
-console.log('\n' + '='.repeat(60));
-console.log('PASS ' + pass + '  FAIL ' + fail);
-console.log('='.repeat(60));
-process.exit(fail ? 1 : 0);
+let pass = 0;
+for (const c of checks) { console.log((c.pass ? 'PASS' : 'FAIL') + ' - ' + c.name + (c.extra ? '  [' + c.extra + ']' : '')); if (c.pass) pass++; }
+console.log(`\n${pass}/${checks.length} checks passed`);
+process.exit(pass === checks.length ? 0 : 1);

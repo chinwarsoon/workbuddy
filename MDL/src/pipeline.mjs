@@ -2,7 +2,7 @@
 // Pure logic (no DOM). Consumed by render (browser) and test_pipeline (Node).
 import { colToNum, numToCol } from './xlsx-reader.mjs';
 
-const EXCLUDE_STAGES = ['Deleted', 'Void', 'Superseded'];
+export const EXCLUDE_STAGES = ['Deleted', 'Void', 'Superseded'];
 
 // ---- Excel serial date helpers ----
 function excelSerialToISO(serial){
@@ -79,11 +79,25 @@ export function buildModel(workbook, options = {}){
   const todayISO = today.toISOString().slice(0, 10);
   const codeSheet = workbook.sheets['Code'];
 
-  // --- project start date (Code!B6, value column) — x-axis anchor for time-based views ---
-  // Code!A6 is the label ("Project Start Date"); the actual date value is in B6.
-  const projectStartDate = parseProjectStart(codeSheet.rows[6] && codeSheet.rows[6].B);
-  // --- List End Row (Code!B8) — advisory row limit; data beyond it is kept, not dropped ---
-  const listEndRow = parseListEndRow(codeSheet.rows[8] && codeSheet.rows[8].B);
+  // --- metadata block (Code rows 1–11): label (A) → value (B), read by label ---
+  // Contract-driven: read by the A-column label (not a fixed row) so the block is
+  // resilient to row insertion/reordering and new rows (e.g. Dashboard Title) are
+  // picked up automatically. Supplies Project Title, Dashboard Title, Project Start
+  // Date (B6), List End Row (B8) and the review-duration rows.
+  const codeMeta = {};
+  for(let r = 1; r <= 11; r++){
+    const row = codeSheet.rows[r]; if(!row) continue;
+    const label = row.A; const val = row.B;
+    if(label == null || String(label).trim() === '') continue;
+    codeMeta[String(label).trim()] = (val == null ? '' : val);
+  }
+  // --- project start date (Code "Project Start Date") — x-axis anchor for time-based views ---
+  const projectStartDate = parseProjectStart(codeMeta['Project Start Date']);
+  // --- List End Row (Code "List End Row") — advisory row limit; data beyond it is kept, not dropped ---
+  const listEndRow = parseListEndRow(codeMeta['List End Row']);
+  // --- titles (read from the worksheet — never hard-coded) ---
+  const projectTitle = (codeMeta['Project Title'] != null && codeMeta['Project Title'] !== '') ? String(codeMeta['Project Title']) : null;
+  const dashboardTitle = (codeMeta['Dashboard Title'] != null && codeMeta['Dashboard Title'] !== '') ? String(codeMeta['Dashboard Title']) : null;
 
   // --- column map (rows 12-36) ---
   const columnMap = {}; const fieldOrder = [];
@@ -344,7 +358,7 @@ export function buildModel(workbook, options = {}){
   };
 
   return {
-    meta: { generatedAt: new Date().toISOString(), workbookName: options.workbookName || '', today: todayISO, projectStartDate, listEndRow },
+    meta: { generatedAt: new Date().toISOString(), workbookName: options.workbookName || '', today: todayISO, projectStartDate, listEndRow, projectTitle, dashboardTitle },
     contract: { columnMap, fieldOrder, reviewRules, errorBlock, noListYetDisciplines, lookups },
     tabs: { available, noListYet, excluded },
     records, issues, warnings, kpis, charts, overdueLists, completenessGroup: [...completenessGroup],
