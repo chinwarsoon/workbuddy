@@ -1,6 +1,5 @@
 // pipeline.mjs — builds the consolidated document model from a parsed workbook.
 // Pure logic (no DOM). Consumed by render (browser) and test_pipeline (Node).
-import { colToNum, numToCol } from './xlsx-reader.mjs';
 
 export const EXCLUDE_STAGES = ['Deleted', 'Void', 'Superseded'];
 
@@ -14,9 +13,15 @@ function excelSerialToISO(serial){
 }
 function isoToDate(iso){ if(!iso) return null; const d = new Date(iso + 'T00:00:00Z'); return isNaN(d) ? null : d; }
 // Tolerant parse of the project-start cell (Code!A6): Excel serial, ISO, or text date.
+// Handles BOTH a raw serial number AND a serial stored as TEXT — parseCodeSheet
+// stringifies metadata values, so "46096" arrives as a string. A numeric string is
+// treated as an Excel serial; otherwise Date() would read it as year 46096.
 function parseProjectStart(cell){
   if(cell == null || cell === '') return null;
-  if(typeof cell === 'number' && isFinite(cell)) return excelSerialToISO(cell);
+  let serial = NaN;
+  if(typeof cell === 'number' && isFinite(cell)) serial = cell;
+  else if(typeof cell === 'string' && /^\d{1,6}(\.\d+)?$/.test(cell.trim())) serial = parseFloat(cell);
+  if(isFinite(serial)) return excelSerialToISO(serial);
   const s = String(cell).trim();
   if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
   const d = new Date(s);
@@ -29,18 +34,6 @@ function parseListEndRow(cell){
   const n = typeof cell === 'number' ? cell : parseInt(String(cell).replace(/[^\d]/g, ''), 10);
   return (isFinite(n) && n > 0) ? n : 4000;
 }
-function workingDaysBetween(d1, d2){
-  // signed working-day count from d1 to d2 (Mon–Fri only), weekends excluded
-  if(!d1 || !d2) return null;
-  let sign = 1; if(d2 < d1){ [d1, d2] = [d2, d1]; sign = -1; }
-  let count = 0; let cur = new Date(d1.getTime());
-  while(cur <= d2){
-    const day = cur.getUTCDay();
-    if(day !== 0 && day !== 6) count++;
-    cur.setUTCDate(cur.getUTCDate() + 1);
-  }
-  return sign * count;
-}
 
 function normalizeBool(v){
   if(v === true || v === 'YES' || v === 'TRUE') return 'YES';
@@ -49,92 +42,221 @@ function normalizeBool(v){
   return String(v).toUpperCase().trim();
 }
 
-function readBlock(sheet, codeCol){
-  const items = []; const codes = new Set();
-  const labelCol = numToCol(colToNum(codeCol) + 1);
-  for(let r = 2; r <= sheet.maxRow; r++){
-    const row = sheet.rows[r]; if(!row) continue;
-    const code = row[codeCol];
-    if(code == null || code === '') continue;
-    const label = row[labelCol] != null ? String(row[labelCol]) : '';
-    items.push({ code: String(code), label });
-    codes.add(String(code));
-  }
-  return { items, codes };
+// ============================================================================
+// Code-sheet table-discovery helpers (canonical names shared with the PPP
+// dashboard, per spec §3.1.1). The Code sheet is a set of TABLES discovered at
+// runtime — no hardcoded row/column ranges.
+// ============================================================================
+
+// 0-based column index -> letter  (e.g. 31 -> "AF")
+export function colLetter(i){ let n=i+1,s=''; while(n>0){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=(n-m-1)/26; } return s; }
+// "Column-AE" -> 0-based index
+export function colRefToIndex(ref){
+  if(!ref) return -1;
+  const m = String(ref).match(/Column-([A-Z]+)/i);
+  if(!m) return -1;
+  let idx = 0;
+  for(const ch of m[1].toUpperCase()) idx = idx*26 + (ch.charCodeAt(0)-64);
+  return idx-1;
 }
 
-function readErrorBlock(sheet){
-  const map = {}; const order = [];
-  for(let r = 2; r <= sheet.maxRow; r++){
-    const row = sheet.rows[r]; if(!row) continue;
-    const code = row.AI; if(code == null || code === '') continue;
-    map[String(code)] = { group: row.AJ != null ? String(row.AJ) : '', rule: row.AK != null ? String(row.AK) : '', severity: row.AL != null ? String(row.AL) : 'Warning' };
-    order.push(String(code));
+// The vocabulary of expected document-list field labels (the contract's field
+// catalogue). Positions are resolved at runtime from the Code column map, so a
+// field may live on any row. 'Latest Approval Status' is included deliberately:
+// it sits at row 37 in the source workbook and was previously dropped by the
+// hard-coded 12–36 scan.
+const MDL_FIELD_KEYS = [
+  'SNo.', 'Stage', 'UESH Discipline', 'P6 Activity ID', 'BQ Number', 'System',
+  'Project Code', 'Project Prefix', 'Doc Type', 'Discipline', 'Number', 'Rev',
+  'Document No.', 'Document Title', 'Notes', 'As-Built', 'Authority', 'Vendor Data',
+  'Planned 1st Issue Date', 'Forecast 1st Issue Date', 'Actual 1st Issue Date',
+  'Prolog Number', 'Submission Status', 'Latest Approval Date', 'Latest Approval Status'
+];
+
+// Expected lookup-block header texts (row 1), keyed by logical name. The code
+// column is matched exactly (or by prefix, case-insensitive) and the description
+// column is always code+1. Blocks are separated by blank columns, which are
+// skipped naturally because we match by header, not by position.
+const LOOKUP_HEADERS = {
+  stage:         ['Stage Code'],
+  uesh:          ['UESH Discipline'],
+  projectCode:   ['WBS Contract Code'],
+  prefix:        ['PROJECT PREFIX'],
+  docType:       ['Doc Code'],
+  disciplineCode:['Discipline Code'],
+  authority:     ['Authority Code'],
+  submissionStatus:['Submission Status Code'],
+  approval:      ['Approval Code'],
+  errorCode:     ['Error Code'],
+  errorRule:     ['Rule'],
+  errorSeverity: ['Severity'],
+  errorGroup:    ['Group'],
+};
+
+// Scan the WHOLE Code sheet (label in A, value in B, type in C). Returns
+// keyed-by-label metadata; positions are never assumed.
+export function parseCodeSheet(codeSheet){
+  const meta = {}, metaTypes = {};
+  for(let r = 2; r < codeSheet.rows.length; r++){
+    const row = codeSheet.rows[r]; if(!row) continue;
+    const key = row.A; const val = row.B; const t = row.C;
+    if(key == null || String(key).trim() === '') continue;
+    if(val == null || String(val).trim() === '') continue;
+    const k = String(key).trim();
+    meta[k] = String(val).trim();
+    if(t != null && String(t).trim() !== '') metaTypes[k] = String(t).trim();
   }
-  return { map, order };
+  return { meta, metaTypes };
+}
+
+// Field label -> column index, resolved from the Code column map.
+export function buildFieldToCol(meta){
+  const map = {};
+  for(const field of MDL_FIELD_KEYS){
+    const colRef = meta[field];
+    if(colRef != null){
+      const idx = colRefToIndex(colRef);
+      if(idx >= 0) map[field] = idx;
+    }
+  }
+  return map;
+}
+
+// Field -> DataType map (from the Code!C column).
+export function parseFieldTypes(codeSheet){
+  const types = {}; let found = 0;
+  for(let r = 2; r < codeSheet.rows.length; r++){
+    const row = codeSheet.rows[r]; if(!row) continue;
+    const key = row.A, t = row.C;
+    if(key == null || String(key).trim() === '') continue;
+    if(t == null || String(t).trim() === '') continue;
+    types[String(key).trim()] = String(t).trim(); found++;
+  }
+  return { types, found };
+}
+
+// Locate each lookup block by its ROW-1 HEADER text. Exact match wins, then
+// case-insensitive prefix. Returns { idx, src } keyed by LOOKUP_HEADERS keys.
+export function findLookupColumns(codeSheet){
+  const hdr = codeSheet.rows[1] || {};
+  const idx = {}, src = {};
+  const N = h => String(h == null ? '' : h).replace(/\s+/g, ' ').trim().toLowerCase();
+  for(const [k, rawNames] of Object.entries(LOOKUP_HEADERS)){
+    const names = rawNames.map(N);  // normalize for case-insensitive matching (spec §3.1.1)
+    let found = -1;
+    for(let c = 0; c < 100; c++){ const h = N(hdr[colLetter(c)]); if(h && names.indexOf(h) >= 0){ found = c; break; } }
+    if(found < 0){ for(let c = 0; c < 100; c++){ const h = N(hdr[colLetter(c)]); if(h && names.some(n => h.indexOf(n) === 0)){ found = c; break; } } }
+    if(found >= 0){ idx[k] = found; src[k] = colLetter(found); }
+  }
+  return { idx, src };
+}
+
+// Read a column's values from `start` (first data-row index in rows[]) downward;
+// stop after 3 consecutive blanks (safety cap +300). Mirrors PPP readLookupCol.
+export function readLookupCol(sheet, c, start){
+  if(c == null) return [];
+  const out = []; let blankRun = 0;
+  for(let r = start; r < sheet.rows.length && r < start + 300; r++){
+    const row = sheet.rows[r]; if(!row){ blankRun++; if(blankRun >= 3) break; continue; }
+    const v = row[colLetter(c)];
+    if(v == null || String(v).trim() === ''){ blankRun++; if(blankRun >= 3) break; continue; }
+    blankRun = 0; out.push(String(v).trim());
+  }
+  return out;
+}
+
+// Read a code -> description map for a lookup block.
+export function readLookupMap(sheet, codeCol, descCol, start){
+  if(codeCol == null) return {};
+  const map = {}; let blankRun = 0;
+  for(let r = start; r < sheet.rows.length && r < start + 300; r++){
+    const row = sheet.rows[r]; if(!row){ blankRun++; if(blankRun >= 3) break; continue; }
+    const c = row[colLetter(codeCol)];
+    if(c == null || String(c).trim() === ''){ blankRun++; if(blankRun >= 3) break; continue; }
+    blankRun = 0;
+    const d = (descCol == null || row[colLetter(descCol)] == null) ? '' : String(row[colLetter(descCol)]).trim();
+    map[String(c).trim()] = d;
+  }
+  return map;
 }
 
 export function buildModel(workbook, options = {}){
   const today = options.today ? isoToDate(options.today) : new Date();
-  const todayISO = today.toISOString().slice(0, 10);
+  // As-of date for ALL Overdue / Approval / look-ahead / completeness math = the VIEWER'S
+// LOCAL calendar day, not UTC. Building from toISOString() (UTC) caused a 1-day off-by-one
+// near local midnight (e.g. 10pm ET => next-day UTC). Use local date components.
+const todayISO = options.today
+  ? String(options.today).slice(0, 10)
+  : (() => { const n = new Date(); const p = x => String(x).padStart(2, '0'); return `${n.getFullYear()}-${p(n.getMonth() + 1)}-${p(n.getDate())}`; })();
   const codeSheet = workbook.sheets['Code'];
+  const warnings = []; // declared once, up front, so discovery warnings are recorded early
 
-  // --- metadata block (Code rows 1–11): label (A) → value (B), read by label ---
-  // Contract-driven: read by the A-column label (not a fixed row) so the block is
-  // resilient to row insertion/reordering and new rows (e.g. Dashboard Title) are
-  // picked up automatically. Supplies Project Title, Dashboard Title, Project Start
-  // Date (B6), List End Row (B8) and the review-duration rows.
-  const codeMeta = {};
-  for(let r = 1; r <= 11; r++){
-    const row = codeSheet.rows[r]; if(!row) continue;
-    const label = row.A; const val = row.B;
-    if(label == null || String(label).trim() === '') continue;
-    codeMeta[String(label).trim()] = (val == null ? '' : val);
-  }
-  // --- project start date (Code "Project Start Date") — x-axis anchor for time-based views ---
+  // --- metadata block: read by LABEL across the whole Code sheet (no fixed rows) ---
+  const cs = parseCodeSheet(codeSheet);
+  const codeMeta = cs.meta; const metaTypes = cs.metaTypes;
+  // --- project start date / List End Row / titles — read from metadata by label ---
   const projectStartDate = parseProjectStart(codeMeta['Project Start Date']);
-  // --- List End Row (Code "List End Row") — advisory row limit; data beyond it is kept, not dropped ---
   const listEndRow = parseListEndRow(codeMeta['List End Row']);
-  // --- titles (read from the worksheet — never hard-coded) ---
   const projectTitle = (codeMeta['Project Title'] != null && codeMeta['Project Title'] !== '') ? String(codeMeta['Project Title']) : null;
   const dashboardTitle = (codeMeta['Dashboard Title'] != null && codeMeta['Dashboard Title'] !== '') ? String(codeMeta['Dashboard Title']) : null;
 
-  // --- column map (rows 12-36) ---
+  // --- column map: discover field -> column from the Code sheet by label (no 12–36 bound) ---
+  const colRefs = buildFieldToCol(codeMeta);
+  const fieldTypes = parseFieldTypes(codeSheet).types;
   const columnMap = {}; const fieldOrder = [];
-  for(let r = 12; r <= 36; r++){
-    const row = codeSheet.rows[r]; if(!row) continue;
-    const field = row.A; const raw = row.B; const type = row.C;
-    if(!field || !raw) continue;
-    const letter = String(raw).replace(/^Column-/, '').replace(/[^A-Za-z]/g, '').toUpperCase();
-    columnMap[field] = { letter, type: (type || '').trim(), index: colToNum(letter) };
-    fieldOrder.push(field);
+  for(const f of MDL_FIELD_KEYS){
+    const idx = colRefs[f];
+    if(idx == null){ warnings.push({ level:'warn', code:'V-COL', tab:'Code', message:`Column-map row missing for field "${f}" — field will be empty.` }); continue; }
+    const letter = colLetter(idx);
+    columnMap[f] = { letter, type: (fieldTypes[f] || '').trim(), index: idx + 1 };
+    fieldOrder.push(f);
   }
   const letterOf = f => columnMap[f] ? columnMap[f].letter : null;
   const typeOf = f => columnMap[f] ? columnMap[f].type : null;
 
-  // --- review durations (rows 9-11) ---
+  // --- review durations: read from metadata by label (regex), not fixed rows 9–11 ---
   const reviewRules = { firstClientReview: 20, resubmissionDuration: 14 };
-  for(let r = 9; r <= 11; r++){
-    const row = codeSheet.rows[r]; if(!row) continue;
-    const name = String(row.A || ''); const val = parseInt(row.B, 10);
-    if(isNaN(val)) continue;
-    if(/first client review/i.test(name)) reviewRules.firstClientReview = val;
-    else if(/resubmission/i.test(name)) reviewRules.resubmissionDuration = val;
+  for(const [k, v] of Object.entries(codeMeta)){
+    if(/first client review/i.test(k)) reviewRules.firstClientReview = parseInt(v, 10) || reviewRules.firstClientReview;
+    else if(/resubmission/i.test(k)) reviewRules.resubmissionDuration = parseInt(v, 10) || reviewRules.resubmissionDuration;
   }
 
-  // --- lookup blocks ---
-  const lookups = {
-    stage: readBlock(codeSheet, 'E'),
-    uesh: readBlock(codeSheet, 'H'),
-    projectCode: readBlock(codeSheet, 'K'),
-    prefix: readBlock(codeSheet, 'N'),
-    docType: readBlock(codeSheet, 'Q'),
-    disciplineCode: readBlock(codeSheet, 'T'),
-    authority: readBlock(codeSheet, 'Z'),
-    submissionStatus: readBlock(codeSheet, 'AC'),
-    approval: readBlock(codeSheet, 'AF'),
+  // --- lookup blocks: discover each by its row-1 header (no fixed column letters) ---
+  const lk = findLookupColumns(codeSheet);
+  for(const [k, hdr] of Object.entries(LOOKUP_HEADERS)){
+    if(lk.idx[k] == null) warnings.push({ level:'warn', code:'V-18', tab:'Code', message:`Lookup block not found in row 1: "${hdr[0]}".` });
+  }
+  const lookupBlock = (codeKey) => {
+    const codeIdx = lk.idx[codeKey];
+    if(codeIdx == null) return { items: [], codes: new Set() };
+    const map = readLookupMap(codeSheet, codeIdx, codeIdx + 1, 2);
+    const items = Object.entries(map).map(([code, label]) => ({ code, label }));
+    const codes = new Set(Object.keys(map));
+    return { items, codes };
   };
-  const errorBlock = readErrorBlock(codeSheet);
+  const lookups = {
+    stage: lookupBlock('stage'),
+    uesh: lookupBlock('uesh'),
+    projectCode: lookupBlock('projectCode'),
+    prefix: lookupBlock('prefix'),
+    docType: lookupBlock('docType'),
+    disciplineCode: lookupBlock('disciplineCode'),
+    authority: lookupBlock('authority'),
+    submissionStatus: lookupBlock('submissionStatus'),
+    approval: lookupBlock('approval'),
+  };
+  // --- Error block: code -> {group, rule, severity} via discovered columns ---
+  const eCode = lk.idx['errorCode'];
+  const errorBlock = { map: {}, order: [] };
+  if(eCode != null){
+    const eRule = readLookupMap(codeSheet, eCode, lk.idx['errorRule'], 2);
+    const eSev  = readLookupMap(codeSheet, eCode, lk.idx['errorSeverity'], 2);
+    const eGrp  = readLookupMap(codeSheet, eCode, lk.idx['errorGroup'], 2);
+    for(const c of Object.keys(eRule)){
+      errorBlock.map[c] = { group: eGrp[c] || '', rule: eRule[c] || '', severity: eSev[c] || 'Warning' };
+      errorBlock.order.push(c);
+    }
+  }
 
   // --- BQ reference set ---
   const bqSheet = workbook.sheets['BQ'];
@@ -154,7 +276,6 @@ export function buildModel(workbook, options = {}){
   // --- consolidate ---
   const records = [];
   const blankDocIssues = [];
-  const warnings = [];
   for(const tab of available){
     const sheet = workbook.sheets[tab]; if(!sheet) continue;
     let tabMaxDataRow = 1;
@@ -271,96 +392,17 @@ export function buildModel(workbook, options = {}){
     if(!boolVal(P) || !boolVal(R)) issues.push(mkIssue('V-27', rec));
   }
 
-  // --- KPIs (active only) ---
-  const active = records.filter(r => r.isActive);
-  const cnt = pred => active.filter(pred).length;
-  const kpis = {
-    totalPlanned: active.length,
-    submitted: cnt(r => (r.fields['Actual 1st Issue Date'] || '') !== ''),
-    approvedAPP: cnt(r => r.fields['Latest Approval Status'] === 'APP'),
-    approvedAWC: cnt(r => r.fields['Latest Approval Status'] === 'AWC'),
-    rejected: cnt(r => r.fields['Latest Approval Status'] === 'REJ'),
-    notApproved: cnt(r => r.fields['Latest Approval Status'] === 'NAP'),
-    asBuiltYes: cnt(r => r.fields['As-Built'] === 'YES'),
-    vendorYes: cnt(r => r.fields['Vendor Data'] === 'YES'),
-  };
-
-  // --- Overdue (3 flavours) ---
-  const dT = isoToDate(todayISO);
-  const firstOverdue = active.filter(r => { const t = r.fields['Forecast 1st Issue Date'] || r.fields['Planned 1st Issue Date']; return t && (r.fields['Actual 1st Issue Date'] || '') === '' && isoToDate(t) <= dT; });
-  const subsequentOverdue = active.filter(r => {
-    const y = r.fields['Latest Approval Status']; const x = r.fields['Latest Approval Date']; const u = r.fields['Actual 1st Issue Date'];
-    return u && ['REJ', 'RTR'].includes(y) && x && workingDaysBetween(isoToDate(x), dT) > reviewRules.resubmissionDuration;
-  });
-  const clientReviewOverdue = active.filter(r => {
-    const w = r.fields['Submission Status']; const u = r.fields['Actual 1st Issue Date'];
-    return w === 'SUR' && u && workingDaysBetween(isoToDate(u), dT) > reviewRules.firstClientReview;
-  });
-  kpis.overdueFirst = firstOverdue.length;
-  kpis.overdueResubmission = subsequentOverdue.length;
-  kpis.overdueClientReview = clientReviewOverdue.length;
-
-  // --- Data completeness % (passing V-17..V-27) ---
+  // --- Data-completeness group (S3 contract) ---
+  // The set of validation codes that count toward the data-completeness %. It is a
+  // validation constant (not an aggregation) and is consumed by deriveView (S4) to compute
+  // the completeness %. The actual aggregation now lives solely in deriveView (spec §3.8),
+  // so buildModel performs S2 (normalise) + S3 (validate) only — no KPI/chart math here.
   const completenessGroup = new Set(['V-17','V-18','V-19','V-20','V-21','V-22','V-23','V-24','V-25','V-26','V-27']);
-  const activeKeys = new Set(active.map(r => r.sourceTab + '!' + r.rownum));
-  const activeBad = new Set();
-  issues.forEach(i => { if(completenessGroup.has(i.code) && activeKeys.has(i.sourceTab + '!' + i.rownum)) activeBad.add(i.sourceTab + '!' + i.rownum); });
-  kpis.completeness = active.length ? Math.round((1 - activeBad.size / active.length) * 1000) / 10 : null;
-  kpis.activeDisciplines = new Set(active.map(r => r.discipline).filter(Boolean)).size;
-
-  // --- Charts ---
-  const groupCount = (keyFn, scope) => { const m = {}; scope.forEach(r => { const k = keyFn(r); if(k == null || k === '') return; m[k] = (m[k] || 0) + 1; }); return m; };
-  const toArr = m => Object.entries(m).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
-  const approvalMap = groupCount(r => r.fields['Latest Approval Status'] || '—', active);
-  const approvalStatus = [
-    { name: 'APP', value: approvalMap['APP'] || 0 },
-    { name: 'AWC', value: approvalMap['AWC'] || 0 },
-    { name: 'REJ', value: approvalMap['REJ'] || 0 },
-    { name: 'NAP', value: approvalMap['NAP'] || 0 },
-    { name: 'Not Available', value: active.filter(r => !['APP','AWC','REJ','NAP'].includes(r.fields['Latest Approval Status'] || '')).length },
-  ];
-  const charts = {
-    docsByDiscipline: toArr(groupCount(r => r.discipline, active)),
-    issueProgress: [
-      { name: 'Planned', value: cnt(r => (r.fields['Planned 1st Issue Date'] || '') !== '') },
-      { name: 'Forecast', value: cnt(r => (r.fields['Forecast 1st Issue Date'] || '') !== '') },
-      { name: 'Actual', value: cnt(r => (r.fields['Actual 1st Issue Date'] || '') !== '') },
-    ],
-    approvalStatus,
-    asBuilt: [
-      { name: 'YES', value: cnt(r => r.fields['As-Built'] === 'YES') },
-      { name: 'NO', value: cnt(r => r.fields['As-Built'] === 'NO') },
-    ],
-    byAuthority: toArr(groupCount(r => r.fields['Authority'], active)),
-    byDocType: toArr(groupCount(r => r.fields['Doc Type'], active)),
-    scheduleVariance: (() => {
-      const ov = new Set([...firstOverdue, ...subsequentOverdue, ...clientReviewOverdue].map(r => r.sourceTab + '!' + r.rownum));
-      const atRisk = active.filter(r => { const t = r.fields['Forecast 1st Issue Date'] || r.fields['Planned 1st Issue Date']; return t && (r.fields['Actual 1st Issue Date'] || '') === '' && isoToDate(t) > dT && workingDaysBetween(dT, isoToDate(t)) <= 14; });
-      const onTrack = active.filter(r => { const k = r.sourceTab + '!' + r.rownum; return !ov.has(k) && !atRisk.includes(r); });
-      return [
-        { name: 'On track', value: onTrack.length },
-        { name: 'At risk', value: atRisk.length },
-        { name: 'Overdue – 1st', value: firstOverdue.length },
-        { name: 'Overdue – Resub', value: subsequentOverdue.length },
-        { name: 'Overdue – Client', value: clientReviewOverdue.length },
-      ];
-    })(),
-    dqByDiscipline: [],
-    dqByRule: toArr(groupCount(i => i.code, issues)),
-  };
-  const dqDisc = {}; issues.forEach(i => { if(i.discipline){ dqDisc[i.discipline] = (dqDisc[i.discipline] || 0) + 1; } });
-  charts.dqByDiscipline = toArr(dqDisc);
-
-  const overdueLists = {
-    first: firstOverdue.map(r => ({ docNo: r.docNo, discipline: r.discipline, forecast: r.fields['Forecast 1st Issue Date'], sourceTab: r.sourceTab })),
-    subsequent: subsequentOverdue.map(r => ({ docNo: r.docNo, discipline: r.discipline, lastOutcome: r.fields['Latest Approval Status'], approvalDate: r.fields['Latest Approval Date'], sourceTab: r.sourceTab })),
-    clientReview: clientReviewOverdue.map(r => ({ docNo: r.docNo, discipline: r.discipline, submitted: r.fields['Actual 1st Issue Date'], sourceTab: r.sourceTab })),
-  };
 
   return {
     meta: { generatedAt: new Date().toISOString(), workbookName: options.workbookName || '', today: todayISO, projectStartDate, listEndRow, projectTitle, dashboardTitle },
     contract: { columnMap, fieldOrder, reviewRules, errorBlock, noListYetDisciplines, lookups },
     tabs: { available, noListYet, excluded },
-    records, issues, warnings, kpis, charts, overdueLists, completenessGroup: [...completenessGroup],
+    records, issues, warnings, completenessGroup: [...completenessGroup],
   };
 }

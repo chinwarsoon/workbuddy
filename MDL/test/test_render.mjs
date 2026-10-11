@@ -107,8 +107,11 @@ ok('Discipline + Stage triggers exist', !!D.getElementById('tfBtn_disciplines') 
 ok('no single combined Filters button', !html.includes('>Filters ▾<'));
 ok('each trigger owns an anchored panel', !!pDisc && !!pStg);
 ok('filter panels start closed', !!pDisc && pDisc.hidden && !!pStg && pStg.hidden);
-ok('trigger badge shows All by default', !!cntDisc && cntDisc.textContent.trim() === 'All' && !!cntStg && cntStg.textContent.trim() === 'All');
-ok('All/Clear sit at top of each dropdown', html.includes('<div class="tf-actions">') && html.includes('data-act="clear"'));
+ok('trigger badge shows All by default', !!cntDisc && cntDisc.textContent.trim() === 'All Discipline' && !!cntStg && cntStg.textContent.trim() === 'All Stage');
+ok('master All checkbox + dismiss hint at top of each dropdown (no Clear button)',
+   !!pDisc && !!pDisc.querySelector('.tf-all input') && !!pDisc.querySelector('.tf-divider') &&
+   !!pStg && !!pStg.querySelector('.tf-all input') && !!pStg.querySelector('.tf-divider') &&
+   html.includes('Changes apply when this list is closed.') && !html.includes('data-act="clear"'));
 ok('no search box inside dropdown', !html.includes('tf-search'));
 ok('no explanation text inside dropdown', !!pDisc && !pDisc.innerHTML.includes('filters-help'));
 ok('no bottom filtered-note in dropdown', !html.includes('● filtered —'));
@@ -138,28 +141,40 @@ const kpiVal = label => {
   return card ? Number(card.querySelector('.v').textContent.trim()) : NaN;
 };
 const before = kpiVal('Total Planned');
-const optCount = pDisc ? pDisc.querySelectorAll('input[type=checkbox]').length : 0;
-const btnClearDisc = pDisc && pDisc.querySelector('.tf-act[data-act="clear"]');
-const btnAllDisc = pDisc && pDisc.querySelector('.tf-act[data-act="all"]');
-if (btnClearDisc) btnClearDisc.click();
+const tfDisc = D.getElementById('tfBtn_disciplines'), tfStg = D.getElementById('tfBtn_stages');
+// Filter changes are committed only when the dropdown is closed (spec §7.5): open, act, then close.
+const openDrop = tf => { if(tf.getAttribute('aria-expanded') !== 'true') tf.click(); };
+const closeDrop = tf => { if(tf.getAttribute('aria-expanded') === 'true') tf.click(); };
+// Empty the Discipline selection by unchecking the master "All Discipline" checkbox (deferred).
+openDrop(tfDisc);                                // open Discipline dropdown
+let mDisc = pDisc.querySelector('#tfAll_disciplines');
+if (mDisc && mDisc.checked) mDisc.click();       // uncheck master → empty selection (deferred)
+closeDrop(tfDisc);                               // close → commit re-render
 const afterClear = kpiVal('Total Planned');
-const badgeAfterClear = cntDisc && cntDisc.textContent.trim();
-if (btnAllDisc) btnAllDisc.click();
+const badgeAfterClear = (D.getElementById('tfCnt_disciplines') || {}).textContent.trim();
+openDrop(tfDisc);                                // open again
+mDisc = pDisc.querySelector('#tfAll_disciplines');
+if (mDisc) mDisc.click();                        // check master → restore all (deferred)
+closeDrop(tfDisc);                               // close → commit re-render
 const afterAll = kpiVal('Total Planned');
 ok('Total Planned starts at full active set', before > 0, `before=${before}`);
-ok('Clear (nothing selected) → zero documents', afterClear === 0, `afterClear=${afterClear}`);
-ok('badge shows 0 of N after Clear', badgeAfterClear === `0 of ${optCount}`, `badge=${badgeAfterClear}`);
+ok('Empty selection (master unchecked) → zero documents', afterClear === 0, `afterClear=${afterClear}`);
+ok('badge shows None selected after Clear', badgeAfterClear === 'None selected', `badge=${badgeAfterClear}`);
 ok('All restores the full set (single combined pass)', afterAll === before, `afterAll=${afterAll}`);
 // Excluded stages are opt-in: ticking one deliberately pulls those rows into the dashboard.
 const exclBox = exclBoxes[0];
 const basePlanned = kpiVal('Total Planned');
-if (exclBox) exclBox.click();
+openDrop(tfStg);                                 // open Stage dropdown
+if (exclBox) exclBox.click();                    // tick excluded stage (deferred)
+closeDrop(tfStg);                                // close → commit re-render
 const tickedPlanned = kpiVal('Total Planned');
 const badgeTicked = cntStg && cntStg.textContent.trim();
-if (exclBox) exclBox.click();
+openDrop(tfStg);                                 // open again
+if (exclBox) exclBox.click();                    // untick (deferred)
+closeDrop(tfStg);                                // close → commit re-render
 const untickedPlanned = kpiVal('Total Planned');
 ok('ticking an excluded stage adds its documents', !exclBox || tickedPlanned > basePlanned, `base=${basePlanned} ticked=${tickedPlanned}`);
-ok('Stage badge leaves "All" once an excluded stage is ticked', !exclBox || /^\d+ of \d+$/.test(badgeTicked || ''), `badge=${badgeTicked}`);
+ok('Stage badge switches to "N of M selected" once an excluded stage is ticked', !exclBox || /^\d+ of \d+ selected$/.test(badgeTicked || ''), `badge=${badgeTicked}`);
 ok('unticking it restores the baseline count', !exclBox || untickedPlanned === basePlanned, `restored=${untickedPlanned} base=${basePlanned}`);
 ok('welcome has copyright', html.includes('© ${year} UESH'));
 ok('welcome has no app bar (hero only)', !html.includes('<div class="meta">Welcome — choose a workbook to begin</div>'));
