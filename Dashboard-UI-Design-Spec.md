@@ -52,7 +52,9 @@ Document-Control Systems · Enterprise Project-Management Platforms
 
 ### 3.1 Header / App bar (mandatory)
 - Sticky top bar, full width, **`--navy` background, white text**, `padding:12px 20px`,
-  **no bottom border** (the navy block ends cleanly). `z-index:20`.
+  **no bottom border** (the navy block ends cleanly). `z-index:31` — the app bar must sit **above** the
+  fixed warning bar (`#errBanner`, `z-index:30`, §3.5), so the filter dropdown (a child of the app bar)
+  clears the banner when it opens.
 - Structure (`.bar` > `.inner`): **Brand** left — a vertical stack beside the logo
   containing the project title `.ttl` (17 px / 600, white, ellipsis; **may wrap to two
   lines** for long names) **and, directly beneath it, the meta line `.meta`** (workbook ·
@@ -60,15 +62,19 @@ Document-Control Systems · Enterprise Project-Management Platforms
   `.tf-btn` and the primary "Load file" action as `.btn.secondary` (white fill, navy text —
   hover → `--blue` fill). The meta line is placed **in the brand block on the left** (not on
   the right with the actions) so the right side stays clear for action buttons.
+
+> **MDL variant (accepted 2026-10-11, see MDL workplan §4.0):** MDL ships a **two-row** top bar. Row 1 = logo + a **3-line title block** (project title / dashboard title / project-start + as-of) + Load-workbook / Print buttons. Row 2 = the **Discipline** and **Stage** filter chips **and the search box**, right-aligned as one group. The workbook name is intentionally omitted. This is the documented MDL pattern and the canonical reference for MDL's header. **Fonts follow §8 (single standard) — there is no separate MDL font stack or sizing; the 3-line title uses the §8 sizes (`.ttl` 17/600, then 12/500, then 11/400).**
 - The logo is a white chip: `height:36px`, `padding:3px`, `border-radius:6px`,
   `box-shadow:0 1px 3px rgba(0,0,0,.2)`.
 - The header is mandatory on every dashboard. Navigation may be a left sidebar (MDL) or
   inline in the header (PPP) — either is permitted (§3.2).
 
 ### 3.2 Navigation
-- Either a **left sidebar** (MDL pattern: OVERVIEW / REVIEWS / DOCUMENTS / QUALITY /
+-   Either a **left sidebar** (MDL pattern: OVERVIEW / REVIEWS / DOCUMENTS / QUALITY /
   SETTINGS) **or** a top-bar nav (PPP pattern). Both are permitted; the header is
   mandatory in either case.
+
+> **MDL left-nav deferred (accepted 2026-10-08, Decision 34 / workplan I-35):** the MDL left sidebar is **deferred to a future phase**. MDL currently ships a **header-only** layout (two-row top bar, see §3.1 MDL variant). Accepted deviation; revisit before next release.
 
 ### 3.3 Content Area
 - Centered container, `max-width:1320px`, `margin:0 auto`, `padding:16px` top/left/right
@@ -89,39 +95,41 @@ Document-Control Systems · Enterprise Project-Management Platforms
 | 880–1099 px | KPI 3-col; panels 1-col |
 | < 880 px | KPI 2-col; single column; nav collapses |
 
-### 3.5 System / Config Banner (`.sys-banner`) & Notes (`.note`)
-- Region **directly below the header**, above all panels. Hidden / not rendered when there
-  are no notices.
-- Three visual tiers, by severity (all render icon + bold code + message):
-  - **Fatal / error-level** → full-width `.sys-banner-item.fatal` strip: `--red` background,
-    white text, `⛔` icon.
-  - **Warning** → full-width `.sys-banner-item.warn` strip: `--amber` background (`#F9A825`),
-    dark text, `⚠️` icon. In the MDL in-flow variant this is a contained `.note` **card**
-    (`#FFF8E1`, `1px solid --amber`, `border-radius:8px`, `padding:8px 12px`, `#7a5b00` text,
-    `margin:10px 0`) — soft and **not** full-bleed.
-  - **Info** → calmer, neutral tier distinct from warning: full-width `.sys-banner-item.info`
-    strip `#e8eef5` background, `#33526b` text, `ℹ️` icon. In the MDL in-flow variant this is
-    also a contained `.note` card using the same neutral palette. Used for FYI notices that need
-    no action (e.g. skipped rows), so they read *below* warnings.
-- **Item format** (matches MDL exactly): an **icon** + **bold code** + **message** —
-  icon prefix, code wrapped in `<b>` (default `SYSTEM`), then the message. No leading
-  severity word and no separator — the icon already conveys severity.
-- Shows *system / config* issues only (e.g. missing columns, row-count mismatches);
-  per-package data issues live in the Validation panel.
-- **Fixed / persistent variant** — a dashboard may render this banner as a **fixed top
-  warning bar** (permitted when it is unified with the fatal *load-error* banner, §7.10
-  `#errBanner`). It sits just below the header; on a screen with no header (the
-  load/onboarding screen, §3.7) it is pinned to `top:0`. In this variant both tiers are
-  full-width strips — fatal `--red`, warning `--amber` (`.sys-banner-item.warn`),
-  info neutral blue-grey (`.sys-banner-item.info`, `#e8eef5`/`#33526b`) — rather than
-  the in-flow `.note` card above, so the three severities keep one visual language.
-- **Clearance rule (overlap prevention)** — mandatory, mirrors §3.6: because the bar is
-  `position:fixed`, it must **reserve its own rendered height in layout** so it never
-  overlaps the first panel or any content beneath it. Measure the bar's height and add it
-  as top padding (or an equivalent spacer) to the content wrapper / first flow child,
-  **preserving** the existing `16px` header-to-content gap beneath the reserved space.
-  Do **not** let the fixed bar simply float over content, and remove the reserved space
-  when the banner is dismissed.
+### 3.5 System / Config Warning Bar (`#errBanner`) — rev 2026-10-10
+Standardised across dashboards on the **PPP design** — a single **fixed top warning bar** that unifies
+system / config notices **and** fatal load failures (spec §7.10 `#errBanner`). One bar, three severity
+tiers, sitting just below the app bar.
+
+- **Element**: a single `#errBanner` at the end of the dashboard root, `position:fixed; left:0; right:0`,
+  `z-index:30` — the **app bar is `z-index:31`**, so the bar stacks *above* the banner; the filter
+  dropdown is a child of the app bar and therefore paints above the banner. Banner sits below toast
+  `45` / modal `50`. It carries `role="alert"` +
+  `aria-live="assertive"`. `display:none` until populated.
+- **Position**: **just below the app bar** — `top` equals the app bar's rendered height (measured at open
+  time, since the bar is sticky / fixed). On the welcome / onboarding screen (no app bar, §3.7) it is
+  pinned to `top:0`. In both cases the bar is **full-width**.
+- **Three severity tiers**, each `icon + bold code + message` (rendered as `.sys-banner-item` strips,
+  ordered fatal → warning → info top-to-bottom, one line each, code **bold** then message — no separator,
+  the icon conveys severity):
+  - **Fatal / error-level** → `--red` background, white text, `⛔`.
+  - **Warning** → `--amber` background (`#F9A825`), dark text, `⚠️`.
+  - **Info** → neutral `#e8eef5` background, `#33526b` text, `ℹ️` — a calmer tier distinct from warning,
+    used for FYI notices that need no action (e.g. skipped rows).
+- **Item format**: an **icon** + **bold code** + **message** — icon prefix, code wrapped in `<b>`
+  (default `SYSTEM`), then the message. No leading severity word and no separator — the icon already
+  conveys severity.
+- **Unified with load failures**: a failed workbook parse shows a `fatal` strip ("Load failed …") in the
+  same bar (per §7.10). There is **no separate** in-flow warning area and **no** `.note`-card variant for
+  system / config notices — the bar is the only surface for them. (Incidental in-flow FYI notes that are
+  not system / config warnings may still use the generic `.note` style.)
+- **Shows *system / config* issues only** (e.g. missing columns, row-count mismatches); per-package data
+  issues live in the Validation panel.
+- **Clearance rule (overlap prevention)** — mandatory, mirrors §3.6: because the bar is `position:fixed`,
+  the content wrapper reserves its height. When the bar is open, add `body.banner-open` and set a
+  `--banner-h` custom property to the bar's measured height; the wrapper's top padding becomes
+  `calc(16px + var(--banner-h))`, **preserving** the existing `16px` app-bar-to-content gap beneath the
+  reserved space. Remove both when the bar is dismissed. On print the bar is hidden and the reserved
+  padding released.
 
 ### 3.6 Status Bar (`.status-bar`)
 - **Fixed bottom** (`position:fixed;left:0;right:0;bottom:0`), full width, `z-index:40`,
@@ -159,6 +167,53 @@ Mandatory. Shown before any data is loaded, as a **standalone hero surface** —
 - `.copyright`: `font-size:11.5px; color:var(--muted); margin-top:6px`.
 
 This is a single-focus **hero** surface, so it may use a **larger radius** (up to ~24 px) than data panels — only the hero card and the dropzone relax radius; the primary CTA is still the standard Primary button (§7.1). Copy is fixed as above; only `<X>` in the headline and the `&lt;project&gt;` noun in the `.expect` body are project-specific. Everything else follows §4–§6.
+
+### 3.8 Data-Processing Pipeline (mandatory)
+
+Any dashboard that ingests a workbook (MDL `.xlsx`, PPP `.xlsx`/`.csv`) MUST follow this single,
+predictable pipeline. **Objective: parse once → normalise once → validate once → derive on demand**,
+so filter changes are fast (no re-parse) and every aggregation lives in exactly one place (no duplicate
+KPI engine).
+
+**Stages**
+
+| # | Stage | Responsibility | Input → Output | Runs |
+|---|---|---|---|---|
+| S0 | Acquire | Read raw bytes from the file input; no parsing. | `File` → `ArrayBuffer` | On file open only |
+| S1 | Parse | Parse the container into an in-memory workbook (sheets / rows / cells). | `ArrayBuffer` → `workbook` | On file open only. The raw `workbook` is **discarded after S2** — only the normalised model is retained. |
+| S2 | Ingest / Normalize | Turn raw rows into a normalised **record table**: typed fields (Date/Bool coercion), `isActive`, `discipline`, `stage`, `docNo` (MDL) / `packages[]` (PPP); build contract/lookup tables (`codeInfo`, `lookups`, `statusCanon`) and `meta` (project info, today). **No aggregation or KPI math.** | `workbook` → `model{ records[], contract, meta }` | On file open only; held in memory for the session. |
+| S3 | Validate | Run row-level, **filter-independent** validation rules once. | `records` + validation context → `issues[]`, `warnings[]`, `completenessGroup` | On file open only. |
+| S4 | Derive / Aggregate | **On demand**, given the current filter/UI state: filter `records` → `active`, then compute **all** aggregations — KPIs, overdue lists, charts, matrix, completeness%. This is the **sole** source of KPI numbers. | `model` + `state` → `view{ active, kpis, issues(filtered), charts, matrix, … }` | On every filter change / render. |
+| S5 | Render | Paint DOM panels from `view`. | `view` → DOM | On every render. Keep the deferred-render rule: repaint once when the filter dropdown closes, not on every in-dropdown toggle. |
+| S6 | React-to-filter | Refresh loop. | user action → `deriveView(model, state)` → `render(view)` | On filter change. **Never re-runs S0–S3; the file is never re-parsed.** |
+
+**Mandatory rules**
+1. **One source of truth for aggregations.** KPI / chart / overdue math lives in **exactly one** place
+   (S4). A pipeline stage (S2/S3) must **not** also compute KPIs that the view recomputes — that creates a
+   duplicate engine and a silent drift risk.
+2. **Discard the raw parse.** After S2 retain only the normalised `records` + `contract` + `meta`. Do not
+   keep the full parsed `workbook` (larger, never re-read).
+3. **Validate once, at load.** Row-level validation (S3) is independent of filters; compute it a single
+   time and reuse. Filter-dependent derivations belong in S4.
+4. **Derive on demand (fast, no I/O).** S4 recomputes only from the in-memory `records` — fast because
+   there is no file read. *Scale-driven, optional*: memoize S4 by a filter key (`disciplines|stages|rule`),
+   and/or pre-build row indexes (`Map<discipline, indices>`) so filtering is a lookup rather than a full scan.
+5. **No re-parse on filter change.** S6 reuses the in-memory model; re-reading the file on each filter
+   toggle is prohibited.
+6. **As-of and project-start are distinct anchors.** `meta.today` (as-of) is the **viewer's local
+   system date** — built from local date components, **never** `toISOString()` (UTC), which introduces
+   a 1-day off-by-one near local midnight. As-of drives every Overdue / Approval / look-ahead /
+   completeness calculation. The workbook `Code!B6` **project-start** date is an **x-axis origin for
+   date-curve panels only** (S-curve / throughput); it must **never** feed Overdue, approval, or
+   schedule-variance math. On the S-curve the x-axis is **anchored at the earliest document date** (same anchor rule as the PPP dashboard's S-curve) and carries two reference lines: **Start** (the `Code!B6` project start, red dashed) and **Today** (as-of, navy solid).
+
+**Reference implementation & conformance**
+- **PPP is the reference implementation**: `buildModel()` = S2 only (normalises `packages[]` +
+  `lookups`/`statusCanon`, discards the raw parse); `validate()` = S3; `renderKPIs` / `renderInteractive` /
+  `renderPOMonthly` = S4 (deferred, single source, no duplicate).
+- **MDL conformance (closed via I-67)**: `buildModel` was refactored to S2+S3 only — the
+  `kpis`/`charts`/`overdueLists` computation was removed and `deriveView` is now the sole S4 source,
+  eliminating the duplicate-KPI issue **I-63**. PPP remains the reference implementation.
 
 ---
 
@@ -378,12 +433,30 @@ must behave as an **accordion**:
 - **Label**: 10 px, uppercase, `--muted`.
 - **Optional sub-status line**: icon + text + colour (§9).
 
+### KPI sub-tier (`.subkpi`)
+- Below the main KPI cards, a secondary grid of **compact info chips** (`.subkpi`) surfaces
+  supporting status counts. Each chip shows a **value** (`.subkpi .v`, 16 px / 700 / `--navy`)
+  and a **label** (`.subkpi .l`, 10 px / `--muted`).
+- MDL instantiates four informational sub-tier metrics (not primary KPIs):
+  - **As-Built Required (YES)** — count of *active* documents where `As-Built = "YES"`
+    (the requirement flag, **not** delivered as-built).
+  - **Vendor Data (YES)** — count of *active* documents where `Vendor Data = "YES"`
+    (a YES-flag count, **not** grouped by vendor).
+  - **Data Completeness** — % of documents passing the completeness validation group
+    (`V-17…V-27`), or `N/A` when none exist.
+  - **Active Disciplines** — `distinct active disciplines / total disciplines defined in the
+    workbook`; the denominator is the **derived universe** from `Code!H`, never hard-coded.
+- Labels state exactly what is counted (I-02/I-03 semantics); relabeling guidance in the
+  workplan (I-66).
+
 ```css
 .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
 .kpi{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--blue);
   border-radius:8px;padding:10px}
 .kpi .v{font-size:22px;font-weight:700;color:var(--navy)}
 .kpi .l{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.subkpi{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+.subkpi .v{font-size:16px;font-weight:700;color:var(--navy)} .subkpi .l{font-size:10px;color:var(--muted)}
 .kpi.warn{border-top-color:var(--red)} .kpi.ok{border-top-color:var(--green)} .kpi.amb{border-top-color:var(--amber)}
 ```
 
@@ -469,24 +542,37 @@ so they adapt automatically; no per-component dark CSS beyond the token swap (PP
 ## 7. Component Library
 
 ### 7.1 Buttons
-All actions are real `<button>` elements. Variants:
 
-| Variant | Class | Style | Use |
+**Single standard — no per-dashboard button variations.** MDL and PPP use the *same* classes, sizes, colours and hover behaviour, and every action is a real `<button>` element (never a `<td>`/`<div>` with `role="button"`). Buttons fall into three families:
+
+#### A. Action buttons
+| Type | Class | Use | Style |
 |---|---|---|---|
-| Primary | `.btn` | `--blue` solid, white text, radius 6 px, min-height 32 px | main page action (Open file, Load another file) |
-| Secondary / Ghost | `.btn.ghost` | white, 1px `--border`, **navy** text; hover → `--blue` fill, white text (MDL `.btn-secondary`) | low-emphasis / alternative action |
-| Mini / Icon | `.icon-btn` | 26 px square, 1px `--border`, muted; hover → `--soft`, navy glyph | inline panel actions (Help `?`, Collapse `−`) |
-| Text action | `.copyBtn` / `.dlBtn` / `.reset` / `#vExport` | MDL `.btn-secondary`: 12 px / 600 **navy**, min-height 32 px, radius 6 px, glyph + label (`⤓ PNG`, `⧉ Copy`); hover → `--blue` fill, white text | chart exports, period-window Reset, validation Export CSV |
-| Filter trigger | `.tf-btn` | text + `▾`, 1px `--border`, radius 6 px; hover → `--soft` | opens the category filter menu |
-| Segmented | `.seg button` | joined group, 1px `--border`, radius 6 px, overflow hidden; inactive = white / **navy** text; active `.on` = **`--navy`** fill / white text (MDL `.btn-active`); inactive hover → `--blue` fill | bar/pie toggle, view switch |
+| A1 Primary | `.btn` / `.btn-primary` | **one per screen** highest-emphasis CTA — *Open / Load workbook* only; Print / Save / Export are **not** primary | `--blue` solid, white text, radius 6 px, min-height 32 px |
+| A2 Secondary / Ghost | `.btn.ghost` / `.btn-secondary` | low-emphasis alternative / cancel / dismiss; "Load another file" | white, 1px `--border`, **navy** text; hover → `--blue` fill, white text |
+| A3 Text action | `.btn-secondary` (glyph + label); PPP also uses `.dlBtn` / `.copyBtn` / `.reset` | tool / footer-row actions: export, copy, reset, CSV (e.g. `⤓ PNG`, `⧉ Copy`, `⤓ CSV`, `Reset`) | white, **navy** text, glyph + space + label; hover → `--blue` fill, white text |
+| A4 Icon / Mini | `.icon-btn` | icon-only: Help `?`, Collapse `−`, Theme, modal close `✕` | 26 px square, 1px `--border`, muted; hover → `--soft`; **must carry `aria-label` + tooltip** |
+| A5 Search | `.search-btn` | search submit, affixed to the search input (right edge, single-side radius) | `--accent` fill, white glyph, radius `0 6px 6px 0`, attached to input |
 
-- Font 12–14 px / 600. Chart/tool buttons match MDL exactly: 12 px / 600 **navy** text on white,
-  `min-height:32px`, `padding:7px 14px`, radius 6 px; **hover = `--blue` fill with white text**
-  (not a `--soft` tint). Primary keeps `--blue` (the *action* colour); the segmented control's
-  **active state** is `--navy` (a *selection* state, per MDL `.btn-active`) — these are different
-  semantics and intentionally different colours.
-- Inline panel actions sit in the title row, **right-aligned** as a cluster (see §4); within
-  the cluster Help `?` is left of the Collapse `−` toggle.
+#### B. Selection controls
+| Type | Class | Use | Style |
+|---|---|---|---|
+| B1 Filter trigger | `.tf-btn` | **opens** a filter menu (Discipline / Stage / Category `▾`) — distinct from the chips *inside* the menu | text + `▾`, 1px `--border`, radius 6 px; hover → `--soft`; selected → `.is-filtered` / `.active` emphasis |
+| B2 Segmented | `.seg button` | single-select among 2–6 inline options (Bar/Pie, month horizon 1m–6m, overdue cases); active `.on` = **`--navy`** fill (a *selection* state, not an action) | joined group, 1px `--border`, radius 6 px, overflow hidden; inactive hover → `--blue` fill |
+| B3 Filter chips | `.chips label` | multi-select toggles *inside* the filter menu (checkboxes styled as pills) | 11 px, rounded pill |
+| B4 Drill / Expand | reuses `.icon-btn` visuals | row drill-down / expand (`▸ stages`) | **must be a real `<button>`** (MDL currently uses a `<td>` — non-compliant, see §13.2.3); may be icon or text + icon |
+| B5 Native single-select | `.inter-sel` | single-choice picker — breakdown dimension, month, type (chart group / matrix Month / Overdue Type); distinct from multi-select `.tf-btn` filter and from the `.seg` segmented control | 12 px / 600, 1px `--border`, radius 8–9 px, white surface, `--ink` text; `:focus-visible` 2 px `--blue` ring; `max-width:260 px`; attached variant `.inter-sel.is-attached` (search-column picker: no own border, left-rounded, right divider) |
+
+#### C. Indicator (not a button)
+| Type | Class | Use | Style |
+|---|---|---|---|
+| C1 Status pill | `.pill` | status / count badge — **not an action** | 10 px / 600, radius 999, semantic colour variant |
+
+- **Font:** 12–14 px / 600 (icon buttons 12–13 px).
+- **Hover (A2 / A3):** `--blue` fill, white text — *not* a `--soft` tint.
+- **A1 Primary** keeps `--blue` (the *action* colour); the **B2 segmented active state** is `--navy` (a *selection* state) — different semantics, intentionally different colours.
+- **Modal is a container, not a button type:** its close `✕` = A4; its footer actions = A1 / A2 / A3.
+- Inline panel actions sit in the title row, **right-aligned** as a cluster (see §4); within the cluster Help `?` is left of Collapse `−`.
 
 ### 7.2 Tables (`.ds-table`)
 One common table style for **every** tabular view. Data tables (benchmark, look-ahead,
@@ -517,7 +603,7 @@ row drill-down on top of the same base — never a second, divergent table style
 - Serialise to PNG-safe literals (CSS vars do not resolve in exported SVG):
   navy `#0F2D52`, blue `#1E88E5`, green `#2E7D32`, amber `#F9A825`, red `#C62828`,
   grey `#B8C2CC`, grid `#EDF1F5`.
-- S-curve: **red dashed** = project start; **grey** = today (operational as-of).
+- S-curve: **red dashed** = **Start** (project start, workbook `Code!B6`, x-axis origin only); **navy solid** = **Today** (operational as-of = the viewer's local system date; see §3.8 rule 6). The x-axis is **anchored at the earliest document date** (same anchor rule as the PPP dashboard's S-curve), so documents dated before the project start still plot (to the left of Start).
 - **Combined bar + cumulative charts share one y-scale** (§4.2) — never add a second value
   axis. Plot area therefore reserves no right-side axis padding.
 - **Categorical colour (bar & pie)**: every category gets its **own** colour — a bar chart must
@@ -539,6 +625,7 @@ Two selection patterns — pick by interaction:
 - **Native select** (`.inter-sel`): single-choice picker (e.g. breakdown dimension).
   12 px / 600, 1px `--border`, radius 8–9 px, white surface, `--ink` text; `:focus-visible`
   2 px `--blue` ring; `max-width:260 px`.
+  **Mandatory:** every native `<select>` in any dashboard MUST carry `.inter-sel` (or `.inter-sel.is-attached` for the search-column picker). Bare / unstyled `<select>` and dashboard-specific select classes (e.g. `base`, `month-select`) are non-compliant — alias them to `.inter-sel` rather than introducing new classes.
 - **Custom dropdown menu** (`.tf-btn` + `.tf-panel`): multi-select filter (e.g. item-category).
   Trigger is a text button ending in `▾`; popover is 1px `--border`, radius 8 px, subtle
   shadow, `min-width:220 px`, `max-width:min(340 px,90vw)`, `max-height:320 px` scroll,
@@ -548,30 +635,52 @@ Two selection patterns — pick by interaction:
   few (2–6), short and always visible. Full contract below.
 - Generic filter panel: 1px border, radius 8 px, max-width with ellipsis on long labels.
 
-#### Top-bar filter contract (individual buttons) — rev 2026-10-09
-Standardised across dashboards. Filters are surfaced as **one trigger per dimension** in the top
+#### Top-bar filter contract (individual buttons) — rev 2026-10-10
+Standardised across dashboards on the **PPP filter design** (master "All" checkbox + "None selected"
+empty state + `N of M selected` badge). Filters are surfaced as **one trigger per dimension** in the top
 title bar — never a single combined "Filters" button:
 
 - **Cap: two filters** shown at once. Each is a `.tf-btn` inside its own `.tf-wrap` (so its
   `.tf-panel` anchors beneath that trigger), carrying `aria-expanded` + `aria-controls`.
-- **Trigger label** = dimension name + a count badge reading **`All`** when every option is
-  selected, otherwise **`x of y`**. The trigger takes `.is-filtered` (accent border/text) when
-  not everything is selected — this is the *only* filter-state indicator.
-- **Panel order**: **All / Clear at the top**, then the option checkbox list. **No search box, no
-  explanatory text, no bottom "filtered" summary** — the panel is deliberately minimal.
-- **No global "Clear all"** button in the bar; clearing is per-dimension via that panel's Clear.
+- **Trigger label** = dimension name + a count badge:
+  - **`All [dimension]`** when every option is selected (e.g. `All Discipline`);
+  - **`N of M selected`** when a subset is selected;
+  - **`None selected`** when nothing is ticked.
+  The trigger takes `.is-filtered` (accent border/text) whenever the selection is **not** "All" — this is
+  the *only* filter-state indicator.
+- **Panel order**: a **single master "All [dimension]" checkbox at the top** (e.g. `All Discipline`),
+  then the option checkbox list, then the dismiss hint (below). The master checkbox selects/deselects
+  **every** option in one click. **No separate Clear button** — unchecking the master (or every
+  individual option) is how the selection is emptied. **No search box.** The panel is deliberately
+  minimal; the only permitted text beyond the options is the one-line dismiss hint.
+- **Dismiss hint (required)**: directly under the option list, a single muted line — e.g.
+  *"Changes apply when this list is closed."* — explains that selections are committed only when the
+  dropdown is dismissed (see the deferred re-render rule below). This is the **only** explanatory text
+  allowed in the panel.
+- **No global "Clear all"** button in the bar; emptying a dimension is done via its master checkbox.
 - **Excluded values are not offered.** Values that are never counted (MDL: `Deleted`, `Void`,
   `Superseded`) are omitted from the option list. The dashboard's existing exclusion rule remains
   the single source of truth — there is **no separate "include excluded" toggle**, so two controls
   can never disagree about the same selection.
-- **Empty selection = zero rows.** Clearing every option yields an empty dashboard; it never falls
-  back to "no filter / show everything".
+- **Empty selection = zero rows.** With the master (and all options) unchecked the badge reads
+  `None selected` and the dashboard shows an **empty** result — it never falls back to "no filter /
+  show everything" (this corrects PPP's I-57 behaviour; PPP is being brought into line).
 - **Filters combine (AND) and update atomically in one pass** — all dimensions are read from one
   state object and every change re-derives the whole dashboard. A dimension must never update in
   isolation, and no second mechanism may govern the same selection.
 - **One dropdown open at a time**; closes on outside click or `Escape`.
-- **Dimensions are dashboard-specific**: MDL = **Discipline + Stage**; PPP = **Category + Status**
-  (planned — see the PPP workplan).
+- **Re-render is deferred until the dropdown closes.** Toggling the master checkbox or an option updates
+  the selection state and the trigger badge **immediately**, but the dashboard data panels are **not**
+  re-derived on every individual toggle. The (potentially expensive) re-render fires **once**, when the
+  dropdown list is dismissed — by outside click, `Escape`, opening a different dropdown, or toggling the
+  trigger shut. This keeps multi-select filtering of large datasets smooth (no re-derive on each click)
+  while still reflecting the final selection the instant the list closes. The single combined-pass rule
+  above still holds: closing the list re-derives the whole dashboard from the one state object. The
+  dismiss hint above is what tells the user why the dashboard does not update live.
+- **Dimensions are dashboard-specific**: MDL = **Discipline + Stage**; PPP = **Category** (+ `Status`
+  rendered as a `.seg`, not a dropdown — see §7.5 segmented control). PPP's shipped filter currently
+  deviates (immediate re-render, no dismiss hint, `.active` class instead of `.is-filtered`, and I-57
+  empty = all) — bring PPP into line with these rules (**PPP workplan I-75**).
 
 #### Segmented control contract (`.seg` + `data-key` / `data-t`)
 Standardised on the PPP implementation. Every segmented control follows this exact mechanism:
@@ -623,12 +732,11 @@ Standardised on the PPP implementation. Every segmented control follows this exa
 ### 7.6 Overlays & Help
 - **Help**: the trigger is the `?` icon-btn in the panel title row (§7.7); it opens the centred
   **modal** described in §7.9 (help is a popup window, never an inline disclosure).
-- **Toast** (`#toast`): transient message, fixed bottom-centre, high contrast, auto-dismiss.
-- **Error banner** (`#errBanner`): when kept separate, fatal *load* errors only — fixed
-  top, full-width, `--red`. May instead be **unified** with the system / config banner
-  (§3.5) into a single fixed top warning bar; in that case it also carries data/config
-  notices (fatal = red strip, non-fatal = `--amber` strip). Either way it follows the
-  §3.5 clearance rule so it never overlaps content.
+- **Toast** (`#toast`): see **§7.10** for the full specification. The toast design is shared by every dashboard (PPP + MDL); only the set of trigger cases differs per dashboard.
+- **Error banner** (`#errBanner`): this **is** the unified top warning bar from §3.5 — a single fixed
+  top bar that carries both fatal *load* errors (red strip) **and** system / config notices (fatal =
+  red, warning = `--amber`, info = neutral). It is not a separate surface. It follows the §3.5 clearance
+  rule so it never overlaps content.
 
 ---
 
@@ -684,8 +792,59 @@ per-panel by the header `?` button.
 
 ---
 
+### 7.10 Toast (unified across all dashboards)
+
+> **Rule:** The toast *design* is shared by every dashboard (PPP + MDL). The **only** permitted per-dashboard difference is the set of trigger cases (§7.10.9). No dashboard may alter appearance, position, semantics, behaviour, or variants.
+
+**7.10.1 Purpose.** A toast is a transient, non-modal, auto-dismissing notification that confirms a completed, fire-and-forget action or surfaces a low-priority, time-sensitive notice. It never requires the user to respond and must not interrupt the workflow. It is strictly supplemental — the result of the action must also be observable through the primary UI (status bar or a re-render).
+
+**7.10.2 When NOT to use (both dashboards).** Continuous live state → the fixed status bar (§3.6). A warning / data-quality issue the user must read or act on → inline note / fatal banner (§3.5). A decision or input required → modal (§7.9). Field-level validation → inline on the field. Anything already shown in the status bar → nothing (no duplication / no toast spam).
+
+**7.10.3 Element & semantics.** A single `#toast` live region at the end of `<body>`. Success / Info: `role="status"` + `aria-live="polite"`. Warning / Error: `role="alert"` + `aria-live="assertive"`. `aria-atomic="true"`. Toasts are not interactive targets (no focus, no click handler required for function).
+
+**7.10.4 Position & stacking.** `position:fixed`, horizontally centred (or bottom-right for dense dashboards). `bottom` = status-bar height + gap, so it sits **above** the fixed status bar and never overlaps it. z-index **45** (between the status bar 40 and the modal 50).
+
+**7.10.5 Variants (token-driven, no literal hex).**
+
+| Variant | Token | Icon | Use |
+|---|---|---|---|
+| Success | `--green` | ✓ | Export / copy succeeded |
+| Info | `--blue` | ⓘ | Neutral notice (nothing to export) |
+| Warning | `--warn-*` | ⚠ | Recoverable fallback used (clipboard blocked → PNG) |
+| Error | `--red` | ⛔ | Action failed |
+
+All colours reference design tokens so they remap with the dark theme; no per-component hex.
+
+**7.10.6 Behaviour.** Auto-dismiss timeout scales with length: base **4 s**, +0.5 s per ~20 characters, capped at **8 s**. **Pause** the timer on hover or keyboard focus; resume on leave. Dismiss on click/`Esc`. **Stack** (newest on top), showing at most **3** at once and queuing the rest — never silently replace an unread toast.
+
+**7.10.7 Motion.** Entrance is a brief fade + slight upward slide. Honour `prefers-reduced-motion: reduce` → opacity only, no transform.
+
+**7.10.8 Content.** ≤ **80 characters**, one line, no technical jargon or codes. Action-oriented phrasing: past tense for confirmations ("CSV downloaded"), present tense for info ("Nothing to export").
+
+**7.10.9 Trigger policy (the only per-dashboard difference).** The trigger *types* are identical on every dashboard (export success, copy success/fallback, empty export, export failure). Each dashboard declares **which named exports** raise a toast; it must not invent a new trigger *type*.
+
+| Trigger event | PPP | MDL |
+|---|---|---|
+| Chart → Copy: success | ✓ "Chart copied to clipboard" | ✓ |
+| Chart → Copy: clipboard blocked → PNG fallback | ✓ "Copied as PNG download" (warning) | ✓ (warning) |
+| Chart → Copy: failure | ✓ "Copy failed: …" (error) | ✓ (error) |
+| Chart → PNG download: success | ✓ "Downloaded PNG" | ✓ |
+| Chart → PNG download: failure | ✓ "Export failed: …" (error) | ✓ (error) |
+| Chart → Copy with no SVG | ✓ "Nothing to export" (info) | ✓ (info) |
+| Look-ahead CSV: empty | ✓ "Nothing to export" | — (no look-ahead feature) |
+| Look-ahead CSV: success | ✓ "Look-ahead exported (N rows)" | — |
+| Validation / Issue CSV: empty | ✓ "Nothing to export" | ✓ "Nothing to export" |
+| Validation / Issue CSV: success | ✓ "Validation report exported" | ✓ "Issue list exported" / "CSV downloaded" |
+| Discipline-matrix CSV: success | — | ✓ "CSV downloaded" |
+
+**7.10.10 Adoption impact.** PPP already has a `#toast` but must be refactored to meet 7.10.3–7.10.7 (token colours, stacking, length-scaled + pausable timeout, error/assertive variant, icon, z-index 45, dismiss). MDL must implement `#toast` from scratch and route its export/copy triggers through it, retiring the inline `.msg` for those cases.
+
+**7.10.11 Acceptance criteria.** (1) `#toast` identical design (token/position/semantics) on PPP and MDL. (2) No literal hex in either toast style. (3) Error path uses `role="alert"`; success/info uses `role="status"`. (4) 3+ rapid triggers stack & queue; none replaced. (5) Timeout scales with length and pauses on hover. (6) Toast never overlaps the status bar at ≥ 320 px width. (7) Each dashboard's triggers match §7.10.9 only.
+
+---
+
 ### 7.8 Export / Download actions
-All exports are **text-action buttons** (§7.1), grouped in a `.ctool` / `.ctool-footer` row.
+All exports are **text-action buttons** (§7.1, type A3), grouped in a `.ctool` / `.ctool-footer` row. (MDL renders them as `.btn-secondary`; PPP as `.dlBtn` / `.copyBtn` / `.reset` — both are the A3 type; the class names differ but the spec'd style is identical.)
 
 | Action | Trigger (class) | Behaviour |
 |---|---|---|
@@ -705,8 +864,14 @@ All exports are **text-action buttons** (§7.1), grouped in a `.ctool` / `.ctool
 - Component `.sc-win`: a labelled **dual range** — From / To `<input type="range">` sharing one
   domain (e.g. months) — plus a **Reset** text-action button and a **live message** describing
   the active window.
-- Used on the S-curve panel to zoom a date range; the red-dashed (project start) and grey
-  (today) reference lines stay fixed while the window moves.
+- Used on the S-curve panel to scope a date range: the window selects which months are shown **and scopes the S-curve data** — the cumulative lines show progress **within the selected window** (anchored at the window start), while the monthly bars show per-month new counts. The red-dashed (**Start** / project start) and navy-solid (**Today** / as-of) reference lines stay fixed while the window moves, and the panel shows a **dual-label caption** `Reporting period: … · As-of: {system date} · cumulative within period` `Reporting period: … · As-of: {system date}` so the window is never confused with the current-date calculations (§3.8 rule 6).
+- **Scope (decided 2026-10-10; window now scopes S-curve data, 2026-10-11):** the period window affects
+  **only the Issue-Progress S-curve** (and its monthly bar) — it scopes those charts to the selected window,
+  with the cumulative lines shown **within the window** (anchored at the window start). It does **not** change the
+  Overdue / Approval / KPI panels, which stay anchored to the as-of (system date, §3.8 rule 6). To prevent
+  confusion the panel shows a **dual label** `Reporting period: … · As-of: {system date} · cumulative within period` so reviewers never
+  conflate the two. The global categorical filters (Discipline / Stage) remain the single source for
+  filtering the data set; the period is a curve-scoping window, not a duplicate data filter.
 - Slider accent uses `accent-color: var(--accent)`.
 
 ### 7.10 Chips (filters & summaries)
@@ -723,20 +888,27 @@ Two pill uses, both `border-radius:999px`:
 
 ## 8. Typography
 
+> **Single standard — applies to EVERY dashboard (PPP + MDL).** There are **no per-dashboard font variations**. MDL must use the exact same font stack, sizes, and weights as PPP (the reference implementation). SVG chart / S-curve text **must inherit the font stack** — never hard-code `Arial` or a reduced stack — **and must be drawn at natural pixel size** (the `<text>` renders at its stated `font-size`; the SVG is **not** stretched with `width:100%`). This matches PPP's **I-70** fix (S-curve) and keeps chart / S-curve text at the intended px instead of being enlarged by responsive scaling.
+
 **Font stack**: `'Segoe UI', system-ui, -apple-system, 'Inter', 'Source Sans Pro', Roboto, Helvetica, Arial, sans-serif`
 
-| Component (class) | Size | Weight | Notes |
+**Base**: `body` = 13 px, `line-height:1.45`, `-webkit-font-smoothing:antialiased`; colour `--text`.
+
+| Component (class) | Size | Weight | Notes (reference: PPP impl.) |
 |---|---|---|---|
-| App-bar title (`.ttl`) | 17 px | 600 | project name, **white on navy app bar**, ellipsis on overflow |
-| App-bar meta (`.meta`) | 12 px | 400 | `--muted` |
+| App-bar title (`.ttl`) | 17 px | 600 | project name; **white on navy**; **ellipsis on overflow (single line)** |
+| App-bar meta (`.meta`) | 11 px | 400 | white, `opacity:.85` |
+| App-bar subtitle (`.sub`) | 12 px | 500 | white, `opacity:.8` |
 | Panel title (`h2` / `.card h2`) | 13 px | 700 | **uppercase**, letter-spacing .04 em, navy |
 | Sub-panel / Chart title (`h3` / `.panel-head h3`) | 13 px | 700 | navy, **not** uppercase — marks a nested panel |
-| Subtitle (`.sub`) | 12.5 px | 400 | `--muted`, sits under the title |
-| KPI Number | 22 px (compact) / 28 px (hero) | 700 | navy |
-| Body Text | 13–14 px | 400 | `--text` |
-| Table Header | 13 px | 600 | white on navy |
-| Caption / Label | 12 px | 400–600 | `--muted`, often uppercase |
+| KPI Number (`.kpi .v`) | 22 px (compact) / 28 px (hero) | 700 | navy, slight negative letter-spacing |
+| KPI / micro label (`.kpi .l`, `.subkpi .l`) | 10 px | 600 | uppercase, letter-spacing .04 em, `--muted` |
+| Body text | 13 px | 400 | `--text` |
+| Table header (`.ds-table thead th`) | 12 px | 600 | white on navy |
+| Caption / label | 12 px | 400–600 | `--muted`; micro-labels (range, chips, badges) may be 11 px |
+| Chart / S-curve SVG text | 10–12 px | — | SVG `<text>` inherits `var(--font)`; **explicit `font-size` (10–12 px)**; drawn at **natural pixel size (no `width:100%` stretch)** — per PPP I-70; **never Arial** |
 | Button text | 12–14 px | 600 | — |
+| Welcome headline (`.wcard h1`) | 25 px | 700 | letter-spacing -.02 em |
 
 ---
 
@@ -776,22 +948,36 @@ Two pill uses, both `border-radius:999px`:
 ## 12. Adoption Status
 
 - **PPP Dashboard** — aligned to v1.0 (tokens, font, KPI panel, symbols applied 2026-10-04).
-- **MDL Control Center** — source of the tokens; **partially aligned (~55–60%)** — see §13.2.9.
-  Remaining gaps tracked in the MDL workplan as I-31…I-46 (left sidebar I-35 deferred; font/icon/focus
-  I-43, scroller/accordion I-44, export filenames + help-modal a11y I-45, this governance note I-46).
+- **MDL Control Center** — source of the tokens; **aligned to v1.0 (~90%+)** after the 2026-10-08/09
+  design-standard remediation (workplan I-31…I-50) — see §13.2.9. Only I-35 (left-nav) remains deferred
+  per Decision 34; no minor open items; MDL's header uses the accepted **two-row / 3-line-title** variant (2026-10-11, see §3.1 MDL variant + MDL workplan §4.0) and the search box is a single-column, Enter-to-commit control (§7.9 / MDL §4.7) (`.subkpi` documented and chart-card title-style unification closed 2026-10-10). Typography follows the **single §8 standard** (no MDL font deviations — chart / S-curve SVG text inherits the Segoe UI stack, never Arial). Global `[hidden]` reset is now OPTIONAL (MDL's hideable components self-manage hiding). The toast component is now specified in §7.10 (MDL I-59 / PPP I-76).
 - **Future dashboards** — import §6 `:root` and follow §3–§5 layout; define own status
   vocabulary per §1.
 
 ### 12.1 Governance notes (added 2026-10-09)
-- **Global `[hidden]` reset:** authors MUST include `[hidden]{display:none}` in the `:root`
-  stylesheet (MDL already scopes it, e.g. `.help-modal[hidden]{display:none}`). Without it,
-  `hidden` attributes are not guaranteed to hide elements across UAs.
+- **Global `[hidden]` reset (OPTIONAL):** authors SHOULD include `[hidden]{display:none}` in the `:root`
+  stylesheet (or scope it per component, as MDL does via `.help-modal[hidden]` / `.tf-panel[hidden]` + a generic `.hidden` class). Without it,
+  `hidden` attributes are not guaranteed to hide elements across UAs — so MDL's per-component scoping is an accepted, equivalent approach.
 - **Z-index / stacking:** define an explicit stacking order — base content `z-index:0`,
   sticky table headers `z-index:2`, panel collapse/overlays and the help modal `z-index:50`.
   Avoid ad-hoc `z-index` values; see MDL `:root` and `.help-modal{z-index:50}`.
-- **Duplicate §7.9:** there are two "§7.9" headings — *Help Modal* (≈L624) and *Range / Time
-  selection* (≈L662). Renumber the Range/Time section to §7.10 (and renumber subsequent
-  sub-sections) to remove the collision.
+- **§7 sub-section numbering:** the §7 block is out of order and contains a duplicate
+  "§7.9" (*Help Modal* ≈L666 and *Range / Time* ≈L704). Renumber to the canonical sequence
+  **§7.6 Overlays & Help · §7.7 Icon & Symbol · §7.8 Export / Download · §7.9 Help Modal ·
+  §7.10 Toast · §7.11 Range / Time · §7.12 Chips** (insert Toast as §7.10; shift Range/Time
+  and Chips down by one). This removes the collision and seats the new §7.10 Toast spec.
+- **Standardisation rule (added 2026-10-10):** when a shared design is standardised, the spec must name
+  **one** canonical variant and the source dashboard's implementation is the reference — "both variants
+  permitted" is what allowed PPP and MDL to diverge. Applied today to **§7.5 Filters** (PPP's master
+  "All" checkbox + `None selected` + `N of M selected` + dismiss hint is canonical; the All/Clear
+  button variant is retired) and to **§3.5 Warning bar** (PPP's unified fixed `#errBanner` is canonical;
+  the in-flow `.sys-banner` / `.note`-card variant is retired). A standardisation is not complete until
+  **both** workplans record the delta — see MDL I-61 / I-62 and PPP I-75.
+- **Cross-document update rule (added 2026-10-10):** any change to a shared contract must land in three
+  places in the same pass — (1) the spec section (+ its §13.3 compliance row and any stale TODO/cleanup
+  bullet), (2) the MDL workplan, (3) the PPP workplan. Stale compliance rows and TODO bullets that
+  describe a superseded design are themselves defects and were corrected today (e.g. the §13.3 System
+  banner row, the `.sys-banner-item.warn` "unused" bullet).
 - **§15 superseded:** Decision 33 promotes this v1.0 spec to the single source of truth; the
   older `MDL/MDL_UI_Design_Spec.md` (formerly §15) is retired and should not be cited.
 
@@ -889,12 +1075,12 @@ most MDL deviations, not a cosmetic nit.**
   filter) is excellent at-a-glance state and supports the 5-second exception goal.
   MDL renders it **before data loads** (empty navy strip) which reads as "something is
   broken". Hidden-until-first-render is the correct UX and is what PPP does.
-- **Toast (both).** Transient feedback is good practice, but PPP's toast sits ~28 px
-  up and **overlaps the ~30 px fixed status bar**, and it has no `aria-live` — so the
-  message is either visually colliding or invisible to screen readers (fails WCAG
-  4.1.3 perceivable feedback). MDL abandons a toast entirely and writes into an inline
-  `.msg` that is easy to miss and auto-dismisses never. The spec references the toast
-  three times but never defines it.
+- **Toast (both).** Now fully specified in **§7.10** (unified design shared by PPP + MDL;
+  only the trigger set differs). PPP's *current* implementation still deviates from §7.10
+  (literal `rgba(29,29,31,.92)` background, fixed 2200 ms timeout, no stacking, no
+  `role=alert` error variant, `pointer-events:none` so it cannot be dismissed) and must be
+  refactored (PPP workplan I-76). MDL has no toast yet and must implement §7.10 from scratch
+  (MDL workplan I-59), retiring its inline `.msg` for export/copy feedback. Both tracked.
 
 #### 13.2.6 Accessibility (focus, semantics, motion)
 - **Focus visibility (MDL).** Only `.btn` has `:focus-visible`; selects, text inputs
@@ -924,13 +1110,15 @@ most MDL deviations, not a cosmetic nit.**
 - **PPP** is ~90% aligned and, from a UX standpoint, the stronger of the two: its
   deviations are mostly contained (responsive cascade, incomplete dark theme, a couple
   of radii, two button styles). Fixing them is low-risk.
-- **MDL** is ~55–60% aligned. Because it is the *source* of the visual language, its
-  gaps are more damaging: missing tokens, missing panel numbering (a wayfinding /
-  support-reference aid), no `.seg`, a divergent table system, a glyph collision, and a
-  broken hidden status bar. These are not cosmetic — they affect legibility, learnability
-  and accessibility.
-- **Process gap:** §12 currently claims both are "aligned", which is false and should be
-  corrected so future reviewers are not misled.
+- **MDL** is now ~90%+ aligned — on par with PPP — after the design-standard remediation
+  completed 2026-10-08/09 (workplan I-31…I-50). The earlier ~55–60% assessment (pre-remediation)
+  is obsolete. Remaining gaps are minor and mostly optional: no dark theme (optional per spec),
+  left-nav deferred by policy (Decision 34 / I-35), no global `[hidden]{display:none}` reset (OPTIONAL — MDL components self-manage hiding; cosmetic), the toast is now specified in §7.10 and implemented in MDL (MDL I-59 done; PPP I-76 pending refactor),
+  and all P3 polish items are now closed (`.subkpi` documented, chart-card title-style unification closed 2026-10-10). The
+  previously "damaging" gaps (missing tokens, panel numbering, `.seg`, divergent table system,
+  glyph collision, hidden status bar) are all resolved.
+- **Process gap:** §12 should state MDL is *partially* aligned (now ~90%+, not the stale
+  55–60% figure), so future reviewers are not misled by the obsolete low score.
 
 ---
 
@@ -941,43 +1129,43 @@ summary · Suggestion & priority.**
 
 | Component | Spec requirement (or gap) | Current PPP | Current MDL | Issue summary | Suggestion & priority |
 |---|---|---|---|---|---|
-| Design tokens | ~33 tokens copied verbatim; add-only. | All 33 exact. | Only 11 present; rest hard-coded as literal hex. | MDL breaks the "one family" rule. | MDL: add full `:root` (P0). Both: replace literal hex (P2). |
-| Font stack | Exact Segoe/Inter/Source Sans/Roboto/Helvetica/Arial stack. | Exact. | Shortened to Segoe/system/apple. | MDL font differs. | MDL: adopt stack (P2). |
-| Dark theme | Optional; remap tokens only; brand navy/blue fixed. | Remapped + theme toggle added; hex patches → tokens (Phase B). ✅ | None. | PPP dark mode looks broken; rule not written. | PPP: DONE (Phase B). |
-| App bar | Sticky navy, `12px 20px`, no border, `z20`; **brand block left = logo + `.ttl` + `.meta` (meta now LEFT, §3.1 rev 2026-10-09)**; filter + Load file right. | Structure matches; `.meta` now left per §3.1; MDL title read from worksheet (I-52/I-53). | Other class names; **no footer** (status bar present). MDL bar actions now present (Filters ▾ / Load / Print). | PPP: `.meta` still RIGHT → track via PPP I-73; MDL footer still missing. | MDL: add footer (P2); PPP: move `.meta` left (I-73). |
-| Navigation | Left sidebar OR top-bar nav; collapse <880. | Inline top-bar nav; condensed at <880 px (Phase B). ✅ | No `<nav>`. | Neither ships real nav. | PPP: DONE (Phase B); MDL: define nav + collapse (P1). |
-| Content wrapper & footer | `1320` centred, `16`/`52` pad; footer = last child inside wrapper. | Exact; footer last child. | Correct wrapper; **no footer**. | MDL omits mandatory disclaimer footer. | MDL: add `role=contentinfo` footer (P1). |
-| Responsive | ≥1100 6/2-col; 880–1099 3/1-col; <880 2/1-col + nav collapse. | Cascade fixed: 6/3/2 + panels 2→1 at 1100/880 (Phase A). ✅ | KPI auto-fit (no 6/3/2); only 920 px charts breakpoint. | PPP cascade bug; both miss the contract. | PPP: DONE (Phase A); MDL: implement cascade (P1). |
-| System banner | Fatal = full-bleed red; non-fatal = `.note` card; icon+bold code+msg. | Unified top warning bar (below app bar; red=fatal, amber=warning, neutral-blue=info); `.sys-banner` removed (Phase B); info tier added 2026-10-07. ✅ | `.note` ok; non-fatal wrongly full-bleed amber strip; unused `.warn` tier. | Two fatal mechanisms; amber misused; dead tiers. | PPP: DONE (Phase B); MDL → `.note`; remove dead (P1). |
-| Status bar | Fixed bottom, `z40`, navy, hidden until first render, `[hidden]` reset. | Compliant; hidden works. | Created without hidden; **no `[hidden]` rule** → empty bar shows early. | MDL bar visible before load. | Spec add global `[hidden]` (P1); MDL hidden (P0). |
+| Design tokens | ~33 tokens copied verbatim; add-only. | All 33 exact. | Full ~34-token `:root` copied verbatim (render.mjs:15); literal hex replaced with tokens. | Resolved — full token set adopted (one-family rule met). | MDL: closed (I-31). Both: replace any residual literal hex (P2). |
+| Font stack | Exact Segoe/Inter/Source Sans/Roboto/Helvetica/Arial stack. | Exact. | Full Segoe/Inter/Source Sans/Roboto/Helvetica/Arial stack (§8 verbatim, I-43). | Resolved. | MDL: closed (I-43). |
+| Dark theme | Optional; remap tokens only; brand navy/blue fixed. | Remapped + theme toggle added; hex patches → tokens (Phase B). ✅ | None (optional per spec; PPP-only). | MDL dark theme not implemented (optional). | MDL: optional / deferred; PPP: DONE (Phase B). |
+| App bar | Sticky navy, `12px 20px`, no border, `z31` (above the `z30` warning bar so the filter dropdown clears it); **brand block left = logo + `.ttl` + `.meta` (meta now LEFT, §3.1 rev 2026-10-09)**; filter + Load file right. | Structure matches; `.meta` now left per §3.1; MDL title read from worksheet (I-52/I-53). | Structure matches; `.ttl` + `.actions` cluster; `.meta` left (I-54/55); title from worksheet (I-52); `.tf-btn` filter triggers + Load + Print present (I-42/58); footer present (I-36). | PPP: `.meta` still RIGHT → track via PPP I-73; MDL footer now present. | MDL: closed (I-36/I-42/I-52); PPP: move `.meta` left (I-73). |
+| Navigation | Left sidebar OR top-bar nav; collapse <880. | Inline top-bar nav; condensed at <880 px (Phase B). ✅ | No `<nav>` — left sidebar deferred per Decision 34 (I-35); top-bar filters serve as navigation. | MDL: deferred by policy (not a code defect). | MDL: HOLD (Decision 34); revisit in future phase. PPP: DONE (Phase B). |
+| Content wrapper & footer | `1320` centred, `16`/`52` pad; footer = last child inside wrapper. | Exact; footer last child. | Correct wrapper; footer present (`role=contentinfo`, last child, I-36). | Resolved. | MDL: closed (I-36). |
+| Responsive | ≥1100 6/2-col; 880–1099 3/1-col; <880 2/1-col + nav collapse. | Cascade fixed: 6/3/2 + panels 2→1 at 1100/880 (Phase A). ✅ | KPI 6→3→2 and panels 2→1 at 1100/880 (render.mjs:135-136). | Resolved (MDL). | MDL: closed (I-37); PPP: DONE (Phase A). |
+| System banner | Unified fixed top warning bar (`#errBanner`, §3.5): red=fatal, amber=warning, neutral-blue=info; below app bar; unified with load failures; icon+bold code+msg. | Unified top warning bar (below app bar; red=fatal, amber=warning, neutral-blue=info); `.sys-banner` removed (Phase B); info tier added 2026-10-07. ✅ | Unified `#errBanner` fixed top warning bar (below app bar; red=fatal, amber=warning, neutral-blue=info); mirrors PPP / §3.5 — `sysNoteHTML`/`sysBannerHTML` retired, `.sys-banner` removed. ✅ | Resolved — MDL now matches PPP unified bar (I-41 closed). | MDL: closed (I-41); PPP: DONE (Phase B). |
+| Status bar | Fixed bottom, `z40`, navy, hidden until first render, `[hidden]` reset. | Compliant; hidden works. | Shows "Loading dashboard…" until first render (I-32/47); no bare `[hidden]{display:none}` global reset, but `.hidden` class + specific `[hidden]` rules prevent empty-bar. | Mitigated — loading state shown, not empty bar. | MDL: loading state closed (I-32/47); Spec: global `[hidden]` reset OPTIONAL (MDL self-manages; no defect). |
 | Onboarding | Standalone hero (no app bar); **embedded** logo; headline `"<X> Dashboard"` 24–26/700; fixed sub-text; `.expect` ("What this does" + body); `.drop` dashed → `--accent`/`--soft` on drag-over with **button inside** + "Choose Workbook"; privacy + "© {year} UESH"; hero radius 24. Full style contract in §3.7 (rev 2026-10-09). | Full-screen hero (no app bar); `.expect`; dashed dropzone 16 px; **button inside** drop "Choose Workbook"; headline "Procurement Package Plan Dashboard" 25/700; logo **embedded**; privacy + "© {year} UESH". | Full-screen hero (**no app bar**); `.expect`; dashed dropzone 16 px; button **inside** drop "Choose Workbook"; headline "Master Document List Dashboard" 25/700; privacy + "© {year} UESH"; hero radius 24. | **Both compliant (rev §3.7, 2026-10-09):** MDL (I-56) and PPP (I-74) match the unified welcome contract — embedded logo, "… Dashboard" headline, fixed sub-text/`.expect`, button inside `.drop` "Choose Workbook", privacy + "© {year} UESH"; MDL welcome geometry aligned to PPP canonical via I-57. | Closed — MDL (I-56/I-57) and PPP (I-74) compliant with rev §3.7 (canonical = PPP). |
 | Panel base | White, 1px, r10, `…26px` bottom, `margin:14px 0`, `position:relative`, uppercase 13/700. | `16px 16px 24px`, `margin:14px 0` (Phase D). ✅ | Matches reference exactly (the model). | PPP pad/margin slightly off. | PPP: DONE (Phase D). |
-| Panel numbering | Sequential Panel 1,2,3… in document order; static corner; sub-panels not numbered. | `.panel-no` 1→8 correct. | **No number rendered**; numbers only in HELP titles and inconsistent (KPI = Panel 14). | MDL never shows numbers; contradicts rule. | MDL: add `data-panel`/`.panel-no` in order (P1). |
+| Panel numbering | Sequential Panel 1,2,3… in document order; static corner; sub-panels not numbered. | `.panel-no` 1→8 correct. | Sequential `Panel N` corner label via `.panel[data-panel]::after` (render.mjs:57); KPI = Panel 1. | Resolved. | MDL: closed (I-38). |
 | Panel subtitles | No explanatory subtitle; explanation → Help modal. | Short hint kept; fuller text → Help (Phase C). ✅ | None (ok). | PPP adds forbidden text. | PPP: DONE (Phase C). |
-| Chart-card titles | Nested `h3` `.panel-head h3` 13/700 navy, not uppercase. | Chart cards emit `<h3>` in `.panel-head`; panel title `<h2>` (Phase C). ✅ | Two styles: `.chart h3` 12 px and `.panel-head h3` 13/600. | Both render nested title wrong; MDL inconsistent. | PPP: DONE (Phase C); MDL: convert (P2). |
-| Combined chart | One chart, **one shared y-axis**; Bars toggle; legend only if inline impossible. | Single S-curve, one axis, Bars toggle. | **Two separate cards** (line + bars) + HTML legend. | MDL layout ≠ §4.2; legend case uncovered. | Spec rule on two-card + legend; MDL align/grandfather (P1). |
-| Bounded scroller | `.tableScroll`: `340px`, r10, `margin-top:8px`, sticky head. | Compliant. | `.ovt`/`.detail-scroll` at 520 px, r8, no margin. | MDL scroller different. | MDL: adopt `.tableScroll` (P2). |
-| Table base | One `.ds-table`: navy sticky head, single bottom rule, 9×10, `.num` tabular, zebra, hover, `.over`, `.empty`, `.sev`. | Fully compliant. | **No `.ds-table`**: bare table, full grid, 11 px, 5×7, ~24 px, no `.num`/hover/`.over`/`.sev`. | Biggest cross-app split. | MDL: adopt `.ds-table` (P0). |
-| Table semantics | `<th scope="col">`; leading label `<th scope="row">`. | `scope="row"` on Benchmark/Look-Ahead/Stage-grid (Phase C). ✅ | No `scope` at all. | A11y item unmet both. | PPP: DONE (Phase C); MDL: add `scope` (P2). |
-| Row count | Bounded list shows full count in control row. | Shown "(N packages)". | Not evident. | MDL may hide clipped count. | MDL: show count in control row (P2). |
+| Chart-card titles | Nested `h3` `.panel-head h3` 13/700 navy, not uppercase. | Chart cards emit `<h3>` in `.panel-head`; panel title `<h2>` (Phase C). ✅ | Unified: both `.chart h3` and `.panel-head h3` now 13px/700 navy (2026-10-10). | MDL compliant. | PPP: DONE (Phase C); MDL: closed (title styles unified to 13/700, 2026-10-10). |
+| Combined chart | One chart, **one shared y-axis**; Bars toggle; legend only if inline impossible. | Single S-curve, one axis, Bars toggle. | Merged into one shared-axis chart `combinedProgressSVG` (render.mjs:247). | Resolved (merged). | MDL: closed (I-39, merged). |
+| Bounded scroller | `.tableScroll`: `340px`, r10, `margin-top:8px`, sticky head. | Compliant. | `.tableScroll` (340px, r10, margin-top:8px) adopted (I-44). | Resolved. | MDL: closed (I-44). |
+| Table base | One `.ds-table`: navy sticky head, single bottom rule, 9×10, `.num` tabular, zebra, hover, `.over`, `.empty`, `.sev`. | Fully compliant. | All four tables use `.ds-table` base (navy sticky head, single bottom rule, 9×10, `.num`, zebra, hover, `.over`, `.empty`, `.sev-*`) (I-50). | Resolved — biggest cross-app split closed. | MDL: closed (I-50). |
+| Table semantics | `<th scope="col">`; leading label `<th scope="row">`. | `scope="row"` on Benchmark/Look-Ahead/Stage-grid (Phase C). ✅ | `th[scope=col]` and `th[scope=row]` present (render.mjs:184 + usage). | Resolved (MDL). | MDL: closed (I-44/I-50); PPP: DONE (Phase C). |
+| Row count | Bounded list shows full count in control row. | Shown "(N packages)". | Row-count chips on Overdue/Validation/Detail control rows (I-44). | Resolved. | MDL: closed (I-44). |
 | Look-ahead | Forward-only, sorted, distance col, status col, horizon seg (calendar months), CSV = on-screen rows. | Fully compliant (all 9 rules). | Not present (document-focused). | N/A to MDL. | — |
-| Drill accordion | One detail open at a time; `aria-expanded` synced; keyboard; chevron rotates. | Mostly ok; chevron coded two ways; cell not `aria-hidden`. | Inserts rows, **many open at once**, no `aria-expanded`, no keyboard. | MDL not a true accordion. | MDL: one-open + `aria-expanded` + keyboard (P2). |
-| Collapse vs drill glyphs | `−`/`+` collapse; `▸`/`▾` drill; `▾` menu. One glyph per meaning. | `−`/`+` correct; chevron coding only inconsistency. | `▾`/`▸` used for **panel collapse** and reused for drill + bulk. | MDL glyph collision. | MDL: use `−`/`+` for collapse (P1). |
-| KPI panel | First; "KPI OVERVIEW"; `?` left + `−` right; corner no.; no subtitle; cards 6→3→2, 3 px strip, 22/700, 10 upper. | Compliant; KPI content changed (2026-10-06): Not Started/blank → PO Issues; still 6 cards. | Card tokens ok; `?` injected left of collapse ok; undocumented `.subkpi`. | Minor sub-tier undocumented. | Spec: document 2nd KPI tier (P3). |
+| Drill accordion | One detail open at a time; `aria-expanded` synced; keyboard; chevron rotates. | Mostly ok; chevron coded two ways; cell not `aria-hidden`. | One-open-at-a-time; `aria-expanded` + `role=button` + keyboard (Enter/Space); chevron synced (I-44). | Resolved. | MDL: closed (I-44); PPP: revisit chevron coding. |
+| Collapse vs drill glyphs | `−`/`+` collapse; `▸`/`▾` drill; `▾` menu. One glyph per meaning. | `−`/`+` correct; chevron coding only inconsistency. | `−`/`+` for panel collapse; `▾`/`▸` reserved for stage drill (I-40). | Resolved. | MDL: closed (I-40). |
+| KPI panel | First; "KPI OVERVIEW"; `?` left + `−` right; corner no.; no subtitle; cards 6→3→2, 3 px strip, 22/700, 10 upper. | Compliant; KPI content changed (2026-10-06): Not Started/blank → PO Issues; still 6 cards. | Card tokens ok; `?` injected left of collapse ok; `.subkpi` sub-tier present (documented 2026-10-10, §5). | MDL compliant (sub-tier documented). | MDL: implemented; Spec: documented `.subkpi` sub-tier (P3 closed 2026-10-10, §5). |
 | Primary/Secondary btn | Primary blue 32 px; Secondary white/navy, hover→blue, 12/600/32/7×14/r6. | Standardised on `.btn.ghost`; `.btn.secondary` removed (Phase B). ✅ | `.btn`/`.btn-secondary`/`.btn-active` match. | PPP duplicate secondary. | PPP: DONE (Phase B). |
-| Icon button | 26 px **square**, 1px, muted, hover→soft + navy. | `.icon-btn` square 26 ✅. | `.btn-mini` 26 px auto-width, hover→blue. | MDL differs from spec & PPP. | MDL: square + soft hover (P2). |
-| Focus visibility | `:focus-visible` 2 px blue on **all** interactive. | Buttons + selects covered. | Only `.btn`; selects/inputs/filters lack it. | MDL leaves controls unringed. | MDL: add to all controls (P2). |
-| Segmented control | `.seg` + `data-key`/`data-t`, delegated listener, per-card keys, `getPref`/`setPref`+localStorage, re-derived `.on`/`aria-pressed`, validated, proper-case, 2–6. | Fully compliant. | **No `.seg`**: per-instance bar/pie, in-memory only, no persistence. | MDL ignores mandatory contract. | MDL: implement `.seg` (P0). |
-| Filters/dropdown | Multi = `.tf-btn`+`.tf-panel` popover; single = native select. **Top-bar filter contract (§7.5 rev 2026-10-09): one `.tf-btn` per dimension, capped at 2, All/Clear at panel top, badge `All`/`x of y`, no search/help/summary note, excluded values not offered, empty selection = zero rows, AND-combined atomic update.** | `.tf-btn`+`.tf-panel` ✅; `.inter-sel` r8 (Phase C). ✅ Must adopt the new top-bar contract later (**Category + Status**). | **Two individual top-bar dropdowns (`Discipline`, `Stage`)** following §7.5 rev 2026-10-09 (MDL I-58): no combined "Filters" button, no include-excluded toggle, Authority/Approval removed. | **MDL now compliant** with the top-bar filter contract (I-58); PPP alignment still pending. | MDL: closed (I-58); PPP: apply the same contract with Category + Status later (PPP workplan issue). |
-| Toast | Referenced 3× but **never specified** (pos, contrast, auto-dismiss, `aria-live`, clearance vs status bar). | `role=status` + `aria-live=polite`; lifted clear of status bar (Phase C). ✅ (spec gap still to document) | None; inline `.msg` only. | Spec gap; PPP unannounced + overlap. | PPP: DONE (Phase C); Spec: define toast (G). |
-| Exports | `⤓ PNG`/`⧉ Copy`/`⤓ CSV`; UTF-8 BOM; `<project> - name.csv`; clipboard fallback→PNG+toast; PNG before Copy. | Fully compliant. | Glyphs/order/BOM ok; static filenames; also exports a *table* as PNG (uncovered). | MDL filenames not project-prefixed. | MDL: prefix filenames (P3). |
-| Help modal | Centred popup, overlay `rgba(15,23,42,.45)`, box r12/680/84vh, `role=dialog aria-modal`, Esc + click-outside, `HELP[id]`. | Compliant; appended to `body`. | Near-exact; missing `aria-labelledby`; `✕` no `aria-label`. | Minor a11y gaps. | Add `aria-labelledby`/`aria-label` (P3). |
-| Icon convention | One glyph per control; icon btn `aria-label`+`title`; chevron `aria-expanded`. | Mostly ok; chevron cell not `aria-hidden`. | `?`/exports ok; `✕` no `aria-label`; glyph collisions above. | Small a11y omissions. | Add labels/`aria-hidden` (P3). |
+| Icon button | 26 px **square**, 1px, muted, hover→soft + navy. | `.icon-btn` square 26 ✅. | `.icon-btn` 26 px square + `--soft`/navy hover (renamed from `.btn-mini`, I-43). | Resolved. | MDL: closed (I-43). |
+| Focus visibility | `:focus-visible` 2 px blue on **all** interactive. | Buttons + selects covered. | Global `:focus-visible` (2 px blue, offset 2 px) on all interactive (I-43). | Resolved. | MDL: closed (I-43). |
+| Segmented control | `.seg` + `data-key`/`data-t`, delegated listener, per-card keys, `getPref`/`setPref`+localStorage, re-derived `.on`/`aria-pressed`, validated, proper-case, 2–6. | Fully compliant. | `.seg` + `data-key`/`data-t`, delegated listener, `getPref`/`setPref`+localStorage, re-derived `.on`/`aria-pressed` (render.mjs:101-105, 1095). | Resolved. | MDL: closed (I-34). |
+| Filters/dropdown | Multi = `.tf-btn`+`.tf-panel` popover; single = native select. **Top-bar filter contract (§7.5 rev 2026-10-10, PPP = canonical): one `.tf-btn` per dimension, capped at 2; panel = master "All [dimension]" checkbox (**no Clear button**) + option list + a single one-line dismiss hint; badge `All [dimension]` / `N of M selected` / `None selected` with `.is-filtered` accent; **re-render deferred until the dropdown closes**; excluded values not offered; empty selection = zero rows; AND-combined atomic update.** | **Reference implementation** — single "All Categories" `.tf-btn` with master checkbox + `.tf-divider` + option list; badge `All Categories` / `N of M selected` / `None selected`. Still deviates from rev 2026-10-10 in: `.active` (not `.is-filtered`), **no dismiss hint**, **immediate** re-render, one dropdown only (Category; Status is a `.seg`), and **I-57 empty = all** → must become **zero rows**. | **Two individual top-bar dropdowns (`Discipline`, `Stage`)** following §7.5 rev 2026-10-10 (MDL I-58 + I-61): master "All Discipline" / "All Stage" checkbox, badge `All [dim]`/`N of M selected`/`None selected`, `.is-filtered`, dismiss hint *"Changes apply when this list is closed."*, deferred re-render (I-60). | **MDL compliant** (I-58 / I-60 / I-61); PPP alignment pending via **PPP I-75** (rewritten to rev 2026-10-10). | MDL: closed (I-58, I-60, I-61); PPP: I-75 — two-filter cap (Category + Status), `.is-filtered`, dismiss hint, deferred re-render, empty = zero rows. |
+| Toast | Referenced 3×; **now specified** in **§7.10** (unified design; only triggers differ per dashboard). | `role=status` + `aria-live=polite`; lifted clear of status bar; **but deviates from §7.10** — literal bg, fixed 2200 ms, no stacking, no `role=alert` error variant, no dismiss. Refactor required. | Full `#toast` implemented per §7.10 (I-59, 2026-10-09): token variants, `role=status`/`role=alert`, z-index 45 above the status bar, length-scaled + pausable auto-dismiss, stack (max 3) + queue, click/`Esc` dismiss; inline `.msg` retired from export/copy toolbars (S-curve live readout `.msg` kept per §7.10.2). | Spec: defined (§7.10). PPP: refactor to §7.10 (I-76 — pending). MDL: **closed (I-59, 2026-10-09)** — `#toast` implemented, inline `.msg` retired for export/copy. | PPP: I-76 (pending refactor); MDL: I-59 closed. |
+| Exports | `⤓ PNG`/`⧉ Copy`/`⤓ CSV`; UTF-8 BOM; `<project> - name.csv`; clipboard fallback→PNG+toast; PNG before Copy. | Fully compliant. | Project-prefixed `<project>-<name>` filenames (I-45); table-as-PNG retained; BOM + order ok. | Resolved (filenames prefixed). | MDL: closed (I-45). |
+| Help modal | Centred popup, overlay `rgba(15,23,42,.45)`, box r12/680/84vh, `role=dialog aria-modal`, Esc + click-outside, `HELP[id]`. | Compliant; appended to `body`. | `aria-labelledby` on `.box` + `aria-label='Close help'` on ✕ (I-45). | Resolved. | MDL: closed (I-45). |
+| Icon convention | One glyph per control; icon btn `aria-label`+`title`; chevron `aria-expanded`. | Mostly ok; chevron cell not `aria-hidden`. | `✕` now has `aria-label`; glyph collisions resolved (I-40/45). | Resolved. | MDL: closed (I-45). |
 | Chips | Filter `.ovl-btn` + summary `.vchip`, both r999. | `.vchip` present; `.ovl-btn` absent (stage filter → `.seg`, intentional). | `.chips label` r12; no `.vchip`. | Spec filter-chip row may be stale. | Spec confirm `.seg` replaces `.ovl-btn`; MDL use 999 (P3). |
 | Print & reduced-motion | Print B/W, hide toolbars, no shadow, landscape; honour reduced-motion. | Compliant. | Compliant. | None. | — |
-| Repo / governance | "Single source of truth" — but MDL HTML is generated; 3 other HTML copies exist. | Single hand-authored file. | HTML built by `build.mjs`; edits lost; `Arch/…html` stale. | No provenance rule. | Spec §1 state editable artefact; fix in `src/` (G/P2). |
-| Spec internal defects | — | — | — | Duplicate §7.9; dangling "§16" note; `.meta` 11 vs 12 conflict; two warning palettes; naming conflict; §12 "aligned" false. | Fix doc: renumber, correct conflicts, rewrite §12 (G/P1). |
-| Spec gaps to add | — | — | — | No global `[hidden]` reset; no z-index/stacking table; no toast spec; no dark remap list; no radius budget for non-panels; no `scope=row` criterion; no build rule; content dropped from old MDL spec. | Add S-7…S-21 (G). |
+| Repo / governance | "Single source of truth" — but MDL HTML is generated; 3 other HTML copies exist. | Single hand-authored file. | Canonical source = `src/render.mjs`/`src/*.mjs`; `MDL-Dashboard.html` + `Arch/` are build artefacts (rebuild via `node build.mjs`). | Documented in workplan + build.mjs. | MDL: closed (build process); Spec: state provenance in §1 (G). |
+| Spec internal defects | — | — | — | Duplicate §7.9; dangling "§16" note; `.meta` 11 vs 12 conflict; two warning palettes (`.note` uses literal `#FFF8E1` vs `--warn-bg` token — still open); naming conflict; §12 "aligned" → corrected to "partially aligned" (I-46). | Fix doc: renumber, correct conflicts, rewrite §12 (G/P1). |
+| Spec gaps to add | — | — | — | Global `[hidden]` reset (OPTIONAL — MDL self-manages); no z-index/stacking table; no dark remap list; no radius budget for non-panels; no `scope=row` criterion; no build rule; content dropped from old MDL spec. (Toast spec added 2026-10-09 as §7.10.) | Add S-7…S-21 (G). |
 
 ---
 
@@ -985,7 +1173,7 @@ summary · Suggestion & priority.**
 
 > **Status (2026-10-06): all four PPP phases COMPLETE.** PPP is now 100% aligned to the
 > radius/spacing scale; all originally-flagged off-scale tokens (including the post-plan
-> `#toast` / `.grid` / `.curve-grid` items) have been snapped. MDL remediation has NOT started.
+> `#toast` / `.grid` / `.curve-grid` items) have been snapped. MDL remediation is **COMPLETE** (2026-10-08/09, workplan I-31…I-50) — see §13.5.
 
 **Phase A — P0 blockers — ✅ DONE**
 - Responsive cascade fixed: KPI columns now 6 → 3 → 2 and panels 2 → 1 at the 1100 / 880 px
@@ -1042,13 +1230,23 @@ summary · Suggestion & priority.**
 > MDL changes must be made in **`src/render.mjs`** (and `src/*.mjs`), never in the
 > generated `MDL-Dashboard.html`. Re-run `node build.mjs` after edits.
 
-> **Status (2026-10-06): NOT STARTED.** PPP remediation is complete; all four MDL phases
-> (A–D) below remain open.
+> **Status (2026-10-09): COMPLETE.** All four MDL phases (A–D) were implemented
+> 2026-10-08/09 (workplan I-31…I-50): full token set, `.ds-table`, `.seg`/`.tf-btn`,
+> panel numbering, footer, responsive cascade, combined Issue-Progress chart, glyph
+> semantics, banner `.note`, app-bar, font/icon/focus, scroller/accordion, export
+> filenames, help a11y, plus spec-doc governance (I-46). Only **I-35 (left-nav) remains
+> deferred** per Decision 34. All tracked P2/P3 items are now closed: `.subkpi` documented (§5) and chart-card title-style unification closed 2026-10-10 (`.chart h3` / `.panel-head h3` unified to 13px/700/navy). The global `[hidden]` reset is now OPTIONAL — MDL's hideable components (help-modal, tf-panel) define their own `.foo[hidden]{display:none}` rule and a generic `.hidden` class exists, so there is no current defect; retained only as a defensive one-liner if desired.   (The spec toast component is **closed** — MDL I-59, 2026-10-09; PPP I-76 refactor still pending.)
+
+**Deferred by design (not spec defects):**
+- **I-35 — Left-nav panel**: deferred per Decision 34 (MDL mirrors PPP's top-toolbar + horizontal filter bar instead of a left sidebar).
+- **I-07 — Reporting-period *filter***: the S-curve period window now **scopes the S-curve data** (cumulative lines shown within the selected window, anchored at the window start; monthly bars show per-month new counts) — implemented 2026-10-11. The dual-label caption `Reporting period: … · As-of: {system date} · cumulative within period` is implemented so the window is never confused with current-date math. (Overdue / Approval / KPI panels remain anchored to the as-of system date.)
+- **Schedule & Review Engine (Decision 28 / reviewer 5c–5d)**: the unified per-row **"Current Status"** pipeline and the consolidated **3-Overdue summary** (SLA statuses Due Soon / Due Today / Overdue / Resubmit) are **deferred to future work**. MDL currently exposes the three Overdue flavours (1st-submission, Resubmission, Client-review) as the interim status view; no unified single-status column exists at this stage.
+- **Dark theme**: optional per spec (PPP has it; MDL does not).
 
 **Phase A — P0 blockers (mandatory rule / correctness)**
+- ✅ **DONE (2026-10-08):** full token set (I-31), status-bar loading state (I-32), `.ds-table` scope/num/severity (I-33), `.seg` + top-bar filter popover (I-34), panel numbering (I-38), app-bar `.ttl`/filter trigger (I-42).
 - Add the full canonical `:root` token block (copy §6 verbatim) and stop hard-coding hex.
-- Add a global `[hidden]{display:none}` reset and set the status bar `hidden` until the
-  first successful render.
+- (OPTIONAL) Add a global `[hidden]{display:none}` reset — MDL self-manages hiding via per-component rules (`.help-modal[hidden]`, `.tf-panel[hidden]`) plus a generic `.hidden` class, so the status bar shows a loading state rather than an empty bar; no current defect.
 - Implement the `.seg` contract: replace the per-instance bar/pie buttons with
   `.seg`+`data-key`/`data-t`, one delegated listener, `getPref`/`setPref` + localStorage,
   and re-derived `.on`/`aria-pressed`. Do this for chart type and for any other
@@ -1058,6 +1256,7 @@ summary · Suggestion & priority.**
   override, `.sev` chips, `.empty` state).
 
 **Phase B — P1 (high-impact alignment)**
+- ✅ **DONE (2026-10-08):** footer (I-36), responsive cascade (I-37), combined Issue-Progress chart (I-39), glyph semantics (I-40), non-fatal banner → `.note` (I-41). Left-nav (real `<nav>`) **deferred** per Decision 34 (I-35).
 - Add panel numbering: emit `data-panel` (or `.panel-no`) sequentially from Panel 1 in
   document order; fix the HELP-map titles to match (KPI must be Panel 1, etc.).
 - Add a `role="contentinfo"` footer as the last child inside the content wrapper.
@@ -1069,8 +1268,9 @@ summary · Suggestion & priority.**
 - Add the app-bar category filter trigger and a "Load file" action.
 
 **Phase C — P2 (medium)**
+- ✅ **DONE (2026-10-08/09):** `.tableScroll` (I-44), `scope` + row-count (I-44/I-50), `:focus-visible` (I-43), icon button square (I-43), `.tf-btn` popover (I-34/I-58), drill accordion (I-44), curve merge + filename prefix (I-39/I-45). ✅ **DONE (2026-10-10):** chart-card title-style unification (P2) — `.chart h3` and `.panel-head h3` unified to 13px/700/navy.
 - Adopt `.tableScroll` (340 px / r10 / `margin-top:8px`) for long lists.
-- Convert chart-card titles to `.panel-head h3` (13/700, non-uppercase).
+- ✅ Convert chart-card titles to `.panel-head h3` (13/700, non-uppercase) — done 2026-10-10 (`.chart h3` matched to 13/700 navy).
 - Add `scope` to every header; report the row count in each long-list control row.
 - Add `:focus-visible` to selects, inputs and filter controls.
 - Make the icon button square (26 px) with `--soft`/navy hover.
@@ -1082,8 +1282,9 @@ summary · Suggestion & priority.**
   layout + legend) and align accordingly; prefix CSV/export filenames with the project.
 
 **Phase D — P3 (low / cleanup)**
-- Delete dead CSS: the duplicated `.welcome`/`.welcome .drop` block and the unused
-  `.sys-banner-item.warn` tier.
+- ✅ **DONE (2026-10-08/09):** dead `.welcome` CSS removed (I-57), help-modal `aria-labelledby` + ✕ `aria-label` (I-45), repo/provenance note (build process). **Open:** inline `.msg` → spec toast (P3). (Global `[hidden]` reset moved to OPTIONAL — see §13.5 summary.)
+- Delete genuinely dead CSS only (confirm no orphaned rules remain). Note: `.sys-banner-item.warn`
+  is **not** dead — it is the warning tier of the unified `#errBanner` (spec §3.5).
 - Add `aria-labelledby` to the help modal and `aria-label` to the `✕` close button.
 - Replace the inline `.msg` copy-failure feedback with the spec's toast (PNG fallback +
   toast) or at minimum make it perceivable.

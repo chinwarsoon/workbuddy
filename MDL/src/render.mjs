@@ -5,7 +5,7 @@ import { buildModel, EXCLUDE_STAGES } from './pipeline.mjs';
 
 const COLORS = { blue:'#1E88E5', green:'#2E7D32', amber:'#F9A825', red:'#C62828', slate:'#64748B', navy:'#0F2D52', grey:'#B8C2CC' };
 const PALETTE = ['#1E88E5','#2E7D32','#F9A825','#C62828','#64748B','#7E57C2','#26A69A','#EC407A','#8D6E63','#42A5F5','#9CCC65','#FF7043'];
-const F = 'font-family:Segoe UI,system-ui,sans-serif';
+const F = 'font-family="\'Segoe UI\', system-ui, -apple-system, \'Inter\', \'Source Sans Pro\', Roboto, Helvetica, Arial, sans-serif"';
 const esc = s => (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const LOGO_DATA = '__LOGO_DATA__'; // replaced with an embedded base64 data-URI at build time
 const isoStrToDate = iso => { if(!iso) return null; const d = new Date(iso + 'T00:00:00Z'); return isNaN(d) ? null : d; };
@@ -14,13 +14,15 @@ function wdBetween(d1, d2){ if(!d1||!d2) return null; let s=1; if(d2<d1){[d1,d2]
 const CSS = `
 :root{--navy:#0F2D52;--blue:#1E88E5;--green:#2E7D32;--amber:#F9A825;--red:#C62828;--slate:#64748B;--bg:#F6F8FA;--surface:#FFFFFF;--border:#D9E1E8;--text:#1F2A37;--muted:#64748B;--card:#FFFFFF;--line:#D9E1E8;--ink:#0F2D52;--accent:#1E88E5;--accent2:#2E7D32;--warn:#F9A825;--bad:#C62828;--soft:#E8F1FD;--shadow:0 1px 2px rgba(15,45,82,.04);--radius:10px;--font:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;--warn-bg:#FFF4D6;--warn-border:#F0D38A;--warn-fg:#9a6b00;--warn-fg-strong:#9a6b00;--error-bg:#FDE8E8;--error-fg:#C62828;--ok-bg:#E6F4EA;--ok-fg:#2E7D32;--accent-soft-border:#BFD8F2;--accent-ink:#1E88E5;--grid:#EDF1F5}
 *{box-sizing:border-box}
-body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px}
-header.app{background:var(--navy);color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:0;z-index:20}
+body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased}
+header.app{background:var(--navy);color:#fff;padding:10px 20px;display:flex;flex-direction:column;gap:8px;position:sticky;top:0;z-index:31}
+header.app .app-top{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%}
+header.app .app-bar{display:flex;align-items:center;width:100%;gap:10px;justify-content:flex-end}
 header.app .brand{display:flex;align-items:center;gap:12px;min-width:0}
 header.app .logo{height:36px;width:auto;border-radius:6px;background:#fff;padding:3px;box-shadow:0 1px 3px rgba(0,0,0,.2);flex-shrink:0}
 header.app .ttl-stack{display:flex;flex-direction:column;gap:2px;min-width:0}
-header.app h1.ttl{font-size:17px;margin:0;font-weight:600;line-height:1.2;white-space:normal;overflow:visible;text-overflow:clip}
-header.app .ttl-stack .sub{font-size:12.5px;font-weight:400;color:rgba(255,255,255,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header.app h1.ttl{font-size:17px;margin:0;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header.app .ttl-stack .sub{font-size:12px;font-weight:500;color:rgba(255,255,255,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 header.app .meta{font-size:11px;opacity:.85}
 header.app .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .welcome-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
@@ -39,11 +41,15 @@ header.app .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .welcome .privacy svg{width:13px;height:13px;fill:var(--muted)}
 .welcome .btn{font-size:14px;padding:12px 22px;min-height:0;line-height:1.45}
 .welcome .copyright{font-size:11.5px;color:var(--muted);margin-top:6px}
-.sys-banner{font-size:12px;line-height:1.4}
-.sys-banner-item{padding:9px 20px;border-bottom:1px solid rgba(0,0,0,.10)}
+.sys-banner-item{padding:9px 20px;border-bottom:1px solid rgba(0,0,0,.10);font-size:12px;line-height:1.4}
+.sys-banner-item:last-child{border-bottom:none}
 .sys-banner-item.warn{background:var(--amber);color:#5a3d00}
 .sys-banner-item.fatal{background:var(--red);color:#fff}
+.sys-banner-item.info{background:#e8eef5;color:#33526b}
 .sys-banner-item b{font-weight:700;margin-right:4px}
+/* fixed top warning bar (PPP standard, spec §3.5) — unified with load failures */
+#errBanner{display:none;position:fixed;left:0;right:0;z-index:30;font-size:12px;line-height:1.4;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+body.banner-open .wrap{padding-top:calc(16px + var(--banner-h,0px))}
 .wrap{max-width:1320px;margin:0 auto;padding:16px;padding-bottom:52px}
 .status-bar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;gap:8px;padding:6px 14px;background:var(--navy);color:#E8EDF3;font-size:12px;user-select:none;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
 .status-bar .sb-panel{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.20);border-radius:6px;white-space:nowrap}
@@ -67,9 +73,9 @@ header.app .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
 .panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
 .panel-head h2{margin:0}
-.panel-head h3{margin:0;font-size:13px;font-weight:600;color:var(--navy)}
+.panel-head h3{margin:0;font-size:13px;font-weight:700;color:var(--navy)}
 .panel-head .toolbar{margin-bottom:0}
-.curve-note{font-size:11px;color:var(--muted);margin:2px 0 8px}
+.curve-note{font-size:12px;color:var(--muted);margin:2px 0 8px}
 .head-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .head-actions .lbl{display:inline-flex;align-items:center;gap:6px;margin:0;font-weight:600;font-size:12px;color:var(--navy)}
 .panel-body{display:block}
@@ -110,37 +116,59 @@ header.app .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .tf-btn.is-filtered{border-color:var(--accent);color:var(--accent);background:#fff}
 .tf-btn .tf-cnt{font-size:10px;background:var(--bg);border:1px solid var(--border);color:var(--muted);padding:1px 6px;border-radius:10px;font-weight:600}
 .tf-btn.is-filtered .tf-cnt{background:var(--soft);border-color:var(--accent-soft-border);color:var(--accent-ink)}
-.tf-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:30;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);min-width:220px;max-width:min(340px,90vw);max-height:320px;overflow:auto;padding:10px;color:var(--text)}
+.tf-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:40;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);min-width:220px;max-width:min(340px,90vw);max-height:320px;overflow:auto;padding:10px;color:var(--text)}
 .tf-panel[hidden]{display:none}
-.tf-panel .tf-actions{display:flex;gap:6px;margin-bottom:8px}
-.tf-panel .tf-act{font-size:10px;font-weight:600;padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--navy);cursor:pointer}
-.tf-panel .tf-act:hover{background:var(--soft)}
+.search{display:flex;align-items:center;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:6px;min-height:28px;padding:0;flex:0 0 auto;width:320px;max-width:42vw}
+.search:focus-within{border-color:var(--accent);box-shadow:0 0 0 2px var(--soft)}
+select.inter-sel.is-attached{border:0;border-right:1px solid var(--border);background:var(--bg);color:var(--ink);font:inherit;font-weight:600;font-size:12px;border-radius:6px 0 0 6px;height:26px;padding:0 8px;cursor:pointer}
+.search-input{border:0;background:transparent;color:var(--text);font:inherit;font-size:12px;flex:1 1 220px;min-width:0;height:26px;outline:none}
+.search-input::placeholder{color:var(--muted)}
+.search-btn{background:var(--accent);color:#fff;border:0;border-radius:0 6px 6px 0;min-height:28px;padding:0 12px;cursor:pointer;font-size:13px;line-height:1}
+.search-btn:hover{filter:brightness(.97)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);border:0}
+.tf-panel .tf-all{display:flex;align-items:center;gap:8px;padding:2px 2px 8px;font-size:12px;cursor:pointer}
+.tf-panel .tf-all input{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0}
+.tf-panel .tf-all b{font-weight:700}
+.tf-panel .tf-divider{height:1px;background:var(--border);margin:2px 0 6px}
+.tf-panel .tf-hint{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);line-height:1.35}
 .tf-panel .tf-item{display:flex;align-items:center;gap:8px;padding:5px 2px;font-size:12px;cursor:pointer;border-radius:4px}
 .tf-panel .tf-item:hover{background:var(--soft)}
 .tf-panel .tf-item input{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0}
 .tf-panel .tf-item .nc{margin-left:auto;font-size:10px;font-weight:600;color:var(--muted);white-space:nowrap}
 .tf-panel .tf-item.tf-nc>span:first-of-type{color:var(--muted)}
 .sb-loading{opacity:.85;font-weight:600}
-.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;font-size:11px;font-weight:600;line-height:1.2;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--navy);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;font-size:12px;font-weight:600;line-height:1.2;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--navy);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
 .icon-btn:hover{background:var(--soft);color:var(--navy);border-color:var(--blue)}
 .toolbar .msg{font-size:10px;color:var(--green)}
+/* Toast (spec §7.10) — fixed, centred, above the status bar (z-index 45) */
+#toast{position:fixed;left:50%;bottom:52px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;align-items:center;z-index:45;pointer-events:none;max-width:min(92vw,440px)}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:8px;min-width:180px;max-width:440px;padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.3;color:#fff;background:var(--navy);box-shadow:0 6px 20px rgba(15,45,82,.28);opacity:0;transform:translateY(12px);transition:opacity .2s ease,transform .2s ease;cursor:pointer}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast .ti{flex:none;font-size:14px;line-height:1;font-weight:700}
+.toast .tt{overflow:hidden;text-overflow:ellipsis}
+.toast-success{background:var(--green)}
+.toast-info{background:var(--blue)}
+.toast-warning{background:var(--amber);color:#3a2a00}
+.toast-error{background:var(--red)}
+@media (prefers-reduced-motion: reduce){ .toast{transition:opacity .2s ease;transform:none} .toast.show{transform:none} }
 .charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
 .curve-body{display:flex;flex-direction:column;gap:12px}
 .curve-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
 .legend{display:flex;gap:14px;font-size:12px;margin-top:8px;flex-wrap:wrap;color:var(--navy)}
 .legend .sw{width:12px;height:12px;border-radius:3px;display:inline-block;margin-right:4px;vertical-align:-1px}
-.sc-win .lbl{margin-right:6px}
-.sc-win .rng{font-size:11px;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:4px}
-select.base{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--navy);cursor:pointer;max-width:260px}
+.sc-win .lbl{margin-right:6px;font-size:12px;font-weight:600;color:var(--muted)}
+.sc-win .rng{font-size:11px;font-weight:400;color:var(--muted);display:inline-flex;align-items:center;gap:4px}
+select.inter-sel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--ink);cursor:pointer;max-width:260px}
+select.inter-sel:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 @media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}.subkpis{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:880px){.kpis{grid-template-columns:repeat(2,1fr)}.subkpis{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}.curve-grid{grid-template-columns:1fr}}
 .chart{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;flex-direction:column}
-.chart h3{font-size:12px;margin:0 0 8px;color:var(--navy)}
-.chart svg{width:100%;height:auto;display:block}
+.chart h3{font-size:13px;font-weight:700;margin:0 0 8px;color:var(--navy)}
+.chart svg{display:block;height:auto;max-width:100%}
 .filters{display:block}
 .filters .grp{border:1px solid var(--border);border-radius:8px;padding:6px 10px;background:#fff}
 .filters .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:4px}
-.filters select,.filters input{padding:5px 7px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:#fff;max-width:240px}
+
 .chips{display:flex;flex-wrap:wrap;gap:4px;max-width:420px;max-height:130px;overflow:auto;padding-right:4px}
 .chips label{font-size:11px;display:inline-flex;align-items:center;gap:3px;background:var(--bg);border:1px solid var(--border);padding:2px 6px;border-radius:12px;cursor:pointer}
 .filters .grp-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -193,7 +221,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .pe-detail{display:block;margin-top:6px;font-size:11px;opacity:.85}
 .sb-dot-err{background:var(--red)}
 .sb-err{border-color:var(--error-fg)}
-.expand{cursor:pointer;color:var(--blue);font-size:10px;white-space:nowrap;user-select:none}
+.expand{cursor:pointer;color:var(--blue);font-size:10px;white-space:nowrap;user-select:none;border:0;background:transparent;padding:0;font-family:inherit}
 .expand.open{color:var(--navy);font-weight:600}
 
 .matrix{width:100%;border-collapse:collapse;font-size:12px;background:#fff}
@@ -214,14 +242,14 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 
 
 .hidden{display:none}
-@media print{body{background:#fff}.panel{break-inside:avoid;box-shadow:none}.filters,.toolbar{display:none}header.app{position:static}.panel.collapsed .panel-body{display:block}}
+@media print{body{background:#fff}.panel{break-inside:avoid;box-shadow:none}.filters,.toolbar{display:none}header.app{position:static}#errBanner{display:none}body.banner-open .wrap{padding-top:16px}.panel.collapsed .panel-body{display:block}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 `;
 
 // ---------- SVG chart renderers ----------
 function barSVG(title, data){
   const max = Math.max(1, ...data.map(d=>d.value));
-  const W=320, rowH=22, padTop=24, nameW=92, valW=44, trackX=nameW+4, trackW=W-nameW-valW-8, H=padTop+data.length*rowH+6;
+  const W=560, rowH=22, padTop=24, nameW=92, valW=44, trackX=nameW+4, trackW=W-nameW-valW-8, H=padTop+data.length*rowH+6;
   let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
   s+=`<text x="0" y="16" ${F} font-size="12" font-weight="bold" fill="${COLORS.navy}">${esc(title)}</text>`;
   data.forEach((d,i)=>{ const y=padTop+i*rowH, c=d.color||COLORS.blue;
@@ -234,21 +262,25 @@ function barSVG(title, data){
 }
 function pieSVG(title, data){
   const total = Math.max(1, data.reduce((a,b)=>a+b.value,0));
-  const cx=72, cy=84, r=60, W=320, H=180;
+  const cx=72, cy=84, r=60, W=560, H=180;
   let a0=-Math.PI/2; let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
   s+=`<text x="0" y="16" ${F} font-size="12" font-weight="bold" fill="${COLORS.navy}">${esc(title)}</text>`;
+  s+=`<g transform="translate(130,0)">`;
   data.forEach(d=>{ const a1=a0+(d.value/total)*2*Math.PI, c=d.color||COLORS.blue;
     const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1),lg=(a1-a0)>Math.PI?1:0;
     s+=`<path d="M${cx},${cy} L${x0.toFixed(2)},${y0.toFixed(2)} A${r},${r} 0 ${lg} 1 ${x1.toFixed(2)},${y1.toFixed(2)} Z" fill="${c}"/>`; a0=a1; });
   let ly=40; data.forEach(d=>{ s+=`<rect x="156" y="${ly-9}" width="10" height="10" rx="2" fill="${d.color||COLORS.blue}"/>`;
     s+=`<text x="172" y="${ly}" ${F} font-size="11" fill="${COLORS.slate}">${esc(d.name)} ${d.value}</text>`; ly+=20; });
+  s+=`</g>`;
   s+=`</svg>`; return s;
 }
 function combinedProgressSVG(p, from, to){
-  const FF='font-family="Arial,Helvetica,sans-serif"';
+  const FF='font-family="\'Segoe UI\', system-ui, -apple-system, \'Inter\', \'Source Sans Pro\', Roboto, Helvetica, Arial, sans-serif"';
   const W=560,H=360,L=46,R=16,T=16,B=44, pw=W-L-R, ph=H-T-B;
   const idx=[]; for(let i=from;i<=to;i++) idx.push(i);
-  const maxY=Math.max(1,...idx.map(i=>Math.max(p.pCum[i],p.fCum[i],p.aCum[i],p.pNew[i],p.fNew[i],p.aNew[i])));
+  const base = (from>0 && typeof p.pCum[from-1]==='number') ? p.pCum[from-1] : 0;   // anchor cumulative at the window start
+  const relCum = k => i => (p[k][i]||0) - base;                                       // progress accumulated WITHIN the reporting period
+  let maxY=1; for(const i of idx){ const v=Math.max(relCum('pCum')(i),relCum('fCum')(i),relCum('aCum')(i),p.pNew[i]||0,p.fNew[i]||0,p.aNew[i]||0); if(v>maxY) maxY=v; }
   const m=idx.length, gw=pw/m, bw=Math.min(10,gw/3.4);
   const Xc=i=> L+gw*idx.indexOf(i)+gw/2;
   const Y=v=> T+ph-(v/maxY)*ph;
@@ -257,10 +289,14 @@ function combinedProgressSVG(p, from, to){
   const every=Math.max(1,Math.ceil(m/12));
   idx.forEach(i=>{ const xc=Xc(i); if(i%every===0) g+=`<text x="${xc}" y="${T+ph+14}" text-anchor="middle" ${FF} font-size="10" fill="#6b7785">${p.months[i].slice(2)}</text>`;
     [['pNew',COLORS.blue],['fNew',COLORS.amber],['aNew',COLORS.green]].forEach(([k,c],bi)=>{ const v=p[k][i], x=xc-bw*1.5+bi*bw, y=Y(v), h=T+ph-y; g+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(bw-1.5).toFixed(1)}" height="${h.toFixed(1)}" fill="${c}" opacity="0.55"/>`; }); });
-  [['pCum',COLORS.blue],['fCum',COLORS.amber],['aCum',COLORS.green]].forEach(([k,c])=>{ const pts=idx.map(i=>`${Xc(i).toFixed(1)},${Y(p[k][i]).toFixed(1)}`).join(' '); g+=`<polyline fill="none" stroke="${c}" stroke-width="2" points="${pts}"/>`; });
+  [['pCum',COLORS.blue],['fCum',COLORS.amber],['aCum',COLORS.green]].forEach(([k,c])=>{ const pts=idx.map(i=>`${Xc(i).toFixed(1)},${Y(relCum(k)(i)).toFixed(1)}`).join(' '); g+=`<polyline fill="none" stroke="${c}" stroke-width="2" points="${pts}"/>`; });
   g+=`<line x1="${L}" y1="${T+ph}" x2="${L+pw}" y2="${T+ph}" stroke="#C9D4E0" stroke-width="1"/><line x1="${L}" y1="${T}" x2="${L}" y2="${T+ph}" stroke="#C9D4E0" stroke-width="1"/>`;
   if(typeof p.projStartIdx==='number' && p.projStartIdx>=from && p.projStartIdx<=to){ const x=Xc(p.projStartIdx);
-    g+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${T+ph}" stroke="#C62828" stroke-width="1.5" stroke-dasharray="4 3"/>`; }
+    g+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${T+ph}" stroke="#C62828" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+    g+=`<text x="${x.toFixed(1)}" y="${T-4}" text-anchor="middle" ${FF} font-size="10" fill="#C62828">Start</text>`; }
+  if(typeof p.asofIdx==='number' && p.asofIdx>=from && p.asofIdx<=to){ const x=Xc(p.asofIdx);
+    g+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${T+ph}" stroke="#0F2D52" stroke-width="1.5"/>`;
+    g+=`<text x="${x.toFixed(1)}" y="${T-4}" text-anchor="middle" ${FF} font-size="10" fill="#0F2D52">Today</text>`; }
   return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid meet">${g}</svg>`;
 }
 function svgToBlob(svgEl, cb){
@@ -273,16 +309,75 @@ function svgToBlob(svgEl, cb){
   img.onerror = ()=>cb(null); img.src = url;
 }
 function attachExport(root, getSVG, title){
-  const msg = root.querySelector('.msg'); if(!msg) return;
   const fname = (typeof title==='function'?title():title).replace(/[\\/:*?"<>|·]/g,'_');
-  const run = fn => { const tmp=document.createElement('div'); tmp.innerHTML=getSVG(); const el=tmp.querySelector('svg'); if(!el){msg.textContent='Failed';return;} svgToBlob(el,fn); };
-  root.querySelector('.dl').addEventListener('click',()=>run(b=>{ if(!b){msg.textContent='Failed';return;}
+  const run = fn => { const tmp=document.createElement('div'); tmp.innerHTML=getSVG(); const el=tmp.querySelector('svg'); if(!el){toast('Nothing to export','info');return;} svgToBlob(el,fn); };
+  const dl=root.querySelector('.dl'); if(dl) dl.addEventListener('click',()=>run(b=>{ if(!b){toast('Export failed','error');return;}
     const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=fname+'.png'; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(()=>URL.revokeObjectURL(a.href),1000); msg.textContent='Downloaded'; setTimeout(()=>msg.textContent='',1800); }));
-  root.querySelector('.cp').addEventListener('click',()=>{ if(!navigator.clipboard||!window.ClipboardItem){msg.textContent='Copy unsupported';return;}
-    run(async b=>{ if(!b){msg.textContent='Failed';return;} try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); msg.textContent='Copied ✓'; }
-      catch(e){ msg.textContent='Copy blocked — use PNG'; setTimeout(()=>msg.textContent='',2200);} setTimeout(()=>msg.textContent='',1800); }); });
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000); toast('PNG downloaded','success'); }));
+  const cp=root.querySelector('.cp'); if(cp) cp.addEventListener('click',()=>{ if(!navigator.clipboard||!window.ClipboardItem){toast('Clipboard not supported — use PNG','warning');return;}
+    run(async b=>{ if(!b){toast('Export failed','error');return;} try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); toast('Copied to clipboard','success'); }
+      catch(e){ toast('Clipboard blocked — PNG downloaded','warning'); } }); });
 }
+
+// ---------- toast (spec §7.10) ----------
+// Single #toast live region hosts stacked toast nodes. Success/info => role=status (polite);
+// warning/error => role=alert (assertive). Auto-dismiss scales with length, pauses on hover/focus.
+const TOAST_MAX = 3;
+let toastActive = [];
+let toastQueue = [];
+let toastKeydownBound = false;
+function toast(message, variant){
+  variant = ({success:'success', info:'info', warning:'warning', error:'error'}[variant]) || 'info';
+  const el = document.createElement('div');
+  el.className = 'toast toast-' + variant;
+  const icon = { success:'✓', info:'ⓘ', warning:'⚠', error:'⛔' }[variant];
+  const assertive = (variant === 'error' || variant === 'warning');
+  el.setAttribute('role', assertive ? 'alert' : 'status');
+  el.setAttribute('aria-live', assertive ? 'assertive' : 'polite');
+  el.setAttribute('aria-atomic', 'true');
+  el.tabIndex = -1;
+  el.innerHTML = '<span class="ti">' + icon + '</span><span class="tt">' + esc(message) + '</span>';
+  el.addEventListener('click', () => dismissToast(el));
+  if (toastActive.length >= TOAST_MAX) { toastQueue.push(el); return; }
+  showToast(el);
+}
+function showToast(el){
+  const host = document.getElementById('toast');
+  if (!host) return;
+  host.insertBefore(el, host.firstChild);
+  toastActive.push(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  const text = (el.querySelector('.tt').textContent || '');
+  const dur = Math.min(8000, 4000 + Math.floor(text.length / 20) * 500);
+  el._timer = setTimeout(() => dismissToast(el), dur);
+  el.addEventListener('mouseenter', () => clearTimeout(el._timer));
+  el.addEventListener('mouseleave', () => { el._timer = setTimeout(() => dismissToast(el), 1500); });
+  el.addEventListener('focusin', () => clearTimeout(el._timer));
+  el.addEventListener('focusout', () => { el._timer = setTimeout(() => dismissToast(el), 1500); });
+}
+function dismissToast(el){
+  if (el._dismissed) return;
+  el._dismissed = true;
+  clearTimeout(el._timer);
+  el.classList.remove('show');
+  const finish = () => {
+    if (el._finished) return;
+    el._finished = true;
+    if (el.parentNode) el.remove();
+    toastActive = toastActive.filter(x => x !== el);
+    const next = toastQueue.shift();
+    if (next) showToast(next);
+  };
+  el.addEventListener('transitionend', finish, { once: true });
+  setTimeout(finish, 400);
+}
+if (typeof document !== 'undefined' && !toastKeydownBound) {
+  toastKeydownBound = true;
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && toastActive.length) dismissToast(toastActive[toastActive.length - 1]);
+  });
+}
+
 function statusColor(name){
   return ({APP:COLORS.green,AWC:COLORS.amber,REJ:COLORS.red,NAP:COLORS.slate,'Not Available':COLORS.grey,
            YES:COLORS.green,NO:COLORS.slate,
@@ -299,7 +394,7 @@ export function deriveView(model, state){
   const recs = model.records.filter(r=>{
     if(!passSel(state.disciplines, r.fields['UESH Discipline'])) return false;
     if(!passSel(state.stages, r.stage)) return false;
-    if(state.search){ const q=state.search.toLowerCase(); const hit=[r.docNo,r.fields['Document Title'],r.fields['UESH Discipline']].join(' ').toLowerCase(); if(!hit.includes(q)) return false; }
+    if(state.search){ const col=state.searchCol||'Document No.'; const q=state.search.toLowerCase(); const v=(r.fields[col]!=null?String(r.fields[col]):'').toLowerCase(); if(!v.includes(q)) return false; }
     return true;
   });
   // Excluded stages are not counted by default (single rule — no separate "include excluded"
@@ -320,17 +415,18 @@ export function deriveView(model, state){
     asBuiltYes: cnt(r=>r.fields['As-Built']==='YES'),
     vendorYes: cnt(r=>r.fields['Vendor Data']==='YES'),
     activeDisciplines: new Set(active.map(r=>r.discipline).filter(Boolean)).size,
+    disciplineTotal: model.contract.lookups.uesh.codes.size,
     completeness: null,
   };
   const cg = new Set(model.completenessGroup);
   const bad = new Set(); issues.forEach(i=>{ if(cg.has(i.code)) bad.add(i.sourceTab+'!'+i.rownum); });
   kpis.completeness = active.length ? Math.round((1-bad.size/active.length)*1000)/10 : null;
-  const firstOverdue = active.filter(r=>{const t=r.fields['Forecast 1st Issue Date']||r.fields['Planned 1st Issue Date'];return t&&(r.fields['Actual 1st Issue Date']||'')===''&&isoStrToDate(t)<=dT;});
+  const firstOverdue = active.filter(r=>{const t=r.fields['Forecast 1st Issue Date']||r.fields['Planned 1st Issue Date'];const dt=isoStrToDate(t);return t&&dt&&(r.fields['Actual 1st Issue Date']||'')===''&&wdBetween(dt,dT)>=1;});
   const subOverdue = active.filter(r=>{const y=r.fields['Latest Approval Status'],x=r.fields['Latest Approval Date'],u=r.fields['Actual 1st Issue Date'];return u&&['REJ','RTR'].includes(y)&&x&&wdBetween(isoStrToDate(x),dT)>model.contract.reviewRules.resubmissionDuration;});
   const cliOverdue = active.filter(r=>{const w=r.fields['Submission Status'],u=r.fields['Actual 1st Issue Date'];return w==='SUR'&&u&&wdBetween(isoStrToDate(u),dT)>model.contract.reviewRules.firstClientReview;});
   const overdueDelay=(type,r)=>{
     const f=r.fields;
-    if(type==='first'){ const t=f['Forecast 1st Issue Date']||f['Planned 1st Issue Date']; const d=isoStrToDate(t); return d?Math.max(0,Math.round((dT-d)/86400000)):''; }
+    if(type==='first'){ const t=f['Forecast 1st Issue Date']||f['Planned 1st Issue Date']; const d=isoStrToDate(t); const w=d?wdBetween(d,dT):null; return w==null?'':Math.max(0,w); }
     if(type==='sub'){ const x=isoStrToDate(f['Latest Approval Date']); const w=x?wdBetween(x,dT):null; return w==null?'':Math.max(0,w-model.contract.reviewRules.resubmissionDuration); }
     const u=isoStrToDate(f['Actual 1st Issue Date']); const w=u?wdBetween(u,dT):null; return w==null?'':Math.max(0,w-model.contract.reviewRules.firstClientReview);
   };
@@ -389,8 +485,9 @@ export function deriveView(model, state){
   active.forEach(r=>{ const pi=pMon(r); if(pi>=0){pCum[pi]++;pNew[pi]++;} const fi=fMon(r); if(fi>=0){fCum[fi]++;fNew[fi]++;} const ai=aMon(r); if(ai>=0){aCum[ai]++;aNew[ai]++;} });
   for(let i=1;i<n;i++){ pCum[i]+=pCum[i-1]; fCum[i]+=fCum[i-1]; aCum[i]+=aCum[i-1]; }   // cumulative
   const projStartIdx = months.indexOf((model.meta.projectStartDate||'').slice(0,7));
-  const monthlyProgress={ months, pCum, fCum, aCum, pNew, fNew, aNew, projStartIdx, projStartLabel: model.meta.projectStartDate || '' };
   const asofMonth = (model.meta.today||'').slice(0,7);
+  const asofIdx = months.indexOf(asofMonth);
+  const monthlyProgress={ months, pCum, fCum, aCum, pNew, fNew, aNew, projStartIdx, asofIdx, projStartLabel: model.meta.projectStartDate || '' };
   const curMonth = matrixMonthSel || asofMonth;
   const matrix = buildMatrix(active, foSet, soSet, coSet, curMonth);
   const matrixMonths = monthOptions(model.records, asofMonth, model.meta.projectStartDate).map(ym=>({value:ym, label:monthLabel(ym)+(ym===asofMonth?' (as-of)':''), asof:ym===asofMonth}));
@@ -490,52 +587,104 @@ function optsOf(d){ return d.items.concat(d.hasBlank ? [''] : []); }
 // for the All button and for deciding whether the badge reads "All".
 function baseOpts(d){ return d.items.filter(v => !(d.noCount||[]).includes(v)).concat(d.hasBlank ? [''] : []); }
 function isBaseSet(d, state){ const b = baseOpts(d), s = state[d.key]; return !!s && s.size === b.length && b.every(v => s.has(v)); }
-function sysBannerHTML(warnings){
+function bannerItemsHTML(warnings){
   if(!warnings || !warnings.length) return '';
-  return warnings.filter(w => w.level === 'fatal').map(w =>
-    `<div class="sys-banner-item fatal">⛔ <b>${esc(w.code || 'SYSTEM')}</b>${esc(w.message || '')}</div>`
-  ).join('');
+  return warnings.map(w => {
+    const cls = w.level === 'fatal' ? 'fatal' : (w.level === 'info' ? 'info' : 'warn');
+    const ic = w.level === 'fatal' ? '⛔' : (w.level === 'info' ? 'ℹ️' : '⚠️');
+    return `<div class="sys-banner-item ${cls}">${ic} <b>${esc(w.code || 'SYSTEM')}</b>${esc(w.message || '')}</div>`;
+  }).join('');
 }
-function sysNoteHTML(warnings){
-  if(!warnings || !warnings.length) return '';
-  return warnings.filter(w => w.level !== 'fatal').map(w =>
-    `<div class="note">⚠️ <b>${esc(w.code || 'SYSTEM')}</b> ${esc(w.message || '')}</div>`
-  ).join('');
+// --- fixed top warning bar (#errBanner, PPP design, spec §3.5) ---
+function openBanner(b, ctx){
+  b.style.display = 'block';
+  const h = b.offsetHeight;
+  if(h){
+    document.documentElement.style.setProperty('--banner-h', h + 'px');
+    document.body.classList.add('banner-open');
+    if(ctx === 'welcome'){ document.body.classList.add('banner-welcome'); b.style.top = '0px'; }
+    else { const hdr = document.querySelector('header.app'); b.style.top = (hdr ? hdr.offsetHeight : 0) + 'px'; }
+  }
+}
+function closeBanner(b){
+  b.style.display = 'none'; b.innerHTML = '';
+  document.body.classList.remove('banner-open', 'banner-welcome');
+  document.documentElement.style.removeProperty('--banner-h');
+}
+function showBanner(warnings){
+  const b = document.getElementById('errBanner'); if(!b) return;
+  const html = bannerItemsHTML(warnings);
+  if(html){ b.innerHTML = html; openBanner(b, document.querySelector('header.app') ? 'dash' : 'welcome'); }
+  else closeBanner(b);
+}
+function showError(msg){
+  let b = document.getElementById('errBanner');
+  if(!b){ b = document.createElement('div'); b.id = 'errBanner'; b.setAttribute('role','alert'); b.setAttribute('aria-live','assertive'); document.body.appendChild(b); }
+  b.innerHTML = '<div class="sys-banner-item fatal">⛔ <b>Load failed</b> ' + esc(msg) + ' &nbsp;·&nbsp; press F12 → Console for the full trace.</div>';
+  openBanner(b, document.querySelector('header.app') ? 'dash' : 'welcome');
+}
+// Append a single notice strip to the unified bar (spec §3.5). Used for notices that are only
+// known after the initial render (render failures, discovered config) so they never fall back to
+// in-flow cards — the fixed bar stays the only warning surface.
+function addBannerNotice(level, code, message, tag){
+  const b = document.getElementById('errBanner'); if(!b) return;
+  const cls = level === 'fatal' ? 'fatal' : (level === 'info' ? 'info' : 'warn');
+  const ic = level === 'fatal' ? '⛔' : (level === 'info' ? 'ℹ️' : '⚠️');
+  const d = document.createElement('div');
+  d.className = 'sys-banner-item ' + cls;
+  if(tag) d.dataset.banner = tag;
+  d.innerHTML = `${ic} <b>${esc(code || 'SYSTEM')}</b>${esc(message || '')}`;
+  b.appendChild(d);
+  openBanner(b, document.querySelector('header.app') ? 'dash' : 'welcome');
+}
+function removeBannerNotices(tag){
+  const b = document.getElementById('errBanner'); if(!b) return;
+  b.querySelectorAll('.sys-banner-item[data-banner="' + tag + '"]').forEach(n => n.remove());
+  if(!b.children.length) closeBanner(b);
+  else openBanner(b, document.querySelector('header.app') ? 'dash' : 'welcome');   // re-measure clearance
 }
 function renderDashboard(root, model){
-  MODEL = model; WRAP = null; collapsed.clear(); scurveWin = null; matrixMonthSel = '';   // full reset on a fresh load
+  MODEL = model; WRAP = null; collapsed.clear(); scurveWin = null; matrixMonthSel = ''; toastActive.length = 0; toastQueue.length = 0;   // full reset on a fresh load
   const defs = getFilterDefs(model);
   const initSet = d => new Set(baseOpts(d));
-  STATE = { disciplines:initSet(defs[0]), stages:initSet(defs[1]), search:'', rule:null, sort:{col:null,dir:1} };
+  STATE = { disciplines:initSet(defs[0]), stages:initSet(defs[1]), search:'', searchCol:'Document No.', rule:null, sort:{col:null,dir:1} };
   root.innerHTML = `<style>${CSS}</style>`;
   const header = document.createElement('header'); header.className='app';
   const titleText = model.meta.projectTitle || (model.meta.workbookName ? model.meta.workbookName.replace(/\.(xlsx|xlsm)$/i,'') : 'Dashboard');
-  const filterBtn = d => `<div class="tf-wrap"><button id="tfBtn_${d.key}" class="tf-btn" aria-expanded="false" aria-haspopup="true" aria-controls="tfPanel_${d.key}">${esc(d.label)} <span class="tf-cnt" id="tfCnt_${d.key}">All</span> ▾</button><div class="tf-panel" id="tfPanel_${d.key}" role="group" aria-label="Filter documents by ${esc(d.label.toLowerCase())}" hidden></div></div>`;
-  header.innerHTML = `<div class="brand"><img class="logo" src="${LOGO_DATA}" alt="logo"><div class="ttl-stack"><h1 class="ttl">${esc(titleText)}</h1>${model.meta.dashboardTitle ? `<div class="sub">${esc(model.meta.dashboardTitle)}</div>` : ''}<div class="meta">${esc(model.meta.workbookName)} · as of ${esc(model.meta.today)}</div></div></div><div class="actions">${defs.map(filterBtn).join('')}<button id="reload" class="btn btn-secondary">Load workbook</button><button id="aPrint" class="btn btn-secondary">Print / Save PDF</button></div>`;
+  const filterBtn = d => `<div class="tf-wrap"><button id="tfBtn_${d.key}" class="tf-btn" aria-expanded="false" aria-haspopup="true" aria-controls="tfPanel_${d.key}">${esc(d.label)} <span class="tf-cnt" id="tfCnt_${d.key}">All ${esc(d.label)}</span> ▾</button><div class="tf-panel" id="tfPanel_${d.key}" role="group" aria-label="Filter documents by ${esc(d.label.toLowerCase())}" hidden></div></div>`;
+  const colOpts = model.contract.fieldOrder.map(f => `<option value="${esc(f)}"${f==='Document No.'?' selected':''}>${esc(f)}</option>`).join('');
+  header.innerHTML = `<div class="app-top"><div class="brand"><img class="logo" src="${LOGO_DATA}" alt="logo"><div class="ttl-stack"><h1 class="ttl">${esc(titleText)}</h1><div class="sub">${esc(model.meta.dashboardTitle || 'Dashboard')}</div><div class="meta">Project start ${esc(model.meta.projectStartDate || '—')} · as of ${esc(model.meta.today)}</div></div></div><div class="actions"><button id="reload" class="btn btn-secondary">Load workbook</button><button id="aPrint" class="btn btn-secondary">Print / Save PDF</button></div></div>
+<div class="app-bar">${defs.map(filterBtn).join('')}<div class="search" role="search"><label class="sr-only" for="fCol">Search column</label><select id="fCol" class="inter-sel is-attached" aria-label="Search column">${colOpts}</select><input id="fSearch" class="search-input" type="search" value="${esc(STATE.search)}" placeholder="Search Document No.…" aria-label="Search value"><button id="fGo" class="search-btn" type="button" title="Search" aria-label="Search">🔍</button></div></div>`;
   root.appendChild(header);
+  // Wire the header search control: single column, commit on Enter (or button); Esc clears.
+  const fSearch = header.querySelector('#fSearch'), fCol = header.querySelector('#fCol');
+  const runSearch = () => { STATE.search = fSearch.value; STATE.searchCol = fCol.value; renderAll(wrap); };
+  fSearch.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); runSearch(); } else if(e.key === 'Escape'){ fSearch.value=''; STATE.search=''; renderAll(wrap); } });
+  header.querySelector('#fGo').addEventListener('click', runSearch);
+  fCol.addEventListener('change', () => { fSearch.placeholder = 'Search ' + fCol.value + '…'; });
 
-  // --- Top banner: system / fatal warnings only (data-validation lives in Panel 12) ---
-  const sysBanner = document.createElement('div'); sysBanner.id='sysBanner'; sysBanner.className='sys-banner';
-  sysBanner.innerHTML = sysBannerHTML(model.warnings);
-  root.appendChild(sysBanner);
+  // --- Unified top warning bar (#errBanner, PPP design, spec §3.5): system/config
+  // notices + load failures in one fixed bar below the app bar. ---
+  if(!document.getElementById('errBanner')){
+    const eb = document.createElement('div'); eb.id='errBanner';
+    eb.setAttribute('role','alert'); eb.setAttribute('aria-live','assertive');
+    root.appendChild(eb);
+  }
+  showBanner(model.warnings);
 
   const wrap = document.createElement('div'); wrap.className='wrap'; root.appendChild(wrap); WRAP = wrap;
-  const nf = sysNoteHTML(model.warnings); if(nf) wrap.insertAdjacentHTML('afterbegin', nf);
   statusBarEl = document.createElement('div'); statusBarEl.id='statusBar'; statusBarEl.className='status-bar'; statusBarEl.innerHTML='<span class="sb-loading">Loading dashboard…</span>'; root.appendChild(statusBarEl);
+  if(!document.getElementById('toast')){ const th=document.createElement('div'); th.id='toast'; root.appendChild(th); }
 
-  // note about no-list-yet disciplines
+  // no-list-yet disciplines — a config notice, routed to the unified #errBanner (spec §3.5)
   if(model.contract.noListYetDisciplines.length){
-    const n=document.createElement('div'); n.className='note';
-    n.innerHTML = `ℹ️ UESH disciplines with <b>no document list yet</b> (auto-discovered, shown for structure only): ${esc(model.contract.noListYetDisciplines.join(', '))}.`;
-    wrap.appendChild(n);
+    addBannerNotice('info', 'CONFIG', `UESH disciplines with no document list yet (auto-discovered, shown for structure only): ${model.contract.noListYetDisciplines.join(', ')}.`);
   }
 
   // KPI panel
   const kp = document.createElement('div'); kp.className='panel'; kp.id='kpiPanel'; kp.dataset.panel='1';
   wrap.appendChild(kp);
-  // Filter panel
-  const fp = document.createElement('div'); fp.className='panel'; fp.id='filterPanel'; fp.dataset.panel='2';
-  wrap.appendChild(fp);
+  // (Filters & Utilities panel removed — Search + Reset moved into the sticky header; spec §4.7 / I-62)
   // Matrix
   const mp = document.createElement('div'); mp.className='panel'; mp.id='matrixPanel'; mp.dataset.panel='3';
   wrap.appendChild(mp);
@@ -567,8 +716,8 @@ function renderDashboard(root, model){
 function renderAll(wrap){
   WRAP = wrap;
   const v = deriveView(MODEL, STATE);
-  try { renderFilters(document.getElementById('filterPanel'), MODEL, STATE, ()=>renderAll(wrap), refreshData); }
-  catch(e){ reportPanelError('Filters & Utilities', document.getElementById('filterPanel'), e); }
+  try { wireFilterChips(MODEL, STATE, ()=>renderAll(wrap), refreshData); }
+  catch(e){ console.error('[wireFilterChips]', e); }
   renderData(wrap, v);
 }
 function refreshData(){ renderData(WRAP, deriveView(MODEL, STATE)); }
@@ -583,9 +732,9 @@ function renderData(wrap, v){
   safe('Overdue List', 'overduePanel', p => renderOverdue(p, {first:v.firstOverdue,sub:v.subOverdue,cli:v.cliOverdue}));
   safe('Validation Issues', 'validationPanel', p => renderValidation(p, v.issues, MODEL));
   safe('Document Detail Table', 'detailPanel', p => renderDetail(p, v.recs, MODEL, STATE, ()=>renderAll(wrap)));
-  ['kpiPanel','filterPanel','matrixPanel','chartsPanel','curvePanel','overduePanel','validationPanel','detailPanel'].forEach(id => { try { ensureCollapse(document.getElementById(id)); } catch(e){ console.error('[collapse] '+id, e); } });
+  ['kpiPanel','matrixPanel','chartsPanel','curvePanel','overduePanel','validationPanel','detailPanel'].forEach(id => { try { ensureCollapse(document.getElementById(id)); } catch(e){ console.error('[collapse] '+id, e); } });
   renderStatusBar(v);
-  showRenderIssues(wrap);
+  showRenderIssues();
 }
 
 function filterSummary(){
@@ -595,7 +744,7 @@ function filterSummary(){
     const s=STATE[d.key]; const total=optsOf(d).length;
     parts.push(d.label+': '+(isBaseSet(d,STATE)?'All':((s?s.size:0)+'/'+total)));
   });
-  if(STATE.search) parts.push('Search: "'+STATE.search+'"');
+  if(STATE.search) parts.push('Search '+STATE.searchCol+': "'+STATE.search+'"');
   const allDefault = defs.every(d=>isBaseSet(d,STATE)) && !STATE.search;
   return allDefault ? 'All documents (no filter applied)' : parts.join(' · ');
 }
@@ -636,15 +785,12 @@ function reportPanelError(label, panel, e){
   body.innerHTML = `<div class="panel-error"><b>⚠️ This panel could not be rendered.</b><br>${esc(label)} — ${esc(msg)}<br><span class="pe-detail">Open the browser console for the full error stack.</span></div>`;
   if(!panel.querySelector('.panel-body')) panel.appendChild(body);
 }
-function showRenderIssues(wrap){
-  wrap.querySelectorAll('.render-issues').forEach(n=>n.remove());
+function showRenderIssues(){
+  removeBannerNotices('render');
   if(!renderIssues.length) return;
   const n = renderIssues.length;
   const names = renderIssues.map(r=>r.label).join(', ');
-  const el = document.createElement('div');
-  el.className = 'note render-issues';
-  el.innerHTML = `⚠️ <b>${n} panel${n>1?'s':''} failed to render:</b> ${esc(names)}. See the affected panel(s) below for details; the rest of the dashboard is unaffected.`;
-  wrap.insertBefore(el, wrap.firstChild);
+  addBannerNotice('warn', 'RENDER', `${n} panel${n>1?'s':''} failed to render: ${names}. See the affected panel(s) for details; the rest of the dashboard is unaffected.`, 'render');
 }
 
 function wireCollapse(panel){
@@ -702,27 +848,25 @@ const HELP = {
 <li><strong>Submitted</strong> — active documents with a date in <em>Actual 1st Issue Date</em> (col U).</li>
 <li><strong>Approved (APP) / Approved w/ Comments (AWC) / Rejected (REJ) / Not Approved (NAP)</strong> — counted from <em>Latest Approval Status</em> (col Y).</li>
 <li><strong>Overdue – 1st Sub / Resub / Client</strong> — the three overdue counts (same rules as Panel 13).</li>
-<li><strong>As-Built Required / Vendor Data</strong> — active documents where <em>As-Built</em> (col P) / <em>Vendor Data</em> (col R) is "YES".</li>
+<li><strong>As-Built Required (YES) / Vendor Data (YES)</strong> — active documents where <em>As-Built</em> (col P) / <em>Vendor Data</em> (col R) is "YES" (a requirement / by-vendor flag, not a submission status).</li>
 <li><strong>Active Disciplines</strong> — the number of different <em>UESH Discipline</em> (col C) values.</li>
 <li><strong>Data Completeness</strong> — the share of active documents that pass the completeness data-quality checks (rules V-17 to V-27 in the Code sheet Error Code block); see Panel 12.</li>
 </ul>
 <div class="def"><strong>Active document</strong> — a document whose <em>Stage</em> (col B) is not Deleted, Void, or Superseded. Those three stages are always excluded from counting, so they are not offered in the top-bar <b>Stage</b> filter.</div>
 `},
-  filterPanel:{title:'Filter Panel — Panel 15',body:`
-<h4>What it does</h4>
-<p>Narrows every other panel to the documents you want to study.</p>
+  filterPanel:{title:'Search & Filters',body:`
+<h4>Filters (top bar)</h4>
+<p>The <b>Discipline</b> and <b>Stage</b> buttons in the top bar narrow every panel to the documents you want to study.</p>
 <h4>Source data</h4>
-<p>The four lists come from <em>UESH Discipline</em> (C), <em>Stage</em> (B), <em>Authority</em> (Q), <em>Latest Approval Status</em> (Y). Search looks at <em>Document No.</em> (M), <em>Document Title</em> (N), <em>UESH Discipline</em> (C).</p>
-<h4>How it works</h4>
+<p>The two lists come from <em>UESH Discipline</em> (C) and <em>Stage</em> (B). Each list starts fully selected; <strong>Select All / Clear</strong> includes or excludes a whole list, or tick individual values.</p>
+<h4>Search (top bar, second row)</h4>
 <ul>
-<li>Each list starts fully selected. <strong>Select All / Clear</strong> includes or excludes a whole list, or tick individual values.</li>
-<li>Choosing fewer values keeps only documents matching <strong>all four</strong> lists plus the Search text.</li>
-<li><strong>Search</strong> filters by Document Number, Title, or Discipline.</li>
-
-<li><strong>Reset filters</strong> returns to fully selected.</li>
+<li>Pick <b>one column</b> from the dropdown — it is populated automatically from the workbook's mapped fields (e.g. Document No., Document Title, UESH Discipline).</li>
+<li>Type a value and press <b>Enter</b> (or click the magnifier) to filter. Typing alone does not filter; <b>Esc</b> clears.</li>
+<li>Search matches a substring <b>within that one column only</b> — it does not span multiple columns.</li>
 </ul>
 <h4>Effect</h4>
-<p>The selection is applied to KPI, Matrix, Charts, Issue Progress, Overdue, Validation, and Document Detail — they all read the same chosen documents. Changing a list updates only that list, so the page keeps your scroll position and focus.</p>
+<p>The selection and search are applied to KPI, Matrix, Charts, Issue Progress, Overdue, Validation, and Document Detail — they all read the same chosen documents.</p>
 `},
   matrixPanel:{title:'Per-Discipline Summary Matrix — Panel 10',body:`
 <h4>What it shows</h4>
@@ -761,13 +905,13 @@ const HELP = {
 <p>Issuance progress over time — a single chart combining the cumulative S-curve lines and the per-month bars on one shared count axis (no dual axis).</p>
 <h4>Source data</h4>
 <p><em>Planned 1st Issue Date</em> (S), <em>Forecast 1st Issue Date</em> (T), <em>Actual 1st Issue Date</em> (U) of the active documents.</p>
-<p>The time axis always shows the <strong>whole month range</strong> covered by the actual document log — from the earlier of the project start date (<strong>Code!B6</strong>) and the earliest document date, through the latest document date (plus one extra month). Documents dated before the project start are <strong>never dropped</strong>; they simply plot to the left of the project-start marker.</p>
+<p>The time axis always shows the <strong>whole month range</strong> covered by the actual document log — anchored at the <strong>earliest document date</strong> (the same anchor rule as the PPP dashboard's S-curve), through the latest document date (plus one extra month). When <strong>Code!B6</strong> lies outside that span it is still included so its <strong>Start</strong> marker can be drawn. Documents dated before the project start are <strong>never dropped</strong>; they simply plot to the left of the Start marker.</p>
 <h4>How it is worked out</h4>
 <ul>
 <li><strong>S-Curve</strong> — for each month, a running total of documents with a Planned, Forecast (or Planned if forecast blank), or Actual date in that month or earlier.</li>
 <li><strong>Monthly bar</strong> — the same three series counted only in the month they occur (not running totals).</li>
-<li>The <strong>window slider</strong> selects which months are shown; this is a view control only and does not change the data.</li>
-<li>A red dashed <strong>vertical line</strong> marks the <strong>project start date (Code!B6)</strong> on the chart; the project-start month is always included in the range, and the panel also prints the project start date as a caption.</li>
+<li>The <strong>window slider</strong> (Reporting period) selects which months are shown and <strong>scopes the S-curve data</strong>: the cumulative lines show progress <strong>within the selected window</strong> (anchored at the window start), while the monthly bars show per-month new counts. The red-dashed <strong>Start</strong> and navy <strong>Today</strong> reference lines stay fixed. A caption under the chart shows <strong>Reporting period: … · As-of: {system date} · cumulative within period</strong> so the window is never confused with the current-date calculations (which stay anchored to the as-of date).</li>
+<li>A red dashed <strong>vertical line</strong> marks <strong>Start</strong> (project start date, <strong>Code!B6</strong>); a solid navy line marks <strong>Today</strong> (the as-of system date). The project-start month is always included in the range, and the panel prints both as a caption.</li>
 </ul>
 <div class="def"><strong>Forecast fallback</strong> — when <em>Forecast 1st Issue Date</em> (T) is blank, <em>Planned 1st Issue Date</em> (S) is used in its place.</div>
 <div class="def"><strong>Pre-project-start dates</strong> — a document whose Planned/Forecast/Actual date is earlier than Code!B6 is flagged as <strong>V-28</strong> in the Validation panel (Panel 12); it still appears on the curve to the left of the PS marker.</div>
@@ -842,86 +986,77 @@ function renderKPIs(panel, k, model){
     {l:'Overdue – 1st Sub',v:k.overdueFirst,c:'warn'},{l:'Overdue – Resub',v:k.overdueResubmission,c:'warn'},
     {l:'Overdue – Client',v:k.overdueClientReview,c:'warn'}];
   const sub = [
-    {l:'As-Built Required',v:k.asBuiltYes},{l:'Vendor Data (by vendor)',v:k.vendorYes},
-    {l:'Data Completeness',v:(k.completeness==null?'N/A':k.completeness+'%')},{l:'Active Disciplines',v:k.activeDisciplines+' / 20'}];
+    {l:'As-Built Required (YES)',v:k.asBuiltYes},{l:'Vendor Data (YES)',v:k.vendorYes},
+    {l:'Data Completeness',v:(k.completeness==null?'N/A':k.completeness+'%')},{l:'Active Disciplines',v:k.activeDisciplines+' / '+(k.disciplineTotal||0)}];
   panel.innerHTML = `<div class="panel-head"><h2>KPI Overview</h2><div class="head-actions"><button class="collapse btn icon-btn" title="Collapse panel" aria-label="Collapse panel">−</button></div></div>
     <div class="panel-body"><div class="kpis">${cards.map(c=>`<div class="kpi ${c.c}"><div class="v">${c.v}</div><div class="l">${esc(c.l)}</div></div>`).join('')}</div>
     <div class="subkpis">${sub.map(s=>`<div class="subkpi"><div class="v">${esc(s.v)}</div><div class="l">${esc(s.l)}</div></div>`).join('')}</div></div>`;
   wireCollapse(panel);
 }
 
-function renderFilters(panel, model, state, rerender, dataOnly){
+function wireFilterChips(model, state, rerender, dataOnly){
   const defs = getFilterDefs(model);
   const el = (pre, d) => document.getElementById(pre + d.key);   // 'tfBtn_' | 'tfPanel_' | 'tfCnt_'
 
-  // ---------- Filters & Utilities panel: utilities only (Search + Reset) ----------
-  panel.innerHTML = `<div class="panel-head"><h2>Filters & Utilities</h2>
-    <div class="head-actions">
-      <button id="fReset" class="btn btn-secondary">Reset filters</button>
-      <button class="collapse btn icon-btn" title="Collapse panel" aria-label="Collapse panel">−</button>
-    </div></div>
-    <div class="panel-body"><div class="filters">
-    <div class="filters-help">Use the <b>Discipline</b> and <b>Stage</b> buttons in the top bar to narrow the dashboard.</div>
-    <div class="zone-label">Utilities</div>
-    <div class="filters-utils">
-      <div class="grp util"><span class="lbl">Search (Doc No / Title / Discipline)</span><input id="fSearch" value="${esc(state.search)}" placeholder="type…"></div>
-    </div>
-    </div></div>`;
+  // (Filters & Utilities panel removed — Search + Reset now live in the sticky header; spec §4.7 / I-62)
 
-  // Trigger badge: "All" at the counted baseline, otherwise "x of y" (y = every listed option).
+  // Trigger badge (PPP wording): "All [dimension]" at the counted baseline, "N of M selected"
+  // when partial, "None selected" when empty. .is-filtered accent whenever not "All".
   const sync = d => {
-    const n = state[d.key].size, t = optsOf(d).length;
+    const s = state[d.key], total = optsOf(d).length, n = s ? s.size : 0;
     const cnt = el('tfCnt_', d), btn = el('tfBtn_', d);
-    if(cnt) cnt.textContent = isBaseSet(d, state) ? 'All' : `${n} of ${t}`;
+    let txt;
+    if(isBaseSet(d, state)) txt = 'All ' + d.label;
+    else if(n === 0) txt = 'None selected';
+    else txt = `${n} of ${total} selected`;
+    if(cnt) cnt.textContent = txt;
     if(btn) btn.classList.toggle('is-filtered', !isBaseSet(d, state));
   };
-  // Every change re-derives the whole dashboard from one combined state read — never decoupled.
-  const applyAll = () => { defs.forEach(sync); dataOnly(); };
+  // Selection changes update state + the trigger badge immediately, but the (possibly heavy) data
+  // re-render is deferred until the filter dropdown is closed — see spec §7.5. This keeps multi-select
+  // filtering of large datasets smooth (no re-derive on every individual toggle).
+  let filterDirty = false;
+  const applyAll = () => { defs.forEach(sync); filterDirty = true; };
 
-  // ---------- one dropdown per dimension (All/Clear at the TOP of each) ----------
+  // ---------- one dropdown per dimension (PPP: master "All" checkbox + dismiss hint) ----------
   defs.forEach(d => {
     const p = el('tfPanel_', d); if(!p) return;
     p.hidden = true;
-    p.innerHTML = `<div class="tf-actions">
-        <button type="button" class="tf-act" data-act="all">All</button>
-        <button type="button" class="tf-act" data-act="clear">Clear</button>
-      </div>
-      <div class="tf-list">${optsOf(d).map(v => { const off=(d.noCount||[]).includes(v); return `<label class="tf-item${off?' tf-nc':''}" title="${off?'Present in the list but never counted until you tick it':''}"><input type="checkbox" value="${esc(v)}" ${state[d.key].has(v) ? 'checked' : ''}><span>${esc(v === '' ? '（blank）' : v)}</span>${off?'<span class="nc">not counted</span>':''}</label>`; }).join('')}</div>`;
-    const boxes = [...p.querySelectorAll('input[type=checkbox]')];
-    boxes.forEach(cb => { cb.onchange = () => { cb.checked ? state[d.key].add(cb.value) : state[d.key].delete(cb.value); applyAll(); }; });
-    p.querySelectorAll('.tf-act').forEach(b => {
-      b.onclick = () => {
-        state[d.key].clear();
-        // All = the counted baseline; never-counted values stay off unless ticked one by one.
-        if(b.dataset.act === 'all') baseOpts(d).forEach(v => state[d.key].add(v));
-        boxes.forEach(c => { c.checked = state[d.key].has(c.value); });
-        applyAll();
-      };
-    });
+    const allChk = isBaseSet(d, state);
+    p.innerHTML = `<label class="tf-all"><input type="checkbox" id="tfAll_${d.key}" ${allChk?'checked':''}> <b>All ${esc(d.label)}</b></label>
+      <div class="tf-divider"></div>
+      <div class="tf-list">${optsOf(d).map(v => { const off=(d.noCount||[]).includes(v); return `<label class="tf-item${off?' tf-nc':''}" title="${off?'Present in the list but never counted until you tick it':''}"><input type="checkbox" value="${esc(v)}" ${state[d.key].has(v) ? 'checked' : ''}><span>${esc(v === '' ? '（blank）' : v)}</span>${off?'<span class="nc">not counted</span>':''}</label>`; }).join('')}</div>
+      <div class="tf-hint">Changes apply when this list is closed.</div>`;
+    const master = p.querySelector('#tfAll_' + d.key);
+    const boxes = [...p.querySelectorAll('.tf-item input[type=checkbox]')];
+    const applyBoxes = () => {
+      const checked = boxes.filter(c => c.checked).map(c => c.value);
+      if(checked.length === boxes.length){ state[d.key] = new Set(baseOpts(d)); master.checked = true; }
+      else { state[d.key] = new Set(checked); master.checked = false; }
+      applyAll();
+    };
+    boxes.forEach(cb => { cb.onchange = applyBoxes; });
+    master.onchange = e => {
+      if(e.target.checked){ state[d.key] = new Set(baseOpts(d)); boxes.forEach(c => c.checked = true); }
+      else { state[d.key] = new Set(); boxes.forEach(c => c.checked = false); }
+      applyAll();
+    };
     sync(d);
   });
 
-  panel.querySelector('#fSearch').oninput = e => { state.search = e.target.value; dataOnly(); };
-  panel.querySelector('#fReset').onclick = () => {
-    defs.forEach(d => {
-      state[d.key].clear(); baseOpts(d).forEach(v => state[d.key].add(v));
-      const p = el('tfPanel_', d);
-      if(p) p.querySelectorAll('input[type=checkbox]').forEach(c => { c.checked = state[d.key].has(c.value); });
-    });
-    state.search = ''; state.rule = null;
-    panel.querySelector('#fSearch').value = '';
-    defs.forEach(sync);
-    rerender();
-  };
-  wireCollapse(panel);
+  // search + reset wiring now lives in renderDashboard (header control); see spec §4.7 / I-62
 
   // ---------- dropdown behaviour: only one open at a time ----------
-  const closeAll = except => defs.forEach(d => {
-    if(d.key === except) return;
-    const p = el('tfPanel_', d), b = el('tfBtn_', d);
-    if(p) p.hidden = true;
-    if(b) b.setAttribute('aria-expanded', 'false');
-  });
+  const closeAll = except => {
+    let closedAny = false;
+    defs.forEach(d => {
+      if(d.key === except) return;
+      const p = el('tfPanel_', d), b = el('tfBtn_', d);
+      if(p && !p.hidden){ p.hidden = true; closedAny = true; }
+      if(b) b.setAttribute('aria-expanded', 'false');
+    });
+    if(closedAny && filterDirty){ filterDirty = false; dataOnly(); }   // commit the deferred re-render once
+  };
   if(!tfDocBound){
     tfDocBound = true;
     document.addEventListener('click', e => { if(!(e.target.closest && e.target.closest('.tf-wrap'))) closeAll(null); });
@@ -932,10 +1067,16 @@ function renderFilters(panel, model, state, rerender, dataOnly){
     if(!b || !p) return;
     b.onclick = e => {
       e.stopPropagation();
-      const open = p.hidden;
-      closeAll(d.key);
-      p.hidden = !open;
-      b.setAttribute('aria-expanded', String(open));
+      const wasOpen = !p.hidden;
+      closeAll(d.key);                       // close any other open dropdown (commits its re-render)
+      if(wasOpen){                           // closing this dropdown → commit the deferred re-render
+        p.hidden = true;
+        b.setAttribute('aria-expanded', 'false');
+        if(filterDirty){ filterDirty = false; dataOnly(); }
+      } else {
+        p.hidden = false;
+        b.setAttribute('aria-expanded', 'true');
+      }
     };
   });
 }
@@ -967,7 +1108,7 @@ function matrixReportHTML(matrix){
   }).join('');
   const tot = matrix.reduce((a,m)=>{ a.Planned+=m.Planned; a.Submitted+=m.Submitted; a.PlanMo+=m.PlanMo; a.FcastMo+=m.FcastMo; a.ActualMo+=m.ActualMo; a.Approved+=m.Approved; a.AWC+=m.AWC; a.REJ+=m.REJ; a.NAP+=m.NAP; a.ov1+=m.ov1; a.ov2+=m.ov2; a.ov3+=m.ov3; return a; }, {Planned:0,Submitted:0,PlanMo:0,FcastMo:0,ActualMo:0,Approved:0,AWC:0,REJ:0,NAP:0,ov1:0,ov2:0,ov3:0});
   const tfoot = `<tfoot><tr><td>TOTAL</td><td>${tot.Planned}</td><td>${subFmt(tot.Submitted)}</td><td${tint}>${tot.PlanMo}</td><td${tint}>${tot.FcastMo}</td><td${tint}>${tot.ActualMo}</td><td>${tot.Approved}</td><td>${tot.AWC}</td><td>${tot.REJ}</td><td>${tot.NAP}</td><td>${tot.ov1}</td><td>${tot.ov2}</td><td>${tot.ov3}</td><td></td></tr></tfoot>`;
-  const css = `.matrix{width:100%;border-collapse:collapse;font-size:12px;background:#fff;font-family:Arial,Helvetica,sans-serif}
+  const css = `.matrix{width:100%;border-collapse:collapse;font-size:12px;background:#fff}
     .matrix th,.matrix td{border-bottom:1px solid #d8e0ea;padding:4px 8px;text-align:center;white-space:nowrap}
     .ds-table thead th{background:#1f3a5f;color:#fff;font-weight:600}
     .matrix th:first-child,.matrix td:first-child{text-align:left}
@@ -1024,7 +1165,7 @@ function renderMatrix(panel, matrix, months, curMonth){
     + `<th scope="col">1st</th><th scope="col">Resub</th><th scope="col">Client</th>`
     + `</tr></thead>`;
   const rows = matrix.map(m=>{
-    const exp = m.stages.length ? `<td class="expand" data-d="${esc(m.discipline)}" role="button" tabindex="0" aria-expanded="false" title="Expand stages">▸ stages</td>` : `<td class="noexp">—</td>`;
+    const exp = m.stages.length ? `<td><button class="expand" type="button" data-d="${esc(m.discipline)}" aria-expanded="false" title="Expand stages">▸ stages</button></td>` : `<td class="noexp">—</td>`;
     return `<tr><td>${esc(m.discipline)}</td><td>${m.Planned}</td><td>${subFmt(m.Submitted)}</td>`
       + `<td${tint}>${m.PlanMo}</td><td${tint}>${m.FcastMo}</td><td${tint}>${m.ActualMo}</td>`
       + `<td>${m.Approved}</td><td>${m.AWC}</td><td>${m.REJ}</td><td>${m.NAP}</td>`
@@ -1039,19 +1180,18 @@ function renderMatrix(panel, matrix, months, curMonth){
   const subRowsHTML = m => (m?m.stages:[]).map(s=>`<tr class="sub"><td class="subname">${esc(s.stage)}</td><td>${s.Planned}</td><td>${s.Submitted}</td><td${tint}>${s.PlanMo}</td><td${tint}>${s.FcastMo}</td><td${tint}>${s.ActualMo}</td><td>${s.Approved}</td><td>${s.AWC}</td><td>${s.REJ}</td><td>${s.NAP}</td><td>${s.ov1}</td><td>${s.ov2}</td><td>${s.ov3}</td><td></td></tr>`).join('');
   const collapseAll = () => { panel.querySelectorAll('tr.sub').forEach(r=>r.remove());
     panel.querySelectorAll('.expand').forEach(e=>{ e.classList.remove('open'); e.textContent='▸ stages'; e.setAttribute('aria-expanded','false'); e.title='Expand stages'; }); };
-  const openOne = td => { const m=matrix.find(x=>x.discipline===td.dataset.d); td.parentElement.insertAdjacentHTML('afterend', subRowsHTML(m)); td.classList.add('open'); td.textContent='▾ stages'; td.setAttribute('aria-expanded','true'); td.title='Collapse stages'; };
+  const openOne = td => { const m=matrix.find(x=>x.discipline===td.dataset.d); td.closest('tr').insertAdjacentHTML('afterend', subRowsHTML(m)); td.classList.add('open'); td.textContent='▾ stages'; td.setAttribute('aria-expanded','true'); td.title='Collapse stages'; };
   panel.querySelectorAll('.expand').forEach(td=>td.onclick=()=>{
     const wasOpen = td.classList.contains('open');
     collapseAll();
     if(!wasOpen) openOne(td);
   });
-  panel.querySelector('.tableScroll').addEventListener('keydown', ev=>{ if((ev.key==='Enter'||ev.key===' ')&&ev.target.classList&&ev.target.classList.contains('expand')){ ev.preventDefault(); ev.target.click(); } });
   const toolbar = document.createElement('div'); toolbar.className='toolbar';
-  toolbar.innerHTML = `<button class="ea btn btn-secondary" title="Expand every discipline">▾ Expand all</button><button class="ca btn btn-secondary" title="Collapse all disciplines">▸ Collapse all</button><button class="dl btn btn-secondary" title="Export fully-expanded report as PNG">⤓ PNG (full)</button><button class="cp btn btn-secondary" title="Copy fully-expanded report image">⧉ Copy</button><button class="csv btn btn-secondary" title="Download discipline summary matrix (disciplines + stages) as CSV">⤓ CSV</button><span class="msg"></span>`;
+  toolbar.innerHTML = `<button class="ea btn btn-secondary" title="Expand every discipline">▾ Expand all</button><button class="ca btn btn-secondary" title="Collapse all disciplines">▸ Collapse all</button><button class="dl btn btn-secondary" title="Export fully-expanded report as PNG">⤓ PNG (full)</button><button class="cp btn btn-secondary" title="Copy fully-expanded report image">⧉ Copy</button><button class="csv btn btn-secondary" title="Download discipline summary matrix (disciplines + stages) as CSV">⤓ CSV</button>`;
   const headActions = panel.querySelector('.head-actions');
   const msel=document.createElement('label'); msel.className='lbl month-sel';
   msel.innerHTML='<span>Month:</span>';
-  const sel=document.createElement('select'); sel.className='month-select';
+  const sel=document.createElement('select'); sel.className='inter-sel';
   (months||[]).forEach(o=>{ const op=document.createElement('option'); op.value=o.value; op.textContent=o.label; if(o.value===curMonth) op.selected=true; sel.appendChild(op); });
   sel.title='Choose the month for the Plan / Forecast / Actual columns';
   msel.appendChild(sel);
@@ -1063,7 +1203,7 @@ function renderMatrix(panel, matrix, months, curMonth){
   toolbar.querySelector('.ea').onclick = ()=>{ collapseAll(); panel.querySelectorAll('.expand').forEach(openOne); };
   toolbar.querySelector('.ca').onclick = ()=> collapseAll();
   attachExport(toolbar, ()=> matrixSVG(matrix), xp('Discipline_Matrix'));
-  toolbar.querySelector('.csv').onclick = ()=>{ downloadCSV(xp('Discipline_Matrix_'+(curMonth||'all'))+'.csv', matrixCSV(matrix, curMonth)); const msg=toolbar.querySelector('.msg'); if(msg) msg.textContent='CSV downloaded'; setTimeout(()=>{ if(msg&&msg.textContent==='CSV downloaded') msg.textContent=''; }, 2500); };
+  toolbar.querySelector('.csv').onclick = ()=>{ downloadCSV(xp('Discipline_Matrix_'+(curMonth||'all'))+'.csv', matrixCSV(matrix, curMonth)); toast('CSV downloaded','success'); };
 }
 
 function renderInteractive(host, charts, groupKey){
@@ -1087,12 +1227,12 @@ function renderInteractive(host, charts, groupKey){
   const card=document.createElement('div'); card.className='chart';
   const h=document.createElement('h3');
   view.type = getPref('chart-'+groupKey, view.type);
-  const sel=document.createElement('select'); sel.className='base sel';
+  const sel=document.createElement('select'); sel.className='inter-sel';
   groups.forEach(g=>{ const og=document.createElement('optgroup'); og.label=g.group;
     g.items.forEach(it=>{ const o=document.createElement('option'); o.value=it.key; o.textContent=it.label; if(it.key===view.base) o.selected=true; og.appendChild(o); });
     sel.appendChild(og); });
   const toolbar=document.createElement('div'); toolbar.className='toolbar';
-  toolbar.innerHTML=`<span class="seg" role="group" aria-label="Chart type"><button data-type="bar" data-key="${groupKey}">Bar</button><button data-type="pie" data-key="${groupKey}">Pie</button></span><button class="dl btn btn-secondary">⤓ PNG</button><button class="cp btn btn-secondary">⧉ Copy</button><span class="msg"></span>`;
+  toolbar.innerHTML=`<span class="seg" role="group" aria-label="Chart type"><button data-t="bar" data-key="${groupKey}">Bar</button><button data-t="pie" data-key="${groupKey}">Pie</button></span><button class="dl btn btn-secondary">⤓ PNG</button><button class="cp btn btn-secondary">⧉ Copy</button>`;
   const chartHost=document.createElement('div');
   const draw=()=>{
     const it=findItem(view.base); const data=charts[it.key]||[];
@@ -1100,10 +1240,10 @@ function renderInteractive(host, charts, groupKey){
     const tooMany=data.length>12; const type=(tooMany&&view.type==='pie')?'bar':view.type;
     h.textContent=it.label+(tooMany&&view.type==='pie'?' — pie hidden (too many categories)':'');
     chartHost.innerHTML=type==='pie'? pieSVG(it.label, colored) : barSVG(it.label, colored);
-    toolbar.querySelectorAll('.seg button').forEach(b=> b.classList.toggle('on', b.dataset.type===type));
+    toolbar.querySelectorAll('.seg button').forEach(b=> b.classList.toggle('on', b.dataset.t===type));
   };
   sel.onchange=()=>{ view.base=sel.value; draw(); };
-  toolbar.querySelectorAll('.seg button').forEach(b=> b.onclick=()=>{ view.type=b.dataset.type; setPref('chart-'+groupKey, view.type); draw(); });
+  toolbar.querySelectorAll('.seg button').forEach(b=> b.onclick=()=>{ view.type=b.dataset.t; setPref('chart-'+groupKey, view.type); draw(); });
   attachExport(toolbar, ()=>chartHost.innerHTML, ()=> xp(findItem(view.base).label));
   const head=document.createElement('div'); head.className='head-actions'; head.appendChild(sel); head.appendChild(toolbar);
   card.appendChild(h); card.appendChild(head); card.appendChild(chartHost);
@@ -1137,18 +1277,20 @@ function renderCurvePanel(body, progress){
   const head=document.createElement('div'); head.className='panel-head';
   const t=document.createElement('h3'); t.textContent='Issue Progress — cumulative S-curve + monthly bars'; head.appendChild(t);
   const tb=document.createElement('div'); tb.className='toolbar head-actions';
-  tb.innerHTML=`<button class="dl btn btn-secondary">⤓ PNG</button><button class="cp btn btn-secondary">⧉ Copy</button><span class="msg"></span>`; head.appendChild(tb);
+  tb.innerHTML=`<button class="dl btn btn-secondary">⤓ PNG</button><button class="cp btn btn-secondary">⧉ Copy</button>`; head.appendChild(tb);
   const host=document.createElement('div'); host.className='curve-host';
   const leg=`<div class="legend"><span><i class="sw" style="background:${COLORS.blue}"></i>Planned</span><span><i class="sw" style="background:${COLORS.amber}"></i>Forecast</span><span><i class="sw" style="background:${COLORS.green}"></i>Actual</span><span style="color:#6b7785">— solid = cumulative · bars = monthly (shared axis)</span></div>`;
   card.appendChild(head); card.appendChild(host); card.insertAdjacentHTML('beforeend', leg);
   body.appendChild(card);
+  const cap=document.createElement('div'); cap.className='curve-note'; body.appendChild(cap);
   const draw=()=>{ const a=scurveWin.from, b=scurveWin.to;
     host.innerHTML=combinedProgressSVG(progress,a,b);
-    const msg=win.querySelector('.msg'); if(msg) msg.textContent=`${progress.months[a]} → ${progress.months[b]}  (${b-a+1}/${n} months)`; };
+    const msg=win.querySelector('.msg'); if(msg) msg.textContent=`${progress.months[a]} → ${progress.months[b]}  (${b-a+1}/${n} months)`;
+    cap.textContent=`Reporting period: ${progress.months[a]} → ${progress.months[b]}  ·  As-of: ${esc(MODEL.meta.today)}  ·  cumulative within period`; };
   win.querySelector('.wf').oninput=e=>{ scurveWin.from=+e.target.value; draw(); };
   win.querySelector('.wt').oninput=e=>{ scurveWin.to=+e.target.value; draw(); };
   win.querySelector('.reset').onclick=()=>{ scurveWin={from:0,to:n-1}; win.querySelector('.wf').value=0; win.querySelector('.wt').value=n-1; draw(); };
-  if(progress.projStartLabel) body.insertAdjacentHTML('afterbegin', `<div class="curve-note">Project start: <b>${esc(progress.projStartLabel)}</b> — marked by the red dashed vertical line. Cumulative lines and monthly bars share one count axis.</div>`);
+  if(progress.projStartLabel) body.insertAdjacentHTML('afterbegin', `<div class="curve-note">Project start: <b>${esc(progress.projStartLabel)}</b> — the red dashed line is <b>Start</b> (Code!B6); the navy line is <b>Today</b> (as-of ${esc(MODEL.meta.today)}). Cumulative lines show progress <b>within the selected reporting period</b> (anchored at the window start); monthly bars show new counts per month.</div>`);
   attachExport(tb, ()=>host.innerHTML, xp('Issue_Progress'));
   draw();
 }
@@ -1193,7 +1335,7 @@ function renderOverdue(panel, o){
       <h2>Overdue List</h2>
       <div class="head-actions">
         <label class="lbl">Overdue Type:
-          <select class="base" id="ovType">
+          <select class="inter-sel" id="ovType">
             <option value="">All</option>
             ${OVERDUE_TYPES.map(t=>`<option value="${t.label}">${t.label}</option>`).join('')}
           </select>
@@ -1207,9 +1349,11 @@ function renderOverdue(panel, o){
   sel.onchange=()=>{ panel.querySelector('#ovBody').innerHTML=tbody(sel.value); const c=panel.querySelector('#ovCnt'); if(c)c.textContent=rows.filter(x=>!sel.value||x.type===sel.value).length+' docs'; };
   panel.querySelector('#ovCsv').onclick=()=>{
     const tf=sel.value; const rs=rows.filter(x=>!tf||x.type===tf);
+    if(!rs.length){ toast('Nothing to export','info'); return; }
     const header=OVERDUE_COLS.map(c=>c.h);
     const lines=[header.join(',')].concat(rs.map(x=>OVERDUE_COLS.map(c=>colVal(c,x)).map(csvCell).join(',')));
     downloadCSV(xp('Overdue')+'.csv', lines.join('\n'));
+    toast('CSV downloaded','success');
   };
 }
 function renderValidation(panel, issues, model){
@@ -1221,7 +1365,7 @@ function renderValidation(panel, issues, model){
     ${rows.map(g=>`<tr><td>${esc(g.code)}</td><td class="sev-${g.severity==='Error'?'error':(g.severity==='Warning'?'warning':'info')}">${esc(g.severity)}</td><td class="num">${g.count}</td><td>${esc(g.message)}</td></tr>`).join('')}
     </tbody></table></div>
     <div class="note">${issues.length} issues across ${rows.length} rules. All wording &amp; severity sourced from the Code sheet Error block (Code!AI:AL) — none hard-coded.</div>`;
-  panel.querySelector('#vCsv').onclick=()=>downloadCSV(xp('issue_list')+'.csv', issuesCSV(model, issues));
+  panel.querySelector('#vCsv').onclick=()=>{ if(!issues.length){ toast('Nothing to export','info'); return; } downloadCSV(xp('issue_list')+'.csv', issuesCSV(model, issues)); toast('CSV downloaded','success'); };
 }
 function renderDetail(panel, recs, model, state, rerender){
   const cols = model.contract.fieldOrder;
@@ -1234,7 +1378,7 @@ function renderDetail(panel, recs, model, state, rerender){
     ${rows.map(r=>`<tr><td>${esc(r.sourceTab)}</td><td class="${r.isActive?'act':'ina'}">${r.isActive?'Y':'N'}</td>${cols.map(c=>{const val=r.fields[c]; const cls=statusPill(c,val); return `<td class="${cls}">${esc(val)}</td>`;}).join('')}</tr>`).join('')}
     </tbody></table></div>`;
   panel.querySelectorAll('th[data-col]').forEach(th=>th.onclick=()=>{ const col=th.dataset.col; if(state.sort.col===col)state.sort.dir*=-1; else state.sort={col,dir:1}; rerender(); });
-  panel.querySelector('#dCsv').onclick=()=>downloadCSV(xp('document_list')+'.csv', docsCSV(model, recs));
+  panel.querySelector('#dCsv').onclick=()=>{ if(!recs.length){ toast('Nothing to export','info'); return; } downloadCSV(xp('document_list')+'.csv', docsCSV(model, recs)); toast('CSV downloaded','success'); };
 }
 function statusPill(field, val){
   if(field==='Latest Approval Status'){ return ({APP:'p-app',AWC:'p-awc',REJ:'p-rej',NAP:'p-nap'})[val]||''; }
@@ -1265,7 +1409,6 @@ export function boot(root){
       <div class="d-title">Drop your workbook here</div>
       <div class="d-sub">or click to browse</div>
       <label class="btn btn-primary">Choose Workbook<input type="file" id="file" accept=".xlsx,.xlsm" style="display:none"></label>
-      <div id="err" class="err"></div>
     </div>
     <div class="privacy"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 3 5v6c0 5 3.4 9.7 9 11 5.6-1.3 9-6 9-11V5l-9-4zm0 10.9h7c-.5 4-3 7.3-7 8.3V12H5V6.3l7-3.1V12z"/></svg> Works fully offline — your data never leaves this browser</div>
     <div class="copyright">© ${year} UESH</div>
@@ -1279,7 +1422,7 @@ export function boot(root){
       const wb = await readXlsx(buf);
       const model = buildModel(wb, { workbookName: f.name });
       renderDashboard(root, model);
-    }catch(err){ const el = root.querySelector('#err'); if(el) el.textContent = 'Failed to parse workbook: ' + err.message; console.error(err); }
+    }catch(err){ console.error(err); showError('Failed to parse workbook: ' + err.message); }
   };
   input.onchange = e => { const f = e.target.files[0]; if(f) loadFile(f); };
   ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); drop.classList.add('hover'); }));
