@@ -124,6 +124,38 @@ tiers, sitting just below the app bar.
   not system / config warnings may still use the generic `.note` style.)
 - **Shows *system / config* issues only** (e.g. missing columns, row-count mismatches); per-package data
   issues live in the Validation panel.
+- **Exception — fatal `W-FORMULA`**: a data column (any `fieldOrder` field) that contains spreadsheet
+  formula-error tokens (e.g. `#VALUE!`) raises a **fatal** notice in this bar, even though it is a
+  data-quality condition. Rationale: an error token is not a valid value and silently corrupts
+  counts/KPIs, so it must be fatal-level and shown here, not deferred to the Validation panel. One
+  aggregated entry per affected column (see §3.8.1).
+- **Dismissible (user-toggleable)** — mandatory: the bar is shown by default, but the user may collapse it.
+  **Single visibility resolver (hard requirement).** All code paths that open the bar — `showBanner`,
+  `showError`, `addBannerNotice`, and `removeBannerNotices` — MUST route through one resolver
+  (`applyBannerState`) that decides visibility from the persisted preference. This is what guarantees a
+  notice appended *after* the user collapsed the bar does **not** pop it back open, and that re-render /
+  re-open restores the user's choice.
+  - **Control placement & survival.** The toggle is a real `<button>` in the **title bar, immediately
+    following the search control** (within `.app-bar`), **not** inside `#errBanner` itself, so it survives
+    being hidden. It is rendered only when ≥1 notice exists. It shows a **count badge** (e.g. `⚠ N`, where
+    `N` is the live notice count) **and a separate text label that must NOT repeat that number** — the
+    label is `Warnings` when the bar is open and `Show warnings` when collapsed (the badge already carries
+    the count, so restating `N` in the label is forbidden; `⚠ [N] Show warnings` is correct,
+    `⚠ [N] Show N warnings` is a defect). It exposes `aria-pressed` plus a dynamic `aria-label`
+    (`Hide data-quality warnings` when open / `Show data-quality warnings` when collapsed) — the
+    `aria-label` must likewise not restate the count, so screen readers do not announce `N` twice
+    (badge + label). Clicking it flips the persisted preference and re-runs the resolver.
+  - **Collapse ≠ teardown.** Collapsing only hides the bar (preserving its inner HTML + badges) so
+    re-expansion is instant; it is distinct from tearing the bar down when it becomes empty (no notices),
+    which clears its content. Hiding is cosmetic only — the underlying warnings remain and keep counting
+    toward the badge; a fatal notice (e.g. `W-FORMULA`) can be collapsed but is never removed, and the badge
+    keeps it visible at a glance. Default state is visible (`localStorage` key `mdl_hideWarnings`,
+    `true`/`false`; default `false`).
+  - **Print.** The bar is always hidden when **printing**, regardless of the toggle. Drive visibility with the
+    `hidden` attribute (not an inline `display`), and make the print rule `display:none !important` so it
+    cannot be overridden. (Do not leave an inline `display:block` on the bar, or it defeats the print hide.)
+  - **Clearance** (below) still applies when the bar is shown: `body.banner-open` + `--banner-h` reserve the
+    wrapper height so content is never overlapped.
 - **Clearance rule (overlap prevention)** — mandatory, mirrors §3.6: because the bar is `position:fixed`,
   the content wrapper reserves its height. When the bar is open, add `body.banner-open` and set a
   `--banner-h` custom property to the bar's measured height; the wrapper's top padding becomes
@@ -181,7 +213,7 @@ KPI engine).
 |---|---|---|---|---|
 | S0 | Acquire | Read raw bytes from the file input; no parsing. | `File` → `ArrayBuffer` | On file open only |
 | S1 | Parse | Parse the container into an in-memory workbook (sheets / rows / cells). | `ArrayBuffer` → `workbook` | On file open only. The raw `workbook` is **discarded after S2** — only the normalised model is retained. |
-| S2 | Ingest / Normalize | Turn raw rows into a normalised **record table**: typed fields (Date/Bool coercion), `isActive`, `discipline`, `stage`, `docNo` (MDL) / `packages[]` (PPP); build contract/lookup tables (`codeInfo`, `lookups`, `statusCanon`) and `meta` (project info, today). **No aggregation or KPI math.** | `workbook` → `model{ records[], contract, meta }` | On file open only; held in memory for the session. |
+| S2 | Ingest / Normalize | Turn raw rows into a normalised **record table**: typed fields (Date/Bool coercion), `isActive`, `discipline`, `stage`, `docNo` (MDL) / `packages[]` (PPP); build contract/lookup tables (`codeInfo`, `lookups`, `statusCanon`) and `meta` (project info, today). **No aggregation or KPI math.** Normalization treats a cell as **absent (`undefined`)** when it is blank (empty after `trim`) **or** a spreadsheet formula-error token — see §3.8.1. | `workbook` → `model{ records[], contract, meta }` | On file open only; held in memory for the session. |
 | S3 | Validate | Run row-level, **filter-independent** validation rules once. | `records` + validation context → `issues[]`, `warnings[]`, `completenessGroup` | On file open only. |
 | S4 | Derive / Aggregate | **On demand**, given the current filter/UI state: filter `records` → `active`, then compute **all** aggregations — KPIs, overdue lists, charts, matrix, completeness%. This is the **sole** source of KPI numbers. | `model` + `state` → `view{ active, kpis, issues(filtered), charts, matrix, … }` | On every filter change / render. |
 | S5 | Render | Paint DOM panels from `view`. | `view` → DOM | On every render. Keep the deferred-render rule: repaint once when the filter dropdown closes, not on every in-dropdown toggle. |
@@ -206,6 +238,44 @@ KPI engine).
    completeness calculation. The workbook `Code!B6` **project-start** date is an **x-axis origin for
    date-curve panels only** (S-curve / throughput); it must **never** feed Overdue, approval, or
    schedule-variance math. On the S-curve the x-axis is **anchored at the earliest document date** (same anchor rule as the PPP dashboard's S-curve) and carries two reference lines: **Start** (the `Code!B6` project start, red dashed) and **Today** (as-of, navy solid).
+7. **Blank and formula-error are the same "absent" state.** During S2, any raw cell value that is
+   blank (empty after `trim`) **or** a spreadsheet formula-error token (`#NULL! #DIV/0! #VALUE! #REF!
+   #NAME? #N/A #NUM! #GETTING_DATA #SPILL! #CALC!`, case-insensitive) is normalized to `undefined`.
+   This applies to **every** data column (all `fieldOrder` / `columnMap` fields, including the derived
+   `discipline` / `stage`), is **not** a per-column opt-in, and means downstream consumers (KPIs,
+   filters, charts, validation) never special-case an error token — they simply see a missing field.
+   A column that contains any error token also raises a fatal `W-FORMULA` notice (§3.8.1 / §3.5).
+
+**3.8.1 Value normalization — blank and formula-error are equivalent "absent" (standard)**
+
+During **S2**, every raw cell value written into a normalised `fields` entry is treated as **absent
+(`undefined`)** when it is either:
+
+- **blank** — the cell is missing/empty, or its text is empty after `trim()`; or
+- **a spreadsheet formula-error token** — the cached cell value equals one of `#NULL! #DIV/0! #VALUE!
+  #REF! #NAME? #N/A #NUM! #GETTING_DATA #SPILL! #CALC!` (matched case-insensitively, after
+  upper-casing).
+
+This is a **single, uniform standard applied to every data column** (all `fieldOrder` / `columnMap`
+fields, including the derived `discipline` / `stage` which read those fields) — it is **not** a
+per-column opt-in. Blank and error are deliberately treated the same way: an error token is not a
+valid value, and counting it as present (or as a bogus category) silently corrupts KPIs, filters,
+charts, and validation.
+
+*Implementation:* a shared `isExcelError(v)` predicate (uppercase-normalized token match) lives in
+the pipeline; S2 coerces any blank/error to `undefined` and accumulates a per-field **error-token
+count**. Downstream consumers (S3/S4, render) simply see a missing field — no special-case token
+matching anywhere.
+
+*Fatal data-quality notice (coupled, distinct):* because an error token corrupts count correctness,
+S3 emits — **one aggregated entry per affected column** — a fatal `model.warnings` item
+`{ level:'fatal', code:'W-FORMULA', tab:<field>, message }` carrying the field label, column letter,
+`N of total` error cells, and a recover instruction: *"In Excel, fix the formula errors (e.g. a
+referenced sheet such as SubmittalLog may be missing/broken), then force a full recalculation
+(Ctrl+Alt+F9) and save the file so values are stored; re-open here."* Recalc alone does **not** cure
+a broken reference, so the message says "fix the formula errors." These notices route to the top
+`#errBanner` as fatal strips (§3.5) and are **not** pushed to `model.issues` (those are row-keyed
+and filtered by `activeSet`, so a column summary would never surface in Panel 12).
 
 **Reference implementation & conformance**
 - **PPP is the reference implementation**: `buildModel()` = S2 only (normalises `packages[]` +
@@ -274,12 +344,62 @@ own title row, corner `Panel N`. Controls split strictly by scope (mirrors MDL's
 | Collapse `−`/`+` | **the panel** | collapses the whole grid of chart cards; state lives on the panel element so it survives re-render |
 | Chart type (Bar/Pie `.seg`) | **each chart card** | **independent per chart** — keyed by card id (e.g. `inter-<cardId>`), so switching one chart must never flip the others (seg contract: §7.5) |
 | Breakdown / dimension select | **each chart card** | each card groups by its own dimension |
+| Period window (From / To / range text) | **each chart card** | scopes only the chart it belongs to (§7.9) |
+| **Bars** toggle | **each chart card** | shows / hides that card's per-period bars |
 | `⤓ PNG` / `⧉ Copy` | **each chart card** | exports that single chart only |
 
+- **Related controls belong to the card they act on — never to the panel area (mandatory, shared
+  PPP + MDL — rev 2026-10-13).** Any control that affects **one card's** content must sit **on that
+  card's board**, in that card's own **right-aligned** control cluster above its plot. It must
+  **not** float in the panel's general area — the panel head, the panel body, or a free-standing
+  row between cards. Only controls that act on the **whole panel** — Help `?` and Collapse `−`/`+`
+  — live on the panel's own title-row cluster. Rationale: a control sitting in the panel area reads
+  as scoping the *whole panel*, which misleads as soon as the panel holds several cards, and it
+  leaves the card with no board of its own once cards are bordered. This generalises the table above
+  to **every** card type (breakdown charts, combined charts, tables) on **both** dashboards:
+  **every card owns its controls; the panel owns only its own chrome.** Cluster order is fixed —
+  period window → **Bars** → range text → `⤓ PNG` → `⧉ Copy` (§4.2). There is **no Reset** control
+  (§7.9).
 - Chart cards do **not** get their own Help/Collapse and are **not** individually numbered —
   they inherit the parent panel's number (see numbering rule above). Only the panel shows one.
 - **Chart-card titles** follow §8: `h3` (`.panel-head h3`), 13 px / 700 `--navy`, **not**
   uppercase — they are nested sub-panels, unlike the panel's own uppercase `h2`.
+- **A chart-card title names the *view*, not the *selection* (mandatory, shared PPP + MDL —
+  rev 2026-10-13).** The card heading carries its own **stable group name** — PPP: *Packages* /
+  *Data Quality*; MDL: *Documents* / *Issues* — and must **not** track the breakdown currently
+  picked in that card's `<select>`. The same principle as §4.3 rule 7 applies ("the panel title
+  names the view, not the selection … the horizon is user-changeable, so a title carrying it goes
+  stale"): a user-changeable value in a heading either goes stale or merely restates its control.
+  The per-card `<select>` already indicates what is applied, so echoing it in the heading is
+  redundant. **PPP already ships this; MDL adopts it (workplan I-84)** — one rule, both dashboards
+  compliant together. (The chart's *own* plot caption is a plot label, not this heading, and is
+  unaffected — see below.)
+- **Panel 4 (MDL chart panel) title.** The panel's `h2` MUST read **`Interactive Chart`** — rendered
+  uppercase by the §4 `text-transform:uppercase` rule — and **not** `Charts`. This is the canonical
+  name shared with PPP's Panel 2 (§4.1) and the matching Help-modal title; it signals the panel holds
+  user-switchable interactive charts. The Help-modal entry for this panel likewise uses `Interactive
+  Chart` as its title.
+- **Panel board + chart-card grid alignment, border & plot height (mandatory) — rev 2026-10-13.** **Every
+  panel has one board**: its shell draws a bordered surface per §4 chrome (own title row, corner
+  `Panel N`). This applies to panels that hold chart cards too, so `.panel.panel-flat` (`border:0;
+  background:transparent; box-shadow:none`) is **not** permitted there — the earlier "frameless chart
+  panel" rule is **rescinded**, as it contradicted the panel-chrome rule stated above and is not what
+  either dashboard ships (every panel already implements its board). Inside the panel board each
+  **chart card is exactly one bordered surface** (`.chart`: 1px solid `--border`, `border-radius:10px`);
+  a card must **never** be wrapped in a second `.chart` element, since card-in-card draws a *double*
+  border and is **forbidden**. A panel therefore draws **one** border and each of its chart cards draws
+  **one** border — two distinct, non-nested surfaces. **This also applies to a panel that holds a
+  single chart** (§4.2 combined chart panels): the plot is wrapped in **one chart card** drawing its
+  own board **inside** the panel board, even though such a panel has no card grid and no card title.
+  Cards sit in a 2-up grid (`.charts`) with
+  `align-items:stretch` so the cards are **always equal in height** and their borders align on both top
+  and bottom even when one chart has far more categories than the other. Each card's border is its only
+  frame. The chart
+  drawing area (`.chart-host`) flexes (`flex:1`) with a **shared `min-height` of 300 px**, and **both
+  chart types MUST render at the same 300 px plot height** — the bar renderer distributes its rows over
+  300 px (`rowH` derived from the row count, clamped, with short blocks centred) and the pie renderer
+  uses `H=300`. A pie and a horizontal bar chart must therefore occupy the **same vertical extent**, so
+  the two chart areas are aligned in height (do not let one chart's canvas be shorter than the other's).
 - **Collapse must survive re-render**: when a panel's contents are rebuilt via `innerHTML`, keep
   the collapsed flag as a class on the **panel element itself** (which is not replaced) and
   re-derive the toggle button's glyph/`aria-expanded` from it on each render.
@@ -290,23 +410,66 @@ own title row, corner `Panel N`. Controls split strictly by scope (mirrors MDL's
 When a chart needs to show **both per-period detail and a running total**, use **one** chart with
 a single shared time axis instead of two stacked charts:
 
-- **ONE shared y-scale — never dual axes.** Monthly bars (per-period counts) and cumulative
-  lines (running totals) are plotted against the **same** scale and the **same** single value
-  axis (left, captioned with the unit, e.g. `pkgs`). Rationale: with separate bar/cumulative
-  axes the *same number* renders at two different heights — a bar of `5` sits far taller than
-  a cumulative point of `5`, which reads as a bug ("the cumulative curve is lower than the
-  bar"). A single scale keeps the two representations directly comparable, and the **Bars**
-  toggle (below) is the way to inspect the curve on its own.
-  - The scale is `max(1, …visible bar values, …visible line values)` — computed over the
-    **visible window**, so it rescales as the period window moves. Bars and lines share **one**
-    `y(v)` function; no second `y` function may exist for the same plot.
-  - Because there is no right axis, the right-side axis padding is minimal (`padR ≈ 18`, not
-    the ~52 px a second axis needs). Only **one** set of tick labels is drawn, on the left, plus
-    a single unit caption (e.g. `pkgs`) above the axis. Do not label the axis `/mo` and `cum.`
-    separately — there is only one scale.
+- **Shared y-scale by default; a separate bar scale is a documented exception (rev 2026-10-13).**
+  Monthly bars (per-period counts) and cumulative lines (running totals) are normally plotted
+  against the **same** scale and the **same** single value axis (left, captioned with the unit,
+  e.g. `pkgs` / `docs`). Rationale: with separate bar/cumulative axes the *same number* renders
+  at two different heights — a bar of `5` sits far taller than a cumulative point of `5`, which
+  reads as a bug ("the cumulative curve is lower than the bar"). A single scale keeps the two
+  representations directly comparable, and the **Bars** toggle (below) is the way to inspect the
+  curve on its own. **Shared is the default mode; the guardrail below is the one exception.**
+  - In **shared** mode the scale is `max(1, …visible bar values, …visible line values)` — computed
+    over the **visible window**, so it rescales as the period window moves. Bars and lines share
+    **one** `y(v)` function; no second `y` function may exist for the same plot.
+  - In **shared** mode there is no right axis, so the right-side axis padding is minimal
+    (`padR ≈ 18`, not the ~52 px a second axis needs). Only **one** set of tick labels is drawn,
+    on the left, plus a single unit caption above the axis. Do not label the axis `/mo` and
+    `cum.` separately — there is only one scale.
+  - **Scale-mode guardrail (mandatory, every combined chart).** Let `r = maxCum / maxBar` over the
+    visible window, where `maxCum` is the largest cumulative value and `maxBar` the largest
+    monthly bar value.
+    - `maxBar == 0`, or the **Bars** toggle is off → **shared** (a separate scale is meaningless).
+    - `r > 10` → engage **separate scales automatically**. Justification: above this ratio the
+      tallest bar occupies under ~1/10 of the plot height (< ~30 px in a 300 px plot), too small
+      for its printed value label — it reads as a sliver. Because cumulative totals can be one to
+      two orders of magnitude larger than any single month, this is where the shared scale stops
+      being usable.
+    - `r < 6` → revert to **shared**. Between 6 and 10 the active mode is **retained** (hysteresis),
+      so dragging the From / To sliders cannot flicker the axis on and off.
+    - A **Shared / Separate** control may be offered so a reader can override the automatic
+      decision; it defaults to **Shared** and is a state toggle (carries `aria-pressed`, persisted).
+      Whichever mode is active, each axis always **auto-fits** its own family: a user is **never**
+      allowed a free-form bar-height multiplier, because that would let one month be drawn taller
+      than the running total (a false reading) and would make exported PNGs non-reproducible.
+  - **Whenever separate scales are active** these mitigations are mandatory, because the original
+    "two heights for one number" hazard is then live: both axes captioned (left `… cumulative`,
+    right `… per month`); the right axis line **and its ticks** coloured to the bar family; the
+    legend states which axis each family uses (bars → right, `Cum. …` lines → left); and a note
+    states *"Monthly bars use the right-hand scale; Cum. lines use the left cumulative scale."*
+    `padR` widens to ~52 px while separate. Cross-family height comparison is **never** valid.
+- **Cumulative values are ABSOLUTE — never rebased to the window (rev 2026-10-13).** A cumulative
+  point always shows the true running total from the start of the series, so the value read off
+  the chart is the real total-to-date and it does **not** change when the period window moves. Do
+  **not** subtract the pre-window cumulative (no "anchoring at the window start"): that turns the
+  numbers into deltas that silently change as the reader drags the window, and it forced a
+  "cumulative within period" caption to explain them. The window selects **which months are
+  shown**; it never re-zeroes the curve.
 - Every series is drawn **twice**: once as bars, once as a cumulative line. Lines are
   distinguished from their bar counterpart by dash pattern (e.g. Plan `6,3`, Forecast `2,2`,
   Actual solid) and are named `Cum. <series>` in the legend.
+- **Months are labelled with the `MMM YYYY` template (e.g. `Mar 2026`).** Every month shown in the
+  S-curve — the x-axis ticks, the period-window range message, and the `<title>` tooltips — is
+  formatted through the shared month-label helper. A raw `YYYY-MM` key, or any `slice()` of it
+  (`26-03`), is never rendered: it is not a readable month and it differs from every other date in
+  the dashboard. Both dashboards use the same template.
+- **Bar values are printed VERTICALLY — rotated 90°, reading bottom-to-top.** A horizontal count
+  above a bar collides with its neighbour as soon as the bars get close together, and the collision
+  worsens the more digits the count has. Rotating the label gives it a fixed ~12 px horizontal
+  footprint regardless of magnitude, so values never overlap. The label is anchored just above the
+  bar top and rotated about that anchor (`text-anchor="start"` + `transform="rotate(-90 x y)"`).
+- **Every plotted point on a cumulative line is a SOLID dot — `r=3`, filled with the series
+  colour.** Nodes are never hollow rings (`fill="#fff"` with a coloured stroke): a solid dot stays
+  legible where series cross and is the form used by the PPP S-curve.
 - **Forecast is always drawn** — it is never hidden merely because the Forecast column is sparse.
   The fallback is applied **per item**: a package with no Forecast date contributes to the
   Forecast series using its **Plan** date (mirrors *due = Forecast ∥ Plan*). When the whole
@@ -321,21 +484,30 @@ a single shared time axis instead of two stacked charts:
   zero line). Cumulative **Actual** is the exception: it runs through **today** (not merely the
   last actual month) so achieved progress stays readable up to the reporting date. Actual *bars*
   still stop at the last month with an actual PO.
-- **Every non-zero bar shows its value** printed above it (≈9 px). Zero bars are skipped so the
-  plot stays readable.
+- **Every non-zero bar shows its value** printed above it (12 px, matching PPP `svgPoCombo`). Zero
+  bars are skipped so the plot stays readable.
 - The time range extends **exactly one extra month** beyond the last data month (not three or
   four) so the last bar is not flush against the plot edge.
-- A **Bars** toggle hides the per-period bars so the cumulative curve can be read alone; it lives
-  in the panel's control row, not in the chart. Bars are **visible by default**. The button is a
-  state toggle, not a momentary action: it carries `aria-pressed` and is dimmed (`opacity:.55`)
-  when bars are hidden, so its state is visible without re-reading the chart.
-- Period-window controls (**label, From, To, Bars, Reset, date-range text**) sit in **one row**:
-  `flex-wrap:nowrap; align-items:center`; the date-range text is `margin-left:auto` and
-  `white-space:nowrap`. They must not wrap onto a second line.
+- A **Bars** toggle hides the per-period bars so the cumulative curve can be read alone. It lives in
+  the **chart card's** control cluster (§4.1 ownership) — **not** in the chart, and **not** in the
+  panel area. Bars are **visible by default**. The button is a state toggle, not a momentary action:
+  it carries `aria-pressed` and is dimmed (`opacity:.55`) when bars are hidden, so its state is
+  visible without re-reading the chart.
+- The card's controls form **one right-aligned cluster on the card's own board**, directly above the
+  plot, in this fixed order: **period window (label, From, To) → Bars → date-range text →
+  `⤓ PNG` → `⧉ Copy`** — exports last, PNG before Copy. `align-items:center`. The cluster prefers a
+  single line and may wrap only when the card is too narrow to hold it. The date-range text closes
+  the window group with `margin-left:auto` and `white-space:nowrap`.
 - These panels stay **full width** (`.card.full`) — one wide chart, not a 2-column grid.
 - **No nested chart title** when a panel holds a single chart: the panel's own `h2` is enough, so
-  do not add an `h3` sub-title. The chart's export actions (`⤓ PNG` / `⧉ Copy`) stay in their own
-  right-aligned row (`.chart-actions`) directly above the chart.
+  do not add an `h3` sub-title. The plot nevertheless draws **its own chart-card board** (§4.1), and
+  the control cluster above renders **inside** that board.
+- **CSS contract (mandatory, so the rule is testable).**
+  `.chart-actions{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:6px}`
+  — the cluster right-aligns **to the card**; a cluster that merely carries the class while sitting
+  left-aligned in the panel body still violates this rule. And
+  `.sc-win .msg{font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap}` — the range
+  text is muted body copy at §8 sizes, never a small green success-coloured label.
 
 ### 4.3 Long lists → bounded data table (never an open-ended list)
 Any panel whose content is a **list of records that can grow** (look-ahead, overdue packages,
@@ -414,6 +586,66 @@ must behave as an **accordion**:
 - The expand affordance is the chevron `▸` → rotated on `aria-expanded="true"` (§7.7).
 - Re-rendering the table (e.g. after a filter change) collapses everything — detail state is not
   preserved across a rebuild, which is acceptable because the row set has changed.
+
+---
+
+### 4.5 Validation panel (per-package data issues) — rev 2026-10-14
+
+Shows the **row-level validation results produced by S3** (filter-independent, run once at
+load). It is **distinct from** the §3.5 system/config warning bar: that bar carries only
+*system/config* notices (missing columns, row-count mismatches) plus the fatal `W-FORMULA`
+exception; the Validation panel carries the *per-package data* issues. Both can be present at
+once.
+
+**Components, in this order (one panel):**
+
+1. **Title row** — panel title `Validation`; inline `?` (help `vcard`, **left**) and `−`
+   (collapse, **right**) in the right-aligned action cluster (§4.1); a **CSV export** button in
+   the *same* cluster (no change to existing MDL CSV behaviour); and the **severity summary chips**.
+2. **Severity summary chips** (`.vchip`, at the title row): totals for error / warning / info,
+   plus a hidden `.ok` **"no issues"** chip shown **only** when the issue count is 0. **Shape =
+   the PPP form** — keep the `.e / .w / .i / .ok` colour tiers from §7.10 but **override** its
+   default `border-radius:999px` to **6 px**, with **11 px / 700** and `text-transform:capitalize`.
+   (Deliberate PPP parity; the generic 999px pill of §7.10 does **not** apply to these chips.)
+3. **Collapsible detail** — a `<details>` element that **starts collapsed**; the user toggles it
+   open. Contains, in order:
+   - **(a) Code-sheet validation summary** (`#vmap`): a **note card** (single `.note`-style box,
+     **not** a heading-plus-list) reporting whether the workbook's Code sheet is coherent — columns
+     mapped (e.g. `A → AP`), the Error-table rule count loaded, and each lookup table's completeness
+     (empty/missing lookups flagged). Answers *"is the workbook structurally valid?"* before the
+     per-issue list.
+   - **(b) Rule reference** (`#vref`): **one card**, **one row per fired rule code** (de-duplicated),
+     laid out as a small table — `severity symbol · code · group · description · count`. **Never
+     individual per-rule cards.** Wording priority: the Error table on the Code sheet is the source
+     of truth; if a code is absent there, the dashboard supplies the description (flagged as such).
+   - **(c) Per-issue table** (`.vtableWrap`, an instance of `.tableScroll` / `.ds-table`, §4.3 &
+     §7.2): the full issue list.
+
+**Per-issue table columns:** severity **first**, then `Rule · Doc No · Field · Value · Message`
+(+ `Source Tab` / `Row` where the dashboard tracks them). Severity renders as a `.sev` chip
+carrying the §3.5 tier symbol — **`⛔` error / `⚠️` warning / `ℹ️` info** — *not* the lone `⚠`
+used elsewhere, so warning-only rows cannot be mistaken for errors.
+
+- **Field** = the column the *business rule* (Code-sheet Error block) checks — a real source
+  column name (e.g. `Actual 1st Issue Date`, `Latest Approval Date`, `Rev`, `CUESH Discipline`).
+- **Value** = the *validation result* — the specific offending cell value the pipeline found,
+  **never** a pass/fail flag.
+
+**No row cap.** Every issue renders inside the `.tableScroll` scroller (§4.3); the row count is
+reported in the title/control row, **not** by truncating. (The previous 80-row truncation is
+removed.) Empty state: zero issues → `.empty` caption in the table and the `.ok` chip shown; the
+`<details>` may still be opened to inspect `#vmap` / `#vref`.
+
+**Explanatory note placement.** The panel's short `.note` (issue count + *"sourced from the Code
+sheet Error block"*) sits **above** the collapsed `<details>` toggle — **never below it**. The
+toggle already hides the heavy `#vmap` / `#vref` / table content; the note must stay visible
+without expanding, so it cannot be buried inside the collapsed region.
+
+**Help:** `vcard` in the Help modal (§7.9) carries the longer explanation; the panel body keeps
+only the short inline hint.
+
+*Cross-refs:* table base §7.2 · scroller §4.3 · severity symbols §3.5 · chip colour tiers §7.10
+(shape overridden above) · help §7.9.
 
 ---
 
@@ -550,8 +782,8 @@ so they adapt automatically; no per-component dark CSS beyond the token swap (PP
 |---|---|---|---|
 | A1 Primary | `.btn` / `.btn-primary` | **one per screen** highest-emphasis CTA — *Open / Load workbook* only; Print / Save / Export are **not** primary | `--blue` solid, white text, radius 6 px, min-height 32 px |
 | A2 Secondary / Ghost | `.btn.ghost` / `.btn-secondary` | low-emphasis alternative / cancel / dismiss; "Load another file" | white, 1px `--border`, **navy** text; hover → `--blue` fill, white text |
-| A3 Text action | `.btn-secondary` (glyph + label); PPP also uses `.dlBtn` / `.copyBtn` / `.reset` | tool / footer-row actions: export, copy, reset, CSV (e.g. `⤓ PNG`, `⧉ Copy`, `⤓ CSV`, `Reset`) | white, **navy** text, glyph + space + label; hover → `--blue` fill, white text |
-| A4 Icon / Mini | `.icon-btn` | icon-only: Help `?`, Collapse `−`, Theme, modal close `✕` | 26 px square, 1px `--border`, muted; hover → `--soft`; **must carry `aria-label` + tooltip** |
+| A3 Text action | `.btn-secondary` (glyph + label); PPP also uses `.dlBtn` / `.copyBtn` | tool / footer-row actions: export, copy, CSV (e.g. `⤓ PNG`, `⧉ Copy`, `⤓ CSV`) | white, **navy** text, glyph + space + label; hover → `--blue` fill, white text |
+| A4 Icon / Mini | `.icon-btn` | icon-only: Help `?`, Collapse `−`, Theme, modal close `✕` | **PPP is the reference implementation.** `width:26px;height:26px;min-height:26px` — 26 px **square**; radius 6 px; 1px `--line`; `background:#fff`; `color:var(--muted)`; `font:inherit`; **13 px** / 600; `line-height:1`; inline-flex centred. Hover → `--soft` background + `--navy` text. **Must carry `aria-label` + tooltip** |
 | A5 Search | `.search-btn` | search submit, affixed to the search input (right edge, single-side radius) | `--accent` fill, white glyph, radius `0 6px 6px 0`, attached to input |
 
 #### B. Selection controls
@@ -568,10 +800,15 @@ so they adapt automatically; no per-component dark CSS beyond the token swap (PP
 |---|---|---|---|
 | C1 Status pill | `.pill` | status / count badge — **not an action** | 10 px / 600, radius 999, semantic colour variant |
 
-- **Font:** 12–14 px / 600 (icon buttons 12–13 px).
+- **Font:** 12–14 px / 600 (A4 icon buttons **13 px**, per PPP).
 - **Hover (A2 / A3):** `--blue` fill, white text — *not* a `--soft` tint.
 - **A1 Primary** keeps `--blue` (the *action* colour); the **B2 segmented active state** is `--navy` (a *selection* state) — different semantics, intentionally different colours.
 - **Modal is a container, not a button type:** its close `✕` = A4; its footer actions = A1 / A2 / A3.
+- **A4 is used ALONE, and must stay 26 px square.** `.icon-btn` is never combined with `.btn`
+  (PPP: `class="icon-btn"`). If an element has to carry both, `.icon-btn` **must declare its own
+  `min-height:26px`**: CSS resolves `min-height` *over* `height`, so a bare `height:26px` still
+  renders **32 px** tall — A1/A2/A3 carry `min-height:32px` — while the source still reads
+  "26 px square" and passes a text-only check.
 - Inline panel actions sit in the title row, **right-aligned** as a cluster (see §4); within the cluster Help `?` is left of Collapse `−`.
 
 ### 7.2 Tables (`.ds-table`)
@@ -603,7 +840,7 @@ row drill-down on top of the same base — never a second, divergent table style
 - Serialise to PNG-safe literals (CSS vars do not resolve in exported SVG):
   navy `#0F2D52`, blue `#1E88E5`, green `#2E7D32`, amber `#F9A825`, red `#C62828`,
   grey `#B8C2CC`, grid `#EDF1F5`.
-- S-curve: **red dashed** = **Start** (project start, workbook `Code!B6`, x-axis origin only); **navy solid** = **Today** (operational as-of = the viewer's local system date; see §3.8 rule 6). The x-axis is **anchored at the earliest document date** (same anchor rule as the PPP dashboard's S-curve), so documents dated before the project start still plot (to the left of Start).
+- S-curve: **red dashed** = **Start** (project start, workbook `Code!B6`, x-axis origin only); **grey dashed** (`#B8C2CC`, dash `2,2`) = **Today** (operational as-of = the viewer's local system date; see §3.8 rule 6). The x-axis is **anchored at the earliest document date** (same anchor rule as the PPP dashboard's S-curve), so documents dated before the project start still plot (to the left of Start).
 - **Combined bar + cumulative charts share one y-scale** (§4.2) — never add a second value
   axis. Plot area therefore reserves no right-side axis padding.
 - **Categorical colour (bar & pie)**: every category gets its **own** colour — a bar chart must
@@ -612,12 +849,18 @@ row drill-down on top of the same base — never a second, divergent table style
   category keeps the **same colour when toggling bar ↔ pie**. An explicit semantic colour on an
   item (e.g. status counts) always overrides the palette. Colours cycle when there are more
   categories than palette entries.
-- Period window: dual From/To range control + Reset + range message.
+- Period window: dual From/To range control + range message (no Reset — drag to adjust, §7.9).
 - **No duplicate legend**: bar and pie charts label each bar / slice **inside the SVG** (colour
   swatch + category name + value drawn as part of the chart). Do **not** also render an HTML
   legend below the chart — that duplicates information the chart already carries and steals
   vertical space. A legend below the chart is only used when the chart type genuinely cannot
   show labels inline.
+- **Legend layout (multi-series curve, grandfathered):** when a legend *is* required — e.g. the
+  PO/MDL S-curve with Planned / Forecast / Actual bars plus their `Cum. …` lines — it is rendered
+  as **one left-aligned row**, laid out sequentially from the left edge (bar swatches as small
+  filled rects; cumulative lines as short dashed segments, matching their dash pattern in the
+  plot). It is **never** two separate rows, and the items are **not** spread evenly across the
+  plot width. Both dashboards use the identical pattern (PPP `#poChart` is the reference).
 
 ### 7.5 Filters / Dropdown / Segmented control
 Two selection patterns — pick by interaction:
@@ -844,7 +1087,7 @@ All colours reference design tokens so they remap with the dark theme; no per-co
 ---
 
 ### 7.8 Export / Download actions
-All exports are **text-action buttons** (§7.1, type A3), grouped in a `.ctool` / `.ctool-footer` row. (MDL renders them as `.btn-secondary`; PPP as `.dlBtn` / `.copyBtn` / `.reset` — both are the A3 type; the class names differ but the spec'd style is identical.)
+All exports are **text-action buttons** (§7.1, type A3), grouped in a `.ctool` / `.ctool-footer` row. (MDL renders them as `.btn-secondary`; PPP as `.dlBtn` / `.copyBtn` — both are the A3 type; the class names differ but the spec'd style is identical.)
 
 | Action | Trigger (class) | Behaviour |
 |---|---|---|
@@ -862,16 +1105,28 @@ All exports are **text-action buttons** (§7.1, type A3), grouped in a `.ctool` 
 
 ### 7.9 Range / Time selection (Period window)
 - Component `.sc-win`: a labelled **dual range** — From / To `<input type="range">` sharing one
-  domain (e.g. months) — plus a **Reset** text-action button and a **live message** describing
-  the active window.
-- Used on the S-curve panel to scope a date range: the window selects which months are shown **and scopes the S-curve data** — the cumulative lines show progress **within the selected window** (anchored at the window start), while the monthly bars show per-month new counts. The red-dashed (**Start** / project start) and navy-solid (**Today** / as-of) reference lines stay fixed while the window moves, and the panel shows a **dual-label caption** `Reporting period: … · As-of: {system date} · cumulative within period` `Reporting period: … · As-of: {system date}` so the window is never confused with the current-date calculations (§3.8 rule 6).
-- **Scope (decided 2026-10-10; window now scopes S-curve data, 2026-10-11):** the period window affects
-  **only the Issue-Progress S-curve** (and its monthly bar) — it scopes those charts to the selected window,
-  with the cumulative lines shown **within the window** (anchored at the window start). It does **not** change the
-  Overdue / Approval / KPI panels, which stay anchored to the as-of (system date, §3.8 rule 6). To prevent
-  confusion the panel shows a **dual label** `Reporting period: … · As-of: {system date} · cumulative within period` so reviewers never
-  conflate the two. The global categorical filters (Discipline / Stage) remain the single source for
-  filtering the data set; the period is a curve-scoping window, not a duplicate data filter.
+  domain (e.g. months) — and a **live message** describing the active window. **There is no Reset
+  button (rev 2026-10-13):** the window is adjusted **only by dragging From / To**. A
+  restore-defaults control merely duplicated what the sliders already do, and the shared `reset`
+  styling class made the cluster's buttons indistinguishable to `querySelector('.reset')`, which
+  silently bound handlers to the wrong control on **both** dashboards. The window opens at the
+  **full range** on every load, so widening the view again means dragging From back to its first
+  position. Do not re-add a Reset control here.
+- **Every control in a cluster must be independently addressable (mandatory).** Buttons in one
+  cluster often share styling classes. Wiring by such a shared class is **forbidden**:
+  `querySelector('.class')` binds to the **first** match, leaving the intended control's handler
+  unbound or mis-bound. Select by `id` or a dedicated modifier class so each control gets exactly
+  its own handler.
+- Used on the S-curve panel to scope **which months are shown**: the monthly bars show per-month new counts for the selected window. The cumulative lines are **absolute totals-to-date** (§4.2) and are **never** rebased to the window. The red-dashed (**Start** / project start) and grey-dashed (**Today** / as-of) reference lines stay fixed while the window moves, and the panel shows the range message `Reporting period: … · As-of: {system date}` so the window is never confused with the current-date calculations (§3.8 rule 6). Do **not** append "cumulative within period" — see below.
+- **Scope (rev 2026-10-13 — rebasing removed).** The period window affects **only the Issue-Progress
+  S-curve** (and its monthly bars) — it selects **which months are shown**. Cumulative lines stay
+  **absolute**: they always show the true total-to-date and do **not** change when the window moves
+  (§4.2 supersedes the earlier "anchored at the window start" decision of 2026-10-10 / 11). It does
+  **not** change the Overdue / Approval / KPI panels, which stay anchored to the as-of (system date,
+  §3.8 rule 6). For that reason the "cumulative within period" wording is **retired** — there is
+  nothing window-relative left to explain. The global categorical filters (Discipline / Stage) remain
+  the single source for filtering the data set; the period is a display window, not a duplicate data
+  filter.
 - Slider accent uses `accent-color: var(--accent)`.
 
 ### 7.10 Chips (filters & summaries)
@@ -980,6 +1235,14 @@ Two pill uses, both `border-radius:999px`:
   banner row, the `.sys-banner-item.warn` "unused" bullet).
 - **§15 superseded:** Decision 33 promotes this v1.0 spec to the single source of truth; the
   older `MDL/MDL_UI_Design_Spec.md` (formerly §15) is retired and should not be cited.
+
+---
+
+### 12.2 Open issues & change log
+| Issue | Decision | MDL | PPP |
+|---|---|---|---|
+| Validation panel layout (§4.5 rev 2026-10-14): code-sheet result rendered as a **note card**; Rule Reference as a **single card with one row per fired rule** (not individual cards) | approved 2026-10-14 | **Implemented** 2026-10-14 (`renderValidation`) | **Deferred / held** — apply the same layout on the next PPP Validation-panel revision |
+| **V-23 future-date rule over-broad** — currently flags *any* of Planned (S) / Forecast (T) / Actual (U) / Latest Approval (X) as "future date" when later than the current system date (`pipeline.mjs` condition `[S,T,U,X]`). Plans (S) and forecasts (T) are forward-looking and may legitimately be earlier **or** later than today; only **Actual 1st Issue Date (U)** ("actual 1st submission date") and **Latest Approval Date (X)** must not be later than the current system date. Proposed fix: restrict the V-23 condition to **`[U, X]`** and set `Field` to the offending column (`Actual 1st Issue Date` / `Latest Approval Date`). | **Open — pending review** (2026-10-14) | Implement in `pipeline.mjs` V-23 (restrict to U, X) | Review PPP future-date rule for the same over-broad S/T logic |
 
 ---
 

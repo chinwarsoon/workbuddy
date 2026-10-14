@@ -42,6 +42,56 @@ function normalizeBool(v){
   return String(v).toUpperCase().trim();
 }
 
+// Spreadsheet formula-error tokens. A cell whose cached value equals one of these is not a valid
+// value; it is treated as absent (undefined) during normalization (spec §3.8.1) and counted so a
+// fatal W-FORMULA warning can be raised per affected column.
+const EXCEL_ERROR_TOKENS = new Set([
+  '#NULL!', '#DIV/0!', '#VALUE!', '#REF!', '#NAME?', '#N/A', '#NUM!',
+  '#GETTING_DATA', '#SPILL!', '#CALC!'
+]);
+export function isExcelError(v){
+  if(typeof v !== 'string') return false;
+  const s = v.trim().toUpperCase();
+  return s !== '' && EXCEL_ERROR_TOKENS.has(s);
+}
+
+// I-77: single approval-status classifier, gated on the submission date.
+// `Actual 1st Issue Date` (col U) is the gate `u`; `Latest Approval Status` (col Y) is `a`.
+// A formula-error cell counts as PRESENT for the gate (a corrupt date must not be silently
+// treated as "not submitted") and as an error state for the status. This is the one source of
+// truth for the approval KPIs (I-78), the Panel 3 matrix (I-79), the Panel 4 chart (I-80) and
+// the Panel 8 table pills. Record Error stays a single umbrella (approval without submission,
+// or any unrecognized status code) — the user must correct the record first.
+const APPROVAL_CODES = new Set(['APP', 'AWC', 'REJ', 'NAP']);
+
+function fieldHasError(r, f){ return !!(r.fieldErrors && r.fieldErrors.has(f)); }
+function fieldPresent(r, f){
+  const v = r.fields[f];
+  return (v !== undefined && v !== null && String(v).trim() !== '') || fieldHasError(r, f);
+}
+
+export function approvalCategory(r){
+  const u = fieldPresent(r, 'Actual 1st Issue Date');
+  const f = 'Latest Approval Status';
+  const aRaw = r.fields[f];
+  let a;
+  if(fieldHasError(r, f)) a = 'error';
+  else if(aRaw === undefined || aRaw === null || String(aRaw).trim() === '') a = 'blank';
+  else if(APPROVAL_CODES.has(aRaw)) a = aRaw;   // APP / AWC / REJ / NAP
+  else a = 'invalid';                           // unrecognized present value
+
+  if(u){
+    if(a === 'error') return 'Submitted – Status Unavailable';
+    if(a === 'blank') return 'Submitted – Pending Review';
+    if(a === 'invalid') return 'Record Error';
+    return a;                                   // APP / AWC / REJ / NAP
+  }
+  // not submitted
+  if(a === 'invalid') return 'Record Error';     // bad status code, no submission
+  if(a === 'error' || a === 'blank') return 'Not Submitted';
+  return 'Record Error';                         // known approval code but no submission (Case 4a)
+}
+
 // ============================================================================
 // Code-sheet table-discovery helpers (canonical names shared with the PPP
 // dashboard, per spec §3.1.1). The Code sheet is a set of TABLES discovered at
@@ -275,6 +325,7 @@ const todayISO = options.today
 
   // --- consolidate ---
   const records = [];
+  const errorCounts = {};   // I-74: per-field count of spreadsheet formula-error cells
   const blankDocIssues = [];
   for(const tab of available){
     const sheet = workbook.sheets[tab]; if(!sheet) continue;
@@ -284,9 +335,15 @@ const todayISO = options.today
       const hasContent = Object.values(row).some(v => v !== '' && v != null);
       if(hasContent && r > tabMaxDataRow) tabMaxDataRow = r;
       const fields = {};
+      const fieldErrors = new Set();   // I-77: per-record set of fields whose raw cell was a formula-error token
       fieldOrder.forEach(f => {
         let v = row[letterOf(f)];
-        if(v == null) return;
+        if(v == null || v === '') return;                       // blank -> absent (undefined)
+        if(typeof v === 'string' && isExcelError(v)){           // formula error -> absent + counted
+          errorCounts[f] = (errorCounts[f] || 0) + 1;
+          fieldErrors.add(f);
+          return;
+        }
         if(typeOf(f) === 'Date' && typeof v === 'number'){ const iso = excelSerialToISO(v); if(iso) v = iso; }
         else if(typeOf(f) === 'Boolean'){ v = normalizeBool(v); }
         else v = (typeof v === 'string') ? v : String(v);
@@ -301,7 +358,7 @@ const todayISO = options.today
       }
       const stage = fields['Stage'] || '';
       const isActive = !EXCLUDE_STAGES.includes(stage);
-      records.push({ sourceTab: tab, rownum: r, fields, discipline: fields['UESH Discipline'] || '', stage, isActive, docNo });
+      records.push({ sourceTab: tab, rownum: r, fields, fieldErrors, discipline: fields['UESH Discipline'] || '', stage, isActive, docNo });
     }
     if(tabMaxDataRow > listEndRow){
       warnings.push({ level:'warn', code:'W-ENDROW', tab, actual: tabMaxDataRow, limit: listEndRow,
@@ -309,22 +366,55 @@ const todayISO = options.today
     }
   }
 
+  // --- I-74/I-75: aggregate formula-error cells into ONE fatal warning per affected column ---
+  // (deliberately NOT pushed to model.issues — those are row-keyed and filtered by activeSet, so a
+  // column summary would never surface in Panel 12). They route to the top errBanner as fatal.
+  for(const f of fieldOrder){
+    const n = errorCounts[f];
+    if(!n) continue;
+    warnings.push({
+      level: 'fatal', code: 'W-FORMULA', tab: f,
+      message: `${f} (column ${letterOf(f)}) contains ${n} spreadsheet formula-error cell${n === 1 ? '' : 's'} (e.g. #VALUE!). These are not valid values and silently corrupt counts, so the affected KPIs / metrics are untrustworthy. In Excel, fix the formula errors (e.g. a referenced sheet such as SubmittalLog may be missing or broken), then force a full recalculation (Ctrl+Alt+F9) and save the file so values are stored; re-open here.`
+    });
+  }
+
+  // --- I-82: Record Error consistency notice (distinct from W-FORMULA, condition summary) ---
+  // Fires where Latest Approval Status is present (any value, incl. unrecognized) but Actual 1st
+  // Issue Date is absent — the record must be corrected before approval KPIs are trustworthy.
+  // A date formula-error counts as present, and an invalid status code WITH a submission date is a
+  // separate Record Error handled by the KPI/chart, not this notice.
+  const recErrDocs = records.filter(r => {
+    const a = r.fields['Latest Approval Status'];
+    const aPresent = a !== undefined && a !== null && String(a).trim() !== '' && !(r.fieldErrors && r.fieldErrors.has('Latest Approval Status'));
+    const uAbsent = (r.fields['Actual 1st Issue Date'] || '') === '' && !(r.fieldErrors && r.fieldErrors.has('Actual 1st Issue Date'));
+    return aPresent && uAbsent;
+  });
+  if(recErrDocs.length){
+    warnings.push({
+      level: 'warn', code: 'W-RECERR', tab: 'Process',
+      message: `${recErrDocs.length} document(s) have an approval status but no Actual 1st Issue Date (Record Error). Correct the record(s) — add the submission date or remove the stray status — before relying on the approval KPIs.`
+    });
+  }
+
   // --- validation ---
   const issues = [];
   const severityOf = code => (errorBlock.map[code] && errorBlock.map[code].severity) || 'Warning';
   const messageOf = code => (errorBlock.map[code] && errorBlock.map[code].rule) || (`Rule ${code} (generic message)`);
-  const mkIssue = (code, rec) => ({
+  // `field` = the source column the business rule checks; `value` = the offending cell value
+  // the pipeline found (the validation result). Both surface in the Validation panel (spec §4.5).
+  const mkIssue = (code, rec, field, value) => ({
     code, severity: severityOf(code), message: messageOf(code),
     sourceTab: rec ? rec.sourceTab : null, rownum: rec ? rec.rownum : null,
-    docNo: rec ? rec.docNo : null, discipline: rec ? rec.discipline : null
+    docNo: rec ? rec.docNo : null, discipline: rec ? rec.discipline : null,
+    field: field || null, value: (value === undefined ? null : value)
   });
   const inSet = (set, v) => v != null && v !== '' && set.has(String(v));
 
   // V-13 (contract): lookup block with label but empty code
   Object.entries(lookups).forEach(([key, blk]) => {
-    blk.items.forEach(it => { if(it.label && !it.code) issues.push({ code: 'V-13', severity: severityOf('V-13'), message: messageOf('V-13') + ` (block ${key})`, sourceTab: 'Code', rownum: null, docNo: null, discipline: null }); });
+    blk.items.forEach(it => { if(it.label && !it.code) issues.push({ code: 'V-13', severity: severityOf('V-13'), message: messageOf('V-13') + ` (block ${key})`, sourceTab: 'Code', rownum: null, docNo: null, discipline: null, field: 'lookup block (' + key + ')', value: it.label }); });
   });
-  blankDocIssues.forEach(b => issues.push(mkIssue('V-01', b)));
+  blankDocIssues.forEach(b => issues.push(mkIssue('V-01', b, 'Document No.', '(blank)')));
 
   // duplicate Document No. (V-26)
   const docCount = {};
@@ -353,43 +443,43 @@ const todayISO = options.today
     const X = f['Latest Approval Date'] || '';
     const N = f['Document Title'] || '';
 
-    if(!inSet(lookups.stage.codes, B)) issues.push(mkIssue('V-02', rec));
-    if(!inSet(lookups.uesh.codes, C)) issues.push(mkIssue('V-03', rec));
-    if(J !== '' && !inSet(lookups.disciplineCode.codes, J)) issues.push(mkIssue('V-04', rec));
-    if(I !== '' && !inSet(lookups.docType.codes, I)) issues.push(mkIssue('V-05', rec));
-    if(Q !== '' && !inSet(lookups.authority.codes, Q)) issues.push(mkIssue('V-06', rec));
-    if(W !== '' && !inSet(lookups.submissionStatus.codes, W)) issues.push(mkIssue('V-07', rec));
-    if(Y !== '' && !inSet(lookups.approval.codes, Y)) issues.push(mkIssue('V-08', rec));
-    if(P === 'YES' && U === '') issues.push(mkIssue('V-10', rec));
-    if(EXCLUDE_STAGES.includes(B)) issues.push(mkIssue('V-12', rec));
-    if(G !== '' && !inSet(lookups.projectCode.codes, G)) issues.push(mkIssue('V-14', rec));
-    if(/xxxx/i.test(M)) issues.push(mkIssue('V-15', rec));
+    if(!inSet(lookups.stage.codes, B)) issues.push(mkIssue('V-02', rec, 'Stage', B));
+    if(!inSet(lookups.uesh.codes, C)) issues.push(mkIssue('V-03', rec, 'UESH Discipline', C));
+    if(J !== '' && !inSet(lookups.disciplineCode.codes, J)) issues.push(mkIssue('V-04', rec, 'Discipline Code', J));
+    if(I !== '' && !inSet(lookups.docType.codes, I)) issues.push(mkIssue('V-05', rec, 'Doc Type', I));
+    if(Q !== '' && !inSet(lookups.authority.codes, Q)) issues.push(mkIssue('V-06', rec, 'Authority', Q));
+    if(W !== '' && !inSet(lookups.submissionStatus.codes, W)) issues.push(mkIssue('V-07', rec, 'Submission Status', W));
+    if(Y !== '' && !inSet(lookups.approval.codes, Y)) issues.push(mkIssue('V-08', rec, 'Latest Approval Status', Y));
+    if(P === 'YES' && U === '') issues.push(mkIssue('V-10', rec, 'Actual 1st Issue Date', U));
+    if(EXCLUDE_STAGES.includes(B)) issues.push(mkIssue('V-12', rec, 'Stage', B));
+    if(G !== '' && !inSet(lookups.projectCode.codes, G)) issues.push(mkIssue('V-14', rec, 'Project Code', G));
+    if(/xxxx/i.test(M)) issues.push(mkIssue('V-15', rec, 'Document No.', M));
     // V-17 composition G-H-I-J-K (J = client Discipline Code)
-    if(G && H && I && J && K){ const expected = [G, H, I, J, K].join('-'); if(M !== expected) issues.push(mkIssue('V-17', rec)); }
-    if((W !== '') !== (V !== '')) issues.push(mkIssue('V-19', rec));
-    if(U !== '' && (V === '' || W === '')) issues.push(mkIssue('V-18', rec));
-    if(Y === 'APP' && X === '') issues.push(mkIssue('V-11', rec));
-    if(W === 'RTR' && (Y === '' || /void/i.test(Y))) issues.push(mkIssue('V-16', rec));
-    if(['APP', 'AWC', 'REJ', 'NAP'].includes(Y) && (U === '' || X === '')) issues.push(mkIssue('V-20', rec));
-    if(X !== '' && (Y === '' || (U !== '' && isoToDate(X) < isoToDate(U)))) issues.push(mkIssue('V-21', rec));
+    if(G && H && I && J && K){ const expected = [G, H, I, J, K].join('-'); if(M !== expected) issues.push(mkIssue('V-17', rec, 'Document No.', M)); }
+    if((W !== '') !== (V !== '')) issues.push(mkIssue('V-19', rec, 'Submission Status', W));
+    if(U !== '' && (V === '' || W === '')) issues.push(mkIssue('V-18', rec, 'Actual 1st Issue Date', U));
+    if(Y === 'APP' && X === '') issues.push(mkIssue('V-11', rec, 'Latest Approval Status', Y));
+    if(W === 'RTR' && (Y === '' || /void/i.test(Y))) issues.push(mkIssue('V-16', rec, 'Submission Status', W));
+    if(['APP', 'AWC', 'REJ', 'NAP'].includes(Y) && (U === '' || X === '')) issues.push(mkIssue('V-20', rec, 'Latest Approval Status', Y));
+    if(X !== '' && (Y === '' || (U !== '' && isoToDate(X) < isoToDate(U)))) issues.push(mkIssue('V-21', rec, 'Latest Approval Date', X));
     // V-09 date order — fire ONCE per document even if multiple pairs are out of order
     if((S && T && isoToDate(T) < isoToDate(S)) ||
        (T && U && isoToDate(U) < isoToDate(T)) ||
-       (S && U && isoToDate(U) < isoToDate(S))) issues.push(mkIssue('V-09', rec));
-    if(U !== '' && (S === '' || T === '')) issues.push(mkIssue('V-22', rec));
+       (S && U && isoToDate(U) < isoToDate(S))) issues.push(mkIssue('V-09', rec, 'Date Order', 'dates out of order'));
+    if(U !== '' && (S === '' || T === '')) issues.push(mkIssue('V-22', rec, 'Actual 1st Issue Date', U));
     // V-23 — fire ONCE per document if any date is in the future
-    if([S, T, U, X].some(d => d && isoToDate(d) && isoToDate(d) > today)) issues.push(mkIssue('V-23', rec));
+    { const fut=[S,T,U,X].find(d=>d&&isoToDate(d)&&isoToDate(d)>today); if(fut) issues.push(mkIssue('V-23', rec, 'Future Date', fut)); }
     // V-28: a 1st-issue date precedes the declared project start date (Code!B6). Fires once per
     // document if any of Planned/Forecast/Actual is earlier than projectStartDate (only when B6 set).
     if(projectStartDate){ const ps = isoToDate(projectStartDate);
-      if((S && isoToDate(S) && isoToDate(S) < ps) || (T && isoToDate(T) && isoToDate(T) < ps) || (U && isoToDate(U) && isoToDate(U) < ps))
-        issues.push(mkIssue('V-28', rec)); }
-    if(E !== '' && !bqSet.has(String(E))) issues.push(mkIssue('V-24', rec));
+      const pre=[S,T,U].find(d=>d&&isoToDate(d)&&isoToDate(d)<ps);
+      if(pre) issues.push(mkIssue('V-28', rec, '1st Issue Date', pre)); }
+    if(E !== '' && !bqSet.has(String(E))) issues.push(mkIssue('V-24', rec, 'BQ Number', E));
     const required = [N, C, B, I, J, G, H, K];
-    if(required.some(v => v === '' || v == null)) issues.push(mkIssue('V-25', rec));
-    if(docCount[M] > 1) issues.push(mkIssue('V-26', rec));
+    { const miss = required.filter(v => v === '' || v == null); if(miss.length) issues.push(mkIssue('V-25', rec, 'Required Field', miss.join(', '))); }
+    if(docCount[M] > 1) issues.push(mkIssue('V-26', rec, 'Document No.', M));
     const boolVal = v => (v === 'YES' || v === 'NO' || v === '');
-    if(!boolVal(P) || !boolVal(R)) issues.push(mkIssue('V-27', rec));
+    if(!boolVal(P) || !boolVal(R)) issues.push(mkIssue('V-27', rec, 'Vendor Data', !boolVal(P)?P:R));
   }
 
   // --- Data-completeness group (S3 contract) ---

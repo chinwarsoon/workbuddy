@@ -69,7 +69,9 @@ ok('all 8 panels numbered', D.querySelectorAll('.panel[data-panel]').length === 
 
 // --- I-43: focus-visible + icon-btn square (spec §7.1) ---
 ok('global :focus-visible rule present', html.includes(':focus-visible{outline'));
-ok('icon-btn is 26px square', html.includes('width:26px;height:26px'));
+ok('icon-btn is 26px square (min-height cannot be overridden by .btn)', /\.icon-btn\{[^}]*width:26px;height:26px;min-height:26px/.test(html));
+ok('icon buttons use .icon-btn alone, never combined with .btn', D.querySelectorAll('.btn.icon-btn').length === 0, `combined=${D.querySelectorAll('.btn.icon-btn').length}`);
+ok('modal close ✕ is A4 — no size/padding override that would break the square', !/help-modal \.box \.close\{[^}]*padding:/.test(html));
 ok('icon buttons use spec class .icon-btn', D.querySelectorAll('.icon-btn').length > 0, `count=${D.querySelectorAll('.icon-btn').length}`);
 ok('no legacy .btn-mini in bundle', !html.includes('btn-mini'));
 
@@ -161,6 +163,13 @@ ok('Total Planned starts at full active set', before > 0, `before=${before}`);
 ok('Empty selection (master unchecked) → zero documents', afterClear === 0, `afterClear=${afterClear}`);
 ok('badge shows None selected after Clear', badgeAfterClear === 'None selected', `badge=${badgeAfterClear}`);
 ok('All restores the full set (single combined pass)', afterAll === before, `afterAll=${afterAll}`);
+// --- I-78: three new approval-derived KPI cards present (gated via approvalCategory) ---
+ok('Pending Review KPI card present', !isNaN(kpiVal('Pending Review')), `val=${kpiVal('Pending Review')}`);
+ok('Not Submitted KPI card present', !isNaN(kpiVal('Not Submitted')), `val=${kpiVal('Not Submitted')}`);
+ok('Record Error KPI card present', !isNaN(kpiVal('Record Error')), `val=${kpiVal('Record Error')}`);
+// --- I-80: detail table renders the derived approval-category pills ---
+const detailPanel = D.getElementById('detailPanel');
+ok('detail table renders Not Submitted pill (p-nsub)', !!detailPanel && detailPanel.innerHTML.includes('p-nsub'), `hasDetail=${!!detailPanel}`);
 // Excluded stages are opt-in: ticking one deliberately pulls those rows into the dashboard.
 const exclBox = exclBoxes[0];
 const basePlanned = kpiVal('Total Planned');
@@ -189,6 +198,24 @@ const sevCells = [...D.querySelectorAll('td[class^="sev-"]')];
 ok('severity chips use spec .sev-error/.sev-warning/.sev-info', sevCells.every(c => /^sev-(error|warning|info)$/.test(c.className)), `sev cells=${sevCells.length}`);
 ok('no legacy .sev-err/.sev-warn in bundle', !/(sev-err(?!or)|sev-warn(?!ing)|sev-ERR)/.test(html));
 
+// --- Validation panel §4.5 (spec rev 2026-10-14) ---
+const vPanel = D.getElementById('validationPanel');
+ok('validation panel present', !!vPanel);
+if(vPanel){
+  const chips = [...vPanel.querySelectorAll('.vchip')];
+  ok('severity summary chips present (error/warning/info or ok)', chips.length >= 1, `chips=${chips.length}`);
+  const det = vPanel.querySelector('.vdetails');
+  ok('validation detail is a collapsed <details> by default', !!det && det.tagName === 'DETAILS' && !det.hasAttribute('open'));
+  ok('code-sheet summary (.vnote/#vmap) + rule reference (.vrefcard/#vref) present', !!vPanel.querySelector('.vnote') && !!vPanel.querySelector('.vrefcard'));
+  const vth = [...vPanel.querySelectorAll('.vtableWrap thead th')].map(t => t.textContent.trim());
+  ok('per-issue table exposes Field & Value columns', vth.includes('Field') && vth.includes('Value'), vth.join('|'));
+  const sevTds = [...vPanel.querySelectorAll('.vtableWrap tbody td[class^="sev-"]')];
+  ok('per-issue severity cells carry spec symbol (⛔/⚠️/ℹ️), no row cap', sevTds.length > 0 && sevTds.every(c => ['⛔','⚠️','ℹ️'].includes(c.textContent.trim())), `rows=${sevTds.length}`);
+  ok('every issue row rendered (no truncation)', vPanel.querySelectorAll('.vtableWrap tbody tr').length === sevTds.length, `tr=${vPanel.querySelectorAll('.vtableWrap tbody tr').length}`);
+  const hi = vPanel.innerHTML;
+  ok('explanatory note sits ABOVE the validation-detail toggle', hi.indexOf('class="note"') > -1 && hi.indexOf('class="note"') < hi.indexOf('class="vdetails"'));
+}
+
 // --- I-44: drill accordion a11y + row counts ---
 const expand = [...D.querySelectorAll('.expand')];
 ok('matrix drill cells exist', expand.length > 0, `count=${expand.length}`);
@@ -215,6 +242,117 @@ const box = D.querySelector('.help-modal .box');
 ok('help modal labelled by title', box && box.getAttribute('aria-labelledby') === 'helpTitle');
 const closeBtn = D.querySelector('.help-modal .close');
 ok('help close has aria-label', closeBtn && closeBtn.getAttribute('aria-label') === 'Close help');
+
+// --- I-75: a formula-error column surfaces as a FATAL item in the top errBanner ---
+model.warnings.push({ level:'fatal', code:'W-FORMULA', tab:'Latest Approval Status', message:'test recover instruction' });
+ctx.__rd(window.document.getElementById('app'), model);
+await new Promise(r => setTimeout(r, 300));
+const errBanner = D.getElementById('errBanner');
+ok('W-FORMULA fatal warning shows in the top errBanner', !!errBanner && errBanner.innerHTML.includes('W-FORMULA'), (errBanner||{}).innerHTML ? errBanner.innerHTML.slice(0,120) : 'no banner');
+
+// --- I-76: dismissible warning bar (spec §3.5) ---
+window.localStorage.removeItem('mdl_hideWarnings');
+const warnBtn = D.getElementById('warnBtn');
+const barEl = D.getElementById('errBanner');
+const nNotices = barEl.querySelectorAll('.sys-banner-item').length;
+ok('warn toggle button present and visible (≥1 warning)', !!warnBtn && warnBtn.hidden === false, (warnBtn||{}).hidden);
+ok('warn badge shows notice count', !!warnBtn && warnBtn.querySelector('.badge').textContent === String(nNotices), warnBtn && warnBtn.querySelector('.badge').textContent);
+ok('warning bar visible by default', !!barEl && barEl.hidden === false);
+warnBtn.click();
+ok('toggle collapses bar + aria-pressed=true', warnBtn.getAttribute('aria-pressed') === 'true' && barEl.hidden === true);
+ok('badge still shows count when collapsed', warnBtn.querySelector('.badge').textContent === String(nNotices));
+warnBtn.click();
+ok('toggle re-expands bar + aria-pressed=false', warnBtn.getAttribute('aria-pressed') === 'false' && barEl.hidden === false);
+ok('collapse preference persisted', window.localStorage.getItem('mdl_hideWarnings') === 'false');
+
+// --- I-83: chart panel owns its board + exactly one border per chart card (spec §4.1 rev 2026-10-13) ---
+const cpEl = D.getElementById('chartsPanel');
+const cGrid = cpEl && cpEl.querySelector('.charts');
+ok('chart panel has its own board (not panel-flat)', !!cpEl && !cpEl.classList.contains('panel-flat'), cpEl && cpEl.className);
+ok('chart cards are the grid\'s direct children', !!cGrid && cGrid.children.length === 2 && [...cGrid.children].every(c => c.classList.contains('chart')), cGrid && `children=${cGrid.children.length}`);
+ok('no nested chart card (exactly one border per chart)', !!cGrid && cGrid.querySelectorAll('.chart .chart').length === 0, cGrid && `nested=${cGrid.querySelectorAll('.chart .chart').length}`);
+
+// --- I-84: card heading names the view, not the selection (spec §4.1 rev 2026-10-13) ---
+const cardTitles = cGrid ? [...cGrid.children].map(c => ((c.querySelector(':scope > h3') || {}).textContent || '').trim()) : [];
+ok('chart card titles are the stable group names', cardTitles.length === 2 && cardTitles[0] === 'Documents' && cardTitles[1] === 'Issues', cardTitles.join(' | '));
+const firstCard = cGrid && cGrid.children[0];
+const dd = firstCard && firstCard.querySelector('select');
+if (dd && dd.options.length > 1) {
+  dd.selectedIndex = 1;
+  if (typeof dd.onchange === 'function') dd.onchange();
+  const headAfter = ((firstCard.querySelector(':scope > h3') || {}).textContent || '').trim();
+  const picked = dd.options[dd.selectedIndex].textContent.trim();
+  ok('card heading does not track the selected breakdown', headAfter.startsWith('Documents') && !headAfter.includes(picked), `heading="${headAfter}" picked="${picked}"`);
+}
+
+// --- I-85: S-curve panel structure, notes & absolute cumulative (spec §4.2 / §7.9 rev 2026-10-13) ---
+const cv = D.getElementById('curvePanel');
+const cvBody = cv && cv.querySelector('.curve-body');
+ok('S-curve plot is wrapped in one chart card board inside the panel', !!cvBody && cvBody.querySelectorAll('.chart').length === 1 && cvBody.children[0].classList.contains('chart'), cvBody && cvBody.children[0] && cvBody.children[0].className);
+const cvCard = cvBody && cvBody.querySelector('.chart');
+ok('period window sits on the card board, not the panel area', !!cvCard && !!cvCard.querySelector('.sc-win') && !cv.querySelector('.panel-head .sc-win'));
+ok('period window is not in the panel head', !!cv && !cv.querySelector('.panel-head .sc-win'));
+ok('curve card has no sub-title h3', !!cvBody && cvBody.querySelectorAll('h3').length === 0, cvBody && `h3=${cvBody.querySelectorAll('h3').length}`);
+const cvNote = cvBody && cvBody.querySelector('.curve-note');
+ok('curve note follows PPP wording', !!cvNote && /Project start:/.test(cvNote.textContent) && /red dashed line = project start/.test(cvNote.textContent) && /grey line = today/.test(cvNote.textContent), cvNote && cvNote.textContent.slice(0, 90));
+ok('no window-relative explain text (absolute cumulative)', !!cvBody && !/cumulative within period/.test(cvBody.textContent) && !/Reporting period/.test(cvBody.textContent));
+const cvSvg = cvBody && cvBody.querySelector('.curve-host svg');
+const cvHtml = (cvSvg && cvSvg.outerHTML) || '';
+const cvMsg = (cvBody && (cvBody.querySelector('.msg') || {}).textContent) || '';
+const monthsInWin = +((cvMsg.match(/\((\d+)\//) || [0, 0])[1]);
+const xLabels = (cvHtml.match(/>[A-Z][a-z]{2} \d{4}<\/text>/g) || []).length;   // I-88: "Mar 2026", was the raw "26-03" slice
+ok('every month is labelled on the x axis', monthsInWin > 0 && xLabels === monthsInWin, `months=${monthsInWin} labels=${xLabels}`);
+ok('chart width scales with the month count', !!cvSvg && +cvSvg.getAttribute('width') >= Math.max(440, monthsInWin * 64), `w=${cvSvg && cvSvg.getAttribute('width')} months=${monthsInWin}`);
+
+// --- I-86: S-curve appearance parity with PPP (spec §4.2 / §7.4) ---
+ok('cumulative lines use PPP dash patterns (6,3 / 2,2)', /stroke-dasharray="6,3"/.test(cvHtml) && /stroke-dasharray="2,2"/.test(cvHtml));
+ok('cumulative lines 2.5 weight + round caps', /stroke-width="2.5"/.test(cvHtml) && /stroke-linecap="round"/.test(cvHtml));
+ok('point markers r=3 present', /<circle[^>]*\sr="3"/.test(cvHtml));
+ok('bar values printed (12 px)', /font-size="12"/.test(cvHtml));
+ok('Start marker red dashed 5,3', /#C62828/.test(cvHtml) && /stroke-dasharray="5,3"/.test(cvHtml));
+const todayDrawn = /Today<\/text>/.test(cvHtml);
+ok('Today marker grey dashed when in range, never navy', !todayDrawn || (/#B8C2CC/.test(cvHtml) && !/#0F2D52/.test(cvHtml)), `todayDrawn=${todayDrawn}`);
+ok('5 y gridlines', (cvHtml.match(/stroke="#EAEFF5"/g) || []).length === 5, `n=${(cvHtml.match(/stroke="#EAEFF5"/g) || []).length}`);
+ok('axis / label text at 13 px', /font-size="13"/.test(cvHtml));
+ok('no HTML legend; in-SVG legend names the Cum. series', !!cvBody && cvBody.querySelectorAll('.legend').length === 0 && /Cum\. Plan/.test(cvHtml) && /Cum\. Forecast/.test(cvHtml) && /Cum\. Actual/.test(cvHtml));
+
+// --- I-86(i) + I-87: Bars toggle + scale-mode guardrail ---
+const cvBars = cvBody && cvBody.querySelector('.ctl-bars');
+ok('Bars toggle present with aria-pressed', !!cvBars && cvBars.hasAttribute('aria-pressed'), cvBars && cvBars.getAttribute('aria-pressed'));
+const barRects = () => (((cvBody.querySelector('.curve-host svg') || {}).outerHTML) || '').match(/<rect[^>]*><title>/g) || [];
+if (cvBars && typeof cvBars.onclick === 'function') {
+  const before = barRects().length;
+  cvBars.onclick();
+  const after = barRects().length;
+  ok('Bars toggle hides the monthly bars', before > 0 && after === 0, `before=${before} after=${after}`);
+  // I-88: dual is detected by the right-axis caption `per mo`, not by text-anchor="start" any more
+  // (the rotated bar values now also use text-anchor="start").
+  ok('bars hidden forces the shared scale (no right axis, no dual note)', !/right-hand scale/.test(cvBody.textContent) && !/>per mo<\/text>/.test(((cvBody.querySelector('.curve-host svg') || {}).outerHTML) || ''));
+  cvBars.onclick();
+  ok('Bars toggle restores the monthly bars', barRects().length === before, `n=${barRects().length}`);
+}
+const cluster = cvCard && cvCard.querySelector('.chart-actions');
+ok('controls form one right-aligned cluster on the card board', !!cluster && cluster.parentElement === cvCard);
+const clusterKids = cluster ? [...cluster.children].map(c => c.className) : [];
+ok('cluster order = period window -> Bars -> PNG -> Copy', JSON.stringify(clusterKids) === JSON.stringify(['toolbar sc-win','ctl-bars btn btn-secondary','dl btn btn-secondary','cp btn btn-secondary']), clusterKids.join(' | '));
+const clusterBtns = [...((cluster && cluster.querySelectorAll('button')) || [])];
+ok('cluster has no Reset button (removed 2026-10-13)', clusterBtns.length > 0 && !clusterBtns.some(b => /^\s*Reset\s*$/.test(b.textContent)), clusterBtns.map(b => b.textContent.trim()).join(' | '));
+ok('every cluster button uses the standard .btn class', clusterBtns.length > 0 && clusterBtns.every(b => b.classList.contains('btn')), clusterBtns.map(b => b.className).join(' | '));
+const styleText = (D.querySelector('style') || {}).textContent || '';
+ok('CSS contract: .chart-actions right-aligns to the card', /\.chart-actions\{[^}]*justify-content:\s*flex-end/.test(styleText));
+ok('CSS contract: .sc-win .msg is muted 12px', /\.sc-win \.msg\{[^}]*font-size:\s*12px[^}]*color:\s*var\(--muted\)/.test(styleText));
+ok('CSS contract: .sc-win .msg pushed right', /\.sc-win \.msg\{[^}]*margin-left:\s*auto/.test(styleText));
+const icPanel = D.getElementById('chartsPanel');
+const icCards = icPanel ? [...icPanel.querySelectorAll('.chart')] : [];
+ok('Interactive Chart cards keep controls inside the card and right-aligned (general rule §4.1)', icCards.length === 2 && icCards.every(c => !!c.querySelector('.head-actions.chart-actions')));
+const isDual = />per mo<\/text>/.test(((cvBody.querySelector('.curve-host svg') || {}).outerHTML) || '');
+ok('scale mode consistent: dual note iff right axis drawn', isDual === /right-hand scale/.test(cvBody.textContent), `dual=${isDual}`);
+const cvHtml3 = ((cvBody.querySelector('.curve-host svg') || {}).outerHTML) || '';
+const tickNums = [...cvHtml3.matchAll(/text-anchor="end"[^>]*font-size="13" fill="#6b7785">(\d+)<\/text>/g)].map(m => +m[1]);
+const barNums = [...cvHtml3.matchAll(/font-size="12" fill="#2b3440">(\d+)<\/text>/g)].map(m => +m[1]);
+const axisMax = Math.max(0, ...tickNums), barMax = Math.max(0, ...barNums);
+const ratio = barMax > 0 ? axisMax / barMax : 0;
+ok('guardrail: separate scales engage only when r = maxCum/maxBar > 10', isDual === (ratio > 10), `r=${ratio.toFixed(2)} dual=${isDual}`);
 
 let pass = 0;
 for (const c of checks) { console.log((c.pass ? 'PASS' : 'FAIL') + ' - ' + c.name + (c.extra ? '  [' + c.extra + ']' : '')); if (c.pass) pass++; }

@@ -136,12 +136,12 @@
      (Copy / Download / Reset / Export / Filter / Load-another-file). The filled `.btn`
      is the MDL primary; the segmented control (`.seg`) and round `.icon-btn` are their
      own MDL control types and keep their shapes. */
-  .ctool button, .sc-win .reset, .head-actions button, .btn.ghost{
+  .ctool button, .head-actions button, .btn.ghost{
     font:inherit;font-size:12px;font-weight:600;line-height:1.2;text-transform:none;letter-spacing:normal;
     min-height:32px;padding:7px 14px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
     border:1px solid var(--line);background:#fff;color:var(--navy);cursor:pointer;
     transition:background .15s,border-color .15s,color .15s}
-  .ctool button:hover, .sc-win .reset:hover, .head-actions button:hover, .btn.ghost:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .ctool button:hover, .head-actions button:hover, .btn.ghost:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
   .chartwrap{width:100%;overflow-x:auto;background:var(--chart-bg);border-radius:12px;padding:4px}
 
   /* ---------- interactive chart panel ---------- */
@@ -393,8 +393,7 @@
         <span class="lbl">Period window</span>
         <label class="rng">From <input type="range" class="wf" min="0" max="0" value="0"></label>
         <label class="rng">To <input type="range" class="wt" min="0" max="0" value="0"></label>
-        <button type="button" class="reset ctl-bars" id="poBarsBtn" aria-pressed="true" title="Show / hide the monthly bars">Bars</button>
-        <button type="button" class="reset">Reset</button>
+        <button type="button" class="ctl-bars" id="poBarsBtn" aria-pressed="true" title="Show / hide the monthly bars">Bars</button>
         <span class="msg" id="poWinMsg"></span>
       </div>
       <div class="curve-note" id="poProjNote"></div>
@@ -2156,10 +2155,9 @@ applyTheme(getTheme()==='dark' ? 'dark' : 'light');
 /* S-curve period window (MDL-style dual range) — wired once; redraws both charts */
 (function(){
   const win=document.getElementById('poWin'); if(!win) return;
-  const wf=win.querySelector('.wf'), wt=win.querySelector('.wt'), rst=win.querySelector('.reset');
+  const wf=win.querySelector('.wf'), wt=win.querySelector('.wt');
   if(wf) wf.addEventListener('input',()=>{ if(!pppScurveWin)return; pppScurveWin.from=+wf.value; drawPPSCurve(); });
   if(wt) wt.addEventListener('input',()=>{ if(!pppScurveWin)return; pppScurveWin.to=+wt.value; drawPPSCurve(); });
-  if(rst) rst.addEventListener('click',()=>{ if(!pppScurveWin||!pppScurveProgress)return; const n=pppScurveProgress.months.length; pppScurveWin={from:0,to:n-1,_n:n}; if(wf)wf.value=0; if(wt)wt.value=n-1; drawPPSCurve(); });
 })();
 /* Help modal (MDL pattern): one shared popup opened per-panel via the HELP map */
 const HELP = {
@@ -2204,8 +2202,8 @@ due in that month, and <b>cumulative S-curve lines</b> = running totals. Both us
 and the one value axis on the left, so a bar and a curve point with the same value sit at the
 same height. Plan, Forecast and Actual are each drawn as both a bar series and a cumulative
 line.</p>
-<p>Drag the <b>Period window</b> From / To sliders to focus a date range; <b>Reset</b> restores the
-full range. <b>Bars</b> toggles the monthly bars off so the cumulative S-curve can be read alone.
+<p>Drag the <b>Period window</b> From / To sliders to focus a date range. <b>Bars</b> toggles the
+monthly bars off so the cumulative S-curve can be read alone.
 Forecast is always shown — a package with no Forecast date falls back to its <b>Plan</b> date, so
 the Forecast series mirrors Plan when that column is blank. Plan and Forecast stop at their last
 real date; the cumulative <b>Actual</b> line runs through <b>today</b>, while Actual bars stop at

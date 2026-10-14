@@ -1,9 +1,9 @@
 // render.mjs — DOM rendering + filters + export for the MDL dashboard (browser).
 // Uses pipeline.buildModel + xlsx-reader.readXlsx. No external dependencies.
 import { readXlsx } from './xlsx-reader.mjs';
-import { buildModel, EXCLUDE_STAGES } from './pipeline.mjs';
+import { buildModel, EXCLUDE_STAGES, approvalCategory } from './pipeline.mjs';
 
-const COLORS = { blue:'#1E88E5', green:'#2E7D32', amber:'#F9A825', red:'#C62828', slate:'#64748B', navy:'#0F2D52', grey:'#B8C2CC' };
+const COLORS = { blue:'#1E88E5', green:'#2E7D32', amber:'#F9A825', red:'#C62828', slate:'#64748B', navy:'#0F2D52', grey:'#B8C2CC', blueGrey:'#78909C', purple:'#8E24AA' };
 const PALETTE = ['#1E88E5','#2E7D32','#F9A825','#C62828','#64748B','#7E57C2','#26A69A','#EC407A','#8D6E63','#42A5F5','#9CCC65','#FF7043'];
 const F = 'font-family="\'Segoe UI\', system-ui, -apple-system, \'Inter\', \'Source Sans Pro\', Roboto, Helvetica, Arial, sans-serif"';
 const esc = s => (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -48,7 +48,7 @@ header.app .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .sys-banner-item.info{background:#e8eef5;color:#33526b}
 .sys-banner-item b{font-weight:700;margin-right:4px}
 /* fixed top warning bar (PPP standard, spec §3.5) — unified with load failures */
-#errBanner{display:none;position:fixed;left:0;right:0;z-index:30;font-size:12px;line-height:1.4;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+#errBanner{display:block;position:fixed;left:0;right:0;z-index:30;font-size:12px;line-height:1.4;box-shadow:0 2px 10px rgba(0,0,0,.18)}#errBanner[hidden]{display:none}
 body.banner-open .wrap{padding-top:calc(16px + var(--banner-h,0px))}
 .wrap{max-width:1320px;margin:0 auto;padding:16px;padding-bottom:52px}
 .status-bar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;gap:8px;padding:6px 14px;background:var(--navy);color:#E8EDF3;font-size:12px;user-select:none;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
@@ -61,12 +61,14 @@ body.banner-open .wrap{padding-top:calc(16px + var(--banner-h,0px))}
 @media print{.status-bar{display:none}}
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 14px 26px;margin:14px 0;box-shadow:0 1px 2px rgba(15,45,82,.04);position:relative}
 .panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:.04em;color:var(--muted);pointer-events:none}
+.panel.panel-flat{border:0;background:transparent;box-shadow:none}
 .panel h2{font-size:13px;margin:0 0 10px;color:var(--navy);text-transform:uppercase;letter-spacing:.04em;display:flex;justify-content:space-between}
 
 .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
 .kpi{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;padding:10px}
 .kpi .v{font-size:22px;font-weight:700;color:var(--navy)} .kpi .l{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:2px}
 .kpi.warn{border-top-color:var(--red)} .kpi.ok{border-top-color:var(--green)} .kpi.amb{border-top-color:var(--amber)}
+.kpi.muted{border-top-color:var(--slate)} .kpi.err{border-top-color:#8E24AA}
 .subkpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
 .subkpi{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
 .subkpi .v{font-size:16px;font-weight:700;color:var(--navy)} .subkpi .l{font-size:10px;color:var(--muted)}
@@ -77,6 +79,7 @@ body.banner-open .wrap{padding-top:calc(16px + var(--banner-h,0px))}
 .panel-head .toolbar{margin-bottom:0}
 .curve-note{font-size:12px;color:var(--muted);margin:2px 0 8px}
 .head-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.chart-actions{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:6px}
 .head-actions .lbl{display:inline-flex;align-items:center;gap:6px;margin:0;font-weight:600;font-size:12px;color:var(--navy)}
 .panel-body{display:block}
 .panel.collapsed .panel-body{display:none}
@@ -85,7 +88,7 @@ body.banner-open .wrap{padding-top:calc(16px + var(--banner-h,0px))}
 .help-modal .box{background:#fff;border:1px solid var(--border);border-radius:12px;max-width:680px;width:100%;max-height:84vh;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.25)}
 .help-modal .box header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border)}
 .help-modal .box header h3{margin:0;font-size:15px;color:var(--navy)}
-.help-modal .box .close{font-size:16px;line-height:1;padding:4px 10px}
+/* A4: the modal close is a plain .icon-btn — 26 px square, no size/padding override (spec §7.1). */
 .help-modal .box .body{overflow:auto;padding:16px 18px;font-size:13px;line-height:1.55;color:#22303f}
 .help-modal .body h4{margin:16px 0 6px;font-size:13px;color:var(--navy)}
 .help-modal .body h4:first-child{margin-top:0}
@@ -104,6 +107,9 @@ body.banner-open .wrap{padding-top:calc(16px + var(--banner-h,0px))}
 .btn-secondary:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
 .btn-active{background:var(--navy);color:#fff;border-color:var(--navy)}
 .btn-active:hover{background:#0b2240;border-color:#0b2240}
+.btn .badge{background:#e0533d;color:#fff;border-radius:999px;padding:0 6px;font-size:11px;font-weight:700;min-width:16px;text-align:center;line-height:1.5}
+.btn[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.app-bar .warn-toggle{margin-left:6px}
 .seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
 .seg button{border:0;background:#fff;color:var(--navy);padding:7px 14px;min-height:32px;font-size:12px;font-weight:600;cursor:pointer;border-right:1px solid var(--border);text-transform:none;letter-spacing:0}
 .seg button:last-child{border-right:0}
@@ -137,9 +143,9 @@ select.inter-sel.is-attached{border:0;border-right:1px solid var(--border);backg
 .tf-panel .tf-item .nc{margin-left:auto;font-size:10px;font-weight:600;color:var(--muted);white-space:nowrap}
 .tf-panel .tf-item.tf-nc>span:first-of-type{color:var(--muted)}
 .sb-loading{opacity:.85;font-weight:600}
-.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;font-size:12px;font-weight:600;line-height:1.2;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--navy);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
-.icon-btn:hover{background:var(--soft);color:var(--navy);border-color:var(--blue)}
-.toolbar .msg{font-size:10px;color:var(--green)}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;min-height:26px;padding:0;font:inherit;font-size:13px;font-weight:600;line-height:1;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--muted);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.icon-btn:hover{background:var(--soft);color:var(--navy);border-color:var(--line)}
+.sc-win .msg{font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap}
 /* Toast (spec §7.10) — fixed, centred, above the status bar (z-index 45) */
 #toast{position:fixed;left:50%;bottom:52px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;align-items:center;z-index:45;pointer-events:none;max-width:min(92vw,440px)}
 .toast{pointer-events:auto;display:flex;align-items:center;gap:8px;min-width:180px;max-width:440px;padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.3;color:#fff;background:var(--navy);box-shadow:0 6px 20px rgba(15,45,82,.28);opacity:0;transform:translateY(12px);transition:opacity .2s ease,transform .2s ease;cursor:pointer}
@@ -151,9 +157,10 @@ select.inter-sel.is-attached{border:0;border-right:1px solid var(--border);backg
 .toast-warning{background:var(--amber);color:#3a2a00}
 .toast-error{background:var(--red)}
 @media (prefers-reduced-motion: reduce){ .toast{transition:opacity .2s ease;transform:none} .toast.show{transform:none} }
-.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch}
 .curve-body{display:flex;flex-direction:column;gap:12px}
 .curve-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.curve-host{width:100%;overflow-x:auto}
 .legend{display:flex;gap:14px;font-size:12px;margin-top:8px;flex-wrap:wrap;color:var(--navy)}
 .legend .sw{width:12px;height:12px;border-radius:3px;display:inline-block;margin-right:4px;vertical-align:-1px}
 .sc-win .lbl{margin-right:6px;font-size:12px;font-weight:600;color:var(--muted)}
@@ -164,6 +171,8 @@ select.inter-sel:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 @media(max-width:880px){.kpis{grid-template-columns:repeat(2,1fr)}.subkpis{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}.curve-grid{grid-template-columns:1fr}}
 .chart{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;flex-direction:column}
 .chart h3{font-size:13px;font-weight:700;margin:0 0 8px;color:var(--navy)}
+.chart .chart-host{flex:1 1 auto;display:flex;align-items:center;justify-content:center;min-height:300px}
+.chart .chart-host svg{max-width:100%}
 .chart svg{display:block;height:auto;max-width:100%}
 .filters{display:block}
 .filters .grp{border:1px solid var(--border);border-radius:8px;padding:6px 10px;background:#fff}
@@ -198,11 +207,29 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .p-rej{background:var(--error-bg);color:var(--error-fg)} .p-nap{background:var(--grid);color:var(--slate)}
 .p-sur{background:var(--soft);color:var(--accent-ink)} .p-rtr{background:#FFF0E0;color:#b5651d}
 .p-nts{background:var(--ok-bg);color:var(--ok-fg)}
+.p-pend{background:#E3F2FD;color:#0D47A1} .p-unav{background:#ECEFF1;color:#546E7A}
+.p-nsub{background:#E8EEF1;color:#37474F} .p-rerr{background:#F3E5F5;color:#6A1B9A}
 .sev-error,.sev-warning,.sev-info{display:inline-block;padding:1px 8px;border-radius:999px;font-size:10px;font-weight:600;white-space:nowrap}
 .sev-error{background:var(--error-bg);color:var(--error-fg)}
 .sev-warning{background:var(--warn-bg);color:var(--warn-fg)}
 .sev-info{background:var(--soft);color:var(--accent-ink)}
 .act{color:var(--ok-fg);font-weight:700} .ina{color:var(--slate)}
+/* Validation-panel severity summary chips — PPP shape (spec §4.5 overrides §7.10's 999px pill) */
+.vchips{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
+.vchip{display:inline-flex;align-items:center;gap:4px;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;text-transform:capitalize;line-height:1.4;white-space:nowrap}
+.vchip.e{background:var(--error-bg);color:var(--error-fg)}
+.vchip.w{background:var(--warn-bg);color:var(--warn-fg)}
+.vchip.i{background:var(--soft);color:var(--accent-ink)}
+.vchip.ok{background:var(--ok-bg);color:var(--ok-fg)}
+/* Validation detail: collapsible <details> (starts collapsed) holding #vmap, #vref, the per-issue table */
+.vdetails{border-top:1px solid var(--line);margin-top:8px}
+.vdetails>summary{cursor:pointer;padding:8px 2px;font-weight:600;color:var(--accent-ink)}
+.vdetails>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.vdetails .vbody{padding:4px 0 8px}
+.vnote{border:1px solid var(--line);border-radius:8px;background:var(--soft);padding:8px 10px;font-size:12px;color:var(--text);margin:6px 0}
+.vrefcard{border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:6px 0}
+.vrefhead{padding:6px 10px;font-size:12px;font-weight:600;color:var(--navy);background:var(--soft);border-bottom:1px solid var(--line)}
+.vrefcard .tableScroll{border:0;border-radius:0;margin-top:0}
 .tableScroll{overflow:auto;max-height:340px;margin-top:8px;border:1px solid var(--border);border-radius:10px}
 .tableScroll table th{cursor:default}
 /* === .ds-table base (spec §7.2) === */
@@ -242,61 +269,118 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 
 
 .hidden{display:none}
-@media print{body{background:#fff}.panel{break-inside:avoid;box-shadow:none}.filters,.toolbar{display:none}header.app{position:static}#errBanner{display:none}body.banner-open .wrap{padding-top:16px}.panel.collapsed .panel-body{display:block}}
+@media print{body{background:#fff}.panel{break-inside:avoid;box-shadow:none}.filters,.toolbar{display:none}header.app{position:static}#errBanner{display:none!important}body.banner-open .wrap{padding-top:16px}.panel.collapsed .panel-body{display:block}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 `;
 
 // ---------- SVG chart renderers ----------
 function barSVG(title, data){
   const max = Math.max(1, ...data.map(d=>d.value));
-  const W=560, rowH=22, padTop=24, nameW=92, valW=44, trackX=nameW+4, trackW=W-nameW-valW-8, H=padTop+data.length*rowH+6;
+  const W=560, padTop=24, padBot=6, targetH=300, nameW=92, valW=44, trackX=nameW+4, trackW=W-nameW-valW-8;
+  const n=Math.max(1,data.length), avail=targetH-padTop-padBot;
+  const rowH=Math.max(16, Math.min(40, avail/n));                       // spread rows over the common 300px plot height
+  const blockH=n*rowH, H=Math.max(targetH, padTop+blockH+padBot);
+  const top=padTop+Math.max(0,(targetH-padTop-padBot-blockH)/2);        // centre a short block in the 300px area
+  const bh=13;
   let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
   s+=`<text x="0" y="16" ${F} font-size="12" font-weight="bold" fill="${COLORS.navy}">${esc(title)}</text>`;
-  data.forEach((d,i)=>{ const y=padTop+i*rowH, c=d.color||COLORS.blue;
-    s+=`<text x="0" y="${y+12}" ${F} font-size="11" fill="${COLORS.slate}">${esc(d.name)}</text>`;
-    s+=`<rect x="${trackX}" y="${y+1}" width="${trackW}" height="13" rx="2" fill="#F6F8FA"/>`;
-    s+=`<rect x="${trackX}" y="${y+1}" width="${(d.value/max)*trackW}" height="13" rx="2" fill="${c}"/>`;
-    s+=`<text x="${W-2}" y="${y+12}" text-anchor="end" ${F} font-size="11" font-weight="bold" fill="${COLORS.navy}">${d.value}</text>`;
+  data.forEach((d,i)=>{ const y=top+i*rowH, by=y+(rowH-bh)/2, c=d.color||COLORS.blue;
+    s+=`<text x="0" y="${(by+10).toFixed(1)}" ${F} font-size="11" fill="${COLORS.slate}">${esc(d.name)}</text>`;
+    s+=`<rect x="${trackX}" y="${by.toFixed(1)}" width="${trackW}" height="${bh}" rx="2" fill="#F6F8FA"/>`;
+    s+=`<rect x="${trackX}" y="${by.toFixed(1)}" width="${(d.value/max)*trackW}" height="${bh}" rx="2" fill="${c}"/>`;
+    s+=`<text x="${W-2}" y="${(by+10).toFixed(1)}" text-anchor="end" ${F} font-size="11" font-weight="bold" fill="${COLORS.navy}">${d.value}</text>`;
   });
   s+=`</svg>`; return s;
 }
 function pieSVG(title, data){
   const total = Math.max(1, data.reduce((a,b)=>a+b.value,0));
-  const cx=72, cy=84, r=60, W=560, H=180;
+  const cx=150, cy=172, r=112, W=560, H=300;                 // H=300 matches the bar chart's common plot height
   let a0=-Math.PI/2; let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
   s+=`<text x="0" y="16" ${F} font-size="12" font-weight="bold" fill="${COLORS.navy}">${esc(title)}</text>`;
-  s+=`<g transform="translate(130,0)">`;
   data.forEach(d=>{ const a1=a0+(d.value/total)*2*Math.PI, c=d.color||COLORS.blue;
     const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1),lg=(a1-a0)>Math.PI?1:0;
     s+=`<path d="M${cx},${cy} L${x0.toFixed(2)},${y0.toFixed(2)} A${r},${r} 0 ${lg} 1 ${x1.toFixed(2)},${y1.toFixed(2)} Z" fill="${c}"/>`; a0=a1; });
-  let ly=40; data.forEach(d=>{ s+=`<rect x="156" y="${ly-9}" width="10" height="10" rx="2" fill="${d.color||COLORS.blue}"/>`;
-    s+=`<text x="172" y="${ly}" ${F} font-size="11" fill="${COLORS.slate}">${esc(d.name)} ${d.value}</text>`; ly+=20; });
-  s+=`</g>`;
+  let ly=60; data.forEach(d=>{ s+=`<rect x="330" y="${ly-9}" width="10" height="10" rx="2" fill="${d.color||COLORS.blue}"/>`;
+    s+=`<text x="346" y="${ly}" ${F} font-size="11" fill="${COLORS.slate}">${esc(d.name)} ${d.value}</text>`; ly+=20; });
   s+=`</svg>`; return s;
+}
+// I-87: shared single y-scale is the DEFAULT; a separate bar scale engages automatically (and only)
+// when the cumulative totals dwarf the monthly bars. Hysteresis stops slider drag flickering.
+export function scurveAxisMode({maxCum,maxBar,barsVisible,current}){
+  if(!barsVisible || !isFinite(maxBar) || maxBar<=0) return 'single';
+  if(!isFinite(maxCum) || maxCum<=0) return 'single';
+  const r=maxCum/maxBar;
+  if(current==='dual') return r<6 ? 'single' : 'dual';   // retain 6…10, revert below 6
+  return r>10 ? 'dual' : 'single';                       // engage above 10
 }
 function combinedProgressSVG(p, from, to){
   const FF='font-family="\'Segoe UI\', system-ui, -apple-system, \'Inter\', \'Source Sans Pro\', Roboto, Helvetica, Arial, sans-serif"';
-  const W=560,H=360,L=46,R=16,T=16,B=44, pw=W-L-R, ph=H-T-B;
   const idx=[]; for(let i=from;i<=to;i++) idx.push(i);
-  const base = (from>0 && typeof p.pCum[from-1]==='number') ? p.pCum[from-1] : 0;   // anchor cumulative at the window start
-  const relCum = k => i => (p[k][i]||0) - base;                                       // progress accumulated WITHIN the reporting period
-  let maxY=1; for(const i of idx){ const v=Math.max(relCum('pCum')(i),relCum('fCum')(i),relCum('aCum')(i),p.pNew[i]||0,p.fNew[i]||0,p.aNew[i]||0); if(v>maxY) maxY=v; }
-  const m=idx.length, gw=pw/m, bw=Math.min(10,gw/3.4);
-  const Xc=i=> L+gw*idx.indexOf(i)+gw/2;
-  const Y=v=> T+ph-(v/maxY)*ph;
+  const m=idx.length, H=380, T=16, B=64, padL=46, nb=3;
+  const barsVisible = curveShowBars!==false;
+  // I-86: each series stops at its last real date; cumulative Actual runs through today.
+  const lastValueIdx = k => { const a=p[k]||[]; let l=-1; for(let i=0;i<a.length;i++) if((a[i]||0)>0) l=i; return l; };
+  const lastChangeIdx = k => { const a=p[k]||[]; let l=-1; for(let i=0;i<a.length;i++){ const prev=i>0?(a[i-1]||0):0; if((a[i]||0)!==prev) l=i; } return l; };
+  const asof=(typeof p.asofIdx==='number')?p.asofIdx:-1;
+  const cut={ pNew:lastValueIdx('pNew'), fNew:lastValueIdx('fNew'), aNew:lastValueIdx('aNew'),
+              pCum:lastChangeIdx('pCum'), fCum:lastChangeIdx('fCum'), aCum:Math.max(lastChangeIdx('aCum'),asof) };
+  const vis = k => idx.filter(i => i>=0 && i<=cut[k]);
+  let maxCum=1, maxBar=0;
+  ['pCum','fCum','aCum'].forEach(k=>{ vis(k).forEach(i=>{ const v=p[k][i]||0; if(v>maxCum) maxCum=v; }); });
+  ['pNew','fNew','aNew'].forEach(k=>{ vis(k).forEach(i=>{ const v=p[k][i]||0; if(v>maxBar) maxBar=v; }); });
+  const mode=scurveAxisMode({maxCum,maxBar,barsVisible,current:curveLastScaleMode}); curveLastScaleMode=mode;
+  const padR=(mode==='dual')?52:18;
+  const W=Math.max(440, m*64+padL+padR), pw=W-padL-padR, ph=H-T-B;   // I-85: width scales with month count
+  const maxY=Math.max(1,maxCum,(mode==='dual'?0:maxBar)), maxBarY=Math.max(1,maxBar);
+  const gw=pw/m, bw=Math.min(18,(gw*0.62)/nb);                        // I-86: PPP bar geometry
+  const Xc=i=> padL+gw*idx.indexOf(i)+gw/2;
+  const Y =v=> T+ph-(v/maxY)*ph;
+  const Yb=v=> T+ph-((mode==='dual'? v/maxBarY : v/maxY))*ph;
   let g='';
-  for(let s=0;s<=5;s++){ const v=Math.round(maxY*s/5), y=Y(v); g+=`<line x1="${L}" y1="${y}" x2="${L+pw}" y2="${y}" stroke="#EAEFF5" stroke-width="1"/><text x="${L-6}" y="${y+3}" text-anchor="end" ${FF} font-size="10" fill="#6b7785">${v}</text>`; }
-  const every=Math.max(1,Math.ceil(m/12));
-  idx.forEach(i=>{ const xc=Xc(i); if(i%every===0) g+=`<text x="${xc}" y="${T+ph+14}" text-anchor="middle" ${FF} font-size="10" fill="#6b7785">${p.months[i].slice(2)}</text>`;
-    [['pNew',COLORS.blue],['fNew',COLORS.amber],['aNew',COLORS.green]].forEach(([k,c],bi)=>{ const v=p[k][i], x=xc-bw*1.5+bi*bw, y=Y(v), h=T+ph-y; g+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(bw-1.5).toFixed(1)}" height="${h.toFixed(1)}" fill="${c}" opacity="0.55"/>`; }); });
-  [['pCum',COLORS.blue],['fCum',COLORS.amber],['aCum',COLORS.green]].forEach(([k,c])=>{ const pts=idx.map(i=>`${Xc(i).toFixed(1)},${Y(relCum(k)(i)).toFixed(1)}`).join(' '); g+=`<polyline fill="none" stroke="${c}" stroke-width="2" points="${pts}"/>`; });
-  g+=`<line x1="${L}" y1="${T+ph}" x2="${L+pw}" y2="${T+ph}" stroke="#C9D4E0" stroke-width="1"/><line x1="${L}" y1="${T}" x2="${L}" y2="${T+ph}" stroke="#C9D4E0" stroke-width="1"/>`;
+  for(let i=0;i<5;i++){ const v=Math.round(maxY*i/4), y=Y(v);          // I-86: 5 gridlines, 13 px
+    g+=`<line x1="${padL}" y1="${y}" x2="${padL+pw}" y2="${y}" stroke="#EAEFF5" stroke-width="1"/><text x="${padL-6}" y="${y+4}" text-anchor="end" ${FF} font-size="13" fill="#6b7785">${v}</text>`; }
+  g+=`<text x="${padL-6}" y="${T-4}" text-anchor="end" ${FF} font-size="13" fill="#6b7785">Docs</text>`;
+  if(mode==='dual'){
+    for(let i=0;i<5;i++){ const v=Math.round(maxBarY*i/4), y=Yb(v);
+      g+=`<text x="${padL+pw+6}" y="${y+4}" text-anchor="start" ${FF} font-size="13" fill="#6b7785">${v}</text>`; }
+    g+=`<text x="${padL+pw+6}" y="${T-4}" text-anchor="start" ${FF} font-size="13" fill="#6b7785">per mo</text>`;
+    g+=`<line x1="${padL+pw}" y1="${T}" x2="${padL+pw}" y2="${T+ph}" stroke="#C9D4E0" stroke-width="1"/>`;
+  }
+  if(barsVisible) idx.forEach(i=>{ const xc=Xc(i);
+    [['pNew',COLORS.blue,'Planned'],['fNew',COLORS.amber,'Forecast'],['aNew',COLORS.green,'Actual']].forEach(([k,c,lab],bi)=>{
+      if(i>cut[k]) return; const v=p[k][i]||0; if(v<=0) return;
+      const x=xc-bw*1.5+bi*bw, y=Yb(v), h=T+ph-y;
+      g+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(bw-1.5).toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${c}" opacity="0.55"><title>${lab} ${monthLabel(p.months[i])}: ${v}</title></rect>`;
+      /* I-88: the value above each bar is printed VERTICALLY (rotate -90°, reads bottom-to-top).
+         Horizontal digits collide as soon as the bars get close together; a rotated label keeps a
+         fixed ~12 px footprint no matter how many digits the count has. */
+      if(bw>=9){ const tx=(x+(bw-1.5)/2+4).toFixed(1), ty=(y-3).toFixed(1);
+        g+=`<text x="${tx}" y="${ty}" text-anchor="start" transform="rotate(-90 ${tx} ${ty})" ${FF} font-size="12" fill="#2b3440">${v}</text>`; }
+    }); });
+  [['pCum',COLORS.blue,'6,3','Cum. Plan'],['fCum',COLORS.amber,'2,2','Cum. Forecast'],['aCum',COLORS.green,'','Cum. Actual']].forEach(([k,c,dash,lab])=>{
+    const pts=vis(k); if(!pts.length) return;                          // I-86: PPP dash + 2.5 weight + round caps
+    g+=`<polyline fill="none" stroke="${c}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"${dash?` stroke-dasharray="${dash}"`:''} points="${pts.map(i=>`${Xc(i).toFixed(1)},${Y(p[k][i]||0).toFixed(1)}`).join(' ')}"/>`;
+    // I-88: nodes are SOLID dots filled with the series colour (PPP #poChart) — never hollow rings.
+    pts.forEach(i=>{ const v=p[k][i]||0; g+=`<circle cx="${Xc(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="3" fill="${c}"><title>${lab} ${monthLabel(p.months[i])}: ${v}</title></circle>`; });
+  });
+  g+=`<line x1="${padL}" y1="${T+ph}" x2="${padL+pw}" y2="${T+ph}" stroke="#C9D4E0" stroke-width="1"/><line x1="${padL}" y1="${T}" x2="${padL}" y2="${T+ph}" stroke="#C9D4E0" stroke-width="1"/>`;
+  // I-88: month axis uses the shared `MMM YYYY` template (e.g. "Mar 2026") — never a raw "26-03" slice.
+  idx.forEach(i=>{ g+=`<text x="${Xc(i).toFixed(1)}" y="${T+ph+16}" text-anchor="middle" ${FF} font-size="13" fill="#6b7785">${monthLabel(p.months[i])}</text>`; });
   if(typeof p.projStartIdx==='number' && p.projStartIdx>=from && p.projStartIdx<=to){ const x=Xc(p.projStartIdx);
-    g+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${T+ph}" stroke="#C62828" stroke-width="1.5" stroke-dasharray="4 3"/>`;
-    g+=`<text x="${x.toFixed(1)}" y="${T-4}" text-anchor="middle" ${FF} font-size="10" fill="#C62828">Start</text>`; }
+    g+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${T+ph}" stroke="#C62828" stroke-width="1.5" stroke-dasharray="5,3"/><text x="${x.toFixed(1)}" y="${T-4}" text-anchor="middle" ${FF} font-size="13" fill="#C62828">Start</text>`; }
   if(typeof p.asofIdx==='number' && p.asofIdx>=from && p.asofIdx<=to){ const x=Xc(p.asofIdx);
-    g+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${T+ph}" stroke="#0F2D52" stroke-width="1.5"/>`;
-    g+=`<text x="${x.toFixed(1)}" y="${T-4}" text-anchor="middle" ${FF} font-size="10" fill="#0F2D52">Today</text>`; }
+    g+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${T+ph}" stroke="#B8C2CC" stroke-width="1.5" stroke-dasharray="2,2"/><text x="${x.toFixed(1)}" y="${T-4}" text-anchor="middle" ${FF} font-size="13" fill="#68727d">Today</text>`; }
+  // I-86/I-88: in-SVG legend — ONE left-aligned row, laid out sequentially from the left edge
+  // (mirrors PPP #poChart: swatches for bars, dashed segments for cum lines; not two rows spread across width).
+  let lx=padL;
+  if(barsVisible){
+    [['Planned',COLORS.blue],['Forecast',COLORS.amber],['Actual',COLORS.green]].forEach(([lab,c])=>{
+      g+=`<rect x="${lx}" y="${H-13}" width="10" height="10" rx="2" fill="${c}" opacity="0.55"/><text x="${lx+15}" y="${H-4}" ${FF} font-size="13" fill="#2b3440">${lab}</text>`;
+      lx+=15+lab.length*7+20; });
+  }
+  [['Cum. Plan',COLORS.blue,'6,3'],['Cum. Forecast',COLORS.amber,'2,2'],['Cum. Actual',COLORS.green,'']].forEach(([lab,c,dash])=>{
+    g+=`<line x1="${lx}" y1="${H-8}" x2="${lx+18}" y2="${H-8}" stroke="${c}" stroke-width="2.5"${dash?` stroke-dasharray="${dash}"`:''}/><text x="${lx+24}" y="${H-4}" ${FF} font-size="13" fill="#2b3440">${lab}</text>`;
+    lx+=24+lab.length*7+20; });
   return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid meet">${g}</svg>`;
 }
 function svgToBlob(svgEl, cb){
@@ -380,6 +464,8 @@ if (typeof document !== 'undefined' && !toastKeydownBound) {
 
 function statusColor(name){
   return ({APP:COLORS.green,AWC:COLORS.amber,REJ:COLORS.red,NAP:COLORS.slate,'Not Available':COLORS.grey,
+           'Submitted – Pending Review':COLORS.blue,'Submitted – Status Unavailable':COLORS.grey,
+           'Not Submitted':COLORS.blueGrey,'Record Error':COLORS.purple,
            YES:COLORS.green,NO:COLORS.slate,
            'On track':COLORS.green,'At risk':COLORS.amber,
            'Overdue – 1st':COLORS.red,'Overdue – Resub':COLORS.red,'Overdue – Client':COLORS.red})[name] || COLORS.blue;
@@ -405,13 +491,23 @@ export function deriveView(model, state){
 
   // KPIs
   const cnt = p => active.filter(p).length;
+  // I-78: approval-derived KPIs come from the single approvalCategory classifier (I-77) — the
+  // submission gate (Actual 1st Issue Date) takes precedence over Latest Approval Status, so the
+  // four approval KPIs count Case 3 only; three new cards surface Pending Review / Not Submitted /
+  // Record Error. The submission gate treats a date formula-error as present.
+  const catCount = {};
+  active.forEach(r => { const c = approvalCategory(r); catCount[c] = (catCount[c]||0)+1; });
+  const isSubmitted = r => (r.fields['Actual 1st Issue Date']||'')!=='' || !!(r.fieldErrors && r.fieldErrors.has('Actual 1st Issue Date'));
   const kpis = {
     totalPlanned: active.length,
-    submitted: cnt(r=>(r.fields['Actual 1st Issue Date']||'')!==''),
-    approvedAPP: cnt(r=>r.fields['Latest Approval Status']==='APP'),
-    approvedAWC: cnt(r=>r.fields['Latest Approval Status']==='AWC'),
-    rejected: cnt(r=>r.fields['Latest Approval Status']==='REJ'),
-    notApproved: cnt(r=>r.fields['Latest Approval Status']==='NAP'),
+    submitted: active.filter(isSubmitted).length,
+    approvedAPP: catCount['APP']||0,
+    approvedAWC: catCount['AWC']||0,
+    rejected: catCount['REJ']||0,
+    notApproved: catCount['NAP']||0,
+    pendingReview: catCount['Submitted – Pending Review']||0,
+    notSubmitted: catCount['Not Submitted']||0,
+    recordError: catCount['Record Error']||0,
     asBuiltYes: cnt(r=>r.fields['As-Built']==='YES'),
     vendorYes: cnt(r=>r.fields['Vendor Data']==='YES'),
     activeDisciplines: new Set(active.map(r=>r.discipline).filter(Boolean)).size,
@@ -422,7 +518,16 @@ export function deriveView(model, state){
   const bad = new Set(); issues.forEach(i=>{ if(cg.has(i.code)) bad.add(i.sourceTab+'!'+i.rownum); });
   kpis.completeness = active.length ? Math.round((1-bad.size/active.length)*1000)/10 : null;
   const firstOverdue = active.filter(r=>{const t=r.fields['Forecast 1st Issue Date']||r.fields['Planned 1st Issue Date'];const dt=isoStrToDate(t);return t&&dt&&(r.fields['Actual 1st Issue Date']||'')===''&&wdBetween(dt,dT)>=1;});
-  const subOverdue = active.filter(r=>{const y=r.fields['Latest Approval Status'],x=r.fields['Latest Approval Date'],u=r.fields['Actual 1st Issue Date'];return u&&['REJ','RTR'].includes(y)&&x&&wdBetween(isoStrToDate(x),dT)>model.contract.reviewRules.resubmissionDuration;});
+  // I-82: gate on approvalCategory so a REJ without a submission date (Record Error) is NOT a real
+  // resub-overdue; a date formula-error in Actual 1st Issue Date still counts as submitted. RTR is
+  // gated on the same error-aware submission flag.
+  const subOverdue = active.filter(r=>{
+    const y=r.fields['Latest Approval Status'];
+    const u=(r.fields['Actual 1st Issue Date']||'')!=='' || !!(r.fieldErrors && r.fieldErrors.has('Actual 1st Issue Date'));
+    if(!(approvalCategory(r)==='REJ' || (y==='RTR' && u))) return false;
+    const x=r.fields['Latest Approval Date'];
+    return x && wdBetween(isoStrToDate(x),dT) > model.contract.reviewRules.resubmissionDuration;
+  });
   const cliOverdue = active.filter(r=>{const w=r.fields['Submission Status'],u=r.fields['Actual 1st Issue Date'];return w==='SUR'&&u&&wdBetween(isoStrToDate(u),dT)>model.contract.reviewRules.firstClientReview;});
   const overdueDelay=(type,r)=>{
     const f=r.fields;
@@ -441,8 +546,10 @@ export function deriveView(model, state){
   // charts
   const gc=(fn,scope)=>{const m={};scope.forEach(r=>{const k=fn(r);if(k==null||k==='')return;m[k]=(m[k]||0)+1;});return m;};
   const toArr=m=>Object.entries(m).map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value);
-  const appM=gc(r=>r.fields['Latest Approval Status']||'—',active);
-  const appStatus=[{name:'APP',value:appM['APP']||0},{name:'AWC',value:appM['AWC']||0},{name:'REJ',value:appM['REJ']||0},{name:'NAP',value:appM['NAP']||0},{name:'Not Available',value:active.filter(r=>!['APP','AWC','REJ','NAP'].includes(r.fields['Latest Approval Status']||'')).length}];
+  // I-80: Approval chart now shows the full approvalCategory split (gated on Actual 1st Issue Date) —
+  // APP/AWC/REJ/NAP, Submitted – Pending Review, Submitted – Status Unavailable, Not Submitted, Record
+  // Error — instead of a single "Not Available" bucket.
+  const appStatus = toArr(gc(r=>approvalCategory(r), active));
   const atRisk=active.filter(r=>{const t=r.fields['Forecast 1st Issue Date']||r.fields['Planned 1st Issue Date'];return t&&(r.fields['Actual 1st Issue Date']||'')===''&&isoStrToDate(t)>dT&&wdBetween(dT,isoStrToDate(t))<=14;});
   const onTrack=active.filter(r=>{const k=r.sourceTab+'!'+r.rownum;return !ov.has(k)&&!atRisk.includes(r);});
   const dqDisc={}; issues.forEach(i=>{if(i.discipline)dqDisc[i.discipline]=(dqDisc[i.discipline]||0)+1;});
@@ -500,10 +607,13 @@ function buildMatrix(active, foSet, soSet, coSet, curMonth){
   const fcastMo = r => !!curMonth && (r.fields['Forecast 1st Issue Date']||r.fields['Planned 1st Issue Date']||'').slice(0,7)===curMonth;
   const actualMo = r => !!curMonth && (r.fields['Actual 1st Issue Date']||'').slice(0,7)===curMonth;
   const bump=(o,r)=>{ const k=keyOf(r); o.Planned++;
-    if((r.fields['Actual 1st Issue Date']||'')!=='') o.Submitted++;
+    // I-79: Submitted is error-aware (a date formula-error counts as submitted), matching the KPI.
+    if((r.fields['Actual 1st Issue Date']||'')!=='' || !!(r.fieldErrors && r.fieldErrors.has('Actual 1st Issue Date'))) o.Submitted++;
     if(planMo(r)) o.PlanMo++; if(fcastMo(r)) o.FcastMo++; if(actualMo(r)) o.ActualMo++;
-    const y=r.fields['Latest Approval Status'];
-    if(y==='APP') o.Approved++; else if(y==='AWC') o.AWC++; else if(y==='REJ') o.REJ++; else if(y==='NAP') o.NAP++;
+    // I-79: approval split derives from the single approvalCategory classifier (Case 3 only) — a doc
+    // with an approval code but no submission date lands in Record Error, not in an approval column.
+    const cat = approvalCategory(r);
+    if(cat==='APP') o.Approved++; else if(cat==='AWC') o.AWC++; else if(cat==='REJ') o.REJ++; else if(cat==='NAP') o.NAP++;
     if(foSet.has(k)) o.ov1++; if(soSet.has(k)) o.ov2++; if(coSet.has(k)) o.ov3++;
   };
   active.forEach(r=>{
@@ -523,6 +633,8 @@ function buildMatrix(active, foSet, soSet, coSet, curMonth){
 let MODEL=null, STATE=null, WRAP=null;
 let chartView={ doc:{base:'docsByDiscipline',type:'bar'}, iss:{base:'dqByDiscipline',type:'bar'} };
 let scurveWin=null;
+let curveShowBars=true;        // I-86: Bars toggle state (shared with the period window)
+let curveLastScaleMode='single'; // I-87: active scale mode, retained during the 6…10 hysteresis band
 let matrixMonthSel='';   // '' => use as-of month; otherwise a YYYY-MM chosen in the Matrix header
 let matrixCurMonth='';   // effective month currently shown in the matrix (for the PNG/Copy export)
 const collapsed = new Set();
@@ -560,7 +672,7 @@ function monthOptions(records, asof, projectStart){
 let statusBarEl = null;
 let tfDocBound = false;
 let renderIssues = [];
-function getPref(key, def){ try{ const v=localStorage.getItem('mdl_'+key); return v==null?def:v; }catch(e){ return def; } }
+function getPref(key, def){ try{ const v=localStorage.getItem('mdl_'+key); if(v==null) return def; if(typeof def === 'boolean') return v === 'true'; if(typeof def === 'number') return Number(v); return v; }catch(e){ return def; } }
 function setPref(key, val){ try{ localStorage.setItem('mdl_'+key, val); }catch(e){} }
 function getFilterDefs(model){
   // Two filters only: Discipline + Stage.
@@ -596,52 +708,74 @@ function bannerItemsHTML(warnings){
   }).join('');
 }
 // --- fixed top warning bar (#errBanner, PPP design, spec §3.5) ---
-function openBanner(b, ctx){
-  b.style.display = 'block';
+// Visibility is driven by ONE resolver, applyBannerState(), so the user's persisted collapse
+// preference is always respected — including notices appended *after* the user collapsed the bar.
+function expandBanner(b, ctx){
+  b.hidden = false;
   const h = b.offsetHeight;
-  if(h){
-    document.documentElement.style.setProperty('--banner-h', h + 'px');
-    document.body.classList.add('banner-open');
-    if(ctx === 'welcome'){ document.body.classList.add('banner-welcome'); b.style.top = '0px'; }
-    else { const hdr = document.querySelector('header.app'); b.style.top = (hdr ? hdr.offsetHeight : 0) + 'px'; }
-  }
+  if(h){ document.documentElement.style.setProperty('--banner-h', h + 'px'); document.body.classList.add('banner-open'); }
+  if(ctx === 'welcome'){ document.body.classList.add('banner-welcome'); b.style.top = '0px'; }
+  else { const hdr = document.querySelector('header.app'); b.style.top = (hdr ? hdr.offsetHeight : 0) + 'px'; }
 }
-function closeBanner(b){
-  b.style.display = 'none'; b.innerHTML = '';
+function collapseBanner(b){
+  b.hidden = true;
   document.body.classList.remove('banner-open', 'banner-welcome');
   document.documentElement.style.removeProperty('--banner-h');
 }
+function closeBanner(b){            // teardown: no notices left
+  b.hidden = true; b.innerHTML = ''; b.removeAttribute('style');
+  document.body.classList.remove('banner-open', 'banner-welcome');
+  document.documentElement.style.removeProperty('--banner-h');
+}
+function applyBannerState(b, ctx){
+  ctx = ctx || (document.querySelector('header.app') ? 'dash' : 'welcome');
+  if(!b) return;
+  if(!b.children.length){ closeBanner(b); }
+  else if(getPref('hideWarnings', false)){ collapseBanner(b); }
+  else { expandBanner(b, ctx); }
+  refreshWarnBtn();
+}
+// Keep the app-bar toggle in sync: present only when ≥1 notice, shows the count, reflects aria-pressed.
+function refreshWarnBtn(){
+  const btn = document.getElementById('warnBtn'); if(!btn) return;
+  const bar = document.getElementById('errBanner');
+  const n = bar ? bar.querySelectorAll('.sys-banner-item').length : 0;
+  const hide = getPref('hideWarnings', false);
+  btn.hidden = n === 0;
+  btn.setAttribute('aria-pressed', String(hide));
+  const badge = btn.querySelector('.badge'); if(badge) badge.textContent = n;
+  btn.setAttribute('aria-label', hide ? `Show data-quality warnings` : 'Hide data-quality warnings');
+  const lab = btn.querySelector('#warnLabel'); if(lab) lab.textContent = hide ? `Show warnings` : 'Warnings';
+}
 function showBanner(warnings){
   const b = document.getElementById('errBanner'); if(!b) return;
-  const html = bannerItemsHTML(warnings);
-  if(html){ b.innerHTML = html; openBanner(b, document.querySelector('header.app') ? 'dash' : 'welcome'); }
-  else closeBanner(b);
+  b.innerHTML = bannerItemsHTML(warnings);   // empty string is fine — resolver tears down
+  applyBannerState(b, document.querySelector('header.app') ? 'dash' : 'welcome');
 }
 function showError(msg){
   let b = document.getElementById('errBanner');
   if(!b){ b = document.createElement('div'); b.id = 'errBanner'; b.setAttribute('role','alert'); b.setAttribute('aria-live','assertive'); document.body.appendChild(b); }
   b.innerHTML = '<div class="sys-banner-item fatal">⛔ <b>Load failed</b> ' + esc(msg) + ' &nbsp;·&nbsp; press F12 → Console for the full trace.</div>';
-  openBanner(b, document.querySelector('header.app') ? 'dash' : 'welcome');
+  applyBannerState(b, document.querySelector('header.app') ? 'dash' : 'welcome');
 }
 // Append a single notice strip to the unified bar (spec §3.5). Used for notices that are only
 // known after the initial render (render failures, discovered config) so they never fall back to
 // in-flow cards — the fixed bar stays the only warning surface.
 function addBannerNotice(level, code, message, tag){
-  const b = document.getElementById('errBanner'); if(!b) return;
-  const cls = level === 'fatal' ? 'fatal' : (level === 'info' ? 'info' : 'warn');
+  const b = document.getElementById('errBanner');   if(!b) return;
+const cls = level === 'fatal' ? 'fatal' : (level === 'info' ? 'info' : 'warn');
   const ic = level === 'fatal' ? '⛔' : (level === 'info' ? 'ℹ️' : '⚠️');
   const d = document.createElement('div');
   d.className = 'sys-banner-item ' + cls;
   if(tag) d.dataset.banner = tag;
   d.innerHTML = `${ic} <b>${esc(code || 'SYSTEM')}</b>${esc(message || '')}`;
   b.appendChild(d);
-  openBanner(b, document.querySelector('header.app') ? 'dash' : 'welcome');
+  applyBannerState(b, document.querySelector('header.app') ? 'dash' : 'welcome');
 }
 function removeBannerNotices(tag){
   const b = document.getElementById('errBanner'); if(!b) return;
   b.querySelectorAll('.sys-banner-item[data-banner="' + tag + '"]').forEach(n => n.remove());
-  if(!b.children.length) closeBanner(b);
-  else openBanner(b, document.querySelector('header.app') ? 'dash' : 'welcome');   // re-measure clearance
+  applyBannerState(b, document.querySelector('header.app') ? 'dash' : 'welcome');   // re-measure / teardown
 }
 function renderDashboard(root, model){
   MODEL = model; WRAP = null; collapsed.clear(); scurveWin = null; matrixMonthSel = ''; toastActive.length = 0; toastQueue.length = 0;   // full reset on a fresh load
@@ -654,7 +788,7 @@ function renderDashboard(root, model){
   const filterBtn = d => `<div class="tf-wrap"><button id="tfBtn_${d.key}" class="tf-btn" aria-expanded="false" aria-haspopup="true" aria-controls="tfPanel_${d.key}">${esc(d.label)} <span class="tf-cnt" id="tfCnt_${d.key}">All ${esc(d.label)}</span> ▾</button><div class="tf-panel" id="tfPanel_${d.key}" role="group" aria-label="Filter documents by ${esc(d.label.toLowerCase())}" hidden></div></div>`;
   const colOpts = model.contract.fieldOrder.map(f => `<option value="${esc(f)}"${f==='Document No.'?' selected':''}>${esc(f)}</option>`).join('');
   header.innerHTML = `<div class="app-top"><div class="brand"><img class="logo" src="${LOGO_DATA}" alt="logo"><div class="ttl-stack"><h1 class="ttl">${esc(titleText)}</h1><div class="sub">${esc(model.meta.dashboardTitle || 'Dashboard')}</div><div class="meta">Project start ${esc(model.meta.projectStartDate || '—')} · as of ${esc(model.meta.today)}</div></div></div><div class="actions"><button id="reload" class="btn btn-secondary">Load workbook</button><button id="aPrint" class="btn btn-secondary">Print / Save PDF</button></div></div>
-<div class="app-bar">${defs.map(filterBtn).join('')}<div class="search" role="search"><label class="sr-only" for="fCol">Search column</label><select id="fCol" class="inter-sel is-attached" aria-label="Search column">${colOpts}</select><input id="fSearch" class="search-input" type="search" value="${esc(STATE.search)}" placeholder="Search Document No.…" aria-label="Search value"><button id="fGo" class="search-btn" type="button" title="Search" aria-label="Search">🔍</button></div></div>`;
+<div class="app-bar">${defs.map(filterBtn).join('')}<div class="search" role="search"><label class="sr-only" for="fCol">Search column</label><select id="fCol" class="inter-sel is-attached" aria-label="Search column">${colOpts}</select><input id="fSearch" class="search-input" type="search" value="${esc(STATE.search)}" placeholder="Search Document No.…" aria-label="Search value"><button id="fGo" class="search-btn" type="button" title="Search" aria-label="Search">🔍</button></div><button id="warnBtn" class="btn btn-secondary warn-toggle" aria-pressed="false" aria-label="Hide data-quality warnings" hidden><span aria-hidden="true">⚠</span> <span class="badge">0</span> <span id="warnLabel">Warnings</span></button></div>`;
   root.appendChild(header);
   // Wire the header search control: single column, commit on Enter (or button); Esc clears.
   const fSearch = header.querySelector('#fSearch'), fCol = header.querySelector('#fCol');
@@ -662,6 +796,12 @@ function renderDashboard(root, model){
   fSearch.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); runSearch(); } else if(e.key === 'Escape'){ fSearch.value=''; STATE.search=''; renderAll(wrap); } });
   header.querySelector('#fGo').addEventListener('click', runSearch);
   fCol.addEventListener('change', () => { fSearch.placeholder = 'Search ' + fCol.value + '…'; });
+  // Dismissible warning bar (spec §3.5): toggle collapse; persisted in localStorage.
+  const warnBtn = header.querySelector('#warnBtn');
+  if(warnBtn) warnBtn.addEventListener('click', () => {
+    setPref('hideWarnings', !getPref('hideWarnings', false));
+    applyBannerState(document.getElementById('errBanner'));
+  });
 
   // --- Unified top warning bar (#errBanner, PPP design, spec §3.5): system/config
   // notices + load failures in one fixed bar below the app bar. ---
@@ -690,7 +830,7 @@ function renderDashboard(root, model){
   wrap.appendChild(mp);
   // Charts (Documents / Issues breakdowns, side by side)
   const chartsPanel = document.createElement('div'); chartsPanel.className='panel'; chartsPanel.id='chartsPanel'; chartsPanel.dataset.panel='4';
-  chartsPanel.innerHTML='<h2>Charts</h2>';
+  chartsPanel.innerHTML='<h2>Interactive Chart</h2>';
   const grid=document.createElement('div'); grid.className='charts'; chartsPanel.appendChild(grid);
   wrap.appendChild(chartsPanel);
   // Issue Progress (S-Curve & Monthly), below charts
@@ -823,14 +963,14 @@ function ensureCollapse(panel){
   }
   let help = ha.querySelector('.help');
   if(!help){
-    help = document.createElement('button'); help.className='help btn icon-btn'; help.textContent='?'; help.title='Panel help'; help.setAttribute('aria-label','Panel help');
+    help = document.createElement('button'); help.className='help icon-btn'; help.textContent='?'; help.title='Panel help'; help.setAttribute('aria-label','Panel help');
     const coll = ha.querySelector('.collapse');
     if(coll) ha.insertBefore(help, coll); else ha.appendChild(help);
   }
   let has=false;
   for(const ch of ha.children){ if(ch.classList && ch.classList.contains('collapse')){ has=true; break; } }
   if(!has){
-    const cb=document.createElement('button'); cb.className='collapse btn icon-btn'; cb.textContent='−'; cb.title='Collapse panel';
+    const cb=document.createElement('button'); cb.className='collapse icon-btn'; cb.textContent='−'; cb.title='Collapse panel';
     ha.appendChild(cb);
   }
   help.onclick = ()=>openHelp(panel.id);
@@ -845,8 +985,8 @@ const HELP = {
 <h4>How the numbers are worked out</h4>
 <ul>
 <li><strong>Total Planned</strong> — number of active documents.</li>
-<li><strong>Submitted</strong> — active documents with a date in <em>Actual 1st Issue Date</em> (col U).</li>
-<li><strong>Approved (APP) / Approved w/ Comments (AWC) / Rejected (REJ) / Not Approved (NAP)</strong> — counted from <em>Latest Approval Status</em> (col Y).</li>
+<li><strong>Submitted</strong> — active documents with a value in <em>Actual 1st Issue Date</em> (col U); a spreadsheet formula-error in that cell counts as submitted.</li>
+<li><strong>Approved (APP) / Approved w/ Comments (AWC) / Rejected (REJ) / Not Approved (NAP)</strong> — derived from the single approval classifier, which gates on <em>Actual 1st Issue Date</em> (col U) over <em>Latest Approval Status</em> (col Y): these four count only documents that are BOTH submitted and carry the matching approval code (Case 3). The classifier also produces three further cards: <strong>Pending Review</strong> (submitted, no approval status yet), <strong>Not Submitted</strong> (no Actual 1st Issue Date and no approval), and <strong>Record Error</strong> (an approval status present without a submission date, or an unrecognized status code — the record must be corrected first).</li>
 <li><strong>Overdue – 1st Sub / Resub / Client</strong> — the three overdue counts (same rules as Panel 13).</li>
 <li><strong>As-Built Required (YES) / Vendor Data (YES)</strong> — active documents where <em>As-Built</em> (col P) / <em>Vendor Data</em> (col R) is "YES" (a requirement / by-vendor flag, not a submission status).</li>
 <li><strong>Active Disciplines</strong> — the number of different <em>UESH Discipline</em> (col C) values.</li>
@@ -885,7 +1025,7 @@ const HELP = {
 </ul>
 <p>Disciplines with no stage recorded show "—"; the overdue counts match Panel 13 and the KPI figures.</p>
 `},
-  chartsPanel:{title:'Charts',body:`
+  chartsPanel:{title:'Interactive Chart',body:`
 <h4>What it shows</h4>
 <p>Interactive bar / pie charts counting documents (or data-quality issues) by a category you choose.</p>
 <h4>Source data</h4>
@@ -893,7 +1033,7 @@ const HELP = {
 <h4>How it is worked out</h4>
 <ul>
 <li>Pick a category from the dropdown (Discipline, Stage, Authority, Approval, Doc Type, or a data-quality breakdown) — the chart shows how many documents fall in each value.</li>
-<li>The <strong>Approval</strong> chart always shows APP, AWC, REJ, NAP, and "Not Available" (no approval status).</li>
+<li>The <strong>Approval</strong> chart shows the full approval split, gated on <em>Actual 1st Issue Date</em> (col U): APP, AWC, REJ, NAP (only when submitted), plus <em>Submitted – Pending Review</em>, <em>Submitted – Status Unavailable</em>, <em>Not Submitted</em>, and <em>Record Error</em> (an approval status present without a submission date, or an unrecognized status code).</li>
 <li>The <strong>Schedule Variance</strong> chart splits documents into On track, At risk, and the three Overdue groups.</li>
 <li>Switch <strong>Bar / Pie</strong>; if a category has more than 12 values the chart stays a bar.</li>
 <li><strong>⤓ PNG / ⧉ Copy</strong> export the chart shown.</li>
@@ -964,7 +1104,7 @@ let helpModalEl=null;
 function ensureHelpModal(){
   if(helpModalEl) return helpModalEl;
   const m=document.createElement('div'); m.className='help-modal'; m.hidden=true;
-  m.innerHTML=`<div class="box" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><header><h3 id="helpTitle"></h3><button class="close btn icon-btn" title="Close help" aria-label="Close help">✕</button></header><div class="body" id="helpBody"></div></div>`;
+  m.innerHTML=`<div class="box" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><header><h3 id="helpTitle"></h3><button class="close icon-btn" title="Close help" aria-label="Close help">✕</button></header><div class="body" id="helpBody"></div></div>`;
   m.addEventListener('click', e=>{ if(e.target===m) m.hidden=true; });
   m.querySelector('.close').onclick=()=>{ m.hidden=true; };
   document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !m.hidden) m.hidden=true; });
@@ -983,12 +1123,14 @@ function renderKPIs(panel, k, model){
     {l:'Total Planned',v:k.totalPlanned,c:''},{l:'Submitted',v:k.submitted,c:'ok'},
     {l:'Approved (APP)',v:k.approvedAPP,c:'ok'},{l:'Approved w/ Comments',v:k.approvedAWC,c:'amb'},
     {l:'Rejected (REJ)',v:k.rejected,c:'warn'},{l:'Not Approved (NAP)',v:k.notApproved,c:''},
+    {l:'Pending Review',v:k.pendingReview,c:''},{l:'Not Submitted',v:k.notSubmitted,c:'muted'},
+    {l:'Record Error',v:k.recordError,c:'err'},
     {l:'Overdue – 1st Sub',v:k.overdueFirst,c:'warn'},{l:'Overdue – Resub',v:k.overdueResubmission,c:'warn'},
     {l:'Overdue – Client',v:k.overdueClientReview,c:'warn'}];
   const sub = [
     {l:'As-Built Required (YES)',v:k.asBuiltYes},{l:'Vendor Data (YES)',v:k.vendorYes},
     {l:'Data Completeness',v:(k.completeness==null?'N/A':k.completeness+'%')},{l:'Active Disciplines',v:k.activeDisciplines+' / '+(k.disciplineTotal||0)}];
-  panel.innerHTML = `<div class="panel-head"><h2>KPI Overview</h2><div class="head-actions"><button class="collapse btn icon-btn" title="Collapse panel" aria-label="Collapse panel">−</button></div></div>
+  panel.innerHTML = `<div class="panel-head"><h2>KPI Overview</h2><div class="head-actions"><button class="collapse icon-btn" title="Collapse panel" aria-label="Collapse panel">−</button></div></div>
     <div class="panel-body"><div class="kpis">${cards.map(c=>`<div class="kpi ${c.c}"><div class="v">${c.v}</div><div class="l">${esc(c.l)}</div></div>`).join('')}</div>
     <div class="subkpis">${sub.map(s=>`<div class="subkpi"><div class="v">${esc(s.v)}</div><div class="l">${esc(s.l)}</div></div>`).join('')}</div></div>`;
   wireCollapse(panel);
@@ -1198,7 +1340,7 @@ function renderMatrix(panel, matrix, months, curMonth){
   headActions.insertBefore(msel, headActions.firstChild);
   sel.onchange=()=>{ matrixMonthSel=sel.value; renderAll(WRAP); };
   headActions.appendChild(toolbar);
-  const cb=document.createElement('button'); cb.className='collapse btn icon-btn'; cb.textContent='−'; cb.title='Collapse panel'; cb.setAttribute('aria-label','Collapse panel'); headActions.appendChild(cb);
+  const cb=document.createElement('button'); cb.className='collapse icon-btn'; cb.textContent='−'; cb.title='Collapse panel'; cb.setAttribute('aria-label','Collapse panel'); headActions.appendChild(cb);
   wireCollapse(panel);
   toolbar.querySelector('.ea').onclick = ()=>{ collapseAll(); panel.querySelectorAll('.expand').forEach(openOne); };
   toolbar.querySelector('.ca').onclick = ()=> collapseAll();
@@ -1223,8 +1365,8 @@ function renderInteractive(host, charts, groupKey){
   const view = chartView[groupKey];
   const findItem = key => { for(const g of groups) for(const it of g.items) if(it.key===key) return it; return null; };
   if(!findItem(view.base)) view.base = groups[0].items[0].key;
+  const groupLabel=groups[0].group;
 
-  const card=document.createElement('div'); card.className='chart';
   const h=document.createElement('h3');
   view.type = getPref('chart-'+groupKey, view.type);
   const sel=document.createElement('select'); sel.className='inter-sel';
@@ -1233,21 +1375,20 @@ function renderInteractive(host, charts, groupKey){
     sel.appendChild(og); });
   const toolbar=document.createElement('div'); toolbar.className='toolbar';
   toolbar.innerHTML=`<span class="seg" role="group" aria-label="Chart type"><button data-t="bar" data-key="${groupKey}">Bar</button><button data-t="pie" data-key="${groupKey}">Pie</button></span><button class="dl btn btn-secondary">⤓ PNG</button><button class="cp btn btn-secondary">⧉ Copy</button>`;
-  const chartHost=document.createElement('div');
+  const chartHost=document.createElement('div'); chartHost.className='chart-host';
   const draw=()=>{
     const it=findItem(view.base); const data=charts[it.key]||[];
     const colored=data.map((d,i)=>({...d, color: it.mode==='status'? statusColor(d.name) : (d.color||PALETTE[i%PALETTE.length])}));
     const tooMany=data.length>12; const type=(tooMany&&view.type==='pie')?'bar':view.type;
-    h.textContent=it.label+(tooMany&&view.type==='pie'?' — pie hidden (too many categories)':'');
+    h.textContent=groupLabel+(tooMany&&view.type==='pie'?' — pie hidden (too many categories)':'');
     chartHost.innerHTML=type==='pie'? pieSVG(it.label, colored) : barSVG(it.label, colored);
     toolbar.querySelectorAll('.seg button').forEach(b=> b.classList.toggle('on', b.dataset.t===type));
   };
   sel.onchange=()=>{ view.base=sel.value; draw(); };
   toolbar.querySelectorAll('.seg button').forEach(b=> b.onclick=()=>{ view.type=b.dataset.t; setPref('chart-'+groupKey, view.type); draw(); });
   attachExport(toolbar, ()=>chartHost.innerHTML, ()=> xp(findItem(view.base).label));
-  const head=document.createElement('div'); head.className='head-actions'; head.appendChild(sel); head.appendChild(toolbar);
-  card.appendChild(h); card.appendChild(head); card.appendChild(chartHost);
-  host.appendChild(card);
+  const head=document.createElement('div'); head.className='head-actions chart-actions'; head.appendChild(sel); head.appendChild(toolbar);
+  host.appendChild(h); host.appendChild(head); host.appendChild(chartHost);
   draw();
 }
 
@@ -1267,31 +1408,34 @@ function renderCurvePanel(body, progress){
   if(scurveWin.to>n-1) scurveWin.to=n-1;
   if(scurveWin.from>n-1) scurveWin.from=n-1;
   if(scurveWin.from>scurveWin.to){ const t=scurveWin.from; scurveWin.from=scurveWin.to; scurveWin.to=t; }
-  // Period-window controls live inline in the panel header (common .panel-head rule); the collapse
-  // button is added by ensureCollapse into the same head-actions, so remove any prior copy first.
-  const actions=document.getElementById('curveActions');
+  // I-85/I-88: plot + all related controls wrapped in one chart card board; cluster is right-aligned
+  // to the card (spec §4.1 ownership — every card owns its controls; §4.2 single cluster order:
+  // period window -> Bars -> PNG -> Copy). No Reset (removed 2026-10-13).
+  const card=document.createElement('div'); card.className='chart'; body.appendChild(card);
+  const cluster=document.createElement('div'); cluster.className='head-actions chart-actions'; card.appendChild(cluster);
   const win=document.createElement('div'); win.className='toolbar sc-win';
-  win.innerHTML=`<span class="lbl">Period window</span><label class="rng">From <input type="range" class="wf" min="0" max="${n-1}" value="${scurveWin.from}"></label><label class="rng">To <input type="range" class="wt" min="0" max="${n-1}" value="${scurveWin.to}"></label><button class="reset btn btn-secondary">Reset</button><span class="msg"></span>`;
-  if(actions){ actions.querySelectorAll('.sc-win').forEach(e=>e.remove()); actions.appendChild(win); }
-  const card=document.createElement('div'); card.className='chart';
-  const head=document.createElement('div'); head.className='panel-head';
-  const t=document.createElement('h3'); t.textContent='Issue Progress — cumulative S-curve + monthly bars'; head.appendChild(t);
-  const tb=document.createElement('div'); tb.className='toolbar head-actions';
-  tb.innerHTML=`<button class="dl btn btn-secondary">⤓ PNG</button><button class="cp btn btn-secondary">⧉ Copy</button>`; head.appendChild(tb);
-  const host=document.createElement('div'); host.className='curve-host';
-  const leg=`<div class="legend"><span><i class="sw" style="background:${COLORS.blue}"></i>Planned</span><span><i class="sw" style="background:${COLORS.amber}"></i>Forecast</span><span><i class="sw" style="background:${COLORS.green}"></i>Actual</span><span style="color:#6b7785">— solid = cumulative · bars = monthly (shared axis)</span></div>`;
-  card.appendChild(head); card.appendChild(host); card.insertAdjacentHTML('beforeend', leg);
-  body.appendChild(card);
-  const cap=document.createElement('div'); cap.className='curve-note'; body.appendChild(cap);
+  win.innerHTML=`<span class="lbl">Period window</span><label class="rng">From <input type="range" class="wf" min="0" max="${n-1}" value="${scurveWin.from}"></label><label class="rng">To <input type="range" class="wt" min="0" max="${n-1}" value="${scurveWin.to}"></label><span class="msg"></span>`;
+  cluster.appendChild(win);
+  const barsBtn=document.createElement('button'); barsBtn.className='ctl-bars btn btn-secondary'; barsBtn.textContent='Bars'; barsBtn.title='Show / hide the monthly bars'; barsBtn.setAttribute('aria-pressed', String(curveShowBars!==false)); barsBtn.style.opacity=curveShowBars?'1':'0.55';
+  cluster.appendChild(barsBtn);
+  const dl=document.createElement('button'); dl.className='dl btn btn-secondary'; dl.textContent='⤓ PNG'; dl.title='Export chart as PNG';
+  const cp=document.createElement('button'); cp.className='cp btn btn-secondary'; cp.textContent='⧉ Copy'; cp.title='Copy chart image';
+  cluster.appendChild(dl); cluster.appendChild(cp);
+  const note=document.createElement('div'); note.className='curve-note';
+  if(progress.projStartLabel) note.innerHTML=`Project start: <b>${esc(progress.projStartLabel)}</b> · red dashed line = project start, grey line = today`;
+  card.appendChild(note);
+  const host=document.createElement('div'); host.className='curve-host'; card.appendChild(host);
+  const dualNote=document.createElement('div'); dualNote.className='curve-note'; card.appendChild(dualNote);
   const draw=()=>{ const a=scurveWin.from, b=scurveWin.to;
     host.innerHTML=combinedProgressSVG(progress,a,b);
-    const msg=win.querySelector('.msg'); if(msg) msg.textContent=`${progress.months[a]} → ${progress.months[b]}  (${b-a+1}/${n} months)`;
-    cap.textContent=`Reporting period: ${progress.months[a]} → ${progress.months[b]}  ·  As-of: ${esc(MODEL.meta.today)}  ·  cumulative within period`; };
+    // I-88: window range uses the same `MMM YYYY` template as the axis, not the raw YYYY-MM key.
+    const msg=win.querySelector('.msg'); if(msg) msg.textContent=`${monthLabel(progress.months[a])} → ${monthLabel(progress.months[b])}  (${b-a+1}/${n} months)`;
+    dualNote.textContent = curveLastScaleMode==='dual' ? 'Monthly bars use the right-hand scale; Cum. lines use the left cumulative scale.' : ''; };
   win.querySelector('.wf').oninput=e=>{ scurveWin.from=+e.target.value; draw(); };
   win.querySelector('.wt').oninput=e=>{ scurveWin.to=+e.target.value; draw(); };
-  win.querySelector('.reset').onclick=()=>{ scurveWin={from:0,to:n-1}; win.querySelector('.wf').value=0; win.querySelector('.wt').value=n-1; draw(); };
-  if(progress.projStartLabel) body.insertAdjacentHTML('afterbegin', `<div class="curve-note">Project start: <b>${esc(progress.projStartLabel)}</b> — the red dashed line is <b>Start</b> (Code!B6); the navy line is <b>Today</b> (as-of ${esc(MODEL.meta.today)}). Cumulative lines show progress <b>within the selected reporting period</b> (anchored at the window start); monthly bars show new counts per month.</div>`);
-  attachExport(tb, ()=>host.innerHTML, xp('Issue_Progress'));
+  barsBtn.onclick=()=>{ curveShowBars=!(curveShowBars!==false);
+    barsBtn.setAttribute('aria-pressed', String(curveShowBars)); barsBtn.style.opacity=curveShowBars?'1':'0.55'; draw(); };
+  attachExport(cluster, ()=>host.innerHTML, xp('Issue_Progress'));
   draw();
 }
 const OVERDUE_COLS=[
@@ -1357,14 +1501,46 @@ function renderOverdue(panel, o){
   };
 }
 function renderValidation(panel, issues, model){
-  const grouped={}; issues.forEach(i=>{ const g=grouped[i.code]||(grouped[i.code]={code:i.code,severity:i.severity,message:i.message,count:0,samples:[]}); g.count++; if(g.samples.length<5)g.samples.push(i); });
-  const rows=Object.values(grouped).sort((a,b)=>b.count-a.count);
+  const SEV = { Error:'⛔', Warning:'⚠️', Info:'ℹ️' };
+  const sevKey = s => s==='Error'?'error':(s==='Warning'?'warning':'info');
+  const cnt = { error:0, warning:0, info:0 };
+  const msgByCode = {};
+  issues.forEach(i => { cnt[sevKey(i.severity)]++; if(!(i.code in msgByCode)) msgByCode[i.code] = i.message; });
+  const total = issues.length;
+  const chips = total
+    ? `<span class="vchip e">${SEV.Error} ${cnt.error} Error${cnt.error===1?'':'s'}</span>`
+      + `<span class="vchip w">${SEV.Warning} ${cnt.warning} Warning${cnt.warning===1?'':'s'}</span>`
+      + `<span class="vchip i">${SEV.Info} ${cnt.info} Info${cnt.info===1?'':'s'}</span>`
+    : `<span class="vchip ok">✓ No issues</span>`;
+  // (b) Rule reference — ONE card, ONE row per fired code (never individual cards); count per code added
+  const eb = (model && model.contract && model.contract.errorBlock) || { map:{}, order:[] };
+  const fired = [...new Set(issues.map(i=>i.code))].sort();
+  const cntByCode = {}; issues.forEach(i => { cntByCode[i.code] = (cntByCode[i.code] || 0) + 1; });
+  const vref = fired.map(code => { const r = eb.map[code] || {}; const sym = SEV[r.severity] || SEV.Warning;
+    return `<tr><td class="sev-${sevKey(r.severity || 'Warning')}">${sym}</td><td><code>${esc(code)}</code></td><td>${esc(r.group || '—')}</td><td>${esc(r.rule || msgByCode[code] || '')}</td><td class="num">${cntByCode[code] || 0}</td></tr>`; }).join('');
+  // (a) Code-sheet validation summary — rendered as a NOTE CARD (spec §4.5)
+  const cm = (model && model.contract) || {};
+  const mapped = cm.columnMap ? Object.keys(cm.columnMap).length : 0;
+  const rulesLoaded = (eb.order||[]).length;
+  const lookups = cm.lookups || {};
+  const lkEmpty = Object.entries(lookups).filter(([k,b]) => !(b.items||[]).length).map(([k]) => k);
+  const lkCount = Object.keys(lookups).length;
+  const lkText = lkCount ? (lkEmpty.length ? `${lkCount} lookup tables (${lkEmpty.length} empty: ${lkEmpty.join(', ')})` : `${lkCount} lookup tables (all populated)`) : 'no lookup tables';
+  const vmap = `Code-sheet validation: <b>${mapped}</b> columns mapped · <b>${rulesLoaded}</b> error rules loaded · ${lkText}.`;
   panel.innerHTML=`<div class="panel-head"><h2>Validation Issues</h2>
-      <div class="head-actions"><button id="vCsv" class="csv btn btn-secondary" title="Download validation issue list as CSV">⤓ CSV</button><span class="cnt" id="vCnt">${issues.length} issues</span></div></div>
-    <div class="tableScroll"><table class="ds-table"><thead><tr><th scope="col">Error Code</th><th scope="col">Severity</th><th scope="col">Count</th><th scope="col">Rule (source: Code!AK)</th></tr></thead><tbody>
-    ${rows.map(g=>`<tr><td>${esc(g.code)}</td><td class="sev-${g.severity==='Error'?'error':(g.severity==='Warning'?'warning':'info')}">${esc(g.severity)}</td><td class="num">${g.count}</td><td>${esc(g.message)}</td></tr>`).join('')}
-    </tbody></table></div>
-    <div class="note">${issues.length} issues across ${rows.length} rules. All wording &amp; severity sourced from the Code sheet Error block (Code!AI:AL) — none hard-coded.</div>`;
+      <div class="head-actions"><span class="vchips" id="vChips">${chips}</span><button id="vCsv" class="csv btn btn-secondary" title="Download validation issue list as CSV">⤓ CSV</button><span class="cnt" id="vCnt">${total} issues</span></div></div>
+    <div class="note">${total} issue${total===1?'':'s'} across ${fired.length} rule${fired.length===1?'':'s'}. All wording &amp; severity sourced from the Code sheet Error block (Code!AI:AL) — none hard-coded.</div>
+    <details class="vdetails"><summary>Validation detail — code-sheet check, rule reference, full issue list</summary>
+      <div class="vbody">
+        <div class="vnote" id="vmap">${vmap}</div>
+        <div class="vrefcard" id="vref"><div class="vrefhead">Rule Reference (fired)</div><div class="tableScroll"><table class="ds-table"><thead><tr><th scope="col">Sev</th><th scope="col">Code</th><th scope="col">Group</th><th scope="col">Description</th><th scope="col">Count</th></tr></thead><tbody>${vref||'<tr><td class="empty" colspan="5">No rules fired.</td></tr>'}</tbody></table></div></div>
+        <div class="tableScroll vtableWrap"><table class="ds-table"><thead><tr>
+          <th scope="col">Severity</th><th scope="col">Rule</th><th scope="col">Doc No</th><th scope="col">Field</th><th scope="col">Value</th><th scope="col">Message</th><th scope="col">Source Tab</th><th scope="col">Row</th>
+        </tr></thead><tbody>
+          ${issues.map(i=>`<tr><td class="sev-${sevKey(i.severity)}">${SEV[i.severity]||''}</td><td>${esc(i.code)}</td><td>${esc(i.docNo)}</td><td>${esc(i.field||'—')}</td><td>${esc(i.value==null?'—':i.value)}</td><td>${esc(i.message)}</td><td>${esc(i.sourceTab)}</td><td class="num">${esc(i.rownum)}</td></tr>`).join('')}
+        </tbody></table></div>
+      </div>
+    </details>`;
   panel.querySelector('#vCsv').onclick=()=>{ if(!issues.length){ toast('Nothing to export','info'); return; } downloadCSV(xp('issue_list')+'.csv', issuesCSV(model, issues)); toast('CSV downloaded','success'); };
 }
 function renderDetail(panel, recs, model, state, rerender){
@@ -1375,7 +1551,16 @@ function renderDetail(panel, recs, model, state, rerender){
   panel.innerHTML=`<div class="panel-head"><h2>Document Detail Table</h2>
       <div class="head-actions"><button id="dCsv" class="csv btn btn-secondary" title="Download document list as CSV">⤓ CSV</button><span class="cnt" id="dCnt">${rows.length} docs</span></div></div>
     <div class="tableScroll"><table class="ds-table"><thead><tr><th scope="col">Source Tab</th><th scope="col">Active</th>${cols.map(c=>`<th scope="col" data-col="${esc(c)}">${esc(c)}</th>`).join('')}</tr></thead><tbody>
-    ${rows.map(r=>`<tr><td>${esc(r.sourceTab)}</td><td class="${r.isActive?'act':'ina'}">${r.isActive?'Y':'N'}</td>${cols.map(c=>{const val=r.fields[c]; const cls=statusPill(c,val); return `<td class="${cls}">${esc(val)}</td>`;}).join('')}</tr>`).join('')}
+    ${rows.map(r=>`<tr><td>${esc(r.sourceTab)}</td><td class="${r.isActive?'act':'ina'}">${r.isActive?'Y':'N'}</td>${cols.map(c=>{
+      if(c==='Latest Approval Status'){   // I-80: show the derived approval category, not just the raw code
+        const cat=approvalCategory(r);
+        const m={'APP':'p-app','AWC':'p-awc','REJ':'p-rej','NAP':'p-nap','Submitted – Pending Review':'p-pend','Submitted – Status Unavailable':'p-unav','Not Submitted':'p-nsub','Record Error':'p-rerr'};
+        const cls=m[cat]||''; const label=['APP','AWC','REJ','NAP'].includes(cat)?(r.fields['Latest Approval Status']||''):cat;
+        return `<td class="${cls}">${esc(label)}</td>`;
+      }
+      const val=r.fields[c]; const cls=statusPill(c,val);
+      return `<td class="${cls}">${esc(val)}</td>`;
+    }).join('')}</tr>`).join('')}
     </tbody></table></div>`;
   panel.querySelectorAll('th[data-col]').forEach(th=>th.onclick=()=>{ const col=th.dataset.col; if(state.sort.col===col)state.sort.dir*=-1; else state.sort={col,dir:1}; rerender(); });
   panel.querySelector('#dCsv').onclick=()=>{ if(!recs.length){ toast('Nothing to export','info'); return; } downloadCSV(xp('document_list')+'.csv', docsCSV(model, recs)); toast('CSV downloaded','success'); };
@@ -1388,8 +1573,8 @@ function statusPill(field, val){
 
 // ---------- CSV ----------
 function csvCell(v){ const s=v==null?'':String(v); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
-function issuesCSV(model, issues){ const head=['Error Code','Severity','Message','Doc No','Discipline','Source Tab','Row'];
-  const lines=[head.join(',')]; issues.forEach(i=>lines.push([i.code,i.severity,i.message,i.docNo,i.discipline,i.sourceTab,i.rownum].map(csvCell).join(','))); return lines.join('\n'); }
+function issuesCSV(model, issues){ const head=['Error Code','Severity','Doc No','Field','Value','Message','Source Tab','Row'];
+  const lines=[head.join(',')]; issues.forEach(i=>lines.push([i.code,i.severity,i.docNo,i.field,i.value,i.message,i.sourceTab,i.rownum].map(csvCell).join(','))); return lines.join('\n'); }
 function docsCSV(model, recs){ const cols=model.contract.fieldOrder; const head=['Source Tab','Active',...cols];
   const lines=[head.join(',')]; recs.forEach(r=>lines.push([r.sourceTab,r.isActive?1:0,...cols.map(c=>r.fields[c])].map(csvCell).join(','))); return lines.join('\n'); }
 function downloadCSV(name, text){ const b=new Blob(['\uFEFF'+text],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
