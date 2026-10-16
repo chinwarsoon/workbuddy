@@ -833,6 +833,36 @@ select.inter-sel.is-attached{border:0;border-right:1px solid var(--border);backg
 .tf-panel .tf-item input{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0}
 .tf-panel .tf-item .nc{margin-left:auto;font-size:10px;font-weight:600;color:var(--muted);white-space:nowrap}
 .tf-panel .tf-item.tf-nc>span:first-of-type{color:var(--muted)}
+/* §7.2.7 — TABLE-SCOPED COLUMN FILTERS (I-93).
+   Same .tf-wrap / .tf-btn / .tf-panel shell as the top-bar facets, so the popover
+   shape, shadow and click-outside / Esc behaviour match. The .cf-* inner blocks
+   carry a per-column row: a label, the type-appropriate input, and an inline clear
+   chip. The button's badge text reflects the active-filter count. */
+.cf-panel{min-width:280px;max-width:min(480px,92vw);max-height:380px;overflow:auto}
+.cf-panel .cf-foot{display:flex;align-items:center;gap:8px;padding:8px 2px 2px;margin-top:6px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
+.cf-panel .cf-foot .cf-cnt{margin-left:auto}
+.cf-panel .cf-foot button{font:inherit;font-size:11px;color:var(--accent);background:transparent;border:0;padding:0;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+.cf-panel .cf-foot button:hover{text-decoration:underline}
+.cf-panel .cf-row{display:flex;flex-direction:column;gap:4px;padding:7px 2px;border-bottom:1px dashed var(--border)}
+.cf-panel .cf-row:last-of-type{border-bottom:0}
+.cf-panel .cf-row .cf-lbl{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--navy)}
+.cf-panel .cf-row .cf-lbl .cf-x{margin-left:auto;font-size:10px;color:var(--muted);cursor:pointer;background:transparent;border:0;padding:0 4px;font:inherit;text-transform:uppercase;letter-spacing:.04em}
+.cf-panel .cf-row .cf-lbl .cf-x:hover{color:var(--accent)}
+.cf-panel .cf-row .cf-input{font:inherit;font-size:12px;border:1px solid var(--border);border-radius:5px;padding:4px 7px;background:#fff;color:var(--text);min-height:26px;outline:none;width:100%}
+.cf-panel .cf-row .cf-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--soft)}
+.cf-panel .cf-row .cf-num,.cf-panel .cf-row .cf-date{display:flex;align-items:center;gap:4px}
+.cf-panel .cf-row .cf-num input,.cf-panel .cf-row .cf-date input{flex:1 1 0;min-width:0}
+.cf-panel .cf-row .cf-num span,.cf-panel .cf-row .cf-date span{color:var(--muted);font-size:11px;flex:0 0 auto}
+.cf-panel .cf-row .cf-enum{display:flex;flex-direction:column;gap:1px;max-height:170px;overflow:auto;border:1px solid var(--border);border-radius:5px;padding:3px 6px;background:#fff}
+.cf-panel .cf-row .cf-enum label{display:flex;align-items:center;gap:6px;padding:3px 2px;font-size:12px;cursor:pointer;border-radius:3px}
+.cf-panel .cf-row .cf-enum label:hover{background:var(--soft)}
+.cf-panel .cf-row .cf-enum label input{accent-color:var(--accent);width:13px;height:13px;flex-shrink:0}
+.cf-panel .cf-row .cf-enum label .nc{margin-left:auto;font-size:10px;color:var(--muted);font-weight:600}
+/* highlight matched text inside a filtered cell */
+mark.cf-hi{background:#FFF3B0;color:inherit;padding:0;border-radius:2px}
+/* mark a column header that currently has an active filter */
+.ds-table thead th.cf-on{background:var(--soft);color:var(--accent-ink)}
+.ds-table thead th.cf-on .sort-lbl{color:var(--accent-ink)}
 .sb-loading{opacity:.85;font-weight:600}
 .icon-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;min-height:26px;padding:0;font:inherit;font-size:13px;font-weight:600;line-height:1;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--muted);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
 .icon-btn:hover{background:var(--soft);color:var(--navy);border-color:var(--line)}
@@ -900,10 +930,13 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .p-nts{background:var(--ok-bg);color:var(--ok-fg)}
 .p-pend{background:#E3F2FD;color:#0D47A1} .p-unav{background:#ECEFF1;color:#546E7A}
 .p-nsub{background:#E8EEF1;color:#37474F} .p-rerr{background:#F3E5F5;color:#6A1B9A}
-.sev-error,.sev-warning,.sev-info{display:inline-block;padding:1px 8px;border-radius:999px;font-size:10px;font-weight:600;white-space:nowrap}
-.sev-error{background:var(--error-bg);color:var(--error-fg)}
-.sev-warning{background:var(--warn-bg);color:var(--warn-fg)}
-.sev-info{background:var(--soft);color:var(--accent-ink)}
+/* §7.2.4 — a severity is a FIXED-SIZE inline SVG on an inner <span>, never a class on the
+   <td> (a non-table-cell display value takes the cell out of table formatting, RC-1) and
+   never an emoji (per-glyph font metrics make the Sev row taller than its neighbours, RC-4).
+   The chip inherits the cell font; only the glyph is sized in px (see .sev-svg). */
+.ds-table .sev-error,.ds-table .sev-warning,.ds-table .sev-info{
+  display:inline-flex;align-items:center;vertical-align:middle;white-space:nowrap;
+  font-size:inherit;line-height:inherit}
 .act{color:var(--ok-fg);font-weight:700} .ina{color:var(--slate)}
 /* Validation-panel severity summary chips — PPP shape (spec §4.5 overrides §7.10's 999px pill) */
 .vchips{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
@@ -919,12 +952,29 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .vdetails .vbody{padding:4px 0 8px}
 .vnote{border:1px solid var(--line);border-radius:8px;background:var(--soft);padding:8px 10px;font-size:12px;color:var(--text);margin:6px 0}
 .vrefcard{border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:6px 0}
-.vrefhead{padding:6px 10px;font-size:12px;font-weight:600;color:var(--navy);background:var(--soft);border-bottom:1px solid var(--line)}
+/* §7.2.15 — the card title band is part of the header: SAME navy, SAME white 12px/600
+   as the thead cells. A light band above a navy header reads as two different components. */
+.vrefhead{padding:6px 10px;font-size:12px;font-weight:600;color:#fff;background:var(--navy);border-bottom:1px solid var(--ds-head-rule)}
 .vrefcard .tableScroll{border:0;border-radius:0;margin-top:0}
+/* §7.2.15 — SPLIT HEADER. The thead element lives OUTSIDE the scroller, so the vertical
+   scrollbar starts BELOW the header row instead of running alongside it. The two
+   fragments must share one column grid: both are table-layout:fixed carrying the SAME
+   <colgroup>, and script gives the header table the scroller's clientWidth — which
+   already excludes the vertical scrollbar — so the columns line up exactly. */
+.vrefcard .vheadtab{margin:0;width:100%}
+/* the fragment has no scrolling ancestor, so its cells must not be sticky (the bare
+   th rule at the top of the sheet would otherwise stick them to the viewport) — but
+   they MUST still be the containing block for the column rule below */
+.vrefcard .vheadtab thead th{position:relative;border-bottom:1px solid var(--border)}
+/* §7.2.2 — column rules are now global (see the rollout block below); the
+   Rule-Reference-only copy that lived here has been removed. */
+/* the gutter column covers the scrollbar area so the navy is continuous across the
+   full card width; it is not a data column and is hidden from assistive tech */
+.ds-table .ds-gut{padding:0;border-bottom:0}
 .tableScroll{overflow:auto;max-height:340px;margin-top:8px;border:1px solid var(--border);border-radius:10px}
 .tableScroll table th{cursor:default}
 /* === .ds-table base (spec §7.2) === */
-.ds-table{width:100%;border-collapse:collapse;font-size:12px;background:#fff}
+.ds-table{width:100%;border-collapse:collapse;font-size:12px;background:#fff;table-layout:fixed}
 .ds-table th,.ds-table td{border-bottom:1px solid var(--border);padding:9px 10px;text-align:left;vertical-align:top}
 .ds-table thead th{background:var(--navy);color:#fff;font-size:12px;font-weight:600}
 .ds-table th[scope="row"]{font-weight:400}
@@ -933,6 +983,40 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .ds-table tbody tr:hover{background:var(--soft)}
 .ds-table .over{background:var(--warn-bg)}
 .ds-table .empty{color:var(--muted);text-align:center}
+/* === §7.2.3 / §7.2.5 grid discipline — ROLLED OUT GLOBALLY (I-90, from the Rule
+   Reference pilot). Row height is ENFORCED by the token rather than left to content
+   (RC-8); cells are nowrap + ellipsis so a long value never grows a row (RC-5); and
+   <code> inherits the cell font (RC-5). Column widths come from each table's <colgroup>. */
+.ds-table th,.ds-table td{
+  height:var(--ds-row-h);line-height:var(--ds-cell-lh);font-size:var(--ds-cell-fs);
+  vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ds-table code{font:inherit}
+/* §7.2.2 — column edges: a 1 px rule on the right edge of every header cell. Constant
+   width; colour only on hover. Suppressed on grouped-header cells (colspan) and on the
+   last data column / gutter so no rule hangs past the table's edge (§7.2.2 (b)). */
+.ds-table thead th::after{content:"";position:absolute;top:8px;bottom:8px;right:0;
+  width:var(--ds-rule-w);background:var(--ds-head-rule);pointer-events:none}
+.ds-table thead th:hover::after{background:var(--ds-head-rule-hi)}
+.ds-table thead th[colspan]::after{display:none}
+.ds-table thead th:last-child:not(.ds-gut)::after{display:none}
+.ds-table thead th.ds-gut::after{display:none}
+/* §7.2.6 — L2 sortable header. The button inherits the navy/white header; the label
+   truncates but the indicator (flex:0 0 auto) stays visible at the cell's right edge. */
+.ds-table thead th .sort-btn{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;
+  cursor:pointer;display:flex;align-items:center;gap:4px;width:100%;text-align:left}
+.ds-table thead th .sort-btn:focus-visible{outline:2px solid #2b6cb0;outline-offset:1px;border-radius:2px}
+.ds-table thead th .sort-lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.ds-table thead th .sort-ind{flex:0 0 auto;font-size:9px;line-height:1;opacity:.6}
+.ds-table thead th[aria-sort="none"] .sort-ind{opacity:.3}
+.ds-table thead th[aria-sort="ascending"] .sort-ind,.ds-table thead th[aria-sort="descending"] .sort-ind{opacity:1}
+/* === §7.2.3 row typography tokens — one size, one line-height, one row height === */
+:root{--ds-row-h:40px;--ds-head-h:40px;--ds-cell-fs:12px;--ds-cell-lh:20px;--ds-rule-w:1px;--ds-head-rule:rgba(255,255,255,.38);--ds-head-rule-hi:rgba(255,255,255,.7)}
+/* === §7.2.3 / §7.2.5 grid discipline — ROLLED OUT GLOBALLY (I-90) ===
+   The width/row-height/ellipsis/column-rule behaviour above is now on .ds-table itself.
+   The severity chip went global in I-91 (it is now on an inner <span> in every table, not
+   bound to <td>), so only the split-header (.vheadtab), the title band (.vrefhead) and the
+   gutter column stay Rule-Reference-only. */
+.sev-svg{width:14px;height:14px;flex:0 0 14px;display:block}
 .note{background:#FFF8E1;border:1px solid var(--amber);color:#7a5b00;padding:8px 12px;border-radius:8px;font-size:12px;margin:10px 0}
 .disclaimer{margin-top:18px;padding-top:10px;border-top:1px solid var(--border);text-align:center;font-size:11.5px;color:var(--muted)}
 .panel-error{background:var(--error-bg);border:1px solid var(--error-fg);color:var(--error-fg);padding:12px 14px;border-radius:8px;font-size:12px;margin:8px 0;line-height:1.5}
@@ -960,7 +1044,8 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 
 
 .hidden{display:none}
-@media print{body{background:#fff}.panel{break-inside:avoid;box-shadow:none}.filters,.toolbar{display:none}header.app{position:static}#errBanner{display:none!important}body.banner-open .wrap{padding-top:16px}.panel.collapsed .panel-body{display:block}}
+/* §7.2.11 — a bounded scroller capped at 340 px would print every long table as a clipping */
+@media print{body{background:#fff}.tableScroll{max-height:none!important;overflow:visible!important}.panel{break-inside:avoid;box-shadow:none}.filters,.toolbar{display:none}header.app{position:static}#errBanner{display:none!important}body.banner-open .wrap{padding-top:16px}.panel.collapsed .panel-body{display:block}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 `;
 
@@ -1953,7 +2038,7 @@ function matrixReportHTML(matrix){
     .matrix tbody tr:nth-child(even){background:#fafcff}
     .matrix tbody tr.sub{background:#f2f6fb}
     .matrix tbody tr.sub td.subname{text-align:left;padding-left:22px;color:#6b7785;font-style:italic}`;
-  return `<div xmlns="http://www.w3.org/1999/xhtml"><style>${css}</style><table class="matrix ds-table">${head}<tbody>${body}</tbody>${tfoot}</table></div>`;
+  return `<div xmlns="http://www.w3.org/1999/xhtml"><style>${css}</style><table class="matrix ds-table"><caption class="sr-only">Per-Discipline Summary Matrix — document counts by discipline per month, with a TOTAL row.</caption>${head}<tbody>${body}</tbody>${tfoot}</table></div>`;
 }
 function matrixSVG(matrix){
   const totalStages = matrix.reduce((a,m)=>a + m.stages.length, 0);
@@ -1976,49 +2061,354 @@ function matrixCSV(matrix, curMonth){
   out.push(['TOTAL', t.Planned, t.Submitted, pct(t.Submitted), t.PlanMo, t.FcastMo, t.ActualMo, t.Approved, t.AWC, t.REJ, t.NAP, t.ov1, t.ov2, t.ov3].map(cell).join(','));
   return out.join('\r\n');
 }
+// ---------- table-kit: L2 sorting (I-92) ----------
+// Type-aware comparator core. Empty / null / NaN always sort LAST (RC-6). dir = +1 asc, -1 desc.
+function dsCmp(a, b, type, order){
+  // Empty always sorts LAST (RC-6). The em/en dash is this dashboard's universal
+  // "no value" placeholder (a blank discipline renders as '—', a blank issue Field as
+  // '—'), so it is empty for sorting too — otherwise the blank row jumps to the top of
+  // an ascending sort in one table while it sinks to the bottom in another.
+  const empty = v => {
+    if(v==null) return true;
+    if(typeof v==='number') return isNaN(v);
+    const s=String(v).trim();
+    return s==='' || s==='—' || s==='–';
+  };
+  const ea=empty(a), eb=empty(b);
+  if(ea&&eb) return 0; if(ea) return 1; if(eb) return -1;
+  let r;
+  if(type==='num') r=(+a)-(+b);
+  else if(type==='date'){ const x=Date.parse(a), y=Date.parse(b); r=(!isNaN(x)&&!isNaN(y))?x-y:String(a).localeCompare(String(b),'en',{numeric:true,sensitivity:'base'}); }
+  else if(type==='enum' && Array.isArray(order)){ const ai=order.indexOf(a), bi=order.indexOf(b); r=(ai<0?order.length:ai)-(bi<0?order.length:bi); }
+  else r=String(a).localeCompare(String(b),'en',{numeric:true,sensitivity:'base'});
+  return r;
+}
+// sort a COPY, stable (ties keep original order). get(r,key) returns the cell value.
+function dsSorted(rows, cols, active, get){
+  if(!active || !active.col) return rows;
+  const col = cols.find(c=>c.key===active.col); if(!col) return rows;
+  const base = rows.map((r,i)=>({r,i}));
+  base.sort((A,B)=>{
+    let v = dsCmp(get(A.r,active.col), get(B.r,active.col), col.type, col.order);
+    if(v!==0) return v*active.dir;
+    return A.i-B.i;
+  });
+  return base.map(o=>o.r);
+}
+// build <thead> cells from cols + active sort state (button + aria-sort + indicator)
+function sortHeadCells(cols, active){
+  return cols.map(c=>{
+    if(!c.sortable) return `<th scope="col">${esc(c.label)}</th>`;
+    const dir = (active && active.col===c.key) ? active.dir : 0;
+    const aria = dir===0 ? 'none' : dir===1 ? 'ascending' : 'descending';
+    const ind = dir===0 ? '⇅' : dir===1 ? '▲' : '▼';
+    return `<th scope="col" aria-sort="${aria}"><button type="button" class="sort-btn" data-col="${esc(c.key)}"><span class="sort-lbl">${esc(c.label)}</span><span class="sort-ind" aria-hidden="true">${ind}</span></button></th>`;
+  }).join('');
+}
+// wire a delegated click handler on scrollEl so dynamically-replaced headers (renderHead)
+// keep working. onSort re-renders the body; renderHead (optional) returns fresh <thead>
+// innerHTML so aria-sort/indicators refresh.
+function wireSort(scrollEl, cols, active, onSort, key, renderHead){
+  const refresh = ()=>{ if(renderHead){ const th=scrollEl.querySelector('thead'); if(th) th.innerHTML=renderHead(); } };
+  scrollEl.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.sort-btn');
+    if(!btn) return;
+    const col = btn.dataset.col;
+    let dir = (active.col===col) ? active.dir : 0;
+    dir = dir===0 ? 1 : (dir===1 ? -1 : 1);   // none→asc→desc→asc (two-state indicator, §7.2.6)
+    active.col = col; active.dir = dir;
+    if(key) setPref(key, dir+'|'+col);
+    refresh(); onSort(active);
+  });
+}
+
+// ---------- table-kit: L2 column filtering (I-93) ----------
+// The filter state for one table is an object keyed by column key:
+//   { '<colKey>': { kind:'text'|'enum'|'num'|'date', value:<per kind> } }
+// where `value` is:
+//   text  -> string (case-insensitive contains; '' means no filter)
+//   enum  -> Set of selected values (filter keeps rows whose value is in the Set; the
+//            whole row is kept when the Set is empty AND the column key is absent)
+//   num   -> { min:'', max:'' } (any blank bound means unconstrained on that side)
+//   date  -> { min:'', max:'' } (ISO date strings; same semantics as num)
+// A row is kept if EVERY column with an entry in the state passes.
+function applyFilters(rows, state, cols){
+  if(!state || !Object.keys(state).length) return rows;
+  const get = (r,key)=>{ const c=cols.find(x=>x.key===key); return c ? c.get(r) : r[key]; };
+  return rows.filter(r => {
+    for(const key in state){
+      const f=state[key], v=get(r,key);
+      if(f.kind==='text'){
+        if(!f.value) continue;
+        if(v==null || !String(v).toLowerCase().includes(f.value.toLowerCase())) return false;
+      } else if(f.kind==='enum'){
+        // No entry kept when the Set is empty (caller removed the column), but if the
+        // Set is non-empty and the value is missing or unselected, the row is hidden.
+        if(!f.value || !f.value.size) return false;
+        if(v==null || !f.value.has(String(v))) return false;
+      } else if(f.kind==='num'){
+        if(v==null || v==='' || isNaN(+v)) return false;
+        if(f.min!=='' && +v < +f.min) return false;
+        if(f.max!=='' && +v > +f.max) return false;
+      } else if(f.kind==='date'){
+        const ts = v ? Date.parse(v) : NaN;
+        if(isNaN(ts)) return false;
+        if(f.min && ts < Date.parse(f.min)) return false;
+        if(f.max && ts > Date.parse(f.max)+86400000-1) return false;   // inclusive day
+      }
+    }
+    return true;
+  });
+}
+// Counts per distinct value in the column, derived from the CURRENT data (never a
+// master list) — required by the spec §7.2.7 facet rule and the FILTER POPULATION
+// RULE in project memory.
+function facetCounts(rows, col){
+  const m = new Map();
+  for(const r of rows){
+    const v = col.get(r);
+    if(v==null || v==='') continue;
+    const k = String(v);
+    m.set(k, (m.get(k)||0) + 1);
+  }
+  // sort: numeric when every value is a number, alphabetical otherwise
+  const keys = [...m.keys()];
+  const allNum = keys.length>0 && keys.every(k => !isNaN(+k));
+  keys.sort((a,b)=> allNum ? (+a)-(+b) : a.localeCompare(b,'en',{numeric:true,sensitivity:'base'}));
+  return { keys, counts:m, total:rows.length };
+}
+// Highlight every (case-insensitive) match of `q` in `text` with a <mark> for filter
+// feedback. Empty q returns the text unchanged. Replaces & < > " ' safely.
+function highlightText(text, q){
+  if(text==null) return '';
+  const s = String(text);
+  if(!q) return esc(s);
+  const re = new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
+  return esc(s).replace(re, '<mark class="cf-hi">$1</mark>');
+}
+// Debounce: returns a wrapper that defers `fn` until `ms` of quiet.
+function debounce(fn, ms){
+  let t = null;
+  return (...args) => { clearTimeout(t); t = setTimeout(()=>fn(...args), ms); };
+}
+// Restore a persisted filter state (enum values come back as arrays, so they are re-hydrated
+// into Sets). The caller can pass `state` into attachColFilters so the SAME object is shared
+// with the renderer — that is what keeps match-highlighting in sync with the filter.
+function restoreFlt(key){
+  const flt = {};
+  try { const raw = JSON.parse(getPref(key+'_flt','') || '{}'); Object.keys(raw).forEach(k => { if(raw[k] && raw[k].kind) flt[k] = raw[k]; }); } catch(e){}
+  Object.keys(flt).forEach(k => { if(flt[k].kind === 'enum' && Array.isArray(flt[k].value)) flt[k].value = new Set(flt[k].value); });
+  return flt;
+}
+// ONE delegated listener pair serves ALL table filter popovers (I-93). Binding a document
+// listener per popover is a real leak: renderDetail / renderOverdue / renderValidation run
+// again on every re-render, so each pass would strand two more listeners that capture `recs`
+// (20 k+ rows) forever. Now only OPEN popovers are tracked, and entries whose panel was
+// replaced by a later render are pruned via isConnected.
+const CF_OPEN = new Set();
+let cfBound = false;
+function cfBindDoc(){
+  if(cfBound) return; cfBound = true;
+  document.addEventListener('click', e => {
+    CF_OPEN.forEach(o => {
+      if(!o.pop.isConnected){ CF_OPEN.delete(o); return; }          // stale: panel re-rendered
+      if(e.target.closest && e.target.closest('.tf-wrap') === o.wrap) return;
+      o.pop.hidden = true; o.btn.setAttribute('aria-expanded','false'); CF_OPEN.delete(o);
+    });
+  });
+  document.addEventListener('keydown', e => {
+    if(e.key !== 'Escape') return;
+    CF_OPEN.forEach(o => { o.pop.hidden = true; o.btn.setAttribute('aria-expanded','false'); });
+    CF_OPEN.clear();
+  });
+}
+function cfToggle(o){
+  if(!o.pop.hidden){ o.pop.hidden = true; o.btn.setAttribute('aria-expanded','false'); CF_OPEN.delete(o); return; }
+  o.build();                    // rows (and the facet scan) are built on FIRST OPEN, not per render
+  o.pop.hidden = false; o.btn.setAttribute('aria-expanded','true'); CF_OPEN.add(o);
+}
+// Attach a table-scoped column-filter popover (I-93). Reuses the .tf-wrap / .tf-btn /
+// .tf-panel shell of the top-bar facets so the popover shape, shadow and click-outside /
+// Esc behaviour match. Facet counts come from `opts.recs` — the CURRENT data — never a
+// master list (§7.2.7 / FILTER POPULATION RULE).
+function attachColFilters(host, opts){
+  const { key, fltCols, recs, onChange, label } = opts;
+  const flt = opts.state || restoreFlt(key);
+  const save = () => setPref(key+'_flt', JSON.stringify(flt, (k,v) => v instanceof Set ? [...v] : v));
+  const isActive = f => { if(!f) return false;
+    if(f.kind === 'text') return !!f.value;
+    if(f.kind === 'enum') return !!(f.value && f.value.size > 0);
+    if(f.kind === 'num' || f.kind === 'date') return (f.min !== '' && f.min != null) || (f.max !== '' && f.max != null);
+    return false; };
+  const active = () => Object.keys(flt).filter(k => isActive(flt[k])).length;
+  const filtered = rows => applyFilters(rows, flt, fltCols);
+  const commit = () => { const out = filtered(recs); if(onChange) onChange(out); return out; };
+  // ---- popover shell ----
+  const wrap = document.createElement('div'); wrap.className = 'tf-wrap';
+  const btn = document.createElement('button'); btn.className = 'tf-btn'; btn.id = 'cfBtn_'+key;
+  btn.setAttribute('aria-expanded','false'); btn.setAttribute('aria-haspopup','true'); btn.setAttribute('aria-controls','cfPanel_'+key);
+  btn.innerHTML = `<span class="tf-cnt">Filters</span> ▾`;
+  wrap.appendChild(btn);
+  const pop = document.createElement('div'); pop.className = 'tf-panel cf-panel'; pop.id = 'cfPanel_'+key;
+  pop.setAttribute('role','group'); pop.setAttribute('aria-label', 'Filter ' + (label || 'this table')); pop.hidden = true;
+  const refreshBtn = () => {
+    const n = active();
+    btn.classList.toggle('is-filtered', n > 0);
+    btn.querySelector('.tf-cnt').textContent = n > 0 ? `${n} filter${n>1?'s':''}` : 'Filters';
+    const c = pop.querySelector('.cf-cnt'); if(c) c.textContent = `${n} active`;
+  };
+  // Rows are built lazily: a panel that is never opened costs nothing, and the facet scan
+  // (a full pass over recs per enum column) no longer runs on every re-render.
+  let built = false;
+  const build = () => { if(built) return; built = true;
+  fltCols.forEach(col => {
+    const row = document.createElement('div'); row.className = 'cf-row';
+    const lbl = document.createElement('div'); lbl.className = 'cf-lbl';
+    lbl.innerHTML = `<span>${esc(col.label)}</span><button class="cf-x" type="button" title="Clear this filter">Clear</button>`;
+    row.appendChild(lbl);
+    const clearX = lbl.querySelector('.cf-x');
+    if(col.kind === 'text'){
+      const inp = document.createElement('input'); inp.className='cf-input'; inp.type='search'; inp.placeholder='Contains…';
+      inp.value = (flt[col.key] && flt[col.key].value) || '';
+      inp.addEventListener('input', debounce(()=>{
+        const v = inp.value.trim();
+        if(v) flt[col.key] = { kind:'text', value:v }; else delete flt[col.key];
+        save(); refreshBtn(); commit();
+      }, 300));
+      row.appendChild(inp);
+      clearX.onclick = () => { inp.value=''; delete flt[col.key]; save(); refreshBtn(); commit(); };
+    } else if(col.kind === 'enum'){
+      const list = document.createElement('div'); list.className = 'cf-enum';
+      const { keys, counts } = facetCounts(recs, col);
+      const cur = (flt[col.key] && flt[col.key].value) || new Set();
+      keys.forEach(k => {
+        const id = ('cf_'+key+'_'+col.key+'_'+k).replace(/[^a-z0-9_]/gi,'_');
+        const L = document.createElement('label'); L.htmlFor = id;
+        const cb = document.createElement('input'); cb.type='checkbox'; cb.id=id; cb.checked = cur.has(k);
+        cb.addEventListener('change', ()=>{
+          const set = new Set((flt[col.key] && flt[col.key].value) || []);
+          if(cb.checked) set.add(k); else set.delete(k);
+          // no box ticked means "no filter", not "filter to nothing"
+          if(set.size === 0) delete flt[col.key]; else flt[col.key] = { kind:'enum', value:set };
+          save(); refreshBtn(); commit();
+        });
+        const s = document.createElement('span'); s.textContent = k;
+        const nc = document.createElement('span'); nc.className='nc'; nc.textContent = counts.get(k);
+        L.appendChild(cb); L.appendChild(s); L.appendChild(nc); list.appendChild(L);
+      });
+      row.appendChild(list);
+      clearX.onclick = () => { list.querySelectorAll('input').forEach(cb=>{ cb.checked = false; }); delete flt[col.key]; save(); refreshBtn(); commit(); };
+    } else {   // num | date
+      const isNum = col.kind === 'num';
+      const pair = document.createElement('div'); pair.className = isNum ? 'cf-num' : 'cf-date';
+      const cur = flt[col.key] || { min:'', max:'' };
+      const minI = document.createElement('input'); minI.className='cf-input'; minI.type = isNum ? 'number' : 'date'; minI.placeholder='min'; minI.value = cur.min;
+      const sep = document.createElement('span'); sep.textContent='–';
+      const maxI = document.createElement('input'); maxI.className='cf-input'; maxI.type = isNum ? 'number' : 'date'; maxI.placeholder='max'; maxI.value = cur.max;
+      const upd = debounce(()=>{
+        const mn = minI.value, mx = maxI.value;
+        if(mn === '' && mx === '') delete flt[col.key];
+        else flt[col.key] = { kind:col.kind, min:mn, max:mx };
+        save(); refreshBtn(); commit();
+      }, 300);
+      minI.addEventListener('input', upd); maxI.addEventListener('input', upd);
+      pair.appendChild(minI); pair.appendChild(sep); pair.appendChild(maxI); row.appendChild(pair);
+      clearX.onclick = () => { minI.value=''; maxI.value=''; delete flt[col.key]; save(); refreshBtn(); commit(); };
+    }
+    pop.appendChild(row);
+  });
+  const foot = document.createElement('div'); foot.className = 'cf-foot';
+  foot.innerHTML = `<span class="cf-cnt">0 active</span><button type="button">Clear all</button>`;
+  pop.appendChild(foot);
+  foot.querySelector('button').onclick = () => {
+    Object.keys(flt).forEach(k => delete flt[k]);   // mutate in place: the renderer shares this object
+    save();
+    pop.querySelectorAll('input').forEach(i => { if(i.type === 'checkbox') i.checked = false; else i.value = ''; });
+    refreshBtn(); commit();
+  };
+  };   // end build()
+  wrap.appendChild(pop);
+  host.insertBefore(wrap, host.firstChild);
+  refreshBtn();
+  cfBindDoc();
+  btn.onclick = e => { e.stopPropagation(); cfToggle({ wrap, btn, pop, build }); };
+  return { filtered, active, state: () => flt, open: () => cfToggle({ wrap, btn, pop, build }) };
+}
+
 function renderMatrix(panel, matrix, months, curMonth){
   matrixCurMonth = curMonth;
   const ml = monthLabel(curMonth);
   const totalPlanned = matrix.reduce((a,m)=>a+(m.Planned||0),0) || 1;
   const subFmt = v => v + ' (' + Math.round((v/totalPlanned)*100) + '%)';
   const tint = ' class="col-tint"';
-  const head = `<thead>`
-    + `<tr class="group">`
-    + `<th rowspan="2" scope="row">Discipline</th>`
-    + `<th colspan="2" scope="colgroup">Total Submission</th>`
-    + `<th colspan="3" class="tint" scope="colgroup">Submission — ${ml} (selected month)</th>`
-    + `<th colspan="4" scope="colgroup">Approval</th>`
-    + `<th colspan="3" scope="colgroup">Overdue</th>`
-    + `<th rowspan="2"></th>`
-    + `</tr>`
-    + `<tr class="detail">`
-    + `<th scope="col">Total Planned</th><th scope="col">Total Submitted</th>`
-    + `<th class="tint" scope="col">Plan</th><th class="tint" scope="col">Forecast</th><th class="tint" scope="col">Actual</th>`
-    + `<th scope="col">APP</th><th scope="col">AWC</th><th scope="col">REJ</th><th scope="col">NAP</th>`
-    + `<th scope="col">1st</th><th scope="col">Resub</th><th scope="col">Client</th>`
-    + `</tr></thead>`;
-  const rows = matrix.map(m=>{
+  // L2 sorting for the matrix (I-92): Discipline and every measure are sortable; the
+  // TOTAL row stays pinned last (it is in <tfoot>, never part of the sorted rows) and the
+  // per-discipline stage sub-rows always follow their parent (rebuilt from the sorted
+  // order). Empty cells sort last. Default: no sort (disciplines keep their contract order).
+  const matrixCols = [
+    {key:'discipline', label:'Discipline', sortable:true, type:'text'},
+    {key:'Planned', label:'Total Planned', sortable:true, type:'num'},
+    {key:'Submitted', label:'Total Submitted', sortable:true, type:'num'},
+    {key:'PlanMo', label:'Plan', sortable:true, type:'num'},
+    {key:'FcastMo', label:'Forecast', sortable:true, type:'num'},
+    {key:'ActualMo', label:'Actual', sortable:true, type:'num'},
+    {key:'Approved', label:'APP', sortable:true, type:'num'},
+    {key:'AWC', label:'AWC', sortable:true, type:'num'},
+    {key:'REJ', label:'REJ', sortable:true, type:'num'},
+    {key:'NAP', label:'NAP', sortable:true, type:'num'},
+    {key:'ov1', label:'1st', sortable:true, type:'num'},
+    {key:'ov2', label:'Resub', sortable:true, type:'num'},
+    {key:'ov3', label:'Client', sortable:true, type:'num'}
+  ];
+  const matrixGet = (m,key)=> key==='discipline' ? m.discipline : (m[key]==null?'':m[key]);
+  const msort = {col:'', dir:1};
+  const msp = getPref('matrix_sort','');
+  if(/^(-?1)\|/.test(msp)){ const [d,c]=msp.split('|'); if(matrixCols.some(x=>x.key===c)){ msort.col=c; msort.dir=Number(d); } }
+  let mrows = dsSorted(matrix, matrixCols, msort, matrixGet);
+  const matrixThead = (s)=>{
+    const discDir = s.col==='discipline' ? (s.dir===1?'ascending':'descending') : 'none';
+    const discInd = s.col==='discipline' ? (s.dir===1?'▲':'▼') : '⇅';
+    const disc = `<th rowspan="2" scope="row" aria-sort="${discDir}"><button type="button" class="sort-btn" data-col="discipline"><span class="sort-lbl">Discipline</span><span class="sort-ind" aria-hidden="true">${discInd}</span></button></th>`;
+    const L = k => sortHeadCells([matrixCols.find(c=>c.key===k)], s);
+    return `<tr class="group">${disc}`
+      + `<th colspan="2" scope="colgroup">Total Submission</th>`
+      + `<th colspan="3" class="tint" scope="colgroup">Submission — ${ml} (selected month)</th>`
+      + `<th colspan="4" scope="colgroup">Approval</th>`
+      + `<th colspan="3" scope="colgroup">Overdue</th>`
+      + `<th rowspan="2"></th>`
+      + `</tr>`
+      + `<tr class="detail">${L('Planned')}${L('Submitted')}${L('PlanMo')}${L('FcastMo')}${L('ActualMo')}${L('Approved')}${L('AWC')}${L('REJ')}${L('NAP')}${L('ov1')}${L('ov2')}${L('ov3')}</tr>`;
+  };
+  const head = `<colgroup><col style="width:150px"><col style="width:96px"><col style="width:116px"><col style="width:140px"><col style="width:140px"><col style="width:140px"><col style="width:64px"><col style="width:64px"><col style="width:64px"><col style="width:64px"><col style="width:64px"><col style="width:64px"><col style="width:70px"><col style="width:60px"></colgroup><thead>${matrixThead(msort)}</thead>`;
+  const matrixRows = arr => arr.map(m=>{
     const exp = m.stages.length ? `<td><button class="expand" type="button" data-d="${esc(m.discipline)}" aria-expanded="false" title="Expand stages">▸ stages</button></td>` : `<td class="noexp">—</td>`;
     return `<tr><td>${esc(m.discipline)}</td><td>${m.Planned}</td><td>${subFmt(m.Submitted)}</td>`
       + `<td${tint}>${m.PlanMo}</td><td${tint}>${m.FcastMo}</td><td${tint}>${m.ActualMo}</td>`
       + `<td>${m.Approved}</td><td>${m.AWC}</td><td>${m.REJ}</td><td>${m.NAP}</td>`
       + `<td>${m.ov1}</td><td>${m.ov2}</td><td>${m.ov3}</td>${exp}</tr>`;
   }).join('');
+  const rows = matrixRows(mrows);
   const tot = matrix.reduce((a,m)=>{ a.Planned+=m.Planned; a.Submitted+=m.Submitted; a.PlanMo+=m.PlanMo; a.FcastMo+=m.FcastMo; a.ActualMo+=m.ActualMo; a.Approved+=m.Approved; a.AWC+=m.AWC; a.REJ+=m.REJ; a.NAP+=m.NAP; a.ov1+=m.ov1; a.ov2+=m.ov2; a.ov3+=m.ov3; return a; }, {Planned:0,Submitted:0,PlanMo:0,FcastMo:0,ActualMo:0,Approved:0,AWC:0,REJ:0,NAP:0,ov1:0,ov2:0,ov3:0});
   const tfoot = `<tfoot><tr><td>TOTAL</td><td>${tot.Planned}</td><td>${subFmt(tot.Submitted)}</td>`
     + `<td${tint}>${tot.PlanMo}</td><td${tint}>${tot.FcastMo}</td><td${tint}>${tot.ActualMo}</td>`
     + `<td>${tot.Approved}</td><td>${tot.AWC}</td><td>${tot.REJ}</td><td>${tot.NAP}</td>`
     + `<td>${tot.ov1}</td><td>${tot.ov2}</td><td>${tot.ov3}</td><td></td></tr></tfoot>`;
-  panel.innerHTML = `<div class="panel-head"><h2>Per-Discipline Summary Matrix</h2><div class="head-actions"></div></div><div class="panel-body"><div class="tableScroll"><table class="matrix ds-table">${head}<tbody>${rows}</tbody>${tfoot}</table></div></div>`;
+  panel.innerHTML = `<div class="panel-head"><h2>Per-Discipline Summary Matrix</h2><div class="head-actions"></div></div><div class="panel-body"><div class="tableScroll"><table class="matrix ds-table"><caption class="sr-only">Per-Discipline Summary Matrix — a cross-tab of document counts by discipline per month, with a TOTAL row that is always last.</caption>${head}<tbody>${rows}</tbody>${tfoot}</table></div></div>`;
   const subRowsHTML = m => (m?m.stages:[]).map(s=>`<tr class="sub"><td class="subname">${esc(s.stage)}</td><td>${s.Planned}</td><td>${s.Submitted}</td><td${tint}>${s.PlanMo}</td><td${tint}>${s.FcastMo}</td><td${tint}>${s.ActualMo}</td><td>${s.Approved}</td><td>${s.AWC}</td><td>${s.REJ}</td><td>${s.NAP}</td><td>${s.ov1}</td><td>${s.ov2}</td><td>${s.ov3}</td><td></td></tr>`).join('');
   const collapseAll = () => { panel.querySelectorAll('tr.sub').forEach(r=>r.remove());
     panel.querySelectorAll('.expand').forEach(e=>{ e.classList.remove('open'); e.textContent='▸ stages'; e.setAttribute('aria-expanded','false'); e.title='Expand stages'; }); };
   const openOne = td => { const m=matrix.find(x=>x.discipline===td.dataset.d); td.closest('tr').insertAdjacentHTML('afterend', subRowsHTML(m)); td.classList.add('open'); td.textContent='▾ stages'; td.setAttribute('aria-expanded','true'); td.title='Collapse stages'; };
-  panel.querySelectorAll('.expand').forEach(td=>td.onclick=()=>{
+  const bindExpand = ()=> panel.querySelectorAll('.expand').forEach(td=>td.onclick=()=>{
     const wasOpen = td.classList.contains('open');
     collapseAll();
     if(!wasOpen) openOne(td);
   });
+  bindExpand();
+  // L2 sorting (I-92): delegated handler on the scroll container; the header (rebuilt on
+  // each sort) keeps working, TOTAL stays pinned in <tfoot>, and the sorted order feeds
+  // both the displayed rows and the CSV/PNG (single source of truth).
+  const msc = panel.querySelector('.tableScroll');
+  if(msc) wireSort(msc, matrixCols, msort, ()=>{ mrows = dsSorted(matrix, matrixCols, msort, matrixGet); panel.querySelector('tbody').innerHTML = matrixRows(mrows); bindExpand(); }, 'matrix_sort', ()=>matrixThead(msort));
   const toolbar = document.createElement('div'); toolbar.className='toolbar';
   toolbar.innerHTML = `<button class="ea btn btn-secondary" title="Expand every discipline">▾ Expand all</button><button class="ca btn btn-secondary" title="Collapse all disciplines">▸ Collapse all</button><button class="dl btn btn-secondary" title="Export fully-expanded report as PNG">⤓ PNG (full)</button><button class="cp btn btn-secondary" title="Copy fully-expanded report image">⧉ Copy</button><button class="csv btn btn-secondary" title="Download discipline summary matrix (disciplines + stages) as CSV">⤓ CSV</button>`;
   const headActions = panel.querySelector('.head-actions');
@@ -2035,8 +2425,8 @@ function renderMatrix(panel, matrix, months, curMonth){
   wireCollapse(panel);
   toolbar.querySelector('.ea').onclick = ()=>{ collapseAll(); panel.querySelectorAll('.expand').forEach(openOne); };
   toolbar.querySelector('.ca').onclick = ()=> collapseAll();
-  attachExport(toolbar, ()=> matrixSVG(matrix), xp('Discipline_Matrix'));
-  toolbar.querySelector('.csv').onclick = ()=>{ downloadCSV(xp('Discipline_Matrix_'+(curMonth||'all'))+'.csv', matrixCSV(matrix, curMonth)); toast('CSV downloaded','success'); };
+  attachExport(toolbar, ()=> matrixSVG(mrows), xp('Discipline_Matrix'));
+  toolbar.querySelector('.csv').onclick = ()=>{ downloadCSV(xp('Discipline_Matrix_'+(curMonth||'all'))+'.csv', matrixCSV(mrows, curMonth)); toast('CSV downloaded','success'); };
 }
 
 function renderInteractive(host, charts, groupKey){
@@ -2150,22 +2540,55 @@ const OVERDUE_TYPES=[
   {key:'cli', label:'Client-review'}
 ];
 function renderOverdue(panel, o){
-  const rows=[];
-  OVERDUE_TYPES.forEach(t=> (o[t.key]||[]).forEach(r=> rows.push({r, type:t.label})));
-  rows.sort((a,b)=>{
-    const da=a.r.fields['UESH Discipline']||'', db=b.r.fields['UESH Discipline']||'';
-    if(da<db)return -1; if(da>db)return 1;
-    if(a.type<b.type)return -1; if(a.type>b.type)return 1;
-    const na=a.r.docNo||'', nb=b.r.docNo||''; return na<nb?-1:na>nb?1:0;
-  });
+  // L2 column model (I-92): every column sortable; dates sort as dates, statuses as enums,
+  // Delay as a number; empty cells sort last.
+  const overdueCols = OVERDUE_COLS.map(c=>({
+    key: c.h, label: c.h, sortable:true,
+    type: c.num ? 'num' : (/Date$/.test(c.h) ? 'date' : (c.h==='Latest Approval Status' ? 'enum' : c.h==='Submission Status' ? 'enum' : 'text')),
+    order: c.h==='Latest Approval Status' ? ['APP','AWC','REJ','NAP'] : c.h==='Submission Status' ? ['SUR','RTR','NTS'] : undefined,
+    get: x => c.f===null ? (c.h==='Overdue Type' ? x.type : (c.h==='Delay (days)' ? (x.r.delay==null?'':x.r.delay) : '')) : (x.r.fields[c.f]||'')
+  }));
+  const oget = (x,key)=>{ const c=overdueCols.find(k=>k.key===key); return c ? c.get(x) : ''; };
+  const recs=[];
+  OVERDUE_TYPES.forEach(t=> (o[t.key]||[]).forEach(r=> recs.push({r, type:t.label})));
+  // L2 column filtering (I-93): the popover exposes these; the get() is on the overdue row
+  // shape {r, type}. Counts in the popover are derived from recs (current data, never a master
+  // list) per spec §7.2.7 and the FILTER POPULATION RULE in project memory.
+  const fltCols = [
+    {key:'ueshDiscipline', label:'UESH Discipline', kind:'text',   get: x => x.r.fields['UESH Discipline'] || ''},
+    {key:'overdueType',    label:'Overdue Type',    kind:'enum',   get: x => x.type},
+    {key:'delay',          label:'Delay (days)',    kind:'num',    get: x => x.r.delay},
+    {key:'sourceTab',      label:'Source Tab',      kind:'enum',   get: x => x.r.sourceTab},
+    {key:'planned',        label:'Planned 1st Issue Date', kind:'date', get: x => x.r.fields['Planned 1st Issue Date'] || ''}
+  ];
+  // restore persisted filter state (shared object: the popover mutates it in place so the
+  // renderer's match-highlighting stays in sync)
+  const flt = restoreFlt('overdue');
+  let rows = applyFilters(recs, flt, fltCols);
+  // default sort: Delay (days) descending (§7.2.6 point 5 — see the most overdue first)
+  const osort = {col:'Delay (days)', dir:-1};
+  const sp = getPref('overdue_sort','');
+  if(/^(-?1)\|/.test(sp)){ const [d,c]=sp.split('|'); if(overdueCols.some(x=>x.key===c)){ osort.col=c; osort.dir=Number(d); } }
+  rows = dsSorted(rows, overdueCols, osort, oget);
   const colVal=(c,x)=>{
     if(c.f===null){ if(c.h==='Overdue Type') return x.type; if(c.h==='Delay (days)') return (x.r.delay==null?'':x.r.delay); }
     return x.r.fields[c.f]||'';
   };
-  const head=`<thead><tr>${OVERDUE_COLS.map(c=>`<th scope="col">${esc(c.h)}</th>`).join('')}</tr></thead>`;
-  const cells=x=>OVERDUE_COLS.map(c=>`<td${c.num?' class="num"':''}>${esc(colVal(c,x))}</td>`).join('');
+  // map of header label -> filter key, used to highlight text-filter matches in body cells
+  const hdrToFlt = { 'UESH Discipline':'ueshDiscipline', 'Overdue Type':'overdueType', 'Delay (days)':'delay', 'Planned 1st Issue Date':'planned', 'Source Tab':'sourceTab' };
+  const textQ = hdr => { const k=hdrToFlt[hdr]; const f=k && flt[k]; return (f && f.kind==='text' && f.value) ? f.value : ''; };
+  const cellTxt = (c, x) => { const v = colVal(c,x); const q = textQ(c.h); return q ? highlightText(v, q) : esc(v); };
+  // wireSort's renderHead must return the thead's INNER content (rows only) — a nested
+  // <thead> inside <thead> is dropped by the parser but is not something to rely on.
+  const ovHeadRow = ()=>`<tr>${sortHeadCells(overdueCols, osort)}</tr>`;
+  const ovHead = ()=>`<thead>${ovHeadRow()}</thead>`;
+  const head=`<colgroup><col style="width:110px"><col style="width:120px"><col style="width:70px"><col style="width:200px"><col style="width:130px"><col style="width:90px"><col style="width:140px"><col style="width:140px"><col style="width:140px"><col style="width:140px"><col style="width:150px"><col style="width:140px"><col style="width:80px"></colgroup>${ovHead()}`;
+  const cells=x=>OVERDUE_COLS.map(c=>`<td${c.num?' class="num"':''}>${cellTxt(c,x)}</td>`).join('');
+  // an empty result must say WHY: filtered-out rows are a different story from "no overdue data"
   const tbody=tf=>{ const rs=rows.filter(x=>!tf||x.type===tf);
-    return rs.length?rs.map(x=>`<tr class="over">${cells(x)}</tr>`).join(''):`<tr><td colspan="${OVERDUE_COLS.length}" class="empty">No overdue documents</td></tr>`; };
+    return rs.length?rs.map(x=>`<tr class="over">${cells(x)}</tr>`).join(''):`<tr><td colspan="${OVERDUE_COLS.length}" class="empty">${(rows.length<recs.length||tf)?'No overdue documents match the current filter.':'No overdue documents'}</td></tr>`; };
+  const filtered = rows.length < recs.length;
+  const cntText = filtered ? `${rows.length} of ${recs.length} docs` : `${rows.length} docs`;
   panel.innerHTML=`<div class="panel-head">
       <h2>Overdue List</h2>
       <div class="head-actions">
@@ -2176,12 +2599,21 @@ function renderOverdue(panel, o){
           </select>
         </label>
         <button class="csv btn btn-secondary" id="ovCsv" title="Download consolidated overdue list as CSV">⤓ CSV</button>
-        <span class="cnt" id="ovCnt">${rows.length} docs</span>
+        <span class="cnt" id="ovCnt">${cntText}</span>
       </div>
     </div>
-    <div class="tableScroll"><table class="ds-table">${head}<tbody id="ovBody">${tbody('')}</tbody></table></div>`;
+    <div class="tableScroll"><table class="ds-table"><caption class="sr-only">Overdue List — documents past their planned or forecast issue date, with the delay in days.</caption>${head}<tbody id="ovBody">${tbody('')}</tbody></table></div>`;
+  // -- L2 column filter popover (I-93) --
+  const headActions = panel.querySelector('.head-actions');
+  const setCnt = n => { const c = panel.querySelector('#ovCnt'); if(c) c.textContent = (n < recs.length) ? `${n} of ${recs.length} docs` : `${n} docs`; };
+  const cf = attachColFilters(headActions, {
+    key:'overdue', fltCols, recs, state: flt, label:'overdue list',
+    onChange: (out) => { rows = dsSorted(out, overdueCols, osort, oget); setCnt(rows.length); panel.querySelector('#ovBody').innerHTML = tbody(panel.querySelector('#ovType').value); }
+  });
   const sel=panel.querySelector('#ovType');
-  sel.onchange=()=>{ panel.querySelector('#ovBody').innerHTML=tbody(sel.value); const c=panel.querySelector('#ovCnt'); if(c)c.textContent=rows.filter(x=>!sel.value||x.type===sel.value).length+' docs'; };
+  sel.onchange=()=>{ panel.querySelector('#ovBody').innerHTML=tbody(sel.value); const c=panel.querySelector('#ovCnt'); const cnt=rows.filter(x=>!sel.value||x.type===sel.value).length; if(c)c.textContent = (rows.length<recs.length)? `${cnt} of ${recs.length} docs` : `${cnt} docs`; };
+  const sc = panel.querySelector('.tableScroll');
+  wireSort(sc, overdueCols, osort, ()=>{ rows = dsSorted(rows, overdueCols, osort, oget); panel.querySelector('#ovBody').innerHTML=tbody(sel.value); }, 'overdue_sort', ovHeadRow);
   panel.querySelector('#ovCsv').onclick=()=>{
     const tf=sel.value; const rs=rows.filter(x=>!tf||x.type===tf);
     if(!rs.length){ toast('Nothing to export','info'); return; }
@@ -2193,6 +2625,16 @@ function renderOverdue(panel, o){
 }
 function renderValidation(panel, issues, model){
   const SEV = { Error:'⛔', Warning:'⚠️', Info:'ℹ️' };
+  /* §7.2.4 — in a table a severity MUST be a FIXED-SIZE inline SVG, never an emoji.
+     A colour emoji (⛔ ⚠️ ℹ️) resolves to the system emoji font, whose ascent and
+     descent are larger than the text font's AND differ per glyph. That is what made
+     the Sev row taller than every other column and made one row differ from the next
+     (RC-4). An SVG sized in px has identical metrics for all three states. */
+  const SEV_SVG = {
+    Error:'<svg class="sev-svg" viewBox="0 0 14 14" width="14" height="14" role="img" aria-label="Error"><circle cx="7" cy="7" r="6" fill="var(--red)"/><path d="M4.7 4.7l4.6 4.6M9.3 4.7l-4.6 4.6" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>',
+    Warning:'<svg class="sev-svg" viewBox="0 0 14 14" width="14" height="14" role="img" aria-label="Warning"><path d="M7 1.3l5.7 10.4H1.3z" fill="var(--amber)"/><path d="M7 5.1v3.1" stroke="#543a00" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="10.3" r=".85" fill="#543a00"/></svg>',
+    Info:'<svg class="sev-svg" viewBox="0 0 14 14" width="14" height="14" role="img" aria-label="Info"><circle cx="7" cy="7" r="6" fill="var(--blue)"/><path d="M7 6.3v3.9" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="4" r=".85" fill="#fff"/></svg>'
+  };
   const sevKey = s => s==='Error'?'error':(s==='Warning'?'warning':'info');
   const cnt = { error:0, warning:0, info:0 };
   const msgByCode = {};
@@ -2207,8 +2649,13 @@ function renderValidation(panel, issues, model){
   const eb = (model && model.contract && model.contract.errorBlock) || { map:{}, order:[] };
   const fired = [...new Set(issues.map(i=>i.code))].sort();
   const cntByCode = {}; issues.forEach(i => { cntByCode[i.code] = (cntByCode[i.code] || 0) + 1; });
-  const vref = fired.map(code => { const r = eb.map[code] || {}; const sym = SEV[r.severity] || SEV.Warning;
-    return `<tr><td class="sev-${sevKey(r.severity || 'Warning')}">${sym}</td><td><code>${esc(code)}</code></td><td>${esc(r.group || '—')}</td><td>${esc(r.rule || msgByCode[code] || '')}</td><td class="num">${cntByCode[code] || 0}</td></tr>`; }).join('');
+  const vref = fired.map(code => { const r = eb.map[code] || {}; const sym = SEV_SVG[r.severity] || SEV_SVG.Warning;
+    const desc = r.rule || msgByCode[code] || ''; const grp = r.group || '—';
+    // §7.2.4 — the severity class sits on an inner <span>, NEVER on the <td>: a
+    // display value other than table-cell takes a cell out of the table formatting
+    // context, so it stops being a cell and sizes itself independently (RC-1).
+    // §7.2.3 — cells are nowrap + ellipsis, so the full text goes in title.
+    return `<tr><td><span class="sev-${sevKey(r.severity || 'Warning')}">${sym}</span></td><td><code>${esc(code)}</code></td><td title="${esc(grp)}">${esc(grp)}</td><td title="${esc(desc)}">${esc(desc)}</td><td class="num">${cntByCode[code] || 0}</td></tr>`; }).join('');
   // (a) Code-sheet validation summary — rendered as a NOTE CARD (spec §4.5)
   const cm = (model && model.contract) || {};
   const mapped = cm.columnMap ? Object.keys(cm.columnMap).length : 0;
@@ -2218,43 +2665,141 @@ function renderValidation(panel, issues, model){
   const lkCount = Object.keys(lookups).length;
   const lkText = lkCount ? (lkEmpty.length ? `${lkCount} lookup tables (${lkEmpty.length} empty: ${lkEmpty.join(', ')})` : `${lkCount} lookup tables (all populated)`) : 'no lookup tables';
   const vmap = `Code-sheet validation: <b>${mapped}</b> columns mapped · <b>${rulesLoaded}</b> error rules loaded · ${lkText}.`;
+  // L2 sorting for the per-issue list (I-92). Severity is an enum (Error→Warning→Info),
+  // Row is numeric, the rest text. Empty values sort last via dsCmp.
+  const issueCols = [
+    {key:'severity', label:'Severity', sortable:true, type:'enum', order:['Error','Warning','Info']},
+    {key:'code', label:'Rule', sortable:true, type:'text'},
+    {key:'docNo', label:'Doc No', sortable:true, type:'text'},
+    {key:'field', label:'Field', sortable:true, type:'text'},
+    {key:'value', label:'Value', sortable:true, type:'text'},
+    {key:'message', label:'Message', sortable:true, type:'text'},
+    {key:'sourceTab', label:'Source Tab', sortable:true, type:'text'},
+    {key:'rownum', label:'Row', sortable:true, type:'num'}
+  ];
+  const issueGet = (i,key)=> i[key];
+  // L2 column filtering (I-93) — facets derived from the fired issues in THIS run
+  const issueFltCols = [
+    {key:'severity',  label:'Severity',  kind:'enum', get: i => i.severity},
+    {key:'code',      label:'Rule',      kind:'enum', get: i => i.code},
+    {key:'docNo',     label:'Doc No',    kind:'text', get: i => i.docNo},
+    {key:'sourceTab', label:'Source Tab',kind:'enum', get: i => i.sourceTab},
+    {key:'rownum',    label:'Row',       kind:'num',  get: i => i.rownum}
+  ];
+  const issueFlt = restoreFlt('issue');
+  const isort = {col:'', dir:1};
+  const isp = getPref('issue_sort','');
+  if(/^(-?1)\|/.test(isp)){ const [d,c]=isp.split('|'); if(issueCols.some(x=>x.key===c)){ isort.col=c; isort.dir=Number(d); } }
+  // highlight the Doc No cell when its text filter is active
+  const docTxt = v => { const f = issueFlt.docNo; return (f && f.kind==='text' && f.value) ? highlightText(v, f.value) : esc(v); };
+  let issueView = dsSorted(applyFilters(issues, issueFlt, issueFltCols), issueCols, isort, issueGet);
+  const issueRows = list => list.map(i=>`<tr><td><span class="sev-${sevKey(i.severity)}">${SEV_SVG[i.severity]||SEV_SVG.Warning}</span></td><td>${esc(i.code)}</td><td>${docTxt(i.docNo)}</td><td>${esc(i.field||'—')}</td><td>${esc(i.value==null?'—':i.value)}</td><td>${esc(i.message)}</td><td>${esc(i.sourceTab)}</td><td class="num">${esc(i.rownum)}</td></tr>`).join('');
+  const issueHeadRow = ()=>`<tr>${sortHeadCells(issueCols, isort)}</tr>`;
+  const issueHead = ()=>`<thead>${issueHeadRow()}</thead>`;
+  const issueFiltered = issueView.length < issues.length;
+  const issueCntText = issueFiltered ? `${issueView.length} of ${total} issues` : `${total} issue${total===1?'':'s'}`;
   panel.innerHTML=`<div class="panel-head"><h2>Validation Issues</h2>
-      <div class="head-actions"><span class="vchips" id="vChips">${chips}</span><button id="vCsv" class="csv btn btn-secondary" title="Download validation issue list as CSV">⤓ CSV</button><span class="cnt" id="vCnt">${total} issues</span></div></div>
+      <div class="head-actions"><span class="vchips" id="vChips">${chips}</span><button id="vCsv" class="csv btn btn-secondary" title="Download validation issue list as CSV">⤓ CSV</button><span class="cnt" id="vCnt">${issueCntText}</span></div></div>
     <div class="note">${total} issue${total===1?'':'s'} across ${fired.length} rule${fired.length===1?'':'s'}. All wording &amp; severity sourced from the Code sheet Error block (Code!AI:AL) — none hard-coded.</div>
     <details class="vdetails"><summary>Validation detail — code-sheet check, rule reference, full issue list</summary>
       <div class="vbody">
         <div class="vnote" id="vmap">${vmap}</div>
-        <div class="vrefcard" id="vref"><div class="vrefhead">Rule Reference (fired)</div><div class="tableScroll"><table class="ds-table"><thead><tr><th scope="col">Sev</th><th scope="col">Code</th><th scope="col">Group</th><th scope="col">Description</th><th scope="col">Count</th></tr></thead><tbody>${vref||'<tr><td class="empty" colspan="5">No rules fired.</td></tr>'}</tbody></table></div></div>
-        <div class="tableScroll vtableWrap"><table class="ds-table"><thead><tr>
-          <th scope="col">Severity</th><th scope="col">Rule</th><th scope="col">Doc No</th><th scope="col">Field</th><th scope="col">Value</th><th scope="col">Message</th><th scope="col">Source Tab</th><th scope="col">Row</th>
-        </tr></thead><tbody>
-          ${issues.map(i=>`<tr><td class="sev-${sevKey(i.severity)}">${SEV[i.severity]||''}</td><td>${esc(i.code)}</td><td>${esc(i.docNo)}</td><td>${esc(i.field||'—')}</td><td>${esc(i.value==null?'—':i.value)}</td><td>${esc(i.message)}</td><td>${esc(i.sourceTab)}</td><td class="num">${esc(i.rownum)}</td></tr>`).join('')}
-        </tbody></table></div>
+        <div class="vrefcard" id="vref"><div class="vrefhead">Rule Reference (fired)</div><table class="ds-table vheadtab"><caption class="sr-only">Rule Reference — the data-quality rules that fired in this run, with severity, code, group, description and the number of occurrences.</caption><colgroup><col style="width:56px"><col style="width:110px"><col style="width:140px"><col><col style="width:70px"><col style="width:var(--ds-sbw,0px)"></colgroup><thead><tr><th scope="col">Sev</th><th scope="col">Code</th><th scope="col">Group</th><th scope="col">Description</th><th scope="col">Count</th><th class="ds-gut" aria-hidden="true"></th></tr></thead></table><div class="tableScroll"><table class="ds-table" aria-label="Rule Reference data rows"><colgroup><col style="width:56px"><col style="width:110px"><col style="width:140px"><col><col style="width:70px"></colgroup><tbody>${vref||'<tr><td class="empty" colspan="5">No rules fired.</td></tr>'}</tbody></table></div></div>
+        <div class="tableScroll vtableWrap"><table class="ds-table"><caption class="sr-only">Validation issue list — every individual issue found, with severity, rule, document number, field, value, message, source tab and row number.</caption><colgroup><col style="width:70px"><col style="width:90px"><col style="width:110px"><col style="width:120px"><col style="width:130px"><col style="width:300px"><col style="width:110px"><col style="width:60px"></colgroup>${issueHead()}<tbody id="vBody">${issueView.length?issueRows(issueView):`<tr><td class="empty" colspan="${issueCols.length}">No issues match the current filter.</td></tr>`}</tbody></table></div>
       </div>
     </details>`;
-  panel.querySelector('#vCsv').onclick=()=>{ if(!issues.length){ toast('Nothing to export','info'); return; } downloadCSV(xp('issue_list')+'.csv', issuesCSV(model, issues)); toast('CSV downloaded','success'); };
+  panel.querySelector('#vCsv').onclick=()=>{ if(!issueView.length){ toast('Nothing to export','info'); return; } downloadCSV(xp('issue_list')+'.csv', issuesCSV(model, issueView)); toast('CSV downloaded','success'); };
+  // L2 sorting (I-92): delegated handler on the scroll container, so the header (rebuilt on
+  // each sort) keeps working; the CSV reads the same sorted array the table shows.
+  const vsc = panel.querySelector('.vtableWrap');
+  if(vsc) wireSort(vsc, issueCols, isort, ()=>{ issueView = dsSorted(issueView, issueCols, isort, issueGet); panel.querySelector('#vBody').innerHTML = issueView.length ? issueRows(issueView) : `<tr><td class="empty" colspan="${issueCols.length}">No issues match the current filter.</td></tr>`; }, 'issue_sort', issueHeadRow);
+  // L2 column filtering (I-93)
+  const iHead = panel.querySelector('.head-actions');
+  attachColFilters(iHead, {
+    key:'issue', fltCols: issueFltCols, recs: issues, state: issueFlt, label:'issue list',
+    onChange: (out) => {
+      issueView = dsSorted(out, issueCols, isort, issueGet);
+      panel.querySelector('#vBody').innerHTML = issueView.length ? issueRows(issueView)
+        : `<tr><td class="empty" colspan="${issueCols.length}">No issues match the current filter.</td></tr>`;
+      const c = panel.querySelector('#vCnt');
+      if(c) c.textContent = (issueView.length < issues.length) ? `${issueView.length} of ${total} issues` : `${total} issue${total===1?'':'s'}`;
+    }
+  });
+  /* §7.2.15 — keep the split header on the same column grid as the body AND cover the
+     scrollbar area. The header fragment is sized to the scroller's BORDER box (so the
+     navy reaches the card edge instead of leaving a white notch), and its gutter column
+     is given the scrollbar width, so the five data columns still line up exactly.
+     Re-synced whenever the scroller's box changes — a scrollbar appearing or disappearing
+     changes clientWidth with no window resize, so a resize listener is not enough. */
+  const sc=panel.querySelector('#vref .tableScroll'), hd=panel.querySelector('#vref .vheadtab');
+  if(sc&&hd){
+    const sync=()=>{
+      hd.style.width=sc.offsetWidth+'px';
+      hd.style.setProperty('--ds-sbw',(sc.offsetWidth-sc.clientWidth)+'px');
+    };
+    sync();
+    if(typeof ResizeObserver==='function') new ResizeObserver(sync).observe(sc);
+  }
 }
 function renderDetail(panel, recs, model, state, rerender){
   const cols = model.contract.fieldOrder;
-  const sr = state.sort;
-  let rows = recs.slice();
-  if(sr.col){ const idx=cols.indexOf(sr.col); rows.sort((a,b)=> (a.fields[sr.col]||'')<(b.fields[sr.col]||'')?-sr.dir:(a.fields[sr.col]||'')>(b.fields[sr.col]||'')?sr.dir:0); }
-  panel.innerHTML=`<div class="panel-head"><h2>Document Detail Table</h2>
-      <div class="head-actions"><button id="dCsv" class="csv btn btn-secondary" title="Download document list as CSV">⤓ CSV</button><span class="cnt" id="dCnt">${rows.length} docs</span></div></div>
-    <div class="tableScroll"><table class="ds-table"><thead><tr><th scope="col">Source Tab</th><th scope="col">Active</th>${cols.map(c=>`<th scope="col" data-col="${esc(c)}">${esc(c)}</th>`).join('')}</tr></thead><tbody>
-    ${rows.map(r=>`<tr><td>${esc(r.sourceTab)}</td><td class="${r.isActive?'act':'ina'}">${r.isActive?'Y':'N'}</td>${cols.map(c=>{
+  state.sort = state.sort || {col:'', dir:1};
+  // L2 column model (I-92): Source Tab (not sorted), Active (enum), then contract fields (text).
+  const detailCols = [
+    {key:'__src', label:'Source Tab', sortable:false},
+    {key:'__active', label:'Active', sortable:true, type:'enum', order:['Yes','No']},
+    ...cols.map(c=>({key:c, label:c, sortable:true, type:'text'}))
+  ];
+  const detailGet = (r,key)=> key==='__src' ? r.sourceTab : key==='__active' ? (r.isActive?'Yes':'No') : (r.fields[key]);
+  // L2 column filtering (I-93). Only contract fields that actually exist are offered, and
+  // every facet is derived from the CURRENT rows (never a master list, §7.2.7). The
+  // excluded-stage convention lives in the global filter, so the table facet lists only
+  // what the current data contains.
+  const hasF = n => cols.includes(n);
+  const detailFltCols = [
+    ...(hasF('Document No.') ? [{key:'Document No.', label:'Document No.', kind:'text', get: r => r.fields['Document No.']||''}] : []),
+    ...['UESH Discipline','Stage','Latest Approval Status','Submission Status','Authority','Discipline (Code)']
+        .filter(hasF).map(n => ({key:n, label:n, kind:'enum', get: r => r.fields[n]||''})),
+    {key:'__active', label:'Active', kind:'enum', get: r => r.isActive?'Yes':'No'},
+    {key:'__src', label:'Source Tab', kind:'enum', get: r => r.sourceTab}
+  ];
+  const detailFlt = restoreFlt('detail');
+  // restore persisted sort (§7.2.6)
+  const sp = getPref('detail_sort','');
+  if(/^(-?1)\|/.test(sp)){ const [d,c]=sp.split('|'); if(detailCols.some(x=>x.key===c)) state.sort={col:c, dir:Number(d)}; }
+  const detailHeadRow = ()=>`<tr>${sortHeadCells(detailCols, state.sort)}</tr>`;
+  const detailHead = ()=>`<thead>${detailHeadRow()}</thead>`;
+  const detailTextQ = c => { const f = detailFlt[c]; return (f && f.kind==='text' && f.value) ? f.value : ''; };
+  let rows = applyFilters(recs, detailFlt, detailFltCols);
+  if(state.sort.col){ rows = dsSorted(rows, detailCols, state.sort, detailGet); }
+  const bodyHTML = () => rows.length?rows.map(r=>`<tr><td>${esc(r.sourceTab)}</td><td class="${r.isActive?'act':'ina'}">${r.isActive?'Y':'N'}</td>${cols.map(c=>{
       if(c==='Latest Approval Status'){   // I-80: show the derived approval category, not just the raw code
         const cat=approvalCategory(r);
         const m={'APP':'p-app','AWC':'p-awc','REJ':'p-rej','NAP':'p-nap','Submitted – Pending Review':'p-pend','Submitted – Status Unavailable':'p-unav','Not Submitted':'p-nsub','Record Error':'p-rerr'};
         const cls=m[cat]||''; const label=['APP','AWC','REJ','NAP'].includes(cat)?(r.fields['Latest Approval Status']||''):cat;
         return `<td class="${cls}">${esc(label)}</td>`;
       }
-      const val=r.fields[c]; const cls=statusPill(c,val);
-      return `<td class="${cls}">${esc(val)}</td>`;
-    }).join('')}</tr>`).join('')}
+      const val=r.fields[c]; const cls=statusPill(c,val); const q=detailTextQ(c);
+      return `<td class="${cls}">${q?highlightText(val,q):esc(val)}</td>`;
+    }).join('')}</tr>`).join(''):`<tr><td class="empty" colspan="${cols.length+2}">${(rows.length<recs.length)?'No documents match the current filter.':'No documents match the current filter.'}</td></tr>`;
+  const setCnt = () => { const c = panel.querySelector('#dCnt'); if(c) c.textContent = (rows.length<recs.length) ? `${rows.length} of ${recs.length} docs` : `${rows.length} docs`; };
+  const renderBody = () => { const tb = panel.querySelector('tbody'); if(tb) tb.innerHTML = bodyHTML(); setCnt(); };
+  panel.innerHTML=`<div class="panel-head"><h2>Document Detail Table</h2>
+      <div class="head-actions"><button id="dCsv" class="csv btn btn-secondary" title="Download document list as CSV">⤓ CSV</button><span class="cnt" id="dCnt">${rows.length} docs</span></div></div>
+    <div class="tableScroll"><table class="ds-table"><caption class="sr-only">Document Detail Table — one row per document: Source Tab and Active identify the record, followed by the ${cols.length} contract fields.</caption><colgroup><col style="width:120px"><col style="width:70px">${cols.map(()=>'<col style="width:130px">').join('')}</colgroup>${detailHead()}
+    <tbody>
+    ${bodyHTML()}
     </tbody></table></div>`;
-  panel.querySelectorAll('th[data-col]').forEach(th=>th.onclick=()=>{ const col=th.dataset.col; if(state.sort.col===col)state.sort.dir*=-1; else state.sort={col,dir:1}; rerender(); });
-  panel.querySelector('#dCsv').onclick=()=>{ if(!recs.length){ toast('Nothing to export','info'); return; } downloadCSV(xp('document_list')+'.csv', docsCSV(model, recs)); toast('CSV downloaded','success'); };
+  setCnt();
+  const sc = panel.querySelector('.tableScroll');
+  wireSort(sc, detailCols, state.sort, ()=>{ rows = dsSorted(rows, detailCols, state.sort, detailGet); renderBody(); }, 'detail_sort', detailHeadRow);
+  // L2 column filtering (I-93) — recompute in place so the popover stays open
+  attachColFilters(panel.querySelector('.head-actions'), {
+    key:'detail', fltCols: detailFltCols, recs, state: detailFlt, label:'document list',
+    onChange: (out) => { rows = state.sort.col ? dsSorted(out, detailCols, state.sort, detailGet) : out; renderBody(); }
+  });
+  // §7.2.10 — parity: the CSV MUST read the same sorted array the renderer used
+  panel.querySelector('#dCsv').onclick=()=>{ if(!rows.length){ toast('Nothing to export','info'); return; } downloadCSV(xp('document_list')+'.csv', docsCSV(model, rows)); toast('CSV downloaded','success'); };
 }
 function statusPill(field, val){
   if(field==='Latest Approval Status'){ return ({APP:'p-app',AWC:'p-awc',REJ:'p-rej',NAP:'p-nap'})[val]||''; }

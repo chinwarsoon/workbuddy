@@ -521,6 +521,11 @@ open-ended list that stretches the page.
   full size is still communicated even though the list is clipped.
 - Row content: one record per row, no duplicated paragraph text; numeric columns right-aligned
   with `.num` + tabular figures.
+- **Windowing (L3, §7.2.8).** Because the list is never truncated, a table whose *columns × rows*
+  product makes full DOM materialisation expensive MUST render only the visible window. The
+  control row still reports the **full** count.
+- **Print (§7.2.11).** `.tableScroll` MUST be released inside `@media print`, otherwise the 340 px
+  cap clips every long table in the exported PDF.
 - **Panel title must not hard-code the filter value.** Name the panel after the *view*
   (`PO Look-Ahead`), not after the current selection (`3-Month PO Look-Ahead`) — the horizon is
   a user control, so the title describing it goes stale the moment the user changes it.
@@ -622,9 +627,17 @@ once.
      §7.2): the full issue list.
 
 **Per-issue table columns:** severity **first**, then `Rule · Doc No · Field · Value · Message`
-(+ `Source Tab` / `Row` where the dashboard tracks them). Severity renders as a `.sev` chip
-carrying the §3.5 tier symbol — **`⛔` error / `⚠️` warning / `ℹ️` info** — *not* the lone `⚠`
-used elsewhere, so warning-only rows cannot be mistaken for errors.
+(+ `Source Tab` / `Row` where the dashboard tracks them). Severity renders as a **bare `.sev`
+glyph** — a **fixed-size inline SVG** (14×14, `role="img"` + `aria-label`, §7.2.4), one shape
+per tier (red circle-cross / amber triangle / blue circle-i), *not* the colour-emoji `⛔ ⚠️ ℹ️`
+whose per-glyph font metrics inflate the row and differ between severities. **The `.sev` glyph
+must be flat: no filled circular / pill background, no `border-radius`, no padding** — it sits
+inline inside the cell without overlapping cell borders. The glyph lives on an **inner `<span>`**
+that carries `.sev-error` / `.sev-warning` / `.sev-info`; that class MUST NOT be applied to the
+`<td>` (§7.2.4). This applies to **both** the per-issue table *(c)* and the Rule Reference table
+*(b)* (`#vref`), which share those classes. (Distinct from the §4.5.2 `.vchip` summary chips,
+which keep their 6px PPP shape with colour fill and are not in a table, so the emoji is
+allowable there.)
 
 - **Field** = the column the *business rule* (Code-sheet Error block) checks — a real source
   column name (e.g. `Actual 1st Issue Date`, `Latest Approval Date`, `Rev`, `CUESH Discipline`).
@@ -811,11 +824,64 @@ so they adapt automatically; no per-component dark CSS beyond the token swap (PP
   "26 px square" and passes a text-only check.
 - Inline panel actions sit in the title row, **right-aligned** as a cluster (see §4); within the cluster Help `?` is left of Collapse `−`.
 
-### 7.2 Tables (`.ds-table`)
+### 7.2 Tables (`.ds-table`) — rev 2026-10-15
+
+> **Why this revision exists.** The pre-2026-10-15 §7.2 specified *appearance and semantics
+> only*. Because none of it was enforceable, both shipped dashboards produced tables that are
+> semantically correct (`<table>` + `<th scope>`) yet visually ragged and interaction-free — most
+> visibly a severity column whose row height and baseline differ from every other column in the
+> same row. §7.2.1–§7.2.12 below add the **normative interaction and typography contract**.
+> Every **MUST** is a testable acceptance criterion.
+
 One common table style for **every** tabular view. Data tables (benchmark, look-ahead,
 overdue) and issue tables (validation) all use `.ds-table`; issue tables add severity + optional
 row drill-down on top of the same base — never a second, divergent table style.
 
+#### 7.2.0 Normative class names (closes §13.6 open item 5)
+These class names are **normative** and MUST be used verbatim. A dashboard MAY add its own
+classes alongside them but MUST NOT substitute them; panel / container class names remain free
+(§4).
+
+| Class | Role |
+|---|---|
+| `.ds-table` | the one table style (`.ds-table.compact` = dense numeric variant, §7.2.3) |
+| `.tableScroll` | bounded scroller (§4.3); `.vtableWrap` is its validation instance |
+| `.num` | right-aligned numeric cell with tabular figures |
+| `.empty` | empty-state cell |
+| `.over` | overflow-highlighted row |
+| `.sub` | drill-down child row |
+| `.matrix` | cross-tab variant (§7.2.9) |
+| `.th-wrap` / `.lb` | flex wrapper inside `<th>`, and the header label span inside it |
+| `.ds-sort` | the real `<button>` inside a sortable `<th>` (§7.2.6) |
+| `.ds-pinned` | a pinned (frozen) cell — a property of the column, not the position (§7.2.13) |
+| `.ds-pinned-edge` | the **last** pinned cell; carries the freeze rule and the elevation (§7.2.14) |
+| `.ds-resize` | the `--ds-grip-w` resize hit area on a header's right edge (§7.2.13) |
+| `.ds-spacer` | a windowing spacer row (§7.2.8) |
+| `.sev-error` / `.sev-warning` / `.sev-info` | severity state, on an **inner span** (§7.2.4) |
+| `.sev-chip` / `.sev-svg` | that inner chip span, and the fixed-size status SVG inside it |
+
+**State classes** (added and removed by script, never hard-coded in markup):
+
+| Class | On | Meaning |
+|---|---|---|
+| `.ds-dragging` | the `<th>` | its column is currently being resized (§7.2.13) |
+| `.ds-resizing` | `<body>` | a resize drag is in progress — suppresses text selection |
+| `.scrolled-x` | `.tableScroll` | scrolled horizontally, so the elevation is showing (§7.2.14) |
+
+#### 7.2.1 Maturity levels — pick the level, do not improvise
+A "real `<table>`" only guarantees structure and accessibility; it does **not** guarantee a grid,
+and it does **not** guarantee interaction. Choose the level the data needs:
+
+| Level | Name | Capabilities | When required |
+|---|---|---|---|
+| L0 | Layout table | — | **Forbidden.** Never use `<table>` for page layout. |
+| L1 | Static read-only table | Semantics + sticky header + zebra / hover only | Small, stable, print-oriented extracts |
+| L2 | **Interactive data table** | L1 + sort, filter / search, pagination *or* bounded scroller, column visibility, row hover / selection. Cells stay read-only. | **Minimum for every dashboard data table** |
+| L3 | Data grid | L2 + pinned column(s), column resize / reorder, windowed rendering (§7.2.8), `role="grid"` + cell-level keyboard navigation | **Required when a table exceeds 12 columns**, or exceeds ~1 000 rows inside a bounded scroller |
+| L4 | Editable spreadsheet | Cell editing, formulas, clipboard | Out of scope for these dashboards; use a dedicated grid product |
+| L5 | Specialised variants | Cross-tab / pivot (§7.2.9), expandable, tree, master–detail, responsive card-stack | As required by the data shape |
+
+#### 7.2.2 Presentation base (now normative)
 - **Header**: `thead th`, `--navy` background, white text, 12–13 px, weight 600. Inside a scroll
   container (`.tableScroll`, §4.3 — `.vtableWrap` is the validation-table instance of it) the
   header is `position:sticky; top:0` so it stays visible while scrolling long lists.
@@ -825,12 +891,400 @@ row drill-down on top of the same base — never a second, divergent table style
   columns get class `.num` → right-aligned with `tabular-nums`.
 - **Zebra**: even body rows `#F9FBFD`; row `:hover` → `--soft` tint.
 - **Overflow highlight**: a row tagged `.over` gets `--warn-bg` (overrides zebra).
-- **Empty state**: `.empty` muted caption.
+- **Empty state**: `.empty` muted caption — **MANDATORY on every table**, including the wide
+  detail table. A zero-row `<tbody>` with no message is a defect.
 - **Issue-table extensions**: severity rendered as a `.sev` chip (`.sev-error` / `.sev-warning`
   / `.sev-info`); rows may be expandable drill-downs (`.ovl-row`, `aria-expanded`, chevron).
 - **Accessibility**: every header cell is `<th scope="col">`; use `<th scope="row">` for a leading
-  row label.
-- Row height ≈ 40 px; no heavy vertical gridlines beyond the 1 px bottom rule.
+  row label. Every table MUST carry a `<caption>` (visually hidden via `.sr-only` is acceptable).
+- **Divider standard (NORMATIVE).** Every rule in a table is **1 px** — one width everywhere. The
+  colour follows the surface it sits on, because a rule must keep its contrast against both the
+  navy header and the white body:
+
+  | Kind | Where | Width | Colour | On interaction |
+  |---|---|---|---|---|
+  | Row rule | bottom of every `td` and `thead th` | 1 px | `--border` | never changes |
+  | **Column rule** | right edge of **every header cell** — this is how the user sees where a column ends | 1 px | white 38 % on the navy header | brightens to 70 % on hover, solid white while the column is being resized; **the width MUST NOT change** |
+  | Freeze rule | right edge of the last pinned column, **full height through the body** | 1 px | `--border` | never changes |
+
+  Four corollaries:
+  (a) **the column rule is drawn on the header cell, not on the resize grip.** A grip exists only
+  on a resizable table, so a grip-borne rule gives that table a full vertical grid while every
+  non-resizable table in the same dashboard shows none — two grid languages side by side. Drawing
+  it on the header makes every table identical.
+  (b) **No trailing rule past the last column.** Suppressing it by `:last-child` is correct only
+  while the header's last cell *is* the last data column. A split header (§7.2.15) appends a
+  non-data **gutter column** of class `.ds-gut` (hidden, `aria-hidden`) to absorb the scrollbar
+  width; that gutter then becomes `:last-child`, so `th:last-child::after{display:none}` silently
+  slides the suppression off the real last column and a spurious rule appears between the last
+  column and the gutter — exactly above the scrollbar. The suppression MUST cover the last **two**
+  cells (`th:nth-last-child(-n+2)::after{display:none}`) so the gutter and the last data column
+  are both rule-free.
+  (b2) **A grouped header's spanning cells carry no rule.** The rule is an `::after` on the header
+  cell, so on a two-level header (§7.2.9) it also fires on the `colspan` **group** cells — drawing
+  a rule at a non-leaf boundary, in the middle of a merged span. Suppress it with
+  `th[colspan]::after{display:none}`; the leaf row's cells still carry their rules, so every leaf
+  column edge stays visible while the group bands stay clean.
+  (c) Where the freeze boundary meets the header it is *already* one of the column rules, so the
+  freeze shadow is dropped on the header — **one line per boundary, never two**.
+  (d) The body carries **no** vertical rules: the grid stays open so the eye can scan a row without
+  interruption. The only vertical rule below the header is the freeze boundary.
+  (e) **The title band and the header row are one navy surface, but they are not the same element.**
+  When they are made the same colour (§7.2.15, point 1) the header area otherwise has **no visible
+  horizontal rule** — the only rule that existed (the title-band bottom border) was deliberately
+  removed to merge the two, and the header's own bottom rule sits on the navy→white boundary where
+  the colour change already separates them. A **1 px horizontal rule in the head-rule colour
+  (`--ds-head-rule`, white 38 %) MUST therefore be placed on the title band's bottom edge**, so the
+  header area reads as a title on top of a header rather than one solid block. Consistency: every
+  rule inside the navy block (column rules + this band divider) uses the head-rule colour; the
+  navy→white boundary uses the grey `--border` already on `thead th`.
+
+#### 7.2.3 Row typography tokens — the grid discipline (NORMATIVE)
+A data table is a **grid**, not a flow of text. Row height MUST be uniform and MUST NOT be
+derived from cell content. A spreadsheet achieves this by keeping row height constant and letting
+content overflow; HTML tables do the opposite by default, so it MUST be imposed explicitly.
+
+| Token | Value | Applies to |
+|---|---|---|
+| `--ds-row-h` | `40px` | every body row |
+| `--ds-head-h` | `40px` | `thead th` — MUST equal `--ds-row-h` |
+| `--ds-cell-fs` | `12px` | every cell, header and body, with **no exceptions** |
+| `--ds-cell-lh` | `20px` | every cell |
+| `--ds-rule-w` | `1px` | **every** rule in the table — rows, columns, freeze boundary. Never a second value (§7.2.2) |
+| `--ds-rule-c` | `var(--border)` | a rule on a **light** surface — row rules, freeze boundary |
+| `--ds-head-rule` | `rgba(255,255,255,.38)` | the column rule on the **navy header**, at rest |
+| `--ds-head-rule-hi` | `rgba(255,255,255,.7)` | the same rule on hover / while resizing |
+| `--ds-grip-w` | `6px` | the resize hit area on a header's right edge (§7.2.13) |
+| `--z-cell` | `0` | plain `td` — base layer (§7.2.5) |
+| `--z-pinned` | `2` | pinned `td` |
+| `--z-head` | `3` | header `th` |
+| `--z-pinned-head` | `4` | pinned header `th` — top layer |
+
+Rules:
+1. **One font size and one line-height per table.** No cell may override `font-size` or
+   `line-height`. A chip, badge, `<code>`, icon or status class MUST inherit both.
+2. **Single line with ellipsis.** Body cells MUST be `white-space:nowrap; overflow:hidden;
+   text-overflow:ellipsis`; the full value goes in `title` or the row drill-down (§4.4).
+   Multi-line content is permitted only inside an expanded drill-down, never in a body row.
+3. **Uniform height is enforced, not hoped for**: `td{height:var(--ds-row-h)}`. Content MUST NOT
+   be allowed to grow the row.
+4. **Dense variant.** `.ds-table.compact` (all-numeric cross-tabs) MAY use `--ds-row-h:32px` with
+   `padding:4px 8px`, but MUST still satisfy rules 1–3.
+5. **Header and body heights MUST match**; mixing them is a defect.
+
+#### 7.2.4 Status glyphs, chips and inline elements (NORMATIVE)
+- **A chip / status / severity class MUST NOT be applied to `<td>` or `<th>`.** Setting
+  `display:inline-block` (or any non-`table-cell` display) on a cell removes it from the table
+  formatting context: the browser wraps it in an anonymous cell, and `padding`,
+  `vertical-align`, column width and the 1 px `border-bottom` all silently change meaning. Chips
+  belong on an **inner `<span>`**.
+- **Emoji MUST NOT be used as a status glyph in a table.** Colour-emoji glyphs resolve to a
+  fallback font whose ascent / descent exceed the text font's, inflating the line box beyond the
+  declared `line-height` and pulling the glyph off the baseline; the three common severity glyphs
+  (`⛔ U+26D4`, `⚠️ U+26A0+FE0F`, `ℹ️ U+2139+FE0F`) each have **different metrics**, so rows
+  differ from one another. Use a **fixed-size inline SVG** (14×14, `role="img"` +
+  `aria-label="Error | Warning | Info"`), which also removes the screen-reader reading
+  inconsistency across platforms.
+- **`<code>` inside a table MUST be reset** (`font:inherit` plus an optional chip background). The
+  UA `monospace` default resolves to a different size and width and re-introduces the mismatch.
+- **Icons are sized in px**, never left to inherit font metrics.
+
+#### 7.2.5 Structural prerequisites (NORMATIVE for L2 / L3)
+Every L2 / L3 table MUST be built as `<colgroup>` (one `<col>` per **leaf** column) plus
+`table-layout:fixed`. This is the shared prerequisite for pinned columns, column resize,
+windowed rendering and single-line ellipsis. Cross-tab headers using `colspan` / `rowspan`
+(§7.2.9) MUST still emit one `<col>` per leaf column.
+
+Two construction rules that fail **silently** when got wrong, and have done so in practice:
+- **`<caption>` MUST be the first child of `<table>`, before `<colgroup>`.** A rebuild that
+  anchors insertion on `firstChild` will otherwise drop or duplicate it.
+- **A `<colgroup>` created by assigning `innerHTML` MUST be built inside a `<table>` container,
+  not a `<div>`.** The HTML parser discards `<colgroup>` / `<col>` outside a table context, so the
+  widths vanish and `table-layout:fixed` then distributes columns by content — producing precisely
+  the drift described below.
+
+**The table MUST also be given a DEFINITE width** (`style.width`, not merely `min-width`).
+`table-layout:fixed` only honours `<col>` widths when `width` is definite; with `width:auto`
+the browser falls back to content-driven sizing, so wide-content columns (e.g. *Notes*,
+*Document Title*) absorb space from every other column and **rendered widths silently drift
+from the declared ones** — in one measured case by up to 132 px on a single column while the
+table total stayed identical.
+
+**Every column MUST have an explicit width — leave no `<col>` on `auto`.** Under
+`table-layout:fixed` an `auto` column receives only the **remainder** (table width − sum of the
+fixed columns), and that remainder is **clamped at zero**: once the fixed columns' sum reaches the
+table's width, the `auto` column disappears entirely rather than forcing a horizontal scroll.
+Measured on a 13-column table whose fixed columns totalled 1370 px inside a 1300 px panel — the
+`auto` *Document Title* column rendered **0 px wide** and its content vanished. The same mechanism
+destroys a many-column table left on `auto`: a 27-column grid sharing the remainder gave every
+contract field **39 px**, truncating each to ~5 characters. Give each column a px width and let the
+table overflow its scroller horizontally; that is the correct behaviour for a wide grid.
+
+**Pinned-column offsets MUST be measured from the rendered grid, not summed from declared
+widths.** Where those two disagree, the frozen columns are pulled apart and the resulting
+**gap reads as a thick divider whose width changes as the user drags** — a layout bug
+presenting as a visual one. Measure each header cell's rendered width and accumulate.
+
+**Pinned-column stacking — a four-layer ladder.** A pinned cell overlaps the scrolling content,
+so the layers MUST be declared explicitly (these refine the generic stacking list in §13 for the
+table context):
+
+| Layer | Token | Value |
+|---|---|---|
+| plain `td` | `--z-cell` | `0` |
+| pinned `td` | `--z-pinned` | `2` |
+| header `th` | `--z-head` | `3` |
+| pinned header `th` | `--z-pinned-head` | `4` |
+
+**A pinned cell MUST declare an OPAQUE background for every state the row can be in** — default,
+zebra (`tbody tr:nth-child(even) td.ds-pinned`) and `:hover`. A pinned cell that only sets
+`background:#fff` will let the scrolling columns show through it on zebra rows and on hover,
+which is the single most common pinned-column defect.
+
+#### 7.2.6 Sorting contract (L2, NORMATIVE)
+1. **Trigger**: a real `<button type="button">` inside the `<th>` — never `th.onclick`. Enter /
+   Space MUST work and the control MUST be reachable by Tab.
+2. **Three states**: unsorted → ascending → descending → **unsorted**. A third state returning to
+   the natural order is mandatory; a two-state toggle traps the user inside a sort.
+3. **Announce**: `aria-sort="none | ascending | descending"` on the `<th>`, kept in sync.
+4. **Affordance**: a `▴` / `▾` indicator. Unsorted columns show a low-opacity indicator on hover
+   and focus; **only the active sort column** shows a solid one. Sortable headers MUST show
+   `cursor:pointer`.
+5. **Default sort**: the table MUST open sorted by the column most relevant to the user's task
+   (for overdue / date-driven lists: soonest or most-delayed first) and MUST display that state.
+6. **Type-aware comparator** — a single string comparator is a defect:
+
+   | Type | Ascending |
+   |---|---|
+   | `num` | lowest → highest (numeric, not lexical: `9` before `100`) |
+   | `date` | earliest → latest (real date compare, not string) |
+   | `text` | `localeCompare`, number-aware (`Doc-2` before `Doc-10`) |
+   | `enum` | **business order**, e.g. `APP → AWC → REJ → NAP`, never alphabetical |
+   | `bool` | `true` first |
+
+7. **Empty values sort last** in both directions and MUST NOT flip. **A rendered "no value"
+   placeholder counts as empty**: where a blank cell is displayed as a dash (`—`), the comparator
+   MUST treat that dash as empty too. Otherwise the blank row floats to the top of an ascending
+   sort in the table that renders the dash while it sinks to the bottom in the one that leaves the
+   cell truly blank — the same record sorting differently in two tables.
+8. **Deterministic**: ties MUST fall back to a stable secondary key (e.g. the record id).
+9. **Multi-sort** (optional): Shift+click appends a secondary key; show an order badge.
+10. **Persistence**: sort state SHOULD persist through `getPref` / `setPref` (§7.5) like other
+    view preferences.
+11. **Export parity**: the export MUST use the **same** sorted array the renderer used (§7.2.10).
+12. **A re-rendered header MUST use event delegation.** Sorting rewrites the `<thead>` to refresh
+    `aria-sort` and the indicator. Handlers bound per-button (`btn.onclick`) are destroyed by that
+    rewrite, so **only the first click ever works** — the second click lands on a detached button
+    that cannot bubble, and the sort silently stops responding. Bind ONE delegated listener on a
+    stable ancestor (the scroll container) and match `e.target.closest('.sort-btn')`.
+13. **Cross-tab (matrix) sorting** — a cross-tab is not a flat record list; sorting it as one
+    breaks the report:
+    (a) the **TOTAL row MUST stay last** and MUST NOT be a sortable row — keep it in `<tfoot>`,
+    which is never part of the sorted `<tbody>`;
+    (b) **drill-down sub-rows MUST follow their parent**, re-inserted from the *sorted* order,
+    never from the source order;
+    (c) handlers bound to the body (expand / drill) MUST be re-bound after the body is rebuilt.
+
+#### 7.2.7 Filtering contract (L2, NORMATIVE)
+- **The two scopes MUST be visually distinguishable.** A *data-source* filter (top-bar search /
+  dimension popover) re-scopes the whole dashboard; a *table-scope* filter affects only that
+  table. Users routinely confuse them, so the control MUST say which it is (label or placeholder,
+  e.g. *"Filter entire dashboard…"* vs *"Filter this table"*).
+- **The control shape follows the column type**: text → debounced contains (≥ 300 ms); enumerated
+  → multi-select facet **with counts, derived from the current data** (never a master list);
+  numeric → `≥` / `≤` or a range; date → a date range.
+- **Feedback**: show `N of M rows` in the control row, highlight matched text, mark filtered
+  column headers, provide a single "Clear all", and render the `.empty` state when `N = 0`.
+- **The empty state MUST say why.** "No overdue documents" and "No overdue documents match the
+  current filter." are different statements; showing the unconditional one after the user applied
+  a filter reads as data loss. Pick the wording from whether a filter is active.
+- **Export parity extends to filtering**: the export MUST read the same *filtered and sorted*
+  array the renderer used — not the source rows (§7.2.10). Filter and sort compose: filter
+  first, then sort, and both feed the one array.
+- **A popover MUST NOT bind a document listener per instance.** Table renderers run again on every
+  re-render, so a per-popover `document.addEventListener` strands another listener each pass, and
+  that listener captures the full row array — with a 20 k-row table that is an out-of-memory
+  crash, not a slow leak. Bind ONE delegated pair for all popovers, track only the **open** ones,
+  and prune entries whose panel was replaced by a later render (`isConnected`).
+- **Build the popover contents lazily, on first open.** Every enumerated column costs a full pass
+  over the rows plus a node per distinct value; doing that for a popover the user never opens is
+  pure waste on a hot render path.
+- Excluded values (e.g. Deleted / Void / Superseded stages) stay **listed but deselected**, per
+  §7.5. This convention belongs to the *data-source* filter: a table-scope facet lists only what
+  the rows it was given actually contain.
+
+#### 7.2.8 Long lists: windowing (L3, NORMATIVE)
+§4.3 forbids truncating rows, so a table whose *columns × rows* product makes full
+materialisation expensive MUST render **only the visible window** (overscan ≈ 8 rows), using
+spacer rows to preserve total scroll height. The control row still reports the **full** count
+(§4.3) and MAY additionally report how many rows are materialised, so the mechanism is
+inspectable during review. Sorting, filtering and exporting all read from the same full array —
+windowing is a rendering detail and MUST NOT leak into the data layer.
+
+#### 7.2.9 Cross-tab / matrix tables (`.matrix`) — different rules
+A cross-tab (e.g. *Per-Discipline Summary Matrix*) is a pivot, not a detail list, and MUST NOT
+inherit the detail-table sort rules:
+1. The **totals row (`<tfoot>`) is pinned last** and MUST NEVER participate in sorting.
+2. **Drill-down child rows (`.sub`) follow their parent** and MUST NOT be re-sorted into the
+   parent sequence.
+3. Grouped two-row headers are allowed and MUST map to one `<col>` per leaf column.
+4. Every header cell — **including a spacer / drill cell** — MUST have an accessible name
+   (`aria-label`); an empty `<th>` is a defect.
+
+#### 7.2.10 Export consistency (NORMATIVE)
+A table export (CSV / PNG / copy) MUST contain **exactly the rows on screen** — same filter, same
+sort, same window scope. Rendering and exporting MUST read from **one** `sortedRows()` function;
+"render sorts, export doesn't" is a defect. See §7.8.
+
+#### 7.2.11 Print (NORMATIVE)
+`.tableScroll` caps height at 340 px, so it MUST be released in print:
+`@media print{ .tableScroll{max-height:none!important; overflow:visible!important} }`, and any
+pinned-column `position:sticky` MUST be neutralised — otherwise every long table prints as a
+340 px clipping. The sticky elevation of §7.2.14 MUST be dropped in the same block. See §10.
+
+#### 7.2.12 Table anti-patterns (additive to §11)
+| Anti-pattern | Consequence |
+|---|---|
+| A chip / status / severity class applied to `<td>` | the cell leaves the table formatting context; padding, alignment, width and borders silently change |
+| Emoji used as a status glyph | fallback-font metrics inflate the line box and differ per glyph → uneven row heights, off-baseline icons |
+| More than one font size or line-height inside a row | baselines cannot align |
+| Cell content allowed to wrap and grow the row | the grid degrades into a ragged accordion |
+| Sort bound to `th.onclick` | keyboard-inaccessible; no `aria-sort`; no focus |
+| Two-state sort toggle | the user cannot return to the natural order |
+| One string comparator for all columns | numbers and dates sort wrongly |
+| A per-button `onclick` on a header that is re-rendered per sort | only the **first** click works — the rewrite detaches the button, so the second click cannot bubble and the sort silently dies (§7.2.6 (12)) |
+| Treating a rendered dash (`—`) placeholder as ordinary text | the blank row floats to the top of an ascending sort in one table and sinks in another (§7.2.6 (7)) |
+| Sorting the totals row, or orphaning drill-down children | cross-tab integrity broken |
+| A document click / keydown listener bound **per popover instance** | each re-render strands another listener capturing the full row array — out-of-memory on a 20 k-row table (§7.2.7) |
+| Building every popover's facets eagerly at render time | a full pass per enumerated column plus a node per value, paid for popovers never opened (§7.2.7) |
+| An empty state that does not distinguish "no data" from "filtered out" | reads as data loss after the user applies a filter (§7.2.7) |
+| A bounded scroller left capped in print | the PDF shows a 340 px clipping |
+| A zero-row `<tbody>` with no `.empty` state | the panel looks broken |
+| A divider whose width changes on hover or during drag | the grid appears to resize itself; reads as a rendering glitch |
+| A bespoke divider width or colour (e.g. a 2 px freeze boundary, or a tinted shadow) | breaks the eye's horizontal scan and violates the one-width / one-colour rule |
+| Two dividers stacked on one boundary (freeze rule + resize cue) | the boundary reads as a double line |
+| `table-layout:fixed` with `width:auto` (only `min-width` set) | rendered column widths drift from the declared ones, so pinned columns are pulled apart and the gap reads as a thick divider that changes width while dragging (§7.2.5) |
+| Any `<col>` left on `auto` beside fixed-width columns | the auto column gets only the clamped-at-zero remainder and disappears once the fixed columns fill the table width — its content vanishes instead of producing a horizontal scroll (§7.2.5) |
+| A many-column grid distributing the remainder across `auto` columns | every column becomes unusably narrow (27 columns → 39 px each); give each a px width and let the table scroll horizontally (§7.2.5) |
+| A column rule left on a grouped header's `colspan` cell | draws a vertical line through the middle of a merged span at a non-leaf boundary; suppress `th[colspan]::after` (§7.2.2 (b2)) |
+| Pinned offsets summed from declared widths instead of measured from the rendered grid | same visible gap; the error accumulates across columns (§7.2.5) |
+| A pinned cell with only one background state | scrolling columns show through it on zebra rows and on hover (§7.2.5) |
+| A column rule drawn on the resize grip rather than the header cell | only resizable tables get a grid; the rest look different (§7.2.2) |
+| Permanent elevation on the freeze boundary | at `scrollLeft 0` nothing is hidden, so the shadow falsely claims hidden content to the left (§7.2.14) |
+| Elevation on a navy header over a white body | maximum contrast already; the shadow reads as heaviness, not depth (§7.2.14) |
+| A light title band above a navy header row | the title visually detaches from the table it names; the card reads as two components (§7.2.15) |
+| A vertical scrollbar running alongside the header row | implies the header itself scrolls; the header belongs to the data, not to the scroll (§7.2.15) |
+| Split-header fragments sized independently | the header collapses or drifts and the columns visibly misalign — sync the header fragment to the scroller's `clientWidth` (§7.2.15) |
+| Split-header re-synced on window `resize` only | a scrollbar appearing or disappearing changes `clientWidth` with no resize event; use a `ResizeObserver` on the scroller (§7.2.15) |
+| Split-header fragment sized to the scroller's `clientWidth` | the columns align but a white notch one scrollbar wide is left at the top-right of the header; use the border box plus a gutter column (§7.2.15) |
+| Split-header cells set to `position:static` | the column rules are an `::after` positioned against the cell, so every header column rule silently disappears; use `relative` (§7.2.15) |
+| Split-header column-rule suppression tied to `:last-child` | a split header appends a non-data gutter column which becomes `:last-child`, so the suppression slides off the real last column and a spurious rule appears between it and the scrollbar; cover the last **two** cells (§7.2.2 (b), §7.2.15) |
+| Title band and header row made the same navy with the band's bottom border removed | the header area then has no visible horizontal rule and reads as one solid block; the band MUST keep a 1 px head-rule-colour bottom border (§7.2.2 (e), §7.2.15) |
+| Dropping the split header's bottom rule | nothing separates the header from the first body row; the rule used to come for free from the sticky header's shadow (§7.2.15) |
+
+#### 7.2.13 Column controls — visibility, width, order (L3, NORMATIVE)
+L3 is **required** above 12 columns (§7.2.1), but the three column controls are not equal in
+value: **hiding 19 of 27 columns helps far more than hand-dragging 27 widths**, so build them in
+this order.
+
+1. **Pinned (frozen) columns.** The identity column(s) — the value that tells the user *which
+   record this row is* — MUST be pinned left so it survives horizontal scrolling. Pinning is a
+   property of the **column**, not of its position, so it MUST survive hiding and reordering.
+   Stacking and backgrounds per §7.2.5.
+2. **Column chooser.** A `Columns (N)` control listing every column with a checkbox.
+   - It MUST report how many columns are hidden (e.g. `Columns (27) · 19 hidden`) — a hidden
+     column the user has forgotten is indistinguishable from missing data.
+   - It MUST offer at least one named preset (e.g. *Core 8*) so the user can get back to a sane
+     view in one click.
+   - State MUST persist through `getPref` / `setPref` (§7.5).
+   - Hiding MUST NOT renumber the remaining columns' `<col>` elements: rebuild the `<colgroup>`
+     from the *visible* specs and re-run `repin` (§7.2.5).
+3. **Column resize.**
+   - Hit area `--ds-grip-w` = 6 px on the header's right edge, `cursor:col-resize`; **≥ 24 px on
+     touch**.
+   - Minimum width 60 px — a column MUST NOT be draggable to nothing.
+   - **Double-click = auto-fit**, measured against the rendered rows (header label included),
+     capped at ≈ 520 px.
+   - Widths persist and MUST ship with a **“Reset widths”** action.
+   - **Resizing changes the column width and nothing else.** The divider stays `--ds-rule-w`;
+     the grip MUST NOT grow, move offset, or change width on hover or during drag (§7.2.2).
+   - **During the drag the whole page MUST stay in resize mode**: `.ds-resizing` on `<body>` sets
+     a global `cursor:col-resize` and `user-select:none`. Without it the pointer flips back to the
+     text I-beam whenever it crosses a non-grip cell, and the drag paints a text selection across
+     the table.
+   - The grip SHOULD carry a `title` (e.g. *“Drag to resize · double-click to auto-fit”*) so the
+     affordance is discoverable before the user hovers it.
+4. **Column order (optional).** If reordering is offered, it MUST NOT be drag-only: provide a
+   keyboard-operable alternative (move-left / move-right control), or omit the feature.
+
+#### 7.2.14 Sticky elevation (NORMATIVE)
+A sticky element is *floating* only while something is actually passing beneath it. Elevation
+MUST therefore be **scroll-aware**, never permanent.
+
+- **Freeze boundary (horizontal scroll).** While `scrollLeft > 0` the last pinned column MUST gain
+  a soft shadow on its right edge, layered *outside* the 1 px rule so the two do not fight:
+  `box-shadow: var(--ds-rule-w) 0 0 var(--ds-rule-c), 8px 0 10px -6px rgba(15,45,82,.28)`.
+  At `scrollLeft === 0` the shadow MUST be **absent** — nothing is hidden yet, so a permanent
+  shadow falsely claims hidden content to the left. Header cells carry the elevation **only**,
+  because the header already has a column rule on every cell (§7.2.2 corollary c); body cells keep
+  both. Cost is one *passive* scroll listener per scroller that toggles a class — nothing more.
+- **Header row (vertical scroll).** **No elevation.** A navy header against a white body is already
+  maximum contrast, so the 1 px bottom rule is sufficient; a shadow inside a 340 px bounded
+  scroller reads as heaviness rather than depth. This is a deliberate, documented exception to the
+  generic “sticky headers should show elevation” advice.
+- **Print.** Elevation MUST be dropped (§7.2.11) — it signals live scrolling, which has no meaning
+  on a static page.
+
+#### 7.2.15 Bounded tables — title band and scroll position (NORMATIVE)
+A table that lives inside a card with its own title band is read as **one** component, and the
+scrollbar is expected to belong to the **data**, not to the header.
+
+1. **The title band and the header row are the same surface.** The band above the table MUST use
+   the *same* background (`--navy`), the *same* foreground (`#fff`) and the *same* type
+   (`12px / 600`) as `thead th`. A light band sitting above a navy header reads as two unrelated
+   components and visually detaches the title from the table it names. This unification removes the
+   band's bottom border (which was the header area's only horizontal rule) and the header's own
+   bottom rule sits on the navy→white boundary where colour already separates them — so a **1 px
+   horizontal rule in the head-rule colour (`--ds-head-rule`) MUST be placed on the title band's
+   bottom edge**, else the header area reads as one solid block with no title/header division. See
+   §7.2.2 (e).
+2. **The vertical scrollbar MUST start below the header row, not beside it.** A scrollbar that
+   runs alongside the header implies the header itself is scrollable content. Achieve this with a
+   **split header**: the `<thead>` is emitted as its own `<table>` **outside** the `.tableScroll`,
+   and only the body fragment scrolls. The sticky-header-inside-the-scroller pattern cannot
+   satisfy this — a scrollbar always spans its own scroll container.
+3. **The two fragments MUST share one column grid, AND the header must still reach the card
+   edge.** Both are `table-layout:fixed` carrying the **same** `<colgroup>` for the data columns.
+   Sizing the header fragment to the scroller's `clientWidth` aligns the columns but leaves a
+   **white notch one scrollbar wide at the top-right** — measured at 15 px — because the
+   scroller's border box is wider than its client box. So: size the header fragment to the
+   scroller's **border box** (`offsetWidth`), and give the header row a trailing **gutter column**
+   whose width is the scrollbar width (`offsetWidth − clientWidth`). The navy then runs over the
+   scrollbar area and the data columns still line up exactly.
+4. **The gutter column is not a column.** It carries no heading, is `aria-hidden`, has no padding
+   and no bottom rule. Because it is the **last cell**, the column-rule suppression of §7.2.2 (b)
+   must cover the last *two* cells (`th:nth-last-child(-n+2)::after{display:none}`) so the gutter
+   **and the last data column** are both rule-free — a `:last-child`-only rule would suppress only
+   the gutter and leave a spurious rule between the last column and the scrollbar.
+5. **The header fragment MUST have a CSS fallback width of `100%`.** If script does not run, a
+   fixed-layout table with no definite width collapses to its fixed columns only.
+6. **Re-sync on scroller box change, not on window resize.** A vertical scrollbar appearing or
+   disappearing changes `clientWidth` **without** any window `resize` event, so a resize listener
+   alone leaves the columns misaligned after a filter changes the row count. Use a
+   `ResizeObserver` on the scroller (with a graceful no-op where it is unavailable).
+7. **Re-base the header cells, and keep BOTH of their rules.** The fragment has no scrolling
+   ancestor, so the global sticky-header rule no longer applies — but its cells MUST still be
+   `position:relative`, because the column rules of §7.2.2 are an `::after` positioned against
+   the cell: setting them `static` silently removes every column rule in the header. The header's
+   **bottom rule** MUST also be kept — it is what separates the header from the first body row,
+   and in an unsplit table it arrives for free from the sticky header's shadow. The column-rule
+   suppression MUST still cover the last two cells (point 4 / §7.2.2 (b)): the gutter does not
+   absorb the spurious rule that would otherwise appear past the last data column.
+8. **Accessibility of a split table.** The `<caption>` lives on the **header** fragment (it comes
+   first in reading order and carries the column names); the body fragment carries an
+   `aria-label` naming it as the data rows. A split table is two tables to a screen reader —
+   that is the accepted cost of putting the scrollbar in the right place, and it MUST NOT be
+   papered over by hiding the header fragment, which would remove the column names entirely.
 
 ### 7.3 Status (shared principle)
 - **Icon + Text + Colour** for every status (§9). Each dashboard owns its vocabulary.
@@ -1182,8 +1636,13 @@ Two pill uses, both `border-radius:999px`:
 ## 10. Responsive & Print
 
 - Breakpoints in §3.4. Tables scroll horizontally on narrow screens; nav collapses.
+  A wide table SHOULD pin its identity column while scrolling horizontally (§7.2.1, L3).
 - Print: black-and-white friendly, landscape tables, visible status indicators,
   `box-shadow:none`, hide filter toolbars.
+- Print: **bounded scrollers must be released** — `.tableScroll{max-height:none!important;
+  overflow:visible!important}` and pinned-column `position:sticky` neutralised (§7.2.11).
+  Without this, every long table prints as a 340 px clipping, and horizontal scroll prints only
+  the visible columns.
 
 ---
 
@@ -1197,6 +1656,10 @@ Two pill uses, both `border-radius:999px`:
 | Consumer-app styling (rounded playful, gradients) | not an enterprise control center |
 | Large decorative charts | success criterion is fast exception-spotting, not decoration |
 | Colour-only status | fails accessibility |
+| A chip / status class on `<td>`, or `display:inline-block` on any cell | the cell leaves the table formatting context — padding, alignment, width and borders silently change (§7.2.4) |
+| Emoji as the status glyph in a table | fallback-font metrics inflate the line box and differ per glyph → uneven row heights and off-baseline icons (§7.2.4) |
+| Row height derived from cell content | the grid becomes a ragged accordion; the eye cannot scan across a row (§7.2.3) |
+| A data table left at L1 (sort / filter absent) | users cannot answer a question the data already contains (§7.2.1) |
 
 ---
 
@@ -1243,6 +1706,7 @@ Two pill uses, both `border-radius:999px`:
 |---|---|---|---|
 | Validation panel layout (§4.5 rev 2026-10-14): code-sheet result rendered as a **note card**; Rule Reference as a **single card with one row per fired rule** (not individual cards) | approved 2026-10-14 | **Implemented** 2026-10-14 (`renderValidation`) | **Deferred / held** — apply the same layout on the next PPP Validation-panel revision |
 | **V-23 future-date rule over-broad** — currently flags *any* of Planned (S) / Forecast (T) / Actual (U) / Latest Approval (X) as "future date" when later than the current system date (`pipeline.mjs` condition `[S,T,U,X]`). Plans (S) and forecasts (T) are forward-looking and may legitimately be earlier **or** later than today; only **Actual 1st Issue Date (U)** ("actual 1st submission date") and **Latest Approval Date (X)** must not be later than the current system date. Proposed fix: restrict the V-23 condition to **`[U, X]`** and set `Field` to the offending column (`Actual 1st Issue Date` / `Latest Approval Date`). | **Open — pending review** (2026-10-14) | Implement in `pipeline.mjs` V-23 (restrict to U, X) | Review PPP future-date rule for the same over-broad S/T logic |
+| **Data-table interaction contract (§7.2 rev 2026-10-15)** — the pre-revision §7.2 specified appearance and semantics only, so both dashboards shipped L1 static tables: no sort affordance, no `aria-sort`, a single string comparator, no pinned column, no column chooser, no windowing, no `<caption>`, a zero-row `<tbody>` on the widest table, CSV export not matching the on-screen sort, and a bounded scroller left capped in print. Root cause of the visible symptom (severity column row height and baseline differing from every other column in the same row) traced to eight causes, chief among them a chip class carrying `display:inline-block` applied directly to `<td>` and colour-emoji status glyphs. | **Approved 2026-10-15** — §7.2 now normative: maturity levels L0–L5 (§7.2.1), row typography tokens `--ds-row-h` / `--ds-head-h` / `--ds-cell-fs` / `--ds-cell-lh` (§7.2.3), glyph and chip rules (§7.2.4), `<colgroup>` + `table-layout:fixed` (§7.2.5), sorting (§7.2.6), filtering (§7.2.7), windowing (§7.2.8), cross-tab rules (§7.2.9), export parity (§7.2.10), print (§7.2.11), column controls (§7.2.13), sticky elevation (§7.2.14), bounded-table title band and scroll position (§7.2.15). | **Open — logged, not implemented.** MDL workplan **I-89…I-96**; PPP to be re-audited against the same clauses. | PPP: review Benchmark / Look-Ahead / Stage-grid against §7.2.6–§7.2.8 and adopt the same row typography tokens |
 
 ---
 
@@ -1408,7 +1872,7 @@ summary · Suggestion & priority.**
 | Chart-card titles | Nested `h3` `.panel-head h3` 13/700 navy, not uppercase. | Chart cards emit `<h3>` in `.panel-head`; panel title `<h2>` (Phase C). ✅ | Unified: both `.chart h3` and `.panel-head h3` now 13px/700 navy (2026-10-10). | MDL compliant. | PPP: DONE (Phase C); MDL: closed (title styles unified to 13/700, 2026-10-10). |
 | Combined chart | One chart, **one shared y-axis**; Bars toggle; legend only if inline impossible. | Single S-curve, one axis, Bars toggle. | Merged into one shared-axis chart `combinedProgressSVG` (render.mjs:247). | Resolved (merged). | MDL: closed (I-39, merged). |
 | Bounded scroller | `.tableScroll`: `340px`, r10, `margin-top:8px`, sticky head. | Compliant. | `.tableScroll` (340px, r10, margin-top:8px) adopted (I-44). | Resolved. | MDL: closed (I-44). |
-| Table base | One `.ds-table`: navy sticky head, single bottom rule, 9×10, `.num` tabular, zebra, hover, `.over`, `.empty`, `.sev`. | Fully compliant. | All four tables use `.ds-table` base (navy sticky head, single bottom rule, 9×10, `.num`, zebra, hover, `.over`, `.empty`, `.sev-*`) (I-50). | Resolved — biggest cross-app split closed. | MDL: closed (I-50). |
+| Table base | One `.ds-table`: navy sticky head, single bottom rule, 9×10, `.num` tabular, zebra, hover, `.over`, `.empty`, `.sev`. | Fully compliant. | All four tables use `.ds-table` base (navy sticky head, single bottom rule, 9×10, `.num`, zebra, hover, `.over`, `.empty`, `.sev-*`) (I-50). | **Presentation** resolved — biggest cross-app split closed (I-50). **Interaction + typography contract §7.2.1–§7.2.12 is OPEN**: no sort affordance, no `aria-sort`, single string comparator, no pinned column, no column chooser, no windowing, no `<caption>`, uneven row metrics (chip class on `<td>`, emoji glyphs). | MDL: presentation closed (I-50); **contract OPEN — I-89…I-96**. |
 | Table semantics | `<th scope="col">`; leading label `<th scope="row">`. | `scope="row"` on Benchmark/Look-Ahead/Stage-grid (Phase C). ✅ | `th[scope=col]` and `th[scope=row]` present (render.mjs:184 + usage). | Resolved (MDL). | MDL: closed (I-44/I-50); PPP: DONE (Phase C). |
 | Row count | Bounded list shows full count in control row. | Shown "(N packages)". | Row-count chips on Overdue/Validation/Detail control rows (I-44). | Resolved. | MDL: closed (I-44). |
 | Look-ahead | Forward-only, sorted, distance col, status col, horizon seg (calendar months), CSV = on-screen rows. | Fully compliant (all 9 rules). | Not present (document-focused). | N/A to MDL. | — |
@@ -1569,8 +2033,10 @@ summary · Suggestion & priority.**
 4. **Two warning palettes:** §3.5 `.note` = `#FFF8E1`/`#7a5b00` vs §6 tokens
    `--warn-bg:#FFF4D6`/`--warn-fg:#9a6b00`. State which governs notes, chips and row
    highlights (recommend the §6 tokens).
-5. **Naming policy conflict:** §4 says panel class name is free, §7.2 mandates `.ds-table`.
-   State which class names are normative.
+5. ~~**Naming policy conflict:** §4 says panel class name is free, §7.2 mandates `.ds-table`.
+   State which class names are normative.~~ **RESOLVED 2026-10-15 (§7.2.0).** Panel / container
+   class names remain free (§4); the **table** class names listed in §7.2.0 are normative and
+   MUST be used verbatim.
 6. **§12 adoption claim is false for MDL.** Rewrite to an explicit exception list once the
    Phase A/B work lands.
 7. **Add the missing spec sections** (the "S-" gaps from §13.3): global `[hidden]` reset;
@@ -1578,7 +2044,8 @@ summary · Suggestion & priority.**
    component; dark-theme required remap set; radius budget for non-panel surfaces;
    `<th scope="row">` acceptance criterion + the "—" empty-value convention; build /
    provenance governance; and the content dropped from the superseded MDL spec (table
-   header height 44 px, success criteria, review-SLA vocabulary, print/PDF detail, mobile
-   minimum feature set).
+   header height 44 px — **superseded by §7.2.3**: the header row MUST equal `--ds-row-h`
+   = 40 px, never a separate 44 px value; success criteria, review-SLA vocabulary,
+   print/PDF detail, mobile minimum feature set).
 
 *This standard supersedes ad-hoc styling. Any new dashboard MUST comply before release.*

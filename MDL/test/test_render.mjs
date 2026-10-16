@@ -18,7 +18,7 @@ const html = fs.readFileSync(HTML, 'utf8');
 const scriptMatch = html.match(/<script type="module">([\s\S]*?)<\/script>/);
 if (!scriptMatch) { console.error('FAIL: no module script found in bundle'); process.exit(1); }
 // Expose the internals the test needs (the bundle strips exports during build).
-let code = scriptMatch[1] + '\nglobalThis.__rd=renderDashboard; globalThis.__rx=readXlsx; globalThis.__bm=buildModel; globalThis.__gf=getFilterDefs;';
+let code = scriptMatch[1] + '\nglobalThis.__rd=renderDashboard; globalThis.__rx=readXlsx; globalThis.__bm=buildModel; globalThis.__gf=getFilterDefs; globalThis.__cmp=dsCmp; globalThis.__af=applyFilters; globalThis.__fc=facetCounts; globalThis.__ht=highlightText;';
 
 const dom = new JSDOM('<!doctype html><html><body><div id="app"></div></body></html>',
   { url: 'http://localhost/', pretendToBeVisual: true });
@@ -194,8 +194,8 @@ ok('every on-screen table uses .ds-table', tables.length > 0 && tables.every(t =
 ok('.ds-table base rule present', html.includes('.ds-table{'));
 ok('.ds-table navy sticky header', html.includes('.ds-table thead th{background:var(--navy)'));
 ok('.ds-table single bottom rule', html.includes('.ds-table th,.ds-table td{border-bottom'));
-const sevCells = [...D.querySelectorAll('td[class^="sev-"]')];
-ok('severity chips use spec .sev-error/.sev-warning/.sev-info', sevCells.every(c => /^sev-(error|warning|info)$/.test(c.className)), `sev cells=${sevCells.length}`);
+const sevCells = [...D.querySelectorAll('span[class^="sev-"]')];
+ok('severity chips use spec .sev-error/.sev-warning/.sev-info and a fixed-size SVG glyph', sevCells.length>0 && sevCells.every(c => /^sev-(error|warning|info)$/.test(c.className) && c.querySelector('svg.sev-svg[role="img"]')), `sev cells=${sevCells.length}`);
 ok('no legacy .sev-err/.sev-warn in bundle', !/(sev-err(?!or)|sev-warn(?!ing)|sev-ERR)/.test(html));
 
 // --- Validation panel §4.5 (spec rev 2026-10-14) ---
@@ -207,11 +207,12 @@ if(vPanel){
   const det = vPanel.querySelector('.vdetails');
   ok('validation detail is a collapsed <details> by default', !!det && det.tagName === 'DETAILS' && !det.hasAttribute('open'));
   ok('code-sheet summary (.vnote/#vmap) + rule reference (.vrefcard/#vref) present', !!vPanel.querySelector('.vnote') && !!vPanel.querySelector('.vrefcard'));
-  const vth = [...vPanel.querySelectorAll('.vtableWrap thead th')].map(t => t.textContent.trim());
+  // I-92: headers are now sortable buttons (label + indicator), so read the label span
+  const vth = [...vPanel.querySelectorAll('.vtableWrap thead th')].map(t => (t.querySelector('.sort-lbl') || t).textContent.trim());
   ok('per-issue table exposes Field & Value columns', vth.includes('Field') && vth.includes('Value'), vth.join('|'));
-  const sevTds = [...vPanel.querySelectorAll('.vtableWrap tbody td[class^="sev-"]')];
-  ok('per-issue severity cells carry spec symbol (⛔/⚠️/ℹ️), no row cap', sevTds.length > 0 && sevTds.every(c => ['⛔','⚠️','ℹ️'].includes(c.textContent.trim())), `rows=${sevTds.length}`);
-  ok('every issue row rendered (no truncation)', vPanel.querySelectorAll('.vtableWrap tbody tr').length === sevTds.length, `tr=${vPanel.querySelectorAll('.vtableWrap tbody tr').length}`);
+  const sevSpans = [...vPanel.querySelectorAll('.vtableWrap tbody td span[class^="sev-"]')];
+  ok('per-issue severity cells carry a fixed-size SVG glyph (not emoji), no row cap', sevSpans.length > 0 && sevSpans.every(c => c.querySelector('svg.sev-svg[role="img"]')), `rows=${sevSpans.length}`);
+  ok('every issue row rendered (no truncation)', vPanel.querySelectorAll('.vtableWrap tbody tr').length === sevSpans.length, `tr=${vPanel.querySelectorAll('.vtableWrap tbody tr').length}`);
   const hi = vPanel.innerHTML;
   ok('explanatory note sits ABOVE the validation-detail toggle', hi.indexOf('class="note"') > -1 && hi.indexOf('class="note"') < hi.indexOf('class="vdetails"'));
 }
@@ -353,6 +354,149 @@ const barNums = [...cvHtml3.matchAll(/font-size="12" fill="#2b3440">(\d+)<\/text
 const axisMax = Math.max(0, ...tickNums), barMax = Math.max(0, ...barNums);
 const ratio = barMax > 0 ? axisMax / barMax : 0;
 ok('guardrail: separate scales engage only when r = maxCum/maxBar > 10', isDual === (ratio > 10), `r=${ratio.toFixed(2)} dual=${isDual}`);
+
+// --- I-92: L2 sorting (spec §7.2.6) ---
+const lbl = t => (t.querySelector('.sort-lbl') || t).textContent.trim();
+const sortBtns = [...D.querySelectorAll('.ds-table thead .sort-btn')];
+ok('sortable headers are keyboard-reachable <button type="button"> inside a <th>',
+   sortBtns.length > 0 && sortBtns.every(b => b.tagName === 'BUTTON' && b.type === 'button' && !!b.closest('th')),
+   `buttons=${sortBtns.length}`);
+const sortableTh = [...D.querySelectorAll('.ds-table thead th[aria-sort]')];
+ok('every sortable header carries aria-sort, and only sortable ones do',
+   sortableTh.length === sortBtns.length && sortableTh.length > 0, `th=${sortableTh.length} btns=${sortBtns.length}`);
+ok('aria-sort uses only the three spec states',
+   sortableTh.every(t => ['none', 'ascending', 'descending'].includes(t.getAttribute('aria-sort'))),
+   [...new Set(sortableTh.map(t => t.getAttribute('aria-sort')))].join(','));
+// comparator contract
+const cmp = ctx.__cmp;
+ok('comparator: empty sorts LAST in both directions', cmp('', 'abc', 'text') > 0 && cmp('abc', '', 'text') < 0);
+ok('comparator: the em-dash blank placeholder counts as empty (RC-6)', cmp('—', 'BIM', 'text') > 0);
+ok('comparator: numbers compare numerically, not lexically', cmp('9', '10', 'num') < 0 && cmp(10, 9, 'num') > 0);
+ok('comparator: dates compare chronologically', cmp('2024-01-02', '2024-01-10', 'date') < 0);
+ok('comparator: enums use business order, unknown values last',
+   cmp('AWC', 'APP', 'enum', ['APP', 'AWC', 'REJ', 'NAP']) > 0 && cmp('ZZZ', 'APP', 'enum', ['APP', 'AWC', 'REJ', 'NAP']) > 0);
+// overdue: default Delay (days) descending
+const ovDelayTh = sortableTh.find(t => lbl(t) === 'Delay (days)');
+ok('Overdue list defaults to Delay (days) descending', !!ovDelayTh && ovDelayTh.getAttribute('aria-sort') === 'descending',
+   ovDelayTh ? ovDelayTh.getAttribute('aria-sort') : 'not found');
+const ovTbl = ovDelayTh && ovDelayTh.closest('table');
+const delays = ovTbl ? [...ovTbl.querySelectorAll('tbody tr')].slice(0, 6).map(r => +r.children[12].textContent.trim()) : [];
+ok('Overdue rows are genuinely in descending delay order', delays.length > 0 && delays.every((v, i) => i === 0 || delays[i - 1] >= v), delays.join(','));
+// matrix: sortable, TOTAL pinned, persistence
+const mxTbl = D.querySelector('table.matrix.ds-table');
+const discBtn = mxTbl && mxTbl.querySelector('thead .sort-btn[data-col="discipline"]');
+ok('Matrix Discipline column is sortable', !!discBtn);
+if (discBtn) {
+  // the header is re-rendered on each sort, so the button must be re-queried each time
+  const clickDisc = () => mxTbl.querySelector('thead .sort-btn[data-col="discipline"]').click();
+  const ariaDisc = () => { const b = mxTbl.querySelector('thead .sort-btn[data-col="discipline"]'); return b ? b.closest('th').getAttribute('aria-sort') : '(gone)'; };
+  clickDisc();
+  ok('clicking a header sets aria-sort=ascending', ariaDisc() === 'ascending', ariaDisc());
+  ok('sort preference is persisted (mdl_ prefixed)', /^1\|/.test(window.localStorage.getItem('mdl_matrix_sort') || ''), window.localStorage.getItem('mdl_matrix_sort'));
+  clickDisc();
+  ok('a second click flips to descending', ariaDisc() === 'descending', ariaDisc());
+  ok('matrix TOTAL row stays pinned last after sorting',
+     mxTbl.querySelector('tfoot tr td').textContent.trim() === 'TOTAL');
+}
+// issue list: severity sorts by tier
+const issTbl = D.querySelector('.vtableWrap table');
+const sevBtn = issTbl && issTbl.querySelector('thead .sort-btn[data-col="severity"]');
+ok('Issue-list Severity is sortable', !!sevBtn);
+if (sevBtn) {
+  sevBtn.click();
+  const firstSev = [...issTbl.querySelectorAll('tbody tr')].slice(0, 3).map(r => r.querySelector('span[class^="sev-"]').className);
+  ok('ascending Severity puts Error first (tier order, not alphabetical)', firstSev.every(c => c === 'sev-error'), firstSev.join(','));
+}
+// detail: Source Tab is not sorted, Active is
+const dtTbl = [...D.querySelectorAll('.ds-table')].pop();
+const dtTh = [...dtTbl.querySelectorAll('thead th')];
+ok('Detail: Source Tab is not sortable, Active is',
+   dtTh.length > 2 && !dtTh[0].querySelector('.sort-btn') && !!dtTh[1].querySelector('.sort-btn'),
+   `cols=${dtTh.length}`);
+
+// --- I-93: L2 column filtering (spec §7.2.7) ---
+const cfBtn = k => D.querySelector('#cfBtn_' + k);
+const cfPop = k => D.querySelector('#cfPanel_' + k);
+const af = ctx.__af, fc = ctx.__fc, ht = ctx.__ht;
+const mkCol = k => [{ key:k, get:r => r[k] }];
+ok('applyFilters: text match is case-insensitive contains',
+   af([{a:'ABC'},{a:'xyz'}], {a:{kind:'text', value:'abc'}}, mkCol('a')).length === 1);
+ok('applyFilters: enum keeps only the selected values',
+   af([{a:'X'},{a:'Y'},{a:'Z'}], {a:{kind:'enum', value:new Set(['X','Z'])}}, mkCol('a')).length === 2);
+ok('applyFilters: numeric range is inclusive on both bounds',
+   af([{a:1},{a:5},{a:10},{a:11}], {a:{kind:'num', min:'1', max:'10'}}, mkCol('a')).length === 3);
+ok('applyFilters: an empty filter state keeps every row',
+   af([{a:1},{a:2}], {}, mkCol('a')).length === 2);
+ok('facetCounts derives values and counts from the rows given, never a master list',
+   (() => { const r = fc([{a:'X'},{a:'X'},{a:'Y'}], {key:'a', get:r=>r.a});
+            return r.keys.join(',') === 'X,Y' && r.counts.get('X') === 2 && r.counts.get('Y') === 1; })());
+ok('highlightText wraps the match in <mark class="cf-hi">',
+   /<mark class="cf-hi">Mech<\/mark>/.test(ht('Mechanical', 'Mech')), ht('Mechanical', 'Mech'));
+ok('highlightText escapes the value before highlighting',
+   ht('<b>x', 'x').indexOf('<b>') === -1, ht('<b>x', 'x'));
+ok('filter triggers exist on Overdue / Issue / Detail, each with a hidden popover',
+   ['overdue','issue','detail'].every(k => cfBtn(k) && cfPop(k) && cfPop(k).hidden && cfBtn(k).getAttribute('aria-expanded') === 'false'));
+ok('the popover is built LAZILY — no facet scan until it is opened',
+   cfPop('detail').querySelectorAll('.cf-row').length === 0,
+   `rows=${cfPop('detail').querySelectorAll('.cf-row').length}`);
+const dPop = cfPop('detail');
+cfBtn('detail').click();
+ok('opening the popover builds its facet rows', dPop.querySelectorAll('.cf-row').length > 0,
+   `rows=${dPop.querySelectorAll('.cf-row').length}`);
+const dTbl2 = [...D.querySelectorAll('.ds-table')].pop();
+const dRows = () => dTbl2.querySelectorAll('tbody tr').length;
+const stageRow = [...dPop.querySelectorAll('.cf-row')].find(r => r.querySelector('.cf-lbl span').textContent.trim() === 'Stage');
+const stageBoxes = stageRow ? [...stageRow.querySelectorAll('.cf-enum input')] : [];
+ok('every facet value carries a count derived from the current rows',
+   stageBoxes.length > 0 && stageBoxes.every(b => /^\d+$/.test(b.parentNode.querySelector('.nc').textContent.trim())),
+   `values=${stageBoxes.length}`);
+const dBefore = dRows();
+stageBoxes.forEach(b => { b.checked = false; });
+stageBoxes[0].checked = true;
+stageBoxes[0].dispatchEvent(new window.Event('change'));
+const dAfter = dRows();
+ok('ticking a facet value narrows the rows', dAfter > 0 && dAfter < dBefore, `${dBefore} -> ${dAfter}`);
+ok('the count reads "N of M" while a filter is active', / of /.test(D.querySelector('#dCnt').textContent),
+   D.querySelector('#dCnt').textContent.trim());
+ok('the filter state is persisted (mdl_ prefixed)', /Stage/.test(window.localStorage.getItem('mdl_detail_flt') || ''),
+   window.localStorage.getItem('mdl_detail_flt'));
+dPop.querySelector('.cf-foot button').click();
+ok('Clear all restores the full row set', dRows() === dBefore, `${dRows()} vs ${dBefore}`);
+// severity facet on the issue list
+cfBtn('issue').click();
+const sevRow2 = [...cfPop('issue').querySelectorAll('.cf-row')].find(r => r.querySelector('.cf-lbl span').textContent.trim() === 'Severity');
+const sevBoxes = sevRow2 ? [...sevRow2.querySelectorAll('.cf-enum input')] : [];
+ok('the issue-list Severity facet lists only severities present in this run',
+   sevBoxes.length > 0 && sevBoxes.length <= 3, `values=${sevBoxes.length}`);
+const issTbl2 = D.querySelector('.vtableWrap table');
+const errBox = sevBoxes.find(b => b.nextSibling.textContent.toLowerCase().includes('error'));
+if (errBox) {
+  sevBoxes.forEach(b => { b.checked = false; });
+  errBox.checked = true; errBox.dispatchEvent(new window.Event('change'));
+  const firstSev = [...issTbl2.querySelectorAll('tbody tr')].slice(0, 3).map(r => r.querySelector('span[class^="sev-"]').className);
+  ok('filtering to Error leaves only Error rows', firstSev.every(c => c === 'sev-error'), firstSev.join(','));
+  cfPop('issue').querySelector('.cf-foot button').click();
+}
+// text filter + highlight, then the empty state
+cfBtn('overdue').click();
+const oTxtRow = [...cfPop('overdue').querySelectorAll('.cf-row')].find(r => r.querySelector('.cf-lbl span').textContent.trim() === 'UESH Discipline');
+const oInp = oTxtRow && oTxtRow.querySelector('input.cf-input');
+if (oInp) {
+  oInp.value = 'Mech';
+  oInp.dispatchEvent(new window.Event('input'));
+  await new Promise(r => setTimeout(r, 350));   // the text input is debounced at 300 ms
+  const ovT2 = [...D.querySelectorAll('.ds-table')][1];
+  ok('a text filter highlights its matches in the body', ovT2.querySelectorAll('mark.cf-hi').length > 0,
+     `marks=${ovT2.querySelectorAll('mark.cf-hi').length}`);
+  ok('a text filter narrows the rows and reports "N of M"', / of /.test(D.querySelector('#ovCnt').textContent),
+     D.querySelector('#ovCnt').textContent.trim());
+  oInp.value = 'ZZZ_NOT_PRESENT';
+  oInp.dispatchEvent(new window.Event('input'));
+  await new Promise(r => setTimeout(r, 350));
+  ok('an empty filter result shows an empty-state row, not a blank table',
+     !!ovT2.querySelector('td.empty'), ovT2.querySelector('td.empty') ? ovT2.querySelector('td.empty').textContent.trim() : '(none)');
+  cfPop('overdue').querySelector('.cf-foot button').click();
+}
 
 let pass = 0;
 for (const c of checks) { console.log((c.pass ? 'PASS' : 'FAIL') + ' - ' + c.name + (c.extra ? '  [' + c.extra + ']' : '')); if (c.pass) pass++; }
