@@ -1,8 +1,13 @@
 # MDL CONTROL CENTER
 ## UI/UX Design Specification
 
-Version: 1.0  
+Version: 1.0
 Date: 29 Sep 2026
+Last revised: 2026-10-18 — chinwarsoon — §18 (Table Standards): alignment re-scoped per table class (summary
+cross-tab centres numeric columns, transactional tables keep `number → right`), alignment keyed on the column
+key and never `nth-child`, sort affordance covers centred headers, fit policy content-derived with proportional
+shrink-to-fit, and the split-header contract made normative as six clauses. Contradicting clause removed (the
+former "The Discipline Summary Matrix must not centre numeric figures").
 
 ---
 
@@ -143,7 +148,6 @@ Last Refresh: 29 Sep 2026 08:00
 
 ```
 
----
 
 # 6. Dashboard Overview Page
 
@@ -570,6 +574,92 @@ Use consistent spacing values:
 
 - Sticky header
 - Light grey background
+
+### Sticky-header rules (single-row and grouped)
+
+- Every header row that scrolls with its table **must** compute to `position: sticky`.
+- **Single-row header** (one `<thead>` row): the header sticks at `top: 0` of its scroll container.
+- **Grouped / multi-row header** (two or more `<thead>` rows, e.g. the Discipline Summary
+  Matrix): the rows must **stack**, not pile up. Row 0 sticks at `top: 0`; row *n* sticks at
+  `top: (sum of the heights of every header row above it)`. Each row's stacking offset is derived
+  from the real rendered row heights, so a `rowspan` cell that spans two bands does **not** shift the
+  offset of the band below it. Consequence: after scrolling, the group band and the leaf band stay
+  visible together, top band above bottom band, with no overlap and no gap.
+- Every sticky header cell carries an **opaque** background so body rows never show through.
+
+### Header-band colour rule
+
+- Within one header row ("band") every cell resolves to the **same** background colour.
+- A per-column emphasis (for example the "current month" tint on the Summary Matrix) is allowed, but it
+  must run the **full height of the column**: both header bands **and** the body cells of those columns
+  get the emphasis, or the emphasis is confined to the body only. Splitting a single band — painting one
+  group cell a different colour from its siblings — is forbidden: the group band and the leaf band must
+  use the **same colour palette**.
+- The live dashboard and any exported copy (PNG / print) must agree on header colours.
+
+### Scrollbar gutter
+
+- A table that lives inside a scroll container (`.tableScroll`) and has **vertical overflow** must keep
+  its header clear of the scrollbar.
+- **Grouped headers** must therefore be rendered with the **split-header pattern** already used by the
+  Rule Reference: the header is a separate, non-scrolling fragment (`vheadtab`) sitting **outside** the
+  body's scroll container, so the vertical scrollbar sits **under** the header rather than beside it; the
+  fragment reserves a trailing gutter column of the scrollbar width (`--ds-sbw`) so its columns stay
+  aligned with the body.
+- **Single-row headers** may remain inside the scroller (the I-90 sticky rule covers them); the scrollbar
+  sitting beside a one-row header is acceptable.
+- **Split-header contract** — a `vheadtab` fragment (used here by the Discipline Summary Matrix) is a
+  declared exception to the sticky rule, and the exception is paid for with the pairing invariants in the
+  **shared spec §7.2.15** (one container · containing block · width pin + gutter · one column grid · fit
+  then lock-step · one implementation). That section is the single source of truth and is normative for
+  both dashboards; it is enforced by `harness-layout` Tier 4c under `chrome.splitHeader`.
+
+### Cell & header alignment
+
+- **Header cells** compute to `vertical-align: middle` (not `top`); a wrapped/long header label stays
+  vertically centred.
+- **Data alignment follows the column's data type**, not a blanket left. This applies to the
+  transactional tables (Overdue, Document Detail, Validation issues):
+  - `text` / identifier columns (e.g. Document No., Source Tab) → **left**.
+  - `number` / `currency` / `date` → **right**, with `font-variant-numeric: tabular-nums` so figures line up.
+  - `boolean` / `status` / `severity` → **centre**.
+- **Summary cross-tab matrices centre every data column, numeric ones included.** The Discipline Summary
+  Matrix is a cross-tab of comparable counts read as a grid, so its figures are **centred** — still with
+  `font-variant-numeric: tabular-nums` so digits line up — and only the leading label column stays **left**.
+  (The type-based `right` rule above is scoped to transactional tables and does **not** apply here; these
+  two statements are not in conflict because they govern different table classes.)
+- **The header of a column must use the same alignment as its body cells.** This is the invariant that
+  matters: a centred numeric column gets a centred header, a right-aligned one a right-aligned header.
+  Alignment must therefore be derived from the **column's key in the column model**, never from DOM
+  position — positional selectors (`nth-child`) are invalid for alignment, because a grouped header with
+  `rowspan` cells gives the header row different child indices from the body row it labels.
+
+### Sort affordance
+
+- A sortable column's indicator (▲ / ▼ / ⇅) is pinned to the **trailing (right) edge** of the header
+  cell, independent of the label's alignment.
+- **Left-aligned header** — the label stays left and only the glyph hugs the right edge (e.g.
+  `margin-left:auto` on the indicator).
+- **Right-aligned header** — the label-and-glyph group reads right-aligned as a unit.
+- **Centred header** — the label centres within the space to the left of the indicator, and the indicator
+  still hugs the right edge. (Centring the label and pinning the glyph are not in conflict: the glyph is
+  taken out of the centring calculation.)
+- The indicator must never sit mid-cell or immediately after the label with empty space to its right.
+
+### Column sizing (min / max / truncation / fit)
+
+- Every column declares a **minimum width** derived from its type floor plus the rendered header-label
+  width (+ sort-glyph allowance); the resize handle cannot go below it. Replace the single global `60px`
+  floor with per-type minima (boolean/severity ≈ 64, date ≈ 110, identifier ≈ 120, text ≈ 90, checkbox ≈ 28).
+- Every column declares a **maximum width**; content beyond it **truncates** with an ellipsis
+  (`overflow:hidden; text-overflow:ellipsis`, with a `title` tooltip) — or wraps to a fixed line count
+  then ellipsis. Truncation applies to **all** cells, not only pinned ones.
+- **Fit policy**: the table uses `table-layout:fixed; width:100%`. Column widths are derived from **content**
+  (the widest of the header label vs the rendered body values), not fixed literals, and are then scaled:
+  when the column-sum is below the display area the columns scale proportionally **up** to fill it; when the
+  declared sum **exceeds** the display area the columns scale proportionally **down to fit**, so the table
+  fills the display area instead of overflowing it. A horizontal scrollbar is a last resort, not the default.
+  (Header/body lock-step for a split-header table is specified in the split-header contract above, not here.)
 
 ## Row Height
 

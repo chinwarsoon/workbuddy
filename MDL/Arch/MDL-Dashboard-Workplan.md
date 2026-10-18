@@ -182,7 +182,7 @@ Rules V-17…V-27 are defined in §5; the dashboard also adds a **data-completen
 
 **Global KPI bar:** Total Planned · Submitted · Approved(APP+AWC) · AWC · REJ · As-Built=YES · Vendor Data=YES · active disciplines / 20 · **Data completeness %** (valid records passing all business rules V-17–V-27).
 
-**Per-discipline summary matrix (primary view)** — one row per selected discipline (§3.3/§3.4), columns:
+**Discipline summary matrix (primary view)** — one row per selected discipline (§3.3/§3.4), columns:
 `Discipline | Planned | Submitted | Approved | AWC | REJ | (NAP)`.
 Each cell is the §3.7-active count. A **per-stage expansion** breaks every numeric cell down by `Stage` (col B):
 - Active stages = every Stage value **present in the data** that is **not** in the §3.7 exclusion set. The stage universe itself is read from Code!E (no hard-coding); only the three lifecycle-excluded statuses are flagged (see §3.7).
@@ -204,7 +204,7 @@ Each cell is the §3.7-active count. A **per-stage expansion** breaks every nume
 - **Discipline multi-select** (UESH Discipline, col C — the **sole** authoritative dimension per §3.5 / reviewer Q2, read from the consolidated table): pick one or many; only disciplines present in the data are listed.
 - **Stage multi-select** (col B): pick one or many active stages; an "include Excluded (Deleted/Void/Superseded)" toggle controls whether the §3.7-excluded rows are shown in the matrix.
 - Additional filters: Authority, Approval Status, date range (issue/approval dates). *(Source worksheet is tracked for traceability only — shown in the detail table — and is not a filter dimension, per Q2.)*
-- Every selection re-renders — from the §3.8 consolidated table — the KPI bar, the per-discipline matrix (with per-stage expansion), all charts, and the detail table.
+- Every selection re-renders — from the §3.8 consolidated table — the KPI bar, the discipline matrix (with per-stage expansion), all charts, and the detail table.
 
 ### 4.4 Validation engine + Error table
 - Validate each row against the §3.6 lookup domains (**all read from the Code sheet — no hard-coded value lists**). Each rule emits an **Error Code**; its message text **and** severity are rendered from the **Code!AI:AJ (Error Code / Description)** block — **now populated by the owner** — so **no error wording or severity is hard-coded** in the HTML. A rule whose Error Code has no row in the block falls back to a generic message + Warning (mirrors PPP V-21).
@@ -272,7 +272,7 @@ Grouped: **A. Domain/format** (single-field) · **B. Cross-field consistency** �
 ## 7. Workplan (Waves)
 
 - **Wave 0 (P0-B parser + contract):** offline XLSX/CSV parser; read Code!A:C column map (§3.2) and all lookup blocks (§3.6); auto-discover discipline tabs via Code!H (§3.4); exclude BQ/Notes.
-- **Wave 1 (P0 model + KPIs):** `buildModel` builds the §3.8 consolidated table first (union of all discipline tabs), with `isActiveDoc` (§3.7) and per-row discipline (col C); per-discipline summary matrix + per-stage expansion (§4.1) and KPI bar; `STATE`+`render`.
+- **Wave 1 (P0 model + KPIs):** `buildModel` builds the §3.8 consolidated table first (union of all discipline tabs), with `isActiveDoc` (§3.7) and per-row discipline (col C); discipline summary matrix + per-stage expansion (§4.1) and KPI bar; `STATE`+`render`.
 - **Wave 2 (P1 charts + filters + validation):** 9 SVG charts incl. 2 data-quality charts (§4.2); filter panel (§4.3); the §3.9 business-logic/referential layer (V-17–V-27) + `BQ`-sheet read; validation rule table (§5) + Error-table wording from Code!35:36; colour tokens.
 - **Wave 3 (P2 polish):** IIFE wrap, `.ds-*` primitives, a11y (`role=img`/`aria-label`, `scope=col`, `:focus-visible`), dark/print/reduced-motion, export PNG/CSV, end-to-end test harness.
 

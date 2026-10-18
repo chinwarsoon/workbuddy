@@ -64,7 +64,7 @@ const status = D.getElementById('statusBar');
 ok('status bar shows no render issues', status && !status.textContent.includes('Render issues'));
 
 // --- 8 numbered panels ---
-ok('all 8 panels numbered', D.querySelectorAll('.panel[data-panel]').length === 8,
+ok('all 7 panels numbered', D.querySelectorAll('.panel[data-panel]').length === 7,
    `count=${D.querySelectorAll('.panel[data-panel]').length}`);
 
 // --- I-43: focus-visible + icon-btn square (spec §7.1) ---
@@ -221,7 +221,7 @@ if(vPanel){
 const expand = [...D.querySelectorAll('.expand')];
 ok('matrix drill cells exist', expand.length > 0, `count=${expand.length}`);
 ok('drill cells expose aria-expanded', expand.length > 0 && expand.every(e => e.getAttribute('aria-expanded') === 'false'));
-ok('drill cells are keyboard-operable', expand.length > 0 && expand.every(e => e.getAttribute('tabindex') === '0' && e.getAttribute('role') === 'button'));
+ok('drill cells are keyboard-operable', expand.length > 0 && expand.every(e => e.tagName === 'BUTTON' && e.type === 'button'), `tags=${[...new Set(expand.map(e=>e.tagName))].join(',')}`);
 // accordion behaviour: clicking one opens it and collapses others
 if (expand.length) {
   expand[0].click();

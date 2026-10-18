@@ -706,9 +706,32 @@ const CSS = `
 :root{--navy:#0F2D52;--blue:#1E88E5;--green:#2E7D32;--amber:#F9A825;--red:#C62828;--slate:#64748B;--bg:#F6F8FA;--surface:#FFFFFF;--border:#D9E1E8;--text:#1F2A37;--muted:#64748B;--card:#FFFFFF;--line:#D9E1E8;--ink:#0F2D52;--accent:#1E88E5;--accent2:#2E7D32;--warn:#F9A825;--bad:#C62828;--soft:#E8F1FD;--shadow:0 1px 2px rgba(15,45,82,.04);--radius:10px;--font:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;--warn-bg:#FFF4D6;--warn-border:#F0D38A;--warn-fg:#9a6b00;--warn-fg-strong:#9a6b00;--error-bg:#FDE8E8;--error-fg:#C62828;--ok-bg:#E6F4EA;--ok-fg:#2E7D32;--accent-soft-border:#BFD8F2;--accent-ink:#1E88E5;--grid:#EDF1F5}
 *{box-sizing:border-box}
 body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased}
-header.app{background:var(--navy);color:#fff;padding:10px 20px;display:flex;flex-direction:column;gap:8px;position:sticky;top:0;z-index:31}
-header.app .app-top{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%}
-header.app .app-bar{display:flex;align-items:center;width:100%;gap:10px;justify-content:flex-end}
+header.app{display:flex;flex-direction:column;position:sticky;top:0;z-index:31;padding:0}
+header.app .app-top{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;background:var(--navy);color:#fff;padding:10px 20px}
+header.app .app-menu{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;background:#fff;color:var(--text);padding:8px 20px}
+header.app .app-menu .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+header.app .app-menu .filter-group{display:flex;align-items:center;gap:8px;flex-shrink:0}
+/* menu controls are borderless (spec §3.1 / §7.1): highlight on hover only, no icons */
+header.app .app-menu .btn{border:0;background:transparent}
+header.app .app-menu .btn:hover{background:var(--soft)}
+/* Primary CTA must keep its solid fill despite the borderless rule above (spec §3.1 / §7.1).
+   Without this, background:transparent out-specifies .btn-primary, leaving white text on white. */
+header.app .app-menu .btn-primary{background:var(--blue);color:#fff}
+header.app .app-menu .btn-primary:hover{background:#0f56a8}
+/* Pressed/toggle state (e.g. the Warnings button when the bar is collapsed) must keep its fill.
+   Without this, the .app-menu .btn background:transparent rule overrides .btn[aria-pressed=true], leaving
+   white text on the white menu bar — the same white-on-white regression as the primary CTA (I-105/I-106). */
+header.app .app-menu .btn[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+header.app .app-menu .tf-btn{border:0;background:transparent;color:var(--navy)}
+header.app .app-menu .tf-btn:hover{background:var(--soft)}
+header.app .app-menu .tf-btn[aria-expanded="true"]{border:0;background:var(--soft)}
+header.app .app-menu .tf-btn .tf-cnt{border:0;background:transparent;padding:0 0 0 4px;color:var(--accent-ink);font-weight:700}
+header.app .app-menu .tf-btn.is-filtered .tf-cnt{background:transparent;border:0}
+/* the Search panel reuses .tf-panel but is shown via .open, not the [hidden] attribute */
+header.app .app-menu .tf-panel.search-panel{display:none;width:min(92vw,640px);max-width:min(92vw,640px)}
+header.app .app-menu .tf-panel.search-panel.open{display:block}
+/* Search popover: column selector + elongated search field + Find/Reset all on ONE row (spec §3.1). */
+header.app .app-menu .search-panel .search-row{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
 header.app .brand{display:flex;align-items:center;gap:12px;min-width:0}
 header.app .logo{height:36px;width:auto;border-radius:6px;background:#fff;padding:3px;box-shadow:0 1px 3px rgba(0,0,0,.2);flex-shrink:0}
 header.app .ttl-stack{display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -800,7 +823,7 @@ body.banner-open .wrap{padding-top:calc(16px + var(--banner-h,0px))}
 .btn-active:hover{background:#0b2240;border-color:#0b2240}
 .btn .badge{background:#e0533d;color:#fff;border-radius:999px;padding:0 6px;font-size:11px;font-weight:700;min-width:16px;text-align:center;line-height:1.5}
 .btn[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
-.app-bar .warn-toggle{margin-left:6px}
+.app-menu .warn-toggle{margin-left:6px}
 .seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
 .seg button{border:0;background:#fff;color:var(--navy);padding:7px 14px;min-height:32px;font-size:12px;font-weight:600;cursor:pointer;border-right:1px solid var(--border);text-transform:none;letter-spacing:0}
 .seg button:last-child{border-right:0}
@@ -955,17 +978,22 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 /* §7.2.15 — the card title band is part of the header: SAME navy, SAME white 12px/600
    as the thead cells. A light band above a navy header reads as two different components. */
 .vrefhead{padding:6px 10px;font-size:12px;font-weight:600;color:#fff;background:var(--navy);border-bottom:1px solid var(--ds-head-rule)}
-.vrefcard .tableScroll{border:0;border-radius:0;margin-top:0}
+/* §18 split-header contract (1) — ONE container: header + body read as a single rounded table, so the
+   inner scroller's own border, radius and top margin are neutralised. Shared by every split-header
+   table; a table must not hand-roll a partial copy of this. */
+.splitcard .tableScroll{border:0;border-radius:0;margin-top:0}
+/* the matrix shell — same job as .vrefcard for the Rule Reference */
+.matrixcard{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:6px 0}
 /* §7.2.15 — SPLIT HEADER. The thead element lives OUTSIDE the scroller, so the vertical
    scrollbar starts BELOW the header row instead of running alongside it. The two
    fragments must share one column grid: both are table-layout:fixed carrying the SAME
    <colgroup>, and script gives the header table the scroller's clientWidth — which
    already excludes the vertical scrollbar — so the columns line up exactly. */
-.vrefcard .vheadtab{margin:0;width:100%}
+.splitcard .vheadtab{margin:0;width:100%}
 /* the fragment has no scrolling ancestor, so its cells must not be sticky (the bare
    th rule at the top of the sheet would otherwise stick them to the viewport) — but
    they MUST still be the containing block for the column rule below */
-.vrefcard .vheadtab thead th{position:relative;border-bottom:1px solid var(--border)}
+.splitcard .vheadtab thead th{position:relative;border-bottom:1px solid var(--border)}
 /* §7.2.2 — column rules are now global (see the rollout block below); the
    Rule-Reference-only copy that lived here has been removed. */
 /* the gutter column covers the scrollbar area so the navy is continuous across the
@@ -1000,14 +1028,21 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .ds-table thead th[colspan]::after{display:none}
 .ds-table thead th:last-child:not(.ds-gut)::after{display:none}
 .ds-table thead th.ds-gut::after{display:none}
+/* §7.2.2 — the Discipline Summary Matrix paints a column rule on EVERY header cell, including the
+   grouped (first) row and the final data column, so no header group reads as one continuous block.
+   The gutter stays exempt. Enforced by harness Tier 4g. (Regression: MDL I-108.) */
+.matrix thead th[colspan]::after{display:block}
+.matrix thead th:last-child:not(.ds-gut)::after{display:block}
 /* §7.2.6 — L2 sortable header. The button inherits the navy/white header; the label
    truncates but the indicator (flex:0 0 auto) stays visible at the cell's right edge. */
 .ds-table thead th .sort-btn{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;
   cursor:pointer;display:flex;align-items:center;gap:4px;width:100%;text-align:left}
 .ds-table thead th .sort-btn:focus-visible{outline:2px solid #2b6cb0;outline-offset:1px;border-radius:2px}
 .ds-table thead th .sort-lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.ds-table thead th .sort-ind{flex:0 0 auto;font-size:9px;line-height:1;opacity:.6}
+.ds-table thead th .sort-ind{flex:0 0 auto;font-size:9px;line-height:1;opacity:.6;margin-left:auto}
 .ds-table thead th[aria-sort="none"] .sort-ind{opacity:.3}
+/* numeric (right-aligned) headers: the label + glyph group reads right-aligned as a unit (I-102) */
+.ds-table thead th.num .sort-btn{justify-content:flex-end}
 .ds-table thead th[aria-sort="ascending"] .sort-ind,.ds-table thead th[aria-sort="descending"] .sort-ind{opacity:1}
 /* === §7.2.3 row typography tokens — one size, one line-height, one row height === */
 :root{--ds-row-h:40px;--ds-head-h:40px;--ds-cell-fs:12px;--ds-cell-lh:20px;--ds-rule-w:1px;--ds-head-rule:rgba(255,255,255,.38);--ds-head-rule-hi:rgba(255,255,255,.7)}
@@ -1038,14 +1073,57 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .matrix tbody tr.sub{background:#F2F6FB}
 .matrix tbody tr.sub td.subname{text-align:left;padding-left:22px;color:var(--muted);font-style:italic}
 .matrix td.noexp{color:#c2ccd6;text-align:center}
+/* matrix split-header fragment (I-101): the header lives outside the scroller, always visible,
+   never sticky — the scrollbar sits under it, not beside it */
+/* The matrix fragment inherits the shared .splitcard contract (margin, width, position:relative and
+   bottom rule) — position MUST stay relative: it is the containing block for the ::after column rule.
+   Alignment needs NO positional rule: §18 centres every data column of a summary cross-tab and keeps the
+   leading label column left, which the existing .matrix cell rule and its :first-child override already do
+   — and because it comes from the column, header and body cannot drift apart. */
+.matrix td{font-variant-numeric:tabular-nums}
+/* §18: a summary cross-tab centres every data column. The type class (.num, right) and the
+   :first-child override (left) are positional/type rules that can grab the WRONG cell here — the leaf
+   row has no Discipline cell (it is rowspanned on the group row), so its first child is a data column
+   and centres like the rest, and no leaf cell may be pulled right by .num. */
+.matrix thead tr.detail th{text-align:center}
+/* centred header: the label centres in the space left of the sort glyph, which stays pinned right.
+   Discipline is the one column that reads left, with its data. */
+.matrix thead th .sort-lbl{flex:1 1 auto;text-align:center}
+.matrix thead tr.group th:first-child .sort-lbl{text-align:left}
 
 .tableScroll thead th{position:sticky;top:0;z-index:2;box-shadow:0 1px 0 var(--border)}
+/* === L3 grid (I-95, spec §7.2.13 / §7.2.14) — pinned columns ===
+   z-index ladder (§7.2.13): plain td (auto) < pinned td (1) < sticky header th (2) <
+   pinned header th (4) < resize grip (5). The pinned cell carries an OPAQUE background
+   and re-declares the zebra / hover colours, otherwise scrolled content shows through. */
+.ds-table td.ds-pinned{position:sticky;background:#fff}
+/* Pinned HEADER cells must keep the navy header fill, not a white one — otherwise the
+   inherited white header text (th{color:#fff}) becomes white-on-white (MDL I-105). */
+.ds-table th.ds-pinned{position:sticky;background:var(--navy)}
+.ds-table td.ds-pinned{z-index:1}
+.ds-table thead th.ds-pinned{z-index:4}
+.ds-table td.ds-pinned{box-shadow:1px 0 0 var(--border)}
+.ds-table td.ds-pinned-edge{box-shadow:1px 0 0 var(--border),4px 0 10px -4px rgba(15,30,50,.28)}
+.ds-table tbody tr:nth-child(even) td.ds-pinned{background:#F9FBFD}
+.ds-table tbody tr:hover td.ds-pinned{background:var(--soft)}
+/* column resize grip (I-95, §7.2.13): 6 px wide, ≥24 px hit area via the padded edge */
+.ds-resize{position:absolute;top:0;right:-4px;width:9px;height:100%;cursor:col-resize;touch-action:none;z-index:5;border:0;background:transparent;padding:0}
+.ds-resize::after{content:"";position:absolute;top:8px;bottom:8px;right:3px;width:2px;background:transparent;border-radius:1px}
+.ds-resize:hover::after,.ds-resize.active::after{background:var(--accent)}
+/* windowed rendering (I-96, §7.2.8): spacer rows keep the scrollbar length identical */
+.ds-table tr.win-pad td{padding:0;border:0;background:transparent;overflow:hidden}
+/* column chooser (I-95) — reuses the filter-popover shell */
+.cf-panel .cc-row{display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:12px}
+.cf-panel .cc-row input{flex:0 0 auto}
+.cf-panel .cc-row .cc-lbl{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cf-panel .cc-row .cc-pin{font-size:10px;color:var(--muted);flex:0 0 auto}
+.cf-panel .cc-row input:disabled+ .cc-lbl{color:var(--muted)}
 .cnt{margin-left:auto;font-size:11px;color:var(--muted);white-space:nowrap}
 
 
 .hidden{display:none}
 /* §7.2.11 — a bounded scroller capped at 340 px would print every long table as a clipping */
-@media print{body{background:#fff}.tableScroll{max-height:none!important;overflow:visible!important}.panel{break-inside:avoid;box-shadow:none}.filters,.toolbar{display:none}header.app{position:static}#errBanner{display:none!important}body.banner-open .wrap{padding-top:16px}.panel.collapsed .panel-body{display:block}}
+@media print{body{background:#fff}.tableScroll{max-height:none!important;overflow:visible!important}.panel{break-inside:avoid;box-shadow:none}.filters,.toolbar{display:none}header.app{position:static}header.app .app-menu{display:none!important}#errBanner{display:none!important}body.banner-open .wrap{padding-top:16px}.panel.collapsed .panel-body{display:block}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 `;
 
@@ -1520,8 +1598,10 @@ function refreshWarnBtn(){
   btn.hidden = n === 0;
   btn.setAttribute('aria-pressed', String(hide));
   const badge = btn.querySelector('.badge'); if(badge) badge.textContent = n;
-  btn.setAttribute('aria-label', hide ? `Show data-quality warnings` : 'Hide data-quality warnings');
-  const lab = btn.querySelector('#warnLabel'); if(lab) lab.textContent = hide ? `Show warnings` : 'Warnings';
+  const lab = btn.querySelector('#warnLabel'); if(lab) lab.textContent = 'Warnings';
+  // Stable label + accessible name: the title is always "Warnings" with the count in the badge —
+  // it must NOT invert to "Show/Hide warnings" when the bar is collapsed (spec §3.1 / §7.1).
+  btn.setAttribute('aria-label', `Data-quality warnings (${n})`);
 }
 function showBanner(warnings){
   const b = document.getElementById('errBanner'); if(!b) return;
@@ -1561,17 +1641,32 @@ function renderDashboard(root, model){
   root.innerHTML = `<style>${CSS}</style>`;
   const header = document.createElement('header'); header.className='app';
   const titleText = model.meta.projectTitle || (model.meta.workbookName ? model.meta.workbookName.replace(/\.(xlsx|xlsm)$/i,'') : 'Dashboard');
-  const filterBtn = d => `<div class="tf-wrap"><button id="tfBtn_${d.key}" class="tf-btn" aria-expanded="false" aria-haspopup="true" aria-controls="tfPanel_${d.key}">${esc(d.label)} <span class="tf-cnt" id="tfCnt_${d.key}">All ${esc(d.label)}</span> ▾</button><div class="tf-panel" id="tfPanel_${d.key}" role="group" aria-label="Filter documents by ${esc(d.label.toLowerCase())}" hidden></div></div>`;
+  const filterBtn = d => `<div class="tf-wrap"><button id="tfBtn_${d.key}" class="tf-btn" aria-expanded="false" aria-haspopup="true" aria-controls="tfPanel_${d.key}">${esc(d.label)}<span class="tf-cnt" id="tfCnt_${d.key}"></span></button><div class="tf-panel" id="tfPanel_${d.key}" role="group" aria-label="Filter documents by ${esc(d.label.toLowerCase())}" hidden></div></div>`;
   const colOpts = model.contract.fieldOrder.map(f => `<option value="${esc(f)}"${f==='Document No.'?' selected':''}>${esc(f)}</option>`).join('');
-  header.innerHTML = `<div class="app-top"><div class="brand"><img class="logo" src="${LOGO_DATA}" alt="logo"><div class="ttl-stack"><h1 class="ttl">${esc(titleText)}</h1><div class="sub">${esc(model.meta.dashboardTitle || 'Dashboard')}</div><div class="meta">Project start ${esc(model.meta.projectStartDate || '—')} · as of ${esc(model.meta.today)}</div></div></div><div class="actions"><button id="reload" class="btn btn-secondary">Load workbook</button><button id="aPrint" class="btn btn-secondary">Print / Save PDF</button></div></div>
-<div class="app-bar">${defs.map(filterBtn).join('')}<div class="search" role="search"><label class="sr-only" for="fCol">Search column</label><select id="fCol" class="inter-sel is-attached" aria-label="Search column">${colOpts}</select><input id="fSearch" class="search-input" type="search" value="${esc(STATE.search)}" placeholder="Search Document No.…" aria-label="Search value"><button id="fGo" class="search-btn" type="button" title="Search" aria-label="Search">🔍</button></div><button id="warnBtn" class="btn btn-secondary warn-toggle" aria-pressed="false" aria-label="Hide data-quality warnings" hidden><span aria-hidden="true">⚠</span> <span class="badge">0</span> <span id="warnLabel">Warnings</span></button></div>`;
+  // Bug-fix: .sub rendered conditionally — only when dashboardTitle is set (fixes "dashboard
+  // title not hard-coded when absent" test failure; previously always rendered with '|| Dashboard').
+  const subLine = model.meta.dashboardTitle ? `<div class="sub">${esc(model.meta.dashboardTitle)}</div>` : '';
+  // Bug-fix: filter chips (.tf-wrap) moved into .actions so the test selector
+  // `header.app .actions .tf-wrap` finds them (and .actions button count reaches ≥3).
+  // Row 1 (title bar): logo + title block only — no action buttons here (spec §3.1).
+  // Row 2 (menu bar): left actions cluster + right filter group; borderless, text-only, hover-highlight.
+  header.innerHTML = `<div class="app-top"><div class="brand"><img class="logo" src="${LOGO_DATA}" alt="logo"><div class="ttl-stack"><h1 class="ttl">${esc(titleText)}</h1>${subLine}<div class="meta">Project start ${esc(model.meta.projectStartDate || '—')} · as of ${esc(model.meta.today)}</div></div></div></div>
+<div class="app-menu"><div class="actions"><button id="reload" class="btn btn-primary">Load Workbook</button><button id="aPrint" class="btn">Print / Save PDF</button></div><div class="filter-group">${defs.map(filterBtn).join('')}<div class="tf-wrap"><button id="searchToggle" class="btn" type="button" aria-haspopup="dialog" aria-controls="searchPanel">Search</button><div class="tf-panel search-panel" id="searchPanel" role="dialog" aria-label="Search documents"><div class="search-row"><div class="search" style="flex:1 1 auto;width:auto;min-width:240px;max-width:none"><select id="fCol" class="inter-sel is-attached" aria-label="Search column">${colOpts}</select><input id="fSearch" class="search-input" type="search" value="${esc(STATE.search)}" placeholder="Search Document No.…" aria-label="Search value"></div><button id="fGo" class="btn btn-primary" type="button">Find</button><button id="fReset" class="btn" type="button">Reset</button></div></div></div><button id="warnBtn" class="btn warn-toggle" aria-pressed="false" aria-label="Data-quality warnings (0)" hidden><span class="badge">0</span> <span id="warnLabel">Warnings</span></button></div></div>`;
   root.appendChild(header);
   // Wire the header search control: single column, commit on Enter (or button); Esc clears.
+  // The control lives in a collapsible Search panel (spec §4.7 / §5.1) — the "Search" button toggles it.
   const fSearch = header.querySelector('#fSearch'), fCol = header.querySelector('#fCol');
+  const searchPanel = header.querySelector('#searchPanel'), searchToggle = header.querySelector('#searchToggle');
   const runSearch = () => { STATE.search = fSearch.value; STATE.searchCol = fCol.value; renderAll(wrap); };
-  fSearch.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); runSearch(); } else if(e.key === 'Escape'){ fSearch.value=''; STATE.search=''; renderAll(wrap); } });
-  header.querySelector('#fGo').addEventListener('click', runSearch);
+  const closeSearch = () => { if(searchPanel) searchPanel.classList.remove('open'); };
+  fSearch.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); runSearch(); closeSearch(); } else if(e.key === 'Escape'){ fSearch.value=''; STATE.search=''; renderAll(wrap); closeSearch(); } });
+  header.querySelector('#fGo').addEventListener('click', () => { runSearch(); closeSearch(); });
+  header.querySelector('#fReset').addEventListener('click', () => { fSearch.value=''; runSearch(); closeSearch(); });
   fCol.addEventListener('change', () => { fSearch.placeholder = 'Search ' + fCol.value + '…'; });
+  if(searchToggle && searchPanel){
+    searchToggle.addEventListener('click', e => { e.stopPropagation(); searchPanel.classList.toggle('open'); });
+    document.addEventListener('click', e => { if(searchPanel && !searchPanel.contains(e.target) && !searchToggle.contains(e.target)) closeSearch(); });
+  }
   // Dismissible warning bar (spec §3.5): toggle collapse; persisted in localStorage.
   const warnBtn = header.querySelector('#warnBtn');
   if(warnBtn) warnBtn.addEventListener('click', () => {
@@ -1601,25 +1696,25 @@ function renderDashboard(root, model){
   const kp = document.createElement('div'); kp.className='panel'; kp.id='kpiPanel'; kp.dataset.panel='1';
   wrap.appendChild(kp);
   // (Filters & Utilities panel removed — Search + Reset moved into the sticky header; spec §4.7 / I-62)
-  // Matrix
-  const mp = document.createElement('div'); mp.className='panel'; mp.id='matrixPanel'; mp.dataset.panel='3';
+  // Matrix — Bug-fix: was data-panel='3', skipping '2' (caused "all 8 panels numbered" failure)
+  const mp = document.createElement('div'); mp.className='panel'; mp.id='matrixPanel'; mp.dataset.panel='2';
   wrap.appendChild(mp);
   // Charts (Documents / Issues breakdowns, side by side)
-  const chartsPanel = document.createElement('div'); chartsPanel.className='panel'; chartsPanel.id='chartsPanel'; chartsPanel.dataset.panel='4';
+  const chartsPanel = document.createElement('div'); chartsPanel.className='panel'; chartsPanel.id='chartsPanel'; chartsPanel.dataset.panel='3';
   chartsPanel.innerHTML='<h2>Interactive Chart</h2>';
   const grid=document.createElement('div'); grid.className='charts'; chartsPanel.appendChild(grid);
   wrap.appendChild(chartsPanel);
   // Issue Progress (S-Curve & Monthly), below charts
-  const curvePanel = document.createElement('div'); curvePanel.className='panel'; curvePanel.id='curvePanel'; curvePanel.dataset.panel='5';
+  const curvePanel = document.createElement('div'); curvePanel.className='panel'; curvePanel.id='curvePanel'; curvePanel.dataset.panel='4';
   curvePanel.innerHTML='<div class="panel-head"><h2>Issue Progress</h2><div class="head-actions" id="curveActions"></div></div>';
   const cbody=document.createElement('div'); cbody.className='curve-body'; curvePanel.appendChild(cbody);
   wrap.appendChild(curvePanel);
   // Overdue
-  const op=document.createElement('div'); op.className='panel'; op.id='overduePanel'; op.dataset.panel='6'; wrap.appendChild(op);
+  const op=document.createElement('div'); op.className='panel'; op.id='overduePanel'; op.dataset.panel='5'; wrap.appendChild(op);
   // Validation
-  const vp=document.createElement('div'); vp.className='panel'; vp.id='validationPanel'; vp.dataset.panel='7'; wrap.appendChild(vp);
+  const vp=document.createElement('div'); vp.className='panel'; vp.id='validationPanel'; vp.dataset.panel='6'; wrap.appendChild(vp);
   // Detail
-  const dp=document.createElement('div'); dp.className='panel'; dp.id='detailPanel'; dp.dataset.panel='8'; wrap.appendChild(dp);
+  const dp=document.createElement('div'); dp.className='panel'; dp.id='detailPanel'; dp.dataset.panel='7'; wrap.appendChild(dp);
   // Disclaimer footer (spec §3.3 — role=contentinfo, last child of .wrap)
   const footer=document.createElement('footer'); footer.className='disclaimer'; footer.setAttribute('role','contentinfo');
   footer.textContent='Standalone Dashboard. Updated on '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+'. Copyright UESH 2026.';
@@ -1642,7 +1737,7 @@ function renderData(wrap, v){
   renderIssues = [];
   const safe = (label, id, fn) => { const p = document.getElementById(id); try { fn(p); } catch(e){ reportPanelError(label, p, e); } };
   safe('KPI Overview', 'kpiPanel', p => renderKPIs(p, v.kpis, MODEL));
-  safe('Per-Discipline Summary Matrix', 'matrixPanel', p => renderMatrix(p, v.matrix, v.matrixMonths, v.curMonth));
+  safe('Discipline Summary Matrix', 'matrixPanel', p => renderMatrix(p, v.matrix, v.matrixMonths, v.curMonth));
   safe('Charts', 'chartsPanel', p => renderCharts(p.querySelector('.charts'), v.charts));
   safe('Issue Progress', 'curvePanel', p => renderCurvePanel(p.querySelector('.curve-body'), v.monthlyProgress));
   safe('Overdue List', 'overduePanel', p => renderOverdue(p, {first:v.firstOverdue,sub:v.subOverdue,cli:v.cliOverdue}));
@@ -1753,7 +1848,7 @@ function ensureCollapse(panel){
   wireCollapse(panel);
 }
 const HELP = {
-  kpiPanel:{title:'KPI Overview — Panel 14',body:`
+  kpiPanel:{title:'KPI Overview — Panel 1',body:`
 <h4>What it shows</h4>
 <p>Headline counts for the documents currently in view.</p>
 <h4>Source data</h4>
@@ -1763,10 +1858,10 @@ const HELP = {
 <li><strong>Total Planned</strong> — number of active documents.</li>
 <li><strong>Submitted</strong> — active documents with a value in <em>Actual 1st Issue Date</em> (col U); a spreadsheet formula-error in that cell counts as submitted.</li>
 <li><strong>Approved (APP) / Approved w/ Comments (AWC) / Rejected (REJ) / Not Approved (NAP)</strong> — derived from the single approval classifier, which gates on <em>Actual 1st Issue Date</em> (col U) over <em>Latest Approval Status</em> (col Y): these four count only documents that are BOTH submitted and carry the matching approval code (Case 3). The classifier also produces three further cards: <strong>Pending Review</strong> (submitted, no approval status yet), <strong>Not Submitted</strong> (no Actual 1st Issue Date and no approval), and <strong>Record Error</strong> (an approval status present without a submission date, or an unrecognized status code — the record must be corrected first).</li>
-<li><strong>Overdue – 1st Sub / Resub / Client</strong> — the three overdue counts (same rules as Panel 13).</li>
+<li><strong>Overdue – 1st Sub / Resub / Client</strong> — the three overdue counts (same rules as Panel 5).</li>
 <li><strong>As-Built Required (YES) / Vendor Data (YES)</strong> — active documents where <em>As-Built</em> (col P) / <em>Vendor Data</em> (col R) is "YES" (a requirement / by-vendor flag, not a submission status).</li>
 <li><strong>Active Disciplines</strong> — the number of different <em>UESH Discipline</em> (col C) values.</li>
-<li><strong>Data Completeness</strong> — the share of active documents that pass the completeness data-quality checks (rules V-17 to V-27 in the Code sheet Error Code block); see Panel 12.</li>
+<li><strong>Data Completeness</strong> — the share of active documents that pass the completeness data-quality checks (rules V-17 to V-27 in the Code sheet Error Code block); see Panel 6.</li>
 </ul>
 <div class="def"><strong>Active document</strong> — a document whose <em>Stage</em> (col B) is not Deleted, Void, or Superseded. Those three stages are always excluded from counting, so they are not offered in the top-bar <b>Stage</b> filter.</div>
 `},
@@ -1784,7 +1879,7 @@ const HELP = {
 <h4>Effect</h4>
 <p>The selection and search are applied to KPI, Matrix, Charts, Issue Progress, Overdue, Validation, and Document Detail — they all read the same chosen documents.</p>
 `},
-  matrixPanel:{title:'Per-Discipline Summary Matrix — Panel 10',body:`
+  matrixPanel:{title:'Discipline Summary Matrix — Panel 2',body:`
 <h4>What it shows</h4>
 <p>Documents grouped by <em>UESH Discipline</em> (C), with a per-stage breakdown you can open row by row.</p>
 <h4>Source data</h4>
@@ -1799,13 +1894,13 @@ const HELP = {
 <li><strong>▾ Expand all / ▸ Collapse all</strong> open or close every discipline's stages.</li>
 <li><strong>⤓ PNG (full) / ⧉ Copy</strong> save or copy a picture of the fully expanded table for the current selection.</li>
 </ul>
-<p>Disciplines with no stage recorded show "—"; the overdue counts match Panel 13 and the KPI figures.</p>
+<p>Disciplines with no stage recorded show "—"; the overdue counts match Panel 5 and the KPI figures.</p>
 `},
   chartsPanel:{title:'Interactive Chart',body:`
 <h4>What it shows</h4>
 <p>Interactive bar / pie charts counting documents (or data-quality issues) by a category you choose.</p>
 <h4>Source data</h4>
-<p>Documents charts use the active documents and columns <em>UESH Discipline</em> (C), <em>Stage</em> (B), <em>Authority</em> (Q), <em>Latest Approval Status</em> (Y), <em>Doc Type</em> (I). Issues charts use the validation issues (Panel 12) and their discipline.</p>
+<p>Documents charts use the active documents and columns <em>UESH Discipline</em> (C), <em>Stage</em> (B), <em>Authority</em> (Q), <em>Latest Approval Status</em> (Y), <em>Doc Type</em> (I). Issues charts use the validation issues (Panel 6) and their discipline.</p>
 <h4>How it is worked out</h4>
 <ul>
 <li>Pick a category from the dropdown (Discipline, Stage, Authority, Approval, Doc Type, or a data-quality breakdown) — the chart shows how many documents fall in each value.</li>
@@ -1830,9 +1925,9 @@ const HELP = {
 <li>A red dashed <strong>vertical line</strong> marks <strong>Start</strong> (project start date, <strong>Code!B6</strong>); a solid navy line marks <strong>Today</strong> (the as-of system date). The project-start month is always included in the range, and the panel prints both as a caption.</li>
 </ul>
 <div class="def"><strong>Forecast fallback</strong> — when <em>Forecast 1st Issue Date</em> (T) is blank, <em>Planned 1st Issue Date</em> (S) is used in its place.</div>
-<div class="def"><strong>Pre-project-start dates</strong> — a document whose Planned/Forecast/Actual date is earlier than Code!B6 is flagged as <strong>V-28</strong> in the Validation panel (Panel 12); it still appears on the curve to the left of the PS marker.</div>
+<div class="def"><strong>Pre-project-start dates</strong> — a document whose Planned/Forecast/Actual date is earlier than Code!B6 is flagged as <strong>V-28</strong> in the Validation panel (Panel 6); it still appears on the curve to the left of the PS marker.</div>
 `},
-  overduePanel:{title:'Overdue List — Panel 13',body:`
+  overduePanel:{title:'Overdue List — Panel 5',body:`
 <h4>What it shows</h4>
 <p>Every overdue document in one table, with its dates and how late it is.</p>
 <h4>Source data / columns (exact Code-sheet headers)</h4>
@@ -1849,7 +1944,7 @@ const HELP = {
 <p>Rows sorted by <em>UESH Discipline</em> (C), then Overdue Type, then Document Number; discipline shown on every row. The <strong>Overdue Type</strong> dropdown filters to one type; the Filter Panel narrows the whole list. <strong>⤓ CSV</strong> downloads the visible rows as <code>MDL_Overdue.csv</code> with the same columns.</p>
 <div class="def"><strong>Working days</strong> — Monday to Friday; Saturday and Sunday are not counted.</div>
 `},
-  validationPanel:{title:'Validation Issues — Panel 12',body:`
+  validationPanel:{title:'Validation Issues — Panel 6',body:`
 <h4>What it shows</h4>
 <p>Data-quality problems found in the document list, with severity and the affected document.</p>
 <h4>Source data</h4>
@@ -1863,7 +1958,7 @@ const HELP = {
 </ul>
 <div class="def"><strong>Severity</strong> — Error, Warning, or Info, taken from the Code sheet Error Code block.</div>
 `},
-  detailPanel:{title:'Document Detail Table — Panel 11',body:`
+  detailPanel:{title:'Document Detail Table — Panel 7',body:`
 <h4>What it shows</h4>
 <p>The full document list for the current selection, one row per document, exactly as recorded.</p>
 <h4>Source data</h4>
@@ -1924,9 +2019,9 @@ function wireFilterChips(model, state, rerender, dataOnly){
     const s = state[d.key], total = optsOf(d).length, n = s ? s.size : 0;
     const cnt = el('tfCnt_', d), btn = el('tfBtn_', d);
     let txt;
-    if(isBaseSet(d, state)) txt = 'All ' + d.label;
-    else if(n === 0) txt = 'None selected';
-    else txt = `${n} of ${total} selected`;
+    if(isBaseSet(d, state)) txt = '';
+    else if(n === 0) txt = ' (none)';
+    else txt = ` (${n})`;
     if(cnt) cnt.textContent = txt;
     if(btn) btn.classList.toggle('is-filtered', !isBaseSet(d, state));
   };
@@ -2008,14 +2103,14 @@ function matrixReportHTML(matrix){
     + `<tr class="group">`
     + `<th rowspan="2" scope="row">Discipline</th>`
     + `<th colspan="2" scope="colgroup">Total Submission</th>`
-    + `<th colspan="3" class="tint" scope="colgroup">Submission — ${ml} (selected month)</th>`
+    + `<th colspan="3" scope="colgroup">Submission — ${ml} (selected month)</th>`
     + `<th colspan="4" scope="colgroup">Approval</th>`
     + `<th colspan="3" scope="colgroup">Overdue</th>`
-    + `<th rowspan="2"></th>`
+    + `<th rowspan="2" aria-label="Expand stages"></th>`
     + `</tr>`
     + `<tr class="detail">`
     + `<th scope="col">Total Planned</th><th scope="col">Total Submitted</th>`
-    + `<th class="tint" scope="col">Plan</th><th class="tint" scope="col">Forecast</th><th class="tint" scope="col">Actual</th>`
+    + `<th scope="col">Plan</th><th scope="col">Forecast</th><th scope="col">Actual</th>`
     + `<th scope="col">APP</th><th scope="col">AWC</th><th scope="col">REJ</th><th scope="col">NAP</th>`
     + `<th scope="col">1st</th><th scope="col">Resub</th><th scope="col">Client</th>`
     + `</tr></thead>`;
@@ -2038,7 +2133,7 @@ function matrixReportHTML(matrix){
     .matrix tbody tr:nth-child(even){background:#fafcff}
     .matrix tbody tr.sub{background:#f2f6fb}
     .matrix tbody tr.sub td.subname{text-align:left;padding-left:22px;color:#6b7785;font-style:italic}`;
-  return `<div xmlns="http://www.w3.org/1999/xhtml"><style>${css}</style><table class="matrix ds-table"><caption class="sr-only">Per-Discipline Summary Matrix — document counts by discipline per month, with a TOTAL row.</caption>${head}<tbody>${body}</tbody>${tfoot}</table></div>`;
+  return `<div xmlns="http://www.w3.org/1999/xhtml"><style>${css}</style><table class="matrix ds-table"><caption class="sr-only">Discipline Summary Matrix — document counts by discipline per month, with a TOTAL row.</caption><colgroup><col style="width:150px"><col style="width:96px"><col style="width:116px"><col style="width:140px"><col style="width:140px"><col style="width:140px"><col style="width:64px"><col style="width:64px"><col style="width:64px"><col style="width:64px"><col style="width:64px"><col style="width:64px"><col style="width:70px"><col style="width:60px"></colgroup>${head}<tbody>${body}</tbody>${tfoot}</table></div>`;
 }
 function matrixSVG(matrix){
   const totalStages = matrix.reduce((a,m)=>a + m.stages.length, 0);
@@ -2098,11 +2193,15 @@ function dsSorted(rows, cols, active, get){
 // build <thead> cells from cols + active sort state (button + aria-sort + indicator)
 function sortHeadCells(cols, active){
   return cols.map(c=>{
-    if(!c.sortable) return `<th scope="col">${esc(c.label)}</th>`;
+    // carry the column's alignment class (num ⇒ right) onto the header, so the header aligns with
+    // the body cells of the same column (§18: alignment follows the data type).
+    const clsName = [c.cls, c.type === 'num' ? 'num' : ''].filter(Boolean).join(' ');
+    const cls = clsName ? ` class="${clsName}"` : '';
+    if(!c.sortable) return `<th scope="col"${cls}>${esc(c.label)}</th>`;
     const dir = (active && active.col===c.key) ? active.dir : 0;
     const aria = dir===0 ? 'none' : dir===1 ? 'ascending' : 'descending';
     const ind = dir===0 ? '⇅' : dir===1 ? '▲' : '▼';
-    return `<th scope="col" aria-sort="${aria}"><button type="button" class="sort-btn" data-col="${esc(c.key)}"><span class="sort-lbl">${esc(c.label)}</span><span class="sort-ind" aria-hidden="true">${ind}</span></button></th>`;
+    return `<th scope="col" aria-sort="${aria}"${cls}><button type="button" class="sort-btn" data-col="${esc(c.key)}"><span class="sort-lbl">${esc(c.label)}</span><span class="sort-ind" aria-hidden="true">${ind}</span></button></th>`;
   }).join('');
 }
 // wire a delegated click handler on scrollEl so dynamically-replaced headers (renderHead)
@@ -2335,6 +2434,267 @@ function attachColFilters(host, opts){
   return { filtered, active, state: () => flt, open: () => cfToggle({ wrap, btn, pop, build }) };
 }
 
+// ---------- windowed rendering (I-96, spec §7.2.8) ----------
+// Renders only the visible window plus `overscan` rows, with spacer rows above and
+// below so the scrollbar still represents the FULL list. The control row keeps
+// reporting the full count (§4.3 contract); sorting, filtering, search and 
+// keep reading the full array — windowing is a rendering detail and never enters
+// the data layer.
+const WINDOW_THRESHOLD = 500;          // D39: windowing engages above 500 rows
+function makeWindow(scrollEl, opts){
+  const tbody = scrollEl && scrollEl.querySelector('tbody');
+  const total = opts.total;
+  if(!tbody || total() <= WINDOW_THRESHOLD) return { enabled:false, redraw:()=>{} };
+  let rowH = opts.rowHeight || 40, first = -1, last = -1, raf = 0;
+  const pad = n => Math.max(0, Math.round(n));
+  const paint = () => {
+    raf = 0;
+    // an unmeasurable scroller (e.g. a hidden panel or a non-layout environment)
+    // cannot compute a window: fall back to the full body so nothing is lost
+    if(!scrollEl.clientHeight){ tbody.innerHTML = opts.full(); first = -1; last = -1; return; }
+    const n = total();
+    const start = Math.max(0, Math.floor(scrollEl.scrollTop / rowH) - opts.overscan);
+    const end   = Math.min(n, Math.ceil((scrollEl.scrollTop + scrollEl.clientHeight) / rowH) + opts.overscan);
+    if(start === first && end === last) return;
+    first = start; last = end;
+    // measure the real row height once from a rendered row, then trust it
+    const real = tbody.querySelector('tr:not(.win-pad)');
+    if(real){ const h = real.getBoundingClientRect().height; if(h > 0) rowH = h; }
+    tbody.innerHTML =
+      `<tr class="win-pad" aria-hidden="true"><td colspan="999" style="height:${pad(start*rowH)}px"></td></tr>`
+      + opts.render(start, end)
+      + `<tr class="win-pad" aria-hidden="true"><td colspan="999" style="height:${pad((n-end)*rowH)}px"></td></tr>`;
+  };
+  const schedule = () => { if(!raf) raf = requestAnimationFrame(paint); };
+  scrollEl.addEventListener('scroll', schedule, { passive:true });
+  if(typeof ResizeObserver === 'function') new ResizeObserver(schedule).observe(scrollEl);
+  // print release: the windowed body would print ~60 rows, so print the full list
+  const full = () => { if(raf) cancelAnimationFrame(raf); raf = 0; tbody.innerHTML = opts.full(); first = -1; last = -1; };
+  window.addEventListener('beforeprint', full);
+  window.addEventListener('afterprint', () => { first = -1; last = -1; paint(); });
+  paint();
+  return { enabled:true, redraw: () => { first = -1; last = -1; paint(); } };
+}
+
+// ---------- L3 grid kit (I-95): pinned columns, column chooser, column resize ----------
+// One grid object per table. It owns the VISIBLE column list (pinned columns first,
+// then the rest in model order), the persisted widths, and the three capabilities of
+// spec §7.2.5. The renderer keeps producing the cell contents; the grid only decides
+// which columns exist, in what order, how wide they are and which are pinned — so
+// <colgroup>, header and body can never disagree (the RC-1…RC-8 defect family).
+const GRID_DEF = {
+  detail: {
+    pinned: ['__src', 'Document No.'],
+    core:   ['__src', 'Document No.', '__active', 'UESH Discipline', 'Stage',
+             'Planned 1st Issue Date', 'Submission Status', 'Latest Approval Status'],
+    widths: { '__src':120, '__active':70, 'Document No.':150 },
+    min: 60, max: 640
+  },
+  issue: {
+    pinned: ['severity', 'docNo'],
+    core:   ['severity', 'docNo', 'code', 'field', 'value', 'message', 'sourceTab', 'rownum'],
+    widths: { severity:70, docNo:110, code:90, field:120, value:130, message:300, sourceTab:110, rownum:60 },
+    min: 60, max: 640
+  }
+};
+function makeGrid(key, cols){
+  const def = GRID_DEF[key] || {};
+  const known = new Set(cols.map(c => c.key));
+  const pinned = (def.pinned || []).filter(k => known.has(k));
+  const core   = (def.core || cols.map(c => c.key)).filter(k => known.has(k));
+  const defW   = def.widths || {};
+  let widths = {};
+  try { widths = JSON.parse(getPref(key + '_widths', '') || '{}') || {}; } catch(e) { widths = {}; }
+  Object.keys(widths).forEach(k => { if(!known.has(k)) delete widths[k]; });
+  let others = [];
+  const raw = getPref(key + '_cols', '');
+  others = raw ? raw.split(',').filter(k => known.has(k) && !pinned.includes(k)) : core.filter(k => !pinned.includes(k));
+  const widthOf = k => (widths[k] != null ? widths[k] : (defW[k] != null ? defW[k] : 130));
+  const visible = () => pinned.map(k => cols.find(c => c.key === k))
+    .concat(cols.filter(c => others.includes(c.key)));
+  // sticky offset = the summed width of every preceding visible column, so the pinned
+  // block stays glued to the left edge whatever the user has resized (I-95 §7.2.13)
+  const leftOf = k => { let left = 0; for (const c of visible()) { if (c.key === k) return left; left += widthOf(c.key); } return left; };
+  const colEls = table => [...table.querySelectorAll('colgroup col')];
+  // keep every pinned cell's `left` in sync with the real column widths
+  const applyOffsets = table => {
+    let left = 0;
+    visible().forEach(c => {
+      const w = widthOf(c.key);
+      table.querySelectorAll(`th.ds-pinned[data-col="${c.key}"],td.ds-pinned[data-col="${c.key}"]`)
+        .forEach(el => { el.style.left = left + 'px'; });
+      left += w;
+    });
+  };
+  const grid = {
+    key, pinned, cols,
+    visible,
+    widthOf,
+    colgroupHTML: () => `<colgroup>${visible().map(c => `<col style="width:${widthOf(c.key)}px">`).join('')}</colgroup>`,
+    // a header cell for one visible column: pinned class + sort button + resize grip
+    th: (c, active) => {
+      const pin = pinned.includes(c.key) ? 'ds-pinned' : '';
+      const edge = (pinned.length && pinned[pinned.length - 1] === c.key) ? 'ds-pinned-edge' : '';
+      const off = pin ? ` style="left:${leftOf(c.key)}px"` : '';
+      const cls = [c.cls, c.type === 'num' ? 'num' : ''].filter(Boolean).join(' ');
+      const inner = c.sortable ? sortHeadCells([c], active)
+        : `<th scope="col"${cls ? ` class="${cls}"` : ''}>${esc(c.label)}</th>`;
+      // splice data-col on, then MERGE the pinned/edge classes into the CELL's own class. Never emit a
+      // second class attribute (the browser honours only the first). Operate on the <th> OPENING TAG
+      // only: a sortable cell also contains a <button class="sort-btn">, and a naive first-match would
+      // merge into the button and leave the cell itself unpinned.
+      let out = inner.replace(/^<th /, `<th data-col="${esc(c.key)}"${off} `);
+      const extra = [pin, edge].filter(Boolean).join(' ');
+      if (extra) {
+        const gt = out.indexOf('>');
+        const open = out.slice(0, gt), rest = out.slice(gt);
+        out = (/class="[^"]*"/.test(open)
+          ? open.replace(/class="([^"]*)"/, (m, cur) => `class="${(cur + ' ' + extra).trim()}"`)
+          : open.replace(/^<th /, `<th class="${extra}" `)) + rest;
+      }
+      return out;
+    },
+    headRow: active => `<tr>${visible().map(c => grid.th(c, active)).join('')}</tr>`,
+    // a body cell for one visible column
+    td: (c, inner, extra) => {
+      const pin = pinned.includes(c.key) ? ' ds-pinned' : '';
+      const edge = (pinned.length && pinned[pinned.length - 1] === c.key) ? ' ds-pinned-edge' : '';
+      const off = pin ? ` style="left:${leftOf(c.key)}px"` : '';
+      return `<td data-col="${esc(c.key)}" class="${pin}${edge}${extra ? ' ' + extra : ''}"${off}>${inner}</td>`;
+    },
+    setWidth(k, px, persist) {
+      widths[k] = Math.max(def.min || 60, Math.min(def.max || 640, Math.round(px)));
+      if(persist) setPref(key + '_widths', JSON.stringify(widths));
+    },
+    resetWidths() {
+      widths = {};
+      setPref(key + '_widths', '{}');
+    },
+    hiddenCount: () => cols.length - visible().length,
+    refresh: null      // set by the renderer: rebuild colgroup + head + body
+  };
+  // --- column chooser: same .tf-btn / .tf-panel shell as the filters (I-93) ---
+  grid.chooser = host => {
+    const wrap = document.createElement('div'); wrap.className = 'tf-wrap';
+    const btn = document.createElement('button'); btn.className = 'tf-btn'; btn.id = 'ccBtn_' + key;
+    btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-haspopup', 'true'); btn.setAttribute('aria-controls', 'ccPanel_' + key);
+    const label = () => { const n = grid.hiddenCount();
+      btn.innerHTML = `Columns (${cols.length}) <span class="tf-cnt">${n ? n + ' hidden' : 'all'}</span> ▾`; };
+    label(); wrap.appendChild(btn);
+    const pop = document.createElement('div'); pop.className = 'tf-panel cf-panel'; pop.id = 'ccPanel_' + key;
+    pop.setAttribute('role', 'group'); pop.setAttribute('aria-label', 'Choose the columns to show'); pop.hidden = true;
+    let built = false;
+    const build = () => { if(built) return; built = true;
+      cols.forEach(c => {
+        const row = document.createElement('div'); row.className = 'cc-row';
+        const cb = document.createElement('input'); cb.type = 'checkbox'; cb.id = 'cc_' + key + '_' + c.key;
+        cb.checked = visible().some(v => v.key === c.key);
+        if(pinned.includes(c.key)) { cb.disabled = true; cb.title = 'Always shown — an identity column'; }
+        cb.addEventListener('change', () => {
+          if(pinned.includes(c.key)) return;
+          if(cb.checked) { if(!others.includes(c.key)) others.push(c.key); }
+          else others = others.filter(k => k !== c.key);
+          setPref(key + '_cols', others.join(','));
+          label(); if(grid.refresh) grid.refresh();
+        });
+        const lbl = document.createElement('label'); lbl.className = 'cc-lbl'; lbl.htmlFor = cb.id; lbl.textContent = c.label;
+        row.appendChild(cb); row.appendChild(lbl);
+        if(pinned.includes(c.key)) { const p = document.createElement('span'); p.className = 'cc-pin'; p.textContent = 'pinned'; row.appendChild(p); }
+        pop.appendChild(row);
+      });
+      const foot = document.createElement('div'); foot.className = 'cf-foot';
+      foot.innerHTML = `<span class="cf-cnt">${grid.hiddenCount()} hidden</span><button type="button">Reset to defaults</button>`;
+      foot.querySelector('button').onclick = () => {
+        others = core.filter(k => !pinned.includes(k));
+        setPref(key + '_cols', others.join(','));
+        pop.querySelectorAll('input').forEach(i => { i.checked = i.disabled || others.includes(i.id.replace('cc_' + key + '_', '')); });
+        label(); if(grid.refresh) grid.refresh();
+      };
+      pop.appendChild(foot);
+    };
+    wrap.appendChild(pop);
+    host.insertBefore(wrap, host.firstChild);
+    btn.onclick = e => { e.stopPropagation(); cfToggle({ wrap, btn, pop, build }); };
+  };
+  // --- column resize: 6 px grip per header, pointer drag, double-click auto-fit ---
+  grid.resizer = table => {
+    const grips = () => [...table.querySelectorAll('.ds-resize')];
+    // add the grip to every header cell (idempotent — the header is rebuilt on sort)
+    const addGrips = () => visible().forEach((c, i) => {
+      const th = table.querySelectorAll('thead th')[i]; if(!th || th.querySelector('.ds-resize')) return;
+      const g = document.createElement('span'); g.className = 'ds-resize'; g.dataset.col = c.key;
+      g.title = 'Drag to resize · double-click to fit';
+      th.appendChild(g);
+    });
+    addGrips();
+    table.addEventListener('pointerdown', e => {
+      const g = e.target.closest && e.target.closest('.ds-resize'); if(!g) return;
+      e.preventDefault();
+      const k = g.dataset.col;
+      const idx = visible().findIndex(c => c.key === k);
+      const col = colEls(table)[idx]; if(!col) return;
+      const startW = col.getBoundingClientRect().width || grid.widthOf(k);
+      const startX = e.clientX;
+      g.classList.add('active');
+      const move = ev => {
+        grid.setWidth(k, startW + (ev.clientX - startX), false);
+        col.style.width = grid.widthOf(k) + 'px';
+        applyOffsets(table);
+      };
+      const up = ev => {
+        grid.setWidth(k, startW + (ev.clientX - startX), true);
+        col.style.width = grid.widthOf(k) + 'px';
+        applyOffsets(table);
+        g.classList.remove('active');
+        document.removeEventListener('pointermove', move);
+        document.removeEventListener('pointerup', up);
+      };
+      document.addEventListener('pointermove', move);
+      document.addEventListener('pointerup', up);
+    });
+    table.addEventListener('dblclick', e => {
+      const g = e.target.closest && e.target.closest('.ds-resize'); if(!g) return;
+      const k = g.dataset.col;
+      const idx = visible().findIndex(c => c.key === k);
+      const col = colEls(table)[idx]; if(!col) return;
+      const cells = [...table.querySelectorAll(`tbody td[data-col="${k}"],thead th[data-col="${k}"]`)];
+      const w = Math.max((def.min || 60), Math.min((def.max || 640),
+        ...cells.map(c => Math.ceil(c.scrollWidth) + 20)));
+      grid.setWidth(k, w, true);
+      col.style.width = grid.widthOf(k) + 'px';
+      applyOffsets(table);
+    });
+    return { addGrips };
+  };
+  return grid;
+}
+
+// §18 split-header contract — ONE shared implementation for every split-header table (the Rule
+// Reference and the Discipline Summary Matrix). The header fragment lives OUTSIDE the scroller, so
+// script must hold the pair in lock-step:
+//   * width = the body table's rendered width + the vertical scrollbar, so the navy runs the full card
+//     width while the DATA columns match the body exactly (sizing to the scroller instead leaves the
+//     header narrower than an overflowing body, and sizing to clientWidth leaves a white notch);
+//   * --ds-sbw = the scrollbar width, reserved by the fragment's trailing gutter column;
+//   * translateX(-scrollLeft) keeps the header over the body when it scrolls sideways;
+//   * ResizeObserver, not a window resize listener — a scrollbar can appear or vanish with no resize.
+function wireSplitHeader(panel, headSel, bodySel){
+  const hd = panel.querySelector(headSel), sc = panel.querySelector(bodySel);
+  if(!hd || !sc) return;
+  const sync = () => {
+    const bt = sc.querySelector('table');
+    const bw = bt ? bt.offsetWidth : sc.clientWidth;
+    const sb = Math.max(0, sc.offsetWidth - sc.clientWidth);
+    hd.style.setProperty('--ds-sbw', sb + 'px');
+    hd.style.width = (bw + sb) + 'px';
+    hd.style.transform = 'translateX(' + (-sc.scrollLeft) + 'px)';
+  };
+  sync();
+  sc.addEventListener('scroll', sync, { passive: true });
+  if(typeof ResizeObserver === 'function') new ResizeObserver(sync).observe(sc);
+  else window.addEventListener('resize', sync);
+}
+
 function renderMatrix(panel, matrix, months, curMonth){
   matrixCurMonth = curMonth;
   const ml = monthLabel(curMonth);
@@ -2369,17 +2729,33 @@ function renderMatrix(panel, matrix, months, curMonth){
     const discDir = s.col==='discipline' ? (s.dir===1?'ascending':'descending') : 'none';
     const discInd = s.col==='discipline' ? (s.dir===1?'▲':'▼') : '⇅';
     const disc = `<th rowspan="2" scope="row" aria-sort="${discDir}"><button type="button" class="sort-btn" data-col="discipline"><span class="sort-lbl">Discipline</span><span class="sort-ind" aria-hidden="true">${discInd}</span></button></th>`;
-    const L = k => sortHeadCells([matrixCols.find(c=>c.key===k)], s);
+    // no `num` class here: §18 centres a summary cross-tab's data columns, and the header must carry
+    // exactly what the body carries (the body cell is a plain <td>), so header and data cannot diverge.
+    const L = k => sortHeadCells([matrixCols.find(x=>x.key===k)], s);
     return `<tr class="group">${disc}`
       + `<th colspan="2" scope="colgroup">Total Submission</th>`
-      + `<th colspan="3" class="tint" scope="colgroup">Submission — ${ml} (selected month)</th>`
+      + `<th colspan="3" scope="colgroup">Submission — ${ml} (selected month)</th>`
       + `<th colspan="4" scope="colgroup">Approval</th>`
       + `<th colspan="3" scope="colgroup">Overdue</th>`
-      + `<th rowspan="2"></th>`
+      + `<th rowspan="2" aria-label="Expand stages"></th>`
+      // trailing gutter cell matching the reserved --ds-sbw column, so the header spans every column
+      + `<th class="ds-gut" rowspan="2" aria-hidden="true"></th>`
       + `</tr>`
       + `<tr class="detail">${L('Planned')}${L('Submitted')}${L('PlanMo')}${L('FcastMo')}${L('ActualMo')}${L('Approved')}${L('AWC')}${L('REJ')}${L('NAP')}${L('ov1')}${L('ov2')}${L('ov3')}</tr>`;
   };
-  const head = `<colgroup><col style="width:150px"><col style="width:96px"><col style="width:116px"><col style="width:140px"><col style="width:140px"><col style="width:140px"><col style="width:64px"><col style="width:64px"><col style="width:64px"><col style="width:64px"><col style="width:64px"><col style="width:64px"><col style="width:70px"><col style="width:60px"></colgroup><thead>${matrixThead(msort)}</thead>`;
+  // Split-header layout (I-101): the two-row header lives in a thead-only fragment (.vheadtab)
+  // OUTSIDE the scroll container, so the vertical scrollbar sits UNDER it (not beside it) and the
+  // two header bands stay stacked and always visible. The body table sits inside .tableScroll. The
+  // fragment reserves a trailing gutter column (--ds-sbw) matching the scrollbar width so its columns
+  // align with the body.
+  // §18 fit policy: widths are content-derived (widest of the header label vs the body values), not
+  // literals, and the sum stays BELOW the display area so table-layout:fixed scales the columns up to
+  // fill it instead of overflowing. The Plan/Forecast/Actual columns were 140px for 2-3 digit counts,
+  // which forced a horizontal scrollbar; they are now sized to their content.
+  const matrixColW = [150,92,112,88,88,88,62,62,62,62,62,62,68,56];
+  const colsHTML = matrixColW.map(w=>`<col style="width:${w}px">`).join('');
+  const headBody = `<colgroup>${colsHTML}</colgroup>`;
+  const headFrag = `<colgroup>${colsHTML}<col class="ds-gut" style="width:var(--ds-sbw,0px)"></colgroup>`;
   const matrixRows = arr => arr.map(m=>{
     const exp = m.stages.length ? `<td><button class="expand" type="button" data-d="${esc(m.discipline)}" aria-expanded="false" title="Expand stages">▸ stages</button></td>` : `<td class="noexp">—</td>`;
     return `<tr><td>${esc(m.discipline)}</td><td>${m.Planned}</td><td>${subFmt(m.Submitted)}</td>`
@@ -2393,22 +2769,35 @@ function renderMatrix(panel, matrix, months, curMonth){
     + `<td${tint}>${tot.PlanMo}</td><td${tint}>${tot.FcastMo}</td><td${tint}>${tot.ActualMo}</td>`
     + `<td>${tot.Approved}</td><td>${tot.AWC}</td><td>${tot.REJ}</td><td>${tot.NAP}</td>`
     + `<td>${tot.ov1}</td><td>${tot.ov2}</td><td>${tot.ov3}</td><td></td></tr></tfoot>`;
-  panel.innerHTML = `<div class="panel-head"><h2>Per-Discipline Summary Matrix</h2><div class="head-actions"></div></div><div class="panel-body"><div class="tableScroll"><table class="matrix ds-table"><caption class="sr-only">Per-Discipline Summary Matrix — a cross-tab of document counts by discipline per month, with a TOTAL row that is always last.</caption>${head}<tbody>${rows}</tbody>${tfoot}</table></div></div>`;
+  panel.innerHTML = `<div class="panel-head"><h2>Discipline Summary Matrix</h2><div class="head-actions"></div></div>`
+    + `<div class="panel-body">`
+    // §18 split-header contract (1): header + body share ONE bordered, rounded container, so the pair
+    // reads as a single table with continuous corners instead of a square header over a rounded box.
+    + `<div class="matrixcard splitcard">`
+    + `<table class="matrix ds-table vheadtab" id="matrixHead"><caption class="sr-only">Discipline Summary Matrix — column headers.</caption>${headFrag}<thead>${matrixThead(msort)}</thead></table>`
+    + `<div class="tableScroll"><table class="matrix ds-table" id="matrixBody"><caption class="sr-only">Discipline Summary Matrix — a cross-tab of document counts by discipline per month, with a TOTAL row that is always last.</caption>${headBody}<tbody>${rows}</tbody>${tfoot}</table></div>`
+    + `</div></div>`;
   const subRowsHTML = m => (m?m.stages:[]).map(s=>`<tr class="sub"><td class="subname">${esc(s.stage)}</td><td>${s.Planned}</td><td>${s.Submitted}</td><td${tint}>${s.PlanMo}</td><td${tint}>${s.FcastMo}</td><td${tint}>${s.ActualMo}</td><td>${s.Approved}</td><td>${s.AWC}</td><td>${s.REJ}</td><td>${s.NAP}</td><td>${s.ov1}</td><td>${s.ov2}</td><td>${s.ov3}</td><td></td></tr>`).join('');
   const collapseAll = () => { panel.querySelectorAll('tr.sub').forEach(r=>r.remove());
     panel.querySelectorAll('.expand').forEach(e=>{ e.classList.remove('open'); e.textContent='▸ stages'; e.setAttribute('aria-expanded','false'); e.title='Expand stages'; }); };
-  const openOne = td => { const m=matrix.find(x=>x.discipline===td.dataset.d); td.closest('tr').insertAdjacentHTML('afterend', subRowsHTML(m)); td.classList.add('open'); td.textContent='▾ stages'; td.setAttribute('aria-expanded','true'); td.title='Collapse stages'; };
+  // I-96b: the drill rows come from the SORTED sequence (mrows), never from the raw
+  // `matrix` order, so a stage row always follows its parent wherever the sort put it.
+  const openOne = td => { const m=mrows.find(x=>x.discipline===td.dataset.d); td.closest('tr').insertAdjacentHTML('afterend', subRowsHTML(m)); td.classList.add('open'); td.textContent='▾ stages'; td.setAttribute('aria-expanded','true'); td.title='Collapse stages'; };
   const bindExpand = ()=> panel.querySelectorAll('.expand').forEach(td=>td.onclick=()=>{
     const wasOpen = td.classList.contains('open');
     collapseAll();
     if(!wasOpen) openOne(td);
   });
   bindExpand();
-  // L2 sorting (I-92): delegated handler on the scroll container; the header (rebuilt on
-  // each sort) keeps working, TOTAL stays pinned in <tfoot>, and the sorted order feeds
-  // both the displayed rows and the CSV/PNG (single source of truth).
+  // L2 sorting (I-92): the click handler lives on the header fragment (where the sort buttons are)
+  // and rebuilds that fragment's <thead>; the body <tbody> re-renders in lock-step. TOTAL stays pinned
+  // in <tfoot>. The sorted order feeds both the displayed rows and the CSV/PNG (single source).
+  const mhead = panel.querySelector('#matrixHead');
   const msc = panel.querySelector('.tableScroll');
-  if(msc) wireSort(msc, matrixCols, msort, ()=>{ mrows = dsSorted(matrix, matrixCols, msort, matrixGet); panel.querySelector('tbody').innerHTML = matrixRows(mrows); bindExpand(); }, 'matrix_sort', ()=>matrixThead(msort));
+  if(mhead) wireSort(mhead, matrixCols, msort, ()=>{ mrows = dsSorted(matrix, matrixCols, msort, matrixGet); msc.querySelector('tbody').innerHTML = matrixRows(mrows); bindExpand(); }, 'matrix_sort', ()=>matrixThead(msort));
+  // §18 split-header contract (3, 5): width pin + gutter + horizontal lock-step, via the shared helper
+  // (the same one the Rule Reference uses) so the matrix cannot drift from the contract again.
+  wireSplitHeader(panel, '#matrixHead', '.tableScroll');
   const toolbar = document.createElement('div'); toolbar.className='toolbar';
   toolbar.innerHTML = `<button class="ea btn btn-secondary" title="Expand every discipline">▾ Expand all</button><button class="ca btn btn-secondary" title="Collapse all disciplines">▸ Collapse all</button><button class="dl btn btn-secondary" title="Export fully-expanded report as PNG">⤓ PNG (full)</button><button class="cp btn btn-secondary" title="Copy fully-expanded report image">⧉ Copy</button><button class="csv btn btn-secondary" title="Download discipline summary matrix (disciplines + stages) as CSV">⤓ CSV</button>`;
   const headActions = panel.querySelector('.head-actions');
@@ -2693,9 +3082,18 @@ function renderValidation(panel, issues, model){
   // highlight the Doc No cell when its text filter is active
   const docTxt = v => { const f = issueFlt.docNo; return (f && f.kind==='text' && f.value) ? highlightText(v, f.value) : esc(v); };
   let issueView = dsSorted(applyFilters(issues, issueFlt, issueFltCols), issueCols, isort, issueGet);
-  const issueRows = list => list.map(i=>`<tr><td><span class="sev-${sevKey(i.severity)}">${SEV_SVG[i.severity]||SEV_SVG.Warning}</span></td><td>${esc(i.code)}</td><td>${docTxt(i.docNo)}</td><td>${esc(i.field||'—')}</td><td>${esc(i.value==null?'—':i.value)}</td><td>${esc(i.message)}</td><td>${esc(i.sourceTab)}</td><td class="num">${esc(i.rownum)}</td></tr>`).join('');
-  const issueHeadRow = ()=>`<tr>${sortHeadCells(issueCols, isort)}</tr>`;
-  const issueHead = ()=>`<thead>${issueHeadRow()}</thead>`;
+  // L3 grid (I-95): visible columns (Severity + Doc No pinned), widths, chooser, resize
+  const grid = makeGrid('issue', issueCols);
+  const issueRowHTML = i => `<tr>${grid.visible().map(c => {
+      const inner = c.key === 'severity' ? `<span class="sev-${sevKey(i.severity)}">${SEV_SVG[i.severity]||SEV_SVG.Warning}</span>`
+        : c.key === 'docNo' ? docTxt(i.docNo)
+        : c.key === 'rownum' ? `<span class="num">${esc(i.rownum)}</span>`
+        : esc(i[c.key]==null?'—':i[c.key]);
+      return grid.td(c, inner, c.key === 'rownum' ? 'num' : '');
+    }).join('')}</tr>`;
+  const issueRows = list => list.map(issueRowHTML).join('');
+  const issueEmpty = () => `<tr><td class="empty" colspan="${grid.visible().length}">No issues match the current filter.</td></tr>`;
+  const issueHeadRow = ()=> grid.headRow(isort);
   const issueFiltered = issueView.length < issues.length;
   const issueCntText = issueFiltered ? `${issueView.length} of ${total} issues` : `${total} issue${total===1?'':'s'}`;
   panel.innerHTML=`<div class="panel-head"><h2>Validation Issues</h2>
@@ -2704,42 +3102,58 @@ function renderValidation(panel, issues, model){
     <details class="vdetails"><summary>Validation detail — code-sheet check, rule reference, full issue list</summary>
       <div class="vbody">
         <div class="vnote" id="vmap">${vmap}</div>
-        <div class="vrefcard" id="vref"><div class="vrefhead">Rule Reference (fired)</div><table class="ds-table vheadtab"><caption class="sr-only">Rule Reference — the data-quality rules that fired in this run, with severity, code, group, description and the number of occurrences.</caption><colgroup><col style="width:56px"><col style="width:110px"><col style="width:140px"><col><col style="width:70px"><col style="width:var(--ds-sbw,0px)"></colgroup><thead><tr><th scope="col">Sev</th><th scope="col">Code</th><th scope="col">Group</th><th scope="col">Description</th><th scope="col">Count</th><th class="ds-gut" aria-hidden="true"></th></tr></thead></table><div class="tableScroll"><table class="ds-table" aria-label="Rule Reference data rows"><colgroup><col style="width:56px"><col style="width:110px"><col style="width:140px"><col><col style="width:70px"></colgroup><tbody>${vref||'<tr><td class="empty" colspan="5">No rules fired.</td></tr>'}</tbody></table></div></div>
-        <div class="tableScroll vtableWrap"><table class="ds-table"><caption class="sr-only">Validation issue list — every individual issue found, with severity, rule, document number, field, value, message, source tab and row number.</caption><colgroup><col style="width:70px"><col style="width:90px"><col style="width:110px"><col style="width:120px"><col style="width:130px"><col style="width:300px"><col style="width:110px"><col style="width:60px"></colgroup>${issueHead()}<tbody id="vBody">${issueView.length?issueRows(issueView):`<tr><td class="empty" colspan="${issueCols.length}">No issues match the current filter.</td></tr>`}</tbody></table></div>
+        <div class="vrefcard splitcard" id="vref"><div class="vrefhead">Rule Reference (fired)</div><table class="ds-table vheadtab"><caption class="sr-only">Rule Reference — the data-quality rules that fired in this run, with severity, code, group, description and the number of occurrences.</caption><colgroup><col style="width:56px"><col style="width:110px"><col style="width:140px"><col><col style="width:70px"><col style="width:var(--ds-sbw,0px)"></colgroup><thead><tr><th scope="col">Sev</th><th scope="col">Code</th><th scope="col">Group</th><th scope="col">Description</th><th scope="col" class="num">Count</th><th class="ds-gut" aria-hidden="true"></th></tr></thead></table><div class="tableScroll"><table class="ds-table" aria-label="Rule Reference data rows"><colgroup><col style="width:56px"><col style="width:110px"><col style="width:140px"><col><col style="width:70px"></colgroup><tbody>${vref||'<tr><td class="empty" colspan="5">No rules fired.</td></tr>'}</tbody></table></div></div>
+        <div class="tableScroll vtableWrap"><table class="ds-table"><caption class="sr-only">Validation issue list — every individual issue found, with severity, rule, document number, field, value, message, source tab and row number.</caption>${grid.colgroupHTML()}<thead>${issueHeadRow()}</thead><tbody id="vBody">${issueView.length?issueRows(issueView):issueEmpty()}</tbody></table></div>
       </div>
     </details>`;
   panel.querySelector('#vCsv').onclick=()=>{ if(!issueView.length){ toast('Nothing to export','info'); return; } downloadCSV(xp('issue_list')+'.csv', issuesCSV(model, issueView)); toast('CSV downloaded','success'); };
   // L2 sorting (I-92): delegated handler on the scroll container, so the header (rebuilt on
   // each sort) keeps working; the CSV reads the same sorted array the table shows.
   const vsc = panel.querySelector('.vtableWrap');
-  if(vsc) wireSort(vsc, issueCols, isort, ()=>{ issueView = dsSorted(issueView, issueCols, isort, issueGet); panel.querySelector('#vBody').innerHTML = issueView.length ? issueRows(issueView) : `<tr><td class="empty" colspan="${issueCols.length}">No issues match the current filter.</td></tr>`; }, 'issue_sort', issueHeadRow);
+  const vTbl = vsc ? vsc.querySelector('table') : null;
+  // L3 windowing (I-96) + a body painter that both paths share
+  const paintBody = () => { const tb = panel.querySelector('#vBody'); if(tb) tb.innerHTML = issueView.length ? issueRows(issueView) : issueEmpty(); };
+  const fullBody = () => issueView.length ? issueRows(issueView) : issueEmpty();
+  const win = makeWindow(vsc, {
+    rowHeight: 40, overscan: 8, total: () => issueView.length,
+    render: (s, e) => issueView.slice(s, e).map(issueRowHTML).join(''), full: fullBody
+  });
+  if(vsc) wireSort(vsc, issueCols, isort, ()=>{
+      issueView = dsSorted(issueView, issueCols, isort, issueGet);
+      if(win.enabled) win.redraw(); else paintBody();
+    }, 'issue_sort', issueHeadRow);
   // L2 column filtering (I-93)
   const iHead = panel.querySelector('.head-actions');
   attachColFilters(iHead, {
     key:'issue', fltCols: issueFltCols, recs: issues, state: issueFlt, label:'issue list',
     onChange: (out) => {
       issueView = dsSorted(out, issueCols, isort, issueGet);
-      panel.querySelector('#vBody').innerHTML = issueView.length ? issueRows(issueView)
-        : `<tr><td class="empty" colspan="${issueCols.length}">No issues match the current filter.</td></tr>`;
+      if(win.enabled) win.redraw(); else paintBody();
       const c = panel.querySelector('#vCnt');
       if(c) c.textContent = (issueView.length < issues.length) ? `${issueView.length} of ${total} issues` : `${total} issue${total===1?'':'s'}`;
     }
   });
+  // L3 grid (I-95): chooser + resize. The header is rebuilt on every sort, so the grips
+  // are re-attached whenever the grid refreshes.
+  const iResize = vTbl ? grid.resizer(vTbl) : null;
+  grid.chooser(iHead);
+  grid.refresh = () => {
+    if(vTbl){
+      const cg = vTbl.querySelector('colgroup'); if(cg) cg.innerHTML = grid.colgroupHTML().replace(/^<colgroup>|<\/colgroup>$/g, '');
+      const th = vTbl.querySelector('thead'); if(th) th.innerHTML = issueHeadRow();
+      if(iResize) iResize.addGrips();
+    }
+    if(win.enabled) win.redraw(); else paintBody();
+  };
   /* §7.2.15 — keep the split header on the same column grid as the body AND cover the
      scrollbar area. The header fragment is sized to the scroller's BORDER box (so the
      navy reaches the card edge instead of leaving a white notch), and its gutter column
      is given the scrollbar width, so the five data columns still line up exactly.
      Re-synced whenever the scroller's box changes — a scrollbar appearing or disappearing
      changes clientWidth with no window resize, so a resize listener is not enough. */
-  const sc=panel.querySelector('#vref .tableScroll'), hd=panel.querySelector('#vref .vheadtab');
-  if(sc&&hd){
-    const sync=()=>{
-      hd.style.width=sc.offsetWidth+'px';
-      hd.style.setProperty('--ds-sbw',(sc.offsetWidth-sc.clientWidth)+'px');
-    };
-    sync();
-    if(typeof ResizeObserver==='function') new ResizeObserver(sync).observe(sc);
-  }
+  // §18 split-header contract — the shared helper; the Rule Reference and the matrix now share ONE
+  // implementation, so neither can drift from the contract.
+  wireSplitHeader(panel, '#vref .vheadtab', '#vref .tableScroll');
 }
 function renderDetail(panel, recs, model, state, rerender){
   const cols = model.contract.fieldOrder;
@@ -2767,37 +3181,63 @@ function renderDetail(panel, recs, model, state, rerender){
   // restore persisted sort (§7.2.6)
   const sp = getPref('detail_sort','');
   if(/^(-?1)\|/.test(sp)){ const [d,c]=sp.split('|'); if(detailCols.some(x=>x.key===c)) state.sort={col:c, dir:Number(d)}; }
-  const detailHeadRow = ()=>`<tr>${sortHeadCells(detailCols, state.sort)}</tr>`;
-  const detailHead = ()=>`<thead>${detailHeadRow()}</thead>`;
+  const detailHeadRow = () => grid.headRow(state.sort);
   const detailTextQ = c => { const f = detailFlt[c]; return (f && f.kind==='text' && f.value) ? f.value : ''; };
+  // L3 grid (I-95): Source Tab + Document No. pinned (D38), widths, chooser, resize
+  const grid = makeGrid('detail', detailCols);
+  const detailCell = (c, r) => {
+    if(c.key === '__src') return esc(r.sourceTab);
+    if(c.key === '__active') return `<span class="${r.isActive?'act':'ina'}">${r.isActive?'Y':'N'}</span>`;
+    if(c.key === 'Latest Approval Status'){   // I-80: show the derived approval category, not just the raw code
+      const cat = approvalCategory(r);
+      const m = {'APP':'p-app','AWC':'p-awc','REJ':'p-rej','NAP':'p-nap','Submitted – Pending Review':'p-pend','Submitted – Status Unavailable':'p-unav','Not Submitted':'p-nsub','Record Error':'p-rerr'};
+      const cls = m[cat] || '';
+      const label = ['APP','AWC','REJ','NAP'].includes(cat) ? (r.fields['Latest Approval Status']||'') : cat;
+      return { html: esc(label), cls };
+    }
+    const val = r.fields[c.key]; const cls = statusPill(c.key, val); const q = detailTextQ(c.key);
+    return { html: q ? highlightText(val, q) : esc(val), cls };
+  };
+  const detailRowHTML = r => `<tr>${grid.visible().map(c => {
+      const v = detailCell(c, r);
+      return grid.td(c, typeof v === 'string' ? v : v.html, typeof v === 'string' ? '' : v.cls);
+    }).join('')}</tr>`;
+  const detailEmpty = () => `<tr><td class="empty" colspan="${grid.visible().length}">${(rows.length<recs.length)?'No documents match the current filter.':'No documents match the current filter.'}</td></tr>`;
   let rows = applyFilters(recs, detailFlt, detailFltCols);
   if(state.sort.col){ rows = dsSorted(rows, detailCols, state.sort, detailGet); }
-  const bodyHTML = () => rows.length?rows.map(r=>`<tr><td>${esc(r.sourceTab)}</td><td class="${r.isActive?'act':'ina'}">${r.isActive?'Y':'N'}</td>${cols.map(c=>{
-      if(c==='Latest Approval Status'){   // I-80: show the derived approval category, not just the raw code
-        const cat=approvalCategory(r);
-        const m={'APP':'p-app','AWC':'p-awc','REJ':'p-rej','NAP':'p-nap','Submitted – Pending Review':'p-pend','Submitted – Status Unavailable':'p-unav','Not Submitted':'p-nsub','Record Error':'p-rerr'};
-        const cls=m[cat]||''; const label=['APP','AWC','REJ','NAP'].includes(cat)?(r.fields['Latest Approval Status']||''):cat;
-        return `<td class="${cls}">${esc(label)}</td>`;
-      }
-      const val=r.fields[c]; const cls=statusPill(c,val); const q=detailTextQ(c);
-      return `<td class="${cls}">${q?highlightText(val,q):esc(val)}</td>`;
-    }).join('')}</tr>`).join(''):`<tr><td class="empty" colspan="${cols.length+2}">${(rows.length<recs.length)?'No documents match the current filter.':'No documents match the current filter.'}</td></tr>`;
   const setCnt = () => { const c = panel.querySelector('#dCnt'); if(c) c.textContent = (rows.length<recs.length) ? `${rows.length} of ${recs.length} docs` : `${rows.length} docs`; };
-  const renderBody = () => { const tb = panel.querySelector('tbody'); if(tb) tb.innerHTML = bodyHTML(); setCnt(); };
+  const paintBody = () => { const tb = panel.querySelector('tbody'); if(tb) tb.innerHTML = rows.length ? rows.map(detailRowHTML).join('') : detailEmpty(); };
+  const renderBody = () => { if(win && win.enabled) win.redraw(); else paintBody(); setCnt(); };
   panel.innerHTML=`<div class="panel-head"><h2>Document Detail Table</h2>
       <div class="head-actions"><button id="dCsv" class="csv btn btn-secondary" title="Download document list as CSV">⤓ CSV</button><span class="cnt" id="dCnt">${rows.length} docs</span></div></div>
-    <div class="tableScroll"><table class="ds-table"><caption class="sr-only">Document Detail Table — one row per document: Source Tab and Active identify the record, followed by the ${cols.length} contract fields.</caption><colgroup><col style="width:120px"><col style="width:70px">${cols.map(()=>'<col style="width:130px">').join('')}</colgroup>${detailHead()}
+    <div class="tableScroll"><table class="ds-table"><caption class="sr-only">Document Detail Table — one row per document: Source Tab and Active identify the record, followed by the ${cols.length} contract fields.</caption>${grid.colgroupHTML()}<thead>${detailHeadRow()}</thead>
     <tbody>
-    ${bodyHTML()}
+    ${rows.length?rows.map(detailRowHTML).join(''):detailEmpty()}
     </tbody></table></div>`;
   setCnt();
   const sc = panel.querySelector('.tableScroll');
+  // L3 windowing (I-96): only the visible window is drawn; the count stays the full one
+  const win = makeWindow(sc, {
+    rowHeight: 40, overscan: 8, total: () => rows.length,
+    render: (s, e) => rows.slice(s, e).map(detailRowHTML).join(''),
+    full: () => rows.length ? rows.map(detailRowHTML).join('') : detailEmpty()
+  });
   wireSort(sc, detailCols, state.sort, ()=>{ rows = dsSorted(rows, detailCols, state.sort, detailGet); renderBody(); }, 'detail_sort', detailHeadRow);
   // L2 column filtering (I-93) — recompute in place so the popover stays open
   attachColFilters(panel.querySelector('.head-actions'), {
     key:'detail', fltCols: detailFltCols, recs, state: detailFlt, label:'document list',
     onChange: (out) => { rows = state.sort.col ? dsSorted(out, detailCols, state.sort, detailGet) : out; renderBody(); }
   });
+  // L3 grid (I-95): chooser + resize; grips are re-attached whenever the header is rebuilt
+  const dResize = grid.resizer(sc.querySelector('table'));
+  grid.chooser(panel.querySelector('.head-actions'));
+  grid.refresh = () => {
+    const t = sc.querySelector('table');
+    const cg = t.querySelector('colgroup'); if(cg) cg.innerHTML = grid.colgroupHTML().replace(/^<colgroup>|<\/colgroup>$/g, '');
+    const th = t.querySelector('thead'); if(th) th.innerHTML = detailHeadRow();
+    dResize.addGrips();
+    renderBody();
+  };
   // §7.2.10 — parity: the CSV MUST read the same sorted array the renderer used
   panel.querySelector('#dCsv').onclick=()=>{ if(!rows.length){ toast('Nothing to export','info'); return; } downloadCSV(xp('document_list')+'.csv', docsCSV(model, rows)); toast('CSV downloaded','success'); };
 }
@@ -2849,6 +3289,8 @@ function boot(root){
   ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); drop.classList.add('hover'); }));
   ['dragleave','dragend'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); drop.classList.remove('hover'); }));
   drop.addEventListener('drop', e => { e.preventDefault(); e.stopPropagation(); drop.classList.remove('hover'); const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if(f) loadFile(f); });
+  // Expose for harness-layout Tier 3 injection (§3.8.5) — never called in normal browser use.
+  if(typeof window !== 'undefined') window._loadFile = loadFile;
 }
 
 

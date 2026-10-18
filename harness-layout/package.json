@@ -1,0 +1,11 @@
+{
+  "name": "harness-layout",
+  "type": "module",
+  "scripts": {
+    "install-browsers": "npx playwright install chromium",
+    "test": "node harness.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.44.0"
+  }
+}

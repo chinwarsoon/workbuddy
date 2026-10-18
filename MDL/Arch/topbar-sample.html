@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MDL Top Bar — Sample (proposed Primer-style two-row header)</title>
+<!--
+  SAMPLE ONLY — review artifact for the proposed MDL top bar.
+  Structure: single sticky navy header.app
+    .app-top   = TitleBar  (brand left | trailing actions + future menu right)   -> Primer TitleBar
+    .app-bar   = ActionBar (filters left | search right), hairline above          -> Primer Action/Context bar
+  Future menu = kebab (.app-menu) already wired as a working demo (toggle / Esc / outside-click).
+  Alternative not shown here: two-container (navy TitleBar + light ActionBar) — see chat.
+-->
+<style>
+  :root{
+    --navy:#0F2D52; --blue:#1E88E5; --bg:#F6F8FA; --surface:#fff; --border:#D9E1E8;
+    --text:#1F2A37; --muted:#64748B; --soft:#E8F1FD; --shadow:0 1px 2px rgba(15,45,82,.08);
+    --hairline:rgba(255,255,255,.14);   /* same token as MDL .status-bar border-top */
+    --font:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased}
+
+  /* ---------- Header (single navy container) ---------- */
+  header.app{background:var(--navy);color:#fff;padding:10px 20px;display:flex;flex-direction:column;gap:8px;position:sticky;top:0;z-index:31}
+
+  /* TitleBar zone model */
+  header.app .app-top{display:flex;align-items:center;gap:12px;width:100%}
+  header.app .app-nav{flex:0 0 auto}                 /* future: hamburger slot, left of brand */
+  header.app .brand{display:flex;align-items:center;gap:12px;min-width:0;flex:1 1 auto}
+  header.app .logo{height:36px;min-width:36px;padding:0 8px;border-radius:6px;background:#fff;color:var(--navy);
+    font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.2);flex-shrink:0}
+  header.app .ttl-stack{display:flex;flex-direction:column;gap:2px;min-width:0}
+  header.app h1.ttl{font-size:17px;margin:0;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  header.app .sub{font-size:12px;font-weight:500;color:rgba(255,255,255,.8)}
+  header.app .meta{font-size:11px;opacity:.85}
+  header.app .app-top-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
+
+  /* buttons (match MDL .btn / .icon-btn tokens) */
+  .btn{font:inherit;font-size:12px;font-weight:600;border-radius:6px;min-height:32px;padding:0 14px;cursor:pointer;border:1px solid transparent}
+  .btn-secondary{background:#fff;color:var(--navy);border-color:var(--border)}
+  .btn-secondary:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .icon-btn{width:26px;height:26px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;
+    cursor:pointer;font-size:14px;display:inline-flex;align-items:center;justify-content:center}
+  .icon-btn:hover{background:var(--soft);color:var(--navy)}
+
+  /* ActionBar: filters left, search right, hairline above */
+  header.app .app-bar{display:flex;align-items:center;width:100%;gap:10px;justify-content:flex-start;
+    margin-top:2px;padding-top:8px;border-top:1px solid var(--hairline)}
+  .tf-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;
+    background:#fff;color:var(--navy);padding:7px 12px;min-height:32px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+  .tf-btn:hover{background:var(--soft)}
+  .tf-cnt{font-size:10px;background:var(--bg);border:1px solid var(--border);color:var(--muted);padding:1px 6px;border-radius:10px;font-weight:600}
+  .search{display:flex;align-items:center;gap:0;background:var(--surface);border:1px solid var(--border);
+    border-radius:6px;min-height:28px;padding:0;flex:0 0 auto;width:320px;max-width:42vw;margin-left:auto}
+  .search:focus-within{border-color:var(--blue);box-shadow:0 0 0 2px var(--soft)}
+  .search-col{border:0;border-right:1px solid var(--border);background:var(--bg);color:var(--navy);font:inherit;font-weight:600;
+    font-size:12px;border-radius:6px 0 0 6px;height:26px;padding:0 8px;cursor:pointer}
+  .search-input{border:0;background:transparent;color:var(--text);font:inherit;font-size:12px;flex:1 1 220px;min-width:0;height:26px;outline:none;padding:0 8px}
+  .search-btn{background:var(--blue);color:#fff;border:0;border-radius:0 6px 6px 0;min-height:28px;padding:0 12px;cursor:pointer;font-size:13px}
+
+  /* future menu dropdown (Primer overflow pattern; header is sticky = positioning context) */
+  .app-menu{position:relative}
+  .menu-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:32;background:#fff;color:var(--text);
+    border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);min-width:200px;padding:6px}
+  .menu-panel[hidden]{display:none}
+  .menu-panel button{display:block;width:100%;text-align:left;background:none;border:0;padding:8px 10px;border-radius:6px;font:inherit;font-size:13px;cursor:pointer;color:var(--text)}
+  .menu-panel button:hover{background:var(--soft);color:var(--navy)}
+
+  /* ---------- Page body (just to show sticky scroll + header separation) ---------- */
+  main{padding:20px;max-width:1100px;margin:0 auto}
+  .card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px}
+  .card h2{margin:0 0 8px;font-size:15px;color:var(--navy)}
+  .card p{margin:0;color:var(--muted)}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:720px){
+    header.app .app-top-right{flex-wrap:wrap}
+    header.app .app-bar{flex-wrap:wrap}
+    header.app .search{margin-left:0;width:100%;max-width:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="app">
+  <!-- Row 1: TitleBar -->
+  <div class="app-top">
+    <div class="app-nav"><!-- future: <button class="icon-btn" aria-label="Menu">☰</button> --></div>
+    <div class="brand">
+      <div class="logo">LOGO</div>
+      <div class="ttl-stack">
+        <h1 class="ttl">TWRP C3B2 — Master Document List</h1>
+        <div class="sub">Dashboard</div>
+        <div class="meta">Project start 2024-03-01 · as of 2026-10-11</div>
+      </div>
+    </div>
+    <div class="app-top-right">
+      <button class="btn btn-secondary">Load workbook</button>
+      <button class="btn btn-secondary">Print / Save PDF</button>
+      <!-- future menu (working demo) -->
+      <div class="app-menu">
+        <button class="icon-btn" id="menuBtn" aria-haspopup="true" aria-expanded="false" aria-label="More">⋮</button>
+        <div class="menu-panel" id="menuPanel" role="menu" hidden>
+          <button role="menuitem">Settings</button>
+          <button role="menuitem">Export all</button>
+          <button role="menuitem">Help</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: ActionBar (filters left, search right) -->
+  <div class="app-bar">
+    <button class="tf-btn">Discipline <span class="tf-cnt">All</span> ▾</button>
+    <button class="tf-btn">Stage <span class="tf-cnt">All</span> ▾</button>
+    <div class="search" role="search">
+      <label class="sr-only" for="fCol" style="position:absolute;left:-9999px">Search column</label>
+      <select id="fCol" class="search-col" aria-label="Search column">
+        <option>Document No.</option><option>Stage</option><option>Discipline</option>
+      </select>
+      <input id="fSearch" class="search-input" type="search" placeholder="Search Document No.…" aria-label="Search value">
+      <button class="search-btn" type="button" aria-label="Search">🔍</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="card"><h2>KPI Panel</h2><p>Scroll down to verify the sticky header stays pinned and the hairline separates the title row from the filter row.</p></div>
+  <div class="card"><h2>Per-Discipline Summary Matrix</h2><p>Sample content to create scroll height.</p></div>
+  <div class="card"><h2>Charts</h2><p>Sample content.</p></div>
+  <div class="card"><h2>Issue Progress (S-Curve)</h2><p>Sample content.</p></div>
+  <div class="card"><h2>Overdue</h2><p>Sample content.</p></div>
+  <div class="card"><h2>Validation</h2><p>Sample content.</p></div>
+  <div class="card"><h2>Detail</h2><p>Sample content — end of page.</p></div>
+</main>
+
+<script>
+  // Future-menu demo wiring (matches spec §7.1: real <button>, aria-expanded, Esc, outside-click)
+  const menuBtn = document.getElementById('menuBtn');
+  const menuPanel = document.getElementById('menuPanel');
+  const menuWrap = menuBtn.closest('.app-menu');
+  menuBtn.addEventListener('click', () => {
+    const open = menuPanel.hidden = !menuPanel.hidden;
+    menuBtn.setAttribute('aria-expanded', String(!open));
+  });
+  document.addEventListener('click', e => {
+    if (!menuWrap.contains(e.target)) { menuPanel.hidden = true; menuBtn.setAttribute('aria-expanded','false'); }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !menuPanel.hidden) { menuPanel.hidden = true; menuBtn.setAttribute('aria-expanded','false'); menuBtn.focus(); }
+  });
+</script>
+</body>
+</html>

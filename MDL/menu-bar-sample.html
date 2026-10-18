@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MDL — Menu Bar Sample (REVIEW ONLY)</title>
+<style>
+  :root{
+    --navy:#0f2d52; --blue:#1565c0; --accent:#d2691e; --surface:#fff; --bg:#f3f5f8;
+    --border:#d7dce3; --muted:#6b7785; --text:#10151c; --warnbg:#fff6e5; --warntx:#7a5b00;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.4 system-ui,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:var(--bg)}
+  .samplenote{background:#fff3cd;color:#6b5300;padding:8px 14px;font-size:12px;border-bottom:1px solid #ffe69c}
+  /* ---- sticky header: TWO ROWS, ONE UNIT (z above warning bar) ---- */
+  header.app{position:sticky;top:0;z-index:31}
+  .app-top{display:flex;gap:14px;align-items:center;background:var(--navy);color:#fff;padding:8px 18px}
+  .logo{width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,#2a6bd4,#0f2d52);
+         display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:11px}
+  .ttl-stack .h1{font-size:16px;font-weight:700;line-height:1.15}
+  .ttl-stack .sub{font-size:12px;opacity:.85}
+  .ttl-stack .meta{font-size:11px;opacity:.7}
+  /* ---- menu bar: NO border, NO icons. Hover = highlight. ---- */
+  .app-menu{display:flex;align-items:center;justify-content:space-between;gap:12px;
+            background:#fff;padding:8px 18px}
+  .actions{display:flex;gap:8px}
+  .filter-group{display:flex;align-items:center;gap:8px}
+  .btn{border:0;background:transparent;color:var(--text);border-radius:6px;
+       padding:7px 12px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+       transition:background .12s ease}
+  .btn:hover{background:#eaf1fb}
+  .btn-primary{background:var(--blue);color:#fff}
+  .btn-primary:hover{background:#0f56a8}
+  .btn .badge{background:#c62828;color:#fff;border-radius:10px;padding:0 6px;font-size:11px;font-weight:700}
+  .chip{border:0;background:transparent;border-radius:16px;padding:6px 12px;font-size:13px;cursor:pointer;
+        transition:background .12s ease}
+  .chip:hover{background:#eaf1fb}
+  .chip[aria-expanded="true"]{box-shadow:0 0 0 2px rgba(21,101,192,.15)}
+  .chip .cnt{color:var(--blue);font-weight:700}
+  .pos{position:relative}
+  /* dropdown menu (filter) */
+  .menu-pop{position:absolute;top:100%;left:0;margin-top:6px;background:#fff;border:1px solid var(--border);
+            border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.15);min-width:230px;padding:8px;z-index:40}
+  .menu-pop .row{display:flex;align-items:center;gap:8px;padding:4px 6px}
+  .menu-pop .head{display:flex;justify-content:space-between;border-bottom:1px solid var(--border);
+                  padding-bottom:6px;margin-bottom:6px;font-size:12px;color:var(--muted)}
+  .menu-pop label{display:flex;align-items:center;gap:8px;font-size:13px}
+  /* search panel — revealed by the Search button */
+  .search-panel{position:absolute;top:100%;left:0;margin-top:6px;background:#fff;border:1px solid var(--border);
+               border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.15);padding:10px;z-index:40;min-width:300px;display:none}
+  .search-panel.open{display:block}
+  .search-panel .lbl{font-size:12px;color:var(--muted);margin-bottom:4px}
+  .search-panel .row{display:flex;gap:6px;align-items:center;margin-top:8px}
+  .search-panel select,.search-panel input{border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:13px}
+  .search-panel input{flex:1 1 auto}
+  .search-panel .go{background:var(--blue);border-color:var(--blue);color:#fff}
+  /* warning bar */
+  #errBanner{display:flex;gap:10px;align-items:center;background:var(--warnbg);color:var(--warntx);
+             border-bottom:1px solid #f0d28a;padding:8px 18px;font-size:13px;z-index:30;position:relative}
+  #errBanner b{font-weight:700}
+  /* body */
+  main{padding:18px}
+  .kpis{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .kpi{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 16px;min-width:150px}
+  .kpi .n{font-size:22px;font-weight:700}
+  .kpi .l{font-size:12px;color:var(--muted)}
+  .panel{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px}
+  .panel h3{margin:0 0 8px;font-size:14px}
+  .filler{height:900px;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<div class="samplenote">SAMPLE — for review only. Proposes the MDL top title bar + sticky menu bar (workplan §4.0, MDL UI Design Spec §5.1). Changes vs prior sample: menu bar has NO border and NO icons; buttons/chips highlight on hover; the Search control is a button that reveals a search panel. Not part of the shipped dashboard.</div>
+
+<header class="app">
+  <!-- ROW 1: title bar -->
+  <div class="app-top">
+    <div class="logo">UESH</div>
+    <div class="ttl-stack">
+      <div class="h1">UESH Project — Document Control</div>
+      <div class="sub">Dashboard — Master Document Register</div>
+      <div class="meta">Project start 2026-01-15 · as of 2026-10-18</div>
+    </div>
+  </div>
+  <!-- ROW 2: menu bar -->
+  <div class="app-menu">
+    <div class="actions">
+      <button class="btn btn-primary">Load Workbook</button>
+      <button class="btn">Print / Save PDF</button>
+    </div>
+    <div class="filter-group">
+      <!-- Discipline chip: OPEN to show the multi-select dropdown -->
+      <div class="pos">
+        <button class="chip" aria-expanded="true">Discipline <span class="cnt">(3)</span></button>
+        <div class="menu-pop" role="menu">
+          <div class="head"><span>Discipline</span><span>Applies to all panels</span></div>
+          <div class="row"><label><input type="checkbox"> All</label> <span style="margin-left:auto" class="btn" style="border:0;color:var(--blue);cursor:pointer">Clear</span></div>
+          <div class="row"><label><input type="checkbox" checked> Civil / Structural</label></div>
+          <div class="row"><label><input type="checkbox" checked> Mechanical</label></div>
+          <div class="row"><label><input type="checkbox"> Electrical</label></div>
+          <div class="row"><label><input type="checkbox" checked> Architectural</label></div>
+        </div>
+      </div>
+      <div class="pos">
+        <button class="chip" aria-expanded="false">Stage</button>
+      </div>
+      <!-- Search is a button that reveals a search panel -->
+      <div class="pos">
+        <button class="btn" data-toggle=".search-panel">Search</button>
+        <div class="search-panel open" role="dialog" aria-label="Search">
+          <div class="lbl">Search across documents</div>
+          <div class="row">
+            <select><option>Document No.</option><option>Title</option><option>Discipline</option></select>
+            <input placeholder="Type to search…">
+          </div>
+          <div class="row">
+            <button class="btn btn-primary go">Find</button>
+            <button class="btn" style="border:0;color:var(--muted)">Reset</button>
+          </div>
+        </div>
+      </div>
+      <button class="btn">Warnings <span class="badge">3</span></button>
+    </div>
+  </div>
+</header>
+
+<div id="errBanner">⚠ <b>3 data-quality warnings</b> — 2 documents missing Issue Date · 1 document with status but no discipline · click “Warnings” to toggle this bar.</div>
+
+<main>
+  <div class="kpis">
+    <div class="kpi"><div class="n">1,284</div><div class="l">Total Documents</div></div>
+    <div class="kpi"><div class="n">962</div><div class="l">Approved</div></div>
+    <div class="kpi"><div class="n">87</div><div class="l">Awaiting Client</div></div>
+    <div class="kpi"><div class="n">41</div><div class="l">Overdue</div></div>
+  </div>
+  <div class="panel"><h3>Discipline Summary Matrix (per global Discipline / Stage filters)</h3>
+    <div class="filler">Matrix content … scroll the page to see the title bar + menu bar stay pinned together at the top, above the warning bar.</div>
+  </div>
+  <div class="panel"><h3>Overdue by Stage</h3><div class="filler">Overdue table …</div></div>
+  <div class="panel"><h3>Validation Issues</h3><div class="filler">Validation table …</div></div>
+</main>
+
+<script>
+  // click the Search button → toggle its panel; clicking elsewhere closes it
+  document.querySelectorAll('[data-toggle]').forEach(b=>{
+    b.addEventListener('click', e=>{
+      e.stopPropagation();
+      document.querySelectorAll(b.getAttribute('data-toggle')).forEach(p=>p.classList.toggle('open'));
+    });
+  });
+  document.addEventListener('click', ()=>document.querySelectorAll('.search-panel').forEach(p=>p.classList.remove('open')));
+</script>
+</body>
+</html>

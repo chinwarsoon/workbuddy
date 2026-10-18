@@ -1,0 +1,10 @@
+const fs=require('fs');
+const t=fs.readFileSync('MDL/mdl-issues.md','utf8').split('\n');
+const rows=t.filter(l=>l.startsWith('| **I-')).map(l=>l.split('|').slice(1,-1).map(s=>s.trim()));
+const codes=['OPEN','IN_PROGRESS','DEFERRED','DEFERRED_STUDY','DEFERRED_REVIEW','WONT_IMPLEMENT','OPEN_PARTIAL','APPROVED','RESOLVED','ALIGNED'];
+const cnt={};codes.forEach(c=>cnt[c]=0);
+rows.forEach(r=>{const m=codes.find(c=>r[6].startsWith(c+' '));if(m)cnt[m]++;else console.log('UNMATCHED',r[0],'|',r[6]);});
+console.log('rows',rows.length,'| malformed',rows.filter(r=>r.length!==12).length,'| sum',Object.values(cnt).reduce((a,b)=>a+b,0));
+console.log(codes.filter(c=>cnt[c]).map(c=>c+'='+cnt[c]).join(' '));
+const ids=rows.map(r=>r[0].replace(/\*/g,''));
+console.log('dup ids:',ids.length-new Set(ids).size,'| I-104 present:',ids.includes('I-104'),'| I-104 status:',(rows.find(x=>x[0].includes('I-104'))||[])[6]);
