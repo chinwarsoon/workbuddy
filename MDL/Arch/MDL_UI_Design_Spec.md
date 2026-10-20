@@ -3,7 +3,10 @@
 
 Version: 1.0
 Date: 29 Sep 2026
-Last revised: 2026-10-18 — chinwarsoon — §18 (Table Standards): alignment re-scoped per table class (summary
+Last revised: 2026-10-19 — CodeBuddy — §11 (Filtering System) expanded to state the two-tier
+global-first → panel filter cascade and to reference the shared `Dashboard-UI-Design-Spec.md` §7.2.7 (Filter
+population rule), which was added to close the dangling code citation. Driven by MDL filter-behaviour review.
+2026-10-18 — chinwarsoon — §18 (Table Standards): alignment re-scoped per table class (summary
 cross-tab centres numeric columns, transactional tables keep `number → right`), alignment keyed on the column
 key and never `nth-child`, sort affordance covers centred headers, fit policy content-derived with proportional
 shrink-to-fit, and the split-header contract made normative as six clauses. Contradicting clause removed (the
@@ -316,7 +319,20 @@ Example:
 
 # 11. Filtering System
 
-Must support:
+The MDL Control Center applies a **two-tier filter cascade** (normative in the shared
+`Dashboard-UI-Design-Spec.md` §7.2.7):
+
+1. **Global filters first (S4 Derive).** The menu-bar `Discipline` and `Stage` multi-select chips
+   and the document `Search` are combined (AND) into one pass over the master record set and produce
+   a single shared, reduced working set. **Every panel** — KPIs, charts, the Overdue list, the
+   Discipline Summary Matrix, the validation/issue list and the Document Detail table — derives from
+   this same set, so one selection re-derives the whole dashboard at once.
+2. **Panel filters second (S5 Render).** Each panel's own column-level filters (text / enum /
+   numeric / date) and the matrix month-selector then narrow that panel's rows, which are already a
+   subset of the global set. A panel filter can only narrow further — it can never re-include a
+   record a global filter excluded.
+
+Must support per-column filtering on:
 
 - Discipline
 - Status

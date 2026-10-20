@@ -2,7 +2,8 @@
 
 **Version**: 1.2
 **Date**: 2026-10-15
-**Last revised**: 2026-10-18 — §7.2.15 added (split-header / fragment-pairing contract, six normative
+**Last revised**: 2026-10-19 — §7.2.7 extended with the no-duplicate-filter-dimensions rule (overall requirement; MDL-specific application in `MDL-Dashboard-Workplan.md` §4.0.1). Prior (2026-10-19): §7.2.7 added (Filter population rule: two-tier global-first → panel cascade); S4 Derive row and MDL menu-bar variant hardened to state the cascade. Driven by MDL filter-behaviour review.
+2026-10-18 — §7.2.15 added (split-header / fragment-pairing contract, six normative
 clauses) and `.vheadtab` + `.ds-gut` added to the normative class table. Driven by MDL I-103.
 **Owner**: UI Design
 **Applies to**: PPP Dashboard, MDL Control Center, and all future internal dashboards
@@ -81,7 +82,8 @@ Document-Control Systems · Enterprise Project-Management Platforms
   its title must **not** invert to `Show warnings` / `Hide warnings` when the bar is collapsed/expanded — the
   toggle still collapses/expands the bar, but the label stays stable (see §7.1). `Search` is a button, not an
   inline box. The Discipline/Stage chips are **global** (one selection
-  re-derives the single filtered set for every panel). All controls obey the §7.1 contrast mandate.
+  re-derives the single filtered set for every panel) — they are the **first gate** (S4 Derive → `active`),
+  and each panel's own column filters then layer on top of that shared set (§7.2.7). All controls obey the §7.1 contrast mandate.
 - **Search popover layout (MDL).** The Search dialog lays its controls out in a **single row** — column
   selector, an **elongated** search field, then `Find` / `Reset` — so nothing wraps or stacks onto a second
   line. The search field must be wide enough to be usable (≥ 200px when the popover is open; the popover
@@ -256,7 +258,7 @@ production-ready.
 | S1 | Parse | `xlsx-reader.mjs` | Parse the container into an in-memory workbook (sheets / rows / cells). | `ArrayBuffer` → `workbook` | On file open only. The raw `workbook` is **discarded after S2** — only the normalised model is retained. |
 | S2 | Ingest / Normalize | `pipeline.mjs` | Turn raw rows into a normalised **record table**: typed fields (Date/Bool coercion), `isActive`, and domain-specific fields; build contract/lookup tables and `meta` (project info, today). **No aggregation or KPI math.** Normalization treats a cell as **absent (`undefined`)** when it is blank (empty after `trim`) **or** a spreadsheet formula-error token — see §3.8.4. | `workbook` → `model{ records[], contract, meta }` | On file open only; held in memory for the session. |
 | S3 | Validate | `pipeline.mjs` | Run row-level, **filter-independent** validation rules once. Emits `issues[]` (per-row data problems) and `warnings[]` (system/config notices). | `records` + validation context → `issues[]`, `warnings[]`, `completenessGroup` | On file open only. |
-| S4 | Derive / Aggregate | `render.mjs` | **On demand**, given the current filter/UI state: filter `records` → `active`, then compute **all** aggregations — KPIs, overdue lists, charts, matrix, completeness%. This is the **sole** source of KPI numbers. | `model` + `state` → `view{ active, kpis, issues(filtered), charts, matrix, … }` | On every filter change / render. |
+| S4 | Derive / Aggregate | `render.mjs` | **On demand**, given the current filter/UI state: apply the **global** menu-bar filters (`Discipline`, `Stage`, `Search`) to `records` to produce the single shared `active` working set (the first gate), then compute **all** aggregations — KPIs, overdue lists, charts, matrix, completeness% — from `active`. Panel-level filters are applied later, in S5 Render, on top of `active` (see §7.2.7). This is the **sole** source of KPI numbers. | `model` + `state` → `view{ active, kpis, issues(filtered), charts, matrix, … }` | On every filter change / render. |
 | S5 | Render | `render.mjs` | Paint DOM panels from `view`. Write-only: never reads from the DOM to make decisions. | `view` → DOM | On every render. Keep the deferred-render rule: repaint once when the filter dropdown closes, not on every in-dropdown toggle. |
 | S6 | React-to-filter | `render.mjs` | Refresh loop. | user action → `deriveView(model, state)` → `render(view)` | On filter change. **Never re-runs S0–S3; the file is never re-parsed.** |
 
@@ -855,11 +857,24 @@ so they adapt automatically; no per-component dark CSS beyond the token swap (us
 #### B. Selection controls
 | Type | Class | Use | Style |
 |---|---|---|---|
-| B1 Filter trigger | `.tf-btn` | **opens** a filter menu (Discipline / Stage / Category `▾`) — distinct from the chips *inside* the menu | text + `▾`, 1px `--border`, radius 6 px; hover → `--soft`; selected → `.is-filtered` / `.active` emphasis |
+| B1 Filter trigger | `.tf-btn` | **MULTI-SELECT row filter** — opens a filter menu (Discipline / Stage / Category `▾`), distinct from the chips *inside* the menu. **Reserved for controls that narrow rows**; a show/hide-columns control MUST NOT use it (see B7) | text + `▾`, 1px `--border`, radius 6 px; hover → `--soft`; selected → `.is-filtered` / `.active` emphasis |
 | B2 Segmented | `.seg button` | single-select among 2–6 inline options (Bar/Pie, month horizon 1m–6m, overdue cases); active `.on` = **`--navy`** fill (a *selection* state, not an action) | joined group, 1px `--border`, radius 6 px, overflow hidden; inactive hover → `--blue` fill |
-| B3 Filter chips | `.chips label` | multi-select toggles *inside* the filter menu (checkboxes styled as pills) | 11 px, rounded pill |
+| B3 Filter chips | `.chips label` | multi-select toggles *inside* the B1 filter menu (checkboxes styled as pills) | 11 px, rounded pill |
 | B4 Drill / Expand | reuses `.icon-btn` visuals | row drill-down / expand (`▸ stages`) | **must be a real `<button>`** — never a `<td>` or `<div>` with `role="button"`; may be icon or text + icon |
-| B5 Native single-select | `.inter-sel` | single-choice picker — breakdown dimension, month, type (chart group / matrix Month / Overdue Type); distinct from multi-select `.tf-btn` filter and from the `.seg` segmented control | 12 px / 600, 1px `--border`, radius 8–9 px, white surface, `--ink` text; `:focus-visible` 2 px `--blue` ring; `max-width:260 px`; attached variant `.inter-sel.is-attached` (search-column picker: no own border, left-rounded, right divider) |
+| B5 Native single-select | `.inter-sel` | **SINGLE-SELECT picker** — breakdown dimension, month, type (chart group / matrix Month / Overdue Type); distinct from the multi-select `.tf-btn` filter (B1) and from the `.seg` segmented control (B2) | 12 px / 600, 1px `--border`, radius 8–9 px, white surface, `--ink` text; `:focus-visible` 2 px `--blue` ring; `max-width:260 px`; attached variant `.inter-sel.is-attached` (search-column picker: no own border, left-rounded, right divider) |
+| B6 Panel-local filter | `.inter-sel` in the panel's control cluster | a single-value filter that narrows **only the tables inside one panel** (e.g. the issue rule-code filter in the Validation / Issues panel). Resolved in **S5 Render**; it MUST NOT change KPIs, charts, the matrix or any other panel (§7.2.7 pt 6) | as B5 |
+| B7 Column-visibility control | own class (`.cc-btn`) | **show/hide columns — a *layout* control, not a filter.** It changes which columns are painted, never which rows are returned. MUST NOT reuse the B1 filter look, filter badge, or `[aria-expanded]` active-filter emphasis | own styling; MAY reuse the floating-panel shape, but without a count badge or active-filter emphasis |
+
+**Multi-select vs single-select — the grammar (normative).** A filter's chrome is chosen by how many values the user may select at once, not by where the control sits:
+
+| | Multi-select | Single-select |
+|---|---|---|
+| Control | **B1** `.tf-btn` filter trigger + floating menu | **B5** `.inter-sel` labelled native select |
+| Toggles inside the menu | **B3** `.chips label` pills | not applicable |
+| Values at once | many (a checkbox list, plus an "All <dimension>" master) | one (an explicit "All / <dimension>" neutral option) |
+| Active-state cue | count badge on the trigger + `is-filtered` emphasis | the chosen value is visible in the control itself |
+
+A user must be able to tell, from the chrome alone, both (a) how many values the control accepts and (b) whether it filters **rows**. B7 exists so a layout control can never be mistaken for a row filter.
 
 #### C. Indicator (not a button)
 | Type | Class | Use | Style |
@@ -936,6 +951,64 @@ classes alongside them but MUST NOT substitute them; panel / container class nam
 |---|---|---|
 | `.ds-dragging` | the `<th>` | its column is current
 ---
+
+#### 7.2.7 Filter population rule (global-first → panel cascade) — added 2026-10-19
+
+A dashboard's filters form a **two-tier cascade**. It is applied in this order and never the
+reverse; the structure (not just convention) enforces it.
+
+1. **Tier 1 — Global (menu-bar) filters run first, in S4 Derive.** The global filters —
+   `Discipline`, `Stage` and document `Search` — are combined (AND) into a single pass over the
+   master record set and produce one shared, reduced working set (`active`). **Every panel**
+   (KPIs, charts, overdue lists, matrix, validation/issue list, document detail) derives from
+   this same `active` set, so a global selection re-derives the whole dashboard at once. The
+   **matrix month-selector** is the one panel control still resolved inside S4 Derive *on top of*
+   the global `active`, because changing the month re-derives the whole cross-tab. A control that
+   must not ripple outwards — the **issue rule-code filter** being the canonical case — is NOT
+   resolved here; it belongs to point 6.
+2. **Tier 2 — Panel filters run in S5 Render, on top of `active`.** A panel may expose **one or
+   more single-purpose controls** that narrow only that panel's rows — rows that are already a
+   subset of `active`. A panel filter can therefore **only narrow further** — it can never
+   re-include a record a global filter excluded, because the panel never receives those records.
+   Each such control uses the chrome its cardinality dictates (§7.10 B): **B1 + B3** when several
+   values must be selectable at once, **B5 / B6** when the dimension is single-valued. A panel
+   control MUST NOT be a generic multi-dimension popover that re-offers a global dimension — see
+   point 5.
+3. **All filters combine by AND.** Logically the order is associative; the cascade is enforced
+   structurally because panels operate on `active`-derived data, not the raw records.
+4. **Facet / count populations read the CURRENT data, never a master list.** Filter-popover
+   option counts, badge counts and column-distinct lists MUST be computed from the rows currently
+   in scope (the already-filtered set), so they always reflect what the user can actually see and
+   select — never from the unfiltered master. (Where applicable this is enforced by the
+   layout/behaviour harness.)
+
+5. **No duplicate filter dimensions (overall requirement).** A filter dimension appears in exactly
+   one place. The dimensions owned by the menu bar — `Discipline`, `Stage` and document `Search` — live
+   **only** there; a panel MUST NOT re-offer a global dimension, and MUST NOT offer the same dimension
+   twice (e.g. a panel that already has a dedicated control for a dimension must not also bundle that
+   dimension inside a generic column-filter popover). Panels may filter only on dimensions they own.
+   This keeps the global filter the single source of truth for cross-panel scope and prevents two
+   controls from issuing contradictory selections.
+
+6. **A panel-local filter stays inside its panel (S5 only).** Some panel filters must narrow the
+   panel's *tables* without re-deriving anything else — the canonical case is the **issue
+   rule-code filter** on the Validation / Issues panel (§7.10 B6). Such a filter MUST be applied
+   in **S5 Render** to the rows already handed to the panel, and MUST NOT feed back into S4
+   Derive. It therefore changes **only the tables inside that panel** — never KPIs, never charts,
+   never the matrix, never another panel, and never the global `active` set.
+   - The panel's own summary blocks (issue/severity summary chips, explanatory note, rule
+     reference table) continue to describe the **whole** run, not the filtered subset.
+   - Only the filtered table and its row count reflect the selection, using the **`N of M`**
+     form whenever `N < M`.
+   - Any export reads the **same filtered array the table paints**, so screen and file always
+     agree.
+   Implementing it by feeding a global state field that S4 already consults is explicitly wrong:
+   that silently converts a panel filter into a cross-panel one.
+
+Rationale: a single global `active` guarantees cross-panel consistency (every panel tells the same
+story for the same discipline/stage selection) and makes the global filter a hard first gate; panel
+filters refine the view locally without re-introducing excluded records. The no-duplicate rule (point 5)
+keeps each dimension in exactly one control, so two filters can never issue contradictory selections.
 
 #### 7.2.15 Split header (fragment pairing) — added 2026-10-18
 

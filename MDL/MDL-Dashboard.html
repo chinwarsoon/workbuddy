@@ -333,6 +333,9 @@ const LOOKUP_HEADERS = {
   errorRule:     ['Rule'],
   errorSeverity: ['Severity'],
   errorGroup:    ['Group'],
+  // I-114 — Overdue Type flavours are workbook data (Code!AN = code, Code!AO = label),
+  // not application constants. Missing block => V-18 warning + the renderer's fallback labels.
+  overdueType:   ['Overdue Type Code'],
 };
 
 // Scan the WHOLE Code sheet (label in A, value in B, type in C). Returns
@@ -486,6 +489,8 @@ const todayISO = options.today
     authority: lookupBlock('authority'),
     submissionStatus: lookupBlock('submissionStatus'),
     approval: lookupBlock('approval'),
+    // I-114 — workbook source of truth for the Overdue Type labels (Code!AN:AO).
+    overdueType: lookupBlock('overdueType'),
   };
   // --- Error block: code -> {group, rule, severity} via discovered columns ---
   const eCode = lk.idx['errorCode'];
@@ -856,33 +861,6 @@ select.inter-sel.is-attached{border:0;border-right:1px solid var(--border);backg
 .tf-panel .tf-item input{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0}
 .tf-panel .tf-item .nc{margin-left:auto;font-size:10px;font-weight:600;color:var(--muted);white-space:nowrap}
 .tf-panel .tf-item.tf-nc>span:first-of-type{color:var(--muted)}
-/* §7.2.7 — TABLE-SCOPED COLUMN FILTERS (I-93).
-   Same .tf-wrap / .tf-btn / .tf-panel shell as the top-bar facets, so the popover
-   shape, shadow and click-outside / Esc behaviour match. The .cf-* inner blocks
-   carry a per-column row: a label, the type-appropriate input, and an inline clear
-   chip. The button's badge text reflects the active-filter count. */
-.cf-panel{min-width:280px;max-width:min(480px,92vw);max-height:380px;overflow:auto}
-.cf-panel .cf-foot{display:flex;align-items:center;gap:8px;padding:8px 2px 2px;margin-top:6px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
-.cf-panel .cf-foot .cf-cnt{margin-left:auto}
-.cf-panel .cf-foot button{font:inherit;font-size:11px;color:var(--accent);background:transparent;border:0;padding:0;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
-.cf-panel .cf-foot button:hover{text-decoration:underline}
-.cf-panel .cf-row{display:flex;flex-direction:column;gap:4px;padding:7px 2px;border-bottom:1px dashed var(--border)}
-.cf-panel .cf-row:last-of-type{border-bottom:0}
-.cf-panel .cf-row .cf-lbl{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--navy)}
-.cf-panel .cf-row .cf-lbl .cf-x{margin-left:auto;font-size:10px;color:var(--muted);cursor:pointer;background:transparent;border:0;padding:0 4px;font:inherit;text-transform:uppercase;letter-spacing:.04em}
-.cf-panel .cf-row .cf-lbl .cf-x:hover{color:var(--accent)}
-.cf-panel .cf-row .cf-input{font:inherit;font-size:12px;border:1px solid var(--border);border-radius:5px;padding:4px 7px;background:#fff;color:var(--text);min-height:26px;outline:none;width:100%}
-.cf-panel .cf-row .cf-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--soft)}
-.cf-panel .cf-row .cf-num,.cf-panel .cf-row .cf-date{display:flex;align-items:center;gap:4px}
-.cf-panel .cf-row .cf-num input,.cf-panel .cf-row .cf-date input{flex:1 1 0;min-width:0}
-.cf-panel .cf-row .cf-num span,.cf-panel .cf-row .cf-date span{color:var(--muted);font-size:11px;flex:0 0 auto}
-.cf-panel .cf-row .cf-enum{display:flex;flex-direction:column;gap:1px;max-height:170px;overflow:auto;border:1px solid var(--border);border-radius:5px;padding:3px 6px;background:#fff}
-.cf-panel .cf-row .cf-enum label{display:flex;align-items:center;gap:6px;padding:3px 2px;font-size:12px;cursor:pointer;border-radius:3px}
-.cf-panel .cf-row .cf-enum label:hover{background:var(--soft)}
-.cf-panel .cf-row .cf-enum label input{accent-color:var(--accent);width:13px;height:13px;flex-shrink:0}
-.cf-panel .cf-row .cf-enum label .nc{margin-left:auto;font-size:10px;color:var(--muted);font-weight:600}
-/* highlight matched text inside a filtered cell */
-mark.cf-hi{background:#FFF3B0;color:inherit;padding:0;border-radius:2px}
 /* mark a column header that currently has an active filter */
 .ds-table thead th.cf-on{background:var(--soft);color:var(--accent-ink)}
 .ds-table thead th.cf-on .sort-lbl{color:var(--accent-ink)}
@@ -1112,12 +1090,25 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .ds-resize:hover::after,.ds-resize.active::after{background:var(--accent)}
 /* windowed rendering (I-96, §7.2.8): spacer rows keep the scrollbar length identical */
 .ds-table tr.win-pad td{padding:0;border:0;background:transparent;overflow:hidden}
-/* column chooser (I-95) — reuses the filter-popover shell */
-.cf-panel .cc-row{display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:12px}
-.cf-panel .cc-row input{flex:0 0 auto}
-.cf-panel .cc-row .cc-lbl{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cf-panel .cc-row .cc-pin{font-size:10px;color:var(--muted);flex:0 0 auto}
-.cf-panel .cc-row input:disabled+ .cc-lbl{color:var(--muted)}
+/* §7.10 B7 — COLUMN-VISIBILITY CHOOSER (I-114). This is a LAYOUT control, not a filter: it changes
+   which columns are painted and never which rows are returned. It therefore gets its OWN classes
+   (.cc-wrap / .cc-btn / .cc-panel) instead of borrowing the filter-trigger look (.tf-*), so it can
+   never be mistaken for a row filter. It deliberately carries no count badge and no [aria-expanded]
+   active-filter emphasis — the two cues that say "this narrows your rows". */
+.cc-wrap{position:relative;flex-shrink:0}
+.cc-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--navy);padding:7px 12px;min-height:32px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.cc-btn:hover{background:var(--soft)}
+.cc-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:40;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);min-width:260px;max-width:min(420px,92vw);max-height:380px;overflow:auto;padding:10px}
+.cc-panel[hidden]{display:none}
+.cc-panel .cc-row{display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:12px}
+.cc-panel .cc-row input{flex:0 0 auto}
+.cc-panel .cc-row .cc-lbl{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cc-panel .cc-row .cc-pin{font-size:10px;color:var(--muted);flex:0 0 auto}
+.cc-panel .cc-row input:disabled+ .cc-lbl{color:var(--muted)}
+.cc-panel .cf-foot{display:flex;align-items:center;gap:8px;padding:8px 2px 2px;margin-top:6px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
+.cc-panel .cf-foot .cf-cnt{margin-left:auto}
+.cc-panel .cf-foot button{font:inherit;font-size:11px;color:var(--accent);background:transparent;border:0;padding:0;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+.cc-panel .cf-foot button:hover{text-decoration:underline}
 .cnt{margin-left:auto;font-size:11px;color:var(--muted);white-space:nowrap}
 
 
@@ -1740,7 +1731,7 @@ function renderData(wrap, v){
   safe('Discipline Summary Matrix', 'matrixPanel', p => renderMatrix(p, v.matrix, v.matrixMonths, v.curMonth));
   safe('Charts', 'chartsPanel', p => renderCharts(p.querySelector('.charts'), v.charts));
   safe('Issue Progress', 'curvePanel', p => renderCurvePanel(p.querySelector('.curve-body'), v.monthlyProgress));
-  safe('Overdue List', 'overduePanel', p => renderOverdue(p, {first:v.firstOverdue,sub:v.subOverdue,cli:v.cliOverdue}));
+  safe('Overdue List', 'overduePanel', p => renderOverdue(p, {first:v.firstOverdue,sub:v.subOverdue,cli:v.cliOverdue}, MODEL));
   safe('Validation Issues', 'validationPanel', p => renderValidation(p, v.issues, MODEL));
   safe('Document Detail Table', 'detailPanel', p => renderDetail(p, v.recs, MODEL, STATE, ()=>renderAll(wrap)));
   ['kpiPanel','matrixPanel','chartsPanel','curvePanel','overduePanel','validationPanel','detailPanel'].forEach(id => { try { ensureCollapse(document.getElementById(id)); } catch(e){ console.error('[collapse] '+id, e); } });
@@ -1941,7 +1932,7 @@ const HELP = {
 <h4>Delay (days)</h4>
 <p>1st-submission = calendar days from today back to the forecast/planned date; Resubmission = working days since latest approval date minus the resubmission window; Client-review = working days since actual first issue date minus the first client review window.</p>
 <h4>How it is grouped</h4>
-<p>Rows sorted by <em>UESH Discipline</em> (C), then Overdue Type, then Document Number; discipline shown on every row. The <strong>Overdue Type</strong> dropdown filters to one type; the Filter Panel narrows the whole list. <strong>⤓ CSV</strong> downloads the visible rows as <code>MDL_Overdue.csv</code> with the same columns.</p>
+<p>Rows sorted by <em>UESH Discipline</em> (C), then Overdue Type, then Document Number; discipline shown on every row. The <strong>Overdue Type</strong> dropdown filters to one type. The top-bar <strong>Discipline</strong> / <strong>Stage</strong> filters narrow the whole list. <strong>⤓ CSV</strong> downloads the visible rows as <code>MDL_Overdue.csv</code> with the same columns.</p>
 <div class="def"><strong>Working days</strong> — Monday to Friday; Saturday and Sunday are not counted.</div>
 `},
   validationPanel:{title:'Validation Issues — Panel 6',body:`
@@ -1952,9 +1943,9 @@ const HELP = {
 <p class="note" style="margin-top:6px"><strong>Routing:</strong> this panel shows <em>data-quality</em> details only. <em>System / processing</em> warnings (e.g. “List End Row exceeded”) and fatal errors appear in the <strong>top banner</strong> above the panels, never here.</p>
 <h4>How it is worked out</h4>
 <ul>
-<li>Only issues whose document is among the documents currently chosen by the Filter Panel are shown (plus an optional rule-code filter).</li>
+<li>Every data-quality issue for a document in the current global selection (top-bar Discipline / Stage) is shown.</li>
 <li>Each row shows severity, rule code, the message, <em>Document No.</em> (M), <em>UESH Discipline</em> (C), and the source tab/row.</li>
-<li><strong>⤓ CSV</strong> downloads the filtered issues as a CSV named after the project (<code>&lt;project&gt;-issue_list.csv</code>).</li>
+<li><strong>⤓ CSV</strong> downloads the issues as a CSV named after the project (<code>&lt;project&gt;-issue_list.csv</code>).</li>
 </ul>
 <div class="def"><strong>Severity</strong> — Error, Warning, or Info, taken from the Code sheet Error Code block.</div>
 `},
@@ -2072,7 +2063,7 @@ function wireFilterChips(model, state, rerender, dataOnly){
   };
   if(!tfDocBound){
     tfDocBound = true;
-    document.addEventListener('click', e => { if(!(e.target.closest && e.target.closest('.tf-wrap'))) closeAll(null); });
+    document.addEventListener('click', e => { if(!(e.target.closest && e.target.closest(POPOVER_WRAP))) closeAll(null); });
     document.addEventListener('keydown', e => { if(e.key === 'Escape') closeAll(null); });
   }
   defs.forEach(d => {
@@ -2230,80 +2221,13 @@ function wireSort(scrollEl, cols, active, onSort, key, renderHead){
 //            whole row is kept when the Set is empty AND the column key is absent)
 //   num   -> { min:'', max:'' } (any blank bound means unconstrained on that side)
 //   date  -> { min:'', max:'' } (ISO date strings; same semantics as num)
-// A row is kept if EVERY column with an entry in the state passes.
-function applyFilters(rows, state, cols){
-  if(!state || !Object.keys(state).length) return rows;
-  const get = (r,key)=>{ const c=cols.find(x=>x.key===key); return c ? c.get(r) : r[key]; };
-  return rows.filter(r => {
-    for(const key in state){
-      const f=state[key], v=get(r,key);
-      if(f.kind==='text'){
-        if(!f.value) continue;
-        if(v==null || !String(v).toLowerCase().includes(f.value.toLowerCase())) return false;
-      } else if(f.kind==='enum'){
-        // No entry kept when the Set is empty (caller removed the column), but if the
-        // Set is non-empty and the value is missing or unselected, the row is hidden.
-        if(!f.value || !f.value.size) return false;
-        if(v==null || !f.value.has(String(v))) return false;
-      } else if(f.kind==='num'){
-        if(v==null || v==='' || isNaN(+v)) return false;
-        if(f.min!=='' && +v < +f.min) return false;
-        if(f.max!=='' && +v > +f.max) return false;
-      } else if(f.kind==='date'){
-        const ts = v ? Date.parse(v) : NaN;
-        if(isNaN(ts)) return false;
-        if(f.min && ts < Date.parse(f.min)) return false;
-        if(f.max && ts > Date.parse(f.max)+86400000-1) return false;   // inclusive day
-      }
-    }
-    return true;
-  });
-}
-// Counts per distinct value in the column, derived from the CURRENT data (never a
-// master list) — required by the spec §7.2.7 facet rule and the FILTER POPULATION
-// RULE in project memory.
-function facetCounts(rows, col){
-  const m = new Map();
-  for(const r of rows){
-    const v = col.get(r);
-    if(v==null || v==='') continue;
-    const k = String(v);
-    m.set(k, (m.get(k)||0) + 1);
-  }
-  // sort: numeric when every value is a number, alphabetical otherwise
-  const keys = [...m.keys()];
-  const allNum = keys.length>0 && keys.every(k => !isNaN(+k));
-  keys.sort((a,b)=> allNum ? (+a)-(+b) : a.localeCompare(b,'en',{numeric:true,sensitivity:'base'}));
-  return { keys, counts:m, total:rows.length };
-}
-// Highlight every (case-insensitive) match of `q` in `text` with a <mark> for filter
-// feedback. Empty q returns the text unchanged. Replaces & < > " ' safely.
-function highlightText(text, q){
-  if(text==null) return '';
-  const s = String(text);
-  if(!q) return esc(s);
-  const re = new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
-  return esc(s).replace(re, '<mark class="cf-hi">$1</mark>');
-}
-// Debounce: returns a wrapper that defers `fn` until `ms` of quiet.
-function debounce(fn, ms){
-  let t = null;
-  return (...args) => { clearTimeout(t); t = setTimeout(()=>fn(...args), ms); };
-}
-// Restore a persisted filter state (enum values come back as arrays, so they are re-hydrated
-// into Sets). The caller can pass `state` into attachColFilters so the SAME object is shared
-// with the renderer — that is what keeps match-highlighting in sync with the filter.
-function restoreFlt(key){
-  const flt = {};
-  try { const raw = JSON.parse(getPref(key+'_flt','') || '{}'); Object.keys(raw).forEach(k => { if(raw[k] && raw[k].kind) flt[k] = raw[k]; }); } catch(e){}
-  Object.keys(flt).forEach(k => { if(flt[k].kind === 'enum' && Array.isArray(flt[k].value)) flt[k].value = new Set(flt[k].value); });
-  return flt;
-}
-// ONE delegated listener pair serves ALL table filter popovers (I-93). Binding a document
-// listener per popover is a real leak: renderDetail / renderOverdue / renderValidation run
-// again on every re-render, so each pass would strand two more listeners that capture `recs`
-// (20 k+ rows) forever. Now only OPEN popovers are tracked, and entries whose panel was
-// replaced by a later render are pruned via isConnected.
+
+// ONE delegated listener pair serves ALL popovers (the column-visibility chooser). Binding a
+// document listener per popover would strand listeners across re-renders, so only OPEN popovers
+// are tracked and entries whose panel was replaced by a later render are pruned via isConnected.
+// Every popover trigger wrapper: the global filter chips (`.tf-wrap`) and the I-114 column-visibility
+// chooser (`.cc-wrap`). Both must be recognised by the click-outside / Esc delegation below.
+const POPOVER_WRAP = '.tf-wrap,.cc-wrap';
 const CF_OPEN = new Set();
 let cfBound = false;
 function cfBindDoc(){
@@ -2311,7 +2235,7 @@ function cfBindDoc(){
   document.addEventListener('click', e => {
     CF_OPEN.forEach(o => {
       if(!o.pop.isConnected){ CF_OPEN.delete(o); return; }          // stale: panel re-rendered
-      if(e.target.closest && e.target.closest('.tf-wrap') === o.wrap) return;
+      if(e.target.closest && e.target.closest(POPOVER_WRAP) === o.wrap) return;
       o.pop.hidden = true; o.btn.setAttribute('aria-expanded','false'); CF_OPEN.delete(o);
     });
   });
@@ -2326,114 +2250,6 @@ function cfToggle(o){
   o.build();                    // rows (and the facet scan) are built on FIRST OPEN, not per render
   o.pop.hidden = false; o.btn.setAttribute('aria-expanded','true'); CF_OPEN.add(o);
 }
-// Attach a table-scoped column-filter popover (I-93). Reuses the .tf-wrap / .tf-btn /
-// .tf-panel shell of the top-bar facets so the popover shape, shadow and click-outside /
-// Esc behaviour match. Facet counts come from `opts.recs` — the CURRENT data — never a
-// master list (§7.2.7 / FILTER POPULATION RULE).
-function attachColFilters(host, opts){
-  const { key, fltCols, recs, onChange, label } = opts;
-  const flt = opts.state || restoreFlt(key);
-  const save = () => setPref(key+'_flt', JSON.stringify(flt, (k,v) => v instanceof Set ? [...v] : v));
-  const isActive = f => { if(!f) return false;
-    if(f.kind === 'text') return !!f.value;
-    if(f.kind === 'enum') return !!(f.value && f.value.size > 0);
-    if(f.kind === 'num' || f.kind === 'date') return (f.min !== '' && f.min != null) || (f.max !== '' && f.max != null);
-    return false; };
-  const active = () => Object.keys(flt).filter(k => isActive(flt[k])).length;
-  const filtered = rows => applyFilters(rows, flt, fltCols);
-  const commit = () => { const out = filtered(recs); if(onChange) onChange(out); return out; };
-  // ---- popover shell ----
-  const wrap = document.createElement('div'); wrap.className = 'tf-wrap';
-  const btn = document.createElement('button'); btn.className = 'tf-btn'; btn.id = 'cfBtn_'+key;
-  btn.setAttribute('aria-expanded','false'); btn.setAttribute('aria-haspopup','true'); btn.setAttribute('aria-controls','cfPanel_'+key);
-  btn.innerHTML = `<span class="tf-cnt">Filters</span> ▾`;
-  wrap.appendChild(btn);
-  const pop = document.createElement('div'); pop.className = 'tf-panel cf-panel'; pop.id = 'cfPanel_'+key;
-  pop.setAttribute('role','group'); pop.setAttribute('aria-label', 'Filter ' + (label || 'this table')); pop.hidden = true;
-  const refreshBtn = () => {
-    const n = active();
-    btn.classList.toggle('is-filtered', n > 0);
-    btn.querySelector('.tf-cnt').textContent = n > 0 ? `${n} filter${n>1?'s':''}` : 'Filters';
-    const c = pop.querySelector('.cf-cnt'); if(c) c.textContent = `${n} active`;
-  };
-  // Rows are built lazily: a panel that is never opened costs nothing, and the facet scan
-  // (a full pass over recs per enum column) no longer runs on every re-render.
-  let built = false;
-  const build = () => { if(built) return; built = true;
-  fltCols.forEach(col => {
-    const row = document.createElement('div'); row.className = 'cf-row';
-    const lbl = document.createElement('div'); lbl.className = 'cf-lbl';
-    lbl.innerHTML = `<span>${esc(col.label)}</span><button class="cf-x" type="button" title="Clear this filter">Clear</button>`;
-    row.appendChild(lbl);
-    const clearX = lbl.querySelector('.cf-x');
-    if(col.kind === 'text'){
-      const inp = document.createElement('input'); inp.className='cf-input'; inp.type='search'; inp.placeholder='Contains…';
-      inp.value = (flt[col.key] && flt[col.key].value) || '';
-      inp.addEventListener('input', debounce(()=>{
-        const v = inp.value.trim();
-        if(v) flt[col.key] = { kind:'text', value:v }; else delete flt[col.key];
-        save(); refreshBtn(); commit();
-      }, 300));
-      row.appendChild(inp);
-      clearX.onclick = () => { inp.value=''; delete flt[col.key]; save(); refreshBtn(); commit(); };
-    } else if(col.kind === 'enum'){
-      const list = document.createElement('div'); list.className = 'cf-enum';
-      const { keys, counts } = facetCounts(recs, col);
-      const cur = (flt[col.key] && flt[col.key].value) || new Set();
-      keys.forEach(k => {
-        const id = ('cf_'+key+'_'+col.key+'_'+k).replace(/[^a-z0-9_]/gi,'_');
-        const L = document.createElement('label'); L.htmlFor = id;
-        const cb = document.createElement('input'); cb.type='checkbox'; cb.id=id; cb.checked = cur.has(k);
-        cb.addEventListener('change', ()=>{
-          const set = new Set((flt[col.key] && flt[col.key].value) || []);
-          if(cb.checked) set.add(k); else set.delete(k);
-          // no box ticked means "no filter", not "filter to nothing"
-          if(set.size === 0) delete flt[col.key]; else flt[col.key] = { kind:'enum', value:set };
-          save(); refreshBtn(); commit();
-        });
-        const s = document.createElement('span'); s.textContent = k;
-        const nc = document.createElement('span'); nc.className='nc'; nc.textContent = counts.get(k);
-        L.appendChild(cb); L.appendChild(s); L.appendChild(nc); list.appendChild(L);
-      });
-      row.appendChild(list);
-      clearX.onclick = () => { list.querySelectorAll('input').forEach(cb=>{ cb.checked = false; }); delete flt[col.key]; save(); refreshBtn(); commit(); };
-    } else {   // num | date
-      const isNum = col.kind === 'num';
-      const pair = document.createElement('div'); pair.className = isNum ? 'cf-num' : 'cf-date';
-      const cur = flt[col.key] || { min:'', max:'' };
-      const minI = document.createElement('input'); minI.className='cf-input'; minI.type = isNum ? 'number' : 'date'; minI.placeholder='min'; minI.value = cur.min;
-      const sep = document.createElement('span'); sep.textContent='–';
-      const maxI = document.createElement('input'); maxI.className='cf-input'; maxI.type = isNum ? 'number' : 'date'; maxI.placeholder='max'; maxI.value = cur.max;
-      const upd = debounce(()=>{
-        const mn = minI.value, mx = maxI.value;
-        if(mn === '' && mx === '') delete flt[col.key];
-        else flt[col.key] = { kind:col.kind, min:mn, max:mx };
-        save(); refreshBtn(); commit();
-      }, 300);
-      minI.addEventListener('input', upd); maxI.addEventListener('input', upd);
-      pair.appendChild(minI); pair.appendChild(sep); pair.appendChild(maxI); row.appendChild(pair);
-      clearX.onclick = () => { minI.value=''; maxI.value=''; delete flt[col.key]; save(); refreshBtn(); commit(); };
-    }
-    pop.appendChild(row);
-  });
-  const foot = document.createElement('div'); foot.className = 'cf-foot';
-  foot.innerHTML = `<span class="cf-cnt">0 active</span><button type="button">Clear all</button>`;
-  pop.appendChild(foot);
-  foot.querySelector('button').onclick = () => {
-    Object.keys(flt).forEach(k => delete flt[k]);   // mutate in place: the renderer shares this object
-    save();
-    pop.querySelectorAll('input').forEach(i => { if(i.type === 'checkbox') i.checked = false; else i.value = ''; });
-    refreshBtn(); commit();
-  };
-  };   // end build()
-  wrap.appendChild(pop);
-  host.insertBefore(wrap, host.firstChild);
-  refreshBtn();
-  cfBindDoc();
-  btn.onclick = e => { e.stopPropagation(); cfToggle({ wrap, btn, pop, build }); };
-  return { filtered, active, state: () => flt, open: () => cfToggle({ wrap, btn, pop, build }) };
-}
-
 // ---------- windowed rendering (I-96, spec §7.2.8) ----------
 // Renders only the visible window plus `overscan` rows, with spacer rows above and
 // below so the scrollbar still represents the FULL list. The control row keeps
@@ -2494,6 +2310,16 @@ const GRID_DEF = {
     pinned: ['severity', 'docNo'],
     core:   ['severity', 'docNo', 'code', 'field', 'value', 'message', 'sourceTab', 'rownum'],
     widths: { severity:70, docNo:110, code:90, field:120, value:130, message:300, sourceTab:110, rownum:60 },
+    min: 60, max: 640
+  },
+  overdue: {
+    pinned: [],   // no pinned columns — keeps the current left-to-right order
+    core:   ['Prolog Number','Document No.','Number','Document Title','UESH Discipline','Overdue Type',
+             'Planned 1st Issue Date','Forecast 1st Issue Date','Actual 1st Issue Date',
+             'Latest Approval Date','Latest Approval Status','Submission Status','Delay (days)'],
+    widths: { 'Prolog Number':110, 'Document No.':120, 'Number':70, 'Document Title':200, 'UESH Discipline':130,
+              'Overdue Type':90, 'Planned 1st Issue Date':140, 'Forecast 1st Issue Date':140, 'Actual 1st Issue Date':140,
+              'Latest Approval Date':140, 'Latest Approval Status':150, 'Submission Status':140, 'Delay (days)':80 },
     min: 60, max: 640
   }
 };
@@ -2573,15 +2399,17 @@ function makeGrid(key, cols){
     hiddenCount: () => cols.length - visible().length,
     refresh: null      // set by the renderer: rebuild colgroup + head + body
   };
-  // --- column chooser: same .tf-btn / .tf-panel shell as the filters (I-93) ---
+  // --- column chooser: a LAYOUT control with its own classes (§7.10 B7, I-114) ---
   grid.chooser = host => {
-    const wrap = document.createElement('div'); wrap.className = 'tf-wrap';
-    const btn = document.createElement('button'); btn.className = 'tf-btn'; btn.id = 'ccBtn_' + key;
+    // §7.10 B7 (I-114) — its OWN classes: a column-visibility control must never wear the
+    // filter-trigger look, so it carries no count badge and no active-filter emphasis.
+    const wrap = document.createElement('div'); wrap.className = 'cc-wrap';
+    const btn = document.createElement('button'); btn.className = 'cc-btn'; btn.id = 'ccBtn_' + key;
     btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-haspopup', 'true'); btn.setAttribute('aria-controls', 'ccPanel_' + key);
     const label = () => { const n = grid.hiddenCount();
-      btn.innerHTML = `Columns (${cols.length}) <span class="tf-cnt">${n ? n + ' hidden' : 'all'}</span> ▾`; };
+      btn.textContent = `Columns (${cols.length - n} of ${cols.length}) ▾`; };
     label(); wrap.appendChild(btn);
-    const pop = document.createElement('div'); pop.className = 'tf-panel cf-panel'; pop.id = 'ccPanel_' + key;
+    const pop = document.createElement('div'); pop.className = 'cc-panel'; pop.id = 'ccPanel_' + key;
     pop.setAttribute('role', 'group'); pop.setAttribute('aria-label', 'Choose the columns to show'); pop.hidden = true;
     let built = false;
     const build = () => { if(built) return; built = true;
@@ -2701,37 +2529,20 @@ function renderMatrix(panel, matrix, months, curMonth){
   const totalPlanned = matrix.reduce((a,m)=>a+(m.Planned||0),0) || 1;
   const subFmt = v => v + ' (' + Math.round((v/totalPlanned)*100) + '%)';
   const tint = ' class="col-tint"';
-  // L2 sorting for the matrix (I-92): Discipline and every measure are sortable; the
-  // TOTAL row stays pinned last (it is in <tfoot>, never part of the sorted rows) and the
-  // per-discipline stage sub-rows always follow their parent (rebuilt from the sorted
-  // order). Empty cells sort last. Default: no sort (disciplines keep their contract order).
-  const matrixCols = [
-    {key:'discipline', label:'Discipline', sortable:true, type:'text'},
-    {key:'Planned', label:'Total Planned', sortable:true, type:'num'},
-    {key:'Submitted', label:'Total Submitted', sortable:true, type:'num'},
-    {key:'PlanMo', label:'Plan', sortable:true, type:'num'},
-    {key:'FcastMo', label:'Forecast', sortable:true, type:'num'},
-    {key:'ActualMo', label:'Actual', sortable:true, type:'num'},
-    {key:'Approved', label:'APP', sortable:true, type:'num'},
-    {key:'AWC', label:'AWC', sortable:true, type:'num'},
-    {key:'REJ', label:'REJ', sortable:true, type:'num'},
-    {key:'NAP', label:'NAP', sortable:true, type:'num'},
-    {key:'ov1', label:'1st', sortable:true, type:'num'},
-    {key:'ov2', label:'Resub', sortable:true, type:'num'},
-    {key:'ov3', label:'Client', sortable:true, type:'num'}
-  ];
-  const matrixGet = (m,key)=> key==='discipline' ? m.discipline : (m[key]==null?'':m[key]);
-  const msort = {col:'', dir:1};
-  const msp = getPref('matrix_sort','');
-  if(/^(-?1)\|/.test(msp)){ const [d,c]=msp.split('|'); if(matrixCols.some(x=>x.key===c)){ msort.col=c; msort.dir=Number(d); } }
-  let mrows = dsSorted(matrix, matrixCols, msort, matrixGet);
-  const matrixThead = (s)=>{
-    const discDir = s.col==='discipline' ? (s.dir===1?'ascending':'descending') : 'none';
-    const discInd = s.col==='discipline' ? (s.dir===1?'▲':'▼') : '⇅';
-    const disc = `<th rowspan="2" scope="row" aria-sort="${discDir}"><button type="button" class="sort-btn" data-col="discipline"><span class="sort-lbl">Discipline</span><span class="sort-ind" aria-hidden="true">${discInd}</span></button></th>`;
-    // no `num` class here: §18 centres a summary cross-tab's data columns, and the header must carry
-    // exactly what the body carries (the body cell is a plain <td>), so header and data cannot diverge.
-    const L = k => sortHeadCells([matrixCols.find(x=>x.key===k)], s);
+  // Discipline Summary Matrix — column sorting removed (request 2026-10-19, MDL I-110).
+  // The table now always renders in its fixed default order: the row sequence produced by
+  // buildModel (Planned-descending, the established "no sort" baseline). No header sort
+  // buttons, no aria-sort indicators, no persisted sort preference. The TOTAL row stays
+  // pinned last (in <tfoot>). The displayed rows, drill rows and CSV/PNG all read
+  // `mrows` — a single source with no sort state to maintain.
+  let mrows = matrix.slice();
+  const matrixThead = ()=>{
+    // Static headers (sorting removed 2026-10-19, MDL I-110): no sort buttons / aria-sort /
+    // sort indicators. §18 centres a summary cross-tab's data columns, and the header carries
+    // exactly what the body carries (a plain <td>), so header and data cannot diverge.
+    const disc = `<th rowspan="2" scope="row">Discipline</th>`;
+    const L = k => `<th scope="col">${esc(k)}</th>`;
+    const COLS = ['Total Planned','Total Submitted','Plan','Forecast','Actual','APP','AWC','REJ','NAP','1st','Resub','Client'];
     return `<tr class="group">${disc}`
       + `<th colspan="2" scope="colgroup">Total Submission</th>`
       + `<th colspan="3" scope="colgroup">Submission — ${ml} (selected month)</th>`
@@ -2741,7 +2552,7 @@ function renderMatrix(panel, matrix, months, curMonth){
       // trailing gutter cell matching the reserved --ds-sbw column, so the header spans every column
       + `<th class="ds-gut" rowspan="2" aria-hidden="true"></th>`
       + `</tr>`
-      + `<tr class="detail">${L('Planned')}${L('Submitted')}${L('PlanMo')}${L('FcastMo')}${L('ActualMo')}${L('Approved')}${L('AWC')}${L('REJ')}${L('NAP')}${L('ov1')}${L('ov2')}${L('ov3')}</tr>`;
+      + `<tr class="detail">${COLS.map(L).join('')}</tr>`;
   };
   // Split-header layout (I-101): the two-row header lives in a thead-only fragment (.vheadtab)
   // OUTSIDE the scroll container, so the vertical scrollbar sits UNDER it (not beside it) and the
@@ -2774,14 +2585,14 @@ function renderMatrix(panel, matrix, months, curMonth){
     // §18 split-header contract (1): header + body share ONE bordered, rounded container, so the pair
     // reads as a single table with continuous corners instead of a square header over a rounded box.
     + `<div class="matrixcard splitcard">`
-    + `<table class="matrix ds-table vheadtab" id="matrixHead"><caption class="sr-only">Discipline Summary Matrix — column headers.</caption>${headFrag}<thead>${matrixThead(msort)}</thead></table>`
+    + `<table class="matrix ds-table vheadtab" id="matrixHead"><caption class="sr-only">Discipline Summary Matrix — column headers.</caption>${headFrag}<thead>${matrixThead()}</thead></table>`
     + `<div class="tableScroll"><table class="matrix ds-table" id="matrixBody"><caption class="sr-only">Discipline Summary Matrix — a cross-tab of document counts by discipline per month, with a TOTAL row that is always last.</caption>${headBody}<tbody>${rows}</tbody>${tfoot}</table></div>`
     + `</div></div>`;
   const subRowsHTML = m => (m?m.stages:[]).map(s=>`<tr class="sub"><td class="subname">${esc(s.stage)}</td><td>${s.Planned}</td><td>${s.Submitted}</td><td${tint}>${s.PlanMo}</td><td${tint}>${s.FcastMo}</td><td${tint}>${s.ActualMo}</td><td>${s.Approved}</td><td>${s.AWC}</td><td>${s.REJ}</td><td>${s.NAP}</td><td>${s.ov1}</td><td>${s.ov2}</td><td>${s.ov3}</td><td></td></tr>`).join('');
   const collapseAll = () => { panel.querySelectorAll('tr.sub').forEach(r=>r.remove());
     panel.querySelectorAll('.expand').forEach(e=>{ e.classList.remove('open'); e.textContent='▸ stages'; e.setAttribute('aria-expanded','false'); e.title='Expand stages'; }); };
-  // I-96b: the drill rows come from the SORTED sequence (mrows), never from the raw
-  // `matrix` order, so a stage row always follows its parent wherever the sort put it.
+  // I-96b: the drill rows come from the display sequence (mrows), never from a stale
+  // copy, so a stage row always follows its parent in the current row order.
   const openOne = td => { const m=mrows.find(x=>x.discipline===td.dataset.d); td.closest('tr').insertAdjacentHTML('afterend', subRowsHTML(m)); td.classList.add('open'); td.textContent='▾ stages'; td.setAttribute('aria-expanded','true'); td.title='Collapse stages'; };
   const bindExpand = ()=> panel.querySelectorAll('.expand').forEach(td=>td.onclick=()=>{
     const wasOpen = td.classList.contains('open');
@@ -2789,12 +2600,9 @@ function renderMatrix(panel, matrix, months, curMonth){
     if(!wasOpen) openOne(td);
   });
   bindExpand();
-  // L2 sorting (I-92): the click handler lives on the header fragment (where the sort buttons are)
-  // and rebuilds that fragment's <thead>; the body <tbody> re-renders in lock-step. TOTAL stays pinned
-  // in <tfoot>. The sorted order feeds both the displayed rows and the CSV/PNG (single source).
-  const mhead = panel.querySelector('#matrixHead');
-  const msc = panel.querySelector('.tableScroll');
-  if(mhead) wireSort(mhead, matrixCols, msort, ()=>{ mrows = dsSorted(matrix, matrixCols, msort, matrixGet); msc.querySelector('tbody').innerHTML = matrixRows(mrows); bindExpand(); }, 'matrix_sort', ()=>matrixThead(msort));
+  // Sorting removed (2026-10-19, MDL I-110): the matrix headers are now static labels, so no
+  // click-to-sort handler is wired. The displayed rows, drill rows and CSV/PNG all read
+  // `mrows` (the fixed default order), keeping them a single source with no sort state to maintain.
   // §18 split-header contract (3, 5): width pin + gutter + horizontal lock-step, via the shared helper
   // (the same one the Rule Reference uses) so the matrix cannot drift from the contract again.
   wireSplitHeader(panel, '#matrixHead', '.tableScroll');
@@ -2923,16 +2731,32 @@ const OVERDUE_COLS=[
   {h:'Submission Status', f:'Submission Status'},
   {h:'Delay (days)', f:null, num:true}
 ];
-const OVERDUE_TYPES=[
+// Fallback labels ONLY for workbooks that predate the `Overdue Type Code` block (Code!AN:AO).
+const OVERDUE_TYPES_FALLBACK=[
   {key:'first', label:'1st-submission'},
   {key:'sub', label:'Resubmission'},
   {key:'cli', label:'Client-review'}
 ];
-function renderOverdue(panel, o){
+/* I-114 — workplan §4A.6: the Overdue flavours are workbook data, so their labels come from the
+   Code sheet lookup block (`Overdue Type Code` -> `Overdue Type`), exactly like every other lookup.
+   The three KEYS stay structural — they select the delay formula (§4A.4), the month-matrix bands and
+   the KPI/chart rows — so codes in the sheet that have no formula behind them are ignored; adding a
+   fourth flavour remains a code change, not a workbook edit. */
+function overdueTypesOf(model){
+  const blk = model && model.contract && model.contract.lookups && model.contract.lookups.overdueType;
+  const items = (blk && blk.items) || [];
+  if(!items.length) return OVERDUE_TYPES_FALLBACK;
+  const byCode = {};
+  items.forEach(it => { if(it && it.code) byCode[it.code] = it.label || it.code; });
+  return OVERDUE_TYPES_FALLBACK.map(t => ({ key: t.key, label: byCode[t.key] || t.label }));
+}
+function renderOverdue(panel, o, model){
+  const OVERDUE_TYPES = overdueTypesOf(model);
   // L2 column model (I-92): every column sortable; dates sort as dates, statuses as enums,
-  // Delay as a number; empty cells sort last.
+  // Delay as a number; empty cells sort last. The L3 grid (I-95) owns column order / widths /
+  // the show-hide chooser / the resize grips, so the renderer only produces cell contents.
   const overdueCols = OVERDUE_COLS.map(c=>({
-    key: c.h, label: c.h, sortable:true,
+    key: c.h, label: c.h, h: c.h, sortable:true, f: c.f, num: c.num,
     type: c.num ? 'num' : (/Date$/.test(c.h) ? 'date' : (c.h==='Latest Approval Status' ? 'enum' : c.h==='Submission Status' ? 'enum' : 'text')),
     order: c.h==='Latest Approval Status' ? ['APP','AWC','REJ','NAP'] : c.h==='Submission Status' ? ['SUR','RTR','NTS'] : undefined,
     get: x => c.f===null ? (c.h==='Overdue Type' ? x.type : (c.h==='Delay (days)' ? (x.r.delay==null?'':x.r.delay) : '')) : (x.r.fields[c.f]||'')
@@ -2940,20 +2764,12 @@ function renderOverdue(panel, o){
   const oget = (x,key)=>{ const c=overdueCols.find(k=>k.key===key); return c ? c.get(x) : ''; };
   const recs=[];
   OVERDUE_TYPES.forEach(t=> (o[t.key]||[]).forEach(r=> recs.push({r, type:t.label})));
-  // L2 column filtering (I-93): the popover exposes these; the get() is on the overdue row
-  // shape {r, type}. Counts in the popover are derived from recs (current data, never a master
-  // list) per spec §7.2.7 and the FILTER POPULATION RULE in project memory.
-  const fltCols = [
-    {key:'ueshDiscipline', label:'UESH Discipline', kind:'text',   get: x => x.r.fields['UESH Discipline'] || ''},
-    {key:'overdueType',    label:'Overdue Type',    kind:'enum',   get: x => x.type},
-    {key:'delay',          label:'Delay (days)',    kind:'num',    get: x => x.r.delay},
-    {key:'sourceTab',      label:'Source Tab',      kind:'enum',   get: x => x.r.sourceTab},
-    {key:'planned',        label:'Planned 1st Issue Date', kind:'date', get: x => x.r.fields['Planned 1st Issue Date'] || ''}
-  ];
-  // restore persisted filter state (shared object: the popover mutates it in place so the
-  // renderer's match-highlighting stays in sync)
-  const flt = restoreFlt('overdue');
-  let rows = applyFilters(recs, flt, fltCols);
+  // L2 column filtering (I-93): per the workplan §4.0.1 reversal, the Overdue List panel offers NO
+  // in-panel column filters. The global Discipline/Stage chips (top bar) own the cross-panel scope and
+  // the Overdue Type dropdown (rendered below) owns its own dimension, so there is no per-column filter
+  // state here. Rows therefore start as the full overdue set and are narrowed only by the Overdue Type
+  // dropdown.
+  let rows = recs;
   // default sort: Delay (days) descending (§7.2.6 point 5 — see the most overdue first)
   const osort = {col:'Delay (days)', dir:-1};
   const sp = getPref('overdue_sort','');
@@ -2963,19 +2779,16 @@ function renderOverdue(panel, o){
     if(c.f===null){ if(c.h==='Overdue Type') return x.type; if(c.h==='Delay (days)') return (x.r.delay==null?'':x.r.delay); }
     return x.r.fields[c.f]||'';
   };
-  // map of header label -> filter key, used to highlight text-filter matches in body cells
-  const hdrToFlt = { 'UESH Discipline':'ueshDiscipline', 'Overdue Type':'overdueType', 'Delay (days)':'delay', 'Planned 1st Issue Date':'planned', 'Source Tab':'sourceTab' };
-  const textQ = hdr => { const k=hdrToFlt[hdr]; const f=k && flt[k]; return (f && f.kind==='text' && f.value) ? f.value : ''; };
-  const cellTxt = (c, x) => { const v = colVal(c,x); const q = textQ(c.h); return q ? highlightText(v, q) : esc(v); };
-  // wireSort's renderHead must return the thead's INNER content (rows only) — a nested
-  // <thead> inside <thead> is dropped by the parser but is not something to rely on.
-  const ovHeadRow = ()=>`<tr>${sortHeadCells(overdueCols, osort)}</tr>`;
-  const ovHead = ()=>`<thead>${ovHeadRow()}</thead>`;
-  const head=`<colgroup><col style="width:110px"><col style="width:120px"><col style="width:70px"><col style="width:200px"><col style="width:130px"><col style="width:90px"><col style="width:140px"><col style="width:140px"><col style="width:140px"><col style="width:140px"><col style="width:150px"><col style="width:140px"><col style="width:80px"></colgroup>${ovHead()}`;
-  const cells=x=>OVERDUE_COLS.map(c=>`<td${c.num?' class="num"':''}>${cellTxt(c,x)}</td>`).join('');
+
+  // L3 grid (I-95): widths / chooser / resize. The grid decides column order & widths; the
+  // renderer only fills cells. (No columns pinned, so the current left-to-right order is kept.)
+  const grid = makeGrid('overdue', overdueCols);
+  const ovHeadRow = ()=>grid.headRow(osort);
+  const ovRow = x=>`<tr class="over">${grid.visible().map(c=>grid.td(c, esc(colVal(c,x)), c.num?'num':'')).join('')}</tr>`;
   // an empty result must say WHY: filtered-out rows are a different story from "no overdue data"
+  const ovEmpty = tf=>`<tr><td class="empty" colspan="${grid.visible().length}">${(rows.length<recs.length||tf)?'No overdue documents match the current filter.':'No overdue documents'}</td></tr>`;
   const tbody=tf=>{ const rs=rows.filter(x=>!tf||x.type===tf);
-    return rs.length?rs.map(x=>`<tr class="over">${cells(x)}</tr>`).join(''):`<tr><td colspan="${OVERDUE_COLS.length}" class="empty">${(rows.length<recs.length||tf)?'No overdue documents match the current filter.':'No overdue documents'}</td></tr>`; };
+    return rs.length?rs.map(ovRow).join(''):ovEmpty(tf); };
   const filtered = rows.length < recs.length;
   const cntText = filtered ? `${rows.length} of ${recs.length} docs` : `${rows.length} docs`;
   panel.innerHTML=`<div class="panel-head">
@@ -2991,18 +2804,31 @@ function renderOverdue(panel, o){
         <span class="cnt" id="ovCnt">${cntText}</span>
       </div>
     </div>
-    <div class="tableScroll"><table class="ds-table"><caption class="sr-only">Overdue List — documents past their planned or forecast issue date, with the delay in days.</caption>${head}<tbody id="ovBody">${tbody('')}</tbody></table></div>`;
-  // -- L2 column filter popover (I-93) --
-  const headActions = panel.querySelector('.head-actions');
-  const setCnt = n => { const c = panel.querySelector('#ovCnt'); if(c) c.textContent = (n < recs.length) ? `${n} of ${recs.length} docs` : `${n} docs`; };
-  const cf = attachColFilters(headActions, {
-    key:'overdue', fltCols, recs, state: flt, label:'overdue list',
-    onChange: (out) => { rows = dsSorted(out, overdueCols, osort, oget); setCnt(rows.length); panel.querySelector('#ovBody').innerHTML = tbody(panel.querySelector('#ovType').value); }
-  });
-  const sel=panel.querySelector('#ovType');
-  sel.onchange=()=>{ panel.querySelector('#ovBody').innerHTML=tbody(sel.value); const c=panel.querySelector('#ovCnt'); const cnt=rows.filter(x=>!sel.value||x.type===sel.value).length; if(c)c.textContent = (rows.length<recs.length)? `${cnt} of ${recs.length} docs` : `${cnt} docs`; };
+    <div class="tableScroll"><table class="ds-table"><caption class="sr-only">Overdue List — documents past their planned or forecast issue date, with the delay in days.</caption>${grid.colgroupHTML()}<thead>${ovHeadRow()}</thead><tbody id="ovBody">${tbody('')}</tbody></table></div>`;
+  const tbl = panel.querySelector('.tableScroll table');
   const sc = panel.querySelector('.tableScroll');
-  wireSort(sc, overdueCols, osort, ()=>{ rows = dsSorted(rows, overdueCols, osort, oget); panel.querySelector('#ovBody').innerHTML=tbody(sel.value); }, 'overdue_sort', ovHeadRow);
+  const sel=panel.querySelector('#ovType');
+  const headActions = panel.querySelector('.head-actions');
+  // Per workplan §4.0.1 reversal, there is no per-column filter popover/button here — only the
+  // Overdue Type dropdown (below) narrows the list; the global Discipline/Stage chips own the rest.
+  sel.onchange=()=>{
+    rows = dsSorted(recs.filter(x=>!sel.value||x.type===sel.value), overdueCols, osort, oget);
+    panel.querySelector('#ovBody').innerHTML = tbody(sel.value);
+    const c = panel.querySelector('#ovCnt');
+    if(c) c.textContent = (rows.length<recs.length) ? `${rows.length} of ${recs.length} docs` : `${rows.length} docs`;
+  };
+  // -- L3 grid (I-95): chooser + resize. The header is rebuilt on every sort, so the grips are
+  //    re-attached in the sort callback and whenever the grid refreshes (chooser). --
+  const oResize = grid.resizer(tbl);
+  grid.chooser(headActions);
+  grid.refresh = () => {
+    const cg = tbl.querySelector('colgroup'); if(cg) cg.innerHTML = grid.colgroupHTML().replace(/^<colgroup>|<\/colgroup>$/g, '');
+    const th = tbl.querySelector('thead'); if(th) th.innerHTML = ovHeadRow();
+    oResize.addGrips();
+    panel.querySelector('#ovBody').innerHTML = tbody(sel.value);
+  };
+  // L2 sorting (I-92) via the shared handler; re-attach grips after the header rebuild.
+  wireSort(sc, overdueCols, osort, ()=>{ rows = dsSorted(rows, overdueCols, osort, oget); panel.querySelector('#ovBody').innerHTML=tbody(sel.value); oResize.addGrips(); }, 'overdue_sort', ovHeadRow);
   panel.querySelector('#ovCsv').onclick=()=>{
     const tf=sel.value; const rs=rows.filter(x=>!tf||x.type===tf);
     if(!rs.length){ toast('Nothing to export','info'); return; }
@@ -3067,37 +2893,47 @@ function renderValidation(panel, issues, model){
     {key:'rownum', label:'Row', sortable:true, type:'num'}
   ];
   const issueGet = (i,key)=> i[key];
-  // L2 column filtering (I-93) — facets derived from the fired issues in THIS run
-  const issueFltCols = [
-    {key:'severity',  label:'Severity',  kind:'enum', get: i => i.severity},
-    {key:'code',      label:'Rule',      kind:'enum', get: i => i.code},
-    {key:'docNo',     label:'Doc No',    kind:'text', get: i => i.docNo},
-    {key:'sourceTab', label:'Source Tab',kind:'enum', get: i => i.sourceTab},
-    {key:'rownum',    label:'Row',       kind:'num',  get: i => i.rownum}
-  ];
-  const issueFlt = restoreFlt('issue');
+  /* I-114 — PANEL-LOCAL RULE-CODE FILTER (shared spec §7.10 B6 + §7.2.7 pt 6).
+     No in-panel column filters here (removed 2026-10-20); this single-select is the panel's only
+     filter. It is resolved HERE in S5 on the rows already handed to the panel and must NEVER feed
+     back into S4 Derive, so KPIs, charts, the matrix and every other panel stay untouched. The
+     severity summary chips, the note below and the Rule Reference keep describing the WHOLE run —
+     only the issue table and its count reflect the selection (`N of M issues`). */
+  const ruleDescOf = code => { const r = eb.map[code] || {}; return r.rule || msgByCode[code] || ''; };
+  let ruleSel = '';
+  const ruleOpts = `<option value="">All rules</option>` + fired.map(code =>
+    `<option value="${esc(code)}">${esc(code)} — ${esc(ruleDescOf(code))} (${cntByCode[code]})</option>`).join('');
+  const issueListFor = () => ruleSel ? issues.filter(i => i.code === ruleSel) : issues;
+  const issueCntText = n => (n < total)
+    ? `${n} of ${total} issues`
+    : `${total} issue${total===1?'':'s'}`;
   const isort = {col:'', dir:1};
   const isp = getPref('issue_sort','');
   if(/^(-?1)\|/.test(isp)){ const [d,c]=isp.split('|'); if(issueCols.some(x=>x.key===c)){ isort.col=c; isort.dir=Number(d); } }
-  // highlight the Doc No cell when its text filter is active
-  const docTxt = v => { const f = issueFlt.docNo; return (f && f.kind==='text' && f.value) ? highlightText(v, f.value) : esc(v); };
-  let issueView = dsSorted(applyFilters(issues, issueFlt, issueFltCols), issueCols, isort, issueGet);
+  let issueView = dsSorted(issueListFor(), issueCols, isort, issueGet);
+  // `win` / `paintBody` are declared below; this closure resolves them when called (always
+  // after initialisation, since only the select's change handler triggers it).
+  const refreshIssueBody = () => { if(win && win.enabled) win.redraw(); else paintBody(); };
+  const onRuleChange = () => {
+    ruleSel = ruleSelEl.value;
+    issueView = dsSorted(issueListFor(), issueCols, isort, issueGet);
+    refreshIssueBody();
+    const c = panel.querySelector('#vCnt'); if(c) c.textContent = issueCntText(issueView.length);
+  };
   // L3 grid (I-95): visible columns (Severity + Doc No pinned), widths, chooser, resize
   const grid = makeGrid('issue', issueCols);
   const issueRowHTML = i => `<tr>${grid.visible().map(c => {
       const inner = c.key === 'severity' ? `<span class="sev-${sevKey(i.severity)}">${SEV_SVG[i.severity]||SEV_SVG.Warning}</span>`
-        : c.key === 'docNo' ? docTxt(i.docNo)
+        : c.key === 'docNo' ? esc(i.docNo)
         : c.key === 'rownum' ? `<span class="num">${esc(i.rownum)}</span>`
         : esc(i[c.key]==null?'—':i[c.key]);
       return grid.td(c, inner, c.key === 'rownum' ? 'num' : '');
     }).join('')}</tr>`;
   const issueRows = list => list.map(issueRowHTML).join('');
-  const issueEmpty = () => `<tr><td class="empty" colspan="${grid.visible().length}">No issues match the current filter.</td></tr>`;
+  const issueEmpty = () => `<tr><td class="empty" colspan="${grid.visible().length}">No issues to display.</td></tr>`;
   const issueHeadRow = ()=> grid.headRow(isort);
-  const issueFiltered = issueView.length < issues.length;
-  const issueCntText = issueFiltered ? `${issueView.length} of ${total} issues` : `${total} issue${total===1?'':'s'}`;
   panel.innerHTML=`<div class="panel-head"><h2>Validation Issues</h2>
-      <div class="head-actions"><span class="vchips" id="vChips">${chips}</span><button id="vCsv" class="csv btn btn-secondary" title="Download validation issue list as CSV">⤓ CSV</button><span class="cnt" id="vCnt">${issueCntText}</span></div></div>
+      <div class="head-actions"><span class="vchips" id="vChips">${chips}</span><label class="lbl">Rule:<select class="inter-sel" id="vRule" aria-label="Filter issues by rule code">${ruleOpts}</select></label><button id="vCsv" class="csv btn btn-secondary" title="Download validation issue list as CSV">⤓ CSV</button><span class="cnt" id="vCnt">${issueCntText(issueView.length)}</span></div></div>
     <div class="note">${total} issue${total===1?'':'s'} across ${fired.length} rule${fired.length===1?'':'s'}. All wording &amp; severity sourced from the Code sheet Error block (Code!AI:AL) — none hard-coded.</div>
     <details class="vdetails"><summary>Validation detail — code-sheet check, rule reference, full issue list</summary>
       <div class="vbody">
@@ -3122,17 +2958,13 @@ function renderValidation(panel, issues, model){
       issueView = dsSorted(issueView, issueCols, isort, issueGet);
       if(win.enabled) win.redraw(); else paintBody();
     }, 'issue_sort', issueHeadRow);
-  // L2 column filtering (I-93)
+  // I-114 — wire the panel-local rule filter. Sorting re-sorts the CURRENT (already filtered)
+  // subset, so the selection survives a sort; CSV reads `issueView`, so parity is automatic.
+  const ruleSelEl = panel.querySelector('#vRule');
+  if(ruleSelEl) ruleSelEl.onchange = onRuleChange;
+  // No in-panel column filters on this panel (removed 2026-10-20); the column-visibility
+  // chooser below is the only popover here.
   const iHead = panel.querySelector('.head-actions');
-  attachColFilters(iHead, {
-    key:'issue', fltCols: issueFltCols, recs: issues, state: issueFlt, label:'issue list',
-    onChange: (out) => {
-      issueView = dsSorted(out, issueCols, isort, issueGet);
-      if(win.enabled) win.redraw(); else paintBody();
-      const c = panel.querySelector('#vCnt');
-      if(c) c.textContent = (issueView.length < issues.length) ? `${issueView.length} of ${total} issues` : `${total} issue${total===1?'':'s'}`;
-    }
-  });
   // L3 grid (I-95): chooser + resize. The header is rebuilt on every sort, so the grips
   // are re-attached whenever the grid refreshes.
   const iResize = vTbl ? grid.resizer(vTbl) : null;
@@ -3165,24 +2997,12 @@ function renderDetail(panel, recs, model, state, rerender){
     ...cols.map(c=>({key:c, label:c, sortable:true, type:'text'}))
   ];
   const detailGet = (r,key)=> key==='__src' ? r.sourceTab : key==='__active' ? (r.isActive?'Yes':'No') : (r.fields[key]);
-  // L2 column filtering (I-93). Only contract fields that actually exist are offered, and
-  // every facet is derived from the CURRENT rows (never a master list, §7.2.7). The
-  // excluded-stage convention lives in the global filter, so the table facet lists only
-  // what the current data contains.
-  const hasF = n => cols.includes(n);
-  const detailFltCols = [
-    ...(hasF('Document No.') ? [{key:'Document No.', label:'Document No.', kind:'text', get: r => r.fields['Document No.']||''}] : []),
-    ...['UESH Discipline','Stage','Latest Approval Status','Submission Status','Authority','Discipline (Code)']
-        .filter(hasF).map(n => ({key:n, label:n, kind:'enum', get: r => r.fields[n]||''})),
-    {key:'__active', label:'Active', kind:'enum', get: r => r.isActive?'Yes':'No'},
-    {key:'__src', label:'Source Tab', kind:'enum', get: r => r.sourceTab}
-  ];
-  const detailFlt = restoreFlt('detail');
+  // No in-panel column filters (removed 2026-10-20): the Document Detail Table shows every
+  // active document, scoped only by the global Discipline/Stage chips (top bar).
   // restore persisted sort (§7.2.6)
   const sp = getPref('detail_sort','');
   if(/^(-?1)\|/.test(sp)){ const [d,c]=sp.split('|'); if(detailCols.some(x=>x.key===c)) state.sort={col:c, dir:Number(d)}; }
   const detailHeadRow = () => grid.headRow(state.sort);
-  const detailTextQ = c => { const f = detailFlt[c]; return (f && f.kind==='text' && f.value) ? f.value : ''; };
   // L3 grid (I-95): Source Tab + Document No. pinned (D38), widths, chooser, resize
   const grid = makeGrid('detail', detailCols);
   const detailCell = (c, r) => {
@@ -3195,15 +3015,14 @@ function renderDetail(panel, recs, model, state, rerender){
       const label = ['APP','AWC','REJ','NAP'].includes(cat) ? (r.fields['Latest Approval Status']||'') : cat;
       return { html: esc(label), cls };
     }
-    const val = r.fields[c.key]; const cls = statusPill(c.key, val); const q = detailTextQ(c.key);
-    return { html: q ? highlightText(val, q) : esc(val), cls };
+    const val = r.fields[c.key]; const cls = statusPill(c.key, val); return { html: esc(val), cls };
   };
   const detailRowHTML = r => `<tr>${grid.visible().map(c => {
       const v = detailCell(c, r);
       return grid.td(c, typeof v === 'string' ? v : v.html, typeof v === 'string' ? '' : v.cls);
     }).join('')}</tr>`;
-  const detailEmpty = () => `<tr><td class="empty" colspan="${grid.visible().length}">${(rows.length<recs.length)?'No documents match the current filter.':'No documents match the current filter.'}</td></tr>`;
-  let rows = applyFilters(recs, detailFlt, detailFltCols);
+  const detailEmpty = () => `<tr><td class="empty" colspan="${grid.visible().length}">No documents to display.</td></tr>`;
+  let rows = recs;
   if(state.sort.col){ rows = dsSorted(rows, detailCols, state.sort, detailGet); }
   const setCnt = () => { const c = panel.querySelector('#dCnt'); if(c) c.textContent = (rows.length<recs.length) ? `${rows.length} of ${recs.length} docs` : `${rows.length} docs`; };
   const paintBody = () => { const tb = panel.querySelector('tbody'); if(tb) tb.innerHTML = rows.length ? rows.map(detailRowHTML).join('') : detailEmpty(); };
@@ -3223,11 +3042,9 @@ function renderDetail(panel, recs, model, state, rerender){
     full: () => rows.length ? rows.map(detailRowHTML).join('') : detailEmpty()
   });
   wireSort(sc, detailCols, state.sort, ()=>{ rows = dsSorted(rows, detailCols, state.sort, detailGet); renderBody(); }, 'detail_sort', detailHeadRow);
-  // L2 column filtering (I-93) — recompute in place so the popover stays open
-  attachColFilters(panel.querySelector('.head-actions'), {
-    key:'detail', fltCols: detailFltCols, recs, state: detailFlt, label:'document list',
-    onChange: (out) => { rows = state.sort.col ? dsSorted(out, detailCols, state.sort, detailGet) : out; renderBody(); }
-  });
+  // No in-panel column filters on this panel (removed 2026-10-20); the column-visibility
+  // chooser below is the only popover here.
+  panel.querySelector('.head-actions');
   // L3 grid (I-95): chooser + resize; grips are re-attached whenever the header is rebuilt
   const dResize = grid.resizer(sc.querySelector('table'));
   grid.chooser(panel.querySelector('.head-actions'));

@@ -141,6 +141,9 @@ const LOOKUP_HEADERS = {
   errorRule:     ['Rule'],
   errorSeverity: ['Severity'],
   errorGroup:    ['Group'],
+  // I-114 — Overdue Type flavours are workbook data (Code!AN = code, Code!AO = label),
+  // not application constants. Missing block => V-18 warning + the renderer's fallback labels.
+  overdueType:   ['Overdue Type Code'],
 };
 
 // Scan the WHOLE Code sheet (label in A, value in B, type in C). Returns
@@ -294,6 +297,8 @@ const todayISO = options.today
     authority: lookupBlock('authority'),
     submissionStatus: lookupBlock('submissionStatus'),
     approval: lookupBlock('approval'),
+    // I-114 — workbook source of truth for the Overdue Type labels (Code!AN:AO).
+    overdueType: lookupBlock('overdueType'),
   };
   // --- Error block: code -> {group, rule, severity} via discovered columns ---
   const eCode = lk.idx['errorCode'];

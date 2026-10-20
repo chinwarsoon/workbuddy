@@ -5,7 +5,17 @@
 > **Date**: 2026-09-29
 > **Status**: Proposal — **NO CODE WRITTEN YET**. Mirrors the PPP Dashboard architecture
 > (`PPP/PPP-Dashboard-Workplan.md` + `PPP/arch/PPP_Dashboard.html`).
-> **Last revised**: 2026-10-18 — top bar + menu bar model finalised (§4.0): two-row sticky header as one unit,
+> **Last revised**: 2026-10-20 — I-114 **implemented (RESOLVED)**: (a) the Overdue Type dropdown now reads its labels from the **`Code!AN:AO`** block (workbook source of truth, in-code list kept only as a fallback) and shows the canonical §4A.6 wording; (b) the **column chooser got its own class** (`.cc-wrap` / `.cc-btn` / `.cc-panel`) per shared spec §7.10 **B7** — no count badge, no active-filter emphasis — so the `.tf-btn` filter look now belongs exclusively to the global Discipline/Stage chips; (c) the Validation / Issues panel gained the **panel-local rule-code filter** (spec §7.10 **B6** + §7.2.7 pt 6) — a single-select inside the panel, resolved in **S5**, affecting only that panel's tables (`N of M issues`; severity chips, note and Rule Reference still describe the whole run; CSV exports the same filtered rows). `test_render.mjs` += 12 assertions; rebuilt `MDL-Dashboard.html`; full run **159/165** (the 6 failures are the pre-existing top-bar chip/Stage tests). Prior (2026-10-20) — Filter vocabulary + panel-local filters **logged (I-114)**: shared spec §7.10's selection-control table now separates **multi-select** (B1 filter trigger + B3 chips) from **single-select** (B5 native select), and adds **B6 panel-local filter** plus **B7 column-visibility control**; shared spec §7.2.7 gains point 6 (a panel-local filter resolves in S5 and MUST NOT touch KPIs, charts, the matrix or any other panel). Workplan §4A.6 records the Overdue Type flavours as workbook source of truth in **`Code!AN:AO`** (the in-code list stays only as a fallback), and §4.0.1 gains the chooser-chrome rule plus the Validation / Issues **rule-code filter** specification (control inside the panel, local to it, S5-only, tables only). No dashboard code changed yet. Prior (2026-10-19) — Overdue List filter de-duplication **implemented (I-113)**, then the three panel-owned per-column filters were also removed (user direction 2026-10-19): the Overdue panel now keeps only the **Overdue Type dropdown** as its sole in-panel filter — no bundled popover and no per-column buttons (Delay / Source Tab / Planned date all removed). On 2026-10-20 the in-panel column filters were also removed from the **Validation Issues** and **Document Detail** panels, and the entire filter machinery (`attachColFilters`, `cfColRow`, `applyFilters`, `facetCounts`, `highlightText`, `debounce`, `restoreFlt`) deleted (only `cfToggle`/`cfBindDoc` remain, reused by the column chooser). `test_render.mjs` updated and now passes 147/153 (the 6 failures are pre-existing top-bar Stage-chip tests). Prior (2026-10-19): Filter de-duplication requirement documented (MDL-specific): per shared spec §7.2.7 (no duplicate filter dimensions), the Overdue List panel's bundled 'Filters' popover is to be removed — its UESH Discipline duplicates the global Discipline chip and Overdue Type is duplicated by the panel's own dropdown; keep the Overdue Type dropdown + per-column Delay/Source Tab/Planned-date filters. Document Detail popover to drop UESH Discipline + Stage (global duplicates). Validation panel clean. Added workplan §4.0.1. Prior (2026-10-19): Overdue List blank "Overdue Type" / "Delay (days)" columns fixed (I-112): the I-111
+> port onto the L3 grid kit dropped the header label `h` from the grid column objects, so `colVal`/`textQ` no longer
+> matched the two label-special-cased columns and both rendered blank (the S4 Derive values were always correct;
+> CSV export was unaffected). Fix: added `h: c.h` to the `overdueCols` map in `render.mjs` `renderOverdue`;
+> rebuilt `MDL-Dashboard.html`. Prior (2026-10-19): Overdue List column-width adjustment added (I-111): `render.mjs` `renderOverdue`
+> ported onto the L3 grid kit (`makeGrid`, I-95) — drag-to-resize grips on every header, double-click auto-fit,
+> per-column widths persisted in `localStorage` (`mdl_overdue_widths`), plus the column show/hide chooser;
+> sorting and the Overdue-Type / CSV / filter controls unchanged. Earlier (2026-10-19): Discipline Summary Matrix
+> column sorting removed (I-110) — `renderMatrix` now renders static headers; TOTAL row pinned in `<tfoot>`;
+> `MDL/test/test_render.mjs` matrix assertions updated; `MDL-Dashboard.html` rebuilt.
+> Earlier (2026-10-18): top bar + menu bar model finalised (§4.0): two-row sticky header as one unit,
 > left-actions / right-filter-group menu bar holding all six controls, global Discipline/Stage filters, Warnings
 > toggle per shared spec §3.5; §4.7 location wording reconciled.
 
@@ -256,6 +266,63 @@ The dashboard header is a single **sticky** bar at the top of the page, laid out
 > illustration (spec §3.1 sanctions the two-row form). Decisions: #1/#10 left-nav deferred; #4/#5/#6 title
 > bar + menu bar follow this MDL design (spec §3.1 + §3.2 updated to match; detail in Dashboard-UI-Design-Spec.md §3.1 / §7.1).
 
+#### 4.0.1 Filter de-duplication — MDL-specific (overall rule in shared spec §7.2.7)
+
+Per the shared `Dashboard-UI-Design-Spec.md` §7.2.7 (overall requirement, applies to every dashboard),
+**a filter dimension may exist in exactly one place**. The global dimensions — **Discipline**, **Stage** and
+**Search** — live only in the top-bar menu (§4.0); a panel must never re-offer a global dimension, and
+must never offer the same dimension twice. The MDL build currently violates this in two spots:
+
+- **Overdue List panel.** Its bundled **"Filters" popover** (the multi-filters button) used to expose five
+  column filters — *UESH Discipline*, *Overdue Type*, *Delay (days)*, *Source Tab*, *Planned 1st Issue
+  Date* — where *UESH Discipline* duplicated the global Discipline chip and *Overdue Type* was offered
+  twice. Both the bundled popover and the three panel-owned per-column filters
+  (*Delay (days)*, *Source Tab*, *Planned 1st Issue Date*) were removed (2026-10-19); the panel now keeps
+  only the **Overdue Type dropdown** as its sole in-panel filter.
+- **Document Detail table.** Its "Filters" popover includes **UESH Discipline** and **Stage**, both of
+  which duplicate the global Discipline / Stage chips.
+- **Validation / Issues panel.** Clean — its popover (Severity, Rule, Doc No, Source Tab, Row) offers no
+  global dimension, so no change is required there.
+
+**Required MDL changes (specific):**
+
+1. **Overdue List panel** — remove the bundled "Filters" popover (the multi-filters button) **and** the
+   three panel-owned per-column filters (*Delay (days)*, *Source Tab*, *Planned 1st Issue Date*), per the
+   2026-10-19 user direction. Keep only the dedicated **Overdue Type dropdown** as the sole in-panel
+   filter. Do **not** re-add UESH Discipline (global) or a second Overdue Type, and do **not** add
+   per-column filters back.
+2. **Document Detail table** — remove **UESH Discipline** and **Stage** from its column-filter popover
+   (they are global). Retain its panel-owned filters (Document No., Latest Approval Status, Submission
+   Status, Authority, Active, Source Tab, and *Discipline (Code)* only if it is a distinct column).
+3. **Validation / Issues panel** — no change to its global dimensions, but it now GAINS one panel-owned
+   filter: the **rule-code filter** (see item 6).
+4. **Top bar unchanged** — Discipline, Stage, Search remain the sole global scope controls; switching any
+   of them still re-derives every panel identically (§4.0 scope rule preserved).
+5. **Filter chrome must not be shared with a layout control** (added 2026-10-20, I-114). The flag-chip
+   look — a labelled trigger that opens a floating tick-box menu and carries an active count — means
+   "**this narrows your rows**". The **column show/hide chooser** (`Columns (n) ▾`) uses exactly that
+   look today even though it is a *layout* control: it changes which columns are painted and never
+   which rows are returned. The chooser MUST be given its own class (shared spec §7.10 **B7**) so it
+   cannot be mistaken for a filter, and it MUST NOT inherit the filter trigger's active/open emphasis.
+   Conversely the Overdue Type control is a single-select filter and correctly uses §7.10 **B5**.
+6. **Issue rule-code filter — panel-local only** (added 2026-10-20, I-114). The Validation / Issues panel
+   shall offer a **single-select Rule** drop-down listing every rule code that actually fired, with its
+   occurrence count and short rule text. Decisions:
+   - the control lives **inside the Validation / Issues panel** (not the top bar);
+   - it is **local to that panel** and affects **only the tables inside that panel**;
+   - it MUST be applied in **S5 Render** to the rows already handed to the panel — never through a
+     state field that S4 Derive consults, which would silently convert a panel filter into a
+     cross-panel one (shared spec §7.2.7 pt 6);
+   - the severity summary chips, the explanatory note and the rule reference table keep describing the
+     **whole run**; only the issue table and its count reflect the selection, using `N of M issues`;
+   - the CSV export reads the same filtered array the table paints.
+   Rule code is neither a global dimension nor severity, so it breaks no duplicate-dimension rule.
+
+**Acceptance:** after the change, no panel offers Discipline or Stage; Overdue Type exists only in the
+dropdown; the Overdue panel has no per-column filter buttons; no layout control (the chooser) wears the
+filter chrome; the rule-code filter narrows only the Validation / Issues tables and leaves KPIs, charts
+and every other panel untouched; and the global filter remains the only cross-panel scope control.
+
 ### 4.1 KPI overview + per-discipline summary (counts use §3.7)
 
 **Metric definitions (status funnel)** — every count derives from the §3.8 consolidated table and applies `isActiveDoc` unless noted (reviewer 5d):
@@ -487,6 +554,41 @@ Recommended detail columns:
 |---|---|---|---|---|---:|---|
 
 The panel shall be filterable and shall link to the relevant document detail record.
+
+**Overdue Type filter (recorded 2026-10-20, I-114).** The three in-scope Overdue categories above
+reach the user as one **Overdue Type** drop-down in the Overdue List panel head — a **single-select**
+control using the shared spec §7.10 **B5** chrome. It narrows that panel's table only; it does not
+re-derive KPIs, charts or the matrix.
+
+**Workbook source of truth (no hard-coding).** The three flavours' codes and their display labels
+live in the Code sheet, following the same row-1-header + adjacent code/label column convention as
+every other lookup block (`Stage Code` / `Description`, `Error Code` / `Rule`, …):
+
+| Range | Header | Purpose |
+|---|---|---|
+| `Code!AN` | `Overdue Type Code` | the three structural codes — `first`, `sub`, `cli` |
+| `Code!AO` | `Overdue Type` | the user-facing label for each code |
+
+| Overdue Type Code | Overdue Type |
+|---|---|
+| `first` | Overdue — Submission |
+| `sub` | Overdue — Resubmission |
+| `cli` | Overdue — Client Review |
+
+The parser reads this block at runtime; a hard-coded list is retained **only** as a fallback for
+workbooks that predate the block — exactly as §4A.2 already does for the review durations
+(`Code!A9:C11`). An absent block raises the standard "lookup block not found" notice, the same
+behaviour as any other missing lookup block.
+
+**Naming — canonical.** The labels above are now canonical and replace the earlier variants
+(`1st-submission` / `Resubmission` / `Client-review` in the UI; *1st-submission /
+subsequent-submission / client-review-return overdue* in the earlier status note; *Overdue – 1st /
+Resub / Client* in the KPI cards and chart legend). Aligning those stragglers is a follow-up.
+
+**Scope note.** Only the **labels and their order** are data-driven. The three **codes** remain
+fixed in application code because they are structural: they select the delay formula (§4A.4),
+the month-matrix colour bands, and the KPI / chart rows. Adding a fourth Overdue flavour is a code
+change, not a workbook edit.
 
 ### 4A.7 Upcoming Submission Control
 
