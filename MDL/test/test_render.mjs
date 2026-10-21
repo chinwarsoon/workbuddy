@@ -459,6 +459,9 @@ ok('column chooser panel uses .cc-panel, no longer .tf-panel / .cf-panel',
    !!D.querySelector('#overduePanel .cc-panel') && !D.querySelector('#overduePanel .cf-panel'),
    'chooser panel class ok');
 
+// --- I-115 checks live in test_grid.mjs (they only need the grid kit, not the
+//     full-workbook render, so they stay runnable on memory-constrained hosts). ---
+
 // --- I-114 (c): panel-local rule-code filter (shared spec §7.10 B6 + §7.2.7 pt 6). ---
 const vRule = D.querySelector('#vRule');
 ok('Validation Issues panel offers a Rule select inside the panel', !!vRule && !!vRule.closest('#validationPanel .head-actions'),

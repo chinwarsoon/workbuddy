@@ -477,8 +477,16 @@ async function lintTableChrome(page, cfg) {
       const rowInfo = rows.map(r => {
         const th = r.querySelector('th');
         const cs = getComputedStyle(th);
+        // MDL I-116 — a PINNED cell inside a header fragment is sticky BY DESIGN (option i): it has to
+        // stay put exactly as the pinned body cell below it does, which is the whole point of giving
+        // the fragment its own scrollport. So the "a fragment is never sticky" rule is asserted against
+        // the NON-PINNED cells, and pinned cells are separately asserted to BE sticky.
+        const plain = [...r.children].find(c => c.tagName === 'TH' && !c.classList.contains('ds-pinned'));
+        const pin = r.querySelector('th.ds-pinned');
         const rect = r.getBoundingClientRect();
-        return { pos: cs.position, top: cs.top, z: cs.zIndex,
+        return { pos: cs.position,
+                 plainPos: plain ? getComputedStyle(plain).position : cs.position,
+                 pinPos: pin ? getComputedStyle(pin).position : null, top: cs.top, z: cs.zIndex,
                  bg: getComputedStyle(r.children[0]).backgroundColor,
                  h: Math.round(rect.height),
                  // pinned identity columns intentionally carry an opaque white background (I-95) — they
@@ -486,7 +494,11 @@ async function lintTableChrome(page, cfg) {
                  cells: [...r.children].filter(c => !c.classList.contains('ds-pinned'))
                    .map(c => getComputedStyle(c).backgroundColor) };
       });
-      const card = t.parentElement;
+      // MDL I-116 — a split-header fragment may sit inside its own clipped scrollport (.vheadwrap)
+      // rather than directly in the card, so the pair is found through the ONE container the spec
+      // requires (§7.2.15 invariant 1), not through the fragment's immediate parent. Same rule,
+      // one level of indirection: the container must still hold both halves.
+      const card = t.closest('.splitcard') || t.parentElement;
       const pairedBody = !!card && !!card.querySelector('.tableScroll table.ds-table tbody tr');
       return { i, label: (t.getAttribute('aria-label') || '').slice(0, 30), rows: rowInfo,
                hasScroller: !!sc, frag: !!(fsel && t.matches(fsel)), pairedBody,
@@ -499,10 +511,14 @@ async function lintTableChrome(page, cfg) {
   const multiRow = !!ch.multiRow;
   const opaqueBG = c => !/rgba\([^)]*,\s*0\)$/.test(c) && c !== 'transparent';
   heads.forEach(h => {
-    if (h.frag) {                       // thead-only fragment: must NOT be sticky, must pair with a body
-      const bad = h.rows.some(r => r.pos === 'sticky') || h.hasScroller || !h.pairedBody;
-      ok(`sticky headers #${h.i}: declared header fragment is not sticky, has no scroller, pairs with a body`,
-        !bad, `pos=${h.rows.map(r => r.pos).join('/')} scroller=${h.hasScroller} paired=${h.pairedBody}`);
+    if (h.frag) {                       // thead-only fragment: no scrolling of its own, must pair with a body
+      // MDL I-116 — a non-pinned fragment cell must NOT be sticky, but a pinned one MUST be, so the
+      // frozen header column travels with the frozen body column instead of sliding away from it.
+      const bad = h.rows.some(r => r.plainPos === 'sticky')
+        || h.rows.some(r => r.pinPos && r.pinPos !== 'sticky')
+        || h.hasScroller || !h.pairedBody;
+      ok(`sticky headers #${h.i}: declared header fragment is not sticky (pinned cells excepted), has no scroller, pairs with a body`,
+        !bad, `plainPos=${h.rows.map(r => r.plainPos).join('/')} pinPos=${h.rows.map(r => r.pinPos || '-').join('/')} scroller=${h.hasScroller} paired=${h.pairedBody}`);
       return;
     }
     const stickyRows = h.rows.filter(r => r.pos === 'sticky');
@@ -582,7 +598,9 @@ async function lintTableChrome(page, cfg) {
       .map((frag, i) => {
         const cs = el => getComputedStyle(el);
         const R = el => el.getBoundingClientRect();
-        const card = frag.parentElement;                       // the one container holding header + body
+        // MDL I-116 — the fragment may sit in its own clipped scrollport (.vheadwrap), so the ONE
+        // container holding header + body is found by class, not by immediate parent. Same rule.
+        const card = frag.closest('.splitcard') || frag.parentElement;
         const sc = card ? card.querySelector('.tableScroll') : null;
         const body = sc ? sc.querySelector('table.ds-table') : null;
         if (!sc || !body) return null;
@@ -592,7 +610,12 @@ async function lintTableChrome(page, cfg) {
         // scrollbar, not a column, and it has no body counterpart — including it mis-pairs it with the
         // body's last cell and reports a bogus mismatch.
         const dataCells = leafCells.filter(c => !c.classList.contains('ds-gut') && R(c).width > 0);
-        const bodyCells = [...(body.querySelector('tbody tr') || { children: [] }).children];
+        // MDL I-116 — a windowed table (I-96) opens with spacer rows, and a spacer carries no data
+        // cells: pairing header cells against one is meaningless (it reported a 1142 px misalignment
+        // that did not exist). Take the first row that actually carries data.
+        const bodyRow = [...body.querySelectorAll('tbody tr')].find(r => !r.classList.contains('win-pad'))
+          || body.querySelector('tbody tr');
+        const bodyCells = [...(bodyRow || { children: [] }).children];
         // Pair each header cell with the body cell whose left edge is NEAREST. A grouped header with
         // rowspan cells has different child indices from the body row it labels, so index pairing
         // would compare the wrong cells (this is exactly how I-103 defect 4 slipped through).
@@ -654,25 +677,65 @@ async function lintTableChrome(page, cfg) {
     const lock = await page.evaluate(async fsel => {
       const out = [];
       for (const frag of [...document.querySelectorAll('table.ds-table')].filter(t => t.offsetHeight && t.matches(fsel))) {
-        const sc = frag.parentElement && frag.parentElement.querySelector('.tableScroll');
+        // MDL I-116 — same one-container lookup as the pairing block above.
+        const lockCard = frag.closest('.splitcard') || frag.parentElement;
+        const sc = lockCard && lockCard.querySelector('.tableScroll');
         const leaf = [...frag.querySelectorAll('thead tr')].pop();
-        const cell = leaf && leaf.children[0];
-        if (!sc || !cell) continue;
+        if (!sc || !leaf) continue;
+        const cells = [...leaf.children];
+        // MDL I-116 — measure a NON-PINNED cell for the "moves with the body" claim and a PINNED one
+        // for the opposite claim. Measuring the first cell of a pinned pair would test the wrong thing:
+        // that cell is meant to stay put.
+        const plain = cells.find(c => c.tagName === 'TH' && !c.classList.contains('ds-pinned'));
+        const pin = cells.find(c => c.tagName === 'TH' && c.classList.contains('ds-pinned'));
+        // Force horizontal overflow so the lock-step is EXERCISED rather than skipped. A pair that
+        // happens to fit proves nothing about the case the design exists for: frozen columns on a
+        // table that scrolls sideways. Narrowing the SCROLLER (not the table) is what makes this real —
+        // the pair's own ResizeObserver re-syncs, exactly as it would on a genuine narrow viewport.
+        const forced = sc.scrollWidth - sc.clientWidth <= 1;
+        const oldW = sc.style.width;
+        // Narrow the BODY scroller AND the header's own scrollport by the same amount. Narrowing only
+        // the body leaves the header port wider than its content, so the header has nothing to scroll
+        // and the proof silently measures zero movement.
+        const port = frag.parentElement && frag.parentElement.classList.contains('vheadwrap') ? frag.parentElement : null;
+        const oldPW = port ? port.style.width : '';
+        if (forced) {
+          const w = Math.max(240, sc.clientWidth - 400) + 'px';
+          sc.style.width = w;
+          if (port) port.style.width = w;
+          await new Promise(r => setTimeout(r, 80));      // let the pair's ResizeObserver re-sync
+        }
         const max = sc.scrollWidth - sc.clientWidth;
-        const before = cell.getBoundingClientRect().left;
+        const p0 = plain ? plain.getBoundingClientRect().left : null;
+        const k0 = pin ? pin.getBoundingClientRect().left : null;
+        const bodyTbl = sc.querySelector('table');
+        const bPin = pin && bodyTbl ? bodyTbl.querySelector('tbody tr:not(.win-pad) td.ds-pinned') : null;
         sc.scrollLeft = max;
         await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-        const moved = before - cell.getBoundingClientRect().left;
+        const moved = p0 === null ? null : +(p0 - plain.getBoundingClientRect().left).toFixed(1);
+        const pinMoved = k0 === null ? null : +(k0 - pin.getBoundingClientRect().left).toFixed(1);
+        const pinGap = (bPin && pin) ? +Math.abs(pin.getBoundingClientRect().left - bPin.getBoundingClientRect().left).toFixed(1) : null;
         const scrolled = sc.scrollLeft;
         sc.scrollLeft = 0;
-        out.push({ i: [...document.querySelectorAll(fsel)].indexOf(frag), max, moved: +moved.toFixed(1), scrolled });
+        if (forced) { sc.style.width = oldW; if (port) port.style.width = oldPW; await new Promise(r => setTimeout(r, 80)); }
+        out.push({ i: [...document.querySelectorAll(fsel)].indexOf(frag), max, forced,
+                   moved, pinMoved, pinGap, scrolled });
       }
       return out;
     }, fragSel);
     lock.forEach(l => {
       if (l.max <= 1) { skipped(`split-header #${l.i}: header follows horizontal scroll — body does not scroll sideways`); return; }
-      ok(`split-header #${l.i}: header follows the body's horizontal scroll`,
+      const tag = l.forced ? ' (overflow forced — the pair fitted at this width)' : '';
+      if (l.moved !== null) ok(`split-header #${l.i}: header follows the body's horizontal scroll${tag}`,
         Math.abs(l.moved - l.scrolled) <= 2, `bodyScrolled=${l.scrolled}px headerMoved=${l.moved}px`);
+      // MDL I-116 — the frozen header cell must NOT travel, and must stay welded to the frozen body
+      // cell below it. That is the entire point of option (i): one mechanism in both halves.
+      if (l.pinMoved !== null) {
+        ok(`split-header #${l.i}: frozen header column stays put while the body scrolls${tag}`,
+          Math.abs(l.pinMoved) <= 1, `pinMoved=${l.pinMoved}px`);
+        ok(`split-header #${l.i}: frozen header stays aligned with its frozen body column${tag}`,
+          l.pinGap !== null && l.pinGap <= 1, `gap=${l.pinGap}px`);
+      }
     });
   }
 
@@ -856,13 +919,27 @@ async function lintL3(page) {
       const all = [...(b.closest('.panel') || document.body).querySelectorAll('table.ds-table')];
       return all.find(x => x.querySelector('tbody tr')) || all[0];
     };
-    const before = await page.evaluate(k => {
-      const t = (() => { const b = document.getElementById('ccBtn_' + k);
-        const all = [...(b.closest('.panel') || document.body).querySelectorAll('table.ds-table')];
-        // a grid-wired table is the one whose header cells carry data-col (fragments have none)
-        return all.find(x => x.querySelectorAll('thead th[data-col]').length > 1) || all[0]; })();
-      return { cols: t.querySelectorAll('colgroup col').length, th: t.querySelectorAll('thead th[data-col]').length };
-    }, key);
+    // I-116 — with a split header the three things live in TWO tables: the header cells are in the
+    // thead-only fragment and the data cells in the body-only table, and the fragment additionally
+    // carries a .ds-gut gutter column that is not a data column and must never be counted. Counting
+    // the gutter, and reading data cells from the fragment (which has no tbody), is what reported
+    // "cols 9→8, th 8→7, body cells 0" for a column that had in fact been removed correctly.
+    const snap = k => page.evaluate(kk => {
+      const b = document.getElementById('ccBtn_' + kk);
+      const all = [...(b.closest('.panel') || document.body).querySelectorAll('table.ds-table')];
+      const head = all.find(x => x.querySelectorAll('thead th[data-col]').length > 1);
+      const card = head && head.closest('.splitcard');
+      // the body half is the table with rows INSIDE the same container — not merely the first table
+      // with rows in the panel, which for this panel would be a different pair (the Rule Reference).
+      const body = (card && [...card.querySelectorAll('table.ds-table')].find(x => x.querySelector('tbody tr')))
+        || (head && head.querySelector('tbody tr') ? head : null);
+      const t = body || head || all[0];
+      const dataCols = x => [...x.querySelectorAll('colgroup col')].filter(c => !c.classList.contains('ds-gut')).length;
+      const row = t.querySelector('tbody tr:not(.win-pad)');
+      return { cols: dataCols(t), th: head ? head.querySelectorAll('thead th[data-col]').length : 0,
+               body: row ? [...row.children].filter(c => !c.classList.contains('ds-gut')).length : 0 };
+    }, k);
+    const before = await snap(key);
     // the fixed status bar / error banner overlay the header, so drive the popover in-page
     const n = await page.evaluate(k => {
       document.getElementById('ccBtn_' + k).click();
@@ -873,14 +950,7 @@ async function lintL3(page) {
       const b = document.querySelectorAll(`#ccPanel_${k} .cc-row input:not([disabled])`)[2];
       if (b) b.click();
     }, key);
-    const after = await page.evaluate(k => {
-      const b = document.getElementById('ccBtn_' + k);
-      const all = [...(b.closest('.panel') || document.body).querySelectorAll('table.ds-table')];
-      const t = all.find(x => x.querySelectorAll('thead th[data-col]').length > 1) || all[0];
-      const row = t.querySelector('tbody tr:not(.win-pad)');
-      return { cols: t.querySelectorAll('colgroup col').length, th: t.querySelectorAll('thead th[data-col]').length,
-               body: row ? row.children.length : 0 };
-    }, key);
+    const after = await snap(key);
     ok(`I-95: ${key} chooser hides one column — colgroup, header and body all shrink together`,
       after.cols === before.cols - 1 && after.th === before.th - 1 && after.body === after.cols,
       `cols ${before.cols}→${after.cols}, th ${before.th}→${after.th}, body cells ${after.body}`);
@@ -916,6 +986,27 @@ async function lintL3(page) {
     });
     ok('I-95: dragging a grip widens the column', after.w > w0 + 40, `${w0.toFixed(0)}px → ${after.w.toFixed(0)}px`);
     ok('I-95: the new width is persisted (D40)', !!after.stored && after.stored !== '{}', String(after.stored).slice(0, 60));
+    // MDL I-116 — put the column back where it was. The drag above deliberately widens a column, and
+    // the split-header "must fit" rule (§7.2.15 invariant 5) governs the SHIPPED DEFAULTS: the fit
+    // pass deliberately does not shrink a width the user chose. Leaving the widened state in place
+    // made the later fit check measure this test's own handiwork — an 89 px overflow against the
+    // 90 px drag, in a table that fits exactly when measured on its own. A check must restore the
+    // state it changed, or every check after it is measuring something else.
+    await page.evaluate(() => {
+      const g = document.querySelector('table.ds-table .ds-resize');
+      const r = g.getBoundingClientRect();
+      const x = r.x + r.width / 2, y = r.y + r.height / 2;
+      const opt = cx => ({ clientX: cx, clientY: y, bubbles: true, cancelable: true, pointerId: 1 });
+      g.dispatchEvent(new PointerEvent('pointerdown', opt(x)));
+      document.dispatchEvent(new PointerEvent('pointermove', opt(x - 90)));
+      document.dispatchEvent(new PointerEvent('pointerup', opt(x - 90)));
+    });
+    const restored = await page.evaluate(() => {
+      const t = document.querySelector('table.ds-table .ds-resize').closest('table');
+      return t.querySelectorAll('colgroup col')[0].getBoundingClientRect().width;
+    });
+    ok('I-95: the resize test restores the width it changed (so later checks see the defaults)',
+      Math.abs(restored - w0) <= 2, `${w0.toFixed(0)}px → ${restored.toFixed(0)}px`);
   } else skipped('I-95: column resize (no grip found)');
 
   // 4. windowing (I-96) — few rows drawn, full count reported, scroll height preserved

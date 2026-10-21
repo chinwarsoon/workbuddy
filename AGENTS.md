@@ -3,6 +3,7 @@
 | Revision | Date | Author | Summary |
 |---|---|---|---|
 | 1.1 | 2026-10-17 | Codex | Clarified cross-project issue record fields, status codes, lifecycle transitions, ID scope, and legacy-log preservation. |
+| 1.2 | 2026-10-20 | CodeBuddy (AI) | Added §5 Rule 18 — machine-enforceable ask-first approval gate for any change not explicitly discussed (rules 1–2 made operational). |
 
 ## 1. Projects
 
@@ -136,6 +137,22 @@ conda activate eks
    3. Recalculate canonical summaries and priority counts where present.
    4. Check ID uniqueness/sequence across the active log set and verify table formatting where applicable.
    5. Confirm no unrelated entries or historical content were removed or rewritten.
+
+18. **Ask-first (machine-enforceable approval gate)**: The AI assistant must request and receive explicit approval before any mutating action that was not discussed. A change counts as *discussed* only when the user has, in the current session, explicitly named the target (file, path, or artifact) and the intended outcome and responded affirmatively to the proposal. Inference, "obvious next steps", best-practice cleanups, and implied scope do not count as discussed. This rule operationalises Rules 1 and 2 of this section.
+
+   **a. Actions requiring approval**: create, edit, delete, rename, or move (including move-to-`archive/`) any file; `git` add, commit, push, reset, checkout, or branch operations; installing or upgrading dependencies; running build or test scripts that write files; changing schema or config values; and editing `AGENTS.md` itself or any file under `.codebuddy/`.
+
+   **b. Actions not requiring approval**: read-only operations, including read, grep, search, list, and read-only `git status`, `git diff`, `git log`, and `git show`.
+
+   **c. No bundling**: never combine an undiscussed change with an approved one. One proposal, one explicit decision.
+
+   **d. Stop-and-report**: defects discovered while working on an approved task must be reported and proposed as a separate change. Never fix inline "because it is clearly a bug".
+
+   **e. No implied consent**: approval is never inferred from silence, a partial answer, a prior session's memory, or a standing instruction about a different file.
+
+   **f. Proposal format**: every approval request must state the target file(s), the exact change, the rationale, the blast radius (what else reads or imports the target), and a rollback note.
+
+   **g. Scope freeze**: work outside an approved workplan's task list requires a new proposal (see §15).
 
 ## 6. Folder Convention (all projects)
 

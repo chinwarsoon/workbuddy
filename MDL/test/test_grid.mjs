@@ -122,6 +122,122 @@ ok('grid: the issue list shows all eight columns and pins Severity + Doc No',
   gi.hiddenCount() === 0 && gi.visible()[0].key === 'severity' && gi.visible()[1].key === 'docNo',
   gi.visible().map(c => c.key).join(','));
 
+// ---------- I-71: shared A3 text-action class (spec §7.1) ----------
+// `.btn-secondary` is the canonical A3 class. PPP's legacy `.dlBtn` / `.copyBtn` were migrated
+// to it on 2026-10-21 (PPP I-78), so both dashboards now use one shared name. The contract is
+// cross-project, so it is asserted here against both sources; harness-layout re-checks it in a
+// real browser. If PPP ever reverts to a parallel class, these fail.
+const PPP_HTML = fs.readFileSync(path.resolve(ROOT, '..', 'PPP', 'Procurement-Dashboard.html'), 'utf8');
+const SPEC_MD  = fs.readFileSync(path.resolve(ROOT, '..', 'Dashboard-UI-Design-Spec.md'), 'utf8');
+ok('I-71: MDL uses the canonical .btn-secondary and none of PPP\'s aliases',
+  html.includes('.btn-secondary{') && !html.includes('dlBtn') && !html.includes('copyBtn'),
+  'MDL carries no legacy alias name');
+ok('I-71: PPP migrated to the canonical .btn-secondary — old aliases gone, class governing',
+  PPP_HTML.includes('class="btn-secondary"') && !PPP_HTML.includes('dlBtn') && !PPP_HTML.includes('copyBtn')
+  && /,\s*\.btn-secondary\{/.test(PPP_HTML),
+  'markup renamed and .btn-secondary joined PPP\'s A3 rule (PPP I-78 closed 2026-10-21)');
+ok('I-71: both dashboards declare the same A3 geometry (no silent drift)',
+  ['font-size:12px', 'font-weight:600', 'line-height:1.2', 'min-height:32px', 'padding:7px 14px',
+   'border-radius:6px', 'gap:6px'].every(p => html.includes(p) && PPP_HTML.includes(p)),
+  '12 px / 600, line-height 1.2, 32 px min-height, 7 px 14 px padding, 6 px radius, 6 px gap');
+ok('I-71: the spec names .btn-secondary canonical and records PPP as migrated',
+  SPEC_MD.includes('**canonical** — conforming') && SPEC_MD.includes('migrated 2026-10-21'),
+  'spec and code stay in sync');
+
+// ---------- I-94 (part 2b): every filter control states its scope ----------
+// The controls live in the header / panel heads, which need a full render to mount, so this
+// asserts against the SHIPPED BUNDLE instead of driving the DOM. It still executes on
+// memory-constrained hosts and fails loudly if a scope statement is ever dropped.
+ok('I-94: the global Discipline chip states its scope',
+  /class="tf-btn" title="Applies to all panels/.test(html), 'chip title names the dashboard scope');
+ok('I-94: the global filter panel states its scope in its accessible name',
+  /aria-label="Filter every panel by \$\{esc\(d\.label\.toLowerCase\(\)\)\}"/.test(html),
+  'panel aria-label names the dashboard scope');
+ok('I-94: the Search control states its scope',
+  /id="searchToggle"[^>]*title="Applies to all panels/.test(html), 'search title names the dashboard scope');
+ok('I-94: the Overdue Type control states its scope',
+  /id="ovType"[^>]*title="Filters this table only/.test(html), 'Overdue Type names its own table');
+ok('I-94: the issue Rule control states its scope',
+  /id="vRule"[^>]*title="Filters this table only/.test(html), 'Rule names its own tables');
+ok('I-94: no control carries the opposite wording',
+  !/id="ovType"[^>]*Applies to all panels/.test(html)
+  && !/id="vRule"[^>]*Applies to all panels/.test(html)
+  && !/class="tf-btn"[^>]*Filters this table only/.test(html),
+  'global vs table-scope wordings stay mutually exclusive');
+
+// ---------- I-115: shared floating-panel ordering ----------
+// master "All <X>" -> note -> divider -> item list -> footer (action / count only).
+// Driven HERE rather than in test_render.mjs so it actually executes: the chooser is built
+// from the grid kit alone and needs no workbook, so this stays inside a few hundred MB.
+// (test_render.mjs needs ~10 GB for the 21 866-row issue list and OOMs on constrained hosts.)
+const OVERDUE_KEYS = ['Prolog Number', 'Document No.', 'Number', 'Document Title', 'UESH Discipline',
+  'Overdue Type', 'Planned 1st Issue Date', 'Forecast 1st Issue Date', 'Actual 1st Issue Date',
+  'Latest Approval Date', 'Latest Approval Status', 'Submission Status', 'Delay (days)'];
+const overdueCols = OVERDUE_KEYS.map(k => ({ key: k, label: k, sortable: true, type: 'text' }));
+const mountChooser = (key, cols) => {
+  const host = D.createElement('div'); D.body.appendChild(host);
+  const grid = makeGrid(key, cols); grid.chooser(host);
+  D.getElementById('ccBtn_' + key).click();                 // first open builds master + rows
+  return { grid, pop: D.getElementById('ccPanel_' + key), master: D.getElementById('ccAll_' + key) };
+};
+clean();
+const ov = mountChooser('overdue', overdueCols);
+const ovBoxes = [...ov.pop.querySelectorAll('.cc-row input')];
+ok('chooser: the panel leads with an "All columns" master',
+  !!ov.master && /All columns/.test(ov.master.closest('.cc-all').textContent)
+  && ov.pop.firstElementChild.classList.contains('cc-all'),
+  ov.pop.firstElementChild.className);
+ok('chooser: master -> divider -> item rows -> footer, in DOM order',
+  (() => { const k = [...ov.pop.children].map(c => c.className);
+           return k[0] === 'cc-all' && k[1] === 'cc-divider'
+               && k.filter(x => x === 'cc-row').length === OVERDUE_KEYS.length
+               && k[k.length - 1] === 'cf-foot'; })(),
+  [...ov.pop.children].map(c => c.className).join('>').slice(0, 62));
+ok('chooser: master starts checked when every column is shown',
+  ovBoxes.length === 13 && ov.master.checked === true && ov.master.indeterminate === false,
+  `cols=${ovBoxes.length} checked=${ov.master.checked}`);
+ovBoxes[12].checked = false;
+ovBoxes[12].dispatchEvent(new window.Event('change'));
+ok('chooser: master goes indeterminate when only some columns are hidden',
+  ov.master.checked === false && ov.master.indeterminate === true,
+  `checked=${ov.master.checked} ind=${ov.master.indeterminate}`);
+ok('chooser: footer count follows the selection (no stale "N hidden")',
+  ov.pop.querySelector('.cf-cnt').textContent === '1 hidden',
+  ov.pop.querySelector('.cf-cnt').textContent);
+ov.master.checked = true;
+ov.master.dispatchEvent(new window.Event('change'));
+ok('chooser: ticking the master restores every unpinned column',
+  ov.master.checked === true && ov.master.indeterminate === false
+  && ovBoxes.every(b => b.checked)
+  && ov.pop.querySelector('.cf-cnt').textContent === '0 hidden',
+  ov.pop.querySelector('.cf-cnt').textContent);
+ok('chooser: the master keeps no filter badge and no active-filter emphasis (§7.10 B7)',
+  !ov.pop.querySelector('.cc-all .tf-cnt') && !D.getElementById('ccBtn_overdue').classList.contains('is-filtered'));
+ok('chooser: no note where nothing is pinned (the overdue grid pins nothing)',
+  !ov.pop.querySelector('.cc-note'));
+// pinned columns: the master must range over the NON-pinned set only, and pinned
+// boxes must stay checked even when every unpinned column is hidden.
+const pin = mountChooser('issue', issueCols);
+const pinBoxes = [...pin.pop.querySelectorAll('.cc-row input')];
+ok('chooser: the note states the pinned rule only where columns are pinned',
+  /Pinned columns are always shown/.test(pin.pop.textContent) && pinBoxes.filter(b => b.disabled).length === 2);
+ok('chooser: master reads checked although two columns are pinned (non-pinned scope)',
+  pin.master.checked === true && pin.master.indeterminate === false,
+  `ind=${pin.master.indeterminate}`);
+pinBoxes.filter(b => !b.disabled).forEach(b => { b.checked = false; b.dispatchEvent(new window.Event('change')); });
+ok('chooser: pinned boxes stay checked while every unpinned column is hidden',
+  pin.master.checked === false && pin.master.indeterminate === false
+  && pinBoxes.filter(b => b.disabled).every(b => b.checked),
+  `hidden=${pin.grid.hiddenCount()}`);
+// Reset to defaults must not be able to uncheck the master (id ccAll_<key> never
+// matches the cc_<key>_ strip), and must restore the full core view.
+pin.pop.querySelector('.cf-foot button').click();
+ok('chooser: Reset to defaults restores the core view and re-syncs the master',
+  pin.master.checked === true && pin.master.indeterminate === false
+  && pin.grid.hiddenCount() === 0
+  && pinBoxes.every(b => b.checked),
+  `hidden=${pin.grid.hiddenCount()}`);
+
 // ---------- I-96: windowed rendering ----------
 clean();
 ok('windowing threshold is 500 rows (D39)', ctx.__wt === 500, String(ctx.__wt));

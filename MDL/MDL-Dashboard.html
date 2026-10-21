@@ -851,11 +851,14 @@ select.inter-sel.is-attached{border:0;border-right:1px solid var(--border);backg
 .search-btn{background:var(--accent);color:#fff;border:0;border-radius:0 6px 6px 0;min-height:28px;padding:0 12px;cursor:pointer;font-size:13px;line-height:1}
 .search-btn:hover{filter:brightness(.97)}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);border:0}
-.tf-panel .tf-all{display:flex;align-items:center;gap:8px;padding:2px 2px 8px;font-size:12px;cursor:pointer}
+.tf-panel .tf-all{display:flex;align-items:center;gap:8px;padding:2px;font-size:12px;cursor:pointer}
 .tf-panel .tf-all input{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0}
 .tf-panel .tf-all b{font-weight:700}
 .tf-panel .tf-divider{height:1px;background:var(--border);margin:2px 0 6px}
-.tf-panel .tf-hint{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);line-height:1.35}
+/* I-115 — the note sits directly under the master, above the divider. Both panels are capped
+   scrollers, so a trailing note was unreachable until the item list was scrolled to the end;
+   grouping it with the master keeps the control's rule next to the control it describes. */
+.tf-panel .tf-hint{margin:2px 2px 6px;font-size:10px;color:var(--muted);line-height:1.35}
 .tf-panel .tf-item{display:flex;align-items:center;gap:8px;padding:5px 2px;font-size:12px;cursor:pointer;border-radius:4px}
 .tf-panel .tf-item:hover{background:var(--soft)}
 .tf-panel .tf-item input{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0}
@@ -962,6 +965,22 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .splitcard .tableScroll{border:0;border-radius:0;margin-top:0}
 /* the matrix shell — same job as .vrefcard for the Rule Reference */
 .matrixcard{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:6px 0}
+/* §7.2.15 (1) — ONE bordered, rounded container for a split-header pair. The two shells above keep
+   their own radii for the panels that already ship them; this is the generic shell for a
+   split-header table that arrives with none of its own (MDL I-116). */
+.splitbox{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:6px 0}
+/* MDL I-116 (option i) — the header fragment sits in a CLIPPED scrollport that script scrolls in
+   lock-step with the body scroller. Chosen over translating the fragment because it lets a pinned
+   header cell stay put with position:sticky, exactly as the pinned body cell below it does — one
+   mechanism in both halves, so header and body cannot disagree. */
+.splitcard .vheadwrap{overflow:hidden}
+/* MDL I-116 — a pinned header cell must use the SAME mechanism as the pinned body cell below it:
+   sticky, not relative. §7.2.15 invariant 2 keeps a fragment cell position:relative so it stays a
+   containing block for the ::after column rule, but the grid emits a left offset on every pinned
+   cell, and "left" means a sticky offset for sticky and a VISUAL DISPLACEMENT for relative — which
+   slid the pinned "Doc No" header 70 px clear of its own column. Sticky is also a positioned value,
+   so the column rule still paints. */
+.splitcard .vheadtab thead th.ds-pinned{position:sticky;z-index:4}
 /* §7.2.15 — SPLIT HEADER. The thead element lives OUTSIDE the scroller, so the vertical
    scrollbar starts BELOW the header row instead of running alongside it. The two
    fragments must share one column grid: both are table-layout:fixed carrying the SAME
@@ -1105,6 +1124,14 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .cc-panel .cc-row .cc-lbl{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cc-panel .cc-row .cc-pin{font-size:10px;color:var(--muted);flex:0 0 auto}
 .cc-panel .cc-row input:disabled+ .cc-lbl{color:var(--muted)}
+/* I-115 — the chooser adopts the SAME internal ordering as .tf-panel: master "All columns"
+   → note → divider → items → footer. Only the class names differ (§7.10 B7): a layout control
+   still gets no count badge and no active-filter emphasis, so it cannot be read as a filter. */
+.cc-panel .cc-all{display:flex;align-items:center;gap:8px;padding:2px;font-size:12px;cursor:pointer}
+.cc-panel .cc-all input{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0}
+.cc-panel .cc-all .cc-lbl{flex:1 1 auto;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cc-panel .cc-note{margin:2px 2px 6px;font-size:10px;color:var(--muted);line-height:1.35}
+.cc-panel .cc-divider{height:1px;background:var(--border);margin:0 0 6px}
 .cc-panel .cf-foot{display:flex;align-items:center;gap:8px;padding:8px 2px 2px;margin-top:6px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
 .cc-panel .cf-foot .cf-cnt{margin-left:auto}
 .cc-panel .cf-foot button{font:inherit;font-size:11px;color:var(--accent);background:transparent;border:0;padding:0;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
@@ -1632,7 +1659,10 @@ function renderDashboard(root, model){
   root.innerHTML = `<style>${CSS}</style>`;
   const header = document.createElement('header'); header.className='app';
   const titleText = model.meta.projectTitle || (model.meta.workbookName ? model.meta.workbookName.replace(/\.(xlsx|xlsm)$/i,'') : 'Dashboard');
-  const filterBtn = d => `<div class="tf-wrap"><button id="tfBtn_${d.key}" class="tf-btn" aria-expanded="false" aria-haspopup="true" aria-controls="tfPanel_${d.key}">${esc(d.label)}<span class="tf-cnt" id="tfCnt_${d.key}"></span></button><div class="tf-panel" id="tfPanel_${d.key}" role="group" aria-label="Filter documents by ${esc(d.label.toLowerCase())}" hidden></div></div>`;
+  // I-94 (part 2b) — the control states the scope it acts on: the menu-bar filters are GLOBAL, so the
+// tooltip and the panel's accessible name both say so, which is what distinguishes them from the
+// panel-local controls (Overdue Type / Rule) that carry the opposite wording.
+const filterBtn = d => `<div class="tf-wrap"><button id="tfBtn_${d.key}" class="tf-btn" title="Applies to all panels — filters the whole dashboard" aria-expanded="false" aria-haspopup="true" aria-controls="tfPanel_${d.key}">${esc(d.label)}<span class="tf-cnt" id="tfCnt_${d.key}"></span></button><div class="tf-panel" id="tfPanel_${d.key}" role="group" aria-label="Filter every panel by ${esc(d.label.toLowerCase())}" hidden></div></div>`;
   const colOpts = model.contract.fieldOrder.map(f => `<option value="${esc(f)}"${f==='Document No.'?' selected':''}>${esc(f)}</option>`).join('');
   // Bug-fix: .sub rendered conditionally — only when dashboardTitle is set (fixes "dashboard
   // title not hard-coded when absent" test failure; previously always rendered with '|| Dashboard').
@@ -1642,7 +1672,7 @@ function renderDashboard(root, model){
   // Row 1 (title bar): logo + title block only — no action buttons here (spec §3.1).
   // Row 2 (menu bar): left actions cluster + right filter group; borderless, text-only, hover-highlight.
   header.innerHTML = `<div class="app-top"><div class="brand"><img class="logo" src="${LOGO_DATA}" alt="logo"><div class="ttl-stack"><h1 class="ttl">${esc(titleText)}</h1>${subLine}<div class="meta">Project start ${esc(model.meta.projectStartDate || '—')} · as of ${esc(model.meta.today)}</div></div></div></div>
-<div class="app-menu"><div class="actions"><button id="reload" class="btn btn-primary">Load Workbook</button><button id="aPrint" class="btn">Print / Save PDF</button></div><div class="filter-group">${defs.map(filterBtn).join('')}<div class="tf-wrap"><button id="searchToggle" class="btn" type="button" aria-haspopup="dialog" aria-controls="searchPanel">Search</button><div class="tf-panel search-panel" id="searchPanel" role="dialog" aria-label="Search documents"><div class="search-row"><div class="search" style="flex:1 1 auto;width:auto;min-width:240px;max-width:none"><select id="fCol" class="inter-sel is-attached" aria-label="Search column">${colOpts}</select><input id="fSearch" class="search-input" type="search" value="${esc(STATE.search)}" placeholder="Search Document No.…" aria-label="Search value"></div><button id="fGo" class="btn btn-primary" type="button">Find</button><button id="fReset" class="btn" type="button">Reset</button></div></div></div><button id="warnBtn" class="btn warn-toggle" aria-pressed="false" aria-label="Data-quality warnings (0)" hidden><span class="badge">0</span> <span id="warnLabel">Warnings</span></button></div></div>`;
+<div class="app-menu"><div class="actions"><button id="reload" class="btn btn-primary">Load Workbook</button><button id="aPrint" class="btn">Print / Save PDF</button></div><div class="filter-group">${defs.map(filterBtn).join('')}<div class="tf-wrap"><button id="searchToggle" class="btn" type="button" title="Applies to all panels — filters the whole dashboard" aria-haspopup="dialog" aria-controls="searchPanel">Search</button><div class="tf-panel search-panel" id="searchPanel" role="dialog" aria-label="Search documents — filters every panel"><div class="search-row"><div class="search" style="flex:1 1 auto;width:auto;min-width:240px;max-width:none"><select id="fCol" class="inter-sel is-attached" aria-label="Search column">${colOpts}</select><input id="fSearch" class="search-input" type="search" value="${esc(STATE.search)}" placeholder="Search Document No.…" aria-label="Search value"></div><button id="fGo" class="btn btn-primary" type="button">Find</button><button id="fReset" class="btn" type="button">Reset</button></div></div></div><button id="warnBtn" class="btn warn-toggle" aria-pressed="false" aria-label="Data-quality warnings (0)" hidden><span class="badge">0</span> <span id="warnLabel">Warnings</span></button></div></div>`;
   root.appendChild(header);
   // Wire the header search control: single column, commit on Enter (or button); Esc clears.
   // The control lives in a collapsible Search panel (spec §4.7 / §5.1) — the "Search" button toggles it.
@@ -2027,10 +2057,11 @@ function wireFilterChips(model, state, rerender, dataOnly){
     const p = el('tfPanel_', d); if(!p) return;
     p.hidden = true;
     const allChk = isBaseSet(d, state);
+    // I-115 — ordering: master "All <dimension>" → note → divider → item list.
     p.innerHTML = `<label class="tf-all"><input type="checkbox" id="tfAll_${d.key}" ${allChk?'checked':''}> <b>All ${esc(d.label)}</b></label>
+      <div class="tf-hint">Changes apply when this list is closed.</div>
       <div class="tf-divider"></div>
-      <div class="tf-list">${optsOf(d).map(v => { const off=(d.noCount||[]).includes(v); return `<label class="tf-item${off?' tf-nc':''}" title="${off?'Present in the list but never counted until you tick it':''}"><input type="checkbox" value="${esc(v)}" ${state[d.key].has(v) ? 'checked' : ''}><span>${esc(v === '' ? '（blank）' : v)}</span>${off?'<span class="nc">not counted</span>':''}</label>`; }).join('')}</div>
-      <div class="tf-hint">Changes apply when this list is closed.</div>`;
+      <div class="tf-list">${optsOf(d).map(v => { const off=(d.noCount||[]).includes(v); return `<label class="tf-item${off?' tf-nc':''}" title="${off?'Present in the list but never counted until you tick it':''}"><input type="checkbox" value="${esc(v)}" ${state[d.key].has(v) ? 'checked' : ''}><span>${esc(v === '' ? '（blank）' : v)}</span>${off?'<span class="nc">not counted</span>':''}</label>`; }).join('')}</div>`;
     const master = p.querySelector('#tfAll_' + d.key);
     const boxes = [...p.querySelectorAll('.tf-item input[type=checkbox]')];
     const applyBoxes = () => {
@@ -2332,6 +2363,9 @@ function makeGrid(key, cols){
   let widths = {};
   try { widths = JSON.parse(getPref(key + '_widths', '') || '{}') || {}; } catch(e) { widths = {}; }
   Object.keys(widths).forEach(k => { if(!known.has(k)) delete widths[k]; });
+  // true once the user has resized anything: a deliberate width choice is respected and never
+  // auto-shrunk (see grid.fit below — the fit pass is for the shipped defaults, not the user's).
+  const custom = Object.keys(widths).length > 0;
   let others = [];
   const raw = getPref(key + '_cols', '');
   others = raw ? raw.split(',').filter(k => known.has(k) && !pinned.includes(k)) : core.filter(k => !pinned.includes(k));
@@ -2392,6 +2426,32 @@ function makeGrid(key, cols){
       widths[k] = Math.max(def.min || 60, Math.min(def.max || 640, Math.round(px)));
       if(persist) setPref(key + '_widths', JSON.stringify(widths));
     },
+    // §7.2.15 invariant 5 (clarified 2026-10-21, MDL I-116) — the table MUST fit the display area
+    // whenever fitting is achievable, because a default wider than the display area is a
+    // non-conformant width choice, not an unavoidable constraint. Fitting is ACHIEVABLE when the sum
+    // of the columns' minimum widths is <= the available width; when it is not, horizontal scrolling
+    // is genuinely unavoidable and the caller leaves the scrollbar (and proves lock-step instead).
+    // Shrink proportionally to each column's slack above its floor, so a wide column gives up more
+    // than a narrow one. Never persisted: a fit is a property of the CURRENT viewport, not a width
+    // choice, and re-deriving it each render is what makes it correct across viewport changes.
+    fit(available) {
+      const cols = visible();
+      if(!cols.length || !(available > 0) || custom) return false;
+      const min = def.min || 60, max = def.max || 640;
+      const total = cols.reduce((a, c) => a + widthOf(c.key), 0);
+      if(total <= available) return false;                                  // already fits
+      const floor = cols.reduce((a, c) => a + Math.min(widthOf(c.key), min), 0);
+      if(floor >= available) return false;                                  // unavoidable — scrollbar
+      const over = total - available;
+      const slack = cols.reduce((a, c) => a + Math.max(0, widthOf(c.key) - min), 0);
+      if(!slack) return false;
+      cols.forEach(c => {
+        const w = widthOf(c.key);
+        widths[c.key] = Math.min(max, Math.max(min,
+          Math.round(w - over * (Math.max(0, w - min) / slack))));
+      });
+      return true;                                                          // caller must repaint
+    },
     resetWidths() {
       widths = {};
       setPref(key + '_widths', '{}');
@@ -2412,7 +2472,41 @@ function makeGrid(key, cols){
     const pop = document.createElement('div'); pop.className = 'cc-panel'; pop.id = 'ccPanel_' + key;
     pop.setAttribute('role', 'group'); pop.setAttribute('aria-label', 'Choose the columns to show'); pop.hidden = true;
     let built = false;
+    // I-115 — the chooser adopts the same internal ordering as .tf-panel: master → note →
+    // divider → items → footer. The master ranges over the NON-PINNED columns only: pinned
+    // identity columns are permanently checked and disabled (see the row builder below), so
+    // a master over the full set could never read as checked. Tri-state: checked = every
+    // non-pinned column shown, indeterminate = some hidden, unchecked = all hidden.
+    const freeCols = () => cols.filter(c => !pinned.includes(c.key));
+    const boxEls = () => [...pop.querySelectorAll('.cc-row input')];
+    let mcb = null, footCnt = null;
+    const syncMaster = () => {
+      const f = freeCols(), on = f.filter(c => others.includes(c.key)).length;
+      if(mcb){ mcb.checked = !!f.length && on === f.length; mcb.indeterminate = on > 0 && on < f.length; }
+      if(footCnt) footCnt.textContent = `${grid.hiddenCount()} hidden`;
+    };
     const build = () => { if(built) return; built = true;
+      const head = document.createElement('div'); head.className = 'cc-all';
+      mcb = document.createElement('input'); mcb.type = 'checkbox'; mcb.id = 'ccAll_' + key;
+      const mlbl = document.createElement('label'); mlbl.className = 'cc-lbl'; mlbl.htmlFor = mcb.id;
+      const mtxt = document.createElement('b'); mtxt.textContent = 'All columns';
+      mlbl.appendChild(mtxt);
+      head.appendChild(mcb); head.appendChild(mlbl);
+      pop.appendChild(head);
+      // note: only meaningful where identity columns are pinned/locked
+      if(pinned.length){
+        const note = document.createElement('div'); note.className = 'cc-note';
+        note.textContent = 'Pinned columns are always shown.';
+        pop.appendChild(note);
+      }
+      const div = document.createElement('div'); div.className = 'cc-divider';
+      pop.appendChild(div);
+      mcb.addEventListener('change', () => {
+        others = mcb.checked ? freeCols().map(c => c.key) : [];
+        setPref(key + '_cols', others.join(','));
+        boxEls().forEach(b => { if(!b.disabled) b.checked = mcb.checked; });
+        syncMaster(); label(); if(grid.refresh) grid.refresh();
+      });
       cols.forEach(c => {
         const row = document.createElement('div'); row.className = 'cc-row';
         const cb = document.createElement('input'); cb.type = 'checkbox'; cb.id = 'cc_' + key + '_' + c.key;
@@ -2423,7 +2517,7 @@ function makeGrid(key, cols){
           if(cb.checked) { if(!others.includes(c.key)) others.push(c.key); }
           else others = others.filter(k => k !== c.key);
           setPref(key + '_cols', others.join(','));
-          label(); if(grid.refresh) grid.refresh();
+          syncMaster(); label(); if(grid.refresh) grid.refresh();
         });
         const lbl = document.createElement('label'); lbl.className = 'cc-lbl'; lbl.htmlFor = cb.id; lbl.textContent = c.label;
         row.appendChild(cb); row.appendChild(lbl);
@@ -2432,47 +2526,61 @@ function makeGrid(key, cols){
       });
       const foot = document.createElement('div'); foot.className = 'cf-foot';
       foot.innerHTML = `<span class="cf-cnt">${grid.hiddenCount()} hidden</span><button type="button">Reset to defaults</button>`;
+      footCnt = foot.querySelector('.cf-cnt');
       foot.querySelector('button').onclick = () => {
         others = core.filter(k => !pinned.includes(k));
         setPref(key + '_cols', others.join(','));
-        pop.querySelectorAll('input').forEach(i => { i.checked = i.disabled || others.includes(i.id.replace('cc_' + key + '_', '')); });
-        label(); if(grid.refresh) grid.refresh();
+        boxEls().forEach(i => { i.checked = i.disabled || others.includes(i.id.replace('cc_' + key + '_', '')); });
+        syncMaster(); label(); if(grid.refresh) grid.refresh();
       };
       pop.appendChild(foot);
+      syncMaster();
     };
     wrap.appendChild(pop);
     host.insertBefore(wrap, host.firstChild);
     btn.onclick = e => { e.stopPropagation(); cfToggle({ wrap, btn, pop, build }); };
   };
   // --- column resize: 6 px grip per header, pointer drag, double-click auto-fit ---
-  grid.resizer = table => {
-    const grips = () => [...table.querySelectorAll('.ds-resize')];
+  // MDL I-116 — with a split header the header cells live in their own table, so the two halves must
+  // be resized as one: the grip is attached to (and clicked in) the header table, while the resulting
+  // width is written to BOTH colgroups and the sticky offsets are re-applied to BOTH halves. A table
+  // with its thead inside the scroller passes no headTable and behaves exactly as before.
+  grid.resizer = (table, headTable) => {
+    const host = headTable || table;                        // where the header cells and grips live
+    const halves = headTable ? [host, table] : [table];     // every colgroup / pinned set to update
+    const colAt = i => halves.map(t => colEls(t)[i]).filter(Boolean);
+    const grips = () => [...host.querySelectorAll('.ds-resize')];
     // add the grip to every header cell (idempotent — the header is rebuilt on sort)
     const addGrips = () => visible().forEach((c, i) => {
-      const th = table.querySelectorAll('thead th')[i]; if(!th || th.querySelector('.ds-resize')) return;
+      const th = host.querySelectorAll('thead th')[i]; if(!th || th.querySelector('.ds-resize')) return;
       const g = document.createElement('span'); g.className = 'ds-resize'; g.dataset.col = c.key;
       g.title = 'Drag to resize · double-click to fit';
       th.appendChild(g);
     });
     addGrips();
-    table.addEventListener('pointerdown', e => {
+    // one write, both halves — a width that reaches only one colgroup is a visible misalignment
+    const setWidth = (k, w) => {
+      colAt(visible().findIndex(c => c.key === k)).forEach(col => { col.style.width = w + 'px'; });
+      halves.forEach(applyOffsets);
+    };
+    host.addEventListener('pointerdown', e => {
       const g = e.target.closest && e.target.closest('.ds-resize'); if(!g) return;
       e.preventDefault();
       const k = g.dataset.col;
       const idx = visible().findIndex(c => c.key === k);
-      const col = colEls(table)[idx]; if(!col) return;
+      const col = colEls(host)[idx]; if(!col) return;
       const startW = col.getBoundingClientRect().width || grid.widthOf(k);
       const startX = e.clientX;
       g.classList.add('active');
       const move = ev => {
-        grid.setWidth(k, startW + (ev.clientX - startX), false);
-        col.style.width = grid.widthOf(k) + 'px';
-        applyOffsets(table);
+        const w = startW + (ev.clientX - startX);
+        grid.setWidth(k, w, false);
+        setWidth(k, w);
       };
       const up = ev => {
-        grid.setWidth(k, startW + (ev.clientX - startX), true);
-        col.style.width = grid.widthOf(k) + 'px';
-        applyOffsets(table);
+        const w = startW + (ev.clientX - startX);
+        grid.setWidth(k, w, true);
+        setWidth(k, w);
         g.classList.remove('active');
         document.removeEventListener('pointermove', move);
         document.removeEventListener('pointerup', up);
@@ -2480,17 +2588,18 @@ function makeGrid(key, cols){
       document.addEventListener('pointermove', move);
       document.addEventListener('pointerup', up);
     });
-    table.addEventListener('dblclick', e => {
+    host.addEventListener('dblclick', e => {
       const g = e.target.closest && e.target.closest('.ds-resize'); if(!g) return;
       const k = g.dataset.col;
       const idx = visible().findIndex(c => c.key === k);
-      const col = colEls(table)[idx]; if(!col) return;
-      const cells = [...table.querySelectorAll(`tbody td[data-col="${k}"],thead th[data-col="${k}"]`)];
+      const col = colEls(host)[idx]; if(!col) return;
+      // auto-fit measures the widest real cell: body values AND the header label, in both halves
+      const cells = halves.reduce((a, t) => a.concat(
+        [...t.querySelectorAll(`tbody td[data-col="${k}"],thead th[data-col="${k}"]`)]), []);
       const w = Math.max((def.min || 60), Math.min((def.max || 640),
         ...cells.map(c => Math.ceil(c.scrollWidth) + 20)));
       grid.setWidth(k, w, true);
-      col.style.width = grid.widthOf(k) + 'px';
-      applyOffsets(table);
+      setWidth(k, w);
     });
     return { addGrips };
   };
@@ -2504,23 +2613,74 @@ function makeGrid(key, cols){
 //     width while the DATA columns match the body exactly (sizing to the scroller instead leaves the
 //     header narrower than an overflowing body, and sizing to clientWidth leaves a white notch);
 //   * --ds-sbw = the scrollbar width, reserved by the fragment's trailing gutter column;
-//   * translateX(-scrollLeft) keeps the header over the body when it scrolls sideways;
+//   * the fragment sits in a clipped scrollport (.vheadwrap) whose scrollLeft is set to the body
+//     scroller's. MDL I-116 option (i): chosen over translateX(-scrollLeft) because a pinned header
+//     cell can then stay put with position:sticky, exactly as the pinned body cell below it does —
+//     ONE mechanism in both halves, so they cannot disagree. Both scrollports are the same width, so
+//     the scrollable overflow, and therefore every column boundary, matches at any offset;
 //   * ResizeObserver, not a window resize listener — a scrollbar can appear or vanish with no resize.
 function wireSplitHeader(panel, headSel, bodySel){
   const hd = panel.querySelector(headSel), sc = panel.querySelector(bodySel);
-  if(!hd || !sc) return;
-  const sync = () => {
+  // §7.2.15 (6) — one implementation. Every split header ships the .vheadwrap scrollport; a
+  // fragment without one is a wiring mistake, not a case to fall back for.
+  const port = hd && hd.parentElement && hd.parentElement.classList.contains('vheadwrap') ? hd.parentElement : null;
+  if(!hd || !sc || !port) return;
+  // MDL I-116 — ONE column grid means the fragment's DATA columns are the body's own rendered widths
+  // and every leftover pixel belongs to the gutter. Both tables are `width:100%; table-layout:fixed`,
+  // so whenever the columns sum to LESS than the display area the browser spreads the slack across the
+  // columns — and it does that for the fragment but not for the body, which desynchronised every
+  // boundary (the Issue grid drifted 212 px at the last column). Driving each data column from the
+  // body's REAL width and handing the remainder to the gutter makes the halves identical by
+  // construction rather than by coincidence.
+  const syncWidth = () => {
     const bt = sc.querySelector('table');
     const bw = bt ? bt.offsetWidth : sc.clientWidth;
     const sb = Math.max(0, sc.offsetWidth - sc.clientWidth);
     hd.style.setProperty('--ds-sbw', sb + 'px');
     hd.style.width = (bw + sb) + 'px';
-    hd.style.transform = 'translateX(' + (-sc.scrollLeft) + 'px)';
+    const cols = [...hd.querySelectorAll('colgroup col')];
+    const gut = cols.length ? cols[cols.length - 1] : null;
+    const hasGut = !!gut && gut.classList.contains('ds-gut');
+    const data = hasGut ? cols.slice(0, -1) : cols;
+    // a windowed body may not have painted a row yet — fall back to the declared colgroup
+    const row = bt ? [...bt.querySelectorAll('tbody tr')].find(r => r.children.length > 1) : null;
+    const cells = row ? [...row.children] : [];
+    let sum = 0;
+    data.forEach((c, i) => {
+      const w = cells[i] ? cells[i].getBoundingClientRect().width : parseFloat(c.style.width);
+      if(!(w > 0)) return;
+      c.style.width = w + 'px';
+      sum += w;
+    });
+    if(hasGut) gut.style.width = Math.max(0, (bw + sb) - sum) + 'px';
   };
+  const syncScroll = () => { if(port.scrollLeft !== sc.scrollLeft) port.scrollLeft = sc.scrollLeft; };
+  const sync = () => { syncWidth(); syncScroll(); };
   sync();
-  sc.addEventListener('scroll', sync, { passive: true });
+  sc.addEventListener('scroll', syncScroll, { passive: true });
   if(typeof ResizeObserver === 'function') new ResizeObserver(sync).observe(sc);
   else window.addEventListener('resize', sync);
+  // the column set can change with no resize at all (chooser, sort rebuild, fit pass), and each of
+  // those rewrites the BODY colgroup — so that rewrite is what re-syncs the pair. Writing only to the
+  // fragment's columns keeps this from feeding back on itself.
+  const bt = sc.querySelector('table');
+  if(bt && typeof MutationObserver === 'function'){
+    const cg = bt.querySelector('colgroup');
+    if(cg) new MutationObserver(sync).observe(cg, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+  }
+}
+// §7.2.15 invariant 5 (I-116) — the pair MUST fit the display area whenever it can. The fit is
+// re-derived whenever the scroller resizes: measuring once at render time is wrong (the panel has not
+// reached its final width — that alone left 89 px of overflow), and a window resize listener misses a
+// scrollbar appearing with no resize event. Re-fitting is idempotent: once the columns fit, the
+// grid's fit pass does nothing, so this cannot loop.
+function fitToScroller(grid, sc, repaint){
+  if(!sc) return;
+  const run = () => { if(grid.fit(sc.clientWidth)) repaint(); };
+  run();
+  requestAnimationFrame(run);
+  if(typeof ResizeObserver === 'function') new ResizeObserver(run).observe(sc);
+  else window.addEventListener('resize', run);
 }
 
 function renderMatrix(panel, matrix, months, curMonth){
@@ -2585,7 +2745,7 @@ function renderMatrix(panel, matrix, months, curMonth){
     // §18 split-header contract (1): header + body share ONE bordered, rounded container, so the pair
     // reads as a single table with continuous corners instead of a square header over a rounded box.
     + `<div class="matrixcard splitcard">`
-    + `<table class="matrix ds-table vheadtab" id="matrixHead"><caption class="sr-only">Discipline Summary Matrix — column headers.</caption>${headFrag}<thead>${matrixThead()}</thead></table>`
+    + `<div class="vheadwrap"><table class="matrix ds-table vheadtab" id="matrixHead"><caption class="sr-only">Discipline Summary Matrix — column headers.</caption>${headFrag}<thead>${matrixThead()}</thead></table></div>`
     + `<div class="tableScroll"><table class="matrix ds-table" id="matrixBody"><caption class="sr-only">Discipline Summary Matrix — a cross-tab of document counts by discipline per month, with a TOTAL row that is always last.</caption>${headBody}<tbody>${rows}</tbody>${tfoot}</table></div>`
     + `</div></div>`;
   const subRowsHTML = m => (m?m.stages:[]).map(s=>`<tr class="sub"><td class="subname">${esc(s.stage)}</td><td>${s.Planned}</td><td>${s.Submitted}</td><td${tint}>${s.PlanMo}</td><td${tint}>${s.FcastMo}</td><td${tint}>${s.ActualMo}</td><td>${s.Approved}</td><td>${s.AWC}</td><td>${s.REJ}</td><td>${s.NAP}</td><td>${s.ov1}</td><td>${s.ov2}</td><td>${s.ov3}</td><td></td></tr>`).join('');
@@ -2783,7 +2943,13 @@ function renderOverdue(panel, o, model){
   // L3 grid (I-95): widths / chooser / resize. The grid decides column order & widths; the
   // renderer only fills cells. (No columns pinned, so the current left-to-right order is kept.)
   const grid = makeGrid('overdue', overdueCols);
-  const ovHeadRow = ()=>grid.headRow(osort);
+  // §7.2.15 — the header row carries the gutter CELL as well as the gutter column, so the fragment's
+  // column count matches its <colgroup> and the navy runs the full card width (the matrix and the
+  // Rule Reference do the same). It is aria-hidden: it is not a column, it reserves the scrollbar.
+  const ovHeadRow = ()=>grid.headRow(osort).replace('</tr>', '<th class="ds-gut" aria-hidden="true"></th></tr>');
+  // §7.2.15 (4) — ONE column grid: the header fragment carries the body's columns plus the trailing
+  // .ds-gut gutter that reserves the scrollbar width, so the navy runs the full card width.
+  const ovFragCols = ()=>grid.colgroupHTML().replace('</colgroup>', '<col class="ds-gut" style="width:var(--ds-sbw,0px)"></colgroup>');
   const ovRow = x=>`<tr class="over">${grid.visible().map(c=>grid.td(c, esc(colVal(c,x)), c.num?'num':'')).join('')}</tr>`;
   // an empty result must say WHY: filtered-out rows are a different story from "no overdue data"
   const ovEmpty = tf=>`<tr><td class="empty" colspan="${grid.visible().length}">${(rows.length<recs.length||tf)?'No overdue documents match the current filter.':'No overdue documents'}</td></tr>`;
@@ -2795,7 +2961,7 @@ function renderOverdue(panel, o, model){
       <h2>Overdue List</h2>
       <div class="head-actions">
         <label class="lbl">Overdue Type:
-          <select class="inter-sel" id="ovType">
+          <select class="inter-sel" id="ovType" title="Filters this table only — the Overdue List" aria-label="Filter the Overdue List by type — this table only">
             <option value="">All</option>
             ${OVERDUE_TYPES.map(t=>`<option value="${t.label}">${t.label}</option>`).join('')}
           </select>
@@ -2804,8 +2970,12 @@ function renderOverdue(panel, o, model){
         <span class="cnt" id="ovCnt">${cntText}</span>
       </div>
     </div>
-    <div class="tableScroll"><table class="ds-table"><caption class="sr-only">Overdue List — documents past their planned or forecast issue date, with the delay in days.</caption>${grid.colgroupHTML()}<thead>${ovHeadRow()}</thead><tbody id="ovBody">${tbody('')}</tbody></table></div>`;
+    <div class="splitbox splitcard">`
+    + `<div class="vheadwrap"><table class="ds-table vheadtab" id="ovHead"><caption class="sr-only">Overdue List — column headers.</caption>${ovFragCols()}<thead>${ovHeadRow()}</thead></table></div>`
+    + `<div class="tableScroll"><table class="ds-table"><caption class="sr-only">Overdue List — documents past their planned or forecast issue date, with the delay in days.</caption>${grid.colgroupHTML()}<tbody id="ovBody">${tbody('')}</tbody></table></div>`
+    + `</div>`;
   const tbl = panel.querySelector('.tableScroll table');
+  const ovHead = panel.querySelector('#ovHead');
   const sc = panel.querySelector('.tableScroll');
   const sel=panel.querySelector('#ovType');
   const headActions = panel.querySelector('.head-actions');
@@ -2819,16 +2989,26 @@ function renderOverdue(panel, o, model){
   };
   // -- L3 grid (I-95): chooser + resize. The header is rebuilt on every sort, so the grips are
   //    re-attached in the sort callback and whenever the grid refreshes (chooser). --
-  const oResize = grid.resizer(tbl);
+  // I-116 — the header now lives in its own table, so the resizer is given BOTH halves: grips are
+  // attached in the fragment, and every width is written to both colgroups.
+  const oResize = grid.resizer(tbl, ovHead);
   grid.chooser(headActions);
   grid.refresh = () => {
     const cg = tbl.querySelector('colgroup'); if(cg) cg.innerHTML = grid.colgroupHTML().replace(/^<colgroup>|<\/colgroup>$/g, '');
-    const th = tbl.querySelector('thead'); if(th) th.innerHTML = ovHeadRow();
+    const hcg = ovHead.querySelector('colgroup'); if(hcg) hcg.innerHTML = ovFragCols().replace(/^<colgroup>|<\/colgroup>$/g, '');
+    const th = ovHead.querySelector('thead'); if(th) th.innerHTML = ovHeadRow();
     oResize.addGrips();
     panel.querySelector('#ovBody').innerHTML = tbody(sel.value);
   };
-  // L2 sorting (I-92) via the shared handler; re-attach grips after the header rebuild.
-  wireSort(sc, overdueCols, osort, ()=>{ rows = dsSorted(rows, overdueCols, osort, oget); panel.querySelector('#ovBody').innerHTML=tbody(sel.value); oResize.addGrips(); }, 'overdue_sort', ovHeadRow);
+  // §7.2.15 invariant 5 — the pair MUST fit the display area whenever it can (13 columns at a 60 px
+  // floor need 780 px, so a 1216 px panel is achievable). Re-derived on resize because the fit
+  // belongs to the viewport, not to the render.
+  fitToScroller(grid, sc, () => grid.refresh());
+  // §18 split-header contract (3, 5) — width pin + gutter + horizontal lock-step, shared helper.
+  wireSplitHeader(panel, '#ovHead', '.tableScroll');
+  // L2 sorting (I-92) via the shared handler. The sort buttons now live in the HEADER FRAGMENT, so
+  // that — not the scroller — is what the handler binds to; grips are re-attached after the rebuild.
+  wireSort(ovHead, overdueCols, osort, ()=>{ rows = dsSorted(rows, overdueCols, osort, oget); panel.querySelector('#ovBody').innerHTML=tbody(sel.value); oResize.addGrips(); }, 'overdue_sort', ovHeadRow);
   panel.querySelector('#ovCsv').onclick=()=>{
     const tf=sel.value; const rs=rows.filter(x=>!tf||x.type===tf);
     if(!rs.length){ toast('Nothing to export','info'); return; }
@@ -2931,15 +3111,23 @@ function renderValidation(panel, issues, model){
     }).join('')}</tr>`;
   const issueRows = list => list.map(issueRowHTML).join('');
   const issueEmpty = () => `<tr><td class="empty" colspan="${grid.visible().length}">No issues to display.</td></tr>`;
-  const issueHeadRow = ()=> grid.headRow(isort);
+  // §7.2.15 — the header row carries the gutter CELL as well as the gutter column, so the fragment's
+  // column count matches its <colgroup> and the navy runs the full card width. aria-hidden: it
+  // reserves the scrollbar, it is not a column.
+  const issueHeadRow = ()=> grid.headRow(isort).replace('</tr>', '<th class="ds-gut" aria-hidden="true"></th></tr>');
+  // §7.2.15 (4) — ONE column grid: the fragment carries the body's columns plus the .ds-gut gutter.
+  const issueFragCols = ()=>grid.colgroupHTML().replace('</colgroup>', '<col class="ds-gut" style="width:var(--ds-sbw,0px)"></colgroup>');
   panel.innerHTML=`<div class="panel-head"><h2>Validation Issues</h2>
-      <div class="head-actions"><span class="vchips" id="vChips">${chips}</span><label class="lbl">Rule:<select class="inter-sel" id="vRule" aria-label="Filter issues by rule code">${ruleOpts}</select></label><button id="vCsv" class="csv btn btn-secondary" title="Download validation issue list as CSV">⤓ CSV</button><span class="cnt" id="vCnt">${issueCntText(issueView.length)}</span></div></div>
+      <div class="head-actions"><span class="vchips" id="vChips">${chips}</span><label class="lbl">Rule:<select class="inter-sel" id="vRule" title="Filters this table only — the Validation / Issues tables" aria-label="Filter issues by rule code — this panel only">${ruleOpts}</select></label><button id="vCsv" class="csv btn btn-secondary" title="Download validation issue list as CSV">⤓ CSV</button><span class="cnt" id="vCnt">${issueCntText(issueView.length)}</span></div></div>
     <div class="note">${total} issue${total===1?'':'s'} across ${fired.length} rule${fired.length===1?'':'s'}. All wording &amp; severity sourced from the Code sheet Error block (Code!AI:AL) — none hard-coded.</div>
     <details class="vdetails"><summary>Validation detail — code-sheet check, rule reference, full issue list</summary>
       <div class="vbody">
         <div class="vnote" id="vmap">${vmap}</div>
-        <div class="vrefcard splitcard" id="vref"><div class="vrefhead">Rule Reference (fired)</div><table class="ds-table vheadtab"><caption class="sr-only">Rule Reference — the data-quality rules that fired in this run, with severity, code, group, description and the number of occurrences.</caption><colgroup><col style="width:56px"><col style="width:110px"><col style="width:140px"><col><col style="width:70px"><col style="width:var(--ds-sbw,0px)"></colgroup><thead><tr><th scope="col">Sev</th><th scope="col">Code</th><th scope="col">Group</th><th scope="col">Description</th><th scope="col" class="num">Count</th><th class="ds-gut" aria-hidden="true"></th></tr></thead></table><div class="tableScroll"><table class="ds-table" aria-label="Rule Reference data rows"><colgroup><col style="width:56px"><col style="width:110px"><col style="width:140px"><col><col style="width:70px"></colgroup><tbody>${vref||'<tr><td class="empty" colspan="5">No rules fired.</td></tr>'}</tbody></table></div></div>
-        <div class="tableScroll vtableWrap"><table class="ds-table"><caption class="sr-only">Validation issue list — every individual issue found, with severity, rule, document number, field, value, message, source tab and row number.</caption>${grid.colgroupHTML()}<thead>${issueHeadRow()}</thead><tbody id="vBody">${issueView.length?issueRows(issueView):issueEmpty()}</tbody></table></div>
+        <div class="vrefcard splitcard" id="vref"><div class="vrefhead">Rule Reference (fired)</div><div class="vheadwrap"><table class="ds-table vheadtab"><caption class="sr-only">Rule Reference — the data-quality rules that fired in this run, with severity, code, group, description and the number of occurrences.</caption><colgroup><col style="width:56px"><col style="width:110px"><col style="width:140px"><col><col style="width:70px"><col style="width:var(--ds-sbw,0px)"></colgroup><thead><tr><th scope="col">Sev</th><th scope="col">Code</th><th scope="col">Group</th><th scope="col">Description</th><th scope="col" class="num">Count</th><th class="ds-gut" aria-hidden="true"></th></tr></thead></table></div><div class="tableScroll"><table class="ds-table" aria-label="Rule Reference data rows"><colgroup><col style="width:56px"><col style="width:110px"><col style="width:140px"><col><col style="width:70px"></colgroup><tbody>${vref||'<tr><td class="empty" colspan="5">No rules fired.</td></tr>'}</tbody></table></div></div>
+        <div class="splitbox splitcard">`
+        + `<div class="vheadwrap"><table class="ds-table vheadtab" id="vHead"><caption class="sr-only">Validation issue list — column headers.</caption>${issueFragCols()}<thead>${issueHeadRow()}</thead></table></div>`
+        + `<div class="tableScroll vtableWrap"><table class="ds-table"><caption class="sr-only">Validation issue list — every individual issue found, with severity, rule, document number, field, value, message, source tab and row number.</caption>${grid.colgroupHTML()}<tbody id="vBody">${issueView.length?issueRows(issueView):issueEmpty()}</tbody></table></div>`
+        + `</div>
       </div>
     </details>`;
   panel.querySelector('#vCsv').onclick=()=>{ if(!issueView.length){ toast('Nothing to export','info'); return; } downloadCSV(xp('issue_list')+'.csv', issuesCSV(model, issueView)); toast('CSV downloaded','success'); };
@@ -2947,6 +3135,7 @@ function renderValidation(panel, issues, model){
   // each sort) keeps working; the CSV reads the same sorted array the table shows.
   const vsc = panel.querySelector('.vtableWrap');
   const vTbl = vsc ? vsc.querySelector('table') : null;
+  const vHead = panel.querySelector('#vHead');
   // L3 windowing (I-96) + a body painter that both paths share
   const paintBody = () => { const tb = panel.querySelector('#vBody'); if(tb) tb.innerHTML = issueView.length ? issueRows(issueView) : issueEmpty(); };
   const fullBody = () => issueView.length ? issueRows(issueView) : issueEmpty();
@@ -2954,7 +3143,8 @@ function renderValidation(panel, issues, model){
     rowHeight: 40, overscan: 8, total: () => issueView.length,
     render: (s, e) => issueView.slice(s, e).map(issueRowHTML).join(''), full: fullBody
   });
-  if(vsc) wireSort(vsc, issueCols, isort, ()=>{
+  // I-116 — the sort buttons now live in the HEADER FRAGMENT, so that is what the handler binds to.
+  if(vHead) wireSort(vHead, issueCols, isort, ()=>{
       issueView = dsSorted(issueView, issueCols, isort, issueGet);
       if(win.enabled) win.redraw(); else paintBody();
     }, 'issue_sort', issueHeadRow);
@@ -2967,16 +3157,25 @@ function renderValidation(panel, issues, model){
   const iHead = panel.querySelector('.head-actions');
   // L3 grid (I-95): chooser + resize. The header is rebuilt on every sort, so the grips
   // are re-attached whenever the grid refreshes.
-  const iResize = vTbl ? grid.resizer(vTbl) : null;
+  // I-116 — the header now lives in its own table, so the resizer is given BOTH halves: grips attach
+  // in the fragment, and every width is written to both colgroups.
+  const iResize = (vTbl && vHead) ? grid.resizer(vTbl, vHead) : null;
   grid.chooser(iHead);
   grid.refresh = () => {
     if(vTbl){
       const cg = vTbl.querySelector('colgroup'); if(cg) cg.innerHTML = grid.colgroupHTML().replace(/^<colgroup>|<\/colgroup>$/g, '');
-      const th = vTbl.querySelector('thead'); if(th) th.innerHTML = issueHeadRow();
-      if(iResize) iResize.addGrips();
     }
+    if(vHead){
+      const hcg = vHead.querySelector('colgroup'); if(hcg) hcg.innerHTML = issueFragCols().replace(/^<colgroup>|<\/colgroup>$/g, '');
+      const th = vHead.querySelector('thead'); if(th) th.innerHTML = issueHeadRow();
+    }
+    if(iResize) iResize.addGrips();
     if(win.enabled) win.redraw(); else paintBody();
   };
+  // §7.2.15 invariant 5 — the pair MUST fit the display area whenever it can.
+  fitToScroller(grid, vsc, () => grid.refresh());
+  // §18 split-header contract (3, 5) — width pin + gutter + horizontal lock-step, shared helper.
+  wireSplitHeader(panel, '#vHead', '.vtableWrap');
   /* §7.2.15 — keep the split header on the same column grid as the body AND cover the
      scrollbar area. The header fragment is sized to the scroller's BORDER box (so the
      navy reaches the card edge instead of leaving a white notch), and its gutter column
@@ -3027,34 +3226,53 @@ function renderDetail(panel, recs, model, state, rerender){
   const setCnt = () => { const c = panel.querySelector('#dCnt'); if(c) c.textContent = (rows.length<recs.length) ? `${rows.length} of ${recs.length} docs` : `${rows.length} docs`; };
   const paintBody = () => { const tb = panel.querySelector('tbody'); if(tb) tb.innerHTML = rows.length ? rows.map(detailRowHTML).join('') : detailEmpty(); };
   const renderBody = () => { if(win && win.enabled) win.redraw(); else paintBody(); setCnt(); };
+  // §7.2.15 — the fragment's header row carries the gutter CELL as well as the gutter column, so the
+  // fragment's column count matches its <colgroup> and the navy runs the full card width. aria-hidden:
+  // it reserves the scrollbar, it is not a column.
+  const detailFragHead = () => detailHeadRow().replace('</tr>', '<th class="ds-gut" aria-hidden="true"></th></tr>');
+  // §7.2.15 (4) — ONE column grid: the fragment carries the body's columns plus the .ds-gut gutter.
+  const detailFragCols = () => grid.colgroupHTML().replace('</colgroup>', '<col class="ds-gut" style="width:var(--ds-sbw,0px)"></colgroup>');
   panel.innerHTML=`<div class="panel-head"><h2>Document Detail Table</h2>
       <div class="head-actions"><button id="dCsv" class="csv btn btn-secondary" title="Download document list as CSV">⤓ CSV</button><span class="cnt" id="dCnt">${rows.length} docs</span></div></div>
-    <div class="tableScroll"><table class="ds-table"><caption class="sr-only">Document Detail Table — one row per document: Source Tab and Active identify the record, followed by the ${cols.length} contract fields.</caption>${grid.colgroupHTML()}<thead>${detailHeadRow()}</thead>
-    <tbody>
+    <div class="splitbox splitcard">`
+    + `<div class="vheadwrap"><table class="ds-table vheadtab" id="dHead"><caption class="sr-only">Document Detail Table — column headers.</caption>${detailFragCols()}<thead>${detailFragHead()}</thead></table></div>`
+    + `<div class="tableScroll"><table class="ds-table"><caption class="sr-only">Document Detail Table — one row per document: Source Tab and Active identify the record, followed by the ${cols.length} contract fields.</caption>${grid.colgroupHTML()}<tbody>
     ${rows.length?rows.map(detailRowHTML).join(''):detailEmpty()}
-    </tbody></table></div>`;
+    </tbody></table></div>`
+    + `</div>`;
   setCnt();
   const sc = panel.querySelector('.tableScroll');
+  const dHead = panel.querySelector('#dHead');
   // L3 windowing (I-96): only the visible window is drawn; the count stays the full one
   const win = makeWindow(sc, {
     rowHeight: 40, overscan: 8, total: () => rows.length,
     render: (s, e) => rows.slice(s, e).map(detailRowHTML).join(''),
     full: () => rows.length ? rows.map(detailRowHTML).join('') : detailEmpty()
   });
-  wireSort(sc, detailCols, state.sort, ()=>{ rows = dsSorted(rows, detailCols, state.sort, detailGet); renderBody(); }, 'detail_sort', detailHeadRow);
+  // I-116 — the sort buttons now live in the HEADER FRAGMENT, so that is what the handler binds to.
+  wireSort(dHead, detailCols, state.sort, ()=>{ rows = dsSorted(rows, detailCols, state.sort, detailGet); renderBody(); }, 'detail_sort', detailFragHead);
   // No in-panel column filters on this panel (removed 2026-10-20); the column-visibility
   // chooser below is the only popover here.
   panel.querySelector('.head-actions');
   // L3 grid (I-95): chooser + resize; grips are re-attached whenever the header is rebuilt
-  const dResize = grid.resizer(sc.querySelector('table'));
+  // I-116 — the header lives in its own table, so the resizer is given BOTH halves: grips attach in
+  // the fragment, and every width is written to both colgroups.
+  const dResize = grid.resizer(sc.querySelector('table'), dHead);
   grid.chooser(panel.querySelector('.head-actions'));
   grid.refresh = () => {
     const t = sc.querySelector('table');
     const cg = t.querySelector('colgroup'); if(cg) cg.innerHTML = grid.colgroupHTML().replace(/^<colgroup>|<\/colgroup>$/g, '');
-    const th = t.querySelector('thead'); if(th) th.innerHTML = detailHeadRow();
+    if(dHead){
+      const hcg = dHead.querySelector('colgroup'); if(hcg) hcg.innerHTML = detailFragCols().replace(/^<colgroup>|<\/colgroup>$/g, '');
+      const th = dHead.querySelector('thead'); if(th) th.innerHTML = detailFragHead();
+    }
     dResize.addGrips();
     renderBody();
   };
+  // §18 split-header contract (3, 5) — width pin + gutter + horizontal lock-step, shared helper.
+  // This is the UNAVOIDABLE case of §7.2.15 invariant 5: 27 columns at a 60 px floor need 1620 px
+  // against a 1216 px panel, so the scrollbar stays and lock-step is what the invariant requires.
+  wireSplitHeader(panel, '#dHead', '.tableScroll');
   // §7.2.10 — parity: the CSV MUST read the same sorted array the renderer used
   panel.querySelector('#dCsv').onclick=()=>{ if(!rows.length){ toast('Nothing to export','info'); return; } downloadCSV(xp('document_list')+'.csv', docsCSV(model, rows)); toast('CSV downloaded','success'); };
 }

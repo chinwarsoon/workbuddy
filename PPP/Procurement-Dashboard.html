@@ -136,12 +136,14 @@
      (Copy / Download / Reset / Export / Filter / Load-another-file). The filled `.btn`
      is the MDL primary; the segmented control (`.seg`) and round `.icon-btn` are their
      own MDL control types and keep their shapes. */
-  .ctool button, .head-actions button, .btn.ghost{
+  /* I-71: .btn-secondary is the shared-spec A3 canonical class, so it joins the rule that already
+     implements A3 here — the class is now governing, not decorative. Values are unchanged. */
+  .ctool button, .head-actions button, .btn.ghost, .btn-secondary{
     font:inherit;font-size:12px;font-weight:600;line-height:1.2;text-transform:none;letter-spacing:normal;
     min-height:32px;padding:7px 14px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
     border:1px solid var(--line);background:#fff;color:var(--navy);cursor:pointer;
     transition:background .15s,border-color .15s,color .15s}
-  .ctool button:hover, .head-actions button:hover, .btn.ghost:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .ctool button:hover, .head-actions button:hover, .btn.ghost:hover, .btn-secondary:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
   .chartwrap{width:100%;overflow-x:auto;background:var(--chart-bg);border-radius:12px;padding:4px}
 
   /* ---------- interactive chart panel ---------- */
@@ -397,7 +399,7 @@
         <span class="msg" id="poWinMsg"></span>
       </div>
       <div class="curve-note" id="poProjNote"></div>
-      <div class="head-actions chart-actions"><button type="button" class="dlBtn" data-svg="svg-po">⤓ PNG</button><button type="button" class="copyBtn" data-svg="svg-po">⧉ Copy</button></div>
+      <div class="head-actions chart-actions"><button type="button" class="btn-secondary" data-svg="svg-po" data-act="dl">⤓ PNG</button><button type="button" class="btn-secondary" data-svg="svg-po" data-act="copy">⧉ Copy</button></div>
       <div class="chartwrap" id="poChart"></div>
     </div>
 
@@ -1552,8 +1554,8 @@ function renderInteractive(){
       + '<button type="button" data-t="pie" class="'+(mode==='pie'?'on':'')+'" aria-pressed="'+(mode==='pie')+'">Pie</button></div>';
     /* §7.8: per-chart exports are text-actions in the .ctool row. */
     const tools='<div class="ctool">'+sel+seg
-      + '<button type="button" class="dlBtn" data-svg="'+c.svgId+'">⤓ PNG</button>'
-      + '<button type="button" class="copyBtn" data-svg="'+c.svgId+'">⧉ Copy</button></div>';
+      + '<button type="button" class="btn-secondary" data-svg="'+c.svgId+'" data-act="dl">⤓ PNG</button>'
+      + '<button type="button" class="btn-secondary" data-svg="'+c.svgId+'" data-act="copy">⧉ Copy</button></div>';
     return '<section class="card" data-card="'+c.id+'">'
       + '<div class="panel-head"><h3>'+c.title+'</h3></div>'
       + tools
@@ -2097,7 +2099,9 @@ document.getElementById('dash').addEventListener('click',e=>{
     else if(key==='look'){ setPref(key,t); if(LOOK_LAST) renderLookAhead(LOOK_LAST.pkgs, LOOK_LAST.from); }  /* horizon change re-renders the table */
     else if(key==='ovlStage'){ setPref(key,t); OVL_STAGE=t; safeCall(()=>renderOverdueList(filteredPackages()), 'ovlList'); }  /* stage change re-renders the overdue list */
     else { setPref(key,t); } } return; }
-  const copy=e.target.closest('.copyBtn'), dl=e.target.closest('.dlBtn');
+  /* I-71: both text actions are now .btn-secondary, so the class no longer discriminates them —
+     data-act is the behaviour hook and .btn-secondary is purely the shared A3 presentation class. */
+  const copy=e.target.closest('[data-act="copy"]'), dl=e.target.closest('[data-act="dl"]');
   if(copy){ const id=copy.getAttribute('data-svg'); copyChart(id,(document.getElementById('projTitle').textContent||'chart')+' '+(id||'chart')); }
   if(dl){ const id=dl.getAttribute('data-svg'); const el=document.getElementById(id); if(el){ chartToCanvas(el).then(c=>{ downloadBlob(c.toDataURL('image/png'), (document.getElementById('projTitle').textContent||'chart')+' '+(id||'chart')+'.png'); toast('Downloaded PNG'); }).catch(err=>toast('Export failed: '+err.message)); } else { toast('Nothing to export'); } }
 });

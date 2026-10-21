@@ -2,7 +2,9 @@
 
 **Version**: 1.2
 **Date**: 2026-10-15
-**Last revised**: 2026-10-19 — §7.2.7 extended with the no-duplicate-filter-dimensions rule (overall requirement; MDL-specific application in `MDL-Dashboard-Workplan.md` §4.0.1). Prior (2026-10-19): §7.2.7 added (Filter population rule: two-tier global-first → panel cascade); S4 Derive row and MDL menu-bar variant hardened to state the cascade. Driven by MDL filter-behaviour review.
+**Last revised**: 2026-10-21 — §7.2.15 **standardised**: the split header is now required for **every** bounded data table (`.tableScroll`), single-row headers included, and a sticky `<thead>` inside a table scroller is retired; §4.3's container rule aligned to match. Driven by MDL I-116 (vertical-scrollbar standardisation). Later the same day: §7.2.15 invariant 5
+clarified — "unavoidable" horizontal scrolling is now defined objectively (Σ minimum column widths >
+available width), so the fit requirement is testable. Prior (2026-10-19): §7.2.7 extended with the no-duplicate-filter-dimensions rule (overall requirement; MDL-specific application in `MDL-Dashboard-Workplan.md` §4.0.1). Prior (2026-10-19): §7.2.7 added (Filter population rule: two-tier global-first → panel cascade); S4 Derive row and MDL menu-bar variant hardened to state the cascade. Driven by MDL filter-behaviour review.
 2026-10-18 — §7.2.15 added (split-header / fragment-pairing contract, six normative
 clauses) and `.vheadtab` + `.ds-gut` added to the normative class table. Driven by MDL I-103.
 **Owner**: UI Design
@@ -580,8 +582,10 @@ validation issues) must render as a **data table inside a fixed-height scroller*
 open-ended list that stretches the page.
 
 - Container: `.tableScroll` (`max-height:340px; overflow:auto; margin-top:8px;
-  border:1px solid --line; border-radius:10px`) with `thead th{position:sticky;top:0}`. The panel
-  therefore keeps a stable height no matter how many rows match; only the table scrolls.
+  border:1px solid --line; border-radius:10px`). The header is rendered as a **split header**
+  (§7.2.15): `<thead>` lives outside the scroller, so the panel keeps a stable height no matter how
+  many rows match, only the body scrolls, and the **vertical scrollbar starts below the header row**.
+  (A sticky in-scroller `thead` was the pre-2026-10-21 pattern and is retired — see §7.2.15.)
 - The **row count is shown in the control row** (e.g. `PO Plan from … to … (N packages)`), so the
   full size is still communicated even though the list is clipped.
 - Row content: one record per row, no duplicated paragraph text; numeric columns right-aligned
@@ -854,6 +858,40 @@ so they adapt automatically; no per-component dark CSS beyond the token swap (us
 | A4 Icon / Mini | `.icon-btn` | icon-only: Help `?`, Collapse `−`, Theme, modal close `✕` | **PPP is the reference implementation.** `width:26px;height:26px;min-height:26px` — 26 px **square**; radius 6 px; 1px `--line`; `background:#fff`; `color:var(--muted)`; `font:inherit`; **13 px** / 600; `line-height:1`; inline-flex centred. Hover → `--soft` background + `--navy` text. **Must carry `aria-label` + tooltip** |
 | A5 Search | `.search-btn` | search submit, affixed to the search input (right edge, single-side radius) | `--accent` fill, white glyph, radius `0 6px 6px 0`, attached to input |
 
+**A3 — one canonical class name (normative) — added 2026-10-20, MDL I-71.** `.btn-secondary` is the
+**canonical** A3 class. Every text action (export / copy / CSV / reset) MUST use it. A project MUST NOT
+introduce a parallel class for the same logical control.
+
+| Class | Status | Where |
+|---|---|---|
+| `.btn-secondary` | **canonical** — conforming | MDL, everywhere (8 hits in `src/render.mjs`); PPP, **migrated 2026-10-21** |
+
+PPP's legacy `.dlBtn` / `.copyBtn` are **gone** — deleted 2026-10-21. `.reset` had already disappeared
+before this clause was written (the three matches on "reset" were comments and a CSS-reset note). Both
+log entries naming them are historical.
+
+**Why the class name is normative, not cosmetic.** The class name is the only link between a rendered
+control and the spec rule that governs it. When two projects name the same logical control
+differently, a style change made to satisfy A3 on one silently misses the other, and no shared
+selector exists for a test to assert against. That drift stays invisible until both dashboards are
+compared side by side — the precise failure the shared spec exists to prevent. Aliases are therefore
+**tolerated, never endorsed**: they are written down so the divergence is visible and has a defined
+end state.
+
+**Migration — completed 2026-10-21 (MDL I-71 / PPP I-78).** PPP renamed `.dlBtn` / `.copyBtn` to
+`.btn-secondary` and deleted the old names. Two consequences worth keeping:
+
+- **A text action's class MUST NOT be used as a behaviour hook.** One shared class no longer discriminates
+  the two actions, so PPP's delegated handler moved to `data-act="dl"` / `data-act="copy"`. That is what
+  forced the handlers onto the class in the first place — behaviour belongs on a data attribute.
+- **The shared class must be governing, not decorative.** PPP joined `.btn-secondary` to the rule that
+  already implements A3 there (`.ctool button, .head-actions button, .btn.ghost`), so a change to the
+  shared class now reaches PPP. The declared values were already identical, so nothing moved visually.
+
+**Assertion (required).** A shared check MUST assert that both dashboards carry `.btn-secondary` and that
+neither introduces a parallel class, and that both declare the same A3 geometry — the tripwire that stops
+the two projects drifting apart again. Written 2026-10-21 as 4 checks in `MDL/test/test_grid.mjs`.
+
 #### B. Selection controls
 | Type | Class | Use | Style |
 |---|---|---|---|
@@ -875,6 +913,32 @@ so they adapt automatically; no per-component dark CSS beyond the token swap (us
 | Active-state cue | count badge on the trigger + `is-filtered` emphasis | the chosen value is visible in the control itself |
 
 A user must be able to tell, from the chrome alone, both (a) how many values the control accepts and (b) whether it filters **rows**. B7 exists so a layout control can never be mistaken for a row filter.
+
+**Floating-panel internal ordering (normative) — added 2026-10-20, MDL I-115.** Every floating
+multi-select panel — the **B1** filter popover and the **B7** column-visibility chooser alike —
+MUST lay its contents out in this order:
+
+| # | Region | Rule |
+|---|---|---|
+| 1 | **Master** | an `All <dimension>` checkbox (`All Disciplines`, `All columns`, …) at the **top**, acting on the panel's whole selectable set |
+| 2 | **Note** | the panel's explanatory line, directly beneath the master and above the divider |
+| 3 | **Divider** | a 1 px rule separating the header block from the scrollable list |
+| 4 | **Item list** | one checkbox row per value — the only region that scrolls |
+| 5 | **Footer** | actions and counts only (`Reset to defaults`, `N hidden`) |
+
+The note MUST NOT be placed after the item list. Both panels are `overflow:auto` with a `max-height`
+(320 px filter / 380 px chooser), so a trailing note sits below a scrolling list and stays invisible
+until the reader scrolls to the very end — while it is precisely the text a first-time reader needs.
+The two panels' notes say different things (deferred apply vs immediate apply) and MUST keep their own
+wording; only their position is shared.
+
+**Master scope and tri-state (normative).** The master ranges over the **selectable** set only. Where
+a panel locks some rows — the chooser's **pinned identity columns are permanently checked and disabled**
+— the master MUST be scoped to the remaining (non-pinned) rows and MUST be tri-state: checked when every
+non-pinned row is on, **indeterminate** when only some are on, unchecked when none are. A master that
+also spans locked rows can never read as checked and would be permanently stuck.
+Every item toggle and any reset action MUST re-sync the master (and any footer count), so the header can
+never contradict the list below it.
 
 #### C. Indicator (not a button)
 | Type | Class | Use | Style |
@@ -1013,12 +1077,32 @@ keeps each dimension in exactly one control, so two filters can never issue cont
 #### 7.2.15 Split header (fragment pairing) — added 2026-10-18
 
 A **split header** moves `<thead>` out of the scroll container into a thead-only fragment
-(`.vheadtab`), so the vertical scrollbar starts **below** the header instead of beside it. It is the
-required pattern for a **grouped** header that lives inside a scroller (§7.2.9); a single-row header MAY
-stay inside the scroller and use `position:sticky` instead.
+(`.vheadtab`), so the vertical scrollbar starts **below** the header instead of beside it.
 
-The fragment is a **declared exception** to the sticky rule — and an exception MUST be paid for with
-equivalent invariants. Splitting the header creates a new failure mode: header and body are now two
+**Standardised 2026-10-21 (MDL I-116) — every bounded data table (`.tableScroll`) uses the split
+header, grouped or single-row.** The vertical scrollbar is confined to the body: it scrolls rows only,
+the header never moves, and the header band runs the full card width with the trailing `.ds-gut` gutter
+reserving the scrollbar width. A sticky `<thead>` inside a table scroller is **retired** — sticky
+remains correct for page-level chrome (the app bar, §3.1) but MUST NOT be used inside a `.tableScroll`.
+
+Why this is standardised rather than left as a choice:
+
+- **A scrollbar is a spatial proxy for the scrollable set.** A full-height track running beside a
+  header it never scrolls misstates what it controls, and offsets the track's top edge from row 0.
+- **The scrollbar strip breaks the header band.** Inside a scroller the content box excludes the
+  scrollbar, so the navy header stops short of the card edge and a scrollbar-coloured seam cuts it at
+  the top-right corner — precisely the defect `.ds-gut` exists to prevent ("so the navy is continuous
+  across the full card width").
+- **It removes an arbitrary split.** The Rule Reference is single-row and split; three other
+  single-row tables were sticky. Same header shape, two treatments, no structural reason.
+
+**Migration.** MDL converts its remaining sticky tables (MDL I-116): Overdue List, Validation / Issues,
+Document Detail. **PPP ships a sticky `<thead>` in every `.tableScroll` / `.vtableWrap` and is
+non-conforming until it migrates** — the same status pattern used for §7.1 A3.
+
+Splitting the header is now the **rule**, not an exception — and a rule that moves the header outside
+the scroller MUST be paid for with equivalent invariants. Splitting creates a failure mode sticky
+headers do not have: header and body are now two
 independent tables that can drift apart, and a drift is invisible to every per-table check (a shipped
 MDL matrix carried six visible defects while the harness reported zero failures). Every one of the
 following MUST hold. Omitting any single one produces a visible defect, so the set is normative, not
@@ -1039,9 +1123,14 @@ advisory.
    overflowing body.
 4. **One column grid** — both fragments use `table-layout:fixed` and the same data-column widths; only
    the header adds the trailing `.ds-gut` gutter column.
-5. **Fit, then lock-step** — column widths are content-derived and the pair fits the display area. If
-   horizontal scrolling is unavoidable, the header MUST follow the body's `scrollLeft`. A header that is
-   wider than the body, or that stays put while the body scrolls, is non-conformant.
+5. **Fit, then lock-step** — column widths are content-derived and the pair fits the display area.
+   Horizontal scrolling is **unavoidable**, and therefore permitted, **only** when the sum of the
+   columns' **minimum** widths exceeds the available width. In every other case the table MUST fit: a
+   default wider than the display area is a non-conformant width choice, not an unavoidable constraint.
+   Where horizontal scrolling *is* unavoidable, the header MUST follow the body's `scrollLeft`. A header
+   that is wider than the body, or that stays put while the body scrolls, is non-conformant.
+   (Clarified 2026-10-21, MDL I-116: the minimum-sum test makes "unavoidable" verifiable — 13 columns at
+   a 60 px floor need 780 px and so must fit a 1216 px panel, while 27 columns need 1620 px and cannot.)
 6. **One implementation** — the pairing is wired by a single shared helper used by every split-header
    table. A table MUST NOT hand-roll a partial copy of this contract.
 
