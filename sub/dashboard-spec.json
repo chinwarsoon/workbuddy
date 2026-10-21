@@ -1,0 +1,126 @@
+{
+  "title": "TWRP C3B2 · Monthly Document Submissions",
+  "subtitle": "Master Document List (forward plan) + Submittal Log (actual submissions) · TWRP C3B2 / PUB",
+  "theme": "dark",
+  "lang": "zh",
+
+  "kpis": [
+    { "label": "Submissions to Date", "field": "Count Submitted", "agg": "sum", "format": "int", "compare": false, "sub": "Mar - Oct 2026" },
+    { "label": "Documents in Plan", "field": "Count Planned", "agg": "sum", "format": "int", "compare": false, "sub": "Master Document List scope" },
+    { "label": "Avg Review Turnaround", "field": "Review Turnaround Days", "agg": "avg", "format": "number", "unit": " d", "compare": false, "sub": "allowance 20 d first / 14 d subsequent" },
+    { "label": "Avg Review Delay", "field": "Review Delay Days", "agg": "avg", "format": "number", "unit": " d", "compare": false, "sub": "target is 0 d or earlier" },
+    { "label": "On-Time Return Rate", "field": "Flag On Time", "agg": "avg", "format": "percent", "compare": false, "sub": "73 of 168 returned on time" },
+    { "label": "Approval Rate", "field": "Flag Approved", "agg": "avg", "format": "percent", "compare": false, "sub": "88 of 115 returned approved" }
+  ],
+
+  "filters": [
+    { "field": "Record Type", "type": "select", "label": "Record Type" },
+    { "field": "Discipline", "type": "select", "label": "Discipline" },
+    { "field": "Submission Status", "type": "select", "label": "Submission Status" },
+    { "field": "Approval Status", "type": "select", "label": "Approval Status" },
+    { "field": "Submitted By", "type": "select", "label": "Submitted By" },
+    { "field": "Stage", "type": "select", "label": "Stage" },
+    { "field": "Month", "type": "dateRange", "label": "Month" },
+    { "field": "Review Delay Days", "type": "numberRange", "label": "Delay Days" },
+    { "type": "keyword", "fields": ["Document No.", "Document Title", "Prolog No.", "System"], "label": "Search doc no / title" }
+  ],
+
+  "searchFields": ["Document No.", "Document Title", "System", "Prolog No."],
+
+  "charts": [
+    {
+      "id": "plan-vs-actual",
+      "type": "line",
+      "title": "Monthly Submission Plan vs Actual",
+      "subtitle": "Planned 1st Issue Date (MDL) against actual submissions logged",
+      "dim": "Month", "bucket": "month", "bucketToggle": true, "sort": "none",
+      "measures": [
+        { "field": "Count Planned", "agg": "sum" },
+        { "field": "Count Submitted", "agg": "sum" }
+      ],
+      "smooth": true, "span": 4, "height": 340, "showLabels": false
+    },
+    {
+      "id": "monthly-outcome",
+      "type": "bar",
+      "title": "Monthly Submissions by Review Outcome",
+      "subtitle": "Count of documents submitted each month, split by SO review result",
+      "dim": "Submission Date", "bucket": "month", "sort": "none",
+      "series": "Submission Status", "stacked": true,
+      "measure": { "field": "Count Submitted", "agg": "sum" },
+      "top": 8, "mergeOthers": false,
+      "span": 2, "height": 300
+    },
+    {
+      "id": "delay-trend",
+      "type": "line",
+      "title": "Average Review Delay by Month",
+      "subtitle": "Days beyond the contractual review period (20 d first / 14 d subsequent)",
+      "dim": "Submission Date", "bucket": "month", "sort": "none",
+      "measure": { "field": "Review Delay Days", "agg": "avg" },
+      "top": 8, "mergeOthers": false,
+      "smooth": true, "span": 2, "height": 300, "unit": " d"
+    },
+    {
+      "id": "approval-mix",
+      "type": "donut",
+      "title": "Approval Outcome Mix",
+      "subtitle": "Approval status returned by the SO on submitted documents",
+      "dim": "Approval Status",
+      "measure": { "field": "Count Submitted", "agg": "sum" },
+      "span": 2, "height": 300, "showTotal": true, "totalLabel": "Returned"
+    },
+    {
+      "id": "by-discipline",
+      "type": "bar",
+      "title": "Submissions by Discipline",
+      "subtitle": "Actual submitted vs total planned per discipline",
+      "dim": "Discipline",
+      "measures": [
+        { "field": "Count Submitted", "agg": "sum" },
+        { "field": "Count Planned", "agg": "sum" }
+      ],
+      "horizontal": true, "span": 2, "height": 300
+    },
+    {
+      "id": "by-submitter",
+      "type": "bar",
+      "title": "Submissions by Submitter",
+      "subtitle": "Number of documents lodged per submitter",
+      "dim": "Submitted By",
+      "measure": { "field": "Count Submitted", "agg": "sum" },
+      "horizontal": true, "top": 12, "span": 2, "height": 300
+    },
+    {
+      "id": "turnaround-scatter",
+      "type": "scatter",
+      "title": "Review Turnaround vs Delay",
+      "subtitle": "Each point is one submission; above zero = returned late",
+      "x": "Review Turnaround Days", "y": "Review Delay Days",
+      "label": "Document No.", "span": 2, "height": 300
+    },
+    {
+      "id": "plan-by-discipline",
+      "type": "bar",
+      "title": "Forward Submission Plan by Discipline",
+      "subtitle": "Documents scheduled for first issue each month (Master Document List)",
+      "dim": "Month", "bucket": "month", "bucketToggle": true, "sort": "none",
+      "series": "Discipline", "stacked": true,
+      "measure": { "field": "Count Planned", "agg": "sum" },
+      "span": 4, "height": 340
+    }
+  ],
+
+  "table": {
+    "enabled": true,
+    "title": "Submission Detail",
+    "columns": ["Record Type", "Month", "Discipline", "Stage", "Doc Type",
+                "Document No.", "Document Title", "Submitted By",
+                "Submission Date", "Target Return Date", "Actual Return Date",
+                "Review Turnaround Days", "Review Delay Days",
+                "Submission Status", "Approval Status", "Timeliness"],
+    "pageSize": 20
+  },
+
+  "footer": "Sources: TWRP C3B2 - Document Submittal Log.xlsx (SubmittalLog) + TWRP C3B2 - Master Document List.xlsx (discipline sheets). Planned volumes use Planned 1st Issue Date, falling back to Forecast 1st Issue Date. Documents with no plan date still count toward scope totals and appear as the last bucket (labelled undefined) on monthly axes. Submission Status: SUR = under SO review, RTR = returned for resubmission, NTS = no resubmission required. Approval: APP = approved, AWC = approved with comments, NAP = not approved, REJ = rejected, INF = for information. Note: the MDL's own Submission Status / Latest Approval Status columns are broken (#VALUE!) and were not used."
+}
