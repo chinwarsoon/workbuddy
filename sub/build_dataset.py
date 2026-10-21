@@ -25,6 +25,10 @@ SUB_STATUS = {
     "SUR": "SUR - Under SO Review",
     "RTR": "RTR - Returned for Resubmission",
     "NTS": "NTS - No Resubmission Required",
+    # NFS only appears in the Master Document List (not in the submittal log's
+    # Code sheet). Every NFS record has no Actual 1st Issue Date, so it means
+    # "not yet submitted".
+    "NFS": "NFS - Not Yet Submitted",
 }
 APPR_STATUS = {
     "APP": "APP - Approved",
@@ -92,7 +96,11 @@ for sh in SHEETS:
                    planned=first_of_month(planned) or first_of_month(forecast),
                    planned_exact=as_date(planned),
                    forecast_exact=as_date(forecast),
-                   issued=as_date(actual_issue))
+                   issued=as_date(actual_issue),
+                   # The MDL's own status columns were broken (#VALUE!) in the
+                   # Oct-16 revision; the current workbook populates them.
+                   mdl_sub_stat=clean(r[22]),
+                   mdl_appr=clean(r[24]))
         mdl_rows.append(rec)
         if docno:
             dups[docno] += 1
@@ -206,7 +214,9 @@ for m in mdl_rows:
         "Planned", m["planned"], m["discipline"], m["stage"], m["doctype"],
         m["system"], m["prefix"], m["vendor"], m["docno"], m["title"],
         None, None, None, None, None, None, None, None,
-        "Not Yet Submitted", "Not Yet Submitted", None, None, None,
+        SUB_STATUS.get(m["mdl_sub_stat"], m["mdl_sub_stat"] or "Unassigned"),
+        APPR_STATUS.get(m["mdl_appr"], "Not Yet Returned"),
+        None, None, None,
         0, 1, None, None, None, None,
     ])
 
