@@ -5,7 +5,7 @@
 > **Date**: 2026-09-29
 > **Status**: Proposal — **NO CODE WRITTEN YET**. Mirrors the PPP Dashboard architecture
 > (`PPP/PPP-Dashboard-Workplan.md` + `PPP/arch/PPP_Dashboard.html`).
-> **Last revised**: 2026-10-20 — I-115 **aligned**: the shared floating-panel ordering contract (master → note → divider → item list → footer; master scoped to the non-pinned set and tri-state) is now normative in `Dashboard-UI-Design-Spec.md` §7.1 (B. Selection controls) and recorded here as §4.0.1 item 7 + acceptance. **Citation correction:** references to "§7.10" in this document and in `mdl-issues.md` are dangling — no §7.10 exists; the B-family (B1/B3/B5/B6/B7) lives in §7.1. PPP was deliberately NOT updated. I-114 **implemented (RESOLVED)**: (a) the Overdue Type dropdown now reads its labels from the **`Code!AN:AO`** block (workbook source of truth, in-code list kept only as a fallback) and shows the canonical §4A.6 wording; (b) the **column chooser got its own class** (`.cc-wrap` / `.cc-btn` / `.cc-panel`) per shared spec §7.10 **B7** — no count badge, no active-filter emphasis — so the `.tf-btn` filter look now belongs exclusively to the global Discipline/Stage chips; (c) the Validation / Issues panel gained the **panel-local rule-code filter** (spec §7.10 **B6** + §7.2.7 pt 6) — a single-select inside the panel, resolved in **S5**, affecting only that panel's tables (`N of M issues`; severity chips, note and Rule Reference still describe the whole run; CSV exports the same filtered rows). `test_render.mjs` += 12 assertions; rebuilt `MDL-Dashboard.html`; full run **159/165** (the 6 failures are the pre-existing top-bar chip/Stage tests). Prior (2026-10-20) — Filter vocabulary + panel-local filters **logged (I-114)**: shared spec §7.10's selection-control table now separates **multi-select** (B1 filter trigger + B3 chips) from **single-select** (B5 native select), and adds **B6 panel-local filter** plus **B7 column-visibility control**; shared spec §7.2.7 gains point 6 (a panel-local filter resolves in S5 and MUST NOT touch KPIs, charts, the matrix or any other panel). Workplan §4A.6 records the Overdue Type flavours as workbook source of truth in **`Code!AN:AO`** (the in-code list stays only as a fallback), and §4.0.1 gains the chooser-chrome rule plus the Validation / Issues **rule-code filter** specification (control inside the panel, local to it, S5-only, tables only). No dashboard code changed yet. Prior (2026-10-19) — Overdue List filter de-duplication **implemented (I-113)**, then the three panel-owned per-column filters were also removed (user direction 2026-10-19): the Overdue panel now keeps only the **Overdue Type dropdown** as its sole in-panel filter — no bundled popover and no per-column buttons (Delay / Source Tab / Planned date all removed). On 2026-10-20 the in-panel column filters were also removed from the **Validation Issues** and **Document Detail** panels, and the entire filter machinery (`attachColFilters`, `cfColRow`, `applyFilters`, `facetCounts`, `highlightText`, `debounce`, `restoreFlt`) deleted (only `cfToggle`/`cfBindDoc` remain, reused by the column chooser). `test_render.mjs` updated and now passes 147/153 (the 6 failures are pre-existing top-bar Stage-chip tests). Prior (2026-10-19): Filter de-duplication requirement documented (MDL-specific): per shared spec §7.2.7 (no duplicate filter dimensions), the Overdue List panel's bundled 'Filters' popover is to be removed — its UESH Discipline duplicates the global Discipline chip and Overdue Type is duplicated by the panel's own dropdown; keep the Overdue Type dropdown + per-column Delay/Source Tab/Planned-date filters. Document Detail popover to drop UESH Discipline + Stage (global duplicates). Validation panel clean. Added workplan §4.0.1. Prior (2026-10-19): Overdue List blank "Overdue Type" / "Delay (days)" columns fixed (I-112): the I-111
+> **Last revised**: 2026-10-22 — **Shared spec generalised (v1.2 → v1.3): the MDL-specific content moved here.** `Dashboard-UI-Design-Spec.md` is now project-neutral; it gained §0 **Definitions**, §8 **Conformance & Testing** (two-layer check model, 14 required assertions, enforcement posture, conformance record, definition of done) and §9 **Adopting this spec**. Everything belonging to MDL alone now lives in **§11 Shared-Spec Conformance Record**: the two-row menu-bar instantiation (§11.2), the Search popover layout + hard Tier 4f posture (§11.3), MDL's dashboard-specific choices (§11.1), its migration state (§11.4) and its regression history (§11.5). Citations corrected: the B-family of selection controls lives in spec **§7.1**, not §7.10. Prior (2026-10-20) — I-115 **aligned**: the shared floating-panel ordering contract (master → note → divider → item list → footer; master scoped to the non-pinned set and tri-state) is now normative in `Dashboard-UI-Design-Spec.md` §7.1 (B. Selection controls) and recorded here as §4.0.1 item 7 + acceptance. **Citation correction:** references to "§7.10" in this document and in `mdl-issues.md` are dangling — no §7.10 exists; the B-family (B1/B3/B5/B6/B7) lives in §7.1. PPP was deliberately NOT updated. I-114 **implemented (RESOLVED)**: (a) the Overdue Type dropdown now reads its labels from the **`Code!AN:AO`** block (workbook source of truth, in-code list kept only as a fallback) and shows the canonical §4A.6 wording; (b) the **column chooser got its own class** (`.cc-wrap` / `.cc-btn` / `.cc-panel`) per shared spec §7.1 **B7** — no count badge, no active-filter emphasis — so the `.tf-btn` filter look now belongs exclusively to the global Discipline/Stage chips; (c) the Validation / Issues panel gained the **panel-local rule-code filter** (spec §7.1 **B6** + §7.2.7 pt 6) — a single-select inside the panel, resolved in **S5**, affecting only that panel's tables (`N of M issues`; severity chips, note and Rule Reference still describe the whole run; CSV exports the same filtered rows). `test_render.mjs` += 12 assertions; rebuilt `MDL-Dashboard.html`; full run **159/165** (the 6 failures are the pre-existing top-bar chip/Stage tests). Prior (2026-10-20) — Filter vocabulary + panel-local filters **logged (I-114)**: shared spec §7.10's selection-control table now separates **multi-select** (B1 filter trigger + B3 chips) from **single-select** (B5 native select), and adds **B6 panel-local filter** plus **B7 column-visibility control**; shared spec §7.2.7 gains point 6 (a panel-local filter resolves in S5 and MUST NOT touch KPIs, charts, the matrix or any other panel). Workplan §4A.6 records the Overdue Type flavours as workbook source of truth in **`Code!AN:AO`** (the in-code list stays only as a fallback), and §4.0.1 gains the chooser-chrome rule plus the Validation / Issues **rule-code filter** specification (control inside the panel, local to it, S5-only, tables only). No dashboard code changed yet. Prior (2026-10-19) — Overdue List filter de-duplication **implemented (I-113)**, then the three panel-owned per-column filters were also removed (user direction 2026-10-19): the Overdue panel now keeps only the **Overdue Type dropdown** as its sole in-panel filter — no bundled popover and no per-column buttons (Delay / Source Tab / Planned date all removed). On 2026-10-20 the in-panel column filters were also removed from the **Validation Issues** and **Document Detail** panels, and the entire filter machinery (`attachColFilters`, `cfColRow`, `applyFilters`, `facetCounts`, `highlightText`, `debounce`, `restoreFlt`) deleted (only `cfToggle`/`cfBindDoc` remain, reused by the column chooser). `test_render.mjs` updated and now passes 147/153 (the 6 failures are pre-existing top-bar Stage-chip tests). Prior (2026-10-19): Filter de-duplication requirement documented (MDL-specific): per shared spec §7.2.7 (no duplicate filter dimensions), the Overdue List panel's bundled 'Filters' popover is to be removed — its UESH Discipline duplicates the global Discipline chip and Overdue Type is duplicated by the panel's own dropdown; keep the Overdue Type dropdown + per-column Delay/Source Tab/Planned-date filters. Document Detail popover to drop UESH Discipline + Stage (global duplicates). Validation panel clean. Added workplan §4.0.1. Prior (2026-10-19): Overdue List blank "Overdue Type" / "Delay (days)" columns fixed (I-112): the I-111
 > port onto the L3 grid kit dropped the header label `h` from the grid column objects, so `colVal`/`textQ` no longer
 > matched the two label-special-cased columns and both rendered blank (the S4 Derive values were always correct;
 > CSV export was unaffected). Fix: added `h: c.h` to the `overdueCols` map in `render.mjs` `renderOverdue`;
@@ -302,9 +302,9 @@ must never offer the same dimension twice. The MDL build currently violates this
    look — a labelled trigger that opens a floating tick-box menu and carries an active count — means
    "**this narrows your rows**". The **column show/hide chooser** (`Columns (n) ▾`) uses exactly that
    look today even though it is a *layout* control: it changes which columns are painted and never
-   which rows are returned. The chooser MUST be given its own class (shared spec §7.10 **B7**) so it
+   which rows are returned. The chooser MUST be given its own class (shared spec §7.1 **B7**) so it
    cannot be mistaken for a filter, and it MUST NOT inherit the filter trigger's active/open emphasis.
-   Conversely the Overdue Type control is a single-select filter and correctly uses §7.10 **B5**.
+   Conversely the Overdue Type control is a single-select filter and correctly uses §7.1 **B5**.
 6. **Issue rule-code filter — panel-local only** (added 2026-10-20, I-114). The Validation / Issues panel
    shall offer a **single-select Rule** drop-down listing every rule code that actually fired, with its
    occurrence count and short rule text. Decisions:
@@ -569,7 +569,7 @@ The panel shall be filterable and shall link to the relevant document detail rec
 
 **Overdue Type filter (recorded 2026-10-20, I-114).** The three in-scope Overdue categories above
 reach the user as one **Overdue Type** drop-down in the Overdue List panel head — a **single-select**
-control using the shared spec §7.10 **B5** chrome. It narrows that panel's table only; it does not
+control using the shared spec §7.1 **B5** chrome. It narrows that panel's table only; it does not
 re-derive KPIs, charts or the matrix.
 
 **Workbook source of truth (no hard-coding).** The three flavours' codes and their display labels
@@ -880,3 +880,79 @@ Grouped: **A. Domain/format** (single-field) · **B. Cross-field consistency** �
   - **Project-start anchor (`Code!B6`):** `B6` is the **value** column holding the project start date (Excel serial / ISO / text); `A6` holds the *label* "Project Start Date". `B6` is designated the **project start date** and shall be used **only as the x-axis origin / baseline anchor for date-related curves** (e.g., cumulative Planned/Forecast/Actual issue S-curves). It is **not** a reporting "as-of" and must **never** feed Overdue / V-23 / Schedule-variance look-ahead — those stay on the **system current date** (viewer's LOCAL date, not UTC — `todayISO` off-by-one fixed 2026-10-10, see I-07). `buildModel` now reads `B6` into `meta.projectStartDate`. **Resolved (2026-10-11):** in the live workbook `B6 = 46096` → **2026-03-15**, but the earliest issue date in the data is **2023-06** — i.e. documents exist ~2.75 years *before* the declared project start. Anchoring curves/dropdown on `B6` would drop that entire history, resolved via I-07/I-27 — pre-start history is reflected (curves anchored at min(B6, earliest-data)) and B6 is drawn as the red-dashed baseline; V-28 surfaces the mismatch as a warning in Panel 12 (no data dropped).
   - **Reporting-period filter (decided 2026-10-10):** the period scopes the **date-curve / throughput panels only** (S-curve + monthly bar; the window now scopes the S-curve data (cumulative shown within the selected window)); it does **not** drive the Overdue / Approval / KPI panels, which stay on as-of = system date. The panel shows a **dual label** `Reporting period: … · As-of: {system date}` so reviewers never conflate them. Consolidate with the existing Filter Panel 15 date-range control (single source, not a duplicate). Mirrors spec §7.9 and §3.8 rule 6.
   - **Scope gap:** no date-axis curve exists yet (current charts 1–9 are counts / bars / pies). This is **net-new**:
+
+---
+
+## 11. Shared-Spec Conformance Record (MDL-specific)
+
+The shared `Dashboard-UI-Design-Spec.md` is **project-neutral**: it states what *any* dashboard must
+do. Everything that belongs to MDL alone — the concrete instantiation of a permitted choice, MDL's
+migration state, its enforcement posture and its issue history — lives here. Each entry cites the
+spec clause it satisfies (spec §1, §8.4).
+
+**On 2026-10-22 the spec was generalised** (v1.2 → v1.3) and the MDL-specific content below was moved
+out of it. Nothing changed in MDL's behaviour — the rules are identical, only their location moved.
+
+### 11.1 Dashboard-specific choices (the spec permits; MDL decides)
+
+| Spec clause | MDL's choice |
+|---|---|
+| §4 — panel class name is free | `.panel` |
+| §3.2 — navigation: sidebar **or** inline | **Left sidebar** — deferred to a future phase (I-35) |
+| §1 — status vocabulary is per-dashboard | MDL defines its own status text/symbols; PPP's are never copied |
+| §3.1 / §7.2.7 — which dimensions are **global** | **`Discipline`** and **`Stage`** — the two top-bar chips; both are the first gate (S4 → `active`) |
+| §7.1 — enforcement posture (hard / advisory) | **Hard** — the contrast check blocks release |
+
+### 11.2 Two-row menu-bar instantiation (spec §3.1)
+
+The spec permits a two-row top bar and states what each row must carry; this is MDL's concrete form:
+
+- The two rows scroll-stick as **one unit**.
+- **Row 1 — title bar**: logo + 3-line title block (project title / dashboard title / project-start +
+  as-of). **No action buttons.**
+- **Row 2 — menu bar**:
+  - **Left actions cluster** — `Load Workbook` as the single **A1 Primary CTA**, `Print / Save PDF`
+    as secondary.
+  - **Right filter group** — global `Discipline` and `Stage` multi-select chips, a `Search` button
+    that reveals a popover panel, and the `Warnings` toggle (spec §3.5).
+- Menu-bar controls are **borderless and icon-free** — text-only labels; counts show as a
+  parenthetical on the chip, the badge carries the warning count; controls highlight on hover with a
+  soft tint; **the only filled element is the Primary CTA**.
+- `Warnings` always reads **`Warnings`** with the count in its badge (e.g. `[4] Warnings`) — the label
+  never inverts to Show/Hide warnings (I-107).
+- `Search` is a button that opens the popover, not an inline text field.
+
+### 11.3 Search popover layout (spec §3.1 / §8)
+
+Single row: column selector → **elongated** search field → `Find` / `Reset`. Search field ≥ 200 px
+when open; the popover may grow to ~640 px. Enforced by the layout harness **Tier 4f
+`lintSearchPanel`**, which MDL runs **hard** (with the contrast setting).
+
+### 11.4 Conformance / migration state
+
+| Spec clause | MDL status |
+|---|---|
+| §7.1 A3 — `.btn-secondary` is the canonical text-action class | **Conforming** — MDL has always used `.btn-secondary`; no legacy alias (8 hits in `src/render.mjs`) |
+| §7.2.15 — every bounded table uses the split header; sticky `<thead>` inside a `.tableScroll` is retired | **Migrating (I-116)** — remaining sticky tables to convert: **Overdue List**, **Validation / Issues**, **Document Detail** |
+| §7.1 B7 — column-visibility control has its own class, not filter chrome | **Conforming (I-114, 2026-10-20)** — `.cc-wrap` / `.cc-btn` / `.cc-panel`; no count badge, no active-filter emphasis |
+| §7.2.7 pt 6 / §7.1 B6 — a panel-local filter affects only its own tables | **Conforming (I-114, 2026-10-20)** — the Validation / Issues **rule-code** filter, resolved in S5 |
+| §7.1 B — floating-panel ordering (master → note → divider → list → footer) | **Conforming (I-115)** |
+
+### 11.5 Regressions behind the shared rules (MDL issue history)
+
+Kept here, not in the spec, so the standard stays project-neutral.
+
+- **I-103** — split-header / fragment-pairing contract (spec §7.2.15 added).
+- **I-105, I-106** — control contrast and accessible-name failures (spec §7.1 contrast mandate).
+- **I-107** — a toggle label that inverted its verb with state (`Show warnings` / `Hide warnings`).
+- **I-108** — matrix header column rules (spec §7.2.15 matrix exception, harness Tier 4g).
+- **I-115** — floating-panel internal ordering (spec §7.1 B).
+- **I-116** — vertical-scrollbar / split-header standardisation (spec §7.2.15).
+- **I-71** — A3 canonical class name (spec §7.1 A3). PPP's counterpart is PPP I-78.
+- **I-113, I-114** — filter de-duplication and filter-control vocabulary (spec §7.2.7, §7.1 B).
+
+### 11.6 Evidence (spec §8.4)
+
+- MDL suite: `MDL/test/test_render.mjs`, `MDL/test/test_grid.mjs`.
+- Shared harness: `harness-layout` with MDL's check module; MDL runs `chrome.controlContrast` **hard**.
+- Per-clause evidence pointers are recorded in `MDL/mdl-issues.md`.

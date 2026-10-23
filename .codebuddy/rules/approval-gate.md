@@ -26,7 +26,7 @@ Inference, "obvious next step", best-practice cleanup, or implied scope do NOT c
 3. Never bundle an undiscussed change with an approved one. One proposal = one explicit decision.
 4. If a defect is found while working on an approved task, STOP, report it, and propose the fix
    as its own item. Do not fix it inline "because it's clearly a bug".
-5. Never assume approval from silence, a partial answer, or a prior session's memory.
+5. Never assume approval from silence, a partial answer, a prior session's memory, or a standing instruction about a different file.
 6. When in doubt, ask. The cost of one question is lower than one unapproved edit.
 7. Work outside an approved workplan's task list requires a new proposal (see `AGENTS.md` §15).
 

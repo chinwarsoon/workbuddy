@@ -965,48 +965,55 @@ async function lintL3(page) {
 
   // 3. column resize (I-95) — a real drag must change the column and persist the width
   if (await page.locator('table.ds-table .ds-resize').count()) {
-    const w0 = await page.evaluate(() => {
-      const t = document.querySelector('table.ds-table .ds-resize').closest('table');
-      return t.querySelectorAll('colgroup col')[0].getBoundingClientRect().width;
-    });
-    // synthetic pointer drag: the grip is under the fixed header, which Playwright cannot reach
-    await page.evaluate(() => {
-      const g = document.querySelector('table.ds-table .ds-resize');
-      const r = g.getBoundingClientRect();
-      const x = r.x + r.width / 2, y = r.y + r.height / 2;
-      const opt = cx => ({ clientX: cx, clientY: y, bubbles: true, cancelable: true, pointerId: 1 });
-      g.dispatchEvent(new PointerEvent('pointerdown', opt(x)));
-      document.dispatchEvent(new PointerEvent('pointermove', opt(x + 90)));
-      document.dispatchEvent(new PointerEvent('pointerup', opt(x + 90)));
-    });
-    const after = await page.evaluate(() => {
-      const t = document.querySelector('table.ds-table .ds-resize').closest('table');
+    // MDL I-116 — test EVERY table that carries grips, not just the first one on the page. Resizing is
+    // wired per table, and with a split header the grip lives in the HEADER FRAGMENT while the width
+    // must also reach the body's colgroup: a conversion that broke one table but not another would
+    // have gone unseen by a single-grip test (Document Detail's grip was never dragged at all).
+    const gripTables = await page.evaluate(() => [...document.querySelectorAll('table.ds-table')]
+      .map((t, i) => ({ i, n: t.querySelectorAll('.ds-resize').length })).filter(x => x.n > 0).map(x => x.i));
+    const colW = idx => page.evaluate(i => {
+      const t = document.querySelectorAll('table.ds-table')[i];
+      const card = t.closest('.splitcard');
+      const partner = card ? [...card.querySelectorAll('table.ds-table')]
+        .find(x => x !== t && x.querySelector('tbody tr')) : null;
       return { w: t.querySelectorAll('colgroup col')[0].getBoundingClientRect().width,
+               partner: partner ? partner.querySelectorAll('colgroup col')[0].getBoundingClientRect().width : null,
                stored: localStorage.getItem('mdl_detail_widths') || localStorage.getItem('mdl_issue_widths') };
-    });
-    ok('I-95: dragging a grip widens the column', after.w > w0 + 40, `${w0.toFixed(0)}px → ${after.w.toFixed(0)}px`);
-    ok('I-95: the new width is persisted (D40)', !!after.stored && after.stored !== '{}', String(after.stored).slice(0, 60));
-    // MDL I-116 — put the column back where it was. The drag above deliberately widens a column, and
-    // the split-header "must fit" rule (§7.2.15 invariant 5) governs the SHIPPED DEFAULTS: the fit
-    // pass deliberately does not shrink a width the user chose. Leaving the widened state in place
-    // made the later fit check measure this test's own handiwork — an 89 px overflow against the
-    // 90 px drag, in a table that fits exactly when measured on its own. A check must restore the
-    // state it changed, or every check after it is measuring something else.
-    await page.evaluate(() => {
-      const g = document.querySelector('table.ds-table .ds-resize');
+    }, idx);
+    const drag = (idx, by) => page.evaluate(([i, d]) => {
+      const g = document.querySelectorAll('table.ds-table')[i].querySelector('.ds-resize');
       const r = g.getBoundingClientRect();
       const x = r.x + r.width / 2, y = r.y + r.height / 2;
+      // synthetic pointer drag: the grip sits under the fixed header, which Playwright cannot reach
       const opt = cx => ({ clientX: cx, clientY: y, bubbles: true, cancelable: true, pointerId: 1 });
       g.dispatchEvent(new PointerEvent('pointerdown', opt(x)));
-      document.dispatchEvent(new PointerEvent('pointermove', opt(x - 90)));
-      document.dispatchEvent(new PointerEvent('pointerup', opt(x - 90)));
-    });
-    const restored = await page.evaluate(() => {
-      const t = document.querySelector('table.ds-table .ds-resize').closest('table');
-      return t.querySelectorAll('colgroup col')[0].getBoundingClientRect().width;
-    });
-    ok('I-95: the resize test restores the width it changed (so later checks see the defaults)',
-      Math.abs(restored - w0) <= 2, `${w0.toFixed(0)}px → ${restored.toFixed(0)}px`);
+      document.dispatchEvent(new PointerEvent('pointermove', opt(x + d)));
+      document.dispatchEvent(new PointerEvent('pointerup', opt(x + d)));
+    }, [idx, by]);
+    for (let ti = 0; ti < gripTables.length; ti++) {
+      const idx = gripTables[ti];
+      const before = await colW(idx);
+      await drag(idx, 90);
+      const after = await colW(idx);
+      ok(`I-95: table #${idx} — dragging a grip widens the column`, after.w > before.w + 40,
+        `${before.w.toFixed(0)}px → ${after.w.toFixed(0)}px`);
+      // the whole point of the split-header wiring: ONE write must reach BOTH halves.
+      if (after.partner !== null) ok(`I-95: table #${idx} — the width reaches the body half too (one write, both colgroups)`,
+        Math.abs(after.partner - after.w) <= 1, `fragment=${after.w.toFixed(0)}px body=${after.partner.toFixed(0)}px`);
+      if (ti === 0) ok('I-95: the new width is persisted (D40)', !!after.stored && after.stored !== '{}', String(after.stored).slice(0, 60));
+      // MDL I-116 — put the column back where it was. The drag above deliberately widens a column, and
+      // the split-header "must fit" rule (§7.2.15 invariant 5) governs the SHIPPED DEFAULTS: the fit
+      // pass deliberately does not shrink a width the user chose. Leaving the widened state in place
+      // made the later fit check measure this test's own handiwork — an 89 px overflow against the
+      // 90 px drag, in a table that fits exactly when measured on its own. A check must restore the
+      // state it changed, or every check after it is measuring something else.
+      await drag(idx, -90);
+      const restored = await colW(idx);
+      ok(`I-95: table #${idx} — the resize test restores the width it changed`,
+        Math.abs(restored.w - before.w) <= 2, `${before.w.toFixed(0)}px → ${restored.w.toFixed(0)}px`);
+    }
+    // leave storage as we found it: these drags write width prefs no later check should inherit
+    await page.evaluate(() => Object.keys(localStorage).filter(k => /_widths$/.test(k)).forEach(k => localStorage.removeItem(k)));
   } else skipped('I-95: column resize (no grip found)');
 
   // 4. windowing (I-96) — few rows drawn, full count reported, scroll height preserved

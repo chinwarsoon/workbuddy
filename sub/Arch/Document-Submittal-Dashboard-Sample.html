@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TWRP C3B2 · Document Submittal Dashboard — Sample</title>
+<style>
+:root{
+  --navy:#15314f; --blue:#2b6cf6; --bg:#eef2f8; --panel:#ffffff; --border:#dbe3ef;
+  --text:#1b2a41; --muted:#5a6b86; --amber:#F9A825; --red:#d23b3b; --green:#17a67a;
+  --soft:#e7eefb; --sidebar-w:240px; --appbar-h:100px; --statusbar-h:30px;
+}
+body.collapsed{--sidebar-w:0px}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--text);font-size:14px;line-height:1.45}
+/* ===== Two-row header (title bar + menu bar), sticky as one unit ===== */
+.app-bar{position:fixed;top:0;left:0;right:0;z-index:31;display:flex;flex-direction:column}
+.app-top{display:flex;align-items:center;gap:12px;background:var(--navy);color:#fff;padding:10px 20px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{height:36px;padding:3px;background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.ttl{font-size:17px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{font-size:11px;opacity:.85}
+.app-menu{display:flex;align-items:center;gap:10px;background:#fff;color:var(--text);padding:8px 20px}
+.app-menu .filter-group{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+/* menu-bar chrome: borderless, icon-free, text-only (spec §3.1) */
+.app-menu .panel-toggle{border:0;background:transparent;color:var(--navy);cursor:pointer;font-size:16px;padding:7px 10px;border-radius:6px}
+.app-menu .panel-toggle:hover{background:var(--soft)}
+.app-menu .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.app-menu .btn{border:0;background:transparent;color:var(--navy);cursor:pointer;font-size:13px;padding:7px 12px;border-radius:6px}
+.app-menu .btn:hover{background:var(--soft)}
+.app-menu .btn-primary{background:var(--blue);color:#fff}
+.app-menu .btn-primary:hover{background:#0f56a8}
+.app-menu .chip{border:0;background:transparent;color:var(--navy);cursor:pointer;font-size:13px;padding:7px 10px;border-radius:6px}
+.app-menu .chip:hover{background:var(--soft)}
+.app-menu .chip .ct{opacity:.7;font-size:11px;margin-left:4px}
+.app-menu .tf-btn{border:0;background:transparent;color:var(--navy);cursor:pointer;font-size:13px;padding:7px 12px;border-radius:6px}
+.app-menu .tf-btn:hover{background:var(--soft)}
+.app-menu .warn-toggle{border:0;background:transparent;color:var(--navy);cursor:pointer;font-size:13px;padding:7px 12px;border-radius:6px;display:flex;align-items:center;gap:6px}
+.app-menu .warn-toggle:hover{background:var(--soft)}
+.app-menu .warn-toggle .badge{background:var(--amber);color:#1b2a41;border-radius:10px;padding:1px 7px;font-weight:700}
+/* ===== Side panel (navigation only, below the two-row header) ===== */
+.sidebar{position:fixed;top:var(--appbar-h);left:0;bottom:var(--statusbar-h);width:var(--sidebar-w);
+  background:var(--navy);color:#fff;padding:28px 10px 12px;display:flex;flex-direction:column;gap:4px;
+  transition:transform .2s ease,width .2s ease;z-index:20;overflow-y:auto;
+  border-right:1px solid rgba(255,255,255,.18)}
+.sidebar.collapsed{transform:translateX(-100%)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:#dfe8f3;font-size:14px}
+.nav-item:hover{background:rgba(255,255,255,.1)}
+.nav-item.active{background:var(--blue);color:#fff;font-weight:600}
+.nav-item .ic{width:18px;text-align:center}
+/* ===== Content ===== */
+.content{margin-left:var(--sidebar-w);margin-top:var(--appbar-h);padding:16px 16px 44px;max-width:1320px;transition:margin .2s ease}
+.page{display:none}
+.page.active{display:block}
+/* ===== KPI ===== */
+.kpi{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(16,32,64,.04),0 8px 24px rgba(16,32,64,.05)}
+.kpi .lbl{font-size:12px;color:var(--muted);margin-bottom:6px}
+.kpi .val{font-size:26px;font-weight:700;letter-spacing:-.02em}
+.kpi .sub{font-size:11px;color:var(--muted);margin-top:4px}
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:18px}
+/* ===== Panel ===== */
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;box-shadow:0 1px 2px rgba(16,32,64,.04),0 8px 24px rgba(16,32,64,.05)}
+.panel h3{margin:0 0 4px;font-size:15px}
+.panel .psub{margin:0 0 12px;font-size:12px;color:var(--muted)}
+.panel h4{margin:14px 0 4px;font-size:13px;color:var(--muted)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:1099px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.grid-2{grid-template-columns:1fr}}
+@media(max-width:879px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+/* ===== Table ===== */
+table.ds{width:100%;border-collapse:collapse;font-size:13px}
+table.ds th,table.ds td{border-bottom:1px solid var(--border);padding:8px 10px;text-align:left}
+table.ds th{background:var(--bg);color:var(--muted);font-weight:600;position:sticky;top:0}
+table.ds tbody tr:hover{background:#f6f9fd}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
+.p-SUR{background:#fff3cd;color:#8a6d00}.p-RTR{background:#fde2e2;color:#a11}
+.p-NTS{background:#d8f3e6;color:#0a7}.p-APP{background:#d8f3e6;color:#0a7}
+.p-AWC{background:#e3eefd;color:#1a4fb0}.p-NAP{background:#fde2e2;color:#a11}
+.p-REJ{background:#f6c9c9;color:#a11}.p-INF{background:#eee;color:#555}
+/* ===== Settings / validation ===== */
+.vlist{margin:0;padding-left:18px;line-height:1.7}
+.setting{margin:10px 0;display:flex;align-items:center;gap:8px;font-size:14px}
+.setting input[type=text]{flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:6px}
+ol,ul{margin:6px 0}
+/* ===== Bars ===== */
+#errBanner{position:fixed;left:var(--sidebar-w);right:0;top:var(--appbar-h);z-index:30;display:none;background:var(--amber);color:#1b2a41;padding:8px 14px;font-size:13px}
+#errBanner.show{display:block}
+.status-bar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--navy);color:#E8EDF3;font-size:12px;display:flex;align-items:center;gap:8px;padding:6px 14px;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
+footer{text-align:center;font-size:11.5px;color:var(--muted);padding:18px 0 4px}
+</style>
+</head>
+<body>
+
+<!-- ===== Two-row header: Row 1 title bar (navy) + Row 2 menu bar (white) ===== -->
+<header class="app-bar">
+  <div class="app-top">
+    <div class="brand">
+      <div class="logo">LOGO</div>
+      <div>
+        <div class="ttl">Document Submittal Dashboard</div>
+        <div class="meta">TWRP C3B2 · workbook · as-of 2026-10-23 · refresh</div>
+      </div>
+    </div>
+  </div>
+  <div class="app-menu">
+    <button class="panel-toggle" id="sbToggle" title="Toggle side panel">☰</button>
+    <div class="actions">
+      <button class="btn btn-primary">Load Data</button>
+      <button class="btn">Export</button>
+    </div>
+    <div class="filter-group">
+      <button class="chip">Discipline <span class="ct">(11)</span></button>
+      <button class="chip">Stage <span class="ct">(—)</span></button>
+      <button class="chip">Submission Status <span class="ct">(4)</span></button>
+      <button class="chip">Approval Status <span class="ct">(5)</span></button>
+      <button class="chip">Submitted By <span class="ct">(6)</span></button>
+      <button class="tf-btn">Search</button>
+      <button class="warn-toggle" id="warnToggle">Warnings <span class="badge">1</span></button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== Warning bar (below the menu bar, spans the content area only) ===== -->
+<div id="errBanner">⚠ <b>Formula normalization</b> &nbsp; Column "Latest Approval Status" contains #VALUE! tokens in 69 cells. Values normalized to blank.</div>
+
+<!-- ===== Side panel (navigation only — no filters, no toggle) ===== -->
+<nav class="sidebar" id="sidebar">
+  <div class="nav-item active" data-page="overview"><span class="ic">▦</span> Overview</div>
+  <div class="nav-item" data-page="submittals"><span class="ic">≣</span> Submittals</div>
+  <div class="nav-item" data-page="validation"><span class="ic">✔</span> Validation</div>
+  <div class="nav-item" data-page="analytical"><span class="ic">▤</span> Analytical</div>
+  <div class="nav-item" data-page="staffing"><span class="ic">◫</span> Staffing</div>
+  <div class="nav-item" data-page="settings" style="margin-top:auto"><span class="ic">⚙</span> Settings</div>
+  <div class="nav-item" data-page="help"><span class="ic">?</span> Help</div>
+</nav>
+
+<!-- ===== Content ===== -->
+<main class="content" id="content">
+
+  <!-- Overview -->
+  <section class="page active" id="page-overview">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="lbl">Total Submissions</div><div class="val">168</div><div class="sub">Mar – Oct 2026</div></div>
+      <div class="kpi"><div class="lbl">Documents Submitted / In Plan</div><div class="val">2.3%</div><div class="sub">168 of 7,394 planned</div></div>
+      <div class="kpi"><div class="lbl">Under Review (SUR)</div><div class="val">41</div><div class="sub">awaiting SO return</div></div>
+      <div class="kpi"><div class="lbl">Approved (APP+AWC)</div><div class="val">88</div><div class="sub">of 115 returned</div></div>
+      <div class="kpi"><div class="lbl">On-Time Return Rate</div><div class="val">43%</div><div class="sub">73 of 168</div></div>
+      <div class="kpi"><div class="lbl">Avg Review Delay</div><div class="val">+6.2 d</div><div class="sub">target 0 d or earlier</div></div>
+    </div>
+
+    <!-- C1 Schedule Performance — FULL WIDTH S-curve (references MDL S-curve design) -->
+    <div class="panel">
+      <h3>Schedule Performance (S-Curve)</h3>
+      <p class="psub">Cumulative plan / forecast / actual first-issue. References the MDL S-curve design: full-width,
+        single time axis, plan as the target S with forecast and actual overlaid. Counts by Document No.; duplicates ignored;
+        MDL ↔ Log linked by Document No.</p>
+      <div style="margin:6px 0 10px">
+        <button style="margin:2px;padding:3px 10px;border:1px solid #2b6cf6;background:#2b6cf6;color:#fff;border-radius:10px;font-size:11px;cursor:pointer">Cumulative</button>
+        <button style="margin:2px;padding:3px 10px;border:1px solid #2b6cf6;color:#2b6cf6;background:#fff;border-radius:10px;font-size:11px;cursor:pointer">Per Discipline</button>
+        <span style="margin-left:12px;font-size:11px;color:#5a6b86">Series:</span>
+        <button style="margin:2px;padding:3px 10px;border:1px solid #2b6cf6;background:#2b6cf6;color:#fff;border-radius:10px;font-size:11px;cursor:pointer">Plan</button>
+        <button style="margin:2px;padding:3px 10px;border:1px solid #F9A825;background:#F9A825;color:#1b2a41;border-radius:10px;font-size:11px;cursor:pointer">Forecast</button>
+        <button style="margin:2px;padding:3px 10px;border:1px solid #17a67a;background:#17a67a;color:#fff;border-radius:10px;font-size:11px;cursor:pointer">Actual</button>
+      </div>
+      <svg viewBox="0 0 960 240" width="100%" height="240">
+        <line x1="50" y1="200" x2="930" y2="200" stroke="#dbe3ef"/>
+        <polyline fill="none" stroke="#2b6cf6" stroke-width="2.5" points="60,195 170,190 280,170 390,130 500,90 610,60 760,40 910,32"/>
+        <polyline fill="none" stroke="#F9A825" stroke-width="2.5" stroke-dasharray="6 4" points="60,196 170,191 280,175 390,140 500,105 610,78 760,55 910,42"/>
+        <polyline fill="none" stroke="#17a67a" stroke-width="2.5" points="60,197 170,193 280,180 390,150 500,115 610,88 760,68 910,58"/>
+        <text x="50" y="222" font-size="11" fill="#5a6b86">Mar</text>
+        <text x="270" y="222" font-size="11" fill="#5a6b86">May</text>
+        <text x="490" y="222" font-size="11" fill="#5a6b86">Jul</text>
+        <text x="700" y="222" font-size="11" fill="#5a6b86">Sep</text>
+        <text x="900" y="222" font-size="11" fill="#5a6b86">Oct</text>
+        <text x="60" y="20" font-size="11" fill="#2b6cf6">■ Plan</text>
+        <text x="140" y="20" font-size="11" fill="#F9A825">▢ Forecast</text>
+        <text x="245" y="20" font-size="11" fill="#17a67a">■ Actual</text>
+      </svg>
+    </div>
+
+    <div class="grid-2">
+      <!-- C2 Submission Flow & Delay -->
+      <div class="panel">
+        <h3>Submission Flow &amp; Delay</h3>
+        <p class="psub">Monthly submission status flow with review delay. Toggle the view.</p>
+        <div style="margin:6px 0 10px">
+          <button style="margin:2px;padding:3px 10px;border:1px solid #2b6cf6;background:#2b6cf6;color:#fff;border-radius:10px;font-size:11px;cursor:pointer">Stacked</button>
+          <button style="margin:2px;padding:3px 10px;border:1px solid #2b6cf6;color:#2b6cf6;background:#fff;border-radius:10px;font-size:11px;cursor:pointer">Delay</button>
+          <button style="margin:2px;padding:3px 10px;border:1px solid #2b6cf6;color:#2b6cf6;background:#fff;border-radius:10px;font-size:11px;cursor:pointer">Funnel</button>
+          <button style="float:right;padding:3px 10px;border:1px solid #2b6cf6;color:#2b6cf6;background:#fff;border-radius:10px;font-size:11px;cursor:pointer">Include NFS</button>
+        </div>
+        <svg viewBox="0 0 480 200" width="100%" height="200">
+          <line x1="40" y1="170" x2="460" y2="170" stroke="#dbe3ef"/>
+          <rect x="60" y="110" width="22" height="60" fill="#2b6cf6"/><rect x="60" y="90" width="22" height="20" fill="#F9A825"/><rect x="60" y="70" width="22" height="20" fill="#17a67a"/>
+          <rect x="150" y="90" width="22" height="80" fill="#2b6cf6"/><rect x="150" y="70" width="22" height="20" fill="#F9A825"/><rect x="150" y="50" width="22" height="20" fill="#17a67a"/>
+          <rect x="240" y="100" width="22" height="70" fill="#2b6cf6"/><rect x="240" y="80" width="22" height="20" fill="#F9A825"/><rect x="240" y="60" width="22" height="20" fill="#17a67a"/>
+          <rect x="330" y="80" width="22" height="90" fill="#2b6cf6"/><rect x="330" y="60" width="22" height="20" fill="#F9A825"/><rect x="330" y="40" width="22" height="20" fill="#17a67a"/>
+          <rect x="420" y="90" width="22" height="80" fill="#2b6cf6"/><rect x="420" y="70" width="22" height="20" fill="#F9A825"/><rect x="420" y="50" width="22" height="20" fill="#17a67a"/>
+          <text x="40" y="190" font-size="10" fill="#5a6b86">May</text>
+          <text x="450" y="190" font-size="10" fill="#5a6b86">Aug</text>
+          <text x="40" y="16" font-size="10" fill="#2b6cf6">■ SUR</text>
+          <text x="105" y="16" font-size="10" fill="#F9A825">■ RTR</text>
+          <text x="170" y="16" font-size="10" fill="#17a67a">■ NTS</text>
+          <text x="245" y="16" font-size="10" fill="#8a96a8">■ NFS</text>
+        </svg>
+      </div>
+
+      <!-- C3 Breakdown (incl. Approval Mix) -->
+      <div class="panel">
+        <h3>Breakdown</h3>
+        <p class="psub">Split by a dimension and a metric. Approval Mix is one metric option.</p>
+        <div style="margin:6px 0 10px">
+          <button style="margin:2px;padding:3px 10px;border:1px solid #2b6cf6;background:#2b6cf6;color:#fff;border-radius:10px;font-size:11px;cursor:pointer">Discipline</button>
+          <button style="margin:2px;padding:3px 10px;border:1px solid #2b6cf6;color:#2b6cf6;background:#fff;border-radius:10px;font-size:11px;cursor:pointer">Submitter</button>
+          <span style="margin-left:12px;font-size:11px;color:#5a6b86">Metric:</span>
+          <button style="margin:2px;padding:3px 10px;border:1px solid #2b6cf6;background:#2b6cf6;color:#fff;border-radius:10px;font-size:11px;cursor:pointer">Count</button>
+          <button style="margin:2px;padding:3px 10px;border:1px solid #2b6cf6;color:#2b6cf6;background:#fff;border-radius:10px;font-size:11px;cursor:pointer">Plan vs Actual</button>
+          <button style="margin:2px;padding:3px 10px;border:1px solid #2b6cf6;color:#2b6cf6;background:#fff;border-radius:10px;font-size:11px;cursor:pointer">Delay</button>
+          <button style="margin:2px;padding:3px 10px;border:1px solid #2b6cf6;color:#2b6cf6;background:#fff;border-radius:10px;font-size:11px;cursor:pointer">Rework</button>
+          <button style="margin:2px;padding:3px 10px;border:1px solid #2b6cf6;color:#2b6cf6;background:#fff;border-radius:10px;font-size:11px;cursor:pointer">Approval Mix</button>
+        </div>
+        <svg viewBox="0 0 480 200" width="100%" height="200">
+          <line x1="120" y1="10" x2="120" y2="190" stroke="#dbe3ef"/>
+          <rect x="130" y="20" width="300" height="14" fill="#e3eefd"/><rect x="130" y="20" width="220" height="14" fill="#2b6cf6"/>
+          <rect x="130" y="50" width="260" height="14" fill="#e3eefd"/><rect x="130" y="50" width="180" height="14" fill="#2b6cf6"/>
+          <rect x="130" y="80" width="220" height="14" fill="#e3eefd"/><rect x="130" y="80" width="150" height="14" fill="#2b6cf6"/>
+          <rect x="130" y="110" width="200" height="14" fill="#e3eefd"/><rect x="130" y="110" width="120" height="14" fill="#2b6cf6"/>
+          <rect x="130" y="140" width="160" height="14" fill="#e3eefd"/><rect x="130" y="140" width="90" height="14" fill="#2b6cf6"/>
+          <rect x="130" y="170" width="120" height="14" fill="#e3eefd"/><rect x="130" y="170" width="60" height="14" fill="#2b6cf6"/>
+          <text x="20" y="30" font-size="11" fill="#5a6b86">ICA</text>
+          <text x="20" y="60" font-size="11" fill="#5a6b86">Elec</text>
+          <text x="20" y="90" font-size="11" fill="#5a6b86">Mech</text>
+          <text x="20" y="120" font-size="11" fill="#5a6b86">Proc</text>
+          <text x="20" y="150" font-size="11" fill="#5a6b86">Pipg</text>
+          <text x="20" y="180" font-size="11" fill="#5a6b86">CSA</text>
+        </svg>
+      </div>
+    </div>
+
+
+
+
+
+
+  </section>
+
+  <!-- Analytical (bottlenecks, delays, projected delays, staffing) -->
+  <section class="page" id="page-analytical">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="lbl">Overdue (past target, open)</div><div class="val">25</div><div class="sub">18 SUR · 7 RTR</div></div>
+      <div class="kpi"><div class="lbl">Open SUR older than 60 d</div><div class="val">50</div><div class="sub">of 180 in review</div></div>
+      <div class="kpi"><div class="lbl">Rework Rate</div><div class="val">11%</div><div class="sub">RTR / resubmission</div></div>
+      <div class="kpi"><div class="lbl">Avg Cycle (return→approval)</div><div class="val">8 d</div><div class="sub">review→approval</div></div>
+      <div class="kpi"><div class="lbl">Look-ahead (4 wks)</div><div class="val">45</div><div class="sub">due by 2026-11-20</div></div>
+    </div>
+
+    <div class="grid-2">
+      <!-- C4 Turnaround & Aging -->
+      <div class="panel">
+        <h3>Turnaround &amp; Aging</h3>
+        <p class="psub">Process-time analysis. Toggle between scatter and age buckets.</p>
+        <div style="margin:6px 0 10px">
+          <button style="margin:2px;padding:3px 10px;border:1px solid #2b6cf6;background:#2b6cf6;color:#fff;border-radius:10px;font-size:11px;cursor:pointer">Scatter</button>
+          <button style="margin:2px;padding:3px 10px;border:1px solid #2b6cf6;color:#2b6cf6;background:#fff;border-radius:10px;font-size:11px;cursor:pointer">Age buckets</button>
+        </div>
+        <svg viewBox="0 0 480 200" width="100%" height="200">
+          <line x1="40" y1="170" x2="460" y2="170" stroke="#dbe3ef"/>
+          <line x1="40" y1="170" x2="40" y2="20" stroke="#dbe3ef"/>
+          <g fill="#2b6cf6" opacity="0.7">
+            <circle cx="80" cy="140" r="4"/><circle cx="120" cy="110" r="4"/><circle cx="150" cy="80" r="4"/>
+            <circle cx="190" cy="130" r="4"/><circle cx="220" cy="90" r="4"/><circle cx="260" cy="60" r="4"/>
+            <circle cx="300" cy="120" r="4"/><circle cx="330" cy="80" r="4"/><circle cx="370" cy="50" r="4"/>
+            <circle cx="410" cy="100" r="4"/><circle cx="440" cy="70" r="4"/>
+          </g>
+          <text x="40" y="190" font-size="10" fill="#5a6b86">turnaround →</text>
+          <text x="14" y="30" font-size="10" fill="#5a6b86">delay ↑</text>
+        </svg>
+      </div>
+
+      <!-- C5 Forward Plan (Look-ahead + Coverage) -->
+      <div class="panel">
+        <h3>Forward Plan</h3>
+        <p class="psub">Look-ahead list and NFS coverage. Toggle the view.</p>
+        <div style="margin:6px 0 10px">
+          <button style="margin:2px;padding:3px 10px;border:1px solid #2b6cf6;background:#2b6cf6;color:#fff;border-radius:10px;font-size:11px;cursor:pointer">Look-ahead</button>
+          <button style="margin:2px;padding:3px 10px;border:1px solid #2b6cf6;color:#2b6cf6;background:#fff;border-radius:10px;font-size:11px;cursor:pointer">Coverage</button>
+        </div>
+        <table class="ds">
+          <thead><tr><th>Document No.</th><th>Discipline</th><th>Target Return</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>TWRP-HVAC-DRWG-051</td><td>HVAC</td><td>2026-10-30</td><td><span class="pill p-SUR">SUR</span></td></tr>
+            <tr><td>TWRP-PIPG-DRWG-062</td><td>Piping</td><td>2026-11-06</td><td><span class="pill p-SUR">SUR</span></td></tr>
+            <tr><td>TWRP-ICA-DRWG-071</td><td>ICA</td><td>2026-11-13</td><td><span class="pill p-NTS">NTS</span></td></tr>
+            <tr><td>TWRP-ELEC-DRWG-084</td><td>Electrical</td><td>2026-11-19</td><td><span class="pill p-NFS">NFS</span></td></tr>
+            <tr><td colspan="3">Total due in window</td><td><b>45</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Staffing (manhour / capacity analysis, separate side menu) -->
+  <section class="page" id="page-staffing">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="lbl">Required Review FTE (Dec)</div><div class="val">2.2</div><div class="sub">from projected volume</div></div>
+      <div class="kpi"><div class="lbl">Current Throughput</div><div class="val">≈1.1</div><div class="sub">FTE implied</div></div>
+      <div class="kpi"><div class="lbl">Capacity Gap</div><div class="val">+1.1</div><div class="sub">reviewers needed</div></div>
+      <div class="kpi"><div class="lbl">Review hours / doc</div><div class="val">2.2 h</div><div class="sub">discipline-weighted</div></div>
+    </div>
+
+    <!-- C6 Staffing Estimator (full width) -->
+    <div class="panel">
+      <h3>Staffing Estimator (review manhours)</h3>
+      <p class="psub">Parametric: required review-FTE = projected volume × review-hours/document ÷ productive-hours/reviewer.
+        Review-hours/document is a planner input (discipline-weighted).</p>
+      <div class="setting"><label>Projected volume (Dec):</label><input type="text" value="140 docs" readonly></div>
+      <div class="setting"><label>Review hours / document (weighted):</label><input type="text" value="2.2 h" readonly></div>
+      <div class="setting"><label>Productive hours / reviewer / month:</label><input type="text" value="140 h" readonly></div>
+      <div class="setting"><label><b>Required review FTE:</b></label><input type="text" value="2.2 FTE" readonly></div>
+      <div class="setting"><label>Current throughput implies:</label><input type="text" value="≈1.1 FTE" readonly></div>
+      <p class="psub" style="margin-top:8px">Gap = <b>+1.1 reviewers</b> (or descope ~60 docs from December). Covers review/approval effort only — not drafting or coordination.</p>
+    </div>
+  </section>
+
+  <!-- Submittals (review + filter all details incl. delays) -->
+  <section class="page" id="page-submittals">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="lbl">Total Submissions</div><div class="val">168</div></div>
+      <div class="kpi"><div class="lbl">Delayed Returns</div><div class="val">95</div><div class="sub">late review</div></div>
+      <div class="kpi"><div class="lbl">Avg Delay</div><div class="val">+6.2 d</div></div>
+    </div>
+    <div class="panel">
+      <h3>Submission Detail</h3>
+      <p class="psub">All submittals — sort, quick filter, column chooser and CSV export planned in build</p>
+      <table class="ds">
+        <thead><tr>
+          <th>Document No.</th><th>Title</th><th>Discipline</th><th>Submitted By</th>
+          <th>Submission Date</th><th>Submission Status</th><th>Approval</th><th>Delay (d)</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>TWRP-ICA-DRWG-001</td><td>Site Plan Rev A</td><td>ICA</td><td>Consultant A</td><td>2026-03-12</td><td><span class="pill p-NTS">NTS</span></td><td><span class="pill p-APP">APP</span></td><td>+2</td></tr>
+          <tr><td>TWRP-ELEC-DRWG-014</td><td>LV Distribution</td><td>Electrical</td><td>Consultant B</td><td>2026-04-03</td><td><span class="pill p-RTR">RTR</span></td><td><span class="pill p-NAP">NAP</span></td><td>+9</td></tr>
+          <tr><td>TWRP-MECH-DRWG-022</td><td>HVAC Layout</td><td>Mech</td><td>Consultant A</td><td>2026-05-18</td><td><span class="pill p-SUR">SUR</span></td><td><span class="pill p-INF">INF</span></td><td>—</td></tr>
+          <tr><td>TWRP-PROC-DRWG-007</td><td>P&ID Rev C</td><td>Process</td><td>Consultant C</td><td>2026-06-29</td><td><span class="pill p-NTS">NTS</span></td><td><span class="pill p-AWC">AWC</span></td><td>+1</td></tr>
+          <tr><td>TWRP-PIPG-DRWG-031</td><td>Pipe Routing</td><td>Piping</td><td>Consultant B</td><td>2026-07-15</td><td><span class="pill p-RTR">RTR</span></td><td><span class="pill p-REJ">REJ</span></td><td>+14</td></tr>
+          <tr><td>TWRP-CSA-DRWG-009</td><td>Civil Foundation</td><td>CSA</td><td>Consultant A</td><td>2026-08-21</td><td><span class="pill p-NTS">NTS</span></td><td><span class="pill p-APP">APP</span></td><td>0</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Validation (all validation details) -->
+  <section class="page" id="page-validation">
+    <div class="panel">
+      <h3>Validation Details</h3>
+      <p class="psub">Full record behind the warning bar</p>
+      <ul class="vlist">
+        <li><b>Structure</b> — 11 discipline sheets and SubmittalLog present. 0 missing columns.</li>
+        <li><b>Formula normalization</b> — Column "Latest Approval Status": 69 cells with #VALUE!. Normalized to blank (parse step; not a V-code).</li>
+        <li><b>V-07</b> — 3 unknown Submission Status codes (not in Code-sheet domain).</li>
+        <li><b>V-26</b> — 12 duplicate Document No. rows flagged in Submittal Log.</li>
+        <li><b>V-29</b> — 4 orphan rows (Log Document No. absent from MDL scope).</li>
+        <li><b>V-15</b> — 2 Document No. values contain placeholder xxxx.</li>
+        <li><b>Dates</b> — 5 serial dates out of range; normalized.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Settings -->
+  <section class="page" id="page-settings">
+    <div class="panel">
+      <h3>Settings</h3>
+      <p class="psub">Preferences saved in localStorage</p>
+      <div class="setting"><label><input type="checkbox" checked> Dark theme</label></div>
+      <div class="setting"><label><input type="checkbox" checked> Show warning bar</label></div>
+      <div class="setting"><label>Default columns: <select><option>All</option><option>Core</option></select></label></div>
+      <div class="setting"><label>MDL path: <input type="text" value="TWRP C3B2 - Master Document List.xlsx"></label></div>
+    </div>
+  </section>
+
+  <!-- Help -->
+  <section class="page" id="page-help">
+    <div class="panel">
+      <h3>Help</h3>
+      <p class="psub">How to use this dashboard</p>
+      <ol>
+        <li>Load the two workbooks (MDL and Submittal Log).</li>
+        <li>Use the menu-bar filters (Discipline, Stage, Status, Approval, Submitted By, Search).</li>
+        <li>Switch pages with the left side panel (toggle it with the menu-bar ☰ button).</li>
+      </ol>
+      <h4>Status codes</h4>
+      <p>Submission: SUR (under review), RTR (returned), NTS (no resubmission), NFS (not submitted).</p>
+      <p>Approval: APP (approved), AWC (approved with comments), NAP (not approved), REJ (rejected), INF (for information).</p>
+      <p>Sources: TWRP C3B2 - Document Submittal Log.xlsx + Master Document List.xlsx. Sample — not wired to Excel.</p>
+    </div>
+  </section>
+
+  <footer>Sources: TWRP C3B2 - Document Submittal Log.xlsx (SubmittalLog) + TWRP C3B2 - Master Document List.xlsx (discipline sheets). Sample page — not wired to Excel. Status codes: SUR/RTR/NTS/NFS · APP/AWC/NAP/REJ/INF.</footer>
+</main>
+
+<!-- ===== Status bar ===== -->
+<div class="status-bar">
+  <span>Total: 7,562</span><span>·</span><span>Filtered: 168</span><span>·</span>
+  <span>Submitted 2.3%</span><span>·</span><span>As-of 2026-10-23</span><span>·</span><span>Filters: none</span>
+</div>
+
+<script>
+// Side-panel toggle lives in the menu bar (Decision D4); it opens or closes the left navigation.
+const sidebar = document.getElementById('sidebar');
+document.getElementById('sbToggle').onclick = () => {
+  document.body.classList.toggle('collapsed');
+  sidebar.classList.toggle('collapsed');
+};
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.onclick = () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('page-' + item.dataset.page).classList.add('active');
+  };
+});
+// Warning bar toggle (dismissible per spec §3.5).
+const banner = document.getElementById('errBanner');
+banner.classList.add('show');
+document.getElementById('warnToggle').onclick = () => banner.classList.toggle('show');
+</script>
+</body>
+</html>

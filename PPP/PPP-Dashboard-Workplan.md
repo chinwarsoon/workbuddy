@@ -102,6 +102,7 @@ The PPP Dashboard is a **standalone, offline-first, browser-based interactive da
 | **1.22** | **2026-10-15** | docs | **I-76 filed — pipeline modularisation backlog.** PPP remains a monolithic single-file HTML; `buildModel` / `validate` / `render` stages exist logically but are not importable as Node modules. This blocks full Tier 3 data verification in the `harness-layout` tool and prevents independent pipeline unit testing equivalent to MDL's `test/test_pipeline.mjs`. Logged as **I-76** in §7. No code changed. | — `Dashboard-UI-Design-Spec.md` updated to v1.1.** All project-specific content (MDL variant blockquotes, PPP function names, MDL issue cross-references, dashboard-specific panel numbers, PPP-specific horizon options, MDL sub-tier KPI field references, stale B4 non-compliant note, `mdl_hideWarnings` key, PPP dark-theme reference) removed or generalised. Zero contradictions with this workplan — all PPP-specific content remains correctly documented here. **No PPP dashboard code changed.** |
 | **1.23** | **2026-10-18** | docs · harness | **I-77 filed — PPP `3m` horizon chip below the contrast floor.** The selected chip of the Look-ahead horizon selector (`1m / 2m / 3m / 4m / 6m`, default `3m`, class `on`) renders `rgb(98, 118, 142)` text on `rgb(172, 182, 195)` — measured **2.27 : 1** by `harness-layout` Tier 4d `lintControlContrast`, under the 3:1 UI-text floor (spec §7.1). It surfaces as an **advisory** because PPP runs `chrome.controlContrast: 'advisory'`; PPP currently reports 87 passed / 19 failed / 1 advisory. Logged as **I-77** in §7 (Backlog). **No PPP dashboard code changed.** |
 | **1.24** | **2026-10-21** | docs | **I-78 filed — PPP text-action classes are now non-conforming against shared spec §7.1 A3.** The spec was made normative on 2026-10-20 (MDL I-71): `.btn-secondary` is the canonical A3 class for every text action. PPP still ships `.dlBtn` / `.copyBtn`, now recorded as **legacy, non-conforming aliases** with a required migration and a bar on any new control using them. The styles currently resolve identically, so there is **no visible defect** — the risk is latent drift, because the class name is the only link between a rendered control and its governing spec rule. Logged in §7 as **Backlog — deferred 2026-10-21**, to be processed later. MDL I-71 remains `OPEN` pending this. **No PPP dashboard code changed.** |
+| **1.26** | **2026-10-22** | docs · UI Design | **Shared spec generalised (v1.2 → v1.3) — PPP-specific content moved here.** `Dashboard-UI-Design-Spec.md` is now project-neutral; it gained §0 **Definitions**, §8 **Conformance & Testing** (two-layer check model, 14 required assertions, enforcement posture, conformance record, definition of done) and §9 **Adopting this spec**. Everything belonging to PPP alone now lives in **§8 Shared-Spec Conformance Record**: PPP's dashboard-specific choices (§8.1 — `.card`, inline nav, its own status vocabulary, advisory enforcement posture), its role as the origin of two shared rules (§8.2 — A4 icon geometry and the A3 migration, I-78), its migration state (§8.3 — conforming on A3, **non-conforming on §7.2.15 split header**, one advisory contrast finding I-77), its chart specifics (§8.4) and its evidence (§8.5). |
 | **1.25** | **2026-10-21** | dev · docs | **I-78 closed — PPP migrated to the canonical A3 class.** `.dlBtn` / `.copyBtn` renamed to `.btn-secondary` in `Procurement-Dashboard.html` (markup L402, L1557–1558; delegated handler L2104) and the old names deleted. Two points beyond a plain rename: (a) the delegated handler now keys on `data-act="copy"` / `data-act="dl"` instead of the class, because one shared class cannot discriminate the two actions — behaviour belongs on a data attribute, presentation on the class; (b) `.btn-secondary` was joined to PPP's existing A3 rule (L141 + `:hover` L146) so the shared class actually governs styling rather than sitting decorative. Declared values were already identical, so **no visual change**. Shared spec §7.1 A3 updated: the legacy-alias row is gone and a "Migration — completed 2026-10-21" note records both consequences. Verified `MDL/test/test_grid.mjs` **43/43** and `harness-layout --dashboard ppp` **87 / 19 / 1 / 11** = baseline. Note the PPP harness is mildly flaky run-to-run on the I-77 contrast advisory (1 of 9 runs reported 88 passed / 0 advisory); measured 6/6 stable at baseline afterwards, so it is pre-existing raciness, not this change. **MDL I-71 closed as a result.** |
 
 ---
@@ -572,3 +573,62 @@ The Code sheet has **6 distinct column groups**. Row 1 contains headers for all 
 | **I-65** | **Workplan §6 Validation Rules table should list every error proper
 | **I-77** | **Look-ahead horizon chip `3m` is below the 3:1 contrast floor (measured 2.27:1).** The selected chip of the segmented horizon selector (`1m / 2m / 3m / 4m / 6m`, default `3m`, class `on`) renders `color: rgb(98, 118, 142)` on `background: rgb(172, 182, 195)`. Measured by `harness-layout` Tier 4d `lintControlContrast` (WCAG relative-luminance ratio) at **2.27 : 1**, below the mandated 3:1 floor for UI text (spec §7.1). PPP runs `chrome.controlContrast: 'advisory'`, so it surfaces as an **advisory warning** instead of a hard failure — PPP currently reports 87 passed / 19 failed / **1 advisory**. The same chip is listed twice in the advisory payload because the check runs two passes (default and forced pressed warning-toggle state); it is a single distinct control. | Low-contrast label on the default (selected) horizon control — hard to read and a WCAG AA failure for UI text. No functional break: the charts still render and the selector still works. | **Logged only — no code changed (2026-10-18).** Raise the `on` chip pair to **≥ 3:1** (darken the label or lighten the fill); once fixed, flip PPP `chrome.controlContrast` from `'advisory'` to `true` so Tier 4d enforces hard, matching MDL. | Dev / UX | Backlog |
 | **I-78** | ✅ **CLOSED 2026-10-21 — PPP text-action buttons renamed to the canonical A3 class.** Filed 2026-10-21 from MDL I-71. The shared spec §7.1 (A. Action buttons) was made normative on 2026-10-20 (MDL I-71): **`.btn-secondary` is the canonical A3 class** and MUST be used for every text action (export / copy / CSV / reset). PPP still ships `.dlBtn` (L400, L1555, L2100) and `.copyBtn` (L400, L1556, L2100) in `Procurement-Dashboard.html`, which §7.1 A3 now records as **legacy, non-conforming aliases** — tolerated only pending a required migration, and MUST appear on no **new** control. The rendered styles already agree: PPP's `.ctool button` rule (L139–144) and MDL's `.btn` + `.btn-secondary` (MDL L124, L129–130) resolve identically once token aliases are expanded (`--line` = `--border` = `#D9E1E8`; `--accent` = `--blue` = `#1E88E5`; `--navy` = `--ink` = `#0F2D52`) — same 12 px / 600, 1.2 line-height, 32 px min-height, 7 px 14 px padding, 6 px radius, 6 px gap, white on navy, blue hover fill. So this is **latent, not visible**: the class name is the only link between a rendered control and the spec rule governing it, so a *future* A3 style change will silently miss one dashboard because no shared selector exists for a test to assert against. `.reset` is gone — PPP no longer ships a class of that name. | **Latent only** — the buttons look identical today. PPP is now formally non-conforming against §7.1 A3 until renamed; without a shared selector, a future A3 change hits one dashboard and misses the other. | **DONE 2026-10-21.** Renamed `.dlBtn` / `.copyBtn` → `.btn-secondary` (markup L402 and L1557–1558; delegated handler L2104) and deleted the old names. Because one shared class no longer discriminates the two actions, the handler moved from `.copyBtn` / `.dlBtn` to `data-act="copy"` / `data-act="dl"` — behaviour hangs off a data attribute, the class carries presentation only. `.btn-secondary` was also joined to the rule that already implements A3 here (`.ctool button, .head-actions button, .btn.ghost, .btn-secondary`, L141 + `:hover` L146), so the shared class is **governing** rather than decorative; the declared values were already identical, so nothing moved visually. Verified: `MDL/test/test_grid.mjs` **43/43**; `harness-layout --dashboard ppp` **87 passed / 19 failed / 1 advisory / 11 skipped**, identical to baseline (that advisory is I-77's contrast issue, pre-existing and unrelated). | Dev | **Closed 2026-10-21** |
+
+---
+
+## 8. Shared-Spec Conformance Record (PPP-specific)
+
+The shared `Dashboard-UI-Design-Spec.md` is **project-neutral**: it states what *any* dashboard must
+do. Everything that belongs to PPP alone — the concrete instantiation of a permitted choice, PPP's
+migration state, its enforcement posture and its issue history — lives here. Each entry cites the
+spec clause it satisfies (spec §1, §8.4).
+
+**On 2026-10-22 the spec was generalised** (v1.2 → v1.3) and the PPP-specific content below was moved
+out of it. Nothing changed in PPP's behaviour — the rules are identical, only their location moved.
+
+### 8.1 Dashboard-specific choices (the spec permits; PPP decides)
+
+| Spec clause | PPP's choice |
+|---|---|
+| §4 — panel class name is free | **`.card`** |
+| §3.2 — navigation: sidebar **or** inline | **Inline in the header** — no left sidebar |
+| §1 — status vocabulary is per-dashboard | PPP defines its own status text/symbols; MDL's are never copied |
+| §3.1 / §7.2.7 — which dimensions are **global** | PPP's category filter (top-bar chip); the dimension list is PPP's own |
+| §7.1 — enforcement posture (hard / advisory) | **Advisory** — see I-77; the intent is to flip to hard once I-77 is fixed |
+
+### 8.2 PPP as the origin of two shared rules
+
+Two rules now in the spec were first established here. The **rule** is shared and lives in the spec;
+the **history** is PPP's and lives here.
+
+- **A4 icon / mini button geometry (spec §7.1 A4)** — PPP's implementation (26 px square, 13 px /
+  600, `--soft` hover) is the geometry the spec now mandates for every dashboard.
+- **A3 canonical class migration (spec §7.1 A3)** — completed **2026-10-21** under **I-78**:
+  `.dlBtn` / `.copyBtn` were renamed to `.btn-secondary` and the old names deleted.
+  - Because one shared class can no longer discriminate the two actions, the delegated handler moved
+    from the class to `data-act="copy"` / `data-act="dl"` — behaviour hangs off a data attribute.
+  - `.btn-secondary` was joined to the rule that already implements A3 in PPP
+    (`.ctool button, .head-actions button, .btn.ghost`), so the shared class is **governing**, not
+    decorative. The declared values were already identical, so nothing moved visually.
+
+### 8.3 Conformance / migration state
+
+| Spec clause | PPP status |
+|---|---|
+| §7.1 A3 — `.btn-secondary` is the canonical text-action class | **Conforming since 2026-10-21** (I-78). Legacy `.dlBtn` / `.copyBtn` are **gone**; `.reset` had already disappeared |
+| §7.2.15 — every bounded table uses the split header; sticky `<thead>` inside a `.tableScroll` is retired | **Non-conforming — not yet migrated.** PPP ships a sticky `<thead>` in every `.tableScroll` / `.vtableWrap`. Migration is **open** (same status pattern as §7.1 A3) |
+| §7.1 — control contrast ≥ 3:1 for UI text | **Advisory — 1 open finding**: the look-ahead horizon chip `3m` measures **2.27:1** (I-77). PPP reports 87 passed / 19 failed / **1 advisory** |
+
+### 8.4 Chart specifics (spec §4.2)
+
+- PPP's combo chart is **SVG-based** (`svgPoCombo`); bar value labels print at **12 px** above every
+  non-zero bar — the spec now states the 12 px figure generically.
+- Cumulative S-curve points are **solid dots** (`r=3`, filled with the series colour), never hollow
+  rings — the form the spec now mandates for every S-curve.
+
+### 8.5 Evidence (spec §8.4)
+
+- Shared harness: `harness-layout --dashboard ppp`, with PPP's check module
+  (`harness-layout/checks/ppp.mjs`); PPP runs `chrome.controlContrast: 'advisory'`.
+- MDL's shared A3 tripwire lives in `MDL/test/test_grid.mjs` (4 checks) and covers both dashboards.
+- Per-clause evidence pointers are recorded in the issue table of §7 above.

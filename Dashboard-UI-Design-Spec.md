@@ -1,18 +1,51 @@
 # Dashboard UI Design Standard
 
-**Version**: 1.2
-**Date**: 2026-10-15
-**Last revised**: 2026-10-21 — §7.2.15 **standardised**: the split header is now required for **every** bounded data table (`.tableScroll`), single-row headers included, and a sticky `<thead>` inside a table scroller is retired; §4.3's container rule aligned to match. Driven by MDL I-116 (vertical-scrollbar standardisation). Later the same day: §7.2.15 invariant 5
+**Version**: 1.3
+**Date**: 2026-10-22
+**Last revised**: 2026-10-22 — **generalised**: the spec is now a project-neutral standard. Every
+dashboard-specific detail — the two-row header instantiation, the per-dashboard migration state, the
+enforcement posture, the legacy class aliases and their migration dates, the regression/issue history —
+moved to the owning dashboard's workplan, with a pointer back to the clause it satisfies. Added §0
+**Definitions** and §8 **Conformance & Testing** (two-layer check model, 14 required assertions,
+enforcement posture, conformance record, definition of done) plus §9 **Adopting this spec**. Prior
+(2026-10-21) — §7.2.15 **standardised**: the split header is now required for **every** bounded data table (`.tableScroll`), single-row headers included, and a sticky `<thead>` inside a table scroller is retired; §4.3's container rule aligned to match. Driven by the vertical-scrollbar standardisation review. Later the same day: §7.2.15 invariant 5
 clarified — "unavoidable" horizontal scrolling is now defined objectively (Σ minimum column widths >
-available width), so the fit requirement is testable. Prior (2026-10-19): §7.2.7 extended with the no-duplicate-filter-dimensions rule (overall requirement; MDL-specific application in `MDL-Dashboard-Workplan.md` §4.0.1). Prior (2026-10-19): §7.2.7 added (Filter population rule: two-tier global-first → panel cascade); S4 Derive row and MDL menu-bar variant hardened to state the cascade. Driven by MDL filter-behaviour review.
+available width), so the fit requirement is testable. Prior (2026-10-19): §7.2.7 extended with the no-duplicate-filter-dimensions rule (overall requirement; each dashboard records its own dimension list in its workplan, §1). Prior (2026-10-19): §7.2.7 added (Filter population rule: two-tier global-first → panel cascade); S4 Derive row and the two-row header variant hardened to state the cascade. Driven by the filter-behaviour review.
 2026-10-18 — §7.2.15 added (split-header / fragment-pairing contract, six normative
-clauses) and `.vheadtab` + `.ds-gut` added to the normative class table. Driven by MDL I-103.
+clauses) and `.vheadtab` + `.ds-gut` added to the normative class table. Driven by the split-header review.
 **Owner**: UI Design
-**Applies to**: PPP Dashboard, MDL Control Center, and all future internal dashboards
+**Applies to**: every internal control-center dashboard — present and future
 
-> This document is the **single source of truth** for page layout and visual style across
-> every internal control-center dashboard. It is intentionally platform/brand-agnostic in
-> *structure* but fixed in *tokens* so that PPP, MDL, and future apps render as one family.
+> This document is the **single source of truth** for page layout and visual style across every
+> internal control-center dashboard. It is intentionally platform/brand-agnostic in *structure*
+> but fixed in *tokens*, so that every dashboard renders as one family.
+>
+> **It is a general standard, not a project log.** This spec states *what any dashboard must do*.
+> Anything that belongs to one dashboard — its status vocabulary, its dimension list, its migration
+> state, its issue history — lives in **that dashboard's own workplan**. A reference to a specific
+> dashboard in this document is either an illustration of a general rule or a pointer to the
+> workplan; it is never a rule that applies to one dashboard only.
+
+---
+
+## 0. Definitions
+
+These terms are used normatively throughout this spec.
+
+| Term | Meaning |
+|---|---|
+| **Dashboard** | One internal control-center application (its own page, pipeline and workplan). |
+| **Workplan** | The dashboard's own document: its data contract, module specs, decisions and its **spec-conformance record** (which spec clauses it satisfies, how, and any deviation). Cited from §1. |
+| **Panel** | The atomic page unit (§4). The CSS class name is free. |
+| **Bounded data table** | A long list rendered inside a scroller with a fixed max-height — never an open-ended list (§4.3). |
+| **Split header** | A `<thead>` rendered outside the scroll container as a thead-only fragment, so the vertical scrollbar starts below the header (§7.2.15). |
+| **Global dimension** | A filter dimension exposed in the top bar whose selection re-derives the shared set for **every** panel (§7.2.7). Which dimensions are global is a per-dashboard decision. |
+| **`active`** | The single reduced working set produced by S4 Derive after the global dimensions are applied. Every panel derives from it (§3.8, §7.2.7). |
+| **Panel filter** | A control that narrows one panel's rows, applied in S5 on top of `active`. It can only narrow further (§7.2.7 pt 2). |
+| **Panel-local filter** | A panel filter that affects **only the tables inside its own panel** — never KPIs, charts, the matrix or another panel (§7.2.7 pt 6, §7.1 B6). |
+| **Layout control** | A control that changes *how* something is presented (which columns are shown, which sort applies) and never which rows are returned. It must not use filter chrome (§7.1 B7). |
+| **Chrome** | The visual treatment of a control — its shape, badge and emphasis. Chrome must let the reader tell a row filter from a layout control (§7.1 B). |
+| **Conformance check** | An automated assertion that a rendered dashboard satisfies a normative clause (§8). |
 
 ---
 
@@ -21,9 +54,13 @@ clauses) and `.vheadtab` + `.ds-gut` added to the normative class table. Driven 
 - **Tokens are canonical.** Every dashboard imports the `:root` block in §6 verbatim. A
   dashboard may *add* tokens but **must not** override the canonical values.
 - **Layout rules are mandatory** (§3–§5). Component styling is mandatory (§7).
-- **Status vocabularies are per-dashboard.** PPP defines its own status text/symbols;
-  MDL defines its own. What is *shared* is only the **principle**: every status carries
-  **Icon + Text + Colour** (§9). Do not copy another dashboard's status labels.
+- **Status vocabularies are per-dashboard.** Each dashboard defines its own status text and
+  symbols and records them in its own workplan. What is *shared* is only the **principle**:
+  every status carries **Icon + Text + Colour**. Do not copy another dashboard's status labels.
+- **Dashboard-specific content belongs in the workplan.** Whenever this spec says a dashboard
+  *may* choose, or names a dimension, a label, a migration step or an enforcement posture,
+  the choice is recorded in that dashboard's workplan — not here. The workplan then cites the
+  spec clause it satisfies, so the two documents stay traceable to each other.
 - **Philosophy is fixed** (§2). Divergence requires a documented design decision.
 
 ---
@@ -49,7 +86,7 @@ Document-Control Systems · Enterprise Project-Management Platforms
 - Large decorative charts
 - Neon colour themes
 - **Apple "Bento" soft-tile aesthetic** (large radii, shadow-only separation, airy
-  whitespace) — inappropriate for dense data tools. See §11.
+  whitespace) — inappropriate for dense data tools.
 
 ---
 
@@ -73,34 +110,49 @@ Document-Control Systems · Enterprise Project-Management Platforms
   chips + search, right-aligned as one group. Fonts follow §8 regardless of row count — there
   is no separate font stack or sizing for the multi-row variant. Document the deviation in the
   dashboard's own workplan.
-- **MDL menu-bar variant (documented in MDL-Dashboard-Workplan §4.0):** the two rows scroll-stick as one
-  unit. Row 1 = title bar (logo + 3-line title block, **no action buttons**). Row 2 = menu bar with a
-  **left actions cluster** (`Load Workbook` as the single A1 Primary CTA, `Print / Save PDF` secondary)
-  and a **right filter group** (global `Discipline` / `Stage` multi-select chips, a `Search` button that
-  reveals a popover panel, and the `Warnings` toggle, §3.5). The menu-bar controls are **borderless and
-  icon-free** — text-only labels; the count shows as a parenthetical on the chip, the badge carries the
-  warning count — and **highlight on hover** with a soft tint; the only filled element is the Primary CTA.
-  The `Warnings` toggle always shows the label **`Warnings`** with the count in its badge (e.g. `[4] Warnings`);
-  its title must **not** invert to `Show warnings` / `Hide warnings` when the bar is collapsed/expanded — the
-  toggle still collapses/expands the bar, but the label stays stable (see §7.1). `Search` is a button, not an
-  inline box. The Discipline/Stage chips are **global** (one selection
-  re-derives the single filtered set for every panel) — they are the **first gate** (S4 Derive → `active`),
-  and each panel's own column filters then layer on top of that shared set (§7.2.7). All controls obey the §7.1 contrast mandate.
-- **Search popover layout (MDL).** The Search dialog lays its controls out in a **single row** — column
-  selector, an **elongated** search field, then `Find` / `Reset` — so nothing wraps or stacks onto a second
-  line. The search field must be wide enough to be usable (≥ 200px when the popover is open; the popover
-  itself is allowed to grow to ~640px so the field can extend). Enforced by the layout harness **Tier 4f**
-  `lintSearchPanel` (MDL runs it with the contrast setting; fails if the controls are not on one row or the
-  search field is too narrow).
+- **Two-row variant — what each row carries (normative).** Where a dashboard uses the two-row
+  form: the two rows scroll-stick as **one unit**; Row 1 is the **title bar** (logo + title block,
+  **no action buttons**); Row 2 is the **menu bar**, split into a **left actions cluster** — the
+  single A1 Primary CTA plus any secondary actions — and a **right filter group** (the global
+  multi-select chips, a `Search` trigger that reveals a popover panel, and the warning-bar toggle
+  of §3.5, where the dashboard ships one).
+- **Menu-bar chrome (normative).** Menu-bar controls are **borderless and icon-free** — text-only
+  labels. A count shows as a parenthetical on a chip; a badge carries a warning count. Controls
+  **highlight on hover** with a soft tint; the **only filled element is the Primary CTA**.
+- **Label stability (normative).** A warning toggle always shows the same label with the count in
+  its badge (e.g. `[4] Warnings`); its title must **not** invert to `Show warnings` / `Hide warnings`
+  when the bar is collapsed or expanded — the toggle still collapses/expands the bar, but the label
+  stays stable. A label that changes verb with state is both confusing and a contrast risk, because
+  it can force a different colour pair. See §7.1.
+- **`Search` is a trigger, not an inline box.** It opens the search popover; it is not itself a
+  text field.
+- **The chips in the top bar are the dashboard's global dimensions** (e.g. Discipline / Stage on a
+  document-control dashboard): one selection re-derives the single filtered set for every panel. They
+  are the **first gate** (S4 Derive → `active`), and each panel's own filters layer on top of that
+  shared set (§7.2.7). Which dimensions a dashboard exposes globally is a **dashboard decision** and
+  is recorded in its own workplan.
+- **Search popover layout (normative).** The Search dialog lays its controls out in a **single row** —
+  column selector, an **elongated** search field, then `Find` / `Reset` — so nothing wraps or stacks
+  onto a second line. The search field must be wide enough to be usable (≥ 200 px when the popover is
+  open; the popover itself may grow to ~640 px so the field can extend). Enforced by the layout
+  harness **Tier 4f** `lintSearchPanel`, which fails if the controls are not on one row or the search
+  field is too narrow (§8).
+- All menu-bar controls obey the §7.1 contrast mandate.
+- **The concrete instantiation is per-dashboard** — which actions sit in the left cluster, which
+  dimensions become global chips, and what the labels read. Record it in the dashboard's own
+  workplan; do not add it here.
 - The logo is a white chip: `height:36px`, `padding:3px`, `border-radius:6px`,
   `box-shadow:0 1px 3px rgba(0,0,0,.2)`.
-- The header is mandatory on every dashboard. Navigation may be a left sidebar (MDL) or
-  inline in the header (PPP) — either is permitted (§3.2).
+- The header is mandatory on every dashboard. Navigation may be a left sidebar or inline in the
+  header — either is permitted (§3.2); **which one a dashboard uses is recorded in its workplan**.
 
 ### 3.2 Navigation
 - Either a **left sidebar** or a top-bar nav. Both are permitted; the header is mandatory
   in either case. A dashboard MAY defer the left sidebar to a future phase — document the
   deferral in the dashboard's own workplan.
+- **Coexistence with a status bar (§3.6)**: when a bottom status bar is present, the sidebar's
+  bottom edge is bounded by it — the sidebar sits *between* the header and the status bar and
+  never runs behind the bar (it must not extend to `bottom:0` while a status bar exists).
 
 ### 3.3 Content Area
 - Centered container, `max-width:1320px`, `margin:0 auto`, `padding:16px` top/left/right
@@ -122,9 +174,9 @@ Document-Control Systems · Enterprise Project-Management Platforms
 | < 880 px | KPI 2-col; single column; nav collapses |
 
 ### 3.5 System / Config Warning Bar (`#errBanner`) — rev 2026-10-10
-Standardised across dashboards on the **PPP design** — a single **fixed top warning bar** that unifies
-system / config notices **and** fatal load failures (spec §7.10 `#errBanner`). One bar, three severity
-tiers, sitting just below the app bar.
+Standardised across dashboards — a single **fixed top warning bar** (`#errBanner`) that unifies
+system / config notices **and** fatal load failures. One bar, three severity tiers, sitting just
+below the app bar.
 
 - **Element**: a single `#errBanner` at the end of the dashboard root, `position:fixed; left:0; right:0`,
   `z-index:30` — the **app bar is `z-index:31`**, so the bar stacks *above* the banner; the filter
@@ -145,7 +197,7 @@ tiers, sitting just below the app bar.
   (default `SYSTEM`), then the message. No leading severity word and no separator — the icon already
   conveys severity.
 - **Unified with load failures**: a failed workbook parse shows a `fatal` strip ("Load failed …") in the
-  same bar (per §7.10). There is **no separate** in-flow warning area and **no** `.note`-card variant for
+  same bar (per §3.5). There is **no separate** in-flow warning area and **no** `.note`-card variant for
   system / config notices — the bar is the only surface for them. (Incidental in-flow FYI notes that are
   not system / config warnings may still use the generic `.note` style.)
 - **Shows *system / config* issues only** (e.g. missing columns, row-count mismatches); per-package data
@@ -202,6 +254,11 @@ tiers, sitting just below the app bar.
   (including the footer) **inside** the content wrapper, which carries `padding-bottom:52px`.
   Do **not** place the footer outside the wrapper, and do **not** rely on `body` padding as the
   clearance mechanism — both leave the fixed bar covering content.
+- **Coexistence with a left sidebar (§3.2)** — when a left sidebar is present, the status bar stays
+  **full width** (it spans the viewport including beneath the sidebar). The sidebar is bounded so its
+  `bottom` equals the status-bar height — i.e. it sits *between* the header and the status bar and never
+  runs behind the bar. This keeps the status bar a single full-width strip and avoids overlap with the
+  sidebar.
 
 ### 3.7 Load / Onboarding screen
 Mandatory. Shown before any data is loaded, as a **standalone hero surface** — the top app bar / navigation is **not** displayed on this screen.
@@ -366,8 +423,9 @@ testable in Node without a browser or DOM:
 
 ## 4. Panel / Card Standard
 
-A **Panel** is the atomic page unit (the example CSS uses `.panel`; PPP uses `.card` — the
-class name is free, the tokens below are fixed).
+A **Panel** is the atomic page unit. **The class name is free** — a dashboard may call it `.panel`,
+`.card` or anything else; only the tokens, spacing and behaviour below are fixed. Record the name
+a dashboard uses in its own workplan.
 
 ```
 ┌───────────────────────────────────────────────┐
@@ -536,7 +594,7 @@ a single shared time axis instead of two stacked charts:
   bar top and rotated about that anchor (`text-anchor="start"` + `transform="rotate(-90 x y)"`).
 - **Every plotted point on a cumulative line is a SOLID dot — `r=3`, filled with the series
   colour.** Nodes are never hollow rings (`fill="#fff"` with a coloured stroke): a solid dot stays
-  legible where series cross and is the form used by the PPP S-curve.
+  legible where series cross — the standard form for every S-curve.
 - **Forecast is always drawn** — it is never hidden merely because the Forecast column is sparse.
   The fallback is applied **per item**: a package with no Forecast date contributes to the
   Forecast series using its **Plan** date (mirrors *due = Forecast ∥ Plan*). When the whole
@@ -551,7 +609,7 @@ a single shared time axis instead of two stacked charts:
   zero line). Cumulative **Actual** is the exception: it runs through **today** (not merely the
   last actual month) so achieved progress stays readable up to the reporting date. Actual *bars*
   still stop at the last month with an actual PO.
-- **Every non-zero bar shows its value** printed above it (12 px, matching PPP `svgPoCombo`). Zero
+- **Every non-zero bar shows its value** printed above it (12 px, matching the bar-combo chart). Zero
   bars are skipped so the plot stays readable.
 - The time range extends **exactly one extra month** beyond the last data month (not three or
   four) so the last bar is not flush against the plot edge.
@@ -674,12 +732,13 @@ once.
 
 1. **Title row** — panel title `Validation`; inline `?` (help `vcard`, **left**) and `−`
    (collapse, **right**) in the right-aligned action cluster (§4.1); a **CSV export** button in
-   the *same* cluster (no change to existing MDL CSV behaviour); and the **severity summary chips**.
+   the *same* cluster (the panel's CSV export behaves like every other §7.1 A3 export); and the
+   **severity summary chips**.
 2. **Severity summary chips** (`.vchip`, at the title row): totals for error / warning / info,
-   plus a hidden `.ok` **"no issues"** chip shown **only** when the issue count is 0. **Shape =
-   the PPP form** — keep the `.e / .w / .i / .ok` colour tiers from §7.10 but **override** its
-   default `border-radius:999px` to **6 px**, with **11 px / 700** and `text-transform:capitalize`.
-   (Deliberate PPP parity; the generic 999px pill of §7.10 does **not** apply to these chips.)
+   plus a hidden `.ok` **"no issues"** chip shown **only** when the issue count is 0. **Shape
+   (normative override)** — use the standard `.e / .w / .i / .ok` colour tiers but **override**
+   the generic 999 px pill radius to **6 px**, with **11 px / 700** and `text-transform:capitalize`.
+   The generic pill shape does **not** apply to these chips.
 3. **Collapsible detail** — a `<details>` element that **starts collapsed**; the user toggles it
    open. Contains, in order:
    - **(a) Code-sheet validation summary** (`#vmap`): a **note card** (single `.note`-style box,
@@ -704,7 +763,7 @@ inline inside the cell without overlapping cell borders. The glyph lives on an *
 that carries `.sev-error` / `.sev-warning` / `.sev-info`; that class MUST NOT be applied to the
 `<td>` (§7.2.4). This applies to **both** the per-issue table *(c)* and the Rule Reference table
 *(b)* (`#vref`), which share those classes. (Distinct from the §4.5.2 `.vchip` summary chips,
-which keep their 6px PPP shape with colour fill and are not in a table, so the emoji is
+which keep their 6 px shape with colour fill and are not in a table, so the emoji is
 allowable there.)
 
 - **Field** = the column the *business rule* (Code-sheet Error block) checks — a real source
@@ -725,8 +784,8 @@ without expanding, so it cannot be buried inside the collapsed region.
 **Help:** `vcard` in the Help modal (§7.9) carries the longer explanation; the panel body keeps
 only the short inline hint.
 
-*Cross-refs:* table base §7.2 · scroller §4.3 · severity symbols §3.5 · chip colour tiers §7.10
-(shape overridden above) · help §7.9.
+*Cross-refs:* table base §7.2 · scroller §4.3 · severity symbols §3.5 · chip shape
+(overridden above, §4.5 item 2) · panel action cluster §4.1.
 
 ---
 
@@ -744,7 +803,7 @@ only the short inline hint.
   when the card carries a status.
 - **Number**: 22 px (compact strip) / 28 px (hero), weight 700, colour `--navy`.
 - **Label**: 10 px, uppercase, `--muted`.
-- **Optional sub-status line**: icon + text + colour (§9).
+- **Optional sub-status line**: icon + text + colour (the shared status principle, §1).
 
 ### KPI sub-tier (`.subkpi`)
 - Below the main KPI cards, a secondary grid of **compact info chips** (`.subkpi`) surfaces
@@ -795,7 +854,7 @@ only the short inline hint.
   --shadow:0 1px 2px rgba(15,45,82,.04);
   --radius:10px;
   --font:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;
-  /* Semantic status tokens (MDL palette) */
+  /* Semantic status tokens */
   --warn-bg:#FFF4D6; --warn-border:#F0D38A; --warn-fg:#9a6b00; --warn-fg-strong:#9a6b00;
   --error-bg:#FDE8E8; --error-fg:#C62828;
   --ok-bg:#E6F4EA; --ok-fg:#2E7D32;
@@ -847,50 +906,44 @@ so they adapt automatically; no per-component dark CSS beyond the token swap (us
 
 ### 7.1 Buttons
 
-**Single standard — no per-dashboard button variations.** MDL and PPP use the *same* classes, sizes, colours and hover behaviour, and every action is a real `<button>` element (never a `<td>`/`<div>` with `role="button"`). Buttons fall into three families:
+**Single standard — no per-dashboard button variations.** Every dashboard uses the *same* classes, sizes, colours and hover behaviour, and every action is a real `<button>` element (never a `<td>`/`<div>` with `role="button"`). Buttons fall into three families:
 
 #### A. Action buttons
 | Type | Class | Use | Style |
 |---|---|---|---|
 | A1 Primary | `.btn` / `.btn-primary` | **one per screen** highest-emphasis CTA — *Open / Load workbook* only; Print / Save / Export are **not** primary | `--blue` solid, white text, radius 6 px, min-height 32 px |
 | A2 Secondary / Ghost | `.btn.ghost` / `.btn-secondary` | low-emphasis alternative / cancel / dismiss; "Load another file" | white, 1px `--border`, **navy** text; hover → `--blue` fill, white text |
-| A3 Text action | `.btn-secondary` (glyph + label); PPP also uses `.dlBtn` / `.copyBtn` | tool / footer-row actions: export, copy, CSV (e.g. `⤓ PNG`, `⧉ Copy`, `⤓ CSV`) | white, **navy** text, glyph + space + label; hover → `--blue` fill, white text |
-| A4 Icon / Mini | `.icon-btn` | icon-only: Help `?`, Collapse `−`, Theme, modal close `✕` | **PPP is the reference implementation.** `width:26px;height:26px;min-height:26px` — 26 px **square**; radius 6 px; 1px `--line`; `background:#fff`; `color:var(--muted)`; `font:inherit`; **13 px** / 600; `line-height:1`; inline-flex centred. Hover → `--soft` background + `--navy` text. **Must carry `aria-label` + tooltip** |
+| A3 Text action | `.btn-secondary` (glyph + label) | tool / footer-row actions: export, copy, CSV (e.g. `⤓ PNG`, `⧉ Copy`, `⤓ CSV`) | white, **navy** text, glyph + space + label; hover → `--blue` fill, white text |
+| A4 Icon / Mini | `.icon-btn` | icon-only: Help `?`, Collapse `−`, Theme, modal close `✕` | `width:26px;height:26px;min-height:26px` — 26 px **square**; radius 6 px; 1px `--line`; `background:#fff`; `color:var(--muted)`; `font:inherit`; **13 px** / 600; `line-height:1`; inline-flex centred. Hover → `--soft` background + `--navy` text. **Must carry `aria-label` + tooltip** |
 | A5 Search | `.search-btn` | search submit, affixed to the search input (right edge, single-side radius) | `--accent` fill, white glyph, radius `0 6px 6px 0`, attached to input |
 
-**A3 — one canonical class name (normative) — added 2026-10-20, MDL I-71.** `.btn-secondary` is the
-**canonical** A3 class. Every text action (export / copy / CSV / reset) MUST use it. A project MUST NOT
-introduce a parallel class for the same logical control.
-
-| Class | Status | Where |
-|---|---|---|
-| `.btn-secondary` | **canonical** — conforming | MDL, everywhere (8 hits in `src/render.mjs`); PPP, **migrated 2026-10-21** |
-
-PPP's legacy `.dlBtn` / `.copyBtn` are **gone** — deleted 2026-10-21. `.reset` had already disappeared
-before this clause was written (the three matches on "reset" were comments and a CSS-reset note). Both
-log entries naming them are historical.
+**A3 — one canonical class name (normative).** `.btn-secondary` is the **canonical** A3 class. Every
+text action (export / copy / CSV / reset) MUST use it. A dashboard MUST NOT introduce a parallel class
+for the same logical control.
 
 **Why the class name is normative, not cosmetic.** The class name is the only link between a rendered
-control and the spec rule that governs it. When two projects name the same logical control
+control and the spec rule that governs it. When two dashboards name the same logical control
 differently, a style change made to satisfy A3 on one silently misses the other, and no shared
-selector exists for a test to assert against. That drift stays invisible until both dashboards are
-compared side by side — the precise failure the shared spec exists to prevent. Aliases are therefore
-**tolerated, never endorsed**: they are written down so the divergence is visible and has a defined
-end state.
+selector exists for a test to assert against. That drift stays invisible until two dashboards are
+compared side by side — the precise failure the shared spec exists to prevent. A legacy alias is
+therefore **tolerated, never endorsed**: it is written down **in the dashboard's own workplan** so the
+divergence is visible and has a defined end state — migration to the canonical name.
 
-**Migration — completed 2026-10-21 (MDL I-71 / PPP I-78).** PPP renamed `.dlBtn` / `.copyBtn` to
-`.btn-secondary` and deleted the old names. Two consequences worth keeping:
+**Two consequences of a single shared name (normative).**
 
-- **A text action's class MUST NOT be used as a behaviour hook.** One shared class no longer discriminates
-  the two actions, so PPP's delegated handler moved to `data-act="dl"` / `data-act="copy"`. That is what
-  forced the handlers onto the class in the first place — behaviour belongs on a data attribute.
-- **The shared class must be governing, not decorative.** PPP joined `.btn-secondary` to the rule that
-  already implements A3 there (`.ctool button, .head-actions button, .btn.ghost`), so a change to the
-  shared class now reaches PPP. The declared values were already identical, so nothing moved visually.
+- **A text action's class MUST NOT be used as a behaviour hook.** One shared class can no longer
+  discriminate two different actions (export vs copy), so behaviour belongs on a **data attribute**
+  (for example `data-act="dl"` / `data-act="copy"`) — never on the class.
+- **The shared class must be governing, not decorative.** A dashboard MUST wire `.btn-secondary` into
+  the rule that actually implements A3 in its stylesheet, so a change to the shared class reaches it.
+  A shared class that is declared but not governing is drift waiting to happen.
 
-**Assertion (required).** A shared check MUST assert that both dashboards carry `.btn-secondary` and that
-neither introduces a parallel class, and that both declare the same A3 geometry — the tripwire that stops
-the two projects drifting apart again. Written 2026-10-21 as 4 checks in `MDL/test/test_grid.mjs`.
+**Assertion (required).** A conformance check MUST assert that every dashboard carries
+`.btn-secondary`, that none introduces a parallel class, and that all declare the same A3 geometry —
+the tripwire that stops dashboards drifting apart again (§8).
+
+**Migration status is per-dashboard.** Whether a dashboard already conforms, which legacy names it
+shipped, and when it migrated are recorded in its own workplan — never here (§1).
 
 #### B. Selection controls
 | Type | Class | Use | Style |
@@ -914,7 +967,7 @@ the two projects drifting apart again. Written 2026-10-21 as 4 checks in `MDL/te
 
 A user must be able to tell, from the chrome alone, both (a) how many values the control accepts and (b) whether it filters **rows**. B7 exists so a layout control can never be mistaken for a row filter.
 
-**Floating-panel internal ordering (normative) — added 2026-10-20, MDL I-115.** Every floating
+**Floating-panel internal ordering (normative).** Every floating
 multi-select panel — the **B1** filter popover and the **B7** column-visibility chooser alike —
 MUST lay its contents out in this order:
 
@@ -945,12 +998,12 @@ never contradict the list below it.
 |---|---|---|---|
 | C1 Status pill | `.pill` | status / count badge — **not an action** | 10 px / 600, radius 999, semantic colour variant |
 
-- **Font:** 12–14 px / 600 (A4 icon buttons **13 px**, per PPP).
+- **Font:** 12–14 px / 600 (A4 icon buttons **13 px**).
 - **Hover (A2 / A3):** `--blue` fill, white text — *not* a `--soft` tint.
 - **A1 Primary** keeps `--blue` (the *action* colour); the **B2 segmented active state** is `--navy` (a *selection* state) — different semantics, intentionally different colours.
 - **Modal is a container, not a button type:** its close `✕` = A4; its footer actions = A1 / A2 / A3.
 - **A4 is used ALONE, and must stay 26 px square.** `.icon-btn` is never combined with `.btn`
-  (PPP: `class="icon-btn"`). If an element has to carry both, `.icon-btn` **must declare its own
+  If an element has to carry both, `.icon-btn` **must declare its own
   `min-height:26px`**: CSS resolves `min-height` *over* `height`, so a bare `height:26px` still
   renders **32 px** tall — A1/A2/A3 carry `min-height:32px` — while the source still reads
   "26 px square" and passes a text-only check.
@@ -963,13 +1016,15 @@ never contradict the list below it.
   carries `aria-pressed="true"` (white text); a `background:transparent` ghost rule must not override that
   pressed fill and drop the label onto the page background. Enforced by the layout harness **Tier 4d
   `controlContrast`** check, which forces the Search panel, each filter-chip dropdown, and the pressed
-  warning-toggle open and fails any control below 3:1 contrast or with no accessible name; MDL runs it hard,
-  PPP advisory. (Regressions: MDL I-105, I-106.)
+  warning-toggle open and fails any control below 3:1 contrast or with no accessible name (§8).
+  **Each dashboard records its enforcement posture** — *hard* (a failure blocks release) or *advisory*
+  (reported, not blocking) — **in its own workplan**, together with the regressions that produced the
+  rule. The posture is a project decision; the contrast requirement itself is not.
 - **A control's label/title is stable and must not invert its verb with state.** A toggle button's
   accessible name describes the control, not the result of the next click: the `Warnings` toggle therefore
   always reads **`Warnings`** with the count in its badge (`[N] Warnings`), and never flips to `Show warnings`
   / `Hide warnings` when collapsed/expanded. A label that changes verb with state is both confusing and a
-  contrast risk (it can force a different colour pair). (Regression: MDL I-107.)
+  contrast risk (it can force a different colour pair).
 
 ### 7.2 Tables (`.ds-table`) — rev 2026-10-15
 
@@ -984,7 +1039,7 @@ One common table style for **every** tabular view. Data tables (benchmark, look-
 overdue) and issue tables (validation) all use `.ds-table`; issue tables add severity + optional
 row drill-down on top of the same base — never a second, divergent table style.
 
-#### 7.2.0 Normative class names (closes §13.6 open item 5)
+#### 7.2.0 Normative class names
 These class names are **normative** and MUST be used verbatim. A dashboard MAY add its own
 classes alongside them but MUST NOT substitute them; panel / container class names remain free
 (§4).
@@ -1034,7 +1089,7 @@ reverse; the structure (not just convention) enforces it.
    more single-purpose controls** that narrow only that panel's rows — rows that are already a
    subset of `active`. A panel filter can therefore **only narrow further** — it can never
    re-include a record a global filter excluded, because the panel never receives those records.
-   Each such control uses the chrome its cardinality dictates (§7.10 B): **B1 + B3** when several
+   Each such control uses the chrome its cardinality dictates (§7.1 B): **B1 + B3** when several
    values must be selectable at once, **B5 / B6** when the dimension is single-valued. A panel
    control MUST NOT be a generic multi-dimension popover that re-offers a global dimension — see
    point 5.
@@ -1056,7 +1111,7 @@ reverse; the structure (not just convention) enforces it.
 
 6. **A panel-local filter stays inside its panel (S5 only).** Some panel filters must narrow the
    panel's *tables* without re-deriving anything else — the canonical case is the **issue
-   rule-code filter** on the Validation / Issues panel (§7.10 B6). Such a filter MUST be applied
+   rule-code filter** on the Validation / Issues panel (§7.1 B6). Such a filter MUST be applied
    in **S5 Render** to the rows already handed to the panel, and MUST NOT feed back into S4
    Derive. It therefore changes **only the tables inside that panel** — never KPIs, never charts,
    never the matrix, never another panel, and never the global `active` set.
@@ -1079,7 +1134,7 @@ keeps each dimension in exactly one control, so two filters can never issue cont
 A **split header** moves `<thead>` out of the scroll container into a thead-only fragment
 (`.vheadtab`), so the vertical scrollbar starts **below** the header instead of beside it.
 
-**Standardised 2026-10-21 (MDL I-116) — every bounded data table (`.tableScroll`) uses the split
+**Standardised 2026-10-21 — every bounded data table (`.tableScroll`) uses the split
 header, grouped or single-row.** The vertical scrollbar is confined to the body: it scrolls rows only,
 the header never moves, and the header band runs the full card width with the trailing `.ds-gut` gutter
 reserving the scrollbar width. A sticky `<thead>` inside a table scroller is **retired** — sticky
@@ -1096,15 +1151,15 @@ Why this is standardised rather than left as a choice:
 - **It removes an arbitrary split.** The Rule Reference is single-row and split; three other
   single-row tables were sticky. Same header shape, two treatments, no structural reason.
 
-**Migration.** MDL converts its remaining sticky tables (MDL I-116): Overdue List, Validation / Issues,
-Document Detail. **PPP ships a sticky `<thead>` in every `.tableScroll` / `.vtableWrap` and is
-non-conforming until it migrates** — the same status pattern used for §7.1 A3.
+**Migration is per-dashboard.** A dashboard that still ships a sticky `<thead>` inside a
+`.tableScroll` is **non-conforming until it migrates**. Which tables it must convert, and when, is
+recorded in its own workplan — the same status pattern used for §7.1 A3.
 
 Splitting the header is now the **rule**, not an exception — and a rule that moves the header outside
 the scroller MUST be paid for with equivalent invariants. Splitting creates a failure mode sticky
 headers do not have: header and body are now two
 independent tables that can drift apart, and a drift is invisible to every per-table check (a shipped
-MDL matrix carried six visible defects while the harness reported zero failures). Every one of the
+matrix once carried six visible defects while the harness reported zero failures). Every one of the
 following MUST hold. Omitting any single one produces a visible defect, so the set is normative, not
 advisory.
 
@@ -1129,7 +1184,7 @@ advisory.
    default wider than the display area is a non-conformant width choice, not an unavoidable constraint.
    Where horizontal scrolling *is* unavoidable, the header MUST follow the body's `scrollLeft`. A header
    that is wider than the body, or that stays put while the body scrolls, is non-conformant.
-   (Clarified 2026-10-21, MDL I-116: the minimum-sum test makes "unavoidable" verifiable — 13 columns at
+   (Clarified 2026-10-21: the minimum-sum test makes "unavoidable" verifiable — 13 columns at
    a 60 px floor need 780 px and so must fit a 1216 px panel, while 27 columns need 1620 px and cannot.)
 6. **One implementation** — the pairing is wired by a single shared helper used by every split-header
    table. A table MUST NOT hand-roll a partial copy of this contract.
@@ -1143,9 +1198,86 @@ header and body cells by their rendered position, not by index.
 gap, one rounded container, column rule in place, header-vs-data alignment, column-boundary alignment,
 width equality, fit (no horizontal overflow), and horizontal lock-step.
 
-**Matrix exception (Discipline Summary Matrix).** The matrix keeps a column rule on **every** header cell —
+**Matrix exception (grouped matrix header).** A matrix keeps a column rule on **every** header cell —
 the grouped (first) row *and* the final data column included — rather than suppressing them; the gutter
-stays exempt. The default `ds-table` suppression of `colspan`/last-column rules (§7.2.2) is therefore
-overridden for `.matrix`. This is enforced by harness **Tier 4g** `lintMatrixHeaderRules`, which fails if
-any non-gutter header cell lacks its painted `::after` rule (covering all header rows, not just the first
-data cell). (Regression: MDL I-108.)
+stays exempt. The default `ds-table` suppression of `colspan`/last-column rules is therefore overridden
+for `.matrix`. This is enforced by harness **Tier 4g** `lintMatrixHeaderRules`, which fails if any
+non-gutter header cell lacks its painted `::after` rule (covering all header rows, not just the first
+data cell).
+
+---
+
+## 8. Conformance & Testing
+
+A rule that cannot be checked is not a standard. Every normative clause in this spec is therefore
+paired with an automated check. This section states **what must be checked, where the checks live,
+and what a dashboard must be able to show** to claim conformance.
+
+### 8.1 Two layers of checks
+
+| Layer | Lives in | Checks |
+|---|---|---|
+| **Shared layout harness** | the shared `harness-layout` project — **generic checks that apply to any dashboard** | structure, chrome and geometry: tiered checks covering token usage, panel structure, table/split-header invariants, control contrast, floating-panel ordering, search-panel layout, matrix header rules |
+| **Per-dashboard suite** | the dashboard's own repository (e.g. `test/`), plus its harness check module | that dashboard's **behaviour**: its pipeline stages, its contract parsing, its derivations, its panel logic, and the dashboard-specific assertions this spec requires |
+
+**The split is deliberate.** A check that is true of *every* dashboard belongs in the shared harness;
+a check that is true of *one* dashboard belongs to that dashboard. A dashboard MUST NOT fork a generic
+check into its own suite, and the shared harness MUST NOT encode one dashboard's behaviour.
+
+### 8.2 Required conformance assertions (normative)
+
+Each of the following MUST be asserted somewhere in the two layers above, and each cites the clause
+it enforces. Where a check needs to know a dashboard's own choice (a class name, a dimension list, an
+enforcement posture), that value is supplied **by the dashboard's check module or workplan** — never
+hard-coded into the generic check.
+
+| # | Assertion | Clause |
+|---|---|---|
+| 1 | Every dashboard imports the canonical `:root` tokens verbatim; no canonical value is overridden | §1, §6 |
+| 2 | Every text action uses `.btn-secondary`; no dashboard introduces a parallel class; all declare the same A3 geometry | §7.1 A3 |
+| 3 | Every action is a real `<button>`; no `<td>`/`<div>` carries `role="button"` | §7.1 |
+| 4 | Every control's label meets WCAG AA against its own effective background (≥ 4.5:1, or ≥ 3:1 for large/UI text), including pressed/toggle states | §7.1 |
+| 5 | Every control has an accessible name | §7.1 |
+| 6 | A filter trigger (`.tf-btn`) is used **only** by controls that narrow rows; a column-visibility control uses its own class and carries no filter badge or active-filter emphasis | §7.1 B1 / B7 |
+| 7 | Every floating multi-select panel lays out master → note → divider → item list → footer, and the master re-syncs (tri-state where rows are locked) | §7.1 B |
+| 8 | A panel-local filter changes only its own panel's tables; KPIs, charts, the matrix and other panels are unaffected; exports read the same filtered array | §7.2.7 pt 6, §7.1 B6 |
+| 9 | No filter dimension is offered twice — a dimension exposed globally in the top bar is not re-offered inside a panel | §7.2.7 pt 5 |
+| 10 | Every bounded data table uses the split header; no `.tableScroll` contains a sticky `<thead>` | §7.2.15 |
+| 11 | The split-header invariants hold: one container, relative containing block, width pin + gutter, one column grid, fit/lock-step, one implementation | §7.2.15 |
+| 12 | Header/body cells of a split header are paired by **rendered position**, never by DOM index | §7.2.15 |
+| 13 | The parse → derive → render separation holds (S1–S5), and the pipeline is testable per stage | §3.8, §3.8.5 |
+| 14 | Contract-driven parsing: nothing that lives in the workbook's Code sheet is hard-coded in the dashboard | §3.8.3 |
+
+### 8.3 Pipeline testability
+
+§3.8.5 requires the pipeline to be testable stage by stage. Conformance therefore includes: each
+stage (S1 Load → S2 Parse → S3 Validate → S4 Derive → S5 Render) MUST be exercisable in isolation,
+so a failure localises to one stage instead of to the whole page.
+
+### 8.4 Enforcement posture and the conformance record
+
+- A dashboard MUST record, **in its own workplan**, which generic checks it runs, at which tier, and
+  whether each is **hard** (a failure blocks release) or **advisory** (reported, not blocking).
+- A dashboard MUST record every **deviation** from this spec in its workplan, with the clause it
+  deviates from, the reason, and — where the deviation is temporary — the target end state.
+- A dashboard's workplan SHOULD cite, per spec clause, where the evidence lives (check name, test
+  file, or screenshot), so conformance can be reviewed without re-deriving it.
+
+### 8.5 Definition of done
+
+A dashboard conforms when (a) all generic checks in §8.2 that apply to it pass or are recorded as
+advisory-with-reason, (b) its own suite passes, and (c) its workplan carries the conformance record of
+§8.4. A new dashboard adopts this spec **before** its first release, not after.
+
+---
+
+## 9. Adopting this spec for a new dashboard
+
+1. Copy the `:root` token block (§6) verbatim. Do not override canonical values.
+2. Build the shell (§3) and panels (§4) from the component library (§7).
+3. Implement the pipeline as S1–S5 (§3.8), contract-driven (§3.8.3), per-stage testable (§8.3).
+4. Decide the dashboard-specific choices this spec explicitly leaves open — status vocabulary, global
+   filter dimensions, navigation form, enforcement posture — and **write them into the new
+   dashboard's workplan** (§1).
+5. Wire the shared layout harness and add the dashboard's own check module and suite (§8.1).
+6. Complete the conformance record (§8.4) before first release (§8.5).

@@ -4,8 +4,48 @@
 |---|---|---|---|
 | 1.1 | 2026-10-17 | Codex | Clarified cross-project issue record fields, status codes, lifecycle transitions, ID scope, and legacy-log preservation. |
 | 1.2 | 2026-10-20 | CodeBuddy (AI) | Added §5 Rule 18 — machine-enforceable ask-first approval gate for any change not explicitly discussed (rules 1–2 made operational). |
+| 1.3 | 2026-10-22 | CodeBuddy (AI) | Added §5 Rule 19 — every English reply must follow ASD-STE100 Simplified Technical English, Issue 9 (Jan 2025). Verified against the official copy: 53 rules in 9 sections, dictionary of 875 approved and 1,274 non-approved words. Paired with the always-applied rule file `.codebuddy/rules/asd-ste100-reply-style.md`. |
+| 1.4 | 2026-10-22 | CodeBuddy (AI) | Bundled the ASD-STE100 Issue 9 standard: `docs/ASD-STE100-Issue-9/` now holds the official PDF, an approved-word list (800 of 875) and a not-approved-word list (1,247 of 1,274). Note: §6 forbids unexpected top-level directories; `docs/` was used because the user approved that path for this shared standard. |
+| 1.5 | 2026-10-22 | CodeBuddy (AI) | Added the STE prose lint `harness-layout/ste-lint.mjs` (+ `ste-allow.json`, npm scripts `ste-lint` and `ste-lint:hard`). It flags words the standard does not approve. Direction changed after testing: it checks the NOT-APPROVED list, not the approved list, because the PDF text layer is incomplete — `(det)`, `(num)` and `(int)` never appear, and the approved list would flag correct words such as "the" and "is". Findings are candidates; the PDF wins. Updated §5 Rule 19f and the rule file §15. |
+| 1.6 | 2026-10-22 | CodeBuddy (AI) | §5 restructure, **step 1 of 5** — §26 extended with **§26.11 Canonical Log Sections**, **§26.12 Issue ID Scope and Active Log Selection**, **§26.13 Safe Editing and Validation** and **§26.14 Required Validation Workflow**; §26.2, §26.3 and §26.6 gained the row-lifecycle, legend/counting and "not resolved on planned work" rules. The detail came from §5 Rule 17a–g, which is **left in place and unchanged at this step** — nothing was deleted. New subsections were appended (not inserted) because `MDL/mdl-issues.md` cites §26.3, §26.5, §26.6 and §26.9 by number. |
+| 1.7 | 2026-10-22 | CodeBuddy (AI) | §5 restructure, **step 2 of 5** — added **§27 Project Logs**, **§28 Relocation and Import-Path Integrity**, **§29 Pattern-Defect Fix Breadth** and **§30 Path Resolution SSOT and No Hardcoded Fallbacks**, holding the detail of §5 Rules 4, 11, 12, 15 and 16. Those rules are **left in place and unchanged** — nothing was deleted. Two facts recorded honestly: no `*_log.md` files exist in this repository yet, and `global_paths` / `resolve_paths()` / `default_base_path()` appear only in this document with no implementation, so §27 and §30 are target designs rather than descriptions of current behaviour. |
+| 1.8 | 2026-10-22 | CodeBuddy (AI) | §5 restructure, **step 3 of 5** — two small additions so that two rules can later shrink to one sentence: §6 gained **Archive before delete** (from §5 Rule 3) and §11 gained **Messaging and error logging** (from §5 Rule 9). §5 Rules 3 and 9 are **left in place and unchanged** — nothing was deleted. Note: the §11 bullet renders Rule 9's wording as "use" (not "utilize") and "health of code execution" (not "healthyness"); the two typos in §5 Rule 9 itself are unchanged and still pending a decision. |
+| 1.9 | 2026-10-22 | CodeBuddy (AI) | §5 restructure, **pre-step-4 gap closure (the two HIGH items)**. **Decision: the cross-source audit threshold is 3+.** §24 said 5+ in two places, which contradicted §5 Rule 13; both now read 3+, so the threshold does not silently weaken when Rule 13 shrinks. §2 gained a **Lifecycle** block holding the four provisions of §5 Rule 10 that it was missing: creation at project inception (and as the first task when a project is scaffolded), update at every phase completion, and the compliance gate (a project without `knowledge.json` is not compliant and must get one before further development). Cross-references added to §15 and §27. §5 is unchanged — nothing deleted. |
+| 1.10 | 2026-10-22 | CodeBuddy (AI) | §5 restructure, **pre-step-4 gap closure (the four MEDIUM items) plus the typo correction**. §23.2 gained **pre-bootstrap services run first** (logger, telemetry/heartbeat and project-root discovery must run before any bootstrap phase) and **clean failure** (if `common.library` is not importable, exit with a human-readable message — never a bare `ModuleNotFoundError` traceback). §15 gained **Plan before code** (create the workplan and wait for approval before implementing, approval per §5 Rule 18). `asd-ste100-reply-style.md` §15 gained the **`--mode hard` restriction** (do not run hard mode on legacy prose; it fails on words the standard may approve). §5 Rule 9 typo corrected: **"utilize" → "use"** and **"healthyness" → "the health of"**; the §11 bullet written in step 3 now matches Rule 9 verbatim. |
+| 1.11 | 2026-10-22 | CodeBuddy (AI) | §5 restructure, **pre-step-4: the three remaining details are kept, not dropped.** Decision: keep them; final wording to be discussed later. §26.2 now requires a **concise** `Title`, an **evidence-based** `Description`, and an ID unique within the active log set (from Rule 17a). §26.14 step 1 now adds *"Review its local conventions before you edit"* (from Rule 17). `approval-gate.md` rule 5 now adds *"a standing instruction about a different file"* to the no-implied-consent list (from Rule 18e). All three now live in their target sections, so §5 can shrink without losing them. |
+| 1.12 | 2026-10-22 | CodeBuddy (AI) | §5 restructure, **step 4 of 5 — §5 is now an index.** Each of the 19 rules is one sentence ending with a pointer to the section that holds its detail. **Rule numbers and order are unchanged.** Removed from §5, each already reproduced in its named destination: sub-items **17a–g** (→ §26.2, §26.7, §26.11–§26.14), **18a–g** (→ `.codebuddy/rules/approval-gate.md`) and **19a–f** (→ `.codebuddy/rules/asd-ste100-reply-style.md`); the long text of **rules 10–16** (→ §2, §23, §24, §28, §29, §30); and the broken **"see §5.6"** in rule 10, which had no target. §5 shrank from 76 to 25 lines. **No rule was lost** — every clause was checked against its destination in the pre-step-4 review (revisions 1.9–1.11), which added the missing detail to §2, §15, §23.2 and §24, aligned the audit threshold to 3+, corrected two typos, and updated eight stale §5 references in `MDL/mdl-issues.md`. |
+| 1.13 | 2026-10-22 | CodeBuddy (AI) | §5 restructure, **step 5 of 5 — final verification. The restructure is complete.** Audited the whole document: all **28** internal § references resolve; all **19** rules are present and in order, each with a working pointer (**16** to a section, **2** to a rule file, **1** to Rule 18); all **12** destination sections carry their rule's substance; **no** dangling reference remains in `approval-gate.md`, `asd-ste100-reply-style.md`, `MDL/mdl-issues.md` or the STE README; **no** malformed table; section numbers 1–30 ascending. §5 is **26 lines**, down from 77. **No clause was lost** — every clause of every removed rule was checked against its destination before step 4 ran, and the gaps found in that review were closed first (revisions 1.9–1.11). |
+| 1.14 | 2026-10-22 | CodeBuddy (AI) | §1 Projects split into three subsections. **§1.1 Projects in this repository** adds the five project folders of `workbuddy` (remote `https://github.com/chinwarsoon/workbuddy`): `action-log/`, `english-learning/`, `MDL/`, `PPP/`, `sub/`. **§1.2 Shared folders in this repository** adds `docs/` and `harness-layout/`, which are not projects. **§1.3 Projects in another repository** keeps the four original rows — `code_tracer/`, `eks/`, `dcc/`, `releases/` — and records that they are **not in this repository**; they were confirmed present in `chinwarsoon/Engineering-and-Design`. Their purposes and Python versions are unchanged. The project naming convention text after the tables is unchanged. |
 
 ## 1. Projects
+
+This repository is **`workbuddy`** — `https://github.com/chinwarsoon/workbuddy`. §1.1 lists the
+projects it holds. §1.2 lists the shared folders that are not projects. §1.3 lists the projects of
+another repository that this document also names.
+
+### 1.1 Projects in this repository
+
+| Folder | Purpose | Stack |
+|--------|---------|-------|
+| `action-log/` | ActionTracker — action log web application | HTML, CSS, JS |
+| `english-learning/` | English learning tool with content packs, installable as a PWA | HTML, JS |
+| `MDL/` | Master Document List dashboard (TWRP C3B2) | Node.js build, HTML output |
+| `PPP/` | Procurement Package Plan dashboard (TWRP C3B2) | HTML |
+| `sub/` | Submittal data — Document Submittal Log and Monthly Submissions dashboard (TWRP C3B2) | Python build, HTML output |
+
+### 1.2 Shared folders in this repository
+
+These folders are not projects. Every project in §1.1 may use them.
+
+| Folder | Purpose |
+|--------|---------|
+| `docs/` | Shared standards. Holds `ASD-STE100-Issue-9/`. See §5 Rule 19. |
+| `harness-layout/` | Shared layout harness and the STE prose lint. See §5 Rule 19. |
+
+### 1.3 Projects in another repository
+
+These folders are **not in this repository**. They belong to
+**`chinwarsoon/Engineering-and-Design`** — `https://github.com/chinwarsoon/Engineering-and-Design`.
 
 | Folder | Purpose | Python Version |
 |--------|---------|----------------|
@@ -46,6 +86,16 @@
 
 **Location**: `<project>/knowledge.json`
 **Schema**: Defined in `config/schemas/knowledge_base_schema.json` (shared)
+
+**Lifecycle:**
+
+- **Creation**: create `knowledge.json` at project inception. When a project is scaffolded,
+  creating it is the **first task**, populated with initial metadata, architecture overview, and
+  known issues.
+- **Update**: update it as part of **every phase completion**, alongside the workplan (§15) and the
+  project logs (§27).
+- **Compliance**: a project without `knowledge.json` is **not in compliance**. Create one before
+  any further development.
 
 5. Automated troubleshooting agent must manage the project effectively:
 - automated root-cause analysis (RCA)
@@ -93,66 +143,29 @@ conda activate eks
 
 ## 5. Critical Workflow Rules (from `agent_rule.md`)
 
-1. **Plan before code**: Always create a workplan, wait for approval, then implement.
-2. **No edits without approval**: Do not modify any file until the user explicitly approves the change. Present the proposed change and rationale, then wait for a yes.
-3. **Archive before delete**: Move files to `archive/` before removing.
-4. **Log everything**: Issues → `issue_log.md`, updates → `update_log.md`, tests → `test_log.md`.
-5. **Workplan required**: Every task gets a workplan in `<project>/workplan/`. Update it as work proceeds.
-6. **Test reports after phases**: Generate test reports in `<project>/workplan/reports/` after each workplan phase.
-7. **Revision control**: Every file carries revision metadata (number, date, author, summary).
-8. **Review related workplans** before starting any implementation.
-9. **Messaging and errors**: All modules, engines, functions must utilize messaging and error logging to report status, errors, warnings and issues for data quality and data integrity, and healthyness of coding execution.
-10. **Knowledge base required**: Every project must have a `knowledge.json` at root. This file must be created at project inception and updated as part of every phase completion (see §5.6). When a new project is scaffolded, the first task is creating `knowledge.json` populated with initial metadata, architecture overview, and known issues. A project missing `knowledge.json` is not in compliance and must have one created before further development.
-11. **Relocation validation**: When any file or package is relocated, perform a project-wide `grep` for all import paths that reference the old location. Update every match in the same edit cycle. Run the full test suite after the change. If the project has no tests that exercise the relocated code, add them before closing the migration task.
-12. **Fix breadth**: When fixing a pattern-based defect (not a single-instance bug), use `grep` to identify all occurrences of the broken pattern across the entire project before applying the fix. Update all matches in the same edit. Document the search pattern in the task description so the same fix can be re-applied if the pattern re-emerges.
-13. **Cross-source alignment audit**: When a concept spans 3+ independent sources (schemas, config files, library code, project code, design docs, error/message catalogs), run a cross-reference audit across all sources before marking the feature complete. Every source must agree on: format names, code patterns, field names/types, registered IDs, and version numbers. A mismatch in any one source is a blocking defect.
-14. **Pre-bootstrap safety**: Pipeline entry points must guard all non-stdlib imports individually inside a pure-stdlib `_preload_infrastructure()` function that runs before any bootstrap phase. Every import must be individually `try/except ImportError`-guarded with errors printed to `stderr` immediately at the failure point. Pre-bootstrap logger, telemetry/heartbeat, and project-root discovery must also run before bootstrap phases begin. If `common.library` is not importable, the entry point must exit with a human-readable message — never a bare `ModuleNotFoundError` traceback.
-15. **Path resolution SSOT**: All directory and file paths must be resolved through the schema-driven `global_paths` definitions with precedence: CLI argument > Schema default > code-native fallback. Never use hardcoded path literals (e.g., `parent.parent.parent`, `"data"`, `"output"`). Use anchor-folder-based discovery (`default_base_path(anchor)`) to find the project root, then derive all sub-paths from `global_paths` schema values. Every path must flow through `resolve_paths()` so a single schema change updates all consumers.
-16. **Hardcoded fallback removal**: Never maintain hardcoded fallback lists (required folders, required files, dependency lists, default paths) that duplicate values already defined in schema/config files. If config is absent, raise a descriptive error — never silently fall back to a second source of truth. Hardcoded duplicates diverge over time and violate SSOT.
-17. **Issue log structure and history integrity**: Preserve the established format of each active project issue log. The canonical format below applies to new logs and logs explicitly migrated under an approved workplan. Existing legacy or phase-specific logs retain their current format until such a migration; do not rewrite them to conform as part of routine issue maintenance. Before editing, identify the active log from project guidance/`knowledge.json`, distinguish it from archived or retired logs, and review its local conventions.
+§5 is the **index of mandatory rules**. Each rule is one sentence. The detail — the definitions,
+the exceptions, the procedure and the acceptance criteria — lives in the section named beside
+each rule. Read that section before you act on the rule.
 
-   **a. Canonical issue record**: A canonical issue table uses these nine fields, in this order:
-
-   `| ID | Date | Phase | Severity | Title | Description | Status | Tasks | Resolution |`
-
-   - At discovery, record a unique project-scoped ID, date, phase (or `—` if not assigned), severity, concise title, evidence-based description, and status code. Tasks and Resolution may be `—` until planning or closure.
-   - During planning, add task IDs and required approval evidence. During implementation, update status and task progress without replacing the discovery context.
-   - At closure, record task IDs, a concise resolution, and required update/test/workplan references. Keep detailed implementation and test results in their respective logs/reports and link to them.
-   - Use `[ ]` / `[x]` closure criteria in the description for complex issues; each criterion must be independently verifiable.
-
-   **b. Canonical log sections**: A canonical log has five ordered sections: (1) metadata header, (2) legend, (3) status summary, (4) priority resolution sequence, and (5) issue table. The summary and priority sequence are required for canonical logs. Legacy logs need not be retrofitted unless an approved migration requires it.
-
-   **c. Status codes and summaries**: Use stable textual status codes as the source of truth; emoji are display markers and may repeat. The canonical codes are `OPEN`, `IN_PROGRESS`, `DEFERRED`, `DEFERRED_STUDY`, `DEFERRED_REVIEW`, `WONT_IMPLEMENT`, `OPEN_PARTIAL`, `APPROVED`, `RESOLVED`, and `ALIGNED`. Record the code in the Status field (an optional emoji may follow it). The legend defines each code and its permitted transitions. Status summaries count issue rows by code, include all ten codes (including zero counts), and show a grand total. Never count by emoji alone.
-
-   **d. Lifecycle transitions**: Apply these transitions and evidence gates: `OPEN → APPROVED` after task definition and explicit approval; `APPROVED → IN_PROGRESS` when implementation starts; `IN_PROGRESS → RESOLVED` after tasks and closure criteria are verified; `RESOLVED → ALIGNED` after required workplan/document alignment. `OPEN`, `IN_PROGRESS`, or `APPROVED` may move to `DEFERRED`, `DEFERRED_STUDY`, `DEFERRED_REVIEW`, `WONT_IMPLEMENT`, or `OPEN_PARTIAL` only with a recorded rationale. Deferred issues may return to `OPEN` or `APPROVED` when work resumes. Reopen `RESOLVED`, `ALIGNED`, or `WONT_IMPLEMENT` issues as `OPEN` only when new evidence, recurrence, or a changed decision justifies it; record the reason and link a separate issue if the new work is distinct. Do not mark an issue resolved based only on planned work.
-
-   **e. ID scope and active log selection**: Issue IDs are unique across the project's active issue-log set, including phase-specific active logs. The project must identify its active log or log set in `knowledge.json` or project guidance. If no phase-specific scheme is declared, use `<project>/log/issue_log.md` as the canonical location. Archived/retired logs are read-only history and do not reset ID allocation. Preserve the established ID syntax; use a project-wide sequence unless project guidance explicitly defines another globally unique scheme.
-
-   **f. Safe editing and validation**: Never replace an entire issue log with reconstructed content. Use targeted edits, preserve all unrelated entries, escape or rephrase literal pipes in table cells, and validate all cross-references after each edit. For canonical logs, recount all ten status codes; confirm priority-sequence IDs exist in the issue table and listed counts match; check IDs for duplicates and gaps in the project's defined sequence; and verify each table row has the expected nine fields. For legacy logs, run the equivalent checks supported by their format without imposing canonical headings or columns.
-
-   **g. Required validation workflow**:
-
-   1. Confirm the target is the active log and note its format and ID scheme.
-   2. Check required fields, status/approval evidence, and references for the changed issue.
-   3. Recalculate canonical summaries and priority counts where present.
-   4. Check ID uniqueness/sequence across the active log set and verify table formatting where applicable.
-   5. Confirm no unrelated entries or historical content were removed or rewritten.
-
-18. **Ask-first (machine-enforceable approval gate)**: The AI assistant must request and receive explicit approval before any mutating action that was not discussed. A change counts as *discussed* only when the user has, in the current session, explicitly named the target (file, path, or artifact) and the intended outcome and responded affirmatively to the proposal. Inference, "obvious next steps", best-practice cleanups, and implied scope do not count as discussed. This rule operationalises Rules 1 and 2 of this section.
-
-   **a. Actions requiring approval**: create, edit, delete, rename, or move (including move-to-`archive/`) any file; `git` add, commit, push, reset, checkout, or branch operations; installing or upgrading dependencies; running build or test scripts that write files; changing schema or config values; and editing `AGENTS.md` itself or any file under `.codebuddy/`.
-
-   **b. Actions not requiring approval**: read-only operations, including read, grep, search, list, and read-only `git status`, `git diff`, `git log`, and `git show`.
-
-   **c. No bundling**: never combine an undiscussed change with an approved one. One proposal, one explicit decision.
-
-   **d. Stop-and-report**: defects discovered while working on an approved task must be reported and proposed as a separate change. Never fix inline "because it is clearly a bug".
-
-   **e. No implied consent**: approval is never inferred from silence, a partial answer, a prior session's memory, or a standing instruction about a different file.
-
-   **f. Proposal format**: every approval request must state the target file(s), the exact change, the rationale, the blast radius (what else reads or imports the target), and a rollback note.
-
-   **g. Scope freeze**: work outside an approved workplan's task list requires a new proposal (see §15).
+1. **Plan before code**: Create a workplan and get approval before you implement anything. See §15.
+2. **No edits without approval**: Present every change and wait for explicit approval before you edit. See Rule 18.
+3. **Archive before delete**: Move files to `archive/` instead of deleting them. See §6.
+4. **Log everything**: Write issues, updates and tests to the project's three logs. See §27.
+5. **Workplan required**: Give every task a workplan in `<project>/workplan/` and update it as work proceeds. See §15.
+6. **Test reports after phases**: Produce a test report in `<project>/workplan/reports/` after each phase. See §16.
+7. **Revision control**: Give every file revision metadata. See §13.
+8. **Review related workplans**: Read the related workplans before you start an implementation. See §15.
+9. **Messaging and errors**: Make every module, engine and function report status, errors and warnings. See §11.
+10. **Knowledge base required**: Keep a `knowledge.json` at every project root, from inception onward. See §2.
+11. **Relocation validation**: Update every import path that a relocation breaks, in the same edit cycle. See §28.
+12. **Fix breadth**: Fix every occurrence of a pattern defect in one edit, not only the one you found. See §29.
+13. **Cross-source alignment audit**: Audit every source that shares a concept before you close the feature. See §24.
+14. **Pre-bootstrap safety**: Guard every non-stdlib import individually before any bootstrap phase. See §23.
+15. **Path resolution SSOT**: Resolve every path through the schema-driven `global_paths`. See §30.
+16. **Hardcoded fallback removal**: Never duplicate a schema or config value in code. See §30.
+17. **Issue log integrity**: Preserve each active issue log's format and follow the canonical record. See §26.
+18. **Ask-first approval gate**: Ask for explicit approval before any mutating action not already discussed. See `.codebuddy/rules/approval-gate.md`.
+19. **Reply style — ASD-STE100 Issue 9**: Write every English reply in Simplified Technical English. See `.codebuddy/rules/asd-ste100-reply-style.md`.
 
 ## 6. Folder Convention (all projects)
 
@@ -165,6 +178,9 @@ knowledge.json          # Required at project root
 ```
 
 Do not add unexpected top-level directories.
+
+**Archive before delete**: move a file to `archive/` instead of deleting it. Do not remove a file
+until it has been archived, and preserve its revision history when you move it (§13, §5 Rule 3).
 
 **Directory validation:** At project creation and at each phase completion, verify all required directories exist at the project root: `archive/`, `config/`, `data/`, `output/`, `test/`, `ui/`, `engine/`, `log/`, `docs/`, `workplan/`. Missing directories must be created (empty scaffolding) before the phase can be marked complete. Directory names are case-sensitive (lowercase) and must match exactly — `Log/` is not a substitute for `log/`.
 
@@ -249,6 +265,10 @@ Three parallel schema sets: **core** (eks_*), **asset** (eks_asset_*), **ontolog
 
 - Every function gets a standardized docstring explaining purpose, parameters, and return values.
 - Breadcrumb comments tracing parameter flow.
+- **Messaging and error logging**: every module, engine and function must report status, errors,
+  warnings, and data-quality and data-integrity issues through the project's messaging and error
+  logging, so that the health of code execution is observable. Use the message catalog and error
+  codes of §19, and the tiered severity levels of §12.
 
 ## 12. Debugging (agent_rule.md Section 6)
 
@@ -325,6 +345,7 @@ Every task gets a workplan in `<project>/workplan/`:
 
 **Rules:**
 - Always update the workplan when there are changes.
+- **Plan before code**: create the workplan and wait for approval before you implement. Approval is governed by §5 Rule 18.
 - Always review related workplans before starting implementation.
 - Always log issues to `issue_log.md` under the workplan's parent folder.
 - Always generate a report per phase in `<project>/workplan/reports/`.
@@ -728,6 +749,8 @@ Before any bootstrap phase runs, the pipeline entry point must execute a **pure-
 - Every failure must immediately `print(msg, file=sys.stderr)` — errors are never silently collected.
 - All variables must be pre-bound to safe defaults (`None`) before any step runs — a failure in step N must never cause `NameError` in step N+1.
 - The preload function returns imported **classes** (not instantiated objects) — logger and heartbeat are instantiated in `main()` after the preload gate passes.
+- **Pre-bootstrap services run first**: the logger, telemetry/heartbeat, and project-root discovery must all be running **before any bootstrap phase begins** — before P1 of §23.1 — not during one.
+- **Clean failure**: if `common.library` is not importable, the entry point must exit with a human-readable message. Never surface a bare `ModuleNotFoundError` traceback to the user.
 - Repository root must be injected into `sys.path` via a pure-stdlib walk (find ancestor containing both `<project>/` and `common/` anchors) before any import is attempted.
 
 ### 23.3 Environment/Dependency Check
@@ -745,7 +768,7 @@ Before any bootstrap phase runs, the pipeline entry point must execute a **pure-
 
 ## 24. Cross-Source Alignment Audit
 
-When a concept (error code format, message ID, field name, configuration value, version number) spans 5+ independent sources, a formal cross-reference audit must be performed before the feature can be marked complete:
+When a concept (error code format, message ID, field name, configuration value, version number) spans **3+** independent sources, a formal cross-reference audit must be performed before the feature can be marked complete:
 
 **Typical multi-source concepts and their sources:**
 1. **Error codes**: `error_code_base.json` (pattern), `error_config.json` (registration), `error_setup_schema.json` (properties), design doc (Appendix D), library code (BootstrapError), project code (raise site)
@@ -757,7 +780,7 @@ When a concept (error code format, message ID, field name, configuration value, 
 1. List all sources where the concept appears.
 2. For each source, verify: format names match, regex patterns accept all registered values, field names and types are consistent, and version numbers are aligned.
 3. Run `grep` for the concept's identifiers across the entire project and `common/library/` — ensure no stale references to old names/formats exist.
-4. Any mismatch in any source is a blocking defect — the feature is not complete until all 5+ sources agree.
+4. Any mismatch in any source is a blocking defect — the feature is not complete until **all** sources agree.
 
 ## 25. File Output Lifecycle Management
 
@@ -778,7 +801,7 @@ When a concept (error code format, message ID, field name, configuration value, 
 
 ## 26. Issue Lifecycle Management
 
-Every pipeline project must follow a standardized 5-stage issue lifecycle from discovery through closure. Detailed design reference: `<project>/workplan/appendix_k_issue_management.md`.
+Every pipeline project must follow a standardized 5-stage issue lifecycle from discovery through closure. Detailed design reference: `<project>/workplan/appendix_k_issue_management.md`. Log structure, ID scope, safe editing and the validation workflow are in §26.11–§26.14.
 
 ### 26.1 Five-Stage Lifecycle
 
@@ -805,9 +828,10 @@ Canonical issue tables use this column layout:
 ```
 
 - This is the canonical format for new issue logs and logs migrated under an approved workplan. Existing project or phase logs retain their established format until explicitly migrated.
-- At discovery, `ID`, `Date`, `Severity`, `Title`, `Description`, and `Status` are required. `Phase` may be `—` until assigned. `Tasks` and `Resolution` may be `—` until planning or closure.
+- At discovery, `ID`, `Date`, `Severity`, `Title`, `Description`, and `Status` are required. `Phase` may be `—` until assigned. The `ID` must be unique within the project's active log set (§26.12). Write a **concise** `Title` and an **evidence-based** `Description`. `Tasks` and `Resolution` may be `—` until planning or closure.
 - **Tasks** holds task ID(s) implementing the issue (e.g. `T1.99.31` or `T1.21/T1.22`) and links to the workplan task table.
 - **Resolution** uses the structured format with ` — `-separated segments (see §26.5); populate segments as evidence becomes available.
+- **As the issue progresses**: during planning add task IDs and required approval evidence; during implementation update status and task progress **without replacing the discovery context**; at closure record task IDs, a concise resolution, and the required update / test / workplan references. Keep detailed implementation and test results in their respective logs and reports, and link to them.
 
 ### 26.3 Status Codes and Display Markers
 
@@ -825,6 +849,8 @@ Canonical issue tables use this column layout:
 | `ALIGNED` | 📐 | Aligned | Issue is resolved and required workplan/docs are synchronized |
 
 The code is authoritative for status transitions and counts. A marker is presentation only; parsers and summaries must use the code. Canonical summaries list all ten codes, including zero counts, and a grand total.
+
+Record the code in the Status field; an optional display marker may follow it. The log legend defines each code and its permitted transitions. Never count by display marker alone.
 
 ### 26.4 Severity Markers
 
@@ -862,6 +888,7 @@ Between task planning and implementation, every issue must pass an approval gate
 - `RESOLVED` → `ALIGNED`: required workplan and documentation synchronization is complete.
 - A transition to a deferred, study, review, won't-implement, or partial state requires a rationale in the issue record. Deferred issues may return to `OPEN` or `APPROVED` when work resumes.
 - A `RESOLVED`, `ALIGNED`, or `WONT_IMPLEMENT` issue may return to `OPEN` only with new evidence, recurrence, or a changed decision recorded in the issue; create a separate issue when the new work is distinct.
+- Do not mark an issue `RESOLVED` based only on planned work.
 
 ### 26.7 Per-Issue Closure Criteria (Checklist)
 
@@ -907,3 +934,126 @@ In the workplan task table (`appendix_p1.4` or equivalent), the Tests column fol
 | `[Docs]` | Optional — `—` is acceptable |
 | `[Cleanup]` | Optional — `—` is acceptable |
 | `[Init]` | Optional — `—` is acceptable |
+
+### 26.11 Canonical Log Sections
+
+A canonical log has five ordered sections:
+
+1. Metadata header
+2. Legend
+3. Status summary
+4. Priority resolution sequence
+5. Issue table
+
+The status summary and the priority resolution sequence are required for canonical logs. Legacy
+logs need not be retrofitted unless an approved migration requires it.
+
+### 26.12 Issue ID Scope and Active Log Selection
+
+Issue IDs are unique across the project's active issue-log set, including phase-specific active
+logs. The project must identify its active log or log set in `knowledge.json` or in project
+guidance. If no phase-specific scheme is declared, use `<project>/log/issue_log.md` as the
+canonical location.
+
+Archived or retired logs are read-only history and do not reset ID allocation. Preserve the
+established ID syntax; use a project-wide sequence unless project guidance explicitly defines
+another globally unique scheme.
+
+### 26.13 Safe Editing and Validation
+
+Never replace an entire issue log with reconstructed content. Use targeted edits, preserve all
+unrelated entries, escape or rephrase literal pipes in table cells, and validate all
+cross-references after each edit.
+
+For canonical logs:
+
+- Recount all ten status codes (§26.3).
+- Confirm priority-sequence IDs exist in the issue table and that listed counts match.
+- Check IDs for duplicates and gaps in the project's defined sequence (§26.12).
+- Verify each table row has the expected nine fields (§26.2).
+
+For legacy logs, run the equivalent checks supported by their format without imposing canonical
+headings or columns.
+
+### 26.14 Required Validation Workflow
+
+Do these five steps before you finish an edit to an issue log:
+
+1. Confirm the target is the active log, and note its format and ID scheme (§26.12). Review its local conventions before you edit.
+2. Check required fields, status and approval evidence, and references for the changed issue.
+3. Recalculate canonical summaries and priority counts where present (§26.3).
+4. Check ID uniqueness and sequence across the active log set, and verify table formatting where
+   applicable.
+5. Confirm that no unrelated entries or historical content were removed or rewritten.
+
+## 27. Project Logs
+
+Every project keeps **three logs**. Write to them as work proceeds, not at the end of a phase.
+
+| Log | Records | Entry ID |
+|:----|:--------|:---------|
+| `issue_log.md` | one record per issue, from discovery to closure | `Ixxx` |
+| `update_log.md` | one entry per file revision | `Uxxx` |
+| `test_log.md` | one entry per test run | `TLxxx` |
+
+- Keep all three in `<project>/log/`. §26.12 names `<project>/log/issue_log.md` as the canonical
+  issue log; §13 requires an `update_log.md` entry on every file revision.
+- An issue's Resolution references its `Uxxx` (§26.9 Rule 1). A workplan task's Tests column
+  references a `TLxxx` (§26.10).
+- Do not create a log entry without the artifact it references: §26.9 Rule 3 requires every `Uxxx`
+  marked done to reference at least one `Ixxx` and one `T{phase}.{seq}`.
+- A project that names or locates its logs differently must record that in `knowledge.json`.
+  MDL currently uses `MDL/mdl-issues.md`; treat that as its declared convention until it migrates.
+- No `*_log.md` files exist in this repository yet. Treat §27 as the target convention for new
+  projects and for migration.
+
+## 28. Relocation and Import-Path Integrity
+
+When any file or package is relocated:
+
+1. Run a project-wide `grep` for every import path that references the old location.
+2. Update every match **in the same edit cycle**.
+3. Run the full test suite after the change.
+4. If no test exercises the relocated code, add one before you close the migration task.
+
+A relocation is not complete until all four steps are done.
+
+## 29. Pattern-Defect Fix Breadth
+
+When you fix a pattern-based defect — not a single-instance bug:
+
+1. Use `grep` to find **all** occurrences of the broken pattern across the entire project.
+2. Update all matches **in the same edit**.
+3. Record the search pattern in the task description, so the same fix can be re-applied if the
+   pattern returns.
+
+§13 applies the same breadth rule to revision metadata: when a file's version or revision changes,
+every file that references it updates in the same edit cycle.
+
+## 30. Path Resolution SSOT and No Hardcoded Fallbacks
+
+**Path resolution.** Resolve every directory and file path through the schema-driven `global_paths`
+definitions, with this precedence:
+
+```
+CLI argument  >  Schema default  >  code-native fallback
+```
+
+- Never use hardcoded path literals — for example `parent.parent.parent`, `"data"`, `"output"`.
+- Use anchor-folder-based discovery (`default_base_path(anchor)`) to find the project root, then
+  derive every sub-path from `global_paths` schema values.
+- Every path must flow through `resolve_paths()`, so one schema change updates all consumers.
+
+**No hardcoded fallback lists.** Never maintain a hardcoded list — required folders, required
+files, dependency lists, default paths — that duplicates a value already defined in a schema or
+config file. If the config is absent, raise a descriptive error. Never fall back silently to a
+second source of truth. Hardcoded duplicates diverge over time and violate SSOT.
+
+**How the two rules relate.** The `code-native fallback` in the precedence chain is a last resort
+for *locating the project root* when no CLI argument and no schema value exist. It is not a licence
+to duplicate schema-defined values in code. No-hardcoded-fallbacks forbids the duplication;
+path-resolution permits only the final fallback step.
+
+**Implementation status.** `global_paths`, `resolve_paths()` and `default_base_path()` appear only
+in this document. No code in this repository implements them yet. Treat §30 as the target design;
+it does not describe current behaviour.
