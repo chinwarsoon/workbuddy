@@ -1,4 +1,6 @@
-// checks/ppp.mjs — harness config for the PPP dashboard.
+// checks/ppp.mjs — harness config for the PPP dashboard (EXAMPLE).
+// This is project data, not part of the universal harness core: replace it (and mdl.mjs) with
+// your own dashboard's config when you reuse harness-layout elsewhere.
 // Tier 3 is LIMITED: PPP pipeline is monolithic (I-76 — not yet extracted to src/).
 // pipelinePath is null; harness.mjs falls back to file-drop simulation only.
 // Once I-76 is resolved, set pipelinePath/xlsxReaderPath/renderPath and remove this note.

@@ -35,7 +35,7 @@ The PDF text layer is **incomplete**. I extracted the text with `pypdf` and then
 **Two consequences:**
 
 1. **Approval is per word and per part of speech.** `use (n)` is not approved; the verb `use` is.
-   A flat word list cannot show this. `harness-layout/ste-lint.mjs` therefore reports only words
+   A flat word list cannot show this. `harness-writing/ste-lint.mjs` therefore reports only words
    that are not approved **and** never appear on the approved list. That suppresses most
    part-of-speech conflicts.
 2. **Findings are candidates, not verdicts.** Because the approved list is incomplete, the lint can
@@ -62,6 +62,6 @@ so the alternative column does not map reliably to its entry. Look the alternati
 - Do not edit the PDF.
 - If you replace the PDF with a new issue, rebuild both lists and update the counts in
   `AGENTS.md` §5 Rule 19 and in the rule file.
-- To quiet a false positive, add the word to `harness-layout/ste-allow.json`. Write the reason in a
+- To quiet a false positive, add the word to `harness-writing/ste-allow.json`. Write the reason in a
   comment. The allow-list holds technical nouns and technical verbs, which the standard permits
   (rule 1.8).

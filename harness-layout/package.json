@@ -3,9 +3,7 @@
   "type": "module",
   "scripts": {
     "install-browsers": "npx playwright install chromium",
-    "test": "node harness.mjs",
-    "ste-lint": "node ste-lint.mjs",
-    "ste-lint:hard": "node ste-lint.mjs --mode hard"
+    "test": "node harness.mjs"
   },
   "dependencies": {
     "playwright": "^1.44.0"

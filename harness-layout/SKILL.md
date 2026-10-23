@@ -1,8 +1,8 @@
 # SKILL: harness-layout
 
-**Location**: `workbuddy/harness-layout/`
-**Purpose**: Universal layout evaluation harness for workbuddy dashboards (MDL, PPP, and future).
-**Spec reference**: Dashboard UI Design Spec v1.1 §3.8.5 (Testability requirement).
+**Location**: `harness-layout/` (this folder; self-contained — copy it to any project)
+**Purpose**: Universal, **spec-driven** layout evaluation harness — reusable for any future project.
+**Spec reference**: the design spec is resolved at run time via `--spec`, defaulting to the bundled `spec/Dashboard-UI-Design-Spec.md` copy. The encoded checks in this template correspond to the Dashboard UI Design Spec v1.1 §3–§7, §3.8.5 — adapt `harness.mjs` to your own spec.
 
 ---
 
@@ -25,12 +25,14 @@ It runs three tiers of automated checks against a compiled dashboard HTML file:
 
 ```
 harness-layout/
-├── harness.mjs          ← main runner (all three tiers)
+├── harness.mjs          ← main runner (all tiers; auto-discovers dashboards from checks/)
 ├── package.json         ← Playwright only
 ├── SKILL.md             ← this file
+├── spec/                ← bundled design-spec copy (self-contained default; override with --spec)
 └── checks/
     ├── mdl.mjs          ← MDL dashboard config (Tier 3 fully supported)
-    └── ppp.mjs          ← PPP dashboard config (Tier 3 limited — I-76)
+    ├── ppp.mjs          ← PPP dashboard config (Tier 3 limited — I-76)
+    └── <name>.mjs       ← add your own to support a new project
 ```
 
 ---
@@ -349,10 +351,11 @@ export default {
 
 ## Adding a new dashboard
 
-1. Create `checks/<name>.mjs` following the schema above.
-2. Add `'<name>'` to the `DASHBOARDS` array in `harness.mjs`.
+1. Create `checks/<name>.mjs` following the schema above. The harness **auto-discovers** it — no core edit needed.
+2. (Obsolete) The `DASHBOARDS` array is gone; dashboards are read from `checks/` at run time.
 3. If the dashboard has a modular `src/` pipeline, set all four path fields.
 4. If the dashboard is monolithic, set `pipelinePath: null` and log a workplan issue for modularisation.
+5. Point at your design spec with `--spec <path>` (defaults to the bundled `spec/Dashboard-UI-Design-Spec.md` copy). The encoded checks correspond to the Dashboard UI Design Spec; adapt the ruleset in `harness.mjs` for a different spec.
 
 ---
 

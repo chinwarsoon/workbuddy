@@ -1,4 +1,6 @@
-// checks/mdl.mjs — harness config for the MDL dashboard.
+// checks/mdl.mjs — harness config for the MDL dashboard (EXAMPLE).
+// This is project data, not part of the universal harness core: replace it (and ppp.mjs) with
+// your own dashboard's config when you reuse harness-layout elsewhere.
 // Tier 3 is fully supported: pipeline is modular (src/).
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';

@@ -1,17 +1,25 @@
-// harness.mjs — universal layout evaluation harness for workbuddy dashboards.
+// harness.mjs — universal, spec-driven layout evaluation harness. Self-contained: auto-discovers
+// dashboards from checks/ and resolves the design spec via --spec (falling back to a bundled spec/
+// copy). Reusable for any future project.
 // Three tiers:
 //   Tier 1 — any HTML: structural / CSS token checks (no data needed)
 //   Tier 2 — dashboard shell: header, status bar, warning bar, panel chrome
 //   Tier 3 — data + filter verification: pipeline ground-truth vs rendered DOM
 //
 // Usage:
-//   node harness.mjs [--dashboard mdl|ppp] [--tier 1|2|3] [--workbook <path>]
+//   node harness.mjs [--dashboard <name>] [--tier 1|2|3|4] [--workbook <path>] [--spec <path>]
+//
+//   --dashboard <name>  run one dashboard (auto-discovered from checks/); omit to run all
+//   --tier <n>          run only tier n (default: all)
+//   --workbook <path>   .xlsx for Tier 3 data verification (else advisory)
+//   --spec <path>       design spec to reference (default: bundled spec/Dashboard-UI-Design-Spec.md;
+//                      pass --spec to use your own spec)
 //
 // Tier 3 requires --workbook pointing to the real .xlsx file.
-// Without --dashboard, all configured dashboards are run.
+// Without --dashboard, all configured dashboards in checks/ are run.
 
 import { chromium } from 'playwright';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -24,9 +32,33 @@ const targetDashboard = argVal('--dashboard');
 const targetTier = argVal('--tier') ? Number(argVal('--tier')) : null;
 const cliWorkbook = argVal('--workbook');
 
-// ── Dashboard registry ────────────────────────────────────────────────────────
-// Each entry in checks/ exports a default config object (see checks/mdl.mjs).
-const DASHBOARDS = ['mdl', 'ppp'];
+// ── Dashboard registry (auto-discovered from checks/) ──────────────────────────
+// Drop a `checks/<name>.mjs` that default-exports a config object to add a dashboard — no core
+// change needed. This makes the harness reusable for any future project, not just the bundled example mdl/ppp dashboards.
+const checksDir = resolve(here, 'checks');
+const DASHBOARDS = existsSync(checksDir)
+  ? readdirSync(checksDir).filter(f => f.endsWith('.mjs') && !f.startsWith('_')).map(f => f.slice(0, -4))
+  : [];
+
+// ── Spec resolution (spec-driven, self-contained) ──────────────────────────────
+// (1) --spec <path> if given; (2) the bundled spec/ copy so the harness is fully
+// portable with no external project paths. The encoded checks correspond to the spec you point at
+// (the bundled copy is the Dashboard UI Design Spec v1.1).
+const argSpec = argVal('--spec');
+const BUNDLED_SPEC = resolve(here, 'spec', 'Dashboard-UI-Design-Spec.md');
+let specPath;
+if (argSpec) {
+  specPath = resolve(argSpec);
+  if (!existsSync(specPath)) { console.log(`  FAIL --spec not found: ${specPath}`); process.exit(2); }
+} else if (existsSync(BUNDLED_SPEC)) {
+  specPath = BUNDLED_SPEC;
+} else {
+  console.log('  WARN no spec found (no --spec, no spec/ copy) — checks run against the encoded ruleset');
+  specPath = null;
+}
+const specSource = argSpec ? '--spec arg' : (specPath ? 'bundled copy (spec/)' : 'none — encoded ruleset only');
+console.log(`\n══ harness-layout — spec-driven layout harness ═════════════════════════════`);
+console.log(`  INFO: spec = ${specPath || 'none'}  (source: ${specSource})`);
 
 // ── Result tracking ───────────────────────────────────────────────────────────
 let pass = 0, fail = 0, skip = 0, warns = 0;
@@ -1261,6 +1293,7 @@ const browser = await chromium.launch();
 const page = await browser.newPage();
 
 const dashboards = targetDashboard ? [targetDashboard] : DASHBOARDS;
+if (!dashboards.length) console.log('\nNo dashboards discovered (checks/ empty or --dashboard not found). Add a checks/<name>.mjs to run.');
 
 for (const name of dashboards) {
   const cfgPath = resolve(here, 'checks', `${name}.mjs`);

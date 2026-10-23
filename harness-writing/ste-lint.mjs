@@ -12,12 +12,21 @@
 // Authority: docs/ASD-STE100-Issue-9/ASD-STE100_Issue9_official.pdf
 //
 // Usage:
-//   node ste-lint.mjs                                   # scan the repository (advisory)
-//   node ste-lint.mjs ../AGENTS.md                      # scan one file or directory
-//   node ste-lint.mjs --path ../AGENTS.md --path ../docs
+//   node ste-lint.mjs                                   # scan the current directory (markdown + dashboard HTML), advisory
+//   node ste-lint.mjs ./AGENTS.md                       # scan one file or directory
+//   node ste-lint.mjs --path ./docs --path ./src
+//   node ste-lint.mjs path/to/Dashboard.html            # lint a built dashboard's visible text only
 //   node ste-lint.mjs --mode hard                       # fail the run on any finding
 //   node ste-lint.mjs --top 40 --lines                  # also list file:line for each finding
 //   node ste-lint.mjs --words <json> --approved <json>  # point at different word lists
+//
+// Scope: ASD-STE100 Issue 9 prose for markdown docs AND the visible user-facing text of
+// dashboard HTML (KPI labels, panel titles, button labels, validation + status-bar text).
+// <script>/<style>/<svg> and HTML tags/attributes are stripped; only rendered text is checked.
+//
+// Portable: word lists resolve from a bundled ./wordlists/ copy if present, else the canonical
+// docs/ASD-STE100-Issue-9/ location. Copy this folder to any project and drop the lists in ./wordlists/
+// to run standalone (the official PDF stays the authority reference, not loaded at runtime).
 //
 // LIMIT: findings are CANDIDATES, not verdicts. The PDF text layer is incomplete (approved list
 // 800/875; not-approved 1247/1274) and STE approves a word for a part of speech only. Confirm in
@@ -30,7 +39,6 @@ import { join, resolve, relative, extname, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO = resolve(HERE, '..');
 
 // ── CLI ───────────────────────────────────────────────────────────────────────
 const argv = process.argv.slice(2);
@@ -42,9 +50,20 @@ const flagOnce = (name, dflt) => {
 const flagMany = name => argv.reduce(
   (acc, a, i) => (a === name && argv[i + 1] && !argv[i + 1].startsWith('--') ? [...acc, argv[i + 1]] : acc), []);
 
-const WORDS_JSON = resolve(flagOnce('--words', join(REPO, 'docs/ASD-STE100-Issue-9/not-approved-words.json')));
-const APPROVED_JSON = resolve(flagOnce('--approved', join(REPO, 'docs/ASD-STE100-Issue-9/approved-words.json')));
+// Word lists default to the bundled copy in ./wordlists/ (self-contained, no project paths).
+// Override with --words / --approved to point at your own lists.
+const BUNDLED_WORDS = join(HERE, 'wordlists', 'not-approved-words.json');
+const BUNDLED_APPROVED = join(HERE, 'wordlists', 'approved-words.json');
+const WORDS_JSON = resolve(flagOnce('--words', BUNDLED_WORDS));
+const APPROVED_JSON = resolve(flagOnce('--approved', BUNDLED_APPROVED));
 const ALLOW_JSON = resolve(flagOnce('--allow', join(HERE, 'ste-allow.json')));
+for (const [label, p] of [['not-approved words', WORDS_JSON], ['approved words', APPROVED_JSON]]) {
+  if (!existsSync(p)) {
+    console.log(`  FAIL ${label} list not found at ${p}`);
+    console.log('        Place not-approved-words.json / approved-words.json in ./wordlists/ or pass --words / --approved');
+    process.exit(2);
+  }
+}
 const MODE       = flagOnce('--mode', 'advisory');          // advisory | hard
 const TOP        = Number(flagOnce('--top', '25'));
 const SHOW_LINES = argv.includes('--lines');
@@ -95,14 +114,16 @@ console.log(`  INFO: not-approved words loaded = ${notApproved.size} of ${offici
   + (coverage ? ` (${coverage}% of the standard)` : ''));
 console.log(`  INFO: approved words loaded = ${approvedSet.size} — used to suppress part-of-speech conflicts`);
 console.log(`  INFO: effective watch list = ${banned.size} words (not approved in any listed part of speech)`);
-console.log(`  INFO: technical nouns / verbs allow-listed = ${allowSet.size} (${relative(REPO, ALLOW_JSON)})`);
-if (!TARGETS.length) TARGETS.push(REPO);
+console.log(`  INFO: technical nouns / verbs allow-listed = ${allowSet.size} (${relative(process.cwd(), ALLOW_JSON)})`);
+console.log(`  INFO: word-list source = ${WORDS_JSON !== BUNDLED_WORDS ? 'override --words' : 'bundled ./wordlists/'}`);
+if (!TARGETS.length) TARGETS.push(process.cwd());
 
 // ── Collect markdown files ────────────────────────────────────────────────────
 function walk(target, out) {
   if (!existsSync(target)) return out;
   if (statSync(target).isFile()) {
-    if (extname(target).toLowerCase() === '.md') out.push(target);
+    const e = extname(target).toLowerCase();
+    if (e === '.md' || e === '.html') out.push(target);
     return out;
   }
   for (const name of readdirSync(target)) {
@@ -132,14 +153,41 @@ function stripNonProse(text) {
     .replace(/<[^>\n]+>/g, ' ');                // inline HTML
 }
 
+// Extract only the VISIBLE text from a dashboard HTML file. Strip script/style/svg/comments,
+// then all tags (attributes included), decode the common entities. This is the text a reader
+// sees — KPI labels, panel/section titles, button labels, validation + status-bar strings.
+// Mirrors ste-lint's markdown exemption philosophy: code/identifiers are not prose.
+function extractHtmlText(html) {
+  return String(html)
+    .replace(/<!--[\s\S]*?-->/gi, ' ')                       // comments
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')             // script blocks
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')              // style blocks
+    .replace(/<svg[\s\S]*?<\/svg>/gi, ' ')                  // svg (skip per direction)
+    .replace(/<[^>]+>/g, ' ')                               // all remaining tags (attrs gone)
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0?39;|&apos;/gi, "'")
+    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
+    .replace(/\s+/g, ' ');
+}
+
 const WORD_RE = /[A-Za-z][a-z']+/g;
 const counts = new Map();          // word -> total occurrences
 const perFile = new Map();         // file -> {hits, words}
 const lineHits = new Map();        // file -> [{line, word}]
 
 for (const file of files) {
-  const raw = readFileSync(file, 'utf8');
-  const lines = stripNonProse(raw).split('\n');
+  const ext = extname(file).toLowerCase();
+  let lines;
+  if (ext === '.html') {
+    // Lint the dashboard's visible text only (see extractHtmlText).
+    lines = [extractHtmlText(readFileSync(file, 'utf8'))];
+  } else {
+    lines = stripNonProse(readFileSync(file, 'utf8')).split('\n');
+  }
   let hits = 0, words = 0;
   lines.forEach((line, idx) => {
     if (/^\s*\|/.test(line)) return;            // table rows are exempt
@@ -163,7 +211,7 @@ for (const file of files) {
 const totalWords = [...perFile.values()].reduce((a, b) => a + b.words, 0);
 const totalHits = [...perFile.values()].reduce((a, b) => a + b.hits, 0);
 const pct = totalWords ? ((totalHits / totalWords) * 100).toFixed(2) : '0.00';
-console.log(`  INFO: files scanned = ${files.length} · prose words = ${totalWords}`);
+console.log(`  INFO: files scanned = ${files.length} · prose + dashboard-text words = ${totalWords}`);
 
 const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1]);
 if (ranked.length) {
@@ -177,7 +225,7 @@ if (worst.length) {
   console.log('\n── Files with the most findings ────────────────────────────────────');
   for (const [f, v] of worst) {
     const share = v.words ? ((v.hits / v.words) * 100).toFixed(2) : '0.00';
-    console.log(`  ${String(v.hits).padStart(5)} / ${String(v.words).padStart(6)} words (${share}%)  ${relative(REPO, f)}`);
+    console.log(`  ${String(v.hits).padStart(5)} / ${String(v.words).padStart(6)} words (${share}%)  ${relative(process.cwd(), f)}`);
   }
 }
 
@@ -187,15 +235,15 @@ if (SHOW_LINES) {
   for (const [f, arr] of lineHits) {
     for (const h of arr) {
       if (shown++ >= 40) break;
-      console.log(`  ${relative(REPO, f)}:${h.line}  ${h.word}`);
+      console.log(`  ${relative(process.cwd(), f)}:${h.line}  ${h.word}`);
     }
     if (shown >= 40) break;
   }
 }
 
 console.log('\n── Result ──────────────────────────────────────────────────────────');
-const name = `markdown prose avoids words that ASD-STE100 Issue 9 does not approve `
-  + `(${totalHits} of ${totalWords} prose words are not approved, ${pct}%)`;
+const name = `markdown prose + dashboard visible text avoids words that ASD-STE100 Issue 9 does not approve `
+  + `(${totalHits} of ${totalWords} checked words are not approved, ${pct}%)`;
 if (MODE === 'hard') ok(name, totalHits === 0);
 else warn(name, totalHits === 0);
 

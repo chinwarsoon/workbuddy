@@ -680,7 +680,7 @@ Use the checklist below; cite the spec clause for each item.
 | 7 | Filter chips / chart control clusters owned by the card; re-render `deriveView` on `active` only (no DOM recompute) | §4.1, §4.3 |
 | 8 | KPI labels and glossary terms match the §2 glossary exactly | §2, §4.0 |
 | 9 | Validation rules (incl. V-29/30/31) wired via MDL `pipeline.mjs` resolver | §3.8, §4.5 |
-| 10 | STE prose lint (`harness-layout/ste-lint.mjs`) on any user-facing copy passes the advisory threshold | `harness-layout` |
+| 10 | STE prose lint (`harness-writing/ste-lint.mjs`) on docs + dashboard visible text passes the advisory threshold | `harness-writing` |
 
 **Gate rule**: no Wave-4 build is signed off until each row above is checked against the spec and the
 clause is cited. The sample HTML's shortcuts (static toggles, read-only inputs, placeholder data, any

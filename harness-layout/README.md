@@ -1,6 +1,6 @@
 # harness-layout
 
-Universal layout evaluation harness for workbuddy dashboards.
+Universal, spec-driven layout evaluation harness — reusable for any future project.
 
 See **[SKILL.md](./SKILL.md)** for the full specification, check catalogue, and AI model context.
 
@@ -11,14 +11,17 @@ cd harness-layout
 npm install
 npx playwright install chromium
 
-# Run all tiers against all dashboards
+# Run all tiers against all dashboards (auto-discovered from checks/)
 node harness.mjs
+
+# Point at a specific design spec (default: bundled spec/Dashboard-UI-Design-Spec.md; override with --spec)
+node harness.mjs --spec path/to/your-spec.md
 
 # MDL only, Tier 1 (structural, no browser)
 node harness.mjs --dashboard mdl --tier 1
 
 # MDL Tier 3 with explicit workbook
-node harness.mjs --dashboard mdl --tier 3 --workbook "../MDL/TWRP C3B2 - Master Document List.xlsx"
+node harness.mjs --dashboard mdl --tier 3 --workbook "path/to/dashboard.xlsx"
 ```
 
 ## Tiers
@@ -37,7 +40,9 @@ node harness.mjs --dashboard mdl --tier 3 --workbook "../MDL/TWRP C3B2 - Master 
 node harness.mjs --dashboard mdl --tier 4
 ```
 
-## Dashboard configs
+## Dashboard configs (auto-discovered)
+
+The harness reads every `checks/*.mjs` at run time — drop in a new config to add a dashboard, no core edit.
 
 - `checks/mdl.mjs` — MDL (Tier 3 fully supported)
 - `checks/ppp.mjs` — PPP (Tier 3 limited — I-76: monolithic pipeline)
