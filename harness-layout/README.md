@@ -1,5 +1,9 @@
 # harness-layout
 
+| Revision | Date | Author | Summary |
+|---|---|---|---|
+| 1.1 | 2026-10-24 | Codex | Documented the generic shell geometry checks. |
+
 Universal, spec-driven layout evaluation harness — reusable for any future project.
 
 See **[SKILL.md](./SKILL.md)** for the full specification, check catalogue, and AI model context.
@@ -28,8 +32,8 @@ node harness.mjs --dashboard mdl --tier 3 --workbook "path/to/dashboard.xlsx"
 
 | Tier | What | Browser | Workbook |
 |------|------|---------|----------|
-| 1 | CSS tokens (presence **and values**), z-index stack, table grid tokens, pipeline symbols in bundle | No | No |
-| 2 | Onboarding screen, header, errBanner, status bar, modal | Yes | No |
+| 1 | Project-local assets, shell markers, theme tokens, viewport behavior, action semantics | No | No |
+| 2 | Shell zones and geometry, content-zone order, warning-area bounds, sidebar controls | Yes | No |
 | 3 | Pipeline ground-truth KPIs vs rendered DOM; filter round-trip | Yes | Yes |
 | 4 | **Rendered** table geometry: row/header heights, `table-layout:fixed`, `<colgroup>` vs columns, cell truncation, one row metric across tables (I-90) + I-89 sample + windowing spacer rows (I-96) | Yes | Yes (sample pass: no) |
 | 4b | L3 capabilities: pinned columns, column chooser, column resize (I-95) and windowing invariants (I-96), driven through the UI | Yes | Yes |

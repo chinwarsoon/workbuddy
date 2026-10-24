@@ -1,0 +1,887 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/chinwarsoon/workbuddy/schemas/knowledge_base_schema/1.0.0",
+  "title": "Universal Dashboard Knowledge Base",
+  "description": "Shared schema for project knowledge, with dashboard page entities and an optional evidence-backed knowledge graph.",
+  "version": "1.0.0",
+  "allOf": [
+    {
+      "$ref": "#/definitions/knowledgeBase"
+    }
+  ],
+  "definitions": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stringList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/nonEmptyString"
+      }
+    },
+    "projectMetadata": {
+      "type": "object",
+      "required": [
+        "name",
+        "version",
+        "description",
+        "purpose"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "abbreviation": {
+          "type": "string"
+        },
+        "version": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "description": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "purpose": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "status": {
+          "type": "string"
+        },
+        "last_updated": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "additionalProperties": false
+    },
+    "moduleRecord": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "path": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "status": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/stringList"
+        },
+        "outputs": {
+          "$ref": "#/definitions/stringList"
+        }
+      },
+      "additionalProperties": false
+    },
+    "architectureOverview": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "modules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/moduleRecord"
+          }
+        },
+        "key_modules": {
+          "$ref": "#/definitions/stringList"
+        },
+        "data_flows": {
+          "$ref": "#/definitions/stringList"
+        },
+        "integration_points": {
+          "$ref": "#/definitions/stringList"
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "modules"
+          ]
+        },
+        {
+          "required": [
+            "key_modules"
+          ]
+        }
+      ],
+      "additionalProperties": false
+    },
+    "domainConceptRecord": {
+      "type": "object",
+      "required": [
+        "name",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "description": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "relationships": {
+          "$ref": "#/definitions/stringList"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/evidenceReference"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "domainConcepts": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "core_entities",
+            "relationships",
+            "terminology"
+          ],
+          "properties": {
+            "core_entities": {
+              "$ref": "#/definitions/stringList"
+            },
+            "relationships": {
+              "$ref": "#/definitions/stringList"
+            },
+            "terminology": {
+              "$ref": "#/definitions/stringList"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/domainConceptRecord"
+          }
+        }
+      ]
+    },
+    "keySchemaRecord": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        {
+          "type": "object",
+          "required": [
+            "name",
+            "path"
+          ],
+          "properties": {
+            "name": {
+              "$ref": "#/definitions/nonEmptyString"
+            },
+            "path": {
+              "$ref": "#/definitions/nonEmptyString"
+            },
+            "version": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "workflowRecord": {
+      "type": "object",
+      "required": [
+        "name",
+        "entry_point"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "entry_point": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "description": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "steps": {
+          "$ref": "#/definitions/stringList"
+        },
+        "phases": {
+          "$ref": "#/definitions/stringList"
+        }
+      },
+      "additionalProperties": false
+    },
+    "functionRecord": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        {
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/nonEmptyString"
+            },
+            "name": {
+              "$ref": "#/definitions/nonEmptyString"
+            },
+            "module": {
+              "$ref": "#/definitions/nonEmptyString"
+            },
+            "path": {
+              "$ref": "#/definitions/nonEmptyString"
+            },
+            "status": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "inputs": {
+              "$ref": "#/definitions/stringList"
+            },
+            "outputs": {
+              "$ref": "#/definitions/stringList"
+            },
+            "dependencies": {
+              "$ref": "#/definitions/stringList"
+            },
+            "errors": {
+              "$ref": "#/definitions/stringList"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "dataFlowRecord": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        {
+          "type": "object",
+          "required": [
+            "source",
+            "destination"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/nonEmptyString"
+            },
+            "name": {
+              "type": "string"
+            },
+            "source": {
+              "$ref": "#/definitions/nonEmptyString"
+            },
+            "transformations": {
+              "$ref": "#/definitions/stringList"
+            },
+            "checks": {
+              "$ref": "#/definitions/stringList"
+            },
+            "destination": {
+              "$ref": "#/definitions/nonEmptyString"
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/evidenceReference"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "dependencyRecord": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "type": {
+          "type": "string"
+        },
+        "purpose": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/evidenceReference"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "dependencies": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "external_services": {
+              "$ref": "#/definitions/stringList"
+            },
+            "libraries": {
+              "$ref": "#/definitions/stringList"
+            },
+            "infrastructure": {
+              "$ref": "#/definitions/stringList"
+            }
+          },
+          "anyOf": [
+            {
+              "required": [
+                "external_services"
+              ]
+            },
+            {
+              "required": [
+                "libraries"
+              ]
+            },
+            {
+              "required": [
+                "infrastructure"
+              ]
+            }
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/dependencyRecord"
+          }
+        }
+      ]
+    },
+    "knownIssueRecord": {
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "status",
+        "details"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "title": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "status": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "severity": {
+          "type": "string"
+        },
+        "details": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "affected_nodes": {
+          "$ref": "#/definitions/stringList"
+        },
+        "related_updates": {
+          "$ref": "#/definitions/stringList"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/evidenceReference"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "knownIssue": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        {
+          "$ref": "#/definitions/knownIssueRecord"
+        }
+      ]
+    },
+    "revisionRecord": {
+      "type": "object",
+      "required": [
+        "date",
+        "author",
+        "summary"
+      ],
+      "properties": {
+        "version": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "revision": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "author": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "summary": {
+          "$ref": "#/definitions/nonEmptyString"
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "version"
+          ]
+        },
+        {
+          "required": [
+            "revision"
+          ]
+        }
+      ],
+      "additionalProperties": false
+    },
+    "evidenceReference": {
+      "type": "object",
+      "anyOf": [
+        {
+          "required": [
+            "path"
+          ]
+        },
+        {
+          "required": [
+            "uri"
+          ]
+        }
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "source_type": {
+          "type": "string",
+          "enum": [
+            "code",
+            "webpage",
+            "repository",
+            "issue_tracker",
+            "workbook",
+            "schema",
+            "workplan",
+            "report",
+            "log",
+            "test",
+            "other"
+          ]
+        },
+        "pointer": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "selector": {
+          "type": "string"
+        },
+        "workbook": {
+          "type": "string"
+        },
+        "sheet": {
+          "type": "string"
+        },
+        "cell": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "line_start": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "line_end": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "captured_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false
+    },
+    "graphNode": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "name",
+        "status",
+        "source_refs"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/#-]*$",
+          "description": "Stable project-prefixed node identifier, unique across the joined knowledge network."
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "project",
+            "dashboard",
+            "webpage",
+            "page",
+            "definition",
+            "behavior",
+            "panel",
+            "control",
+            "table",
+            "metric",
+            "chart",
+            "field",
+            "module",
+            "engine",
+            "file",
+            "function",
+            "workflow",
+            "dataset",
+            "data_record",
+            "schema",
+            "configuration",
+            "dependency",
+            "issue",
+            "update",
+            "test",
+            "domain_entity",
+            "custom"
+          ]
+        },
+        "custom_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "description": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "description": "Project-defined status. Use maturity for the shared lifecycle value."
+        },
+        "maturity": {
+          "type": "string",
+          "enum": [
+            "planned",
+            "implemented",
+            "verified",
+            "deferred",
+            "retired",
+            "unknown"
+          ]
+        },
+        "attributes": {
+          "type": "object",
+          "description": "Project-specific facts for this node. Shared identity and link fields stay outside this object.",
+          "additionalProperties": true
+        },
+        "source_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/evidenceReference"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "graphEdge": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "source_id",
+        "target_id",
+        "source_refs"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/#-]*$"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "contains",
+            "defines",
+            "has_definition",
+            "has_behavior",
+            "implements",
+            "implemented_by",
+            "calls",
+            "triggers",
+            "participates_in",
+            "reads",
+            "writes",
+            "transforms",
+            "validates",
+            "renders",
+            "displays",
+            "depends_on",
+            "blocks",
+            "affects",
+            "documents",
+            "updates",
+            "relates_to",
+            "related_to",
+            "entry_point",
+            "produces",
+            "consumes",
+            "derived_from",
+            "uses",
+            "maps_to",
+            "resolves",
+            "resolved_by",
+            "fixes",
+            "tests",
+            "configures",
+            "custom"
+          ]
+        },
+        "custom_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/#-]*$"
+        },
+        "target_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/#-]*$"
+        },
+        "description": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "source_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/evidenceReference"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "knowledgeGraph": {
+      "type": "object",
+      "required": [
+        "version",
+        "nodes",
+        "edges"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/graphNode"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/graphEdge"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "knowledgeBase": {
+      "type": "object",
+      "required": [
+        "project_metadata",
+        "architecture_overview",
+        "domain_concepts",
+        "key_schemas",
+        "workflows",
+        "functions",
+        "data_flows",
+        "dependencies",
+        "known_issues"
+      ],
+      "properties": {
+        "$schema": {
+          "type": "string",
+          "format": "uri"
+        },
+        "$id": {
+          "type": "string",
+          "format": "uri"
+        },
+        "version": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "project_metadata": {
+          "$ref": "#/definitions/projectMetadata"
+        },
+        "architecture_overview": {
+          "$ref": "#/definitions/architectureOverview"
+        },
+        "domain_concepts": {
+          "$ref": "#/definitions/domainConcepts"
+        },
+        "key_schemas": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/keySchemaRecord"
+          }
+        },
+        "total_schema_files": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "workflows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/workflowRecord"
+          }
+        },
+        "functions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/functionRecord"
+          }
+        },
+        "data_flows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/dataFlowRecord"
+          }
+        },
+        "data_quality_checks": {
+          "$ref": "#/definitions/stringList"
+        },
+        "initiation_integrity": {
+          "type": "object",
+          "properties": {
+            "layers": {
+              "$ref": "#/definitions/stringList"
+            },
+            "error_codes": {
+              "$ref": "#/definitions/stringList"
+            }
+          },
+          "additionalProperties": false
+        },
+        "dependencies": {
+          "$ref": "#/definitions/dependencies"
+        },
+        "known_issues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/knownIssue"
+          }
+        },
+        "total_issues_resolved": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total_issues_deferred": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "revision_history": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/revisionRecord"
+          }
+        },
+        "revisionHistory": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/revisionRecord"
+          }
+        },
+        "knowledge_graph": {
+          "$ref": "#/definitions/knowledgeGraph"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

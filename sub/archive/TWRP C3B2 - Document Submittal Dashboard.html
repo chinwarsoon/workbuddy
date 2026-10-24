@@ -1,0 +1,69 @@
+<!-- Revision 0.1 | 2026-10-24 | Codex | Added the project-root dashboard shell and runtime entry point. -->
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="description" content="Document submittal dashboard for the TWRP C3B2 project.">
+  <title>TWRP C3B2 · Document Submittal Dashboard</title>
+  <link rel="stylesheet" href="./engine/dashboard.css">
+  <script type="module" src="./engine/dashboard.js"></script>
+</head>
+<body data-layout="two">
+  <header class="titlebar" data-shell="titlebar">
+    <div class="brand"><span class="brand-icon" aria-hidden="true">▦</span><strong>TWRP C3B2</strong><span class="brand-accent">SUBMITTALS</span></div>
+    <nav class="breadcrumbs" aria-label="Breadcrumb">Project <span>›</span> Document Control <span>›</span> <b>Dashboard</b></nav>
+    <div class="title-actions">
+      <button class="icon-btn" id="layout-button" title="Change layout" aria-label="Change panel layout">▦</button>
+      <button class="icon-btn" id="theme-button" title="Choose theme" aria-label="Choose theme">◐</button>
+      <div class="theme-menu" id="theme-menu" hidden>
+        <button data-theme-choice="dark">● Dark</button><button data-theme-choice="light">● Light</button>
+        <button data-theme-choice="sky">● Sky</button><button data-theme-choice="ocean">● Ocean</button><button data-theme-choice="presentation">● Presentation</button>
+      </div>
+    </div>
+  </header>
+  <main class="shell-row">
+    <nav class="iconbar" data-shell="iconbar" aria-label="Dashboard panels">
+      <div class="icon-stack"><button class="icon-nav active" data-page="Overview" title="Overview" aria-label="Overview">⌂</button><button class="icon-nav" data-page="Submittals" title="Submittals" aria-label="Submittals">▤</button><button class="icon-nav" data-page="Validation" title="Validation" aria-label="Validation">⚑</button><button class="icon-nav" data-page="Forward Plan" title="Forward Plan" aria-label="Forward Plan">◷</button><button class="icon-nav" data-page="Analytical" title="Analytical" aria-label="Analytical">▥</button></div>
+      <div class="icon-stack utility"><button class="icon-nav" data-shell-toggle="left-sidebar" title="Toggle file and page panel" aria-label="Toggle left sidebar">◧</button><button class="icon-nav" data-shell-toggle="right-sidebar" title="Toggle context panel" aria-label="Toggle right sidebar">◨</button><button class="icon-nav" id="right-settings" title="Settings" aria-label="Settings">⚙</button><button class="icon-nav" id="right-help" title="Help" aria-label="Help">?</button></div>
+    </nav>
+    <aside class="left-sidebar" data-shell="left-sidebar" aria-label="Navigation and files">
+      <div class="sb-section">
+        <button class="sb-section-header"><span>▣</span> Pages <span class="chevron">▼</span></button>
+        <div class="sb-section-body page-links">
+          <button class="page-link active" data-page="Overview">Overview</button><button class="page-link" data-page="Submittals">Submittals</button><button class="page-link" data-page="Validation">Validation</button><button class="page-link" data-page="Forward Plan">Forward Plan</button><button class="page-link" data-page="Analytical">Analytical</button>
+        </div>
+      </div>
+      <div class="sb-section">
+        <button class="sb-section-header" id="left-files-toggle"><span>▧</span> Workbook files <span class="chevron">▼</span></button>
+        <div class="sb-section-body" id="file-panel">
+          <p class="small-note">Select both project workbooks for each load.</p>
+          <input id="file-pair" type="file" accept=".xlsx" multiple hidden>
+          <button class="btn btn-primary" id="choose-files">Choose workbooks</button>
+          <div class="drop" tabindex="0" aria-label="Drop both workbooks here">Drop both files here</div>
+          <div class="file-item"><span>MDL</span><b id="mdl-file-name">No MDL file selected</b></div>
+          <div class="file-item"><span>LOG</span><b id="log-file-name">No Submittal Log selected</b></div>
+          <button class="btn btn-primary" id="load-button" disabled>Load Data</button>
+        </div>
+      </div>
+      <div class="resize-handle" data-shell-resize="left-sidebar" role="separator" aria-orientation="vertical" aria-label="Resize left sidebar" tabindex="0"></div>
+    </aside>
+    <section class="content" data-shell="content">
+      <div class="toolbar" data-shell="toolbar"><div><h1 id="content-title">Overview</h1><small>Document Submittal Dashboard</small></div><span class="spacer"></span></div>
+      <div class="filter-area" data-shell="filter-area"><div class="global-filters" id="global-filters" hidden></div><div class="filter-actions"><button class="btn-secondary" id="search-button" hidden aria-controls="searchPanel" aria-expanded="false">⌕ Search</button><button class="btn-secondary" id="warnBtn" hidden aria-label="Warnings" aria-pressed="true">Warnings <span class="badge" id="warning-count">0</span></button></div><div class="search-panel" id="searchPanel" role="search"><label for="fCol">In</label><select id="fCol"><option value="all">All fields</option><option value="document">Document No.</option><option value="title">Title</option><option value="submitter">Submitted By</option></select><input id="fSearch" type="search" placeholder="Document number, title, or submitter"><button class="btn-secondary" id="fGo">Search</button><button class="btn-secondary" id="fReset">Reset</button></div><div class="warning-area" data-shell="warnings" role="alert" aria-live="assertive" hidden></div></div>
+      <div class="content-body" data-shell="body"><div class="onboarding"><span class="onboarding-icon">▧</span><h2>Load the project workbooks</h2><p>Select the Master Document List and the Document Submittal Log.</p><button class="btn btn-primary choose-workbooks">Choose workbooks</button><p class="small-note">Both files are required. The dashboard keeps data in this browser session.</p></div><div data-page-content hidden></div></div>
+    </section>
+    <aside class="right-sidebar" data-shell="right-sidebar" aria-label="Settings and help">
+      <div class="resize-handle left" data-shell-resize="right-sidebar" role="separator" aria-orientation="vertical" aria-label="Resize right sidebar" tabindex="0"></div>
+      <header class="right-head"><strong>Context</strong></header>
+      <div class="sb-section"><button class="sb-section-header"><span>⚙</span> Settings <span class="chevron">▼</span></button><div class="sb-section-body"><button class="page-link" data-page="Settings">Open settings</button><p class="small-note">Theme and warning preferences.</p></div></div>
+      <div class="sb-section"><button class="sb-section-header"><span>?</span> Help <span class="chevron">▼</span></button><div class="sb-section-body"><button class="page-link" data-page="Help">Open help</button><p class="small-note">Load both source workbooks to view project data.</p></div></div>
+      <div class="context-body" id="context-body"><p>Select a page or a data row to view details.</p></div>
+    </aside>
+  </main>
+  <footer class="status-bar" data-shell="statusbar"><span id="status-left"><span id="status-files">No workbooks loaded</span> · <span id="status-message">Select both workbooks to begin.</span></span><span id="status-right">SUB v0.2.0</span></footer>
+</body>
+</html>

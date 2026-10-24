@@ -1,13 +1,47 @@
-# Submittal Dashboard — Developer Workplan (for Review)
+# Submittal Dashboard — Approved Developer Workplan
+
+| Revision | Date | Author | Summary |
+|---|---|---|---|
+| 2.15 | 2026-10-24 | CodeBuddy (AI) | Added decision D33: MDL owns blank-field validation, and sub counts a row whose `Stage` is blank. The plan total moves from 7513 to 7631, equal to MDL, and `Documents Submitted / In Plan` reads 116 / 7631. The Stage filter now lists `(blank)`, `Deleted`, `Void` and `Superseded`. Logged I023 to I030 in the issue log. |
+| 2.1 | 2026-10-24 | CodeBuddy (AI) | Rebuilt the UI shell to the spec §18.2 layout with the MDL navy family; added the logo from `./asset/logo.jpg` and an MDL-style welcome card. Archived the prior non-compliant UI to `sub/archive/`. Data engine unchanged. |
+| 2.14 | 2026-10-24 | CodeBuddy (AI) | Resolved I019 — the chart panels now meet §4. Titles are 13 px / 700 uppercase navy in a real flex title row, Help sits left of a new Collapse toggle that is rightmost, every top-level panel carries a sequential corner number assigned in DOM order after render, and the surface metrics match. Added decision D31. |
+| 2.13 | 2026-10-24 | CodeBuddy (AI) | Resolved I018 — the title-bar page label is now 16 px / 600 plain text with no background, padding or border, instead of a 12 px pill, so it sits on the bar's 20 px edge and steps just below the 17 px project title. Added decision D30. |
+| 2.12 | 2026-10-24 | CodeBuddy (AI) | Resolved I017 — the content toolbar is removed. The active page now shows at the right of the title bar and updating on every selection change, and the layout toggle moved to the right end of the menu bar. Three harness checks that required a `toolbar` zone were updated. Added decision D29. |
+| 2.11 | 2026-10-24 | CodeBuddy (AI) | Resolved I016 — the left panel is now sized to its menu titles. It was 240 px for 135 px of content; it is now 160 px, and the resize floor dropped from 180 px to 140 px so the new default survives a resize or a saved width. Added decision D28. |
+| 2.10 | 2026-10-24 | CodeBuddy (AI) | Resolved I015 — the left panel now holds menus only. The in-panel collapse toggle, both section titles and the section dividers are removed, and Settings and Help are pinned to the bottom. The resizer is kept, since the panel stays resizable. Added decision D27. |
+| 2.9 | 2026-10-24 | CodeBuddy (AI) | Resolved I014 — the sidebar toggle is now compact: 8 px horizontal padding instead of 14 px, so it is 27 px wide instead of 39, and an 8 px trailing gap instead of 12 px. Its left edge stays on the bar's 20 px padding, aligned with the logo. Added decision D26. |
+| 2.8 | 2026-10-24 | CodeBuddy (AI) | Resolved I013 — a physical comparison of the title bar and menu bar against MDL found seven differences, all now fixed: the logo is 36 px and non-shrinking, the brand gap is 12 px, and the menu-bar buttons carry MDL's 14 px padding, 32 px min-height and 1.2 line height. Font sizes already matched. 17 of 18 measured properties now agree. Added decision D25. |
+| 2.7 | 2026-10-24 | CodeBuddy (AI) | Resolved I012 — the title bar and menu bar now match MDL in spacing. The title bar gained MDL's 2 px row gap and line heights, so it is 78 px as MDL's is; the menu-bar gap went from 10 px to 12 px and the Warnings toggle gained MDL's 6 px left margin. Font sizes were already correct. Added decision D24. |
+| 2.6 | 2026-10-24 | CodeBuddy (AI) | Resolved I011 — the menu bar now matches MDL typographically and in alignment. Every control is bold at 12 px / 600, and the toggle, Load and Export are left-aligned while the triggers, Search and Warnings are pushed right. Added decision D23. |
+| 2.5 | 2026-10-24 | CodeBuddy (AI) | Resolved I010 — full MDL parity for the filter chrome, chosen over the spec where the two disagreed. Help moved to the left side panel next to Settings. Added decisions D19 to D22. |
+| 2.4 | 2026-10-24 | CodeBuddy (AI) | Resolved I009. Menu bar rebuilt for MDL parity: it is now one non-wrapping row, the filter triggers sit in a flex row and each carries a border and a caret, Load Workbook is the highlighted primary action, the Search popover follows MDL's `.tf-panel.search-panel` design, Settings moved to the left side panel as its own menu, and the side panel's workbook-loading section was removed in favour of the menu-bar Load Workbook button. The theme button is removed and the theme design deferred. Added decisions D17 and D18. |
+| 2.3 | 2026-10-24 | CodeBuddy (AI) | Resolved I008. Global filters rebuilt to the spec design: five multi-select `.tf-btn` triggers with count badges opening `.tf-panel` chip panels led by an `All <dimension>` master; Search, its panel and Warnings moved inside the menu-bar filter group. Fonts aligned to MDL and the new spec §6 type scale. Added decisions D15 (multi-select filters) and D16 (shared typography), and corrected §4.1, which still placed the filters in the content toolbar. Data engine unchanged apart from the multi-select filter state. |
+| 2.2 | 2026-10-24 | CodeBuddy (AI) | Option B rebuild: adopted the MDL two-row header (navy title bar + white menu bar) + navy left navigation sidebar; removed the 48 px icon bar and the right sidebar; default theme is light. Updated `AGENTS.md` §18.2 and `Dashboard-UI-Design-Spec.md` §3.1/§3.2/§3.6 to the MDL shell so the dashboard is fully spec-conformant. Data engine unchanged. |
+| 2.3 | 2026-10-24 | CodeBuddy (AI) | Hardened the welcome: spec `Dashboard-UI-Design-Spec.md` §3.7 now requires the MDL full-screen welcome overlay (hides chrome until load), the golden ratio (1 : 1.618) for fixed-proportion welcome surfaces, load buttons inside the file drop area, and no hardcoded project title (title renders from the loaded model). `AGENTS.md` §18.2 cross-references §3.7. Sub welcome rebuilt to match. Data engine unchanged. |
+| 2.0 | 2026-10-24 | Codex | Completed Wave 4 dashboard UI, file loading, and browser layout checks. |
+| 1.9 | 2026-10-24 | Codex | Reconciled Wave 3 records with the final 12-test run. |
+| 1.8 | 2026-10-24 | Codex | Completed Wave 3 pipeline, validation, and calculated-field checks. |
+| 1.7 | 2026-10-24 | Codex | Completed the universal knowledge graph schema and Wave 2 validation. |
+| 1.6 | 2026-10-24 | Codex | Added the approved universal graph knowledge schema task for dashboard projects. |
+| 1.5 | 2026-10-24 | Codex | Made `ui/`, `data/`, and `output/` optional; placed planned modules in `engine/` and help data in `config/`. |
+| 1.4 | 2026-10-24 | Codex | Aligned the UI compliance gate with project-local assets. |
+| 1.3 | 2026-10-24 | Codex | Recorded Wave 2 scaffold results and the missing shared schema blocker. |
+| 1.2 | 2026-10-24 | Codex | Closed the stack reference and corrected the Wave 1 test-log summary. |
+| 1.1 | 2026-10-24 | Codex | Completed Wave 1 records, including the not-applicable test-log entry. |
+| 1.0 | 2026-10-24 | Codex | Approved Wave 1; selected the dashboard, server, and test stack. |
+| 0.9 | 2026-10-24 | Codex | Clarified project-local tokens, shell markers, and layout harness coverage; recorded validation limits. |
+| 0.8 | 2026-10-24 | Codex | Removed the dashboard common-assets dependency and aligned shell markers and harness checks. |
+| 0.7 | 2026-10-24 | Codex | Aligned the dashboard shell and file flow with repository UI rules. Recorded the missing shared CSS/JS as a release dependency. |
 
 > **Project**: TWRP C3B2 — Document Submittal Log Interactive Dashboard
-> **Version**: 0.5 (error-code catalog `V-xx`; V-29 mandatory, V-30/V-31 new)
-> **Date**: 2026-10-23
-> **Status**: Proposal — no functional code written. A static sample page is in
-> `sub/Arch/Document-Submittal-Dashboard-Sample.html`. The page is a review-only mockup. It is not
+> **Document ID**: SUB-WP-001
+> **Version**: 2.3 (Option B shell + hardened welcome: MDL full-screen welcome overlay, golden-ratio drop area, load buttons inside drop, no hardcoded project title; spec §3.7 / AGENTS.md §18.2 updated; data engine unchanged)
+> **Date**: 2026-10-24
+> **Status**: Approved — Waves 1, 2, 2.1, 3, 4, 7, 8, and 9 (spec update + Option B rebuild + hardened welcome) complete; Wave 5 regression and Wave 6 owner review remain. The dashboard uses the MDL two-row header + navy left navigation sidebar (spec `AGENTS.md` §18.2 / `Dashboard-UI-Design-Spec.md` §3.1, updated 2026-10-24): no icon bar, no right sidebar, light default, logo from `./asset/logo.jpg`. The welcome is a full-screen MDL overlay (no dashboard parts until load) with a golden-ratio drop area holding the load buttons and no hardcoded project title (spec §3.7). The earlier non-compliant UI is archived in `sub/archive/`. A static sample page is in
+> `sub/archive/Document-Submittal-Dashboard-Sample.html`. The page is a review-only mockup. It is not
 > wired to Excel.
-> **Uses**: the MDL Dashboard architecture (`MDL/MDL-Dashboard-Workplan.md` +
-> `MDL/src/{xlsx-reader,pipeline,render}.mjs`) and the shared `Dashboard-UI-Design-Spec.md`.
+> **Reference**: use the MDL Dashboard for data-pipeline logic where it applies. Follow `AGENTS.md`
+> §18 and `Dashboard-UI-Design-Spec.md` for the UI shell and behavior.
 > **Writing standard**: this document follows ASD-STE100 Issue 9 for its prose.
 
 ---
@@ -40,22 +74,22 @@ The dashboard shows submission counts, status mix, review turnaround, review del
 outcome, and on-time performance. It also shows a coverage view. The coverage view shows how many
 planned documents have a submission. It also shows the documents that are pending.
 
-A left side panel gives the primary navigation between views. The dashboard uses a two-row header: a
-navy title bar and a white menu bar. The global filters live in the menu bar.
+The dashboard will use the shell defined in `AGENTS.md` §18.2. It will use the icon bar, left and right
+sidebars, content toolbar, scrollable content area, and full-width status bar. The left sidebar will
+show navigation and file controls. The content toolbar will hold the page title and actions. A shared filter area in the content body will hold global filters.
 
-The dashboard follows `Dashboard-UI-Design-Spec.md` as the single source of truth for layout and
-style. It reuses the proven MDL ES-module pattern. The pattern is offline and dependency-free. It
-reads data with a file-drop step.
+The dashboard follows `AGENTS.md` §18.2 for shell geometry and behavior. It follows
+`Dashboard-UI-Design-Spec.md` for project-local UI assets, panels, tables, and filter behavior.
+Dashboard pages do not use `common/`. The pipeline uses native browser modules without a bundler. The local server uses Python standard-library modules, and Node.js runs tests. The user selects both workbooks for each load.
 
 ---
 
 ## 2. Guiding Principles
 
-- **Spec-conformant**: header (§3.1), side panel (§3.2), KPI Overview (§5), warning bar (§3.5),
-  status bar (§3.6), and responsive grid (§3.4) follow the shared spec.
+- **Spec-conformant**: the shell follows `AGENTS.md` §18. The dashboard panels, warning area, status values, and grids follow the shared dashboard spec.
 - **One `active` set**: global dimensions make a single shared working set with S4 Derive (§7.2.7).
 - **Side panel is navigation only**: it does not offer a global filter dimension again (§7.2.7 pt 5–6).
-- **Offline and dependency-free**: a single HTML file; data reads from the two workbooks when the dashboard opens.
+- **Local runtime**: the root HTML page loads local JavaScript modules and project-local UI assets. The user selects both workbooks for each load.
 - **Archive before delete**: the existing `sub/ref/` Monthly Submissions prototype is kept. This is a
   new artifact, not an overwrite.
 
@@ -126,62 +160,84 @@ Status code glossary (reused from `sub/ref/build_dataset.py`):
 
 ### 3.3 Join and derived fields
 
-- Join Submittal Log to MDL on `Document No.` to add stage, system, title, prefix, and vendor.
-- The submittal-log discipline (group header) is the authority. The MDL `Document No.` is heavily
-  duplicated, so it must not set the discipline.
-- Add a `Record Type = "Planned"` shadow row for each MDL document with no matching submission. Use
-  it for coverage (planned but not submitted).
-- Derived in `ref/build_dataset.py`: `Timeliness` (Delayed if Delay > 0, else On Time),
-  `Flag Approved` (APP/AWC = 1), `Flag On Time`, `Flag Delayed`, `Flag Resubmission`, and `Month`
-  (first-of-month of Submission Date).
-- Normalize Excel serial dates and formula-error tokens (`#VALUE!` and others) in spec §3.8.1. A cell
-  with a formula-error token is set to absent and counted per column; one fatal strip per affected column
-  shows in `#errBanner` (formula normalization, §3.8.4 — not a `V-xx` code).
+- Treat each MDL data row as one planned document record. Do not merge rows or remove repeated
+  `Document No.` values.
+- Treat each Submittal Log data row as one submission record. Keep all rows in the detail view and
+  count each row in submission-record measures, except the `Documents Logged` KPI card, which counts
+  each `Document No.` once (D32).
+- Join on `Document No.` only when one MDL row has that value. If multiple MDL rows have the value,
+  keep each planned row, report `V-26`, and mark the link as ambiguous. Do not assign the log row to
+  any one of those MDL rows.
+- A log row is an orphan (`V-29`) only when no MDL row has its `Document No.`.
+- For coverage, count each MDL row in the plan total. Count a row as submitted only when it has one
+  unambiguous MDL match and a matching log row has a submission date or a submitted status. Do not
+  count `NFS` as a submission. Report ambiguous rows as a separate coverage result.
+- Use the first valid submission date for each unambiguous MDL row in schedule-performance views. Use
+  all log rows for submission, review, and approval measures. Label the measure unit in each view.
+- Read the source formulas for calculated fields before coding. In the current log, `Review Turnaround
+  Days` uses actual return minus submission date when returned, and the local as-of date minus
+  submission date when open. `Review Delay Days` usually equals turnaround minus review period. This
+  gives negative values for early returns. Keep those values for returned records. A formula audit on
+  2026-10-24 found 182 delay formulas with this rule and one formula that clamps negative values to 0.
+  The workbook has 66 negative cached values across its 183 dated rows. Cached `TODAY()` results can be
+  stale, so the pipeline recalculates open rows from the target date.
+- Current workbook baseline: 7,717 MDL row candidates, including 86 rows with a blank document number;
+  7,631 rows have a document number. The log has 183 dated submissions, 129 returned and 54 open.
+  The current source has 232 repeated MDL document numbers (7,353 affected rows), 17 orphan log rows,
+  one ambiguous link, and one V-30 timeline issue. These findings remain row-level validation results.
+- For an open log row, calculate delay as `max(as-of date - Target Return Date, 0)`. Show 0 before
+  the target date and positive days after it. Use the viewer's local date as the as-of date. Compare
+  the result with the workbook formula and record any difference. Do not rely on stale cached formula
+  values.
+- Derived flags include `Flag Approved` (APP/AWC = 1), `Flag On Time` (delay ≤ 0), `Flag Delayed`,
+  `Flag Resubmission`, and `Month` (first day of the submission month).
+- Normalize Excel serial dates and formula-error tokens (`#VALUE!` and others) in spec §3.8.1. Set
+  each formula-error value to absent and count it by column. Show one fatal strip per affected column
+  in `#errBanner` (formula normalization, §3.8.4, not a `V-xx` code).
 
 ### 3.4 Pipeline architecture (spec §3.8) and MDL reference
 
-The sub dashboard reads two `.xlsx` workbooks, so spec §3.8 (mandatory) applies in full. The reference
-implementation is MDL: `MDL/src/{xlsx-reader,pipeline,render}.mjs` + `build.mjs`. Use that modular
-pattern (spec §3.8.0). Do not hard-code the column tables in §3.1–§3.2 into application code — they are
-the documented **contract view**; the pipeline discovers them at runtime (see §3.8.3).
+The sub dashboard reads two `.xlsx` workbooks, so spec §3.8 applies. Reuse suitable MDL parsing logic,
+but load the sub dashboard modules natively in the browser. Do not bundle the page. The column tables
+in this workplan document the source contract; the pipeline resolves positions at runtime
+(see spec §3.8.3).
 
 **Stages (spec §3.8.1)**
-- S0/S1 `xlsx-reader.mjs` (MDL `xlsx-reader.mjs`): acquire bytes and parse the container. Copy from MDL
-  unchanged.
-- S2/S3 `pipeline.mjs` (MDL `pipeline.mjs`, `buildModel` l.236): normalize rows to typed `records`;
+- S0/S1 `xlsx-reader.js` (adapt the MDL parser logic): acquire bytes and parse the container. Check
+  module imports and browser support before reuse.
+- S2/S3 `pipeline.js` (MDL `pipeline.mjs`, `buildModel` l.236): normalize rows to typed `records`;
   validate once; produce `issues[]` and `warnings[]`. No KPI or chart math here (MDL comment l.493–494).
   Discard the raw `workbook` after S2; keep only `records` + `contract` + `meta`.
-- S4 `render.mjs` `deriveView` (MDL `render.mjs` l.651): the sole source of KPI, chart, and overdue
-  math. It applies the global menu-bar filters to `records` to build the single `active` set, then
+- S4 `render.js` `deriveView` (MDL `render.mjs` l.651): the sole source of KPI, chart, and overdue
+  math. It applies the global filters to `records` to build the single `active` set, then
   aggregates.
-- S5 `render.mjs`: paint the DOM. Write-only — does not read the DOM to decide (spec §3.8.2 rule 6).
-- S6 `render.mjs`: on a filter change, re-run `deriveView` only; does not re-read the file (spec §3.8.2 rule 5).
+- S5 `render.js`: paint the DOM. Write-only — does not read the DOM to decide (spec §3.8.2 rule 6).
+- S6 `render.js`: on a filter change, re-run `deriveView` only; does not re-read the file (spec §3.8.2 rule 5).
 
 **Mandatory pipeline rules (spec §3.8.2)** — satisfy each; the Tier-1 harness checks several: 1. One
 aggregation engine (S4 only). 2. Discard the raw parse after S2. 3. Validate once at load. 4. Derive on
 demand, with no I/O. 5. No re-parse on a filter change. 6. Render is write-only. 7. Single `STATE` object
-(`render.mjs` `STATE`, MDL `render.mjs` l.809) — no state in DOM attributes. 8. Per-stage `try/catch`
+(`render.js` `STATE`, MDL `render.mjs` l.809) — no state in DOM attributes. 8. Per-stage `try/catch`
 (for each stage transition wrapped; MDL `pipeline.mjs` / `render.mjs`). 9. As-of = the viewer local date,
 built from local date parts, does not use `toISOString()` (MDL `pipeline.mjs` l.242–243); project-start is the
 S-curve origin only. 10. Blank and formula-error are the same absent state (§3.8.4).
 
-**Contract-driven parsing (spec §3.8.3)** — the workbook's contract sheet is the single source of truth
-for field positions, lookup domains, and rule wording. Discover them at runtime; does not hard-code column
-letters, row numbers, or allowed-value lists. Use MDL's `Code` sheet (read by `parseCodeSheet`,
-`buildFieldToCol`, `findLookupColumns` in MDL `pipeline.mjs` l.151 / l.166 / l.193) for the MDL-scope
-fields. The Submittal Log needs its own field discovery, resolved in the same way. The §3.1–§3.2 column
-tables are the documented contract, not constants in code.
+**Contract-driven parsing (spec §3.8.3)** — the MDL `Code` sheet supplies the MDL field map, lookup
+domains, and rule wording. Discover its tables at runtime. For the Submittal Log, discover fields from
+its row 1 headers after trimming spaces and ignoring letter case. Treat the headers as the workbook-owned
+field map. Read status domains and rule text from the log workbook `Code` sheet. Do not hard-code column
+letters, row numbers, or allowed-value lists. A missing or repeated required header is a structural
+error. Stop the affected views and show the error in `#errBanner`.
 
 **Value normalization (spec §3.8.4)** — treat a blank or a formula-error token as absent (`undefined`).
 Use a shared `isExcelError(v)` predicate (MDL `pipeline.mjs` l.52, `EXCEL_ERROR_TOKENS` l.48). Accumulate
 a per-column error count and show one fatal strip per affected column in `#errBanner` (MDL `pipeline.mjs`
 l.381). This is a parse step, not a `V-xx` code, and is not pushed to `model.issues`.
 
-**Testability (spec §3.8.5)** — ship `test/test_pipeline.mjs` that imports `pipeline.mjs` directly and
-asserts, against the real workbooks: record count, KPI values, lookup-table contents (proving no
-hard-coded lists), validation issue counts, and that each rule's message and severity come from the
-workbook. It must pass before release. `harness-layout` imports `pipeline.mjs` for Tier-3 ground truth
-and compares it with the rendered DOM.
+**Testability (spec §3.8.5)** — ship `test/pipeline.test.mjs` that imports `engine/pipeline.js` and tests
+representative workbook data. Assert record counts, known KPI values, lookup values, and validation
+counts. Check rule wording and severity against the workbook when it defines them. Run the tests with
+the approved test runner before release. The layout harness may compare pipeline values with the page.
 
 ---
 
@@ -189,139 +245,72 @@ and compares it with the rendered DOM.
 
 ### 4.0 App shell and layout
 
-- **Two-row header (§3.1)**: the dashboard ships the two-row header. Row 1 is the **title bar**; Row 2
-  is the **menu bar**. The two rows scroll and stay as one unit (sticky, `top:0`, `z-index:31`). The app
-  bar sits above the warning bar (`z-index:30`, §3.5).
-- **Sidebar (§3.2)**: a left column **below** the two-row header (its `top` equals the rendered header
-  height). It is navigation only (Decision D1). A 1 px lighter-navy vertical divider makes its right
-  edge; this divider separates the side panel from the content area. The header's bottom edge (navy
-  title bar to white menu bar) is the horizontal divider from the menu bar. The side-panel toggle is not
-  in the sidebar — it lives in the menu bar (see §4.1).
-- **z-index order**: app bar `31`; warning bar `30`; sidebar `20`; status bar `40`. The warning bar
-  spans the content area (from the sidebar's right edge to the right edge), so it does not overlap the
-  side panel. The app bar stays above the warning bar, so the menu-bar toggle and filter dropdowns clear
-  the banner.
-- **Sidebar is bounded by the header and the status bar**: `top:var(--appbar-h)` (below the two-row
-  header) and `bottom:var(--statusbar-h)` (above the status bar). It therefore never runs behind the
-  full-width status bar (§3.6), and the two fixed elements do not overlap.
-- **Status bar `.status-bar` (§3.6)**: mandatory, reused from MDL. It is **full width** (`left:0;
-  right:0`), spanning the entire viewport including beneath the sidebar — the spec §3.6 default,
-  confirmed in review. Content reserves clearance via the content wrapper `padding-bottom` (§3.3).
-- **Warning bar `#errBanner` (§3.5)**: mandatory, reused from MDL (`applyBannerState` resolver,
-  dismissible, `localStorage` key `<dashboard>_hideWarnings`). The warning bar adapts the spec §3.5
-  full-width rule to the side-panel layout: it sits just below the menu bar and spans the content area,
-  not across the sidebar. This removes the overlap with the side panel and is documented here as a
-  deviation from the strict full-width rule (Open Question §9.6).
-- **Content area (§3.3)**: to the right of the sidebar; centered `max-width:1320px`; KPI Overview
-  first; the disclaimer footer is the last child inside the content wrapper.
-- **Two-column panel grid collapses to one column under 880 px** (spec §3.4): the Overview KPI strip and
-  the C1–C6 chart panels use a 2-column `grid-2` that falls back to a single column on narrow screens,
-  so every page stays usable without forcing one-screen fit at all widths.
-- **S-curve is full width**: the Schedule Performance chart (C1, §4.3) is the one full-width panel —
-  `grid-2` is bypassed for it, mirroring the spec §4.2 combined-chart `.card.full` rule. All other
-  chart panels are 2-column.
+The dashboard uses the shell defined in `AGENTS.md` §18.2 (MDL two-row header + left navigation
+sidebar), updated 2026-10-24. It implements that shell in project-local CSS in the project-root
+page and JavaScript modules under `engine/`. The shell has a navy title bar (~56 px) and a white
+menu bar (~48 px), a resizable 240 px navy left sidebar, a flexible content area, and a ~30 px
+full-width navy status bar. There is no 48 px icon bar and no right sidebar. Project-local UI
+assets implement the dimensions and behavior from the dashboard UI spec.
 
-### 4.1 Header — Title bar and Menu bar (two-row) — DECISION CAPTURED
+- The title bar holds the logo (white chip) and the title stack (project title + meta line).
+- The menu bar holds actions (Load Data, Export), the global filter group, Search, Warnings, Settings, and Help.
+- The left sidebar holds the page links (navigation) and the file-loading panel. It is collapsible and resizable.
+- The content toolbar holds the page title and actions (layout button). The shared filter area holds the search panel and the warning area.
+- The content area owns the dashboard panels. The layout button selects one, two, or three columns. Panel widths must fit the available content width.
+- The warning area stays inside the content area. The label stays `Warnings` when the area is open or collapsed.
+- Settings and Help open modal dialogs (they are no longer a right sidebar).
+- The status bar shows MDL file name, Submittal Log file name, and load state on the left. It shows the dashboard version on the right.
+- Default theme is light (spec §18.4, updated). Five themes remain available.
+- Print hides warning notices as the dashboard spec requires.
 
-**Decision (D4)**: ship the two-row header (spec §3.1 two-row variant). The dashboard records this
-deviation here, as §3.1 requires. Rationale: the title block and the five global dimensions require the
-space; a single row is overcrowded.
+**UI assets:** Dashboard pages do not use repository `common/` files. They implement the shell and
+tokens in project-local assets whose paths this workplan defines. Stable shell markers follow spec §3.1
+(`titlebar`, `menubar`, `left-sidebar`, `content`, `statusbar`) and allow harness checks independent of CSS class names.
 
-**Row 1 — Title bar (§3.1)**: navy (`--navy`), white text. Logo + title block `.ttl` (17 px / 600; can
-break to two lines) + meta line (`workbook · as-of · refresh`, 11 px, opacity .85). It carries **no
-action buttons** (normative).
+### 4.1 Global controls
 
-**Row 2 — Menu bar (§3.1)**: white background (`#fff`), text `--text`. It has two parts — a left
-actions cluster and a right filter group:
-- **Left actions cluster**: the A1 Primary CTA = **Load Data** (opens the two-workbook dropzone) plus
-  a secondary **Export** action.
-- **Right filter group**: the global-dimension chips (Discipline, Stage, Submission Status, Approval
-  Status, Submitted By), a **Search** trigger (popover, single row), and a **Warnings** toggle.
-- **Side-panel toggle**: a borderless `☰` toggle at the left of the menu bar. It collapses or expands
-  the left navigation. It lives in the header, so it is always visible above the warning bar; no separate
-  reopen button is needed.
+The menu-bar filter group contains the five global dimensions: Discipline, Stage, Submission Status,
+Approval Status, and Submitted By. Each is a **multi-select** trigger — `.tf-btn` with a count badge
+opening a `.tf-panel` of `.chips` toggles led by an `All <dimension>` master (spec §7.1 B1 + B3). The
+group also holds the Search button with its panel and the Warnings toggle, as MDL does. §7.2.7 point 5
+records the dimension list; see D15 for the cardinality decision. Load Data and Export use the button rules in the dashboard UI spec and accessible labels. File selection
+uses the file panel behavior defined by the dashboard UI spec; the user selects both workbooks for each load. The workplan records this
+project-specific choice under §8. D13.
 
-**Menu-bar chrome (normative, §3.1)**: controls are borderless, icon-free, text-only. The side-panel
-toggle follows the same chrome. A count shows as
-a parenthetical on a chip; the warning count shows as a badge. Controls highlight on hover with a soft
-tint. The **only filled element is the Primary CTA** (`--blue`); a pressed or `aria-pressed` state
-keeps its fill.
+### 4.2 Navigation and sidebars
 
-**Global dimensions (§7.2.7)**: the chips are the dashboard's global dimensions. One selection
-re-derives the single `active` set for each panel (S4 Derive, the first gate). They live only here —
-not in the sidebar (D1) or a panel.
-
-**Search (§3.1)**: a trigger, not an inline box. Its popover lays out in one row — a column selector,
-an elongated field (≥ 200 px), and Find / Reset (popover up to ~640 px). Tier 4f `lintSearchPanel`
-enforces this.
-
-**Warnings toggle (§3.5)**: a `<button>` in the header, immediately after the Search control. It
-renders only when one or more notices are present. It shows a count badge (`⚠ N`) and a text label
-(`Warnings` when open, `Show warnings` when collapsed). It exposes `aria-pressed` and a dynamic
-`aria-label` (no count restated). A click flips the persisted `<dashboard>_hideWarnings` pref and
-re-runs `applyBannerState`. (Note: §3.1 line 122–126 says the label must not change with state, but
-§3.5 line 217 says it becomes `Show warnings` when collapsed; this workplan follows §3.5. See Open
-Question §9.5.)
-
-**Sticky as one unit**: the two rows stay together at `top:0`. The app bar (`z-index:31`) stays above
-the warning bar (`z-index:30`), so a filter dropdown clears the banner when it opens.
-
-### 4.2 Side Panel (navigation) — DECISION CAPTURED
-
-**Decision (D1)**: the dashboard ships a left sidebar (spec §3.2 permits it; MDL deferred it — this
-dashboard builds it to satisfy your requirement). The sidebar is navigation only. It switches pages.
-It does not host a row filter. It sits below the two-row header.
-
-**No repeat of global filters**: the global filter dimensions (Discipline, Stage, Submission Status,
-Approval Status, Submitted By, and Search) live ONLY in the menu bar (Row 2). The sidebar does not name
-a page after a filter dimension. It does not offer a filter control. This respects §7.2.7: a panel or
-the sidebar must not offer a global dimension again. The earlier draft named pages "Submission Status",
-"By Discipline", and "Approval and Timeliness". Those overlapped the global filters, so they are
-removed.
-
-Sidebar contents:
-- Brand or project label at top.
-- Nav items (page switcher), in order: **Overview** → **Submittals** → **Validation** → **Analytical**
-  → **Staffing** *(deferred — §4.10)* → (spacer) → **Settings** → **Help**. Each item opens one page
-  (§4.3 Overview, §4.4 Submittals, §4.5 Validation, §4.9 Analytical, §4.10 Staffing, §4.6 Settings,
-  §4.7 Help). No item equals a global filter name. (**Staffing** is specified but deferred pending
-  manhour benchmarks; it is not scheduled for build yet.)
-- **Settings and Help are pinned to the bottom of the sidebar** (`margin-top:auto` on the Settings item,
-  so both sit flush to the bottom edge above the status bar, with the five content pages grouped above).
-- The sidebar collapses to icon-only or hides below 880 px (§3.4). The menu-bar toggle (§4.1) opens or
-  closes it. No toggle lives in the sidebar.
-- Active item highlighted; selection sets the page that renders in the content area.
-- z-index `20`; the sidebar is below the app bar and above the status bar (§4.0).
+The left sidebar uses the collapse, resize, and accordion behavior defined by the dashboard UI spec. It switches pages and holds the
+file-loading panel. It does not repeat any global filter. The menu bar holds actions, the global filter group, Search, Warnings, Settings, and Help. There is no right sidebar and no icon bar; Settings and Help are modal dialogs.
 
 ### 4.3 Overview page (KPI Overview and charts)
 
 KPI Overview (§5): first panel, title `KPI OVERVIEW`, inline `?` (help, left) and `−` (collapse,
-right). Six KPIs (6-col grid ≥ 1100 px, 3-col 880–1099 px, 2-col < 880 px):
+right). Six KPI cards in the shared auto-fit grid:
 
 | KPI | Source |
 |---|---|
-| Total Submissions | count of Submittal Log rows |
-| Documents Submitted divided by In Plan | submitted divided by MDL scope (coverage %); MDL scope counted by Document No., duplicates ignored |
+| Documents Logged | distinct `Document No.` in the filtered Submittal Log rows, trimmed and upper-cased (D32) |
+| Documents Submitted divided by In Plan | unambiguous MDL rows with a submission divided by all MDL planned rows that carry a `Document No.`; a blank `Stage` is counted (D33); duplicate-ID rows remain in the denominator and appear as ambiguous |
 | Under Review (SUR) | count where Submission Status = SUR |
 | Approved (APP+AWC) | count where Approval Status in {APP, AWC} |
 | On-Time Return Rate | `Flag On Time` average |
-| Avg Review Delay | `Review Delay Days` average (0 when not yet returned and not due) |
+| Avg Review Delay | average of calculated `Review Delay Days`; open rows before target date contribute 0; early returned rows keep the workbook negative value |
 
-Overview charts — three **combined interactive charts** (SVG, dependency-free, MDL `render.mjs` chart
+Overview charts — three **combined interactive charts** (SVG, dependency-free, adapted from the MDL chart
 kit). Each chart carries its own control cluster (§4.1 / spec §4.2) and re-renders `deriveView` on the
 single `active` set (S4); no DOM recompute. The global Discipline filter still applies across each chart.
 
 - **C1 Schedule Performance (S-Curve) — full width** (`.card.full`, spec §4.2): the MDL planned
   first-issue curve and a forecast curve compared with the actual cumulative submissions; monthly bars
-  show plan and actual per month. Counts use the MDL discipline-sheet **Document No.** column; duplicate
-  document numbers are ignored; MDL ↔ Log link by Document No. **Controls**: *Cumulative* ↔ *Per
+  show plan and actual per month. Counts use MDL planned rows. Repeated document numbers stay as separate rows and raise `V-26`. For
+  actual, use the first valid submission date for each unambiguous MDL row. **Controls**: *Cumulative* ↔ *Per
   Discipline* toggle (Per Discipline = the former S-Curve Variance view) and *Plan* / *Forecast* /
-  *Actual* series checkboxes. This is the one full-width panel on the page.
-- **C2 Submission Flow & Delay** (2-col): the monthly submission flow. **Controls**: view toggle
+  *Actual* series checkboxes. This chart spans the selected content width when the layout calls for it.
+- **C2 Submission Flow & Delay** (shared layout grid): the monthly submission flow. **Controls**: view toggle
   *Stacked* (per-month status split: SUR/RTR/NTS/NFS, with an *Include NFS* toggle and a total) ↔
   *Delay* (monthly average `Review Delay Days`, not-yet-returned and not-due = `0`) ↔ *Funnel* (the
   former Status Funnel: Submitted → In Review → Returned → Approved drop-off).
-- **C3 Breakdown** (2-col): a single split-by-dimension panel. **Controls**: dimension toggle
+- **C3 Breakdown** (shared layout grid): a single split-by-dimension panel. **Controls**: dimension toggle
   *Discipline* ↔ *Submitter*; metric toggle *Count* / *Plan vs Actual* / *Delay* / *Rework* /
   *Approval Mix* (the former Approval Mix donut is now a metric option, with its total in the centre).
   Overdue / lag cells are flagged.
@@ -329,7 +318,7 @@ single `active` set (S4); no DOM recompute. The global Discipline filter still a
 **Regrouping note**: the earlier seven Overview charts plus the analytical panels are consolidated into
 six interactive charts (C1–C6). Folded here: *Approval Mix* → C3 "Approval Mix" metric; *S-Curve
 Variance* → C1 "Per Discipline" view; the standalone *Coverage* panel → C5 "Coverage" view (§4.9). Net
-14 separate visuals → 6 charts (C1 full width, C2–C5 in 2-col grids, C6 on the Staffing page).
+14 separate visuals → 6 charts. Each chart uses the active shared layout; C6 is on the Staffing page.
 
 ### 4.4 Submittals page (review and filter all details)
 
@@ -407,7 +396,7 @@ Severity. The sub dashboard only appends the new rows in the second table, keepi
 | V-23 | Any date is in the future | per Code sheet | Reuse |
 | V-24 | `BQ Number` present but not in BQ sheet | per Code sheet | MDL-only |
 | V-25 | Required fields missing | per Code sheet | Reuse |
-| V-26 | Duplicate `Document No.` within active records | per Code sheet | Reuse |
+| V-26 | Repeated `Document No.` in MDL planned rows or Submittal Log records | Error per Code sheet | Preserve all rows and report the duplicate |
 | V-27 | `As-Built` / `Vendor Data` not in {YES,NO} | per Code sheet | MDL-only |
 | V-28 | 1st-issue date precedes declared project start | per Code sheet | Reuse if sub has project start |
 | **V-29** | **Orphan**: Submittal Log `Document No.` not present in MDL scope | Warning | **New — mandatory** |
@@ -444,11 +433,14 @@ Tier-1/3 after the edit to confirm the codes are picked up.
 
 **Status**: updated manually on 2026-10-23 and verified — all four `Code` sheets (`MDL/` and `sub/`,
 Master Document List and Submittal Log) contain `V-01`…`V-31` with the labels `Error Code` / `Group` /
-`Rule` / `Severity`; the existing `V-01`…`V-27` rows are unchanged.
+`Rule` / `Severity`; the existing `V-01`…`V-27` rows are unchanged. The 2026-10-24 formula review
+found 183 log records with submission dates, 129 returned records, and 54 open records. The formula
+cache includes negative delay values for early returns and can lag the current date.
 
 **Notes**
-- MDL duplicate `Document No.` is **ignored for counting** (silent deduplicate); `V-26` applies to the
-  Submittal Log.
+- Repeated MDL `Document No.` values remain as separate planned rows and raise `V-26` Error.
+  Do not merge or remove these rows. A log match to repeated MDL values is ambiguous and is not assigned
+  to either planned row.
 - The MDL workbook and the Submittal Log link by `Document No.`. A Submittal Log row whose `Document No.`
   is absent from MDL scope is an **orphan** and is reported by **V-29** (mandatory).
 - MDL `Document No.` not in the Submittal Log is **NFS** (not submitted) — an expected coverage gap, not
@@ -473,11 +465,12 @@ Dashboard preferences the user can change and save in `localStorage`:
 - Theme (light or dark).
 - Warning-bar visibility (show or hide).
 - Default column set for the Document Detail table.
-- Default workbook paths (MDL and Submittal Log) for faster load.
+- Remember selected workbook file names. Ask the user to select both workbooks for each load.
+- Optional persistent file access may use the File System Access API when the browser supports it and the user grants access.
 
 ### 4.7 Help page
 
-- How to use the dashboard: load the two workbooks, use the menu-bar filters, and switch pages.
+- How to use the dashboard: load the two workbooks, use the global filters, and switch pages.
 - Glossary of status codes: SUR, RTR, NTS, NFS and APP, AWC, NAP, REJ, INF.
 - Data sources and version.
 - Contact or issue link.
@@ -494,17 +487,17 @@ removes a redundant Overview panel.
 ### 4.9 Analytical page (bottlenecks, delays, projected delays)
 
 The Analytical page answers *where is it stuck* and *what is coming*. It carries a bottleneck KPI strip
-and two combined interactive charts (2-col grid).
+and two combined interactive charts that follow the shared content layout.
 
 **Bottleneck KPI strip (6 cards)**: Overdue (past Target Return, still open) · Open SUR older than 60 d ·
 Rework Rate (RTR / resubmission) · Avg Cycle (return→approval) · Look-ahead (docs due in next 4 wks) ·
 Required Review FTE (Dec) — the last is the staffing hand-off to §4.10 (deferred — see §9.9).
 
-- **C4 Turnaround & Aging** (2-col): process-time analysis. **Controls**: *Scatter* (turnaround days on
+- **C4 Turnaround & Aging** (shared content grid): process-time analysis. **Controls**: *Scatter* (turnaround days on
   x, review-delay days on y, one point per submission) ↔ *Age buckets* (open SUR split <30 / 30–60 /
   60–90 / >90 d; overdue = past Target Return still open). Surfaces the bottleneck stage and where time
   is lost.
-- **C5 Forward Plan** (2-col): the forward/coverage view. **Controls**: *Look-ahead* (documents due by
+- **C5 Forward Plan** (shared content grid): the forward/coverage view. **Controls**: *Look-ahead* (documents due by
   Target Return within the next 4–8 weeks, with status pills and a total) ↔ *Coverage* (NFS: MDL scope
   with no matching Submittal Log Document No., the former Coverage panel §4.8). Enables projected-delay
   spotting before the queue builds.
@@ -548,166 +541,326 @@ current-FTE input is wanted (Settings, §4.6).
 - Formula-error cells are normalized to absent and counted per column; one fatal strip per affected
   column shows in `#errBanner` (§3.8.4 — not a `V-xx` code).
 - S4 Derive is the sole source of KPI numbers; panels do not recompute from the DOM.
-- No duplicate global filter dimensions (§7.2.7): sidebar is navigation, menu bar holds filters.
+- No duplicate global filter dimensions (§7.2.7): the sidebar holds navigation, and the shared filter area holds filters.
 - Conformance record (spec §8): fill the §8 record in this workplan after build.
 
 ---
 
 ## 6. Technical Architecture
 
-### 6.1 Stack decision (recommended)
+### 6.1 Stack decision (approved in Wave 1)
 
-**Adopted (recommended)**: port the MDL Node ES-module pattern — `xlsx-reader.mjs` + `pipeline.mjs`
-+ `render.mjs` bundled by `build.mjs` into one offline HTML. The two workbooks read when loaded with
-a dropzone (single dropzone that accepts the two files, or two labeled pickers). This matches your
-"refer to MDL" direction. It is the only fully spec-conformant build.
+The dashboard UI uses native JavaScript modules in the browser, with no bundler or npm runtime
+dependency. The project HTML file stays in the `sub/` root. A Python standard-library server serves the
+page and project-local assets. Node.js is the approved test runner. No separate data-preparation helper
+is required. Keep the dashboard page in the project root, its JavaScript modules in `sub/engine/`, and its UI help data in `sub/config/`. Do not create `sub/ui/`, `sub/data/`, or `sub/output/` solely to meet a folder convention.
 
-**Note**: `AGENTS.md` §1.1 lists `sub/` as "Python build, HTML output" (the existing
-`sub/ref/build_dataset.py` + `build_dashboard.py` generator). If you use the Python generator
-path, the data model in §3 applies. Only §6.2–§6.3 change. Recorded as Open Question §9.1.
-
-### 6.2 File structure (Node path)
+### 6.2 Project file layout
 
 ```
 sub/
-  src/xlsx-reader.mjs      (copy from MDL, unchanged)
-  src/pipeline.mjs          (Submittal-specific model + S4 derive)
-  src/render.mjs            (two-row header — title bar + menu bar, side panel nav, KPI, charts, coverage, detail table, bars)
-  build.mjs                 (bundle -> standalone HTML)
-  TWRP C3B2 - Document Submittal Dashboard.html   (output)
-  workplan/Sub-Dashboard-Workplan.md
-  test/test_pipeline.mjs, test_render.mjs
+  archive/  config/  docs/  engine/  log/  test/  workplan/
+  knowledge.json
+  TWRP C3B2 - Document Submittal Dashboard.html   (dashboard entry page)
+  engine/xlsx-reader.js
+  engine/pipeline.js
+  engine/render.js
+  config/ui_help.json
+  serve.py
+  test/pipeline.test.mjs
+  test/render.test.mjs
 ```
+
+The dashboard HTML stays in the project root. The browser holds loaded and derived data in memory;
+CSV exports download through the browser. `ui/`, `data/`, and `output/` are not required. Create the
+other required project folders and `knowledge.json` before source work.
 
 ### 6.3 Build
 
-`node build.mjs` concatenates the three modules (strips `import`/`export`), inlines into one
-`<script type="module">`, embeds the logo as base64, and writes the standalone HTML. Build fails if
-the bundle does not parse (mirrors MDL `build.mjs`).
+There is no HTML build step. Run the project `serve.py` from the repository root and open the
+project-root dashboard page. Use Node.js to run JavaScript pipeline and render tests. Use the Python standard library for the local
+server, as required by `AGENTS.md` §18.12.
 
 ---
 
 ## 7. Workplan (Waves)
 
-| Wave | Task | Output |
-|---|---|---|
-| 1 | Write this workplan; get approval | `sub/workplan/Sub-Dashboard-Workplan.md` |
-| 2 | Copy `xlsx-reader.mjs` into `sub/src/` | `sub/src/xlsx-reader.mjs` |
-| 3 | Write `pipeline.mjs` (column maps, join on `Document No.`, derived fields, S4 derive, formula normalization §3.8.4, and validation: reuse the Code-sheet `V-01`…`V-28` catalog and implement the new `V-29` orphan-linkage, `V-30` return-before-submission, `V-31` status-conflict checks — read each rule's message and severity from the `Code` sheet, never hard-coded) | `sub/src/pipeline.mjs` |
-| 4 | Write `render.mjs` (two-row header — title bar + menu bar, side panel nav with Settings/Help pinned bottom (Staffing item deferred — §4.10), KPI Overview, combined charts **C1–C5** on Overview + Analytical — C1 full width, C2–C5 in 2-col grids; the Staffing page and **C6** estimator are deferred pending manhour benchmarks; detail table, validation list, bars) — render each chart's control cluster and re-run `deriveView` on toggle/filter | `sub/src/render.mjs` |
-| 5 | Write `build.mjs`; build the HTML | `sub/TWRP C3B2 - Document Submittal Dashboard.html` |
-| 6 | Add `test/test_pipeline.mjs` (assert record count, KPI values, lookup-table contents — proving no
-  hard-coded lists — validation issue counts, and that each rule's message and severity come from the
-  workbook) and `test/test_render.mjs`; run `harness-layout` (Tier 1 structural, Tier 3 data + filter
-  ground truth); confirm `V-29`/`V-30`/`V-31` appear in `issues[]` and render in the Validation page and
-  `#errBanner`; fill §8.1 conformance | tests + record |
-| 7 | Manual review of two-workbook load UX; adjust | final HTML |
+### Current work items
+
+| Task | Category | Status | Work |
+|---|---|---|---|
+| T0.1 | [Docs] | ✅ COMPLETE | Align the dashboard workplan, shared spec, and harness with project-local dashboard UI assets and the shell contract. |
+| T2.1 | [Scaffold] | ✅ COMPLETE | Validated `sub/knowledge.json` against the shared `config/schemas/knowledge_base_schema.json`; see T2.2 and report SUB-REPORT-W2.1-001. |
+| T2.2 | [Schema] | ✅ COMPLETE | Created the repository-level, dashboard-universal knowledge graph schema at `config/schemas/knowledge_base_schema.json`, based on `sub/ref/knowledge.json`. Kept current sub and EKS sample formats valid; defined graph nodes, typed edges, and evidence links. Added schema tests and updated the workplan, report, and logs. |
+| T3.1 | [Pipeline] | ✅ COMPLETE | Added the project-local XLSX reader and source-contract pipeline. Added header, status, row, duplicate-ID, link, date, formula-error, and delay validation. Twelve tests pass on the current workbooks and test cases; report and logs are updated. |
+| T4.1 | [UI and integration] | ✅ COMPLETE | Built the project-root dashboard and local assets. Loaded both workbooks through the browser flow. Tier 1–4 harness checks pass; see Wave 4 report. I003 is resolved. |
+
+| Wave | Target / owner | Work and deliverable | Main risk and action | Pass condition | Status |
+|---|---|---|---|---|---|
+| 1 | 2026-10-24 / project owner and Codex | Approve this workplan. Select native browser modules, Python standard-library server, Node.js tests, and no optional data helper. | Open stack choice / record the approved stack before implementation. | Approval and stack choice are recorded; Wave 1 report is filed. | ✅ COMPLETE |
+| 2 | 2026-10-24 00:34 UTC–01:17 UTC / developer | Create `knowledge.json` and the required dashboard project folders. Do not create `ui/`, `data/`, or `output/`. Keep existing `log/` and `workplan/reports/`. Wave 2.1 closes the schema gate. | The shared schema was absent at scaffold time; I002 was logged and resolved in Wave 2.1. | Required folders exist with `ui/`, `data/`, and `output/` excluded; JSON parses; no test files exist outside `test/`; schema tests pass for EKS, sub, and a graph example. File report and logs. | ✅ COMPLETE |
+| 2.1 | 2026-10-24 01:13 UTC–01:17 UTC / Codex | Create and validate the shared knowledge graph schema for dashboard projects. Base the common content on the EKS sample and support typed page, component, definition, behavior, function, workflow, data, schema, issue, and update nodes with evidence-backed edges. | Existing EKS and sub knowledge files use different shapes; preserve both as compatible inputs while defining the graph extension. JSON Schema cannot check that edge endpoints exist; record this limit for a later graph integrity check. | Shared schema validates; the EKS sample and current sub knowledge file validate; a graph example validates; invalid structure fails; report and logs are filed. | ✅ COMPLETE |
+| 3 | 2026-10-24 01:18 UTC–01:38 UTC / developer | Build and test S0–S3 data handling. Read both workbooks; normalize source rows; validate fields and rules; link submissions only to unique MDL rows; recalculate row delay and turnaround. | Changed workbook contracts / fail clearly and name the source; stale formula caches / compare returned values and recalculate open delays. | Twelve pipeline tests pass for both workbooks, source rules, validation, joins, calculations, and known totals; report and logs are filed. | ✅ COMPLETE |
+| 4 | 2026-10-24 / developer | Build dashboard views and the file-load flow. Keep dashboard HTML in the project root. Run shell and layout harness checks in Chromium. | File pairing or layout errors / check both files and the dashboard UI spec. Chromium launch is available in the supported environment. | Both files load, views use the same model, Wave 4 UI and integration checks pass, and the report and logs are filed. | ✅ COMPLETE |
+| 5 | After Wave 4 / developer | Run full regression tests. Check missing or swapped files, missing or repeated headers, formula errors, duplicate MDL IDs, orphan rows, multiple submissions per document, and filters against known totals. Compare calculated fields with workbook formulas and approved delay rules. | Stale formula caches or changing source data / use fixed dates and known workbook cases. | All required cases pass; conformance record is complete; report and logs are filed. | 🔷 PLANNED |
+| 6 | After Wave 5 / project owner and reviewer | Review the two-file load flow by hand. | Load flow may hide file errors / check missing, swapped, and invalid files. | Review record lists results and remaining issues; project owner accepts the release. | 🔷 PLANNED |
+| 7 | 2026-10-24 / CodeBuddy (AI) | Rebuild the non-compliant Wave 4 UI to the spec §18.2 shell with the MDL/PPP visual family: **light default**, **navy left sidebar**, MDL-rounded white panels/KPIs, and an MDL-style welcome card (logo from `./asset/logo.jpg`, expect box, drop zone, privacy note). Keep the verified data engine (xlsx-reader.js, pipeline.js, render.js). Archive the prior UI. | The prior UI was dark-themed and used a custom palette, so it did not look like the MDL/PPP/sample family; it also kept a white sidebar instead of MDL's navy sidebar. | Shell markers present; logo from `./asset/logo.jpg`; navy chrome + navy left sidebar; light default; MDL-rounded panels/KPIs; MDL welcome card; five themes; §8.2 gate items checked. **Note:** superseded by Wave 8, which updated `AGENTS.md` §18.2 / spec §3.1 to the MDL shell so this dashboard is fully spec-conformant. | ✅ COMPLETE |
+| 8 | 2026-10-24 / CodeBuddy (AI) | Adopt the MDL shell as the project standard: update `AGENTS.md` §18.2 (two-row header + left nav sidebar; no icon bar/right sidebar; light default) and `Dashboard-UI-Design-Spec.md` §3.1/§3.2/§3.6. Rebuild the sub dashboard to Option B (MDL two-row header + navy left navigation sidebar, menu-bar filters, Settings/Help modals, MDL welcome card). Keep the verified data engine. Add a full-screen welcome overlay: the `#welcome-screen` shows with no dashboard parts (header, menu bar, left sidebar, status bar all hidden) until the workbooks load; `body.loaded` reveals the `.app` shell. Load failures show on the welcome screen. | The user did not request the 48 px icon bar or the right sidebar; they conflict with the MDL layout. The spec must match MDL rather than carry a deviation. The welcome must show alone, like MDL. | Shell updated and rebuilt; new markers `titlebar`/`menubar`/`left-sidebar`/`content`/`statusbar`; no `iconbar`/`right-sidebar`; light default; full-screen welcome (no dashboard parts) implemented and verified; data-engine tests still pass (16/16). Zero deviations from the updated spec. | ✅ COMPLETE |
+| 9 | 2026-10-24 / CodeBuddy (AI) | Harden the welcome per the user's instruction and MDL: use the MDL ratio (full viewport, fluid) and the golden ratio (1 : 1.618) for fixed-proportion welcome surfaces; place the load buttons (Choose / Load) inside the file drop area; and remove the hardcoded project title from the welcome (the project/dashboard title renders from the loaded model after load). Update `Dashboard-UI-Design-Spec.md` §3.7 and `AGENTS.md` §18.2 to make these normative. | Before load the project title is unknown, so the welcome must not bake it in; MDL shows a generic tool name and renders the real title from the model. The drop area is the natural home for the load controls. | Welcome overlay implemented: golden-ratio drop (`aspect-ratio:1.618`) containing Choose + Load buttons; welcome shows no hardcoded project title (generic app label only); drag-and-drop extended to the welcome; shell title rendered from `model.meta.dashboardTitle` after load; spec §3.7 + AGENTS §18.2 hardened. Data-engine tests still pass (16/16). | ✅ COMPLETE |
+
+Record start and end timestamps for each wave. At each wave end, file a report in `workplan/reports/`
+and update `issue_log.md`, `update_log.md`, and `test_log.md`. Record “not applicable” in the test
+report and test log when a wave runs no tests. Do not mark a wave complete until its pass conditions
+succeed. Wave 2 and Wave 2.1 are complete; I002 is resolved. Waves 3 and 4 include tests; Wave 5
+runs full regression. Wave 6 is a manual owner review and release decision.
 
 ---
 
 ## 8. Decisions Captured from Review
 
-- **D1 — Side panel is navigation only** (§4.1). Left sidebar switches pages; global filters stay in
-  the top bar. No page name equals a global filter dimension. The earlier overlap (pages named
-  Submission Status, By Discipline, Approval and Timeliness) is removed. Rationale: spec §7.2.7
-  forbids offering a global dimension again.
+- **D1 — Side panel is navigation only** (§4.2). The left sidebar switches pages and holds file controls. The global filter group lives in the menu bar (spec §3.1, updated 2026-10-24); the left sidebar does not repeat any global filter. No page name equals a global filter dimension. Rationale: spec §7.2.7 forbids offering a global dimension again.
 - **D2 — Two workbooks read when loaded** (§6.1). MDL = scope, Submittal Log = history; joined on
   Document No. with submittal-log discipline as authority.
 - **D3 — Existing `sub/ref/` prototype preserved** (§2). New artifact, no overwrite.
-- **D4 — Two-row header (title bar + menu bar)** (§4.1). The dashboard ships the spec §3.1 two-row
-  variant; the deviation is recorded here as §3.1 requires. Row 1 is the navy title bar (no action
-  buttons). Row 2 is the white menu bar: left actions cluster (Load Data CTA + Export) and right filter
-  group (five global-dimension chips + Search + Warnings). The side panel is navigation only and sits
-  below the two-row header (D1). The global filters live only in the menu bar. The side-panel toggle lives in the menu bar (Row 2), not
-in the sidebar, to avoid overlap with the warning bar.
-- **D5 — Contract-driven parsing (spec §3.8.3)** (§3.4). Field positions, lookup domains, and rule
-  wording come from the workbook's contract sheet at runtime, not from hard-coded column letters in
-  application code. Use MDL's `Code` sheet for the MDL-scope fields; discover the Submittal Log fields
-  the same way. The §3.1–§3.2 tables are the documented contract, not constants. This removes the §3.8.3
-  conflict in the earlier draft.
+- **D4 — Shared shell and global controls** (§4.0–4.2). The dashboard uses the shell in `AGENTS.md` §18.2. Global filters live in the shared filter area below the content toolbar; actions stay in the toolbar. The sidebars use the shared shell behavior. This decision replaces the former two-row header proposal.
+- **D5 — Source-contract parsing (spec §3.8.3)** (§3.4). Resolve source positions and lookup values from each workbook contract at runtime. The MDL `Code` sheet provides its field map. The Submittal Log uses its row-1 field headers and `Code` sheet where present. Missing or repeated required fields are validation errors.
 
 - **D6 — Six combined interactive charts (C1–C6) replace 14 separate visuals** (§4.3, §4.9, §4.10).
   The Overview's seven charts and the Analytical's seven panels are regrouped by shared question:
-  C1 Schedule Performance (full-width S-curve) · C2 Submission Flow & Delay · C3 Breakdown (incl.
-  Approval Mix) · C4 Turnaround & Aging · C5 Forward Plan (Look-ahead + Coverage) · C6 Staffing
-  Estimator. Each chart has a control cluster (toggle/view) and re-renders `deriveView` on `active`
+  C1 Schedule Performance (S-curve) · C2 Submission Flow & Delay · C3 Breakdown (incl. Approval Mix) ·
+  C4 Turnaround & Aging · C5 Forward Plan (Look-ahead + Coverage) · C6 Staffing Estimator. Each chart has a control cluster (toggle/view) and re-renders `deriveView` on `active`
   (S4 only — no DOM recompute), reusing MDL's SVG chart kit. Net 14 → 6.
 - **D7 — Staffing is its own side-menu page** (§4.2, §4.10). The manhour/staffing analysis (C6) is a
   separate **Staffing** nav item, not folded into Analytical, so the capacity question is reviewed on
   its own with its own KPI strip. The menu label **Analytical** is retained. **Deferred**: scheduled
   only after the user supplies manhour benchmarks (§9.9); the menu item and C6 spec are retained.
-- **D8 — Layout settled** (§4.0): the status bar is **full width** (spec §3.6 default); the sidebar is
-  bounded **between** the header (`top:var(--appbar-h)`) and the status bar (`bottom:var(--statusbar-h)`)
-  so the two fixed elements never overlap; the S-curve (C1) is the one full-width panel; the 2-col panel
-  grid collapses to 1 col under 880 px (spec §3.4). Settings/Help are pinned to the sidebar bottom.
+- **D8 — Shared layout behavior** (§4.0): the status bar and sidebars follow `AGENTS.md` §18.2. The layout button selects one, two, or three content columns. The S-curve (C1) may span the content width. Panel grids must fit each selected layout.
 - **D9 — Redundancy folded, not lost** (§4.3, §4.9): *Approval Mix* → C3 "Approval Mix" metric;
   *S-Curve Variance* → C1 "Per Discipline" view; standalone *Coverage* panel → C5 "Coverage" view. The
   Status Funnel is **kept** as the C2 "Funnel" view (distinct stage drop-off). No chart is dropped
   outright — each original question remains reachable.
+- **D10 — Warning display rules** (§4.0, §4.1): the visible toggle label stays `Warnings` in both states.
+  The count stays in the badge. The warning area stays inside the content area and never covers either sidebar.
+- **D11 — Row counts and duplicate IDs** (§3.3, §4.3): each MDL row is one planned record, and each log
+  row is one submission record. Repeated MDL document numbers raise `V-26` and stay as separate rows.
+  Links to repeated numbers are ambiguous. Coverage counts all MDL rows in plan and reports ambiguous
+  links separately.
+- **D12 — Calculated delay** (§3.3, §4.3): inspect workbook formulas before implementation and compare
+  dashboard results with their logic. Keep negative delay for returned early records. For open records,
+  show zero through the target date and positive overdue days after it, based on the viewer local date.
+- **D13 — File selection and checks** (§4.6, §7): ask the user to select both workbooks for each load.
+  This user-approved rule overrides the default-path button in `AGENTS.md` §18.7. Keep local picker,
+  drag-and-drop, loaded-file list, and active-file status. Remember file names only. Test file pairing,
+  headers, formula errors, duplicate IDs, orphan rows, multiple submissions, and known totals.
+- **D14 — Repository UI standard takes priority** (§4.0–4.2): use `AGENTS.md` §18 for the shell,
+  project-local assets, five themes, file panel, and layout behavior. The prior two-row header and single left
+  sidebar proposal is withdrawn. Dashboard pages use project-local CSS and JavaScript; `common/` does not apply. Stable shell markers are
+  defined in spec §3.1 and checked by `harness-layout`.
+- **D15 — Global filters are multi-select** (§4.1, §7.1). Resolves I008. The five global dimensions
+  are multi-select: each renders as a `.tf-btn` trigger with a `.tf-cnt` count badge that opens a
+  `.tf-panel` of `.chips` checkboxes led by an `All <dimension>` master toggle. The filter state holds
+  a `Set` per dimension, and an empty `Set` means no narrowing. Rationale: spec §7.1 B grammar ties
+  chrome to cardinality, and §7.1 (rev 1.15) now requires a global dimension to accept several values
+  at once because it re-derives the shared `active` set for every panel. The previous single-value
+  native `<select>` controls and the local `.filter-control` class are removed.
+- **D16 — Shared typography** (§6, §7.1). The dashboard uses the shared `--font-ui` stack and the
+  normative type scale in spec §6 (body 13 px / 1.45, KPI value 22 px, KPI label 10 px uppercase,
+  chart-card `h3` 13 px / 700, icon button 13 px / 600, filter trigger 12 px / 600, chip 11 px,
+  severity chip 11 px / 700, system banner 12 px). MDL is the reference implementation.
+- **D17 — Menu bar composition** (§3.1, §3.2). Resolves I009. The menu bar is one row and MUST NOT
+  wrap; the five filter triggers sit in a flex row (`.tf-filters`) and the filter group scrolls
+  horizontally when they do not fit. Its contents are: the actions group — **Load Workbook** as the
+  highlighted `.btn-primary` control plus Export — then the filter group (the triggers, Search with
+  its popover, Warnings), then Help. Settings moved out of the menu bar into the left side panel as
+  its own menu. The theme button is removed and the theme design deferred. The left side panel no
+  longer holds workbook-loading controls: the "Workbook files" section (Choose Workbooks, drop zone,
+  file names, Load Data) is gone, and choosing workbooks is the menu-bar Load Workbook button, which
+  loads when both are already selected and opens the picker otherwise.
+- **D18 — Search popover follows MDL** (§3.1). Resolves I009. The popover is `.tf-panel.search-panel`
+  at `width:min(92vw,640px)`, containing a `.search-row` (nowrap) with a `.search` group — a
+  `select.inter-sel.is-attached` column picker joined to an `input.search-input` — plus Find
+  (primary) and Reset. The visible "In" label is dropped in favour of `aria-label`, and the popover
+  closes on an outside click.
+- **D19 — Filter chrome follows MDL** (§7.1 B1, B3). Resolves I010. The trigger is text plus a count
+  badge, with **no caret glyph**, and it is **borderless in the menu bar** — the base control keeps
+  its 1 px `--border` and the menu-bar chrome strips it. The panel holds MDL's structure: a `.tf-all`
+  `All <dimension>` master, a hint, a divider, then a `.tf-list` of `.tf-item` rows at 12 px. Spec
+  1.17 revises B1 (no caret, borderless in the menu bar) and B3 (from `.chips label` pills to
+  `tf-all` / `tf-item`), and fixes the type scale: menu row 12 px, count badge 10 px / 700.
+- **D20 — The filter group is not a scroll container** (§3.1). `overflow` on `.filter-group` clips the
+  floating panels that hang below the menu bar and makes their toggles unreachable — Playwright could
+  not click them at all. The group is now `flex-shrink:0` with no `overflow`, as MDL has it. Spec 1.17
+  replaces the earlier "scrolls horizontally" allowance with this rule.
+- **D21 — Master toggle semantics stay the sub's** (§7.1 B3). MDL treats an empty selection as *no
+  rows*; the sub treats it as *no narrowing*, so all rows show. MDL's model is not adopted. The master
+  instead reflects an explicit "every value ticked", so unticking it clears the ticks without snapping
+  back to checked. The panel hint says "Tick one or more values to narrow every panel", because the
+  sub applies changes immediately while MDL defers them to panel close.
+- **D22 — Help in the side panel** (§3.2). Resolves I010. Help sits next to Settings in one
+  "Settings & Help" menu in the left side panel. The menu-bar right group is removed.
+- **D23 — Menu-bar typography and alignment** (§3.1, §6). Resolves I011. Every control in the menu
+  bar is bold: `.app-menu .btn` is 12 px / 600, matching MDL — it was 13 px / 400. The filter
+  triggers were already 12 px / 600 and the Warnings count badge is 11 px / 700. Alignment follows
+  MDL's split: the left-panel toggle, the load action and Export are left-aligned, and the filter
+  group (triggers, Search, Warnings) is pushed to the right by `margin-left:auto` on `.filter-group`.
+  `.app-menu` itself keeps no `justify-content`, because it has three children — toggle, actions,
+  filter group — and `space-between` would strand the actions group in the middle. Spec 1.18 makes
+  both rules normative and adds the 12 px / 600 row to the §6 type scale.
+- **D24 — Title-bar and menu-bar spacing** (§3.1, §6). Resolves I012. Font sizes were already correct
+  in both bars; the spacing was not. The title-bar rows gained MDL's `gap:2px` on `.ttl-stack` and
+  lost the sub's `line-height:1.25`, and `.ttl` gained MDL's `line-height:1.2`. That moved the title
+  bar from 70 px to 77.72 px, which is exactly MDL's height. The menu-bar gap went from 10 px to
+  12 px, and `.app-menu .warn-toggle` gained MDL's `margin-left:6px`, so Search to Warnings is 14 px
+  as MDL's is. The menu bar stays 1 px taller than MDL's 48 px because the sub keeps a 1 px
+  `border-bottom` and MDL has none; that border is left in place deliberately. Spec 1.19 makes the
+  spacing normative and adds the title-bar type-scale rows (17 px / 600 and 12 px / 500).
+- **D25 — Title-bar logo and menu-bar control metrics** (§3.1). Resolves I013. Found by physically
+  measuring both bars in Chromium: font sizes already matched, seven other properties did not. The
+  logo is now 36 px with `flex-shrink:0` (it was 34 px and could shrink), the brand gap is 12 px
+  (was 10), `.ttl-stack` has `min-width:0`, `.app-top` is `justify-content:space-between`, and
+  `.app-menu .btn` carries MDL's `padding:7px 14px`, `min-height:32px` and `line-height:1.2` — it
+  had 12 px padding, no min-height (so it rendered 31 px) and the inherited 1.45 line height.
+  `.tf-btn` gained `line-height:normal`. The sub's global `.btn` is left alone, because it is used
+  far beyond the menu bar and 13 px there is out of scope.
+- **D26 — The sidebar toggle is compact** (§3.1). Resolves I014. The toggle inherited the menu-bar
+  control's `padding:7px 14px`, so it rendered 39 px wide around an 11 px glyph, and it carried the
+  bar's full 12 px gap after it. It is now `padding:7px 8px;margin-right:-4px` — 27 px wide, with an
+  8 px trailing gap matching the 8 px inside the actions group. MDL gives no reference here: its menu
+  bar has no sidebar toggle at all. Two things were kept: the 32 px height and 12 px / 600 type of a
+  menu-bar control, and the 20 px at the left edge, which is the bar's padding, aligns the toggle with
+  the title-bar logo, and matches MDL's content edge. Spec 1.21 makes the compact toggle normative.
+- **D27 — The left panel holds menus only** (§3.2). Resolves I015. The sidebar is now three children:
+  `nav.sb-menu.page-links` with the five page links, `nav.sb-bottom` with Settings and Help pinned by
+  `margin-top:auto`, and the `div.resize-handle`. Removed the in-panel collapse toggle — it duplicated
+  the menu bar's `data-shell-toggle="left-sidebar"` control — along with both section titles, the
+  `.sb-section-body` wrappers and the `border-bottom` dividers. Six CSS rules collapsed into two. The
+  **resizer is kept**: the spec requires `data-shell-resize="left-sidebar"` and the panel stays
+  resizable, and it is not a menu item so much as a panel affordance. The panel's own 1 px right
+  border is kept too, because it is the panel edge, not a divider. MDL offers no reference — it has
+  no sidebar at all — so the spec defines the shape.
+- **D28 — The left panel is sized to its menu titles** (§3.2). Resolves I016. The panel was 240 px for
+  135 px of content, so 105 px was empty — a leftover of the old panel, which also carried a
+  full-width collapse toggle and two section titles, all removed by I015. `--sidebar-w` is now
+  **160 px**: the widest title, "Forward Plan", is 91 px at 14 px / 400, which with the button's 12 px
+  horizontal padding and the panel's 10 px padding needs 135 px, plus 25 px of slack. The clamp in
+  `updateSidebarWidth` had to move too: it was `min = 180`, and it runs on load whenever a width is
+  saved in local storage, so a narrower default would have been forced back to 180 px. It is now
+  **140**, the width at which the widest title still fits. The 25 px of slack is deliberate — it keeps
+  the row clear of the 5 px resize handle and leaves room if a title grows.
+- **D29 — No content toolbar; page name and layout toggle in the shell** (§3.1, §3.3). Resolves I017.
+  The content zone no longer opens with a `.toolbar`. All three things it held duplicated the shell:
+  the `#content-title` heading repeated the left-panel selection, the subtitle repeated the title
+  bar's `.ttl`, and the `#layout-button` had no reason to live in the content. The page name is now
+  a `.page-title` at the right of the title bar — the bar is `justify-content:space-between` and
+  previously held only `.brand`, so the right half was empty — at 12 px / 600 with `aria-live="polite"`
+  and updated from `paint()` instead of the removed `#content-title`. The layout toggle is a menu-bar
+  control at the right end, after the filter group, with `margin-left:auto` so it is flush right
+  before data loads and follows the group once the group is shown; it keeps the compact 8 px icon
+  padding. Removing the zone dropped 68 px of chrome above the panels. Three harness checks asserted
+  a `toolbar` zone, so `harness.mjs` revision 1.7 now asserts `filter-area` and `body` only.
+- **D30 — The page label is large, plain text** (§3.1). Resolves I018. D29 put the active page at the
+  menu-bar control scale — 12 px / 600 — inside a translucent pill. That read as a badge rather than
+  as the page name, and it made the label the smallest text in the title bar, below the 17 px project
+  title it sits beside. It is now **16 px / 600 at `line-height:1.2`**, one step below the project
+  title so the two do not compete, with **no background, padding, border or radius**. Dropping the
+  padding also put it back on the bar's 20 px edge, matching the brand group's left edge. The title
+  bar stays 78 px tall because the label at 19.2 px is still shorter than the 57.75 px `.ttl-stack`.
+- **D31 — Chart panels conform to §4 chrome** (§4). Resolves I019. The panel stylesheet diverged from
+  the markup: it styled `.panel h3` while the renderer emits `<h2>`, so panel titles rendered at the
+  browser default 19.5 px with no uppercase, no tracking and the body colour, and `.panel-head` had
+  no rule at all — so the row was `display:block` and the Help control wrapped to the left instead of
+  being pinned right. The Collapse toggle and the corner numbers did not exist. The panel now has a
+  real `.panel-head` flex row, a `.panel-actions` cluster (Help first, Collapse last), `.panel[data-panel]::after`
+  numbering, and the §4 surface metrics. **Numbering is assigned after insertion, in DOM order**, not
+  from call order: Analytical built a panel before the point where it was placed, which produced
+  `1, 2, 4, 3`. Only top-level panels are numbered — the nested sub-panel on Analytical inherits its
+  parent's number and shows no badge, so the `::after` rule is gated on `[data-panel]`. Collapsed
+  state lives in `state.collapsedPanels` rather than on the element, so `paint()` restores it. The menu bar stays 1 px taller than MDL
+  because of its `border-bottom`, which MDL's menu bar does not have.
+- **D32 — A repeated `Document No.` counts once in the KPI row** (§5). Project-owner business rule:
+  one Submittal Log row is one submission **record**, and one document may be submitted and logged
+  more than once, so a repeated `Document No.` is the same document. `Total Submissions` therefore
+  overstated the document count. The card is renamed **`Documents Logged`** and computes the distinct
+  `Document No.` over the filtered submission rows, trimmed and upper-cased, because one document
+  appears in the workbook as both `131236-WSW46-CL-M-0002` and `131236-WSw46-CL-M-0002`. The count
+  moves from 183 rows to **133 documents**; the Submittals table still shows all 183 rows. The Master
+  Document List has the opposite rule: one row is one document, so a repeated `Document No.` is a data
+  **error** (`V-26`) and the rows stay separate. The same normalisation was applied to the
+  submission-to-plan join, which removed one false `V-29` orphan: the orphan count is now 16. Only
+  card 1 is consolidated in this wave — `Under Review` (54 rows), `Approved` (92 rows, 62 documents)
+  and the delay measures stay record-level, because a per-document value needs a tie-break rule for a
+  document with up to 3 rows. I022 records that open question.
+
+- **D33 — MDL owns blank-field validation; sub counts the rows** (§5, §7). Project-owner decision. A
+  planned row with no `Document No.` is not a planned document, so it is excluded from every plan
+  measure — the rule MDL already applies. A planned row with a `Document No.` and no `Stage` **is** a
+  planned document: a blank `Stage` is missing data, not an excluded stage, so the row is counted and
+  the Stage filter lists it as `(blank)`. The Stage filter also lists `Deleted`, `Void` and
+  `Superseded`; those three stay unticked by default, so they are not counted until the user ticks
+  them. Blank-field validation stays with the MDL dashboard: sub adds no `V-02` for a blank `Stage`,
+  and a blank `Document No.` is the MDL `V-01` defect. The plan total moves from 7513 to 7631, equal
+  to MDL; `Documents Submitted / In Plan` reads 116 / 7631. Open follow-ups: I026 (sub still emits
+  `V-01` for a blank `Document No.`) and I027 to I030.
 
 ### 8.1 Spec §3.8 conformance record
 
 | Spec clause | Where satisfied | Status |
 |---|---|---|
-| §3.8.0 modular `src/` + `build.mjs` | §6.1–6.3, file structure | Planned (Wave 2–5) |
-| §3.8.1 stages S0–S6 | §3.4, Wave 2–5 | Planned |
-| §3.8.1 S4 sole KPI source | §3.4, §5 | Planned |
-| §3.8.2 rules 1–10 | §3.4 (rules 5, 6,7,8,9 cited to MDL) | Planned |
-| §3.8.3 contract-driven parsing | §3.4; reuse MDL `Code` sheet | Planned — removes hard-code risk in §3.1–§3.2 |
-| §3.8.4 formula normalization (`isExcelError`) + `V-xx` validation | §3.4, §4.5; MDL `pipeline.mjs` l.52 / l.381 | Planned |
-| §3.8.5 test harness | Wave 6; `test/test_pipeline.mjs` + `harness-layout` | Planned |
+| §3.8.0 native browser modules, no bundler | `engine/xlsx-reader.js`, `engine/pipeline.js`, `engine/dashboard.js` | Complete — S0–S6 present after Wave 7 UI rebuild |
+| §3.8.1 stages S0–S6 | §3.4, Wave 3–7 | Complete — S0–S6 present |
+| §3.8.1 S4 sole KPI source | §3.4, §5, `engine/render.js` | Complete — `renderDashboard`/`deriveView` only |
+| §3.8.2 rules 1–10 | §3.4, `engine/render.js`, `engine/dashboard.js` | Complete — Wave 7 UI conforms to the shell and side-panel rules |
+| §3.8.3 source-contract parsing | `engine/pipeline.js`; each workbook Code/header tables | Complete for Wave 3 |
+| §3.8.4 formula normalization + `V-xx` validation | `engine/pipeline.js`; workbook Code tables | Complete for Wave 3 data rules |
+| §3.8.5 test harness | Wave 6; project-approved runner + `harness-layout` | Planned |
 
-Filled after build (Wave 6).
+Update this record at the end of each implementation wave. Wave 1 approval and stack evidence are in `workplan/reports/Wave-1-Approval-and-Stack-Decision.md`. Wave 2 evidence is in `workplan/reports/Wave-2-Scaffold-and-Knowledge.md` and `workplan/reports/Wave-2.1-Knowledge-Graph-Schema.md`. Wave 3 evidence is in `workplan/reports/Wave-3-Data-Pipeline.md`.
 
 Chart panels follow spec §4.2 (combined chart panels; C1 is `.card.full`; each chart's control cluster
-is owned by the chart card per §4.1). The 2-col panel grid uses spec §3.4 responsive collapse.
+is owned by the chart card per §4.1). The panel grid and KPI grid follow the shared layout selection in `AGENTS.md` §18.8 and §18.10.
 
 ### 8.2 Spec-compliance gate (mandatory before build sign-off)
 
-The **sample HTML is a static review mockup only** — the user found spec-non-conformant spots in it during
-review. It is **not** the build source of truth. When the real submittal dashboard is built (`render.mjs`,
-Waves 3–4 and 6), **every UI detail must be verified against `Dashboard-UI-Design-Spec.md` before sign-off**.
+The **sample HTML is a static review mockup only** — it is not the build source of truth. When the real
+submittal dashboard is built, verify every UI detail against `Dashboard-UI-Design-Spec.md` before sign-off.
 Use the checklist below; cite the spec clause for each item.
 
 | # | Item to verify | Spec clause |
 |---|---|---|
-| 1 | App bar: two-row, full width, `z-index:31`, above the warning bar | §3.1 |
-| 2 | Sidebar bounded between header and status bar (`top:var(--appbar-h)`, `bottom:var(--statusbar-h)`); `z-index:20`; collapses <880 px | §3.2, §3.4 |
-| 3 | Status bar full width (`left:0;right:0`), `z-index:40` | §3.6 |
-| 4 | Warning bar full width per spec — **our content-width is a documented deviation (§9.6); call it out at sign-off** | §3.5, §9.6 |
-| 5 | 2-col panel grid collapses to 1 col <880 px; KPI strip collapses <560 px | §3.4 |
-| 6 | S-curve (C1) is the only full-width panel (`.card.full`); other chart panels are 2-col | §4.2, §4.1 |
-| 7 | Filter chips / chart control clusters owned by the card; re-render `deriveView` on `active` only (no DOM recompute) | §4.1, §4.3 |
+| 1 | Shell geometry (MDL two-row header + navy left navigation sidebar), project-local assets, five themes, file panel, and layout button | `AGENTS.md` §18.2; spec §1, §3.1, §3.7 |
+| 2 | The left sidebar uses the resize, collapse, and accordion behavior from the standards; assets stay project-local. The shell is the MDL two-row header + left navigation sidebar; there is no icon bar and no right sidebar (spec §3.1, updated 2026-10-24) | `AGENTS.md` §18.2, §18.5; spec §1, §3.1, §3.2 |
+| 3 | Status bar follows the standard height and behavior; left and right values are listed in this workplan | `AGENTS.md` §18.2; spec §3.6 |
+| 4 | Warning area stays inside the content area and does not cover either sidebar | §3.5 |
+| 5 | Panels fit the active one-, two-, or three-column shell layout | `AGENTS.md` §18.8; spec §3.4 |
+| 6 | Chart panels and cards fit the selected shell layout; C1 may use the full content width | §4.2; `AGENTS.md` §18.8 |
+| 7 | Global filters appear once below the content toolbar; chart controls remain with their chart; derive from `active` without DOM calculations | §4.1, §4.3, §7.2.7 |
 | 8 | KPI labels and glossary terms match the §2 glossary exactly | §2, §4.0 |
 | 9 | Validation rules (incl. V-29/30/31) wired via MDL `pipeline.mjs` resolver | §3.8, §4.5 |
 | 10 | STE prose lint (`harness-writing/ste-lint.mjs`) on docs + dashboard visible text passes the advisory threshold | `harness-writing` |
 
-**Gate rule**: no Wave-4 build is signed off until each row above is checked against the spec and the
+**Gate rule**: no Wave-4 release is signed off until each row above is checked against the spec and the
 clause is cited. The sample HTML's shortcuts (static toggles, read-only inputs, placeholder data, any
-layout drift) are accepted in the mockup but **must not** carry into the real build.
+layout drift) are accepted in the mockup but **must not** carry into the project-root dashboard page.
 
 ---
 
 ## 9. Open Questions and Assumptions
 
-- **9.1 Stack**: Node (recommended, §6.1) compared with the declared "Python build" stack
-  (`AGENTS.md` §1.1). Approve before Wave 2.
-- **9.2 Load UX**: single dropzone that accepts the two files compared with two labeled pickers.
-  Recommend a single dropzone that detects each workbook by sheet signature.
-- **9.3 Output filename/location**: `sub/TWRP C3B2 - Document Submittal Dashboard.html` (new file).
-- **9.4 Sample page**: `sub/Arch/Document-Submittal-Dashboard-Sample.html` is a static review mockup
-  only; it is not wired to Excel and will be replaced by the built dashboard. It is **known to contain
+- **9.1 Data preparation stack — RESOLVED in Wave 1**: use native browser modules, Python standard-library server, and Node.js test runner. No optional data-preparation helper is required.
+- **9.2 Load flow**: the user selects both workbooks for each load. The shared panel keeps drag-and-drop,
+  the loaded-file list, and active-file status. The default-path button is omitted under D13. Remember
+  file names only. Do not store persistent file handles.
+- **9.3 Dashboard path**: `sub/TWRP C3B2 - Document Submittal Dashboard.html` in the project root. Keep loaded and derived data in memory. Browser CSV downloads do not require an `output/` folder.
+- **9.4 Sample page**: `sub/archive/Document-Submittal-Dashboard-Sample.html` is a static review mockup
+  only; it is not wired to Excel. Create the project-root dashboard page as a separate artifact. It is **known to contain
   spec-non-conformant spots** (found in user review) and is **not** the build source of truth — the real
   build must conform to `Dashboard-UI-Design-Spec.md` per the §8.2 gate.
-- **9.5 Warning-toggle label**: spec §3.1 (line 122–126) says the toggle label must not change with
-  state, but §3.5 (line 217) says it becomes `Show warnings` when collapsed. This workplan follows
-  §3.5 for the toggle label. Resolve the conflict in the spec, then confirm the build.
-- **9.6 Warning-bar width with side panel**: spec §3.5 says the warning bar is full width. With a side
-  panel, the bar spans the content area (right of the sidebar) to avoid overlap. This is a documented
-  adaptation of §3.5; check it against the spec or raise a spec change.
-- **9.7 Submittal Log contract sheet**: §3.8.3 needs a contract sheet as the source of truth. MDL already
-  ships a `Code` sheet (used for MDL-scope fields). Check whether the Submittal Log gets its own
-  contract rows on the MDL `Code` sheet, or a new sheet.
+- **9.5 Warning-toggle label — RESOLVED**: show `Warnings` in both states. The count stays in the
+  badge. See shared spec §3.1 and §3.5.
+- **9.6 Warning-area width — RESOLVED**: the warning area stays inside the content area and never covers either sidebar. See shared spec §3.5.
+- **9.7 Submittal Log field map — RESOLVED**: discover required fields from row 1 headers. Read status
+  domains and rule text from the workbook `Code` sheet. A missing or repeated required header is fatal
+  to the affected views.
 
 - **9.8 Chart regrouping — RESOLVED** (D6/D9): the 14 visuals are consolidated into 6 interactive
   charts (C1–C6); Approval Mix folded into C3, S-Curve Variance into C1, Coverage into C5, Status Funnel
@@ -715,16 +868,14 @@ layout drift) are accepted in the mockup but **must not** carry into the real bu
 - **9.9 Staffing model parameter — DEFERRED (awaiting manhour benchmarks)**: the C6 estimator needs a
   `review-hours/document` (discipline-weighted) planner input and optionally a current-FTE input (§4.6).
   The user will provide manhour benchmarks; defer the Staffing page (§4.10) and C6 build until then.
-- **9.10 Status-bar / sidebar overlap — RESOLVED** (D8): status bar is full width (spec §3.6); the
-  sidebar is bounded between header and status bar, so no overlap. (Distinct from §9.6, the warning-bar
-  content-width deviation, which stands.)
+- **9.10 Dashboard UI assets — RESOLVED**: dashboards use project-local CSS and JavaScript. `common/` is not applicable. The harness checks the shell through spec §3.1 markers.
 
 ---
 
 ## 10. Future Enhancements
 
 - Drill-down from KPI or chart to the detail table (filtered `active`).
-- Print-optimized view (bars and side panel hidden on print in §3.5 and §3.6).
+- Print-optimized view. Define print behavior in a later approved phase.
 - Saved filter presets in `localStorage`.
 - Coverage forecast trend (planned first-issue each month compared with actual).
 
@@ -732,13 +883,13 @@ layout drift) are accepted in the mockup but **must not** carry into the real bu
 
 ### 11.1 Pipeline spine (S0–S6)
 
-| Stage | Module (MDL ref) | Action |
-|---|---|---|
-| S0/S1 Extract | `xlsx-reader.mjs` | Read both `.xlsx`; parse sheets; no data decision. |
-| S2/S3 Process | `pipeline.mjs` `buildModel` (l.236) | Normalise → `records`; validate once → `issues[]`/`warnings[]`; discard raw; keep `records` + `contract` + `meta`. |
-| S4 Calculate | `render.mjs` `deriveView` (l.651) | Sole aggregation; global filters → single `active`; KPIs, chart series, overdue. |
-| S5 Display | `render.mjs` | Write DOM only (§3.8.2 r6). |
-| S6 Re-filter | `render.mjs` | Re-run `deriveView` on filter change; no re-parse (§3.8.2 r5). |
+| Stage | Sub dashboard module | MDL reference | Action |
+|---|---|---|---|
+| S0/S1 Extract | `engine/xlsx-reader.js` | `xlsx-reader.mjs` | Read both `.xlsx`; parse sheets; no data decision. |
+| S2/S3 Process | `engine/pipeline.js` | `pipeline.mjs` `buildModel` | Normalize → `records`; validate once → `issues[]`/`warnings[]`; discard raw; keep `records` + `contract` + `meta`. |
+| S4 Calculate | `engine/render.js` | `render.mjs` `deriveView` | Sole aggregation; global filters → single `active`; KPIs, chart series, overdue. |
+| S5 Display | `engine/render.js` | `render.mjs` | Write DOM only (§3.8.2 r6). |
+| S6 Re-filter | `engine/render.js` | `render.mjs` | Re-run `deriveView` on filter change; no re-parse (§3.8.2 r5). |
 
 ### 11.2 Surface summary
 
@@ -746,7 +897,7 @@ layout drift) are accepted in the mockup but **must not** carry into the real bu
 |---|---|---|---|---|
 | Side panel | Static page list | No | None (`STATE` only) | Nav + active highlight |
 | KPIs (6) | `active` | Yes (re-derived) | S4 | KPI cards (§5) |
-| Charts C1–C5 (C6 deferred) | `active` | Yes | S4 | SVG (C1 full width; C2–C5 in 2-col grids; C6 Staffing estimator deferred — §4.10) |
+| Charts C1–C5 (C6 deferred) | `active` | Yes | S4 | SVG (grid follows shared layout; C1 may span the content width; C6 Staffing estimator deferred — §4.10) |
 | Submittals table | `active` + panel-local filter | Yes + local | S4 + local | HTML table + CSV |
 | Validation page | `issues[]`/`warnings[]` | No | S2/S3 | List + counts |
 | Warning bar | structural fatal + formula strips + `V-xx` issues | No | S2/S3 | `#errBanner` |
@@ -755,8 +906,8 @@ layout drift) are accepted in the mockup but **must not** carry into the real bu
 
 | Chart | Extract (S0–S2) | Normalise + validate (S2–S3) | Calculate (S4) | Display (S5) |
 |---|---|---|---|---|
-| **C1 Schedule Performance** (full width) | MDL discipline sheets (Document No., planned dates) + SubmittalLog `Submission Date` | Normalise dates to months; count by Document No.; ignore MDL duplicates; link MDL↔Log by Document No. | Cumulative curves (plan, forecast, actual) + monthly bars; *Per Discipline* view re-slices the same series | SVG curves + bars (`.card.full`) |
-| **C2 Submission Flow & Delay** | `Submission Status` + `Review Delay Days` per row | Normalise status via Code sheet; add NFS from MDL scope lacking a Log match | *Stacked*: per-month counts by status + total (optional NFS); *Delay*: monthly avg, not-returned & not-due = 0; *Funnel*: submitted→review→returned→approved | SVG stacked bar / line / funnel |
+| **C1 Schedule Performance** (full width) | MDL planned rows and dates + SubmittalLog `Submission Date` | Keep every planned row. Report repeated MDL IDs as `V-26`. Link first valid submission only when the MDL ID is not repeated. | Cumulative planned and forecast rows plus first submissions for unambiguous MDL rows; monthly bars use the same row unit. | SVG curves + bars (`.card.full`) |
+| **C2 Submission Flow & Delay** | `Submission Status` + `Review Delay Days` per row | Normalise status via Code sheet; add NFS only for MDL rows without a valid submitted log match | *Stacked*: per-month counts by status + total (optional NFS); *Delay*: monthly avg, not-returned & not-due = 0; *Funnel*: submitted→review→returned→approved | SVG stacked bar / line / funnel |
 | **C3 Breakdown** (incl. Approval Mix) | `Discipline` / `Submitted By` + `Approval Status` + `Review Delay Days` + `Resubmission Required` | Normalise status/approval via Code sheet; join submitted↔planned for *Plan vs Actual* | *Count* / *Plan vs Actual* / *Delay* / *Rework* per dimension; *Approval Mix* = APP/AWC/NAP/REJ/INF counts + total | SVG h-bar / donut |
 | **C4 Turnaround & Aging** | `Turnaround`, `Review Delay Days`, `Target Return`, `Actual Return` | Pair per submission; flag overdue (Target Return passed, still open) | *Scatter*: turnaround × delay; *Age buckets*: open SUR <30/30–60/60–90/>90 d | SVG scatter / bars |
 | **C5 Forward Plan** (Look-ahead + Coverage) | MDL planned/forecast first-issue + Log trend; MDL scope minus Log matches | Normalise dates; compute NFS set | *Look-ahead*: docs due in next 4–8 wks; *Coverage*: NFS count + list | Table + list |

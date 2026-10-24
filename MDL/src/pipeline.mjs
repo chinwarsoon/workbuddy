@@ -461,7 +461,11 @@ const todayISO = options.today
     if(/xxxx/i.test(M)) issues.push(mkIssue('V-15', rec, 'Document No.', M));
     // V-17 composition G-H-I-J-K (J = client Discipline Code)
     if(G && H && I && J && K){ const expected = [G, H, I, J, K].join('-'); if(M !== expected) issues.push(mkIssue('V-17', rec, 'Document No.', M)); }
-    if((W !== '') !== (V !== '')) issues.push(mkIssue('V-19', rec, 'Submission Status', W));
+    // V-19 — Submission Status (W) is a calculated column. "NFS" means SubmittalLog has no row
+    // for this document, so an empty Prolog Number (V) is correct. Only a real disagreement
+    // between the two sources is a defect.
+    if(W === 'NFS' && V !== '') issues.push(mkIssue('V-19', rec, 'Prolog Number', V));
+    if(W !== '' && W !== 'NFS' && V === '') issues.push(mkIssue('V-19', rec, 'Prolog Number', V));
     if(U !== '' && (V === '' || W === '')) issues.push(mkIssue('V-18', rec, 'Actual 1st Issue Date', U));
     if(Y === 'APP' && X === '') issues.push(mkIssue('V-11', rec, 'Latest Approval Status', Y));
     if(W === 'RTR' && (Y === '' || /void/i.test(Y))) issues.push(mkIssue('V-16', rec, 'Submission Status', W));
@@ -472,8 +476,10 @@ const todayISO = options.today
        (T && U && isoToDate(U) < isoToDate(T)) ||
        (S && U && isoToDate(U) < isoToDate(S))) issues.push(mkIssue('V-09', rec, 'Date Order', 'dates out of order'));
     if(U !== '' && (S === '' || T === '')) issues.push(mkIssue('V-22', rec, 'Actual 1st Issue Date', U));
-    // V-23 — fire ONCE per document if any date is in the future
-    { const fut=[S,T,U,X].find(d=>d&&isoToDate(d)&&isoToDate(d)>today); if(fut) issues.push(mkIssue('V-23', rec, 'Future Date', fut)); }
+    // V-23 — fire ONCE per document if Actual 1st Issue Date (U) or Latest Approval Date (X)
+    // is later than today. Planned (S) and Forecast (T) are forward-looking, so the rule text
+    // excludes them from this check.
+    { const fut=[U,X].find(d=>d&&isoToDate(d)&&isoToDate(d)>today); if(fut) issues.push(mkIssue('V-23', rec, 'Future Date', fut)); }
     // V-28: a 1st-issue date precedes the declared project start date (Code!B6). Fires once per
     // document if any of Planned/Forecast/Actual is earlier than projectStartDate (only when B6 set).
     if(projectStartDate){ const ps = isoToDate(projectStartDate);

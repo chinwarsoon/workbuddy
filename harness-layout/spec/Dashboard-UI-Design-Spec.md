@@ -1,8 +1,32 @@
 # Dashboard UI Design Standard
 
-**Version**: 1.3
-**Date**: 2026-10-22
-**Last revised**: 2026-10-22 — **generalised**: the spec is now a project-neutral standard. Every
+| Revision | Date | Author | Summary |
+|---|---|---|---|
+| 1.8 | 2026-10-24 | Codex | Made `ui/`, `data/`, and `output/` optional and made module paths project-defined; aligned the harness contract. |
+| 1.9 | 2026-10-24 | CodeBuddy (AI) | Adopted the MDL shell model: §3.1/§3.2/§3.6 now define a two-row header (navy title bar + white menu bar) + navy left navigation sidebar; dropped the 48 px icon bar and the right sidebar; moved Settings/Help to the menu bar / modal; use the updated `AGENTS.md` §18.2 shell markers (`titlebar`, `menubar`, `left-sidebar`, `content`, `statusbar`). Default theme is light. |
+| 1.26 | 2026-10-24 | CodeBuddy (AI) | §4 panel chrome made enforceable. The title row now has its own element — the 10 px gap belongs to the row and the `h2` is `margin:0` — because the sketch previously put the flex on the `h2`, which only works when the buttons sit inside the heading. Four rules added: **numbers follow DOM order, assigned after render** (numbering from construction order produced `1, 2, 4, 3`), with the `::after` badge gated on `[data-panel]` so an unnumbered sub-panel does not render a bare `Panel`; **nested sub-panels inherit the parent's number and show no badge**; **the panel margin yields to a grid gap** (`0` inside a grid that sets `gap`, or the spacing doubles); and **the collapse state outlives the element** — it MUST be persisted in view state, keyed by panel name, and re-applied on render, or a filter change silently re-opens the panel. The sketch CSS is updated to match. |
+| 1.25 | 2026-10-24 | CodeBuddy (AI) | The title-bar page label is larger and unstyled. §3.1 revises the active-page rule: the label is now **16 px / 600 at `line-height:1.2`**, one step below the 17 px project title, and is **plain text with no background, padding, border or radius** — a page indicator rather than a badge or pill. Version 1.24 had put it at the menu-bar control scale (12 px / 600) inside a translucent pill. |
+| 1.24 | 2026-10-24 | CodeBuddy (AI) | The content toolbar is removed, and the page name and layout toggle move into the shell. §3.3 adds a normative rule: there is no content toolbar — a dashboard MUST NOT render a strip above its panels holding a page heading, subtitle or layout control — and the content zone begins with the optional filter area and then the body. §3.1 adds two rules: **the active page is shown in the title bar** — right-aligned on the bar's 20 px padding, at 12 px / 600, updated on every selection change, announced with `aria-live="polite"`, and not repeated as a heading in the content area — and **the layout toggle lives in the menu bar** — an icon control at the right end after the filter group, never in the content area, using the compact 8 px padding. §3.1's shell markers no longer require a `toolbar` zone. |
+| 1.23 | 2026-10-24 | CodeBuddy (AI) | The left-panel width is sized to its menu titles. §3.2 adds a normative rule: `--sidebar-w` is 160 px, derived from the widest title — "Forward Plan" measures 91 px at 14 px / 400, which with the button's 12 px horizontal padding and the panel's 10 px padding needs 135 px, plus 25 px of slack. A dashboard whose menu titles differ MUST derive the width the same way and MUST NOT let a title wrap or clip; resizing MUST clamp at the width where the widest title still fits, 140 px here. |
+| 1.22 | 2026-10-24 | CodeBuddy (AI) | The left panel holds menus only. §3.2 adds a normative rule: the left sidebar MUST contain only menu items — the page links, then Settings and Help pinned to the bottom with `margin-top:auto` — and MUST NOT contain a collapse toggle (which belongs in the menu bar), section titles, or divider rules; its resizer MUST remain. §3.1 now records that the `data-shell-toggle="left-sidebar"` control sits in the menu bar rather than in the sidebar, and §3.2 no longer lists Help among the menu-bar contents. |
+| 1.21 | 2026-10-24 | CodeBuddy (AI) | The sidebar toggle is compact. §3.1 adds a normative rule: the left-panel toggle is one glyph, so it MUST NOT carry the 14 px horizontal padding of a text control — it uses 8 px horizontally, the gap after it is 8 px rather than the menu bar's 12 px, and it keeps the menu-bar control's 32 px height and 12 px / 600 type, with its left edge on the bar's 20 px padding aligned with the title-bar logo. |
+| 1.20 | 2026-10-24 | CodeBuddy (AI) | Title-bar logo and menu-bar control metrics, measured against MDL. §3.1 adds two normative rules: **title-bar logo** — the logo is 36 px tall, MUST NOT shrink (`flex-shrink:0`), and the brand group uses a 12 px gap — and **menu-bar control metrics** — a menu-bar button is 12 px / 600 at `line-height:1.2` with `min-height:32px` and `padding:7px 14px`, while a filter trigger is 12 px / 600 at `line-height:normal` with `min-height:32px` and `padding:7px 12px`; both render 32 px tall. |
+| 1.19 | 2026-10-24 | CodeBuddy (AI) | Title-bar and menu-bar spacing. §3.1 adds two normative rules: **title-bar spacing** — the rows stack in a `.ttl-stack` column with a 2 px gap, the project title is 17 px / 600 at `line-height:1.2`, and a dashboard MUST NOT substitute its own line height for the stack — and **menu-bar gap** — 12 px between groups, 8 px inside each group, plus a 6 px left margin on the Warnings toggle. §6 type scale gains two normative rows: title-bar project title 17 px / 600 and title-bar dashboard title 12 px / 500. |
+| 1.18 | 2026-10-24 | CodeBuddy (AI) | Menu-bar typography and alignment. §3.1 adds two normative rules: **menu-bar alignment** — the left-panel toggle, the load action and Export are left-aligned, and everything else (filter triggers, Search with its popover, Warnings) is right-aligned, mirroring MDL's `justify-content:space-between` — and **menu-bar type is bold** — every control in the menu bar MUST be 600, never the default body weight. §6 type scale gains a normative row fixing the menu-bar control at 12 px / 600. |
+| 1.17 | 2026-10-24 | CodeBuddy (AI) | MDL parity for the filter chrome. §7.1 **B1** no longer requires a caret glyph or a visible border: the trigger is text plus a count badge, and it is **borderless in the menu bar** (the base control keeps 1 px `--border`, which the menu-bar chrome strips). §7.1 **B3** replaces the `.chips label` pill with MDL's structure — an `.tf-all` `All <dimension>` master, a hint, a divider and `.tf-item` value rows — and the grammar table, the global-dimension paragraph and the normative class list now name `tf-all` / `tf-item` instead of `chips`. §6 type scale: the filter menu row is 12 px (was 11 px) and a new normative row fixes the count badge at 10 px / 700. |
+| 1.16 | 2026-10-24 | CodeBuddy (AI) | Corrected the shell composition for MDL parity: §3.1 now states the menu bar holds the actions group (the highlighted load primary plus Export), the global filter group (triggers, Search with its popover, Warnings) and Help, that Settings is NOT in the menu bar but a menu in the left side panel, that the menu bar MUST NOT wrap to a second row (the filter group scrolls horizontally instead), and that the load control MUST be the one highlighted `.btn-primary` control. §3.2 now states the left side panel holds page links and Settings and MUST NOT hold workbook-loading controls. |
+| 1.15 | 2026-10-24 | CodeBuddy (AI) | Added §6 Typography (normative): one shared `--font-ui` stack and one shared type scale (body 13/1.45, panel h2 13 uppercase, chart-card h3 13/700, KPI value 22/700, KPI label 10 uppercase, icon button 13/600, filter trigger 12/600, filter chip 11, single-select 12/600, title-bar meta 11, system banner 12, severity chip 11/700). Added §7.1: global dimensions MUST be multi-select and MUST use B1 `.tf-btn` + B3 `.chips label` with a count badge and an `All <dimension>` master toggle; B5 is reserved for non-row-filter pickers and the B6 panel-local filter; the menu-bar filter group MUST contain the triggers, Search and Warnings; and the classes `tf-btn` / `chips` / `tf-panel` are normative. |
+| 1.14 | 2026-10-24 | CodeBuddy (AI) | Added §3.1 title bar rows (mandatory): the title bar MUST show three rows rendered from model metadata — project title, dashboard title(s) joined with ` · ` when the two workbooks differ, and project start plus as-of date. Added §3.7: workbooks MUST be identified by the `Dashboard Title` in their Code sheet, matched against the contract, never by file name; a selection MUST be inspected in full and committed only when every check passes, rejecting the whole selection (non-readable file, no Code sheet, no dashboard title, unmatched title, same type twice, or differing `Project Title`) with the reason shown and no partial update; the check SHOULD read the Code sheet only. |
+| 1.13 | 2026-10-24 | CodeBuddy (AI) | Added §3.9 standalone delivery (mandatory): a dashboard is one self-contained HTML that MUST run from `file://` with no web server — no `fetch` of local files, no cross-file ES-module `import`, stylesheet / config / engine / images inlined, no local `href` or `src` references; source modules stay separate for the test harness. Added conformance assertion 15 in §8.2. |
+| 1.12 | 2026-10-24 | CodeBuddy (AI) | Broadened the §7.1 casing rule to **control label casing**. It now names the applicable cases (button labels; a `<label>` rendered as a button; form-control labels for checkbox, radio and select; navigation and menu items) and the excluded cases (prose, sentences, hints, status messages, placeholders, data values, `title` / `aria-label` wording). |
+| 1.11 | 2026-10-24 | CodeBuddy (AI) | Added §7.1 button label casing (mandatory): every visible button label MUST use title case, capitalising the first letter of every word. Added §3.7: the welcome instruction card MUST NOT carry a label prefix such as `What this does —`; show only the instruction text. |
+| 1.10 | 2026-10-24 | CodeBuddy (AI) | Hardened §3.7 (initial / file-loading state): the welcome is an MDL-style full-screen overlay that hides dashboard chrome until load; fixed-proportion welcome surfaces (file drop area, welcome card) SHOULD use the golden ratio (1 : 1.618); the load buttons MUST live inside the file drop area; and the welcome MUST NOT hardcode a project title (the project/dashboard title renders from the loaded model after load). |
+| 1.7 | 2026-10-24 | Codex | Defined stable shell markers and aligned the harness with project-local dashboard assets. |
+| 1.6 | 2026-10-24 | Codex | Made dashboard UI assets project-local and aligned the harness contract with the shell spec. |
+
+**Version**: 1.26
+**Date**: 2026-10-24
+**Last revised**: 2026-10-24 — Dashboard assets are project-local; `common/` does not apply. A dashboard does not require `ui/`, `data/`, or `output/` folders. Each dashboard workplan defines module and configuration paths. The shell geometry and behavior follow `AGENTS.md` §18.2. The warning area stays inside the content area. Prior (2026-10-22) — **generalised**: the spec is now a project-neutral standard. Every
 dashboard-specific detail — the two-row header instantiation, the per-dashboard migration state, the
 enforcement posture, the legacy class aliases and their migration dates, the regression/issue history —
 moved to the owning dashboard's workplan, with a pointer back to the clause it satisfies. Added §0
@@ -16,9 +40,8 @@ clauses) and `.vheadtab` + `.ds-gut` added to the normative class table. Driven 
 **Owner**: UI Design
 **Applies to**: every internal control-center dashboard — present and future
 
-> This document is the **single source of truth** for page layout and visual style across every
-> internal control-center dashboard. It is intentionally platform/brand-agnostic in *structure*
-> but fixed in *tokens*, so that every dashboard renders as one family.
+> This document is the shared source for dashboard layout, components, and behavior. Dashboard pages
+> use project-local CSS and JavaScript. `AGENTS.md` §18.2 defines the shell geometry and behavior.
 >
 > **It is a general standard, not a project log.** This spec states *what any dashboard must do*.
 > Anything that belongs to one dashboard — its status vocabulary, its dimension list, its migration
@@ -39,7 +62,7 @@ These terms are used normatively throughout this spec.
 | **Panel** | The atomic page unit (§4). The CSS class name is free. |
 | **Bounded data table** | A long list rendered inside a scroller with a fixed max-height — never an open-ended list (§4.3). |
 | **Split header** | A `<thead>` rendered outside the scroll container as a thead-only fragment, so the vertical scrollbar starts below the header (§7.2.15). |
-| **Global dimension** | A filter dimension exposed in the top bar whose selection re-derives the shared set for **every** panel (§7.2.7). Which dimensions are global is a per-dashboard decision. |
+| **Global dimension** | A filter dimension exposed in the global filter area whose selection re-derives the shared set for **every** panel (§7.2.7). Which dimensions are global is a per-dashboard decision. |
 | **`active`** | The single reduced working set produced by S4 Derive after the global dimensions are applied. Every panel derives from it (§3.8, §7.2.7). |
 | **Panel filter** | A control that narrows one panel's rows, applied in S5 on top of `active`. It can only narrow further (§7.2.7 pt 2). |
 | **Panel-local filter** | A panel filter that affects **only the tables inside its own panel** — never KPIs, charts, the matrix or another panel (§7.2.7 pt 6, §7.1 B6). |
@@ -51,9 +74,16 @@ These terms are used normatively throughout this spec.
 
 ## 1. Scope & Governance
 
-- **Tokens are canonical.** Every dashboard imports the `:root` block in §6 verbatim. A
-  dashboard may *add* tokens but **must not** override the canonical values.
-- **Layout rules are mandatory** (§3–§5). Component styling is mandatory (§7).
+- **Shell rules.** Every dashboard follows the shell geometry and behavior in `AGENTS.md` §18.2.
+  Dashboard pages are an exception to §18.1's `common/` asset dependency: each project owns its CSS
+  and JavaScript. The dashboard project layout in this spec and its workplan also overrides the generic
+  folder list in `AGENTS.md` §6 for `ui/`, `data/`, and `output/`; those folders are optional. The dashboard
+  spec and harness define the common contract.
+- **Project-local UI source.** Each dashboard implements this spec's tokens and shell behavior in its
+  project-local assets. The workplan defines their paths. A `ui/` folder is optional. Keep token values,
+  shell dimensions, and component behavior aligned with this standard. Do not add a repository-level
+  `common/` dependency for dashboards. Test every UI theme.
+- **Layout and component rules are mandatory** (§3–§5, §7), subject to the priority rule above.
 - **Status vocabularies are per-dashboard.** Each dashboard defines its own status text and
   symbols and records them in its own workplan. What is *shared* is only the **principle**:
   every status carries **Icon + Text + Colour**. Do not copy another dashboard's status labels.
@@ -61,6 +91,7 @@ These terms are used normatively throughout this spec.
   *may* choose, or names a dimension, a label, a migration step or an enforcement posture,
   the choice is recorded in that dashboard's workplan — not here. The workplan then cites the
   spec clause it satisfies, so the two documents stay traceable to each other.
+- **Applicability is explicit.** Domain examples (such as package counts, project-start dates, or a Code sheet) apply only when the dashboard has that data. The workplan marks each inapplicable rule as N/A and names the source contract.
 - **Philosophy is fixed** (§2). Divergence requires a documented design decision.
 
 ---
@@ -74,10 +105,10 @@ These terms are used normatively throughout this spec.
 **Influences**: Microsoft Project · Primavera P6 · SharePoint Modern · Engineering
 Document-Control Systems · Enterprise Project-Management Platforms
 
-**Must deliver**
-- High information density and fast scannability (spot overdue/exceptions in ≤5 s).
-- Readable at a glance across a full working day.
-- Accessibility by default (icon + text + colour, AA contrast).
+**Design goals** — these guide design; they are not release gates unless a workplan defines a review.
+- High information density. Aim to make overdue items and exceptions easy to find.
+- Readable during a full work day.
+- Accessible controls: use icon + text + colour and meet AA contrast.
 
 **Explicitly avoided**
 - Glassmorphism / heavy translucency / blur
@@ -92,196 +123,167 @@ Document-Control Systems · Enterprise Project-Management Platforms
 
 ## 3. App Shell & Layout Architecture
 
-### 3.1 Header / App bar (mandatory)
-- Sticky top bar, full width, **`--navy` background, white text**, `padding:12px 20px`,
-  **no bottom border** (the navy block ends cleanly). `z-index:31` — the app bar must sit **above** the
-  fixed warning bar (`#errBanner`, `z-index:30`, §3.5), so the filter dropdown (a child of the app bar)
-  clears the banner when it opens.
-- Structure (`.bar` > `.inner`): **Brand** left — a vertical stack beside the logo
-  containing the project title `.ttl` (17 px / 600, white, ellipsis; **may wrap to two
-  lines** for long names) **and, directly beneath it, the meta line `.meta`** (workbook ·
-  as-of · refresh, 11 px / opacity .85). **Actions** right — the category filter trigger
-  `.tf-btn` and the primary "Load file" action as `.btn.secondary` (white fill, navy text —
-  hover → `--blue` fill). The meta line is placed **in the brand block on the left** (not on
-  the right with the actions) so the right side stays clear for action buttons.
-- A dashboard MAY ship a **two-row** top bar when the title block requires more vertical
-  space (e.g. a 3-line title: project title / dashboard title / project-start + as-of). In
-  that case Row 1 carries the logo + title block + primary actions, and Row 2 carries filter
-  chips + search, right-aligned as one group. Fonts follow §8 regardless of row count — there
-  is no separate font stack or sizing for the multi-row variant. Document the deviation in the
-  dashboard's own workplan.
-- **Two-row variant — what each row carries (normative).** Where a dashboard uses the two-row
-  form: the two rows scroll-stick as **one unit**; Row 1 is the **title bar** (logo + title block,
-  **no action buttons**); Row 2 is the **menu bar**, split into a **left actions cluster** — the
-  single A1 Primary CTA plus any secondary actions — and a **right filter group** (the global
-  multi-select chips, a `Search` trigger that reveals a popover panel, and the warning-bar toggle
-  of §3.5, where the dashboard ships one).
-- **Menu-bar chrome (normative).** Menu-bar controls are **borderless and icon-free** — text-only
-  labels. A count shows as a parenthetical on a chip; a badge carries a warning count. Controls
-  **highlight on hover** with a soft tint; the **only filled element is the Primary CTA**.
-- **Label stability (normative).** A warning toggle always shows the same label with the count in
-  its badge (e.g. `[4] Warnings`); its title must **not** invert to `Show warnings` / `Hide warnings`
-  when the bar is collapsed or expanded — the toggle still collapses/expands the bar, but the label
-  stays stable. A label that changes verb with state is both confusing and a contrast risk, because
-  it can force a different colour pair. See §7.1.
-- **`Search` is a trigger, not an inline box.** It opens the search popover; it is not itself a
-  text field.
-- **The chips in the top bar are the dashboard's global dimensions** (e.g. Discipline / Stage on a
-  document-control dashboard): one selection re-derives the single filtered set for every panel. They
-  are the **first gate** (S4 Derive → `active`), and each panel's own filters layer on top of that
-  shared set (§7.2.7). Which dimensions a dashboard exposes globally is a **dashboard decision** and
-  is recorded in its own workplan.
-- **Search popover layout (normative).** The Search dialog lays its controls out in a **single row** —
-  column selector, an **elongated** search field, then `Find` / `Reset` — so nothing wraps or stacks
-  onto a second line. The search field must be wide enough to be usable (≥ 200 px when the popover is
-  open; the popover itself may grow to ~640 px so the field can extend). Enforced by the layout
-  harness **Tier 4f** `lintSearchPanel`, which fails if the controls are not on one row or the search
-  field is too narrow (§8).
-- All menu-bar controls obey the §7.1 contrast mandate.
-- **The concrete instantiation is per-dashboard** — which actions sit in the left cluster, which
-  dimensions become global chips, and what the labels read. Record it in the dashboard's own
-  workplan; do not add it here.
-- The logo is a white chip: `height:36px`, `padding:3px`, `border-radius:6px`,
-  `box-shadow:0 1px 3px rgba(0,0,0,.2)`.
-- The header is mandatory on every dashboard. Navigation may be a left sidebar or inline in the
-  header — either is permitted (§3.2); **which one a dashboard uses is recorded in its workplan**.
+### 3.1 Shared application shell
+Every dashboard MUST use the shell in `AGENTS.md` §18.2 (MDL two-row header + left navigation
+sidebar): a navy title bar, a white menu bar, a collapsible/resizable navy left sidebar, a
+scrollable content area, and a full-width navy status bar. There is no 48 px icon bar and no
+right sidebar; primary navigation lives in the left sidebar, and Settings / Help / Detail live
+in the menu bar or modal dialogs. Implement the shell in project-local UI assets.
+
+For repeatable automated checks, shell zones MUST carry these stable attributes:
+`data-shell="titlebar"`, `menubar`, `left-sidebar`, `content`, and `statusbar`. The `content`
+zone MUST contain `data-shell="filter-area"` (optional) and `body` in that order, and MUST NOT
+contain a `toolbar` zone (§3.3).
+These attributes identify structure; they do not prescribe CSS class names. The left sidebar
+control MUST use `data-shell-toggle="left-sidebar"` — that control sits in the **menu bar**, not in
+the sidebar itself (§3.2) — and its resizer MUST use `data-shell-resize="left-sidebar"`. If a warning area is present, it MUST use
+`data-shell="warnings"` and remain a descendant of the content zone.
+
+- **Title bar rows (mandatory).** The title bar MUST show three rows in this order, rendered from the
+  loaded model's metadata and never from static text:
+  1. the **project title**;
+  2. the **dashboard title(s)** of the loaded workbooks — when the workbooks carry different titles,
+     show both, joined with ` · `; omit this row when no dashboard title is available;
+  3. the **project start date** and the **as-of date**.
+
+  This mirrors MDL's `.ttl` / `.sub` / `.meta` block.
+- **Title-bar spacing (normative).** The three rows stack in a `.ttl-stack` column with a **2 px**
+  gap, as MDL's does. The project title is 17 px / 600 with `line-height:1.2`; the dashboard-title
+  row is 12 px / 500 and the date row is 11 px / 400, both at the body line height. A dashboard MUST
+  NOT substitute its own line height for the stack — setting 1.25 there made the title bar 70 px
+  against MDL's 78 px.
+- **Title-bar logo (normative).** The logo is **36 px** tall and MUST NOT shrink (`flex-shrink:0`),
+  and the brand group holding it uses a **12 px** gap, as MDL does.
+- **The active page is shown in the title bar (normative).** The title bar MUST show the currently
+  selected left-panel page, **right-aligned** — the bar is `justify-content:space-between` with the
+  brand group on the left and this label on the right, sitting on the bar's 20 px padding. The label
+  MUST be **16 px / 600 at `line-height:1.2`** — one step below the 17 px project title, so the two do
+  not compete — and MUST be **plain text, with no background, padding, border or radius**. It is a
+  page indicator, not a badge or a pill. The label MUST update whenever the selection changes and MUST
+  announce the change with `aria-live="polite"`. Because the page name lives here, the content area
+  MUST NOT repeat it as a heading (§3.3).
+The menu bar holds, **on a single row**: the actions group (the highlighted load primary plus
+Export), the global filter group (the filter triggers, Search with its popover, and the Warnings
+toggle), and the layout toggle at its right end. **Neither Settings nor Help is in the menu bar** —
+both are menus in the left side panel (§3.2). The active page name lives in the title bar, not in
+the content area (§3.3). Search opens a search panel; it is not an inline text field. Use the
+button, sidebar, layout, and help behavior defined by this spec.
+- **The menu bar is one row (normative).** The menu bar MUST NOT wrap to a second row.
+- **The filter group MUST NOT be a scroll container.** Setting `overflow` on it clips the floating
+  filter panels that hang below the menu bar, which makes their toggles unreachable.
+- **The load action is the primary.** The control that chooses or reloads the workbooks MUST be the
+  one highlighted (`.btn-primary`) control in the menu bar, as MDL's "Load Workbook" is.
+- **Menu-bar alignment (normative).** The left-panel toggle, the load action and Export are
+  **left-aligned**. Everything else — the filter triggers, Search with its popover, and the Warnings
+  toggle — is **right-aligned**. This mirrors MDL, whose menu bar is `justify-content:space-between`
+  with the actions group on the left and the filter group on the right. A dashboard MUST NOT render
+  the filter group immediately after the actions group with no gap.
+- **Menu-bar type is bold (normative).** Every control in the menu bar MUST be **bold (600)**, as
+  MDL's are. A dashboard MUST NOT render a menu-bar control at the default body weight.
+- **Menu-bar gap (normative).** The menu bar uses a **12 px** gap between its groups and **8 px**
+  inside each group, as MDL does, and the Warnings toggle carries a further **6 px** left margin.
+- **Menu-bar control metrics (normative).** A menu-bar button is 12 px / 600 at `line-height:1.2`
+  with `min-height:32px` and `padding:7px 14px`. A filter trigger is 12 px / 600 at
+  `line-height:normal` with `min-height:32px` and `padding:7px 12px`. Both render 32 px tall.
+- **The layout toggle lives in the menu bar (normative).** Where a dashboard offers a panel-layout
+  control, it MUST be an icon control at the **right end** of the menu bar, after the filter group,
+  and MUST NOT sit in the content area. Being an icon, it uses the compact 8 px horizontal padding
+  (§3.1) rather than the 14 px of a text control.
+- **The sidebar toggle is compact (normative).** The left-panel toggle is a single glyph, so it MUST
+  NOT carry the 14 px horizontal padding of a text control. It uses **8 px** horizontally, and the gap
+  after it is **8 px**, not the menu bar's 12 px. It keeps the menu-bar control's 32 px height and its
+  12 px / 600 type, and its left edge stays on the bar's 20 px padding, aligned with the title-bar
+  logo. A dashboard MUST NOT render it as a full-width text control.
 
 ### 3.2 Navigation
-- Either a **left sidebar** or a top-bar nav. Both are permitted; the header is mandatory
-  in either case. A dashboard MAY defer the left sidebar to a future phase — document the
-  deferral in the dashboard's own workplan.
-- **Coexistence with a status bar (§3.6)**: when a bottom status bar is present, the sidebar's
-  bottom edge is bounded by it — the sidebar sits *between* the header and the status bar and
-  never runs behind the bar (it must not extend to `bottom:0` while a status bar exists).
+Use the left sidebar and menu bar described in `AGENTS.md` §18.2. The left sidebar holds primary
+navigation (page links), with Settings and Help pinned to its bottom; it MUST NOT hold
+workbook-loading controls — those belong in the menu bar (§3.1). The menu bar holds the actions group
+and the global filter group with Search and Warnings. A project may change sidebar or menu content,
+but it MUST keep the shell controls and behavior defined by this spec (left-sidebar toggle/resize,
+menu-bar filter group, warning area inside content).
+- **The left panel holds menus only (normative).** The left sidebar MUST contain **only menu items**:
+  the page links, then Settings and Help pinned to the bottom (`margin-top:auto`). It MUST NOT contain
+  a collapse toggle — that control belongs in the menu bar (§3.1) — and it MUST NOT contain section
+  titles or divider rules between its groups. Its resizer MUST remain, carrying
+  `data-shell-resize="left-sidebar"`, because the panel stays resizable.
+- **Left-panel width (normative).** The left panel MUST be sized to its menu titles, not to an
+  arbitrary fixed width. `--sidebar-w` is **160 px**, derived from the widest title: "Forward Plan"
+  measures 91 px at 14 px / 400, which with the button's 12 px horizontal padding and the panel's
+  10 px padding needs **135 px**, and 25 px of slack is left on top. A dashboard whose menu titles
+  differ MUST derive its width the same way — widest title, plus the item's horizontal padding, plus
+  the panel's padding — and MUST NOT let a menu title wrap or clip. Resizing MUST clamp at the width
+  where the widest title still fits, which is 140 px here.
 
-### 3.3 Content Area
-- Centered container, `max-width:1320px`, `margin:0 auto`, `padding:16px` top/left/right
-  with `padding-bottom:52px` (clears the fixed status bar). The `16px` top padding is the
-  **gap between the header and the first panel/banner**.
-- Vertical stack of **Panels** (§4). Wide dashboards may use a 2-column grid that
-  collapses to 1 column under 880 px.
-- A **KPI Overview panel** sits at the very top (§5).
-- **Footer**: the disclaimer footer (`footer[role=contentinfo]`, 11.5 px, `--muted`, centred)
-  is the **last child inside the content wrapper** — never a sibling outside it. Being inside
-  the wrapper is what gives it the horizontal inset *and* the status-bar clearance below it
-  (§3.6).
+### 3.3 Content area
+The content area owns a scrollable body and **has no toolbar**. Render panels (§4), dashboard metrics
+(§5), and any disclaimer in this body. Keep page-level scrolling disabled as required by `AGENTS.md`
+§18.2. Panel grids may change with the available content width. Do not set a fixed page width that
+reduces the shell's flexible content area.
+- **There is no content toolbar (normative).** A dashboard MUST NOT render a horizontal strip above
+  its panels holding a page heading, a subtitle, or a layout control. The content zone begins with
+  the optional filter area (the warning surface) and then the body. The page name belongs in the
+  title bar (§3.1) and the layout toggle in the menu bar (§3.1), so nothing is lost by dropping it.
 
-### 3.4 Responsive
-| Width | Layout |
-|---|---|
-| ≥ 1100 px | KPI 6-col; panels 2-col grid |
-| 880–1099 px | KPI 3-col; panels 1-col |
-| < 880 px | KPI 2-col; single column; nav collapses |
+### 3.4 Responsive layout
+The shell rules define sidebar resizing and collapse behavior. Panel and KPI grids MUST fit the
+remaining content width without horizontal page scrolling. Each workplan records its grid breakpoints
+and the minimum usable width for its controls. Do not change shell breakpoints or sidebar rules.
 
-### 3.5 System / Config Warning Bar (`#errBanner`) — rev 2026-10-10
-Standardised across dashboards — a single **fixed top warning bar** (`#errBanner`) that unifies
-system / config notices **and** fatal load failures. One bar, three severity tiers, sitting just
-below the app bar.
+### 3.5 System and configuration notices
+Show notices in one warning area inside the content area. The area spans the content area's width and
+MUST NOT cover either sidebar. Do not use a viewport-wide fixed bar. The area MUST use `role="alert"`
+and `aria-live="assertive"`; hide it when empty. Show fatal, warning, and info notices in that order,
+with icon, bold code, and message. Use semantic tokens defined in the dashboard project's UI stylesheet.
 
-- **Element**: a single `#errBanner` at the end of the dashboard root, `position:fixed; left:0; right:0`,
-  `z-index:30` — the **app bar is `z-index:31`**, so the bar stacks *above* the banner; the filter
-  dropdown is a child of the app bar and therefore paints above the banner. Banner sits below toast
-  `45` / modal `50`. It carries `role="alert"` +
-  `aria-live="assertive"`. `display:none` until populated.
-- **Position**: **just below the app bar** — `top` equals the app bar's rendered height (measured at open
-  time, since the bar is sticky / fixed). On the welcome / onboarding screen (no app bar, §3.7) it is
-  pinned to `top:0`. In both cases the bar is **full-width**.
-- **Three severity tiers**, each `icon + bold code + message` (rendered as `.sys-banner-item` strips,
-  ordered fatal → warning → info top-to-bottom, one line each, code **bold** then message — no separator,
-  the icon conveys severity):
-  - **Fatal / error-level** → `--red` background, white text, `⛔`.
-  - **Warning** → `--amber` background (`#F9A825`), dark text, `⚠️`.
-  - **Info** → neutral `#e8eef5` background, `#33526b` text, `ℹ️` — a calmer tier distinct from warning,
-    used for FYI notices that need no action (e.g. skipped rows).
-- **Item format**: an **icon** + **bold code** + **message** — icon prefix, code wrapped in `<b>`
-  (default `SYSTEM`), then the message. No leading severity word and no separator — the icon already
-  conveys severity.
-- **Unified with load failures**: a failed workbook parse shows a `fatal` strip ("Load failed …") in the
-  same bar (per §3.5). There is **no separate** in-flow warning area and **no** `.note`-card variant for
-  system / config notices — the bar is the only surface for them. (Incidental in-flow FYI notes that are
-  not system / config warnings may still use the generic `.note` style.)
-- **Shows *system / config* issues only** (e.g. missing columns, row-count mismatches); per-package data
-  issues live in the Validation panel.
-- **Exception — fatal `W-FORMULA`**: a data column (any `fieldOrder` field) that contains spreadsheet
-  formula-error tokens (e.g. `#VALUE!`) raises a **fatal** notice in this bar, even though it is a
-  data-quality condition. Rationale: an error token is not a valid value and silently corrupts
-  counts/KPIs, so it must be fatal-level and shown here, not deferred to the Validation panel. One
-  aggregated entry per affected column (see §3.8.1).
-- **Dismissible (user-toggleable)** — mandatory: the bar is shown by default, but the user may collapse it.
-  **Single visibility resolver (hard requirement).** All code paths that open the bar — `showBanner`,
-  `showError`, `addBannerNotice`, and `removeBannerNotices` — MUST route through one resolver
-  (`applyBannerState`) that decides visibility from the persisted preference. This is what guarantees a
-  notice appended *after* the user collapsed the bar does **not** pop it back open, and that re-render /
-  re-open restores the user's choice.
-  - **Control placement & survival.** The toggle is a real `<button>` in the **title bar, immediately
-    following the search control** (within `.app-bar`), **not** inside `#errBanner` itself, so it survives
-    being hidden. It is rendered only when ≥1 notice exists. It shows a **count badge** (e.g. `⚠ N`, where
-    `N` is the live notice count) **and a separate text label that must NOT repeat that number** — the
-    label is `Warnings` when the bar is open and `Show warnings` when collapsed (the badge already carries
-    the count, so restating `N` in the label is forbidden; `⚠ [N] Show warnings` is correct,
-    `⚠ [N] Show N warnings` is a defect). It exposes `aria-pressed` plus a dynamic `aria-label`
-    (`Hide data-quality warnings` when open / `Show data-quality warnings` when collapsed) — the
-    `aria-label` must likewise not restate the count, so screen readers do not announce `N` twice
-    (badge + label). Clicking it flips the persisted preference and re-runs the resolver.
-  - **Collapse ≠ teardown.** Collapsing only hides the bar (preserving its inner HTML + badges) so
-    re-expansion is instant; it is distinct from tearing the bar down when it becomes empty (no notices),
-    which clears its content. Hiding is cosmetic only — the underlying warnings remain and keep counting
-    toward the badge; a fatal notice (e.g. `W-FORMULA`) can be collapsed but is never removed, and the badge
-    keeps it visible at a glance. Default state is visible (persisted via a dashboard-prefixed `localStorage`
-    key, e.g. `<dashboard>_hideWarnings`; `true`/`false`; default `false`).
-  - **Print.** The bar is always hidden when **printing**, regardless of the toggle. Drive visibility with the
-    `hidden` attribute (not an inline `display`), and make the print rule `display:none !important` so it
-    cannot be overridden. (Do not leave an inline `display:block` on the bar, or it defeats the print hide.)
-  - **Clearance** (below) still applies when the bar is shown: `body.banner-open` + `--banner-h` reserve the
-    wrapper height so content is never overlapped.
-- **Clearance rule (overlap prevention)** — mandatory, mirrors §3.6: because the bar is `position:fixed`,
-  the content wrapper reserves its height. When the bar is open, add `body.banner-open` and set a
-  `--banner-h` custom property to the bar's measured height; the wrapper's top padding becomes
-  `calc(16px + var(--banner-h))`, **preserving** the existing `16px` app-bar-to-content gap beneath the
-  reserved space. Remove both when the bar is dismissed. On print the bar is hidden and the reserved
-  padding released.
+The area may collapse, but its button keeps the visible label `Warnings` in both states. A count may
+appear in a badge. Keep notices and the count while collapsed. Persist the choice with a project-
+prefixed local-storage key. Hide the warning area in print. A parse failure appears as a fatal notice.
+Formula-error tokens that can corrupt counts appear as one fatal notice per affected column; see
+§3.8.4. Row-level data issues belong in the Validation panel (§4.5).
 
-### 3.6 Status Bar (`.status-bar`)
-- **Fixed bottom** (`position:fixed;left:0;right:0;bottom:0`), full width, `z-index:40`,
-  `--navy` background, white text (`#E8EDF3`), `font-size:12px`, single line
-  (`display:flex;align-items:center;gap:8px;padding:6px 14px;overflow:hidden`).
-- `border-top:1px solid rgba(255,255,255,.14)`. Hidden (`[hidden]{display:none}`) until the
-  first successful render.
-- Shows **live** status: total packages, filtered count, started %, as-of date, active
-  filter. Updates on every render / filter change.
-- **Clearance rule (overlap prevention)** — mandatory: because the bar is `position:fixed`, the
-  **last** element in the page flow needs clearance *below* it. Keep **every** flow element
-  (including the footer) **inside** the content wrapper, which carries `padding-bottom:52px`.
-  Do **not** place the footer outside the wrapper, and do **not** rely on `body` padding as the
-  clearance mechanism — both leave the fixed bar covering content.
-- **Coexistence with a left sidebar (§3.2)** — when a left sidebar is present, the status bar stays
-  **full width** (it spans the viewport including beneath the sidebar). The sidebar is bounded so its
-  `bottom` equals the status-bar height — i.e. it sits *between* the header and the status bar and never
-  runs behind the bar. This keeps the status bar a single full-width strip and avoids overlap with the
-  sidebar.
+### 3.6 Status information
+Use the full-width status bar from `AGENTS.md` §18.2 (~30 px, navy). Its left and right values are
+dashboard-specific and MUST be named in the workplan. Do not prescribe package counts, percent
+started, or other domain metrics here. The shared status bar owns its height and position. Keep
+scrollable content clear of it through the shell layout; do not add a second fixed bar.
 
-### 3.7 Load / Onboarding screen
-Mandatory. Shown before any data is loaded, as a **standalone hero surface** — the top app bar / navigation is **not** displayed on this screen.
+### 3.7 Initial and file-loading state (MDL welcome pattern)
+A dashboard shows a welcome / first-run screen before the workbooks load. Follow the MDL pattern:
 
-**Layout (vertical order, centred hero card on the `--bg` canvas):**
-1. **Logo** — **embedded** (base64; never an external `asset/` reference), centred, height **52 px** (`display:block; margin:0 auto 18px`).
-2. **Headline** — text format **`"<X> Dashboard"`** (the dashboard name + " Dashboard"); font **25 px / 700**, `letter-spacing:-.02em`, colour inherits `--text`, `margin-bottom:8px`.
-3. **Sub-text** (one line) — *"Interactive dashboard. Load the workbook to validate data, explore status and details."*; font **14 px**, colour `--muted`, `margin-bottom:26px` (line-height inherits body 1.45).
-4. **Instructions callout `.expect`** — label **"What this does"** (bold / uppercase, `--blue`, 11 px) + body *"Select your &lt;project&gt; workbook (.xlsx)… Drop it below or click to browse."* (12 px, `--accent-ink`) — `&lt;project&gt;` is project-specific.
-5. **Dropzone `.drop`** — a distinct sub-region **inside** the card (not the whole hero), containing: drop text *"Drop your workbook here"* (14 px / 600), hint *"or click to browse"* (12 px, `--muted`, no bottom margin), and the **primary button inside the drop area**, label **"Choose Workbook"** (Primary fill, **14 px**, **padding 12px 22px**).
-6. **Privacy + copyright** — *"Works fully offline — your data never leaves this browser"* (11.5 px, `--muted`, centred, optional shield icon) and *"© {year} UESH"* beneath it (11.5 px, `--muted`, `margin-top:6px`).
-
-**Style contract** (canonical values — design tokens only, no raw literals):
-- Container: `min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px` (the `--bg` body canvas provides the background — no separate background on the container).
-- `.wcard`: `background:var(--card)`; `border:1px solid var(--line)`; `border-radius:24px`; `box-shadow:var(--shadow)`; `padding:48px 48px`; `max-width:480px`; `width:100%`; `text-align:center`.
-- `.expect`: `background:var(--soft)`; `border:1px solid var(--accent-soft-border)`; `border-radius:12px`; `padding:12px 16px`; `font-size:12px`; `color:var(--accent-ink)`; `margin-bottom:20px`; `text-align:left`; its `<b>` label `font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--blue); display:block; margin-bottom:3px`.
-- `.drop`: `border:1.5px dashed var(--line)`; `border-radius:16px`; `padding:24px 16px`; `margin-bottom:22px`; `cursor:pointer`; `transition:.2s`; **hover / drag-over** → `border-color:var(--accent); background:var(--soft)`.
-- `.drop .d-title` (`.big`): `font-size:14px; font-weight:600; margin-bottom:4px`.
-- `.drop .d-sub` (`.small`): `font-size:12px; color:var(--muted)` (no bottom margin).
-- `.privacy`: `font-size:11.5px; color:var(--muted); margin-top:18px; display:flex; gap:6px; align-items:center; justify-content:center` (optional shield icon).
-- `.copyright`: `font-size:11.5px; color:var(--muted); margin-top:6px`.
-
-This is a single-focus **hero** surface, so it may use a **larger radius** (up to ~24 px) than data panels — only the hero card and the dropzone relax radius; the primary CTA is still the standard Primary button (§7.1). Copy is fixed as above; only `<X>` in the headline and the `&lt;project&gt;` noun in the `.expect` body are project-specific. Everything else follows §4–§6.
+- **Welcome overlay.** The welcome is a full-screen, centred overlay. It MAY hide the dashboard
+  chrome (header, menu bar, sidebars, status bar) until the first successful load — MDL builds the
+  shell only after load. Do not show dashboard panels or navigation before load. (This supersedes the
+  older "keep the shell visible" guidance; the MDL welcome is the reference behaviour.)
+- **Ratio.** The welcome fills the viewport (the MDL ratio: width and height are 100% of the
+  viewport, fluid, no fixed aspect ratio, no page scroll) per `AGENTS.md` §18.2. Fixed-proportion
+  surfaces on the welcome — the file drop area and the welcome card — SHOULD use the golden ratio
+  (1 : 1.618) for their width : height.
+- **Load controls live inside the drop area.** The file-drop zone MUST contain its action buttons
+  (Choose / Load). The drop zone is both the click target and the drag-and-drop target.
+- **The instruction card has no label prefix.** The welcome instruction card MUST NOT carry a lead-in
+  label such as `What this does —`. Show only the instruction text; bold the file names inside it.
+- **Workbooks are identified by content, not by file name.** A dashboard MUST decide which workbook
+  is the Master Document List and which is the Submittal Log by reading the `Dashboard Title` entry
+  in that workbook's Code sheet and matching it against the expected values in the source contract
+  (§3.8.3). File names vary between projects and MUST NOT be used to classify a workbook.
+- **A selection is validated before it is applied.** When workbooks are chosen or dropped, the
+  dashboard MUST inspect all of them first and commit the new selection only when every check
+  passes. It MUST reject the whole selection and change nothing when: a file is not a readable
+  workbook; a file has no Code sheet; the Code sheet carries no `Dashboard Title`; the title matches
+  no expected value; two files resolve to the same workbook type; or the two `Project Title` values
+  differ. A rejection MUST show the reason on the welcome and MUST leave the previous selection
+  intact. No partial update is permitted.
+- **Inspection reads only what it needs.** The selection check SHOULD read the Code sheet only, not
+  the whole workbook, so checking does not pay the cost of a full parse.
+- **No hardcoded project title.** The welcome MUST NOT display a project-specific title, because the
+  project title is unknown until the workbooks load. Show at most a generic application label. Render
+  the real project / dashboard title from the loaded model in the shell title bar after load, never from
+  static HTML.
+- **File-loading behaviour.** Use the file-loading panel in `AGENTS.md` §18.7: default-path load where
+  the project has a default file, local file picker, drag-and-drop, loaded-file list, and active-file
+  status. A dashboard may require related files; its workplan must list each required file, selection
+  order, and validation behaviour. Put project-specific instructions in the file panel or `ui_help.json`.
 
 ### 3.8 Data-Processing Pipeline (mandatory)
 
@@ -290,41 +292,41 @@ predictable pipeline. **Objective: parse once → normalise once → validate on
 so filter changes are fast (no re-parse) and every aggregation lives in exactly one place (no
 duplicate KPI engine).
 
-#### 3.8.0 File structure requirement
+#### 3.8.0 Module structure requirement
 
-The pipeline MUST be implemented as **separate, importable modules** — not as functions buried
-inside a monolithic HTML file. The canonical structure is:
+The dashboard UI MUST use separate, importable JavaScript modules. Do not put the whole pipeline in
+one HTML file. Load modules with native browser imports. Do not add a bundler, build step, or npm
+runtime dependency. A dashboard workplan defines the module paths. A suitable layout is:
 
 ```
-src/
-├── xlsx-reader.mjs   ← S0 / S1: file acquisition and workbook parsing
-├── pipeline.mjs      ← S2 / S3: normalisation and validation
-└── render.mjs        ← S4 / S5 / S6: derivation, rendering, filter loop
-build.mjs             ← bundles src/ into a single offline HTML for distribution
+<project-root>/<dashboard>.html
+<project-root>/<workplan-defined-path>/xlsx-reader.js
+<project-root>/<workplan-defined-path>/pipeline.js
+<project-root>/<workplan-defined-path>/render.js
 ```
 
-Rationale: separate modules make each stage independently testable in Node without a browser,
-enable the layout harness to import the pipeline and compute ground-truth values, and make stage
-boundaries visible and enforceable. A monolithic single-file implementation is permitted only as
-a prototype; it MUST be refactored to the modular structure before the dashboard is considered
-production-ready.
+The HTML file is the project entry page in the project root. A dashboard does not require `data/`
+or `output/` folders. Use project-local assets and root-relative paths. Serve the
+page with the project `serve.py` required by §18.12. Separate modules make each stage testable and make stage boundaries clear. Any
+project-specific data-preparation engine may use its declared stack. The HTML layer still follows
+`AGENTS.md` §18.1.
 
 #### 3.8.1 Stages
 
 | # | Stage | Module | Responsibility | Input → Output | Runs |
 |---|---|---|---|---|---|
-| S0 | Acquire | `xlsx-reader.mjs` | Read raw bytes from the file input; no parsing. | `File` → `ArrayBuffer` | On file open only |
-| S1 | Parse | `xlsx-reader.mjs` | Parse the container into an in-memory workbook (sheets / rows / cells). | `ArrayBuffer` → `workbook` | On file open only. The raw `workbook` is **discarded after S2** — only the normalised model is retained. |
-| S2 | Ingest / Normalize | `pipeline.mjs` | Turn raw rows into a normalised **record table**: typed fields (Date/Bool coercion), `isActive`, and domain-specific fields; build contract/lookup tables and `meta` (project info, today). **No aggregation or KPI math.** Normalization treats a cell as **absent (`undefined`)** when it is blank (empty after `trim`) **or** a spreadsheet formula-error token — see §3.8.4. | `workbook` → `model{ records[], contract, meta }` | On file open only; held in memory for the session. |
-| S3 | Validate | `pipeline.mjs` | Run row-level, **filter-independent** validation rules once. Emits `issues[]` (per-row data problems) and `warnings[]` (system/config notices). | `records` + validation context → `issues[]`, `warnings[]`, `completenessGroup` | On file open only. |
-| S4 | Derive / Aggregate | `render.mjs` | **On demand**, given the current filter/UI state: apply the **global** menu-bar filters (`Discipline`, `Stage`, `Search`) to `records` to produce the single shared `active` working set (the first gate), then compute **all** aggregations — KPIs, overdue lists, charts, matrix, completeness% — from `active`. Panel-level filters are applied later, in S5 Render, on top of `active` (see §7.2.7). This is the **sole** source of KPI numbers. | `model` + `state` → `view{ active, kpis, issues(filtered), charts, matrix, … }` | On every filter change / render. |
-| S5 | Render | `render.mjs` | Paint DOM panels from `view`. Write-only: never reads from the DOM to make decisions. | `view` → DOM | On every render. Keep the deferred-render rule: repaint once when the filter dropdown closes, not on every in-dropdown toggle. |
-| S6 | React-to-filter | `render.mjs` | Refresh loop. | user action → `deriveView(model, state)` → `render(view)` | On filter change. **Never re-runs S0–S3; the file is never re-parsed.** |
+| S0 | Acquire | `xlsx-reader.js` | Read raw bytes from the file input; no parsing. | `File` → `ArrayBuffer` | On file open only |
+| S1 | Parse | `xlsx-reader.js` | Parse the container into an in-memory workbook (sheets / rows / cells). | `ArrayBuffer` → `workbook` | On file open only. The raw `workbook` is **discarded after S2** — only the normalised model is retained. |
+| S2 | Ingest / Normalize | `pipeline.js` | Turn raw rows into a normalised **record table**: typed fields (Date/Bool coercion), `isActive`, and domain-specific fields; build contract/lookup tables and `meta` (project info, today). **No aggregation or KPI math.** Normalization treats a cell as **absent (`undefined`)** when it is blank (empty after `trim`) **or** a spreadsheet formula-error token — see §3.8.4. | `workbook` → `model{ records[], contract, meta }` | On file open only; held in memory for the session. |
+| S3 | Validate | `pipeline.js` | Run row-level, **filter-independent** validation rules once. Emits `issues[]` (per-row data problems) and `warnings[]` (system/config notices). | `records` + validation context → `issues[]`, `warnings[]`, `completenessGroup` | On file open only. |
+| S4 | Derive / Aggregate | `render.js` | **On demand**, given the current filter/UI state: apply the **global** filters (`Discipline`, `Stage`, `Search`) to `records` to produce the single shared `active` working set (the first gate), then compute **all** aggregations — KPIs, overdue lists, charts, matrix, completeness% — from `active`. Panel-level filters are applied later, in S5 Render, on top of `active` (see §7.2.7). This is the **sole** source of KPI numbers. | `model` + `STATE` → `view{ active, kpis, issues, charts, panels, … }` | On every filter change / render. |
+| S5 | Render | `render.js` | Paint DOM panels from `view`. Write-only: never reads from the DOM to make decisions. | `view` → DOM | On every render. Keep the deferred-render rule: repaint once when the filter dropdown closes, not on every in-dropdown toggle. |
+| S6 | React-to-filter | `render.js` | Refresh loop. | user action → `deriveView(model, state)` → `render(view)` | On filter change. **Never re-runs S0–S3; the file is never re-parsed.** |
 
 #### 3.8.2 Mandatory pipeline rules
 
 1. **One source of truth for aggregations.** KPI / chart / overdue math lives in **exactly one**
-   place (S4 in `render.mjs`). A pipeline stage (S2/S3) MUST NOT also compute KPIs that S4
+   place (S4 in `render.js`). A pipeline stage (S2/S3) MUST NOT also compute KPIs that S4
    recomputes — that creates a duplicate engine and a silent drift risk where the two engines
    diverge without any error being raised.
 2. **Discard the raw parse.** After S2 retain only the normalised `records` + `contract` + `meta`.
@@ -340,7 +342,7 @@ production-ready.
    decision. All state lives in the `model` and `state` objects, not in DOM attributes.
 7. **Single STATE object.** All UI state (active filters, preferences, open panels, sort order)
    lives in one `STATE` object. No state is stored in DOM attributes and read back by logic.
-   `render(STATE)` is the only entry point for DOM updates.
+   `render(view)` is the only entry point for DOM updates. `deriveView(model, STATE)` returns the view.
 8. **Error handling at every stage boundary.** Each stage transition MUST be wrapped in its own
    `try/catch`. A failure in S1 (parse) shows a fatal load error; a failure in S3 (validate)
    shows a validation-failed error but does not hide the dashboard; a failure in S4 (derive)
@@ -349,38 +351,28 @@ production-ready.
 9. **As-of and project-start are distinct anchors.** `meta.today` (as-of) is the **viewer's
    local system date** — built from local date components, **never** `toISOString()` (UTC), which
    introduces a 1-day off-by-one near local midnight. As-of drives every Overdue / Approval /
-   look-ahead / completeness calculation. The workbook **project-start** date (read from the Code
-   sheet by label) is an **x-axis origin for date-curve panels only** (S-curve / throughput); it
+   look-ahead / completeness calculation. A project-start date, when the data source provides one is an **x-axis origin for date-curve panels only** (S-curve / throughput); it
    MUST NEVER feed Overdue, approval, or schedule-variance math. On the S-curve the x-axis is
    **anchored at the earliest data date** and carries two reference lines: **Start** (the
-   project-start date, red dashed) and **Today** (as-of, navy solid).
+   project-start date, red dashed) and **Today** (as-of, using the shared text color).
 10. **Blank and formula-error are the same "absent" state.** See §3.8.4.
 
-#### 3.8.3 Contract-driven parsing (mandatory)
+#### 3.8.3 Source-contract parsing (mandatory)
 
-The workbook's Code sheet is the **single source of truth** for all field positions, lookup
-domains, and validation rule wording. The pipeline MUST discover these at runtime — never
-hard-code column letters, row numbers, or allowed-value lists in application code.
+The input source defines the data contract. The pipeline MUST read field positions, lookup domains,
+and validation wording from that contract at runtime. It MUST NOT hard-code source positions or
+allowed-value lists. For an Excel workbook with a `Code` sheet, use that sheet as the contract. For
+a source without a contract sheet, the dashboard workplan must name the approved schema or header map.
 
-1. **Scan the whole Code sheet** — never assume a fixed range such as rows 1–11 or 12–36.
-2. **Locate blocks by row-1 header text** — every lookup block advertises its name in row 1.
-   Discovery matches header text case-insensitively; an exact match wins, a prefix match is the
-   fallback.
-3. **Blank column = table separator** — blocks are discovered independently by header text, so
-   intervening blank columns are naturally skipped.
-4. **Label-driven column map** — the column map is built by matching each expected field's label
-   to the `ColumnLetter` stored in the sheet; the field's position is always resolved at runtime.
-5. **Dynamic value read** — a lookup block is read from row 2 downward until 3 consecutive blank
-   rows. No fixed end row.
-6. **Warn, don't drop** — if an expected block header is not found, raise a validation warning
-   instead of silently returning an empty set.
-7. **Contract = vocabulary, not layout** — the only code-owned constants are the expected
-   label/header names; positions (which row, which column) are entirely workbook-owned. Adding
-   or moving a column in the workbook requires no code change.
-8. **Validation rule wording and severity come from the workbook** — the Code sheet Error table
-   (located by row-1 header text) is the source of truth for every rule's message and severity.
-   A rule with no matching row falls back to a generic message and Warning severity — this
-   fallback MUST itself raise a warning so the gap is visible.
+1. **Scan the full contract source** — for a `Code` sheet, do not assume a fixed row range.
+2. **Discover by labels** — for a `Code` sheet, match block labels without case sensitivity.
+3. **Resolve positions at runtime** — use the source header or field map. Do not hard-code column
+   letters, row numbers, or fixed source ranges.
+4. **Read values to the end of each block** — use the block rules in the source contract.
+5. **Report missing contract fields** — a missing required field is a validation error. A missing
+   optional lookup block is a warning. Never replace a missing source value with an empty set silently.
+6. **Keep rule text in its contract** — use source rule wording and severity when the source defines
+   them. If it does not, use the dashboard workplan rule and report that source in the validation view.
 
 #### 3.8.4 Value normalization — blank and formula-error are equivalent "absent"
 
@@ -409,16 +401,41 @@ by `activeSet`).
 #### 3.8.5 Testability requirement
 
 Because the pipeline is implemented as importable modules (§3.8.0), it MUST be independently
-testable in Node without a browser or DOM:
+testable without the full page or DOM:
 
-- A test harness (`test/test_pipeline.mjs`) MUST exist and run with `node test/test_pipeline.mjs`.
-- It MUST import `pipeline.mjs` directly and run it against the real workbook file.
-- It MUST assert: record count, KPI values, lookup table contents (proving no hard-coded lists),
-  validation issue counts, and that every rule's message/severity is sourced from the workbook.
-- It MUST pass with zero failures before any release. A failing harness blocks the build.
-- The layout harness (`harness-layout/`) imports `pipeline.mjs` to compute ground-truth values
+- A test harness MUST exist in the project test folder and use the approved project test runner.
+- It MUST import the pipeline module directly and run it against representative source data.
+- It MUST assert record counts, KPI values, lookup values, and validation counts from known cases.
+  Check rule messages and severity against the source contract when it defines them; otherwise check
+  them against the dashboard workplan.
+- It MUST pass with zero failures before any release. A failing harness blocks release.
+- The layout harness (`harness-layout/`) imports `pipeline.js` to compute ground-truth values
   and compares them against what the rendered page shows — this is only possible because the
   pipeline is a separate module (§3.8.0).
+
+### 3.9 Standalone delivery (no web server) — rev 2026-10-24
+
+A dashboard is delivered as **one self-contained HTML file** that MUST run when it is opened directly
+from disk, over the `file://` protocol. It MUST NOT require a web server, and it MUST NOT need
+network access at runtime.
+
+- **No server.** Opening the file from the file system MUST fully work. Do not document or require a
+  local web server (for example `python -m http.server`) in order to use the dashboard.
+- **No blocked fetches.** The `file:` origin blocks `fetch` and `XMLHttpRequest` against local files,
+  and it blocks an ES-module `import` of one local file from another. A dashboard therefore MUST NOT
+  load its configuration, help text, or any other local resource with `fetch`, and MUST NOT rely on
+  importing one local script file from another.
+- **Inline everything.** The stylesheet, every configuration file, the whole engine, and images MUST
+  be inlined in the delivered HTML. Images use a `data:` URI. Configuration is inlined as
+  `<script type="application/json">` blocks and read from the DOM.
+- **No external references.** The delivered HTML MUST contain no `href` or `src` that points at a
+  local file. An inline script may still be `type="module"` — an inline module needs no fetch — but
+  it MUST NOT import another file.
+- **Sources stay modular.** Inlining applies to the delivered file only. The engine SHOULD remain
+  importable modules for the Node test harness (§3.8.5), and a build script SHOULD regenerate the
+  delivered HTML from those sources so the two cannot drift.
+- **Reference implementation.** MDL is the model: one HTML file, one inline script, no imports and
+  no `fetch`.
 ---
 
 ## 4. Panel / Card Standard
@@ -449,6 +466,12 @@ a dashboard uses in its own workplan.
   Collapse `−` toggle. **Order within the cluster: Help `?` is LEFT of Collapse `−`** — the
   toggle is always the rightmost control. Inject the `?` as the first child of `.panel-actions`
   so this holds even when a toggle is already present.
+- **The flex row is the title row, not the heading (normative).** The row is the element that
+  wraps the title and the action cluster (`.panel-head` below); the 10 px gap belongs to that row
+  (`margin:0 0 10px`) and the `h2` itself is `margin:0`. Putting the flex on the `h2` — as the
+  sketch below once did — only works when the buttons are nested *inside* the heading, which puts
+  interactive elements inside a heading and leaves the cluster mispositioned the moment a wrapper
+  is used instead. A dashboard MUST give the row its own element.
 - **Corner panel number**: absolutely positioned bottom-right, `Panel N`, 10 px, muted,
   letter-spacing .04 em, `pointer-events:none`.
 - **No explanatory subtitles**: panels do not carry a description line under the title. All
@@ -457,15 +480,35 @@ a dashboard uses in its own workplan.
 - **Numbering rule**: *every* top-level panel is numbered sequentially in document order
   (`Panel 1`, `Panel 2`, …). The number is static — authored once per panel via the
   `.panel-no` span (or `.panel[data-panel]::after`). Dynamically generated sub-panels
-  inside a panel are **not** individually numbered; they inherit the parent panel's number.
+  inside a panel are **not** individually numbered; they inherit the parent panel's number and
+  MUST NOT render a badge of their own.
+- **Numbers follow DOM order, assigned after render (normative).** A dashboard MUST NOT number
+  panels from the order the markup was *built*. A page can construct a panel's HTML before the
+  point where it is placed, which silently produces out-of-order numbers — the sub numbered
+  `1, 2, 4, 3` before this was fixed. Assign `data-panel` by walking the rendered top-level
+  panels in document order. Because nested sub-panels inherit the parent's number, the `::after`
+  rule MUST be gated on the attribute's presence (`.panel[data-panel]::after`), or an unnumbered
+  sub-panel renders a bare `Panel`.
+- **The panel margin yields to a grid gap.** Panels are often children of a grid that already sets
+  `gap`; the panel's own `margin:14px 0` then stacks on top of the gap and doubles the spacing.
+  Inside such a container the panel margin MUST be `0`.
+- **The collapse state outlives the element (normative).** A re-render replaces the panel element,
+  so the collapsed state MUST be persisted outside it — in the dashboard's view state, keyed by
+  panel name — and re-applied on render. Keeping it only on the element silently re-opens the
+  panel on the next filter change or page switch.
 
 ```css
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;
   padding:14px 14px 26px;margin:14px 0;box-shadow:var(--shadow);position:relative}
-.panel h2{font-size:13px;margin:0 0 10px;color:var(--navy);text-transform:uppercase;
-  letter-spacing:.04em;display:flex;justify-content:space-between;align-items:center}
+.panel-head{display:flex;justify-content:space-between;align-items:center;
+  gap:8px;margin:0 0 10px}
+.panel h2{font-size:13px;margin:0;color:var(--navy);text-transform:uppercase;
+  letter-spacing:.04em;line-height:1.4}
+.panel-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;
   bottom:8px;font-size:10px;letter-spacing:.04em;color:var(--muted);pointer-events:none}
+.panel-grid>.panel{margin:0}
+.panel.collapsed>*:not(.panel-head){display:none}
 ```
 
 ### 4.1 Panels containing charts (control ownership)
@@ -550,7 +593,7 @@ a single shared time axis instead of two stacked charts:
     (`padR ≈ 18`, not the ~52 px a second axis needs). Only **one** set of tick labels is drawn,
     on the left, plus a single unit caption above the axis. Do not label the axis `/mo` and
     `cum.` separately — there is only one scale.
-  - **Scale-mode guardrail (mandatory, every combined chart).** Let `r = maxCum / maxBar` over the
+  - **Scale-mode guardrail (default).** Each workplan MUST confirm these cutoffs against its data and plot size. Let `r = maxCum / maxBar` over the
     visible window, where `maxCum` is the largest cumulative value and `maxBar` the largest
     monthly bar value.
     - `maxBar == 0`, or the **Bars** toggle is off → **shared** (a separate scale is meaningless).
@@ -593,7 +636,7 @@ a single shared time axis instead of two stacked charts:
   footprint regardless of magnitude, so values never overlap. The label is anchored just above the
   bar top and rotated about that anchor (`text-anchor="start"` + `transform="rotate(-90 x y)"`).
 - **Every plotted point on a cumulative line is a SOLID dot — `r=3`, filled with the series
-  colour.** Nodes are never hollow rings (`fill="#fff"` with a coloured stroke): a solid dot stays
+  colour.** Nodes are never hollow rings (`fill="var(--surface)"` with a coloured stroke): a solid dot stays
   legible where series cross — the standard form for every S-curve.
 - **Forecast is always drawn** — it is never hidden merely because the Forecast column is sparse.
   The fallback is applied **per item**: a package with no Forecast date contributes to the
@@ -793,90 +836,67 @@ only the short inline hint.
 
 - First panel on every dashboard. Title `KPI OVERVIEW`, inline `?` (help, **left**) and `−`
   (collapse, **right**) buttons in the right-aligned action cluster, corner panel number.
-- **KPI cards** in a responsive grid (6 → 3 → 2 columns), gap 10 px.
+- **KPI cards** use `repeat(auto-fit, minmax(210px, 1fr))` with a 10 px gap (§18.10). At a
+  1310 px content width this gives six 210 px cards. No breakpoint media query is needed:
+  `auto-fit` drops to five, four, three, two or one column as the width falls.
 - The KPI panel carries **no subtitle** — the per-panel explanation lives in the Help modal
   (§7.9). Do not duplicate explanatory copy in the panel body.
 
 ### KPI card
+- **Size (normative)**: height **72 px**, width **210 px or more**, `box-sizing: border-box`.
+  The height is 4 px of border + 20 px of padding + 48 px of content. It does not change with
+  the number of digits. Do not clamp, truncate or scroll the card content.
 - White surface, 1px `--border`, **3 px coloured top strip**, radius 8 px, padding 10 px.
-- Top-strip colour: `--blue` by default; `--green` (ok), `--amber` (warn), `--red` (bad)
-  when the card carries a status.
-- **Number**: 22 px (compact strip) / 28 px (hero), weight 700, colour `--navy`.
-- **Label**: 10 px, uppercase, `--muted`.
-- **Optional sub-status line**: icon + text + colour (the shared status principle, §1).
+- **No box shadow.** A KPI card is flat. `--shadow` (§6) does not apply to it.
+- **Number** (`.v`): 22 px, weight 700, colour `--navy`. 28 px is for a single hero KPI only.
+- **Label** (`.l`): 10 px, uppercase, `--muted`, `margin-top: 2px`.
+- **Do not set `line-height` on `.v` or `.l`.** The inherited 1.45 from the page body is what
+  makes the card 72 px high. An override changes the height.
+- **Exactly two lines.** A card contains one `.v` element and one `.l` element and nothing else.
+  It has no sub-status line, no icon, no gauge, no third line and no nested card.
+- **Status strip — five states.** The top strip carries the status. Use one class at a time.
 
-### KPI sub-tier (`.subkpi`)
-- Below the main KPI cards, a secondary grid of **compact info chips** (`.subkpi`) surfaces
-  supporting status counts. Each chip shows a **value** (`.subkpi .v`, 16 px / 700 / `--navy`)
-  and a **label** (`.subkpi .l`, 10 px / `--muted`).
-- The sub-tier metric set is **dashboard-specific** — each dashboard defines its own informational
-  chips appropriate to its domain (e.g. flag counts, completeness %, active dimension counts).
-- Labels state exactly what is counted; the denominator for any ratio must be derivable from the
-  workbook contract, never hard-coded.
+  | Class | Meaning | Token |
+  |---|---|---|
+  | *(none)* | no status | `--blue` |
+  | `.ok` | ok | `--green` |
+  | `.amb` | attention | `--amber` |
+  | `.warn` | bad | `--red` |
+  | `.muted` | not applicable, inactive | `--slate` |
+  | `.err` | data error | `#8E24AA` |
 
+  The class name states the colour, not the English word. `.warn` is red and `.amb` is amber.
+  Never describe `.warn` as "amber", and never put `.amb` and `.warn` on one card.
+
+### KPI card CSS (normative example)
 ```css
-.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
-.kpi{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--blue);
-  border-radius:8px;padding:10px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.kpi{box-sizing:border-box;height:72px;padding:10px;background:var(--surface);
+  border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;
+  box-shadow:none}
 .kpi .v{font-size:22px;font-weight:700;color:var(--navy)}
 .kpi .l{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:2px}
-.subkpi{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
-.subkpi .v{font-size:16px;font-weight:700;color:var(--navy)} .subkpi .l{font-size:10px;color:var(--muted)}
-.kpi.warn{border-top-color:var(--red)} .kpi.ok{border-top-color:var(--green)} .kpi.amb{border-top-color:var(--amber)}
+.kpi.ok{border-top-color:var(--green)} .kpi.amb{border-top-color:var(--amber)}
+.kpi.warn{border-top-color:var(--red)} .kpi.muted{border-top-color:var(--slate)}
+.kpi.err{border-top-color:#8E24AA}
 ```
 
 > Note: **22 px is standardised** for compact KPI strips. Use 28 px only for a single hero KPI.
+> A hero card is exempt from the 72 px height. Record that exemption as a deviation (§8.4).
 
 ---
 
-## 6. Design Tokens (canonical — copy verbatim)
+## 6. Project-local design tokens
 
-```css
-:root{
-  /* Brand */
-  --navy:#0F2D52;      /* Primary — Dark Navy */
-  --blue:#1E88E5;      /* Accent — Engineering Blue */
-  --green:#2E7D32;     /* Success — Green */
-  --amber:#F9A825;     /* Warning — Amber */
-  --red:#C62828;       /* Critical — Red */
-  --slate:#64748B;     /* Neutral — Slate Grey */
-  /* Surfaces */
-  --bg:#F6F8FA;        /* Background — Off White */
-  --surface:#FFFFFF;   /* Surface — White */
-  --border:#D9E1E8;    /* Border — Light Grey */
-  --text:#1F2A37;      /* Body text */
-  --muted:#64748B;     /* Secondary text */
-  /* Aliases */
-  --card:#FFFFFF; --line:#D9E1E8; --ink:#0F2D52;
-  --accent:#1E88E5; --accent2:#2E7D32;
-  --warn:#F9A825; --bad:#C62828;
-  --soft:#E8F1FD;      /* light-blue highlight tint */
-  --shadow:0 1px 2px rgba(15,45,82,.04);
-  --radius:10px;
-  --font:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;
-  /* Semantic status tokens */
-  --warn-bg:#FFF4D6; --warn-border:#F0D38A; --warn-fg:#9a6b00; --warn-fg-strong:#9a6b00;
-  --error-bg:#FDE8E8; --error-fg:#C62828;
-  --ok-bg:#E6F4EA; --ok-fg:#2E7D32;
-  --accent-soft-border:#BFD8F2; --accent-ink:#1E88E5;
-  --grid:#EDF1F5;
-}
-```
+Each dashboard defines the design tokens in its project-local UI stylesheet. Do not load dashboard
+styles from `/common/`. Use the semantic names in the examples below and keep their meaning and values
+consistent across dashboards. Define token values for all five themes in `AGENTS.md` §18.4. Use system
+font stacks from `AGENTS.md` §18.1; do not require a CDN font.
 
-### Colour reference
-| Token | Hex | Role |
-|---|---|---|
-| `--navy` | `#0F2D52` | Primary, headings, KPI numbers |
-| `--blue` | `#1E88E5` | Accent, actions, links, KPI top-strip default |
-| `--green` | `#2E7D32` | Success / ok |
-| `--amber` | `#F9A825` | Warning / caution |
-| `--red` | `#C62828` | Critical / overdue |
-| `--slate` | `#64748B` | Neutral |
-| `--bg` | `#F6F8FA` | Page background |
-| `--surface` | `#FFFFFF` | Cards / panels |
-| `--border` | `#D9E1E8` | 1px outlines |
-| `--text` | `#1F2A37` | Body text |
-| `--muted` | `#64748B` | Secondary / captions |
+The shell layout, typography, spacing, and semantic color tokens are part of this shared dashboard
+spec. A project may add tokens for its domain, but it MUST NOT change the shared token meanings or
+shell geometry. The harness checks shell geometry; theme and contrast checks belong to the applicable
+harness tier and dashboard test suite.
 
 ### Spacing scale
 `4 · 8 · 12 · 16 · 24 · 32 · 48` px. (8 pt-based; use consistently.)
@@ -884,21 +904,42 @@ only the short inline hint.
 ### Radius
 - Panel: **10 px** · Card / KPI: **8 px** · Button: **6 px** · Input/select: **8 px**.
 
+### Typography (normative)
+- **One shared font stack.** Every dashboard MUST define `--font-ui` with this same stack, so text
+  renders identically across dashboards:
+  `'Segoe UI', system-ui, -apple-system, 'Inter', 'Source Sans Pro', Roboto, Helvetica, Arial, sans-serif`.
+  These are system fonts; no CDN font is loaded (`AGENTS.md` §18.1).
+- **One shared type scale.** The sizes below are normative for the elements named. A dashboard MUST
+  NOT substitute its own size for them, and MUST NOT introduce a per-dashboard variation.
+
+  | Element | Size | Weight |
+  |---|---|---|
+  | Body copy | 13 px / 1.45 | 400 |
+  | Panel title `h2` | 13 px, uppercase | 600 |
+  | Chart-card title `h3` | 13 px | 700 |
+  | KPI value (compact strip) | 22 px | 700 |
+  | KPI label | 10 px, uppercase | 400 |
+  | Icon button (A4) | 13 px | 600 |
+  | Menu-bar control (§3.1) | 12 px | 600 |
+  | Filter trigger (B1) | 12 px | 600 |
+  | Filter menu row (B3) | 12 px | 400 |
+  | Filter count badge | 10 px | 700 |
+  | Native single-select (B5) | 12 px | 600 |
+  | Title-bar project title | 17 px | 600 |
+  | Title-bar dashboard title | 12 px | 500 |
+  | Title-bar meta line | 11 px | 400 |
+  | Status / system banner | 12 px | 400 |
+  | Severity chip `.vchip` | 11 px | 700 |
+
+- **Reference.** MDL is the reference implementation of this scale. A dashboard that drifts from it
+  renders the same content at a different size, which is the drift this clause prevents.
+
 ### Shadow
-- Subtle only: `0 1px 2px rgba(15,45,82,.04)`. No large/decorative shadows.
+- Subtle only: `var(--shadow)`. No large/decorative shadows.
 
 ### Semantic & tint tokens
-The canonical `:root` also ships **tint / semantic** tokens that every component MUST use for
-status/tint surfaces (do not hard-code hex in components):
-`--soft` (light-blue highlight), `--accent` (= `--blue`), `--accent-ink`, `--accent-soft-border`,
-`--warn-bg` / `--warn-border` / `--warn-fg`, `--error-bg` / `--error-fg`, `--ok-bg` / `--ok-fg`.
-
-### 6.1 Dark theme (optional, token-driven)
-Dashboards MAY offer a dark theme. Because every colour is a token, dark mode is achieved by
-**re-mapping token values only** (e.g. `--bg`/`--surface` → dark, `--text`/`--muted` → light;
-keep `--navy`/`--blue` as brand anchors). Components must reference tokens — never literal hex —
-so they adapt automatically; no per-component dark CSS beyond the token swap (use a
-`[data-theme="dark"]` attribute selector on the root element).
+Components MUST use the semantic tokens defined in the project-local UI stylesheet for status and tint surfaces. The stylesheet must define all tokens that component rules use. Every dashboard uses the five themes from `AGENTS.md` §18.4;
+a dashboard MUST NOT add a separate theme system or a local dark-theme override.
 
 ---
 
@@ -911,10 +952,10 @@ so they adapt automatically; no per-component dark CSS beyond the token swap (us
 #### A. Action buttons
 | Type | Class | Use | Style |
 |---|---|---|---|
-| A1 Primary | `.btn` / `.btn-primary` | **one per screen** highest-emphasis CTA — *Open / Load workbook* only; Print / Save / Export are **not** primary | `--blue` solid, white text, radius 6 px, min-height 32 px |
+| A1 Primary | `.btn` / `.btn-primary` | one main action per view highest-emphasis CTA — *Open / Load workbook* only; Print / Save / Export are **not** primary | `--blue` solid, white text, radius 6 px, min-height 32 px |
 | A2 Secondary / Ghost | `.btn.ghost` / `.btn-secondary` | low-emphasis alternative / cancel / dismiss; "Load another file" | white, 1px `--border`, **navy** text; hover → `--blue` fill, white text |
 | A3 Text action | `.btn-secondary` (glyph + label) | tool / footer-row actions: export, copy, CSV (e.g. `⤓ PNG`, `⧉ Copy`, `⤓ CSV`) | white, **navy** text, glyph + space + label; hover → `--blue` fill, white text |
-| A4 Icon / Mini | `.icon-btn` | icon-only: Help `?`, Collapse `−`, Theme, modal close `✕` | `width:26px;height:26px;min-height:26px` — 26 px **square**; radius 6 px; 1px `--line`; `background:#fff`; `color:var(--muted)`; `font:inherit`; **13 px** / 600; `line-height:1`; inline-flex centred. Hover → `--soft` background + `--navy` text. **Must carry `aria-label` + tooltip** |
+| A4 Icon / Mini | `.icon-btn` | icon-only: Help `?`, Collapse `−`, Theme, modal close `✕` | `width:26px;height:26px;min-height:26px` — 26 px **square**; radius 6 px; 1px `--line`; `background:var(--surface)`; `color:var(--muted)`; `font:inherit`; **13 px** / 600; `line-height:1`; inline-flex centred. Hover → `--soft` background + `--navy` text. **Must carry `aria-label` + tooltip** |
 | A5 Search | `.search-btn` | search submit, affixed to the search input (right edge, single-side radius) | `--accent` fill, white glyph, radius `0 6px 6px 0`, attached to input |
 
 **A3 — one canonical class name (normative).** `.btn-secondary` is the **canonical** A3 class. Every
@@ -948,9 +989,9 @@ shipped, and when it migrated are recorded in its own workplan — never here (�
 #### B. Selection controls
 | Type | Class | Use | Style |
 |---|---|---|---|
-| B1 Filter trigger | `.tf-btn` | **MULTI-SELECT row filter** — opens a filter menu (Discipline / Stage / Category `▾`), distinct from the chips *inside* the menu. **Reserved for controls that narrow rows**; a show/hide-columns control MUST NOT use it (see B7) | text + `▾`, 1px `--border`, radius 6 px; hover → `--soft`; selected → `.is-filtered` / `.active` emphasis |
+| B1 Filter trigger | `.tf-btn` | **MULTI-SELECT row filter** — opens a filter menu (Discipline / Stage / Category), distinct from the rows *inside* the menu. **Reserved for controls that narrow rows**; a show/hide-columns control MUST NOT use it (see B7) | text + count badge, radius 6 px, **borderless in the menu bar** — the base control carries 1 px `--border` and the menu-bar chrome strips it; **no caret glyph**; hover → `--soft`; selected → `.is-filtered`, whose visible cue is the count badge |
 | B2 Segmented | `.seg button` | single-select among 2–6 inline options (Bar/Pie, month horizon 1m–6m, overdue cases); active `.on` = **`--navy`** fill (a *selection* state, not an action) | joined group, 1px `--border`, radius 6 px, overflow hidden; inactive hover → `--blue` fill |
-| B3 Filter chips | `.chips label` | multi-select toggles *inside* the B1 filter menu (checkboxes styled as pills) | 11 px, rounded pill |
+| B3 Filter rows | `.tf-all` + `.tf-item` | multi-select toggles *inside* the B1 filter menu — an `All <dimension>` master, then a hint, a divider, and the value rows | master 12 px / 700; rows 12 px; row hover → `--soft` |
 | B4 Drill / Expand | reuses `.icon-btn` visuals | row drill-down / expand (`▸ stages`) | **must be a real `<button>`** — never a `<td>` or `<div>` with `role="button"`; may be icon or text + icon |
 | B5 Native single-select | `.inter-sel` | **SINGLE-SELECT picker** — breakdown dimension, month, type (chart group / matrix Month / Overdue Type); distinct from the multi-select `.tf-btn` filter (B1) and from the `.seg` segmented control (B2) | 12 px / 600, 1px `--border`, radius 8–9 px, white surface, `--ink` text; `:focus-visible` 2 px `--blue` ring; `max-width:260 px`; attached variant `.inter-sel.is-attached` (search-column picker: no own border, left-rounded, right divider) |
 | B6 Panel-local filter | `.inter-sel` in the panel's control cluster | a single-value filter that narrows **only the tables inside one panel** (e.g. the issue rule-code filter in the Validation / Issues panel). Resolved in **S5 Render**; it MUST NOT change KPIs, charts, the matrix or any other panel (§7.2.7 pt 6) | as B5 |
@@ -961,11 +1002,31 @@ shipped, and when it migrated are recorded in its own workplan — never here (�
 | | Multi-select | Single-select |
 |---|---|---|
 | Control | **B1** `.tf-btn` filter trigger + floating menu | **B5** `.inter-sel` labelled native select |
-| Toggles inside the menu | **B3** `.chips label` pills | not applicable |
+| Toggles inside the menu | **B3** `.tf-all` master + `.tf-item` rows | not applicable |
 | Values at once | many (a checkbox list, plus an "All <dimension>" master) | one (an explicit "All / <dimension>" neutral option) |
 | Active-state cue | count badge on the trigger + `is-filtered` emphasis | the chosen value is visible in the control itself |
 
 A user must be able to tell, from the chrome alone, both (a) how many values the control accepts and (b) whether it filters **rows**. B7 exists so a layout control can never be mistaken for a row filter.
+
+**Global dimensions are multi-select (normative).** A dimension exposed in the shared global filter
+area (§3.1, §3.2) MUST accept **several values at once**, and MUST therefore use **B1** `.tf-btn` with
+**B3** `.tf-all` master plus `.tf-item` toggles inside a floating panel and a count badge on the
+trigger. A global
+filter re-derives the shared `active` set for every panel (§7.2.7 pt 1), so the reader must be able to
+select more than one value. A dashboard MUST NOT render a global dimension as a native single-select;
+**B5** `.inter-sel` is reserved for single-value pickers that are not row filters (breakdown
+dimension, month, type) and for the **B6** panel-local filter. The floating panel MUST open with an
+`All <dimension>` master toggle at the top, per the ordering rule below.
+
+**Filter group contents (normative).** The menu-bar filter group MUST contain the global filter
+triggers, the Search button with its panel, and the Warnings toggle. Placing Search or Warnings
+outside the group breaks the shared grouping and MUST NOT be done.
+
+**Filter class names are normative.** A global filter trigger MUST carry class `tf-btn`, its master
+toggle `tf-all`, its value rows `tf-item`, and its panel `tf-panel`. A dashboard MUST NOT invent a
+parallel class for the same control.
+The reason is the same as for A3 above: the class name is the only link between a rendered control and
+the spec rule that governs it, so a parallel name hides the control from every shared selector.
 
 **Floating-panel internal ordering (normative).** Every floating
 multi-select panel — the **B1** filter popover and the **B7** column-visibility chooser alike —
@@ -1025,6 +1086,14 @@ never contradict the list below it.
   always reads **`Warnings`** with the count in its badge (`[N] Warnings`), and never flips to `Show warnings`
   / `Hide warnings` when collapsed/expanded. A label that changes verb with state is both confusing and a
   contrast risk (it can force a different colour pair).
+- **Control label casing (mandatory).** Every visible label of an interactive control MUST use
+  **title case**: capitalize the first letter of every word (`Choose Workbooks`, `Show Warnings`,
+  `Remember File Names`). Do not use sentence case (`Choose workbooks`, `Show warnings`).
+  *Applicable cases* are: button labels — action, toggle, and icon buttons with visible text
+  (`☰ Navigation`); a `<label>` rendered as a button, such as a file-picker label; the label of a
+  form control — checkbox, radio, or select (`Show Warnings`, `Remember File Names`, `Theme`); and
+  navigation and menu items. *Excluded cases* are: prose and body text, sentences, hints, status
+  messages, placeholders, data values, and `title` / `aria-label` attribute wording.
 
 ### 7.2 Tables (`.ds-table`) — rev 2026-10-15
 
@@ -1076,8 +1145,7 @@ classes alongside them but MUST NOT substitute them; panel / container class nam
 A dashboard's filters form a **two-tier cascade**. It is applied in this order and never the
 reverse; the structure (not just convention) enforces it.
 
-1. **Tier 1 — Global (menu-bar) filters run first, in S4 Derive.** The global filters —
-   `Discipline`, `Stage` and document `Search` — are combined (AND) into a single pass over the
+1. **Tier 1 — Global filters run first, in S4 Derive.** The dashboard-defined global filters are combined (AND) into a single pass over the
    master record set and produce one shared, reduced working set (`active`). **Every panel**
    (KPIs, charts, overdue lists, matrix, validation/issue list, document detail) derives from
    this same `active` set, so a global selection re-derives the whole dashboard at once. The
@@ -1102,8 +1170,8 @@ reverse; the structure (not just convention) enforces it.
    layout/behaviour harness.)
 
 5. **No duplicate filter dimensions (overall requirement).** A filter dimension appears in exactly
-   one place. The dimensions owned by the menu bar — `Discipline`, `Stage` and document `Search` — live
-   **only** there; a panel MUST NOT re-offer a global dimension, and MUST NOT offer the same dimension
+   one place. The dashboard-defined global dimensions live
+   **only** in the shared global filter area; a panel MUST NOT re-offer a global dimension, and MUST NOT offer the same dimension
    twice (e.g. a panel that already has a dedicated control for a dimension must not also bundle that
    dimension inside a generic column-filter popover). Panels may filter only on dimensions they own.
    This keeps the global filter the single source of truth for cross-panel scope and prevents two
@@ -1138,7 +1206,7 @@ A **split header** moves `<thead>` out of the scroll container into a thead-only
 header, grouped or single-row.** The vertical scrollbar is confined to the body: it scrolls rows only,
 the header never moves, and the header band runs the full card width with the trailing `.ds-gut` gutter
 reserving the scrollbar width. A sticky `<thead>` inside a table scroller is **retired** — sticky
-remains correct for page-level chrome (the app bar, §3.1) but MUST NOT be used inside a `.tableScroll`.
+remains correct for page shell chrome (§3.1) but MUST NOT be used inside a `.tableScroll`.
 
 Why this is standardised rather than left as a choice:
 
@@ -1217,7 +1285,7 @@ and what a dashboard must be able to show** to claim conformance.
 
 | Layer | Lives in | Checks |
 |---|---|---|
-| **Shared layout harness** | the shared `harness-layout` project — **generic checks that apply to any dashboard** | structure, chrome and geometry: tiered checks covering token usage, panel structure, table/split-header invariants, control contrast, floating-panel ordering, search-panel layout, matrix header rules |
+| **Shared layout harness** | the shared `harness-layout` project — **generic checks that apply to any dashboard** | shell structure and geometry, chrome and table geometry: split-header invariants, control contrast, floating-panel ordering, search-panel layout, matrix header rules |
 | **Per-dashboard suite** | the dashboard's own repository (e.g. `test/`), plus its harness check module | that dashboard's **behaviour**: its pipeline stages, its contract parsing, its derivations, its panel logic, and the dashboard-specific assertions this spec requires |
 
 **The split is deliberate.** A check that is true of *every* dashboard belongs in the shared harness;
@@ -1233,26 +1301,27 @@ hard-coded into the generic check.
 
 | # | Assertion | Clause |
 |---|---|---|
-| 1 | Every dashboard imports the canonical `:root` tokens verbatim; no canonical value is overridden | §1, §6 |
-| 2 | Every text action uses `.btn-secondary`; no dashboard introduces a parallel class; all declare the same A3 geometry | §7.1 A3 |
+| 1 | Every dashboard loads project-local CSS and JS, implements the required shell tokens, and supports all five themes | §1, §3.1, §6 |
+| 2 | Every text action follows the dimensions and behavior in this spec | §7.1 A3 |
 | 3 | Every action is a real `<button>`; no `<td>`/`<div>` carries `role="button"` | §7.1 |
 | 4 | Every control's label meets WCAG AA against its own effective background (≥ 4.5:1, or ≥ 3:1 for large/UI text), including pressed/toggle states | §7.1 |
 | 5 | Every control has an accessible name | §7.1 |
 | 6 | A filter trigger (`.tf-btn`) is used **only** by controls that narrow rows; a column-visibility control uses its own class and carries no filter badge or active-filter emphasis | §7.1 B1 / B7 |
 | 7 | Every floating multi-select panel lays out master → note → divider → item list → footer, and the master re-syncs (tri-state where rows are locked) | §7.1 B |
 | 8 | A panel-local filter changes only its own panel's tables; KPIs, charts, the matrix and other panels are unaffected; exports read the same filtered array | §7.2.7 pt 6, §7.1 B6 |
-| 9 | No filter dimension is offered twice — a dimension exposed globally in the top bar is not re-offered inside a panel | §7.2.7 pt 5 |
+| 9 | No filter dimension is offered twice — a dimension exposed in the global filter area is not re-offered inside a panel | §7.2.7 pt 5 |
 | 10 | Every bounded data table uses the split header; no `.tableScroll` contains a sticky `<thead>` | §7.2.15 |
 | 11 | The split-header invariants hold: one container, relative containing block, width pin + gutter, one column grid, fit/lock-step, one implementation | §7.2.15 |
 | 12 | Header/body cells of a split header are paired by **rendered position**, never by DOM index | §7.2.15 |
 | 13 | The parse → derive → render separation holds (S1–S5), and the pipeline is testable per stage | §3.8, §3.8.5 |
-| 14 | Contract-driven parsing: nothing that lives in the workbook's Code sheet is hard-coded in the dashboard | §3.8.3 |
+| 14 | Source-contract parsing: source positions and allowed values are not hard-coded | §3.8.3 |
+| 15 | The delivered HTML is standalone: it runs from `file://` with no web server, contains no `href` / `src` that points at a local file, and uses no `fetch` of local files or cross-file ES-module `import` | §3.9 |
+| 16 | Every KPI card is 72 px high and at least 210 px wide, carries a 3 px top strip in a status token, contains exactly two children (`.v`, `.l`), and has no box shadow | §5 |
 
 ### 8.3 Pipeline testability
 
-§3.8.5 requires the pipeline to be testable stage by stage. Conformance therefore includes: each
-stage (S1 Load → S2 Parse → S3 Validate → S4 Derive → S5 Render) MUST be exercisable in isolation,
-so a failure localises to one stage instead of to the whole page.
+§3.8.5 requires each data stage to be testable in isolation with the project-approved runner. A test
+can then locate a failure in one stage instead of the whole page.
 
 ### 8.4 Enforcement posture and the conformance record
 
@@ -1273,11 +1342,15 @@ advisory-with-reason, (b) its own suite passes, and (c) its workplan carries the
 
 ## 9. Adopting this spec for a new dashboard
 
-1. Copy the `:root` token block (§6) verbatim. Do not override canonical values.
-2. Build the shell (§3) and panels (§4) from the component library (§7).
-3. Implement the pipeline as S1–S5 (§3.8), contract-driven (§3.8.3), per-stage testable (§8.3).
-4. Decide the dashboard-specific choices this spec explicitly leaves open — status vocabulary, global
-   filter dimensions, navigation form, enforcement posture — and **write them into the new
-   dashboard's workplan** (§1).
-5. Wire the shared layout harness and add the dashboard's own check module and suite (§8.1).
-6. Complete the conformance record (§8.4) before first release (§8.5).
+1. Keep dashboard CSS and JavaScript in project-local assets. The workplan defines their paths; a `ui/` folder is optional. Define the tokens and shell behavior required by this spec in those assets; dashboards do not use `common/`.
+2. Put the dashboard HTML entry page in the project root. A `data/` or `output/` folder is optional. Provide
+   `serve.py` as required by `AGENTS.md` §18.12. Build the shell exactly as stated in §18.2. Use this document for dashboard panels
+   (§4), metrics (§5), and shared behaviors (§3, §7).
+3. Load `ui_help.json` for labels, help text, defaults, and output names. Confirm that every token used
+   by this document exists in the project UI stylesheet for all five themes (§6).
+4. Implement the data pipeline with importable stages and no HTML build step (§3.8). Use the source
+   file contract that applies to the dashboard (§3.8.3), and test each stage (§8.3).
+5. Decide the dashboard-specific status vocabulary, global filter dimensions, and file set. Record
+   these choices in the dashboard workplan. The shell and navigation form are not choices.
+6. Wire the shared layout harness and add the dashboard's own check module and suite (§8.1).
+7. Complete the conformance record (§8.4) before first release (§8.5).

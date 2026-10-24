@@ -1,0 +1,410 @@
+{
+  "project_metadata": {
+    "name": "TWRP C3B2 — Document Submittal Log Interactive Dashboard",
+    "abbreviation": "SUB",
+    "version": "2.23.0",
+    "date": "2026-10-24",
+    "description": "Browser dashboard for planned documents and submission history.",
+    "purpose": "Show document scope, submission status, review delay, approval outcomes, and coverage from the project MDL and Document Submittal Log workbooks."
+  },
+  "architecture_overview": {
+    "status": "Wave 9 welcome hardening complete: MDL full-screen welcome overlay (no dashboard parts until load); golden-ratio (1:1.618) drop area holding the Choose/Load buttons; no hardcoded project title (title renders from model after load); spec Dashboard-UI-Design-Spec.md §3.7 and AGENTS.md §18.2 hardened. Wave 8 Option B shell (MDL two-row header + navy left nav, light default) remains. Wave 5 regression and Wave 6 owner review remain. Data engine unchanged. Wave 10 aligned the KPI cards to spec §5 and aligned the harness shell checks to spec §3.1. Data engine unchanged. Tier 2 now reveals the shell by loading the workbook first. Wave 11 consolidated the Documents Logged KPI to distinct document numbers and normalised the submission-to-plan join.",
+    "modules": [
+      {
+        "name": "Dashboard page",
+        "path": "TWRP C3B2 - Document Submittal Dashboard.html",
+        "status": "Complete; project-root HTML shell and page navigation."
+      },
+      {
+        "name": "Dashboard UI shell",
+        "path": "engine/dashboard.css; engine/dashboard.js",
+        "status": "Rebuilt in Wave 8 to Option B: MDL two-row header (navy title bar + white menu bar) + navy left navigation sidebar; no icon bar, no right sidebar; Settings/Help are modal dialogs; global filters live in the menu bar. Light default; five themes. Matches the updated spec (AGENTS.md §18.2 / Dashboard-UI-Design-Spec.md §3.1). Logo from asset/logo.jpg. Full-screen welcome overlay (#welcome-screen) shows with NO dashboard parts (header, menu, sidebar, status all hidden) until data loads; body.loaded reveals the .app shell; Load errors show on the welcome screen. Wave 9: the welcome drop area is a golden-ratio (1:1.618) box containing the Choose and Load buttons; the welcome shows no hardcoded project title (generic app label only); the shell title bar renders model.meta.dashboardTitle after load. Spec §3.7 and AGENTS.md §18.2 hardened. Load controls: the welcome and sidebar Choose workbooks buttons are native label-wrapped file inputs (no programmatic click; accept .xlsx,.xlsm); the menu-bar Load Data button has id load-button-menu and calls readAndBuild (I005 fix). The generic welcome title (Document Submittal Dashboard) is restored; the project title is still not hardcoded (I006 fix). Data engine unchanged."
+      },
+      {
+        "name": "Brand logo asset",
+        "path": "asset/logo.jpg",
+        "status": "Project logo shown in the title bar and welcome card."
+      },
+      {
+        "name": "Workbook reader",
+        "path": "engine/xlsx-reader.js",
+        "status": "Complete; reads the selected MDL and Submittal Log workbook files."
+      },
+      {
+        "name": "Pipeline",
+        "path": "engine/pipeline.js",
+        "status": "Complete; normalizes, validates, links, and calculates workbook records."
+      },
+      {
+        "name": "View derivation and rendering",
+        "path": "engine/render.js",
+        "status": "Complete; derives page views from shared filter state and renders dashboard panels."
+      },
+      {
+        "name": "UI help and labels",
+        "path": "config/ui_help.json",
+        "status": "Complete; loaded from config/ui_help.json at runtime."
+      },
+      {
+        "name": "Pipeline contract",
+        "path": "config/pipeline_contract.json",
+        "status": "Complete"
+      },
+      {
+        "name": "Pipeline tests",
+        "path": "test/pipeline.test.mjs",
+        "status": "Complete"
+      },
+      {
+        "name": "Local server",
+        "path": "serve.py",
+        "status": "Complete; serves project files with the Python standard library."
+      }
+    ],
+    "data_flows": [
+      "Two workbook files -> parse -> normalize -> validate -> derive filtered views -> render dashboard"
+    ],
+    "integration_points": [
+      "Master Document List workbook",
+      "Document Submittal Log workbook",
+      "Dashboard UI Design Standard",
+      "harness-layout"
+    ]
+  },
+  "domain_concepts": [
+    {
+      "name": "Planned document",
+      "description": "One MDL row. Repeated document numbers remain separate rows and create a validation error."
+    },
+    {
+      "name": "Submission record",
+      "description": "One Document Submittal Log row; a document can have multiple submissions."
+    },
+    {
+      "name": "Document link",
+      "description": "A submission-to-plan link by Document No. Repeated MDL numbers make the link ambiguous."
+    },
+    {
+      "name": "Review delay",
+      "description": "Calculated from the target return date and actual return date; an open row has zero delay through its target date."
+    }
+  ],
+  "key_schemas": [
+    {
+      "name": "Knowledge base schema",
+      "path": "../config/schemas/knowledge_base_schema.json",
+      "version": "1.0.0",
+      "status": "Available; validates this knowledge file and the EKS sample. Graph validation is available for dashboard network data."
+    },
+    {
+      "name": "Workbook source contracts",
+      "path": "TWRP C3B2 - Master Document List.xlsx; TWRP C3B2 - Document Submittal Log.xlsx",
+      "status": "Defined by workbook sheets, headers, Code sheets, and the approved workplan."
+    }
+  ],
+  "workflows": [
+    {
+      "name": "Load dashboard data",
+      "entry_point": "TWRP C3B2 - Document Submittal Dashboard.html",
+      "steps": [
+        "Select both workbooks",
+        "Parse workbook files",
+        "Normalize and validate rows",
+        "Derive filtered metrics and panels",
+        "Render dashboard"
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "readWorkbook",
+      "module": "engine/xlsx-reader.js",
+      "status": "Complete; reads workbook bytes and parses XLSX content."
+    },
+    {
+      "name": "buildModel",
+      "module": "engine/pipeline.js",
+      "status": "Complete; normalizes source rows and validates once at load."
+    },
+    {
+      "name": "deriveView",
+      "module": "engine/render.js",
+      "status": "Complete; applies global filters and calculates the shared view model."
+    },
+    {
+      "name": "render",
+      "module": "engine/render.js",
+      "status": "Complete; writes derived views to the dashboard DOM."
+    }
+  ],
+  "data_flows": [
+    {
+      "source": "Master Document List workbook",
+      "destination": "Planned document records",
+      "checks": [
+        "Required sheets and headers",
+        "Repeated Document No. validation"
+      ]
+    },
+    {
+      "source": "Document Submittal Log workbook",
+      "destination": "Submission records",
+      "checks": [
+        "Required headers",
+        "Status domain",
+        "Formula errors",
+        "Orphan and ambiguous links"
+      ]
+    },
+    {
+      "source": "Normalized records",
+      "destination": "Dashboard views",
+      "checks": [
+        "Date and status normalization",
+        "Target-date delay calculation",
+        "Filter and aggregation consistency"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "jsonschema 4.26.0",
+      "purpose": "Test-time validation of knowledge JSON against the shared schema",
+      "status": "Available in the current validation environment; not used by the dashboard runtime"
+    },
+    {
+      "name": "Browser native JavaScript modules",
+      "purpose": "Dashboard runtime",
+      "status": "Approved in Wave 1"
+    },
+    {
+      "name": "Python standard library",
+      "purpose": "Local static server",
+      "status": "Approved in Wave 1"
+    },
+    {
+      "name": "Node.js",
+      "purpose": "Pipeline and render tests",
+      "status": "Approved in Wave 1"
+    },
+    {
+      "name": "Playwright Chromium",
+      "purpose": "Layout harness browser checks",
+      "status": "Available; browser layout harness checks pass in the supported Chromium environment."
+    }
+  ],
+  "known_issues": [
+    {
+      "id": "I002",
+      "title": "Shared knowledge schema is available",
+      "status": "Resolved",
+      "details": "Created config/schemas/knowledge_base_schema.json as the shared, dashboard-universal knowledge schema. The EKS sample, this file, and a graph example pass schema tests. JSON Schema does not verify node ID uniqueness or edge endpoint existence; a graph integrity check remains future work."
+    },
+    {
+      "id": "I003",
+      "title": "Chromium harness could not launch in the restricted sandbox",
+      "status": "Resolved",
+      "details": "Wave 4 ran the browser harness in a supported Chromium environment. Tier 2 passed 24 checks and Tier 4 passed 65 checks with no failures. See the Wave 4 report."
+    },
+    {
+      "id": "D7",
+      "title": "Staffing estimator deferred",
+      "status": "Deferred",
+      "details": "C6 requires discipline-weighted manhour benchmarks from the project owner."
+    },
+    {
+      "id": "I020",
+      "title": "Dark themes carry the light-theme --line token",
+      "status": "Deferred",
+      "details": "--line and --muted are declared once in :root only. The 4 dark themes override --text2 but not these 2 tokens, so the .icon-btn border and the muted labels keep a light-theme grey. --muted was added to the 4 themes during KPI-1 because the KPI label needs it. --line stays open."
+    },
+    {
+      "id": "I021",
+      "title": "Harness requires a linked JS module and the spec requires a standalone page",
+      "status": "Resolved",
+      "details": "User decision: the page stays standalone with no cross-file module. The Tier 1 check now accepts an inline script tag with type=module, and a linked module must still be project-local, never a CDN or the shared common folder. Tier 1 passes 9 of 9 and Tier 2 passes 23 of 23."
+    },
+    {
+      "id": "I022",
+      "title": "The KPI row mixes document and record units",
+      "status": "Deferred",
+      "details": "Documents Logged and Documents Submitted / In Plan count documents, but Under Review (54 rows) and Approved (92 rows, 62 documents) still count submission records. A per-document value needs a tie-break rule for a document with up to 3 log rows. Deferred by user decision."
+    }
+  ],
+  "revisionHistory": [
+    {
+      "revision": "2.23",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Applied business rule D32. The Total Submissions card is now Documents Logged and counts distinct Document No., trimmed and upper-cased: 183 rows become 133 documents. The Submittals table keeps all 183 rows. The submission-to-plan join uses the same normalised key, so a document spelled WSw matches its plan row spelled WSW. The orphan count drops from 17 to 16 and V-29 loses one false positive. The KPI decomposes as 116 matched + 16 orphan + 1 ambiguous = 133. Updated the workplan (D32 and the KPI table), the pipeline and render tests (23 pass), and the issue log (revision 0.30, I022 deferred). The standalone page was rebuilt."
+    },
+    {
+      "revision": "2.22",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Aligned the KPI card to spec §5 and hardened §5 in both spec copies. A card is now 72 px high, at least 210 px wide, with a 3 px status strip in 5 states and exactly 2 lines, and no box shadow. The grid is now repeat(auto-fit, minmax(210px, 1fr)), so 210 px is a floor and no breakpoint media query is needed. Added --muted to the 4 dark themes because the KPI label uses it. The harness now resolves the spec from the repository root first and falls back to its own byte-identical copy. The harness shell checks now follow spec §3.1: 5 zones, no icon bar, no right sidebar, and no hard-coded bar heights. Logged I020 as deferred and I021 as open. Tier 1 passes 8 of 9. Tier 2 now loads the configured workbook before it measures the shell, because spec §3.7 hides the chrome until the first load. Tier 2 passes 23 of 23. Resolved I021: the Tier 1 module check now accepts an inline module, so the standalone page passes."
+    },
+    {
+      "revision": "2.21",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Resolved I019 — chart panels now meet spec §4. Measured in Chromium across all 5 pages (10 top-level panels), every §4 item was wrong or missing. The title rendered 19.5 px / 700 with no uppercase, no letter-spacing, colour rgb(31,42,55) (= --text, not --navy #15314f) and margin 16.185px 0, because the stylesheet styles .panel h3 while the renderer emits <h2>, so the heading fell back to the browser default. The title row was display:block, so the Help control wrapped to the left at x=17, 1205 px from the panel's right edge. The Collapse toggle did not exist at all, and no panel carried a number. The surface was 16px padding at 12 px radius, position static, margin 0 0 16px. Fixes: .panel is now margin:14px 0, padding:14px 14px 26px, radius 10px, position relative; new .panel-head (flex/space-between/center, gap:8px, margin 0 0 10px), .panel h2 (13 px / 700, uppercase, letter-spacing .04em, --navy, line-height 1.4, margin 0), .panel-actions (flex, gap 6px, flex-shrink 0), .panel[data-panel]::after (10 px, ls .04em, --text3, right 10px, bottom 8px, pointer-events none), .panel.collapsed>*:not(.panel-head){display:none} and .panel-grid>.panel{margin:0} so the grid gap stays authoritative. The renderer's .panel-head gained a .panel-actions cluster with Help first and a data-panel-toggle Collapse minus last, and collapsed state lives in state.collapsedPanels so paint() restores it. Two bugs found during verification and fixed: numbering from construction order produced 1,2,4,3 on Analytical (a page can build a panel's HTML before placing it), so numbers are now assigned after insertion by walking top-level panels in DOM order; and a nested sub-panel then inherited a duplicate number and rendered a badge, so numbering is gated to top-level panels and the ::after rule is gated on [data-panel]. Verified: all 17 checks pass on every panel across all 5 pages, numbering sequential per page (4/1/1/1/3), and collapse works (panel 1 214 px to 78 px, glyph minus to plus, aria-expanded false, title Expand, state survives a page round-trip). Spec 1.26 hardens §4 with the title-row element, DOM-order numbering, nested-panel and grid-margin rules, collapse persistence, and an updated sketch. Tests 21/21; harness 63/39/14 unchanged."
+    },
+    {
+      "revision": "2.20",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Resolved I018 — the title-bar page label is bigger and has no background. D29 had styled it as a pill at the menu-bar control scale: font-size 12px, background rgba(255,255,255,.14), padding 6px 12px, border-radius 6px. That read as a badge rather than as the page name, it made the label the smallest text in the title bar (below the 17 px project title and the 12 px dashboard-title row), and the pill's padding pushed it 12 px in from the bar's 20 px edge. .app-top .page-title is now font-size:16px;font-weight:600;line-height:1.2;color:#fff;white-space:nowrap;flex-shrink:0 — background, padding and radius all removed. Verified in Chromium with both workbooks loaded: 16 px / 600, line height 19.2 px, background-color rgba(0,0,0,0), padding 0, radius 0, sitting 20 px from the title bar's right edge on the same padding as the brand group on the left. The title bar is unchanged at 78 px tall because the label at 19.2 px stays shorter than the 57.75 px .ttl-stack, and switching pages still updates it ('Forward Plan' reads back correctly at 78 px). 16 px was chosen as one step below the 17 px project title so the two do not compete. Spec 1.25 revises the §3.1 active-page rule from the menu-bar control scale (12 px / 600) to 16 px / 600 at line-height 1.2, plain text with no background, padding, border or radius. Workplan records D30. Harness unchanged at 63/39/14; tests 21/21."
+    },
+    {
+      "revision": "2.19",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Resolved I017 — the content toolbar is removed. The content zone opened with a .toolbar strip holding an #content-title heading repeating the active page name, a subtitle repeating the title bar's .ttl, and the #layout-button; all three duplicated the shell, and the strip cost 68 px of chrome above the panels with a border-bottom on top of the menu bar's. Removed the .toolbar div and its three CSS rules. The title bar gained <div class=\"page-title\" id=\"page-title\" aria-live=\"polite\"> on its 20 px right padding — the bar is justify-content:space-between and previously held only .brand, so the right half was empty — and paint() now writes state.page there instead of to the removed #content-title. The layout toggle is now a menu-bar control at the right end, after the filter group, with margin-left:auto so it is flush right before data loads and follows the group once shown; it is a 27x32 icon control with the same compact 8 px padding as the menu-bar toggle. Verified in Chromium with both workbooks loaded: the content zone's children are exactly [\"filter-area\",\"content-body\"], .toolbar and #content-title are gone, the page label measures 12 px / 600 with aria-live=polite inside the title bar 20 px from its right edge, and switching pages updates it (Submittals, Validation, Forward Plan all read back correctly). The layout toggle is in the menu bar 20 px from the right edge and still cycles data-layout one to two to three to one with the panel grid at 1/2/3/1 columns. Spec 1.24 drops the toolbar zone from the §3.1 shell markers, adds the no-content-toolbar rule to §3.3, and adds the active-page-in-title-bar and layout-toggle-in-menu-bar rules to §3.1. Three harness checks asserted a toolbar zone, so harness.mjs revision 1.7 now asserts filter-area and body only. Workplan records D29. Harness 62/40/14; tests 21/21. Also corrected the workplan's priority table, which had never picked up I016."
+    },
+    {
+      "revision": "2.18",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Resolved I016 — the left panel is now sized to its menu titles. It was 240 px but the widest title, \"Forward Plan\", measures 91 px at 14 px / 400, which with the button's 12 px horizontal padding and the panel's 10 px padding needs only 135 px, so 105 px of the panel was empty — a leftover of the old panel, which also carried a full-width collapse toggle and two section titles removed by I015. --sidebar-w is now 160 px (the 135 px the titles need plus 25 px of slack). The clamp in updateSidebarWidth had to move with it: it was min = 180 and it runs on load whenever a width is saved in local storage, so a narrower default would have been forced back to 180 px; it is now 140, the width at which the widest title still fits. Verified in Chromium with both workbooks loaded: the panel measures 160 px with no horizontal overflow, every menu item is 139 px wide and 38 px tall, none clipped (scrollWidth <= clientWidth) and none wrapped (all the same height), Settings and Help still pinned to the bottom ending at y=733 in a 743 px panel, and the content area went from 1200 px to 1280 px. Resizing still works: dragging the handle +60 px took the panel from 160 to 220. The 25 px of slack is deliberate — it keeps the row clear of the 5 px resize handle and leaves room if a title grows. MDL has no sidebar, and the spec had no width rule for the panel, so the spec now defines it: 1.23 adds the normative left-panel width rule (sized to the menu titles, derive the same way if the titles differ, never wrap or clip, clamp resizing where the widest title still fits). Workplan records D28. Harness unchanged at 62/40/14; tests 21/21."
+    },
+    {
+      "revision": "2.17",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Resolved I015 — the left panel now holds menus only. It previously held four things that are not menus: a full-width \"☰ Navigation\" collapse toggle at the top (which duplicated the menu bar's data-shell-toggle=\"left-sidebar\" control), a \"▣ Pages\" section title, a \"⚙ Settings & Help\" section title, and a border-bottom divider under each section; Settings and Help also sat directly under the page links rather than at the bottom. The panel is now three children: nav.sb-menu.page-links with the five page links, nav.sb-bottom with Settings and Help pinned by margin-top:auto, and div.resize-handle. Removed the .sb-toggle-row and .sb-toggle markup and CSS, both .sb-section-header titles, the .sb-section-body wrappers, and the border-bottom on .sb-section — six CSS rules replaced by .sb-menu{display:flex;flex-direction:column} and .sb-bottom{display:flex;flex-direction:column;margin-top:auto}. Panel padding tightened from 10px 10px 12px to 10px and the gap:10px is gone. Verified in Chromium with both workbooks loaded: no [data-shell-toggle] inside the panel, no .sb-section-header, no .sb-section, and zero elements carrying a top or bottom border — the only border left is the panel's own 1 px right edge. Settings at y=656 and Help at y=695, ending at 733 in a 743 px panel, so both are pinned to the bottom. Page links still work (clicking Submittals sets the title and marks it active), the Settings modal still opens, and the menu-bar toggle still collapses the panel 240 to 0 and back. The resizer is kept because the spec requires data-shell-resize=\"left-sidebar\". MDL has no sidebar at all, so the spec defines the shape. Spec 1.22 adds the normative menus-only rule and records that the data-shell-toggle control sits in the menu bar; workplan records D27. Harness moved from 59/43/14 to 62/40/14 — removing the panel chrome also cleared two control-contrast failures, and harness.mjs (revision 1.6) now expects one collapsible sidebar rather than two, since spec §3.1 says there is no right sidebar; the sub had only satisfied the old >= 2 threshold because of the duplicate in-panel toggle. MDL still fails those two checks with 0 found, because it carries no data-shell markers at all. Tests 21/21."
+    },
+    {
+      "revision": "2.16",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Resolved I014 — the sidebar toggle in the menu bar is now compact. It inherited the menu-bar control's padding:7px 14px, so it rendered 39 px wide around an 11 px glyph (28 px of padding for an 11 px glyph), and it carried the menu bar's full 12 px gap after it. Added .app-menu .btn[data-shell-toggle]{padding:7px 8px;margin-right:-4px}: the toggle is now 27 px wide with 8 px on each side of the glyph, and the gap after it is 8 px instead of 12 px, matching the 8 px inside the actions group. MDL offers no reference for this control — its menu bar has no sidebar toggle at all — so the spec defines it. Two things were kept deliberately: the 32 px height and 12 px / 600 type of a menu-bar control, and the 20 px at the left edge, which is the menu bar's padding, aligns the toggle with the title-bar logo, and matches MDL's content edge. Measured after the fix: toggle x=20, 27x32, padding 8/8, gap to Load Workbook 8 px, Load x=55, Export x=196, Load-to-Export 8 px, logo x=20. The click target still resolves to the toggle button. Spec 1.21 adds the normative compact-toggle rule; workplan records D26. Harness unchanged at 59/43/14; tests 21/21."
+    },
+    {
+      "revision": "2.15",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Resolved I013 — a physical comparison of the title bar and menu bar against MDL in Chromium, with both workbooks loaded. Font sizes already matched on both bars. Seven other properties did not, and all are now fixed: the logo was 34 px and shrinkable, now 36 px with flex-shrink:0 (rendering 57x36 at x20 y21 exactly as MDL's); the brand gap was 10 px, now 12 px, so the logo-to-stack gap is 12; .ttl-stack gained min-width:0; .app-top gained justify-content:space-between; .app-menu .btn went from padding:7px 12px, no min-height and line-height 1.45 to MDL's padding:7px 14px, min-height:32px and line-height:1.2, so the buttons render 32 px instead of 31 px; .tf-btn gained line-height:normal. The sub's global .btn was left alone because it is used far beyond the menu bar. 17 of 18 comparisons now match. The title bar is identical (x0 y0 1440x78, padding 10/20, gap 12, rows 17/600 lh20.4, 12/500 lh17.4, 11/400 lh15.95, row gaps [2,2]), and in the menu bar the control positions are pixel-identical (first x=20, Search x=1212, Warnings x=1301, last ending x=1420, Search-to-Warnings 14). The one remaining difference is the menu-bar height, 49 px against MDL's 48 px, from the sub's 1 px border-bottom. Also noted, not changed: MDL mixes Segoe UI (title bar) with Arial (menu bar) while the sub uses Segoe UI throughout. The harness cannot verify either bar — its title-bar checks fail identically for both dashboards (MDL lacks data-shell markers; the sub's shell is hidden until load, so boxes measure zero) and its expectations are stale (it wants a 36 px title bar and a 48 px icon bar, but the spec says there is no icon bar) — so direct Chromium measurement was used. Spec 1.20 adds the title-bar logo and menu-bar control metrics rules; workplan records D25. Harness unchanged at 59/43/14; tests 21/21."
+    },
+    {
+      "revision": "2.14",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Resolved I012 — the title bar and menu bar now match MDL in spacing. Font sizes were already correct in both bars (title bar 17 px / 600, 12 px / 500, 11 px / 400; every menu-bar control 12 px / 600). Four spacing differences were fixed: .ttl-stack gained MDL's gap:2px (it had none); .ttl-stack lost the sub's line-height:1.25 and .ttl gained MDL's line-height:1.2, so the rows measure 20.4 / 17.4 / 15.95 px exactly as MDL's do and the title bar went from 70 px to 77.7188 px, identical to MDL; .app-menu gap went from 10 px to 12 px; and .app-menu .warn-toggle gained MDL's margin-left:6px, so Search to Warnings is 14 px instead of 8 px. After the fix the title bar is an exact match — gap 12 px, padding 10 px / 20 px, stack gap 2 px, stack line height 18.85 px, row gaps [2, 2]. The menu bar matches on gap 12 px, padding 8 px / 20 px, and 8 px inside both groups. The one remaining difference is the menu-bar height, 49 px against MDL's 48 px, caused by the sub's 1 px border-bottom, which MDL's menu bar does not have; it was left in place deliberately. Spec 1.19 adds the title-bar spacing and menu-bar gap rules to §3.1 and two type-scale rows to §6 (title-bar project title 17 px / 600, dashboard title 12 px / 500). Workplan records D24. Tests 21/21 pass."
+    },
+    {
+      "revision": "2.13",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Resolved I011 — the menu bar now matches MDL typographically and in alignment. Fonts: .app-menu .btn went from 13 px / 400 to 12 px / 600, so every control in the menu bar is bold. The five filter triggers were already 12 px / 600 and the Warnings count badge is 11 px / 700. Alignment: the left-panel toggle, Load Workbook and Export are left-aligned (toggle x=20, Load x=65, Export x=202, actions group ending at x=270), and the filter group is pushed right by margin-left:auto, running from x=585 to x=1420 flush with the 20 px right padding — so Discipline, Stage, Submission Status, Approval Status, Submitted By, Search and Warnings are right-aligned. .app-menu has three children (toggle, actions, filter group), so justify-content:space-between was NOT used: it would strand the actions group in the middle. MDL uses space-between because it has only two children. Spec 1.18 adds two normative rules to §3.1 — menu-bar alignment (toggle, load and Export left; everything else right) and menu-bar type is bold (600, never the default body weight) — plus a §6 type-scale row fixing the menu-bar control at 12 px / 600. Workplan records D23. Verified in Chromium with both workbooks loaded: all controls measured 12 px / 600."
+    },
+    {
+      "revision": "2.12",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Resolved I010 — the menu bar chrome now matches MDL exactly, and where the spec disagreed with MDL the user chose MDL. The filter trigger is borderless with a count badge and no caret glyph; the base .tf-btn keeps 1 px --border and .app-menu .tf-btn strips it, as MDL does. The filter popup became MDL's structure: a .tf-all All <dimension> master, a hint, a divider and a .tf-list of .tf-item rows at 12 px, replacing the .chips label pills (MDL has no class=\"chips\" at all). The search popup now puts the border, radius and surface on the .search box and leaves the column picker and the input borderless, which is also what spec §7.1 B5 requires. Help moved to the left side panel next to Settings in one \"Settings & Help\" menu, and the menu-bar right group is removed. The filter group lost its overflow-x:auto — a scroll container there clipped the floating panels and made their toggles unclickable. Two behaviours were kept deliberately: the sub still treats an empty selection as no narrowing (MDL treats it as no rows), so the master reflects an explicit \"every value ticked\" and no longer snaps back to checked; and filter changes still apply immediately, so the panel hint reads \"Tick one or more values to narrow every panel\" rather than MDL's deferred-apply text. Spec 1.17 revises §7.1 B1 and B3, the grammar table, the global-dimension paragraph, the normative class list and the §6 type scale, and replaces the horizontal-scroll allowance with a no-scroll-container rule. harness-layout/checks/sub.mjs (revision 1.4) now drives .tf-btn instead of the removed select[data-filter=\"disciplines\"], so the run completes. Verified in Chromium with both workbooks loaded: 28 of 28 measured properties identical to MDL; trigger text identical; panel children identical. Harness: every menu-bar check passes (Tier 3 filter round-trip, Tier 4e warning title, Tier 4f search popover), 59 passed / 43 failed / 14 skipped. Functional: 7513 rows to 11 with one discipline, 1219 with two, 7513 with the master. Tests 21/21 pass."
+    },
+    {
+      "revision": "2.11",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Resolved I009: the menu bar now matches MDL. It is one non-wrapping row — .app-menu and .filter-group use flex-wrap:nowrap and the five filter triggers sit in a .tf-filters flex row, with the filter group scrolling horizontally if they do not fit. Each trigger keeps its 1 px border (spec §7.1 B1) and carries an explicit .tf-caret ▾ element. The theme button and its menu are removed from markup, CSS and handlers; the theme design is deferred. The menu-bar load action is now \"Load Workbook\" with .btn-primary, so it stays blue as MDL's is; it loads when both workbooks are selected and opens the picker otherwise. The Search popover follows MDL: .tf-panel.search-panel at width:min(92vw,640px), holding a nowrap .search-row with a .search group (select.inter-sel.is-attached joined to input.search-input) plus Find (primary) and Reset, with the visible \"In\" label replaced by aria-label, and it closes on an outside click. Settings moved out of the menu bar into the left side panel as its own nav.sb-section menu. The side panel's \"Workbook files\" section (Choose Workbooks, drop zone, file names, Load Data) is removed; dropping now targets the welcome screen and the menu bar, and updateFiles no longer touches the removed elements. Spec 1.16 corrects §3.1 (menu bar composition, one-row rule, load action is the primary) and §3.2 (side panel holds page links and Settings, no workbook-loading controls). Workplan records D17 and D18. Verified in Chromium: five triggers on one row (same y, x 294/415/509/690/854), 50 px menu bar, trigger border 1px solid rgb(217,225,232), caret present, load button rgb(43,108,246) on white, no theme button, Settings in side panel, no file panel, search panel 640 px with children search / btn-primary / btn. Tests 21/21 pass."
+    },
+    {
+      "revision": "2.10",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Resolved I008: the menu-bar global filters now follow the MDL / spec design. Each of the five global dimensions renders as a multi-select .tf-btn trigger with a .tf-cnt count badge that opens a .tf-panel of .chips checkboxes led by an All <dimension> master toggle; the filter state holds a Set per dimension and an empty Set means no narrowing (deriveView now guards every dimension the same way). The Search button, its panel and the Warnings toggle moved inside .filter-group, matching MDL. The local .filter-control class and its select styling are removed. Fonts aligned to MDL and the new spec §6 type scale: --font-ui set to the shared stack, body 13px/1.45, KPI value 22px, KPI label 10px uppercase, chart-card h3 13px/700, icon button to A4 (13px/600, 26px square), filter trigger 12px/600, chip 11px, severity chip 11px/700, system banner 12px. Spec 1.15 adds §6 Typography (normative) and §7.1 rules (global dimensions MUST be multi-select; tf-btn / chips / tf-panel classes normative; filter group MUST contain triggers, Search and Warnings). Workplan records D15 (multi-select filters) and D16 (shared typography) and no longer claims the filters live in the content toolbar. Tests now 21 (21 pass)."
+    },
+    {
+      "revision": "2.9",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Workbooks are now identified by content instead of file name. Each workbook's Code sheet carries a Project Metadata table whose Dashboard Title names the workbook (Master Document List / Document Submittal Log); xlsx-reader.js gained a sheet-selective read ({ only: [...] }) and pipeline.js gained readMetadataTable, workbookKind and inspectWorkbook. The welcome now inspects every picked file and commits the selection only when all checks pass — rejecting the whole selection, with the reason shown and no partial update, when a file is unreadable, has no Code sheet, has no Dashboard Title, has an unmatched title, duplicates the other file's type, or carries a different Project Title (a mismatch now blocks). Expected titles and metadata labels live in pipeline_contract.json (v0.2.0). model.meta now exposes projectTitle, dashboardTitle (both titles joined with · when they differ), mdlDashboardTitle, logDashboardTitle and projectStartDate; the title bar renders three rows — project title, dashboard title(s), and project start plus as of — matching MDL. Spec 1.14 hardened §3.1 and §3.7. Tests now 20 (20 pass)."
+    },
+    {
+      "revision": "2.8",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Hardened the standalone requirement in the spec: Dashboard-UI-Design-Spec.md §3.9 (rev 2026-10-24) now makes standalone delivery mandatory — one self-contained HTML that MUST run from file:// with no web server, no fetch of local files, no cross-file ES-module import, stylesheet / config / engine / images inlined, and no local href or src references; engine sources stay modular for the Node tests. Added conformance assertion 15 in §8.2 and a cross-reference in AGENTS.md §18.2. Spec version 1.13. Data engine unchanged."
+    },
+    {
+      "revision": "2.7",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Standalone delivery: the dashboard MUST run from file:// with no web server, so it no longer uses ES-module imports or fetch (both are blocked on the file: origin). dashboard.js now reads the contract and ui_help from inlined <script type=\"application/json\"> blocks. Added sub/build/standalone.mjs, which inlines the stylesheet, both config files, the four engine files (imports and exports stripped) and the logo data URI into one self-contained HTML, mirroring MDL. The engine sources stay modular for the Node tests. Output is ~118 KB with zero external references. Data engine unchanged."
+    },
+    {
+      "revision": "2.6",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Resolved I007: selecting the two workbooks did not load the dashboard. The change handler had rebuilt both file slots from only the current selection, so two separate pick actions left a slot empty (Load disabled) or put the same file in both slots (buildModel then failed). Picks are now classified by file name and merged into the MDL / Log slots; unrecognized files fill only empty slots; the input value is cleared after each pick. Added a pick-state line on the welcome showing both selected names, and startup / config failures now surface on the welcome instead of the hidden status bar. Data engine unchanged."
+    },
+    {
+      "revision": "2.5",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Label casing: spec §7.1 control label casing (mandatory) now covers every interactive control label, not only buttons — button labels, labels rendered as buttons, form-control labels (checkbox, radio, select), and navigation and menu items MUST use title case; prose, sentences, hints, status messages, placeholders, data values, and title / aria-label wording are excluded. Sub updated: the Settings labels now read Show Warnings and Remember File Names. Data engine unchanged."
+    },
+    {
+      "revision": "2.4",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Resolved I005 and I006. I005: the menu-bar Load Data button carried class choose-workbooks and no load id, so it opened the file picker instead of calling readAndBuild(); the button now has id load-button-menu and is in the load handler. I006: Wave 9 hardening had removed the welcome heading Document Submittal Dashboard; it was restored because it is the generic application label, not the project title (TWRP C3B2), and spec §3.7 permits a generic label. Data engine unchanged."
+    },
+    {
+      "revision": "2.3",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Hardened the welcome per MDL + user instruction: spec Dashboard-UI-Design-Spec.md §3.7 now requires the MDL full-screen welcome overlay (hides chrome until load), the golden ratio (1:1.618) for fixed-proportion welcome surfaces, load buttons inside the file drop area, and no hardcoded project title (title renders from the loaded model). AGENTS.md §18.2 cross-references §3.7. Sub welcome rebuilt: golden-ratio drop holding Choose + Load buttons, no hardcoded title, drag-and-drop extended to the welcome. Data engine unchanged."
+    },
+    {
+      "revision": "2.2",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Option B rebuild: adopted the MDL two-row header (navy title bar + white menu bar) + navy left navigation sidebar; removed the 48 px icon bar and the right sidebar; default theme is light. Updated AGENTS.md §18.2 and Dashboard-UI-Design-Spec.md §3.1/§3.2/§3.6 to the MDL shell so the dashboard is fully spec-conformant. Data engine unchanged."
+    },
+    {
+      "revision": "2.1",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Rebuilt the dashboard UI shell to the spec §18.2 layout with the MDL navy family; added the logo from asset/logo.jpg and an MDL-style welcome card. Archived the prior non-compliant UI. Data engine unchanged."
+    },
+    {
+      "revision": "0.6",
+      "date": "2026-10-24",
+      "author": "Codex",
+      "summary": "Recorded Wave 4 dashboard UI, modules, and Chromium harness completion."
+    },
+    {
+      "revision": "0.5",
+      "date": "2026-10-24",
+      "author": "Codex",
+      "summary": "Corrected resolved I002 and recorded the completed Wave 3 pipeline."
+    },
+    {
+      "revision": "0.4",
+      "date": "2026-10-24",
+      "author": "Codex",
+      "summary": "Recorded the shared knowledge schema, its validation result, and the resolved I002 issue."
+    },
+    {
+      "revision": "0.3",
+      "date": "2026-10-24",
+      "author": "Codex",
+      "summary": "Aligned planned module paths and removed optional dashboard folders from the scaffold."
+    },
+    {
+      "revision": "0.2",
+      "date": "2026-10-24",
+      "author": "Codex",
+      "summary": "Aligned the canonical project name with the approved workplan."
+    },
+    {
+      "revision": "0.1",
+      "date": "2026-10-24",
+      "author": "Codex",
+      "summary": "Created initial project knowledge during Wave 2 scaffold."
+    }
+  ]
+}

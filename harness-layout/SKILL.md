@@ -1,8 +1,12 @@
 # SKILL: harness-layout
 
+| Revision | Date | Author | Summary |
+|---|---|---|---|
+| 1.1 | 2026-10-24 | Codex | Updated shell checks and project-local asset rules. |
+
 **Location**: `harness-layout/` (this folder; self-contained — copy it to any project)
 **Purpose**: Universal, **spec-driven** layout evaluation harness — reusable for any future project.
-**Spec reference**: the design spec is resolved at run time via `--spec`, defaulting to the bundled `spec/Dashboard-UI-Design-Spec.md` copy. The encoded checks in this template correspond to the Dashboard UI Design Spec v1.1 §3–§7, §3.8.5 — adapt `harness.mjs` to your own spec.
+**Spec reference**: the design spec is resolved at run time via `--spec`, defaulting to the bundled `spec/Dashboard-UI-Design-Spec.md` copy. Generic shell checks follow Dashboard UI Design Spec §3.1. Dashboard-specific data and pipeline checks belong in each dashboard check module or project test suite.
 
 ---
 
@@ -12,8 +16,8 @@ It runs three tiers of automated checks against a compiled dashboard HTML file:
 
 | Tier | Name | Needs browser? | Needs workbook? | What it checks |
 |------|------|---------------|----------------|----------------|
-| 1 | Structural | No | No | CSS tokens (**presence and values**), z-index stack, panel chrome, table grid tokens, pipeline symbols present in the bundle |
-| 2 | Browser shell | Yes (Playwright) | No | Onboarding screen, header visibility, errBanner/status-bar hidden state, modal state |
+| 1 | Universal structure | No | No | Project-local assets, stable shell markers, semantic tokens, viewport behavior, action semantics |
+| 2 | Browser shell | Yes (Playwright) | No | Shell zone presence and geometry, content-zone order, warning-area bounds, sidebar controls |
 | 3 | Data + filter | Yes (Playwright) | Yes (.xlsx) | Pipeline ground-truth KPIs vs rendered DOM values; filter round-trip; W-FORMULA banner |
 | 4 | Layout geometry | Yes (Playwright) | Yes (.xlsx) | **Rendered** table metrics: row height, header height, `table-layout:fixed`, `<colgroup>` vs rendered columns, cell truncation, one row metric across all tables (I-90); plus the I-89 executable sample |
 | 4b | L3 capabilities | Yes (Playwright) | Yes (.xlsx) | Pinned columns, column chooser, column resize (I-95) and windowing invariants (I-96), driven through the UI |
@@ -57,100 +61,24 @@ node harness.mjs --dashboard mdl --tier 1
 node harness.mjs --dashboard mdl --tier 3 --workbook "../MDL/TWRP C3B2 - Master Document List.xlsx"
 ```
 
-Exit code 0 = all checks passed. Exit code 1 = one or more failures.
+Exit code 0 = all checks passed. Exit code 1 = one or more failures. Tier 1 runs without Chromium. Browser tiers fail when Chromium cannot launch.
 
 ---
 
-## Tier 1 checks (structural — `runTier1`)
+## Tier 1 checks (universal structure — `runTier1`)
 
-Reads the compiled HTML as a string. No browser needed.
+- Viewport metadata and root shell markers are present.
+- Dashboard does not load `common/universal_ui_design.css` or `.js`.
+- Content markers exist.
+- External assets use local/root-relative paths. A project-local UI stylesheet and script must be linked. Actions do not use `div` or `td` as buttons.
+- Pipeline checks run only when a dashboard config provides `srcDir`.
 
-**§6 design tokens** — every canonical `:root` token must appear in the bundle:
-`--navy --blue --green --amber --red --slate --bg --surface --border --text --muted
---soft --shadow --radius --font --warn-bg --warn-border --warn-fg --error-bg --error-fg
---ok-bg --ok-fg`
+## Tier 2 checks (shell geometry — `runTier2`)
 
-**§3.1 z-index stack**:
-- App bar `z-index:31`
-- `#errBanner` `z-index:30`
-- `.status-bar` `z-index:40`
-
-**§3.6 status-bar clearance**: `padding-bottom:52px` present.
-
-**§4 panel chrome**: `[data-panel]::after` present; `14px 14px 26px` padding present.
-
-**§7.1 button sizes**: `min-height:32px` (A1/A2/A3); `min-height:26px` (A4 icon-btn).
-
-**§7.2 table tokens**: `.ds-table`, `.tableScroll`, `--ds-row-h` present.
-
-**§7.2 table token values** (I-90 grid foundation): `--ds-row-h:40px`, `--ds-head-h:40px`,
-`--ds-cell-fs` / `--ds-cell-lh` present, `table-layout:fixed` present, `<colgroup>` present,
-`text-overflow:ellipsis` present.
-
-**§3.7 onboarding**: `border-radius:24px` (welcome card); `border-radius:16px` (dropzone).
-
-**§3.5 errBanner**: `#errBanner` and `role="alert"` present.
-
-**§4.2 combined chart**: `scurveAxisMode` present (guardrail function).
-
-**§3.8.0 modular pipeline** (when `srcDir` configured):
-- `src/xlsx-reader.mjs` exists
-- `src/pipeline.mjs` exists
-- `src/render.mjs` exists
-
-**§3.8.4 formula-error normalization**: `isExcelError` and `W-FORMULA` present.
-
-**§3.8.2 rule 6** (render write-only): comment `write-only` or `never reads from the DOM` present.
-
-**§3.8.2 rule 7** (single STATE): `STATE` identifier present.
-
-**§4.2 vertical bar labels**: `rotate(-90` present.
-
-**§4.3 bounded scroller**: `max-height:340px` present.
-
-**§7.2.11 print release**: `max-height:none` inside `@media print` present.
-
-**§3.5 single visibility resolver**: `applyBannerState` present.
-
-**§3.5 banner clearance**: `body.banner-open` and `--banner-h` present.
-
-**§4.5 validation panel**: `.vchip` and `.vdetails` present.
-
-**§5 KPI panel**: `.kpi` and `.subkpi` present.
-
-**§6.1 dark theme**: `data-theme` or `dark` present.
-
-**§7.2.4 severity glyph**: `.sev-svg` present.
-
-**§7.9 help modal**: `.help-modal` present.
-
-**§3.8.3 contract-driven parsing**: `parseCodeSheet`, `findLookupColumns`, `buildFieldToCol` present.
-
-**§3.8.2 rule 8** (per-stage error handling): at least 3 `try {` blocks present.
-
-**§3.8.2 rule 9** (local date for as-of): `getFullYear`, `getMonth`, `getDate` all present.
-
----
-
-## Tier 2 checks (browser shell — `runTier2`)
-
-Launches Chromium via Playwright, navigates to the dashboard HTML (file:// URL).
-
-- Welcome/onboarding screen visible before any file is loaded.
-- App bar (`header.app`) NOT visible on the onboarding screen.
-- Logo is embedded base64 (src starts with `data:`).
-- Headline `<h1>` contains the word "Dashboard".
-- Dropzone `.drop` visible.
-- Privacy line `.privacy` visible.
-- `#errBanner` hidden on load.
-- `.status-bar` hidden before data load.
-- Primary CTA button (`.btn-primary`) present inside the welcome card.
-- Copyright line `.copyright` visible.
-- `.expect` callout visible.
-- Help modal `.help-modal` hidden initially.
-- `STATE` object accessible on `window` (§3.8.2 rule 7).
-
----
+Checks the shell before data load. The six `data-shell` zones must exist and be visible. It checks the
+36 px title bar, 48 px icon bar, full-width 22 px status bar, 260 px initial left sidebar, side-by-side sidebar/content order, a
+positive flexible content width, full-viewport locked scrolling, ordered content zones, warning bounds,
+and both sidebar toggle and resize controls. It does not require a separate onboarding page or hide the shell before load.
 
 ## Tier 3 checks (data + filter — `runTier3`)
 

@@ -1,0 +1,24 @@
+{
+  "name": "twrp-c3b2-submittal-dashboard",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Native browser modules and Node tests for the Sub dashboard.",
+  "revisionHistory": [
+    {
+      "revision": "0.1.0",
+      "date": "2026-10-24",
+      "author": "Codex",
+      "summary": "Added the dependency-free pipeline test command and ES module mode."
+    },
+    {
+      "revision": "0.2.0",
+      "date": "2026-10-24",
+      "author": "Codex",
+      "summary": "Added render-stage tests and the serial test command."
+    }
+  ],
+  "scripts": {
+    "test": "node test/pipeline.test.mjs && node test/render.test.mjs"
+  }
+}

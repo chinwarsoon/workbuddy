@@ -1,0 +1,72 @@
+{
+  "version": "0.2",
+  "title": "Submittal Dashboard UI help",
+  "description": "Labels and user help for the project-local dashboard.",
+  "revisionHistory": [
+    {
+      "revision": "0.2",
+      "date": "2026-10-24",
+      "author": "Codex",
+      "summary": "Completed Wave 4 dashboard labels and help content."
+    },
+    {
+      "revision": "0.1",
+      "date": "2026-10-24",
+      "author": "Codex",
+      "summary": "Added dashboard page labels, file instructions, and status glossary."
+    }
+  ],
+  "filePanel": {
+    "title": "Workbook files",
+    "instructions": "Select the Master Document List and the Document Submittal Log for each load.",
+    "requiredFiles": [
+      {
+        "id": "mdl",
+        "label": "Master Document List",
+        "match": "Master Document List"
+      },
+      {
+        "id": "log",
+        "label": "Document Submittal Log",
+        "match": "Submittal Log"
+      }
+    ],
+    "selectionOrder": [
+      "mdl",
+      "log"
+    ],
+    "validation": "Both files are required. The dashboard checks each workbook before it shows data."
+  },
+  "labels": {
+    "warningToggle": "Warnings",
+    "search": "Search",
+    "loadData": "Load Data",
+    "chooseFiles": "Choose workbooks",
+    "statusReady": "Both workbooks loaded.",
+    "statusSelectFiles": "Select both workbooks to begin."
+  },
+  "pages": {
+    "Overview": "Submission totals, plan coverage, status, approval, and delay measures.",
+    "Submittals": "All submission rows and calculated turnaround and delay values.",
+    "Validation": "All business-rule issues and the source workbook rule reference.",
+    "Forward Plan": "Planned MDL rows without an unambiguous submitted record.",
+    "Analytical": "Open overdue records, review aging, and the forward queue.",
+    "Help": "Load both workbooks, use global filters, and select a page.",
+    "Settings": "Theme and warning area preferences."
+  },
+  "statusGlossary": {
+    "submission": {
+      "SUR": "Submitted under review",
+      "RTR": "Returned",
+      "NTS": "Not submitted",
+      "NFS": "Not for submission"
+    },
+    "approval": {
+      "APP": "Approved",
+      "AWC": "Approved with comments",
+      "NAP": "Not approved",
+      "REJ": "Rejected",
+      "INF": "For information"
+    }
+  }
+}

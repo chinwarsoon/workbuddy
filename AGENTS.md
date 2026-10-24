@@ -16,6 +16,7 @@
 | 1.12 | 2026-10-22 | CodeBuddy (AI) | §5 restructure, **step 4 of 5 — §5 is now an index.** Each of the 19 rules is one sentence ending with a pointer to the section that holds its detail. **Rule numbers and order are unchanged.** Removed from §5, each already reproduced in its named destination: sub-items **17a–g** (→ §26.2, §26.7, §26.11–§26.14), **18a–g** (→ `.codebuddy/rules/approval-gate.md`) and **19a–f** (→ `.codebuddy/rules/asd-ste100-reply-style.md`); the long text of **rules 10–16** (→ §2, §23, §24, §28, §29, §30); and the broken **"see §5.6"** in rule 10, which had no target. §5 shrank from 76 to 25 lines. **No rule was lost** — every clause was checked against its destination in the pre-step-4 review (revisions 1.9–1.11), which added the missing detail to §2, §15, §23.2 and §24, aligned the audit threshold to 3+, corrected two typos, and updated eight stale §5 references in `MDL/mdl-issues.md`. |
 | 1.13 | 2026-10-22 | CodeBuddy (AI) | §5 restructure, **step 5 of 5 — final verification. The restructure is complete.** Audited the whole document: all **28** internal § references resolve; all **19** rules are present and in order, each with a working pointer (**16** to a section, **2** to a rule file, **1** to Rule 18); all **12** destination sections carry their rule's substance; **no** dangling reference remains in `approval-gate.md`, `asd-ste100-reply-style.md`, `MDL/mdl-issues.md` or the STE README; **no** malformed table; section numbers 1–30 ascending. §5 is **26 lines**, down from 77. **No clause was lost** — every clause of every removed rule was checked against its destination before step 4 ran, and the gaps found in that review were closed first (revisions 1.9–1.11). |
 | 1.14 | 2026-10-22 | CodeBuddy (AI) | §1 Projects split into three subsections. **§1.1 Projects in this repository** adds the five project folders of `workbuddy` (remote `https://github.com/chinwarsoon/workbuddy`): `action-log/`, `english-learning/`, `MDL/`, `PPP/`, `sub/`. **§1.2 Shared folders in this repository** adds `docs/` and `harness-layout/`, which are not projects. **§1.3 Projects in another repository** keeps the four original rows — `code_tracer/`, `eks/`, `dcc/`, `releases/` — and records that they are **not in this repository**; they were confirmed present in `chinwarsoon/Engineering-and-Design`. Their purposes and Python versions are unchanged. The project naming convention text after the tables is unchanged. |
+| 1.15 | 2026-10-24 | CodeBuddy (AI) | **§18.2 shell rewritten to the MDL model.** The dashboard shell is now a two-row header (navy title bar + white menu bar) above a navy left navigation sidebar and a full-width navy status bar. Removed the 48 px icon bar and the right sidebar; navigation lives in the left sidebar, Settings/Help/Detail move to menu-bar buttons and modal dialogs; global filters live in the menu-bar filter group. **§18.3** dimension tokens updated (dropped `--icon-bar-w`/`--right-sidebar-w`, added `--menubar-h`). **§18.4** default theme is now `light` and the theme picker moved to the menu bar. |
 
 ## 1. Projects
 
@@ -403,20 +404,33 @@ All HTML files must follow these rules:
 
 ### 18.2 Layout (VS Code shell model)
 
-The page body is divided into exactly four zones stacked as flexbox columns/rows:
+The page body uses the MDL two-row header (navy title bar + white menu bar) above a navy left
+navigation sidebar and a flexible content area, with a full-width navy status bar at the bottom.
+The shell fills the viewport exactly with no page scroll:
 
 ```
-┌──────────────────── title bar (full width, fixed height 36px) ────────────────────┐
-│ icon-bar (48px) │ left sidebar (260px, resizable) │ content area │ right sidebar  │
-└────────────────────────── status bar (full width, fixed height 22px) ─────────────┘
+┌──────────────────────── title bar (full width, navy) ────────────────────────┐
+│ logo (white chip) + title stack (project title h1 + meta line)                │
+├──────────────────────── menu bar (full width, white) ────────────────────────┤
+│ actions (Load / Export / Print) │ filter group + Search + Warnings + Settings/Help │
+├──────────────┬────────────────────────────────────────────────────────────────┤
+│ left sidebar │ content area (toolbar + scrollable body)                        │
+│ (navy,       │                                                                │
+│ resizable)   │                                                                │
+├──────────────┴────────────────────────────────────────────────────────────────┤
+│ status bar (full width, navy)                                                  │
+└────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Title bar** — spans full width; contains logo (icon + name + accent word), breadcrumb, and right-aligned action buttons (layout toggle, theme picker).
-- **Icon bar** — leftmost strip, 48 px wide; emoji/Unicode icons only, no text labels. Top section holds primary panel icons; bottom section (separated by a 1 px divider) holds utility icons (settings, help). Active icon shows a 2 px left-edge accent bar.
-- **Left sidebar** — collapsible (width → 0 with CSS transition), resizable by dragging a 5 px right-edge handle. Contains accordion sections (`sb-section` / `sb-section-header` / `sb-section-body`). Toggle via icon bar button.
-- **Right sidebar** — collapsible, resizable by dragging a 5 px left-edge handle, anchored to the right edge. Serves dual purpose: default "Settings" view and context-sensitive "Help" / "Detail" view. Toggle via icon bar button.
-- **Content area** — flex: 1, owns a toolbar strip and a scrollable body. Toolbar holds page title, spacer, and action buttons.
-- **Status bar** — fixed 22 px strip at the bottom; left side shows current state / selected file; right side shows version string.
+- **Title bar** — spans full width, navy. Holds the logo (in a white chip) and a title stack: the project title (`h1`) and a meta line (e.g. project start · as-of date). No breadcrumb.
+- **Menu bar** — spans full width, white, directly below the title bar. The left cluster holds actions (Load Data / Export / Print). The right cluster holds the global filter group (filter chips), a Search button, a Warnings toggle (with count badge), and Settings / Help buttons. Settings and Help open modal dialogs.
+- **Left sidebar** — navy, collapsible (width → 0 with a CSS transition) and resizable by dragging a 5 px right-edge handle. Holds primary navigation (page links) and the file-loading panel (choose workbooks, drop zone, file list, Load button). Toggle via a menu-bar button or the left-edge handle.
+- **No 48 px icon bar.** Primary navigation lives in the left sidebar, not an icon strip.
+- **No right sidebar.** Settings, Help, and Detail move to menu-bar buttons and modal dialogs.
+- **Content area** — flex: 1; owns a toolbar strip (page title, spacer, action buttons) and a scrollable body. The shared global filter area, when present, lives in the menu-bar filter group (not a separate content strip); the warning area stays inside the content body per the dashboard UI spec §3.5.
+- **Status bar** — fixed strip at the bottom, navy, ~30 px; left side shows current state / selected file; right side shows the version string.
+- **Welcome (pre-load)** — follows `Dashboard-UI-Design-Spec.md` §3.7: a full-screen centred overlay that hides this chrome (header, menu bar, sidebars, status bar) until the first successful load. The welcome fills the viewport (MDL ratio, fluid, no fixed aspect ratio, no page scroll); its fixed-proportion surfaces (file drop area, welcome card) SHOULD use the golden ratio (1 : 1.618); the load buttons MUST live inside the file drop area; and the welcome MUST NOT hardcode a project title (the project/dashboard title renders from the loaded model after load).
+- **Standalone delivery** — follows `Dashboard-UI-Design-Spec.md` §3.9: the dashboard is delivered as one self-contained HTML that MUST run from `file://` with no web server. It MUST NOT use `fetch` for local files or a cross-file ES-module `import` (the `file:` origin blocks both); the stylesheet, config, engine and images MUST be inlined, and the delivered HTML MUST contain no `href` / `src` pointing at a local file. Engine sources stay as importable modules for the Node tests.
 - `html, body` must be `height: 100%; overflow: hidden` so the shell fills the viewport exactly without page scroll.
 - Custom scrollbar: 6 px width, transparent track, border-colored thumb.
 
@@ -433,7 +447,7 @@ All design tokens are defined once in `common/universal_ui_design.css` under `:r
 | Semantic | `--success`, `--warning`, `--danger`, `--info` |
 | Tag | `--tag-bg`, `--tag-border` |
 | Table | `--row-stripe`, `--row-hover`, `--th-bg`, `--th-hover` |
-| Dimensions | `--icon-bar-w`, `--sidebar-w`, `--right-sidebar-w`, `--titlebar-h`, `--statusbar-h` |
+| Dimensions | `--sidebar-w`, `--titlebar-h`, `--menubar-h`, `--statusbar-h` |
 | Radii | `--radius`, `--radius-sm`, `--radius-lg` |
 | Fonts | `--font-ui` (system-ui), `--font-mono` (JetBrains Mono) |
 
@@ -441,10 +455,10 @@ All design tokens are defined once in `common/universal_ui_design.css` under `:r
 
 ### 18.4 Theme System
 
-- Five themes: `dark` (default), `light`, `sky`, `ocean`, `presentation`.
+- Five themes: `light` (default), `dark`, `sky`, `ocean`, `presentation`.
 - Applied by setting `data-theme` attribute on `<html>` (or `<body>`).
 - Theme selection persisted to `localStorage` key `<project>-theme` and restored on load.
-- Theme picker: a button in the title bar opens a dropdown menu; each option shows a color dot + label. Active option is marked with `.active` class.
+- Theme picker: a button in the menu bar opens a dropdown menu; each option shows a color dot + label. Active option is marked with `.active` class.
 - Theme transition: `transition: background 0.25s, color 0.25s` on `body` for smooth switching.
 
 ### 18.5 Sidebar Accordion
@@ -494,9 +508,9 @@ Every tool that loads files must implement:
 
 Dashboards that display pipeline or data metrics must use card components:
 
-- **KPI cards** — grid of metric tiles (`display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr))`). Each shows a large value, a label, a sub-label (delta or secondary metric), and optionally a health gauge bar.
+- **KPI cards** — grid of metric tiles (`display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr))`). Each card is 72 px high and shows exactly two lines: a 22 px value and a 10 px uppercase label. A 3 px top strip carries the status colour. There is no sub-label, no gauge and no box shadow. `Dashboard-UI-Design-Spec.md` §5 is the normative rule.
 - **Stage cards** — one card per pipeline stage; each shows a numbered emoji icon, stage name, meta line (truncated with ellipsis), status text (PENDING / RUNNING / PASS / FAIL), and a 4 px progress bar.
-- Cards must be clickable (`cursor: pointer`): hover state adds `border-color: var(--accent)` + `box-shadow: 0 0 0 1px var(--accent)`.
+- **Stage cards** must be clickable (`cursor: pointer`): hover state adds `border-color: var(--accent)` + `box-shadow: 0 0 0 1px var(--accent)`. KPI cards are not clickable: they carry no action, so they get no `cursor: pointer` and no hover ring.
 - Stage status colors: PASS → `--success`, FAIL → `--danger`, RUNNING → `--accent`, PENDING → `--text3`.
 - Health gauge bar uses a CSS gradient: `linear-gradient(90deg, var(--danger), var(--warning), var(--success))`.
 

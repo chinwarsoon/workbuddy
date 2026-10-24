@@ -1,0 +1,1900 @@
+<!-- Revision 2.20 | 2026-10-24 | CodeBuddy (AI) | Chart panels now meet spec §4: titles are 13 px / 700 uppercase navy in a real .panel-head flex row, a .panel-actions cluster holds Help first and a new Collapse − toggle rightmost, every top-level panel carries a sequential corner number assigned in DOM order after render, and the surface is 14px 14px 26px padding at 10 px radius on a relative box. The title-bar page label is now 16 px / 600 plain text with no background, padding or border, replacing the 12 px translucent pill, so it sits on the bar's 20 px edge and steps just below the 17 px project title. The content toolbar is removed; the active page shows at the right of the title bar and updates on every left-panel selection change, and the layout toggle moved to the right end of the menu bar. The left panel is now sized to its menu titles: 160 px instead of 240, being the 135 px the widest title needs plus 25 px of slack, and the resize floor dropped from 180 px to 140 px so the new width survives a resize or a saved width. The left panel now holds menus only: the five page links at the top, then Settings and Help pinned to the bottom by margin-top:auto. The in-panel collapse toggle is gone, because the menu bar already carries that control; both section titles and the section dividers are gone; the resizer is kept, since the panel stays resizable. The sidebar toggle is now compact: 8 px horizontal padding on each side of the glyph instead of 14 px, so it is 27 px wide instead of 39, and an 8 px gap after it instead of 12 px; its left edge stays on the bar's 20 px padding, aligned with the logo. Title-bar logo and menu-bar control metrics now match MDL: the logo is 36 px tall and non-shrinking in a 12 px brand group, and every menu-bar button is 32 px tall at 12 px / 600 with 14 px padding and a 1.2 line height, so the controls land pixel-identically (Search x=1212, Warnings x=1301, last control ending at x=1420). Title-bar and menu-bar spacing now match MDL: the title-bar rows stack with a 2 px gap and MDL's line heights (17 px / 600 at 1.2, 12 px / 500 and 11 px / 400 at the body line height), so the title bar is 78 px as MDL's is; the menu-bar gap is 12 px with 8 px inside each group and a 6 px left margin on the Warnings toggle. Menu-bar typography and alignment now match MDL: every menu-bar control is bold at 12 px / 600, and the left-panel toggle, Load Workbook and Export are left-aligned while the filter triggers, Search and Warnings are pushed to the right. Filter chrome now matches MDL exactly: the trigger is borderless, with a count badge and no caret, and the popup is MDL's .tf-all master, hint, divider and .tf-item rows; the search popup puts its border and radius on the .search box and leaves both children borderless; Help joined Settings in the left side panel and the menu-bar right group is gone; the filter group is no longer a scroll container, which had clipped the panels. Menu bar matches MDL: one non-wrapping row with the filter triggers in a flex row; theme button removed and the theme design deferred; Load Workbook is the highlighted primary action and opens the picker when no workbooks are chosen; the Search popover follows MDL's .tf-panel.search-panel; Settings moved to the left side panel; the side panel's workbook-loading section is removed. Global filters are multi-select: each of the five dimensions is a .tf-btn trigger with a count badge opening a .tf-panel led by an All <dimension> master above a hint, a divider and .tf-item rows; Search, its panel and Warnings now sit inside .filter-group as in MDL. Fonts follow the shared spec type scale (body 13/1.45, KPI 22, icon button 13/600 in a 26 px square, trigger 12/600, menu row 12, count badge 10/700). Workbooks are identified by the Dashboard Title in their Code sheet, not by file name; a selection is inspected in full and committed only when every check passes (unreadable file, no Code sheet, no dashboard title, unmatched title, duplicate type, or differing Project Title all reject the whole selection with no partial update). Title bar shows three rows: project title, dashboard title(s), project start and as of. STANDALONE: one self-contained file that runs from file:// with no web server (mirrors MDL). The stylesheet, both config JSONs, the whole engine and the logo are inlined — no external refs, no ES-module imports, no fetch. Rebuild with `node sub/build/standalone.mjs` after editing engine/ or config/. Option B shell: MDL two-row header (navy title + white menu) + navy left navigation sidebar; no icon bar / right sidebar; light default. Full-screen welcome (no dashboard parts until data loads), golden-ratio drop holding the load buttons, no hardcoded project title. I005: menu-bar Load Data uses id load-button-menu. I006: generic welcome title restored. I007: workbook picks are merged by name. Expect card has no label prefix; all control labels are title case. -->
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="description" content="Document submittal dashboard for the TWRP C3B2 project.">
+  <title>TWRP C3B2 · Document Submittal Dashboard</title>
+                                                                                    <!-- STANDALONE:BEGIN -->
+  <style>
+/* Revision 2.2 | 2026-10-24 | CodeBuddy (AI) | Option B shell: MDL two-row header + navy left nav sidebar; light default. */
+:root{
+  color-scheme:light;
+  --navy:#15314f; --blue:#2b6cf6; --green:#17a67a; --amber:#F9A825; --red:#d23b3b; --slate:#64748B;
+  --bg:#eef2f8; --surface:#FFFFFF; --surface2:#F1F5F9; --surface3:#E8EDF3;
+  --border:#D9E1E8; --text:#1F2A37; --text2:#526171; --text3:#6b7785;
+  --accent:#2b6cf6; --accent-alt:#17a67a; --success:#17a67a; --warning:#F9A825; --danger:#d23b3b; --info:#2b6cf6;
+  --tag-bg:#EAF2FB; --tag-border:#CBDDEF; --row-stripe:#F7F9FB; --row-hover:#EAF2FB; --th-bg:#E8EDF3; --th-hover:#DAE3ED;
+  --shadow:0 1px 2px rgba(16,32,64,.04),0 8px 24px rgba(16,32,64,.05);
+  /* §3.2 — the left panel is sized to its menu titles: the widest, "Forward Plan", is 91 px at
+     14 px / 400, which with the button's 12 px horizontal padding and the panel's 10 px padding
+     needs 135 px, and 25 px of slack is left on top. */
+  --titlebar-h:56px; --menubar-h:48px; --sidebar-w:160px; --statusbar-h:30px;
+  --radius:12px; --radius-sm:6px; --radius-lg:14px;
+  --line:#D9E1E8; --muted:#526171; --soft:#EAF2FB; --accent-ink:#2b6cf6;
+  --font-ui:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif; --font-mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+}
+[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0f1722; --surface:#16202e; --surface2:#1d2a3b; --surface3:#243446;
+  --border:#2c3c52; --text:#e6edf5; --text2:#aebccd; --text3:#7e8ea2;
+  --muted:#aebccd;
+  --accent:#2b6cf6; --accent-alt:#17a67a; --success:#17a67a; --warning:#F9A825; --danger:#d23b3b; --info:#2b6cf6;
+  --tag-bg:#1d2a3b; --tag-border:#34507a; --row-stripe:#121b27; --row-hover:#1d2a3b; --th-bg:#1b2838; --th-hover:#243648;
+  --shadow:0 1px 2px rgba(15,45,82,.18);
+}
+[data-theme="sky"]{
+  color-scheme:dark;
+  --bg:#0b1a2e; --surface:#10233b; --surface2:#172e4b; --surface3:#203b5b;
+  --border:#2b4968; --text:#ecf5ff; --text2:#bfd0e2; --text3:#91a8bf;
+  --muted:#bfd0e2;
+  --accent:#69b7ff; --accent-alt:#74d2d0; --success:#4fc58b; --warning:#f0bd52; --danger:#ff8278; --info:#69b7ff;
+  --tag-bg:#173858; --tag-border:#31597d; --row-stripe:#102037; --row-hover:#1b3858; --th-bg:#18324f; --th-hover:#244363;
+  --shadow:0 1px 4px #0004;
+}
+[data-theme="ocean"]{
+  color-scheme:dark;
+  --bg:#0a1929; --surface:#10263a; --surface2:#17324a; --surface3:#20415d;
+  --border:#2b4b65; --text:#e8f6f8; --text2:#b5cdd3; --text3:#88a9b3;
+  --muted:#b5cdd3;
+  --accent:#43c6c8; --accent-alt:#71a9f7; --success:#59c69b; --warning:#e4b958; --danger:#fb7e7e; --info:#43c6c8;
+  --tag-bg:#14394a; --tag-border:#2c5966; --row-stripe:#0f2234; --row-hover:#19384e; --th-bg:#173349; --th-hover:#24465d;
+  --shadow:0 1px 4px #0004;
+}
+[data-theme="presentation"]{
+  color-scheme:dark;
+  --bg:#0c0c0c; --surface:#171717; --surface2:#202020; --surface3:#2a2a2a;
+  --border:#3a3a3a; --text:#ffffff; --text2:#d8d8d8; --text3:#9a9a9a;
+  --muted:#d8d8d8;
+  --accent:#55aaff; --accent-alt:#c69bff; --success:#55d68b; --warning:#ffd166; --danger:#ff6b6b; --info:#55aaff;
+  --tag-bg:#202020; --tag-border:#505050; --row-stripe:#141414; --row-hover:#252525; --th-bg:#202020; --th-hover:#303030;
+  --shadow:0 1px 4px #0006;
+}
+*{box-sizing:border-box}html,body{height:100%;overflow:hidden;margin:0}body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);font:13px/1.45 var(--font-ui);transition:background .25s,color .25s}button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+/* ===== Welcome screen (MDL full-screen; no dashboard parts until data loads) ===== */
+.welcome-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg);z-index:5}
+body.loaded .welcome-screen{display:none}
+.app{display:none}
+body.loaded .app{display:flex;flex-direction:column;height:100vh;min-height:0;overflow:hidden}
+.welcome-err{margin:14px 0 0;padding:10px 12px;border-radius:8px;background:#fdecec;border:1px solid #f3b4b4;color:#a4262c;font-size:13px;text-align:left}
+.welcome-err[hidden]{display:none}
+#welcome-load{margin:2px 0 0}
+/* ===== Two-row header (MDL) ===== */
+.app-bar{flex:none;display:flex;flex-direction:column;z-index:20}
+.app-top{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--navy);color:#fff;padding:10px 20px;min-height:var(--titlebar-h)}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+/* MDL: the logo is 36 px tall and never shrinks. */
+.logo{height:36px;padding:3px;background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.2);flex-shrink:0}
+/* MDL: the three rows stack with a 2 px gap; the title is 17 px / 600 at line-height 1.2. */
+.ttl-stack{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ttl{font-size:17px;font-weight:600;margin:0;line-height:1.2}
+.ttl-stack .sub{font-size:12px;font-weight:500;color:rgba(255,255,255,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{font-size:11px;opacity:.85}
+.app-menu{display:flex;align-items:center;gap:12px;background:#fff;color:var(--text);padding:8px 20px;min-height:var(--menubar-h);border-bottom:1px solid var(--border);flex-wrap:nowrap}
+.app-menu .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+/* MDL: the filter group is not a scroll container — `overflow` here clips the floating panels. */
+/* MDL: the actions group is left-aligned and the filter group is pushed to the right. */
+.app-menu .filter-group{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:nowrap;flex-shrink:0}
+.app-menu .tf-filters{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+/* MDL: every control in the menu bar is 12 px / 600. */
+.app-menu .btn{border:0;background:transparent;color:var(--navy);cursor:pointer;font-size:12px;font-weight:600;line-height:1.2;min-height:32px;padding:7px 14px;border-radius:6px}
+.app-menu .btn:hover{background:var(--surface2)}
+.app-menu .btn-primary{background:var(--blue);color:#fff}
+/* §3.1 — the sidebar toggle is compact. It is one glyph, so it drops the 14 px horizontal padding of
+   a text control for 8 px, and the gap after it is 8 px rather than the bar's 12 px. */
+.app-menu .btn[data-shell-toggle]{padding:7px 8px;margin-right:-4px}
+.app-menu .btn-primary:hover{background:#1f5fcc}
+.app-menu .choose-workbooks{background:var(--blue);color:#fff}
+.app-menu .choose-workbooks:hover{background:#1f5fcc}
+/* MDL: the Warnings toggle carries a further 6 px left margin inside the filter group. */
+.app-menu .warn-toggle{display:flex;align-items:center;gap:6px;margin-left:6px}
+.app-menu .warn-toggle .badge{background:var(--amber);color:#1b2a41;border-radius:10px;padding:1px 7px;font-weight:700;font-size:11px}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;min-height:26px;padding:0;font:inherit;font-size:13px;font-weight:600;line-height:1;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--muted);cursor:pointer}
+.icon-btn:hover{background:var(--surface2)}
+/* Theme switching is deferred (I009). The .icon-btn geometry below stays, per spec §7.1 A4. */
+/* Global filters — spec §7.1 B1 trigger + B3 rows, sized as MDL */
+.tf-wrap{position:relative;flex-shrink:0}
+.tf-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--navy);padding:7px 12px;min-height:32px;font-size:12px;font-weight:600;line-height:normal;cursor:pointer;white-space:nowrap}
+.tf-btn:hover{background:var(--soft)}
+.tf-btn[aria-expanded="true"]{border-color:var(--blue);background:var(--soft)}
+.tf-btn.is-filtered{border-color:var(--blue)}
+.tf-cnt{font-size:10px;padding:0 0 0 4px;font-weight:700;color:var(--accent-ink);border:0;background:transparent;border-radius:10px}
+/* MDL: the menu-bar chrome strips the base 1 px border from the filter trigger (spec §7.1 B1). */
+.app-menu .tf-btn{border:0;background:transparent;color:var(--navy)}
+.app-menu .tf-btn:hover{background:var(--soft)}
+.app-menu .tf-btn[aria-expanded="true"]{background:var(--soft)}
+.tf-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:40;min-width:220px;max-width:min(340px,90vw);max-height:320px;overflow:auto;display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:10px}
+.tf-panel[hidden]{display:none}
+.tf-panel .tf-all{display:flex;align-items:center;gap:8px;padding:2px;font-size:12px;cursor:pointer}
+.tf-panel .tf-all input{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0}
+.tf-panel .tf-all b{font-weight:700}
+.tf-panel .tf-hint{margin:2px 2px 6px;font-size:10px;color:var(--muted);line-height:1.35}
+.tf-panel .tf-divider{height:1px;background:var(--border);margin:2px 0 6px}
+.tf-panel .tf-item{display:flex;align-items:center;gap:8px;padding:5px 2px;font-size:12px;cursor:pointer;border-radius:4px}
+.tf-panel .tf-item:hover{background:var(--soft)}
+.tf-panel .tf-item input{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0}
+/* ===== Shell row + sidebars ===== */
+.shell-row{flex:1;min-height:0;display:flex}
+.left-sidebar{position:relative;flex:none;width:var(--sidebar-w);min-width:0;background:var(--navy);color:#E8EDF3;overflow:auto;transition:width .2s ease;z-index:15;display:flex;flex-direction:column;padding:10px;border-right:1px solid rgba(255,255,255,.18)}
+.closed-left-sidebar .left-sidebar{width:0!important;border:0;padding-left:0;padding-right:0;overflow:hidden}
+.closed-left-sidebar .left-sidebar>*{display:none}
+/* §3.2 — the panel holds menus only: the page links at the top, then Settings and Help pinned to the
+   bottom. No collapse toggle (that lives in the menu bar), no section titles, and no dividers. */
+.sb-menu{display:flex;flex-direction:column}
+.sb-bottom{display:flex;flex-direction:column;margin-top:auto}
+.page-links{display:flex;flex-direction:column}
+.page-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:#dfe8f3;font-size:14px;border:0;background:transparent;text-align:left}
+.page-link:hover{background:rgba(255,255,255,.1)}
+.page-link.active{background:var(--blue);color:#fff;font-weight:600}
+.small-note{color:rgba(255,255,255,.6);font-size:12px;margin:2px 0}
+.file-item{display:flex;gap:8px;align-items:baseline;font-size:12px;color:rgba(255,255,255,.75)}
+.file-item span{color:#bfe0ff;font-weight:700;min-width:34px}
+.file-item b{font-weight:500;word-break:break-word}
+.drop{margin:4px 0;padding:16px;border:1.5px dashed rgba(255,255,255,.4);border-radius:10px;text-align:center;color:rgba(255,255,255,.85);cursor:pointer;transition:.15s;font-size:13px}
+.drop:hover,.drop:focus{border-color:var(--blue);background:rgba(255,255,255,.08);outline:none}
+.resize-handle{position:absolute;top:0;right:0;width:5px;height:100%;cursor:col-resize}
+.resize-handle:hover{background:rgba(255,255,255,.25)}
+.content{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg)}
+/* §3.1 / §3.3 — there is no content toolbar. The active page is shown at the right of the title bar,
+   and the layout toggle is an icon control at the right end of the menu bar. */
+.app-top .page-title{font-size:16px;font-weight:600;line-height:1.2;color:#fff;white-space:nowrap;flex-shrink:0}
+.app-menu #layout-button{padding:7px 8px;flex-shrink:0;margin-left:auto}
+.spacer{flex:1}
+.filter-area{padding:0 16px}
+/* Search popover — MDL design: .tf-panel.search-panel > .search-row > .search + Find / Reset */
+.search-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:60;display:none;width:min(92vw,640px);max-width:min(92vw,640px);padding:10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow)}
+.search-panel.open{display:block}
+.search-row{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+/* MDL: the border, radius and surface belong to the .search box; both children are borderless. */
+.search{display:flex;align-items:center;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:6px;min-height:28px;padding:0;flex:1 1 auto;width:auto;min-width:240px;max-width:none}
+.search:focus-within{border-color:var(--blue);box-shadow:0 0 0 2px var(--soft)}
+.search .inter-sel{border:0;background:var(--bg);color:var(--navy);font:inherit;font-weight:600;font-size:12px;border-radius:6px 0 0 6px;height:26px;padding:0 8px;cursor:pointer;max-width:260px}
+.search .inter-sel.is-attached{border-right:1px solid var(--border)}
+.search .search-input{border:0;background:transparent;color:var(--text);font:inherit;font-size:12px;flex:1 1 220px;min-width:0;height:26px;padding:0 8px;outline:none}
+.search .search-input::placeholder{color:var(--muted)}
+.btn-primary{background:var(--blue);color:#fff;border:0;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px}
+.btn-primary:hover{background:#1f5fcc}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-secondary{background:var(--surface2);border:1px solid var(--border);padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px}
+.btn-secondary:hover{background:var(--surface3)}
+.warning-area{margin:0 0 12px;padding:10px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border)}
+.warning-area.collapsed{display:none}
+.sys-banner-item{font-size:12px;padding:3px 0;color:var(--text)}
+.sys-banner-item.fatal b,.sys-banner-item.error b{color:var(--danger)}
+.sys-banner-item.warning b{color:var(--warning)}
+.sys-banner-item.info b{color:var(--info)}
+.content-body{flex:1;overflow:auto;padding:16px}
+/* ===== Welcome card (MDL) ===== */
+.onboarding{max-width:480px;width:100%;margin:0;padding:40px;text-align:center;border:1px solid var(--border);border-radius:16px;background:var(--surface);box-shadow:var(--shadow)}
+.onboarding .wlogo{height:56px;width:auto;margin:0 auto 18px;display:block;border-radius:6px}
+.onboarding h2{font-size:24px;margin:0 0 8px;color:var(--text)}
+
+.onboarding .sub{color:var(--text2);font-size:14px;margin:0 0 18px}
+.onboarding .expect{margin:0 0 18px;padding:12px 14px;text-align:left;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:8px;color:var(--text2);font-size:13px;line-height:1.5}
+.onboarding .expect b{color:var(--text)}
+.onboarding .drop{width:100%;aspect-ratio:1.618;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font:inherit;margin:0 0 18px;padding:22px;border:1.5px dashed var(--text3);border-radius:12px;text-align:center;color:var(--text2);cursor:pointer;transition:.15s;background:var(--surface)}
+.onboarding .drop:hover,.onboarding .drop:focus{border-color:var(--blue);background:var(--surface2);outline:none}
+.onboarding .drop .d-title{font-size:15px;font-weight:600;color:var(--text)}
+.onboarding .drop .d-sub{font-size:12px;color:var(--text3);margin-top:4px}
+.onboarding .drop .drop-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.onboarding .drop .drop-actions .btn{margin:0}
+.onboarding .pick-state{font-size:12px;color:var(--text3);margin:0 0 12px;min-height:16px;word-break:break-word}
+.onboarding .pick-state.ready{color:var(--blue)}
+.onboarding .privacy{display:flex;align-items:center;justify-content:center;gap:6px;color:var(--text3);font-size:12px;margin-top:14px}
+.onboarding .privacy svg{width:14px;height:14px;fill:var(--text3)}
+.onboarding .copyright{color:var(--text3);font-size:11px;margin-top:10px}
+/* ===== Panels / KPI ===== */
+/* §4 — panel surface: 10 px radius on a relative box, with 26 px of bottom padding so the corner
+   number never overlaps the last line. */
+.panel{margin:14px 0;padding:14px 14px 26px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);position:relative}
+/* §4 — title row: title left, action cluster right. The 10 px gap belongs to the row, not the heading. */
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 10px}
+.panel h2{margin:0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--navy);line-height:1.4;min-width:0}
+.panel-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+/* §4 — the corner panel number, anchored bottom-right and never clickable. */
+.panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:.04em;color:var(--text3);pointer-events:none}
+/* §4.1 — collapsing a panel hides everything but its title row. */
+.panel.collapsed>*:not(.panel-head){display:none}
+/* §4 — the panel margin is neutralised inside a grid that already sets `gap`, so the gap wins. */
+.panel-grid>.panel{margin:0}
+.panel h3{margin:0 0 4px;font-size:13px;font-weight:700;color:var(--navy)}
+.panel h4{margin:14px 0 4px;font-size:13px;color:var(--text2)}
+.panel small,.panel .psub{color:var(--text2);font-size:12px}
+.panel-grid{display:grid;grid-template-columns:1fr;gap:16px}
+body[data-layout="two"] .panel-grid{grid-template-columns:1fr 1fr}
+body[data-layout="three"] .panel-grid{grid-template-columns:1fr 1fr 1fr}
+/* §5 — KPI cards: 3 px status strip, 8 px radius, 10 px padding, 72 px high, no shadow.
+   Value and label only. Do not set line-height: the inherited 1.45 makes the 72 px height. */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:18px}
+.kpi-card{box-sizing:border-box;height:72px;padding:10px;border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;background:var(--surface);box-shadow:none}
+.kpi-card .v{font-size:22px;font-weight:700;color:var(--navy)}
+.kpi-card .l{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+/* §5 — strip colour carries the card's status; --blue is the default above. */
+.kpi-card.ok{border-top-color:var(--green)}
+.kpi-card.amb{border-top-color:var(--amber)}
+.kpi-card.warn{border-top-color:var(--red)}
+.kpi-card.muted{border-top-color:var(--slate)}
+.kpi-card.err{border-top-color:#8E24AA}
+/* ===== Tables ===== */
+.table-scroll{max-height:520px;overflow:auto;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+table.ds{width:100%;border-collapse:collapse;font-size:13px}
+table.ds th,table.ds td{border-bottom:1px solid var(--border);padding:8px 10px;text-align:left}
+table.ds th{background:var(--th-bg);color:var(--text2);font-weight:600;position:sticky;top:0;z-index:1}
+table.ds tbody tr:nth-child(even){background:var(--row-stripe)}
+table.ds tbody tr:hover{background:var(--row-hover)}
+table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;padding:24px}
+.win-pad{height:0;padding:0!important}
+.ds-resize{cursor:col-resize}
+/* ===== Bar chart ===== */
+.bar-chart{display:flex;flex-direction:column;gap:6px}
+.bar-row{display:flex;align-items:center;gap:8px;font-size:12px}
+.bar-row>span{min-width:90px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;background:var(--surface2);border-radius:6px;height:14px;overflow:hidden}
+.bar-track i{display:block;height:100%;background:var(--blue)}
+.bar-row b{min-width:34px;text-align:right;color:var(--text)}
+/* ===== Misc ===== */
+.note{color:var(--text2);font-size:13px;line-height:1.5;margin:6px 0}
+.summary-chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.vchip{font-size:11px;padding:3px 10px;border-radius:6px;font-weight:700;text-transform:capitalize;line-height:1.4}
+.vchip.e{background:#fde2e2;color:#a11}.vchip.w{background:#fff3cd;color:#8a6d00}.vchip.i{background:#eee;color:#555}
+details summary{cursor:pointer;font-size:13px;color:var(--accent);margin:6px 0}
+.status-bar{flex:none;display:flex;align-items:center;gap:8px;background:var(--navy);color:#E8EDF3;font-size:12px;padding:6px 14px;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
+.status-bar #status-right{margin-left:auto;opacity:.85}
+/* ===== Modals ===== */
+.modal{position:fixed;inset:0;background:rgba(15,45,82,.4);display:flex;align-items:center;justify-content:center;z-index:50}
+.modal[hidden]{display:none}
+.modal-box{background:var(--surface);color:var(--text);border-radius:12px;box-shadow:var(--shadow);width:min(440px,92vw);max-height:86vh;overflow:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
+.modal-head h3{margin:0;font-size:16px}
+.modal-body{padding:16px;display:flex;flex-direction:column;gap:12px}
+.setting{display:flex;align-items:center;gap:8px;font-size:14px}
+.setting select{padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)}
+.setting input[type=checkbox]{width:16px;height:16px}
+/* §5 — the KPI grid needs no breakpoint: auto-fit with a 210 px floor drops columns by itself. */
+@media(max-width:1099px){.panel-grid,body[data-layout="three"] .panel-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:879px){.panel-grid,body[data-layout="two"] .panel-grid,body[data-layout="three"] .panel-grid{grid-template-columns:1fr}}
+  </style>
+  <script type="application/json" id="pipeline-contract">
+{
+  "version": "0.2.0",
+  "title": "Sub Dashboard Pipeline Contract",
+  "description": "Required source fields and source sheet names for the Sub dashboard pipeline.",
+  "revisionHistory": [
+    {
+      "revision": "0.2.0",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Added metadataLabels (Project Title, Dashboard Title, Project Start Date) and the expected dashboardTitle per workbook, so a workbook is identified by its Code sheet content rather than its file name."
+    },
+    {
+      "revision": "0.1.0",
+      "date": "2026-10-24",
+      "author": "Codex",
+      "summary": "Defined the fields required by pipeline parsing and validation."
+    }
+  ],
+  "placeholderTokens": ["xxxx"],
+  "metadataLabels": {
+    "projectTitle": "Project Title",
+    "dashboardTitle": "Dashboard Title",
+    "projectStart": "Project Start Date"
+  },
+  "mdl": {
+    "codeSheet": "Code",
+    "dashboardTitle": "Master Document List",
+    "requiredSheets": [
+      "Project",
+      "Construction",
+      "QAQC",
+      "ICA",
+      "Process",
+      "BS",
+      "Mech",
+      "Piping",
+      "Electrical",
+      "CSA",
+      "BIM"
+    ],
+    "requiredFields": [
+      "Stage",
+      "UESH Discipline",
+      "Discipline",
+      "Project Code",
+      "Project Prefix",
+      "Doc Type",
+      "Number",
+      "Document No.",
+      "Document Title",
+      "Planned 1st Issue Date",
+      "Forecast 1st Issue Date"
+    ],
+    "requiredRecordFields": [
+      "Document Title",
+      "UESH Discipline",
+      "Stage",
+      "Doc Type",
+      "Discipline",
+      "Project Code",
+      "Project Prefix",
+      "Number"
+    ]
+  },
+  "submittalLog": {
+    "sheet": "SubmittalLog",
+    "codeSheet": "Code",
+    "dashboardTitle": "Document Submittal Log",
+    "requiredHeaders": [
+      "SNo.",
+      "Prolog No.",
+      "Prolog Subject",
+      "Document No.",
+      "Revision",
+      "Submitted By",
+      "Submission Date",
+      "Review Period",
+      "Target Return Date",
+      "Actual Return Date",
+      "Review Turnaround Days",
+      "Review Delay Days",
+      "Submission Status",
+      "Approval Status",
+      "Resubmission Required"
+    ],
+    "requiredRecordFields": [
+      "Document No.",
+      "Prolog No.",
+      "Submission Date",
+      "Review Period",
+      "Target Return Date",
+      "Submission Status"
+    ],
+    "voidApprovalValues": ["VOID"]
+  }
+}
+  </script>
+  <script type="application/json" id="ui-help">
+{
+  "version": "0.2",
+  "title": "Submittal Dashboard UI help",
+  "description": "Labels and user help for the project-local dashboard.",
+  "revisionHistory": [
+    {
+      "revision": "0.2",
+      "date": "2026-10-24",
+      "author": "Codex",
+      "summary": "Completed Wave 4 dashboard labels and help content."
+    },
+    {
+      "revision": "0.1",
+      "date": "2026-10-24",
+      "author": "Codex",
+      "summary": "Added dashboard page labels, file instructions, and status glossary."
+    }
+  ],
+  "filePanel": {
+    "title": "Workbook files",
+    "instructions": "Select the Master Document List and the Document Submittal Log for each load.",
+    "requiredFiles": [
+      {
+        "id": "mdl",
+        "label": "Master Document List",
+        "match": "Master Document List"
+      },
+      {
+        "id": "log",
+        "label": "Document Submittal Log",
+        "match": "Submittal Log"
+      }
+    ],
+    "selectionOrder": [
+      "mdl",
+      "log"
+    ],
+    "validation": "Both files are required. The dashboard checks each workbook before it shows data."
+  },
+  "labels": {
+    "warningToggle": "Warnings",
+    "search": "Search",
+    "loadData": "Load Data",
+    "chooseFiles": "Choose workbooks",
+    "statusReady": "Both workbooks loaded.",
+    "statusSelectFiles": "Select both workbooks to begin."
+  },
+  "pages": {
+    "Overview": "Submission totals, plan coverage, status, approval, and delay measures.",
+    "Submittals": "All submission rows and calculated turnaround and delay values.",
+    "Validation": "All business-rule issues and the source workbook rule reference.",
+    "Forward Plan": "Planned MDL rows without an unambiguous submitted record.",
+    "Analytical": "Open overdue records, review aging, and the forward queue.",
+    "Help": "Load both workbooks, use global filters, and select a page.",
+    "Settings": "Theme and warning area preferences."
+  },
+  "statusGlossary": {
+    "submission": {
+      "SUR": "Submitted under review",
+      "RTR": "Returned",
+      "NTS": "Not submitted",
+      "NFS": "Not for submission"
+    },
+    "approval": {
+      "APP": "Approved",
+      "AWC": "Approved with comments",
+      "NAP": "Not approved",
+      "REJ": "Rejected",
+      "INF": "For information"
+    }
+  }
+}
+  </script>
+  <script type="module">
+/* ===== engine/xlsx-reader.js ===== */
+// Revision 0.1 | 2026-10-24 | Codex | Adapted from MDL/src/xlsx-reader.mjs for the Sub dashboard.
+// xlsx-reader.js — zero-dependency .xlsx reader (ZIP + XML).
+// Runs in Node (v18+) and modern browsers (DecompressionStream + Response are global).
+// Reads: sharedStrings, workbook sheet map, and any worksheet as { rows:[ {A:val,...} ] , maxRow }.
+// Dates are returned as Excel serial numbers; the pipeline converts them using the Code column-map "Date" type.
+
+const EOCD = 0x06054b50;
+const CDH  = 0x02014b50;
+const LFH  = 0x04034b50;
+
+/** Convert an Excel column name to a one-based column number. @param {string} letters @returns {number} */
+function colToNum(letters){ let n=0; for(const ch of letters.toUpperCase()) n=n*26+(ch.charCodeAt(0)-64); return n; }
+/** Convert a one-based column number to an Excel column name. @param {number} n @returns {string} */
+function numToCol(n){ let s=''; while(n>0){ const r=(n-1)%26; s=String.fromCharCode(65+r)+s; n=Math.floor((n-1)/26); } return s; }
+
+/** Inflate a ZIP entry that uses raw DEFLATE. @param {Uint8Array} bytes @returns {Promise<Uint8Array>} */
+async function inflateRaw(bytes){
+  const ds = new DecompressionStream('deflate-raw');
+  const w = ds.writable.getWriter();
+  w.write(bytes); w.close();
+  const buf = await new Response(ds.readable).arrayBuffer();
+  return new Uint8Array(buf);
+}
+
+/** Read ZIP entries into a name-to-byte map. @param {ArrayBuffer} buf @returns {Promise<object>} */
+async function unzip(buf){
+  const bytes = new Uint8Array(buf);
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  // locate End Of Central Directory — scan BACKWARD from the tail so the LAST
+  // occurrence is found, as required by the ZIP spec (a comment or data earlier
+  // in the file can contain the magic bytes; only the last match is the real EOCD).
+  let eocd = -1;
+  const min = Math.max(0, bytes.length - 65557);
+  for(let i=bytes.length-22; i>=min; i--){
+    if(dv.getUint32(i, true) === EOCD){ eocd = i; break; }
+  }
+  if(eocd < 0) throw new Error('Not a valid ZIP/XLSX (EOCD not found)');
+  const cdOffset = dv.getUint32(eocd+16, true);
+  const total = dv.getUint16(eocd+10, true);
+  const files = {};
+  let p = cdOffset;
+  for(let i=0; i<total; i++){
+    if(dv.getUint32(p, true) !== CDH) break;
+    const method = dv.getUint16(p+10, true);
+    const compSize = dv.getUint32(p+20, true);
+    const nameLen = dv.getUint16(p+28, true);
+    const extraLen = dv.getUint16(p+30, true);
+    const commentLen = dv.getUint16(p+32, true);
+    const lho = dv.getUint32(p+42, true);
+    const next = p + 46 + nameLen + extraLen + commentLen;
+    // The local file header must carry the LFH signature. If it doesn't, the
+    // offset recorded in the central directory is bogus, and reading
+    // nameLen/extraLen from it would silently slice the wrong bytes — skip
+    // this entry rather than trusting it (and keep walking the directory).
+    if(lho + 30 > bytes.length || dv.getUint32(lho, true) !== LFH){ p = next; continue; }
+    const nameBytes = bytes.subarray(p+46, p+46+nameLen);
+    const name = new TextDecoder().decode(nameBytes);
+    // local header: nameLen/extraLen at +26/+28
+    const lNameLen = dv.getUint16(lho+26, true);
+    const lExtraLen = dv.getUint16(lho+28, true);
+    const dataStart = lho + 30 + lNameLen + lExtraLen;
+    let data = bytes.subarray(dataStart, dataStart + compSize);
+    if(method === 8) data = await inflateRaw(data);
+    files[name] = data;
+    p = next;
+  }
+  return files;
+}
+
+/** Decode XML bytes as UTF-8 text. @param {Uint8Array} bytes @returns {string} */
+function decodeUtf8(bytes){ return new TextDecoder().decode(bytes); }
+
+// minimal attribute extractor for a single tag's attribute string
+/** Read quoted XML attributes from one tag. @param {string} str @returns {object} */
+function attrs(str){
+  const out = {};
+  const re = /([\w:]+)\s*=\s*"([^"]*)"/g; let m;
+  while((m = re.exec(str))) out[m[1]] = m[2];
+  return out;
+}
+
+/** Decode XML entities in a cell string. @param {string} s @returns {string} */
+function unescXml(s){
+  // XML entity decode — must run on every string extracted from raw XML text.
+  // Without this, any cell value containing & < > ' " arrives as &amp; &lt; etc.
+  return s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'");
+}
+
+/** Read the workbook shared-string table. @param {Uint8Array} xmlBytes @returns {string[]} */
+function parseSharedStrings(xmlBytes){
+  const xml = decodeUtf8(xmlBytes || new Uint8Array());
+  const list = [];
+  const siRe = /<si>([\s\S]*?)<\/si>/g; let m;
+  while((m = siRe.exec(xml))){
+    const inner = m[1];
+    let text = '', t;
+    const tRe = /<t[^>]*>([\s\S]*?)<\/t>/g;
+    while((t = tRe.exec(inner))) text += unescXml(t[1]);
+    list.push(text);
+  }
+  return list;
+}
+
+/** Map worksheet names to relationship IDs. @param {Uint8Array} xmlBytes @returns {object} */
+function parseWorkbook(xmlBytes){
+  const xml = decodeUtf8(xmlBytes || new Uint8Array());
+  const sheets = {}; // name -> rId
+  const sRe = /<sheet\b([^>]*)>/g; let m;
+  while((m = sRe.exec(xml))){
+    const a = attrs(m[1]);
+    if(a.name && a['r:id']) sheets[a.name] = a['r:id'];
+  }
+  return sheets;
+}
+
+/** Map relationship IDs to package paths. @param {Uint8Array} xmlBytes @returns {object} */
+function parseRels(xmlBytes){
+  const xml = decodeUtf8(xmlBytes || new Uint8Array());
+  const map = {}; // Id -> Target
+  const rRe = /<Relationship\b([^>]*)>/g; let m;
+  while((m = rRe.exec(xml))){
+    const a = attrs(m[1]);
+    if(a.Id && a.Target) map[a.Id] = a.Target;
+  }
+  return map;
+}
+
+/** Decode a worksheet cell value, including strings, booleans, and numbers. @param {string} tagInner @param {string[]} shared @returns {*} */
+function cellValue(tagInner, shared){
+  // tagInner is the text of a <c ...>...</c> block
+  const a = attrs(tagInner);
+  const t = a.t || '';
+  const isMatch = /<is>([\s\S]*?)<\/is>/.exec(tagInner);
+  let vText = '';
+  if(isMatch){
+    const tRe = /<t[^>]*>([\s\S]*?)<\/t>/g; let tm;
+    while((tm = tRe.exec(isMatch[1]))) vText += unescXml(tm[1]);
+  } else {
+    const vMatch = /<v>([\s\S]*?)<\/v>/.exec(tagInner);
+    if(vMatch) vText = vMatch[1];
+  }
+  const v = vText.trim();
+  if(v === '') return undefined;
+  if(t === 's') return shared[parseInt(v,10)] ?? v;
+  if(t === 'inlineStr' || t === 'str') return v;
+  if(t === 'b') return v === '1' || v === 'true';
+  // default: number (also covers date serials — pipeline converts by column type)
+  if(/^-?\d+(\.\d+)?$/.test(v)) return parseFloat(v);
+  return v;
+}
+
+/** Convert one worksheet XML document to one-based row objects. @param {Uint8Array} xmlBytes @param {string[]} shared @returns {object} */
+function parseSheet(xmlBytes, shared){
+  const xml = decodeUtf8(xmlBytes || new Uint8Array());
+  const rows = []; // 1-based; rows[0] unused
+  // find each <c ...>...</c> OR self-closing (Excel never self-closes <c> with content, but be safe)
+  const cRe = /<c\b([\s\S]*?)<\/c>/g; let m;
+  while((m = cRe.exec(xml))){
+    const block = m[1] + '</c>'; // ensure we have closing for attrs+inner
+    const open = /<c\b([^>]*)>/.exec(m[1].split('>')[0] + '>');
+    const a = attrs(open ? open[1] : m[1]);
+    const ref = a.r; if(!ref) continue;
+    const col = ref.replace(/\d+$/, '');
+    const rowNum = parseInt(ref.match(/\d+$/)[0], 10);
+    const val = cellValue(block, shared);
+    if(val === undefined) continue;
+    if(!rows[rowNum]) rows[rowNum] = {};
+    rows[rowNum][col] = val;
+  }
+  let maxRow = 0;
+  for(let i=1;i<rows.length;i++) if(rows[i]) maxRow = i;
+  return { rows, maxRow };
+}
+
+/** Read an XLSX ArrayBuffer and return a plain error if parsing fails.
+ * @param {ArrayBuffer} buffer @param {{only?: string[]}} [options] `only` limits which sheets are parsed. @returns {Promise<object>} */
+async function readXlsx(buffer, options = {}){
+  try {
+    return await readXlsxInternal(buffer, options);
+  } catch (error) {
+    throw new Error(`Could not read XLSX workbook: ${error.message}`, { cause: error });
+  }
+}
+
+/** Read ZIP/XML workbook parts into named worksheet rows.
+ * @param {ArrayBuffer} buffer @param {{only?: string[]}} [options] @returns {Promise<object>} */
+async function readXlsxInternal(buffer, options = {}){
+  const files = await unzip(buffer);
+  const shared = parseSharedStrings(files['xl/sharedStrings.xml']);
+  const sheetRid = parseWorkbook(files['xl/workbook.xml']);
+  const rels = parseRels(files['xl/_rels/workbook.xml.rels']);
+  const only = Array.isArray(options.only) && options.only.length ? new Set(options.only) : null;
+  const sheets = {};
+  for(const name of Object.keys(sheetRid)){
+    if (only && !only.has(name)) continue;
+    const rid = sheetRid[name];
+    let target = rels[rid] || '';
+    target = target.replace(/^\//, '');
+    const key = (target.startsWith('xl/') ? target : 'xl/' + target);
+    const data = files[key];
+    sheets[name] = data ? parseSheet(data, shared) : { rows: [], maxRow: 0 };
+  }
+  return { sheets, sharedStrings: shared };
+}
+
+/* ===== engine/pipeline.js ===== */
+// Revision 0.1 | 2026-10-24 | Codex | Added the Sub dashboard S2/S3 pipeline.
+// Source fields and required columns are defined in config/pipeline_contract.json.
+
+const ERROR_TOKENS = new Set([
+  '#NULL!', '#DIV/0!', '#VALUE!', '#REF!', '#NAME?', '#N/A', '#NUM!',
+  '#GETTING_DATA', '#SPILL!', '#CALC!'
+]);
+
+/** Check whether a cell contains an Excel formula-error token. @param {*} value @returns {boolean} */
+function isExcelError(value) {
+  return typeof value === 'string' && ERROR_TOKENS.has(value.trim().toUpperCase());
+}
+
+class PipelineError extends Error {
+  /** Create a structural pipeline error with source details. @param {string} message @param {object} details @returns {PipelineError} */
+  constructor(message, details = {}) {
+    super(message);
+    this.name = 'PipelineError';
+    this.fatal = true;
+    this.details = details;
+  }
+}
+
+/** Run a pipeline stage and save its result or failure. @param {Array} stages @param {string} name @param {Function} action @returns {*} */
+function runStage(stages, name, action) {
+  try {
+    const result = action();
+    stages.push({ name, status: 'complete' });
+    return result;
+  } catch (error) {
+    stages.push({ name, status: 'error', message: error.message });
+    if (error instanceof PipelineError) {
+      error.details = { ...error.details, stage: name };
+      throw error;
+    }
+    throw new PipelineError(`${name} failed: ${error.message}`, { stage: name, cause: error.name });
+  }
+}
+
+/** Normalize a label for case-insensitive header matching. @param {*} value @returns {string} */
+const normalizeLabel = value => String(value ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
+/** Trim a text cell and preserve non-text values. @param {*} value @returns {*} */
+const cleanText = value => typeof value === 'string' ? value.trim() : value;
+/** Check whether a source cell has no value. @param {*} value @returns {boolean} */
+const isBlank = value => value === undefined || value === null || (typeof value === 'string' && value.trim() === '');
+/** Convert a zero-based column index to an Excel column name. @param {number} index @returns {string} */
+const columnName = index => {
+  let n = index + 1, name = '';
+  while (n > 0) { const rem = (n - 1) % 26; name = String.fromCharCode(65 + rem) + name; n = Math.floor((n - 1) / 26); }
+  return name;
+};
+/** Convert an Excel column name to a zero-based index. @param {string} name @returns {number} */
+const columnIndex = name => {
+  let n = 0;
+  for (const ch of String(name).toUpperCase()) n = n * 26 + ch.charCodeAt(0) - 64;
+  return n - 1;
+};
+
+/** Check that a workbook reader result has a sheet map. @param {object} workbook @param {string} sourceName @returns {void} */
+function assertWorkbook(workbook, sourceName) {
+  if (!workbook || typeof workbook !== 'object' || !workbook.sheets) {
+    throw new PipelineError(`${sourceName} is not a parsed workbook.`, { source: sourceName });
+  }
+}
+
+/** Read a cell by its zero-based column index. @param {object} row @param {number} index @returns {*} */
+function cellAt(row, index) {
+  return row?.[columnName(index)];
+}
+
+/** Normalize one worksheet header row and retain duplicate labels. @param {object} sheet @param {number} rowNumber @param {string} sourceName @returns {Map} */
+function readHeaderRow(sheet, rowNumber, sourceName) {
+  const row = sheet?.rows?.[rowNumber];
+  if (!row) throw new PipelineError(`${sourceName} has no header row ${rowNumber}.`, { source: sourceName, row: rowNumber });
+  const headers = new Map();
+  for (const [column, raw] of Object.entries(row)) {
+    const label = normalizeLabel(raw);
+    if (!label) continue;
+    const index = columnIndex(column);
+    const found = headers.get(label) || [];
+    found.push({ label: String(raw).trim(), column, index });
+    headers.set(label, found);
+  }
+  return headers;
+}
+
+/** Resolve one required or optional column label. @param {Map} headers @param {string} label @param {object} options @returns {object|null} */
+function headerColumn(headers, label, { required = true, sourceName = 'workbook' } = {}) {
+  const found = headers.get(normalizeLabel(label)) || [];
+  if (found.length > 1) throw new PipelineError(`${sourceName} repeats the required header “${label}”.`, { source: sourceName, header: label, columns: found.map(x => x.column) });
+  if (!found.length) {
+    if (required) throw new PipelineError(`${sourceName} is missing the required header “${label}”.`, { source: sourceName, header: label });
+    return null;
+  }
+  return found[0];
+}
+
+/** Find a table by its column labels. @param {object} sheet @param {string[]} candidates @param {string} sourceName @param {number} maxRows @returns {object} */
+function findTableHeader(sheet, candidates, sourceName, maxRows = 10) {
+  for (let rowNumber = 1; rowNumber <= Math.min(sheet.maxRow || 0, maxRows); rowNumber++) {
+    const headers = readHeaderRow(sheet, rowNumber, sourceName);
+    if (candidates.every(label => headers.has(normalizeLabel(label)))) return { rowNumber, headers };
+  }
+  throw new PipelineError(`${sourceName} does not contain the required table headers: ${candidates.join(', ')}.`, { source: sourceName, headers: candidates });
+}
+
+/** Read a code-to-description table from the workbook Code sheet. @param {object} codeSheet @param {string} codeHeader @param {string} labelHeader @param {string} sourceName @returns {Map} */
+function readCodeTable(codeSheet, codeHeader, labelHeader, sourceName) {
+  const { rowNumber: headerRow, headers } = findTableHeader(codeSheet, [codeHeader, labelHeader], sourceName);
+  const codeColumn = headerColumn(headers, codeHeader, { sourceName });
+  const labelColumn = headerColumn(headers, labelHeader, { sourceName });
+  const values = new Map();
+  const end = codeSheet.maxRow || codeSheet.rows.length - 1;
+  for (let rowNumber = headerRow + 1; rowNumber <= end; rowNumber++) {
+    const row = codeSheet.rows[rowNumber];
+    if (!row) continue;
+    const code = cleanText(cellAt(row, codeColumn.index));
+    const label = cleanText(cellAt(row, labelColumn.index));
+    if (isBlank(code)) continue;
+    values.set(String(code).trim(), String(label ?? '').trim());
+  }
+  return values;
+}
+
+/** Read validation messages, severity, and group from a Code sheet. @param {object} codeSheet @param {string} sourceName @returns {Map} */
+function readErrorCatalog(codeSheet, sourceName) {
+  const found = findTableHeader(codeSheet, ['Error Code', 'Rule', 'Severity'], sourceName);
+  const codeColumn = headerColumn(found.headers, 'Error Code', { sourceName });
+  const ruleColumn = headerColumn(found.headers, 'Rule', { sourceName });
+  const severityColumn = headerColumn(found.headers, 'Severity', { sourceName });
+  const group = headerColumn(found.headers, 'Group', { required: false, sourceName });
+  const catalog = new Map();
+  for (let rowNumber = found.rowNumber + 1; rowNumber <= (codeSheet.maxRow || 0); rowNumber++) {
+    const row = codeSheet.rows[rowNumber];
+    if (!row) continue;
+    const code = cleanText(cellAt(row, codeColumn.index));
+    if (isBlank(code)) continue;
+    catalog.set(String(code).trim(), {
+      code: String(code).trim(),
+      rule: String(cleanText(cellAt(row, ruleColumn.index)) ?? '').trim(),
+      severity: String(cleanText(cellAt(row, severityColumn.index)) ?? 'Warning').trim() || 'Warning',
+      group: group ? String(cleanText(cellAt(row, group.index)) ?? '').trim() : ''
+    });
+  }
+  return catalog;
+}
+
+/** Read the Code sheet project-metadata table into a field map and a metadata map.
+ * @param {object} codeSheet @param {string} sourceName @returns {{fields: Map, metadata: Map}} */
+function readMetadataTable(codeSheet, sourceName) {
+  const metaHeaders = findTableHeader(codeSheet, ['Project Metadata Title', 'Project Metadata Values', 'Project Metadata Data Type'], sourceName);
+  const titleColumn = headerColumn(metaHeaders.headers, 'Project Metadata Title', { sourceName });
+  const valueColumn = headerColumn(metaHeaders.headers, 'Project Metadata Values', { sourceName });
+  const typeColumn = headerColumn(metaHeaders.headers, 'Project Metadata Data Type', { sourceName });
+  const fields = new Map();
+  const metadata = new Map();
+  for (let rowNumber = metaHeaders.rowNumber + 1; rowNumber <= (codeSheet.maxRow || 0); rowNumber++) {
+    const row = codeSheet.rows[rowNumber];
+    if (!row) continue;
+    const name = cleanText(cellAt(row, titleColumn.index));
+    const value = cleanText(cellAt(row, valueColumn.index));
+    const type = cleanText(cellAt(row, typeColumn.index));
+    if (isBlank(name)) continue;
+    if (typeof value === 'string' && /^Column-[A-Z]+$/i.test(value.trim())) {
+      fields.set(String(name).trim(), { column: columnIndex(value.trim().slice(7)), type: String(type ?? '').trim() });
+    } else if (!isBlank(value)) {
+      metadata.set(String(name).trim(), value);
+    }
+  }
+  return { fields, metadata };
+}
+
+/** Identify a workbook from the Dashboard Title in its Code sheet. @param {string} dashboardTitle @param {object} config @returns {'mdl'|'log'|null} */
+function workbookKind(dashboardTitle, config) {
+  const value = String(dashboardTitle ?? '').trim().toLowerCase();
+  if (!value) return null;
+  if (value === String(config?.mdl?.dashboardTitle ?? '').trim().toLowerCase()) return 'mdl';
+  if (value === String(config?.submittalLog?.dashboardTitle ?? '').trim().toLowerCase()) return 'log';
+  return null;
+}
+
+/** Inspect a workbook and report which source it is, without building a model.
+ * @param {object} workbook @param {object} config @returns {{ok: boolean, kind?: string, dashboardTitle?: string, projectTitle?: string, reason?: string}} */
+function inspectWorkbook(workbook, config) {
+  const labels = config?.metadataLabels || {};
+  const dashboardTitleLabel = labels.dashboardTitle || 'Dashboard Title';
+  const projectTitleLabel = labels.projectTitle || 'Project Title';
+  const codeSheetName = config?.mdl?.codeSheet || 'Code';
+  const codeSheet = workbook?.sheets?.[codeSheetName];
+  if (!codeSheet) return { ok: false, reason: `This file has no "${codeSheetName}" sheet, so it is not a project workbook.` };
+  let metadata;
+  try {
+    ({ metadata } = readMetadataTable(codeSheet, `${codeSheetName} sheet`));
+  } catch (error) {
+    return { ok: false, reason: `The "${codeSheetName}" sheet has no project metadata table (${error.message}).` };
+  }
+  const dashboardTitle = String(cleanText(metadata.get(dashboardTitleLabel)) ?? '').trim();
+  if (!dashboardTitle) return { ok: false, reason: `The "${codeSheetName}" sheet has no "${dashboardTitleLabel}".` };
+  const kind = workbookKind(dashboardTitle, config);
+  if (!kind) return { ok: false, reason: `This workbook is "${dashboardTitle}". Expected "${config?.mdl?.dashboardTitle}" or "${config?.submittalLog?.dashboardTitle}".` };
+  return { ok: true, kind, dashboardTitle, projectTitle: String(cleanText(metadata.get(projectTitleLabel)) ?? '').trim() };
+}
+
+/** Read MDL field maps, domains, and rule definitions. @param {object} workbook @param {object} config @returns {object} */
+function readMdlContract(workbook, config) {
+  const sourceName = 'Master Document List Code sheet';
+  const codeSheet = workbook.sheets[config.mdl.codeSheet];
+  if (!codeSheet) throw new PipelineError(`${sourceName} is missing.`, { source: sourceName });
+  const missingSheets = (config.mdl.requiredSheets || []).filter(name => !workbook.sheets[name]);
+  if (missingSheets.length) throw new PipelineError(`Master Document List is missing required discipline sheet(s): ${missingSheets.join(', ')}.`, { source: 'Master Document List', sheets: missingSheets });
+  const { fields, metadata } = readMetadataTable(codeSheet, sourceName);
+  const missing = config.mdl.requiredFields.filter(field => !fields.has(field));
+  if (missing.length) throw new PipelineError(`${sourceName} has no column map for: ${missing.join(', ')}.`, { source: sourceName, fields: missing });
+  const disciplines = readCodeTable(codeSheet, 'UESH Discipline', 'UESH Discipline Description', sourceName);
+  const statusDomains = {
+    submission: readCodeTable(codeSheet, 'Submission Status Code', 'Submission Status', sourceName),
+    approval: readCodeTable(codeSheet, 'Approval Code', 'Approval Status', sourceName)
+  };
+  const errors = readErrorCatalog(codeSheet, sourceName);
+  return { codeSheet, fields, metadata, disciplines, statusDomains, errors };
+}
+
+/** Read Submittal Log columns, domains, and rule definitions. @param {object} workbook @param {object} config @returns {object} */
+function readLogContract(workbook, config) {
+  const sheet = workbook.sheets[config.submittalLog.sheet];
+  const sourceName = `Submittal Log “${config.submittalLog.sheet}” sheet`;
+  if (!sheet) throw new PipelineError(`${sourceName} is missing.`, { source: sourceName });
+  const headers = readHeaderRow(sheet, 1, sourceName);
+  const columns = new Map();
+  for (const header of config.submittalLog.requiredHeaders) columns.set(header, headerColumn(headers, header, { sourceName }));
+  const codeSheet = workbook.sheets[config.submittalLog.codeSheet];
+  if (!codeSheet) throw new PipelineError('Submittal Log Code sheet is missing.', { source: 'Submittal Log Code sheet' });
+  const { metadata } = readMetadataTable(codeSheet, 'Submittal Log Code sheet');
+  const statusDomains = {
+    submission: readCodeTable(codeSheet, 'Submission Status Code', 'Submission Status', 'Submittal Log Code sheet'),
+    approval: readCodeTable(codeSheet, 'Approval Code', 'Approval Status', 'Submittal Log Code sheet')
+  };
+  const errors = readErrorCatalog(codeSheet, 'Submittal Log Code sheet');
+  return { sheet, columns, metadata, statusDomains, errors, config: { ...config.submittalLog, placeholderTokens: config.placeholderTokens } };
+}
+
+/** Convert an Excel date serial to a local-date string without a time zone shift. @param {number} value @returns {string|null} */
+function excelSerialToISO(value) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null;
+  const date = new Date(Math.round((value - 25569) * 86400000));
+  if (Number.isNaN(date.valueOf())) return null;
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+}
+
+/** Normalize an Excel date value to YYYY-MM-DD. @param {*} value @returns {string|null} */
+function normalizeDate(value) {
+  if (typeof value === 'number') return excelSerialToISO(value);
+  if (value instanceof Date && !Number.isNaN(value.valueOf())) return `${value.getUTCFullYear()}-${String(value.getUTCMonth() + 1).padStart(2, '0')}-${String(value.getUTCDate()).padStart(2, '0')}`;
+  if (typeof value !== 'string') return null;
+  const text = value.trim();
+  if (!text) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
+  const parsed = new Date(text);
+  if (Number.isNaN(parsed.valueOf())) return null;
+  return `${parsed.getUTCFullYear()}-${String(parsed.getUTCMonth() + 1).padStart(2, '0')}-${String(parsed.getUTCDate()).padStart(2, '0')}`;
+}
+
+/** Return the calendar-day difference between two ISO dates. @param {string} left @param {string} right @returns {number|null} */
+function dateDifferenceDays(left, right) {
+  if (!left || !right) return null;
+  const parse = value => {
+    const [year, month, day] = value.split('-').map(Number);
+    return Date.UTC(year, month - 1, day);
+  };
+  return Math.round((parse(left) - parse(right)) / 86400000);
+}
+
+/** Return today's local calendar date. @returns {string} */
+function todayLocalISO() {
+  const now = new Date();
+  const pad = value => String(value).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+/** Normalize a cell and count formula errors by source field. @param {*} raw @param {string} type @param {Map} counts @param {string} sourceName @param {string} field @returns {*} */
+function normalizeValue(raw, type, counts, sourceName, field) {
+  if (isBlank(raw)) return undefined;
+  if (isExcelError(raw)) {
+    const key = `${sourceName}:${field}`;
+    counts.set(key, { source: sourceName, field, count: (counts.get(key)?.count || 0) + 1 });
+    return undefined;
+  }
+  if (/^date$/i.test(type || '')) return normalizeDate(raw) ?? undefined;
+  if (/^boolean$/i.test(type || '')) {
+    if (raw === true || /^yes$|^true$/i.test(String(raw).trim())) return 'YES';
+    if (raw === false || /^no$|^false$/i.test(String(raw).trim())) return 'NO';
+  }
+  return typeof raw === 'string' ? raw.trim() : raw;
+}
+
+/** Build a row-level issue using the workbook's rule text and severity. @param {string} code @param {object} record @param {Map} catalog @param {object} details @returns {object} */
+function codeIssue(code, record, catalog, details = {}) {
+  const definition = catalog.get(code) || {};
+  return {
+    code,
+    severity: definition.severity || 'Warning',
+    group: definition.group || '',
+    message: definition.rule || `Validation rule ${code}.`,
+    source: details.source || record?.source || null,
+    sheet: details.sheet || record?.sheet || null,
+    row: details.row ?? record?.row ?? null,
+    documentNo: details.documentNo ?? record?.documentNo ?? null,
+    field: details.field || null,
+    value: details.value ?? null
+  };
+}
+
+/** Normalize MDL planned rows and identify blank or duplicate document numbers. @param {object} workbook @param {object} mdlContract @param {Map} formulaErrors @param {string} sourceName @returns {object} */
+function parseMdl(workbook, mdlContract, formulaErrors, config, sourceName = 'Master Document List') {
+  const records = [];
+  const issues = [];
+  const requiredFields = mdlContract.fields;
+  const knownDisciplines = new Set(mdlContract.disciplines.keys());
+  const sheetNames = new Set(Object.keys(workbook.sheets));
+  for (const discipline of knownDisciplines) {
+    if (!sheetNames.has(discipline)) continue;
+    const sheet = workbook.sheets[discipline];
+    const headerRow = Math.max(1, Number(mdlContract.metadata.get('Header Row')) || 1);
+    for (let rowNumber = headerRow + 1; rowNumber <= (sheet.maxRow || 0); rowNumber++) {
+      const row = sheet.rows[rowNumber];
+      if (!row) continue;
+      const rawFields = {};
+      let hasMappedContent = false;
+      for (const [field, mapping] of requiredFields) {
+        const raw = cellAt(row, mapping.column);
+        if (!isBlank(raw)) hasMappedContent = true;
+        const normalized = normalizeValue(raw, mapping.type, formulaErrors, sourceName, field);
+        if (normalized !== undefined) rawFields[field] = normalized;
+      }
+      const documentNo = rawFields['Document No.'];
+      const title = rawFields['Document Title'];
+      if (!hasMappedContent || (isBlank(documentNo) && isBlank(title) && isBlank(rawFields['SNo.']))) continue;
+      const record = {
+        id: `mdl:${discipline}:${rowNumber}`,
+        source: sourceName,
+        sheet: discipline,
+        row: rowNumber,
+        documentNo: isBlank(documentNo) ? null : String(documentNo).trim(),
+        discipline,
+        stage: rawFields.Stage ?? '',
+        title: title ?? '',
+        fields: { ...rawFields }
+      };
+      records.push(record);
+      if (isBlank(documentNo)) issues.push(codeIssue('V-01', record, mdlContract.errors, { field: 'Document No.', value: '(blank)' }));
+      if (record.documentNo && config.placeholderTokens.some(token => record.documentNo.toLowerCase().includes(token.toLowerCase()))) {
+        issues.push(codeIssue('V-15', record, mdlContract.errors, { field: 'Document No.', value: record.documentNo }));
+      }
+      const missingRequiredFields = config.mdl.requiredRecordFields.filter(field => isBlank(rawFields[field]));
+      if (record.documentNo && missingRequiredFields.length) {
+        issues.push(codeIssue('V-25', record, mdlContract.errors, { field: 'Required Fields', value: missingRequiredFields.join(', ') }));
+      }
+    }
+  }
+  const counts = new Map();
+  for (const record of records) {
+    if (!record.documentNo) continue;
+    counts.set(record.documentNo, (counts.get(record.documentNo) || 0) + 1);
+  }
+  for (const record of records) {
+    if (record.documentNo && counts.get(record.documentNo) > 1) {
+      issues.push(codeIssue('V-26', record, mdlContract.errors, { field: 'Document No.', value: record.documentNo }));
+    }
+  }
+  return { records, issues, counts };
+}
+
+/** Normalize and validate each Submittal Log row. @param {object} logContract @param {object} mdlContract @param {Map} formulaErrors @param {string} asOfDate @param {string} sourceName @returns {object} */
+function parseSubmittals(logContract, mdlContract, formulaErrors, asOfDate, sourceName = 'Document Submittal Log') {
+  const { sheet, columns } = logContract;
+  const records = [];
+  const issues = [];
+  let currentDiscipline = '';
+  const mapped = new Map();
+  for (const [field, column] of columns) mapped.set(field, column.index);
+  const end = sheet.maxRow || 1;
+  const knownDisciplines = new Set(mdlContract.disciplines.keys());
+  const rawDomain = new Map([...logContract.statusDomains.submission, ...mdlContract.statusDomains.submission]);
+  const notSubmitted = new Set([...rawDomain].filter(([, label]) => /\b(?:not|no)\b.*\b(?:submitted|submission)\b/i.test(label)).map(([code]) => code));
+  const allowedResubmissionStatuses = new Set([
+    ...[...logContract.statusDomains.submission].filter(([, label]) => /pending\s+resubmission|returned.*resubmission|resubmission\s+required/i.test(label)).map(([code]) => code),
+    ...[...logContract.statusDomains.approval].filter(([, label]) => /reject/i.test(label)).map(([code]) => code)
+  ]);
+  const returnRequiredStatuses = new Set([...logContract.statusDomains.submission]
+    .filter(([, label]) => /pending.*resubmission|returned.*resubmission/i.test(label))
+    .map(([code]) => code));
+  const requiresApprovalDateStatuses = new Set([...logContract.statusDomains.approval]
+    .filter(([, label]) => /approved without comments/i.test(label))
+    .map(([code]) => code));
+  const requiresReturnDateStatuses = new Set([...logContract.statusDomains.approval]
+    .filter(([, label]) => /approved|reject/i.test(label) && !/information/i.test(label))
+    .map(([code]) => code));
+  for (let rowNumber = 2; rowNumber <= end; rowNumber++) {
+    const row = sheet.rows[rowNumber];
+    if (!row) continue;
+    const snoRaw = cellAt(row, mapped.get('SNo.'));
+    const docRaw = cellAt(row, mapped.get('Document No.'));
+    const subject = String(cellAt(row, mapped.get('Prolog Subject')) ?? '').trim();
+    if (isBlank(snoRaw) && isBlank(docRaw) && knownDisciplines.has(subject)) {
+      currentDiscipline = subject;
+      continue;
+    }
+    const hasRowIdentity = !isBlank(snoRaw) || !isBlank(docRaw);
+    if (!hasRowIdentity) continue;
+    const fields = {};
+    const formulaErrorFields = new Set();
+    for (const [field, column] of mapped) {
+      const raw = cellAt(row, column);
+      const type = /date/i.test(field) ? 'Date' : '';
+      const normalized = normalizeValue(raw, type, formulaErrors, sourceName, field);
+      if (normalized !== undefined) fields[field] = normalized;
+      else if (isExcelError(raw)) formulaErrorFields.add(field);
+    }
+    const docValue = fields['Document No.'];
+    const record = {
+      id: `submission:${rowNumber}`,
+      source: sourceName,
+      sheet: 'SubmittalLog',
+      row: rowNumber,
+      documentNo: isBlank(docValue) ? null : String(docValue).trim(),
+      discipline: currentDiscipline,
+      fields,
+      formulaErrorFields,
+      submissionDate: fields['Submission Date'] || null,
+      targetReturnDate: fields['Target Return Date'] || null,
+      actualReturnDate: fields['Actual Return Date'] || null,
+      submissionStatus: isBlank(fields['Submission Status']) ? '' : String(fields['Submission Status']).trim(),
+      approvalStatus: isBlank(fields['Approval Status']) ? '' : String(fields['Approval Status']).trim(),
+      resubmissionRequired: isBlank(fields['Resubmission Required']) ? '' : String(fields['Resubmission Required']).trim().toUpperCase(),
+      linkStatus: 'unmatched',
+      linkedPlannedId: null
+    };
+    records.push(record);
+    if (isBlank(record.documentNo)) issues.push(codeIssue('V-01', record, logContract.errors, { source: sourceName, field: 'Document No.', value: '(blank)' }));
+    if (!isBlank(record.submissionStatus) && !logContract.statusDomains.submission.has(record.submissionStatus)) {
+      issues.push(codeIssue('V-07', record, logContract.errors, { field: 'Submission Status', value: record.submissionStatus }));
+    }
+    if (!isBlank(record.approvalStatus) && !logContract.statusDomains.approval.has(record.approvalStatus)) {
+      issues.push(codeIssue('V-08', record, logContract.errors, { field: 'Approval Status', value: record.approvalStatus }));
+    }
+    if (record.documentNo && logContract.config.placeholderTokens?.some(token => record.documentNo.toLowerCase().includes(token.toLowerCase()))) {
+      issues.push(codeIssue('V-15', record, logContract.errors, { field: 'Document No.', value: record.documentNo }));
+    }
+    if (returnRequiredStatuses.has(record.submissionStatus) && (!record.approvalStatus || logContract.config.voidApprovalValues.includes(record.approvalStatus))) {
+      issues.push(codeIssue('V-16', record, logContract.errors, { field: 'Submission Status / Approval Status', value: `${record.submissionStatus} / ${record.approvalStatus || '(blank)'}` }));
+    }
+    if (record.submissionDate && (!fields['Prolog No.'] || !record.submissionStatus)) {
+      issues.push(codeIssue('V-18', record, logContract.errors, { field: 'Prolog No. / Submission Status', value: `${fields['Prolog No.'] || '(blank)'} / ${record.submissionStatus || '(blank)'}` }));
+    }
+    if (requiresApprovalDateStatuses.has(record.approvalStatus) && !record.actualReturnDate) {
+      issues.push(codeIssue('V-11', record, logContract.errors, { field: 'Actual Return Date', value: '(blank)' }));
+    }
+    if (requiresReturnDateStatuses.has(record.approvalStatus) && (!record.submissionDate || !record.actualReturnDate)) {
+      issues.push(codeIssue('V-20', record, logContract.errors, { field: 'Submission Date / Actual Return Date', value: `${record.submissionDate || '(blank)'} / ${record.actualReturnDate || '(blank)'}` }));
+    }
+    if (record.actualReturnDate && !record.approvalStatus) {
+      issues.push(codeIssue('V-21', record, logContract.errors, { field: 'Approval Status', value: '(blank)' }));
+    }
+    const futureDate = [record.submissionDate, record.actualReturnDate].find(value => value && dateDifferenceDays(value, asOfDate) > 0);
+    if (futureDate) issues.push(codeIssue('V-23', record, logContract.errors, { field: 'Submission / Actual Return Date', value: futureDate }));
+    const missingRequiredFields = logContract.config.requiredRecordFields.filter(field => isBlank(fields[field]));
+    if (missingRequiredFields.length) issues.push(codeIssue('V-25', record, logContract.errors, { field: 'Required Fields', value: missingRequiredFields.join(', ') }));
+    if (record.submissionDate && record.targetReturnDate && dateDifferenceDays(record.targetReturnDate, record.submissionDate) < 0) {
+      issues.push(codeIssue('V-30', record, logContract.errors, { field: 'Target Return Date', value: record.targetReturnDate }));
+    }
+    if (record.submissionDate && record.actualReturnDate && dateDifferenceDays(record.actualReturnDate, record.submissionDate) < 0) {
+      issues.push(codeIssue('V-30', record, logContract.errors, { field: 'Actual Return Date', value: record.actualReturnDate }));
+    }
+    const approvalOnNotSubmitted = record.submissionStatus && notSubmitted.has(record.submissionStatus) && record.approvalStatus;
+    const invalidResubmission = record.resubmissionRequired === 'YES' && !allowedResubmissionStatuses.has(record.submissionStatus);
+    if (approvalOnNotSubmitted || invalidResubmission) {
+      issues.push(codeIssue('V-31', record, logContract.errors, { field: 'Submission Status / Approval Status / Resubmission Required', value: [record.submissionStatus, record.approvalStatus, record.resubmissionRequired].join(' / ') }));
+    }
+  }
+  return { records, issues, notSubmitted };
+}
+
+/** Recalculate turnaround, delay, month, and row flags. @param {object} record @param {string} asOfDate @param {Set} approvedCodes @param {Array} formulaComparisons @returns {object} */
+function calculateSubmission(record, asOfDate, approvedCodes, formulaComparisons) {
+  const submittedDate = record.submissionDate;
+  const actualReturn = record.actualReturnDate;
+  const targetReturn = record.targetReturnDate;
+  const cachedTurnaround = record.fields['Review Turnaround Days'];
+  const cachedDelay = record.fields['Review Delay Days'];
+  const reviewPeriod = Number(record.fields['Review Period']);
+  const turnaroundDays = submittedDate
+    ? dateDifferenceDays(actualReturn || asOfDate, submittedDate)
+    : null;
+  let delayDays = null;
+  if (actualReturn && targetReturn) delayDays = dateDifferenceDays(actualReturn, targetReturn);
+  else if (!actualReturn && targetReturn) delayDays = Math.max(dateDifferenceDays(asOfDate, targetReturn), 0);
+  if (actualReturn && Number.isFinite(Number(cachedTurnaround)) && turnaroundDays !== null) {
+    formulaComparisons.push({ row: record.row, field: 'Review Turnaround Days', calculated: turnaroundDays, cached: Number(cachedTurnaround), difference: turnaroundDays - Number(cachedTurnaround) });
+  }
+  if (actualReturn && Number.isFinite(Number(cachedDelay)) && delayDays !== null) {
+    formulaComparisons.push({ row: record.row, field: 'Review Delay Days', calculated: delayDays, cached: Number(cachedDelay), difference: delayDays - Number(cachedDelay), reviewPeriod: Number.isFinite(reviewPeriod) ? reviewPeriod : null });
+  }
+  const month = submittedDate ? `${submittedDate.slice(0, 7)}-01` : null;
+  const fields = { ...record.fields };
+  if (turnaroundDays !== null && !record.formulaErrorFields.has('Review Turnaround Days')) fields['Review Turnaround Days'] = turnaroundDays;
+  if (delayDays !== null && !record.formulaErrorFields.has('Review Delay Days')) fields['Review Delay Days'] = delayDays;
+  return {
+    ...record,
+    fields,
+    turnaroundDays,
+    delayDays,
+    month,
+    flagApproved: approvedCodes.has(record.approvalStatus) ? 1 : 0,
+    flagOnTime: delayDays !== null && delayDays <= 0 ? 1 : 0,
+    flagDelayed: delayDays !== null && delayDays > 0 ? 1 : 0,
+    flagResubmission: record.resubmissionRequired === 'YES' ? 1 : 0
+  };
+}
+
+/** Normalize both workbooks, validate their contracts, join records, and calculate row fields. @param {object} mdlWorkbook @param {object} logWorkbook @param {object} options @returns {object} */
+function buildModel(mdlWorkbook, logWorkbook, options = {}) {
+  const config = options.contract;
+  if (!config?.mdl?.requiredFields || !config?.mdl?.requiredRecordFields || !config?.submittalLog?.requiredHeaders || !config?.submittalLog?.requiredRecordFields || !Array.isArray(config.placeholderTokens)) {
+    throw new PipelineError('Pipeline contract configuration is missing or invalid.', { source: 'pipeline_contract.json' });
+  }
+  const stages = [];
+  runStage(stages, 'S1 Check parsed workbooks', () => {
+    assertWorkbook(mdlWorkbook, 'Master Document List');
+    assertWorkbook(logWorkbook, 'Document Submittal Log');
+  });
+  const formulaErrors = new Map();
+  const mdlContract = runStage(stages, 'S2 Read MDL source contract', () => readMdlContract(mdlWorkbook, config));
+  const logContract = runStage(stages, 'S2 Read Submittal Log source contract', () => readLogContract(logWorkbook, config));
+  const modelAsOfDate = options.today || todayLocalISO();
+  const planned = runStage(stages, 'S2 Normalize MDL records', () => parseMdl(mdlWorkbook, mdlContract, formulaErrors, config));
+  const submissions = runStage(stages, 'S2/S3 Normalize and validate submission records', () => parseSubmittals(logContract, mdlContract, formulaErrors, modelAsOfDate));
+  const allErrors = new Map([...mdlContract.errors, ...logContract.errors]);
+  const issues = [...planned.issues, ...submissions.issues];
+  const approvedCodes = new Set([...logContract.statusDomains.approval].filter(([, label]) => /^approved\b/i.test(label) && !/not\s+approved/i.test(label)).map(([code]) => code));
+  const formulaComparisons = [];
+  const calculated = runStage(stages, 'S3 Calculate row-level fields', () => submissions.records.map(record => calculateSubmission(record, modelAsOfDate, approvedCodes, formulaComparisons)));
+  // D32 — the join compares trimmed, upper-cased document numbers. A case variant of a real document
+  // number must match its plan row, not become a false V-29 orphan.
+  const linkKey = value => String(value ?? '').trim().toUpperCase();
+  const plannedByDocument = new Map();
+  for (const record of planned.records) {
+    if (!record.documentNo) continue;
+    const key = linkKey(record.documentNo);
+    const matches = plannedByDocument.get(key) || [];
+    matches.push(record);
+    plannedByDocument.set(key, matches);
+  }
+  const joinedSubmissions = runStage(stages, 'S3 Link submissions to planned rows', () => calculated.map(record => {
+    const matches = record.documentNo ? plannedByDocument.get(linkKey(record.documentNo)) || [] : [];
+    if (!matches.length) {
+      record.linkStatus = 'orphan';
+      issues.push(codeIssue('V-29', record, allErrors, { source: record.source, field: 'Document No.', value: record.documentNo }));
+    } else if (matches.length > 1) {
+      record.linkStatus = 'ambiguous';
+    } else {
+      record.linkStatus = 'matched';
+      record.linkedPlannedId = matches[0].id;
+    }
+    return record;
+  }));
+  const submissionsByPlan = new Map();
+  for (const record of joinedSubmissions) {
+    if (record.linkStatus !== 'matched') continue;
+    const existing = submissionsByPlan.get(record.linkedPlannedId) || [];
+    existing.push(record);
+    submissionsByPlan.set(record.linkedPlannedId, existing);
+  }
+  const submittedCodes = new Set([...logContract.statusDomains.submission.keys()].filter(code => !submissions.notSubmitted.has(code)));
+  const plannedRows = planned.records.map(record => {
+    const linked = submissionsByPlan.get(record.id) || [];
+    const isSubmitted = linked.some(item => Boolean(item.submissionDate) || submittedCodes.has(item.submissionStatus));
+    return { ...record, submissions: linked, isSubmitted };
+  });
+  const warnings = [...formulaErrors.values()].map(({ source, field, count }) => ({
+    severity: 'Fatal', code: 'W-FORMULA', source, field, count,
+    message: `${field} contains ${count} spreadsheet formula-error cell${count === 1 ? '' : 's'}. The value was treated as absent.`
+  }));
+  const returnedComparisons = formulaComparisons.filter(item => item.field === 'Review Delay Days');
+  const formulaDifferences = returnedComparisons.filter(item => item.difference !== 0);
+  if (formulaDifferences.length) warnings.push({
+    severity: 'Warning', code: 'W-FORMULA-COMPARE', source: 'Document Submittal Log', field: 'Review Delay Days',
+    count: formulaDifferences.length,
+    message: `${formulaDifferences.length} returned row(s) differ from the cached workbook delay value. The dashboard keeps negative delay for early returns and recalculates open rows from the target date.`
+  });
+  const duplicatePlannedIds = [...planned.counts].filter(([, count]) => count > 1).length;
+  const metaLabels = config.metadataLabels || {};
+  const dashboardTitleLabel = metaLabels.dashboardTitle || 'Dashboard Title';
+  const projectTitleLabel = metaLabels.projectTitle || 'Project Title';
+  const projectStartLabel = metaLabels.projectStart || 'Project Start Date';
+  const sourceTitles = [...new Set([
+    String(cleanText(mdlContract.metadata.get(dashboardTitleLabel)) ?? '').trim(),
+    String(cleanText(logContract.metadata.get(dashboardTitleLabel)) ?? '').trim()
+  ].filter(Boolean))];
+  return {
+    meta: {
+      asOfDate: modelAsOfDate,
+      generatedAt: new Date().toISOString(),
+      mdlWorkbookName: options.mdlWorkbookName || '',
+      logWorkbookName: options.logWorkbookName || '',
+      projectTitle: String(cleanText(mdlContract.metadata.get(projectTitleLabel)) ?? '').trim(),
+      dashboardTitle: sourceTitles.join(' · '),
+      mdlDashboardTitle: String(cleanText(mdlContract.metadata.get(dashboardTitleLabel)) ?? '').trim(),
+      logDashboardTitle: String(cleanText(logContract.metadata.get(dashboardTitleLabel)) ?? '').trim(),
+      projectStartDate: normalizeDate(mdlContract.metadata.get(projectStartLabel)) || ''
+    },
+    stages,
+    contract: {
+      mdlFields: [...mdlContract.fields.keys()],
+      logHeaders: [...logContract.columns.keys()],
+      statusDomains: {
+        submission: [...logContract.statusDomains.submission.keys()],
+        approval: [...logContract.statusDomains.approval.keys()]
+      },
+      errorRules: [...allErrors.values()]
+    },
+    planned: plannedRows,
+    submissions: joinedSubmissions,
+    issues,
+    warnings,
+    formulaComparisons,
+    coverage: {
+      plannedCount: plannedRows.length,
+      submittedCount: plannedRows.filter(record => record.isSubmitted).length,
+      ambiguousPlannedCount: plannedRows.filter(record => record.documentNo && (planned.counts.get(record.documentNo) || 0) > 1).length,
+      duplicateDocumentNumberCount: duplicatePlannedIds,
+      submissionCount: joinedSubmissions.length,
+      orphanCount: joinedSubmissions.filter(record => record.linkStatus === 'orphan').length,
+      ambiguousSubmissionCount: joinedSubmissions.filter(record => record.linkStatus === 'ambiguous').length
+    }
+  };
+}
+
+/* ===== engine/render.js ===== */
+// Revision 0.2 | 2026-10-24 | CodeBuddy (AI) | D33: a blank Stage is counted as a planned document and a row without a Document No. is not. Exported EXCLUDED_STAGES for dashboard.js.
+// Revision 0.1 | 2026-10-24 | Codex | Added S4 view derivation and dashboard rendering.
+
+const EXCLUDED_STAGES = new Set(['Deleted', 'Void', 'Superseded']);
+
+/** Build the shared filtered set and all dashboard measures. @param {object} model @param {object} state @returns {object} */
+function deriveView(model, state = {}) {
+  const disciplines = state.disciplines instanceof Set ? state.disciplines : new Set(model.planned.map(row => row.discipline).filter(Boolean));
+  // A blank Stage is missing data, not an excluded stage. It stays in the default set so those
+  // planned rows are counted, the same way MDL counts them (and flags them with V-02).
+  const stages = state.stages instanceof Set ? state.stages : new Set(model.planned.map(row => row.stage ?? '').filter(value => !EXCLUDED_STAGES.has(value)));
+  const statuses = state.statuses instanceof Set ? state.statuses : null;
+  const approvals = state.approvals instanceof Set ? state.approvals : null;
+  const submitters = state.submitters instanceof Set ? state.submitters : null;
+  const query = String(state.search || '').trim().toLowerCase();
+  const plansByDocument = new Map();
+  for (const plan of model.planned) {
+    const rows = plansByDocument.get(plan.documentNo) || [];
+    if (plan.documentNo) rows.push(plan);
+    plansByDocument.set(plan.documentNo, rows);
+  }
+  const activeSubmissions = model.submissions.filter(row => {
+    const fields = row.fields;
+    const submitter = String(fields['Submitted By'] || '');
+    const searchValue = state.searchCol === 'document' ? row.documentNo : state.searchCol === 'title' ? fields['Document Title'] : state.searchCol === 'submitter' ? submitter : [row.documentNo, fields['Document Title'], row.discipline, submitter].join(' ');
+    const haystack = String(searchValue || '').toLowerCase();
+    const plans = row.linkedPlannedId ? [model.planned.find(plan => plan.id === row.linkedPlannedId)].filter(Boolean) : plansByDocument.get(row.documentNo) || [];
+    const stageMatch = !stages.size || plans.length === 0 || plans.some(plan => stages.has(plan.stage));
+    return (!disciplines.size || disciplines.has(row.discipline))
+      && stageMatch
+      && (!statuses || !statuses.size || statuses.has(row.submissionStatus))
+      && (!approvals || !approvals.size || approvals.has(row.approvalStatus))
+      && (!submitters || !submitters.size || submitters.has(submitter))
+      && (!query || haystack.includes(query));
+  });
+  const activePlans = model.planned.filter(row => {
+    // A row without a Document No. is a V-01 defect, not a planned document. MDL does not count
+    // it, so it is not counted here either.
+    if (!row.documentNo) return false;
+    const linked = row.submissions;
+    const hasSubmissionFilter = Boolean(statuses?.size || approvals?.size || submitters?.size);
+    const passesSubmissionFilters = hasSubmissionFilter ? linked.some(item => activeSubmissions.includes(item)) : true;
+    const searchValue = state.searchCol === 'document' ? row.documentNo : state.searchCol === 'title' ? row.title : state.searchCol === 'submitter' ? linked.map(item => item.fields['Submitted By']).join(' ') : [row.documentNo, row.title, row.discipline, row.stage, linked.map(item => item.fields['Submitted By']).join(' ')].join(' ');
+    const haystack = String(searchValue || '').toLowerCase();
+    return (!disciplines.size || disciplines.has(row.discipline)) && (!stages.size || stages.has(row.stage ?? '')) && passesSubmissionFilters && (!query || haystack.includes(query));
+  });
+  const submittedPlans = activePlans.filter(row => row.isSubmitted);
+  const approved = activeSubmissions.filter(row => row.flagApproved).length;
+  const dated = activeSubmissions.filter(row => row.delayDays !== null);
+  const onTime = dated.filter(row => row.flagOnTime).length;
+  const delays = dated.map(row => row.delayDays);
+  const delayMean = delays.length ? delays.reduce((sum, value) => sum + value, 0) / delays.length : 0;
+  const issueRows = model.issues.filter(issue => !issue.discipline || disciplines.has(issue.discipline));
+  const byMonth = new Map();
+  for (const row of activeSubmissions) {
+    if (!row.month) continue;
+    const item = byMonth.get(row.month) || { month: row.month, total: 0, status: {}, delay: [] };
+    item.total += 1;
+    item.status[row.submissionStatus] = (item.status[row.submissionStatus] || 0) + 1;
+    if (row.delayDays !== null) item.delay.push(row.delayDays);
+    byMonth.set(row.month, item);
+  }
+  const monthly = [...byMonth.values()].sort((a, b) => a.month.localeCompare(b.month));
+  return {
+    active: activeSubmissions,
+    activePlans,
+    issues: issueRows,
+    monthly,
+    kpis: {
+      totalPlanned: activePlans.length,
+      // D32 — a repeated Document No. is the same document, so the card counts distinct documents.
+      totalSubmissions: new Set(activeSubmissions.map(row => String(row.documentNo || '').trim().toUpperCase())).size,
+      submitted: submittedPlans.length,
+      underReview: activeSubmissions.filter(row => row.submissionStatus === 'SUR').length,
+      approved,
+      onTimeRate: dated.length ? onTime / dated.length : 0,
+      averageDelay: delayMean,
+      overdue: activeSubmissions.filter(row => !row.actualReturnDate && row.delayDays > 0).length,
+      issueCount: issueRows.length
+    }
+  };
+}
+
+/** Render dashboard content from one derived view. @param {Document} doc @param {object} model @param {object} state @returns {object} */
+function renderDashboard(doc, model, state = {}) {
+  const view = deriveView(model, state);
+  const root = doc.querySelector('[data-page-content]');
+  if (!root) return view;
+  const page = state.page || 'Overview';
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+  // §5 — a card is exactly two lines: value and label. The status class colours the 3 px top strip.
+  const card = (label, value, status = '') => `<article class="kpi-card${status ? ` ${status}` : ''}"><div class="v">${esc(value)}</div><div class="l">${esc(label)}</div></article>`;
+  const tableRows = new Map();
+  const table = (headers, rows, key = null) => {
+    const chosen = key && Array.isArray(state.columnSets?.[key]) ? new Set(state.columnSets[key]) : new Set(headers.map((_, index) => index));
+    const indexes = headers.map((_, index) => index).filter(index => chosen.has(index));
+    const windowed = Boolean(key && rows.length > 500);
+    if (key) tableRows.set(key, { headers, rows, indexes, windowed });
+    const countId = key === 'detail' ? 'dCnt' : key === 'issue' ? 'vCnt' : '';
+    const shown = windowed ? Math.min(120, rows.length) : rows.length;
+    const renderRow = row => `<tr>${indexes.map(index => `<td${key ? ` data-col="${index}"${index < 2 ? ' class="ds-pinned"' : ''}` : ''}>${esc(row[index])}</td>`).join('')}</tr>`;
+    const colgroup = indexes.map((index, pos) => `<col${key ? ` data-col="${index}"${pos === 0 ? ' style="width:150px"' : ''}` : ''}>`).join('');
+    const heads = indexes.map((index, pos) => `<th${key ? ` data-col="${index}"${pos < 2 ? ' class="ds-pinned"' : ''}` : ''}>${esc(headers[index])}${key ? `<span class="ds-resize" data-col="${index}" role="separator" aria-label="Resize ${esc(headers[index])}"></span>` : ''}</th>`).join('');
+    const body = rows.length ? `${windowed ? '<tr class="win-pad"><td colspan="' + indexes.length + '" style="height:0px;padding:0"></td></tr>' : ''}${rows.slice(0, shown).map(renderRow).join('')}${windowed ? '<tr class="win-pad"><td colspan="' + indexes.length + '" style="height:' + Math.max(0, rows.length - shown) * 40 + 'px;padding:0"></td></tr>' : ''}` : `<tr><td class="empty" colspan="${indexes.length}">No rows match the current selection.</td></tr>`;
+    const controls = key ? `<div class="table-tools"><span id="${countId}">${windowed ? `${shown} of ${rows.length}` : `${rows.length} of ${rows.length}`}</span><button class="btn-secondary" id="ccBtn_${key}" aria-controls="ccPanel_${key}">Columns</button><div class="column-chooser" id="ccPanel_${key}" hidden>${headers.map((label, index) => index < 2 ? '' : `<label class="cc-row"><input type="checkbox" data-column-choice="${key}" data-column-index="${index}"${chosen.has(index) ? ' checked' : ''}> ${esc(label)}</label>`).join('')}</div></div>` : '';
+    return `${controls}<div class="table-scroll tableScroll"><table class="ds-table"${key ? ` data-table-key="${key}" data-column-count="${headers.length}"` : ''}${windowed ? ' data-windowed="true"' : ''}><colgroup>${colgroup}</colgroup><thead><tr>${heads}</tr></thead><tbody>${body}</tbody></table></div>`;
+  };
+  // §4 — `data-panel` is assigned after insertion, in document order, and only to top-level panels;
+  // nested sub-panels inherit their parent's number and show no badge of their own.
+  const activePanel = (name, content, full = false) => {
+    const collapsed = Array.isArray(state.collapsedPanels) && state.collapsedPanels.includes(name);
+    const label = collapsed ? 'Expand' : 'Collapse';
+    // §4 — Help is the first child of the cluster and the collapse toggle is rightmost.
+    return `<section class="panel${full ? ' full' : ''}${collapsed ? ' collapsed' : ''}"><header class="panel-head"><h2>${esc(name)}</h2><div class="panel-actions"><button class="icon-btn help-open" data-help="${esc(name)}" aria-label="Help for ${esc(name)}" title="Help">?</button><button class="icon-btn panel-toggle" data-panel-toggle="${esc(name)}" aria-expanded="${collapsed ? 'false' : 'true'}" aria-label="${label} ${esc(name)}" title="${label}">${collapsed ? '+' : '−'}</button></div></header>${content}</section>`;
+  };
+  const barChart = (data, labelKey, valueKey) => {
+    const max = Math.max(1, ...data.map(item => Number(item[valueKey]) || 0));
+    return `<div class="bar-chart" role="img" aria-label="${esc(labelKey)} chart">${data.slice(-12).map(item => `<div class="bar-row"><span>${esc(item[labelKey])}</span><div class="bar-track"><i style="width:${Math.max(2, (Number(item[valueKey]) || 0) / max * 100)}%"></i></div><b>${esc(item[valueKey])}</b></div>`).join('') || '<p class="empty">No dated records.</p>'}</div>`;
+  };
+  const overview = () => {
+    const k = view.kpis;
+    const statusData = Object.entries(view.active.reduce((map, row) => { map[row.submissionStatus || 'Blank'] = (map[row.submissionStatus || 'Blank'] || 0) + 1; return map; }, {})).map(([status, count]) => ({ status, count }));
+    const disciplinesData = Object.entries(view.active.reduce((map, row) => { map[row.discipline || 'Unknown'] = (map[row.discipline || 'Unknown'] || 0) + 1; return map; }, {})).map(([discipline, count]) => ({ discipline, count })).sort((a, b) => b.count - a.count).slice(0, 12);
+    return `${activePanel('KPI OVERVIEW', `<div class="kpi-grid">${card('Documents Logged', k.totalSubmissions)}<article class="kpi-card"><div class="v">${k.submitted} / <span data-kpi="totalPlanned">${k.totalPlanned}</span></div><div class="l">Documents Submitted / In Plan</div></article>${card('Under Review (SUR)', k.underReview, 'amb')}${card('Approved (APP + AWC)', k.approved, 'ok')}${card('On-Time Return Rate', `${(k.onTimeRate * 100).toFixed(1)}%`, k.onTimeRate >= 1 ? 'ok' : 'amb')}${card('Average Review Delay', `${k.averageDelay.toFixed(1)} days`, k.averageDelay > 0 ? 'warn' : 'ok')}</div>`)}
+      <div class="panel-grid">${activePanel('C1 Schedule Performance', barChart(view.monthly.map(row => ({ month: row.month.slice(0, 7), planned: view.activePlans.filter(plan => (plan.fields['Planned 1st Issue Date'] || '').slice?.(0, 7) === row.month.slice(0, 7)).length + row.total })), 'month', 'planned'), true)}${activePanel('C2 Submission Flow & Delay', barChart(view.monthly.map(row => ({ month: row.month.slice(0, 7), total: row.total })), 'month', 'total'))}${activePanel('C3 Breakdown', barChart(disciplinesData, 'discipline', 'count'))}</div>`;
+  };
+  const submissions = () => {
+    const rows = view.active.map(row => [row.documentNo, row.fields['Document Title'], row.discipline, row.fields['Submitted By'], row.submissionDate, row.submissionStatus, row.approvalStatus, row.fields['Review Period'], row.targetReturnDate, row.actualReturnDate, row.turnaroundDays, row.delayDays, row.resubmissionRequired]);
+    return activePanel('Submittals', `<div class="table-tools"><span>${rows.length} submission records</span><button class="btn-secondary" data-export="submittals">⤓ CSV</button></div>${table(['Document No.', 'Title', 'Discipline', 'Submitted By', 'Submission Date', 'Submission Status', 'Approval Status', 'Review Period', 'Target Return', 'Actual Return', 'Turnaround', 'Delay', 'Resubmission Required'], rows, 'detail')}`, true);
+  };
+  const validation = () => {
+    const counts = new Map();
+    for (const issue of view.issues) counts.set(issue.code, (counts.get(issue.code) || 0) + 1);
+    const rules = [...counts].map(([code, count]) => { const item = model.contract.errorRules.find(rule => rule.code === code) || {}; return [item.severity || 'Warning', code, item.group || 'Business rule', item.rule || 'Description is not in the workbook Code sheet.', count]; });
+    const issueRows = view.issues.map(issue => [issue.severity, issue.code, issue.documentNo, issue.field, issue.value, issue.message, issue.sheet, issue.row]);
+    return activePanel('Validation', `<p class="note" data-validation-count>${issueRows.length} issues. Rule text comes from the workbook Code sheet.</p><div class="summary-chips"><span class="vchip e">Error ${view.issues.filter(x => String(x.severity).toLowerCase() === 'error').length}</span><span class="vchip w">Warning ${view.issues.filter(x => String(x.severity).toLowerCase() === 'warning').length}</span><span class="vchip i">Info ${view.issues.filter(x => String(x.severity).toLowerCase() === 'info').length}</span></div><details><summary>Code map and issue details</summary><div class="note">${model.contract.mdlFields.length} MDL fields and ${model.contract.logHeaders.length} log headers loaded. ${model.contract.errorRules.length} validation rules loaded.</div><h3>Rules</h3>${table(['Severity', 'Code', 'Group', 'Description', 'Count'], rules)}<h3>Issues</h3>${table(['Severity', 'Rule', 'Doc No.', 'Field', 'Value', 'Message', 'Source Tab', 'Row'], issueRows, 'issue')}</details>`, true);
+  };
+  const coverage = () => {
+    const plans = view.activePlans.filter(row => !row.isSubmitted);
+    return activePanel('Forward Plan · Coverage', `<p class="note">${view.kpis.submitted} submitted of ${view.kpis.totalPlanned} planned rows.</p>${table(['Document No.', 'Title', 'Discipline', 'Stage', 'Planned 1st Issue Date', 'Forecast 1st Issue Date'], plans.map(row => [row.documentNo, row.title, row.discipline, row.stage, row.fields['Planned 1st Issue Date'], row.fields['Forecast 1st Issue Date']]))}`, true);
+  };
+  const analytics = () => `${activePanel('Bottleneck KPIs', `<div class="kpi-grid">${card('Overdue Open', view.kpis.overdue)}${card('Open SUR', view.active.filter(row => row.submissionStatus === 'SUR' && !row.actualReturnDate).length)}${card('Rework', view.active.filter(row => row.flagResubmission).length)}${card('Average Delay', `${view.kpis.averageDelay.toFixed(1)} days`)}${card('Due in 4 Weeks', model.planned.filter(row => row.fields['Planned 1st Issue Date'] >= model.meta.asOfDate).length)}</div>`)}<div class="panel-grid">${activePanel('C4 Turnaround & Aging', barChart(view.active.filter(row => row.delayDays > 0).map(row => ({ documentNo: row.documentNo, delay: row.delayDays })).sort((a, b) => b.delay - a.delay).slice(0, 20), 'documentNo', 'delay'))}${activePanel('C5 Forward Plan', coverage())}</div>`;
+  const help = () => { const copy = state.uiHelp?.pages || {}; const glossary = state.uiHelp?.statusGlossary || {}; return activePanel('Help', `<p>${esc(copy.Help || 'Load both workbooks and use the shared filters.')}</p><p>${esc(state.uiHelp?.filePanel?.instructions || '')}</p><p>Source files: ${esc(model.meta.mdlWorkbookName)} and ${esc(model.meta.logWorkbookName)}.</p><h3>Status glossary</h3>${Object.entries(glossary).flatMap(([group, items]) => Object.entries(items).map(([code, label]) => `<p><b>${esc(group)} · ${esc(code)}</b> — ${esc(label)}</p>`)).join('')}`); };
+  const settings = () => activePanel('Settings', `<label>Theme <select data-setting="theme">${['dark','light','sky','ocean','presentation'].map(theme => `<option value="${theme}"${(state.theme || 'dark') === theme ? ' selected' : ''}>${theme}</option>`).join('')}</select></label><label><input type="checkbox" data-setting="showWarnings"${state.showWarnings === false ? '' : ' checked'}> Show warnings</label><label><input type="checkbox" data-setting="rememberNames"${state.rememberNames ? ' checked' : ''}> Remember workbook names</label>`);
+  const views = { Overview: overview, Submittals: submissions, Validation: validation, 'Forward Plan': coverage, Analytical: analytics, Help: help, Settings: settings };
+  root.innerHTML = (views[page] || overview)();
+  // §4 — the number must follow DOCUMENT order, so it is assigned after insertion. Call order is not
+  // reliable: a page can build a panel's HTML before the point where it is placed.
+  if (typeof root.querySelectorAll === 'function') {
+    const panels = [...root.querySelectorAll('.panel')];
+    panels.filter(node => !node.parentElement.closest('.panel'))
+      .forEach((node, index) => { node.dataset.panel = String(index + 1); });
+    panels.filter(node => node.parentElement.closest('.panel'))
+      .forEach(node => { delete node.dataset.panel; });
+  }
+  for (const tableNode of typeof root.querySelectorAll === 'function' ? root.querySelectorAll('[data-windowed="true"]') : []) {
+    const scroll = tableNode.closest('.tableScroll');
+    const tbody = tableNode.querySelector('tbody');
+    const tableData = tableRows.get(tableNode.dataset.tableKey);
+    if (!scroll || !tbody || !tableData) continue;
+    scroll.addEventListener('scroll', () => {
+      const first = Math.max(0, Math.floor(scroll.scrollTop / 40) - 3);
+      const last = Math.min(tableData.rows.length, first + 120);
+      const rowHtml = tableData.rows.slice(first, last).map(row => `<tr>${tableData.indexes.map(index => `<td data-col="${index}"${index < 2 ? ' class="ds-pinned"' : ''}>${esc(row[index])}</td>`).join('')}</tr>`).join('');
+      tbody.innerHTML = `<tr class="win-pad"><td colspan="${tableData.indexes.length}" style="height:${first * 40}px;padding:0"></td></tr>${rowHtml}<tr class="win-pad"><td colspan="${tableData.indexes.length}" style="height:${Math.max(0, tableData.rows.length - last) * 40}px;padding:0"></td></tr>`;
+      const count = root.querySelector('#vCnt, #dCnt');
+      if (count) count.textContent = `${last - first} of ${tableData.rows.length}`;
+    }, { passive: true });
+  }
+  return view;
+}
+
+/* ===== engine/dashboard.js ===== */
+// Revision 2.3 | 2026-10-24 | CodeBuddy (AI) | D33: the Stage filter lists (blank) plus Deleted, Void and Superseded, and its badge is measured against the default ticked set.
+// Revision 2.2 | 2026-10-24 | CodeBuddy (AI) | Option B shell (MDL two-row header + left nav sidebar). Engine contract unchanged; UI handlers rewired to menu bar + modals.
+
+const $ = selector => document.querySelector(selector);
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, collapsedPanels: [] };
+let contract;
+let uiHelp;
+let files = { mdl: null, log: null };
+let fileInfo = { mdl: null, log: null };
+let model = null;
+
+function setStatus(message) { $('#status-message').textContent = message; }
+function updateFiles() {
+  const ready = !!(files.mdl && files.log && contract);
+  const welcomeLoad = document.getElementById('welcome-load');
+  if (welcomeLoad) welcomeLoad.disabled = !ready;
+  const pickState = document.getElementById('pick-state');
+  if (pickState) {
+    const describe = kind => {
+      if (!files[kind]) return 'still needed';
+      const info = fileInfo[kind];
+      return info?.dashboardTitle ? `${info.dashboardTitle} — ${files[kind].name}` : files[kind].name;
+    };
+    pickState.textContent = (files.mdl || files.log)
+      ? `MDL: ${describe('mdl')} · Log: ${describe('log')}`
+      : 'No workbooks selected yet.';
+    pickState.classList.toggle('ready', ready);
+  }
+}
+function updateSidebarWidth(width) {
+  // §3.2 — the floor is the width at which the widest menu title still fits (135 px), rounded up.
+  const min = 140, max = 460;
+  const value = Math.max(min, Math.min(max, width));
+  document.documentElement.style.setProperty('--sidebar-w', `${value}px`);
+  localStorage.setItem('sub-dashboard-left-sidebar-width', String(value));
+}
+function updateTheme() { document.documentElement.dataset.theme = state.theme; localStorage.setItem('sub-dashboard-theme', state.theme); $('select[data-setting="theme"]') && ($('select[data-setting="theme"]').value = state.theme); }
+function showWarnings() {
+  const area = $('[data-shell="warnings"]');
+  const items = model?.warnings || [];
+  area.hidden = items.length === 0;
+  const ordered = [...items].sort((a, b) => ({ Fatal: 0, Error: 0, Warning: 1, Info: 2 }[a.severity] ?? 3) - ({ Fatal: 0, Error: 0, Warning: 1, Info: 2 }[b.severity] ?? 3));
+  area.innerHTML = ordered.map(item => `<div class="sys-banner-item ${String(item.severity).toLowerCase()}"><b>${escapeHtml(item.code)}</b> ${escapeHtml(item.message)}</div>`).join('');
+  $('#warnBtn').hidden = items.length === 0;
+  $('#warning-count').textContent = String(items.length);
+  area.classList.toggle('collapsed', state.showWarnings === false);
+  $('#warnBtn').setAttribute('aria-pressed', String(state.showWarnings !== false));
+}
+let filterDimensions = [];
+function filtersMarkup() {
+  // Stage lists every stored value plus the three excluded stages, so the filter shows the whole
+  // Stage domain even when no row uses it. A blank Stage appears as "(blank)".
+  const stageValues = [...new Set([...model.planned.map(row => row.stage ?? ''), ...EXCLUDED_STAGES])].sort();
+  filterDimensions = [
+    ['disciplines', 'Discipline', [...new Set(model.planned.map(row => row.discipline).filter(Boolean))].sort()],
+    ['stages', 'Stage', stageValues, new Set(stageValues.filter(value => !EXCLUDED_STAGES.has(value)))],
+    ['statuses', 'Submission Status', [...new Set(model.submissions.map(row => row.submissionStatus).filter(Boolean))].sort()],
+    ['approvals', 'Approval Status', [...new Set(model.submissions.map(row => row.approvalStatus).filter(Boolean))].sort()],
+    ['submitters', 'Submitted By', [...new Set(model.submissions.map(row => row.fields['Submitted By']).filter(Boolean))].sort()]
+  ];
+  state.defaultStages = filterDimensions.find(([key]) => key === 'stages')[3];
+  $('#global-filter-buttons').innerHTML = filterDimensions.map(([key, title, values]) => `<div class="tf-wrap"><button class="tf-btn" id="tfBtn_${key}" title="Applies to all panels — filters the whole dashboard" aria-expanded="false" aria-haspopup="true" aria-controls="tfPanel_${key}">${escapeHtml(title)}<span class="tf-cnt" id="tfCnt_${key}"></span></button><div class="tf-panel" id="tfPanel_${key}" role="group" aria-label="Filter every panel by ${escapeHtml(title.toLowerCase())}" hidden><label class="tf-all"><input type="checkbox" data-filter-all="${key}"> <b>All ${escapeHtml(title)}</b></label><div class="tf-hint">Tick one or more values to narrow every panel.</div><div class="tf-divider"></div><div class="tf-list">${values.map(value => `<label class="tf-item"><input type="checkbox" data-filter="${key}" value="${escapeHtml(value)}"><span>${escapeHtml(value === '' ? '(blank)' : value)}</span></label>`).join('')}</div></div></div>`).join('');
+  $('#global-filters').hidden = false;
+  $('#search-button').hidden = false;
+  $('#warnBtn').hidden = !(model.warnings.length);
+  syncFilterControls();
+}
+function syncFilterControls() {
+  for (const [key, , values, defaultValues] of filterDimensions) {
+    const set = state[key] instanceof Set ? state[key] : new Set();
+    // A dimension can start with a subset ticked (Stage omits the three excluded stages).
+    // "Narrowed" therefore compares the ticked set with that default, not with the option count.
+    const defaults = defaultValues instanceof Set ? defaultValues : new Set(values);
+    const master = document.querySelector(`input[data-filter-all="${key}"]`);
+    // The master reflects an explicit "every value ticked", so unticking it does not snap back.
+    if (master) master.checked = values.length > 0 && set.size >= values.length;
+    for (const input of document.querySelectorAll(`input[data-filter="${key}"]`)) input.checked = set.size > 0 && set.has(input.value);
+    const narrowed = set.size > 0 && (set.size !== defaults.size || [...set].some(value => !defaults.has(value)));
+    const count = document.getElementById(`tfCnt_${key}`);
+    if (count) count.textContent = narrowed ? String(set.size) : '';
+    const button = document.getElementById(`tfBtn_${key}`);
+    if (button) button.classList.toggle('is-filtered', narrowed);
+  }
+}
+function closeFilterPanels() {
+  for (const [key] of filterDimensions) {
+    const panel = document.getElementById(`tfPanel_${key}`);
+    const button = document.getElementById(`tfBtn_${key}`);
+    if (panel) panel.hidden = true;
+    if (button) button.setAttribute('aria-expanded', 'false');
+  }
+}
+function paint() {
+  if (!model) return;
+  $('[data-page-content]').hidden = false;
+  document.body.classList.add('loaded');
+  const view = renderDashboard(document, model, { ...state, uiHelp });
+  document.querySelectorAll('[data-page]').forEach(button => button.classList.toggle('active', button.dataset.page === state.page));
+  const pageTitle = document.getElementById('page-title');
+  if (pageTitle) pageTitle.textContent = state.page;
+  const ttl = document.querySelector('.ttl');
+  if (ttl) ttl.textContent = model.meta.projectTitle || model.meta.mdlWorkbookName || 'Dashboard';
+  const ttlSub = document.getElementById('ttl-sub');
+  if (ttlSub) { ttlSub.textContent = model.meta.dashboardTitle || ''; ttlSub.hidden = !model.meta.dashboardTitle; }
+  const ttlMeta = document.querySelector('.ttl-stack .meta');
+  if (ttlMeta) ttlMeta.textContent = `Project start ${model.meta.projectStartDate || '—'} · as of ${model.meta.asOfDate || '—'}`;
+  $('#status-files').textContent = `MDL: ${files.mdl?.name || '—'} · Log: ${files.log?.name || '—'} · ${view.kpis.totalPlanned.toLocaleString()} planned rows`;
+  showWarnings();
+  updateTheme();
+}
+async function readAndBuild() {
+  if (!files.mdl || !files.log) { setStatus('Select both workbooks.'); return; }
+  for (const id of ['welcome-load', 'load-button-menu']) { const button = document.getElementById(id); if (button) button.disabled = true; }
+  setStatus('Reading workbooks…');
+  const welcomeErr = document.getElementById('welcomeErr');
+  if (welcomeErr) welcomeErr.hidden = true;
+  try {
+    const [mdlBuffer, logBuffer] = await Promise.all([files.mdl.arrayBuffer(), files.log.arrayBuffer()]);
+    const [mdlWorkbook, logWorkbook] = await Promise.all([readXlsx(mdlBuffer), readXlsx(logBuffer)]);
+    model = buildModel(mdlWorkbook, logWorkbook, { contract, mdlWorkbookName: files.mdl.name, logWorkbookName: files.log.name });
+    state.disciplines = new Set(model.planned.map(row => row.discipline).filter(Boolean));
+    state.stages = new Set(model.planned.map(row => row.stage ?? '').filter(value => !EXCLUDED_STAGES.has(value)));
+    if (state.rememberNames) localStorage.setItem('sub-dashboard-file-names', JSON.stringify({ mdl: files.mdl.name, log: files.log.name }));
+    filtersMarkup();
+    paint();
+    setStatus(uiHelp?.labels?.statusReady || 'Both workbooks loaded.');
+  } catch (error) {
+    model = null;
+    document.body.classList.remove('loaded');
+    $('[data-page-content]').innerHTML = '';
+    setStatus('Load failed. Review the message on the welcome screen.');
+    const err = document.getElementById('welcomeErr');
+    err.hidden = false;
+    err.textContent = error.message;
+  } finally { updateFiles(); }
+}
+
+async function inspectFile(file) {
+  const buffer = await file.arrayBuffer();
+  const workbook = await readXlsx(buffer, { only: [contract.mdl.codeSheet, contract.submittalLog.codeSheet] });
+  return inspectWorkbook(workbook, contract);
+}
+function rejectSelection(reason) {
+  setStatus(reason);
+  const err = document.getElementById('welcomeErr');
+  if (err) { err.hidden = false; err.textContent = reason; }
+}
+async function acceptSelection(picked) {
+  if (!picked.length) return;
+  const err = document.getElementById('welcomeErr');
+  if (err) { err.hidden = true; err.textContent = ''; }
+  const pickState = document.getElementById('pick-state');
+  if (pickState) pickState.textContent = 'Checking workbooks…';
+  const inspected = [];
+  for (const file of picked) {
+    try {
+      inspected.push({ file, ...(await inspectFile(file)) });
+    } catch (error) {
+      inspected.push({ file, ok: false, reason: `"${file.name}" could not be read as an Excel workbook. ${error.message}` });
+    }
+  }
+  const failed = inspected.find(item => !item.ok);
+  if (failed) { rejectSelection(failed.reason); updateFiles(); return; }
+  if (inspected.length > 1 && new Set(inspected.map(item => item.kind)).size === 1) {
+    rejectSelection(`Both files are "${inspected[0].dashboardTitle}". Choose one ${contract.mdl.dashboardTitle} and one ${contract.submittalLog.dashboardTitle}.`);
+    updateFiles();
+    return;
+  }
+  const nextFiles = { mdl: files.mdl, log: files.log };
+  const nextInfo = { mdl: fileInfo.mdl, log: fileInfo.log };
+  for (const item of inspected) {
+    nextFiles[item.kind] = item.file;
+    nextInfo[item.kind] = { dashboardTitle: item.dashboardTitle, projectTitle: item.projectTitle };
+  }
+  const mdlProject = nextInfo.mdl?.projectTitle;
+  const logProject = nextInfo.log?.projectTitle;
+  if (mdlProject && logProject && mdlProject !== logProject) {
+    rejectSelection(`Project mismatch: "${mdlProject}" and "${logProject}". Both workbooks must belong to the same project.`);
+    updateFiles();
+    return;
+  }
+  files.mdl = nextFiles.mdl;
+  files.log = nextFiles.log;
+  fileInfo.mdl = nextInfo.mdl;
+  fileInfo.log = nextInfo.log;
+  updateFiles();
+}
+
+window._loadFiles = async (mdlFile, logFile) => { files = { mdl: mdlFile, log: logFile }; fileInfo = { mdl: null, log: null }; updateFiles(); await readAndBuild(); };
+window._loadFile = async file => {
+  if (/master document list/i.test(file.name)) files.mdl = file;
+  else if (/submittal log/i.test(file.name)) files.log = file;
+  updateFiles();
+  if (files.mdl && files.log) await readAndBuild();
+};
+
+function openModal(id) { const modal = document.getElementById(id); if (modal) modal.hidden = false; }
+function closeModal(id) { const modal = document.getElementById(id); if (modal) modal.hidden = true; }
+function helpHtml() {
+  const copy = uiHelp?.pages || {};
+  const glossary = uiHelp?.statusGlossary || {};
+  let html = `<p>${escapeHtml(copy.Help || 'Load both workbooks and use the shared filters.')}</p>`;
+  html += `<p>${escapeHtml(uiHelp?.filePanel?.instructions || '')}</p>`;
+  if (model) html += `<p>Source files: ${escapeHtml(model.meta.mdlWorkbookName)} and ${escapeHtml(model.meta.logWorkbookName)}.</p>`;
+  const entries = Object.entries(glossary).flatMap(([group, items]) => Object.entries(items).map(([code, label]) => `<p><b>${escapeHtml(group)} · ${escapeHtml(code)}</b> — ${escapeHtml(label)}</p>`)).join('');
+  if (entries) html += `<h3>Status glossary</h3>${entries}`;
+  return html;
+}
+
+document.addEventListener('click', async event => {
+  const target = event.target.closest('button');
+  if (!target) return;
+  if (target.dataset.page) { state.page = target.dataset.page; paint(); }
+  if (target.dataset.shellToggle) document.body.classList.toggle(`closed-${target.dataset.shellToggle}`);
+  if (target.id === 'settings-button') openModal('settings-modal');
+  if (target.id === 'help-button') { $('#help-body').innerHTML = helpHtml(); openModal('help-modal'); }
+  if (target.dataset.close) closeModal(target.dataset.close);
+  if (target.id === 'load-button-menu') { if (files.mdl && files.log) await readAndBuild(); else $('#file-pair').click(); }
+  if (target.id === 'welcome-load') await readAndBuild();
+  if (target.classList.contains('choose-workbooks')) $('#file-pair').click();
+  // §4.1 — the collapse toggle belongs to the panel; its state is kept in `state` so a re-render
+  // restores it rather than snapping the panel back open.
+  if (target.dataset.panelToggle) {
+    const name = target.dataset.panelToggle;
+    const index = state.collapsedPanels.indexOf(name);
+    if (index >= 0) state.collapsedPanels.splice(index, 1); else state.collapsedPanels.push(name);
+    paint();
+  }
+  if (target.id === 'layout-button') { const layouts = ['one', 'two', 'three']; const index = (layouts.indexOf(document.body.dataset.layout) + 1) % layouts.length; document.body.dataset.layout = layouts[index]; target.title = `${index + 1} column layout`; }
+  if (target.id === 'search-button') { $('#searchPanel').classList.toggle('open'); target.setAttribute('aria-expanded', String($('#searchPanel').classList.contains('open'))); }
+  if (target.id.startsWith('ccBtn_')) { const panel = document.getElementById(target.getAttribute('aria-controls')); if (panel) panel.hidden = !panel.hidden; }
+  if (target.classList?.contains('tf-btn')) {
+    const panel = document.getElementById(target.getAttribute('aria-controls'));
+    const open = !panel || panel.hidden;
+    closeFilterPanels();
+    if (panel && open) { panel.hidden = false; target.setAttribute('aria-expanded', 'true'); }
+  } else if (!target.closest?.('.tf-panel')) { closeFilterPanels(); }
+  if (target.id !== 'search-button' && !target.closest?.('#searchPanel')) {
+    const searchPanel = document.getElementById('searchPanel');
+    if (searchPanel?.classList.contains('open')) { searchPanel.classList.remove('open'); document.getElementById('search-button')?.setAttribute('aria-expanded', 'false'); }
+  }
+  if (target.id === 'warnBtn') { state.showWarnings = !state.showWarnings; localStorage.setItem('sub-dashboard-warnings', String(state.showWarnings)); showWarnings(); }
+  if (target.id === 'fGo') { state.search = $('#fSearch').value; state.searchCol = $('#fCol').value; paint(); $('#searchPanel').classList.remove('open'); $('#search-button').setAttribute('aria-expanded', 'false'); }
+  if (target.id === 'fReset') { state.search = ''; $('#fSearch').value = ''; paint(); }
+  if (target.dataset.export) {
+    const rows = model ? deriveView(model, state).active : [];
+    const cols = ['Document No.', 'Document Title', 'Discipline', 'Submitted By', 'Submission Date', 'Submission Status', 'Approval Status', 'Review Period', 'Target Return Date', 'Actual Return Date', 'Review Turnaround Days', 'Review Delay Days', 'Resubmission Required'];
+    const text = [cols, ...rows.map(row => [row.documentNo, row.fields['Document Title'], row.discipline, row.fields['Submitted By'], row.submissionDate, row.submissionStatus, row.approvalStatus, row.fields['Review Period'], row.targetReturnDate, row.actualReturnDate, row.turnaroundDays, row.delayDays, row.resubmissionRequired])].map(row => row.map(value => `"${String(value ?? '').replaceAll('"', '""')}"`).join(',')).join('\r\n');
+    const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' })); link.download = 'submittals.csv'; link.click(); URL.revokeObjectURL(link.href);
+  }
+});
+document.addEventListener('click', event => { if (event.target.classList?.contains('modal')) closeModal(event.target.id); });
+document.addEventListener('change', async event => {
+  const { filter, setting } = event.target.dataset;
+  if (event.target.dataset.columnChoice) {
+    const key = event.target.dataset.columnChoice;
+    const table = document.querySelector(`[data-table-key="${key}"]`);
+    const max = Number(table?.dataset.columnCount) || table?.querySelectorAll('thead th[data-col]').length || 0;
+    const selected = new Set(state.columnSets?.[key] || Array.from({ length: max }, (_, index) => index));
+    const index = Number(event.target.dataset.columnIndex);
+    if (event.target.checked) selected.add(index); else selected.delete(index);
+    state.columnSets = { ...state.columnSets, [key]: [...selected].sort((a, b) => a - b) };
+    localStorage.setItem(`sub_dashboard_${key}_cols`, JSON.stringify(state.columnSets[key]));
+    paint();
+  }
+  const filterAll = event.target.dataset.filterAll;
+  if (filterAll) {
+    const dimension = filterDimensions.find(([key]) => key === filterAll);
+    if (dimension) { state[filterAll] = event.target.checked ? new Set(dimension[2]) : new Set(); syncFilterControls(); paint(); }
+    return;
+  }
+  if (filter) {
+    const dimension = filterDimensions.find(([key]) => key === filter);
+    if (!dimension) return;
+    const set = state[filter] instanceof Set ? new Set(state[filter]) : new Set();
+    if (event.target.checked) set.add(event.target.value); else set.delete(event.target.value);
+    state[filter] = set;
+    syncFilterControls();
+    paint();
+  }
+  if (setting === 'theme') { state.theme = event.target.value; paint(); }
+  if (setting === 'showWarnings') { state.showWarnings = event.target.checked; showWarnings(); }
+  if (setting === 'rememberNames') { state.rememberNames = event.target.checked; localStorage.setItem('sub-dashboard-remember-names', String(state.rememberNames)); }
+  if (event.target.id === 'file-pair') {
+    const chosen = [...event.target.files];
+    event.target.value = '';
+    await acceptSelection(chosen);
+  }
+});
+document.addEventListener('input', event => { if (event.target.id === 'fSearch') state.search = event.target.value; });
+document.addEventListener('change', event => { if (event.target.id === 'fCol') state.searchCol = event.target.value; });
+document.addEventListener('pointerdown', event => {
+  const grip = event.target.closest('.ds-resize');
+  if (grip) {
+    event.preventDefault();
+    const table = grip.closest('table');
+    const colIndex = Number(grip.dataset.col);
+    const col = table.querySelector(`col[data-col="${colIndex}"]`);
+    const startX = event.clientX;
+    const startWidth = col.getBoundingClientRect().width;
+    const widths = JSON.parse(localStorage.getItem(`sub_dashboard_${table.dataset.tableKey}_widths`) || '{}');
+    const saveWidths = () => localStorage.setItem(`sub_dashboard_${table.dataset.tableKey}_widths`, JSON.stringify(widths));
+    const move = pointer => { const width = Math.max(60, startWidth + pointer.clientX - startX); col.style.width = `${width}px`; if (colIndex === 0) table.style.setProperty('--pin-first-col', `${width}px`); widths[colIndex] = width; saveWidths(); };
+    const end = () => { document.removeEventListener('pointermove', move); saveWidths(); };
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', end, { once: true });
+    return;
+  }
+  const handle = event.target.closest('[data-shell-resize]');
+  if (!handle) return;
+  event.preventDefault();
+  const side = handle.dataset.shellResize;
+  const startX = event.clientX;
+  const pane = document.querySelector(`[data-shell="${side}"]`);
+  const startWidth = pane.getBoundingClientRect().width;
+  const move = pointer => updateSidebarWidth(startWidth + (side === 'left-sidebar' ? pointer.clientX - startX : startX - pointer.clientX));
+  const end = () => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', end); };
+  document.addEventListener('pointermove', move);
+  document.addEventListener('pointerup', end, { once: true });
+});
+document.addEventListener('dragover', event => { if (event.target.closest('#welcome-screen') || event.target.closest('.app-menu')) event.preventDefault(); });
+document.addEventListener('drop', async event => { if (!event.target.closest('#welcome-screen') && !event.target.closest('.app-menu')) return; event.preventDefault(); await acceptSelection([...event.dataTransfer.files]); });
+
+try {
+  contract = JSON.parse(document.getElementById('pipeline-contract').textContent);
+  uiHelp = JSON.parse(document.getElementById('ui-help').textContent);
+  state.rememberNames = localStorage.getItem('sub-dashboard-remember-names') === 'true';
+}
+catch (error) {
+  setStatus(error.message);
+  const welcomeErr = document.getElementById('welcomeErr');
+  if (welcomeErr) { welcomeErr.hidden = false; welcomeErr.textContent = `Startup failed: ${error.message}`; }
+}
+document.documentElement.dataset.theme = state.theme;
+const savedWidth = Number(localStorage.getItem('sub-dashboard-left-sidebar-width'));
+if (savedWidth) updateSidebarWidth(savedWidth);
+updateFiles();
+  </script>
+  <!-- STANDALONE:END -->
+</head>
+<body data-layout="one">
+  <div id="welcome-screen" class="welcome-screen">
+    <div class="onboarding">
+      <img class="wlogo" src="data:image/jpeg;base64,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" alt="logo">
+      <h2>Document Submittal Dashboard</h2>
+      <p class="sub">Interactive dashboard. Load the workbooks to validate data, explore status, and review details.</p>
+      <div class="expect">Select your <b>Master Document List</b> and <b>Document Submittal Log</b> (.xlsx). Drop them below or click to browse. Both files are required.</div>
+      <div class="drop choose-workbooks" tabindex="0" aria-label="Drop both workbooks here, or click to browse">
+        <div class="d-title">Drop both workbooks here</div>
+        <div class="d-sub">or click to browse</div>
+        <div class="drop-actions">
+          <label class="btn btn-primary choose-workbooks">Choose Workbooks
+            <input id="file-pair" type="file" accept=".xlsx,.xlsm" multiple style="display:none">
+          </label>
+          <button type="button" class="btn btn-primary" id="welcome-load" disabled>Load Data</button>
+        </div>
+      </div>
+      <div class="pick-state" id="pick-state">No workbooks selected yet.</div>
+      <div class="welcome-err" id="welcomeErr" hidden></div>
+      <div class="privacy"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 3 5v6c0 5 3.4 9.7 9 11 5.6-1.3 9-6 9-11V5l-9-4zm0 10.9h7c-.5 4-3 7.3-7 8.3V12H5V6.3l7-3.1V12z"/></svg> Works fully offline — your data never leaves this browser</div>
+      <div class="copyright">© 2026 UESH</div>
+    </div>
+  </div>
+  <div class="app">
+    <header class="app-bar">
+      <div class="app-top" data-shell="titlebar">
+        <div class="brand">
+          <img class="logo" src="data:image/jpeg;base64,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" alt="logo">
+          <div class="ttl-stack">
+            <h1 class="ttl">Document Submittal Dashboard</h1>
+            <div class="sub" id="ttl-sub" hidden></div>
+            <div class="meta">Project start — · as of —</div>
+          </div>
+        </div>
+        <div class="page-title" id="page-title" aria-live="polite">Overview</div>
+      </div>
+      <div class="app-menu" data-shell="menubar">
+        <button class="btn" data-shell-toggle="left-sidebar" title="Toggle navigation panel" aria-label="Toggle navigation panel">☰</button>
+        <div class="actions">
+          <button class="btn btn-primary" id="load-button-menu" title="Choose the project workbooks, or load the ones already selected">Load Workbook</button>
+          <button class="btn" data-export>Export</button>
+        </div>
+        <div class="filter-group" id="global-filters" hidden>
+          <div class="tf-filters" id="global-filter-buttons"></div>
+          <div class="tf-wrap">
+            <button class="btn" id="search-button" type="button" hidden title="Applies to all panels — filters the whole dashboard" aria-haspopup="dialog" aria-controls="searchPanel" aria-expanded="false">Search</button>
+            <div class="tf-panel search-panel" id="searchPanel" role="dialog" aria-label="Search documents — filters every panel"><div class="search-row"><div class="search"><select id="fCol" class="inter-sel is-attached" aria-label="Search column"><option value="all">All fields</option><option value="document">Document No.</option><option value="title">Title</option><option value="submitter">Submitted By</option></select><input id="fSearch" class="search-input" type="search" placeholder="Document number, title, or submitter" aria-label="Search value"></div><button class="btn btn-primary" id="fGo" type="button">Find</button><button class="btn" id="fReset" type="button">Reset</button></div></div>
+          </div>
+          <button class="btn warn-toggle" id="warnBtn" hidden aria-pressed="true" aria-label="Data-quality warnings (0)"><span class="badge" id="warning-count">0</span> <span>Warnings</span></button>
+        </div>
+        <button class="btn" id="layout-button" title="Change layout" aria-label="Change panel layout">▦</button>
+      </div>
+    </header>
+    <main class="shell-row">
+      <aside class="left-sidebar" data-shell="left-sidebar" aria-label="Navigation and settings">
+        <nav class="sb-menu page-links">
+          <button class="page-link active" data-page="Overview">Overview</button>
+          <button class="page-link" data-page="Submittals">Submittals</button>
+          <button class="page-link" data-page="Validation">Validation</button>
+          <button class="page-link" data-page="Forward Plan">Forward Plan</button>
+          <button class="page-link" data-page="Analytical">Analytical</button>
+        </nav>
+        <nav class="sb-bottom">
+          <button class="page-link" id="settings-button">Settings</button>
+          <button class="page-link" id="help-button">Help</button>
+        </nav>
+        <div class="resize-handle" data-shell-resize="left-sidebar" role="separator" aria-orientation="vertical" aria-label="Resize navigation panel" tabindex="0"></div>
+      </aside>
+      <section class="content" data-shell="content">
+        <div class="filter-area" data-shell="filter-area">
+          <div class="warning-area" data-shell="warnings" role="alert" aria-live="assertive" hidden></div>
+        </div>
+        <div class="content-body" data-shell="body">
+          <div data-page-content hidden></div>
+        </div>
+      </section>
+    </main>
+    <footer class="status-bar" data-shell="statusbar"><span id="status-left"><span id="status-files">No workbooks loaded</span> · <span id="status-message">Select both workbooks to begin.</span></span><span id="status-right">SUB v2.2.0</span></footer>
+  </div>
+
+  <div class="modal" id="settings-modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <header class="modal-head"><h3 id="settingsTitle">Settings</h3><button class="close icon-btn" data-close="settings-modal" aria-label="Close settings">✕</button></header>
+      <div class="modal-body">
+        <label class="setting"><span>Theme</span><select data-setting="theme"><option value="light">Light</option><option value="dark">Dark</option><option value="sky">Sky</option><option value="ocean">Ocean</option><option value="presentation">Presentation</option></select></label>
+        <label class="setting"><input type="checkbox" data-setting="showWarnings"> Show Warnings</label>
+        <label class="setting"><input type="checkbox" data-setting="rememberNames"> Remember File Names</label>
+      </div>
+    </div>
+  </div>
+  <div class="modal" id="help-modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <header class="modal-head"><h3 id="helpTitle">Help</h3><button class="close icon-btn" data-close="help-modal" aria-label="Close help">✕</button></header>
+      <div class="modal-body" id="help-body"></div>
+    </div>
+  </div>
+</body>
+</html>

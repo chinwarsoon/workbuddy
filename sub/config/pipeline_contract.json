@@ -1,0 +1,96 @@
+{
+  "version": "0.2.0",
+  "title": "Sub Dashboard Pipeline Contract",
+  "description": "Required source fields and source sheet names for the Sub dashboard pipeline.",
+  "revisionHistory": [
+    {
+      "revision": "0.2.0",
+      "date": "2026-10-24",
+      "author": "CodeBuddy (AI)",
+      "summary": "Added metadataLabels (Project Title, Dashboard Title, Project Start Date) and the expected dashboardTitle per workbook, so a workbook is identified by its Code sheet content rather than its file name."
+    },
+    {
+      "revision": "0.1.0",
+      "date": "2026-10-24",
+      "author": "Codex",
+      "summary": "Defined the fields required by pipeline parsing and validation."
+    }
+  ],
+  "placeholderTokens": ["xxxx"],
+  "metadataLabels": {
+    "projectTitle": "Project Title",
+    "dashboardTitle": "Dashboard Title",
+    "projectStart": "Project Start Date"
+  },
+  "mdl": {
+    "codeSheet": "Code",
+    "dashboardTitle": "Master Document List",
+    "requiredSheets": [
+      "Project",
+      "Construction",
+      "QAQC",
+      "ICA",
+      "Process",
+      "BS",
+      "Mech",
+      "Piping",
+      "Electrical",
+      "CSA",
+      "BIM"
+    ],
+    "requiredFields": [
+      "Stage",
+      "UESH Discipline",
+      "Discipline",
+      "Project Code",
+      "Project Prefix",
+      "Doc Type",
+      "Number",
+      "Document No.",
+      "Document Title",
+      "Planned 1st Issue Date",
+      "Forecast 1st Issue Date"
+    ],
+    "requiredRecordFields": [
+      "Document Title",
+      "UESH Discipline",
+      "Stage",
+      "Doc Type",
+      "Discipline",
+      "Project Code",
+      "Project Prefix",
+      "Number"
+    ]
+  },
+  "submittalLog": {
+    "sheet": "SubmittalLog",
+    "codeSheet": "Code",
+    "dashboardTitle": "Document Submittal Log",
+    "requiredHeaders": [
+      "SNo.",
+      "Prolog No.",
+      "Prolog Subject",
+      "Document No.",
+      "Revision",
+      "Submitted By",
+      "Submission Date",
+      "Review Period",
+      "Target Return Date",
+      "Actual Return Date",
+      "Review Turnaround Days",
+      "Review Delay Days",
+      "Submission Status",
+      "Approval Status",
+      "Resubmission Required"
+    ],
+    "requiredRecordFields": [
+      "Document No.",
+      "Prolog No.",
+      "Submission Date",
+      "Review Period",
+      "Target Return Date",
+      "Submission Status"
+    ],
+    "voidApprovalValues": ["VOID"]
+  }
+}

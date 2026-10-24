@@ -1,0 +1,256 @@
+/* Revision 2.2 | 2026-10-24 | CodeBuddy (AI) | Option B shell: MDL two-row header + navy left nav sidebar; light default. */
+:root{
+  color-scheme:light;
+  --navy:#15314f; --blue:#2b6cf6; --green:#17a67a; --amber:#F9A825; --red:#d23b3b; --slate:#64748B;
+  --bg:#eef2f8; --surface:#FFFFFF; --surface2:#F1F5F9; --surface3:#E8EDF3;
+  --border:#D9E1E8; --text:#1F2A37; --text2:#526171; --text3:#6b7785;
+  --accent:#2b6cf6; --accent-alt:#17a67a; --success:#17a67a; --warning:#F9A825; --danger:#d23b3b; --info:#2b6cf6;
+  --tag-bg:#EAF2FB; --tag-border:#CBDDEF; --row-stripe:#F7F9FB; --row-hover:#EAF2FB; --th-bg:#E8EDF3; --th-hover:#DAE3ED;
+  --shadow:0 1px 2px rgba(16,32,64,.04),0 8px 24px rgba(16,32,64,.05);
+  /* §3.2 — the left panel is sized to its menu titles: the widest, "Forward Plan", is 91 px at
+     14 px / 400, which with the button's 12 px horizontal padding and the panel's 10 px padding
+     needs 135 px, and 25 px of slack is left on top. */
+  --titlebar-h:56px; --menubar-h:48px; --sidebar-w:160px; --statusbar-h:30px;
+  --radius:12px; --radius-sm:6px; --radius-lg:14px;
+  --line:#D9E1E8; --muted:#526171; --soft:#EAF2FB; --accent-ink:#2b6cf6;
+  --font-ui:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif; --font-mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+}
+[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0f1722; --surface:#16202e; --surface2:#1d2a3b; --surface3:#243446;
+  --border:#2c3c52; --text:#e6edf5; --text2:#aebccd; --text3:#7e8ea2;
+  --muted:#aebccd;
+  --accent:#2b6cf6; --accent-alt:#17a67a; --success:#17a67a; --warning:#F9A825; --danger:#d23b3b; --info:#2b6cf6;
+  --tag-bg:#1d2a3b; --tag-border:#34507a; --row-stripe:#121b27; --row-hover:#1d2a3b; --th-bg:#1b2838; --th-hover:#243648;
+  --shadow:0 1px 2px rgba(15,45,82,.18);
+}
+[data-theme="sky"]{
+  color-scheme:dark;
+  --bg:#0b1a2e; --surface:#10233b; --surface2:#172e4b; --surface3:#203b5b;
+  --border:#2b4968; --text:#ecf5ff; --text2:#bfd0e2; --text3:#91a8bf;
+  --muted:#bfd0e2;
+  --accent:#69b7ff; --accent-alt:#74d2d0; --success:#4fc58b; --warning:#f0bd52; --danger:#ff8278; --info:#69b7ff;
+  --tag-bg:#173858; --tag-border:#31597d; --row-stripe:#102037; --row-hover:#1b3858; --th-bg:#18324f; --th-hover:#244363;
+  --shadow:0 1px 4px #0004;
+}
+[data-theme="ocean"]{
+  color-scheme:dark;
+  --bg:#0a1929; --surface:#10263a; --surface2:#17324a; --surface3:#20415d;
+  --border:#2b4b65; --text:#e8f6f8; --text2:#b5cdd3; --text3:#88a9b3;
+  --muted:#b5cdd3;
+  --accent:#43c6c8; --accent-alt:#71a9f7; --success:#59c69b; --warning:#e4b958; --danger:#fb7e7e; --info:#43c6c8;
+  --tag-bg:#14394a; --tag-border:#2c5966; --row-stripe:#0f2234; --row-hover:#19384e; --th-bg:#173349; --th-hover:#24465d;
+  --shadow:0 1px 4px #0004;
+}
+[data-theme="presentation"]{
+  color-scheme:dark;
+  --bg:#0c0c0c; --surface:#171717; --surface2:#202020; --surface3:#2a2a2a;
+  --border:#3a3a3a; --text:#ffffff; --text2:#d8d8d8; --text3:#9a9a9a;
+  --muted:#d8d8d8;
+  --accent:#55aaff; --accent-alt:#c69bff; --success:#55d68b; --warning:#ffd166; --danger:#ff6b6b; --info:#55aaff;
+  --tag-bg:#202020; --tag-border:#505050; --row-stripe:#141414; --row-hover:#252525; --th-bg:#202020; --th-hover:#303030;
+  --shadow:0 1px 4px #0006;
+}
+*{box-sizing:border-box}html,body{height:100%;overflow:hidden;margin:0}body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);font:13px/1.45 var(--font-ui);transition:background .25s,color .25s}button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+/* ===== Welcome screen (MDL full-screen; no dashboard parts until data loads) ===== */
+.welcome-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg);z-index:5}
+body.loaded .welcome-screen{display:none}
+.app{display:none}
+body.loaded .app{display:flex;flex-direction:column;height:100vh;min-height:0;overflow:hidden}
+.welcome-err{margin:14px 0 0;padding:10px 12px;border-radius:8px;background:#fdecec;border:1px solid #f3b4b4;color:#a4262c;font-size:13px;text-align:left}
+.welcome-err[hidden]{display:none}
+#welcome-load{margin:2px 0 0}
+/* ===== Two-row header (MDL) ===== */
+.app-bar{flex:none;display:flex;flex-direction:column;z-index:20}
+.app-top{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--navy);color:#fff;padding:10px 20px;min-height:var(--titlebar-h)}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+/* MDL: the logo is 36 px tall and never shrinks. */
+.logo{height:36px;padding:3px;background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.2);flex-shrink:0}
+/* MDL: the three rows stack with a 2 px gap; the title is 17 px / 600 at line-height 1.2. */
+.ttl-stack{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ttl{font-size:17px;font-weight:600;margin:0;line-height:1.2}
+.ttl-stack .sub{font-size:12px;font-weight:500;color:rgba(255,255,255,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{font-size:11px;opacity:.85}
+.app-menu{display:flex;align-items:center;gap:12px;background:#fff;color:var(--text);padding:8px 20px;min-height:var(--menubar-h);border-bottom:1px solid var(--border);flex-wrap:nowrap}
+.app-menu .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+/* MDL: the filter group is not a scroll container — `overflow` here clips the floating panels. */
+/* MDL: the actions group is left-aligned and the filter group is pushed to the right. */
+.app-menu .filter-group{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:nowrap;flex-shrink:0}
+.app-menu .tf-filters{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+/* MDL: every control in the menu bar is 12 px / 600. */
+.app-menu .btn{border:0;background:transparent;color:var(--navy);cursor:pointer;font-size:12px;font-weight:600;line-height:1.2;min-height:32px;padding:7px 14px;border-radius:6px}
+.app-menu .btn:hover{background:var(--surface2)}
+.app-menu .btn-primary{background:var(--blue);color:#fff}
+/* §3.1 — the sidebar toggle is compact. It is one glyph, so it drops the 14 px horizontal padding of
+   a text control for 8 px, and the gap after it is 8 px rather than the bar's 12 px. */
+.app-menu .btn[data-shell-toggle]{padding:7px 8px;margin-right:-4px}
+.app-menu .btn-primary:hover{background:#1f5fcc}
+.app-menu .choose-workbooks{background:var(--blue);color:#fff}
+.app-menu .choose-workbooks:hover{background:#1f5fcc}
+/* MDL: the Warnings toggle carries a further 6 px left margin inside the filter group. */
+.app-menu .warn-toggle{display:flex;align-items:center;gap:6px;margin-left:6px}
+.app-menu .warn-toggle .badge{background:var(--amber);color:#1b2a41;border-radius:10px;padding:1px 7px;font-weight:700;font-size:11px}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;min-height:26px;padding:0;font:inherit;font-size:13px;font-weight:600;line-height:1;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--muted);cursor:pointer}
+.icon-btn:hover{background:var(--surface2)}
+/* Theme switching is deferred (I009). The .icon-btn geometry below stays, per spec §7.1 A4. */
+/* Global filters — spec §7.1 B1 trigger + B3 rows, sized as MDL */
+.tf-wrap{position:relative;flex-shrink:0}
+.tf-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--navy);padding:7px 12px;min-height:32px;font-size:12px;font-weight:600;line-height:normal;cursor:pointer;white-space:nowrap}
+.tf-btn:hover{background:var(--soft)}
+.tf-btn[aria-expanded="true"]{border-color:var(--blue);background:var(--soft)}
+.tf-btn.is-filtered{border-color:var(--blue)}
+.tf-cnt{font-size:10px;padding:0 0 0 4px;font-weight:700;color:var(--accent-ink);border:0;background:transparent;border-radius:10px}
+/* MDL: the menu-bar chrome strips the base 1 px border from the filter trigger (spec §7.1 B1). */
+.app-menu .tf-btn{border:0;background:transparent;color:var(--navy)}
+.app-menu .tf-btn:hover{background:var(--soft)}
+.app-menu .tf-btn[aria-expanded="true"]{background:var(--soft)}
+.tf-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:40;min-width:220px;max-width:min(340px,90vw);max-height:320px;overflow:auto;display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:10px}
+.tf-panel[hidden]{display:none}
+.tf-panel .tf-all{display:flex;align-items:center;gap:8px;padding:2px;font-size:12px;cursor:pointer}
+.tf-panel .tf-all input{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0}
+.tf-panel .tf-all b{font-weight:700}
+.tf-panel .tf-hint{margin:2px 2px 6px;font-size:10px;color:var(--muted);line-height:1.35}
+.tf-panel .tf-divider{height:1px;background:var(--border);margin:2px 0 6px}
+.tf-panel .tf-item{display:flex;align-items:center;gap:8px;padding:5px 2px;font-size:12px;cursor:pointer;border-radius:4px}
+.tf-panel .tf-item:hover{background:var(--soft)}
+.tf-panel .tf-item input{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0}
+/* ===== Shell row + sidebars ===== */
+.shell-row{flex:1;min-height:0;display:flex}
+.left-sidebar{position:relative;flex:none;width:var(--sidebar-w);min-width:0;background:var(--navy);color:#E8EDF3;overflow:auto;transition:width .2s ease;z-index:15;display:flex;flex-direction:column;padding:10px;border-right:1px solid rgba(255,255,255,.18)}
+.closed-left-sidebar .left-sidebar{width:0!important;border:0;padding-left:0;padding-right:0;overflow:hidden}
+.closed-left-sidebar .left-sidebar>*{display:none}
+/* §3.2 — the panel holds menus only: the page links at the top, then Settings and Help pinned to the
+   bottom. No collapse toggle (that lives in the menu bar), no section titles, and no dividers. */
+.sb-menu{display:flex;flex-direction:column}
+.sb-bottom{display:flex;flex-direction:column;margin-top:auto}
+.page-links{display:flex;flex-direction:column}
+.page-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:#dfe8f3;font-size:14px;border:0;background:transparent;text-align:left}
+.page-link:hover{background:rgba(255,255,255,.1)}
+.page-link.active{background:var(--blue);color:#fff;font-weight:600}
+.small-note{color:rgba(255,255,255,.6);font-size:12px;margin:2px 0}
+.file-item{display:flex;gap:8px;align-items:baseline;font-size:12px;color:rgba(255,255,255,.75)}
+.file-item span{color:#bfe0ff;font-weight:700;min-width:34px}
+.file-item b{font-weight:500;word-break:break-word}
+.drop{margin:4px 0;padding:16px;border:1.5px dashed rgba(255,255,255,.4);border-radius:10px;text-align:center;color:rgba(255,255,255,.85);cursor:pointer;transition:.15s;font-size:13px}
+.drop:hover,.drop:focus{border-color:var(--blue);background:rgba(255,255,255,.08);outline:none}
+.resize-handle{position:absolute;top:0;right:0;width:5px;height:100%;cursor:col-resize}
+.resize-handle:hover{background:rgba(255,255,255,.25)}
+.content{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg)}
+/* §3.1 / §3.3 — there is no content toolbar. The active page is shown at the right of the title bar,
+   and the layout toggle is an icon control at the right end of the menu bar. */
+.app-top .page-title{font-size:16px;font-weight:600;line-height:1.2;color:#fff;white-space:nowrap;flex-shrink:0}
+.app-menu #layout-button{padding:7px 8px;flex-shrink:0;margin-left:auto}
+.spacer{flex:1}
+.filter-area{padding:0 16px}
+/* Search popover — MDL design: .tf-panel.search-panel > .search-row > .search + Find / Reset */
+.search-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:60;display:none;width:min(92vw,640px);max-width:min(92vw,640px);padding:10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow)}
+.search-panel.open{display:block}
+.search-row{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+/* MDL: the border, radius and surface belong to the .search box; both children are borderless. */
+.search{display:flex;align-items:center;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:6px;min-height:28px;padding:0;flex:1 1 auto;width:auto;min-width:240px;max-width:none}
+.search:focus-within{border-color:var(--blue);box-shadow:0 0 0 2px var(--soft)}
+.search .inter-sel{border:0;background:var(--bg);color:var(--navy);font:inherit;font-weight:600;font-size:12px;border-radius:6px 0 0 6px;height:26px;padding:0 8px;cursor:pointer;max-width:260px}
+.search .inter-sel.is-attached{border-right:1px solid var(--border)}
+.search .search-input{border:0;background:transparent;color:var(--text);font:inherit;font-size:12px;flex:1 1 220px;min-width:0;height:26px;padding:0 8px;outline:none}
+.search .search-input::placeholder{color:var(--muted)}
+.btn-primary{background:var(--blue);color:#fff;border:0;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px}
+.btn-primary:hover{background:#1f5fcc}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-secondary{background:var(--surface2);border:1px solid var(--border);padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px}
+.btn-secondary:hover{background:var(--surface3)}
+.warning-area{margin:0 0 12px;padding:10px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border)}
+.warning-area.collapsed{display:none}
+.sys-banner-item{font-size:12px;padding:3px 0;color:var(--text)}
+.sys-banner-item.fatal b,.sys-banner-item.error b{color:var(--danger)}
+.sys-banner-item.warning b{color:var(--warning)}
+.sys-banner-item.info b{color:var(--info)}
+.content-body{flex:1;overflow:auto;padding:16px}
+/* ===== Welcome card (MDL) ===== */
+.onboarding{max-width:480px;width:100%;margin:0;padding:40px;text-align:center;border:1px solid var(--border);border-radius:16px;background:var(--surface);box-shadow:var(--shadow)}
+.onboarding .wlogo{height:56px;width:auto;margin:0 auto 18px;display:block;border-radius:6px}
+.onboarding h2{font-size:24px;margin:0 0 8px;color:var(--text)}
+
+.onboarding .sub{color:var(--text2);font-size:14px;margin:0 0 18px}
+.onboarding .expect{margin:0 0 18px;padding:12px 14px;text-align:left;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:8px;color:var(--text2);font-size:13px;line-height:1.5}
+.onboarding .expect b{color:var(--text)}
+.onboarding .drop{width:100%;aspect-ratio:1.618;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font:inherit;margin:0 0 18px;padding:22px;border:1.5px dashed var(--text3);border-radius:12px;text-align:center;color:var(--text2);cursor:pointer;transition:.15s;background:var(--surface)}
+.onboarding .drop:hover,.onboarding .drop:focus{border-color:var(--blue);background:var(--surface2);outline:none}
+.onboarding .drop .d-title{font-size:15px;font-weight:600;color:var(--text)}
+.onboarding .drop .d-sub{font-size:12px;color:var(--text3);margin-top:4px}
+.onboarding .drop .drop-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.onboarding .drop .drop-actions .btn{margin:0}
+.onboarding .pick-state{font-size:12px;color:var(--text3);margin:0 0 12px;min-height:16px;word-break:break-word}
+.onboarding .pick-state.ready{color:var(--blue)}
+.onboarding .privacy{display:flex;align-items:center;justify-content:center;gap:6px;color:var(--text3);font-size:12px;margin-top:14px}
+.onboarding .privacy svg{width:14px;height:14px;fill:var(--text3)}
+.onboarding .copyright{color:var(--text3);font-size:11px;margin-top:10px}
+/* ===== Panels / KPI ===== */
+/* §4 — panel surface: 10 px radius on a relative box, with 26 px of bottom padding so the corner
+   number never overlaps the last line. */
+.panel{margin:14px 0;padding:14px 14px 26px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);position:relative}
+/* §4 — title row: title left, action cluster right. The 10 px gap belongs to the row, not the heading. */
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 10px}
+.panel h2{margin:0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--navy);line-height:1.4;min-width:0}
+.panel-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+/* §4 — the corner panel number, anchored bottom-right and never clickable. */
+.panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:.04em;color:var(--text3);pointer-events:none}
+/* §4.1 — collapsing a panel hides everything but its title row. */
+.panel.collapsed>*:not(.panel-head){display:none}
+/* §4 — the panel margin is neutralised inside a grid that already sets `gap`, so the gap wins. */
+.panel-grid>.panel{margin:0}
+.panel h3{margin:0 0 4px;font-size:13px;font-weight:700;color:var(--navy)}
+.panel h4{margin:14px 0 4px;font-size:13px;color:var(--text2)}
+.panel small,.panel .psub{color:var(--text2);font-size:12px}
+.panel-grid{display:grid;grid-template-columns:1fr;gap:16px}
+body[data-layout="two"] .panel-grid{grid-template-columns:1fr 1fr}
+body[data-layout="three"] .panel-grid{grid-template-columns:1fr 1fr 1fr}
+/* §5 — KPI cards: 3 px status strip, 8 px radius, 10 px padding, 72 px high, no shadow.
+   Value and label only. Do not set line-height: the inherited 1.45 makes the 72 px height. */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:18px}
+.kpi-card{box-sizing:border-box;height:72px;padding:10px;border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;background:var(--surface);box-shadow:none}
+.kpi-card .v{font-size:22px;font-weight:700;color:var(--navy)}
+.kpi-card .l{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+/* §5 — strip colour carries the card's status; --blue is the default above. */
+.kpi-card.ok{border-top-color:var(--green)}
+.kpi-card.amb{border-top-color:var(--amber)}
+.kpi-card.warn{border-top-color:var(--red)}
+.kpi-card.muted{border-top-color:var(--slate)}
+.kpi-card.err{border-top-color:#8E24AA}
+/* ===== Tables ===== */
+.table-scroll{max-height:520px;overflow:auto;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+table.ds{width:100%;border-collapse:collapse;font-size:13px}
+table.ds th,table.ds td{border-bottom:1px solid var(--border);padding:8px 10px;text-align:left}
+table.ds th{background:var(--th-bg);color:var(--text2);font-weight:600;position:sticky;top:0;z-index:1}
+table.ds tbody tr:nth-child(even){background:var(--row-stripe)}
+table.ds tbody tr:hover{background:var(--row-hover)}
+table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;padding:24px}
+.win-pad{height:0;padding:0!important}
+.ds-resize{cursor:col-resize}
+/* ===== Bar chart ===== */
+.bar-chart{display:flex;flex-direction:column;gap:6px}
+.bar-row{display:flex;align-items:center;gap:8px;font-size:12px}
+.bar-row>span{min-width:90px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;background:var(--surface2);border-radius:6px;height:14px;overflow:hidden}
+.bar-track i{display:block;height:100%;background:var(--blue)}
+.bar-row b{min-width:34px;text-align:right;color:var(--text)}
+/* ===== Misc ===== */
+.note{color:var(--text2);font-size:13px;line-height:1.5;margin:6px 0}
+.summary-chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.vchip{font-size:11px;padding:3px 10px;border-radius:6px;font-weight:700;text-transform:capitalize;line-height:1.4}
+.vchip.e{background:#fde2e2;color:#a11}.vchip.w{background:#fff3cd;color:#8a6d00}.vchip.i{background:#eee;color:#555}
+details summary{cursor:pointer;font-size:13px;color:var(--accent);margin:6px 0}
+.status-bar{flex:none;display:flex;align-items:center;gap:8px;background:var(--navy);color:#E8EDF3;font-size:12px;padding:6px 14px;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
+.status-bar #status-right{margin-left:auto;opacity:.85}
+/* ===== Modals ===== */
+.modal{position:fixed;inset:0;background:rgba(15,45,82,.4);display:flex;align-items:center;justify-content:center;z-index:50}
+.modal[hidden]{display:none}
+.modal-box{background:var(--surface);color:var(--text);border-radius:12px;box-shadow:var(--shadow);width:min(440px,92vw);max-height:86vh;overflow:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
+.modal-head h3{margin:0;font-size:16px}
+.modal-body{padding:16px;display:flex;flex-direction:column;gap:12px}
+.setting{display:flex;align-items:center;gap:8px;font-size:14px}
+.setting select{padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)}
+.setting input[type=checkbox]{width:16px;height:16px}
+/* §5 — the KPI grid needs no breakpoint: auto-fit with a 210 px floor drops columns by itself. */
+@media(max-width:1099px){.panel-grid,body[data-layout="three"] .panel-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:879px){.panel-grid,body[data-layout="two"] .panel-grid,body[data-layout="three"] .panel-grid{grid-template-columns:1fr}}
