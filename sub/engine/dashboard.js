@@ -6,7 +6,7 @@ import { deriveView, renderDashboard, EXCLUDED_STAGES } from './render.js';
 
 const $ = selector => document.querySelector(selector);
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
-const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, collapsedPanels: [] };
+const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', collapsedPanels: [] };
 let contract;
 let uiHelp;
 let files = { mdl: null, log: null };
@@ -49,6 +49,92 @@ function showWarnings() {
   $('#warning-count').textContent = String(items.length);
   area.classList.toggle('collapsed', state.showWarnings === false);
   $('#warnBtn').setAttribute('aria-pressed', String(state.showWarnings !== false));
+}
+function chartSvgStyle() {
+  const cs = getComputedStyle(document.documentElement);
+  const v = n => (cs.getPropertyValue(n) || '').trim();
+  const plan = v('--color-plan'), forecast = v('--color-forecast'), actual = v('--color-actual'), border = v('--border'), text = v('--text'), text2 = v('--text2'), text3 = v('--text3'), danger = v('--danger'), slate = v('--slate');
+  return `<style>.sc-bar-plan{fill:${plan}}.sc-bar-actual{fill:${actual}}.sc-bar-actualresub{fill:${actual};fill-opacity:.45}.sc-line-plan{stroke:${plan};stroke-width:2.5;fill:none;stroke-dasharray:6 3}.sc-line-forecast{stroke:${forecast};stroke-width:2.5;fill:none;stroke-dasharray:2 2}.sc-line-actual{stroke:${actual};stroke-width:2.5;fill:none}.sc-line-actualresub{stroke:${actual};stroke-width:2.5;fill:none;stroke-dasharray:3 3;opacity:.85}.sc-dot{stroke:none}.sc-dot-plan{fill:${plan}}.sc-dot-forecast{fill:${forecast}}.sc-dot-actual{fill:${actual}}.sc-dot-actualresub{fill:${actual}}.sc-grid{stroke:${border};stroke-width:1}.sc-axis{fill:${text2};font-size:10px}.sc-barval{fill:${text2};font-size:9px}.sc-leg-t{fill:${text}}.sc-ref-start{stroke:${danger};stroke-width:1.5;stroke-dasharray:5 3}.sc-ref-today{stroke:${slate};stroke-width:1.5;stroke-dasharray:2 2}.scurve-snap{stroke:${text3};stroke-width:1;stroke-dasharray:3 3}</style>`;
+}
+function serializeC1Svg() {
+  const svg = document.querySelector('.scurve svg');
+  if (!svg) return null;
+  const clone = svg.cloneNode(true);
+  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  clone.insertAdjacentHTML('afterbegin', chartSvgStyle());
+  return new XMLSerializer().serializeToString(clone);
+}
+function exportC1Png() {
+  const svg = document.querySelector('.scurve svg');
+  if (!svg) return;
+  const str = serializeC1Svg();
+  if (!str) return;
+  const blob = new Blob([str], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = () => {
+    const scale = 2;
+    const vb = svg.viewBox.baseVal;
+    const canvas = document.createElement('canvas');
+    canvas.width = vb.width * scale; canvas.height = vb.height * scale;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = (getComputedStyle(document.documentElement).getPropertyValue('--surface') || '').trim() || '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(b => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'schedule-performance.png'; a.click(); URL.revokeObjectURL(a.href); });
+    URL.revokeObjectURL(url);
+  };
+  img.onerror = () => URL.revokeObjectURL(url);
+  img.src = url;
+}
+function copyC1Svg() {
+  const str = serializeC1Svg();
+  if (!str) return;
+  if (navigator.clipboard) navigator.clipboard.writeText(str);
+}
+function chartC3SvgStyle() {
+  const cs = getComputedStyle(document.documentElement);
+  const v = n => (cs.getPropertyValue(n) || '').trim();
+  const cNew = v('--color-new'), cResub = v('--color-resub');
+  const app = v('--color-app'), awc = v('--color-awc'), nap = v('--color-nap'), rej = v('--color-rej'), inf = v('--color-inf');
+  const border = v('--border'), text = v('--text'), text2 = v('--text2');
+  return `<style>.c3-new{fill:${cNew}}.c3-new-arc{stroke:${cNew}}.c3-resub{fill:${cResub}}.c3-resub-arc{stroke:${cResub}}.c3-app{fill:${app}}.c3-app-arc{stroke:${app}}.c3-awc{fill:${awc}}.c3-awc-arc{stroke:${awc}}.c3-nap{fill:${nap}}.c3-nap-arc{stroke:${nap}}.c3-rej{fill:${rej}}.c3-rej-arc{stroke:${rej}}.c3-inf{fill:${inf}}.c3-inf-arc{stroke:${inf}}.c3-track-bg{fill:${border};fill-opacity:.18}.c3-label{fill:${text};font-size:11px}.c3-cap{fill:${text2};font-size:9px}.c3-val{fill:${text};font-size:11px;font-weight:600}.c3-total{fill:${text}}.c3-sub{fill:${text2}}.c3-leg-t{fill:${text2};font-size:11px}</style>`;
+}
+function serializeC3Svg() {
+  const svg = document.querySelector('.c3-board svg');
+  if (!svg) return null;
+  const clone = svg.cloneNode(true);
+  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  clone.insertAdjacentHTML('afterbegin', chartC3SvgStyle());
+  return new XMLSerializer().serializeToString(clone);
+}
+function exportC3Png() {
+  const svg = document.querySelector('.c3-board svg');
+  if (!svg) return;
+  const str = serializeC3Svg();
+  if (!str) return;
+  const blob = new Blob([str], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = () => {
+    const scale = 2;
+    const vb = svg.viewBox.baseVal;
+    const canvas = document.createElement('canvas');
+    canvas.width = vb.width * scale; canvas.height = vb.height * scale;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = (getComputedStyle(document.documentElement).getPropertyValue('--surface') || '').trim() || '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(b => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'breakdown.png'; a.click(); URL.revokeObjectURL(a.href); });
+    URL.revokeObjectURL(url);
+  };
+  img.onerror = () => URL.revokeObjectURL(url);
+  img.src = url;
+}
+function copyC3Svg() {
+  const str = serializeC3Svg();
+  if (!str) return;
+  if (navigator.clipboard) navigator.clipboard.writeText(str);
 }
 let filterDimensions = [];
 function filtersMarkup() {
@@ -93,12 +179,68 @@ function closeFilterPanels() {
     if (panel) panel.hidden = true;
     if (button) button.setAttribute('aria-expanded', 'false');
   }
+  const c1Panel = document.getElementById('tfPanel_c1series');
+  const c1Btn = document.getElementById('tfBtn_c1series');
+  if (c1Panel) c1Panel.hidden = true;
+  if (c1Btn) c1Btn.setAttribute('aria-expanded', 'false');
+}
+// §7.2.15 — split header. The <thead> is a fragment above the scroller, so the vertical scrollbar
+// can never cover a header cell. One implementation serves every table: the fragment is pinned to
+// the body table's rendered width plus the scrollbar width (--ds-sbw holds it), both tables share
+// the same colgroup, and the two scroll in lock-step horizontally.
+function wireSplitHeaders(root) {
+  for (const card of root.querySelectorAll('.ds-split')) {
+    const headTable = card.querySelector('.vheadtab');
+    const port = card.querySelector('.vheadwrap');
+    const scroll = card.querySelector('.tableScroll');
+    const bodyTable = scroll && scroll.querySelector('table.ds-table');
+    if (!headTable || !port || !scroll || !bodyTable) continue;
+    const headCols = [...headTable.querySelectorAll('colgroup col')].filter(col => !col.classList.contains('ds-gut'));
+    const bodyCols = [...bodyTable.querySelectorAll('colgroup col')];
+    const syncWidth = () => {
+      // Both tables are then pinned to the same explicit pixel width. Pinning matters: while the
+      // tables keep `width:100%`, forcing horizontal overflow makes the browser distribute the
+      // columns differently in each half and the frozen header drifts away from its body column.
+      const bar = Math.max(0, scroll.offsetWidth - scroll.clientWidth);
+      card.style.setProperty('--ds-sbw', `${bar}px`);
+      const row = [...bodyTable.querySelectorAll('tbody tr')].find(tr => tr.children.length === bodyCols.length);
+      let total = 0;
+      headCols.forEach((col, index) => {
+        // The first pass takes the body's rendered widths; later passes reuse them, so a repaint or a
+        // theme switch does not re-flow the grid.
+        let width = parseFloat(col.style.width);
+        if (!(width > 0)) {
+          const cell = row && row.children[index];
+          width = cell ? cell.getBoundingClientRect().width : 0;
+        }
+        if (!(width > 0)) return;
+        col.style.width = `${width}px`;
+        if (bodyCols[index]) bodyCols[index].style.width = `${width}px`;
+        total += width;
+      });
+      const width = total || scroll.clientWidth;
+      headTable.style.width = `${width + bar}px`;
+      bodyTable.style.width = `${width}px`;
+      const gutter = headTable.querySelector('colgroup col.ds-gut');
+      if (gutter) gutter.style.width = `${bar}px`;
+    };
+    const syncScroll = () => { if (port.scrollLeft !== scroll.scrollLeft) port.scrollLeft = scroll.scrollLeft; };
+    syncWidth();
+    syncScroll();
+    if (typeof ResizeObserver === 'function') {
+      const observer = new ResizeObserver(syncWidth);
+      observer.observe(scroll);
+      observer.observe(bodyTable);
+    }
+    scroll.addEventListener('scroll', syncScroll, { passive: true });
+  }
 }
 function paint() {
   if (!model) return;
   $('[data-page-content]').hidden = false;
   document.body.classList.add('loaded');
   const view = renderDashboard(document, model, { ...state, uiHelp });
+  wireSplitHeaders(document);
   document.querySelectorAll('[data-page]').forEach(button => button.classList.toggle('active', button.dataset.page === state.page));
   const pageTitle = document.getElementById('page-title');
   if (pageTitle) pageTitle.textContent = state.page;
@@ -246,6 +388,14 @@ document.addEventListener('click', async event => {
   if (target.id === 'warnBtn') { state.showWarnings = !state.showWarnings; localStorage.setItem('sub-dashboard-warnings', String(state.showWarnings)); showWarnings(); }
   if (target.id === 'fGo') { state.search = $('#fSearch').value; state.searchCol = $('#fCol').value; paint(); $('#searchPanel').classList.remove('open'); $('#search-button').setAttribute('aria-expanded', 'false'); }
   if (target.id === 'fReset') { state.search = ''; $('#fSearch').value = ''; paint(); }
+  if (target.dataset.c1grain) { state.c1Grain = target.dataset.c1grain; closeFilterPanels(); paint(); }
+  if (target.hasAttribute('data-c1bars')) { state.c1Bars = !state.c1Bars; paint(); }
+  if (target.hasAttribute('data-c1png')) { exportC1Png(); }
+  if (target.hasAttribute('data-c1copy')) { copyC1Svg(); }
+  if (target.dataset.c3dim) { state.c3Dim = target.dataset.c3dim; paint(); }
+  if (target.dataset.c3view) { state.c3View = target.dataset.c3view; paint(); }
+  if (target.hasAttribute('data-c3png')) { exportC3Png(); }
+  if (target.hasAttribute('data-c3copy')) { copyC3Svg(); }
   if (target.dataset.export) {
     const rows = model ? deriveView(model, state).active : [];
     const cols = ['Document No.', 'Document Title', 'Discipline', 'Submitted By', 'Submission Date', 'Submission Status', 'Approval Status', 'Review Period', 'Target Return Date', 'Actual Return Date', 'Review Turnaround Days', 'Review Delay Days', 'Resubmission Required'];
@@ -254,6 +404,12 @@ document.addEventListener('click', async event => {
   }
 });
 document.addEventListener('click', event => { if (event.target.classList?.contains('modal')) closeModal(event.target.id); });
+function openC1SeriesPopup() {
+  const panel = document.getElementById('tfPanel_c1series');
+  const btn = document.getElementById('tfBtn_c1series');
+  if (panel) panel.hidden = false;
+  if (btn) btn.setAttribute('aria-expanded', 'true');
+}
 document.addEventListener('change', async event => {
   const { filter, setting } = event.target.dataset;
   if (event.target.dataset.columnChoice) {
@@ -282,6 +438,33 @@ document.addEventListener('change', async event => {
     syncFilterControls();
     paint();
   }
+  if (event.target.hasAttribute('data-c1series-all')) {
+    const all = ['plan', 'forecast', 'actualFirst', 'actualResub'];
+    state.c1Series = event.target.checked ? new Set(all) : new Set();
+    paint();
+    openC1SeriesPopup();
+    return;
+  }
+  if (event.target.dataset.c1series) {
+    const all = ['plan', 'forecast', 'actualFirst', 'actualResub'];
+    const set = state.c1Series instanceof Set ? new Set(state.c1Series) : new Set(all);
+    if (event.target.checked) set.add(event.target.dataset.c1series); else set.delete(event.target.dataset.c1series);
+    state.c1Series = set;
+    paint();
+    openC1SeriesPopup();
+    return;
+  }
+  if (event.target.dataset.c1period) {
+    const fromEl = document.querySelector('input[data-c1period="from"]');
+    const toEl = document.querySelector('input[data-c1period="to"]');
+    if (!fromEl || !toEl) return;
+    let f = Number(fromEl.value), t = Number(toEl.value);
+    if (f > t) { if (event.target.dataset.c1period === 'from') { t = f; toEl.value = String(t); } else { f = t; fromEl.value = String(f); } }
+    state.c1Period = [f, t];
+    paint();
+    return;
+  }
+  if (event.target.hasAttribute('data-c3month')) { state.c3Month = event.target.value; paint(); return; }
   if (setting === 'theme') { state.theme = event.target.value; paint(); }
   if (setting === 'showWarnings') { state.showWarnings = event.target.checked; showWarnings(); }
   if (setting === 'rememberNames') { state.rememberNames = event.target.checked; localStorage.setItem('sub-dashboard-remember-names', String(state.rememberNames)); }
@@ -298,13 +481,40 @@ document.addEventListener('pointerdown', event => {
   if (grip) {
     event.preventDefault();
     const table = grip.closest('table');
+    // §7.2.15 — the grips sit in the header fragment, so a drag has to write the same column in the
+    // paired body table or the two halves drift apart.
+    const pair = table.classList.contains('vheadtab') ? table.closest('.splitcard') : null;
+    const bodyTable = pair ? pair.querySelector('.tableScroll table.ds-table') : null;
     const colIndex = Number(grip.dataset.col);
     const col = table.querySelector(`col[data-col="${colIndex}"]`);
+    const bodyCol = bodyTable ? bodyTable.querySelector(`col[data-col="${colIndex}"]`) : null;
     const startX = event.clientX;
     const startWidth = col.getBoundingClientRect().width;
     const widths = JSON.parse(localStorage.getItem(`sub_dashboard_${table.dataset.tableKey}_widths`) || '{}');
     const saveWidths = () => localStorage.setItem(`sub_dashboard_${table.dataset.tableKey}_widths`, JSON.stringify(widths));
-    const move = pointer => { const width = Math.max(60, startWidth + pointer.clientX - startX); col.style.width = `${width}px`; if (colIndex === 0) table.style.setProperty('--pin-first-col', `${width}px`); widths[colIndex] = width; saveWidths(); };
+    // Fixed layout hands any slack between the column sum and the table width back to the columns, so
+    // the table width has to follow the columns; otherwise the rendered width drifts away from the
+    // width the operator dragged, and a drag by +d then −d does not land where it started.
+    const relayout = () => {
+      for (const item of [table, bodyTable]) {
+        if (!item) continue;
+        const total = [...item.querySelectorAll('colgroup col')]
+          .reduce((sum, cell) => sum + (parseFloat(cell.style.width) || 0), 0);
+        if (total > 0) item.style.width = `${total}px`;
+      }
+    };
+    const move = pointer => {
+      const width = Math.max(60, startWidth + pointer.clientX - startX);
+      col.style.width = `${width}px`;
+      if (bodyCol) bodyCol.style.width = `${width}px`;
+      if (colIndex === 0) {
+        table.style.setProperty('--pin-first-col', `${width}px`);
+        if (bodyTable) bodyTable.style.setProperty('--pin-first-col', `${width}px`);
+      }
+      relayout();
+      widths[colIndex] = width;
+      saveWidths();
+    };
     const end = () => { document.removeEventListener('pointermove', move); saveWidths(); };
     document.addEventListener('pointermove', move);
     document.addEventListener('pointerup', end, { once: true });

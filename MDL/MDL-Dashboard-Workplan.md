@@ -347,6 +347,11 @@ scope control.
 - **Overdue** is shown as **three separate KPI cards** (no combined total card — review 2026-09-30, §12 I-01): **① Overdue – 1st Submission**, **② Overdue – Resubmission**, **③ Overdue – Client Review**. ① due date = `Forecast` (T), falling back to `Planned` (S) when T is blank (§12 I-04); overdue when due ≤ today and `Actual` (U) blank. ② = active, U present, `Latest Approval Status` (Y) ∈ {REJ,RTR}, `Latest Approval Date` (X) present, working days (X→today) > 14. ③ = active, `Submission Status` (W)=`SUR`, U present, working days (U→today) > 20. (Mirrors Panel 13's three overdue lists; Panel 7 also splits its Overdue bucket, §12 I-05.)
 
 > **Approval vs Submission are separate dimensions** (reviewer 5c): Approval Status (col Y, Code!AF) and Submission Status (col W, Code!AC — renamed from "Prolog Submission Status") are tracked independently; there is **no unified single "Current Status" column** at this stage.
+>
+> **Business rules — the two dimensions must stay independent in the engine, not only on paper (I-120).** The statement above is a *business rule*; the current code violates it:
+> 1. **Submission Status governs Under Review.** A document with `Submission Status` (W) = `SUR` is **Under Review regardless of `Latest Approval Status` (Y)** — a present approval status must not override `SUR`. An approved document that is later resubmitted for review is therefore counted in **both** Under Review and Approved.
+> 2. **Approval Status governs approval, independently.** `Latest Approval Status` (Y) = `APP`/`AWC`/`REJ`/`NAP` is counted **as-is, regardless of `Submission Status`**; the approval KPIs never read column W, and `SUR` never converts an approval code.
+> Today `approvalCategory` (`src/pipeline.mjs:73-93`) collapses the two dimensions into one category and lets Y win, so a `SUR` row whose Y is present is reported as the approval code (not "Submitted – Pending Review"). This is the root cause of the MDL↔sub Under Review discrepancy (MDL `pendingReview` = 38 vs sub Under Review = 53 on the TWRP C3B2 data). The classifier must stop unifying them, or an Under Review flag must be derived from W alone.
 
 **KPI card details** (active scope = `Document No.` present AND `Stage` ∉ {Deleted, Void, Superseded}; "today" = system current date; working days = Mon–Fri, no holidays — decision 18):
 

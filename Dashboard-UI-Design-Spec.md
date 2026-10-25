@@ -4,6 +4,8 @@
 |---|---|---|---|
 | 1.8 | 2026-10-24 | Codex | Made `ui/`, `data/`, and `output/` optional and made module paths project-defined; aligned the harness contract. |
 | 1.9 | 2026-10-24 | CodeBuddy (AI) | Adopted the MDL shell model: §3.1/§3.2/§3.6 now define a two-row header (navy title bar + white menu bar) + navy left navigation sidebar; dropped the 48 px icon bar and the right sidebar; moved Settings/Help to the menu bar / modal; use the updated `AGENTS.md` §18.2 shell markers (`titlebar`, `menubar`, `left-sidebar`, `content`, `statusbar`). Default theme is light. |
+| 1.28 | 2026-10-25 | CodeBuddy (AI) | §4.2 S-curve clarified from the Submittal C1 re-review: the chart-card board is a 1 px border around the whole chart component (control cluster + plot), not an in-plot rectangle, so the one-board / one-card-border rule is unambiguous; the y-max MUST use the raw visible maximum with a small headroom pad (~3%) and MUST NOT be rounded up to a power-of-ten step, so the curves fill the chart height like the MDL reference. Workplan D35 / §7 now include the Forecast bar (`fNew`). |
+| 1.27 | 2026-10-25 | CodeBuddy (AI) | §4.2 S-curve hardened from the Submittal C1 review: a Month / Quarter / Year time-grain toggle MAY be offered (rebuckets labels, bars and the cumulative curve); the period window MAY be a bar / brush selection that wraps below when narrow; the control cluster is right-aligned by default and the period selection MAY be left-aligned with the filters (grain, Bars, series multi-select) preceding the exports (PNG, Copy) on the right; the combined-chart legend SHOULD be in-SVG at the bottom (not an HTML `.legend`); dense x-axis labels MAY be inclined (rotated ~40°) hugging the axis with the legend kept clear; and a hover snap line with a floating window is RECOMMENDED. The PNG / Copy, one-board / one-card-border, absolute-cumulative, Start / Today and shared-scale rules were already normative. |
 | 1.26 | 2026-10-24 | CodeBuddy (AI) | §4 panel chrome made enforceable. The title row now has its own element — the 10 px gap belongs to the row and the `h2` is `margin:0` — because the sketch previously put the flex on the `h2`, which only works when the buttons sit inside the heading. Four rules added: **numbers follow DOM order, assigned after render** (numbering from construction order produced `1, 2, 4, 3`), with the `::after` badge gated on `[data-panel]` so an unnumbered sub-panel does not render a bare `Panel`; **nested sub-panels inherit the parent's number and show no badge**; **the panel margin yields to a grid gap** (`0` inside a grid that sets `gap`, or the spacing doubles); and **the collapse state outlives the element** — it MUST be persisted in view state, keyed by panel name, and re-applied on render, or a filter change silently re-opens the panel. The sketch CSS is updated to match. |
 | 1.25 | 2026-10-24 | CodeBuddy (AI) | The title-bar page label is larger and unstyled. §3.1 revises the active-page rule: the label is now **16 px / 600 at `line-height:1.2`**, one step below the 17 px project title, and is **plain text with no background, padding, border or radius** — a page indicator rather than a badge or pill. Version 1.24 had put it at the menu-bar control scale (12 px / 600) inside a translucent pill. |
 | 1.24 | 2026-10-24 | CodeBuddy (AI) | The content toolbar is removed, and the page name and layout toggle move into the shell. §3.3 adds a normative rule: there is no content toolbar — a dashboard MUST NOT render a strip above its panels holding a page heading, subtitle or layout control — and the content zone begins with the optional filter area and then the body. §3.1 adds two rules: **the active page is shown in the title bar** — right-aligned on the bar's 20 px padding, at 12 px / 600, updated on every selection change, announced with `aria-live="polite"`, and not repeated as a heading in the content area — and **the layout toggle lives in the menu bar** — an icon control at the right end after the filter group, never in the content area, using the compact 8 px padding. §3.1's shell markers no longer require a `toolbar` zone. |
@@ -24,9 +26,9 @@
 | 1.7 | 2026-10-24 | Codex | Defined stable shell markers and aligned the harness with project-local dashboard assets. |
 | 1.6 | 2026-10-24 | Codex | Made dashboard UI assets project-local and aligned the harness contract with the shell spec. |
 
-**Version**: 1.26
-**Date**: 2026-10-24
-**Last revised**: 2026-10-24 — Dashboard assets are project-local; `common/` does not apply. A dashboard does not require `ui/`, `data/`, or `output/` folders. Each dashboard workplan defines module and configuration paths. The shell geometry and behavior follow `AGENTS.md` §18.2. The warning area stays inside the content area. Prior (2026-10-22) — **generalised**: the spec is now a project-neutral standard. Every
+**Version**: 1.27
+**Date**: 2026-10-25
+**Last revised**: 2026-10-25 — Dashboard assets are project-local; `common/` does not apply. A dashboard does not require `ui/`, `data/`, or `output/` folders. Each dashboard workplan defines module and configuration paths. The shell geometry and behavior follow `AGENTS.md` §18.2. The warning area stays inside the content area. Prior (2026-10-22) — **generalised**: the spec is now a project-neutral standard. Every
 dashboard-specific detail — the two-row header instantiation, the per-dashboard migration state, the
 enforcement posture, the legacy class aliases and their migration dates, the regression/issue history —
 moved to the owning dashboard's workplan, with a pointer back to the clause it satisfies. Added §0
@@ -615,6 +617,7 @@ a single shared time axis instead of two stacked charts:
     legend states which axis each family uses (bars → right, `Cum. …` lines → left); and a note
     states *"Monthly bars use the right-hand scale; Cum. lines use the left cumulative scale."*
     `padR` widens to ~52 px while separate. Cross-family height comparison is **never** valid.
+- **The y-max uses the raw visible maximum, not a rounded-up step (rev 2026-10-25).** Compute `yMax = max(1, …visible bar values, …visible line values) × ~1.03` — a small headroom pad so the peak line clears the top edge. Do **not** round the maximum up to a power-of-ten (or other coarse) step; that shrinks the curves to a fraction of the plot height and leaves the top empty. Mirrors the MDL reference, where the curves fill the full chart height.
 - **Cumulative values are ABSOLUTE — never rebased to the window (rev 2026-10-13).** A cumulative
   point always shows the true running total from the start of the series, so the value read off
   the chart is the real total-to-date and it does **not** change when the period window moves. Do
@@ -625,16 +628,30 @@ a single shared time axis instead of two stacked charts:
 - Every series is drawn **twice**: once as bars, once as a cumulative line. Lines are
   distinguished from their bar counterpart by dash pattern (e.g. Plan `6,3`, Forecast `2,2`,
   Actual solid) and are named `Cum. <series>` in the legend.
+- **The combined-chart legend SHOULD be rendered INSIDE the SVG, at the bottom (in-SVG).** It travels
+  with the exported PNG, so an HTML `.legend` div is discouraged — a legend outside the SVG is lost on
+  export. It holds the bar swatches (Planned / Actual) and the three `Cum. …` line samples in one row
+  beneath the plot.
 - **Months are labelled with the `MMM YYYY` template (e.g. `Mar 2026`).** Every month shown in the
   S-curve — the x-axis ticks, the period-window range message, and the `<title>` tooltips — is
   formatted through the shared month-label helper. A raw `YYYY-MM` key, or any `slice()` of it
   (`26-03`), is never rendered: it is not a readable month and it differs from every other date in
   the dashboard. Both dashboards use the same template.
+- **A Month / Quarter / Year time-grain toggle MAY be offered on an S-curve.** When present it
+  rebuckets the data: the x-axis labels, the bar aggregation and the cumulative curve all follow the
+  selected grain — `MMM YYYY` for Month, `Qn YYYY` (e.g. `Q1 2026`) for Quarter, `YYYY` for Year. At
+  Quarter / Year the cumulative line plots at each bucket boundary (the cumulative at the bucket end),
+  and the `MMM YYYY` template is replaced by the grain template through an extended shared label
+  helper (never a raw key).
 - **Bar values are printed VERTICALLY — rotated 90°, reading bottom-to-top.** A horizontal count
   above a bar collides with its neighbour as soon as the bars get close together, and the collision
   worsens the more digits the count has. Rotating the label gives it a fixed ~12 px horizontal
   footprint regardless of magnitude, so values never overlap. The label is anchored just above the
   bar top and rotated about that anchor (`text-anchor="start"` + `transform="rotate(-90 x y)"`).
+- **Dense x-axis labels MAY be inclined** (rotated ~40°, `text-anchor="start"`) so they hug the axis
+  with a **minimised gap** and save horizontal space; wherever inclined, the legend MUST sit **clear
+  of the labels** (no overlap) — the bottom padding is sized for the rotated text plus the legend, not
+  for the labels alone.
 - **Every plotted point on a cumulative line is a SOLID dot — `r=3`, filled with the series
   colour.** Nodes are never hollow rings (`fill="var(--surface)"` with a coloured stroke): a solid dot stays
   legible where series cross — the standard form for every S-curve.
@@ -661,21 +678,32 @@ a single shared time axis instead of two stacked charts:
   panel area. Bars are **visible by default**. The button is a state toggle, not a momentary action:
   it carries `aria-pressed` and is dimmed (`opacity:.55`) when bars are hidden, so its state is
   visible without re-reading the chart.
-- The card's controls form **one right-aligned cluster on the card's own board**, directly above the
-  plot, in this fixed order: **period window (label, From, To) → Bars → date-range text →
-  `⤓ PNG` → `⧉ Copy`** — exports last, PNG before Copy. `align-items:center`. The cluster prefers a
-  single line and may wrap only when the card is too narrow to hold it. The date-range text closes
-  the window group with `margin-left:auto` and `white-space:nowrap`.
+- The card's controls form **one cluster on the card's own board**, directly above the plot
+  (**§4.1** ownership). The cluster is **right-aligned by default**; the **period selection** (window
+  or brush) MAY instead be **left-aligned** with `margin-right:auto`, pushing the remaining controls
+  to the right. Internal order is fixed: **grain toggle (when present) → Bars → series multi-select
+  (when present) → date-range text → `⤓ PNG` → `⧉ Copy`** — filters before exports, PNG before Copy.
+  `align-items:center`. The cluster prefers a single line and may wrap only when the card is too
+  narrow. The **period window MAY be realised as a bar / brush selection** — a single track with two
+  drag handles selecting a contiguous range — instead of two separate From / To inputs; when the card
+  is too narrow the brush wraps below the cluster row.
 - These panels stay **full width** (`.card.full`) — one wide chart, not a 2-column grid.
 - **No nested chart title** when a panel holds a single chart: the panel's own `h2` is enough, so
-  do not add an `h3` sub-title. The plot nevertheless draws **its own chart-card board** (§4.1), and
-  the control cluster above renders **inside** that board.
+  do not add an `h3` sub-title. The chart component nevertheless draws **its own chart-card board**
+  (§4.1) — a 1 px border around the **whole chart component** (control cluster + plot), **not** a
+  rectangle drawn inside the plot area — and the control cluster above renders **inside** that board.
 - **CSS contract (mandatory, so the rule is testable).**
   `.chart-actions{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:6px}`
   — the cluster right-aligns **to the card**; a cluster that merely carries the class while sitting
   left-aligned in the panel body still violates this rule. And
   `.sc-win .msg{font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap}` — the range
   text is muted body copy at §8 sizes, never a small green success-coloured label.
+
+- **A hover snap line with a floating window is RECOMMENDED.** Moving the cursor over the plot draws a
+  thin vertical dashed line snapped to the nearest time bucket and shows a floating window (an HTML
+  overlay positioned near the cursor, **not** inside the SVG) listing that bucket's per-period counts
+  (Planned / Actual) and the three cumulative totals. The window is `position:absolute` over the chart
+  host with `pointer-events:none` so it never blocks the hover.
 
 ### 4.3 Long lists → bounded data table (never an open-ended list)
 Any panel whose content is a **list of records that can grow** (look-ahead, overdue packages,

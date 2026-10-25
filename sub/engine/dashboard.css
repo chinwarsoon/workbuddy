@@ -1,3 +1,4 @@
+/* Revision 2.3 | 2026-10-25 | CodeBuddy (AI) | C3 Breakdown: submission and approval colour tokens, the chart-component board, bar/arc classes and the summary-table spacing. */
 /* Revision 2.2 | 2026-10-24 | CodeBuddy (AI) | Option B shell: MDL two-row header + navy left nav sidebar; light default. */
 :root{
   color-scheme:light;
@@ -254,3 +255,130 @@ details summary{cursor:pointer;font-size:13px;color:var(--accent);margin:6px 0}
 /* §5 — the KPI grid needs no breakpoint: auto-fit with a 210 px floor drops columns by itself. */
 @media(max-width:1099px){.panel-grid,body[data-layout="three"] .panel-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:879px){.panel-grid,body[data-layout="two"] .panel-grid,body[data-layout="three"] .panel-grid{grid-template-columns:1fr}}
+/* ===== C1 Schedule Performance S-Curve (workplan D35) ===== */
+:root{
+  /* Series colours — shared by bars and their cumulative lines so the hue is consistent. */
+  --color-plan:#2b6cf6; --color-forecast:#F9A825; --color-actual:#17a67a;
+}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:6px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;line-height:1.2}
+.btn:hover{background:var(--surface2)}
+.btn-secondary{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:6px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;line-height:1.2}
+.btn-secondary:hover{background:var(--surface2)}
+.btn-secondary.on{background:var(--surface3);border-color:var(--blue);color:var(--blue)}
+.c1-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 10px}
+.c1-controls .controls-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.c1-controls .controls-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
+.c1-period-label{font-weight:600;font-size:12px;color:var(--text2)}
+.c1-range-wrap{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)}
+.c1-range{width:120px;accent-color:var(--blue)}
+.c1-period-text{font-size:11px;color:var(--text2);white-space:nowrap}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.seg-btn{border:0;background:transparent;color:var(--text2);padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer}
+.seg-btn.active{background:var(--blue);color:#fff}
+.scurve{position:relative;max-width:100%}
+.scurve-svg{display:block}
+.scurve-tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:8px 10px;font-size:11px;line-height:1.45;color:var(--text);z-index:30;max-width:230px}
+.scurve-tip[hidden]{display:none}
+.sc-bar-plan{fill:var(--color-plan)}
+.sc-bar-forecast{fill:var(--color-forecast)}
+.sc-bar-actual{fill:var(--color-actual)}
+.sc-bar-actualresub{fill:var(--color-actual);fill-opacity:.45}
+.sc-board{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fff}
+.sc-ref-lbl{font-size:9px;font-weight:700}
+.sc-ref-lbl-start{fill:var(--danger)}
+.sc-ref-lbl-today{fill:var(--slate)}
+.sc-asof{font-size:9px;fill:var(--text2)}
+.sc-line-plan{stroke:var(--color-plan);stroke-width:2.5;fill:none;stroke-dasharray:6 3}
+.sc-line-forecast{stroke:var(--color-forecast);stroke-width:2.5;fill:none;stroke-dasharray:2 2}
+.sc-line-actual{stroke:var(--color-actual);stroke-width:2.5;fill:none}
+.sc-line-actualresub{stroke:var(--color-actual);stroke-width:2.5;fill:none;stroke-dasharray:3 3;opacity:.85}
+.sc-dot{stroke:none}
+.sc-dot-plan{fill:var(--color-plan)} .sc-dot-forecast{fill:var(--color-forecast)} .sc-dot-actual{fill:var(--color-actual)} .sc-dot-actualresub{fill:var(--color-actual)}
+.sc-grid{stroke:var(--border);stroke-width:1}
+.sc-axis{fill:var(--text2);font-size:10px}
+.sc-axis-title{font-weight:700}
+.sc-barval{fill:var(--text2);font-size:9px}
+.sc-x{font-size:10px}
+.sc-leg-t{fill:var(--text);font-size:11px}
+.sc-ref-start{stroke:var(--danger);stroke-width:1.5;stroke-dasharray:5 3}
+.sc-ref-today{stroke:var(--slate);stroke-width:1.5;stroke-dasharray:2 2}
+.scurve-snap{stroke:var(--text3);stroke-width:1;stroke-dasharray:3 3}
+/* ===== C3 Breakdown (workplan D36) ===== */
+:root{
+  /* Submission series (New vs Resubmission) and the five approval codes. New and Resubmission use
+     hues outside the approval set, because the two series are separate measures, not a split of one. */
+  --color-new:#1f6fb2; --color-resub:#f4a259;
+  --color-app:#17a67a; --color-awc:#2b6cf6; --color-nap:#F9A825; --color-rej:#d23b3b; --color-inf:#64748B;
+}
+.c3-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 10px}
+.c3-controls .controls-left{display:flex;align-items:center;gap:8px}
+.c3-controls .controls-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
+.c3-month-wrap{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)}
+.c3-month-wrap select{padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)}
+/* §4.2 — the board is the chart-component border; the panel keeps its own card border. */
+.c3-board{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fff}
+.c3-svg{display:block}
+.c3-new{fill:var(--color-new)} .c3-new-arc{stroke:var(--color-new)}
+.c3-resub{fill:var(--color-resub)} .c3-resub-arc{stroke:var(--color-resub)}
+.c3-app{fill:var(--color-app)} .c3-app-arc{stroke:var(--color-app)}
+.c3-awc{fill:var(--color-awc)} .c3-awc-arc{stroke:var(--color-awc)}
+.c3-nap{fill:var(--color-nap)} .c3-nap-arc{stroke:var(--color-nap)}
+.c3-rej{fill:var(--color-rej)} .c3-rej-arc{stroke:var(--color-rej)}
+.c3-inf{fill:var(--color-inf)} .c3-inf-arc{stroke:var(--color-inf)}
+.c3-track-bg{fill:var(--border);fill-opacity:.18}
+.c3-label{fill:var(--text);font-size:11px}
+.c3-cap{fill:var(--text2);font-size:9px}
+.c3-val{fill:var(--text);font-size:11px;font-weight:600}
+.c3-total{fill:var(--text)}
+.c3-sub{fill:var(--text2)}
+.c3-leg-t{fill:var(--text2);font-size:11px}
+/* ===== C3 layout: chart left, summary table right (§4.2 pair) ===== */
+.c3-body{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(340px,1fr);gap:14px;align-items:start}
+@media(max-width:1099px){.c3-body{grid-template-columns:1fr}}
+.c3-summary{min-width:0}
+/* ===== §7.2 Tables (.ds-table) — the one table style ===== */
+:root{--ds-row-h:40px;--ds-head-h:40px;--ds-cell-fs:12px;--ds-cell-lh:20px;--ds-rule-w:1px;
+  --ds-head-rule:rgba(255,255,255,.38);--ds-head-rule-hi:rgba(255,255,255,.7);--ds-sbw:0px}
+.tableScroll{overflow:auto;max-height:340px}
+.ds-table{width:100%;border-collapse:collapse;font-size:var(--ds-cell-fs);background:var(--surface);table-layout:fixed}
+.ds-table th,.ds-table td{border-bottom:1px solid var(--border);padding:0 10px;text-align:left;
+  vertical-align:middle;height:var(--ds-row-h);line-height:var(--ds-cell-lh);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;position:relative}
+.ds-table thead th{background:var(--navy);color:#fff;font-weight:600;height:var(--ds-head-h)}
+.ds-table th[scope="row"]{font-weight:400}
+.ds-table .num{text-align:right;font-variant-numeric:tabular-nums}
+.ds-table tbody tr:nth-child(even){background:var(--surface2)}
+.ds-table tbody tr:hover{background:var(--soft)}
+.ds-table .over{background:var(--warn-bg)}
+.ds-table .empty{color:var(--text3);text-align:center}
+.ds-table tfoot td{background:var(--surface2);font-weight:700;border-top:1px solid var(--border)}
+.ds-table code{font:inherit}
+/* §7.2.2 — a 1 px column rule on the right edge of every header cell; suppressed on grouped cells,
+   the last data column and the gutter so no rule hangs past the table edge. */
+.ds-table thead th::after{content:"";position:absolute;top:6px;bottom:6px;right:0;width:var(--ds-rule-w);
+  background:var(--ds-head-rule);pointer-events:none}
+.ds-table thead th:hover::after{background:var(--ds-head-rule-hi)}
+.ds-table thead th[colspan]::after{display:none}
+.ds-table thead th:last-child:not(.ds-gut)::after{display:none}
+.ds-table thead th.ds-gut::after{display:none}
+.ds-table .ds-gut{padding:0;border-bottom:0}
+/* §7.2.13/14 — pinned identity columns. Freezing is a property of the column, not its position. */
+.ds-table th.ds-pinned,.ds-table td.ds-pinned{position:sticky;z-index:3;background:var(--surface)}
+.ds-table th.ds-pinned{z-index:5;background:var(--navy)}
+.ds-table td.ds-pinned:nth-child(1){left:0}
+.ds-table td.ds-pinned:nth-child(2){left:var(--pin-first-col,150px)}
+.ds-table th.ds-pinned:nth-child(1){left:0}
+.ds-table th.ds-pinned:nth-child(2){left:var(--pin-first-col,150px)}
+.ds-table .ds-pinned-edge{box-shadow:2px 0 4px rgba(15,23,34,.08)}
+.ds-table tr.win-pad td{padding:0;border:0;line-height:0;height:0}
+/* §7.2.15 — split header: the <thead> lives OUTSIDE the scroller, so the vertical scrollbar starts
+   below the header. Header and body share one column grid (fixed layout + the same colgroup) and
+   script pins the fragment to the body's rendered width plus the scrollbar (.ds-gut). */
+.ds-split{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:6px}
+.ds-split .tableScroll{border:0;border-radius:0;margin-top:0}
+.vheadwrap{overflow:hidden}
+.vheadtab{margin:0;width:100%}
+.vheadtab thead th{position:relative;border-bottom:1px solid var(--border)}
+.vheadtab thead th.ds-pinned{position:sticky;z-index:4}
+.th-wrap{display:flex;align-items:center;min-width:0}
+.lb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

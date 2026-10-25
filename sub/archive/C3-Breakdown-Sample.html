@@ -1,0 +1,527 @@
+<!doctype html>
+<!-- C3 Breakdown — interactive sample for review. Self-contained, runs from file://. -->
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TWRP C3B2 · C3 Breakdown (sample)</title>
+<style>
+:root{
+  color-scheme:light;
+  --navy:#15314f; --blue:#2b6cf6; --green:#17a67a; --amber:#F9A825; --red:#d23b3b; --slate:#64748B;
+  --bg:#eef2f8; --surface:#FFFFFF; --surface2:#F1F5F9; --surface3:#E8EDF3;
+  --border:#D9E1E8; --text:#1F2A37; --text2:#526171; --text3:#6b7785;
+  --accent:#2b6cf6; --accent-alt:#17a67a; --success:#17a67a; --warning:#F9A825; --danger:#d23b3b; --info:#2b6cf6;
+  --tag-bg:#EAF2FB; --tag-border:#CBDDEF; --row-stripe:#F7F9FB; --row-hover:#EAF2FB; --th-bg:#E8EDF3; --th-hover:#DAE3ED;
+  --shadow:0 1px 2px rgba(16,32,64,.04),0 8px 24px rgba(16,32,64,.05);
+  --titlebar-h:56px; --menubar-h:48px; --sidebar-w:160px; --statusbar-h:30px;
+  --radius:12px; --radius-sm:6px; --radius-lg:14px;
+  --line:#D9E1E8; --muted:#526171; --soft:#EAF2FB; --accent-ink:#2b6cf6;
+  --font-ui:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif; --font-mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  /* C3 approval palette */
+  --c-app:#17a67a; --c-awc:#2b6cf6; --c-nap:#F9A825; --c-rej:#d23b3b; --c-inf:#64748B; --c-new:#1f6fb2; --c-resub:#f4a259;
+}
+*{box-sizing:border-box}html,body{height:100%;overflow:hidden;margin:0}body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);font:13px/1.45 var(--font-ui);transition:background .25s,color .25s}button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+/* ===== Two-row header (MDL Option B) ===== */
+.app{display:flex;flex-direction:column;height:100vh;min-height:0;overflow:hidden}
+.app-bar{flex:none;display:flex;flex-direction:column;z-index:20}
+.app-top{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--navy);color:#fff;padding:10px 20px;min-height:var(--titlebar-h)}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{height:36px;width:36px;flex-shrink:0;background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--navy);font-size:12px}
+.ttl-stack{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ttl{font-size:17px;font-weight:600;margin:0;line-height:1.2}
+.ttl-stack .sub{font-size:12px;font-weight:500;color:rgba(255,255,255,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{font-size:11px;opacity:.85}
+.app-top .page-title{font-size:16px;font-weight:600;line-height:1.2;color:#fff;white-space:nowrap;flex-shrink:0}
+.app-menu{display:flex;align-items:center;gap:12px;background:#fff;color:var(--text);padding:8px 20px;min-height:var(--menubar-h);border-bottom:1px solid var(--border);flex-wrap:nowrap}
+.app-menu .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.app-menu .filter-group{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:nowrap;flex-shrink:0}
+.app-menu .btn{border:0;background:transparent;color:var(--navy);cursor:pointer;font-size:12px;font-weight:600;line-height:1.2;min-height:32px;padding:7px 14px;border-radius:6px}
+.app-menu .btn:hover{background:var(--surface2)}
+.app-menu .btn-primary{background:var(--blue);color:#fff}
+.app-menu .btn-primary:hover{background:#1f5fcc}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;min-height:26px;padding:0;font:inherit;font-size:13px;font-weight:600;line-height:1;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--muted);cursor:pointer}
+.icon-btn:hover{background:var(--surface2)}
+/* Global filters — B1 trigger + B3 rows */
+.tf-wrap{position:relative;flex-shrink:0}
+.tf-btn{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:var(--navy);padding:7px 12px;min-height:32px;font-size:12px;font-weight:600;line-height:normal;cursor:pointer;white-space:nowrap}
+.tf-btn:hover{background:var(--soft)}
+.tf-btn[aria-expanded="true"]{background:var(--soft)}
+.tf-cnt{font-size:10px;padding:0 0 0 4px;font-weight:700;color:var(--accent-ink)}
+.tf-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:40;min-width:220px;max-width:min(340px,90vw);max-height:320px;overflow:auto;display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:10px}
+.tf-panel[hidden]{display:none}
+.tf-panel .tf-all{display:flex;align-items:center;gap:8px;padding:2px;font-size:12px;cursor:pointer}
+.tf-panel .tf-all input{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0}
+.tf-panel .tf-all b{font-weight:700}
+.tf-panel .tf-hint{margin:2px 2px 6px;font-size:10px;color:var(--muted);line-height:1.35}
+.tf-panel .tf-divider{height:1px;background:var(--border);margin:2px 0 6px}
+.tf-panel .tf-item{display:flex;align-items:center;gap:8px;padding:5px 2px;font-size:12px;cursor:pointer;border-radius:4px}
+.tf-panel .tf-item:hover{background:var(--soft)}
+.tf-panel .tf-item input{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0}
+/* ===== Shell row + sidebars ===== */
+.shell-row{flex:1;min-height:0;display:flex}
+.left-sidebar{flex:none;width:var(--sidebar-w);min-width:0;background:var(--navy);color:#E8EDF3;overflow:auto;transition:width .2s ease;z-index:15;display:flex;flex-direction:column;padding:10px}
+.sb-menu{display:flex;flex-direction:column}
+.sb-bottom{display:flex;flex-direction:column;margin-top:auto}
+.page-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:#dfe8f3;font-size:14px;border:0;background:transparent;text-align:left}
+.page-link:hover{background:rgba(255,255,255,.1)}
+.page-link.active{background:var(--blue);color:#fff;font-weight:600}
+.content{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg)}
+.content-body{flex:1;overflow:auto;padding:16px}
+/* ===== Panel / KPI ===== */
+.panel{margin:14px 0;padding:14px 14px 26px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);position:relative}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 10px}
+.panel h2{margin:0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--navy);line-height:1.4;min-width:0}
+.panel-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:.04em;color:var(--text3);pointer-events:none}
+/* ===== Tables ===== */
+.table-scroll{max-height:520px;overflow:auto;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+table.ds{width:100%;border-collapse:collapse;font-size:13px}
+table.ds th,table.ds td{border-bottom:1px solid var(--border);padding:8px 10px;text-align:left}
+table.ds th{background:var(--th-bg);color:var(--text2);font-weight:600;position:sticky;top:0;z-index:1}
+table.ds tbody tr:nth-child(even){background:var(--row-stripe)}
+table.ds tbody tr:hover{background:var(--row-hover)}
+table.ds td.num,table.ds th.num{text-align:right;font-variant-numeric:tabular-nums}
+table.ds tfoot td{font-weight:700;background:var(--surface3);border-top:2px solid var(--border)}
+/* ===== Segmented / buttons ===== */
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.seg-btn{border:0;background:transparent;color:var(--text2);padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer}
+.seg-btn.active{background:var(--navy);color:#fff}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:6px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;line-height:1.2}
+.btn:hover{background:var(--surface2)}
+.note{color:var(--text2);font-size:12px;line-height:1.5;margin:6px 0}
+.c3-board{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fff;margin:0 0 4px}
+.c3-controls{display:flex;align-items:center;justify-content:flex-end;gap:14px;flex-wrap:wrap;margin:0 0 12px}
+.c3-controls .ctl{display:flex;align-items:center;gap:8px}
+.c3-controls label{font-size:12px;font-weight:600;color:var(--text2)}
+.c3-controls select{border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);padding:6px 8px;font-size:12px;font-weight:600}
+.c3-layout{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.c3-chart{flex:1;min-width:320px}
+.c3-side{flex:0 0 460px;max-width:100%}
+/* ===== C3 bar chart ===== */
+.c3-bar-row{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:12px}
+.c3-bar-label{width:110px;flex:none;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c3-bars{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.c3-bar-group{display:flex;align-items:center;gap:6px}
+.c3-bar-cap{width:70px;flex:none;font-size:10px;color:var(--muted);text-align:right}
+.c3-track{flex:1;display:flex;height:16px;background:var(--surface2);border-radius:5px;overflow:hidden;min-width:0}
+.c3-track i{display:block;height:100%}
+.c3-track.resub i{opacity:.5}
+.c3-bar-val{width:40px;flex:none;text-align:right;color:var(--text);font-variant-numeric:tabular-nums}
+.c3-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--text2)}
+.c3-legend .sw{display:inline-flex;align-items:center;gap:5px}
+.c3-legend .dot{width:11px;height:11px;border-radius:3px;display:inline-block}
+.c3-legend .sw.resub .dot{opacity:.5}
+.c3-empty{padding:30px;text-align:center;color:var(--text3)}
+/* ===== Donut ===== */
+.c3-donut-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.c3-donut-legend{display:flex;flex-direction:column;gap:4px;font-size:12px;width:100%}
+.c3-donut-legend .row{display:flex;align-items:center;gap:8px}
+.c3-donut-legend .dot{width:11px;height:11px;border-radius:3px;flex:none}
+.c3-donut-legend .nm{flex:1;color:var(--text2)}
+.c3-donut-legend .vl{font-variant-numeric:tabular-nums;color:var(--text)}
+.status-bar{flex:none;display:flex;align-items:center;gap:8px;background:var(--navy);color:#E8EDF3;font-size:12px;padding:6px 14px;overflow:hidden}
+.status-bar #status-right{margin-left:auto;opacity:.85}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="app-bar">
+    <div class="app-top">
+      <div class="brand">
+        <div class="logo">TWRP</div>
+        <div class="ttl-stack">
+          <h1 class="ttl">TWRP C3B2</h1>
+          <div class="sub">Document Submittal Dashboard</div>
+        </div>
+      </div>
+      <div class="page-title">C3 Breakdown</div>
+    </div>
+    <div class="app-menu">
+      <div class="actions">
+        <button class="btn btn-primary">Load Workbook</button>
+        <button class="btn">Export</button>
+      </div>
+      <div class="filter-group" id="global-filters"><!-- tf-btn triggers injected --></div>
+      <button class="icon-btn" title="Layout" aria-label="Layout">▦</button>
+    </div>
+  </div>
+
+  <div class="shell-row">
+    <nav class="left-sidebar">
+      <div class="sb-menu">
+        <button class="page-link">Overview</button>
+        <button class="page-link active">C3 Breakdown</button>
+        <button class="page-link">Submittals</button>
+        <button class="page-link">Validation</button>
+        <button class="page-link">Forward Plan</button>
+        <button class="page-link">Analytical</button>
+      </div>
+      <div class="sb-bottom">
+        <button class="page-link">Settings</button>
+        <button class="page-link">Help</button>
+      </div>
+    </nav>
+
+    <div class="content">
+      <div class="content-body">
+        <section class="panel" data-panel="1">
+          <div class="panel-head">
+            <h2>C3 · Breakdown</h2>
+            <div class="panel-actions">
+              <button class="icon-btn" title="Help" aria-label="Help">?</button>
+              <button class="icon-btn" title="Collapse" aria-label="Collapse">−</button>
+            </div>
+          </div>
+
+          <div class="c3-board">
+          <div class="c3-controls">
+            <div class="ctl">
+              <label for="c3-month">Month</label>
+              <select id="c3-month"></select>
+            </div>
+            <div class="ctl">
+              <label>Breakdown by</label>
+              <div class="seg" id="c3-breakdown">
+                <button class="seg-btn active" data-val="discipline">Discipline</button>
+                <button class="seg-btn" data-val="submitter">Submitter</button>
+              </div>
+            </div>
+            <div class="ctl">
+              <label>View</label>
+              <div class="seg" id="c3-view">
+                <button class="seg-btn active" data-val="bar">Bar</button>
+                <button class="seg-btn" data-val="pie">Pie</button>
+              </div>
+            </div>
+          </div>
+
+          <p class="note">Chart shows <b>submittal log counts only</b>. The summary table also lists planned totals (Master Document List). All values react to the global filters above and the month selector. Bar view: <b>Submissions</b> (New + Resub) and <b>Approval Status</b> (APP/AWC/NAP/REJ/INF) per value. Pie view: two rings (Submissions outer, Approval Status inner).</p>
+
+          <div class="c3-layout">
+            <div class="c3-chart" id="c3-chart"></div>
+            <div class="c3-side" id="c3-table"></div>
+          </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <span>TWRP C3B2 · C3 Breakdown sample</span>
+    <span id="status-right">sample v0.1 · mock data</span>
+  </div>
+</div>
+
+<script>
+/* ===================== Mock data (deterministic) ===================== */
+const DISC = ['Civil','Structural','Mechanical','Electrical','Piping'];
+const SUBM = ['A. Tan','B. Lim','C. Koh','D. Rao','E. Wong'];
+const MONTHS = ['2026-03','2026-04','2026-05','2026-06','2026-07','2026-08','2026-09','2026-10'];
+const APPROVALS = ['APP','AWC','NAP','REJ','INF'];
+const SUBSTAT = ['SUR','RTR','NTS'];
+const STAGES = ['Active','Superseded'];
+
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const rand = rng(20261025);
+
+const SUBMISSIONS = [];   // {doc,discipline,submitter,month,day,sortKey,submissionStatus,approvalStatus,stage}
+const PLAN = [];          // {discipline,submitter,month,stage}
+const DOC_FIRST = new Map(); // doc -> earliest sortKey (first submission by date)
+
+function pick(arr){return arr[Math.floor(rand()*arr.length)];}
+function rollStatus(){
+  const roll = rand();
+  if(roll<0.28) return ['SUR',''];
+  if(roll<0.5) return ['RTR', pick(APPROVALS)];
+  return ['NTS', pick(APPROVALS)];
+}
+function addSub(doc, discipline, submitter, month, day, subStatus, appStatus){
+  const mi = MONTHS.indexOf(month);
+  const sortKey = mi*100 + day;
+  SUBMISSIONS.push({doc, discipline, submitter, month, day, sortKey, submissionStatus:subStatus, approvalStatus:appStatus, stage:'Active'});
+  const prev = DOC_FIRST.get(doc);
+  if(prev===undefined || sortKey<prev) DOC_FIRST.set(doc, sortKey);
+}
+
+let docN = 1000;
+MONTHS.forEach((m,mi)=>{
+  DISC.forEach(d=>{
+    SUBM.forEach(s=>{
+      const n = 1 + Math.floor(rand()*3);          // new documents this month
+      const planCount = n + Math.floor(rand()*2);
+      PLAN.push({discipline:d,submitter:s,month:m,stage: rand()<0.08?'Superseded':'Active'});
+      for(let k=1;k<planCount;k++) PLAN.push({discipline:d,submitter:s,month:m,stage:'Active'});
+      for(let i=0;i<n;i++){
+        const doc = 'SUB-'+(++docN);
+        const day1 = 1+Math.floor(rand()*22);
+        const [ss1, ap1] = rollStatus();
+        addSub(doc, d, s, m, day1, ss1, ap1);   // first submission (New)
+        if(rand()<0.35){                                            // same-month resub -> 1 New + 1 Resub
+          const [ss2, ap2] = rollStatus();
+          addSub(doc, d, s, m, day1+1+Math.floor(rand()*6), ss2, ap2);
+        }
+        if(rand()<0.4 && mi<MONTHS.length-1){                       // later-month resub -> Resub in that month
+          const [ss3, ap3] = rollStatus();
+          addSub(doc, d, s, MONTHS[mi+1+Math.floor(rand()*(MONTHS.length-mi-1))], 1+Math.floor(rand()*22), ss3, ap3);
+        }
+      }
+    });
+  });
+});
+
+/* ===================== State ===================== */
+const GLOBAL_DIMS = [
+  {key:'discipline', label:'Discipline', values:DISC},
+  {key:'submitter', label:'Submitter', values:SUBM},
+  {key:'submissionStatus', label:'Submission Status', values:SUBSTAT},
+  {key:'approvalStatus', label:'Approval Status', values:APPROVALS},
+  {key:'stage', label:'Stage', values:STAGES},
+];
+const state = {
+  global: Object.fromEntries(GLOBAL_DIMS.map(d=>[d.key,new Set()])),
+  c3: { month:'ALL', breakdown:'discipline', view:'bar' }
+};
+
+/* ===================== Filtering ===================== */
+function passGlobal(rec){
+  for(const d of GLOBAL_DIMS){
+    const sel = state.global[d.key];
+    if(sel.size && !sel.has(rec[d.key])) return false;
+  }
+  return true;
+}
+function c3Records(){
+  return SUBMISSIONS.filter(r=> passGlobal(r) && (state.c3.month==='ALL' || r.month===state.c3.month));
+}
+function c3Plan(){
+  return PLAN.filter(r=> passGlobal(r) && (state.c3.month==='ALL' || r.month===state.c3.month));
+}
+
+/* ===================== Global filter UI ===================== */
+function buildGlobalFilters(){
+  const host = document.getElementById('global-filters');
+  host.innerHTML = GLOBAL_DIMS.map(d=>`
+    <div class="tf-wrap">
+      <button class="tf-btn" data-dim="${d.key}" aria-expanded="false">${d.label}<span class="tf-cnt" id="cnt-${d.key}"></span></button>
+      <div class="tf-panel" id="panel-${d.key}" hidden>
+        <label class="tf-all"><input type="checkbox" data-all="${d.key}"> <b>All ${d.label}</b></label>
+        <div class="tf-hint">Tick one or more values to narrow every panel.</div>
+        <div class="tf-divider"></div>
+        ${d.values.map(v=>`<label class="tf-item"><input type="checkbox" data-val="${d.key}" value="${v}"> ${v}</label>`).join('')}
+      </div>
+    </div>`).join('');
+
+  host.querySelectorAll('.tf-btn').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      const p = document.getElementById('panel-'+btn.dataset.dim);
+      const open = p.hasAttribute('hidden');
+      document.querySelectorAll('.tf-panel').forEach(x=>x.hidden=true);
+      document.querySelectorAll('.tf-btn').forEach(b=>b.setAttribute('aria-expanded','false'));
+      if(open){ p.hidden=false; btn.setAttribute('aria-expanded','true'); }
+    });
+  });
+  host.querySelectorAll('.tf-panel').forEach(p=>{
+    p.addEventListener('click', e=> e.stopPropagation());
+    p.querySelectorAll('input[data-val]').forEach(cb=>{
+      cb.addEventListener('change', ()=>{
+        const key = cb.dataset.val;
+        const set = state.global[key];
+        if(cb.checked) set.add(cb.value); else set.delete(cb.value);
+        syncAllToggle(key); render();
+      });
+    });
+    p.querySelectorAll('input[data-all]').forEach(all=>{
+      all.addEventListener('change', ()=>{
+        const key = all.dataset.all;
+        const vals = GLOBAL_DIMS.find(d=>d.key===key).values;
+        if(all.checked){ state.global[key].clear(); p.querySelectorAll('input[data-val]').forEach(c=> c.checked=false); }
+        else { vals.forEach(v=> state.global[key].add(v)); p.querySelectorAll('input[data-val]').forEach(c=> c.checked=true); }
+        updateFilterBadges(); render();
+      });
+    });
+  });
+  document.addEventListener('click', ()=>{
+    document.querySelectorAll('.tf-panel').forEach(x=>x.hidden=true);
+    document.querySelectorAll('.tf-btn').forEach(b=>b.setAttribute('aria-expanded','false'));
+  });
+  updateFilterBadges();
+}
+function syncAllToggle(key){
+  const p = document.getElementById('panel-'+key);
+  const all = p.querySelector('input[data-all]');
+  all.checked = state.global[key].size===0;
+}
+function updateFilterBadges(){
+  GLOBAL_DIMS.forEach(d=>{
+    const n = state.global[d.key].size;
+    document.getElementById('cnt-'+d.key).textContent = n?('·'+n):'';
+  });
+}
+
+/* ===================== C3 controls ===================== */
+function buildC3Controls(){
+  const month = document.getElementById('c3-month');
+  month.innerHTML = `<option value="ALL">All months</option>` + MONTHS.map(m=>`<option value="${m}">${m}</option>`).join('');
+  month.value = state.c3.month;
+  month.addEventListener('change', ()=>{ state.c3.month = month.value; render(); });
+
+  document.getElementById('c3-breakdown').querySelectorAll('.seg-btn').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      document.querySelectorAll('#c3-breakdown .seg-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active'); state.c3.breakdown = b.dataset.val; render();
+    });
+  });
+  document.getElementById('c3-view').querySelectorAll('.seg-btn').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      document.querySelectorAll('#c3-view .seg-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active'); state.c3.view = b.dataset.val; render();
+    });
+  });
+}
+
+/* ===================== Aggregation ===================== */
+const APP_COLOR = {APP:'var(--c-app)',AWC:'var(--c-awc)',NAP:'var(--c-nap)',REJ:'var(--c-rej)',INF:'var(--c-inf)'};
+const SUB_COLOR = {New:'var(--c-new)', Resub:'var(--c-resub)'};
+function APP_HAS(v){ return v==='APP'||v==='AWC'||v==='NAP'||v==='REJ'||v==='INF'; }
+function isFirstRow(r){ return DOC_FIRST.get(r.doc)===r.sortKey; }
+
+function metricsFor(records, plans, dimKey, dimVal, monthMode){
+  const recs = records.filter(r=> r[dimKey]===dimVal);
+  const pl = plans.filter(r=> r[dimKey]===dimVal).length;
+  let submitted=recs.length, newCount=0, resubCount=0, approved=0, awc=0, underReview=0;
+  const appr = {APP:0,AWC:0,NAP:0,REJ:0,INF:0};
+
+  if(monthMode==='ALL'){
+    // All months: distinct Document No. only for the approval-derived measures.
+    const docs = new Set(recs.map(r=>r.doc));
+    newCount = docs.size;
+    resubCount = recs.length - docs.size;
+    const byDoc = new Map();
+    recs.forEach(r=>{ if(!byDoc.has(r.doc)) byDoc.set(r.doc,[]); byDoc.get(r.doc).push(r); });
+    for(const arr of byDoc.values()){
+      arr.sort((a,b)=> a.sortKey-b.sortKey);
+      const fa = arr.find(r=> APP_HAS(r.approvalStatus));   // first approval per document
+      if(fa){ appr[fa.approvalStatus]++; if(fa.approvalStatus==='APP') approved++; if(fa.approvalStatus==='AWC') awc++; }
+      if(arr[arr.length-1].submissionStatus==='SUR') underReview++;  // latest row is SUR
+    }
+  } else {
+    // Specific month: row-level, no dedup. New = first row of its document; Resub = every later row.
+    recs.forEach(r=>{
+      if(isFirstRow(r)) newCount++; else resubCount++;
+      if(APP_HAS(r.approvalStatus)) appr[r.approvalStatus]++;
+      if(r.approvalStatus==='APP') approved++;
+      if(r.approvalStatus==='AWC') awc++;
+      if(r.submissionStatus==='SUR') underReview++;
+    });
+  }
+  return {dimVal, plan:pl, submitted, newCount, resubCount, approved, awc, underReview, appr};
+}
+
+/* ===================== Render chart ===================== */
+function renderBar(rows){
+  if(!rows.length) return `<div class="c3-empty">No submissions match the current filters.</div>`;
+  const maxBar = Math.max(1, ...rows.map(r=> r.newCount + r.resubCount));
+  const html = rows.map(r=>{
+    const subSegs =
+      `<i style="width:${(r.newCount/maxBar*100).toFixed(1)}%;background:var(--c-new)" title="New: ${r.newCount}"></i>` +
+      `<i style="width:${(r.resubCount/maxBar*100).toFixed(1)}%;background:var(--c-resub)" title="Resub: ${r.resubCount}"></i>`;
+    const appSegs = APPROVALS.map(a=> seg(r.appr[a], maxBar, a)).join('');
+    return `<div class="c3-bar-row">
+      <div class="c3-bar-label" title="${r.dimVal}">${r.dimVal}</div>
+      <div class="c3-bars">
+        <div class="c3-bar-group"><div class="c3-bar-cap">Submissions</div><div class="c3-track">${subSegs}</div></div>
+        <div class="c3-bar-group"><div class="c3-bar-cap">Approval</div><div class="c3-track">${appSegs}</div></div>
+      </div>
+      <div class="c3-bar-val">${r.submitted}</div>
+    </div>`;
+  }).join('');
+  return html + legend();
+}
+function seg(val, scale, code){
+  if(!val) return '';
+  const pct = (val/scale*100).toFixed(1);
+  return `<i style="width:${pct}%;background:${APP_COLOR[code]}" title="${code}: ${val}"></i>`;
+}
+function legend(){
+  const sub = `<span class="sw"><span class="dot" style="background:var(--c-new)"></span>New</span><span class="sw"><span class="dot" style="background:var(--c-resub)"></span>Resub</span>`;
+  const ap = APPROVALS.map(a=>`<span class="sw"><span class="dot" style="background:${APP_COLOR[a]}"></span>${a}</span>`).join('');
+  return `<div class="c3-legend">${sub}${ap}</div>`;
+}
+function renderPie(rows){
+  let newTot=0, resTot=0;
+  const appr = {APP:0,AWC:0,NAP:0,REJ:0,INF:0};
+  rows.forEach(r=>{ newTot+=r.newCount; resTot+=r.resubCount; APPROVALS.forEach(a=> appr[a]+=r.appr[a]); });
+  const total = newTot+resTot;
+  if(!total) return `<div class="c3-empty">No returned approvals match the current filters.</div>`;
+  const showPct = state.c3.month==='ALL';
+  const cx=90, cy=90;
+  const outer = ringSvg(cx,cy,76,22,{New:newTot,Resub:resTot},total,SUB_COLOR);
+  const inner = ringSvg(cx,cy,50,22,appr,total,APP_COLOR);
+  const pct = v => showPct && total ? ' ('+Math.round(v/total*100)+'%)' : '';
+  const leg =
+    `<div class="row"><span class="dot" style="background:var(--c-new)"></span><span class="nm">New</span><span class="vl">${newTot}${pct(newTot)}</span></div>` +
+    `<div class="row"><span class="dot" style="background:var(--c-resub)"></span><span class="nm">Resub</span><span class="vl">${resTot}${pct(resTot)}</span></div>` +
+    APPROVALS.map(a=>`<div class="row"><span class="dot" style="background:${APP_COLOR[a]}"></span><span class="nm">${a}</span><span class="vl">${appr[a]}${pct(appr[a])}</span></div>`).join('');
+  return `<div class="c3-donut-wrap"><svg width="180" height="180" viewBox="0 0 180 180">${outer}${inner}<text x="90" y="82" text-anchor="middle" font-size="22" font-weight="700" fill="var(--navy)">${total}</text><text x="90" y="100" text-anchor="middle" font-size="9" fill="var(--muted)">SUBMITTED</text><text x="90" y="114" text-anchor="middle" font-size="8" fill="var(--muted)">New ${newTot} · Resub ${resTot}</text></svg><div class="c3-donut-legend">${leg}</div></div>`;
+}
+function ringSvg(cx,cy,r,sw,counts,total,colorMap){
+  if(!total) return '';
+  let frac=0; let paths='';
+  for(const key of Object.keys(counts)){
+    const val = counts[key];
+    if(!val) continue;
+    const f0=frac, f1=frac+val/total; frac=f1;
+    const a0=-Math.PI/2 + f0*2*Math.PI, a1=-Math.PI/2 + f1*2*Math.PI;
+    const x0=(cx+r*Math.cos(a0)).toFixed(2), y0=(cy+r*Math.sin(a0)).toFixed(2);
+    const x1=(cx+r*Math.cos(a1)).toFixed(2), y1=(cy+r*Math.sin(a1)).toFixed(2);
+    const large=(f1-f0)>0.5?1:0;
+    paths+=`<path d="M${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1}" fill="none" stroke="${colorMap[key]}" stroke-width="${sw}"/>`;
+  }
+  return paths;
+}
+
+/* ===================== Render table ===================== */
+function renderTable(rows){
+  if(!rows.length) return `<div class="table-scroll"><div class="c3-empty">No data for the current selection.</div></div>`;
+  const dimLabel = state.c3.breakdown==='discipline'?'Discipline':'Submitter';
+  const body = rows.map(r=>`<tr><td>${r.dimVal}</td><td class="num">${r.plan}</td><td class="num">${r.newCount}</td><td class="num">${r.resubCount}</td><td class="num">${r.submitted}</td><td class="num">${r.approved}</td><td class="num">${r.awc}</td><td class="num">${r.underReview}</td></tr>`).join('');
+  const t = {plan:0,newCount:0,resubCount:0,submitted:0,approved:0,awc:0,underReview:0};
+  rows.forEach(r=>{ t.plan+=r.plan; t.newCount+=r.newCount; t.resubCount+=r.resubCount; t.submitted+=r.submitted; t.approved+=r.approved; t.awc+=r.awc; t.underReview+=r.underReview; });
+  return `<div class="table-scroll"><table class="ds">
+    <thead><tr><th>${dimLabel}</th><th class="num">Total Plan</th><th class="num">New Submissions</th><th class="num">Resubmissions</th><th class="num">Total Submitted</th><th class="num">Total Approved</th><th class="num">Total AWC</th><th class="num">Total Under Review</th></tr></thead>
+    <tbody>${body}</tbody>
+    <tfoot><tr><td>Total</td><td class="num">${t.plan}</td><td class="num">${t.newCount}</td><td class="num">${t.resubCount}</td><td class="num">${t.submitted}</td><td class="num">${t.approved}</td><td class="num">${t.awc}</td><td class="num">${t.underReview}</td></tr></tfoot>
+  </table></div>`;
+}
+
+/* ===================== Render ===================== */
+function render(){
+  updateFilterBadges();
+  const recs = c3Records();
+  const plans = c3Plan();
+  const dimKey = state.c3.breakdown;
+  const dimVals = (dimKey==='discipline'?DISC:SUBM).filter(v=>{
+    // keep only dimension values that survive the global filters
+    if(state.global[dimKey].size && !state.global[dimKey].has(v)) return false;
+    return recs.some(r=>r[dimKey]===v) || plans.some(r=>r[dimKey]===v);
+  });
+  const rows = dimVals.map(v=> metricsFor(recs, plans, dimKey, v, state.c3.month));
+
+  const chart = state.c3.view==='bar' ? renderBar(rows) : renderPie(rows);
+  document.getElementById('c3-chart').innerHTML = chart;
+  document.getElementById('c3-table').innerHTML = renderTable(rows);
+
+  document.getElementById('status-right').textContent =
+    `sample v0.1 · ${recs.length} submissions · ${dimVals.length} ${dimKey}` + (state.c3.month==='ALL'?' · all months':' · '+state.c3.month);
+}
+
+/* ===================== Init ===================== */
+buildGlobalFilters();
+buildC3Controls();
+render();
+</script>
+</body>
+</html>

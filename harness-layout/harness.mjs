@@ -1,3 +1,11 @@
+// Revision 1.13 | 2026-10-25 | CodeBuddy (AI) | Tier 5 `lintC3` now also checks the C3 summary table: it is present, it shows its eight columns, it has a Total footer row, and it repaints when the Month selector changes.
+// Revision 1.12 | 2026-10-25 | CodeBuddy (AI) | Tier 5 now guarantees its own starting state. It
+// used to inherit whatever page the previous tier left, which was often unloaded, so every chart
+// check failed and `lintC1` blocked until its locator timed out; `ensureLoadedForTier5` now always
+// navigates and injects the workbook. Also added Tier 5 `lintC3` for the C3 Breakdown chart
+// (workplan D36): two-series structure, component board, Month / Breakdown-by / View toggles and
+// PNG / Copy. And fixed an invalid selector in `lintC1`: `[data-c1series]` + `="forecast"` produced
+// `[data-c1series]="forecast"`, which threw before any series behaviour could be checked.
 // Revision 1.11 | 2026-10-24 | CodeBuddy (AI) | The Tier 1 module check now accepts an inline
 // `<script type="module">` as well as a local linked module, because spec §3.9 requires a standalone
 // page with no cross-file module. A linked module must still be project-local. Resolves I021.
@@ -772,13 +780,18 @@ async function lintTableChrome(page, cfg) {
         const max = sc.scrollWidth - sc.clientWidth;
         const p0 = plain ? plain.getBoundingClientRect().left : null;
         const k0 = pin ? pin.getBoundingClientRect().left : null;
-        const bodyTbl = sc.querySelector('table');
-        const bPin = pin && bodyTbl ? bodyTbl.querySelector('tbody tr:not(.win-pad) td.ds-pinned') : null;
         sc.scrollLeft = max;
         await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        // Re-query both halves AFTER the scroll. A windowed table re-renders its rows while scrolling,
+        // so a body cell captured beforehand is detached by now and would measure 0 — which reads as a
+        // false 192 px misalignment rather than the re-render it actually is.
+        const liveLeaf = [...frag.querySelectorAll('thead tr')].pop();
+        const livePin = liveLeaf ? [...liveLeaf.children].find(c => c.tagName === 'TH' && c.classList.contains('ds-pinned')) : null;
+        const liveBody = sc.querySelector('table');
+        const bPin = livePin && liveBody ? liveBody.querySelector('tbody tr:not(.win-pad) td.ds-pinned') : null;
         const moved = p0 === null ? null : +(p0 - plain.getBoundingClientRect().left).toFixed(1);
-        const pinMoved = k0 === null ? null : +(k0 - pin.getBoundingClientRect().left).toFixed(1);
-        const pinGap = (bPin && pin) ? +Math.abs(pin.getBoundingClientRect().left - bPin.getBoundingClientRect().left).toFixed(1) : null;
+        const pinMoved = k0 === null || !livePin ? null : +(k0 - livePin.getBoundingClientRect().left).toFixed(1);
+        const pinGap = (bPin && livePin) ? +Math.abs(livePin.getBoundingClientRect().left - bPin.getBoundingClientRect().left).toFixed(1) : null;
         const scrolled = sc.scrollLeft;
         sc.scrollLeft = 0;
         if (forced) { sc.style.width = oldW; if (port) port.style.width = oldPW; await new Promise(r => setTimeout(r, 80)); }
@@ -1335,6 +1348,140 @@ async function runTier4(page, cfg, workbookPath) {
   await lintTableChrome(page, cfg);
 }
 
+// ── Tier 5: C1 Schedule Performance S-Curve (workplan D35) ─────────────────
+// Live checks of the combined S-curve card: structure, the Bars toggle, and the
+// series multi-filter popup behaviour (it must stay open during a toggle, and
+// close only on an outside click or the filter button). Mirrors the top menu bar
+// filter behaviour, which lives in the persistent shell and stays open on repaint.
+async function lintC1(page, cfg) {
+  const c = cfg.c1; if (!c) return;
+  console.log('\n── Tier 5: C1 Schedule Performance S-Curve ───────────────────');
+  const count = async sel => (await page.locator(sel).count());
+  const okC1 = (name, cond, detail = '') => ok(name, cond, detail);
+  okC1('C1 panel present', (await count(c.panelSelector)) === 1);
+  okC1('C1 svg present', (await count(c.svgSelector)) >= 1);
+  const lines = await count(c.lineSelector);
+  okC1(`C1 shows ${c.expectedSeries} series lines by default (got ${lines})`, lines === c.expectedSeries, `lines=${lines}`);
+  const barsOn = await count(c.barSelector);
+  okC1(`C1 bars drawn by default (got ${barsOn})`, barsOn > 0, `bars=${barsOn}`);
+  okC1('C1 chart-component board present', (await count(c.boardSelector)) === 1);
+  okC1('C1 Start reference line present', (await count(c.refStartSelector)) === 1);
+  okC1('C1 Today reference line present', (await count(c.refTodaySelector)) === 1);
+  okC1('C1 reference labels present', (await count(c.refLabelSelector)) >= 2);
+  okC1('C1 As-of caption present', (await count(c.asOfSelector)) === 1);
+  // Bar toggle — the Bars button must switch the bars on and off.
+  await page.locator(c.barsToggleSelector).click();
+  await page.waitForTimeout(150);
+  const barsOff = await count(c.barSelector);
+  okC1('C1 Bars button hides bars', barsOff === 0, `bars=${barsOff}`);
+  await page.locator(c.barsToggleSelector).click();
+  await page.waitForTimeout(150);
+  const barsBack = await count(c.barSelector);
+  okC1('C1 Bars button restores bars', barsBack > 0, `bars=${barsBack}`);
+  // Series popup — open, stay open during a toggle, close on outside click.
+  await page.locator(c.seriesButtonSelector).click();
+  await page.waitForTimeout(150);
+  okC1('C1 Series popup opens', await page.locator(c.seriesPanelSelector).isVisible());
+  // The config value is an attribute selector already, so the value goes INSIDE the brackets:
+  // `[data-c1series]` + `="forecast"]` → `[data-c1series="forecast"]`. Appending `="forecast"`
+  // outside produced invalid CSS and threw before any series behaviour could be checked.
+  const forecastCb = page.locator(`${c.seriesCheckboxSelector.slice(0, -1)}="forecast"]`);
+  if (await forecastCb.count()) {
+    await forecastCb.first().uncheck();
+    await page.waitForTimeout(150);
+    const linesAfter = await count(c.lineSelector);
+    okC1(`C1 unchecking a series removes its line (got ${linesAfter})`, linesAfter === c.expectedSeries - 1, `lines=${linesAfter}`);
+    await forecastCb.first().check();
+    await page.waitForTimeout(150);
+    const linesRestored = await count(c.lineSelector);
+    okC1('C1 re-checking a series restores its line', linesRestored === c.expectedSeries, `lines=${linesRestored}`);
+    okC1('C1 popup stays open after a toggle', await page.locator(c.seriesPanelSelector).isVisible());
+  }
+  await page.mouse.click(5, 5);
+  await page.waitForTimeout(150);
+  okC1('C1 popup closes on outside click', !(await page.locator(c.seriesPanelSelector).isVisible()));
+}
+
+// ── Tier 5: C3 Breakdown (workplan D36) ───────────────────────────────────────
+// Live checks of the split-by-dimension card. It must draw two separate series per
+// dimension value — Submissions (New + Resubmission) and Approval Status (the five
+// codes) — never one stacked bar, because the two come from different log columns.
+// Also verifies the component board, the Month selector (All months counts per
+// Document No. and shows percentages; a single month is row-level and shows counts
+// only), the Breakdown-by toggle and the Bar / Pie toggle.
+async function lintC3(page, cfg) {
+  const c = cfg.c3; if (!c) return;
+  console.log('\n── Tier 5: C3 Breakdown ───────────────────────────────');
+  const count = async sel => (await page.locator(sel).count());
+  const okC3 = (name, cond, detail = '') => ok(name, cond, detail);
+  // The chart only exists once both workbooks are loaded; earlier tiers do that.
+  if ((await count(c.boardSelector)) === 0) { skipped('Tier 5 C3 chart (no data loaded in this run)'); return; }
+  okC3('C3 chart-component board present', (await count(c.boardSelector)) === 1);
+  okC3('C3 svg present', (await count(c.svgSelector)) === 1);
+  const newSegs = await count(c.newSegmentSelector);
+  const resubSegs = await count(c.resubSegmentSelector);
+  okC3(`C3 submissions series drawn, New and Resubmission (got ${newSegs}/${resubSegs})`, newSegs >= 1 && resubSegs >= 1);
+  const approvalSegs = await count(c.approvalSegmentSelector);
+  okC3(`C3 Approval Status series drawn (got ${approvalSegs})`, approvalSegs >= 1);
+  // The approval codes must not be sub-split by New / Resubmission: no segment carries both series.
+  okC3('C3 Approval Status is not sub-split by New or Resubmission', (await count('.c3-board rect.c3-new.c3-app')) === 0);
+  okC3('C3 PNG control present', (await count(c.pngSelector)) === 1);
+  okC3('C3 Copy control present', (await count(c.copySelector)) === 1);
+  // The summary table below the chart uses the shared .ds-table style (§7.2).
+  okC3('C3 summary table present', (await count(c.summaryTableSelector)) === 1);
+  const heads = await count(c.summaryHeadSelector);
+  okC3(`C3 summary table shows its 8 columns (got ${heads})`, heads === 8);
+  okC3('C3 summary table has a Total footer row', (await count(c.summaryFooterSelector)) === 1);
+  // All months is the default: percentages are shown.
+  okC3('C3 All months shows percentages', (await count(c.percentTextSelector)) >= 1);
+  // A single month is row-level and shows counts only.
+  await page.selectOption(c.monthSelector, { index: 1 });
+  await page.waitForTimeout(250);
+  okC3('C3 single month shows counts only', (await count(c.percentTextSelector)) === 0);
+  okC3('C3 still renders after the month change', (await count(c.svgSelector)) === 1);
+  const monthRows = await count(`${c.summaryTableSelector} tbody tr`);
+  okC3(`C3 summary table follows the month selector (got ${monthRows})`, monthRows >= 1);
+  await page.selectOption(c.monthSelector, 'ALL');
+  await page.waitForTimeout(250);
+  okC3('C3 returning to All months restores percentages', (await count(c.percentTextSelector)) >= 1);
+  // Breakdown-by toggle.
+  await page.locator(c.submitterSelector).click();
+  await page.waitForTimeout(250);
+  okC3('C3 break down by Submitter redraws', (await count(c.svgSelector)) === 1);
+  await page.locator(c.disciplineSelector).click();
+  await page.waitForTimeout(250);
+  okC3('C3 break down by Discipline redraws', (await count(c.svgSelector)) === 1);
+  // Pie view draws two concentric rings.
+  await page.locator(c.pieSelector).click();
+  await page.waitForTimeout(250);
+  okC3('C3 pie draws the submissions ring', (await count(c.newArcSelector)) >= 1);
+  okC3('C3 pie draws the approval ring', (await count(c.appArcSelector)) >= 1);
+  await page.locator(c.barSelector).click();
+  await page.waitForTimeout(250);
+  okC3('C3 Bar view restores the bar chart', (await count(c.svgSelector)) === 1);
+}
+
+// Tier 5 inspects the rendered charts, so it needs a dashboard that already holds data. Earlier
+// tiers navigate the page for their own purposes and can leave it freshly loaded with no workbook,
+// which made every Tier 5 check fail (and `lintC1` block on a missing control until it timed out).
+// Load the workbook here when nothing is rendered, and report a skip when no workbook is configured.
+async function ensureLoadedForTier5(page, cfg, workbookPath) {
+  if (!workbookPath || !existsSync(workbookPath)) return false;
+  // Always start from a known state. Earlier tiers leave the page wherever they last navigated —
+  // sometimes on another page (whose panels exist but hold no chart), sometimes with no data at
+  // all — so a stale element from a previous tier cannot be used as the readiness signal.
+  const ready = (cfg.c1 && cfg.c1.panelSelector) || (cfg.c3 && cfg.c3.boardSelector) || '.panel';
+  try {
+    await page.goto(dashboardUrl(cfg));
+    await injectWorkbook(page, workbookPath, cfg);
+    await page.waitForSelector(ready, { timeout: 20000 });
+    return true;
+  } catch (error) {
+    console.log(`  INFO: Tier 5 could not load the workbook — ${error.message.split('\n')[0]}`);
+    return false;
+  }
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 const needsBrowser = !targetTier || targetTier !== 1;
 let browser = null, page = null, browserFailure = '';
@@ -1368,6 +1515,14 @@ for (const name of dashboards) {
   }
   if (!targetTier || targetTier === 4) {
     if (page) await runTier4(page, cfg, workbookPath); else skipped(`Tier 4 layout geometry (browser unavailable: ${browserFailure})`);
+  }
+  if (!targetTier || targetTier === 5) {
+    if (!page) { skipped('Tier 5 C1 chart (browser unavailable)'); skipped('Tier 5 C3 chart (browser unavailable)'); }
+    else if (!(await ensureLoadedForTier5(page, cfg, workbookPath))) { skipped('Tier 5 C1 chart (no dashboard data)'); skipped('Tier 5 C3 chart (no dashboard data)'); }
+    else {
+      if (cfg.c1) await lintC1(page, cfg); else skipped('Tier 5 C1 chart (no c1 config)');
+      if (cfg.c3) await lintC3(page, cfg); else skipped('Tier 5 C3 chart (no c3 config)');
+    }
   }
 }
 

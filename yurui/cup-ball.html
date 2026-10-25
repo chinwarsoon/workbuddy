@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>杯中球 · Cup &amp; Ball</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:#08090C;
+    color:#E8E9ED;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    display:flex;align-items:center;justify-content:center;
+    padding:16px;
+    -webkit-user-select:none;user-select:none;
+    overflow:hidden;
+  }
+  #wrap{
+    width:100%;max-width:900px;
+  }
+  canvas{
+    display:block;width:100%;height:auto;
+    border-radius:18px;
+    background:#0B0D12;
+    box-shadow:0 24px 70px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.06) inset;
+    touch-action:none;
+    cursor:crosshair;
+  }
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="c" width="900" height="620"></canvas></div>
+
+<script>
+(() => {
+'use strict';
+
+const cv  = document.getElementById('c');
+const ctx = cv.getContext('2d');
+
+const W = 900, H = 620;
+const dpr = Math.min(2, window.devicePixelRatio || 1);
+cv.width  = W * dpr;
+cv.height = H * dpr;
+ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+// ---------- 世界参数 ----------
+const GROUND   = 372;   // 杯底静止基线
+const CUP_H    = 76;    // 杯高
+const CUP_TOP_W= 104;   // 杯口宽
+const CUP_BOT_W= 64;    // 杯底宽
+const L        = 178;   // 绳长（球永远拉不出来）
+const R        = 14;    // 球半径
+const G        = 0.46;  // 重力
+const DRAG     = 0.9992;
+const VMAX     = 27;
+const TUG_CD   = 130;   // 急抖冷却(ms)
+const Etot     = G * 2 * L;   // 摆到最高点所需能量（归一化用）
+const SWEET    = 0.72;        // 刚好够甩过杯口的能量占比
+
+// ---------- 状态 ----------
+const cup  = { x: W/2, tx: W/2, off: 0, voff: 0 };
+const ball = { x: W/2, y: GROUND + L, vx: 0, vy: 0 };
+const trail = [];
+const parts = [];
+const pops  = [];
+
+let score = 0, combo = 0, best = 0, catches = 0, misses = 0;
+let state = 'play';        // 'play' | 'caught'
+let caughtT = 0;
+let armed = false;         // 球已冲到杯口以上且绳松 -> 这一趟可以接
+let lastTug = -999, frame = 0;
+let shakeT = 0, flashT = 0, missFlash = 0;
+let started = false;
+
+const anchorY = () => GROUND + cup.off;
+const rimY    = () => GROUND + cup.off - CUP_H;
+
+// ---------- 工具 ----------
+const clamp = (v,a,b) => v < a ? a : v > b ? b : v;
+const rnd   = (a,b) => a + Math.random()*(b-a);
+
+function burst(x, y, n, hue){
+  for (let i=0;i<n;i++){
+    const a = rnd(0, Math.PI*2), s = rnd(1.2, 6.2);
+    parts.push({x, y, vx:Math.cos(a)*s, vy:Math.sin(a)*s - 1.4, life:1, hue});
+  }
+}
+function pop(x, y, text, color){
+  pops.push({x, y, text, color, life:1});
+}
+
+// ---------- 输入 ----------
+function localX(clientX){
+  const r = cv.getBoundingClientRect();
+  return (clientX - r.left) / r.width * W;
+}
+function tug(){
+  started = true;
+  if (state !== 'play') return;
+  const now = performance.now();
+  if (now - lastTug < TUG_CD) return;    // 急抖冷却
+  lastTug = now;
+
+  const ax = cup.x, ay = anchorY();
+  let dx = ball.x - ax, dy = ball.y - ay;
+  let d = Math.hypot(dx, dy) || 1;
+  const nx = dx/d, ny = dy/d;
+  const tx = -ny, ty = nx;                       // 切向单位向量
+
+  let dot = ball.vx*tx + ball.vy*ty;
+  const s = Math.abs(dot) < 0.7 ? (Math.random()<0.5 ? -1 : 1) : Math.sign(dot);
+
+  const vertical = Math.max(0, dy/d);            // 越接近最低点，抖得越有效
+  const taut = clamp(d / L, 0, 1);               // 绳子松则打滑，吃不上力
+  const power = (3.4 + 4.0*vertical) * (0.28 + 0.72*taut);
+
+  ball.vx += s*tx*power;
+  ball.vy += s*ty*power;
+
+  cup.voff += 10.5;                              // 杯子急速下沉 -> 再弹回来 = 把球甩上去
+  shakeT = 5;
+}
+
+let downX = 0, downY = 0, dragged = false, downT = 0, pointerDown = false;
+
+cv.addEventListener('pointermove', e => {
+  if (e.pointerType === 'mouse' || pointerDown) cup.tx = clamp(localX(e.clientX), 60, W-60);
+});
+cv.addEventListener('pointerdown', e => {
+  cv.setPointerCapture?.(e.pointerId);
+  pointerDown = true; dragged = false; downT = performance.now();
+  downX = e.clientX; downY = e.clientY;
+  cup.tx = clamp(localX(e.clientX), 60, W-60);
+  if (e.pointerType === 'mouse') tug();
+});
+cv.addEventListener('pointerup', e => {
+  pointerDown = false;
+  const moved = Math.hypot(e.clientX-downX, e.clientY-downY);
+  if (e.pointerType !== 'mouse' && moved < 12) tug();
+});
+cv.addEventListener('pointercancel', () => { pointerDown = false; });
+
+const keys = {};
+addEventListener('keydown', e => {
+  if (e.code === 'Space'){ e.preventDefault(); tug(); }
+  keys[e.code] = true;
+});
+addEventListener('keyup', e => { keys[e.code] = false; });
+
+function keyboardMove(){
+  let dir = 0;
+  if (keys.ArrowLeft  || keys.KeyA) dir -= 1;
+  if (keys.ArrowRight || keys.KeyD) dir += 1;
+  if (dir) cup.tx = clamp(cup.tx + dir*15, 60, W-60);
+}
+
+// ---------- 物理 ----------
+function physics(){
+  frame++;
+  cup.x += (cup.tx - cup.x) * 0.19;
+
+  // 杯子垂直抖动弹簧
+  cup.voff += (0 - cup.off) * 0.34;
+  cup.voff *= 0.80;
+  cup.off  += cup.voff;
+
+  const ax = cup.x, ay = anchorY();
+
+  if (state === 'caught'){
+    caughtT++;
+    ball.x += (cup.x - ball.x) * 0.28;
+    ball.y += ((rimY() + 30) - ball.y) * 0.28;
+    if (caughtT > 46){                    // 重新放出来
+      state = 'play'; armed = false;
+      ball.x = cup.x; ball.y = anchorY() + L;
+      ball.vx = 0; ball.vy = 0;
+    }
+    updateFx();
+    return;
+  }
+
+  // —— 绳约束：拉得住就走圆周，张力不够就自然松掉变成自由飞（球永远不会脱离）——
+  const px = ball.x, py = ball.y;
+  ball.vy += G;
+  ball.vx *= DRAG; ball.vy *= DRAG;
+  ball.x += ball.vx; ball.y += ball.vy;
+
+  const dx0 = ball.x-ax, dy0 = ball.y-ay;
+  const dist0 = Math.hypot(dx0, dy0) || 1;
+  const nx = dx0/dist0, ny = dy0/dist0, tx = -ny, ty = nx;
+  let vt = ball.vx*tx + ball.vy*ty;
+  const pulled = (vt*vt/L + G*ny) >= 0;            // 张力 >= 0 : 绳子绷紧
+
+  if (pulled || dist0 > L){
+    ball.x = ax + nx*L;
+    ball.y = ay + ny*L;
+    vt = (ball.x - px)*tx + (ball.y - py)*ty;      // 真实位移反推切向速度（把抖动传给球）
+    ball.vx = vt*tx; ball.vy = vt*ty;
+  }
+
+  const sp = Math.hypot(ball.vx, ball.vy);
+  if (sp > VMAX){ ball.vx *= VMAX/sp; ball.vy *= VMAX/sp; }
+
+  // 轨迹
+  trail.push({x:ball.x, y:ball.y});
+  if (trail.length > 22) trail.shift();
+
+  // —— 接球判定 ——
+  const my = rimY();
+  const dxm = ball.x - cup.x, dym = ball.y - my;
+  if (ball.vy > 0 && Math.abs(dxm) < CUP_TOP_W/2 + 2 && dym > -36 && dym < 32){
+    doCatch();
+    return;
+  }
+
+  // —— 起飞 / 失手 ——
+  const dist = Math.hypot(ball.x-ax, ball.y-ay);
+  if (!armed){
+    if (ball.y < my - 22 && dist < L*0.94) armed = true;
+  } else if (ball.y > my + 46){
+    armed = false;
+    misses++;
+    if (combo > 0){ pop(cup.x, my - 56, 'MISS  '+combo+'连中断', '#FF6B6B'); }
+    combo = 0; missFlash = 22; shakeT = 7;
+  }
+
+  updateFx();
+}
+
+function doCatch(){
+  combo++; catches++;
+  const gain = 10 * Math.min(combo, 10);
+  score += gain;
+  best = Math.max(best, combo);
+
+  state = 'caught'; caughtT = 0; armed = false;
+  flashT = 20; shakeT = 9;
+  burst(cup.x, rimY(), 34, 45);
+  pop(cup.x, rimY() - 58, '+'+gain + (combo>1 ? '   x'+combo : ''), '#FFD479');
+  trail.length = 0;
+}
+
+function updateFx(){
+  if (shakeT > 0) shakeT--;
+  if (flashT > 0) flashT--;
+  if (missFlash > 0) missFlash--;
+  for (let i=parts.length-1;i>=0;i--){
+    const p = parts[i];
+    p.vy += 0.22; p.x += p.vx; p.y += p.vy; p.life -= 0.022;
+    if (p.life <= 0) parts.splice(i,1);
+  }
+  for (let i=pops.length-1;i>=0;i--){
+    const q = pops[i];
+    q.y -= 0.9; q.life -= 0.016;
+    if (q.life <= 0) pops.splice(i,1);
+  }
+}
+
+// ---------- 绘制 ----------
+function bg(){
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#11141C'); g.addColorStop(.55,'#0C0E14'); g.addColorStop(1,'#08090C');
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+
+  ctx.save();
+  ctx.globalAlpha = .045; ctx.strokeStyle = '#7FA6FF'; ctx.lineWidth = 1;
+  for (let x=0; x<=W; x+=45){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y=0; y<=H; y+=45){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  ctx.restore();
+
+  // 绳长虚线圈（很淡）
+  ctx.save();
+  ctx.globalAlpha = .07; ctx.setLineDash([5,9]); ctx.strokeStyle = '#9FB0D0'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(cup.x, anchorY(), L, 0, Math.PI*2); ctx.stroke();
+  ctx.restore();
+}
+
+function shadow(){
+  const y = GROUND + 30;
+  const k = clamp(1 - (GROUND - (ball.y)) / 500, .25, 1);
+  ctx.save();
+  const g = ctx.createRadialGradient(cup.x, y, 2, cup.x, y, 120*k);
+  g.addColorStop(0,'rgba(0,0,0,.55)'); g.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.ellipse(cup.x, y, 110*k, 16*k, 0, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+
+function drawString(){
+  ctx.save();
+  ctx.strokeStyle = 'rgba(174,186,208,.85)';
+  ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cup.x, anchorY() - 4);
+  ctx.lineTo(ball.x, ball.y);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawCup(){
+  const bY = GROUND + cup.off;
+  const tY = bY - CUP_H;
+  const hw = CUP_TOP_W/2, bw = CUP_BOT_W/2;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(cup.x-hw, tY);
+  ctx.lineTo(cup.x+hw, tY);
+  ctx.lineTo(cup.x+bw, bY);
+  ctx.lineTo(cup.x-bw, bY);
+  ctx.closePath();
+
+  const g = ctx.createLinearGradient(cup.x-hw, 0, cup.x+hw, 0);
+  g.addColorStop(0,   '#6B4A16');
+  g.addColorStop(.18, '#C79238');
+  g.addColorStop(.38, '#F6D693');
+  g.addColorStop(.52, '#E3B45E');
+  g.addColorStop(.78, '#A8762A');
+  g.addColorStop(1,   '#5C3F13');
+  ctx.fillStyle = g; ctx.fill();
+
+  ctx.strokeStyle = 'rgba(255,232,186,.35)'; ctx.lineWidth = 1.2; ctx.stroke();
+
+  // 高光
+  ctx.globalAlpha = .35;
+  ctx.fillStyle = '#FFF3D6';
+  ctx.beginPath();
+  ctx.moveTo(cup.x-hw*0.72, tY+6); ctx.lineTo(cup.x-hw*0.5, tY+6);
+  ctx.lineTo(cup.x-bw*0.42, bY-6); ctx.lineTo(cup.x-bw*0.66, bY-6);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+
+  // 杯口
+  ctx.save();
+  ctx.beginPath(); ctx.ellipse(cup.x, tY, hw, 12, 0, 0, Math.PI*2);
+  ctx.fillStyle = '#1B1206'; ctx.fill();
+  const ig = ctx.createRadialGradient(cup.x, tY+8, 2, cup.x, tY, hw);
+  ig.addColorStop(0,'rgba(255,222,160,.28)'); ig.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle = ig; ctx.fill();
+  ctx.lineWidth = 2.6; ctx.strokeStyle = '#FFE7B4'; ctx.stroke();
+  ctx.restore();
+}
+
+function drawBall(){
+  // 残影
+  ctx.save();
+  for (let i=0;i<trail.length;i++){
+    const t = trail[i], k = i/trail.length;
+    ctx.globalAlpha = k*0.22;
+    ctx.fillStyle = '#FF6B57';
+    ctx.beginPath(); ctx.arc(t.x, t.y, R*(0.35+k*0.6), 0, Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+
+  const g = ctx.createRadialGradient(ball.x-R*0.4, ball.y-R*0.45, R*0.15, ball.x, ball.y, R);
+  g.addColorStop(0,   '#FF9E86');
+  g.addColorStop(.42, '#F0463A');
+  g.addColorStop(1,   '#9E1220');
+  ctx.save();
+  ctx.beginPath(); ctx.arc(ball.x, ball.y, R, 0, Math.PI*2);
+  ctx.fillStyle = g; ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.restore();
+
+  ctx.fillStyle = 'rgba(255,255,255,.75)';
+  ctx.beginPath(); ctx.arc(ball.x-R*0.36, ball.y-R*0.42, R*0.24, 0, Math.PI*2); ctx.fill();
+}
+
+// 落点预测：绳子松了 + 球已在杯口以上 + 正在下落
+function predictor(){
+  if (state !== 'play') return;
+  const ax = cup.x, ay = anchorY();
+  const dist = Math.hypot(ball.x-ax, ball.y-ay);
+  const my = rimY();
+  if (dist > L*0.96 || ball.y > my || ball.vy <= 0) return;
+
+  let px = ball.x, py = ball.y, pvx = ball.vx, pvy = ball.vy, n = 0;
+  while (py < my && n < 240){
+    pvy += G; px += pvx; py += pvy; n++;
+    const dd = Math.hypot(px-ax, py-ay);
+    if (dd > L){ const nx=(px-ax)/dd, ny=(py-ay)/dd; px = ax+nx*L; py = ay+ny*L;
+      const rv = pvx*nx+pvy*ny; if (rv>0){ pvx -= rv*nx; pvy -= rv*ny; } }
+  }
+  if (n >= 240 || Math.abs(px - cup.x) > W) return;
+
+  ctx.save();
+  ctx.globalAlpha = .35 + .25*Math.sin(frame*0.14);
+  ctx.strokeStyle = '#7FE0C4'; ctx.lineWidth = 2; ctx.setLineDash([6,6]);
+  ctx.beginPath(); ctx.arc(px, my, 15, 0, Math.PI*2); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(px, my-22); ctx.lineTo(px, my-11); ctx.stroke();
+  ctx.restore();
+}
+
+function fx(){
+  for (const p of parts){
+    ctx.save();
+    ctx.globalAlpha = clamp(p.life,0,1);
+    ctx.fillStyle = `hsl(${p.hue} 92% 62%)`;
+    ctx.beginPath(); ctx.arc(p.x, p.y, 2.4*p.life+0.6, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+  for (const q of pops){
+    ctx.save();
+    ctx.globalAlpha = clamp(q.life,0,1);
+    ctx.fillStyle = q.color;
+    ctx.font = '700 22px -apple-system,"PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 10;
+    ctx.fillText(q.text, q.x, q.y);
+    ctx.restore();
+  }
+}
+
+function hud(){
+  const F = '-apple-system,"PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.textAlign = 'left';
+  ctx.save();
+  ctx.fillStyle = 'rgba(232,233,237,.5)';
+  ctx.font = '600 12px '+F;
+  ctx.letterSpacing && (ctx.letterSpacing = '1px');
+  ctx.fillText('分数 SCORE', 26, 38);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '700 40px '+F;
+  ctx.fillText(String(score), 26, 76);
+
+  ctx.font = '600 12px '+F;
+  ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(232,233,237,.5)';
+  ctx.fillText('最佳连击 BEST', W-26, 38);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '700 24px '+F;
+  ctx.fillText(String(best), W-26, 66);
+  ctx.font = '600 12px '+F;
+  ctx.fillStyle = 'rgba(232,233,237,.5)';
+  ctx.fillText('接中 '+catches+'   失手 '+misses, W-26, 90);
+  ctx.restore();
+
+  // 连击
+  if (combo > 1){
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,212,121,' + (0.55 + 0.35*Math.sin(frame*0.12)) + ')';
+    ctx.font = '800 20px '+F;
+    ctx.fillText(combo + ' 连', W/2, 44);
+    ctx.restore();
+  }
+
+  // 摆动能量条
+  const ax = cup.x, ay = anchorY();
+  const dy = ball.y - ay;
+  const E  = clamp((0.5*(ball.vx*ball.vx + ball.vy*ball.vy) + G*(L - dy)) / Etot, 0, 1);
+  ctx.save();
+  ctx.fillStyle = 'rgba(232,233,237,.45)';
+  ctx.font = '600 11px '+F;
+  ctx.textAlign = 'left';
+  ctx.fillText('摆幅 SWING', 26, H-58);
+  ctx.fillStyle = 'rgba(255,255,255,.09)';
+  ctx.beginPath(); ctx.roundRect ? ctx.roundRect(26, H-50, 220, 7, 4) : ctx.rect(26, H-50, 220, 7);
+  ctx.fill();
+  const grd = ctx.createLinearGradient(26,0,246,0);
+  grd.addColorStop(0,'#4FD1C5'); grd.addColorStop(.65,'#FFD479'); grd.addColorStop(1,'#FF6B6B');
+  ctx.fillStyle = grd;
+  ctx.beginPath(); ctx.roundRect ? ctx.roundRect(26, H-50, Math.max(3, 220*E), 7, 4) : ctx.rect(26, H-50, Math.max(3,220*E), 7);
+  ctx.fill();
+  // 甜点区标记：刚好甩过杯口的能量
+  ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1.5;
+  const sx = 26 + 220*SWEET;
+  ctx.beginPath(); ctx.moveTo(sx, H-54); ctx.lineTo(sx, H-42); ctx.stroke();
+  ctx.fillStyle = 'rgba(232,233,237,.42)';
+  ctx.font = '600 10px '+F; ctx.textAlign = 'left';
+  ctx.fillText('刚好', sx+5, H-43);
+  ctx.restore();
+
+  // 提示
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.font = '500 13px '+F;
+  ctx.fillStyle = started ? 'rgba(232,233,237,.34)' : 'rgba(232,233,237,.72)';
+  ctx.fillText(
+    started ? '鼠标 / ← →  横移杯子     空格 或 点击 = 急抖甩球'
+            : '把球甩过杯口，再移动杯子接住它',
+    W/2, H-22
+  );
+  ctx.restore();
+}
+
+function render(){
+  ctx.save();
+  if (shakeT > 0) ctx.translate(rnd(-shakeT,shakeT)*0.5, rnd(-shakeT,shakeT)*0.5);
+  bg();
+  if (flashT > 0){
+    ctx.fillStyle = 'rgba(255,196,90,' + (flashT/20*0.13) + ')';
+    ctx.fillRect(-20,-20,W+40,H+40);
+  }
+  if (missFlash > 0){
+    ctx.fillStyle = 'rgba(255,70,70,' + (missFlash/22*0.11) + ')';
+    ctx.fillRect(-20,-20,W+40,H+40);
+  }
+  predictor();
+  shadow();
+  drawString();
+  drawCup();
+  drawBall();
+  fx();
+  ctx.restore();
+  hud();
+}
+
+function loop(){
+  keyboardMove();
+  physics();
+  render();
+  requestAnimationFrame(loop);
+}
+loop();
+
+})();
+</script>
+</body>
+</html>

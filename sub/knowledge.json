@@ -2,7 +2,7 @@
   "project_metadata": {
     "name": "TWRP C3B2 — Document Submittal Log Interactive Dashboard",
     "abbreviation": "SUB",
-    "version": "2.23.0",
+    "version": "2.24.0",
     "date": "2026-10-24",
     "description": "Browser dashboard for planned documents and submission history.",
     "purpose": "Show document scope, submission status, review delay, approval outcomes, and coverage from the project MDL and Document Submittal Log workbooks."
@@ -229,9 +229,27 @@
       "title": "The KPI row mixes document and record units",
       "status": "Deferred",
       "details": "Documents Logged and Documents Submitted / In Plan count documents, but Under Review (54 rows) and Approved (92 rows, 62 documents) still count submission records. A per-document value needs a tie-break rule for a document with up to 3 log rows. Deferred by user decision."
+    },
+    {
+      "id": "I047",
+      "title": "A submission takes its discipline from the log section header",
+      "status": "Approved",
+      "details": "parseSubmittals read Prolog Subject and accepted a header only on an exact Code!H match, so Mechanical and Building Services were skipped in silence and 94 rows kept the previous discipline, Electrical. Decision D37 replaces the rule: skip a row whose S.No and Document No. are both blank, and take the discipline from the MDL join on Document No. - one MDL row gives its discipline, several rows give the shared discipline or Unknown, and no row gives Unknown. Engine change not started."
+    },
+    {
+      "id": "I048",
+      "title": "A submission with no MDL discipline would be dropped by the plan-derived filter default",
+      "status": "Approved",
+      "details": "The Discipline filter list and its default set are built from plan rows only (dashboard.js lines 145 and 267, render.js line 11). Unknown is not a plan discipline, so the 16 orphan rows would be filtered out with no warning and the Submittals table would show 167 of 183 records. Decision D37 adds Unknown to the filter list and to the default set."
     }
   ],
   "revisionHistory": [
+    {
+      "revision": "2.24",
+      "date": "2026-10-25",
+      "author": "CodeBuddy (AI)",
+      "summary": "Recorded decision D37: a submission takes its discipline from the Master Document List join on Document No., and the Submittal Log section markers are never used. Unknown is a display label and a normal filter value that stays ticked. Probed both workbooks: 183 rows, 166 matched, 16 orphan, 1 ambiguous; the section rule was wrong for 94 rows. Logged I047 and I048. No engine change."
+    },
     {
       "revision": "2.23",
       "date": "2026-10-24",

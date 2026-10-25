@@ -2,6 +2,16 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 2.24 | 2026-10-25 | CodeBuddy (AI) | Recorded decision D37: a submission takes its discipline from the Master Document List join on `Document No.`, and the Submittal Log section markers (`ICA`, `Electrical`, `Mechanical`, `Building Services`) are never used. §3.2, §3.3, §3.3.2, §4.1 and §5 updated. `Unknown` is a display label only, and it is a normal filter value that stays ticked, so an unlinked row is still counted. The section rule was wrong for 94 rows: the `Mechanical` section holds 62 `Process` documents. Logged I047 and I048. The engine change has not started. |
+| 2.23 | 2026-10-25 | CodeBuddy (AI) | Added the C3 Breakdown summary table below the chart, per the approved choice (§3.3.2). One row per dimension value plus a Total footer row, in the shared `.ds-table` style (§7.2): Total Plan, New Submissions, Resubmissions, Total Submitted, Total Approved, Total AWC, Total Under Review. It follows the Month selector, the dimension toggle and the global filters. `table()` gained an optional `footer` argument; earlier callers pass nothing and are unchanged. Documented that the Master Document List carries no submitter column, so Total Plan is complete in the Discipline view (5 338 rows for the listed disciplines) and only covers linked rows in the Submitter view (124); logged as I046. Validation: pipeline 17/17, render 15/15 (+2 table tests), harness Tier 5 C3 19/19, and the full harness keeps the same 25 pre-existing failures with no new ones (112 passed). |
+| 2.23 | 2026-10-25 | CodeBuddy (AI) | Added the C3 Breakdown summary table below the chart, per the approved choice (§3.3.2). One row per dimension value plus a Total footer row, in the shared `.ds-table` style (§7.2): Total Plan, New Submissions, Resubmissions, Total Submitted, Total Approved, Total AWC, Total Under Review. It follows the Month selector, the dimension toggle and the global filters. `table()` gained an optional `footer` argument; earlier callers pass nothing and are unchanged. Documented that the Master Document List carries no submitter column, so Total Plan is complete in the Discipline view (5 338 rows for the listed disciplines) and covers only linked rows in the Submitter view (124); logged as I046. Validation: pipeline 17/17, render 15/15 (+2 table tests), harness Tier 5 C3 19/19, and the full harness keeps the same 25 pre-existing failures with no new ones (112 passed). |
+| 2.22 | 2026-10-25 | CodeBuddy (AI) | Implemented the C3 Breakdown chart in the engine per D36 (I042). `deriveView` returns `c3` — one row per active submission with `isNew` and `seq` — and `renderDashboard` draws two separate series per dimension value: Submissions (New + Resubmission) and Approval Status (APP/AWC/NAP/REJ/INF), as horizontal bars or two concentric rings inside a §4.2 component board. Controls are Month (All months or a single month), Breakdown-by (Discipline / Submitter), View (Bar / Pie) plus PNG and Copy, laid out period-left and filters-then-exports right per §4.2. `dashboard.css` gains the `--color-new`, `--color-resub` and approval tokens; `dashboard.js` gains the C3 state, handlers and export helpers. §3.3.2 updated from "pending" to implemented. Validation: pipeline 17/17, render 13/13 (4 new C3 tests), harness Tier 5 C3 15/15; standalone HTML rebuilt. Harness fixes I043 (Tier 5 now loads its own workbook) and I044 (invalid `[data-c1series]="forecast"` selector) were required to reach that result; I045 (C1 popup outside click) remains open. |
+| 2.21 | 2026-10-25 | CodeBuddy (AI) | Recorded the C3 Breakdown approval-mix counting rules (D36, §3.3.2). The mix draws two series per dimension value — Submissions (New + Resubmission) and Approval Status (APP/AWC/NAP/REJ/INF) — as two bars or two rings, never one stacked bar, because the two come from different log columns and may overlap. New = first submission per `Document No.` by `Submission Date`; Resubmission = every later row per record. A specific month is row-level; All months counts per `Document No.` using the first approval. Demonstrated in `sub/archive/C3-Breakdown-Sample.html`. |
+| 2.20 | 2026-10-25 | CodeBuddy (AI) | Updated the C1 four-series model to include the Forecast bar (`fNew`): the bars list in §7 and decision D35 now read (`pNew`, `fNew`, `aFNew`, `aRNew`), matching the implemented forecast bar (issue I034) and spec §4.2 ("every series is drawn twice"). Clarified in §7 that Actual First / Actual Resubmission cumulative lines stop at the as-of (Today) bucket while Plan and Forecast continue to the window end. References the spec §4.2 board / y-scale enhancements (rev 1.28). |
+| 2.19 | 2026-10-25 | CodeBuddy (AI) | Recorded the per-row delay business rule (§3.3.1, KPI 5 and 6). `On-Time Return Rate` and `Avg Review Delay` count each Submittal Log row as one case and do **not** group by `Document No.`; duplicate document numbers are not merged. This contrasts with KPI 3 and KPI 4 (D34), which count distinct `Document No.`. KPI table rows updated. Current values: On-Time Return Rate 39.9% (73/183), Avg Review Delay 7.60 days. |
+| 2.18 | 2026-10-25 | CodeBuddy (AI) | Implemented D34 and V-32. The `Under Review (SUR)` and `Approved (APP+AWC)` KPI cards now count distinct `Document No.`: group the filtered submissions by `Document No.`, order by `Submission Date`; Under Review = latest row is SUR with no return date (53); Approved = any row has Flag Approved (62). A SUR row with an `Actual Return Date` is excluded and raises V-32 (Warning). Added the render test `counts Under Review and Approved per unique Document No.`; render 7/7 and pipeline 17/17 pass. Rebuilt the standalone page. Resolves I022. |
+| 2.17 | 2026-10-25 | CodeBuddy (AI) | Logged new validation code **V-32**: `Submission Status` = SUR but `Actual Return Date` present (an open review cannot have a return date). The KPI cards Under Review and Approved will count per unique `Document No.` (the log holds revision rows for one document); a SUR row with a return date is excluded from the Under Review count and flagged V-32. The code is pending manual Code-sheet entry by the owner; the engine changes are deferred to the next approved step. |
+| 2.16 | 2026-10-24 | CodeBuddy (AI) | Documented the business logic for KPI cards 1 and 2 as §3.3.1: `Documents Logged` counts distinct logged `Document No.` (133) and includes the 16 `V-29` orphans; `Documents Submitted / In Plan` is defined as 116 / 7631 with the denominator equal to MDL's Planned total and the numerator a strict floor; added the MDL 124 vs sub 116 reconciliation (8 rows, root-caused). §4.3 KPI table now references §3.3.1. |
 | 2.15 | 2026-10-24 | CodeBuddy (AI) | Added decision D33: MDL owns blank-field validation, and sub counts a row whose `Stage` is blank. The plan total moves from 7513 to 7631, equal to MDL, and `Documents Submitted / In Plan` reads 116 / 7631. The Stage filter now lists `(blank)`, `Deleted`, `Void` and `Superseded`. Logged I023 to I030 in the issue log. |
 | 2.1 | 2026-10-24 | CodeBuddy (AI) | Rebuilt the UI shell to the spec §18.2 layout with the MDL navy family; added the logo from `./asset/logo.jpg` and an MDL-style welcome card. Archived the prior non-compliant UI to `sub/archive/`. Data engine unchanged. |
 | 2.14 | 2026-10-24 | CodeBuddy (AI) | Resolved I019 — the chart panels now meet §4. Titles are 13 px / 700 uppercase navy in a real flex title row, Help sits left of a new Collapse toggle that is rightmost, every top-level panel carries a sequential corner number assigned in DOM order after render, and the surface metrics match. Added decision D31. |
@@ -129,8 +139,10 @@ Columns (0-indexed, in `sub/ref/build_dataset.py`):
 
 ### 3.2 Document Submittal Log (history)
 
-Sheet `SubmittalLog`. Discipline arrives as a group-header row. The S.No is blank. The Subject is in
-the known discipline set.
+Sheet `SubmittalLog`. The sheet carries four section-marker rows, found at rows 2, 84, 96 and 217:
+`ICA`, `Electrical`, `Mechanical` and `Building Services`. A section-marker row has a blank `S.No` and a
+blank `Document No.`, so it is not a record. The parser skips it and ignores its text. The discipline of
+a submission comes from the Master Document List join (§3.3, D37), never from this column.
 
 Columns:
 
@@ -138,7 +150,7 @@ Columns:
 |---|---|
 | A (0) | S.No |
 | B (1) | Prolog No. |
-| D (3) | Subject (discipline group header) |
+| D (3) | Subject (section-marker text — not used as data) |
 | E (4) | Document No. |
 | F (5) | Revision |
 | G (6) | Submitted By |
@@ -169,9 +181,120 @@ Status code glossary (reused from `sub/ref/build_dataset.py`):
   keep each planned row, report `V-26`, and mark the link as ambiguous. Do not assign the log row to
   any one of those MDL rows.
 - A log row is an orphan (`V-29`) only when no MDL row has its `Document No.`.
+- A row that serves as a section marker is not a record. It has a blank `S.No` and a blank
+  `Document No.`, so the parser skips it. Its `Prolog Subject` text is never read as data.
+- `Document No.`, trimmed and upper-cased, is the only key that relates a submission to its plan row
+  and to every other row for that document. A detail lookup by `Document No.` returns the plan row and
+  all of its submission rows, so one document shows one set of details on every surface.
+- **The discipline of a submission (D37).** The discipline is a property of the MDL row, so a
+  submission takes it from the join on `Document No.`:
+  - one MDL row → the submission takes that row's discipline;
+  - several MDL rows → the link is ambiguous, each plan row is kept and `V-26` reports the duplicate
+    `Document No.`. The submission takes the discipline when every candidate carries the same one.
+    When the candidates disagree, it takes `Unknown`;
+  - no MDL row → the row is an orphan (`V-29`) and takes `Unknown`.
+- `Unknown` is a **display label only**. It is not a `V-xx` rule and it adds no issue. The two
+  data-quality flags stay `V-26` (duplicate `Document No.` in the MDL) and `V-29` (log row outside the
+  MDL scope). `Unknown` is a normal dimension value: it appears in the Discipline filter, it is ticked
+  by default, and its rows count in every measure. The dashboard never drops an `Unknown` row.
 - For coverage, count each MDL row in the plan total. Count a row as submitted only when it has one
   unambiguous MDL match and a matching log row has a submission date or a submitted status. Do not
   count `NFS` as a submission. Report ambiguous rows as a separate coverage result.
+
+### 3.3.1 KPI card business logic — cards 1 and 2
+
+Both cards are produced by `render.js` `deriveView` and must **not** be recomputed in the DOM
+(spec §3.8.2 rule 6). Each card counts **documents, not submission rows**: a document with several
+resubmissions is one. The two cards use different document universes, which is why their values
+differ and why card 1 can exceed the card 2 numerator.
+
+**KPI 1 — Documents Logged — current workbook: 133**
+
+- Source: the **filtered Submittal Log** rows (subject to the global filters).
+- Unit: **distinct** `Document No.`, each normalized by trimming and upper-casing (D32).
+- Counts documents, so the 16 log rows whose `Document No.` has no MDL plan row (`V-29` orphans)
+  are **included**. That is why card 1 (133) can be larger than the card 2 numerator (116): card 1
+  counts every logged document, card 2 counts only logged documents that also have a plan row.
+- Current document-number universe (baseline, 2026-10-24): 510 distinct numbers in MDL, 133 in the
+  log, 117 in both, 393 MDL-only (the unsubmitted part of the plan), 16 log-only (orphans). The
+  7,631 MDL rows collapse to 510 distinct numbers because 232 numbers repeat (7,353 rows) — the
+  `V-26` duplicate condition — so "MDL only" shows 393 distinct numbers, not thousands.
+
+**KPI 2 — Documents Submitted / In Plan — current workbook: 116 / 7631**
+
+- Denominator (`In Plan`): every MDL planned row that **carries a `Document No.`**, with `Deleted`,
+  `Void` and `Superseded` stages excluded but a **blank `Stage` counted** (D33). Rows without a
+  `Document No.` are not planned documents and are excluded — MDL reports them as `V-01`. This makes
+  the denominator equal to MDL's Planned total: **7,631**.
+- Numerator (`Submitted`): a planned document is submitted when at least one linked log row has a
+  **submission date** or a **submission status that is not a "not submitted" code**. It is the count
+  of documents, not of log rows.
+- The numerator is always drawn from the denominator, so it can never exceed it; the ratio cannot
+  pass 100%.
+- Both numbers follow the global filters (Discipline, Stage, Search, Submission/Approval status,
+  Submitted By). Change a filter and both change together.
+- Join caveat: documents are linked on `Document No.` only. The 16 log submissions that match no
+  plan row are excluded from the numerator (counted by `V-29`), and the one document number that
+  matches two MDL rows is ambiguous (`V-26`) and excluded. The numerator is therefore a **floor**,
+  not a certainty: 116 is the count of clean, unambiguous, plan-backed submissions.
+
+**KPI 3 — Under Review (SUR) — counted per unique Document No. (D34)**
+
+- Source: the **filtered Submittal Log** rows (subject to the global filters).
+- Unit: **distinct** `Document No.` (normalized by trimming and upper-casing, same as KPI 1). A
+  document with several log rows (revisions) counts once.
+- Method (D34): group the filtered rows by `Document No.`; order each group by `Submission Date`
+  ascending. The document is Under Review when its **latest** row has `Submission Status` = `SUR`
+  and has **no** `Actual Return Date`. A document that was approved and later resubmitted for review
+  is counted here separately from KPI 4, because a `Document No.` can be approved and then re-enter
+  review.
+- A `SUR` row that carries an `Actual Return Date` is contradictory (an open review cannot have a
+  return date). It is **excluded** from this card and raises **V-32** (Warning, Group `Cross-field`).
+  The owner enters V-32 in the workbook `Code` sheet (confirmed present, 2026-10-25).
+
+**KPI 4 — Approved (APP + AWC) — counted per unique Document No. (D34)**
+
+- Source: the **filtered Submittal Log** rows (subject to the global filters).
+- Unit: **distinct** `Document No.` (normalized by trimming and upper-casing). A document with
+  several log rows counts once.
+- Method (D34): group the filtered rows by `Document No.`; order each group by `Submission Date`
+  ascending. The document is Approved when any row in its group carries an approved `Approval
+  Status` (`APP` or `AWC` = `Flag Approved` = 1). The "first approval status" is the earliest such
+  row by `Submission Date`; if that status is approved, the document counts.
+- KPI 3 and KPI 4 are **independent**: a document can appear in both (approved, then resubmitted and
+  now under review). Neither card subtracts the other.
+
+**KPI 5 and 6 — delay measures count each submission row (per-row rule)**
+
+- Source: the **filtered Submittal Log** rows (subject to the global filters).
+- Unit: **each log row** (submission record). Unlike KPI 3 and KPI 4 (D34), these two measures do
+  **not** group by `Document No.` — a `Document No.` that appears in several rows contributes one
+  value per row. Duplicate document numbers are not merged for delay measures.
+- Method: `On-Time Return Rate` = average of `Flag On Time` over every filtered row that has a target
+  return date (`delayDays` ≠ null). `Avg Review Delay` = mean of the recalculated `Review Delay Days`
+  over the same rows (open rows before target add 0; early returns keep the negative value).
+- This is the per-row submission-record rule already stated in §3.3 ("count each row in
+  submission-record measures"). D34 made only KPI 3 and KPI 4 per-document; KPI 5 and KPI 6 stay
+  per-row by design.
+
+**Cross-dashboard reconciliation — MDL 124 vs sub 116**
+
+MDL's "submitted" is any MDL row with an `Actual 1st Issue Date` typed in the MDL workbook; sub's
+"submitted" is any plan-backed document linked to a log row. sub's 116 is a strict subset of MDL's
+124, so the two dashboards already agree on 116 rows. The remaining **8** MDL-only submissions are
+explained by the MDL→sub link failing, not by a counting error:
+
+| Reason the MDL→sub link fails | Rows | Example |
+|---|---|---|
+| `Document No.` duplicated in MDL, so the log row cannot be assigned (ambiguous) | 2 | `131236-WIL23-CL-M-0001` (Process 100, 116) |
+| `Document No.` truncated (one part missing), so it cannot match the log | 4 | `131236-WIL22-VI-M`, `131236-WIL21-QA-M` (Mech 34, 255, 256, 258) |
+| Submittal Log holds no row for the document | 2 | Mech 9 `131236-WSW46-VI-M-0002`, CSA 3 `131236-WIL21-VI-S-xxxx` |
+
+Neither dashboard is wrong — they answer different questions (MDL trusts the date in the MDL
+workbook; sub trusts a match in the log). The true submitted count lies between 116 and 124 and
+cannot be closed from data alone; it needs the broken numbers completed, the duplicated number
+resolved, and the two missing/extra log rows reconciled (see I027, I028, I030).
+
 - Use the first valid submission date for each unambiguous MDL row in schedule-performance views. Use
   all log rows for submission, review, and approval measures. Label the measure unit in each view.
 - Read the source formulas for calculated fields before coding. In the current log, `Review Turnaround
@@ -194,6 +317,57 @@ Status code glossary (reused from `sub/ref/build_dataset.py`):
 - Normalize Excel serial dates and formula-error tokens (`#VALUE!` and others) in spec §3.8.1. Set
   each formula-error value to absent and count it by column. Show one fatal strip per affected column
   in `#errBanner` (formula normalization, §3.8.4, not a `V-xx` code).
+
+### 3.3.2 C3 Breakdown business logic — new vs resubmission (D36)
+
+The C3 Breakdown chart splits a dimension (Discipline or Submitter) into two stacked series per
+value. It reads the Submittal Log only (the summary table adds the plan total from the Master
+Document List). The two series are:
+
+- **Submissions** — the submission volume, split into **New** and **Resubmission**.
+- **Approval Status** — the returned approval mix, split into `APP` / `AWC` / `NAP` / `REJ` / `INF`.
+
+The approval codes are **not** sub-split by New vs Resub. The two come from different log columns and
+may overlap, so they are drawn as two separate bars (bar view) or two concentric rings (pie view),
+never as one stacked bar. The centre total shows the submitted count; percentages show only when
+**All months** is selected.
+
+**New vs Resubmission** (owner rule, 2026-10-25):
+
+- Sort each `Document No.`'s log rows by `Submission Date` ascending. The **earliest** row is that
+  document's **first submission**. A document can have only one first submission.
+- **New** counts the first submission of each `Document No.` (one per document).
+- **Resubmission** counts every later row for that document, **per record, ignoring `Document No.`**.
+  A document can be resubmitted twice in one month, so Resubmission is a row count, not a document
+  count.
+
+**Per-month vs All-months** (owner rule, 2026-10-25):
+
+- **A specific month is row-level.** Every log row in that month counts. A document approved in an
+  earlier month and resubmitted and approved again in the selected month counts an approval in both
+  months.
+- **All months is per `Document No.`.** New = distinct documents; Resubmission = total rows minus
+  distinct documents; the approval mix counts each document once, using its **first approval**
+  (earliest row that carries an approval status). A document approved in two months counts as one
+  approval, not two.
+- Under Review (All months) uses the latest row per document: the document is under review when its
+  latest row is `SUR` with no `Actual Return Date` (D34 / V-32).
+
+**Discipline dimension (D37).** The Discipline axis reads `submission.discipline`, which comes from the
+MDL join (§3.3), not from a log section name. On the current workbooks the axis holds `ICA` (80),
+`Process` (62), `Unknown` (16), `Electrical` (9), `Mech` (8), `BS` (7) and `Piping` (1), 183 rows in
+total. `Unknown` is a value like any other: the chart draws it, the filter lists it and every measure
+counts it. Total Plan for `Unknown` reads 0, because no plan row carries that label.
+
+**Implemented** — `deriveView` returns `c3`, one row per active submission carrying `isNew` (true
+only for its document's earliest row) and `seq` (that row's order inside its document), so a renderer
+can classify without re-grouping. `renderDashboard` draws the two series per dimension value as
+horizontal bars (bar view) or two concentric rings (pie view), inside a `§4.2` component board with
+Month, Breakdown-by, View, PNG and Copy controls; `dashboard.css` supplies the `--color-new` /
+`--color-resub` and approval tokens, and `dashboard.js` supplies the `c3Month` / `c3Dim` / `c3View`
+state, the handlers and the C3 PNG/Copy export. The review sample
+`sub/archive/C3-Breakdown-Sample.html` demonstrates the same rules on deterministic mock data
+(I042).
 
 ### 3.4 Pipeline architecture (spec §3.8) and MDL reference
 
@@ -273,7 +447,9 @@ The menu-bar filter group contains the five global dimensions: Discipline, Stage
 Approval Status, and Submitted By. Each is a **multi-select** trigger — `.tf-btn` with a count badge
 opening a `.tf-panel` of `.chips` toggles led by an `All <dimension>` master (spec §7.1 B1 + B3). The
 group also holds the Search button with its panel and the Warnings toggle, as MDL does. §7.2.7 point 5
-records the dimension list; see D15 for the cardinality decision. Load Data and Export use the button rules in the dashboard UI spec and accessible labels. File selection
+records the dimension list; see D15 for the cardinality decision. The Discipline dimension lists every
+discipline in the plan **and** `Unknown` when a submission carries it; `Unknown` is ticked by default, so
+no row is dropped (D37). Load Data and Export use the button rules in the dashboard UI spec and accessible labels. File selection
 uses the file panel behavior defined by the dashboard UI spec; the user selects both workbooks for each load. The workplan records this
 project-specific choice under §8. D13.
 
@@ -289,31 +465,45 @@ right). Six KPI cards in the shared auto-fit grid:
 
 | KPI | Source |
 |---|---|
-| Documents Logged | distinct `Document No.` in the filtered Submittal Log rows, trimmed and upper-cased (D32) |
-| Documents Submitted divided by In Plan | unambiguous MDL rows with a submission divided by all MDL planned rows that carry a `Document No.`; a blank `Stage` is counted (D33); duplicate-ID rows remain in the denominator and appear as ambiguous |
-| Under Review (SUR) | count where Submission Status = SUR |
-| Approved (APP+AWC) | count where Approval Status in {APP, AWC} |
-| On-Time Return Rate | `Flag On Time` average |
-| Avg Review Delay | average of calculated `Review Delay Days`; open rows before target date contribute 0; early returned rows keep the workbook negative value |
+| Documents Logged | distinct `Document No.` in the filtered Submittal Log, trimmed and upper-cased (D32); includes the 16 `V-29` orphans; counts documents, not rows (see §3.3.1) |
+| Documents Submitted divided by In Plan | numerator = plan-backed documents with a linked log submission (date or non-"not-submitted" status); denominator = planned rows with a `Document No.` excluding `Deleted`/`Void`/`Superseded` but counting a blank `Stage` (D33); duplicate-ID rows stay in the denominator but ambiguous links drop from the numerator (see §3.3.1) |
+| Under Review (SUR) | distinct `Document No.` whose latest filtered row is `SUR` with no `Actual Return Date` (D34); a `SUR` row with a return date raises V-32 and is excluded |
+| Approved (APP+AWC) | distinct `Document No.` with any row whose `Approval Status` is `APP`/`AWC` (D34); the first (earliest) approval status decides |
+| On-Time Return Rate | `Flag On Time` average over every filtered row with a target return date; each log row is one case, **not** grouped by `Document No.` |
+| Avg Review Delay | mean of recalculated `Review Delay Days` over the same rows; each log row is one case, **not** grouped by `Document No.`; open rows before target date contribute 0; early returned rows keep the workbook negative value |
 
 Overview charts — three **combined interactive charts** (SVG, dependency-free, adapted from the MDL chart
 kit). Each chart carries its own control cluster (§4.1 / spec §4.2) and re-renders `deriveView` on the
 single `active` set (S4); no DOM recompute. The global Discipline filter still applies across each chart.
 
-- **C1 Schedule Performance (S-Curve) — full width** (`.card.full`, spec §4.2): the MDL planned
-  first-issue curve and a forecast curve compared with the actual cumulative submissions; monthly bars
-  show plan and actual per month. Counts use MDL planned rows. Repeated document numbers stay as separate rows and raise `V-26`. For
-  actual, use the first valid submission date for each unambiguous MDL row. **Controls**: *Cumulative* ↔ *Per
-  Discipline* toggle (Per Discipline = the former S-Curve Variance view) and *Plan* / *Forecast* /
-  *Actual* series checkboxes. This chart spans the selected content width when the layout calls for it.
+- **C1 Schedule Performance (S-Curve) — full width** (`.card.full`, spec §4.2): reconciles plan vs
+  actual vs forecast submissions. Four series (workplan D35): **Plan** = MDL planned first-issue rows
+  (`Document No.` + planned first-issue date); **Actual** is split because `Document No.` + `Submission
+  Date` repeats for a document's re-issues — **Actual First Submission** counts each `Document No.` once
+  on its earliest `Submission Date` (unique documents issued), and **Actual Resubmissions** counts every
+  Submittal Log record that is not that document's first submission, **per record, ignoring `Document
+  No.`**; **Forecast** reads MDL's forecast series first and falls back to `Plan × 1.04` when MDL has
+  none. Monthly **bars** show the period quantity (`pNew`, `fNew`, `aFNew`, `aRNew`); **cumulative lines** show
+  the absolute running totals (`pCum`, `fCum`, `aFCum`, `aRCum`), anchored at the earliest data date and
+  never rebased by the window. Cumulative Actual (both) runs flat to Today. Repeated `Document No.` stay
+  as separate rows and raise `V-26`; blank `Document No.` records count in Resubmissions (they cannot be
+  deduped). **Controls**: Month / Quarter / Year **grain toggle**, **Bars** toggle, **period brush**
+  selection (scopes the x-range), **series multi-filter** (Plan / Forecast / Actual First /
+  Actual Resubmission), `⤓ PNG`, `⧉ Copy` — period + range text left, filters then exports right (spec
+  §4.2 rev 1.27). In-SVG bottom legend, Start (red dashed) + Today (grey dashed) lines, +1 month tail,
+  shared `Docs` scale, hover snap line + floating window. This chart spans the selected content width.
 - **C2 Submission Flow & Delay** (shared layout grid): the monthly submission flow. **Controls**: view toggle
   *Stacked* (per-month status split: SUR/RTR/NTS/NFS, with an *Include NFS* toggle and a total) ↔
   *Delay* (monthly average `Review Delay Days`, not-yet-returned and not-due = `0`) ↔ *Funnel* (the
   former Status Funnel: Submitted → In Review → Returned → Approved drop-off).
 - **C3 Breakdown** (shared layout grid): a single split-by-dimension panel. **Controls**: dimension toggle
   *Discipline* ↔ *Submitter*; metric toggle *Count* / *Plan vs Actual* / *Delay* / *Rework* /
-  *Approval Mix* (the former Approval Mix donut is now a metric option, with its total in the centre).
-  Overdue / lag cells are flagged.
+  *Approval Mix* (the former Approval Mix donut is now a metric option, with its total in the centre);
+  a Month selector and a Bar / Pie toggle. In the Approval Mix metric each dimension value draws two
+  series — **Submissions** (New + Resubmission) and **Approval Status** (`APP`/`AWC`/`NAP`/`REJ`/`INF`)
+  — as two bars or two concentric rings, never one stacked bar. New = first submission per `Document
+  No.`; Resubmission = every later row per record; a specific month is row-level while All months
+  counts per `Document No.` using the first approval (§3.3.2, D36). Overdue / lag cells are flagged.
 
 **Regrouping note**: the earlier seven Overview charts plus the analytical panels are consolidated into
 six interactive charts (C1–C6). Folded here: *Approval Mix* → C3 "Approval Mix" metric; *S-Curve
@@ -351,7 +541,7 @@ Validation has three classes, kept distinct:
   dashboard reuses the MDL `Code` sheet, so all codes are identical to MDL.
 
 **Error-code catalog (`V-xx`)** — the MDL `Code` sheet defines `V-01`…`V-28` (frozen; do not change
-code, Group, Rule, or Severity). The sub dashboard appends `V-29`…`V-31` for rules new to the
+code, Group, Rule, or Severity). The sub dashboard appends `V-29`…`V-32` for rules new to the
 two-workbook link. Both the MDL `Code` sheet and the Submittal Log `Code` sheet carry the **identical**
 full list.
 
@@ -402,6 +592,7 @@ Severity. The sub dashboard only appends the new rows in the second table, keepi
 | **V-29** | **Orphan**: Submittal Log `Document No.` not present in MDL scope | Warning | **New — mandatory** |
 | **V-30** | `Actual Return` or `Target Return` earlier than `Submission Date` | Warning | **New** |
 | **V-31** | Status conflict: `Approval Status` present while `Submission Status` = NFS; or `Resubmission Required` = Yes while `Submission Status` ∉ {RTR,REJ} | Warning | **New** |
+| **V-32** | `Submission Status` = SUR but `Actual Return Date` present — an open review cannot have a return date | Warning | **New** |
 
 **New sub codes (append to the same four columns)** — define `Group`, `Rule`, and `Severity` explicitly;
 these are new rows, not changes to existing `V-01`…`V-28` values:
@@ -411,28 +602,30 @@ these are new rows, not changes to existing `V-01`…`V-28` values:
 | **V-29** | Referential | Submittal Log `Document No.` must exist in MDL scope; otherwise the row is an orphan | Warning | **New — mandatory** |
 | **V-30** | Timeline | `Actual Return` / `Target Return` must not precede `Submission Date` | Warning | **New** |
 | **V-31** | Cross-field | `Approval Status` present while `Submission Status` = NFS; or `Resubmission Required` = Yes while `Submission Status` ∉ {RTR,REJ} | Warning | **New** |
+| **V-32** | Cross-field | `Submission Status` = SUR (Submitted Under Review) but `Actual Return Date` is present — an open review cannot carry a return date | Warning | **New** |
 
-**Excel edit guide (how to add V-29…V-31)** — open each workbook, go to the `Code` sheet, and append
-three rows after the last `V-xx` row. The error block starts at row 1 with the headers `Error Code`,
+**Excel edit guide (how to add V-29…V-32)** — open each workbook, go to the `Code` sheet, and append
+four rows after the last `V-xx` row. The error block starts at row 1 with the headers `Error Code`,
 `Group`, `Rule`, `Severity` (discovered by label, so the column letters below are only to help you find
 them). Do **not** change the headers or any existing `V-01`…`V-27` row — appending rows is safe for MDL.
 
 | Workbook | `Error Code` | `Group` | `Rule` | `Severity` | Rows to add |
 |---|---|---|---|---|---|
-| Master Document List | AI | AJ | AK | AL | 29, 30, 31 |
-| Document Submittal Log | K | L | M | N | 29, 30, 31 |
+| Master Document List | AI | AJ | AK | AL | 29, 30, 31, 32 |
+| Document Submittal Log | K | L | M | N | 29, 30, 31, 32 |
 
 Enter, per row, the four values (`Error Code` · `Group` · `Rule` · `Severity`):
 - `V-29` · `Referential` · `Submittal Log Document No. not found in MDL scope — orphan (submitted but not in the plan)` · `Warning` — mandatory
 - `V-30` · `Timeline` · `Actual Return or Target Return earlier than Submission Date` · `Warning`
 - `V-31` · `Cross-field` · `Approval Status present while Submission Status = NFS; or Resubmission Required = Yes while Submission Status ∉ {RTR,REJ}` · `Warning`
+- `V-32` · `Cross-field` · `Submission Status = SUR (Submitted Under Review) but Actual Return Date present — an open review cannot carry a return date` · `Warning`
 
 Both the `MDL/` and `sub/` copies carry the same workbooks; the sub dashboard reads the `sub/` copies, so
 update the `Code` sheet in **both** folders for each workbook. Run the dashboard's `harness-layout`
 Tier-1/3 after the edit to confirm the codes are picked up.
 
 **Status**: updated manually on 2026-10-23 and verified — all four `Code` sheets (`MDL/` and `sub/`,
-Master Document List and Submittal Log) contain `V-01`…`V-31` with the labels `Error Code` / `Group` /
+Master Document List and Submittal Log) contain `V-01`…`V-32` with the labels `Error Code` / `Group` /
 `Rule` / `Severity`; the existing `V-01`…`V-27` rows are unchanged. The 2026-10-24 formula review
 found 183 log records with submission dates, 129 returned records, and 54 open records. The formula
 cache includes negative delay values for early returns and can lag the current date.
@@ -541,6 +734,9 @@ current-FTE input is wanted (Settings, §4.6).
 - Formula-error cells are normalized to absent and counted per column; one fatal strip per affected
   column shows in `#errBanner` (§3.8.4 — not a `V-xx` code).
 - S4 Derive is the sole source of KPI numbers; panels do not recompute from the DOM.
+- `Unknown` is not a validation rule. It is the display label for a submission that has no MDL
+  discipline (D37). The data-quality flags stay `V-26` (duplicate `Document No.` in the MDL) and `V-29`
+  (log row outside the MDL scope).
 - No duplicate global filter dimensions (§7.2.7): the sidebar holds navigation, and the shared filter area holds filters.
 - Conformance record (spec §8): fill the §8 record in this workplan after build.
 
@@ -594,6 +790,8 @@ server, as required by `AGENTS.md` §18.12.
 | T2.2 | [Schema] | ✅ COMPLETE | Created the repository-level, dashboard-universal knowledge graph schema at `config/schemas/knowledge_base_schema.json`, based on `sub/ref/knowledge.json`. Kept current sub and EKS sample formats valid; defined graph nodes, typed edges, and evidence links. Added schema tests and updated the workplan, report, and logs. |
 | T3.1 | [Pipeline] | ✅ COMPLETE | Added the project-local XLSX reader and source-contract pipeline. Added header, status, row, duplicate-ID, link, date, formula-error, and delay validation. Twelve tests pass on the current workbooks and test cases; report and logs are updated. |
 | T4.1 | [UI and integration] | ✅ COMPLETE | Built the project-root dashboard and local assets. Loaded both workbooks through the browser flow. Tier 1–4 harness checks pass; see Wave 4 report. I003 is resolved. |
+| T15.1 | [Pipeline] | 🔷 PLANNED | Remove the section-header discipline rule and derive the discipline from the MDL join on `Document No.` (D37, I047). |
+| T15.2 | [UI] | 🔷 PLANNED | Add `Unknown` to the Discipline filter list and to the default set, so its rows stay counted (D37, I048). |
 
 | Wave | Target / owner | Work and deliverable | Main risk and action | Pass condition | Status |
 |---|---|---|---|---|---|
@@ -789,7 +987,9 @@ runs full regression. Wave 6 is a manual owner review and release decision.
   submission-to-plan join, which removed one false `V-29` orphan: the orphan count is now 16. Only
   card 1 is consolidated in this wave — `Under Review` (54 rows), `Approved` (92 rows, 62 documents)
   and the delay measures stay record-level, because a per-document value needs a tie-break rule for a
-  document with up to 3 rows. I022 records that open question.
+  document with up to 3 rows. I022 records that open question; D34 (2026-10-25) later resolves it —
+  `Under Review` and `Approved` now also count per unique `Document No.` with the ordered-group
+  tie-break, and a `SUR` row with a return date raises V-32.
 
 - **D33 — MDL owns blank-field validation; sub counts the rows** (§5, §7). Project-owner decision. A
   planned row with no `Document No.` is not a planned document, so it is excluded from every plan
@@ -801,6 +1001,22 @@ runs full regression. Wave 6 is a manual owner review and release decision.
   and a blank `Document No.` is the MDL `V-01` defect. The plan total moves from 7513 to 7631, equal
   to MDL; `Documents Submitted / In Plan` reads 116 / 7631. Open follow-ups: I026 (sub still emits
   `V-01` for a blank `Document No.`) and I027 to I030.
+
+- **D34 — Under Review and Approved count documents, not rows** (§5, §3.3.1). Project-owner rule
+  (2026-10-25): the Submittal Log is a submission history, so one `Document No.` can appear in
+  several rows (revisions). `Under Review (SUR)` and `Approved (APP+AWC)` now count distinct
+  `Document No.` over the filtered submissions. Each document's rows are grouped and ordered by
+  `Submission Date`: Under Review uses the **latest** row (it must be `SUR` with no `Actual Return
+  Date`); Approved uses the **first** (earliest) approval status, and if that is `APP`/`AWC` the
+  document counts. The two cards are independent — an approved document later resubmitted for review
+  can appear in both. A `SUR` row that carries an `Actual Return Date` is contradictory; it is
+  excluded from Under Review and raises **V-32** (Warning, Group `Cross-field`). D34 resolves I022.
+
+- **D35 — C1 Schedule Performance shows four series (Plan, Forecast, Actual First, Actual Resubmission)** (§4.3, §3.3). The S-curve reconciles plan vs actual vs forecast submissions. **Plan** = MDL planned first-issue rows (`Document No.` + planned first-issue date). **Actual** is split because `Document No.` + `Submission Date` repeats for a document's re-issues: **Actual First Submission** counts each `Document No.` once on its earliest `Submission Date` (unique documents issued); **Actual Resubmissions** counts every Submittal Log record that is not that document's first submission, **per record, ignoring `Document No.`** (rework / re-issue volume). **Forecast** reads MDL's forecast series first; when MDL supplies none it falls back to `Plan × 1.04` (per bucket and cumulative), mirroring MDL I-85's sparse-forecast fallback. Bars show the period quantity (`pNew`, `fNew`, `aFNew`, `aRNew`); lines show the absolute cumulative totals (`pCum`, `fCum`, `aFCum`, `aRCum`), anchored at the earliest data date and never rebased by the window. Cumulative Actual (both) runs flat to Today. Edge cases: a blank `Document No.` cannot be deduped, so blank-doc records count in Resubmissions; duplicate `Document No.` follow the earliest-date rule and still raise `V-26`. The series multi-filter lists all four series; the grain toggle (Month / Quarter / Year) rebuckets all four; the period brush scopes the x-range only.
+
+- **D36 — C3 Breakdown approval mix: two series, New vs Resubmission per record, All-months per document** (§3.3.2, §4.3). Project-owner rule (2026-10-25). The Approval Mix metric draws two separate series per dimension value, because the submission and approval columns are different log columns and can overlap: **Submissions** = New + Resubmission, and **Approval Status** = `APP`/`AWC`/`NAP`/`REJ`/`INF`. A document's **New** is its first submission by `Submission Date` (one per `Document No.`); **Resubmission** counts every later row **per record, ignoring `Document No.`** (a document can resubmit twice in a month). A **specific month** is **row-level**; **All months** is **per `Document No.`**, using the document's **first approval** (earliest row with an approval status), so a document approved in two months counts once. The centre total shows the submitted count, and percentages show only when All months is selected.
+
+- **D37 — A submission takes its discipline from the MDL join, not from the log section name** (§3.2, §3.3, §3.3.2, §4.1, §5). Project-owner rule (2026-10-25). The Submittal Log section rows (`ICA`, `Electrical`, `Mechanical`, `Building Services`) are **layout only**. A row whose `S.No` and `Document No.` are both blank is skipped, and `Prolog Subject` is never read as data. `Document No.`, trimmed and upper-cased, is the only key that relates a submission to its plan row and to every other row for that document, so the discipline comes from the plan row. The old rule read the section text as the discipline and was wrong for 94 rows: the `Mechanical` section holds 62 `Process` documents, 15 documents outside the MDL, 8 `Mech` and 1 `Piping`; the `Building Services` section holds 7 `BS` and 1 outside the MDL. Those rows carried `Electrical`, because an unmatched header was skipped in silence and the previous value persisted. The new rule has three outcomes: one MDL row → its discipline; several MDL rows → the shared discipline, else `Unknown`; no MDL row → `Unknown`. `Unknown` is a display label only, and it is a normal filter value that stays ticked, so its rows count. The current workbook resolves to `ICA` 80, `Process` 62, `Unknown` 16, `Electrical` 9, `Mech` 8, `BS` 7 and `Piping` 1. A duplicate `Document No.` in the MDL stays an MDL data-quality error (`V-26`, 7 353 rows today across 232 distinct numbers), and a log row outside the MDL scope stays `V-29` (16 rows).
 
 ### 8.1 Spec §3.8 conformance record
 

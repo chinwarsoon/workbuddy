@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>C1 Schedule Performance S-Curve — Review Sample</title>
+<style>
+  :root{
+    --navy:#15314f; --border:#d9e1e8; --text:#1f2a37; --muted:#78909c;
+    --font-ui:"Segoe UI", Arial, sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font-ui);background:#f4f7fa;color:var(--text);padding:24px}
+  .panel{border:1px solid var(--border);border-radius:10px;background:#fff;
+    margin:14px 0;padding:14px 14px 26px;position:relative}
+  .panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 10px}
+  .panel h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    color:var(--navy);line-height:1.4;margin:0}
+  .panel-actions{display:flex;gap:6px;flex-shrink:0}
+  .icon-btn{width:26px;height:26px;min-height:26px;border:1px solid var(--border);
+    background:#fff;color:var(--muted);border-radius:6px;font:inherit;font-size:13px;
+    font-weight:600;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+  .chart{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fff}
+  .card-head{margin-bottom:8px}
+  /* control cluster: period bar on the left, the rest right-aligned (spec §4.1) */
+  .controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .controls-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  .seg button{border:0;background:#fff;color:var(--text);font:inherit;font-size:12px;
+    padding:5px 10px;cursor:pointer}
+  .seg button.active{background:var(--navy);color:#fff}
+  .btn{border:1px solid var(--border);background:#fff;color:var(--navy);font:inherit;
+    font-size:12px;padding:5px 10px;border-radius:6px;cursor:pointer}
+  .btn[aria-pressed="false"]{opacity:.55}
+  /* period selection as a bar / brush selection (dual range) */
+  .range{position:relative;width:200px;height:26px}
+  .range-track{position:absolute;top:11px;left:0;right:0;height:4px;background:var(--border);border-radius:2px}
+  .range-fill{position:absolute;top:11px;height:4px;background:var(--navy);border-radius:2px}
+  .range input[type=range]{position:absolute;top:0;left:0;width:100%;height:26px;margin:0;
+    background:none;pointer-events:none;-webkit-appearance:none;appearance:none}
+  .range input[type=range]::-webkit-slider-thumb{pointer-events:auto;-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:var(--navy);border:2px solid #fff;
+    cursor:pointer;box-shadow:0 0 0 1px var(--border)}
+  .range input[type=range]::-moz-range-thumb{pointer-events:auto;width:14px;height:14px;border-radius:50%;
+    background:var(--navy);border:2px solid #fff;cursor:pointer}
+  /* multi-select series filter (spec §7.1 B1 / B3) */
+  .tf-wrap{position:relative}
+  .tf-btn{position:relative;border:1px solid var(--border);background:#fff;color:var(--navy);
+    font:inherit;font-size:12px;font-weight:600;padding:5px 10px;border-radius:6px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px}
+  .tf-cnt{background:var(--navy);color:#fff;border-radius:10px;font-size:10px;font-weight:700;
+    padding:0 6px;min-width:16px;text-align:center}
+  .tf-panel{position:absolute;top:calc(100% + 6px);left:0;z-index:10;background:#fff;
+    border:1px solid var(--border);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.15);
+    padding:8px;min-width:180px}
+  .tf-all,.tf-item{display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 6px;
+    border-radius:6px;cursor:pointer}
+  .tf-all input,.tf-item input{accent-color:var(--navy)}
+  .tf-hint{font-size:11px;color:var(--muted);padding:2px 6px}
+  .tf-divider{height:1px;background:var(--border);margin:6px 0}
+  /* scrollbar appears whenever the chart is wider than the area */
+  .chart-host{position:relative;width:100%;overflow-x:auto;overflow-y:hidden}
+  svg{display:block}
+  .float-tip{position:absolute;pointer-events:none;background:rgba(21,49,79,.95);color:#fff;
+    font-size:12px;line-height:1.45;padding:8px 10px;border-radius:6px;min-width:150px;
+    box-shadow:0 4px 14px rgba(0,0,0,.25);display:none;z-index:5}
+  .float-tip b{font-weight:700}
+  .float-tip .row{display:flex;justify-content:space-between;gap:12px}
+  .float-tip .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle}
+  .note{font-size:12px;color:var(--muted);margin:6px 2px 0}
+</style>
+</head>
+<body>
+  <div class="panel" data-panel>
+    <div class="panel-head">
+      <h2>Schedule Performance</h2>
+      <div class="panel-actions">
+        <button class="icon-btn" id="helpBtn" title="Help" aria-label="Help">?</button>
+        <button class="icon-btn" id="collapseBtn" title="Collapse" aria-label="Collapse">−</button>
+      </div>
+    </div>
+
+    <div class="chart">
+      <div class="card-head">
+        <div class="controls">
+          <!-- period bar / brush selection, left aligned -->
+          <div class="range" id="range" title="Reporting period — drag to select">
+            <div class="range-track"></div>
+            <div class="range-fill" id="rangeFill"></div>
+            <input type="range" id="rFrom" min="0" max="0" value="0" aria-label="From">
+            <input type="range" id="rTo" min="0" max="0" value="0" aria-label="To">
+          </div>
+          <span id="rangeText" style="font-size:12px;color:var(--muted);white-space:nowrap"></span>
+          <!-- the rest right aligned: filters first, then PNG / Copy -->
+          <div class="controls-right">
+            <div class="seg" id="grainSeg" role="group" aria-label="Time grain">
+              <button data-grain="month" class="active">Month</button>
+              <button data-grain="quarter">Quarter</button>
+              <button data-grain="year">Year</button>
+            </div>
+            <button class="btn" id="barsBtn" aria-pressed="true">Bars</button>
+            <div class="tf-wrap">
+              <button class="tf-btn" id="seriesBtn" aria-expanded="false" aria-controls="seriesPanel">
+                Series<span class="tf-cnt" id="seriesCnt">3</span>
+              </button>
+              <div class="tf-panel" id="seriesPanel" role="group" aria-label="Filter series" hidden>
+                <label class="tf-all"><input type="checkbox" data-all="series"> <b>All Series</b></label>
+                <div class="tf-hint">Tick one or more series.</div>
+                <div class="tf-divider"></div>
+                <div class="tf-list">
+                  <label class="tf-item"><input type="checkbox" data-series="plan" checked><span>Plan</span></label>
+                  <label class="tf-item"><input type="checkbox" data-series="forecast" checked><span>Forecast</span></label>
+                  <label class="tf-item"><input type="checkbox" data-series="actual" checked><span>Actual</span></label>
+                </div>
+              </div>
+            </div>
+            <button class="btn" id="pngBtn">⤓ PNG</button>
+            <button class="btn" id="copyBtn">⧉ Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-host" id="host">
+        <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="float-tip" id="tip"></div>
+      </div>
+      <p class="note" id="note"></p>
+    </div>
+  </div>
+
+<script>
+"use strict";
+
+/* hex colours used inside the SVG (CSS vars do NOT resolve in SVG presentation attributes) */
+const C = { plan:"#1e88e5", forecast:"#fb8c00", actual:"#2e7d32",
+  barPlan:"#90caf9", barActual:"#a5d6a7", start:"#c62828", today:"#b8c2cc",
+  grid:"#e0e0e0", navy:"#15314f", muted:"#78909c", text:"#1f2a37" };
+
+const MONTHS = (() => {
+  const out = []; const names = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  let i = 0;
+  for (let y = 2026; y <= 2027; y++) {
+    for (let m = 1; m <= 12; m++) {
+      const plannedNew = Math.round(180 + i * 42 + (i > 18 ? (i - 18) * 30 : 0));
+      const lag = 0.45 + 0.5 * (i / 23);
+      const actualNew = Math.round(plannedNew * lag);
+      out.push({ key: y + "-" + String(m).padStart(2, "0"),
+                 label: names[m - 1] + " " + y, plannedNew, actualNew });
+      if (++i >= 24) return out;
+    }
+  }
+  return out;
+})();
+
+const PROJECT_START = "2026-01";
+const TODAY = "2026-10";
+
+const state = { grain: "month", fromIdx: 0, toIdx: 23, bars: true,
+                show: { plan: true, forecast: true, actual: true }, hover: null };
+
+function bucketize(months, grain) {
+  const map = new Map();
+  months.forEach(m => {
+    const [y, mo] = m.key.split("-").map(Number);
+    let bk, bl;
+    if (grain === "month") { bk = m.key; bl = m.label; }
+    else if (grain === "quarter") { const q = Math.floor((mo - 1) / 3) + 1; bk = y + "-Q" + q; bl = "Q" + q + " " + y; }
+    else { bk = String(y); bl = String(y); }
+    if (!map.has(bk)) map.set(bk, { key: bk, label: bl, plannedNew: 0, actualNew: 0 });
+    const e = map.get(bk); e.plannedNew += m.plannedNew; e.actualNew += m.actualNew;
+  });
+  const arr = [...map.values()];
+  let pc = 0, fc = 0, ac = 0;
+  arr.forEach(b => {
+    pc += b.plannedNew; fc += b.plannedNew * 1.04; ac += b.actualNew;
+    b.pCum = pc; b.fCum = fc; b.aCum = ac;       // absolute cumulative (never rebased)
+  });
+  return arr;
+}
+
+const SVGNS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("svg");
+const host = document.getElementById("host");
+const tip = document.getElementById("tip");
+
+function el(name, attrs, text) {
+  const n = document.createElementNS(SVGNS, name);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (text != null) n.textContent = text;
+  return n;
+}
+
+function render() {
+  const all = bucketize(MONTHS, state.grain);
+  const n = all.length;
+  if (state.toIdx > n - 1) state.toIdx = n - 1;
+  if (state.fromIdx > state.toIdx) state.fromIdx = state.toIdx;
+  const data = all.slice(state.fromIdx, state.toIdx + 1);
+  const m = data.length;
+
+  const padL = 52, padR = 18, padT = 24, padB = 92;     // bottom: x labels (close to axis) + legend
+  const plotH = 300;
+  const avail = host.clientWidth || 900;
+  const minW = m * 46;
+  const W = Math.max(avail, minW);                      // default fills the chart area width
+  const H = padT + plotH + padB;
+  const slotW = (W - padL - padR) / m;
+
+  const maxCum = Math.max(1, ...data.map(b => Math.max(b.pCum, b.fCum, b.aCum)));
+  const maxBar = Math.max(1, ...data.map(b => Math.max(b.plannedNew, b.actualNew)));
+  const maxVal = Math.max(maxCum, maxBar);              // shared scale (spec §4.2 default)
+
+  const x = i => padL + (i + 0.5) * slotW;
+  const y = v => padT + plotH * (1 - v / maxVal);
+  const plotBottom = padT + plotH;
+
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.setAttribute("width", W);
+  svg.setAttribute("height", H);
+  svg.innerHTML = "";
+
+  /* horizontal dimensional (grid) lines + y labels (5 lines, spec §4.2 / I-86) */
+  for (let i = 0; i <= 4; i++) {
+    const val = maxVal * i / 4, yy = y(val);
+    svg.appendChild(el("line", { x1: padL, y1: yy, x2: W - padR, y2: yy, stroke: C.grid, "stroke-width": 1 }));
+    svg.appendChild(el("text", { x: padL - 8, y: yy + 4, "text-anchor": "end", "font-size": 13, fill: C.muted }, Math.round(val)));
+  }
+  svg.appendChild(el("text", { x: padL - 8, y: padT - 8, "text-anchor": "end", "font-size": 13, fill: C.muted }, "Docs"));
+
+  /* bars (bucket plan vs actual) — vertical value labels (spec §4.2) */
+  const nb = 2;
+  const bw = Math.min(18, (slotW * 0.62) / nb);
+  if (state.bars) {
+    data.forEach((b, i) => {
+      const cx = x(i);
+      const drawBar = (val, offset, fill) => {
+        if (val <= 0) return;
+        const bx = cx + offset - bw / 2, by = y(val);
+        svg.appendChild(el("rect", { x: bx, y: by, width: bw, height: plotBottom - by, rx: 2, fill }));
+        if (bw >= 9) svg.appendChild(el("text", { x: bx + bw / 2, y: by - 4, "text-anchor": "start",
+          "font-size": 12, fill: C.text, transform: `rotate(-90 ${bx + bw / 2} ${by - 4})` }, val));
+      };
+      if (state.show.plan) drawBar(b.plannedNew, -bw / 2, C.barPlan);
+      if (state.show.actual) drawBar(b.actualNew, bw / 2, C.barActual);
+    });
+  }
+
+  /* cumulative curves — weight 2.5, round join/cap; dots r=3 (spec §4.2 / I-86) */
+  const line = (prop, dash, color, key) => {
+    if (!state.show[key]) return;
+    const pts = data.map((b, i) => `${x(i)},${y(b[prop])}`).join(" ");
+    svg.appendChild(el("polyline", { points: pts, fill: "none", stroke: color,
+      "stroke-width": 2.5, "stroke-linejoin": "round", "stroke-linecap": "round",
+      "stroke-dasharray": dash }));
+    data.forEach((b, i) => svg.appendChild(el("circle", { cx: x(i), cy: y(b[prop]), r: 3, fill: color })));
+  };
+  line("pCum", "6,3", C.plan, "plan");
+  line("fCum", "2,2", C.forecast, "forecast");
+  line("aCum", "", C.actual, "actual");
+
+  /* Start (red dashed) + Today (grey dashed) vertical reference lines (spec §7.4) */
+  const vline = (key, color, dash, label) => {
+    const idx = data.findIndex(b => b.key >= key);
+    if (idx < 0) return;
+    const xx = x(idx);
+    svg.appendChild(el("line", { x1: xx, y1: padT, x2: xx, y2: plotBottom, stroke: color, "stroke-width": 1.5, "stroke-dasharray": dash }));
+    svg.appendChild(el("text", { x: xx, y: padT - 8, "text-anchor": "middle", "font-size": 11, fill: color }, label));
+  };
+  vline(PROJECT_START, C.start, "5,3", "Start");
+  vline(TODAY, C.today, "2,2", "Today");
+
+  /* x-axis date labels — inclined, hugging the axis (gap minimized); rotate so text stays below axis */
+  const labelY = plotBottom + 12;
+  data.forEach((b, i) => svg.appendChild(el("text", { x: x(i), y: labelY,
+    "text-anchor": "start", "font-size": 13, fill: C.text,
+    transform: `rotate(40 ${x(i)} ${labelY})` }, b.label)));
+
+  /* in-SVG bottom legend — clear of the labels (replaces HTML legend, I-86) */
+  const lgY = plotBottom + 76;
+  let lx = padL;
+  const legendItem = (color, dash, label, isBar) => {
+    if (isBar) svg.appendChild(el("rect", { x: lx, y: lgY - 9, width: 12, height: 12, rx: 2, fill: color }));
+    else svg.appendChild(el("line", { x1: lx, y1: lgY - 3, x2: lx + 16, y2: lgY - 3,
+      stroke: color, "stroke-width": 2.5, "stroke-dasharray": dash }));
+    svg.appendChild(el("text", { x: lx + 22, y: lgY, "text-anchor": "start", "font-size": 13, fill: C.text }, label));
+    lx += 22 + label.length * 7 + 18;
+  };
+  legendItem(C.barPlan, "", "Planned", true);
+  legendItem(C.barActual, "", "Actual", true);
+  legendItem(C.plan, "6,3", "Cum. Plan", false);
+  legendItem(C.forecast, "2,2", "Cum. Forecast", false);
+  legendItem(C.actual, "", "Cum. Actual", false);
+
+  /* hover overlay — snaps to nearest bucket, draws vertical line + floating window */
+  const overlay = el("rect", { x: padL, y: padT, width: W - padL - padR, height: plotH, fill: "transparent", style: "cursor:crosshair" });
+  svg.appendChild(overlay);
+  const snap = el("line", { x1: 0, y1: padT, x2: 0, y2: plotBottom, stroke: C.navy,
+    "stroke-width": 1, "stroke-dasharray": "3,3", visibility: "hidden" });
+  svg.appendChild(snap);
+  overlay.addEventListener("mousemove", e => {
+    const r = svg.getBoundingClientRect();
+    const sx = (e.clientX - r.left) * (W / r.width);
+    let i = Math.round((sx - padL) / slotW - 0.5);
+    i = Math.max(0, Math.min(m - 1, i));
+    state.hover = i;
+    snap.setAttribute("x1", x(i)); snap.setAttribute("x2", x(i));
+    snap.setAttribute("visibility", "visible");
+    const b = data[i];
+    tip.style.display = "block";
+    tip.innerHTML =
+      `<div style="margin-bottom:4px"><b>${b.label}</b></div>` +
+      row(C.barPlan, "Planned (new)", b.plannedNew) +
+      row(C.barActual, "Actual (new)", b.actualNew) +
+      row(C.plan, "Cum. Plan", b.pCum) +
+      row(C.forecast, "Cum. Forecast", b.fCum) +
+      row(C.actual, "Cum. Actual", b.aCum);
+    const tx = (e.clientX - r.left) + 16, ty = (e.clientY - r.top) + 12;
+    tip.style.left = Math.min(tx, r.width - 170) + "px";
+    tip.style.top = ty + "px";
+  });
+  overlay.addEventListener("mouseleave", () => { state.hover = null; snap.setAttribute("visibility", "hidden"); tip.style.display = "none"; });
+
+  document.getElementById("rangeText").textContent = `${data[0].label} – ${data[data.length - 1].label}`;
+  document.getElementById("note").textContent =
+    "Red dashed = project start · grey dashed = today · cumulative is absolute (never rebased) · " +
+    "line weight 2.5 · dots r=3 · hover for a snap line and detail window.";
+  updateRangeUI();
+}
+
+function row(sw, name, val) {
+  return `<div class="row"><span><span class="sw" style="background:${sw}"></span>${name}</span><b>${val}</b></div>`;
+}
+
+/* period bar / brush selection */
+const rFrom = document.getElementById("rFrom");
+const rTo = document.getElementById("rTo");
+const rangeFill = document.getElementById("rangeFill");
+
+function setupRange() {
+  const all = bucketize(MONTHS, state.grain);
+  const n = all.length;
+  rFrom.max = n - 1; rTo.max = n - 1;
+  if (state.toIdx > n - 1) state.toIdx = n - 1;
+  if (state.fromIdx > state.toIdx) state.fromIdx = state.toIdx;
+  rFrom.value = state.fromIdx; rTo.value = state.toIdx;
+  updateRangeUI();
+}
+function updateRangeUI() {
+  const all = bucketize(MONTHS, state.grain);
+  const n = all.length;
+  let a = +rFrom.value, b = +rTo.value;
+  if (a > b) { [a, b] = [b, a]; rFrom.value = a; rTo.value = b; }
+  state.fromIdx = a; state.toIdx = b;
+  const left = n > 1 ? a / (n - 1) * 100 : 0;
+  const width = n > 1 ? (b - a) / (n - 1) * 100 : 100;
+  rangeFill.style.left = left + "%";
+  rangeFill.style.width = width + "%";
+}
+rFrom.addEventListener("input", () => { updateRangeUI(); render(); });
+rTo.addEventListener("input", () => { updateRangeUI(); render(); });
+
+/* controls */
+document.getElementById("grainSeg").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-grain]"); if (!btn) return;
+  state.grain = btn.dataset.grain;
+  [...e.currentTarget.children].forEach(c => c.classList.toggle("active", c === btn));
+  setupRange(); render();
+});
+document.getElementById("barsBtn").addEventListener("click", e => {
+  state.bars = !state.bars; e.target.setAttribute("aria-pressed", String(state.bars)); render();
+});
+
+/* series multi-select (spec §7.1 B1 / B3) */
+const seriesBtn = document.getElementById("seriesBtn");
+const seriesPanel = document.getElementById("seriesPanel");
+const seriesCnt = document.getElementById("seriesCnt");
+seriesBtn.addEventListener("click", e => {
+  const open = seriesPanel.hasAttribute("hidden");
+  seriesPanel.toggleAttribute("hidden", !open);
+  seriesBtn.setAttribute("aria-expanded", String(open));
+});
+document.querySelectorAll("#seriesPanel [data-series]").forEach(cb => {
+  cb.addEventListener("change", () => {
+    state.show[cb.dataset.series] = cb.checked;
+    const all = document.querySelectorAll("#seriesPanel [data-series]");
+    const on = [...all].filter(c => c.checked).length;
+    seriesCnt.textContent = on;
+    document.querySelector('#seriesPanel [data-all="series"]').checked = on === all.length;
+    render();
+  });
+});
+document.querySelector('#seriesPanel [data-all="series"]').addEventListener("change", e => {
+  document.querySelectorAll("#seriesPanel [data-series]").forEach(cb => {
+    cb.checked = e.target.checked; state.show[cb.dataset.series] = cb.checked;
+  });
+  seriesCnt.textContent = e.target.checked ? 3 : 0;
+  render();
+});
+document.addEventListener("click", e => {
+  if (!e.target.closest(".tf-wrap")) { seriesPanel.setAttribute("hidden", ""); seriesBtn.setAttribute("aria-expanded", "false"); }
+});
+
+/* PNG export — SVG → canvas @2× (spec §7.1 A3, I-14) */
+function svgToCanvas(scale, cb) {
+  const vbox = svg.viewBox.baseVal;
+  const canvas = document.createElement("canvas");
+  canvas.width = vbox.width * scale; canvas.height = vbox.height * scale;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.scale(scale, scale);
+  const img = new Image();
+  img.onload = () => { ctx.drawImage(img, 0, 0); cb(canvas); };
+  img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg.outerHTML);
+}
+document.getElementById("pngBtn").addEventListener("click", () => {
+  svgToCanvas(2, canvas => canvas.toBlob(b => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(b); a.download = "schedule-performance.png"; a.click();
+    URL.revokeObjectURL(a.href);
+  }));
+});
+document.getElementById("copyBtn").addEventListener("click", async () => {
+  svgToCanvas(2, async canvas => {
+    try {
+      const blob = await new Promise(r => canvas.toBlob(r));
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+      alert("Chart copied to clipboard.");
+    } catch (err) { alert("Copy failed (clipboard blocked). Use PNG instead."); }
+  });
+});
+document.getElementById("collapseBtn").addEventListener("click", () => {
+  const card = document.querySelector(".chart");
+  const hidden = card.style.display === "none";
+  card.style.display = hidden ? "" : "none";
+  document.getElementById("collapseBtn").textContent = hidden ? "−" : "+";
+});
+
+let rT; window.addEventListener("resize", () => { clearTimeout(rT); rT = setTimeout(render, 150); });
+
+setupRange();
+render();
+</script>
+</body>
+</html>

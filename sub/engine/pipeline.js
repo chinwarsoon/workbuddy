@@ -461,6 +461,9 @@ function parseSubmittals(logContract, mdlContract, formulaErrors, asOfDate, sour
     if (record.actualReturnDate && !record.approvalStatus) {
       issues.push(codeIssue('V-21', record, logContract.errors, { field: 'Approval Status', value: '(blank)' }));
     }
+    if (record.submissionStatus === 'SUR' && record.actualReturnDate) {
+      issues.push(codeIssue('V-32', record, logContract.errors, { field: 'Submission Status / Actual Return Date', value: `${record.submissionStatus} / ${record.actualReturnDate}` }));
+    }
     const futureDate = [record.submissionDate, record.actualReturnDate].find(value => value && dateDifferenceDays(value, asOfDate) > 0);
     if (futureDate) issues.push(codeIssue('V-23', record, logContract.errors, { field: 'Submission / Actual Return Date', value: futureDate }));
     const missingRequiredFields = logContract.config.requiredRecordFields.filter(field => isBlank(fields[field]));
