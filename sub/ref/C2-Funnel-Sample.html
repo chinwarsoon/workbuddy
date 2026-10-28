@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C2 Funnel — Layout Sample v2 (table left, funnel right, cube bottom)</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --surface:#fff; --border:#d7dee7; --text:#1b2a3a; --muted:#5a6b7b;
+    --planned:#3f7cff; --submitted:#ff8c42; --underreview:#9c6ade; --awc:#00897b; --approved:#90a4ae;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);padding:24px}
+  h1{font-size:18px;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 16px}
+  .note{background:#fff8e1;border:1px solid #ffe082;color:#6b5300;font-size:12px;padding:8px 10px;border-radius:6px;margin:0 0 16px;max-width:940px}
+  .board{display:flex;gap:28px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;max-width:940px}
+  .tbl-wrap{flex:1 1 auto;min-width:0}
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--border)}
+  th:first-child,td:first-child{text-align:left}
+  thead th{color:var(--text);font-weight:600;border-bottom:2px solid var(--border)}
+  tbody tr.tot td{font-weight:700;border-top:2px solid var(--border)}
+  .funnel-wrap{flex:0 0 auto;display:flex;flex-direction:column}
+  .fleg{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;font-size:12px;color:var(--muted)}
+  .fleg-i{display:inline-flex;align-items:center}
+  .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px}
+</style>
+</head>
+<body>
+  <h1>C2 Funnel — Layout Sample v2</h1>
+  <p class="sub">Table on the left; vertical funnel on the right. The funnel top aligns with the first
+    discipline row and its bottom (the cube) aligns with the last discipline row. Stage order:
+    Planned Deliverables → Submitted for Review → Under Review → AWC → Approved.</p>
+  <p class="note">Sample only — illustrative data, not the real workbook. AWC is separated from Approved:
+    "Approved" means first-approval status = APP; "AWC" means first-approval status = AWC. Widths reflect
+    the actual counts, so the shape follows the data (it is not forced to taper monotonically).</p>
+
+  <div class="board">
+    <div class="tbl-wrap">
+      <table id="tbl">
+        <thead><tr><th>Discipline</th><th>Planned Deliverables</th><th>Submitted for Review</th><th>Under Review</th><th>AWC</th><th>Approved</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="fleg" id="fleg"></div>
+    </div>
+    <div class="funnel-wrap" id="funnelWrap">
+      <div id="funnel"></div>
+    </div>
+  </div>
+
+<script>
+const STAGES = [
+  {key:'planned',    label:'Planned Deliverables', raw:'#3f7cff'},
+  {key:'submitted',  label:'Submitted for Review', raw:'#ff8c42'},
+  {key:'underReview',label:'Under Review',         raw:'#9c6ade'},
+  {key:'awc',        label:'AWC',                  raw:'#00897b'},
+  {key:'approved',   label:'Approved',             raw:'#90a4ae'}
+];
+// Illustrative per-discipline data (AWC split out from Approved=APP). Totals computed below.
+const DATA = [
+  {disc:'Process',    planned:89, submitted:89, underReview:1, awc:6, approved:80},
+  {disc:'ICA',        planned:65, submitted:60, underReview:5, awc:4, approved:52},
+  {disc:'Unknown',    planned:20, submitted:18, underReview:3, awc:2, approved:12},
+  {disc:'BIM',        planned:30, submitted:25, underReview:2, awc:3, approved:22},
+  {disc:'BS',         planned:28, submitted:22, underReview:1, awc:2, approved:20},
+  {disc:'CSA',        planned:35, submitted:30, underReview:4, awc:3, approved:25},
+  {disc:'Electrical', planned:40, submitted:35, underReview:2, awc:4, approved:30},
+  {disc:'Mech',       planned:45, submitted:40, underReview:3, awc:5, approved:35},
+  {disc:'QAQC',       planned:25, submitted:20, underReview:1, awc:2, approved:18}
+];
+const TOTAL = STAGES.reduce((acc,s)=>{acc[s.key]=DATA.reduce((n,r)=>n+r[s.key],0);return acc;},{});
+
+const tbody = document.getElementById('tbody');
+tbody.innerHTML = DATA.map(r=>`<tr><td>${r.disc}</td><td>${r.planned}</td><td>${r.submitted}</td><td>${r.underReview}</td><td>${r.awc}</td><td>${r.approved}</td></tr>`).join('')
+  + `<tr class="tot"><td>Total</td><td>${TOTAL.planned}</td><td>${TOTAL.submitted}</td><td>${TOTAL.underReview}</td><td>${TOTAL.awc}</td><td>${TOTAL.approved}</td></tr>`;
+document.getElementById('fleg').innerHTML = STAGES.map(s=>`<span class="fleg-i"><span class="sw" style="background:${s.raw}"></span>${s.label}</span>`).join('');
+
+// ---- funnel: align top to first discipline row, bottom to last discipline row ----
+const tbl = document.getElementById('tbl');
+const rows = [...tbody.querySelectorAll('tr')].filter(r=>!r.classList.contains('tot'));
+const firstRow = rows[0], lastRow = rows[rows.length-1];
+const tRect = tbl.getBoundingClientRect();
+const firstTop = firstRow.getBoundingClientRect().top - tRect.top;
+const lastBottom = lastRow.getBoundingClientRect().bottom - tRect.top;
+const funH = Math.max(120, Math.round(lastBottom - firstTop));
+const wrap = document.getElementById('funnelWrap');
+wrap.style.marginTop = firstTop + 'px';
+wrap.style.height = funH + 'px';
+
+const W = 300, cx = W/2, maxW = 250;
+const maxVal = Math.max(1, ...STAGES.map(s=>TOTAL[s.key]));
+const segH = funH / STAGES.length;
+// Compress the scale (sqrt) so a large ratio (e.g. planned 1000 vs submitted 100) does not force the
+// smaller stage into a razor-thin band. The widest stage uses at most maxW; min width keeps labels readable.
+const widthOf = v => Math.max(14, (Math.sqrt(v)/Math.sqrt(maxVal)) * maxW);
+const shade = (hex,amt)=>{const n=parseInt(hex.slice(1),16);let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  r=Math.max(0,Math.min(255,Math.round(r+amt*255)));g=Math.max(0,Math.min(255,Math.round(g+amt*255)));b=Math.max(0,Math.min(255,Math.round(b+amt*255)));
+  return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);};
+
+let out = `<svg width="${W}" height="${funH}" viewBox="0 0 ${W} ${funH}" preserveAspectRatio="none" role="img" aria-label="Submission funnel">`;
+STAGES.forEach((s,i)=>{
+  const yTop = i*segH, yBot = (i+1)*segH;
+  if (i < STAGES.length-1){
+    const topW = widthOf(TOTAL[s.key]), botW = widthOf(TOTAL[STAGES[i+1].key]);
+    const x1=cx-topW/2, x2=cx+topW/2, x3=cx+botW/2, x4=cx-botW/2;
+    out += `<path d="M${x1},${yTop} L${x2},${yTop} L${x3},${yBot} L${x4},${yBot} Z" fill="${s.raw}" fill-opacity="0.92" stroke="#fff" stroke-width="1.5"></path>`;
+    const yMid=(yTop+yBot)/2, inside=topW>=120;
+    const lx=inside?cx:(cx-topW/2-8), anchor=inside?'middle':'end', col=inside?'#fff':'#1b2a3a';
+    out += `<text x="${lx}" y="${yMid-2}" text-anchor="${anchor}" fill="${col}" font-size="13" font-weight="700">${s.label}</text>`;
+    out += `<text x="${lx}" y="${yMid+15}" text-anchor="${anchor}" fill="${col}" font-size="13">${TOTAL[s.key]}</text>`;
+  } else {
+    // Approved = cube (3D block) at the bottom
+    const w = widthOf(TOTAL[s.key]), dy=10, dx=10;
+    const xL=cx-w/2, xR=cx+w/2, yF=yTop+dy, yB=yBot;
+    out += `<rect x="${xL}" y="${yF}" width="${w}" height="${yB-yF}" fill="${s.raw}"></rect>`;
+    out += `<path d="M${xL},${yF} L${xL+dx},${yTop} L${xR+dx},${yTop} L${xR},${yF} Z" fill="${shade(s.raw,0.18)}"></path>`;
+    out += `<path d="M${xR},${yF} L${xR+dx},${yTop} L${xR+dx},${yBot-dy} L${xR},${yB} Z" fill="${shade(s.raw,-0.18)}"></path>`;
+    const yMid=(yF+yB)/2;
+    out += `<text x="${cx}" y="${yMid+4}" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">${s.label}</text>`;
+    out += `<text x="${cx}" y="${yMid+19}" text-anchor="middle" fill="#fff" font-size="13">${TOTAL[s.key]}</text>`;
+  }
+});
+out += `</svg>`;
+document.getElementById('funnel').innerHTML = out;
+</script>
+</body>
+</html>

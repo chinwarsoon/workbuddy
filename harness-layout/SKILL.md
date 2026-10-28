@@ -335,3 +335,4 @@ is the final gate.
 | §7.1 | min-height:32px, min-height:26px |
 | §7.2 | .ds-table, .tableScroll, --ds-row-h, .sev-svg |
 | §7.9 | .help-modal hidden initially |
+| §4.2 | C3 bar y-axis grid lines + numbers (I060): 5 horizontal grid lines at 0/25/50/75/100% of a nice max, bars scaled to that max, tick labels right-aligned flush in the metric-label column (no gap, aligned with the table below); Pie cards exempt. Advisory until a dedicated check is added. |

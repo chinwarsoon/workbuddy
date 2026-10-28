@@ -66,6 +66,20 @@ test('allows several submissions for one unique planned document and identifies 
   assert.equal(model.issues.filter(issue => issue.code === 'V-29').length, 16);
 });
 
+test('derives submission discipline from the MDL join, not the log section title (T15.1)', () => {
+  const plannedById = new Map(model.planned.map(record => [record.id, record]));
+  for (const record of model.submissions) {
+    if (record.linkStatus === 'matched') {
+      const plan = plannedById.get(record.linkedPlannedId);
+      assert.ok(plan, `matched submission row ${record.row} links to a plan`);
+      assert.equal(record.discipline, plan.discipline, `submission row ${record.row} discipline matches its MDL plan, not the log section`);
+    } else if (record.linkStatus === 'orphan') {
+      assert.equal(record.discipline, 'Unknown', `orphan submission row ${record.row} is Unknown`);
+    }
+  }
+  assert.ok(model.submissions.some(record => record.linkStatus === 'matched' && record.discipline !== ''));
+});
+
 test('calculates open delay as zero through target date and keeps early-return delay negative', () => {
   assert.ok(model.submissions.some(record => !record.actualReturnDate && record.targetReturnDate >= model.meta.asOfDate && record.delayDays === 0));
   assert.ok(model.submissions.some(record => !record.actualReturnDate && record.targetReturnDate < model.meta.asOfDate && record.delayDays > 0));

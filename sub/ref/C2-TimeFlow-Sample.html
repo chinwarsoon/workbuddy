@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>C2 Submission Flow — Time-River Design Sample</title>
+<style>
+  :root{
+    --navy:#15314f; --border:#d9e1e8; --text:#1f2a37; --muted:#78909c;
+    --sur:#3f7cff; --rtr:#ff8c42; --nts:#9c6ade; --nfs:#b0bec5;
+    --font-ui:"Segoe UI", Arial, sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font-ui);background:#f4f7fa;color:var(--text);padding:24px}
+  h1{font-size:18px;color:var(--navy);margin:0 0 4px}
+  .sub{font-size:13px;color:var(--muted);margin:0 0 18px}
+  .panel{border:1px solid var(--border);border-radius:10px;background:#fff;
+    margin:14px 0;padding:14px 14px 22px}
+  .panel h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    color:var(--navy);margin:0 0 4px}
+  .panel .desc{font-size:12px;color:var(--muted);margin:0 0 10px}
+  .chart{border:1px solid var(--border);border-radius:10px;padding:10px;background:#fff;
+    position:relative;overflow-x:auto}
+  svg{display:block}
+  .axis{stroke:var(--border);stroke-width:1}
+  .grid{stroke:#eef2f6;stroke-width:1}
+  .today{stroke:#9aa7b2;stroke-width:1.5;stroke-dasharray:5 4}
+  .start{stroke:#c0392b;stroke-width:1.5;stroke-dasharray:5 4}
+  .axis-lbl{fill:var(--muted);font-size:11px}
+  .float-tip{position:absolute;pointer-events:none;background:rgba(21,49,79,.95);color:#fff;
+    font-size:12px;line-height:1.5;padding:8px 10px;border-radius:6px;min-width:150px;
+    box-shadow:0 4px 14px rgba(0,0,0,.25);display:none;z-index:5}
+  .float-tip b{font-weight:700}
+  .float-tip .row{display:flex;justify-content:space-between;gap:12px}
+  .float-tip .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle}
+  .legend{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+  .leg{border:1px solid var(--border);background:#fff;color:var(--text);font:inherit;font-size:12px;
+    padding:5px 10px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .leg .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .leg[aria-pressed="false"]{opacity:.45;text-decoration:line-through}
+  .note{font-size:12px;color:var(--muted);margin:8px 2px 0}
+</style>
+</head>
+<body>
+  <h1>C2 Submission Flow &amp; Delay — Time-River Sample</h1>
+  <p class="sub">Two design variants for the C2 Stacked view. X = month (time). Bands = submission status.
+    Toggle a status in the legend to include or hide it. Hover a month for the breakdown.</p>
+  <p class="note"><b>Counting rule:</b> each band height is the count of <b>submission records (rows)</b> in that month,
+    grouped by status. Counts are <b>per month only</b> — not cumulative, and not distinct <code>Document&nbsp;No.</code>
+    (distinct-document counting is reserved for the KPI cards). A document with several revisions counts once per row.
+    The <b>NFS</b> band is the only MDL-sourced band: it counts planned documents by their <b>planned first-issue month</b>,
+    not a submission date.</p>
+
+  <div class="legend" id="legend"></div>
+
+  <div class="panel">
+    <h2>Variant 1 — Stacked area (baseline at 0)</h2>
+    <p class="desc">Lower bank = zero baseline. Upper bank = top of stack = monthly total. The total is always readable.</p>
+    <div class="chart">
+      <svg id="svgStacked" width="780" height="320" role="img" aria-label="Stacked area time flow"></svg>
+      <div class="float-tip" id="tipStacked"></div>
+    </div>
+    <p class="note">Recommended for status counts: one bank is the zero baseline, so the river height = volume.</p>
+  </div>
+
+  <div class="panel">
+    <h2>Variant 2 — Centered streamgraph</h2>
+    <p class="desc">Bands flow symmetrically around a centerline. Stronger "river" look, but the absolute total is hidden (only relative thickness shows).</p>
+    <div class="chart">
+      <svg id="svgStream" width="780" height="320" role="img" aria-label="Centered streamgraph time flow"></svg>
+      <div class="float-tip" id="tipStream"></div>
+    </div>
+    <p class="note">Use for shape only. The two banks (top and bottom) are both wavy; no flat baseline.</p>
+  </div>
+
+<script>
+// ============================================================
+// Counting rule (confirmed from engine + workplan):
+//  - Band height = count of SUBMISSION RECORDS (rows) in that month.
+//  - Grouped by Submission Status. Counts are PER MONTH ONLY:
+//    not cumulative, and not distinct Document No.
+//    (distinct-Document-No counting is reserved for the KPI cards D32/D34.)
+//  - A document with several revisions counts once per row.
+// ============================================================
+
+// ---- Source A: Submittal Log rows (submission records) ----
+// Counted per ROW, grouped by the row's Submission Date month and Submission Status.
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep"];
+const LOG_STATUS = [
+  {key:"SUR", label:"SUR (Under Review)",              color:"var(--sur)", raw:"#3f7cff", src:"log"},
+  {key:"RTR", label:"RTR (Returned)",                  color:"var(--rtr)", raw:"#ff8c42", src:"log"},
+  {key:"NTS", label:"NTS",                             color:"var(--nts)", raw:"#9c6ade", src:"log"}
+];
+// SUR / RTR / NTS per month = submission records whose Submission Date falls in that month.
+const LOG = [
+  {SUR:8,  RTR:4,  NTS:6 },
+  {SUR:10, RTR:5,  NTS:7 },
+  {SUR:12, RTR:6,  NTS:8 },
+  {SUR:14, RTR:8,  NTS:9 },
+  {SUR:15, RTR:9,  NTS:10},
+  {SUR:16, RTR:10, NTS:11},
+  {SUR:18, RTR:12, NTS:12},
+  {SUR:20, RTR:13, NTS:13},
+  {SUR:22, RTR:14, NTS:14}
+];
+
+// ---- Source B: MDL planned rows not yet submitted (NFS) ----
+// Counted per PLANNED document, attributed to its PLANNED first-issue month
+// (not a submission date, because these rows have no log submission).
+const NFS_STATUS = {key:"NFS", label:"NFS (Not Yet Submitted — planned)", color:"var(--nfs)", raw:"#b0bec5", src:"planned"};
+// Planned first-issue month counts of documents with no matched submission.
+const NFS_PLAN = [10, 9, 8, 7, 6, 5, 4, 3, 2];
+
+// Combined status list. NFS is the only MDL-sourced band.
+const STATUSES = [...LOG_STATUS, NFS_STATUS];
+// Per-month record consumed by the renderers (NFS merged from the planned source).
+const DATA = LOG.map((d,i) => ({ ...d, NFS: NFS_PLAN[i] }));
+
+const TODAY_IDX = 5;   // Jun
+const START_IDX = 0;   // Jan
+
+// active set (NFS optional, default on)
+const active = new Set(STATUSES.map(s => s.key));
+
+// ---- Layout ----
+const W = 780, H = 320;
+const M = {l:44, r:16, t:16, b:34};
+const PW = W - M.l - M.r, PH = H - M.t - M.b;
+const x = i => M.l + (MONTHS.length === 1 ? PW/2 : (i/(MONTHS.length-1))*PW);
+const bandTop = STATUSES.filter(s => active.has(s.key));
+
+function maxTotal(){
+  return Math.max(...DATA.map(d => bandTop.reduce((a,s)=>a + d[s.key], 0)));
+}
+function cumulative(d){
+  let lo = 0; const out = {};
+  for(const s of bandTop){ out[s.key] = [lo, lo + d[s.key]]; lo += d[s.key]; }
+  return out;
+}
+
+// ---- Draw stacked area ----
+function drawStacked(){
+  const svg = document.getElementById("svgStacked");
+  const tip = document.getElementById("tipStacked");
+  svg.innerHTML = "";
+  const mt = maxTotal();
+  const y = v => M.t + PH - (v/mt)*PH;   // 0 at bottom
+  const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+
+  // grid + y labels
+  for(let t=0;t<=mt;t+=5){
+    const yy = y(t);
+    g.appendChild(line(M.l, yy, W-M.r, yy, "grid"));
+    g.appendChild(text(M.l-8, yy+4, t, "axis-lbl", "end"));
+  }
+  // build polygons per status (bottom -> top)
+  bandTop.forEach(s=>{
+    let topPts=[], botPts=[];
+    DATA.forEach((d,i)=>{
+      const c = cumulative(d);
+      topPts.push([x(i), y(c[s.key][1])]);
+      botPts.push([x(i), y(c[s.key][0])]);
+    });
+    const pts = topPts.concat(botPts.reverse());
+    const path = "M"+pts.map(p=>p[0]+","+p[1]).join("L")+"Z";
+    const poly = document.createElementNS("http://www.w3.org/2000/svg","path");
+    poly.setAttribute("d", path);
+    poly.setAttribute("fill", s.raw);
+    poly.setAttribute("fill-opacity","0.9");
+    poly.setAttribute("stroke","#fff");
+    poly.setAttribute("stroke-width","1");
+    g.appendChild(poly);
+  });
+  // axis + month labels + markers
+  g.appendChild(line(M.l, M.t+PH, W-M.r, M.t+PH, "axis"));
+  MONTHS.forEach((m,i)=> g.appendChild(text(x(i), M.t+PH+18, m, "axis-lbl", "middle")));
+  g.appendChild(line(x(TODAY_IDX), M.t, x(TODAY_IDX), M.t+PH, "today"));
+  g.appendChild(line(x(START_IDX), M.t, x(START_IDX), M.t+PH, "start"));
+  g.appendChild(text(x(TODAY_IDX)+4, M.t+10, "Today", "axis-lbl", "start"));
+  svg.appendChild(g);
+
+  // hover
+  const ov = document.createElementNS("http://www.w3.org/2000/svg","rect");
+  ov.setAttribute("x",M.l); ov.setAttribute("y",M.t);
+  ov.setAttribute("width",PW); ov.setAttribute("height",PH);
+  ov.setAttribute("fill","transparent");
+  svg.appendChild(ov);
+  ov.addEventListener("mousemove", e=>{
+    const rect = svg.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    let i = Math.round(((mx-M.l)/PW)*(MONTHS.length-1));
+    i = Math.max(0, Math.min(MONTHS.length-1, i));
+    const d = DATA[i]; const c = cumulative(d);
+    let html = "<b>"+MONTHS[i]+"</b>";
+    bandTop.forEach(s=> html += row(s, d[s.key]));
+    const total = bandTop.reduce((a,s)=>a+d[s.key],0);
+    html += row({label:"Total", raw:"#fff"}, total, true);
+    tip.innerHTML = html;
+    tip.style.display="block";
+    tip.style.left = Math.min(mx+12, W-170)+"px";
+    tip.style.top = "12px";
+  });
+  ov.addEventListener("mouseleave", ()=> tip.style.display="none");
+}
+
+// ---- Draw centered streamgraph ----
+function drawStream(){
+  const svg = document.getElementById("svgStream");
+  const tip = document.getElementById("tipStream");
+  svg.innerHTML = "";
+  const mt = maxTotal();
+  const center = M.t + PH/2;
+  const yScale = (PH/2)/mt;                 // half-height per unit
+  const y = (v, base) => center + base*yScale - v*yScale;  // base = lower cumulative from center
+  const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+
+  // centerline
+  g.appendChild(line(M.l, center, W-M.r, center, "grid"));
+
+  bandTop.forEach(s=>{
+    let topPts=[], botPts=[];
+    DATA.forEach((d,i)=>{
+      const tot = bandTop.reduce((a,st)=>a+d[st.key],0);
+      const c = cumulative(d);
+      const lowerFromCenter = c[s.key][0] - tot/2;   // symmetric about center
+      botPts.push([x(i), y(0, lowerFromCenter)]);
+      topPts.push([x(i), y(d[s.key], lowerFromCenter)]);
+    });
+    const pts = topPts.concat(botPts.reverse());
+    const path = "M"+pts.map(p=>p[0]+","+p[1]).join("L")+"Z";
+    const poly = document.createElementNS("http://www.w3.org/2000/svg","path");
+    poly.setAttribute("d", path);
+    poly.setAttribute("fill", s.raw);
+    poly.setAttribute("fill-opacity","0.85");
+    poly.setAttribute("stroke","#fff");
+    poly.setAttribute("stroke-width","1");
+    g.appendChild(poly);
+  });
+
+  g.appendChild(line(M.l, M.t+PH, W-M.r, M.t+PH, "axis"));
+  MONTHS.forEach((m,i)=> g.appendChild(text(x(i), M.t+PH+18, m, "axis-lbl", "middle")));
+  g.appendChild(line(x(TODAY_IDX), M.t, x(TODAY_IDX), M.t+PH, "today"));
+  g.appendChild(line(x(START_IDX), M.t, x(START_IDX), M.t+PH, "start"));
+  g.appendChild(text(x(TODAY_IDX)+4, M.t+10, "Today", "axis-lbl", "start"));
+  svg.appendChild(g);
+
+  const ov = document.createElementNS("http://www.w3.org/2000/svg","rect");
+  ov.setAttribute("x",M.l); ov.setAttribute("y",M.t);
+  ov.setAttribute("width",PW); ov.setAttribute("height",PH);
+  ov.setAttribute("fill","transparent");
+  svg.appendChild(ov);
+  ov.addEventListener("mousemove", e=>{
+    const rect = svg.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    let i = Math.round(((mx-M.l)/PW)*(MONTHS.length-1));
+    i = Math.max(0, Math.min(MONTHS.length-1, i));
+    const d = DATA[i];
+    let html = "<b>"+MONTHS[i]+"</b>";
+    bandTop.forEach(s=> html += row(s, d[s.key]));
+    const total = bandTop.reduce((a,s)=>a+d[s.key],0);
+    html += row({label:"Total", raw:"#fff"}, total, true);
+    tip.innerHTML = html;
+    tip.style.display="block";
+    tip.style.left = Math.min(mx+12, W-170)+"px";
+    tip.style.top = "12px";
+  });
+  ov.addEventListener("mouseleave", ()=> tip.style.display="none");
+}
+
+// ---- helpers ----
+function line(x1,y1,x2,y2,cls){
+  const l = document.createElementNS("http://www.w3.org/2000/svg","line");
+  l.setAttribute("x1",x1); l.setAttribute("y1",y1); l.setAttribute("x2",x2); l.setAttribute("y2",y2);
+  l.setAttribute("class",cls); return l;
+}
+function text(x,y,str,cls,anchor){
+  const t = document.createElementNS("http://www.w3.org/2000/svg","text");
+  t.setAttribute("x",x); t.setAttribute("y",y); t.setAttribute("class",cls);
+  if(anchor) t.setAttribute("text-anchor",anchor);
+  t.textContent = str; return t;
+}
+function row(s,val,isTotal){
+  const sw = isTotal ? "" : '<span class="sw" style="background:'+s.raw+'"></span>';
+  return '<div class="row">'+sw+'<span>'+s.label+'</span><b>'+val+'</b></div>';
+}
+
+// ---- legend ----
+function buildLegend(){
+  const el = document.getElementById("legend");
+  el.innerHTML = "";
+  STATUSES.forEach(s=>{
+    const b = document.createElement("button");
+    b.className = "leg";
+    b.setAttribute("aria-pressed", active.has(s.key));
+    b.innerHTML = '<span class="sw" style="background:'+s.raw+'"></span>'+s.label;
+    b.onclick = ()=>{
+      if(active.has(s.key)) active.delete(s.key); else active.add(s.key);
+      if(active.size === 0) active.add(s.key); // keep at least one
+      bandTop.length = 0; STATUSES.forEach(st=>{ if(active.has(st.key)) bandTop.push(st); });
+      b.setAttribute("aria-pressed", active.has(s.key));
+      render();
+    };
+    el.appendChild(b);
+  });
+}
+
+function render(){ drawStacked(); drawStream(); }
+buildLegend();
+render();
+</script>
+</body>
+</html>

@@ -375,7 +375,6 @@ function parseSubmittals(logContract, mdlContract, formulaErrors, asOfDate, sour
   const { sheet, columns } = logContract;
   const records = [];
   const issues = [];
-  let currentDiscipline = '';
   const mapped = new Map();
   for (const [field, column] of columns) mapped.set(field, column.index);
   const end = sheet.maxRow || 1;
@@ -402,7 +401,6 @@ function parseSubmittals(logContract, mdlContract, formulaErrors, asOfDate, sour
     const docRaw = cellAt(row, mapped.get('Document No.'));
     const subject = String(cellAt(row, mapped.get('Prolog Subject')) ?? '').trim();
     if (isBlank(snoRaw) && isBlank(docRaw) && knownDisciplines.has(subject)) {
-      currentDiscipline = subject;
       continue;
     }
     const hasRowIdentity = !isBlank(snoRaw) || !isBlank(docRaw);
@@ -423,7 +421,7 @@ function parseSubmittals(logContract, mdlContract, formulaErrors, asOfDate, sour
       sheet: 'SubmittalLog',
       row: rowNumber,
       documentNo: isBlank(docValue) ? null : String(docValue).trim(),
-      discipline: currentDiscipline,
+      discipline: '',
       fields,
       formulaErrorFields,
       submissionDate: fields['Submission Date'] || null,
@@ -557,12 +555,15 @@ export function buildModel(mdlWorkbook, logWorkbook, options = {}) {
     const matches = record.documentNo ? plannedByDocument.get(linkKey(record.documentNo)) || [] : [];
     if (!matches.length) {
       record.linkStatus = 'orphan';
+      record.discipline = 'Unknown';
       issues.push(codeIssue('V-29', record, allErrors, { source: record.source, field: 'Document No.', value: record.documentNo }));
     } else if (matches.length > 1) {
       record.linkStatus = 'ambiguous';
+      record.discipline = matches[0].discipline;
     } else {
       record.linkStatus = 'matched';
       record.linkedPlannedId = matches[0].id;
+      record.discipline = matches[0].discipline;
     }
     return record;
   }));

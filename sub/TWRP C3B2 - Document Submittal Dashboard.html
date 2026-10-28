@@ -9,7 +9,7 @@
   <meta http-equiv="Expires" content="0">
   <meta name="description" content="Document submittal dashboard for the TWRP C3B2 project.">
   <title>TWRP C3B2 · Document Submittal Dashboard</title>
-                                                                                                              <!-- STANDALONE:BEGIN -->
+                                                                                                                                                                <!-- STANDALONE:BEGIN -->
   <style>
 /* Revision 2.3 | 2026-10-25 | CodeBuddy (AI) | C3 Breakdown: submission and approval colour tokens, the chart-component board, bar/arc classes and the summary-table spacing. */
 /* Revision 2.2 | 2026-10-24 | CodeBuddy (AI) | Option B shell: MDL two-row header + navy left nav sidebar; light default. */
@@ -201,7 +201,7 @@ body.loaded .app{display:flex;flex-direction:column;height:100vh;min-height:0;ov
 /* ===== Panels / KPI ===== */
 /* §4 — panel surface: 10 px radius on a relative box, with 26 px of bottom padding so the corner
    number never overlaps the last line. */
-.panel{margin:14px 0;padding:14px 14px 26px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);position:relative}
+.panel{margin:14px 0;padding:14px 14px 26px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);position:relative;min-width:0;min-height:0}
 /* §4 — title row: title left, action cluster right. The 10 px gap belongs to the row, not the heading. */
 .panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 10px}
 .panel h2{margin:0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--navy);line-height:1.4;min-width:0}
@@ -215,9 +215,20 @@ body.loaded .app{display:flex;flex-direction:column;height:100vh;min-height:0;ov
 .panel h3{margin:0 0 4px;font-size:13px;font-weight:700;color:var(--navy)}
 .panel h4{margin:14px 0 4px;font-size:13px;color:var(--text2)}
 .panel small,.panel .psub{color:var(--text2);font-size:12px}
-.panel-grid{display:grid;grid-template-columns:1fr;gap:16px}
-body[data-layout="two"] .panel-grid{grid-template-columns:1fr 1fr}
-body[data-layout="three"] .panel-grid{grid-template-columns:1fr 1fr 1fr}
+/* §3.4.1 — the panel grid reflows like the KPI grid (repeat(auto-fit, minmax(210px,1fr))): it must
+   follow the screen at any zoom, not keep a first-render column count. The chosen layout is the
+   MAXIMUM column count; tracks use minmax(0,1fr) so they can shrink, and media-query breakpoints
+   drop columns as the content width shrinks so no panel overflows the screen. */
+.panel-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+body[data-layout="two"] .panel-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+body[data-layout="three"] .panel-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:1100px){
+  body[data-layout="three"] .panel-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  body[data-layout="two"] .panel-grid,
+  body[data-layout="three"] .panel-grid{grid-template-columns:minmax(0,1fr)}
+}
 /* §5 — KPI cards: 3 px status strip, 8 px radius, 10 px padding, 72 px high, no shadow.
    Value and label only. Do not set line-height: the inherited 1.45 makes the 72 px height. */
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:18px}
@@ -320,7 +331,7 @@ details summary{cursor:pointer;font-size:13px;color:var(--accent);margin:6px 0}
 :root{
   /* Submission series (New vs Resubmission) and the five approval codes. New and Resubmission use
      hues outside the approval set, because the two series are separate measures, not a split of one. */
-  --color-new:#1f6fb2; --color-resub:#f4a259;
+  --color-new:#1f6fb2; --color-resub:#f4a259; --color-ur:#7c3aed;
   --color-app:#17a67a; --color-awc:#2b6cf6; --color-nap:#F9A825; --color-rej:#d23b3b; --color-inf:#64748B;
 }
 .c3-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 10px}
@@ -328,8 +339,12 @@ details summary{cursor:pointer;font-size:13px;color:var(--accent);margin:6px 0}
 .c3-controls .controls-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
 .c3-month-wrap{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)}
 .c3-month-wrap select{padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)}
-/* §4.2 — the board is the chart-component border; the panel keeps its own card border. */
-.c3-board{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fff}
+/* §4.2 — each C3 chart is its own bordered card (Option 2, Wave 4.2): every card owns its border
+   and its controls, matching the MDL interactive-chart pattern. */
+.c3-card{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fff;display:flex;flex-direction:column}
+.c3-card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.c3-card-title{font-size:13px;font-weight:700;margin:0;color:var(--navy)}
+.c3-card-ctrls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .c3-svg{display:block}
 .c3-new{fill:var(--color-new)} .c3-new-arc{stroke:var(--color-new)}
 .c3-resub{fill:var(--color-resub)} .c3-resub-arc{stroke:var(--color-resub)}
@@ -338,17 +353,53 @@ details summary{cursor:pointer;font-size:13px;color:var(--accent);margin:6px 0}
 .c3-nap{fill:var(--color-nap)} .c3-nap-arc{stroke:var(--color-nap)}
 .c3-rej{fill:var(--color-rej)} .c3-rej-arc{stroke:var(--color-rej)}
 .c3-inf{fill:var(--color-inf)} .c3-inf-arc{stroke:var(--color-inf)}
+.c3-ur{fill:var(--color-ur)} .c3-ur-arc{stroke:var(--color-ur)}
 .c3-track-bg{fill:var(--border);fill-opacity:.18}
+.c3-axis{stroke:var(--border);stroke-width:1}
+/* ===== C3 two stacked-bar cards (Wave 4.2, Option 2) ===== */
+.c3-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}
+.c3-vchart{overflow-x:auto;min-width:0}
+.c3-viewbar{display:flex;justify-content:flex-end;margin:6px 0 10px}
+.c3-label-inc{font-size:11px}
+@media(max-width:880px){.c3-cards{grid-template-columns:minmax(0,1fr)}}
+/* ===== C3 card: one aligned grid (bars + axis labels + attached table), 2026-10-27 study ===== */
+.c3-card-body{overflow-x:auto;min-width:0}
+.c3-grid{display:grid;column-gap:6px;row-gap:0;margin-top:6px}
+.g-bar{height:150px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.seg-bar{width:60%;border-radius:2px 2px 0 0}
+.seg-bar.c3-new{background:var(--color-new)} .seg-bar.c3-resub{background:var(--color-resub)}
+.seg-bar.c3-ur{background:var(--color-ur)} .seg-bar.c3-app{background:var(--color-app)}
+.seg-bar.c3-awc{background:var(--color-awc)} .seg-bar.c3-nap{background:var(--color-nap)}
+.seg-bar.c3-rej{background:var(--color-rej)} .seg-bar.c3-inf{background:var(--color-inf)}
+.g-axis{writing-mode:vertical-rl;text-orientation:mixed;font-size:11px;font-weight:600;color:var(--text2);text-align:left;padding:2px 0;white-space:nowrap;overflow:hidden}
+.g-label{display:flex;align-items:center;justify-content:flex-end;font-size:11px;color:var(--text2);padding-right:6px;text-align:right;border-top:1px solid var(--border)}
+.g-val{text-align:center;font-size:12px;padding:4px 2px;border-top:1px solid var(--border);color:var(--text)}
+/* ===== C3 y-axis grid lines + numbers (I060), matching C1/C2 ===== */
+.c3-gridlines{background-image:repeating-linear-gradient(to top,var(--border) 0,var(--border) 1px,transparent 1px,transparent 25%);background-color:transparent;pointer-events:none}
+.g-yaxis{height:150px;position:relative;pointer-events:none}
+.g-ytick{position:absolute;right:0;transform:translateY(-50%);font-size:10px;line-height:1;color:var(--text2);text-align:right;padding-right:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.c3-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:6px 0 0 2px}
+.c3-leg{display:inline-flex;align-items:center;font-size:11px;color:var(--text2)}
+.c3-swatch{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:5px}
+.c3-swatch.c3-new{background:var(--color-new)}
+.c3-swatch.c3-resub{background:var(--color-resub)}
+.c3-swatch.c3-ur{background:var(--color-ur)}
+.c3-swatch.c3-app{background:var(--color-app)}
+.c3-swatch.c3-awc{background:var(--color-awc)}
+.c3-swatch.c3-nap{background:var(--color-nap)}
+.c3-swatch.c3-rej{background:var(--color-rej)}
+.c3-swatch.c3-inf{background:var(--color-inf)}
 .c3-label{fill:var(--text);font-size:11px}
 .c3-cap{fill:var(--text2);font-size:9px}
 .c3-val{fill:var(--text);font-size:11px;font-weight:600}
 .c3-total{fill:var(--text)}
 .c3-sub{fill:var(--text2)}
 .c3-leg-t{fill:var(--text2);font-size:11px}
-/* ===== C3 layout: chart left, summary table right (§4.2 pair) ===== */
-.c3-body{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(340px,1fr);gap:14px;align-items:start}
-@media(max-width:1099px){.c3-body{grid-template-columns:1fr}}
-.c3-summary{min-width:0}
+/* ===== C3 layout: chart on top, summary table below at full width (§4.2 pair, T15.5) ===== */
+.c3-body{display:flex;flex-direction:column;gap:14px;align-items:stretch}
+.c3-summary{min-width:0;width:100%}
+.c3-summary-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 4px}
+.c3-summary-title{margin:0;font-size:13px;font-weight:600;color:var(--text2)}
 /* ===== §7.2 Tables (.ds-table) — the one table style ===== */
 :root{--ds-row-h:40px;--ds-head-h:40px;--ds-cell-fs:12px;--ds-cell-lh:20px;--ds-rule-w:1px;
   --ds-head-rule:rgba(255,255,255,.38);--ds-head-rule-hi:rgba(255,255,255,.7);--ds-sbw:0px}
@@ -395,6 +446,30 @@ details summary{cursor:pointer;font-size:13px;color:var(--accent);margin:6px 0}
 .vheadtab thead th.ds-pinned{position:sticky;z-index:4}
 .th-wrap{display:flex;align-items:center;min-width:0}
 .lb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ===== C2 Submission Flow & Delay (workplan D6 / D9 / D40) ===== */
+.c2-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 10px}
+.c2-controls .controls-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.c2-controls .controls-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
+.c2-svg{display:block}
+.c2-stack{position:relative;min-width:0;overflow-x:auto}
+.c2-leg-t{fill:var(--text);font-size:11px}
+.c2-tip{position:absolute;pointer-events:none;background:rgba(21,49,79,.95);color:#fff;
+  font-size:12px;line-height:1.5;padding:8px 10px;border-radius:6px;min-width:150px;
+  box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:5}
+.c2-tip[hidden]{display:none}
+.c2-tip-row{display:flex;justify-content:space-between;gap:12px}
+.c2-swatch{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.c2-ftab{width:auto;border-collapse:collapse;margin-top:10px;font-size:13px}
+.c2-ftab th,.c2-ftab td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--border)}
+.c2-ftab th:first-child,.c2-ftab td:first-child{text-align:left}
+.c2-ftab thead th{color:var(--text);font-weight:600;border-bottom:2px solid var(--border)}
+.c2-ftab tbody tr.tot td{font-weight:700;border-top:2px solid var(--border)}
+.c2-funnel-row{display:flex;align-items:flex-start;gap:28px}
+.c2-ftab-wrap{flex:0 1 auto;min-width:0}
+.c2-funnel-wrap{flex:0 0 auto;display:flex;flex-direction:column;width:350px;min-height:420px;margin-left:auto}
+.c2-funnel-svg{display:block;width:350px;height:420px}
+.c2-funnel-lab{fill:var(--text);font-size:12px;font-weight:700}
+.c2-funnel-val{fill:var(--text);font-size:12px}
   </style>
   <script type="application/json" id="pipeline-contract">
 {
@@ -1153,7 +1228,6 @@ function parseSubmittals(logContract, mdlContract, formulaErrors, asOfDate, sour
   const { sheet, columns } = logContract;
   const records = [];
   const issues = [];
-  let currentDiscipline = '';
   const mapped = new Map();
   for (const [field, column] of columns) mapped.set(field, column.index);
   const end = sheet.maxRow || 1;
@@ -1180,7 +1254,6 @@ function parseSubmittals(logContract, mdlContract, formulaErrors, asOfDate, sour
     const docRaw = cellAt(row, mapped.get('Document No.'));
     const subject = String(cellAt(row, mapped.get('Prolog Subject')) ?? '').trim();
     if (isBlank(snoRaw) && isBlank(docRaw) && knownDisciplines.has(subject)) {
-      currentDiscipline = subject;
       continue;
     }
     const hasRowIdentity = !isBlank(snoRaw) || !isBlank(docRaw);
@@ -1201,7 +1274,7 @@ function parseSubmittals(logContract, mdlContract, formulaErrors, asOfDate, sour
       sheet: 'SubmittalLog',
       row: rowNumber,
       documentNo: isBlank(docValue) ? null : String(docValue).trim(),
-      discipline: currentDiscipline,
+      discipline: '',
       fields,
       formulaErrorFields,
       submissionDate: fields['Submission Date'] || null,
@@ -1335,12 +1408,15 @@ function buildModel(mdlWorkbook, logWorkbook, options = {}) {
     const matches = record.documentNo ? plannedByDocument.get(linkKey(record.documentNo)) || [] : [];
     if (!matches.length) {
       record.linkStatus = 'orphan';
+      record.discipline = 'Unknown';
       issues.push(codeIssue('V-29', record, allErrors, { source: record.source, field: 'Document No.', value: record.documentNo }));
     } else if (matches.length > 1) {
       record.linkStatus = 'ambiguous';
+      record.discipline = matches[0].discipline;
     } else {
       record.linkStatus = 'matched';
       record.linkedPlannedId = matches[0].id;
+      record.discipline = matches[0].discipline;
     }
     return record;
   }));
@@ -1417,6 +1493,7 @@ function buildModel(mdlWorkbook, logWorkbook, options = {}) {
 }
 
 /* ===== engine/render.js ===== */
+// Revision 0.4 | 2026-10-26 | CodeBuddy (AI) | T15.3 (Wave 4.2): split the C3 Breakdown into two side-by-side vertical-bar charts — left Submissions (First Submission, Resubmission, Under Review via D38), right Approval Status — replacing the single horizontal-bar / concentric-ring component. Under Review (D38) deducts First Submission and Resubmission in the as-of month.
 // Revision 0.3 | 2026-10-25 | CodeBuddy (AI) | Added the C3 Breakdown panel (workplan D36). `deriveView` returns `c3`: one classified row per active submission (`isNew`, `seq`, `submissionStatus`, `actualReturnDate`), the month list, and `planCount(dimKey, dimVal, month)` which tallies Master Document List rows for Total Plan. `renderDashboard` draws two series per dimension value — Submissions (New + Resubmission) and Approval Status (the five codes) — as horizontal bars or two concentric rings inside a §4.2 component board, then renders the summary table in the shared `.ds-table` style with a Total footer row. `table()` gained an optional `footer` argument; callers that pass nothing are unchanged.
 // Revision 0.2 | 2026-10-24 | CodeBuddy (AI) | D33: a blank Stage is counted as a planned document and a row without a Document No. is not. Exported EXCLUDED_STAGES for dashboard.js.
 // Revision 0.1 | 2026-10-24 | Codex | Added S4 view derivation and dashboard rendering.
@@ -1427,7 +1504,7 @@ const APPROVAL_CODES = ['APP', 'AWC', 'NAP', 'REJ', 'INF'];
 
 /** Build the shared filtered set and all dashboard measures. @param {object} model @param {object} state @returns {object} */
 function deriveView(model, state = {}) {
-  const disciplines = state.disciplines instanceof Set ? state.disciplines : new Set(model.planned.map(row => row.discipline).filter(Boolean));
+  const disciplines = state.disciplines instanceof Set ? state.disciplines : new Set([...model.planned.map(row => row.discipline).filter(Boolean), 'Unknown']);
   // A blank Stage is missing data, not an excluded stage. It stays in the default set so those
   // planned rows are counted, the same way MDL counts them (and flags them with V-02).
   const stages = state.stages instanceof Set ? state.stages : new Set(model.planned.map(row => row.stage ?? '').filter(value => !EXCLUDED_STAGES.has(value)));
@@ -1499,6 +1576,65 @@ function deriveView(model, state = {}) {
     byMonth.set(row.month, item);
   }
   const monthly = [...byMonth.values()].sort((a, b) => a.month.localeCompare(b.month));
+  // ===== C2 Submission Flow & Delay (workplan D6 / D9 / D40) =====
+  // Counting rule: band height = count of SUBMISSION RECORDS (rows) in that month, grouped by status.
+  // Per month only — not cumulative, not distinct Document No. (distinct-doc counting is the KPI cards'
+  // job, D32/D34). NFS is the only MDL-sourced band: it counts planned documents not yet submitted,
+  // attributed to their Planned 1st Issue Date month. It is computed from the plan, NOT read from the
+  // log's cached NFS array-formula column (issue I029).
+  const c2ByMonth = new Map();
+  for (const item of monthly) {
+    const status = { ...item.status };
+    delete status.NFS; // NFS is the planned-sourced band below, never the log's cached code
+    c2ByMonth.set(item.month.slice(0, 7), { status, delay: item.delay, nfs: 0 });
+  }
+  let nfsUnscheduled = 0;
+  for (const plan of activePlans) {
+    if (plan.isSubmitted) continue;
+    const d = plan.fields && plan.fields['Planned 1st Issue Date'];
+    const ym = (typeof d === 'string' && /^\d{4}-\d{2}/.test(d)) ? d.slice(0, 7) : '';
+    if (ym) { const e = c2ByMonth.get(ym) || { status: {}, delay: [], nfs: 0 }; e.nfs += 1; c2ByMonth.set(ym, e); }
+    else nfsUnscheduled += 1;
+  }
+  const c2Months = [...c2ByMonth.keys()].sort();
+  const c2 = {
+    months: c2Months,
+    data: c2Months.map(ym => c2ByMonth.get(ym)),
+    nfsUnscheduled,
+    // C2 Funnel (owner rules, 2026-10-28, reference sub/ref funnel sample):
+    //  - Planned Deliverables: MDL planned rows (D11 — each row is one planned document, repeated
+    //    numbers stay separate, dated or not). Row-level, consistent with C3 Total Plan.
+    //  - Submitted for Review: distinct Document No. that have >=1 submission row (D34).
+    //  - Under Review: latest submission SUR and no Actual Return Date (D34 guard kept).
+    //  - AWC / Approved: split by the document's FIRST approval (earliest row that carries an approval
+    //    code). AWC = first code is AWC; Approved = first code is APP. Disjoint, and distinct from KPI 4
+    //    (any-row APP/AWC). Uses the C3 All-months first-approval rule.
+    //  - byDisc: the same five measures split by Discipline, for the funnel's per-discipline table.
+    funnel: (() => {
+      const planned = activePlans.length;
+      const submitted = documentGroups.length;
+      const inReview = underReview;
+      const firstApprovalCode = g => { const f = g.find(r => APPROVAL_CODES.includes(r.approvalStatus)); return f ? f.approvalStatus : null; };
+      const approved = documentGroups.filter(g => firstApprovalCode(g) === 'APP').length;
+      const awc = documentGroups.filter(g => firstApprovalCode(g) === 'AWC').length;
+      const discMap = new Map();
+      const bump = (k, fld) => { const e = discMap.get(k) || { planned: 0, submitted: 0, inReview: 0, awc: 0, approved: 0 }; e[fld]++; discMap.set(k, e); };
+      for (const p of activePlans) bump(p.discipline || 'Unknown', 'planned');
+      for (const g of documentGroups) {
+        const d = g[0].discipline || 'Unknown';
+        bump(d, 'submitted');
+        const latest = g[g.length - 1];
+        if (latest.submissionStatus === 'SUR' && !latest.actualReturnDate) bump(d, 'inReview');
+        const st = firstApprovalCode(g);
+        if (st === 'AWC') bump(d, 'awc');
+        else if (st === 'APP') bump(d, 'approved');
+      }
+      const byDisc = [...discMap.entries()]
+        .map(([k, v]) => ({ discipline: k, ...v }))
+        .sort((a, b) => a.discipline === 'Unknown' ? 1 : b.discipline === 'Unknown' ? -1 : a.discipline.localeCompare(b.discipline));
+      return { planned, submitted, inReview, awc, approved, byDisc };
+    })()
+  };
   // ===== C1 Schedule Performance (S-Curve) — workplan D35 =====
   const c1 = (() => {
     const validDate = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v);
@@ -1577,7 +1713,9 @@ function deriveView(model, state = {}) {
     // Total Plan reads the Master Document List. It carries no submitter column, so a plan row can
     // reach a submitter only through the submission rows linked to it; unlinked rows cannot be
     // attributed and do not appear in the Submitter view. An empty month key holds the rows whose
-    // Planned 1st Issue Date is blank, which All months still counts.
+    // Planned 1st Issue Date is blank; those are unscheduled (like C2 NFS) and are excluded from the
+    // All-months Total Plan. The All-months Total Plan is the cumulative planned 1st issue up to the
+    // as-of month (view.c1.asOf) — business rule, I061.
     const validPlanDate = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value);
     const planTally = new Map();
     const bump = (dimKey, dimVal, planMonth) => {
@@ -1597,10 +1735,11 @@ function deriveView(model, state = {}) {
     const planCount = (dimKey, dimVal, month) => {
       const byMonth = planTally.get(dimKey)?.get(dimVal);
       if (!byMonth) return 0;
-      if (month !== 'ALL') return byMonth.get(month) || 0;
-      // All months spans every planned month plus the rows whose Planned 1st Issue Date is blank.
+      if (month !== 'ALL') return byMonth.get(month) || 0;   // a specific month counts only its own planned 1st issue
+      const c3AsOf = String((model.meta && model.meta.asOfDate) || '').slice(0, 7);  // as-of month from model meta (matches view.c1.asOf)
+      if (!c3AsOf) return 0;                                  // no as-of boundary → no bounded plan
       let total = 0;
-      for (const value of byMonth.values()) total += value;
+      for (const [ym, value] of byMonth) if (ym && ym <= c3AsOf) total += value;  // up to as-of; exclude blank-month plans
       return total;
     };
     return { months, rows, planCount };
@@ -1610,6 +1749,7 @@ function deriveView(model, state = {}) {
     activePlans,
     issues: issueRows,
     monthly,
+    c2,
     c1,
     c3,
     kpis: {
@@ -1782,83 +1922,196 @@ function renderDashboard(doc, model, state = {}) {
     return `<div class="scurve sc-board" data-points='${dp}' data-geo='${dg}'>${P.join('')}<div class="scurve-tip" hidden></div></div>`;
   };
   const schedulePerformance = (c1, st) => `${c1Controls(c1, st)}${scurveSVG(c1, st)}`;
-  // ===== C3 Breakdown (workplan D36) =====
-  // Two series per dimension value, never one stacked bar: Submissions splits into New +
-  // Resubmission and Approval Status splits into the five codes, because the two come from
-  // different log columns and can overlap. A specific month counts rows; All months counts New
-  // per Document No., Resubmission per record, and each document's first approval once.
+  // ===== C3 Breakdown (workplan D36, revised by D38 / Wave 4.2) =====
+  // Two series per dimension value, never one stacked bar. T15.3 splits the panel into two side-by-side
+  // vertical-bar charts: left = Submissions (First Submission + Resubmission; a specific month also adds
+  // Under Review); right = Approval Status (the five codes; All months also adds SUR). Under Review (D38)
+  // deducts First Submission and Resubmission in the as-of month, so a new submission that is also under
+  // review is not double-counted. A specific month is row-level (ignores history); All months is per
+  // Document No. (Option A: First Submission = documents with no resubmission, Resubmission = documents
+  // with >=1 resubmission; Approval Status uses the first approval; SUR = open docs shown in the Approval
+  // ring). Rows with a blank Document No. are excluded everywhere.
   const C3_FILL = { APP: 'c3-app', AWC: 'c3-awc', NAP: 'c3-nap', REJ: 'c3-rej', INF: 'c3-inf' };
   const c3HasApproval = row => APPROVAL_CODES.includes(row.approvalStatus);
   const clipText = (value, max) => { const text = String(value ?? ''); return text.length > max ? `${text.slice(0, max - 1)}…` : text; };
   const c3RowsFor = month => month === 'ALL' ? view.c3.rows : view.c3.rows.filter(row => row.month === month);
-  const c3ValuesFor = (dimKey, month) => {
-    const counts = new Map();
-    for (const row of c3RowsFor(month)) counts.set(row[dimKey], (counts.get(row[dimKey]) || 0) + 1);
-    return [...counts.keys()].sort((a, b) => (counts.get(b) - counts.get(a)) || String(a).localeCompare(String(b)));
-  };
+  // Full dimension universes (2026-10-27 study): the breakdown shows every MDL discipline and every
+  // known submitter even when a month has zero of them (Q1, Q3). Categories no longer depend on the
+  // selected month — a month with no submissions for a discipline still lists that discipline (empty bar).
+  const c3DisciplineUniverse = [...new Set(model.planned.map(r => r.discipline).filter(Boolean)), 'Unknown']
+    .sort((a, b) => String(a).localeCompare(String(b)));
+  const c3SubmitterUniverse = [...new Set(model.submissions.map(r => String(r.fields['Submitted By'] || 'Unknown').trim()).filter(Boolean))]
+    .sort((a, b) => String(a).localeCompare(String(b)));
+  const c3ValuesFor = (dimKey, month) => dimKey === 'submitter' ? [...c3SubmitterUniverse] : [...c3DisciplineUniverse];
   const c3Metrics = (dimKey, dimVal, month) => {
-    const recs = c3RowsFor(month).filter(row => row[dimKey] === dimVal);
+    const all = month === 'ALL';
+    const recs = c3RowsFor(month).filter(row => row[dimKey] === dimVal && row.doc);
+    const byDoc = new Map();
+    for (const row of recs) { const group = byDoc.get(row.doc) || []; group.push(row); byDoc.set(row.doc, group); }
     let newCount = 0, resubCount = 0;
-    const appr = { APP: 0, AWC: 0, NAP: 0, REJ: 0, INF: 0 };
-    if (month === 'ALL') {
-      // All months is per Document No.: one New per document and one approval per document (its
-      // first approval); every later row counts per record, so a document resubmitted twice counts two.
-      const byDoc = new Map();
-      for (const row of recs) {
-        // A blank Document No. cannot be attributed to a document, so it is never a first submission.
-        if (!row.doc) { resubCount++; if (c3HasApproval(row)) appr[row.approvalStatus]++; continue; }
-        const group = byDoc.get(row.doc) || []; group.push(row); byDoc.set(row.doc, group);
-      }
-      newCount = byDoc.size;
+    const appr = { APP: 0, AWC: 0, NAP: 0, REJ: 0, INF: 0, SUR: 0 };
+    if (all) {
+      // All months: per Document No. (Option A) — each document counted once.
       for (const group of byDoc.values()) {
-        resubCount += group.length - 1;
-        const first = [...group].sort((a, b) => a.seq - b.seq).find(c3HasApproval);
-        if (first) appr[first.approvalStatus]++;
+        const sorted = [...group].sort((a, b) => a.seq - b.seq);
+        const hasResub = sorted.length > 1;
+        if (hasResub) resubCount++; else newCount++;
+        const latest = sorted[sorted.length - 1];
+        if (c3IsReview(latest)) appr.SUR++;
+        else { const first = sorted.find(c3HasApproval); if (first && appr[first.approvalStatus] !== undefined) appr[first.approvalStatus]++; }
       }
     } else {
-      // A specific month is row-level: every row in that month counts by its own status. A document
-      // approved in an earlier month and approved again here counts an approval in both months.
+      // A specific month: row-level activity (R2) — ignores history.
       for (const row of recs) {
         if (row.isNew) newCount++; else resubCount++;
-        if (c3HasApproval(row)) appr[row.approvalStatus]++;
+        if (c3HasApproval(row) && appr[row.approvalStatus] !== undefined) appr[row.approvalStatus]++;
       }
     }
     return { dimVal, submitted: recs.length, newCount, resubCount, appr };
   };
   const c3Totals = metrics => {
-    const totals = { New: 0, Resubmission: 0, APP: 0, AWC: 0, NAP: 0, REJ: 0, INF: 0 };
-    for (const item of metrics) { totals.New += item.newCount; totals.Resubmission += item.resubCount; for (const code of APPROVAL_CODES) totals[code] += item.appr[code]; }
+    const totals = { New: 0, Resubmission: 0, APP: 0, AWC: 0, NAP: 0, REJ: 0, INF: 0, SUR: 0 };
+    for (const item of metrics) {
+      totals.New += item.newCount;
+      totals.Resubmission += item.resubCount;
+      for (const code of ['APP', 'AWC', 'NAP', 'REJ', 'INF', 'SUR']) totals[code] += (item.appr[code] || 0);
+    }
     return totals;
   };
-  const c3Legend = (metrics, month, y1, y2) => {
+  const c3Legend = (metrics, month, y1, y2, all, ur, total) => {
     const totals = c3Totals(metrics);
-    const total = totals.New + totals.Resubmission;
     // Percentages are a share of one whole only when every month is selected; a single month shows counts.
     const pct = value => (month === 'ALL' && total ? ` (${Math.round(value / total * 100)}%)` : '');
     const swatch = (x, y, item) => `<g transform="translate(${x},${y})"><rect class="${item.cls}" x="0" y="-8" width="12" height="12" rx="2"></rect><text class="c3-leg-t" x="16" y="2">${esc(item.label)} ${item.value}${pct(item.value)}</text></g>`;
     let out = `<text class="c3-cap" x="8" y="${y1}">Submissions</text><text class="c3-cap" x="8" y="${y2}">Approval Status</text>`;
     let x = 104;
-    for (const item of [{ cls: 'c3-new', label: 'New', value: totals.New }, { cls: 'c3-resub', label: 'Resubmission', value: totals.Resubmission }]) { out += swatch(x, y1, item); x += 160; }
+    const subItems = all
+      ? [{ cls: 'c3-new', label: 'First Submission', value: totals.New }, { cls: 'c3-resub', label: 'Resubmission', value: totals.Resubmission }]
+      : [{ cls: 'c3-new', label: 'First Submission', value: totals.New }, { cls: 'c3-resub', label: 'Resubmission', value: totals.Resubmission }, { cls: 'c3-ur', label: 'Under Review', value: ur }];
+    for (const item of subItems) { out += swatch(x, y1, item); x += 170; }
     x = 104;
-    for (const code of APPROVAL_CODES) { out += swatch(x, y2, { cls: C3_FILL[code], label: code, value: totals[code] }); x += 120; }
+    const apprItems = all
+      ? [...APPROVAL_CODES, 'SUR'].map(code => ({ cls: code === 'SUR' ? 'c3-ur' : C3_FILL[code], label: code, value: totals[code] }))
+      : APPROVAL_CODES.map(code => ({ cls: C3_FILL[code], label: code, value: totals[code] }));
+    for (const item of apprItems) { out += swatch(x, y2, item); x += 120; }
     return out;
   };
-  const c3Controls = (c3, st) => {
+  // Wave 4.2 (Option 2) — the C3 Breakdown splits into two bordered cards (Submissions, Approval
+  // Status). A shared panel control cluster (Month + Break-down-by, hidden in Pie view) sits above the
+  // cards and drives both; Break-down-by is hidden in Pie view. Each card draws a STACKED bar chart inside
+  // one aligned CSS grid (bars + vertical axis labels + an attached data table, 2026-10-27 study) so every
+  // column lines up; the full MDL discipline / submitter list is shown even when a month is zero. The Pie
+  // view renders the same two cards (Submissions, Approval Status), each its own donut — the old
+  // consolidated two-ring card is gone.
+  const c3MonthOptions = (c3, st) => {
     const month = st.c3Month || 'ALL';
-    const dim = st.c3Dim === 'submitter' ? 'submitter' : 'discipline';
-    const mode = st.c3View === 'pie' ? 'pie' : 'bar';
-    const options = [`<option value="ALL"${month === 'ALL' ? ' selected' : ''}>All months</option>`]
+    return [`<option value="ALL"${month === 'ALL' ? ' selected' : ''}>All months</option>`]
       .concat(c3.months.map(value => `<option value="${esc(value)}"${month === value ? ' selected' : ''}>${esc(fmtMonth(value))}</option>`)).join('');
-    const segDim = key => `<button class="seg-btn${dim === key ? ' active' : ''}" data-c3dim="${key}">${key === 'discipline' ? 'Discipline' : 'Submitter'}</button>`;
-    const segView = key => `<button class="seg-btn${mode === key ? ' active' : ''}" data-c3view="${key}">${key === 'bar' ? 'Bar' : 'Pie'}</button>`;
-    return `<div class="c3-controls">
-      <div class="controls-left"><label class="c3-month-wrap">Month <select data-c3month aria-label="C3 month">${options}</select></label></div>
-      <div class="controls-right">
-        <div class="seg" role="group" aria-label="Break down by">${segDim('discipline')}${segDim('submitter')}</div>
-        <div class="seg" role="group" aria-label="Chart view">${segView('bar')}${segView('pie')}</div>
-        <button class="btn-secondary" data-c3png>⤓ PNG</button>
-        <button class="btn-secondary" data-c3copy>⧉ Copy</button>
-      </div>
+  };
+  const c3DimSeg = st => {
+    const dim = st.c3Dim === 'submitter' ? 'submitter' : 'discipline';
+    const seg = key => `<button class="seg-btn${dim === key ? ' active' : ''}" data-c3dim="${key}">${key === 'discipline' ? 'Discipline' : 'Submitter'}</button>`;
+    return `<div class="seg" role="group" aria-label="Break down by">${seg('discipline')}${seg('submitter')}</div>`;
+  };
+  const c3ViewSeg = st => {
+    const mode = st.c3View === 'pie' ? 'pie' : 'bar';
+    const seg = key => `<button class="seg-btn${mode === key ? ' active' : ''}" data-c3view="${key}">${key === 'bar' ? 'Bar' : 'Pie'}</button>`;
+    return `<div class="seg" role="group" aria-label="Chart view">${seg('bar')}${seg('pie')}</div>`;
+  };
+  // Per-card actions only (PNG / Copy). The Month and Break-down-by controls are shared at the panel
+  // level (c3PanelControls) so they are not duplicated per card — the old per-card controls looked
+  // independent but actually wrote the same global state (2026-10-27 study).
+  const c3CardActions = () => `<div class="c3-card-ctrls"><button class="btn-secondary" data-c3png>⤓ PNG</button><button class="btn-secondary" data-c3copy>⧉ Copy</button></div>`;
+  // Shared panel control cluster: Month select + Break-down-by (hidden in Pie view) on the left, the
+  // Bar/Pie view toggle on the right. One set drives both cards.
+  const c3PanelControls = (c3, st) => {
+    const month = `<label class="c3-month-wrap">Month <select data-c3month aria-label="C3 month">${c3MonthOptions(c3, st)}</select></label>`;
+    const dim = st.c3View === 'pie' ? '' : c3DimSeg(st);
+    return `<div class="c3-controls"><div class="controls-left">${month}${dim}</div><div class="controls-right">${c3ViewSeg(st)}</div></div>`;
+  };
+  // One aligned CSS grid per card (2026-10-27 study): column 1 = metric labels, columns 2..N+1 =
+  // dimensions; row 1 = bars, row 2 = vertical axis labels, rows 3+ = the attached data table. This keeps
+  // every bar, label and value in the same column (Q2, Q7). Each card shows its own rows (Q5): Submissions
+  // = Total Plan / First Submission / Resubmission / Under Review; Approval = the codes.
+  const C3_BAR_H = 150;
+  const c3StackedCard = (c3, st, kind) => {
+    const month = st.c3Month || 'ALL';
+    const all = month === 'ALL';
+    const dimKey = st.c3Dim === 'submitter' ? 'submitter' : 'discipline';
+    const values = c3ValuesFor(dimKey, month);
+    if (!values.length) return `<div class="chart c3-card"><p class="empty">No submissions match the current selection.</p></div>`;
+    const asOfM = String(view.c1.asOf || '').slice(0, 7);
+    const title = kind === 'submissions' ? 'Submissions' : 'Approval Status';
+    const barSeries = kind === 'submissions'
+      ? (all ? [{ key: 'new', cls: 'c3-new' }, { key: 'resub', cls: 'c3-resub' }]
+             : [{ key: 'new', cls: 'c3-new' }, { key: 'resub', cls: 'c3-resub' }, { key: 'ur', cls: 'c3-ur' }])
+      : (all ? [...APPROVAL_CODES, 'SUR'].map(code => ({ key: code, cls: code === 'SUR' ? 'c3-ur' : C3_FILL[code] }))
+             : APPROVAL_CODES.map(code => ({ key: code, cls: C3_FILL[code] })));
+    const recs = values.map(val => {
+      const m = c3Metrics(dimKey, val, month);
+      const ur = all ? 0 : c3UnderReviewD38(dimKey, val, month, asOfM);
+      const getBar = key => key === 'ur' ? ur : (kind === 'submissions' ? (key === 'new' ? m.newCount : m.resubCount) : (m.appr[key] || 0));
+      return { val, m, ur, plan: c3.planCount(dimKey, val, month), getBar };
+    });
+    const N = recs.length;
+    const maxVal = Math.max(1, ...recs.map(r => barSeries.reduce((s, sr) => s + Math.max(0, r.getBar(sr.key)), 0)));
+    const niceMax = niceCeil(maxVal); // C1/C2-style nice axis max so the top grid line is a round number (I060)
+    const rows = kind === 'submissions'
+      ? [['Total Plan', r => r.plan], ['First Submission', r => r.m.newCount], ['Resubmission', r => r.m.resubCount], ['Under Review', r => all ? r.m.appr.SUR : r.ur]]
+      : (all ? ['APP', 'AWC', 'NAP', 'REJ', 'INF', 'SUR'] : ['APP', 'AWC', 'NAP', 'REJ', 'INF'])
+          .map(code => [code, r => code === 'SUR' ? r.m.appr.SUR : (r.m.appr[code] || 0)]);
+    let g = '';
+    // y-axis: 5 horizontal grid lines + tick numbers, matching the C1 S-curve and C2 stacked-area panels (I060).
+    // Grid lines span the bar area (cols 2..N+1, row 1); numbers sit right-aligned in the metric-label column
+    // (col 1) so they are flush with the bars and aligned with the table below. Bars are scaled to niceMax.
+    g += `<div class="c3-gridlines" style="grid-column:2 / -1;grid-row:1"></div>`;
+    let ticks = '';
+    for (let t = 0; t <= 4; t++) { const tv = Math.round(niceMax * (4 - t) / 4); ticks += `<span class="g-ytick" style="top:${(t * 25)}%">${tv}</span>`; }
+    g += `<div class="g-yaxis" style="grid-column:1;grid-row:1">${ticks}</div>`;
+    recs.forEach((r, i) => {
+      let segs = '';
+      barSeries.slice().reverse().forEach(sr => {
+        const v = r.getBar(sr.key);
+        if (v > 0) segs += `<div class="seg-bar ${sr.cls}" style="height:${((v / niceMax) * C3_BAR_H).toFixed(1)}px" title="${esc(r.val)} · ${esc(sr.key === 'ur' ? 'Under Review' : sr.key)}: ${v}"></div>`;
+      });
+      g += `<div class="g-bar" style="grid-column:${i + 2};grid-row:1">${segs}</div>`;
+      g += `<div class="g-axis" style="grid-column:${i + 2};grid-row:2" title="${esc(r.val)}">${esc(clipText(r.val, 22))}</div>`;
+    });
+    rows.forEach(([label, fn], j) => {
+      g += `<div class="g-label" style="grid-column:1;grid-row:${j + 3}">${esc(label)}</div>`;
+      recs.forEach((r, i) => { g += `<div class="g-val" style="grid-column:${i + 2};grid-row:${j + 3}">${fn(r)}</div>`; });
+    });
+    const legend = `<div class="c3-legend">${barSeries.map(s => `<span class="c3-leg"><span class="c3-swatch ${s.cls}"></span>${esc(s.key === 'ur' ? 'Under Review' : s.key)}</span>`).join('')}</div>`;
+    return `<div class="chart c3-card">
+      <div class="c3-card-head"><h3 class="c3-card-title">${title}</h3>${c3CardActions()}</div>
+      <div class="c3-card-body"><div class="c3-grid" style="grid-template-columns:104px repeat(${N},minmax(0,1fr))">${g}</div>${legend}</div>
+    </div>`;
+  };
+  const c3PieCard = (c3, st, kind) => {
+    const month = st.c3Month || 'ALL';
+    const all = month === 'ALL';
+    const dimKey = 'discipline'; // each pie is a full-set split (T15.4 / I050); Break-down-by is hidden in Pie view
+    const values = c3ValuesFor(dimKey, month);
+    if (!values.length) return `<div class="chart c3-card"><p class="empty">No submissions match the current selection.</p></div>`;
+    const asOfM = String(view.c1.asOf || '').slice(0, 7);
+    const metrics = values.map(value => ({ m: c3Metrics(dimKey, value, month), ur: all ? 0 : c3UnderReviewD38(dimKey, value, month, asOfM) }));
+    const totals = c3Totals(metrics.map(x => x.m));
+    const urTotal = metrics.reduce((s, x) => s + x.ur, 0);
+    const segs = kind === 'submissions'
+      ? (all
+          ? [{ cls: 'c3-new', label: 'First Submission', value: totals.New }, { cls: 'c3-resub', label: 'Resubmission', value: totals.Resubmission }]
+          : [{ cls: 'c3-new', label: 'First Submission', value: totals.New }, { cls: 'c3-resub', label: 'Resubmission', value: totals.Resubmission }, { cls: 'c3-ur', label: 'Under Review', value: urTotal }])
+      : (all
+          ? [...APPROVAL_CODES, 'SUR'].map(code => ({ cls: code === 'SUR' ? 'c3-ur' : C3_FILL[code], label: code, value: totals[code] }))
+          : APPROVAL_CODES.map(code => ({ cls: C3_FILL[code], label: code, value: totals[code] })));
+    const title = kind === 'submissions' ? 'Submissions' : 'Approval Status';
+    const total = segs.reduce((s, x) => s + x.value, 0);
+    if (!total) return `<div class="chart c3-card"><p class="empty">No submissions match the current selection.</p></div>`;
+    const svg = c3SingleDonut(segs, title, all ? 'DOCUMENTS' : 'SUBMITTED', total);
+    const leg = `<div class="c3-legend">${segs.filter(s => s.value).map(s => `<span class="c3-leg"><span class="c3-swatch ${s.cls}"></span>${esc(s.label)}</span>`).join('')}</div>`;
+    return `<div class="chart c3-card">
+      <div class="c3-card-head"><h3 class="c3-card-title">${title}</h3>${c3CardActions()}</div>
+      ${svg}${leg}
     </div>`;
   };
   const c3Segments = (x, y, width, height, segs, max) => {
@@ -1872,69 +2125,35 @@ function renderDashboard(doc, model, state = {}) {
     }
     return out;
   };
-  const c3BarSVG = st => {
-    const month = st.c3Month || 'ALL';
-    const dimKey = st.c3Dim === 'submitter' ? 'submitter' : 'discipline';
-    const dimLabel = dimKey === 'submitter' ? 'Submitter' : 'Discipline';
-    const values = c3ValuesFor(dimKey, month);
-    if (!values.length) return '<p class="empty">No submissions match the current selection.</p>';
-    const metrics = values.map(value => c3Metrics(dimKey, value, month));
-    const maxBar = Math.max(1, ...metrics.map(item => item.newCount + item.resubCount));
-    const W = 720, labelW = 116, capW = 70, valW = 52, top = 10, rowH = 36, barH = 12, gap = 4, legendH = 46;
-    const plotX = labelW + capW, plotW = W - plotX - valW;
-    const H = top + metrics.length * rowH + legendH;
-    const P = [`<svg class="c3-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%" role="img" aria-label="${esc(dimLabel)} submissions and approval status">`];
-    metrics.forEach((item, index) => {
-      const y = top + index * rowH;
-      P.push(`<text class="c3-label" x="${labelW - 8}" y="${y + 20}" text-anchor="end">${esc(clipText(item.dimVal, 18))}<title>${esc(item.dimVal)}</title></text>`);
-      P.push(`<text class="c3-cap" x="${plotX - 8}" y="${y + 10}" text-anchor="end">Submissions</text>`);
-      P.push(`<text class="c3-cap" x="${plotX - 8}" y="${y + 26}" text-anchor="end">Approval</text>`);
-      P.push(c3Segments(plotX, y, plotW, barH, [{ cls: 'c3-new', label: 'New', value: item.newCount }, { cls: 'c3-resub', label: 'Resubmission', value: item.resubCount }], maxBar));
-      P.push(c3Segments(plotX, y + barH + gap, plotW, barH, APPROVAL_CODES.map(code => ({ cls: C3_FILL[code], label: code, value: item.appr[code] })), maxBar));
-      P.push(`<text class="c3-val" x="${W - 8}" y="${y + 20}" text-anchor="end">${item.submitted}</text>`);
-    });
-    const legendY = H - legendH + 22;
-    P.push(c3Legend(metrics, month, legendY, legendY + 18));
-    P.push('</svg>');
-    return P.join('');
-  };
-  const c3PieSVG = st => {
-    const month = st.c3Month || 'ALL';
-    const dimKey = st.c3Dim === 'submitter' ? 'submitter' : 'discipline';
-    const values = c3ValuesFor(dimKey, month);
-    if (!values.length) return '<p class="empty">No submissions match the current selection.</p>';
-    const metrics = values.map(value => c3Metrics(dimKey, value, month));
-    const totals = c3Totals(metrics);
-    const total = totals.New + totals.Resubmission;
-    if (!total) return '<p class="empty">No submissions match the current selection.</p>';
-    const W = 720, H = 320, cx = 150, cy = 150;
-    const ring = (r, sw, segs) => {
-      let frac = 0; let out = '';
-      for (const seg of segs) {
-        if (!seg.value) continue;
-        const f0 = frac, f1 = frac + seg.value / total; frac = f1;
-        const a0 = -Math.PI / 2 + f0 * 2 * Math.PI, a1 = -Math.PI / 2 + f1 * 2 * Math.PI;
-        const x0 = (cx + r * Math.cos(a0)).toFixed(2), y0 = (cy + r * Math.sin(a0)).toFixed(2);
-        const x1 = (cx + r * Math.cos(a1)).toFixed(2), y1 = (cy + r * Math.sin(a1)).toFixed(2);
-        const large = f1 - f0 > 0.5 ? 1 : 0;
-        out += `<path class="${seg.cls}-arc" d="M${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1}" fill="none" stroke-width="${sw}"><title>${esc(seg.label)}: ${seg.value}</title></path>`;
-      }
-      return out;
-    };
-    const outer = ring(96, 26, [{ cls: 'c3-new', label: 'New', value: totals.New }, { cls: 'c3-resub', label: 'Resubmission', value: totals.Resubmission }]);
-    const inner = ring(56, 26, APPROVAL_CODES.map(code => ({ cls: C3_FILL[code], label: code, value: totals[code] })));
-    const P = [`<svg class="c3-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%" role="img" aria-label="Submissions and approval status">`];
-    P.push(outer);
-    P.push(inner);
+  // Stacked-bar rendering for the two C3 cards (c3StackedCard) uses one aligned CSS grid per card
+  // (bars + axis labels + attached table, 2026-10-27 study). The Pie view uses c3PieCard(kind) +
+  // c3SingleDonut. The former grouped-bar helper (c3VBar / c3BarSVG), the SVG c3StackedBar, and the
+  // consolidated two-ring c3PieSVG were removed in the Wave 4.2 split / 2026-10-27 study.
+  // One donut ring for a single C3 pie card (Submissions or Approval Status). The former consolidated
+  // two-ring c3PieSVG is removed: each card now shows its own donut (2026-10-27 study).
+  const c3SingleDonut = (segs, title, sub, total) => {
+    const W = 320, H = 300, cx = 160, cy = 150, r = 96, sw = 30;
+    const denom = Math.max(1, total);
+    const P = [`<svg class="c3-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%" role="img" aria-label="${esc(title)}">`];
+    P.push(`<circle class="c3-track-bg" cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke-width="${sw}"></circle>`);
+    let frac = 0;
+    for (const seg of segs) {
+      if (!seg.value) continue;
+      const f0 = frac, f1 = frac + seg.value / denom; frac = f1;
+      const a0 = -Math.PI / 2 + f0 * 2 * Math.PI, a1 = -Math.PI / 2 + f1 * 2 * Math.PI;
+      const x0 = (cx + r * Math.cos(a0)).toFixed(2), y0 = (cy + r * Math.sin(a0)).toFixed(2);
+      const x1 = (cx + r * Math.cos(a1)).toFixed(2), y1 = (cy + r * Math.sin(a1)).toFixed(2);
+      const large = f1 - f0 > 0.5 ? 1 : 0;
+      P.push(`<path class="${seg.cls}-arc" d="M${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1}" fill="none" stroke-width="${sw}"><title>${esc(seg.label)}: ${seg.value}</title></path>`);
+    }
     P.push(`<text class="c3-total" x="${cx}" y="${cy}" text-anchor="middle" font-size="22" font-weight="700">${total}</text>`);
-    P.push(`<text class="c3-sub" x="${cx}" y="${cy + 16}" text-anchor="middle" font-size="9">SUBMITTED</text>`);
-    P.push(`<text class="c3-sub" x="${cx}" y="${cy + 30}" text-anchor="middle" font-size="9">New ${totals.New} · Resub ${totals.Resubmission}</text>`);
-    P.push(c3Legend(metrics, month, 286, 304));
+    P.push(`<text class="c3-sub" x="${cx}" y="${cy + 16}" text-anchor="middle" font-size="9">${esc(sub)}</text>`);
     P.push('</svg>');
     return P.join('');
   };
-  // §4.2 — one board around the whole chart component; the panel keeps the card border.
-  const c3Component = (c3, st) => `<div class="c3-board">${st.c3View === 'pie' ? c3PieSVG(st) : c3BarSVG(st)}</div>`;
+  // §4.2 — the Bar view splits into two bordered cards (c3StackedCard); the Pie view renders the same
+  // two cards (c3PieCard by kind) as donuts (the former single two-ring card is removed). The former
+  // single-board wrapper (c3Component) was removed in the Wave 4.2 split.
   // Total Under Review follows D34: a row is open when it is SUR with no Actual Return Date. A
   // specific month reads every row of that month; All months reads each document's latest row,
   // because a resubmission supersedes the row before it.
@@ -1944,8 +2163,8 @@ function renderDashboard(doc, model, state = {}) {
     if (month !== 'ALL') return recs.filter(c3IsReview).length;
     const byDoc = new Map(); let count = 0;
     for (const row of recs) {
-      // A blank Document No. is not a document, so each such row stands alone.
-      if (!row.doc) { if (c3IsReview(row)) count++; continue; }
+      // A blank Document No. is not a document, so it is excluded from the open-review count.
+      if (!row.doc) continue;
       const group = byDoc.get(row.doc) || []; group.push(row); byDoc.set(row.doc, group);
     }
     for (const group of byDoc.values()) {
@@ -1954,6 +2173,19 @@ function renderDashboard(doc, model, state = {}) {
     }
     return count;
   };
+  // D38 (Wave 4.2) — Under Review starts from every SUR row up to and INCLUDING the as-of month
+  // (the backlog up to as-of, not only before it), then deducts First Submission and Resubmission rows
+  // that fall in the as-of ("this") month, so a new submission that is also a SUR row is attributed to
+  // First Submission / Resubmission, not to Under Review. Row-level, not document-level.
+  const c3UnderReviewD38 = (dimKey, dimVal, month, asOfM) => {
+    const scope = month === 'ALL' ? asOfM : month;
+    if (!scope) return c3UnderReview(dimKey, dimVal, month);
+    const recs = view.c3.rows.filter(row => row[dimKey] === dimVal && row.month <= scope && row.doc);
+    const base = recs.filter(row => row.submissionStatus === 'SUR').length;
+    const dedFirst = recs.filter(row => row.isNew && row.month === scope).length;
+    const dedResub = recs.filter(row => !row.isNew && row.month === scope).length;
+    return Math.max(0, base - dedFirst - dedResub);
+  };
   // §7.2 — the shared .ds-table, one row per dimension value plus a Total footer row.
   const C3_TABLE_HEADERS = ['Total Plan', 'New Submissions', 'Resubmissions', 'Total Submitted', 'Total Approved', 'Total AWC', 'Total Under Review'];
   const c3Table = (c3, st) => {
@@ -1961,23 +2193,155 @@ function renderDashboard(doc, model, state = {}) {
     const dimKey = st.c3Dim === 'submitter' ? 'submitter' : 'discipline';
     const values = c3ValuesFor(dimKey, month);
     if (!values.length) return '<div class="c3-summary"><p class="empty">No rows match the current selection.</p></div>';
+    const asOfM = String(view.c1.asOf || '').slice(0, 7);
     const rows = values.map(value => {
       const m = c3Metrics(dimKey, value, month);
-      return [value, c3.planCount(dimKey, value, month), m.newCount, m.resubCount, m.submitted, m.appr.APP, m.appr.AWC, c3UnderReview(dimKey, value, month)];
+      const ur = month === 'ALL' ? m.appr.SUR : c3UnderReviewD38(dimKey, value, month, asOfM);
+      const tot = month === 'ALL' ? m.newCount + m.resubCount : m.submitted;
+      return [value, c3.planCount(dimKey, value, month), m.newCount, m.resubCount, tot, m.appr.APP, m.appr.AWC, ur];
     });
     const footer = ['Total'];
     for (let col = 1; col <= C3_TABLE_HEADERS.length; col++) footer.push(rows.reduce((sum, row) => sum + row[col], 0));
     const headers = [dimKey === 'submitter' ? 'Submitter' : 'Discipline', ...C3_TABLE_HEADERS];
-    return `<div class="c3-summary">${table(headers, rows, null, footer)}</div>`;
+    return `<div class="c3-summary"><div class="c3-summary-head"><h3 class="c3-summary-title">Breakdown Summary</h3><button class="btn-secondary" data-c3export title="Download the breakdown table as CSV">⤓ Download</button></div>${table(headers, rows, null, footer)}</div>`;
   };
-  // §4.2 — the chart carries the shape and the table the exact numbers, so they sit side by side
-  // and share one view; stacking them hid the table below the fold.
-  const breakdown = (c3, st) => `${c3Controls(c3, st)}<div class="c3-body">${c3Component(c3, st)}${c3Table(c3, st)}</div>`;
+  // §4.2 — the chart carries the shape and the table the exact numbers. T15.5 stacks them: the
+  // table sits below the chart cards at full panel width. Wave 4.2 (Option 2) splits the panel into two
+  // bordered cards (Submissions, Approval Status); a shared panel control cluster (Month + Break-down-by,
+  // hidden in Pie view) drives both; the Pie view renders the same two cards as donuts (no consolidated
+  // two-ring card). The Break-down-by toggle drives the Bar view (the pie is a full-set split).
+  const breakdown = (c3, st) => {
+    const cards = st.c3View === 'pie'
+      ? `<div class="c3-cards">${c3PieCard(c3, st, 'submissions')}${c3PieCard(c3, st, 'approval')}</div>`
+      : `<div class="c3-cards">${c3StackedCard(c3, st, 'submissions')}${c3StackedCard(c3, st, 'approval')}</div>`;
+    return `${c3PanelControls(c3, st)}<div class="c3-body">${cards}${c3Table(c3, st)}</div>`;
+  };
+  // ===== C2 Submission Flow & Delay (workplan D6 / D9 / D40) =====
+  // Three views: Stacked (time-river area) · Delay (monthly avg Review Delay Days) · Funnel (stage drop-off).
+  // Stacked is the chosen design (owner review 2026-10-27): a stacked area over time, one band per
+  // status, row-level per-month counts, planned-sourced NFS, non-cumulative. Variant 1 of the review
+  // sample sub/ref/C2-TimeFlow-Sample.html.
+  const C2_STATUS_ORDER = ['SUR', 'RTR', 'NTS'];
+  const C2_PALETTE = { SUR: '#3f7cff', RTR: '#ff8c42', NTS: '#9c6ade', NFS: '#b0bec5' };
+  const c2Color = code => C2_PALETTE[code] || '#90a4ae';
+  const c2StatusKeys = c2 => {
+    const set = new Set();
+    for (const d of c2.data) for (const k of Object.keys(d.status || {})) if (k !== 'NFS') set.add(k);
+    return [...C2_STATUS_ORDER.filter(c => set.has(c)), ...[...set].filter(c => !C2_STATUS_ORDER.includes(c)).sort()];
+  };
+  const c2Val = (d, code) => code === 'NFS' ? (d.nfs || 0) : (d.status ? (d.status[code] || 0) : 0);
+  const c2Controls = (st) => {
+    const view = st.c2View || 'stacked';
+    const includeNfs = st.c2Nfs !== false;
+    const seg = v => `<button class="seg-btn${view === v ? ' active' : ''}" data-c2view="${v}">${v === 'stacked' ? 'Stacked' : v === 'delay' ? 'Delay' : 'Funnel'}</button>`;
+    return `<div class="c2-controls"><div class="controls-left"><div class="seg" role="group" aria-label="C2 view">${seg('stacked')}${seg('delay')}${seg('funnel')}</div><button class="btn-secondary${includeNfs ? ' on' : ''}" data-c2nfs aria-pressed="${includeNfs}">Include NFS</button></div><div class="controls-right"><button class="btn-secondary" data-c2png>⤓ PNG</button><button class="btn-secondary" data-c2copy>⧉ Copy</button></div></div>`;
+  };
+  const c2StackedSVG = (c2, st) => {
+    const includeNfs = st.c2Nfs !== false;
+    const months = c2.months, nb = months.length;
+    if (!nb) return '<p class="empty">No dated submissions or planned first-issue dates.</p>';
+    const series = includeNfs ? c2StatusKeys(c2).concat(['NFS']) : c2StatusKeys(c2);
+    const colW = 46, mL = 44, mR = 16, mT = 14, plotH = 240, legendH = 40, xLabelH = nb > 13 ? 48 : 22;
+    const yMax = Math.max(1, ...c2.data.map(d => series.reduce((s, c) => s + c2Val(d, c), 0)));
+    const W = Math.max(nb * colW, 360, mL + series.length * 130 + 20), H = mT + plotH + xLabelH + legendH;
+    const plotW = W - mL - mR, bandW = plotW / nb;
+    const xCenter = i => nb === 1 ? mL + plotW / 2 : mL + bandW * (i + 0.5);
+    const yOf = v => mT + plotH - (v / yMax) * plotH;
+    const P = [`<svg class="c2-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%" role="img" aria-label="Submission flow stacked area">`];
+    for (let g = 0; g <= 4; g++) { const v = yMax * g / 4, y = yOf(v); P.push(`<line class="sc-grid" x1="${mL}" y1="${y}" x2="${W - mR}" y2="${y}"></line><text class="sc-axis" x="${mL - 6}" y="${y + 3}" text-anchor="end">${Math.round(v)}</text>`); }
+    series.slice().reverse().forEach(code => {
+      const topPts = [], botPts = [];
+      c2.data.forEach((d, i) => { let lower = 0; for (const c of series) { if (c === code) break; lower += c2Val(c2.data[i], c); } const upper = lower + c2Val(d, code); botPts.push([xCenter(i), yOf(lower)]); topPts.push([xCenter(i), yOf(upper)]); });
+      const pts = topPts.concat(botPts.reverse());
+      P.push(`<path fill="${c2Color(code)}" fill-opacity="0.9" stroke="#fff" stroke-width="1" d="M${pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join('L')}Z"></path>`);
+    });
+    const inclined = nb > 13;
+    months.forEach((ym, i) => { const x = xCenter(i).toFixed(1), lbl = fmtMonth(ym); P.push(inclined ? `<text class="sc-axis" x="${x}" y="${mT + plotH + 8}" text-anchor="end" transform="rotate(-40 ${x} ${mT + plotH + 8})">${esc(lbl)}</text>` : `<text class="sc-axis" x="${x}" y="${mT + plotH + 14}" text-anchor="middle">${esc(lbl)}</text>`); });
+    const refX = ym => { const ix = months.indexOf(ym); return ix < 0 ? null : xCenter(ix); };
+    const sx = refX(String(view.c1 ? view.c1.projectStart : '').slice(0, 7));
+    if (sx != null) P.push(`<line class="sc-ref sc-ref-start" x1="${sx.toFixed(1)}" y1="${mT}" x2="${sx.toFixed(1)}" y2="${mT + plotH}"></line>`);
+    const tx = refX(String(view.c1 ? view.c1.asOf : '').slice(0, 7));
+    if (tx != null) P.push(`<line class="sc-ref sc-ref-today" x1="${tx.toFixed(1)}" y1="${mT}" x2="${tx.toFixed(1)}" y2="${mT + plotH}"></line>`);
+    let lx = mL; const ly = H - legendH + 14, step = 130;
+    series.forEach(code => { P.push(`<g transform="translate(${lx},${ly})"><rect x="0" y="-8" width="12" height="12" rx="2" fill="${c2Color(code)}"></rect><text class="c2-leg-t" x="16" y="2">${esc(code)}</text></g>`); lx += step; });
+    P.push(`<line class="scurve-snap" x1="0" y1="${mT}" x2="0" y2="${mT + plotH}" style="display:none"></line></svg>`);
+    const pts = c2.data.map((d, i) => ({ cx: +xCenter(i).toFixed(1), label: fmtMonth(months[i]), series: series.map(code => ({ code, value: c2Val(d, code) })), total: series.reduce((s, c) => s + c2Val(d, c), 0), nfsUnscheduled: c2.nfsUnscheduled }));
+    const dp = JSON.stringify(pts).replace(/'/g, '&#39;'), dg = JSON.stringify({ W, mT, mH: mT + plotH }).replace(/'/g, '&#39;');
+    const note = c2.nfsUnscheduled ? `<p class="note">${c2.nfsUnscheduled} planned documents have no planned first-issue date and are not placed on the time axis.</p>` : '';
+    return `<div class="c2-stack" data-c2points='${dp}' data-c2geo='${dg}'>${P.join('')}<div class="c2-tip" hidden></div></div>${note}`;
+  };
+  const c2DelaySVG = (c2, st) => {
+    const months = c2.months, nb = months.length;
+    if (!nb) return '<p class="empty">No dated records.</p>';
+    const vals = c2.data.map(d => { const a = d.delay || []; return a.length ? a.reduce((s, v) => s + v, 0) / a.length : 0; });
+    const yMax = Math.max(1, ...vals) * 1.1;
+    const colW = 46, mL = 44, mR = 16, mT = 14, plotH = 240, xLabelH = nb > 13 ? 48 : 22, legH = 26;
+    const W = Math.max(nb * colW, 360, mL + 200), H = mT + plotH + xLabelH + legH;
+    const plotW = W - mL - mR, bandW = plotW / nb;
+    const xCenter = i => nb === 1 ? mL + plotW / 2 : mL + bandW * (i + 0.5);
+    const yOf = v => mT + plotH - (v / yMax) * plotH;
+    const P = [`<svg class="c2-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%" role="img" aria-label="Average review delay">`];
+    for (let g = 0; g <= 4; g++) { const v = yMax * g / 4, y = yOf(v); P.push(`<line class="sc-grid" x1="${mL}" y1="${y}" x2="${W - mR}" y2="${y}"></line><text class="sc-axis" x="${mL - 6}" y="${y + 3}" text-anchor="end">${Math.round(v)}</text>`); }
+    const pts = months.map((ym, i) => [xCenter(i), yOf(vals[i])]);
+    if (pts.length > 1) P.push(`<polyline fill="none" stroke="#ff8c42" stroke-width="2" points="${pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ')}"></polyline>`);
+    pts.forEach((p, i) => P.push(`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="#ff8c42"><title>${esc(fmtMonth(months[i]))}: ${vals[i].toFixed(1)} d</title></circle>`));
+    const inclined = nb > 13;
+    months.forEach((ym, i) => { const x = xCenter(i).toFixed(1), lbl = fmtMonth(ym); P.push(inclined ? `<text class="sc-axis" x="${x}" y="${mT + plotH + 8}" text-anchor="end" transform="rotate(-40 ${x} ${mT + plotH + 8})">${esc(lbl)}</text>` : `<text class="sc-axis" x="${x}" y="${mT + plotH + 14}" text-anchor="middle">${esc(lbl)}</text>`); });
+    const refX = ym => { const ix = months.indexOf(ym); return ix < 0 ? null : xCenter(ix); };
+    const sx = refX(String(view.c1 ? view.c1.projectStart : '').slice(0, 7));
+    if (sx != null) P.push(`<line class="sc-ref sc-ref-start" x1="${sx.toFixed(1)}" y1="${mT}" x2="${sx.toFixed(1)}" y2="${mT + plotH}"></line>`);
+    const tx = refX(String(view.c1 ? view.c1.asOf : '').slice(0, 7));
+    if (tx != null) P.push(`<line class="sc-ref sc-ref-today" x1="${tx.toFixed(1)}" y1="${mT}" x2="${tx.toFixed(1)}" y2="${mT + plotH}"></line>`);
+    P.push(`<text class="c2-leg-t" x="${mL}" y="${H - 8}">Avg Review Delay (days) · not-returned &amp; not-due = 0</text></svg>`);
+    return `<div class="c2-stack">${P.join('')}</div>`;
+  };
+  const c2Funnel = (c2) => {
+    const f = c2.funnel;
+    const STAGES = [
+      { key: 'planned',     label: 'Planned Deliverables', color: '#3f7cff' },
+      { key: 'submitted',   label: 'Submitted for Review', color: '#ff8c42' },
+      { key: 'inReview',    label: 'Under Review',         color: '#9c6ade' },
+      { key: 'awc',         label: 'AWC',                  color: '#00897b' },
+      { key: 'approved',    label: 'Approved',             color: '#90a4ae' }
+    ];
+    // Layout (owner feedback 2026-10-28): a left label gutter (stage name + value, right-aligned)
+    // beside the funnel body, so long stage names never clip against a narrow band, and Approved is
+    // a solid square block at the base instead of a sliver-wide 3D cube.
+    const W = 350, VBH = STAGES.length * 100, segH = VBH / STAGES.length;
+    const gut = 134, cx = 240, maxW = 196;
+    const maxVal = Math.max(1, ...STAGES.map(s => f[s.key]));
+    // sqrt compression: a large ratio (e.g. planned 1000 vs submitted 100) must not force the small
+    // stage into a razor-thin band. The widest stage uses at most maxW; a 14px floor keeps it visible.
+    const widthOf = v => Math.max(14, (Math.sqrt(v) / Math.sqrt(maxVal)) * maxW);
+    const SQ = 92; // Approved square side
+    let p = `<svg class="c2-funnel-svg" width="${W}" viewBox="0 0 ${W} ${VBH}" preserveAspectRatio="none" role="img" aria-label="Submission funnel">`;
+    STAGES.forEach((s, i) => {
+      const yTop = i * segH, yBot = (i + 1) * segH, v = f[s.key];
+      if (i < STAGES.length - 1) {
+        const topW = widthOf(v), botW = widthOf(f[STAGES[i + 1].key]);
+        p += `<path d="M${cx - topW / 2},${yTop} L${cx + topW / 2},${yTop} L${cx + botW / 2},${yBot} L${cx - botW / 2},${yBot} Z" fill="${s.color}" fill-opacity="0.92" stroke="#fff" stroke-width="1.5"></path>`;
+      } else {
+        p += `<rect x="${cx - SQ / 2}" y="${yBot - SQ - 4}" width="${SQ}" height="${SQ}" rx="4" fill="${s.color}" stroke="#fff" stroke-width="1.5"></rect>`;
+      }
+      const mid = i < STAGES.length - 1 ? (yTop + yBot) / 2 : yBot - 4 - SQ / 2;
+      p += `<text class="c2-funnel-lab" x="${gut - 4}" y="${mid - 3}" text-anchor="end">${esc(s.label)}</text>`;
+      p += `<text class="c2-funnel-val" x="${gut - 4}" y="${mid + 13}" text-anchor="end">${v}</text>`;
+    });
+    p += '</svg>';
+    const rows = f.byDisc.map(r => `<tr><td>${esc(r.discipline)}</td><td>${r.planned}</td><td>${r.submitted}</td><td>${r.inReview}</td><td>${r.awc}</td><td>${r.approved}</td></tr>`).join('');
+    const table = `<table class="c2-ftab"><thead><tr><th>Discipline</th><th>Planned Deliverables</th><th>Submitted for Review</th><th>Under Review</th><th>AWC</th><th>Approved</th></tr></thead><tbody>${rows}<tr class="tot"><td>Total</td><td>${f.planned}</td><td>${f.submitted}</td><td>${f.inReview}</td><td>${f.awc}</td><td>${f.approved}</td></tr></tbody></table>`;
+    return `<div class="c2-stack"><div class="c2-funnel-row"><div class="c2-ftab-wrap">${table}</div><div class="c2-funnel-wrap">${p}</div></div></div>`;
+  };
+  const submissionFlow = (c2, st) => {
+    const view = st.c2View || 'stacked';
+    const body = view === 'delay' ? c2DelaySVG(c2, st) : view === 'funnel' ? c2Funnel(c2) : c2StackedSVG(c2, st);
+    return `${c2Controls(st)}${body}`;
+  };
   const overview = (state) => {
     const k = view.kpis;
     const statusData = Object.entries(view.active.reduce((map, row) => { map[row.submissionStatus || 'Blank'] = (map[row.submissionStatus || 'Blank'] || 0) + 1; return map; }, {})).map(([status, count]) => ({ status, count }));
     return `${activePanel('KPI OVERVIEW', `<div class="kpi-grid">${card('Documents Logged', k.totalSubmissions)}<article class="kpi-card"><div class="v">${k.submitted} / <span data-kpi="totalPlanned">${k.totalPlanned}</span></div><div class="l">Documents Submitted / In Plan</div></article>${card('Under Review (SUR)', k.underReview, 'amb')}${card('Approved (APP + AWC)', k.approved, 'ok')}${card('On-Time Return Rate', `${(k.onTimeRate * 100).toFixed(1)}%`, k.onTimeRate >= 1 ? 'ok' : 'amb')}${card('Average Review Delay', `${k.averageDelay.toFixed(1)} days`, k.averageDelay > 0 ? 'warn' : 'ok')}</div>`)}
-      <div class="panel-grid">${activePanel('C1 Schedule Performance', schedulePerformance(view.c1, state), true)}${activePanel('C2 Submission Flow & Delay', barChart(view.monthly.map(row => ({ month: row.month.slice(0, 7), total: row.total })), 'month', 'total'))}${activePanel('C3 Breakdown', breakdown(view.c3, state))}</div>`;
+      <div class="panel-grid">${activePanel('C1 Schedule Performance', schedulePerformance(view.c1, state), true)}${activePanel('C2 Submission Flow & Delay', submissionFlow(view.c2, state), true)}${activePanel('C3 Breakdown', breakdown(view.c3, state))}</div>`;
   };
   const submissions = () => {
     const rows = view.active.map(row => [row.documentNo, row.fields['Document Title'], row.discipline, row.fields['Submitted By'], row.submissionDate, row.submissionStatus, row.approvalStatus, row.fields['Review Period'], row.targetReturnDate, row.actualReturnDate, row.turnaroundDays, row.delayDays, row.resubmissionRequired]);
@@ -2027,6 +2391,52 @@ function renderDashboard(doc, model, state = {}) {
       scSvg.addEventListener('mouseleave', () => { if (snap) snap.style.display = 'none'; if (tip) tip.hidden = true; });
     }
   }
+  // C2 — hover snap line + floating window (Stacked view only; matches the C1 pattern)
+  const c2Root = typeof root.querySelector === 'function' ? root.querySelector('.c2-stack') : null;
+  if (c2Root) {
+    const c2Svg = c2Root.querySelector('svg');
+    const tip = c2Root.querySelector('.c2-tip');
+    const snap = c2Svg && c2Svg.querySelector('.scurve-snap');
+    const pts = c2Svg ? JSON.parse((c2Root.getAttribute('data-c2points') || '[]').replace(/&#39;/g, "'")) : [];
+    const geo = c2Svg ? JSON.parse((c2Root.getAttribute('data-c2geo') || '{}').replace(/&#39;/g, "'")) : {};
+    if (c2Svg && snap && pts.length && geo.W) {
+      c2Svg.addEventListener('mousemove', e => {
+        const rect = c2Svg.getBoundingClientRect(); if (!rect.width) return;
+        const ux = (e.clientX - rect.left) / rect.width * geo.W;
+        let best = 0, bd = Infinity;
+        pts.forEach((p, i) => { const d = Math.abs(p.cx - ux); if (d < bd) { bd = d; best = i; } });
+        const p = pts[best]; if (!p) return;
+        snap.setAttribute('x1', p.cx); snap.setAttribute('x2', p.cx); snap.style.display = '';
+        if (tip) {
+          tip.hidden = false;
+          tip.innerHTML = `<b>${esc(p.label)}</b>` + p.series.map(s => `<div class="c2-tip-row"><span class="c2-swatch" style="background:${c2Color(s.code)}"></span>${esc(s.code)} <b>${s.value}</b></div>`).join('') + `<div class="c2-tip-row">Total <b>${p.total}</b></div>`;
+          const hr = c2Root.getBoundingClientRect();
+          let tx = e.clientX - hr.left + 14, ty = e.clientY - hr.top + 14;
+          if (tx + 200 > hr.width) tx = e.clientX - hr.left - 200;
+          tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
+        }
+      });
+      c2Svg.addEventListener('mouseleave', () => { if (snap) snap.style.display = 'none'; if (tip) tip.hidden = true; });
+    }
+  }
+  // C2 — align the funnel's top to the first discipline row and its bottom (the cube) to the last
+  // discipline row, so the funnel spans exactly the per-discipline table body (header + Total excluded).
+  const fr = typeof root.querySelector === 'function' ? root.querySelector('.c2-funnel-row') : null;
+  if (fr) {
+    const tbl = fr.querySelector('.c2-ftab');
+    const tb = tbl && tbl.querySelector('tbody');
+    const dRows = tb ? [...tb.querySelectorAll('tr')].filter(r => !r.classList.contains('tot')) : [];
+    if (dRows.length) {
+      const tRect = tbl.getBoundingClientRect();
+      const firstTop = dRows[0].getBoundingClientRect().top - tRect.top;
+      const lastBottom = dRows[dRows.length - 1].getBoundingClientRect().bottom - tRect.top;
+      const wrap = fr.querySelector('.c2-funnel-wrap');
+      const svg = fr.querySelector('.c2-funnel-svg');
+      const h = Math.max(140, lastBottom - firstTop);
+      if (wrap) { wrap.style.marginTop = firstTop + 'px'; wrap.style.height = h + 'px'; }
+      if (svg) { svg.style.height = h + 'px'; svg.removeAttribute('height'); }
+    }
+  }
   // §4 — the number must follow DOCUMENT order, so it is assigned after insertion. Call order is not
   // reliable: a page can build a panel's HTML before the point where it is placed.
   if (typeof root.querySelectorAll === 'function') {
@@ -2059,7 +2469,7 @@ function renderDashboard(doc, model, state = {}) {
 
 const $ = selector => document.querySelector(selector);
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
-const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', collapsedPanels: [] };
+const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', c2View: 'stacked', c2Nfs: true, collapsedPanels: [] };
 let contract;
 let uiHelp;
 let files = { mdl: null, log: null };
@@ -2149,31 +2559,84 @@ function chartC3SvgStyle() {
   const cs = getComputedStyle(document.documentElement);
   const v = n => (cs.getPropertyValue(n) || '').trim();
   const cNew = v('--color-new'), cResub = v('--color-resub');
-  const app = v('--color-app'), awc = v('--color-awc'), nap = v('--color-nap'), rej = v('--color-rej'), inf = v('--color-inf');
+  const app = v('--color-app'), awc = v('--color-awc'), nap = v('--color-nap'), rej = v('--color-rej'), inf = v('--color-inf'), ur = v('--color-ur');
   const border = v('--border'), text = v('--text'), text2 = v('--text2');
-  return `<style>.c3-new{fill:${cNew}}.c3-new-arc{stroke:${cNew}}.c3-resub{fill:${cResub}}.c3-resub-arc{stroke:${cResub}}.c3-app{fill:${app}}.c3-app-arc{stroke:${app}}.c3-awc{fill:${awc}}.c3-awc-arc{stroke:${awc}}.c3-nap{fill:${nap}}.c3-nap-arc{stroke:${nap}}.c3-rej{fill:${rej}}.c3-rej-arc{stroke:${rej}}.c3-inf{fill:${inf}}.c3-inf-arc{stroke:${inf}}.c3-track-bg{fill:${border};fill-opacity:.18}.c3-label{fill:${text};font-size:11px}.c3-cap{fill:${text2};font-size:9px}.c3-val{fill:${text};font-size:11px;font-weight:600}.c3-total{fill:${text}}.c3-sub{fill:${text2}}.c3-leg-t{fill:${text2};font-size:11px}</style>`;
+  return `<style>.c3-new{fill:${cNew}}.c3-new-arc{stroke:${cNew}}.c3-resub{fill:${cResub}}.c3-resub-arc{stroke:${cResub}}.c3-app{fill:${app}}.c3-app-arc{stroke:${app}}.c3-awc{fill:${awc}}.c3-awc-arc{stroke:${awc}}.c3-nap{fill:${nap}}.c3-nap-arc{stroke:${nap}}.c3-rej{fill:${rej}}.c3-rej-arc{stroke:${rej}}.c3-inf{fill:${inf}}.c3-inf-arc{stroke:${inf}}.c3-ur{fill:${ur}}.c3-ur-arc{stroke:${ur}}.c3-track-bg{fill:${border};fill-opacity:.18}.c3-label{fill:${text};font-size:11px}.c3-cap{fill:${text2};font-size:9px}.c3-val{fill:${text};font-size:11px;font-weight:600}.c3-total{fill:${text}}.c3-sub{fill:${text2}}.c3-leg-t{fill:${text2};font-size:11px}</style>`;
 }
-function serializeC3Svg() {
-  const svg = document.querySelector('.c3-board svg');
-  if (!svg) return null;
-  const clone = svg.cloneNode(true);
-  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-  clone.insertAdjacentHTML('afterbegin', chartC3SvgStyle());
-  return new XMLSerializer().serializeToString(clone);
+// Reconstruct a C3 Bar card (the HTML grid: bars + vertical axis labels + attached table + legend) as a
+// self-contained native SVG (rects + text). Used for PNG/Copy because the Bar card has no <svg> of its own
+// (the I057 redesign draws it with a CSS grid). Native SVG (no <foreignObject>) keeps canvas rasterization
+// taint-free, so the existing PNG path works in every browser.
+function c3CardToSvg(btn) {
+  const card = btn && btn.closest ? btn.closest('.c3-card') : null;
+  const body = card && card.querySelector('.c3-card-body');
+  if (!body) return null;
+  const root = card.getBoundingClientRect();
+  const r0 = body.getBoundingClientRect();
+  const X = r0.left - root.left, Y = r0.top - root.top;
+  const W = Math.max(1, Math.ceil(r0.width)), H = Math.max(1, Math.ceil(r0.height));
+  const csCard = getComputedStyle(card);
+  let surf = (csCard.backgroundColor || '').trim();
+  if (!surf || surf === 'transparent' || surf === 'rgba(0, 0, 0, 0)') surf = (getComputedStyle(document.documentElement).getPropertyValue('--surface') || '').trim() || '#fff';
+  const escSvg = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const rb = el => { const r = el.getBoundingClientRect(); return { x: r.left - root.left - X, y: r.top - root.top - Y, w: r.width, h: r.height }; };
+  let out = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="100%" height="100%" fill="${surf}"/>`;
+  body.querySelectorAll('.seg-bar').forEach(b => {
+    const r = rb(b), fill = (getComputedStyle(b).backgroundColor || '#888').trim();
+    out += `<rect x="${r.x.toFixed(1)}" y="${r.y.toFixed(1)}" width="${r.w.toFixed(1)}" height="${r.h.toFixed(1)}" fill="${fill}" rx="2"/>`;
+  });
+  const placeText = (el, vertical) => {
+    const r = rb(el), cs = getComputedStyle(el);
+    const fill = (cs.color || '#222').trim();
+    const fs = parseFloat(cs.fontSize) || 11;
+    const fw = (cs.fontWeight === 'bold' || +cs.fontWeight >= 600) ? ' font-weight="600"' : '';
+    const fam = (cs.fontFamily || 'sans-serif').replace(/"/g, "'");
+    const txt = el.textContent.trim();
+    if (!txt) return;
+    if (vertical) {
+      const cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+      out += `<text transform="rotate(-90 ${cx.toFixed(1)} ${cy.toFixed(1)})" x="${cx.toFixed(1)}" y="${cy.toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-family="${fam}" font-size="${fs}"${fw} fill="${fill}">${escSvg(txt)}</text>`;
+    } else {
+      const ta = cs.textAlign;
+      const anchor = ta === 'center' ? 'middle' : ta === 'right' ? 'end' : 'start';
+      const tx = ta === 'center' ? (r.x + r.w / 2) : ta === 'right' ? (r.x + r.w - 2) : (r.x + 2);
+      const ty = r.y + r.h / 2;
+      out += `<text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="${anchor}" dominant-baseline="central" font-family="${fam}" font-size="${fs}"${fw} fill="${fill}">${escSvg(txt)}</text>`;
+    }
+  };
+  body.querySelectorAll('.g-axis').forEach(e => placeText(e, true));
+  body.querySelectorAll('.g-label, .g-val').forEach(e => placeText(e, false));
+  body.querySelectorAll('.c3-leg').forEach(leg => {
+    const sw = leg.querySelector('.c3-swatch'), sr = sw && sw.getBoundingClientRect();
+    if (sr) out += `<rect x="${(sr.left - root.left - X).toFixed(1)}" y="${(sr.top - root.top - Y).toFixed(1)}" width="${sr.width.toFixed(1)}" height="${sr.height.toFixed(1)}" fill="${(getComputedStyle(sw).backgroundColor || '#888').trim()}" rx="2"/>`;
+    const lr = rb(leg), cs = getComputedStyle(leg), lx = sr ? (sr.left - root.left - X + sr.width + 4) : lr.x;
+    out += `<text x="${lx.toFixed(1)}" y="${(lr.y + lr.h / 2).toFixed(1)}" text-anchor="start" dominant-baseline="central" font-family="${(cs.fontFamily || 'sans-serif').replace(/"/g, "'")}" font-size="${parseFloat(cs.fontSize) || 11}" fill="${(cs.color || '#222').trim()}">${escSvg(leg.textContent.trim())}</text>`;
+  });
+  return out + '</svg>';
 }
-function exportC3Png() {
-  const svg = document.querySelector('.c3-board svg');
-  if (!svg) return;
-  const str = serializeC3Svg();
+function serializeC3Svg(btn) {
+  const scope = btn && btn.closest ? btn.closest('.c3-card') : null;
+  const svg = (scope || document).querySelector('svg');
+  if (svg) {
+    const clone = svg.cloneNode(true);
+    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    clone.insertAdjacentHTML('afterbegin', chartC3SvgStyle());
+    return new XMLSerializer().serializeToString(clone);
+  }
+  // Bar view card (no <svg>): rebuild it as a self-contained SVG so PNG/Copy still work.
+  return c3CardToSvg(btn);
+}
+function exportC3Png(btn) {
+  const str = serializeC3Svg(btn);
   if (!str) return;
   const blob = new Blob([str], { type: 'image/svg+xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const img = new Image();
   img.onload = () => {
     const scale = 2;
-    const vb = svg.viewBox.baseVal;
+    const w = img.naturalWidth || 800, h = img.naturalHeight || 400;
     const canvas = document.createElement('canvas');
-    canvas.width = vb.width * scale; canvas.height = vb.height * scale;
+    canvas.width = w * scale; canvas.height = h * scale;
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = (getComputedStyle(document.documentElement).getPropertyValue('--surface') || '').trim() || '#fff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -2184,10 +2647,60 @@ function exportC3Png() {
   img.onerror = () => URL.revokeObjectURL(url);
   img.src = url;
 }
-function copyC3Svg() {
-  const str = serializeC3Svg();
+function copyC3Svg(btn) {
+  const str = serializeC3Svg(btn);
   if (!str) return;
   if (navigator.clipboard) navigator.clipboard.writeText(str);
+}
+// Serialize the C2 chart's SVG. The C2 bands use inline fills, so no style injection is required.
+function serializeC2Svg() {
+  const svg = document.querySelector('.c2-stack svg');
+  if (!svg) return '';
+  const clone = svg.cloneNode(true);
+  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  return new XMLSerializer().serializeToString(clone);
+}
+function exportC2Png() {
+  const str = serializeC2Svg();
+  if (!str) return;
+  const blob = new Blob([str], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = () => {
+    const scale = 2;
+    const w = img.naturalWidth || 800, h = img.naturalHeight || 400;
+    const canvas = document.createElement('canvas');
+    canvas.width = w * scale; canvas.height = h * scale;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = (getComputedStyle(document.documentElement).getPropertyValue('--surface') || '').trim() || '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(b => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'submission-flow.png'; a.click(); URL.revokeObjectURL(a.href); });
+    URL.revokeObjectURL(url);
+  };
+  img.onerror = () => URL.revokeObjectURL(url);
+  img.src = url;
+}
+function copyC2Svg() {
+  const str = serializeC2Svg();
+  if (str && navigator.clipboard) navigator.clipboard.writeText(str);
+}
+// Download the shared C3 summary table (below the two cards) as CSV. Reads the rendered rows straight
+// from the DOM so it stays decoupled from the render data helpers; the .ds-gut scrollbar spacer is skipped.
+function exportC3TableCsv() {
+  const wrap = document.querySelector('.c3-summary');
+  if (!wrap) return;
+  const rows = [...wrap.querySelectorAll('tr')].map(tr => [...tr.querySelectorAll('th:not(.ds-gut),td:not(.ds-gut)')].map(c => {
+    const t = (c.textContent || '').replace(/\s+/g, ' ').trim();
+    return /[",\n\r]/.test(t) ? `"${t.replaceAll('"', '""')}"` : t;
+  }).join(','));
+  if (!rows.length) return;
+  const csv = '﻿' + rows.join('\r\n'); // BOM so Excel opens UTF-8 correctly
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  link.download = 'breakdown-table.csv';
+  link.click();
+  URL.revokeObjectURL(link.href);
 }
 let filterDimensions = [];
 function filtersMarkup() {
@@ -2195,7 +2708,7 @@ function filtersMarkup() {
   // Stage domain even when no row uses it. A blank Stage appears as "(blank)".
   const stageValues = [...new Set([...model.planned.map(row => row.stage ?? ''), ...EXCLUDED_STAGES])].sort();
   filterDimensions = [
-    ['disciplines', 'Discipline', [...new Set(model.planned.map(row => row.discipline).filter(Boolean))].sort()],
+    ['disciplines', 'Discipline', [...new Set([...model.planned.map(row => row.discipline).filter(Boolean), 'Unknown'])].sort()],
     ['stages', 'Stage', stageValues, new Set(stageValues.filter(value => !EXCLUDED_STAGES.has(value)))],
     ['statuses', 'Submission Status', [...new Set(model.submissions.map(row => row.submissionStatus).filter(Boolean))].sort()],
     ['approvals', 'Approval Status', [...new Set(model.submissions.map(row => row.approvalStatus).filter(Boolean))].sort()],
@@ -2241,7 +2754,28 @@ function closeFilterPanels() {
 // can never cover a header cell. One implementation serves every table: the fragment is pinned to
 // the body table's rendered width plus the scrollbar width (--ds-sbw holds it), both tables share
 // the same colgroup, and the two scroll in lock-step horizontally.
+// §7.2.15 — registry of split-header width sync callbacks. The ResizeObserver below covers element
+// resizes, but browser zoom (Control + mouse scroll) changes the screen scale and does not always
+// re-fire ResizeObserver on every panel; the window and visualViewport resize events DO fire on zoom,
+// so we re-run every sync on those too. This keeps the tables following the screen scale.
+const splitSyncers = [];
+let splitResizeBound = false;
+function bindSplitResize() {
+  if (splitResizeBound || typeof window === 'undefined') return;
+  splitResizeBound = true;
+  let raf = 0;
+  const run = () => { raf = 0; for (const fn of splitSyncers) { try { fn(); } catch (e) {} } };
+  const onResize = () => { if (!raf) raf = requestAnimationFrame(run); };
+  window.addEventListener('resize', onResize, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', onResize, { passive: true });
+    window.visualViewport.addEventListener('scroll', onResize, { passive: true });
+  }
+}
+
 function wireSplitHeaders(root) {
+  splitSyncers.length = 0;
+  bindSplitResize();
   for (const card of root.querySelectorAll('.ds-split')) {
     const headTable = card.querySelector('.vheadtab');
     const port = card.querySelector('.vheadwrap');
@@ -2251,9 +2785,10 @@ function wireSplitHeaders(root) {
     const headCols = [...headTable.querySelectorAll('colgroup col')].filter(col => !col.classList.contains('ds-gut'));
     const bodyCols = [...bodyTable.querySelectorAll('colgroup col')];
     const syncWidth = () => {
-      // Both tables are then pinned to the same explicit pixel width. Pinning matters: while the
-      // tables keep `width:100%`, forcing horizontal overflow makes the browser distribute the
-      // columns differently in each half and the frozen header drifts away from its body column.
+      // Both tables are pinned to the same explicit pixel width, so the frozen header stays aligned
+      // with its body column (see §7.2.15). Pinning must not freeze the table at its first-render
+      // size: on a container resize, scale the cached column widths to the new width so the table
+      // follows the screen. Manual drags keep their ratio; the gutter tracks the scrollbar only.
       const bar = Math.max(0, scroll.offsetWidth - scroll.clientWidth);
       card.style.setProperty('--ds-sbw', `${bar}px`);
       const row = [...bodyTable.querySelectorAll('tbody tr')].find(tr => tr.children.length === bodyCols.length);
@@ -2271,7 +2806,26 @@ function wireSplitHeaders(root) {
         if (bodyCols[index]) bodyCols[index].style.width = `${width}px`;
         total += width;
       });
-      const width = total || scroll.clientWidth;
+      const avail = scroll.clientWidth - bar;
+      // Re-flow on container resize: scale the cached column widths to the new width so the table
+      // follows the screen scale / window width instead of keeping its first-render pixel width.
+      if (total > 0 && Math.abs(avail - total) > 1) {
+        const scale = avail / total;
+        headCols.forEach((col, index) => {
+          const w = parseFloat(col.style.width);
+          if (!(w > 0) || !bodyCols[index]) return;
+          const nw = Math.max(40, w * scale).toFixed(1);
+          col.style.width = `${nw}px`;
+          bodyCols[index].style.width = `${nw}px`;
+          // Column 0 is pinned; keep the 2nd pinned column's left offset in sync with its new width.
+          if (index === 0) {
+            headTable.style.setProperty('--pin-first-col', `${nw}px`);
+            bodyTable.style.setProperty('--pin-first-col', `${nw}px`);
+          }
+        });
+        total = avail;
+      }
+      const width = total || avail;
       headTable.style.width = `${width + bar}px`;
       bodyTable.style.width = `${width}px`;
       const gutter = headTable.querySelector('colgroup col.ds-gut');
@@ -2286,6 +2840,7 @@ function wireSplitHeaders(root) {
       observer.observe(bodyTable);
     }
     scroll.addEventListener('scroll', syncScroll, { passive: true });
+    splitSyncers.push(syncWidth);
   }
 }
 function paint() {
@@ -2317,7 +2872,7 @@ async function readAndBuild() {
     const [mdlBuffer, logBuffer] = await Promise.all([files.mdl.arrayBuffer(), files.log.arrayBuffer()]);
     const [mdlWorkbook, logWorkbook] = await Promise.all([readXlsx(mdlBuffer), readXlsx(logBuffer)]);
     model = buildModel(mdlWorkbook, logWorkbook, { contract, mdlWorkbookName: files.mdl.name, logWorkbookName: files.log.name });
-    state.disciplines = new Set(model.planned.map(row => row.discipline).filter(Boolean));
+    state.disciplines = new Set([...model.planned.map(row => row.discipline).filter(Boolean), 'Unknown']);
     state.stages = new Set(model.planned.map(row => row.stage ?? '').filter(value => !EXCLUDED_STAGES.has(value)));
     if (state.rememberNames) localStorage.setItem('sub-dashboard-file-names', JSON.stringify({ mdl: files.mdl.name, log: files.log.name }));
     filtersMarkup();
@@ -2447,8 +3002,13 @@ document.addEventListener('click', async event => {
   if (target.hasAttribute('data-c1copy')) { copyC1Svg(); }
   if (target.dataset.c3dim) { state.c3Dim = target.dataset.c3dim; paint(); }
   if (target.dataset.c3view) { state.c3View = target.dataset.c3view; paint(); }
-  if (target.hasAttribute('data-c3png')) { exportC3Png(); }
-  if (target.hasAttribute('data-c3copy')) { copyC3Svg(); }
+  if (target.hasAttribute('data-c3png')) { exportC3Png(target); }
+  if (target.hasAttribute('data-c3copy')) { copyC3Svg(target); }
+  if (target.hasAttribute('data-c3export')) { exportC3TableCsv(); }
+  if (target.dataset.c2view) { state.c2View = target.dataset.c2view; paint(); }
+  if (target.hasAttribute('data-c2nfs')) { state.c2Nfs = state.c2Nfs === false ? true : false; paint(); }
+  if (target.hasAttribute('data-c2png')) { exportC2Png(); }
+  if (target.hasAttribute('data-c2copy')) { copyC2Svg(); }
   if (target.dataset.export) {
     const rows = model ? deriveView(model, state).active : [];
     const cols = ['Document No.', 'Document Title', 'Discipline', 'Submitted By', 'Submission Date', 'Submission Status', 'Approval Status', 'Review Period', 'Target Return Date', 'Actual Return Date', 'Review Turnaround Days', 'Review Delay Days', 'Resubmission Required'];
@@ -2545,6 +3105,17 @@ document.addEventListener('pointerdown', event => {
     const startWidth = col.getBoundingClientRect().width;
     const widths = JSON.parse(localStorage.getItem(`sub_dashboard_${table.dataset.tableKey}_widths`) || '{}');
     const saveWidths = () => localStorage.setItem(`sub_dashboard_${table.dataset.tableKey}_widths`, JSON.stringify(widths));
+    // Fixed layout hands any slack between the column sum and the table width back to the columns, so
+    // the table width has to follow the columns; otherwise the rendered width drifts away from the
+    // width the operator dragged, and a drag by +d then −d does not land where it started.
+    const relayout = () => {
+      for (const item of [table, bodyTable]) {
+        if (!item) continue;
+        const total = [...item.querySelectorAll('colgroup col')]
+          .reduce((sum, cell) => sum + (parseFloat(cell.style.width) || 0), 0);
+        if (total > 0) item.style.width = `${total}px`;
+      }
+    };
     const move = pointer => {
       const width = Math.max(60, startWidth + pointer.clientX - startX);
       col.style.width = `${width}px`;
@@ -2553,6 +3124,7 @@ document.addEventListener('pointerdown', event => {
         table.style.setProperty('--pin-first-col', `${width}px`);
         if (bodyTable) bodyTable.style.setProperty('--pin-first-col', `${width}px`);
       }
+      relayout();
       widths[colIndex] = width;
       saveWidths();
     };

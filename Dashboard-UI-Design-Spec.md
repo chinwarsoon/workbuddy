@@ -4,6 +4,14 @@
 |---|---|---|---|
 | 1.8 | 2026-10-24 | Codex | Made `ui/`, `data/`, and `output/` optional and made module paths project-defined; aligned the harness contract. |
 | 1.9 | 2026-10-24 | CodeBuddy (AI) | Adopted the MDL shell model: §3.1/§3.2/§3.6 now define a two-row header (navy title bar + white menu bar) + navy left navigation sidebar; dropped the 48 px icon bar and the right sidebar; moved Settings/Help to the menu bar / modal; use the updated `AGENTS.md` §18.2 shell markers (`titlebar`, `menubar`, `left-sidebar`, `content`, `statusbar`). Default theme is light. |
+| 1.30 | 2026-10-27 | CodeBuddy (AI) | §4.2 card-control rule reconciled with the C3 Breakdown panel:
+| 1.31 | 2026-10-27 | CodeBuddy (AI) | §4.2 C3 Breakdown further refined:
+| 1.32 | 2026-10-27 | CodeBuddy (AI) | §4.2 C3 Breakdown PNG/Copy restored for the Bar cards:
+| 1.33 | 2026-10-27 | CodeBuddy (AI) | §4.2 C3 Breakdown summary table gained a Download button: the shared `.c3-summary` table (below the two cards) renders a header with a `⤓ Download` control that exports the current Month / Break-down-by rows as `breakdown-table.csv` (UTF-8 BOM, `.ds-gut` scrollbar spacer skipped). This complements the per-card PNG/Copy (I058). after the I057 div-grid redesign the per-card PNG/Copy buttons serialized a non-existent `<svg>`; they now rebuild the card (bars + vertical axis labels + attached table + legend) as a self-contained native SVG (rects + text) so the existing raster/copy path works for both Bar and Pie views. each card lists the full MDL discipline set (and all submitters) even when a month is zero, and draws its bars inside one aligned CSS grid whose columns also carry the vertical axis labels and an attached per-card data table (Submissions = Total Plan / First Submission / Resubmission / Under Review; Approval Status = the codes). The shared summary table is kept. This extends revision 1.30's shared-control exception. Month + Break-down-by are one shared cluster above the two cards (panel-owned), only PNG/Copy per card; the Pie view shows two donut cards (Submissions, Approval Status), not a consolidated two-ring card. This is the documented exception to "every card owns its controls" for that panel. |
+| 1.34 | 2026-10-28 | CodeBuddy (AI) | §4.2 C3 Breakdown bars now carry a y-axis with grid lines + numbers, matching the C1 S-curve and C2 stacked-area panels: each card draws 5 horizontal grid lines at 0 / 25% / 50% / 75% / 100% of a nice maximum (niceCeil of the largest category total), the bars are scaled to that same max, and the numeric tick labels are right-aligned in the metric-label column and flush against the bars (no gap; aligned with the table below). Zero-discipline categories still show the empty grid. The Pie cards are exempt. Decision recorded as I060; review sample `sub/ref/sample-c3-grid-lines.html`. The harness bundled spec (`harness-layout/spec/Dashboard-UI-Design-Spec.md`) was re-synced from this file. |
+| 1.35 | 2026-10-28 | CodeBuddy (AI) | §4.2 C2 Submission Flow Funnel layout: the funnel is a **vertical shape to the right of a per-Discipline table** (table left, funnel right). Its **top aligns with the first discipline row** and its **bottom — a cube block for Approved — aligns with the last discipline row** (the table header and Total row are outside the funnel span). Five stages top→bottom: Planned Deliverables → Submitted for Review → Under Review → AWC → Approved. Band widths use **square-root compression** so a large ratio between stages does not make a small stage a razor-thin sliver. Stage label is "Under Review" (not "In Review"); AWC is its own stage, separate from Approved. See `sub/ref/C2-Funnel-Sample.html`. |
+| 1.36 | 2026-10-28 | CodeBuddy (AI) | §4.2 C2 Funnel refined per owner review of the first live render: stage names and values moved to a **left label gutter** (right-aligned beside the bands, theme-aware text color) so long names like "Submitted for Review" never clip against a narrow band; the separate legend row was removed (every stage is labeled beside its band); the Approved base is now a **solid square block** (92 px, owner request) instead of a sliver-wide 3D cube whose label overflowed. Funnel column widened to 350 px. Fixed I064 first: the funnel had never rendered because the stage key `underReview` did not match `c2.funnel`'s `inReview`, so every path coordinate was `NaN`. Logged I065; workplan changelog 2.43. |
+| 1.29 | 2026-10-27 | CodeBuddy (AI) | §3.4 Responsive layout enhanced with §3.4.1 Panel size fits the screen. Panels MUST follow the content width at every screen scale (including Control + scroll zoom) and MUST NOT keep a first-render pixel width; the KPI panel (auto-fit grid, no fixed widths) is the reference. Scope is panel size only; inner cards may keep a fixed width by requirement (for example, a constant bar width). |
 | 1.28 | 2026-10-25 | CodeBuddy (AI) | §4.2 S-curve clarified from the Submittal C1 re-review: the chart-card board is a 1 px border around the whole chart component (control cluster + plot), not an in-plot rectangle, so the one-board / one-card-border rule is unambiguous; the y-max MUST use the raw visible maximum with a small headroom pad (~3%) and MUST NOT be rounded up to a power-of-ten step, so the curves fill the chart height like the MDL reference. Workplan D35 / §7 now include the Forecast bar (`fNew`). |
 | 1.27 | 2026-10-25 | CodeBuddy (AI) | §4.2 S-curve hardened from the Submittal C1 review: a Month / Quarter / Year time-grain toggle MAY be offered (rebuckets labels, bars and the cumulative curve); the period window MAY be a bar / brush selection that wraps below when narrow; the control cluster is right-aligned by default and the period selection MAY be left-aligned with the filters (grain, Bars, series multi-select) preceding the exports (PNG, Copy) on the right; the combined-chart legend SHOULD be in-SVG at the bottom (not an HTML `.legend`); dense x-axis labels MAY be inclined (rotated ~40°) hugging the axis with the legend kept clear; and a hover snap line with a floating window is RECOMMENDED. The PNG / Copy, one-board / one-card-border, absolute-cumulative, Start / Today and shared-scale rules were already normative. |
 | 1.26 | 2026-10-24 | CodeBuddy (AI) | §4 panel chrome made enforceable. The title row now has its own element — the 10 px gap belongs to the row and the `h2` is `margin:0` — because the sketch previously put the flex on the `h2`, which only works when the buttons sit inside the heading. Four rules added: **numbers follow DOM order, assigned after render** (numbering from construction order produced `1, 2, 4, 3`), with the `::after` badge gated on `[data-panel]` so an unnumbered sub-panel does not render a bare `Panel`; **nested sub-panels inherit the parent's number and show no badge**; **the panel margin yields to a grid gap** (`0` inside a grid that sets `gap`, or the spacing doubles); and **the collapse state outlives the element** — it MUST be persisted in view state, keyed by panel name, and re-applied on render, or a filter change silently re-opens the panel. The sketch CSS is updated to match. |
@@ -231,6 +239,26 @@ reduces the shell's flexible content area.
 The shell rules define sidebar resizing and collapse behavior. Panel and KPI grids MUST fit the
 remaining content width without horizontal page scrolling. Each workplan records its grid breakpoints
 and the minimum usable width for its controls. Do not change shell breakpoints or sidebar rules.
+
+#### 3.4.1 Panel size fits the screen (screen scale / zoom)
+Panels are the outermost content containers: the `.panel` surface, the `.kpi-grid` and the panel-grid
+cells. Their size MUST follow the available content width at every screen scale, including browser
+zoom set with Control + mouse scroll. A panel MUST NOT keep a first-render pixel width when the
+viewport or the zoom changes. It MUST reflow so it always fills the column it occupies.
+
+The KPI panel is the reference pattern. Its cards use an auto-fit grid
+(`repeat(auto-fit, minmax(210px, 1fr))`) with no fixed pixel widths, so the cards fill the width and
+reflow as the column narrows or widens. Every other panel MUST reach the same result: a fluid grid or
+flex container whose columns are `1fr` (or `auto-fit`), never a hard-coded pixel width that freezes
+the panel at its first render.
+
+This rule covers panel size only. It does NOT govern the cards, charts or tables inside a panel. An
+inner card MAY keep a fixed pixel width where a requirement demands it (for example, a constant bar
+width so values compare across months). Such inner fixed widths are out of scope for §3.4.1; the
+panel around them MUST still fit the screen. A panel that contains fixed-pixel inner content (for example, a split-header table) MUST re-sync that content on the `window` / `visualViewport` resize event as well as on element resize: browser zoom changes the screen scale without always re-firing an element `ResizeObserver`, so without the window / `visualViewport` listener the inner content keeps its first-render pixel width and does not follow the zoom. The panel grid itself MUST use `minmax(0, 1fr)` tracks with responsive breakpoints (or an `auto-fit` pattern like the KPI grid) so it reflows — dropping columns as the width shrinks — instead of keeping a fixed first-render column count that overflows the screen on zoom; the chosen `data-layout` count is the maximum, not a fixed floor.
+
+This requirement was confirmed in the Submittal dashboard review (panel-fit-to-screen, 2026-10-27):
+the KPI panel is the reference, and inner cards with a fixed bar width are explicitly out of scope.
 
 ### 3.5 System and configuration notices
 Show notices in one warning area inside the content area. The area spans the content area's width and
@@ -537,6 +565,38 @@ Some panels hold several **chart cards** in a grid. The panel shell still carrie
   tables): **every card owns its controls; the panel owns only its own chrome.** Cluster order is
   fixed — period window → **Bars** → range text → `⤓ PNG` → `⧉ Copy` (§4.2). There is **no Reset**
   control (§7.9).
+- **C3 Breakdown panel exception.** The C3 Breakdown panel's two cards are fixed-dimension views
+  (Submissions, Approval Status) that always share the same period and the same secondary breakdown
+  (Discipline / Submitter). Month + Break-down-by therefore live in ONE shared cluster above the cards
+  (the panel owns them), and only `⤓ PNG` / `⧉ Copy` stay per card. This is the deliberate deviation from
+  "every card owns its controls": two per-card copies would be redundant and read as independent when
+  both cards use the identical secondary dimension. Each card also shows the full MDL discipline set (and all submitters) even at zero, and its bars share one CSS grid with the vertical axis labels and an attached per-card data table (Submissions = Total Plan / First Submission / Resubmission / Under Review; Approval Status = the codes). The Pie view renders the same two cards as their own
+  donuts (one Submissions donut, one Approval Status donut) — there is no consolidated two-ring card.
+- **C3 bar y-axis grid lines + numbers.** To match the C1 S-curve and C2 stacked-area panels, each C3 card
+  draws a y-axis on the left of its bar plot. There are **5 horizontal grid lines** (light `.sc-grid`-style rules)
+  at 0 / 25% / 50% / 75% / 100% of a **"nice" maximum** — the axis top is `niceCeil` of the largest category
+  total (the same rounding C1/C2 use), *not* the raw max — and the bars are scaled to that same nice maximum, so
+  the top grid line is a round number and the plot fills its height. The numeric **tick labels (the document
+  count)** are right-aligned in the metric-label column and flush against the bars, so there is **no gap** between
+  a tick label and the grid line it sits on, and the labels align with the attached data table below. A
+  zero-discipline category still renders its empty bar against the full grid. The Pie cards are exempt (they are
+  donuts, not bars). Decision recorded as I060; review sample `sub/ref/sample-c3-grid-lines.html`.
+- **C2 Submission Flow Funnel (per-Discipline table left, funnel right).** The C2 Funnel view draws a
+  **vertical funnel to the right of a per-Discipline table**: the table (Discipline rows + a Total row) is on
+  the left, the funnel on the right. The funnel's **top aligns with the first discipline row** and its **bottom
+  aligns with the last discipline row** — the table header and Total row sit outside the funnel's vertical span.
+  Five stages run top→bottom: **Planned Deliverables → Submitted for Review → Under Review → AWC → Approved**.
+  Stage names and values sit in a **left label gutter** (right-aligned beside the bands), so long stage names
+  never clip against a narrow band; there is no separate legend row. **Band widths
+  use square-root compression** (widest stage = max width; a 14 px floor) so a large ratio between stages (e.g.
+  Planned 1000 vs Submitted 100) does not make a small stage a razor-thin sliver. The bottom stage (Approved) is
+  drawn as a **solid square block** (owner request 2026-10-28, replacing the cube) so the funnel ends on a solid
+  base. The stage label reads
+  **Under Review** (not "In Review"); **AWC** is shown as its own stage, separate from Approved. The
+  per-Discipline table repeats the five measures with a Total row. Counting rules: Planned Deliverables = MDL
+  planned rows (D11); Submitted for Review = distinct `Document No.` with ≥1 submission row (D34); Under Review
+  = latest `SUR` with no `Actual Return Date` (D34); AWC and Approved split by the document's first approval code
+  (APP vs AWC, C3 All-months rule). See `sub/ref/C2-Funnel-Sample.html`.
 - Chart cards do **not** get their own Help/Collapse and are **not** individually numbered —
   they inherit the parent panel's number (see numbering rule above). Only the panel shows one.
 - **Chart-card titles** follow §8: `h3` (`.panel-head h3`), 13 px / 700 `--navy`, **not**

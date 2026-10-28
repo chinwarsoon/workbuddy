@@ -188,7 +188,7 @@ body.loaded .app{display:flex;flex-direction:column;height:100vh;min-height:0;ov
 /* ===== Panels / KPI ===== */
 /* §4 — panel surface: 10 px radius on a relative box, with 26 px of bottom padding so the corner
    number never overlaps the last line. */
-.panel{margin:14px 0;padding:14px 14px 26px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);position:relative}
+.panel{margin:14px 0;padding:14px 14px 26px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);position:relative;min-width:0;min-height:0}
 /* §4 — title row: title left, action cluster right. The 10 px gap belongs to the row, not the heading. */
 .panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 10px}
 .panel h2{margin:0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--navy);line-height:1.4;min-width:0}
@@ -202,9 +202,20 @@ body.loaded .app{display:flex;flex-direction:column;height:100vh;min-height:0;ov
 .panel h3{margin:0 0 4px;font-size:13px;font-weight:700;color:var(--navy)}
 .panel h4{margin:14px 0 4px;font-size:13px;color:var(--text2)}
 .panel small,.panel .psub{color:var(--text2);font-size:12px}
-.panel-grid{display:grid;grid-template-columns:1fr;gap:16px}
-body[data-layout="two"] .panel-grid{grid-template-columns:1fr 1fr}
-body[data-layout="three"] .panel-grid{grid-template-columns:1fr 1fr 1fr}
+/* §3.4.1 — the panel grid reflows like the KPI grid (repeat(auto-fit, minmax(210px,1fr))): it must
+   follow the screen at any zoom, not keep a first-render column count. The chosen layout is the
+   MAXIMUM column count; tracks use minmax(0,1fr) so they can shrink, and media-query breakpoints
+   drop columns as the content width shrinks so no panel overflows the screen. */
+.panel-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+body[data-layout="two"] .panel-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+body[data-layout="three"] .panel-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:1100px){
+  body[data-layout="three"] .panel-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  body[data-layout="two"] .panel-grid,
+  body[data-layout="three"] .panel-grid{grid-template-columns:minmax(0,1fr)}
+}
 /* §5 — KPI cards: 3 px status strip, 8 px radius, 10 px padding, 72 px high, no shadow.
    Value and label only. Do not set line-height: the inherited 1.45 makes the 72 px height. */
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:18px}
@@ -307,7 +318,7 @@ details summary{cursor:pointer;font-size:13px;color:var(--accent);margin:6px 0}
 :root{
   /* Submission series (New vs Resubmission) and the five approval codes. New and Resubmission use
      hues outside the approval set, because the two series are separate measures, not a split of one. */
-  --color-new:#1f6fb2; --color-resub:#f4a259;
+  --color-new:#1f6fb2; --color-resub:#f4a259; --color-ur:#7c3aed;
   --color-app:#17a67a; --color-awc:#2b6cf6; --color-nap:#F9A825; --color-rej:#d23b3b; --color-inf:#64748B;
 }
 .c3-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 10px}
@@ -315,8 +326,12 @@ details summary{cursor:pointer;font-size:13px;color:var(--accent);margin:6px 0}
 .c3-controls .controls-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
 .c3-month-wrap{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)}
 .c3-month-wrap select{padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)}
-/* §4.2 — the board is the chart-component border; the panel keeps its own card border. */
-.c3-board{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fff}
+/* §4.2 — each C3 chart is its own bordered card (Option 2, Wave 4.2): every card owns its border
+   and its controls, matching the MDL interactive-chart pattern. */
+.c3-card{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fff;display:flex;flex-direction:column}
+.c3-card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.c3-card-title{font-size:13px;font-weight:700;margin:0;color:var(--navy)}
+.c3-card-ctrls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .c3-svg{display:block}
 .c3-new{fill:var(--color-new)} .c3-new-arc{stroke:var(--color-new)}
 .c3-resub{fill:var(--color-resub)} .c3-resub-arc{stroke:var(--color-resub)}
@@ -325,17 +340,53 @@ details summary{cursor:pointer;font-size:13px;color:var(--accent);margin:6px 0}
 .c3-nap{fill:var(--color-nap)} .c3-nap-arc{stroke:var(--color-nap)}
 .c3-rej{fill:var(--color-rej)} .c3-rej-arc{stroke:var(--color-rej)}
 .c3-inf{fill:var(--color-inf)} .c3-inf-arc{stroke:var(--color-inf)}
+.c3-ur{fill:var(--color-ur)} .c3-ur-arc{stroke:var(--color-ur)}
 .c3-track-bg{fill:var(--border);fill-opacity:.18}
+.c3-axis{stroke:var(--border);stroke-width:1}
+/* ===== C3 two stacked-bar cards (Wave 4.2, Option 2) ===== */
+.c3-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}
+.c3-vchart{overflow-x:auto;min-width:0}
+.c3-viewbar{display:flex;justify-content:flex-end;margin:6px 0 10px}
+.c3-label-inc{font-size:11px}
+@media(max-width:880px){.c3-cards{grid-template-columns:minmax(0,1fr)}}
+/* ===== C3 card: one aligned grid (bars + axis labels + attached table), 2026-10-27 study ===== */
+.c3-card-body{overflow-x:auto;min-width:0}
+.c3-grid{display:grid;column-gap:6px;row-gap:0;margin-top:6px}
+.g-bar{height:150px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.seg-bar{width:60%;border-radius:2px 2px 0 0}
+.seg-bar.c3-new{background:var(--color-new)} .seg-bar.c3-resub{background:var(--color-resub)}
+.seg-bar.c3-ur{background:var(--color-ur)} .seg-bar.c3-app{background:var(--color-app)}
+.seg-bar.c3-awc{background:var(--color-awc)} .seg-bar.c3-nap{background:var(--color-nap)}
+.seg-bar.c3-rej{background:var(--color-rej)} .seg-bar.c3-inf{background:var(--color-inf)}
+.g-axis{writing-mode:vertical-rl;text-orientation:mixed;font-size:11px;font-weight:600;color:var(--text2);text-align:left;padding:2px 0;white-space:nowrap;overflow:hidden}
+.g-label{display:flex;align-items:center;justify-content:flex-end;font-size:11px;color:var(--text2);padding-right:6px;text-align:right;border-top:1px solid var(--border)}
+.g-val{text-align:center;font-size:12px;padding:4px 2px;border-top:1px solid var(--border);color:var(--text)}
+/* ===== C3 y-axis grid lines + numbers (I060), matching C1/C2 ===== */
+.c3-gridlines{background-image:repeating-linear-gradient(to top,var(--border) 0,var(--border) 1px,transparent 1px,transparent 25%);background-color:transparent;pointer-events:none}
+.g-yaxis{height:150px;position:relative;pointer-events:none}
+.g-ytick{position:absolute;right:0;transform:translateY(-50%);font-size:10px;line-height:1;color:var(--text2);text-align:right;padding-right:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.c3-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:6px 0 0 2px}
+.c3-leg{display:inline-flex;align-items:center;font-size:11px;color:var(--text2)}
+.c3-swatch{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:5px}
+.c3-swatch.c3-new{background:var(--color-new)}
+.c3-swatch.c3-resub{background:var(--color-resub)}
+.c3-swatch.c3-ur{background:var(--color-ur)}
+.c3-swatch.c3-app{background:var(--color-app)}
+.c3-swatch.c3-awc{background:var(--color-awc)}
+.c3-swatch.c3-nap{background:var(--color-nap)}
+.c3-swatch.c3-rej{background:var(--color-rej)}
+.c3-swatch.c3-inf{background:var(--color-inf)}
 .c3-label{fill:var(--text);font-size:11px}
 .c3-cap{fill:var(--text2);font-size:9px}
 .c3-val{fill:var(--text);font-size:11px;font-weight:600}
 .c3-total{fill:var(--text)}
 .c3-sub{fill:var(--text2)}
 .c3-leg-t{fill:var(--text2);font-size:11px}
-/* ===== C3 layout: chart left, summary table right (§4.2 pair) ===== */
-.c3-body{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(340px,1fr);gap:14px;align-items:start}
-@media(max-width:1099px){.c3-body{grid-template-columns:1fr}}
-.c3-summary{min-width:0}
+/* ===== C3 layout: chart on top, summary table below at full width (§4.2 pair, T15.5) ===== */
+.c3-body{display:flex;flex-direction:column;gap:14px;align-items:stretch}
+.c3-summary{min-width:0;width:100%}
+.c3-summary-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 4px}
+.c3-summary-title{margin:0;font-size:13px;font-weight:600;color:var(--text2)}
 /* ===== §7.2 Tables (.ds-table) — the one table style ===== */
 :root{--ds-row-h:40px;--ds-head-h:40px;--ds-cell-fs:12px;--ds-cell-lh:20px;--ds-rule-w:1px;
   --ds-head-rule:rgba(255,255,255,.38);--ds-head-rule-hi:rgba(255,255,255,.7);--ds-sbw:0px}
@@ -382,3 +433,27 @@ details summary{cursor:pointer;font-size:13px;color:var(--accent);margin:6px 0}
 .vheadtab thead th.ds-pinned{position:sticky;z-index:4}
 .th-wrap{display:flex;align-items:center;min-width:0}
 .lb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ===== C2 Submission Flow & Delay (workplan D6 / D9 / D40) ===== */
+.c2-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 10px}
+.c2-controls .controls-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.c2-controls .controls-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
+.c2-svg{display:block}
+.c2-stack{position:relative;min-width:0;overflow-x:auto}
+.c2-leg-t{fill:var(--text);font-size:11px}
+.c2-tip{position:absolute;pointer-events:none;background:rgba(21,49,79,.95);color:#fff;
+  font-size:12px;line-height:1.5;padding:8px 10px;border-radius:6px;min-width:150px;
+  box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:5}
+.c2-tip[hidden]{display:none}
+.c2-tip-row{display:flex;justify-content:space-between;gap:12px}
+.c2-swatch{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.c2-ftab{width:auto;border-collapse:collapse;margin-top:10px;font-size:13px}
+.c2-ftab th,.c2-ftab td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--border)}
+.c2-ftab th:first-child,.c2-ftab td:first-child{text-align:left}
+.c2-ftab thead th{color:var(--text);font-weight:600;border-bottom:2px solid var(--border)}
+.c2-ftab tbody tr.tot td{font-weight:700;border-top:2px solid var(--border)}
+.c2-funnel-row{display:flex;align-items:flex-start;gap:28px}
+.c2-ftab-wrap{flex:0 1 auto;min-width:0}
+.c2-funnel-wrap{flex:0 0 auto;display:flex;flex-direction:column;width:350px;min-height:420px;margin-left:auto}
+.c2-funnel-svg{display:block;width:350px;height:420px}
+.c2-funnel-lab{fill:var(--text);font-size:12px;font-weight:700}
+.c2-funnel-val{fill:var(--text);font-size:12px}

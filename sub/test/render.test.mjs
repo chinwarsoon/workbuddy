@@ -1,3 +1,4 @@
+// Revision 0.6 | 2026-10-26 | CodeBuddy (AI) | T15.3 (Wave 4.2): added a C3 two-side-by-side vertical-bar-chart test (Submissions + Approval Status, Under Review via D38) and dropped the now-invalid All-months percentages assertion from the bar-view test (percentages remain a pie-view detail).
 // Revision 0.5 | 2026-10-25 | CodeBuddy (AI) | Added two C3 summary-table tests: the shared `.ds-table` renders below the chart with all eight columns and a Total footer row, and Total Plan for All months covers every planned month rather than only the rows whose Planned 1st Issue Date is blank (a bug found by probing the rendered output).
 // Revision 0.4 | 2026-10-25 | CodeBuddy (AI) | Added C3 Breakdown tests (workplan D36). Corrected the
 // stale C1 assertion `class="scurve"`: the §4.2 board refactor moved the board border onto
@@ -183,17 +184,47 @@ test('renders C3 Breakdown controls and the two-series bar chart in Overview', (
   const fakeDocument = { querySelector(selector) { return selector === '[data-page-content]' ? rootNode : null; } };
   renderDashboard(fakeDocument, model, { page: 'Overview' });
   assert.match(html, /C3 Breakdown/);
-  assert.match(html, /class="c3-board"/, 'chart-component board border is drawn');
+  assert.match(html, /class="chart c3-card"/, 'each chart is its own bordered card');
   assert.match(html, /data-c3month/);
   assert.match(html, /data-c3dim="submitter"/);
   assert.match(html, /data-c3view="pie"/);
   assert.match(html, /data-c3png/);
   assert.match(html, /data-c3copy/);
-  // Two separate series, never one stacked bar: Submissions (New + Resubmission) and Approval Status.
-  assert.match(html, /class="c3-new"/);
-  assert.match(html, /class="c3-resub"/);
-  assert.match(html, /class="c3-app"/);
-  assert.match(html, /New \d+ \(\d+%\)/, 'All months (the default) shows percentages');
+  // Wave 4.2 (Option 2): two cards with a shared panel control cluster (Month + Break-down-by), not per-card controls.
+  assert.match(html, /class="c3-cards"/, 'the panel holds two stacked-bar cards');
+  assert.match(html, /class="c3-grid"/, 'each card is one aligned grid (bars + labels + table)');
+  assert.match(html, /seg-bar c3-new/, 'First Submission bar drawn');
+  assert.match(html, /seg-bar c3-resub/, 'Resubmission bar drawn');
+  assert.match(html, /seg-bar c3-app/, 'Approval APP bar drawn');
+  // Percentages remain a pie-view detail (see the pie test); the bar view shows grouped vertical bars.
+});
+
+test('T15.3 (Wave 4.2): C3 splits into two side-by-side vertical-bar charts; All-months shows SUR in Approval, not Under Review (D38 refined)', () => {
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  const fakeDocument = { querySelector(selector) { return selector === '[data-page-content]' ? rootNode : null; } };
+  renderDashboard(fakeDocument, model, { page: 'Overview' }); // default scope = All months
+  assert.match(html, /class="c3-cards"/, 'two stacked-bar cards');
+  assert.equal((html.match(/class="c3-grid"/g) || []).length, 2, 'exactly two aligned grids render');
+  assert.match(html, /Submissions/, 'left chart is Submissions');
+  assert.match(html, /Approval Status/, 'right chart is Approval Status');
+  // All months: Submissions = First Submission + Resubmission (Option A); Approval Status adds SUR (open review).
+  assert.match(html, /seg-bar c3-new/, 'First Submission bar drawn');
+  assert.match(html, /seg-bar c3-resub/, 'Resubmission bar drawn');
+  assert.match(html, /seg-bar c3-ur/, 'SUR (open review) bar drawn in Approval Status');
+  assert.match(html, /SUR/, 'open review shown as SUR in Approval Status');
+  // "Under Review" now legitimately appears as a row in the Submissions attached table. Scope the check
+  // to the bar region of each card: All-months must NOT draw an Under Review bar in Submissions (it is
+  // SUR in Approval Status), but Approval Status must draw SUR.
+  const subCard = html.slice(html.indexOf('>Submissions<'), html.indexOf('Approval Status'));
+  const appCard = html.slice(html.indexOf('Approval Status'), html.indexOf('class="c3-summary"'));
+  assert.doesNotMatch(subCard, /seg-bar c3-ur/, 'All-months Submissions bar has no Under Review segment');
+  assert.match(appCard, /seg-bar c3-ur/, 'All-months Approval Status bar shows SUR (open review)');
+  // A specific month keeps Under Review in the Submissions chart (D38).
+  let monthHtml = '';
+  const monthNode = { set innerHTML(value) { monthHtml = value; }, get innerHTML() { return monthHtml; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? monthNode : null }, model, { page: 'Overview', c3Month: deriveView(model).c3.months[0] });
+  assert.match(monthHtml, /Under Review/, 'a specific month shows Under Review in Submissions');
 });
 
 test('renders the C3 Breakdown summary table below the chart', () => {
@@ -202,39 +233,127 @@ test('renders the C3 Breakdown summary table below the chart', () => {
   const fakeDocument = { querySelector(selector) { return selector === '[data-page-content]' ? rootNode : null; } };
   renderDashboard(fakeDocument, model, { page: 'Overview' });
   assert.match(html, /class="c3-summary"/);
+  assert.match(html, /data-c3export/, 'the summary table has a Download (CSV) button');
   assert.match(html, /class="ds-table"/, 'the summary uses the shared table style (§7.2)');
   for (const head of ['Total Plan', 'New Submissions', 'Resubmissions', 'Total Submitted', 'Total Approved', 'Total AWC', 'Total Under Review'])
     assert.match(html, new RegExp(head), `column ${head} is present`);
   assert.match(html, /<tfoot>/, 'a Total footer row is rendered');
 });
 
-test('C3 Total Plan covers every planned month, not only the undated rows', () => {
+test('T15.5 (Wave 4.2): the C3 summary table sits below the charts at full width', () => {
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? rootNode : null }, model, { page: 'Overview' });
+  const boardPos = html.indexOf('class="c3-cards"');
+  const summaryPos = html.indexOf('class="c3-summary"');
+  assert.ok(boardPos > -1 && summaryPos > -1, 'the panel has a chart board and a summary table');
+  // T15.5 stacks them: the table renders after the chart board in DOM order and is the one full-set table.
+  assert.ok(boardPos < summaryPos, 'the summary table sits below the chart board');
+  assert.equal((html.match(/class="c3-summary"/g) || []).length, 1, 'one full-set summary table renders');
+  assert.match(html, /class="ds-table"/, 'the summary uses the shared full-width table style (§7.2)');
+  // The split-header structure (§7.2.15) is what wireSplitHeaders keeps aligned and re-flows on resize.
+  assert.match(html, /class="ds-split splitcard"/, 'the summary uses the split-header table (§7.2.15)');
+  assert.match(html, /class="ds-table vheadtab"/, 'the split header carries a frozen header fragment');
+  assert.match(html, /class="ds-gut"/, 'the split header carries the scrollbar gutter');
+});
+
+test('Wave 4.2 (Option 2): C3 splits into two cards with a shared panel control cluster (no per-card month/dim)', () => {
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? rootNode : null }, model, { page: 'Overview' });
+  // Bar view: two bordered cards, one two-column grid.
+  assert.equal((html.match(/class="chart c3-card"/g) || []).length, 2, 'two bordered cards render in the Bar view');
+  assert.match(html, /class="c3-cards"/, 'the cards share one two-column grid');
+  assert.match(html, /Submissions/);
+  assert.match(html, /Approval Status/);
+  // Controls are shared at the panel level (Month + Break-down-by), not duplicated per card: exactly one
+  // of each, in the .c3-controls cluster. PNG / Copy stay per card (two clusters).
+  assert.match(html, /class="c3-controls"/, 'a shared panel control cluster renders');
+  assert.equal((html.match(/data-c3month/g) || []).length, 1, 'exactly one shared month control (not one per card)');
+  assert.match(html, /data-c3dim="submitter"/, 'the shared Break-down-by toggle exposes the submitter option');
+  assert.equal((html.match(/class="c3-card-ctrls"/g) || []).length, 2, 'two per-card PNG/Copy clusters render');
+  // Each card is one aligned CSS grid: bars (g-bar), vertical axis labels (g-axis), attached table (g-label / g-val).
+  // The breakdown lists every MDL discipline even when a month has zero submissions for it (Q1, Q2).
+  assert.match(html, /class="c3-grid"/, 'each card is one aligned grid (bars + labels + table)');
+  assert.match(html, /class="g-bar"/, 'bars render');
+  assert.match(html, /class="g-axis"/, 'axis labels render (vertical, aligned to bars)');
+  // I060: C3 bars get a y-axis with grid lines + numbers, matching C1/C2.
+  assert.match(html, /class="c3-gridlines"/, 'C3 bars get horizontal y-axis grid lines (I060)');
+  assert.match(html, /class="g-yaxis"/, 'C3 bars get a y-axis number column (I060)');
+  assert.equal((html.match(/class="g-ytick"/g) || []).length, 10, 'five right-aligned tick numbers per card (2 cards)');
+  assert.match(html, /class="g-ytick"[^>]*>0</, 'the bottom tick is 0 (nice-max axis)');
+  const plannedDiscs = [...new Set(model.planned.map(r => r.discipline).filter(Boolean))];
+  for (const d of plannedDiscs) assert.ok(html.includes(d), `discipline ${d} listed (full MDL set shown)`);
+});
+
+test('C3 Pie view renders two donut cards (Submissions, Approval Status); Break-down-by hidden', () => {
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? rootNode : null }, model, { page: 'Overview', c3View: 'pie' });
+  assert.equal((html.match(/class="chart c3-card"/g) || []).length, 2, 'two bordered cards render in the Pie view');
+  assert.match(html, /Submissions/, 'left card is Submissions');
+  assert.match(html, /Approval Status/, 'right card is Approval Status');
+  assert.equal((html.match(/class="c3-svg"/g) || []).length, 2, 'each card shows its own donut');
+  assert.match(html, /class="c3-controls"/, 'the shared panel control cluster still renders');
+  assert.equal((html.match(/data-c3month/g) || []).length, 1, 'one shared month control');
+  assert.doesNotMatch(html, /data-c3dim=/, 'Break-down-by is hidden in Pie view');
+  assert.match(html, /c3-new-arc/, 'Submissions donut draws First Submission');
+  assert.match(html, /c3-[a-z]+-arc/, 'at least one approval donut arc is drawn');
+});
+
+test('C3 Total Plan (All months) is bounded to the as-of month and excludes undated plans (I061)', () => {
   const view = deriveView(model);
+  const asOf = String(view.c1.asOf || '').slice(0, 7);
+  assert.ok(asOf, 'the fixture carries an as-of month');
+  const ym = d => (typeof d === 'string' && /^\d{4}-\d{2}/.test(d)) ? d.slice(0, 7) : '';
   const dims = [...new Set(view.c3.rows.map(row => row.discipline))];
   assert.ok(dims.length > 0, 'the log supplies at least one discipline');
   for (const dim of dims) {
     const all = view.c3.planCount('discipline', dim, 'ALL');
-    for (const month of view.c3.months)
-      assert.ok(all >= view.c3.planCount('discipline', dim, month), `${dim}: All months includes ${month}`);
-    // The rows whose Planned 1st Issue Date is blank fall outside every named month, so All months
-    // must exceed the sum of the named months whenever such rows exist.
-    const named = view.c3.months.reduce((sum, month) => sum + view.c3.planCount('discipline', dim, month), 0);
-    assert.ok(all >= named, `${dim}: All months spans the named months and the undated rows`);
+    // Expected = active planned rows for this discipline whose Planned 1st Issue Date is a real month ≤ as-of.
+    const expected = model.planned.filter(r =>
+      r.documentNo && !['Deleted', 'Void', 'Superseded'].includes(r.stage) &&
+      (r.discipline || 'Unknown') === dim &&
+      (() => { const m = ym(r.fields['Planned 1st Issue Date']); return m && m <= asOf; })()
+    ).length;
+    assert.equal(all, expected, `${dim}: All-months Total Plan = planned 1st issues ≤ ${asOf} (undated excluded)`);
+    // A specific month still counts only its own planned 1st issue.
+    for (const month of view.c3.months) {
+      const m = ym(month);
+      const single = view.c3.planCount('discipline', dim, month);
+      const singleExpected = model.planned.filter(r =>
+        r.documentNo && !['Deleted', 'Void', 'Superseded'].includes(r.stage) &&
+        (r.discipline || 'Unknown') === dim && ym(r.fields['Planned 1st Issue Date']) === m
+      ).length;
+      assert.equal(single, singleExpected, `${dim} ${month}: a single month counts only its own planned 1st issue`);
+      if (m <= asOf) assert.ok(all >= single, `${dim}: All-months includes ${month}`);
+    }
   }
 });
 
-test('renders the C3 pie view as two rings and shows counts only for a single month', () => {
+test('T15.4 (Wave 4.2): Pie view shows two equal-total donuts (Submissions, Approval Status)', () => {
   const months = deriveView(model).c3.months;
-  const month = months[Math.floor(months.length / 2)];
   let pieHtml = '';
   const pieNode = { set innerHTML(value) { pieHtml = value; }, get innerHTML() { return pieHtml; } };
   renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? pieNode : null }, model, { page: 'Overview', c3View: 'pie' });
-  assert.match(pieHtml, /class="c3-new-arc"/, 'submissions ring is drawn');
-  assert.match(pieHtml, /class="c3-app-arc"/, 'approval ring is drawn');
-  assert.match(pieHtml, /New \d+ \(\d+%\)/, 'All months shows percentages');
-  let monthHtml = '';
+  assert.equal((pieHtml.match(/class="c3-svg"/g) || []).length, 2, 'two donut cards render');
+  assert.match(pieHtml, /class="c3-new-arc"/, 'Submissions donut draws First Submission');
+  assert.match(pieHtml, /class="c3-resub-arc"/, 'Submissions donut draws Resubmission');
+  assert.match(pieHtml, /class="c3-ur-arc"/, 'All-months Approval donut shows SUR (open review)');
+  // Both All-months donuts total the distinct-document count (T15.4 equal-total invariant).
+  const totals = [...pieHtml.matchAll(/class="c3-total"[^>]*>(\d+)</g)].map(m => +m[1]);
+  assert.equal(totals.length, 2, 'two donut totals render');
+  assert.equal(totals[0], totals[1], 'All-months: Submissions donut total = Approval donut total (distinct documents)');
+  // A single month shows Under Review only when it has open reviews; zero segments are omitted.
+  let month = null, monthHtml = '';
   const monthNode = { set innerHTML(value) { monthHtml = value; }, get innerHTML() { return monthHtml; } };
+  for (const cand of months) {
+    renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? monthNode : null }, model, { page: 'Overview', c3View: 'pie', c3Month: cand });
+    if (/class="c3-ur-arc"/.test(monthHtml)) { month = cand; break; }
+  }
+  assert.ok(month, 'at least one month shows Under Review in the pie');
   renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? monthNode : null }, model, { page: 'Overview', c3View: 'pie', c3Month: month });
-  assert.match(monthHtml, /class="c3-new-arc"/);
-  assert.doesNotMatch(monthHtml, /\(\d+%\)/, 'a single month shows counts only');
+  assert.match(monthHtml, /class="c3-new-arc"/, 'a single month donut still shows First Submission');
+  assert.match(monthHtml, /class="c3-ur-arc"/, 'a single month donut shows Under Review as a third Submissions segment');
+  assert.doesNotMatch(monthHtml, /\(\d+%\)/, 'a single month shows counts only (no percentages)');
 });

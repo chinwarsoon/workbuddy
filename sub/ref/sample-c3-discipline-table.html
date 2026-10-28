@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>C3 Breakdown — proposal sample: all disciplines + attached per-bar table</title>
+<style>
+  :root{
+    --navy:#14385a; --surface:#fff; --border:#d9e0e8; --ink:#1c2733; --muted:#5b6b7c;
+    --new:#1f9e8a; --resub:#f4a259; --ur:#e0c341;
+    --APP:#2e8b57; --AWC:#3aa0c4; --NAP:#e0a83b; --REJ:#c0504d; --INF:#8e7cc3;
+    --shadow:0 1px 3px rgba(20,56,90,.12);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.4 system-ui,Segoe UI,Arial,sans-serif;color:var(--ink);background:#eef2f6}
+  .note{margin:14px;padding:12px 14px;background:#fff7e6;border:1px solid #f0d089;border-radius:8px}
+  .note b{color:#7a5b00}
+  .c3-controls{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:14px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow)}
+  .controls-left{display:flex;gap:10px;align-items:center}
+  .controls-right .seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  .seg-btn{padding:6px 12px;border:0;background:#fff;cursor:pointer;font:inherit}
+  .seg-btn.active{background:var(--navy);color:#fff}
+  .c3-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:0 14px 6px}
+  @media(max-width:880px){.c3-cards{grid-template-columns:minmax(0,1fr)}}
+  .c3-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);padding:12px 14px 16px}
+  .c3-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .c3-card-title{margin:0;font-size:15px}
+  .c3-card-ctrls{display:flex;gap:8px}
+  .btn-secondary{padding:5px 10px;border:1px solid var(--border);background:#f5f8fb;border-radius:6px;cursor:pointer;font:inherit}
+  /* One grid: col 1 = metric labels, cols 2..N+1 = disciplines. Bars (row 1), axis (row 2), metric rows (3+). */
+  .c3-grid{display:grid;column-gap:6px;row-gap:0;margin-top:4px}
+  .g-bar{height:150px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+  .seg-bar{width:60%;border-radius:2px 2px 0 0}
+  .g-axis{writing-mode:vertical-rl;text-orientation:mixed;font-size:11px;font-weight:600;color:var(--muted);
+    text-align:left;padding:2px 0;white-space:nowrap}
+  .g-label{display:flex;align-items:center;justify-content:flex-end;font-size:11px;color:var(--muted);
+    padding-right:6px;text-align:right}
+  .g-val{text-align:center;font-size:12px;padding:4px 0;border-top:1px solid #eef2f6}
+  .g-label{border-top:1px solid #eef2f6}
+  .shared-table-note{margin:6px 14px 18px;font-size:12px;color:var(--muted)}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin:8px 14px 18px;font-size:11px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:4px}
+  .sw{width:10px;height:10px;border-radius:2px;display:inline-block}
+  h1{font-size:18px;margin:14px 14px 0}
+</style>
+</head>
+<body>
+<h1>C3 Breakdown — proposal sample (review only)</h1>
+<div class="note">
+  <b>Proposal sample — updated for Q5–Q8.</b> This page is a mock for review. It does not change the current dashboard.
+  <ol>
+    <li>Both cards use the <b>full MDL discipline list</b> (including zero-data disciplines). Electrical is zero here.</li>
+    <li>Each bar graph has a <b>table attached to its bottom</b>, columns aligned to the bars.</li>
+    <li><b>Card-specific rows (Q5):</b> the Submissions table shows Total Plan, First Submission, Resubmission, Under Review. The Approval Status table shows the approval codes (APP, AWC, NAP, REJ, INF; SUR added in All-months).</li>
+    <li><b>Under Review (Q6):</b> All-months counts per distinct Document No.; each month counts per record row. Same rule as Approval Status.</li>
+    <li><b>Header labels (Q7):</b> the discipline names are the chart x-axis, shown as vertical text so bars sit closer.</li>
+    <li><b>Shared table (Q8):</b> the existing shared summary table below both cards is kept for now. The per-card tables are added. Removal is a later decision.</li>
+  </ol>
+</div>
+
+<div class="c3-controls">
+  <div class="controls-left">
+    <label>Month <select><option>2026-07</option><option>All months</option></select></label>
+    <div class="seg"><button class="seg-btn active">Discipline</button><button class="seg-btn">Submitter</button></div>
+  </div>
+  <div class="controls-right"><div class="seg"><button class="seg-btn active">Bar</button><button class="seg-btn">Pie</button></div></div>
+</div>
+
+<div class="c3-cards"><div class="chart c3-card"><div class="c3-card-head"><h3 class="c3-card-title">Submissions</h3><div class="c3-card-ctrls"><button class="btn-secondary">⤓ PNG</button><button class="btn-secondary">⧉ Copy</button></div></div><div class="c3-grid" style="grid-template-columns:110px repeat(6,1fr)"><div class="g-bar" style="grid-column:2;grid-row:1"><div class="seg-bar" style="height:25.0px;background:#e0c341"></div><div class="seg-bar" style="height:37.5px;background:#f4a259"></div><div class="seg-bar" style="height:87.5px;background:#1f9e8a"></div></div><div class="g-bar" style="grid-column:3;grid-row:1"><div class="seg-bar" style="height:12.5px;background:#e0c341"></div><div class="seg-bar" style="height:12.5px;background:#f4a259"></div><div class="seg-bar" style="height:62.5px;background:#1f9e8a"></div></div><div class="g-bar" style="grid-column:4;grid-row:1"><div class="seg-bar" style="height:25.0px;background:#e0c341"></div><div class="seg-bar" style="height:37.5px;background:#f4a259"></div><div class="seg-bar" style="height:75.0px;background:#1f9e8a"></div></div><div class="g-bar" style="grid-column:5;grid-row:1"><div class="seg-bar" style="height:12.5px;background:#e0c341"></div><div class="seg-bar" style="height:12.5px;background:#f4a259"></div><div class="seg-bar" style="height:37.5px;background:#1f9e8a"></div></div><div class="g-bar" style="grid-column:6;grid-row:1"></div><div class="g-bar" style="grid-column:7;grid-row:1"><div class="seg-bar" style="height:12.5px;background:#e0c341"></div><div class="seg-bar" style="height:12.5px;background:#f4a259"></div><div class="seg-bar" style="height:25.0px;background:#1f9e8a"></div></div><div class="g-axis" style="grid-column:2;grid-row:2">Architectural</div><div class="g-axis" style="grid-column:3;grid-row:2">Civil</div><div class="g-axis" style="grid-column:4;grid-row:2">Structural</div><div class="g-axis" style="grid-column:5;grid-row:2">Mechanical</div><div class="g-axis" style="grid-column:6;grid-row:2">Electrical</div><div class="g-axis" style="grid-column:7;grid-row:2">Piping</div><div class="g-label" style="grid-column:1;grid-row:3">Total Plan</div><div class="g-val" style="grid-column:2;grid-row:3">12</div><div class="g-val" style="grid-column:3;grid-row:3">8</div><div class="g-val" style="grid-column:4;grid-row:3">10</div><div class="g-val" style="grid-column:5;grid-row:3">7</div><div class="g-val" style="grid-column:6;grid-row:3">9</div><div class="g-val" style="grid-column:7;grid-row:3">5</div><div class="g-label" style="grid-column:1;grid-row:4">First Submission</div><div class="g-val" style="grid-column:2;grid-row:4">7</div><div class="g-val" style="grid-column:3;grid-row:4">5</div><div class="g-val" style="grid-column:4;grid-row:4">6</div><div class="g-val" style="grid-column:5;grid-row:4">3</div><div class="g-val" style="grid-column:6;grid-row:4">0</div><div class="g-val" style="grid-column:7;grid-row:4">2</div><div class="g-label" style="grid-column:1;grid-row:5">Resubmission</div><div class="g-val" style="grid-column:2;grid-row:5">3</div><div class="g-val" style="grid-column:3;grid-row:5">1</div><div class="g-val" style="grid-column:4;grid-row:5">3</div><div class="g-val" style="grid-column:5;grid-row:5">1</div><div class="g-val" style="grid-column:6;grid-row:5">0</div><div class="g-val" style="grid-column:7;grid-row:5">1</div><div class="g-label" style="grid-column:1;grid-row:6">Under Review</div><div class="g-val" style="grid-column:2;grid-row:6">2</div><div class="g-val" style="grid-column:3;grid-row:6">1</div><div class="g-val" style="grid-column:4;grid-row:6">2</div><div class="g-val" style="grid-column:5;grid-row:6">1</div><div class="g-val" style="grid-column:6;grid-row:6">0</div><div class="g-val" style="grid-column:7;grid-row:6">1</div></div></div><div class="chart c3-card"><div class="c3-card-head"><h3 class="c3-card-title">Approval Status</h3><div class="c3-card-ctrls"><button class="btn-secondary">⤓ PNG</button><button class="btn-secondary">⧉ Copy</button></div></div><div class="c3-grid" style="grid-template-columns:110px repeat(6,1fr)"><div class="g-bar" style="grid-column:2;grid-row:1"><div class="seg-bar" style="height:18.8px;background:#e0a83b"></div><div class="seg-bar" style="height:37.5px;background:#3aa0c4"></div><div class="seg-bar" style="height:93.8px;background:#2e8b57"></div></div><div class="g-bar" style="grid-column:3;grid-row:1"><div class="seg-bar" style="height:18.8px;background:#3aa0c4"></div><div class="seg-bar" style="height:75.0px;background:#2e8b57"></div></div><div class="g-bar" style="grid-column:4;grid-row:1"><div class="seg-bar" style="height:18.8px;background:#e0a83b"></div><div class="seg-bar" style="height:18.8px;background:#3aa0c4"></div><div class="seg-bar" style="height:93.8px;background:#2e8b57"></div></div><div class="g-bar" style="grid-column:5;grid-row:1"><div class="seg-bar" style="height:18.8px;background:#3aa0c4"></div><div class="seg-bar" style="height:37.5px;background:#2e8b57"></div></div><div class="g-bar" style="grid-column:6;grid-row:1"></div><div class="g-bar" style="grid-column:7;grid-row:1"><div class="seg-bar" style="height:18.8px;background:#3aa0c4"></div><div class="seg-bar" style="height:18.8px;background:#2e8b57"></div></div><div class="g-axis" style="grid-column:2;grid-row:2">Architectural</div><div class="g-axis" style="grid-column:3;grid-row:2">Civil</div><div class="g-axis" style="grid-column:4;grid-row:2">Structural</div><div class="g-axis" style="grid-column:5;grid-row:2">Mechanical</div><div class="g-axis" style="grid-column:6;grid-row:2">Electrical</div><div class="g-axis" style="grid-column:7;grid-row:2">Piping</div><div class="g-label" style="grid-column:1;grid-row:3">APP</div><div class="g-val" style="grid-column:2;grid-row:3">5</div><div class="g-val" style="grid-column:3;grid-row:3">4</div><div class="g-val" style="grid-column:4;grid-row:3">5</div><div class="g-val" style="grid-column:5;grid-row:3">2</div><div class="g-val" style="grid-column:6;grid-row:3">0</div><div class="g-val" style="grid-column:7;grid-row:3">1</div><div class="g-label" style="grid-column:1;grid-row:4">AWC</div><div class="g-val" style="grid-column:2;grid-row:4">2</div><div class="g-val" style="grid-column:3;grid-row:4">1</div><div class="g-val" style="grid-column:4;grid-row:4">1</div><div class="g-val" style="grid-column:5;grid-row:4">1</div><div class="g-val" style="grid-column:6;grid-row:4">0</div><div class="g-val" style="grid-column:7;grid-row:4">1</div><div class="g-label" style="grid-column:1;grid-row:5">NAP</div><div class="g-val" style="grid-column:2;grid-row:5">1</div><div class="g-val" style="grid-column:3;grid-row:5">0</div><div class="g-val" style="grid-column:4;grid-row:5">1</div><div class="g-val" style="grid-column:5;grid-row:5">0</div><div class="g-val" style="grid-column:6;grid-row:5">0</div><div class="g-val" style="grid-column:7;grid-row:5">0</div><div class="g-label" style="grid-column:1;grid-row:6">REJ</div><div class="g-val" style="grid-column:2;grid-row:6">0</div><div class="g-val" style="grid-column:3;grid-row:6">0</div><div class="g-val" style="grid-column:4;grid-row:6">0</div><div class="g-val" style="grid-column:5;grid-row:6">0</div><div class="g-val" style="grid-column:6;grid-row:6">0</div><div class="g-val" style="grid-column:7;grid-row:6">0</div><div class="g-label" style="grid-column:1;grid-row:7">INF</div><div class="g-val" style="grid-column:2;grid-row:7">0</div><div class="g-val" style="grid-column:3;grid-row:7">0</div><div class="g-val" style="grid-column:4;grid-row:7">0</div><div class="g-val" style="grid-column:5;grid-row:7">0</div><div class="g-val" style="grid-column:6;grid-row:7">0</div><div class="g-val" style="grid-column:7;grid-row:7">0</div></div></div></div>
+
+<div class="shared-table-note">Below: the existing shared summary table (kept per Q8). The per-card tables above are the new proposal.</div>
+
+<div class="legend">
+  <span><i class="sw" style="background:var(--new)"></i>First Submission</span>
+  <span><i class="sw" style="background:var(--resub)"></i>Resubmission</span>
+  <span><i class="sw" style="background:var(--ur)"></i>Under Review</span>
+  <span><i class="sw" style="background:var(--APP)"></i>APP</span>
+  <span><i class="sw" style="background:var(--AWC)"></i>AWC</span>
+  <span><i class="sw" style="background:var(--NAP)"></i>NAP</span>
+  <span><i class="sw" style="background:var(--REJ)"></i>REJ</span>
+  <span><i class="sw" style="background:var(--INF)"></i>INF</span>
+</div>
+</body>
+</html>

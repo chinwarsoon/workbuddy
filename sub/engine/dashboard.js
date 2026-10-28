@@ -6,7 +6,7 @@ import { deriveView, renderDashboard, EXCLUDED_STAGES } from './render.js';
 
 const $ = selector => document.querySelector(selector);
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
-const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', collapsedPanels: [] };
+const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', c2View: 'stacked', c2Nfs: true, collapsedPanels: [] };
 let contract;
 let uiHelp;
 let files = { mdl: null, log: null };
@@ -96,31 +96,84 @@ function chartC3SvgStyle() {
   const cs = getComputedStyle(document.documentElement);
   const v = n => (cs.getPropertyValue(n) || '').trim();
   const cNew = v('--color-new'), cResub = v('--color-resub');
-  const app = v('--color-app'), awc = v('--color-awc'), nap = v('--color-nap'), rej = v('--color-rej'), inf = v('--color-inf');
+  const app = v('--color-app'), awc = v('--color-awc'), nap = v('--color-nap'), rej = v('--color-rej'), inf = v('--color-inf'), ur = v('--color-ur');
   const border = v('--border'), text = v('--text'), text2 = v('--text2');
-  return `<style>.c3-new{fill:${cNew}}.c3-new-arc{stroke:${cNew}}.c3-resub{fill:${cResub}}.c3-resub-arc{stroke:${cResub}}.c3-app{fill:${app}}.c3-app-arc{stroke:${app}}.c3-awc{fill:${awc}}.c3-awc-arc{stroke:${awc}}.c3-nap{fill:${nap}}.c3-nap-arc{stroke:${nap}}.c3-rej{fill:${rej}}.c3-rej-arc{stroke:${rej}}.c3-inf{fill:${inf}}.c3-inf-arc{stroke:${inf}}.c3-track-bg{fill:${border};fill-opacity:.18}.c3-label{fill:${text};font-size:11px}.c3-cap{fill:${text2};font-size:9px}.c3-val{fill:${text};font-size:11px;font-weight:600}.c3-total{fill:${text}}.c3-sub{fill:${text2}}.c3-leg-t{fill:${text2};font-size:11px}</style>`;
+  return `<style>.c3-new{fill:${cNew}}.c3-new-arc{stroke:${cNew}}.c3-resub{fill:${cResub}}.c3-resub-arc{stroke:${cResub}}.c3-app{fill:${app}}.c3-app-arc{stroke:${app}}.c3-awc{fill:${awc}}.c3-awc-arc{stroke:${awc}}.c3-nap{fill:${nap}}.c3-nap-arc{stroke:${nap}}.c3-rej{fill:${rej}}.c3-rej-arc{stroke:${rej}}.c3-inf{fill:${inf}}.c3-inf-arc{stroke:${inf}}.c3-ur{fill:${ur}}.c3-ur-arc{stroke:${ur}}.c3-track-bg{fill:${border};fill-opacity:.18}.c3-label{fill:${text};font-size:11px}.c3-cap{fill:${text2};font-size:9px}.c3-val{fill:${text};font-size:11px;font-weight:600}.c3-total{fill:${text}}.c3-sub{fill:${text2}}.c3-leg-t{fill:${text2};font-size:11px}</style>`;
 }
-function serializeC3Svg() {
-  const svg = document.querySelector('.c3-board svg');
-  if (!svg) return null;
-  const clone = svg.cloneNode(true);
-  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-  clone.insertAdjacentHTML('afterbegin', chartC3SvgStyle());
-  return new XMLSerializer().serializeToString(clone);
+// Reconstruct a C3 Bar card (the HTML grid: bars + vertical axis labels + attached table + legend) as a
+// self-contained native SVG (rects + text). Used for PNG/Copy because the Bar card has no <svg> of its own
+// (the I057 redesign draws it with a CSS grid). Native SVG (no <foreignObject>) keeps canvas rasterization
+// taint-free, so the existing PNG path works in every browser.
+function c3CardToSvg(btn) {
+  const card = btn && btn.closest ? btn.closest('.c3-card') : null;
+  const body = card && card.querySelector('.c3-card-body');
+  if (!body) return null;
+  const root = card.getBoundingClientRect();
+  const r0 = body.getBoundingClientRect();
+  const X = r0.left - root.left, Y = r0.top - root.top;
+  const W = Math.max(1, Math.ceil(r0.width)), H = Math.max(1, Math.ceil(r0.height));
+  const csCard = getComputedStyle(card);
+  let surf = (csCard.backgroundColor || '').trim();
+  if (!surf || surf === 'transparent' || surf === 'rgba(0, 0, 0, 0)') surf = (getComputedStyle(document.documentElement).getPropertyValue('--surface') || '').trim() || '#fff';
+  const escSvg = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const rb = el => { const r = el.getBoundingClientRect(); return { x: r.left - root.left - X, y: r.top - root.top - Y, w: r.width, h: r.height }; };
+  let out = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="100%" height="100%" fill="${surf}"/>`;
+  body.querySelectorAll('.seg-bar').forEach(b => {
+    const r = rb(b), fill = (getComputedStyle(b).backgroundColor || '#888').trim();
+    out += `<rect x="${r.x.toFixed(1)}" y="${r.y.toFixed(1)}" width="${r.w.toFixed(1)}" height="${r.h.toFixed(1)}" fill="${fill}" rx="2"/>`;
+  });
+  const placeText = (el, vertical) => {
+    const r = rb(el), cs = getComputedStyle(el);
+    const fill = (cs.color || '#222').trim();
+    const fs = parseFloat(cs.fontSize) || 11;
+    const fw = (cs.fontWeight === 'bold' || +cs.fontWeight >= 600) ? ' font-weight="600"' : '';
+    const fam = (cs.fontFamily || 'sans-serif').replace(/"/g, "'");
+    const txt = el.textContent.trim();
+    if (!txt) return;
+    if (vertical) {
+      const cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+      out += `<text transform="rotate(-90 ${cx.toFixed(1)} ${cy.toFixed(1)})" x="${cx.toFixed(1)}" y="${cy.toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-family="${fam}" font-size="${fs}"${fw} fill="${fill}">${escSvg(txt)}</text>`;
+    } else {
+      const ta = cs.textAlign;
+      const anchor = ta === 'center' ? 'middle' : ta === 'right' ? 'end' : 'start';
+      const tx = ta === 'center' ? (r.x + r.w / 2) : ta === 'right' ? (r.x + r.w - 2) : (r.x + 2);
+      const ty = r.y + r.h / 2;
+      out += `<text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="${anchor}" dominant-baseline="central" font-family="${fam}" font-size="${fs}"${fw} fill="${fill}">${escSvg(txt)}</text>`;
+    }
+  };
+  body.querySelectorAll('.g-axis').forEach(e => placeText(e, true));
+  body.querySelectorAll('.g-label, .g-val').forEach(e => placeText(e, false));
+  body.querySelectorAll('.c3-leg').forEach(leg => {
+    const sw = leg.querySelector('.c3-swatch'), sr = sw && sw.getBoundingClientRect();
+    if (sr) out += `<rect x="${(sr.left - root.left - X).toFixed(1)}" y="${(sr.top - root.top - Y).toFixed(1)}" width="${sr.width.toFixed(1)}" height="${sr.height.toFixed(1)}" fill="${(getComputedStyle(sw).backgroundColor || '#888').trim()}" rx="2"/>`;
+    const lr = rb(leg), cs = getComputedStyle(leg), lx = sr ? (sr.left - root.left - X + sr.width + 4) : lr.x;
+    out += `<text x="${lx.toFixed(1)}" y="${(lr.y + lr.h / 2).toFixed(1)}" text-anchor="start" dominant-baseline="central" font-family="${(cs.fontFamily || 'sans-serif').replace(/"/g, "'")}" font-size="${parseFloat(cs.fontSize) || 11}" fill="${(cs.color || '#222').trim()}">${escSvg(leg.textContent.trim())}</text>`;
+  });
+  return out + '</svg>';
 }
-function exportC3Png() {
-  const svg = document.querySelector('.c3-board svg');
-  if (!svg) return;
-  const str = serializeC3Svg();
+function serializeC3Svg(btn) {
+  const scope = btn && btn.closest ? btn.closest('.c3-card') : null;
+  const svg = (scope || document).querySelector('svg');
+  if (svg) {
+    const clone = svg.cloneNode(true);
+    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    clone.insertAdjacentHTML('afterbegin', chartC3SvgStyle());
+    return new XMLSerializer().serializeToString(clone);
+  }
+  // Bar view card (no <svg>): rebuild it as a self-contained SVG so PNG/Copy still work.
+  return c3CardToSvg(btn);
+}
+function exportC3Png(btn) {
+  const str = serializeC3Svg(btn);
   if (!str) return;
   const blob = new Blob([str], { type: 'image/svg+xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const img = new Image();
   img.onload = () => {
     const scale = 2;
-    const vb = svg.viewBox.baseVal;
+    const w = img.naturalWidth || 800, h = img.naturalHeight || 400;
     const canvas = document.createElement('canvas');
-    canvas.width = vb.width * scale; canvas.height = vb.height * scale;
+    canvas.width = w * scale; canvas.height = h * scale;
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = (getComputedStyle(document.documentElement).getPropertyValue('--surface') || '').trim() || '#fff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -131,10 +184,60 @@ function exportC3Png() {
   img.onerror = () => URL.revokeObjectURL(url);
   img.src = url;
 }
-function copyC3Svg() {
-  const str = serializeC3Svg();
+function copyC3Svg(btn) {
+  const str = serializeC3Svg(btn);
   if (!str) return;
   if (navigator.clipboard) navigator.clipboard.writeText(str);
+}
+// Serialize the C2 chart's SVG. The C2 bands use inline fills, so no style injection is required.
+function serializeC2Svg() {
+  const svg = document.querySelector('.c2-stack svg');
+  if (!svg) return '';
+  const clone = svg.cloneNode(true);
+  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  return new XMLSerializer().serializeToString(clone);
+}
+function exportC2Png() {
+  const str = serializeC2Svg();
+  if (!str) return;
+  const blob = new Blob([str], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = () => {
+    const scale = 2;
+    const w = img.naturalWidth || 800, h = img.naturalHeight || 400;
+    const canvas = document.createElement('canvas');
+    canvas.width = w * scale; canvas.height = h * scale;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = (getComputedStyle(document.documentElement).getPropertyValue('--surface') || '').trim() || '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(b => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'submission-flow.png'; a.click(); URL.revokeObjectURL(a.href); });
+    URL.revokeObjectURL(url);
+  };
+  img.onerror = () => URL.revokeObjectURL(url);
+  img.src = url;
+}
+function copyC2Svg() {
+  const str = serializeC2Svg();
+  if (str && navigator.clipboard) navigator.clipboard.writeText(str);
+}
+// Download the shared C3 summary table (below the two cards) as CSV. Reads the rendered rows straight
+// from the DOM so it stays decoupled from the render data helpers; the .ds-gut scrollbar spacer is skipped.
+function exportC3TableCsv() {
+  const wrap = document.querySelector('.c3-summary');
+  if (!wrap) return;
+  const rows = [...wrap.querySelectorAll('tr')].map(tr => [...tr.querySelectorAll('th:not(.ds-gut),td:not(.ds-gut)')].map(c => {
+    const t = (c.textContent || '').replace(/\s+/g, ' ').trim();
+    return /[",\n\r]/.test(t) ? `"${t.replaceAll('"', '""')}"` : t;
+  }).join(','));
+  if (!rows.length) return;
+  const csv = '﻿' + rows.join('\r\n'); // BOM so Excel opens UTF-8 correctly
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  link.download = 'breakdown-table.csv';
+  link.click();
+  URL.revokeObjectURL(link.href);
 }
 let filterDimensions = [];
 function filtersMarkup() {
@@ -142,7 +245,7 @@ function filtersMarkup() {
   // Stage domain even when no row uses it. A blank Stage appears as "(blank)".
   const stageValues = [...new Set([...model.planned.map(row => row.stage ?? ''), ...EXCLUDED_STAGES])].sort();
   filterDimensions = [
-    ['disciplines', 'Discipline', [...new Set(model.planned.map(row => row.discipline).filter(Boolean))].sort()],
+    ['disciplines', 'Discipline', [...new Set([...model.planned.map(row => row.discipline).filter(Boolean), 'Unknown'])].sort()],
     ['stages', 'Stage', stageValues, new Set(stageValues.filter(value => !EXCLUDED_STAGES.has(value)))],
     ['statuses', 'Submission Status', [...new Set(model.submissions.map(row => row.submissionStatus).filter(Boolean))].sort()],
     ['approvals', 'Approval Status', [...new Set(model.submissions.map(row => row.approvalStatus).filter(Boolean))].sort()],
@@ -188,7 +291,28 @@ function closeFilterPanels() {
 // can never cover a header cell. One implementation serves every table: the fragment is pinned to
 // the body table's rendered width plus the scrollbar width (--ds-sbw holds it), both tables share
 // the same colgroup, and the two scroll in lock-step horizontally.
+// §7.2.15 — registry of split-header width sync callbacks. The ResizeObserver below covers element
+// resizes, but browser zoom (Control + mouse scroll) changes the screen scale and does not always
+// re-fire ResizeObserver on every panel; the window and visualViewport resize events DO fire on zoom,
+// so we re-run every sync on those too. This keeps the tables following the screen scale.
+const splitSyncers = [];
+let splitResizeBound = false;
+function bindSplitResize() {
+  if (splitResizeBound || typeof window === 'undefined') return;
+  splitResizeBound = true;
+  let raf = 0;
+  const run = () => { raf = 0; for (const fn of splitSyncers) { try { fn(); } catch (e) {} } };
+  const onResize = () => { if (!raf) raf = requestAnimationFrame(run); };
+  window.addEventListener('resize', onResize, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', onResize, { passive: true });
+    window.visualViewport.addEventListener('scroll', onResize, { passive: true });
+  }
+}
+
 function wireSplitHeaders(root) {
+  splitSyncers.length = 0;
+  bindSplitResize();
   for (const card of root.querySelectorAll('.ds-split')) {
     const headTable = card.querySelector('.vheadtab');
     const port = card.querySelector('.vheadwrap');
@@ -198,9 +322,10 @@ function wireSplitHeaders(root) {
     const headCols = [...headTable.querySelectorAll('colgroup col')].filter(col => !col.classList.contains('ds-gut'));
     const bodyCols = [...bodyTable.querySelectorAll('colgroup col')];
     const syncWidth = () => {
-      // Both tables are then pinned to the same explicit pixel width. Pinning matters: while the
-      // tables keep `width:100%`, forcing horizontal overflow makes the browser distribute the
-      // columns differently in each half and the frozen header drifts away from its body column.
+      // Both tables are pinned to the same explicit pixel width, so the frozen header stays aligned
+      // with its body column (see §7.2.15). Pinning must not freeze the table at its first-render
+      // size: on a container resize, scale the cached column widths to the new width so the table
+      // follows the screen. Manual drags keep their ratio; the gutter tracks the scrollbar only.
       const bar = Math.max(0, scroll.offsetWidth - scroll.clientWidth);
       card.style.setProperty('--ds-sbw', `${bar}px`);
       const row = [...bodyTable.querySelectorAll('tbody tr')].find(tr => tr.children.length === bodyCols.length);
@@ -218,7 +343,26 @@ function wireSplitHeaders(root) {
         if (bodyCols[index]) bodyCols[index].style.width = `${width}px`;
         total += width;
       });
-      const width = total || scroll.clientWidth;
+      const avail = scroll.clientWidth - bar;
+      // Re-flow on container resize: scale the cached column widths to the new width so the table
+      // follows the screen scale / window width instead of keeping its first-render pixel width.
+      if (total > 0 && Math.abs(avail - total) > 1) {
+        const scale = avail / total;
+        headCols.forEach((col, index) => {
+          const w = parseFloat(col.style.width);
+          if (!(w > 0) || !bodyCols[index]) return;
+          const nw = Math.max(40, w * scale).toFixed(1);
+          col.style.width = `${nw}px`;
+          bodyCols[index].style.width = `${nw}px`;
+          // Column 0 is pinned; keep the 2nd pinned column's left offset in sync with its new width.
+          if (index === 0) {
+            headTable.style.setProperty('--pin-first-col', `${nw}px`);
+            bodyTable.style.setProperty('--pin-first-col', `${nw}px`);
+          }
+        });
+        total = avail;
+      }
+      const width = total || avail;
       headTable.style.width = `${width + bar}px`;
       bodyTable.style.width = `${width}px`;
       const gutter = headTable.querySelector('colgroup col.ds-gut');
@@ -233,6 +377,7 @@ function wireSplitHeaders(root) {
       observer.observe(bodyTable);
     }
     scroll.addEventListener('scroll', syncScroll, { passive: true });
+    splitSyncers.push(syncWidth);
   }
 }
 function paint() {
@@ -264,7 +409,7 @@ async function readAndBuild() {
     const [mdlBuffer, logBuffer] = await Promise.all([files.mdl.arrayBuffer(), files.log.arrayBuffer()]);
     const [mdlWorkbook, logWorkbook] = await Promise.all([readXlsx(mdlBuffer), readXlsx(logBuffer)]);
     model = buildModel(mdlWorkbook, logWorkbook, { contract, mdlWorkbookName: files.mdl.name, logWorkbookName: files.log.name });
-    state.disciplines = new Set(model.planned.map(row => row.discipline).filter(Boolean));
+    state.disciplines = new Set([...model.planned.map(row => row.discipline).filter(Boolean), 'Unknown']);
     state.stages = new Set(model.planned.map(row => row.stage ?? '').filter(value => !EXCLUDED_STAGES.has(value)));
     if (state.rememberNames) localStorage.setItem('sub-dashboard-file-names', JSON.stringify({ mdl: files.mdl.name, log: files.log.name }));
     filtersMarkup();
@@ -394,8 +539,13 @@ document.addEventListener('click', async event => {
   if (target.hasAttribute('data-c1copy')) { copyC1Svg(); }
   if (target.dataset.c3dim) { state.c3Dim = target.dataset.c3dim; paint(); }
   if (target.dataset.c3view) { state.c3View = target.dataset.c3view; paint(); }
-  if (target.hasAttribute('data-c3png')) { exportC3Png(); }
-  if (target.hasAttribute('data-c3copy')) { copyC3Svg(); }
+  if (target.hasAttribute('data-c3png')) { exportC3Png(target); }
+  if (target.hasAttribute('data-c3copy')) { copyC3Svg(target); }
+  if (target.hasAttribute('data-c3export')) { exportC3TableCsv(); }
+  if (target.dataset.c2view) { state.c2View = target.dataset.c2view; paint(); }
+  if (target.hasAttribute('data-c2nfs')) { state.c2Nfs = state.c2Nfs === false ? true : false; paint(); }
+  if (target.hasAttribute('data-c2png')) { exportC2Png(); }
+  if (target.hasAttribute('data-c2copy')) { copyC2Svg(); }
   if (target.dataset.export) {
     const rows = model ? deriveView(model, state).active : [];
     const cols = ['Document No.', 'Document Title', 'Discipline', 'Submitted By', 'Submission Date', 'Submission Status', 'Approval Status', 'Review Period', 'Target Return Date', 'Actual Return Date', 'Review Turnaround Days', 'Review Delay Days', 'Resubmission Required'];
