@@ -59,7 +59,7 @@ All 12 pipeline tests pass.
 | Source contracts | PASS | MDL Code field maps and both workbooks' status and error tables load. Required sheets and headers are checked. |
 | Header errors | PASS | Missing and repeated required Submittal Log headers fail with a source-specific message; case and whitespace differences are accepted. |
 | MDL IDs and joins | PASS | All MDL rows remain separate. Duplicate IDs raise V-26 Error. Repeated MDL matches stay ambiguous; multiple log submissions to one unique MDL row are allowed. |
-| Orphans and rule checks | PASS | V-01, V-15, V-16, V-18, V-20, V-21, V-23, V-25, V-26, V-29, V-30, and V-31 checks are covered. |
+| Orphans and rule checks | PASS | V-01, V-15, V-16, V-18, V-20, V-21, V-23, V-25, V-26, V-29, V-30, V-31, and V-33 checks are covered (V-33 added 2026-10-29, post-Wave 3). |
 | Calculated fields | PASS | Open delay is zero on or before target and positive after target. Early returned delay remains negative. Turnaround is recalculated from submission and return dates. |
 | Formula comparison | PASS | 258 returned-row comparisons; no differences. Open rows are recalculated because cached `TODAY()` results can be stale. |
 | Formula-error handling | PASS | Formula-error cells become absent values and produce a fatal field warning. |

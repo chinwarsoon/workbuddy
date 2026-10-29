@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Validation Panel — Layout Sample</title>
+<style>
+  :root{
+    --surface:#ffffff; --surface2:#f6f8fa; --soft:#eef2f7; --border:#e2e5ea;
+    --navy:#0f1722; --text2:#5b6573; --muted:#9aa3af; --warn-bg:#fff7e6;
+    --ds-cell-fs:12.5px; --ds-head-h:34px; --ds-rule-w:1px; --ds-head-rule-hi:#2a3a4d;
+    --ds-sbw:0px; --pin-first-col:150px; --accent:#1f6feb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    background:#eef1f5;color:#1c2530;font-size:13px;line-height:1.45}
+
+  /* ---- minimal MDL shell for context ---- */
+  .shell{display:flex;min-height:100vh}
+  .leftbar{width:170px;background:var(--navy);color:#cfd6df;padding:10px;flex-shrink:0}
+  .leftbar .nav{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+  .leftbar .nav button{display:block;width:100%;text-align:left;background:transparent;
+    border:0;color:#cfd6df;padding:8px 10px;border-radius:6px;font-size:14px;font-weight:400;cursor:pointer}
+  .leftbar .nav button.active{background:#22303f;color:#fff;font-weight:600}
+  .leftbar .nav .pin{margin-top:auto;border-top:1px solid #2a3744;padding-top:8px}
+  .content{flex:1;padding:16px;min-width:0}
+  .topbar{height:46px;background:var(--navy);color:#fff;display:flex;align-items:center;
+    padding:0 20px;font-size:12px;font-weight:600;margin:-16px -16px 16px}
+
+  /* ---- panel ---- */
+  .panel{margin:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    box-shadow:0 1px 2px rgba(15,23,34,.06);padding:14px 14px 26px;position:relative;min-width:0}
+  .panel-body{min-width:0}
+  .panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 10px}
+  .panel h2{font-size:13px;margin:0;color:var(--navy);text-transform:uppercase;letter-spacing:.04em;line-height:1.4}
+  .panel-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+  .panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;bottom:8px;
+    font-size:10px;letter-spacing:.04em;color:var(--muted);pointer-events:none}
+  .icon-btn{width:28px;height:28px;border:1px solid var(--border);background:var(--surface);
+    border-radius:6px;cursor:pointer;font-size:14px;line-height:1;color:var(--navy)}
+  .icon-btn:hover{background:var(--soft)}
+
+  /* ---- card (used to separate Rules and Issues) ---- */
+  .c-card{border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--surface);
+    position:relative;min-width:0;margin:0 0 12px}
+  .c-card .ds-split{border:0;border-radius:0;margin-top:0}
+
+  /* ---- summary row (point 1) ---- */
+  .v-summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+  .v-summary .v-count{font-size:14px;font-weight:700;color:var(--navy)}
+  .v-summary .v-meta{font-size:12px;color:var(--text2);margin-left:auto}
+  .summary-chips{display:flex;gap:8px;flex-wrap:wrap}
+  .vchip{font-size:11px;padding:3px 10px;border-radius:6px;font-weight:700;text-transform:capitalize;line-height:1.4}
+  .vchip.e{background:#fde2e2;color:#a11}.vchip.w{background:#fff3cd;color:#8a6d00}.vchip.i{background:#eee;color:#555}
+
+  /* ---- title + tools header row (point 3) ---- */
+  .table-head{display:flex;justify-content:space-between;align-items:center;margin:0 0 8px}
+  .table-head .tt{font-size:13px;margin:0;color:var(--navy);text-transform:uppercase;letter-spacing:.04em}
+
+  /* ---- table tools ---- */
+  .table-tools{position:relative;display:flex;align-items:center;gap:8px;margin:0 0 8px;flex-wrap:wrap}
+  .table-tools .csv-btn{margin-left:auto}
+  .csv-btn,.cc-btn,.btn-secondary{font:inherit;font-size:12px;font-weight:600;padding:5px 10px;
+    border:1px solid var(--border);background:var(--surface);border-radius:6px;cursor:pointer;color:#1c2530}
+  .csv-btn:hover,.cc-btn:hover{background:var(--soft)}
+
+  /* ---- table (shared .ds-table) ---- */
+  .ds-split{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:6px}
+  .tableScroll{overflow:auto;max-width:100%}
+  .vheadwrap{overflow:hidden}
+  .ds-table{width:100%;border-collapse:collapse;font-size:var(--ds-cell-fs);background:var(--surface);table-layout:fixed}
+  .ds-table th,.ds-table td{border-bottom:1px solid var(--border);padding:0 10px;text-align:left;
+    height:30px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ds-table thead th{background:var(--navy);color:#fff;font-weight:600;height:var(--ds-head-h)}
+  .ds-table tbody tr:nth-child(even){background:var(--surface2)}
+  .ds-table tbody tr:hover{background:var(--soft)}
+  .ds-table .num{text-align:right;font-variant-numeric:tabular-nums}
+  .ds-table th.ds-pinned,.ds-table td.ds-pinned{position:sticky;z-index:3;background:var(--surface)}
+  .ds-table th.ds-pinned{z-index:5;background:var(--navy);color:#fff}
+  .ds-table td.ds-pinned:nth-child(1),.ds-table th.ds-pinned:nth-child(1){left:0}
+  .ds-table td.ds-pinned:nth-child(2),.ds-table th.ds-pinned:nth-child(2){left:var(--pin-first-col,150px)}
+  .column-chooser{border:1px solid var(--border);border-radius:8px;padding:10px;margin-top:6px;background:var(--surface);max-width:360px}
+  .column-chooser[hidden]{display:none}
+  .cc-all{display:block;margin-bottom:6px;font-weight:600}
+  .cc-hint{font-size:11px;color:var(--text2);margin-bottom:6px}
+  .cc-divider{border-top:1px solid var(--border);margin:6px 0}
+  .cc-item{display:block;font-size:12px;margin:2px 0}
+  .cc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:11px;color:var(--text2)}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="leftbar">
+    <div style="font-weight:600;font-size:14px">TWRP C3B2</div>
+    <div class="nav">
+      <button>Overview</button>
+      <button>Forward Plan</button>
+      <button>Submittals</button>
+      <button class="active">Validation</button>
+      <button>C3 Breakdown</button>
+      <button class="pin">Settings</button>
+      <button class="pin">Help</button>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="topbar">TWRP C3B2 · Document Submittal Dashboard</div>
+
+    <section class="panel full" data-panel="9">
+      <header class="panel-head">
+        <h2>Validation</h2>
+        <div class="panel-actions">
+          <button class="icon-btn" title="Help">?</button>
+          <button class="icon-btn" title="Collapse">−</button>
+        </div>
+      </header>
+      <div class="panel-body">
+
+        <!-- POINT 1: one organized summary row -->
+        <div class="v-summary">
+          <span class="v-count">16,562 issues</span>
+          <div class="summary-chips">
+            <span class="vchip e">Error 312</span>
+            <span class="vchip w">Warning 9,140</span>
+            <span class="vchip i">Info 7,110</span>
+          </div>
+          <span class="v-meta">1,234 MDL fields · 56 log headers · 33 rules loaded · rule text from workbook Code sheet</span>
+        </div>
+
+        <!-- POINT 2 + 5: Rules table in its own card, Description column wide -->
+        <div class="c-card v-section">
+          <div class="table-head">
+            <h3 class="tt">Rules</h3>
+          </div>
+          <div class="ds-split splitcard">
+            <div class="tableScroll">
+              <div class="vheadwrap">
+                <table class="ds-table vheadtab" data-table-key="rules">
+                  <colgroup>
+                    <col style="width:110px"><col style="width:90px"><col style="width:130px">
+                    <col style="width:420px"><col style="width:70px"><col class="ds-gut">
+                  </colgroup>
+                  <thead><tr>
+                    <th scope="col">Severity</th><th scope="col">Code</th><th scope="col">Group</th>
+                    <th scope="col">Description</th><th scope="col">Count</th><th class="ds-gut" scope="col"></th>
+                  </tr></thead>
+                </table>
+              </div>
+              <table class="ds-table" data-table-key="rules">
+                <colgroup>
+                  <col style="width:110px"><col style="width:90px"><col style="width:130px">
+                  <col style="width:420px"><col style="width:70px">
+                </colgroup>
+                <tbody>
+                  <tr><td>Error</td><td>W-FIELD</td><td>Business rule</td><td>The Discipline value is missing on this Submittal Log row and must be present for grouping.</td><td>142</td></tr>
+                  <tr><td>Warning</td><td>W-DATE</td><td>Business rule</td><td>Planned 1st Issue Date is after the as-of month, which delays the forward plan forecast.</td><td>88</td></tr>
+                  <tr><td>Info</td><td>I-DUP</td><td>Data quality</td><td>Duplicate Document No. found across two sheets; the link was marked ambiguous for review.</td><td>23</td></tr>
+                  <tr><td>Error</td><td>W-FORMULA</td><td>Workbook</td><td>A spreadsheet formula error token was normalized to blank and aggregated into one warning.</td><td>7</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- POINT 2,3,4,6: Issues table in its own card, title aligned with tools, wide Message column -->
+        <div class="c-card v-section">
+          <div class="table-head">
+            <h3 class="tt">Issues</h3>
+            <div class="table-tools">
+              <span id="vCnt">Showing 120 of 16,562 rows</span>
+              <button class="csv-btn btn-secondary" data-export-table="issue">⤓ CSV</button>
+              <button class="cc-btn btn-secondary" id="ccBtn_issue" aria-expanded="false">Columns</button>
+            </div>
+          </div>
+          <div class="ds-split splitcard">
+            <div class="tableScroll">
+              <div class="vheadwrap">
+                <table class="ds-table vheadtab" data-table-key="issue" style="--pin-first-col:90px">
+                  <colgroup>
+                    <col style="width:90px"><col style="width:90px"><col style="width:120px">
+                    <col style="width:110px"><col style="width:130px"><col style="width:360px">
+                    <col style="width:100px"><col style="width:70px"><col class="ds-gut">
+                  </colgroup>
+                  <thead><tr>
+                    <th scope="col" class="ds-pinned">Severity</th><th scope="col" class="ds-pinned">Rule</th>
+                    <th scope="col">Doc No.</th><th scope="col">Field</th><th scope="col">Value</th>
+                    <th scope="col">Message</th><th scope="col">Source Tab</th><th scope="col">Row</th>
+                    <th class="ds-gut" scope="col"></th>
+                  </tr></thead>
+                </table>
+              </div>
+              <table class="ds-table" data-table-key="issue" style="--pin-first-col:90px">
+                <colgroup>
+                  <col style="width:90px"><col style="width:90px"><col style="width:120px">
+                  <col style="width:110px"><col style="width:130px"><col style="width:360px">
+                  <col style="width:100px"><col style="width:70px">
+                </colgroup>
+                <tbody>
+                  <tr><td class="ds-pinned">Error</td><td class="ds-pinned">W-FIELD</td><td>131236-WSW46-VI-I-0001</td><td>Discipline</td><td>(blank)</td><td>The Discipline value is missing on this Submittal Log row and must be present for grouping.</td><td>SubmittalLog</td><td>412</td></tr>
+                  <tr><td class="ds-pinned">Warning</td><td class="ds-pinned">W-DATE</td><td>131236-WSW46-VI-I-0002</td><td>Planned 1st Issue Date</td><td>2027-03</td><td>Planned 1st Issue Date is after the as-of month, which delays the forward plan forecast.</td><td>MasterDocumentList</td><td>88</td></tr>
+                  <tr><td class="ds-pinned">Info</td><td class="ds-pinned">I-DUP</td><td>131236-WSW46-VI-I-0003</td><td>Document No.</td><td>131236-WSW46</td><td>Duplicate Document No. found across two sheets; link marked ambiguous.</td><td>SubmittalLog</td><td>77</td></tr>
+                  <tr><td class="ds-pinned">Error</td><td class="ds-pinned">W-FORMULA</td><td>131236-WSW46-VI-I-0004</td><td>Approval Status</td><td>#VALUE!</td><td>Spreadsheet formula error normalized to blank and aggregated into one warning.</td><td>SubmittalLog</td><td>310</td></tr>
+                  <tr><td class="ds-pinned">Warning</td><td class="ds-pinned">W-FIELD</td><td>131236-WSW46-VI-I-0005</td><td>Stage</td><td>Void</td><td>Stage value is in the excluded set and was listed but left deselected on load.</td><td>MasterDocumentList</td><td>201</td></tr>
+                  <tr><td class="ds-pinned">Error</td><td class="ds-pinned">W-FIELD</td><td>131236-WSW46-VI-I-0006</td><td>Discipline</td><td>(blank)</td><td>The Discipline value is missing on this Submittal Log row and must be present for grouping.</td><td>SubmittalLog</td><td>419</td></tr>
+                  <tr><td class="ds-pinned">Info</td><td class="ds-pinned">I-DUP</td><td>131236-WSW46-VI-I-0007</td><td>Document No.</td><td>131236-WSW47</td><td>Duplicate Document No. found across two sheets; link marked ambiguous.</td><td>SubmittalLog</td><td>55</td></tr>
+                  <tr><td class="ds-pinned">Warning</td><td class="ds-pinned">W-DATE</td><td>131236-WSW46-VI-I-0008</td><td>Forecast 1st Issue Date</td><td>2027-01</td><td>Forecast date precedes the planned date, which inverts the schedule.</td><td>MasterDocumentList</td><td>140</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  // Toggle the column chooser (mock).
+  document.getElementById('ccBtn_issue').addEventListener('click', function(){
+    let p = document.getElementById('ccPanel_issue');
+    if(!p){
+      p = document.createElement('div');
+      p.id = 'ccPanel_issue'; p.className = 'column-chooser'; p.setAttribute('role','group');
+      p.innerHTML = '<label class="cc-all"><input type="checkbox"> <b>All columns</b></label>'
+        + '<div class="cc-hint">Ticked columns show. A change applies at once.</div>'
+        + '<div class="cc-divider"></div>'
+        + '<label class="cc-item"><input type="checkbox" checked disabled> Severity</label>'
+        + '<label class="cc-item"><input type="checkbox" checked disabled> Rule</label>'
+        + '<label class="cc-item"><input type="checkbox" checked> Doc No.</label>'
+        + '<label class="cc-item"><input type="checkbox" checked> Field</label>'
+        + '<label class="cc-item"><input type="checkbox" checked> Value</label>'
+        + '<label class="cc-item"><input type="checkbox" checked> Message</label>'
+        + '<label class="cc-item"><input type="checkbox" checked> Source Tab</label>'
+        + '<label class="cc-item"><input type="checkbox" checked> Row</label>'
+        + '<div class="cc-foot"><button class="cc-reset btn-secondary">Reset to defaults</button><span>0 hidden</span></div>';
+      this.parentNode.appendChild(p);
+    } else { p.hidden = !p.hidden; }
+    this.setAttribute('aria-expanded', String(!p.hidden));
+  });
+
+  // Mock CSV export from the visible Issues table.
+  document.querySelector('[data-export-table="issue"]').addEventListener('click', function(){
+    const head = document.querySelector('table.vheadtab[data-table-key="issue"]');
+    const body = document.querySelector('table[data-table-key="issue"]:not(.vheadtab)');
+    if(!head || !body) return;
+    const cells = el => [...el.querySelectorAll('th:not(.ds-gut), td:not(.ds-gut)')];
+    const rows = [cells(head).map(c=>c.textContent.trim()),
+      ...[...body.querySelectorAll('tbody tr')].map(r=>cells(r).map(c=>c.textContent.trim()))];
+    const csv = '﻿' + rows.map(r=>r.map(v=>/^[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v).join(',')).join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download = 'issue-table.csv'; a.click(); URL.revokeObjectURL(a.href);
+  });
+</script>
+</body>
+</html>

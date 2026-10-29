@@ -355,6 +355,12 @@ function parseMdl(workbook, mdlContract, formulaErrors, config, sourceName = 'Ma
       if (record.documentNo && missingRequiredFields.length) {
         issues.push(codeIssue('V-25', record, mdlContract.errors, { field: 'Required Fields', value: missingRequiredFields.join(', ') }));
       }
+      // V-33 — a registered document must carry a first-issue plan date. A blank date is a data
+      // quality error, not an "unscheduled" state: the row still counts in MDL totals, but no
+      // date-axis series can plot it (workplan D43, §3.3.1, §3.3.2).
+      if (record.documentNo && isBlank(rawFields['Planned 1st Issue Date'])) {
+        issues.push(codeIssue('V-33', record, mdlContract.errors, { field: 'Planned 1st Issue Date', value: '(blank)' }));
+      }
     }
   }
   const counts = new Map();

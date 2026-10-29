@@ -187,14 +187,21 @@ body.loaded .app{display:flex;flex-direction:column;height:100vh;min-height:0;ov
 .onboarding .copyright{color:var(--text3);font-size:11px;margin-top:10px}
 /* ===== Panels / KPI ===== */
 /* §4 — panel surface: 10 px radius on a relative box, with 26 px of bottom padding so the corner
-   number never overlaps the last line. */
-.panel{margin:14px 0;padding:14px 14px 26px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);position:relative;min-width:0;min-height:0}
+   number never overlaps the last line. The header (title + Help + toggle) sits INSIDE this edge. */
+.panel{margin:14px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);padding:14px 14px 26px;position:relative;min-width:0;min-height:0}
+/* §4 — content flow wrapper inside the panel; it carries no border (the panel edge already frames it).
+   Individual graphs live in their own bordered `.c-card` below. */
+.panel-body{min-width:0}
 /* §4 — title row: title left, action cluster right. The 10 px gap belongs to the row, not the heading. */
 .panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 10px}
 .panel h2{margin:0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--navy);line-height:1.4;min-width:0}
 .panel-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
 /* §4 — the corner panel number, anchored bottom-right and never clickable. */
 .panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:.04em;color:var(--text3);pointer-events:none}
+/* §4 — chart card: a graph (with its own controls) gets its own bordered surface inside the panel,
+   so multiple graphs in one panel are visually separated (MDL chart-card pattern). */
+.c-card{border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--surface);position:relative;min-width:0;margin:0 0 12px}
+.c-card:last-child{margin-bottom:0}
 /* §4.1 — collapsing a panel hides everything but its title row. */
 .panel.collapsed>*:not(.panel-head){display:none}
 /* §4 — the panel margin is neutralised inside a grid that already sets `gap`, so the gap wins. */
@@ -250,7 +257,6 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .summary-chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
 .vchip{font-size:11px;padding:3px 10px;border-radius:6px;font-weight:700;text-transform:capitalize;line-height:1.4}
 .vchip.e{background:#fde2e2;color:#a11}.vchip.w{background:#fff3cd;color:#8a6d00}.vchip.i{background:#eee;color:#555}
-details summary{cursor:pointer;font-size:13px;color:var(--accent);margin:6px 0}
 .status-bar{flex:none;display:flex;align-items:center;gap:8px;background:var(--navy);color:#E8EDF3;font-size:12px;padding:6px 14px;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
 .status-bar #status-right{margin-left:auto;opacity:.85}
 /* ===== Modals ===== */
@@ -453,7 +459,55 @@ details summary{cursor:pointer;font-size:13px;color:var(--accent);margin:6px 0}
 .c2-ftab tbody tr.tot td{font-weight:700;border-top:2px solid var(--border)}
 .c2-funnel-row{display:flex;align-items:flex-start;gap:28px}
 .c2-ftab-wrap{flex:0 1 auto;min-width:0}
-.c2-funnel-wrap{flex:0 0 auto;display:flex;flex-direction:column;width:350px;min-height:420px;margin-left:auto}
+.c2-funnel-wrap{flex:0 0 auto;display:flex;flex-direction:column;width:350px;margin-left:auto}
 .c2-funnel-svg{display:block;width:350px;height:420px}
 .c2-funnel-lab{fill:var(--text);font-size:12px;font-weight:700}
 .c2-funnel-val{fill:var(--text);font-size:12px}
+/* D41 — Submittals panel: one row per document, consolidated toggleable history */
+.table-tools{position:relative;display:flex;align-items:center;gap:8px;margin:0 0 8px;flex-wrap:wrap}
+.table-tools .summary{font-size:12px;color:var(--text2)}
+.table-tools .csv-btn{margin-left:auto}
+/* I072 — Validation panel layout: summary row, card-separated tables, title aligned with tools */
+.v-summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.v-summary .v-count{font-size:14px;font-weight:700;color:var(--navy)}
+.v-summary .v-meta{font-size:12px;color:var(--text2);margin-left:auto}
+.table-head{display:flex;justify-content:space-between;align-items:center;margin:0 0 8px}
+.table-head .tt{font-size:13px;margin:0;color:var(--navy);text-transform:uppercase;letter-spacing:.04em}
+.c-card .ds-split{border:0;border-radius:0;margin-top:0}
+/* §7.1 B7 — column-visibility control: own class, floating panel, no filter badge */
+.cc-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;line-height:1.2}
+.cc-btn:hover{background:var(--surface2)}
+/* §7.1 B7 — column-visibility chooser. Its own floating-panel shape (no filter badge, no
+   active-filter emphasis). Contents follow the normative order: master → note → divider → list →
+   footer. Only the item list scrolls, and the panel is 380 px at most. */
+.column-chooser{position:absolute;top:calc(100% + 6px);right:0;z-index:60;display:block;padding:10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);min-width:220px;max-width:min(340px,90vw);max-height:380px;overflow:hidden}
+.column-chooser[hidden]{display:none}
+.cc-all{display:flex;align-items:center;gap:8px;padding:2px;font-size:12px;cursor:pointer}
+.cc-all b{font-weight:700}
+.cc-hint{margin:2px 2px 6px;font-size:10px;color:var(--muted);line-height:1.35}
+.cc-divider{height:1px;background:var(--border);margin:2px 0 6px}
+.cc-list{max-height:260px;overflow:auto}
+.cc-item{display:flex;align-items:center;gap:8px;padding:5px 2px;font-size:12px;cursor:pointer;border-radius:4px;white-space:nowrap}
+.cc-item:hover{background:var(--soft)}
+.cc-item input,.cc-all input{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0}
+.cc-item span{overflow:hidden;text-overflow:ellipsis}
+.cc-locked{opacity:.65;cursor:default}
+.cc-locked:hover{background:transparent}
+.cc-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
+.cc-reset{background:transparent;border:0;padding:0;color:var(--blue);font-size:11px;font-weight:600;cursor:pointer}
+.cc-reset:hover{text-decoration:underline}
+/* §4.4 drill-down (standardized — I068) */
+.expandable{cursor:pointer}
+.expandable:hover{background:var(--soft)}
+.ds-table .drill-cell{width:32px;text-align:center;padding:0 4px;overflow:hidden;text-overflow:clip}
+.drill-btn{appearance:none;border:0;background:transparent;color:var(--muted);width:24px;height:24px;line-height:1;cursor:pointer;border-radius:4px}
+.drill-btn:hover{background:var(--soft);color:var(--navy)}
+.drill-btn:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.drill-chev{display:inline-block;transition:transform .12s;font-size:11px}
+.drill-btn[aria-expanded="true"] .drill-chev{transform:rotate(90deg)}
+.sub > td{padding:0;border-top:1px dashed var(--line);background:var(--soft)}
+.sub-inner{padding:12px 16px 14px}
+.hist-table{font-size:12px}
+.hist-table th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border);padding:4px 8px;white-space:nowrap}
+.hist-table td{padding:3px 8px;border-bottom:1px solid var(--border)}
+.hist-table tbody tr:last-child td{border-bottom:0}

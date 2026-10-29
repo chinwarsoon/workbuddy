@@ -2,13 +2,13 @@
   "project_metadata": {
     "name": "TWRP C3B2 — Document Submittal Log Interactive Dashboard",
     "abbreviation": "SUB",
-    "version": "2.24.0",
-    "date": "2026-10-24",
+    "version": "2.25.0",
+    "date": "2026-10-29",
     "description": "Browser dashboard for planned documents and submission history.",
     "purpose": "Show document scope, submission status, review delay, approval outcomes, and coverage from the project MDL and Document Submittal Log workbooks."
   },
   "architecture_overview": {
-    "status": "Wave 9 welcome hardening complete: MDL full-screen welcome overlay (no dashboard parts until load); golden-ratio (1:1.618) drop area holding the Choose/Load buttons; no hardcoded project title (title renders from model after load); spec Dashboard-UI-Design-Spec.md §3.7 and AGENTS.md §18.2 hardened. Wave 8 Option B shell (MDL two-row header + navy left nav, light default) remains. Wave 5 regression and Wave 6 owner review remain. Data engine unchanged. Wave 10 aligned the KPI cards to spec §5 and aligned the harness shell checks to spec §3.1. Data engine unchanged. Tier 2 now reveals the shell by loading the workbook first. Wave 11 consolidated the Documents Logged KPI to distinct document numbers and normalised the submission-to-plan join.",
+    "status": "Wave 9 welcome hardening complete: MDL full-screen welcome overlay (no dashboard parts until load); golden-ratio (1:1.618) drop area holding the Choose/Load buttons; no hardcoded project title (title renders from model after load); spec Dashboard-UI-Design-Spec.md §3.7 and AGENTS.md §18.2 hardened. Wave 8 Option B shell (MDL two-row header + navy left nav, light default) remains. Wave 5 regression and Wave 6 owner review remain. Data engine unchanged. Wave 10 aligned the KPI cards to spec §5 and aligned the harness shell checks to spec §3.1. Data engine unchanged. Tier 2 now reveals the shell by loading the workbook first. Wave 11 consolidated the Documents Logged KPI to distinct document numbers and normalised the submission-to-plan join. Wave 18 completed the Submittals panel and closed two defects. I069: the drill-cell rule now out-specifies the base cell rule (`.ds-table .drill-cell`), so it clips instead of painting an ellipsis. I070: one shared `columnChooser` builds the B7 control for every table, and the global filters follow D42 — all five dimensions start fully ticked from the data, blanks read `(blank)`, an empty tick set filters every row out, and the master is tri-state.",
     "modules": [
       {
         "name": "Dashboard page",
@@ -241,9 +241,27 @@
       "title": "A submission with no MDL discipline would be dropped by the plan-derived filter default",
       "status": "Approved",
       "details": "The Discipline filter list and its default set are built from plan rows only (dashboard.js lines 145 and 267, render.js line 11). Unknown is not a plan discipline, so the 16 orphan rows would be filtered out with no warning and the Submittals table would show 167 of 183 records. Decision D37 adds Unknown to the filter list and to the default set."
+    },
+    {
+      "id": "I069",
+      "title": "Two dots painted after the Submittals drill chevron",
+      "status": "Resolved",
+      "details": "The drill cell carried a clipped ellipsis, not a glyph. `.ds-table th, .ds-table td` (0,1,1) sets `text-overflow:ellipsis` and out-specifies a bare `.drill-cell` (0,1,0), so the spec's 4 px padding never applied and the 24 px button overflowed the cell. Chromium measured `textOverflow:ellipsis`, `clientWidth:32`, `scrollWidth:53`. The rule is now `.ds-table .drill-cell{width:32px;text-align:center;padding:0 4px;overflow:hidden;text-overflow:clip}` (0,2,0). After the fix: `clip`, `32`, `32`. Spec §4.4 revisions 1.40–1.41; task T18.6."
+    },
+    {
+      "id": "I070",
+      "title": "Column chooser ignored §7.1 B7 and the filter state disagreed with the data",
+      "status": "Resolved",
+      "details": "The chooser had no master, note, divider or footer, omitted the pinned columns instead of disabling them, used a 320 px panel, had no `aria-expanded`, never closed on an outside click and closed after every tick. Only two of five filter dimensions were initialised, so the panel showed nothing ticked while the dashboard filtered nothing, and the master had no indeterminate state. Fixed on one shared `columnChooser` builder plus `syncColumnControls`, `applyDefaultFilters`, a document-level outside-click listener and Escape handling; the panel now stays open across a tick. Filter semantics recorded as D42 (spec §7.1 revision 1.42, checklist row 17): full initial tick set, `(blank)` selectable, an empty set filters every row out, and `hasSubmissionFilter` narrows only when a set leaves out a data value (an always-active reading had dropped 7,513 plans to 116). Task T18.7."
     }
   ],
   "revisionHistory": [
+    {
+      "revision": "2.25",
+      "date": "2026-10-29",
+      "author": "CodeBuddy (AI)",
+      "summary": "Wave 18 complete: resolved I069 and I070. I069 raised the drill-cell selector to `.ds-table .drill-cell` so the clip beats the base cell rule; the two dots were a clipped ellipsis. I070 rebuilt the column-visibility chooser to §7.1 B7 on one shared builder (master, note, divider, item list, footer; pinned rows ticked and disabled; tri-state master; `N hidden` and `Reset to defaults`; 380 px; `aria-expanded`; stays open on a tick; outside click and Escape close it) and aligned the filter state with the data. Decision D42 fixes the semantics: every dimension starts fully ticked, blanks read `(blank)`, an empty tick set filters every row out, and a submission filter narrows only when a set leaves out a data value. Spec §4.4 revisions 1.40–1.41 and §7.1 revision 1.42 (checklist row 17); workplan revision 2.48; Wave 18 report filed. Pipeline 18/18 and render 20/20 pass; harness Tier 1 9/9, Tier 3 still reports a 7,631 vs 7,513 planned-count difference."
+    },
     {
       "revision": "2.24",
       "date": "2026-10-25",

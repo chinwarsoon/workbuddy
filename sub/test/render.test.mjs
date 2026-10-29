@@ -357,3 +357,32 @@ test('T15.4 (Wave 4.2): Pie view shows two equal-total donuts (Submissions, Appr
   assert.match(monthHtml, /class="c3-ur-arc"/, 'a single month donut shows Under Review as a third Submissions segment');
   assert.doesNotMatch(monthHtml, /\(\d+%\)/, 'a single month shows counts only (no percentages)');
 });
+
+test('D41: Submittals panel groups one row per document with a toggleable consolidated history', () => {
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  const view = deriveView(model);
+  renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? rootNode : null }, model, { page: 'Submittals' });
+  assert.match(html, /Submittals/);
+  // One row per document (the grouped view), not one row per submission record.
+  const docRows = (html.match(/<tr class="expandable" data-doc=/g) || []).length;
+  assert.equal(docRows, view.documents.length, 'one row per document');
+  assert.ok(view.documents.length < view.active.length, 'fewer document rows than submission records');
+  // Current status columns stay in the main row.
+  assert.match(html, /Current Submission Status/);
+  assert.match(html, /Current Approval Status/);
+  // The history is toggleable, with the per-submission Prolog / Transmittal No. in the expanded detail.
+  assert.match(html, /class="drill-btn"/);
+  assert.match(html, /aria-controls="subd-/);
+  assert.match(html, /class="drill-chev"/);
+  assert.match(html, /class="expandable"/);
+  assert.match(html, /class="sub"/);
+  assert.match(html, /class="sub-inner"/);
+  assert.match(html, /Prolog \/ Transmittal No\./);
+  // One summary line only (no duplicate count text).
+  assert.equal((html.match(/class="summary"/g) || []).length, 1, 'exactly one summary line');
+  // CSV is right-aligned via its own class; column visibility uses the B7 .cc-btn class.
+  assert.match(html, /class="csv-btn/);
+  assert.match(html, /class="cc-btn/);
+  assert.doesNotMatch(html, /submission records/, 'no old per-record summary text');
+});

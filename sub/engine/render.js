@@ -29,24 +29,37 @@ export function deriveView(model, state = {}) {
     const searchValue = state.searchCol === 'document' ? row.documentNo : state.searchCol === 'title' ? fields['Document Title'] : state.searchCol === 'submitter' ? submitter : [row.documentNo, fields['Document Title'], row.discipline, submitter].join(' ');
     const haystack = String(searchValue || '').toLowerCase();
     const plans = row.linkedPlannedId ? [model.planned.find(plan => plan.id === row.linkedPlannedId)].filter(Boolean) : plansByDocument.get(row.documentNo) || [];
-    const stageMatch = !stages.size || plans.length === 0 || plans.some(plan => stages.has(plan.stage));
-    return (!disciplines.size || disciplines.has(row.discipline))
+    const stageMatch = plans.length === 0 || plans.some(plan => stages.has(plan.stage));
+    // A blank value is a value: the filter lists it as "Blank", so both sides are normalised the
+    // same way and the initial full tick set covers every row (D43).
+    const statusValue = String(row.submissionStatus ?? '');
+    const approvalValue = String(row.approvalStatus ?? '');
+    // An empty tick set means "nothing selected", so it filters everything out. `null` (state without
+    // a set) still means "no filter". This keeps the panel and the data in agreement.
+    return disciplines.has(row.discipline)
       && stageMatch
-      && (!statuses || !statuses.size || statuses.has(row.submissionStatus))
-      && (!approvals || !approvals.size || approvals.has(row.approvalStatus))
-      && (!submitters || !submitters.size || submitters.has(submitter))
+      && (!statuses || statuses.has(statusValue))
+      && (!approvals || approvals.has(approvalValue))
+      && (!submitters || submitters.has(submitter))
       && (!query || haystack.includes(query));
   });
+  // A submission filter narrows only when a set leaves out a value that the data contains. An absent
+  // set is "no filter". An empty set leaves everything out, so it narrows. Reading the sets as
+  // "always active" would drop every planned row that has no linked submission (7513 → 116 plans).
+  const valueOf = value => String(value ?? '');
+  const leavesOut = (set, values) => Boolean(set) && values.some(value => !set.has(valueOf(value)));
+  const hasSubmissionFilter = leavesOut(statuses, model.submissions.map(row => row.submissionStatus))
+    || leavesOut(approvals, model.submissions.map(row => row.approvalStatus))
+    || leavesOut(submitters, model.submissions.map(row => row.fields['Submitted By']));
   const activePlans = model.planned.filter(row => {
     // A row without a Document No. is a V-01 defect, not a planned document. MDL does not count
     // it, so it is not counted here either.
     if (!row.documentNo) return false;
     const linked = row.submissions;
-    const hasSubmissionFilter = Boolean(statuses?.size || approvals?.size || submitters?.size);
     const passesSubmissionFilters = hasSubmissionFilter ? linked.some(item => activeSubmissions.includes(item)) : true;
     const searchValue = state.searchCol === 'document' ? row.documentNo : state.searchCol === 'title' ? row.title : state.searchCol === 'submitter' ? linked.map(item => item.fields['Submitted By']).join(' ') : [row.documentNo, row.title, row.discipline, row.stage, linked.map(item => item.fields['Submitted By']).join(' ')].join(' ');
     const haystack = String(searchValue || '').toLowerCase();
-    return (!disciplines.size || disciplines.has(row.discipline)) && (!stages.size || stages.has(row.stage ?? '')) && passesSubmissionFilters && (!query || haystack.includes(query));
+    return disciplines.has(row.discipline) && stages.has(row.stage ?? '') && passesSubmissionFilters && (!query || haystack.includes(query));
   });
   const submittedPlans = activePlans.filter(row => row.isSubmitted);
   // D34 — the Submittal Log is a submission history; one Document No. can appear in several rows
@@ -251,6 +264,7 @@ export function deriveView(model, state = {}) {
   })();
   return {
     active: activeSubmissions,
+    documents: documentGroups,
     activePlans,
     issues: issueRows,
     monthly,
@@ -282,7 +296,30 @@ export function renderDashboard(doc, model, state = {}) {
   // §5 — a card is exactly two lines: value and label. The status class colours the 3 px top strip.
   const card = (label, value, status = '') => `<article class="kpi-card${status ? ` ${status}` : ''}"><div class="v">${esc(value)}</div><div class="l">${esc(label)}</div></article>`;
   const tableRows = new Map();
-  const table = (headers, rows, key = null, footer = null) => {
+  // §7.1 B7 — column-visibility chooser, one implementation for every table. The contents follow the
+  // normative floating-panel order (master → note → divider → item list → footer). The first two
+  // pinned identity columns are listed, checked and disabled, because they can never be hidden
+  // (§7.1 master scope). `open` comes from state so a tick does not close the panel.
+  const columnChooser = (key, headers, chosen, open) => {
+    const pinned = index => index < 2;
+    const items = headers.map((label, index) => {
+      const locked = pinned(index);
+      const on = locked || chosen.has(index);
+      return `<label class="cc-item${locked ? ' cc-locked' : ''}"><input type="checkbox" data-column-choice="${key}" data-column-index="${index}"${on ? ' checked' : ''}${locked ? ' disabled' : ''}> <span>${esc(label || 'Row')}</span></label>`;
+    }).join('');
+    const hidden = headers.filter((_, index) => !pinned(index) && !chosen.has(index)).length;
+    return `<div class="column-chooser" id="ccPanel_${key}" role="group" aria-label="Show or hide columns"${open ? '' : ' hidden'}>`
+      + `<label class="cc-all"><input type="checkbox" data-column-all="${key}"> <b>All columns</b></label>`
+      + '<div class="cc-hint">Ticked columns show. A change applies at once.</div>'
+      + '<div class="cc-divider"></div>'
+      + `<div class="cc-list">${items}</div>`
+      + `<div class="cc-foot"><button type="button" class="cc-reset" data-column-reset="${key}">Reset to defaults</button><span class="cc-count" data-column-hidden="${key}">${hidden} hidden</span></div>`
+      + '</div>';
+  };
+  const table = (headers, rows, key = null, footer = null, opts = {}) => {
+    const widths = opts && opts.widths ? opts.widths : null;
+    const title = opts && opts.title ? opts.title : null;
+    const firstWidth = widths && widths[0] != null ? widths[0] : 150;
     const chosen = key && Array.isArray(state.columnSets?.[key]) ? new Set(state.columnSets[key]) : new Set(headers.map((_, index) => index));
     const indexes = headers.map((_, index) => index).filter(index => chosen.has(index));
     const windowed = Boolean(key && rows.length > 500);
@@ -302,25 +339,29 @@ export function renderDashboard(doc, model, state = {}) {
       return `${key ? ` data-col="${index}"` : ''}${classes.length ? ` class="${classes.join(' ')}"` : ''}`;
     };
     const renderRow = row => `<tr>${indexes.map(index => `<td${cellAttrs(index)}>${esc(row[index])}</td>`).join('')}</tr>`;
-    const colgroup = indexes.map((index, pos) => `<col${key ? ` data-col="${index}"${pos === 0 ? ' style="width:150px"' : ''}` : ''}>`).join('');
+    const colgroup = indexes.map((index, pos) => { const w = widths && widths[index] != null ? widths[index] : (key && pos === 0 ? 150 : null); return `<col${key ? ` data-col="${index}"` : ''}${w != null ? ` style="width:${w}px"` : ''}>`; }).join('');
     const heads = indexes.map(index => `<th scope="col"${cellAttrs(index)}><span class="th-wrap"><span class="lb">${esc(headers[index])}</span></span>${key ? `<span class="ds-resize" data-col="${index}" role="separator" aria-label="Resize ${esc(headers[index])}"></span>` : ''}</th>`).join('');
     const body = rows.length ? `${windowed ? '<tr class="win-pad"><td colspan="' + indexes.length + '" style="height:0px;padding:0"></td></tr>' : ''}${rows.slice(0, shown).map(renderRow).join('')}${windowed ? '<tr class="win-pad"><td colspan="' + indexes.length + '" style="height:' + Math.max(0, rows.length - shown) * 40 + 'px;padding:0"></td></tr>' : ''}` : `<tr><td class="empty" colspan="${indexes.length}">No rows match the current selection.</td></tr>`;
-    const controls = key ? `<div class="table-tools"><span id="${countId}">${windowed ? `${shown} of ${rows.length}` : `${rows.length} of ${rows.length}`}</span><button class="btn-secondary" id="ccBtn_${key}" aria-controls="ccPanel_${key}">Columns</button><div class="column-chooser" id="ccPanel_${key}" hidden>${headers.map((label, index) => index < 2 ? '' : `<label class="cc-row"><input type="checkbox" data-column-choice="${key}" data-column-index="${index}"${chosen.has(index) ? ' checked' : ''}> ${esc(label)}</label>`).join('')}</div></div>` : '';
+    const chooserOpen = state.openChooser === key;
+    const controls = key ? `<div class="table-tools"><span id="${countId}">${windowed ? `Showing ${shown.toLocaleString()} of ${rows.length.toLocaleString()} rows` : `${rows.length.toLocaleString()} rows`}</span><button class="csv-btn btn-secondary" data-export-table="${key}">⤓ CSV</button><button class="cc-btn btn-secondary" id="ccBtn_${key}" aria-controls="ccPanel_${key}" aria-haspopup="true" aria-expanded="${chooserOpen}">Columns</button>${columnChooser(key, headers, chosen, chooserOpen)}</div>` : '';
     const foot = footer ? `<tfoot><tr>${indexes.map(index => `<td${cellAttrs(index)}>${esc(footer[index])}</td>`).join('')}</tr></tfoot>` : '';
     // §7.2.15 — the header fragment carries one extra trailing column for the scrollbar (.ds-gut), so
     // the navy band runs the full card width and the body's scrollbar starts below it.
     // The fragment carries the same table key as its body, because the resize grips live here and
     // persist their widths under that key (§7.2.6 / D40).
     const headFrag = `<div class="vheadwrap"><table class="ds-table vheadtab"${key ? ` data-table-key="${key}"` : ''}><colgroup>${colgroup}<col class="ds-gut"></colgroup><thead><tr>${heads}<th class="ds-gut" scope="col" aria-hidden="true"></th></tr></thead></table></div>`;
-    return `${controls}<div class="ds-split splitcard">${headFrag}<div class="tableScroll"><table class="ds-table"${key ? ` data-table-key="${key}" data-column-count="${headers.length}"` : ''}${windowed ? ' data-windowed="true"' : ''}><colgroup>${colgroup}</colgroup><tbody>${body}</tbody>${foot}</table></div></div>`;
+    const titleRow = title ? `<div class="table-head"><h3 class="tt">${title}</h3>${controls}</div>` : controls;
+    return `${titleRow}<div class="ds-split splitcard" style="--pin-first-col:${firstWidth}px">${headFrag}<div class="tableScroll"><table class="ds-table"${key ? ` data-table-key="${key}" data-column-count="${headers.length}"` : ''}${windowed ? ' data-windowed="true"' : ''}><colgroup>${colgroup}</colgroup><tbody>${body}</tbody>${foot}</table></div></div>`;
   };
   // §4 — `data-panel` is assigned after insertion, in document order, and only to top-level panels;
   // nested sub-panels inherit their parent's number and show no badge of their own.
   const activePanel = (name, content, full = false) => {
     const collapsed = Array.isArray(state.collapsedPanels) && state.collapsedPanels.includes(name);
     const label = collapsed ? 'Expand' : 'Collapse';
-    // §4 — Help is the first child of the cluster and the collapse toggle is rightmost.
-    return `<section class="panel${full ? ' full' : ''}${collapsed ? ' collapsed' : ''}"><header class="panel-head"><h2>${esc(name)}</h2><div class="panel-actions"><button class="icon-btn help-open" data-help="${esc(name)}" aria-label="Help for ${esc(name)}" title="Help">?</button><button class="icon-btn panel-toggle" data-panel-toggle="${esc(name)}" aria-expanded="${collapsed ? 'false' : 'true'}" aria-label="${label} ${esc(name)}" title="${label}">${collapsed ? '+' : '−'}</button></div></header>${content}</section>`;
+    // §4 — Help is the first child of the cluster and the collapse toggle is rightmost. The border
+    // wraps only the content (charts / tables / filters / buttons) inside `.panel-body`; the header
+    // (title + Help + toggle) sits OUTSIDE the border, per the C2 owner review (2026-10-28).
+    return `<section class="panel${full ? ' full' : ''}${collapsed ? ' collapsed' : ''}"><header class="panel-head"><h2>${esc(name)}</h2><div class="panel-actions"><button class="icon-btn help-open" data-help="${esc(name)}" aria-label="Help for ${esc(name)}" title="Help">?</button><button class="icon-btn panel-toggle" data-panel-toggle="${esc(name)}" aria-expanded="${collapsed ? 'false' : 'true'}" aria-label="${label} ${esc(name)}" title="${label}">${collapsed ? '+' : '−'}</button></div></header><div class="panel-body">${content}</div></section>`;
   };
   const barChart = (data, labelKey, valueKey) => {
     const max = Math.max(1, ...data.map(item => Number(item[valueKey]) || 0));
@@ -840,7 +881,7 @@ export function renderDashboard(doc, model, state = {}) {
   const submissionFlow = (c2, st) => {
     const view = st.c2View || 'stacked';
     const body = view === 'delay' ? c2DelaySVG(c2, st) : view === 'funnel' ? c2Funnel(c2) : c2StackedSVG(c2, st);
-    return `${c2Controls(st)}${body}`;
+    return `<div class="c-card">${c2Controls(st)}${body}</div>`;
   };
   const overview = (state) => {
     const k = view.kpis;
@@ -848,16 +889,79 @@ export function renderDashboard(doc, model, state = {}) {
     return `${activePanel('KPI OVERVIEW', `<div class="kpi-grid">${card('Documents Logged', k.totalSubmissions)}<article class="kpi-card"><div class="v">${k.submitted} / <span data-kpi="totalPlanned">${k.totalPlanned}</span></div><div class="l">Documents Submitted / In Plan</div></article>${card('Under Review (SUR)', k.underReview, 'amb')}${card('Approved (APP + AWC)', k.approved, 'ok')}${card('On-Time Return Rate', `${(k.onTimeRate * 100).toFixed(1)}%`, k.onTimeRate >= 1 ? 'ok' : 'amb')}${card('Average Review Delay', `${k.averageDelay.toFixed(1)} days`, k.averageDelay > 0 ? 'warn' : 'ok')}</div>`)}
       <div class="panel-grid">${activePanel('C1 Schedule Performance', schedulePerformance(view.c1, state), true)}${activePanel('C2 Submission Flow & Delay', submissionFlow(view.c2, state), true)}${activePanel('C3 Breakdown', breakdown(view.c3, state))}</div>`;
   };
+  // D41 — Submittals panel: one row per document (grouped by Document No.), with a toggleable,
+  // consolidated submission history. Current status columns stay in the main row; the full per-submission
+  // detail (incl. Prolog / Transmittal No.) expands on toggle. Title reads from the MDL planned row,
+  // falling back to the submission's prolog subject when MDL has none.
   const submissions = () => {
-    const rows = view.active.map(row => [row.documentNo, row.fields['Document Title'], row.discipline, row.fields['Submitted By'], row.submissionDate, row.submissionStatus, row.approvalStatus, row.fields['Review Period'], row.targetReturnDate, row.actualReturnDate, row.turnaroundDays, row.delayDays, row.resubmissionRequired]);
-    return activePanel('Submittals', `<div class="table-tools"><span>${rows.length} submission records</span><button class="btn-secondary" data-export="submittals">⤓ CSV</button></div>${table(['Document No.', 'Title', 'Discipline', 'Submitted By', 'Submission Date', 'Submission Status', 'Approval Status', 'Review Period', 'Target Return', 'Actual Return', 'Turnaround', 'Delay', 'Resubmission Required'], rows, 'detail')}`, true);
+    const docs = view.documents || [];
+    const plannedById = new Map(model.planned.map(p => [p.id, p]));
+    const planOf = row => plannedById.get(row.linkedPlannedId);
+    const titleFor = group => { const plan = planOf(group[0]); return plan?.title || group[0].fields['Document Title'] || '—'; };
+    const discFor = group => { const plan = planOf(group[0]); return plan?.discipline || group[0].discipline || 'Unknown'; };
+    const headers = ['', 'Document No.', 'Document Title', 'Discipline', 'Submissions', 'Current Submission Status', 'Current Approval Status'];
+    // Column-visibility control (spec §7.1 B7): own .cc-btn class, floating .column-chooser, no filter badge.
+    const chosen = Array.isArray(state.columnSets?.subdoc) ? new Set(state.columnSets.subdoc) : new Set(headers.map((_, i) => i));
+    const indexes = headers.map((_, i) => i).filter(i => chosen.has(i));
+    const numeric = new Set([4]);
+    const cellAttrs = i => { const c = []; if (numeric.has(i)) c.push('num'); if (i < 2) c.push('ds-pinned'); if (i === 0) c.push('drill-cell'); return `${i ? ` data-col="${i}"` : ''}${c.length ? ` class="${c.join(' ')}"` : ''}`; };
+    const cellHtml = (group, i) => {
+      const latest = group[group.length - 1];
+      switch (i) {
+        case 0: return `<button class="drill-btn" aria-expanded="false" aria-controls="subd-${esc(group[0].documentNo || '')}" aria-label="Toggle submission history for ${esc(group[0].documentNo || '')}"><span class="drill-chev">▸</span></button>`;
+        case 1: return esc(group[0].documentNo || '');
+        case 2: return esc(titleFor(group));
+        case 3: return esc(discFor(group));
+        case 4: return String(group.length);
+        case 5: return esc(latest.submissionStatus || '—');
+        case 6: return esc(latest.approvalStatus || '—');
+        default: return '';
+      }
+    };
+    const bodyRows = docs.map(group => {
+      const docNo = group[0].documentNo || '';
+      const cells = indexes.map(i => `<td${cellAttrs(i)}>${cellHtml(group, i)}</td>`).join('');
+      const inner = group.map((r, i) => `<tr><td>${i + 1}</td><td>${esc(r.fields['Prolog No.'] || '—')}</td><td>${esc(r.submissionDate || '—')}</td><td>${esc(r.actualReturnDate || '—')}</td><td>${esc(r.submissionStatus || '—')}</td><td>${esc(r.approvalStatus || '—')}</td></tr>`).join('');
+      const innerTable = `<table class="ds-table hist-table"><tbody><tr class="hist-head"><th>#</th><th>Prolog / Transmittal No.</th><th>Submission Date</th><th>Return Date</th><th>Submission Status</th><th>Approval Status</th></tr>${inner}</tbody></table>`;
+      const detail = `<tr class="sub" id="subd-${esc(docNo)}" data-doc="${esc(docNo)}" hidden><td colspan="${indexes.length}"><div class="sub-inner">${innerTable}</div></td></tr>`;
+      return `<tr class="expandable" data-doc="${esc(docNo)}" tabindex="0">${cells}</tr>${detail}`;
+    }).join('');
+    const colgroup = indexes.map((i, pos) => `<col${i ? ` data-col="${i}"` : ''}${i === 0 ? ' style="width:32px"' : ''}>`).join('');
+    const heads = indexes.map(i => `<th scope="col"${cellAttrs(i)}><span class="th-wrap"><span class="lb">${esc(headers[i])}</span></span>${i ? `<span class="ds-resize" data-col="${i}" role="separator" aria-label="Resize ${esc(headers[i])}"></span>` : ''}</th>`).join('');
+    const headFrag = `<div class="vheadwrap"><table class="ds-table vheadtab" data-table-key="subdoc" data-column-count="${headers.length}"><colgroup>${colgroup}<col class="ds-gut"></colgroup><thead><tr>${heads}<th class="ds-gut" scope="col" aria-hidden="true"></th></tr></thead></table></div>`;
+    const chooserOpen = state.openChooser === 'subdoc';
+    const chooser = columnChooser('subdoc', headers, chosen, chooserOpen);
+    const controls = `<div class="table-tools"><span class="summary">${docs.length} documents</span><button class="csv-btn btn-secondary" data-export="submittals">⤓ CSV</button><button class="cc-btn btn-secondary" id="ccBtn_subdoc" aria-controls="ccPanel_subdoc" aria-haspopup="true" aria-expanded="${chooserOpen}">Columns</button>${chooser}</div>`;
+    const body = docs.length ? `<tbody>${bodyRows}</tbody>` : `<tbody><tr><td class="empty" colspan="${indexes.length}">No documents match the current selection.</td></tr></tbody>`;
+    const tableHtml = `${controls}<div class="ds-split splitcard">${headFrag}<div class="tableScroll"><table class="ds-table" data-table-key="subdoc" data-column-count="${headers.length}">${colgroup}${body}</table></div></div>`;
+    return activePanel('Submittals', tableHtml, true);
   };
   const validation = () => {
     const counts = new Map();
     for (const issue of view.issues) counts.set(issue.code, (counts.get(issue.code) || 0) + 1);
     const rules = [...counts].map(([code, count]) => { const item = model.contract.errorRules.find(rule => rule.code === code) || {}; return [item.severity || 'Warning', code, item.group || 'Business rule', item.rule || 'Description is not in the workbook Code sheet.', count]; });
     const issueRows = view.issues.map(issue => [issue.severity, issue.code, issue.documentNo, issue.field, issue.value, issue.message, issue.sheet, issue.row]);
-    return activePanel('Validation', `<p class="note" data-validation-count>${issueRows.length} issues. Rule text comes from the workbook Code sheet.</p><div class="summary-chips"><span class="vchip e">Error ${view.issues.filter(x => String(x.severity).toLowerCase() === 'error').length}</span><span class="vchip w">Warning ${view.issues.filter(x => String(x.severity).toLowerCase() === 'warning').length}</span><span class="vchip i">Info ${view.issues.filter(x => String(x.severity).toLowerCase() === 'info').length}</span></div><details><summary>Code map and issue details</summary><div class="note">${model.contract.mdlFields.length} MDL fields and ${model.contract.logHeaders.length} log headers loaded. ${model.contract.errorRules.length} validation rules loaded.</div><h3>Rules</h3>${table(['Severity', 'Code', 'Group', 'Description', 'Count'], rules)}<h3>Issues</h3>${table(['Severity', 'Rule', 'Doc No.', 'Field', 'Value', 'Message', 'Source Tab', 'Row'], issueRows, 'issue')}</details>`, true);
+    const err = view.issues.filter(x => String(x.severity).toLowerCase() === 'error').length;
+    const warn = view.issues.filter(x => String(x.severity).toLowerCase() === 'warning').length;
+    const info = view.issues.filter(x => String(x.severity).toLowerCase() === 'info').length;
+    const meta = `${model.contract.mdlFields.length.toLocaleString()} MDL fields · ${model.contract.logHeaders.length.toLocaleString()} log headers · ${model.contract.errorRules.length} rules loaded · rule text from workbook Code sheet`;
+    return activePanel('Validation', `
+      <div class="v-summary">
+        <span class="v-count" data-validation-count>${issueRows.length.toLocaleString()} issues</span>
+        <div class="summary-chips">
+          <span class="vchip e">Error ${err}</span>
+          <span class="vchip w">Warning ${warn}</span>
+          <span class="vchip i">Info ${info}</span>
+        </div>
+        <span class="v-meta">${meta}</span>
+      </div>
+      <div class="c-card v-section">
+        ${table(['Severity', 'Code', 'Group', 'Description', 'Count'], rules, null, null, { widths: [110, 90, 130, 420, 70], title: 'Rules' })}
+      </div>
+      <div class="c-card v-section">
+        ${table(['Severity', 'Rule', 'Doc No.', 'Field', 'Value', 'Message', 'Source Tab', 'Row'], issueRows, 'issue', null, { widths: [90, 90, 120, 110, 130, 360, 100, 70], title: 'Issues' })}
+      </div>
+    `, true);
   };
   const coverage = () => {
     const plans = view.activePlans.filter(row => !row.isSubmitted);

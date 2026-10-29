@@ -239,20 +239,55 @@ function exportC3TableCsv() {
   link.click();
   URL.revokeObjectURL(link.href);
 }
+
+// Download a keyed .ds-table as CSV. Reads the rendered header (from the .vheadtab
+// fragment) and body rows straight from the DOM, so it respects the current column
+// selection set by the column chooser; the .ds-gut scrollbar spacer is skipped.
+function exportKeyedTableCsv(key) {
+  const headTable = document.querySelector(`table.vheadtab[data-table-key="${key}"]`);
+  const bodyTable = document.querySelector(`table[data-table-key="${key}"]:not(.vheadtab)`);
+  if (!headTable || !bodyTable) return;
+  const headCells = [...headTable.querySelectorAll('thead th:not(.ds-gut)')];
+  const bodyRows = [...bodyTable.querySelectorAll('tbody tr:not(.win-pad)')].map(tr => [...tr.querySelectorAll('td:not(.ds-gut)')]);
+  const rows = [headCells, ...bodyRows].map(cells => cells.map(c => {
+    const t = (c.textContent || '').replace(/\s+/g, ' ').trim();
+    return /[",\n\r]/.test(t) ? `"${t.replaceAll('"', '""')}"` : t;
+  }).join(','));
+  if (!rows.length) return;
+  const csv = '﻿' + rows.join('\r\n'); // BOM so Excel opens UTF-8 correctly
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  link.download = `${key}-table.csv`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
 let filterDimensions = [];
-function filtersMarkup() {
+/** The five global filter dimensions, built from the loaded model. */
+function buildFilterDimensions() {
   // Stage lists every stored value plus the three excluded stages, so the filter shows the whole
-  // Stage domain even when no row uses it. A blank Stage appears as "(blank)".
+  // Stage domain even when no row uses it. A blank Stage appears as "Blank" (D43).
   const stageValues = [...new Set([...model.planned.map(row => row.stage ?? ''), ...EXCLUDED_STAGES])].sort();
-  filterDimensions = [
-    ['disciplines', 'Discipline', [...new Set([...model.planned.map(row => row.discipline).filter(Boolean), 'Unknown'])].sort()],
+  // A blank value is a value: it is listed so the full tick set covers every row. Dropping it would
+  // silently hide the rows that carry no value in that column.
+  const domain = values => [...new Set(values.map(value => String(value ?? '')))].sort();
+  return [
+    ['disciplines', 'Discipline', domain([...model.planned.map(row => row.discipline).filter(Boolean), 'Unknown'])],
     ['stages', 'Stage', stageValues, new Set(stageValues.filter(value => !EXCLUDED_STAGES.has(value)))],
-    ['statuses', 'Submission Status', [...new Set(model.submissions.map(row => row.submissionStatus).filter(Boolean))].sort()],
-    ['approvals', 'Approval Status', [...new Set(model.submissions.map(row => row.approvalStatus).filter(Boolean))].sort()],
-    ['submitters', 'Submitted By', [...new Set(model.submissions.map(row => row.fields['Submitted By']).filter(Boolean))].sort()]
+    ['statuses', 'Submission Status', domain(model.submissions.map(row => row.submissionStatus))],
+    ['approvals', 'Approval Status', domain(model.submissions.map(row => row.approvalStatus))],
+    ['submitters', 'Submitted By', domain(model.submissions.map(row => row.fields['Submitted By']))]
   ];
+}
+/** Tick every option of every dimension except the three excluded stages. Runs on load, so the
+ *  panel state and the dashboard data start in agreement. */
+function applyDefaultFilters() {
+  for (const [key, , values, defaults] of buildFilterDimensions()) state[key] = new Set(defaults instanceof Set ? defaults : values);
+}
+function filtersMarkup() {
+  filterDimensions = buildFilterDimensions();
   state.defaultStages = filterDimensions.find(([key]) => key === 'stages')[3];
-  $('#global-filter-buttons').innerHTML = filterDimensions.map(([key, title, values]) => `<div class="tf-wrap"><button class="tf-btn" id="tfBtn_${key}" title="Applies to all panels — filters the whole dashboard" aria-expanded="false" aria-haspopup="true" aria-controls="tfPanel_${key}">${escapeHtml(title)}<span class="tf-cnt" id="tfCnt_${key}"></span></button><div class="tf-panel" id="tfPanel_${key}" role="group" aria-label="Filter every panel by ${escapeHtml(title.toLowerCase())}" hidden><label class="tf-all"><input type="checkbox" data-filter-all="${key}"> <b>All ${escapeHtml(title)}</b></label><div class="tf-hint">Tick one or more values to narrow every panel.</div><div class="tf-divider"></div><div class="tf-list">${values.map(value => `<label class="tf-item"><input type="checkbox" data-filter="${key}" value="${escapeHtml(value)}"><span>${escapeHtml(value === '' ? '(blank)' : value)}</span></label>`).join('')}</div></div></div>`).join('');
+  $('#global-filter-buttons').innerHTML = filterDimensions.map(([key, title, values]) => `<div class="tf-wrap"><button class="tf-btn" id="tfBtn_${key}" title="Applies to all panels — filters the whole dashboard" aria-expanded="false" aria-haspopup="true" aria-controls="tfPanel_${key}">${escapeHtml(title)}<span class="tf-cnt" id="tfCnt_${key}"></span></button><div class="tf-panel" id="tfPanel_${key}" role="group" aria-label="Filter every panel by ${escapeHtml(title.toLowerCase())}" hidden><label class="tf-all"><input type="checkbox" data-filter-all="${key}"> <b>All ${escapeHtml(title)}</b></label><div class="tf-hint">Tick one or more values to narrow every panel.</div><div class="tf-divider"></div><div class="tf-list">${values.map(value => `<label class="tf-item"><input type="checkbox" data-filter="${key}" value="${escapeHtml(value)}"><span>${escapeHtml(value === '' ? 'Blank' : value)}</span></label>`).join('')}</div></div></div>`).join('');
   $('#global-filters').hidden = false;
   $('#search-button').hidden = false;
   $('#warnBtn').hidden = !(model.warnings.length);
@@ -265,10 +300,16 @@ function syncFilterControls() {
     // "Narrowed" therefore compares the ticked set with that default, not with the option count.
     const defaults = defaultValues instanceof Set ? defaultValues : new Set(values);
     const master = document.querySelector(`input[data-filter-all="${key}"]`);
-    // The master reflects an explicit "every value ticked", so unticking it does not snap back.
-    if (master) master.checked = values.length > 0 && set.size >= values.length;
+    // Tri-state over the listed values: all ticked → checked, some ticked → indeterminate, none
+    // ticked → unchecked. Load sets the tick set from the data, so the master is truthful at once.
+    if (master) {
+      const on = values.filter(value => set.has(value)).length;
+      master.checked = values.length > 0 && on === values.length;
+      master.indeterminate = on > 0 && on < values.length;
+    }
     for (const input of document.querySelectorAll(`input[data-filter="${key}"]`)) input.checked = set.size > 0 && set.has(input.value);
-    const narrowed = set.size > 0 && (set.size !== defaults.size || [...set].some(value => !defaults.has(value)));
+    // An empty set is a real selection ("none ticked"), so the badge shows 0 instead of vanishing.
+    const narrowed = set.size !== defaults.size || [...set].some(value => !defaults.has(value));
     const count = document.getElementById(`tfCnt_${key}`);
     if (count) count.textContent = narrowed ? String(set.size) : '';
     const button = document.getElementById(`tfBtn_${key}`);
@@ -286,6 +327,29 @@ function closeFilterPanels() {
   const c1Btn = document.getElementById('tfBtn_c1series');
   if (c1Panel) c1Panel.hidden = true;
   if (c1Btn) c1Btn.setAttribute('aria-expanded', 'false');
+}
+/** §7.1 B7 — sync every chooser: pinned rows stay checked and disabled, the master is tri-state
+ *  over the free rows, and the footer counts the hidden ones. */
+function syncColumnControls() {
+  for (const panel of document.querySelectorAll('.column-chooser')) {
+    const items = [...panel.querySelectorAll('input[data-column-choice]')];
+    for (const input of items.filter(input => input.disabled)) input.checked = true;
+    const free = items.filter(input => !input.disabled);
+    const on = free.filter(input => input.checked).length;
+    const master = panel.querySelector('input[data-column-all]');
+    if (master) {
+      master.checked = free.length > 0 && on === free.length;
+      master.indeterminate = on > 0 && on < free.length;
+    }
+    const count = panel.querySelector('[data-column-hidden]');
+    if (count) count.textContent = `${free.length - on} hidden`;
+  }
+}
+/** §7.1 — close every column chooser and clear its trigger state. */
+function closeColumnChoosers() {
+  state.openChooser = null;
+  for (const panel of document.querySelectorAll('.column-chooser')) panel.hidden = true;
+  for (const button of document.querySelectorAll('.cc-btn')) button.setAttribute('aria-expanded', 'false');
 }
 // §7.2.15 — split header. The <thead> is a fragment above the scroller, so the vertical scrollbar
 // can never cover a header cell. One implementation serves every table: the fragment is pinned to
@@ -397,6 +461,7 @@ function paint() {
   if (ttlMeta) ttlMeta.textContent = `Project start ${model.meta.projectStartDate || '—'} · as of ${model.meta.asOfDate || '—'}`;
   $('#status-files').textContent = `MDL: ${files.mdl?.name || '—'} · Log: ${files.log?.name || '—'} · ${view.kpis.totalPlanned.toLocaleString()} planned rows`;
   showWarnings();
+  syncColumnControls();
   updateTheme();
 }
 async function readAndBuild() {
@@ -409,8 +474,9 @@ async function readAndBuild() {
     const [mdlBuffer, logBuffer] = await Promise.all([files.mdl.arrayBuffer(), files.log.arrayBuffer()]);
     const [mdlWorkbook, logWorkbook] = await Promise.all([readXlsx(mdlBuffer), readXlsx(logBuffer)]);
     model = buildModel(mdlWorkbook, logWorkbook, { contract, mdlWorkbookName: files.mdl.name, logWorkbookName: files.log.name });
-    state.disciplines = new Set([...model.planned.map(row => row.discipline).filter(Boolean), 'Unknown']);
-    state.stages = new Set(model.planned.map(row => row.stage ?? '').filter(value => !EXCLUDED_STAGES.has(value)));
+    // Every dimension starts with its full tick set, so the filter panels and the dashboard data
+    // agree on the first paint (Stage keeps its three excluded values unticked).
+    applyDefaultFilters();
     if (state.rememberNames) localStorage.setItem('sub-dashboard-file-names', JSON.stringify({ mdl: files.mdl.name, log: files.log.name }));
     filtersMarkup();
     paint();
@@ -498,8 +564,48 @@ function helpHtml() {
   return html;
 }
 
+// §4.4 — standardized drill-down (I068): the .drill-btn is the control (aria-expanded +
+// aria-controls); the .expandable row is a pointer shortcut; only one .sub detail is open (accordion).
+function toggleDrill(row, btn) {
+  if (!row) return;
+  const detail = row.nextElementSibling;
+  if (!detail || !detail.classList.contains('sub')) return;
+  const willOpen = detail.hidden;
+  const table = row.closest('table');
+  table?.querySelectorAll('tr.sub').forEach(other => {
+    if (other === detail || other.hidden) return;
+    other.hidden = true;
+    const control = other.previousElementSibling?.querySelector('.drill-btn');
+    if (control) control.setAttribute('aria-expanded', 'false');
+  });
+  detail.hidden = !willOpen;
+  const control = btn || row.querySelector('.drill-btn');
+  if (control) control.setAttribute('aria-expanded', String(willOpen));
+}
+document.addEventListener('keydown', event => {
+  // §7.1 — Escape closes any open floating panel.
+  if (event.key === 'Escape') {
+    closeFilterPanels();
+    closeColumnChoosers();
+    const searchPanel = document.getElementById('searchPanel');
+    if (searchPanel?.classList.contains('open')) { searchPanel.classList.remove('open'); document.getElementById('search-button')?.setAttribute('aria-expanded', 'false'); }
+    return;
+  }
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  const row = event.target.closest?.('tr.expandable');
+  if (!row || event.target.closest?.('.drill-btn')) return;
+  event.preventDefault();
+  toggleDrill(row, row.querySelector('.drill-btn'));
+});
+// §7.1 — a click outside a floating panel closes it. This runs before the button handler below and
+// covers every target, not only buttons, so a click on plain text or a table cell also closes it.
+document.addEventListener('click', event => {
+  const target = event.target;
+  if (!target.closest?.('.tf-panel') && !target.closest?.('.tf-btn') && !target.closest?.('.search-panel') && !target.closest?.('#search-button')) closeFilterPanels();
+  if (state.openChooser && !target.closest?.('.column-chooser') && !target.closest?.('.cc-btn')) closeColumnChoosers();
+});
 document.addEventListener('click', async event => {
-  const target = event.target.closest('button');
+  const target = event.target.closest('button, tr.expandable');
   if (!target) return;
   if (target.dataset.page) { state.page = target.dataset.page; paint(); }
   if (target.dataset.shellToggle) document.body.classList.toggle(`closed-${target.dataset.shellToggle}`);
@@ -519,13 +625,37 @@ document.addEventListener('click', async event => {
   }
   if (target.id === 'layout-button') { const layouts = ['one', 'two', 'three']; const index = (layouts.indexOf(document.body.dataset.layout) + 1) % layouts.length; document.body.dataset.layout = layouts[index]; target.title = `${index + 1} column layout`; }
   if (target.id === 'search-button') { $('#searchPanel').classList.toggle('open'); target.setAttribute('aria-expanded', String($('#searchPanel').classList.contains('open'))); }
-  if (target.id.startsWith('ccBtn_')) { const panel = document.getElementById(target.getAttribute('aria-controls')); if (panel) panel.hidden = !panel.hidden; }
+  if (target.classList?.contains('cc-btn')) {
+    const key = target.id.replace('ccBtn_', '');
+    const open = state.openChooser !== key;
+    state.openChooser = open ? key : null;
+    const panel = document.getElementById(target.getAttribute('aria-controls'));
+    if (panel) panel.hidden = !open;
+    target.setAttribute('aria-expanded', String(open));
+    syncColumnControls();
+  }
+  if (target.dataset.columnReset) {
+    const key = target.dataset.columnReset;
+    state.columnSets = { ...state.columnSets, [key]: null };
+    localStorage.removeItem(`sub_dashboard_${key}_cols`);
+    state.openChooser = key;
+    paint();
+    return;
+  }
+  // §4.4 — standardized drill-down (I068): button is the control, row is a pointer shortcut.
+  if (target.classList?.contains('drill-btn')) {
+    toggleDrill(target.closest('tr.expandable'), target);
+  } else if (target.classList?.contains('expandable')) {
+    toggleDrill(target, target.querySelector('.drill-btn'));
+  }
   if (target.classList?.contains('tf-btn')) {
     const panel = document.getElementById(target.getAttribute('aria-controls'));
     const open = !panel || panel.hidden;
     closeFilterPanels();
     if (panel && open) { panel.hidden = false; target.setAttribute('aria-expanded', 'true'); }
   } else if (!target.closest?.('.tf-panel')) { closeFilterPanels(); }
+  // §7.1 — the listener above already closed an outside-click chooser; this keeps button clicks in step.
+  if (state.openChooser && !target.classList?.contains('cc-btn') && !target.closest?.('.column-chooser')) closeColumnChoosers();
   if (target.id !== 'search-button' && !target.closest?.('#searchPanel')) {
     const searchPanel = document.getElementById('searchPanel');
     if (searchPanel?.classList.contains('open')) { searchPanel.classList.remove('open'); document.getElementById('search-button')?.setAttribute('aria-expanded', 'false'); }
@@ -542,14 +672,26 @@ document.addEventListener('click', async event => {
   if (target.hasAttribute('data-c3png')) { exportC3Png(target); }
   if (target.hasAttribute('data-c3copy')) { copyC3Svg(target); }
   if (target.hasAttribute('data-c3export')) { exportC3TableCsv(); }
+  if (target.hasAttribute('data-export-table')) { exportKeyedTableCsv(target.getAttribute('data-export-table')); }
   if (target.dataset.c2view) { state.c2View = target.dataset.c2view; paint(); }
   if (target.hasAttribute('data-c2nfs')) { state.c2Nfs = state.c2Nfs === false ? true : false; paint(); }
   if (target.hasAttribute('data-c2png')) { exportC2Png(); }
   if (target.hasAttribute('data-c2copy')) { copyC2Svg(); }
   if (target.dataset.export) {
-    const rows = model ? deriveView(model, state).active : [];
-    const cols = ['Document No.', 'Document Title', 'Discipline', 'Submitted By', 'Submission Date', 'Submission Status', 'Approval Status', 'Review Period', 'Target Return Date', 'Actual Return Date', 'Review Turnaround Days', 'Review Delay Days', 'Resubmission Required'];
-    const text = [cols, ...rows.map(row => [row.documentNo, row.fields['Document Title'], row.discipline, row.fields['Submitted By'], row.submissionDate, row.submissionStatus, row.approvalStatus, row.fields['Review Period'], row.targetReturnDate, row.actualReturnDate, row.turnaroundDays, row.delayDays, row.resubmissionRequired])].map(row => row.map(value => `"${String(value ?? '').replaceAll('"', '""')}"`).join(',')).join('\r\n');
+    const view = model ? deriveView(model, state) : null;
+    const docs = view?.documents || [];
+    const plannedById = new Map(model ? model.planned.map(p => [p.id, p]) : []);
+    const planOf = row => plannedById.get(row.linkedPlannedId);
+    const titleFor = group => { const plan = planOf(group[0]); return plan?.title || group[0].fields['Document Title'] || ''; };
+    const discFor = group => { const plan = planOf(group[0]); return plan?.discipline || group[0].discipline || 'Unknown'; };
+    const cols = ['Document No.', 'Document Title', 'Discipline', 'Submissions', 'Current Submission Status', 'Current Approval Status', 'Prolog / Transmittal No. (history)', 'Submission History'];
+    const rows = docs.map(group => {
+      const latest = group[group.length - 1];
+      const prolog = [...new Set(group.map(r => r.fields['Prolog No.']).filter(Boolean))].join('; ');
+      const hist = group.map(r => [r.fields['Prolog No.'] || '', r.submissionDate || '', r.actualReturnDate || '', r.submissionStatus || '', r.approvalStatus || ''].join(' ').trim()).join(' | ');
+      return [group[0].documentNo, titleFor(group), discFor(group), group.length, latest.submissionStatus, latest.approvalStatus, prolog, hist];
+    });
+    const text = [cols, ...rows].map(row => row.map(value => `"${String(value ?? '').replaceAll('"', '""')}"`).join(',')).join('\r\n');
     const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' })); link.download = 'submittals.csv'; link.click(); URL.revokeObjectURL(link.href);
   }
 });
@@ -571,7 +713,21 @@ document.addEventListener('change', async event => {
     if (event.target.checked) selected.add(index); else selected.delete(index);
     state.columnSets = { ...state.columnSets, [key]: [...selected].sort((a, b) => a - b) };
     localStorage.setItem(`sub_dashboard_${key}_cols`, JSON.stringify(state.columnSets[key]));
+    state.openChooser = key; // §7.1 — a tick must not close the panel
     paint();
+    return;
+  }
+  if (event.target.dataset.columnAll) {
+    const key = event.target.dataset.columnAll;
+    const table = document.querySelector(`[data-table-key="${key}"]`);
+    const max = Number(table?.dataset.columnCount) || 0;
+    const all = Array.from({ length: max }, (_, index) => index);
+    // §7.1 master scope: the pinned identity columns stay on, so "off" keeps them in the set.
+    state.columnSets = { ...state.columnSets, [key]: event.target.checked ? all : all.filter(index => index < 2) };
+    localStorage.setItem(`sub_dashboard_${key}_cols`, JSON.stringify(state.columnSets[key]));
+    state.openChooser = key;
+    paint();
+    return;
   }
   const filterAll = event.target.dataset.filterAll;
   if (filterAll) {

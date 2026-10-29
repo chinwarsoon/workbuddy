@@ -301,7 +301,10 @@ async function runTier3(page, cfg, workbookPath) {
   const EXCL = ['Deleted', 'Void', 'Superseded'];
   const sourceRows = model.records || model.planned || [];
   const fullDisc = new Set(sourceRows.map(r => r.discipline).filter(Boolean));
-  const fullStg  = new Set(sourceRows.map(r => r.stage).filter(Boolean).filter(s => !EXCL.includes(s)));
+  // D33/D43 — a blank Stage is a real filter value: it is listed as "Blank" and every registered
+  // document counts. Dropping it from the tick set made the ground truth lose those rows
+  // (7,513 instead of 7,631) and reported a false KPI failure.
+  const fullStg  = new Set(sourceRows.map(r => r.stage ?? '').filter(s => !EXCL.includes(s)));
   const state = { disciplines: fullDisc, stages: fullStg, search: '', searchCol: 'Document No.', rule: null };
   const view = deriveView(model, state);
   const gt = view.kpis;
@@ -342,6 +345,29 @@ async function runTier3(page, cfg, workbookPath) {
   // Total planned
   const domTotal = await readKpi(cfg.kpiSelectors?.totalPlanned || '[data-kpi="totalPlanned"] .v, .kpi:first-child .v');
   ok(`KPI totalPlanned: DOM ${domTotal} = pipeline ${gt.totalPlanned}`, domTotal === gt.totalPlanned, `DOM=${domTotal} pipeline=${gt.totalPlanned}`);
+
+  // §3.3.2 / D43 — a date-axis series plots only rows that carry the plan date, while totals count
+  // every registered document. Assert the relationship, not a literal, so a new workbook cannot
+  // break the check.
+  const datedPlans = (model.planned || []).filter(row => row.documentNo
+    && fullDisc.has(row.discipline)
+    && fullStg.has(row.stage ?? '')
+    && /^\d{4}-\d{2}-\d{2}/.test(String(row.fields['Planned 1st Issue Date'] || '')));
+  const gtAsOfYm = String(model.meta?.asOfDate || '').slice(0, 7);
+  const datedPlansAsOf = datedPlans.filter(row => String(row.fields['Planned 1st Issue Date']).slice(0, 7) <= gtAsOfYm);
+  if (view.c1 && !view.c1.empty && Array.isArray(view.c1.pCum)) {
+    const last = view.c1.pCum[view.c1.pCum.length - 1];
+    ok(`C1 planned series plots every dated plan row (${datedPlans.length})`, last === datedPlans.length, `series=${last} dated=${datedPlans.length}`);
+  } else {
+    skipped('C1 planned series (no S-curve series in this dashboard)');
+  }
+  if (gtAsOfYm && view.c3 && typeof view.c3.planCount === 'function') {
+    const c3Plan = [...fullDisc].reduce((sum, discipline) => sum + view.c3.planCount('discipline', discipline, 'ALL'), 0);
+    ok(`C3 All-months Total Plan counts dated plan rows up to ${gtAsOfYm} (${datedPlansAsOf.length})`,
+      c3Plan === datedPlansAsOf.length, `c3=${c3Plan} dated=${datedPlansAsOf.length}`);
+  } else {
+    skipped('C3 All-months Total Plan (no as-of month or no C3 view)');
+  }
 
   // Submitted
   if (cfg.kpiSelectors?.submitted) {
@@ -989,7 +1015,7 @@ async function lintL3(page, cfg = {}) {
     rep.filter(r => r.grips > 0).length >= minGridTables, `grips per table: ${rep.map(r => r.grips).join(',')}`);
 
   // 2. column chooser (I-95) — clicking it must really remove a column
-  for (const key of ['detail', 'issue']) {
+  for (const key of ['subdoc', 'issue']) {
     const btn = page.locator(`#ccBtn_${key}`);
     if (!(await btn.count())) { skipped(`I-95: chooser for ${key} (button not found)`); continue; }
     // the validation panel pairs a thead-only fragment with a body-only table, so pick the one with rows
@@ -1022,11 +1048,24 @@ async function lintL3(page, cfg = {}) {
     // the fixed status bar / error banner overlay the header, so drive the popover in-page
     const n = await page.evaluate(k => {
       document.getElementById('ccBtn_' + k).click();
-      return document.querySelectorAll(`#ccPanel_${k} .cc-row input:not([disabled])`).length;
+      return document.querySelectorAll(`#ccPanel_${k} .cc-row input:not([disabled]), #ccPanel_${k} input[data-column-choice]:not([disabled])`).length;
     }, key);
     ok(`I-95: ${key} chooser opens and offers columns (${n} selectable)`, n > 0);
+    // §7.1 master scope — the pinned identity columns are permanently checked and disabled, and the
+    // master covers only the non-pinned rows. Row class names are not the contract (MDL uses
+    // `.cc-row`, SUB uses `.cc-item` plus `data-column-choice`), so this reads the checkbox state.
+    const masterState = await page.evaluate(k => {
+      const panel = document.getElementById('ccPanel_' + k);
+      if (!panel) return null;
+      const box = panel.querySelector('input[data-column-all], .cc-all input[type=checkbox]');
+      const locked = [...panel.querySelectorAll('input[type=checkbox][disabled]')];
+      return { master: Boolean(box), locked: locked.length, lockedChecked: locked.filter(input => input.checked).length };
+    }, key);
+    ok(`I-95: ${key} chooser has a master and keeps every pinned column checked`,
+      Boolean(masterState && masterState.master && masterState.locked === masterState.lockedChecked),
+      JSON.stringify(masterState));
     const choiceIndex = await page.evaluate(k => {
-      const choices = [...document.querySelectorAll(`#ccPanel_${k} .cc-row input:not([disabled])`)];
+      const choices = [...document.querySelectorAll(`#ccPanel_${k} .cc-row input:not([disabled]), #ccPanel_${k} input[data-column-choice]:not([disabled])`)];
       const index = choices.findIndex(input => input.checked);
       if (index >= 0) choices[index].click();
       return index;
@@ -1038,7 +1077,7 @@ async function lintL3(page, cfg = {}) {
     ok(`I-95: ${key} chooser persists the choice (D40)`,
       await page.evaluate(([k,prefix]) => !!localStorage.getItem(prefix + k + '_cols'), [key, cfg.storagePrefix || 'mdl_']));
     await page.evaluate(([k,index]) => {
-      const b = document.querySelectorAll(`#ccPanel_${k} .cc-row input:not([disabled])`)[index];
+      const b = document.querySelectorAll(`#ccPanel_${k} .cc-row input:not([disabled]), #ccPanel_${k} input[data-column-choice]:not([disabled])`)[index];
       if (b) b.click();                                   // restore the column
       document.getElementById('ccBtn_' + k).click();      // close the popover
     }, [key, choiceIndex]);
@@ -1054,12 +1093,20 @@ async function lintL3(page, cfg = {}) {
       .map((t, i) => ({ i, n: t.querySelectorAll('.ds-resize').length })).filter(x => x.n > 0).map(x => x.i));
     const colW = idx => page.evaluate(([i,prefix]) => {
       const t = document.querySelectorAll('table.ds-table')[i];
+      // Measure the column the first grip actually resizes (its data-col), not blindly col[0]: the
+      // standardized .drill-cell (first column) carries no grip, so col[0] is not the resized column.
+      const grip = t.querySelector('.ds-resize');
+      const dc = grip ? (grip.getAttribute('data-col') || '0') : '0';
+      const pick = x => x.querySelector(`colgroup col[data-col="${dc}"]`)
+        || x.querySelectorAll('colgroup col')[Number(dc)];
       const card = t.closest('.splitcard');
       const partner = card ? [...card.querySelectorAll('table.ds-table')]
         .find(x => x !== t && x.querySelector('tbody tr')) : null;
-      return { w: t.querySelectorAll('colgroup col')[0].getBoundingClientRect().width,
-               partner: partner ? partner.querySelectorAll('colgroup col')[0].getBoundingClientRect().width : null,
-               stored: localStorage.getItem(prefix + 'detail_widths') || localStorage.getItem(prefix + 'issue_widths') };
+      const col = pick(t), pcol = partner ? pick(partner) : null;
+      const tk = t.dataset.tableKey || '';
+      return { w: col ? col.getBoundingClientRect().width : 0,
+               partner: pcol ? pcol.getBoundingClientRect().width : null,
+               stored: tk ? localStorage.getItem(prefix + tk + '_widths') : null };
     }, [idx, cfg.storagePrefix || 'mdl_']);
     const drag = (idx, by) => page.evaluate(([i, d]) => {
       const g = document.querySelectorAll('table.ds-table')[i].querySelector('.ds-resize');

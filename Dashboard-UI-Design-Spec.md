@@ -2,6 +2,12 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.44 | 2026-10-29 | CodeBuddy (AI) | §4.5 (Validation panel) rewritten to a normative layout standard, driven by I072 (SUB Validation panel). The panel organises as: one `.v-summary` flex row (count + severity chips + lighter meta line), each of the two tables in its own `.c-card` (inner `.ds-split` border removed, `.c-card .ds-split{border:0}`), a `.table-head` row aligning each card title with its tool cluster, a clear `Showing X of Y rows` count, and default column widths that give the Rules Description (≈420 px) and Issues Message (≈360 px) / Value (≈130 px) the most room. The panel-level CSV was removed (the per-issue table carries `⤓ CSV`); the stale `<details>` collapsible and `#vmap`/`#vref` references were deleted. `table()` gained an optional `opts` (`widths`, `title`). |
+| 1.43 | 2026-10-29 | CodeBuddy (AI) | §4 gained a normative rule: a panel reached via the left-sidebar page links MUST show its content directly and MUST NOT wrap its content in an in-panel disclosure toggle (for example a native `<details>` / `<summary>` element), because the sidebar already controls which panel is visible. When a panel must collapse, use the panel-level Collapse `−`/`+` toggle (§4), not a content disclosure. Driven by I071 (SUB Validation panel). |
+| 1.42 | 2026-10-29 | CodeBuddy (AI) | §7.1 gained **selection semantics** (normative), because the chrome rules were not enough. A dimension MUST open with every value ticked except documented exclusions. A blank cell is a selectable value shown as `(blank)`. An **empty tick set filters every row out** — an absent set is the only "no filter" state. A tick applies at once and MUST NOT close the panel; an outside click or `Escape` MUST close it. Found while fixing I070: three of the five dimensions started with an empty set, so the panel showed nothing ticked while the dashboard filtered nothing, and un-ticking every value changed no row. Compliance checklist gained row 17. |
+| 1.41 | 2026-10-29 | CodeBuddy (AI) | §4.4 `.drill-cell` selector raised to `.ds-table .drill-cell`. The base rule `.ds-table th, .ds-table td` (specificity 0,1,1) sets `overflow:hidden` and `text-overflow:ellipsis`; a bare `.drill-cell` (0,1,0) loses the cascade, so the revision 1.40 `text-overflow:clip` never applied and the 4 px padding was dropped too — the cell kept 10 px padding and the 24 px button overflowed a 12 px content box. Measured in Chromium before the fix: `textOverflow:"ellipsis"`, `clientWidth:32`, `scrollWidth:53`. The block now uses the higher-specificity selector, which beats 0,1,1. A normative sentence records the requirement. |
+| 1.40 | 2026-10-29 | CodeBuddy (AI) | §4.4 `.drill-cell` MUST NOT paint a truncation mark. The cell is 32 px with 4 px padding on each side, so its 24 px content box fits the 24 px `.drill-btn` exactly. `.ds-table` cells inherit `overflow:hidden` + `text-overflow:ellipsis`, so the sub-pixel remainder drew a clipped ellipsis (two dots) after the chevron in every Submittals row. The normative block now carries `overflow:hidden;text-overflow:clip`, and a normative bullet records that the drill cell truncates no text and therefore shows no ellipsis. Found in the SUB Submittals panel (owner screenshot). |
+| 1.39 | 2026-10-29 | CodeBuddy (AI) | §4.4 drill-down standardized and reconciled with §7.1 B4. An expandable row is `.expandable`; the expand control is a real `<button class="drill-btn">` (an `.icon-btn` variant) carrying `aria-expanded` + `aria-controls` and a `.drill-chev` glyph rotated 90° when expanded (no glyph swap). The sibling detail row is `.sub` with a `.sub-inner` wrapper (§7.2.0). The whole row is a pointer shortcut; the button is the accessible control. Accordion (one open), keyboard Enter/Space, delegated listener. Tokens standardized: `--line` (hairline), `--soft` (detail background + hover), `--muted` (chevron), `--navy` (chevron hover), `--blue` (focus ring); no hard-coded colours. Normative classes added to §7.2.0. |
 | 1.8 | 2026-10-24 | Codex | Made `ui/`, `data/`, and `output/` optional and made module paths project-defined; aligned the harness contract. |
 | 1.9 | 2026-10-24 | CodeBuddy (AI) | Adopted the MDL shell model: §3.1/§3.2/§3.6 now define a two-row header (navy title bar + white menu bar) + navy left navigation sidebar; dropped the 48 px icon bar and the right sidebar; moved Settings/Help to the menu bar / modal; use the updated `AGENTS.md` §18.2 shell markers (`titlebar`, `menubar`, `left-sidebar`, `content`, `statusbar`). Default theme is light. |
 | 1.30 | 2026-10-27 | CodeBuddy (AI) | §4.2 card-control rule reconciled with the C3 Breakdown panel:
@@ -11,6 +17,9 @@
 | 1.34 | 2026-10-28 | CodeBuddy (AI) | §4.2 C3 Breakdown bars now carry a y-axis with grid lines + numbers, matching the C1 S-curve and C2 stacked-area panels: each card draws 5 horizontal grid lines at 0 / 25% / 50% / 75% / 100% of a nice maximum (niceCeil of the largest category total), the bars are scaled to that same max, and the numeric tick labels are right-aligned in the metric-label column and flush against the bars (no gap; aligned with the table below). Zero-discipline categories still show the empty grid. The Pie cards are exempt. Decision recorded as I060; review sample `sub/ref/sample-c3-grid-lines.html`. The harness bundled spec (`harness-layout/spec/Dashboard-UI-Design-Spec.md`) was re-synced from this file. |
 | 1.35 | 2026-10-28 | CodeBuddy (AI) | §4.2 C2 Submission Flow Funnel layout: the funnel is a **vertical shape to the right of a per-Discipline table** (table left, funnel right). Its **top aligns with the first discipline row** and its **bottom — a cube block for Approved — aligns with the last discipline row** (the table header and Total row are outside the funnel span). Five stages top→bottom: Planned Deliverables → Submitted for Review → Under Review → AWC → Approved. Band widths use **square-root compression** so a large ratio between stages does not make a small stage a razor-thin sliver. Stage label is "Under Review" (not "In Review"); AWC is its own stage, separate from Approved. See `sub/ref/C2-Funnel-Sample.html`. |
 | 1.36 | 2026-10-28 | CodeBuddy (AI) | §4.2 C2 Funnel refined per owner review of the first live render: stage names and values moved to a **left label gutter** (right-aligned beside the bands, theme-aware text color) so long names like "Submitted for Review" never clip against a narrow band; the separate legend row was removed (every stage is labeled beside its band); the Approved base is now a **solid square block** (92 px, owner request) instead of a sliver-wide 3D cube whose label overflowed. Funnel column widened to 350 px. Fixed I064 first: the funnel had never rendered because the stage key `underReview` did not match `c2.funnel`'s `inReview`, so every path coordinate was `NaN`. Logged I065; workplan changelog 2.43. |
+| 1.37 | 2026-10-28 | CodeBuddy (AI) | §4 Panel border now wraps **only the content** (charts / tables / filters / buttons) inside a new bordered `.panel-body`; the title row — with Help `?` and the Collapse `−` toggle — sits **outside** the border (owner review 2026-10-28). The corner `Panel N` number moved onto `.panel-body` (inside the border). The §4 diagram, Surface bullet and CSS block were updated; `.panel` is now a borderless section. Driven by I066; workplan changelog 2.44. |
+| 1.38 | 2026-10-28 | CodeBuddy (AI) | §4 Panel model corrected per owner review (supersedes 1.37). The panel edge (same `--surface` background + 1px `--border` + radius + shadow + padding) is restored on `.panel`, and the title row — title, Help `?`, Collapse `−` — sits **inside** that edge (MDL panel model: every panel shares the same background and edge). Each individual graph now sits in its own bordered `.c-card` (or C3's `.c3-card`) **inside** the panel, so multiple graphs are visually separated; the inner border wraps only a graph plus its own controls, while the panel-level Help/toggle stay in the header. Removed the I066/1.37 borderless-`.panel` model. Engine: `render.js` keeps the header inside `.panel`, `schedulePerformance` and `submissionFlow` wrap their graph in `.c-card`, and the `Panel N` number moved back to `.panel`. Logged I067; workplan changelog 2.45. |
+| 1.39 | 2026-10-29 | CodeBuddy (AI) | §4.1 clarified the chart-card rule: an inner `.c-card` / `.c3-card` border is required only when a panel holds **more than one graph** (to separate them) or to group a graph with its own controls (C2's single `.c-card`); a **single-graph** panel (C1 S-curve) uses the panel edge alone, so its redundant inner border was removed (I068). No change to the panel-edge rule (rev 1.38). Driven by I068; workplan changelog 2.46. |
 | 1.29 | 2026-10-27 | CodeBuddy (AI) | §3.4 Responsive layout enhanced with §3.4.1 Panel size fits the screen. Panels MUST follow the content width at every screen scale (including Control + scroll zoom) and MUST NOT keep a first-render pixel width; the KPI panel (auto-fit grid, no fixed widths) is the reference. Scope is panel size only; inner cards may keep a fixed width by requirement (for example, a constant bar width). |
 | 1.28 | 2026-10-25 | CodeBuddy (AI) | §4.2 S-curve clarified from the Submittal C1 re-review: the chart-card board is a 1 px border around the whole chart component (control cluster + plot), not an in-plot rectangle, so the one-board / one-card-border rule is unambiguous; the y-max MUST use the raw visible maximum with a small headroom pad (~3%) and MUST NOT be rounded up to a power-of-ten step, so the curves fill the chart height like the MDL reference. Workplan D35 / §7 now include the Forecast bar (`fNew`). |
 | 1.27 | 2026-10-25 | CodeBuddy (AI) | §4.2 S-curve hardened from the Submittal C1 review: a Month / Quarter / Year time-grain toggle MAY be offered (rebuckets labels, bars and the cumulative curve); the period window MAY be a bar / brush selection that wraps below when narrow; the control cluster is right-aligned by default and the period selection MAY be left-aligned with the filters (grain, Bars, series multi-select) preceding the exports (PNG, Copy) on the right; the combined-chart legend SHOULD be in-SVG at the bottom (not an HTML `.legend`); dense x-axis labels MAY be inclined (rotated ~40°) hugging the axis with the legend kept clear; and a hover snap line with a floating window is RECOMMENDED. The PNG / Copy, one-board / one-card-border, absolute-cumulative, Start / Today and shared-scale rules were already normative. |
@@ -475,27 +484,40 @@ A **Panel** is the atomic page unit. **The class name is free** — a dashboard 
 a dashboard uses in its own workplan.
 
 ```
-┌───────────────────────────────────────────────┐
-│ KPI OVERVIEW                    ( ? ) ( − )     │   ← title row: title left, actions right
+┌───────────────────────────────────────────────┐   ← .panel edge (SAME background + border for every panel)
+│ KPI OVERVIEW                    ( ? ) ( − )     │   ← title row INSIDE the edge: title left, Help ? + Collapse − right
 │                                                  │
-│   …panel content (charts / tables / cards)…     │
-│                                                  │
-│                                Panel 14          │   ← corner panel number, bottom-right
+│   ┌──────────────────────────────────────────┐  │   ← .c-card: one graph + its own controls
+│   │ …chart / table / controls…               │  │
+│   └──────────────────────────────────────────┘  │
+│                                Panel 14          │   ← corner panel number, bottom-right (inside the edge)
 └───────────────────────────────────────────────┘
 ```
 
-- **Surface**: white (`--surface`); 1px solid `--border`; radius 10 px; subtle shadow.
-- **Position**: `relative` (so the panel number can anchor).
-- **Padding**: `14px 14px 26px`. The 26 px bottom gap reserves clearance for the corner panel number
-  (`bottom:8px`) so it **never overlaps** the last card / content line. Dynamic chart containers
-  get the same `padding-bottom:26px`.
+- **Panel surface**: the bordered surface is `.panel` — white (`--surface`); 1px solid `--border`;
+  radius 10 px; subtle shadow; `position:relative`. It carries the **same background and edge for every
+  panel** (MDL panel model). The title row — title, **Help `?`**, and the **Collapse `−`** toggle, which
+  all apply to the whole panel — sits **inside** this edge.
+- **Chart cards**: each individual graph (with its own control filters and buttons) sits in its own
+  bordered surface — `.c-card` (`1px solid --border`; radius 10 px; `padding:12px`; `--surface`). This is
+  a card **inside** the panel and visually separates multiple graphs. A panel may hold one or several
+  `.c-card`s (the C3 Breakdown panel holds two). C3 already uses its own `.c3-card`, which follows the
+  same contract. A single-graph panel (e.g. C1) needs no inner card — the panel edge alone frames it
+  (I068). The panel edge (above) is the **outer** border; the `.c-card` border is the **inner**
+  border around a single graph.
+- **Position**: `relative` on `.panel` (so the panel number can anchor inside the edge).
+- **Padding**: `14px 14px 26px` on `.panel`. The 26 px bottom gap reserves clearance for the corner
+  panel number (`bottom:8px`) so it **never overlaps** the last card / content line. Dynamic chart
+  containers get the same `padding-bottom:26px`.
 - **Title**: 13 px, weight 700, **uppercase**, colour `--navy`, letter-spacing .04 em,
   margin 0 0 10 px.
 - **Title row**: `display:flex; justify-content:space-between; align-items:center`.
   Panel title left; an **action cluster pinned to the far right** containing Help `?` and the
   Collapse `−` toggle. **Order within the cluster: Help `?` is LEFT of Collapse `−`** — the
   toggle is always the rightmost control. Inject the `?` as the first child of `.panel-actions`
-  so this holds even when a toggle is already present.
+  so this holds even when a toggle is already present. The title row is rendered **inside** the panel
+  edge (the panel border wraps the whole panel, header included); Help `?` and Collapse `−` are therefore
+  inside the edge, while each graph's own controls live inside its `.c-card` border.
 - **The flex row is the title row, not the heading (normative).** The row is the element that
   wraps the title and the action cluster (`.panel-head` below); the 10 px gap belongs to that row
   (`margin:0 0 10px`) and the `h2` itself is `margin:0`. Putting the flex on the `h2` — as the
@@ -526,10 +548,16 @@ a dashboard uses in its own workplan.
   so the collapsed state MUST be persisted outside it — in the dashboard's view state, keyed by
   panel name — and re-applied on render. Keeping it only on the element silently re-opens the
   panel on the next filter change or page switch.
+- **No in-panel disclosure toggle when the sidebar provides navigation (normative).** A panel reached
+  through the left-sidebar page links MUST show its primary content directly. A secondary in-panel
+  toggle — for example a native `<details>` / `<summary>` disclosure — that hides the panel's own
+  content is not required, because the sidebar already controls which panel is visible. When a panel
+  must collapse, use the panel-level Collapse `−`/`+` toggle (above), not a content disclosure.
 
 ```css
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;
-  padding:14px 14px 26px;margin:14px 0;box-shadow:var(--shadow);position:relative}
+.panel{margin:14px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  box-shadow:var(--shadow);padding:14px 14px 26px;position:relative;min-width:0}
+.panel-body{min-width:0}                                       /* content wrapper; no border */
 .panel-head{display:flex;justify-content:space-between;align-items:center;
   gap:8px;margin:0 0 10px}
 .panel h2{font-size:13px;margin:0;color:var(--navy);text-transform:uppercase;
@@ -537,12 +565,15 @@ a dashboard uses in its own workplan.
 .panel-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;
   bottom:8px;font-size:10px;letter-spacing:.04em;color:var(--muted);pointer-events:none}
+.c-card{border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--surface);
+  position:relative;min-width:0;margin:0 0 12px}
+.c-card:last-child{margin-bottom:0}
 .panel-grid>.panel{margin:0}
-.panel.collapsed>*:not(.panel-head){display:none}
+.panel.collapsed>*:not(.panel-head){display:none}             /* hides the bordered content */
 ```
 
 ### 4.1 Panels containing charts (control ownership)
-Some panels hold several **chart cards** in a grid. The panel shell still carries §4 chrome — bordered surface, own title row, corner `Panel N`. Controls split strictly by scope:
+Some panels hold several **chart cards** in a grid. The panel shell still carries §4 chrome — bordered surface, own title row, corner `Panel N`. **Each chart card is a bordered surface** (`.c-card`, or `.c3-card` for C3) that contains its own chart and its own controls; the border visually separates the graphs (§4 chart-card rule). A panel may hold one or several cards. **Single-graph panels need no inner card border** — the inner `.c-card` / `.c3-card` border is used only to separate **multiple** graphs in one panel (e.g. C3's two cards) or to group a graph with its own controls (e.g. C2's single `.c-card`); a panel that shows only one graph (e.g. C1, the S-curve) uses the **panel edge** alone (its inner border was removed in I068 as redundant). Controls split strictly by scope:
 
 | Control | Owner | Notes |
 |---|---|---|
@@ -834,24 +865,70 @@ look-ahead list must satisfy all of the following, on every dashboard:
   must never overlap because of rule 2.
 
 ### 4.4 Drill-down (row detail) — accordion, one open at a time
-Expandable detail inside a table row (I-62 pattern: metadata + stage grid + that row's issues)
-must behave as an **accordion**:
 
-- **Only one detail may be open at a time.** Opening a row closes any other open row before it
-  opens. A stack of expanded details turns a bounded list back into an unbounded wall of nested
-  content, which defeats §4.3.
-- The detail is a sibling `<tr>` with `hidden` toggled; its owning row carries
-  `aria-expanded`, and the two must always be updated together — including when the row is closed
-  *programmatically* by the accordion, not just by a click on itself.
-- Rows are operable by **pointer and keyboard** (`tabindex="0"`, Enter / Space) via a delegated
-  listener on the table container.
-- The expand affordance is the chevron `▸` → rotated on `aria-expanded="true"` (§7.7).
+Expandable detail inside a table row (metadata + stage grid + that row's issues). The class names and
+tokens below are **normative** (§7.2.0); a dashboard MUST use them verbatim and MUST NOT substitute
+its own.
+
+**Standard class names (normative).**
+
+| Class | On | Role |
+|---|---|---|
+| `.expandable` | the owner `<tr>` | marks a row that owns a `.sub` detail; adds the pointer cursor and row hover |
+| `.drill-cell` | the owner row's first `<td>` / `<th>` | narrow, centred cell that holds the drill button |
+| `.drill-btn` | a real `<button>` in `.drill-cell` | the expand control (§7.1 B4); an `.icon-btn` variant carrying `aria-expanded` + `aria-controls` |
+| `.drill-chev` | the `<span>` inside `.drill-btn` | the `▸` glyph; rotated 90° when the button is expanded |
+| `.sub` | the sibling `<tr>` detail | the drill-down child row (§7.2.0) |
+| `.sub-inner` | the `<div>` inside `.sub > td` | padded content wrapper |
+
+**Behaviour (normative).**
+
+- **Only one detail may be open at a time.** Opening a row closes any other open row before it opens.
+  A stack of expanded details turns a bounded list back into an unbounded wall of nested content,
+  which defeats §4.3.
+- **The control is a real `<button>`** (`.drill-btn`) — never a `<td>` or a `<div>` with
+  `role="button"` (§7.1 B4). It carries `aria-expanded` and `aria-controls` pointing at the `.sub`
+  detail.
+- **The whole row is a pointer shortcut.** A click anywhere on the `.expandable` row toggles the same
+  detail. The button stays the accessible control; the row click MUST NOT replace it.
+- The `.sub` detail is a sibling `<tr>` with `hidden` toggled; the `.drill-btn` and the detail are
+  updated together, including when the accordion closes the row *programmatically*.
+- Rows are operable by **pointer and keyboard**: the button is natively focusable (Enter / Space); a
+  delegated listener on the table container also handles Enter / Space on `.expandable` rows.
+- The expand affordance is the chevron `▸` (`.drill-chev`) **rotated 90°** when the button is
+  expanded — by CSS, not by swapping the glyph. `▾` is never used as a separate glyph.
+- **The drill cell shows no truncation mark.** `.drill-cell` holds one button and truncates no text,
+  so it MUST NOT paint an ellipsis. `.ds-table` cells inherit `text-overflow:ellipsis`, which draws a
+  clipped ellipsis at the cell edge when the content box is not wider than the button. `.drill-cell`
+  therefore sets `overflow:hidden` and `text-overflow:clip`. The rule MUST out-specify the base cell
+  rule (`.ds-table th, .ds-table td`, specificity 0,1,1). Written as a bare `.drill-cell` (0,1,0) it
+  loses the cascade, and both the 4 px padding and the clip are dropped.
 - Re-rendering the table (e.g. after a filter change) collapses everything — detail state is not
   preserved across a rebuild, which is acceptable because the row set has changed.
 
+**CSS (normative tokens).**
+
+```css
+.expandable{cursor:pointer}
+.expandable:hover{background:var(--soft)}
+.ds-table .drill-cell{width:32px;text-align:center;padding:0 4px;overflow:hidden;text-overflow:clip}
+.drill-btn{appearance:none;border:0;background:transparent;color:var(--muted);
+  width:24px;height:24px;line-height:1;cursor:pointer;border-radius:4px}
+.drill-btn:hover{background:var(--soft);color:var(--navy)}
+.drill-btn:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.drill-chev{display:inline-block;transition:transform .12s;font-size:11px}
+.drill-btn[aria-expanded="true"] .drill-chev{transform:rotate(90deg)}
+.sub > td{padding:0;border-top:1px dashed var(--line);background:var(--soft)}
+.sub-inner{padding:12px 16px 14px}
+```
+
+**Token rules.** Use `--line` for the hairline (the `dashed` `.sub` top edge), `--soft` for the detail
+background and hover, `--muted` for the chevron, `--navy` for its hover, and `--blue` for the focus
+ring. Do not hard-code colours (no `#fafbfc` / `#f3f7fc`).
+
 ---
 
-### 4.5 Validation panel (per-package data issues) — rev 2026-10-14
+### 4.5 Validation panel (per-package data issues) — rev 2026-10-29
 
 Shows the **row-level validation results produced by S3** (filter-independent, run once at
 load). It is **distinct from** the §3.5 system/config warning bar: that bar carries only
@@ -862,27 +939,42 @@ once.
 **Components, in this order (one panel):**
 
 1. **Title row** — panel title `Validation`; inline `?` (help `vcard`, **left**) and `−`
-   (collapse, **right**) in the right-aligned action cluster (§4.1); a **CSV export** button in
-   the *same* cluster (the panel's CSV export behaves like every other §7.1 A3 export); and the
-   **severity summary chips**.
-2. **Severity summary chips** (`.vchip`, at the title row): totals for error / warning / info,
+   (collapse, **right**) in the right-aligned action cluster (§4.1). There is **no** panel-level
+   CSV button; the per-issue table carries its own `⤓ CSV` (item 5). The severity summary chips
+   move to the summary row (item 3).
+2. **Severity summary chips** (`.vchip`, in the summary row, item 3): totals for error / warning / info,
    plus a hidden `.ok` **"no issues"** chip shown **only** when the issue count is 0. **Shape
    (normative override)** — use the standard `.e / .w / .i / .ok` colour tiers but **override**
    the generic 999 px pill radius to **6 px**, with **11 px / 700** and `text-transform:capitalize`.
    The generic pill shape does **not** apply to these chips.
-3. **Collapsible detail** — a `<details>` element that **starts collapsed**; the user toggles it
-   open. Contains, in order:
-   - **(a) Code-sheet validation summary** (`#vmap`): a **note card** (single `.note`-style box,
-     **not** a heading-plus-list) reporting whether the workbook's Code sheet is coherent — columns
-     mapped (e.g. `A → AP`), the Error-table rule count loaded, and each lookup table's completeness
-     (empty/missing lookups flagged). Answers *"is the workbook structurally valid?"* before the
-     per-issue list.
-   - **(b) Rule reference** (`#vref`): **one card**, **one row per fired rule code** (de-duplicated),
-     laid out as a small table — `severity symbol · code · group · description · count`. **Never
-     individual per-rule cards.** Wording priority: the Error table on the Code sheet is the source
-     of truth; if a code is absent there, the dashboard supplies the description (flagged as such).
-   - **(c) Per-issue table** (`.vtableWrap`, an instance of `.tableScroll` / `.ds-table`, §4.3 &
-     §7.2): the full issue list.
+3. **Summary row** (`.v-summary`, one flex row, no `<details>`): the bold issue **count** (e.g.
+   `16,562 issues`), the **severity chips** (item 2), and a lighter **meta line** (loaded MDL
+   fields · log headers · rule count · source note). The three sit on one organised line, not as
+   stacked blocks. The content below shows **directly** — the sidebar already selects the panel
+   (§4 no-in-panel-disclosure rule), so no toggle hides it.
+4. **Rule reference card** (`.c-card`): a `Rules` title row above a small table — `severity
+   symbol · code · group · description · count`, **one row per fired rule code** (de-duplicated).
+   **Never individual per-rule cards.** Wording priority: the Error table on the Code sheet is the
+   source of truth; if a code is absent there, the dashboard supplies the description (flagged as
+   such). See *Layout rules* for the wide Description column.
+5. **Per-issue card** (`.c-card`): an `Issues` title row and its tool cluster on the **same line**
+   (see *Layout rules*), then the full issue list — an instance of `.tableScroll` / `.ds-table`
+   (§4.3 & §7.2).
+
+**Layout rules (normative).**
+- **Card separation.** Each table sits in its own `.c-card` (bordered surface, §4 chart-card
+  rule). The inner `.ds-split` border is removed inside the card (`.c-card .ds-split{border:0}`)
+  so there is no double border; a 12 px gap separates the two cards.
+- **Title and tools on one row.** Each card's title and its tool buttons share one `.table-head`
+  flex row: the title (`h3.tt`, left) and the tool cluster (right) are horizontally aligned. For
+  the per-issue card the cluster is `count · ⤓ CSV · Columns`; for the rule card the title stands
+  alone. The CSV button carries `data-export-table="issue"` and is right-aligned beside `Columns`
+  via `.table-tools .csv-btn{margin-left:auto}`.
+- **Count text.** The cluster shows `Showing X of Y rows` (windowed) or `Y rows` (full), with a
+  thousands separator and the noun `rows`. It MUST NOT show a bare `X of Y` pair without a noun.
+- **Wide detail columns.** Default column widths give the focus columns the most room: Rule
+  reference **Description** (≈420 px) and per-issue **Message** (≈360 px) and **Value** (≈130 px).
+  Severity and Rule stay pinned on the left when the table scrolls.
 
 **Per-issue table columns:** severity **first**, then `Rule · Doc No · Field · Value · Message`
 (+ `Source Tab` / `Row` where the dashboard tracks them). Severity renders as a **bare `.sev`
@@ -903,14 +995,13 @@ allowable there.)
   **never** a pass/fail flag.
 
 **No row cap.** Every issue renders inside the `.tableScroll` scroller (§4.3); the row count is
-reported in the title/control row, **not** by truncating. (The previous 80-row truncation is
-removed.) Empty state: zero issues → `.empty` caption in the table and the `.ok` chip shown; the
-`<details>` may still be opened to inspect `#vmap` / `#vref`.
+reported in the tool cluster (see *Layout rules*), **not** by truncating. (The previous 80-row
+truncation is removed.) Empty state: zero issues → `.empty` caption in the table and the `.ok`
+chip shown.
 
-**Explanatory note placement.** The panel's short `.note` (issue count + *"sourced from the Code
-sheet Error block"*) sits **above** the collapsed `<details>` toggle — **never below it**. The
-toggle already hides the heavy `#vmap` / `#vref` / table content; the note must stay visible
-without expanding, so it cannot be buried inside the collapsed region.
+**Explanatory note placement.** The source note (*"rule text from the workbook Code sheet"*) lives
+in the summary row meta line and is always visible — never buried in a collapsed region (there is
+none; see §4 no-in-panel-disclosure rule).
 
 **Help:** `vcard` in the Help modal (§7.9) carries the longer explanation; the panel body keeps
 only the short inline hint.
@@ -1080,7 +1171,7 @@ shipped, and when it migrated are recorded in its own workplan — never here (�
 | B1 Filter trigger | `.tf-btn` | **MULTI-SELECT row filter** — opens a filter menu (Discipline / Stage / Category), distinct from the rows *inside* the menu. **Reserved for controls that narrow rows**; a show/hide-columns control MUST NOT use it (see B7) | text + count badge, radius 6 px, **borderless in the menu bar** — the base control carries 1 px `--border` and the menu-bar chrome strips it; **no caret glyph**; hover → `--soft`; selected → `.is-filtered`, whose visible cue is the count badge |
 | B2 Segmented | `.seg button` | single-select among 2–6 inline options (Bar/Pie, month horizon 1m–6m, overdue cases); active `.on` = **`--navy`** fill (a *selection* state, not an action) | joined group, 1px `--border`, radius 6 px, overflow hidden; inactive hover → `--blue` fill |
 | B3 Filter rows | `.tf-all` + `.tf-item` | multi-select toggles *inside* the B1 filter menu — an `All <dimension>` master, then a hint, a divider, and the value rows | master 12 px / 700; rows 12 px; row hover → `--soft` |
-| B4 Drill / Expand | reuses `.icon-btn` visuals | row drill-down / expand (`▸ stages`) | **must be a real `<button>`** — never a `<td>` or `<div>` with `role="button"`; may be icon or text + icon |
+| B4 Drill / Expand | `.drill-btn` (an `.icon-btn` variant) | row drill-down / expand (`.expandable` row → `.sub` detail; `▸ stages`); the button carries `aria-expanded` + `aria-controls` | **must be a real `<button>`** — never a `<td>` or `<div>` with `role="button"`; may be icon or text + icon; the owning `.expandable` row is a pointer shortcut, not the control (§4.4) |
 | B5 Native single-select | `.inter-sel` | **SINGLE-SELECT picker** — breakdown dimension, month, type (chart group / matrix Month / Overdue Type); distinct from the multi-select `.tf-btn` filter (B1) and from the `.seg` segmented control (B2) | 12 px / 600, 1px `--border`, radius 8–9 px, white surface, `--ink` text; `:focus-visible` 2 px `--blue` ring; `max-width:260 px`; attached variant `.inter-sel.is-attached` (search-column picker: no own border, left-rounded, right divider) |
 | B6 Panel-local filter | `.inter-sel` in the panel's control cluster | a single-value filter that narrows **only the tables inside one panel** (e.g. the issue rule-code filter in the Validation / Issues panel). Resolved in **S5 Render**; it MUST NOT change KPIs, charts, the matrix or any other panel (§7.2.7 pt 6) | as B5 |
 | B7 Column-visibility control | own class (`.cc-btn`) | **show/hide columns — a *layout* control, not a filter.** It changes which columns are painted, never which rows are returned. MUST NOT reuse the B1 filter look, filter badge, or `[aria-expanded]` active-filter emphasis | own styling; MAY reuse the floating-panel shape, but without a count badge or active-filter emphasis |
@@ -1141,6 +1232,19 @@ non-pinned row is on, **indeterminate** when only some are on, unchecked when no
 also spans locked rows can never read as checked and would be permanently stuck.
 Every item toggle and any reset action MUST re-sync the master (and any footer count), so the header can
 never contradict the list below it.
+
+**Selection semantics (normative).** The chrome rules above are not sufficient. The *state* behind the
+panel MUST also agree with the rows the dashboard paints.
+
+- **Initial state.** A dimension opens with **every** value ticked, except documented exclusions: the
+  chooser's pinned identity columns, and any value the project deliberately excludes. A master that
+  starts blank while the dashboard filters nothing is a defect.
+- **Blank is a value.** An empty cell is selectable and reads `(blank)`, so the full tick set covers
+  every row and no row disappears unseen.
+- **Empty means none.** An empty tick set MUST filter every row out. An **absent** set is the only
+  "no filter" state. A filter control MUST NOT mean "no filter" while it shows nothing ticked.
+- **Immediate apply, panel stays open.** A tick applies at once and MUST NOT close the panel. An
+  outside click or `Escape` MUST close it.
 
 #### C. Indicator (not a button)
 | Type | Class | Use | Style |
@@ -1208,7 +1312,12 @@ classes alongside them but MUST NOT substitute them; panel / container class nam
 | `.num` | right-aligned numeric cell with tabular figures |
 | `.empty` | empty-state cell |
 | `.over` | overflow-highlighted row |
-| `.sub` | drill-down child row |
+| `.sub` | drill-down child row (§4.4) |
+| `.sub-inner` | padded content wrapper inside `.sub > td` (§4.4) |
+| `.expandable` | the owner `<tr>` of a `.sub` drill-down detail (§4.4) |
+| `.drill-cell` | the narrow, centred cell holding `.drill-btn` (§4.4) |
+| `.drill-btn` | the real `<button>` expand control (`.icon-btn` variant, §4.4) |
+| `.drill-chev` | the `▸` glyph inside `.drill-btn`, rotated when expanded (§4.4) |
 | `.matrix` | cross-tab variant (§7.2.9) |
 | `.th-wrap` / `.lb` | flex wrapper inside `<th>`, and the header label span inside it |
 | `.ds-sort` | the real `<button>` inside a sortable `<th>` (§7.2.6) |
@@ -1405,6 +1514,7 @@ hard-coded into the generic check.
 | 14 | Source-contract parsing: source positions and allowed values are not hard-coded | §3.8.3 |
 | 15 | The delivered HTML is standalone: it runs from `file://` with no web server, contains no `href` / `src` that points at a local file, and uses no `fetch` of local files or cross-file ES-module `import` | §3.9 |
 | 16 | Every KPI card is 72 px high and at least 210 px wide, carries a 3 px top strip in a status token, contains exactly two children (`.v`, `.l`), and has no box shadow | §5 |
+| 17 | Filter selection semantics hold: every dimension opens fully ticked except documented exclusions, `(blank)` is selectable, an empty tick set filters every row out, a tick keeps the panel open, and an outside click or `Escape` closes it | §7.1 |
 
 ### 8.3 Pipeline testability
 
