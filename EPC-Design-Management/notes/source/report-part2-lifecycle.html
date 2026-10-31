@@ -1,0 +1,337 @@
+<!-- ============ 03 设计管理全链路 ============ -->
+<section id="s3">
+  <div class="sec-head">
+    <span class="sec-kicker">03 — LIFECYCLE</span>
+    <h2>设计管理全链路：一条从假设到资产的链</h2>
+  </div>
+
+  <p class="lead">要设计工具，必须先画出信息在生产过程中到底经过哪些手、每一步产出什么、在哪一步开始失真。下面这条链是一个污水厂 EPC 从 FEED 到移交的完整信息流，也是本报告所有应用定位的坐标系。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th style="width:96px">阶段</th><th>核心产出</th><th>关键决策</th><th>失真的典型方式</th><th style="width:96px">对应应用</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>FEED / 基础设计</strong></td>
+        <td>设计基础、PFD、水力轮廓、初步 P&amp;ID、设备清单、总图、估算</td>
+        <td>工艺路线、进出水标准、模块化策略、长周期项识别</td>
+        <td>设计基础写成"按常规市政污水"，未固化分布与假设</td>
+        <td class="mono">A01 · A09</td>
+      </tr>
+      <tr>
+        <td><strong>详细设计</strong></td>
+        <td>计算书、数据表、MR 请购文件、施工图、单线图、I/O 清单</td>
+        <td>设备选型定版、材料等级、控制策略</td>
+        <td>设计院"拔高设计"以图快速交付，超出 FEED 基准</td>
+        <td class="mono">A01 · A02 · A09</td>
+      </tr>
+      <tr>
+        <td><strong>采购与供应商资料</strong></td>
+        <td>MR → RFQ → TBE → PO → 供应商图纸/数据表 → 评审 → 批准</td>
+        <td>下单时点、供应商选择、偏差接受</td>
+        <td>先下单后补资料；资料回来时上下游已冻结</td>
+        <td class="mono">A05 · A06</td>
+      </tr>
+      <tr>
+        <td><strong>跨专业协调</strong></td>
+        <td>模型会签、接口登记、碰撞报告、会签意见闭环</td>
+        <td>谁拥有接口、谁先出、净空与检修空间</td>
+        <td>接口只在周会口头确认，无到期日无证据</td>
+        <td class="mono">A04 · A08</td>
+      </tr>
+      <tr>
+        <td><strong>IFC 发布与施工</strong></td>
+        <td>IFC 图纸集、RFI、现场变更、澄清</td>
+        <td>设计是否冻结、可否开工</td>
+        <td>图纸集不自洽，现场以 RFI 补设计</td>
+        <td class="mono">A02 · A07 · A08</td>
+      </tr>
+      <tr>
+        <td><strong>预调试与调试</strong></td>
+        <td>ITR、回路校验、冲洗、水压试验、FAT/SAT、系统移交包</td>
+        <td>系统边界、启动顺序、遗留项接受标准</td>
+        <td>证据在纸质表格，就绪度无法实时看见</td>
+        <td class="mono">A10</td>
+      </tr>
+      <tr>
+        <td><strong>性能验收与移交</strong></td>
+        <td>性能试验报告、O&amp;M 手册、备件、培训记录、资产数据</td>
+        <td>是否达标、是否接收、尾款是否释放</td>
+        <td>资产数据在移交时重建，与现场不符</td>
+        <td class="mono">A10 · A11</td>
+      </tr>
+      <tr>
+        <td><strong>复盘与复用</strong></td>
+        <td>经验教训、设计规则、检查清单更新</td>
+        <td>哪些规则要写进下一版的校审清单</td>
+        <td>教训写成散文，从未变成可执行的检查项</td>
+        <td class="mono">A12</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>3.1 这条链上真正会"断"的三个位置</h3>
+
+  <div class="card-grid">
+    <div class="card tight">
+      <h5 style="margin-top:0">断点一 · FEED → 详细设计的语义丢失</h5>
+      <p style="margin-bottom:0;font-size:14px">FEED 阶段的假设往往是"我们按 95 分位设计峰值"。到了详细设计，这句话被拆解成几十个数字散落在不同专业的手中。没有人再持有"这是一个假设，它的置信度是 3/5，若错了会影响池体尺寸"。于是当真实水质偏离时，找不到影响面。</p>
+    </div>
+    <div class="card tight">
+      <h5 style="margin-top:0">断点二 · 设计 → 供应商的双向依赖</h5>
+      <p style="margin-bottom:0;font-size:14px">设计必须成熟到能下单，下单后又需要供应商资料才能继续。若这个往返没有被计划为「双向前置」，项目会出现一个隐蔽的僵局：设备已经在路上，但土建、电气、自控还在等资料。</p>
+    </div>
+    <div class="card tight">
+      <h5 style="margin-top:0">断点三 · 施工 → 调试的证据缺口</h5>
+      <p style="margin-bottom:0;font-size:14px">设计期的接口，在调试期必须以"信号通、连锁对、顺序对"来证明。但接口登记表里写的是"电气提供 400V 电源"，不是"哪一路、哪一天、由谁验证"。于是接口在图纸发布时"关闭"，在调试时重新打开。</p>
+    </div>
+    <div class="card tight">
+      <h5 style="margin-top:0">共同点</h5>
+      <p style="margin-bottom:0;font-size:14px">三个断点都不是技术问题，而是<strong>责任与证据的归属问题</strong>。这也是为什么本报告的应用大多不是"计算工具"，而是"记录承诺与证据的工具"。</p>
+    </div>
+  </div>
+
+  <h3>3.2 各阶段的设计交付物清单（工具需要承载的对象）</h3>
+  <p>任何交付物管理工具，第一件事是把"什么算一个交付物"定义清楚。污水厂项目的典型集合如下——注意这是一个<em>类型清单</em>而非编号清单，具体项目应按 WBS 与工作包实例化：</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:120px">专业</th><th>典型交付物类型</th><th style="width:150px">关键质量闸门</th></tr></thead>
+    <tbody>
+      <tr><td><strong>工艺</strong></td><td>PFD、物料平衡、工艺计算书、水力轮廓、工艺控制说明、工艺数据表、药剂消耗、能耗计算</td><td>物料平衡闭合、峰值工况校核</td></tr>
+      <tr><td><strong>水力</strong></td><td>水力计算书、水面线、堰负荷校核、管道水力表</td><td>各工况下不溢流、不淤积</td></tr>
+      <tr><td><strong>总图 / 土建</strong></td><td>总平面、竖向设计、土方平衡、道路与管沟、建筑平面与剖面</td><td>标高一致、检修通道</td></tr>
+      <tr><td><strong>结构</strong></td><td>池体结构计算、配筋图、抗浮与抗渗设计、预埋件图、水池节点详图</td><td>抗裂、抗渗、抗浮、开孔补偿</td></tr>
+      <tr><td><strong>机械 / 管道</strong></td><td>P&amp;ID、设备布置图、管道平面与纵断面、管道单线图、支吊架、材料等级表、设备数据表</td><td>P&amp;ID 与 3D 一致、材料等级正确</td></tr>
+      <tr><td><strong>暖通 / 除臭</strong></td><td>除臭风量计算、加盖方案、风管布置、风机与洗涤塔选型</td><td>换气次数、负压、腐蚀等级</td></tr>
+      <tr><td><strong>电气</strong></td><td>负荷清单、单线图、变配电布置、电缆桥架与敷设、防雷接地、照明</td><td>负荷率、短路电流、桥架余量</td></tr>
+      <tr><td><strong>仪表自控</strong></td><td>仪表清单、I/O 清单、控制逻辑说明、SCADA 架构、联锁表、报警清单、网络拓扑</td><td>I/O 点数与桥架/MCC 一致、联锁可测</td></tr>
+      <tr><td><strong>消防 / 安全</strong></td><td>消防设计、危险区域划分、有限空间与气体检测、HSE 说明</td><td>与总图及工艺一致</td></tr>
+      <tr><td><strong>调试 / 移交</strong></td><td>调试方案、ITR 清单、启动顺序、性能试验方案、O&amp;M 手册、培训材料、备件清单</td><td>证据齐全、可第三方复核</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout">
+    <div class="ct">设计要点</div>
+    <p>注意最后一列"关键质量闸门"。这是工具设计里最容易被忽略、却最有价值的部分：<strong>一个交付物不是"完成了"，而是"通过了它的闸门"</strong>。把闸门做成可配置的检查清单，并让状态推进被闸门阻断，是把质量从"靠人记得"变成"靠系统不允许跳过"的唯一办法。</p>
+  </div>
+</section>
+
+<!-- ============ 04 十二个失败点 ============ -->
+<section id="s4">
+  <div class="sec-head">
+    <span class="sec-kicker">04 — FAILURE MODES</span>
+    <h2>十二个失败点：从失效模式到可度量代价</h2>
+  </div>
+
+  <p class="lead">下面把污水厂 EPC 设计管理拆成 12 个能力域，逐一对齐"现状怎么做、会怎么坏、坏了值多少钱、能不能修"。右列的影响分与可修复性分是本报告的判断（1–5 分制），用于排出投资顺序。</p>
+
+  <div class="matrix">
+    <div class="mrow hd">
+      <div class="mcell">能力域</div>
+      <div class="mcell">典型失效模式与代价</div>
+      <div class="mcell score">影响 / 可修</div>
+    </div>
+
+    <div class="mrow">
+      <div class="mcell nm"><span class="i">C01</span><span>设计基础<br><span style="font-weight:400;font-size:12px;color:var(--ink-4)">Design Basis</span></span></div>
+      <div class="mcell">进水表征采样不足 → 模型与选型偏差 → 性能保证无法兑现或过度保守。<strong>代价：贯穿全项目，不可下游补偿</strong>；行业观察到的超支率区间可达 19–27%。</div>
+      <div class="mcell score"><span class="bar"><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i></span><br><span style="font-size:11px;color:var(--ink-4)">5 / 4</span></div>
+    </div>
+
+    <div class="mrow">
+      <div class="mcell nm"><span class="i">C02</span><span>交付物控制<br><span style="font-weight:400;font-size:12px;color:var(--ink-4)">Deliverable Register</span></span></div>
+      <div class="mcell">MDR 只是一张表；状态靠工程师口述"大概 80%"。<strong>代价：进度不可审计、无法计量收款、无法预测</strong>；百分比是感受，不是测量。</div>
+      <div class="mcell score"><span class="bar"><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i></i></span><br><span style="font-size:11px;color:var(--ink-4)">4 / 5</span></div>
+    </div>
+
+    <div class="mrow">
+      <div class="mcell nm"><span class="i">C03</span><span>阶段权重挣值<br><span style="font-weight:400;font-size:12px;color:var(--ink-4)">Stage-weighted EVM</span></span></div>
+      <div class="mcell">工时、预算、挣值三张表互不相连。<strong>代价：超支发现得太晚</strong>；工程是唯一还在用自评百分比的资本项目阶段。</div>
+      <div class="mcell score"><span class="bar"><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i></i></span><br><span style="font-size:11px;color:var(--ink-4)">4 / 5</span></div>
+    </div>
+
+    <div class="mrow">
+      <div class="mcell nm"><span class="i">C04</span><span>专业接口<br><span style="font-weight:400;font-size:12px;color:var(--ink-4)">Interface Management</span></span></div>
+      <div class="mcell">接口在 Excel 与周会里，无到期日、无证据。<strong>代价：多数 EPC 延误源自专业边界</strong>；接口在调试期被重新打开。</div>
+      <div class="mcell score"><span class="bar"><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i></span><br><span style="font-size:11px;color:var(--ink-4)">5 / 4</span></div>
+    </div>
+
+    <div class="mrow">
+      <div class="mcell nm"><span class="i">C05</span><span>采购—设计联动<br><span style="font-weight:400;font-size:12px;color:var(--ink-4)">Procurement / LLI</span></span></div>
+      <div class="mcell">只盯交付日期，不盯供应商资料与设计成熟度。<strong>代价：一个关键包延迟锁死关键路径</strong>；早到货也会造成仓储与质保风险。</div>
+      <div class="mcell score"><span class="bar"><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i></i></span><br><span style="font-size:11px;color:var(--ink-4)">4 / 4</span></div>
+    </div>
+
+    <div class="mrow">
+      <div class="mcell nm"><span class="i">C06</span><span>供应商文件<br><span style="font-weight:400;font-size:12px;color:var(--ink-4)">Vendor Documents</span></span></div>
+      <div class="mcell">单次评审 2–4 周，退回重交再增加 3–6 周；意见在版本间丢失。<strong>代价：单包一次 resubmittal 就吃掉半个月以上</strong>。</div>
+      <div class="mcell score"><span class="bar"><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i></i></span><br><span style="font-size:11px;color:var(--ink-4)">4 / 4</span></div>
+    </div>
+
+    <div class="mrow">
+      <div class="mcell nm"><span class="i">C07</span><span>变更与 RFI<br><span style="font-weight:400;font-size:12px;color:var(--ink-4)">Change / RFI</span></span></div>
+      <div class="mcell">无根因分类、无因果结构。<strong>代价：RFI 处理约 1,080 美元/条、平均关闭约 10 天，其中约 30–60% 本可避免</strong>；设计相关变更占超支原因的显著比例。</div>
+      <div class="mcell score"><span class="bar"><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i></i></span><br><span style="font-size:11px;color:var(--ink-4)">4 / 4</span></div>
+    </div>
+
+    <div class="mrow">
+      <div class="mcell nm"><span class="i">C08</span><span>跨专业校审<br><span style="font-weight:400;font-size:12px;color:var(--ink-4)">Cross-discipline QA</span></span></div>
+      <div class="mcell">逐专业审图，看不到跨专业冲突。<strong>代价：返工占项目成本 5–9%</strong>；约四成变更源于设计问题；早期协调可减少变更最多 40%。</div>
+      <div class="mcell score"><span class="bar"><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i></i></span><br><span style="font-size:11px;color:var(--ink-4)">4 / 3</span></div>
+    </div>
+
+    <div class="mrow">
+      <div class="mcell nm"><span class="i">C09</span><span>BIM / CDE<br><span style="font-weight:400;font-size:12px;color:var(--ink-4)">Model Coordination</span></span></div>
+      <div class="mcell">模型只用于出图，不用于净空、检修与吊装校核。<strong>代价：池内管道、曝气支管、仪表桥架空间冲突高发</strong>；碰撞留到现场即部位返工。</div>
+      <div class="mcell score"><span class="bar"><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i></i><i></i></span><br><span style="font-size:11px;color:var(--ink-4)">3 / 3</span></div>
+    </div>
+
+    <div class="mrow">
+      <div class="mcell nm"><span class="i">C10</span><span>调试与移交<br><span style="font-weight:400;font-size:12px;color:var(--ink-4)">Commissioning</span></span></div>
+      <div class="mcell">就绪度不可见，ITR 在纸上，遗留项在最后两周才清理。<strong>代价：生化启动 4–12 周不可压缩</strong>；性能试验失败直接触发违约与返工。</div>
+      <div class="mcell score"><span class="bar"><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i></i></span><br><span style="font-size:11px;color:var(--ink-4)">4 / 4</span></div>
+    </div>
+
+    <div class="mrow">
+      <div class="mcell nm"><span class="i">C11</span><span>资产数据移交<br><span style="font-weight:400;font-size:12px;color:var(--ink-4)">Asset Information</span></span></div>
+      <div class="mcell">移交时重建数据，资产台账与现场不符。<strong>代价：移交周期长、尾款滞留</strong>；数据不完整是验收延期的主因之一。</div>
+      <div class="mcell score"><span class="bar"><i class="on hi"></i><i class="on hi"></i><i class="on hi"></i><i></i><i></i></span><br><span style="font-size:11px;color:var(--ink-4)">3 / 3</span></div>
+    </div>
+
+    <div class="mrow">
+      <div class="mcell nm"><span class="i">C12</span><span>知识复用<br><span style="font-weight:400;font-size:12px;color:var(--ink-4)">Lessons &amp; Rules</span></span></div>
+      <div class="mcell">教训写成散文，未变成检查项。<strong>代价：同类问题跨项目重复</strong>，无法量化但具复利效应——这是组织能力与个人能力的分界。</div>
+      <div class="mcell score"><span class="bar"><i class="on hi"></i><i class="on hi"></i><i></i><i></i><i></i></span><br><span style="font-size:11px;color:var(--ink-4)">2 / 5</span></div>
+    </div>
+  </div>
+
+  <p style="font-size:12.5px;color:var(--ink-4);margin-top:-6px">影响 = 对成本/工期/合规的综合影响强度；可修 = 通过工具与流程改进可改善的程度。柱状图第一格起为影响分（红），末两格为可修性提示。</p>
+
+  <h3>4.1 把失败点翻译成钱：一个可复用的估算框架</h3>
+  <p>要让管理层批准投入，必须把"接口没管好"翻译成金额。下面是一个只需项目自有数据就能填的框架，用于给每个应用算业务案例：</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:170px">损失类别</th><th>计量方式</th><th>典型量级（以 3 亿元规模污水厂 EPC 为例）</th></tr></thead>
+    <tbody>
+      <tr><td><strong>设计返工</strong></td><td>返工工时 × 综合人时费率 + 关联的采购/施工影响</td><td>返工占项目成本 5–9% 的行业区间，取中位约 7% → 约 2,100 万元</td></tr>
+      <tr><td><strong>可避免的 RFI</strong></td><td>RFI 数量 × 单条处理成本 + 关键路径 RFI 的工期影响</td><td>按约 10 条/百万元计，约 300 条；30–60% 可避免</td></tr>
+      <tr><td><strong>供应商资料延误</strong></td><td>延误天数 × 该时段现场与管理的日成本</td><td>单包一次重交 3–6 周；若在关键路径，影响可达数百万</td></tr>
+      <tr><td><strong>调试拖延</strong></td><td>拖延长天 × 现场保留团队日成本 + 违约/尾款利息</td><td>生化启动不可压缩，上游每拖一周就多一周现场成本</td></tr>
+      <tr><td><strong>变更争议</strong></td><td>争议金额 × 败诉概率 + 处理与法务成本</td><td>变更占合同额 5–15% 区间并不罕见</td></tr>
+      <tr><td><strong>设计保守化</strong></td><td>(实际设计值 − 优化值) × 单位造价</td><td>为规避风险而"拔高设计"，直接把利润让掉</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout amber">
+    <div class="ct">注意第六项</div>
+    <p>"设计保守化"是最隐蔽的一项：它不出现在任何变更单里，也不产生争议，它只是让每个池子大一点、每台泵高一点。行业实践明确指出，设计院工程师为了快速交付而"拔高设计"是普遍现象，需要设计管理团队监控与纠正。<strong>一个能对比 FEED 基准与详细设计差异的工具（A09 的核心功能之一），其价值往往超过所有节省工时的功能之和。</strong></p>
+  </div>
+
+  <h3>4.2 一个必须承认的现实：多数项目仍在用 Excel 管接口</h3>
+  <p>研究显示，接口管理在大量 EPC 项目里仍然是邮件加 Excel 的"混乱状态"，而接口失败被列为 EPC 项目最大的隐性风险之一，导致延误、返工、争议与索赔。这说明两件事：第一，市场确实存在真空；第二，任何新工具必须<strong>能与 Excel 共存而非要求先消灭它</strong>——否则在第一个项目上就会被抵制。</p>
+  <p>这条现实直接影响了本报告的路线图设计：所有应用都必须具备<strong>结构化导入/导出（CSV）能力</strong>，并能作为"Excel 的上游"存在，而不是要求团队在第一周就换掉工作方式。</p>
+</section>
+
+<!-- ============ 05 现有工具全景 ============ -->
+<section id="s5">
+  <div class="sec-head">
+    <span class="sec-kicker">05 — LANDSCAPE</span>
+    <h2>现有工具全景：已经有人做了什么，还缺什么</h2>
+  </div>
+
+  <p class="lead">在设计任何新应用之前，必须先精确知道哪些事已经有人做得很好。把市场切成六类，逐类判断"够不够用"。</p>
+
+  <h3>5.1 六类现有工具</h3>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:130px">类别</th><th>代表产品</th><th>强项</th><th style="width:190px">在污水厂 EPC 中的局限</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>CDE / 文控协作</strong></td>
+        <td>Oracle Aconex、Autodesk Construction Cloud、Bentley ProjectWise、Trimble Connect、TeamBinder</td>
+        <td>版本不可变、审计留痕、跨组织工作流、符合 ISO 19650 的状态与命名管理</td>
+        <td>强于"文档有没有、哪一版"，弱于"这个交付物是否具备技术条件"；接口与挣值语义需要外部补齐</td>
+      </tr>
+      <tr>
+        <td><strong>进度与项目控制</strong></td>
+        <td>Primavera P6、Asta Powerproject、MS Project</td>
+        <td>CPM 逻辑、资源加载、基线、延误分析（窗口法）、挣值</td>
+        <td>工程活动粒度粗；交付物状态与工时/预算不连通；无法表达"假设"与"接口"</td>
+      </tr>
+      <tr>
+        <td><strong>工艺模拟</strong></td>
+        <td>BioWin、GPS-X、SUMO、WEST、STOAT、SIMBA#</td>
+        <td>基于 ASM 系列的机理模型，动态与稳态模拟、能耗与污泥预测</td>
+        <td>只覆盖工艺；输入（进水表征）与输出（设备选型、P&amp;ID、性能保证）都不闭环</td>
+      </tr>
+      <tr>
+        <td><strong>交付物与工程挣值</strong></td>
+        <td>EPCdoc（EPM 模块）、Wrench SmartProject</td>
+        <td>交付物登记、阶段权重、按专业的 S 曲线、评审流转</td>
+        <td>通用 EPC 逻辑，不含污水厂特有的工艺/生物/资产数据维度；与设计基础、接口不打通</td>
+      </tr>
+      <tr>
+        <td><strong>调试与移交</strong></td>
+        <td>Bluerithm、CSystem、TPM-PCAM</td>
+        <td>ITR 数字化、系统就绪度、遗留项闭环、移交证书（MC/RFC/RFSU）</td>
+        <td>只从施工后期开始；与设计期的接口、供应商资料、资产数据脱节</td>
+      </tr>
+      <tr>
+        <td><strong>接口管理</strong></td>
+        <td>Wrench IMS 等少数产品；现实中多为 Excel</td>
+        <td>接口协议、接口点、接口查询、注册表</td>
+        <td>渗透率低；接口与交付物、进度、变更的联动仍弱</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>5.2 一个被反复证实的判断：工具优化的是症状，不是病因</h3>
+  <p>有一项观察值得所有做工具的人警惕：过去十年协作软件大幅进步，但<em>单位造价的 RFI 数量几乎没有下降</em>。原因是行业一直在优化"路由、跟踪、关闭"这些症状，而没有改变"图纸集不完整、不协调"这个病因。更快的路由一条本可避免的 RFI，仍然是浪费时间去回答一个本不该存在的问题。</p>
+
+  <blockquote>
+    协作软件变好了，但单位造价的 RFI 数量十年基本没动。行业用十年优化了症状——路由、跟踪、关闭——而病因，不完整与不协调的图纸集，从未改变。
+    <cite>— 对行业 RFI 数据的评述性总结（2026 年行业统计）</cite>
+  </blockquote>
+
+  <p>这条判断是本报告应用设计的核心立场：<strong>不要做"更好的台账"，要做"让问题不产生的东西"。</strong>具体到设计上，这意味着：</p>
+  <ul>
+    <li>不要只做 RFI 台账 → 要做 <strong>RFI 根因分类与可避免标记</strong>，让它反向驱动设计检查项（A07 → A08 → A12 的闭环）。</li>
+    <li>不要只做交付物状态 → 要做 <strong>阶段闸门阻断</strong>，让未过校审的交付物无法进入 IFC（A02 的核心机制）。</li>
+    <li>不要只做接口登记表 → 要做 <strong>接口到期日与证据关闭</strong>，并把它接进进度与调试（A04 的核心机制）。</li>
+  </ul>
+
+  <h3>5.3 缺口地图：这些能力目前没有单一产品覆盖</h3>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:230px">能力</th><th style="width:90px">已有覆盖</th><th>缺口性质</th></tr></thead>
+    <tbody>
+      <tr><td>交付物状态 + 阶段权重挣值</td><td><span class="pill g">已有</span></td><td>产品存在，但需与项目 WBS、工时系统、商务计量打通</td></tr>
+      <tr><td>文档版本与审批留痕</td><td><span class="pill g">已有</span></td><td>成熟红海，不应自建</td></tr>
+      <tr><td>工艺机理模拟</td><td><span class="pill g">已有</span></td><td>成熟但孤立，需要与设计基础、选型、P&amp;ID 建立可追溯链接</td></tr>
+      <tr><td>调试 ITR 与系统就绪度</td><td><span class="pill g">已有</span></td><td>产品存在，但启动太晚、与上游断链</td></tr>
+      <tr><td><strong>设计假设登记与影响传播</strong></td><td><span class="pill r">空白</span></td><td>没有任何主流产品把"假设"作为对象；这是最大的结构性空白</td></tr>
+      <tr><td><strong>接口 → 交付物 → 变更 → 调试 的因果链</strong></td><td><span class="pill r">空白</span></td><td>接口工具多为独立台账，不与交付物状态和调试证据联动</td></tr>
+      <tr><td><strong>供应商资料与设计成熟度的双向计划</strong></td><td><span class="pill a">部分</span></td><td>采购系统管 PO 与物流，不管"资料何时回来才够设计继续"</td></tr>
+      <tr><td><strong>工艺计算 → 设备选型 → 数据表 的可追溯</strong></td><td><span class="pill r">空白</span></td><td>计算书是 Word/Excel，选型在数据表，两者靠人记</td></tr>
+      <tr><td><strong>设计保守度监控（详细设计 vs FEED 基准）</strong></td><td><span class="pill r">空白</span></td><td>几乎无人做；但对承包商利润影响巨大</td></tr>
+      <tr><td><strong>污水厂特有调试数据（MLSS/SVI/F/M/DO 爬坡）</strong></td><td><span class="pill r">空白</span></td><td>通用调试工具不含生物启动维度</td></tr>
+      <tr><td><strong>教训 → 可执行设计规则 → 校审检查项</strong></td><td><span class="pill r">空白</span></td><td>知识管理工具停在文档层，不进流程</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout green">
+    <div class="ct">由此得出的产品策略</div>
+    <p>六个"已有"不碰；四个"部分"用集成补齐；<strong>七个"空白"就是自建应用的靶心</strong>。这七个空白有一个共同特征：它们都是<em>把已有的孤立记录连成因果链</em>，而不是产生新的记录。这既是技术上的低风险路径（不必重造存储与审批），也是组织上的低阻力路径（不要求团队丢弃现有习惯）。</p>
+  </div>
+</section>

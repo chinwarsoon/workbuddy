@@ -1,0 +1,440 @@
+<!-- ============ 08 共享数据模型 ============ -->
+<section id="s8">
+  <div class="sec-head">
+    <span class="sec-kicker">08 — DATA MODEL</span>
+    <h2>共享数据模型：七个必须统一的实体</h2>
+  </div>
+
+  <p class="lead">十二个应用能成为一个系统而不是十二个孤岛，取决于它们是否共用同一套主数据。以下七个实体一旦统一，其余全部是它们的视图；一旦不统一，系统必然分裂成互相对账的表格。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:130px">实体</th><th>定义</th><th>为什么必须全局唯一</th><th style="width:150px">典型失控方式</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Project</strong></td>
+        <td>项目实例，含规模、工艺类型、合同形式、辖区</td>
+        <td>所有数据的归属容器；跨项目复用规则的前提</td>
+        <td>同一项目在不同系统里有不同编号</td>
+      </tr>
+      <tr>
+        <td><strong>WBS / Package</strong></td>
+        <td>工作分解与采购包，二者需建立映射</td>
+        <td>成本归集、进度、采购、交付物四者的共同坐标</td>
+        <td>WBS 按施工划分，采购包按设备划分，无法对齐</td>
+      </tr>
+      <tr>
+        <td><strong>Discipline</strong></td>
+        <td>专业（固定枚举，约 12–15 个）</td>
+        <td>接口的责任方；挣值的汇总维度</td>
+        <td>自由文本填写，导致统计时重组</td>
+      </tr>
+      <tr>
+        <td><strong>System / Subsystem</strong></td>
+        <td>功能系统，如"生化系统—厌氧区"</td>
+        <td>接口、ITR、移交包、资产分类的共同骨架</td>
+        <td>调试期才划系统，与设计期划分不一致</td>
+      </tr>
+      <tr>
+        <td><strong>EquipmentTag</strong></td>
+        <td>设备/仪表标签编号及类型</td>
+        <td>贯穿数据表、P&amp;ID、供应商文件、资产台账、ITR</td>
+        <td>同一设备在不同文件里标签不一致（最常见、破坏力最大）</td>
+      </tr>
+      <tr>
+        <td><strong>DocumentId</strong></td>
+        <td>受控文档标识（编号 + 版本 + 状态）</td>
+        <td>与 CDE 对账的唯一键；证据引用</td>
+        <td>CDE 用一套编号，交付物登记用另一套</td>
+      </tr>
+      <tr>
+        <td><strong>Person / Role</strong></td>
+        <td>人与其在项目中的角色（负责人/校核/批准）</td>
+        <td>签署、责任、通知路由</td>
+        <td>以姓名为键，人员变动后历史记录失联</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout red">
+    <div class="ct">第一优先级的技术决策</div>
+    <p><strong>设备标签编号规则是整个系统的地基。</strong>它在 A02（交付物）、A04（接口）、A05（采购）、A06（供应商文件）、A08（校审）、A10（ITR）、A11（资产）之间被反复引用。若标签规则不统一，任何一个应用都只能做到"差不多对"，而"差不多对"在调试期会变成"到底哪台是 P-101A"的现场争论。建议在系统落地之前，先花两周只做一件事：<em>定义并发布标签规则，并在一份真实项目的设备清单上做一次全量校验</em>。</p>
+  </div>
+
+  <h3>8.1 事件化的必要性</h3>
+  <p>除了主数据，系统还需要一张<strong>不可变的事件表</strong>。每一次状态推进、接口关闭、资料收到、变更登记，都写成一条带时间戳、责任人、证据引用的事件。这带来三个能力：</p>
+  <ul>
+    <li><strong>可审计</strong>：任何"什么时候知道的"都能回答，这是争议举证的核心。</li>
+    <li><strong>可重放</strong>：可以从任一时刻重建当时的项目状态，用于延误分析。</li>
+    <li><strong>可度量</strong>：周期时长（如 IFR 到 IFC 的天数）直接从事件时间差计算，无需额外填报。</li>
+  </ul>
+  <p>实践上，这张表也是"减少填报负担"的关键——很多指标不需要新的表单，只需要对事件流做一次查询。</p>
+</section>
+
+<!-- ============ 09 自建还是采购 ============ -->
+<section id="s9">
+  <div class="sec-head">
+    <span class="sec-kicker">09 — BUILD VS BUY</span>
+    <h2>自建还是采购：一条明确的分界线</h2>
+  </div>
+
+  <p class="lead">做工具最容易犯的错误是"什么都自己写"。判据不是"这个功能重要不重要"，而是三个问题：是否已有成熟替代、是否是差异化来源、自建的合规风险有多大。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:170px">能力</th><th style="width:90px">结论</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>文档控制与 CDE</td><td><span class="pill n">买</span></td><td>成熟、合规要求硬（不可变、审计、ISO 19650）、自建风险极高且无差异化价值</td></tr>
+      <tr><td>CPM 进度</td><td><span class="pill n">买</span></td><td>P6 已是行业默认语言；自建会让你的进度表无法与业主/PMC 对话</td></tr>
+      <tr><td>工艺机理模拟</td><td><span class="pill n">买</span></td><td>ASM 系列模型积累三十年，自研无胜算</td></tr>
+      <tr><td>BIM 建模与碰撞</td><td><span class="pill n">买</span></td><td>Revit/Civil 3D/Navisworks 生态稳固；自建模型平台不现实</td></tr>
+      <tr><td>调试 ITR 平台</td><td><span class="pill a">买或租</span></td><td>已有产品可用；但需确认能接入你的接口与资产数据模型，否则会成为新的孤岛</td></tr>
+      <tr><td><strong>设计基础与假设</strong></td><td><span class="pill b">自建</span></td><td>无成熟产品；高度贴合本企业工艺路线与合同策略</td></tr>
+      <tr><td><strong>交付物 + 阶段权重挣值</strong></td><td><span class="pill b">自建</span></td><td>有产品但通用；与污水厂工艺/系统划分的贴合需要自建</td></tr>
+      <tr><td><strong>接口登记与关闭证据</strong></td><td><span class="pill b">自建</span></td><td>产品稀少、渗透率低；且必须与交付物、调试联动才有价值</td></tr>
+      <tr><td><strong>变更与 RFI 因果</strong></td><td><span class="pill b">自建</span></td><td>台账类产品多，但根因结构与学习闭环几乎没人做</td></tr>
+      <tr><td><strong>工艺工作簿与保守度监控</strong></td><td><span class="pill b">自建</span></td><td>空白领域，且直接关系利润</td></tr>
+      <tr><td><strong>资产数据与移交导出</strong></td><td><span class="pill b">自建</span></td><td>需要与内部资料链路一致；COBie/CFIHOS 导出是薄层工作</td></tr>
+      <tr><td>教训与规则库</td><td><span class="pill b">自建</span></td><td>本质是组织知识，不可能外购</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>9.1 若必须外购，评估时问这五个问题</h3>
+  <ol>
+    <li><strong>它能否接受我的设备标签规则</strong>，还是要求我改用它的编码体系？（后者意味着集成成本翻倍）</li>
+    <li><strong>接口能否挂到交付物和进度活动上</strong>，而不只是独立的清单？</li>
+    <li><strong>供应商能更新什么</strong>？如果供应商端体验太差，他们就会退回邮件，项目组于是维护两套事实。</li>
+    <li><strong>当供应商改了承诺日期，谁会被通知、哪个进度活动会变、新日期的依据是什么</strong>？如果答案需要人工在多系统间重录，这个"集成"是假的。</li>
+    <li><strong>退出成本</strong>：数据能否全量导出为标准格式（CSV/JSON/COBie）？</li>
+  </ol>
+
+  <div class="callout blue">
+    <div class="ct">一个务实的组合建议</div>
+    <p>若团队规模有限，最小可行组合是：<strong>CDE（买）+ P6（买）+ 工艺模拟（买）+ 自建的 A01/A02/A04 三件套</strong>。这四件事覆盖了 80% 的结构性风险，且自建部分的工作量可控（本质是结构化数据 + 状态机 + 视图）。A03 可以在 A02 的数据上后补，因为挣值就是一次查询。</p>
+  </div>
+</section>
+
+<!-- ============ 10 路线图 ============ -->
+<section id="s10">
+  <div class="sec-head">
+    <span class="sec-kicker">10 — ROADMAP</span>
+    <h2>十八个月路线图</h2>
+  </div>
+
+  <p class="lead">原则有三条：<strong>先用一个真实项目试点</strong>（不要做全公司推广的"平台"）；<strong>每个阶段都要能在当季产出可展示的成果</strong>（否则会失去支持）；<strong>先做能阻断错误的东西，再做能展示的东西</strong>（前者创造价值，后者只创造演示）。</p>
+
+  <div class="card">
+    <div class="phase">
+      <div class="phase-when"><span class="big">阶段 0</span>第 0–1 月</div>
+      <div>
+        <h4>地基：先定规则，再写代码</h4>
+        <ul style="margin-bottom:0">
+          <li>定义设备标签编号规则、文档编号规则、专业枚举、系统划分原则</li>
+          <li>选一个真实项目作为试点基线（建议：一个中等规模、合同已签、详细设计刚起步的项目）</li>
+          <li>盘点现有工具：CDE 是什么、进度在什么系统、工时怎么记、采购台账在哪</li>
+          <li>产出：一页《主数据与编码规则》，经工程、采购、文控三方签字</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-when"><span class="big">阶段 1</span>第 1–4 月</div>
+      <div>
+        <h4>A01 + A02：让前提与对象可见</h4>
+        <ul style="margin-bottom:0">
+          <li>A01：录入设计基础与全部假设，完成依赖挂靠；导出一张设计基础卡片</li>
+          <li>A02：建立交付物登记，在一个专业跑通状态机与阶段闸门</li>
+          <li>关键验证：团队能否在不额外加班的前提下完成录入？若不能，简化表单而非增加提醒</li>
+          <li>产出：第一版按专业的交付物 S 曲线（此时还是按数量，不是挣值）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-when"><span class="big">阶段 2</span>第 3–6 月</div>
+      <div>
+        <h4>A04 + A03：让边界与度量成立</h4>
+        <ul style="margin-bottom:0">
+          <li>A04：从工艺/机械/电气三个专业的接口模板起步，建立接口点与到期日</li>
+          <li>A03：接入工时系统，实现按交付物的阶段权重挣值；每周输出 SPI/CPI</li>
+          <li>关键验证：能否在 CPI 跌破阈值前 4 周发出预警？若不能，检查工时归集精度</li>
+          <li>产出：第一份"可用于计量"的工程进度报告</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-when"><span class="big">阶段 3</span>第 6–10 月</div>
+      <div>
+        <h4>A07 + A06：让因果与外部输入可控</h4>
+        <ul style="margin-bottom:0">
+          <li>A07：RFI 与变更加根因标签，先只做"分类"不做"追责"</li>
+          <li>A06：供应商文件登记与意见逐条闭环，跨版本意见强制带入</li>
+          <li>关键验证：可避免 RFI 比例是否开始下降？意见丢失是否归零？</li>
+          <li>产出：第一份根因分布报告，直接喂给 A08 的检查清单</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-when"><span class="big">阶段 4</span>第 8–14 月</div>
+      <div>
+        <h4>A05 + A08 + A09：让采购、质量与工艺闭环</h4>
+        <ul style="margin-bottom:0">
+          <li>A05：长周期项登记与"下单成熟度闸门"</li>
+          <li>A08：跨专业参数一致性检查优先（自动化程度最高），再补空间碰撞</li>
+          <li>A09：结构化计算书 + 选型追溯 + 保守度对比</li>
+          <li>产出：IFC 前质量闸门的实际拦截记录（这是最有说服力的成果）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-when"><span class="big">阶段 5</span>第 12–18 月</div>
+      <div>
+        <h4>A10 + A11 + A12：让交付与学习形成闭环</h4>
+        <ul style="margin-bottom:0">
+          <li>A10：系统划分、ITR、就绪度看板、生物启动日志</li>
+          <li>A11：资产台账与 COBie/CFIHOS 导出，与业主 AMIS 对接</li>
+          <li>A12：把 A07 的根因与 A10 的教训转成检查项，进入下一轮 A02 闸门</li>
+          <li>产出：一个完整闭环——<em>这个项目犯的错，写进了下个项目的系统里</em></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3>10.1 并行推进的两件"非软件"工作</h3>
+  <p>研究反复表明，工具失败多数不是技术原因，而是治理原因。因此在同一时间轴上必须并行做两件事：</p>
+  <div class="card-grid">
+    <div class="card tight">
+      <h5 style="margin-top:0">治理：让系统成为唯一事实</h5>
+      <p style="margin-bottom:0;font-size:14px">在 BIM 执行计划或项目管理程序中明确写：<strong>不在系统内的信息不具合同效力</strong>。这一条比任何功能都重要——否则团队会继续在邮件里决策，系统只记录"残留物"。</p>
+    </div>
+    <div class="card tight">
+      <h5 style="margin-top:0">能力：让工程管理不只是催图</h5>
+      <p style="margin-bottom:0;font-size:14px">工程管理的本质是<strong>协调技术决策、接口、信息、人员与保证</strong>，而不是交付物行政。需要有人真正拥有"专业之间"这个空间，并有权限叫停。工具只是给这个人一副望远镜。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 11 KPI ============ -->
+<section id="s11">
+  <div class="sec-head">
+    <span class="sec-kicker">11 — MEASUREMENT</span>
+    <h2>KPI 体系：少而能预测</h2>
+  </div>
+
+  <p class="lead">大多数工程仪表盘在追踪活动（工时、出图量、会议数），这些数字每周都在动，但都不预测交付。真正预测交付的指标有共同特征：<strong>它们度量的是等待、返工与摩擦，而不是努力</strong>。</p>
+
+  <h3>11.1 建议的核心指标（不要超过九个）</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:180px">指标</th><th>定义</th><th style="width:120px">健康区间</th><th style="width:110px">数据来源</th></tr></thead>
+    <tbody>
+      <tr><td><strong>交付物准时率</strong></td><td>IFC 实际日期在计划 ±5 天内的比例</td><td>≥ 85%</td><td class="mono">A02</td></tr>
+      <tr><td><strong>评审周转</strong></td><td>IFR 提交到 IFC 批准的中位天数</td><td>≤ 10 工作日</td><td class="mono">A02</td></tr>
+      <tr><td><strong>接口按期关闭率</strong></td><td>在 required_date 前有证据关闭的接口比例</td><td>≥ 90%</td><td class="mono">A04</td></tr>
+      <tr><td><strong>工程 SPI / CPI</strong></td><td>阶段权重挣值对计划与实耗的比</td><td>0.95–1.05</td><td class="mono">A03</td></tr>
+      <tr><td><strong>RFI 密度</strong></td><td>每百万元合同额的可避免 RFI 条数</td><td>逐季下降</td><td class="mono">A07</td></tr>
+      <tr><td><strong>供应商文件首轮通过率</strong></td><td>首轮获 A/B 码的比例</td><td>≥ 70%</td><td class="mono">A06</td></tr>
+      <tr><td><strong>意见闭环率</strong></td><td>已答复且已在后续版本验证的意见比例</td><td>= 100%</td><td class="mono">A06</td></tr>
+      <tr><td><strong>系统就绪度偏差</strong></td><td>启动前 4 周预测的就绪度 vs 实际</td><td>&lt; 10%</td><td class="mono">A10</td></tr>
+      <tr><td><strong>资产数据完整率</strong></td><td>必填字段齐全的资产占比</td><td>≥ 98%</td><td class="mono">A11</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>11.2 应当停止追踪的"虚荣指标"</h3>
+  <p>这些数字容易得到、每周都在变、让人感觉有进展，但不预测任何东西：</p>
+  <ul>
+    <li><strong>工时记录数</strong>——奖励"花时间"，而不是"解决问题"。</li>
+    <li><strong>出图量（张/周）</strong>——统计产出，不统计产出是否经得起下一次评审。</li>
+    <li><strong>变更单关闭数</strong>——可通过批量关闭琐碎变更来"达标"，把难的交变留在原地。</li>
+    <li><strong>会议次数</strong>——度量沟通开销，不度量进展。</li>
+  </ul>
+
+  <blockquote>
+    两个团队可以在同一周记录完全相同的工时，却处在完全不同的里程碑位置上。所以问题从来不是"努力够不够"，而是"等待、返工与摩擦在哪里"。
+  </blockquote>
+
+  <h3>11.3 一个领先指标的实用例子</h3>
+  <p>在设代/审图流程中，<strong>评审排队长度</strong>（待审交付物数量与最老待审天数）通常比进度条更早反映问题：队列变长几乎总是比进度滑移早几周出现，因为它就是同一个瓶颈的前沿。这类指标的价值在于<em>它可以从系统已记录的时间戳直接算出，不需要任何人额外填报</em>。</p>
+</section>
+
+<!-- ============ 12 风险 ============ -->
+<section id="s12">
+  <div class="sec-head">
+    <span class="sec-kicker">12 — RISKS</span>
+    <h2>风险与失败模式</h2>
+  </div>
+
+  <p class="lead">这类项目的失败很少是因为功能不够，而是因为没人用、用了但数据假、或者做成了孤岛。以下六个失败模式按发生概率排序，每个给出可执行的预防动作。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:180px">失败模式</th><th>表现</th><th>预防动作</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>F1 录入税</strong></td>
+        <td>工程师在系统外干完活，再一次性补填；数据滞后且失真</td>
+        <td>让"干活"与"记录"是同一个动作：从 CDE 提资、从模型导出、从工时系统带入，不做二次录入</td>
+      </tr>
+      <tr>
+        <td><strong>F2 数据美化</strong></td>
+        <td>接口永远"已关闭"，RFI 永远"不可避免"，因为指标被用于考核个人</td>
+        <td>指标用于系统改进而非个人绩效；对"是否可避免"做抽样复核而非全量追责</td>
+      </tr>
+      <tr>
+        <td><strong>F3 大平台陷阱</strong></td>
+        <td>试图用一个系统覆盖 CDE + 进度 + 采购 + 调试，实施期吃掉整个项目周期</td>
+        <td>坚持"记录层买、决策层建"；每季度必须有一个可展示的增量</td>
+      </tr>
+      <tr>
+        <td><strong>F4 供应商端脱落</strong></td>
+        <td>供应商嫌麻烦，继续用邮件；项目组维护两套事实</td>
+        <td>把供应商端做成"三步内完成"，并在 PO 条款里写明资料提交与更新的义务</td>
+      </tr>
+      <tr>
+        <td><strong>F5 缺少拥有者</strong></td>
+        <td>系统上线后无人维护规则、无人推动关闭、无人解释指标</td>
+        <td>设一个"工程信息经理"角色，明确其对主数据与接口关闭的权限（含叫停权）</td>
+      </tr>
+      <tr>
+        <td><strong>F6 AI 过度承诺</strong></td>
+        <td>直接上 AI 自动审图，误报率高，工程师失去信任，从此不用</td>
+        <td>AI 只做初筛与差异比对，人做判断；先积累结构化意见库，再引入模型</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>12.1 关于 AI：一个克制的判断</h3>
+  <p>行业已有可靠证据表明，AI 在<strong>有界、有明确证据来源、有合格复核者</strong>的场景中价值显著：招标要求追溯、文档比对、工程检索、评审意见起草、供应商数据表与规范的偏差分类。这些场景的共同点是：文档类明确、复核者明确、错漏成本可度量。</p>
+  <p>但同时必须承认三条边界：<em>相似不等于合规</em>（找到相似段落不能证明满足了要求）；<em>AI 不能修复迟到的或被人为过滤的进度数据</em>；<em>合同与商务解释的权威必须留在人手上</em>。</p>
+
+  <div class="callout green">
+    <div class="ct">推荐的 AI 落地顺序</div>
+    <p>第一步：文档分类与元数据提取（低风险、高确定性）。第二步：跨版本差异摘要（工程师最省时的功能）。第三步：按检查清单做合规初筛（需先有清单）。第四步：跨文档一致性检查（P&amp;ID vs 数据表 vs 单线图）。<strong>不要跳过前三步直接做第四步</strong>——前三步产出的结构化数据，正是第四步的前提。</p>
+  </div>
+
+  <h3>12.2 一页纸的落地检查表</h3>
+  <div class="card">
+    <ul style="margin-bottom:0">
+      <li>□ 设备标签规则已发布并在一个真实项目上全量校验</li>
+      <li>□ 已选定一个试点项目，且合同允许在其中试验流程</li>
+      <li>□ 项目管理程序中已写明"系统外信息不具合同效力"</li>
+      <li>□ 已指定工程信息经理，并有跨专业协调权限</li>
+      <li>□ 设计基础中的每个假设都有置信度与验证方法</li>
+      <li>□ 交付物的每个阶段都有检查清单与签署人</li>
+      <li>□ 每个接口都有到期日与"迟到后果"字段</li>
+      <li>□ 每条 RFI 都有根因分类与可避免标记</li>
+      <li>□ 供应商文件的每条意见都有 owner 与跨版本状态</li>
+      <li>□ 系统划分在设计阶段已定义（不是调试期）</li>
+      <li>□ 九项核心指标已定义，且都能从系统自动算出</li>
+      <li>□ 已明确哪些指标不进个人考核</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 13 附录 ============ -->
+<section id="s13">
+  <div class="sec-head">
+    <span class="sec-kicker">13 — APPENDIX</span>
+    <h2>附录与来源</h2>
+  </div>
+
+  <h3>13.1 术语表</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:130px">缩写</th><th>含义</th><th>在本报告中的角色</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">FEED</td><td>Front End Engineering Design，前端工程设计</td><td>设计基础与基准的来源，保守度比较的参照</td></tr>
+      <tr><td class="mono">IFR / IFA / IFC</td><td>Issued for Review / Approval / Construction</td><td>交付物阶段闸门，阶段权重的锚点</td></tr>
+      <tr><td class="mono">AFC / As-Built</td><td>Approved for Construction / 竣工</td><td>最终阶段，资产数据的来源</td></tr>
+      <tr><td class="mono">MDR / MDB</td><td>Master Document Register</td><td>A02 的前身（现状）；本报告要超越的对象</td></tr>
+      <tr><td class="mono">MR / TBE</td><td>Material Requisition / Technical Bid Evaluation</td><td>A05 的采购前置，设计成熟度的检验点</td></tr>
+      <tr><td class="mono">ITR</td><td>Inspection &amp; Test Record</td><td>A10 的证据单元</td></tr>
+      <tr><td class="mono">MC / RFC / RFSU</td><td>Mechanical Completion / Ready for Commissioning / Ready for Start-Up</td><td>移交证书节点</td></tr>
+      <tr><td class="mono">CDE</td><td>Common Data Environment</td><td>ISO 19650 的信息单一来源</td></tr>
+      <tr><td class="mono">EVM / SPI / CPI</td><td>Earned Value Management / Schedule &amp; Cost Performance Index</td><td>A03 的核心度量</td></tr>
+      <tr><td class="mono">COBie / CFIHOS</td><td>资产数据移交的标准格式/规范</td><td>A11 的导出目标</td></tr>
+      <tr><td class="mono">PDRI</td><td>Project Definition Rating Index（CII）</td><td>前端范围成熟度评估，可用于阶段 0 的基线诊断</td></tr>
+      <tr><td class="mono">ASM</td><td>Activated Sludge Model（IWA）</td><td>工艺模拟软件的机理基础</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>13.2 可用于起步的模板</h3>
+  <div class="card-grid">
+    <div class="card tight">
+      <h5 style="margin-top:0">模板一 · 假设登记表字段</h5>
+      <p style="margin-bottom:0;font-size:13.5px">编号 / 假设陈述 / 类别 / 依据（实测·类比·规范默认·业主提供）/ 置信度 1–5 / 验证方法 / 验证日期 / 责任人 / 若错误的成本影响 / 若错误的工期影响 / 受影响交付物 / 受影响设备</p>
+    </div>
+    <div class="card tight">
+      <h5 style="margin-top:0">模板二 · 接口登记表字段</h5>
+      <p style="margin-bottom:0;font-size:13.5px">接口编号 / 类型（硬·软）/ 提出方 / 接收方 / 涉及专业 / 交换内容与精度 / 要求日期 / 状态 / 迟到影响的进度活动 / 浮动天数 / 关闭证据 / 关联交付物 / 关联设备标签</p>
+    </div>
+    <div class="card tight">
+      <h5 style="margin-top:0">模板三 · 供应商文件意见</h5>
+      <p style="margin-bottom:0;font-size:13.5px">意见编号 / 文件号 / 版本 / 条款引用 / 严重度（必须·建议·说明）/ 类别（安全·技术·合规）/ 意见内容 / 责任人 / 状态（开放·已答复·已核实·关闭）/ 带入版本 / 核实版本</p>
+    </div>
+    <div class="card tight">
+      <h5 style="margin-top:0">模板四 · 变更根因分类</h5>
+      <p style="margin-bottom:0;font-size:13.5px">跨专业冲突 / 尺寸缺失或不一致 / 规范或材料等级未覆盖 / 业主需求变更 / 供应商偏差 / 现场条件不符 / 设计基础假设变化 / 法规条件变化</p>
+    </div>
+  </div>
+
+  <footer>
+    <h5>方法说明</h5>
+    <p class="refs" style="margin-bottom:18px">本报告基于对公开行业资料的检索与交叉验证，涵盖：EPC 多专业接口管理与设计管理实践；水处理与污水处理厂详细设计交付物体系；CDE 与文档控制平台（ISO 19650 视角）；工程阶段挣值测量与阶段权重方法；工艺机理模拟（ASM 系列与商业软件）；进水表征与设计基础对模型可靠性的影响；RFI 与变更的成本基准与可避免比例；长周期采购与催交；调试与生物启动的时长与证据要求；资产数据移交（COBie/CFIHOS/AIM）；以及 AI 在工程文档审查中的应用边界。文中量化区间均来自上述公开来源的表述，具体项目应以其自身数据替换。本报告中 12 个应用的数据模型、MVP 范围、优先级判断与路线图为基于上述研究的设计产物，不是任何现有产品的描述。</p>
+    <h5>主要来源类型</h5>
+    <ul class="refs">
+      <li>Construction Industry Institute（CII）— 前端规划、PDRI、可施工性研究</li>
+      <li>ISO 19650 系列 — 建筑与基础设施资产的信息管理（CDE、EIR/AIR、PIM/AIM）</li>
+      <li>IWA Activated Sludge Models（ASM1/2/3）与商业模拟软件文档（BioWin、GPS-X、SUMO、WEST、STOAT）</li>
+      <li>行业 CDE/CDE 比较资料（Aconex、ACC、ProjectWise、Trimble Connect、TeamBinder）</li>
+      <li>工程交付物与挣值管理实践（阶段权重、规则 of credit、S 曲线）</li>
+      <li>调试与移交平台资料（Bluerithm、CSystem、TPM-PCAM）及污水厂启动实践指南</li>
+      <li>RFI 与返工成本基准（Navigant、CII、FMI/Autodesk 等行业统计）</li>
+      <li>国际 EPC 文控体系与设计管理实践（含中文行业资料：设计管理策略、限额设计、提资与接口管理）</li>
+      <li>AI 辅助工程审阅的试点研究与治理框架</li>
+      <li>buildingSMART / openBIM 资产数据移交案例（IFC、COBie、bSDD）</li>
+    </ul>
+    <p style="margin-top:24px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-4)">
+      本报告为研究与工具设计文档，不构成工程、法律或合同建议。所有量化区间应结合具体项目的合同条款、辖区法规与企业数据独立验证。
+    </p>
+  </footer>
+</section>
+
+</div><!-- /wrap -->
+</main>
+</div><!-- /shell -->
+
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('.side nav a'));
+  var sections = links.map(function(a){
+    return document.querySelector(a.getAttribute('href'));
+  }).filter(Boolean);
+
+  function onScroll(){
+    var y = window.scrollY + 140;
+    var idx = 0;
+    for (var i=0;i<sections.length;i++){
+      if (sections[i].offsetTop <= y) idx = i;
+    }
+    links.forEach(function(a,i){ a.classList.toggle('active', i===idx); });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  // open the first app by default handled in markup; add smooth toggle
+  document.querySelectorAll('.app summary').forEach(function(s){
+    s.addEventListener('click', function(){ /* native details toggle */ });
+  });
+})();
+</script>
+</body>
+</html>

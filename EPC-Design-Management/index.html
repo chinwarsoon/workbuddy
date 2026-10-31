@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EPC-Design-Management · 项目 Hub</title>
+<style>
+  :root{
+    --blue:#0066CC; --blue-l:rgba(0,102,204,.08);
+    --bg:#F5F5F7; --card:#FFFFFF; --ink:#1D1D1F; --sub:#6E6E73; --line:#E5E5EA;
+    --indigo:#5E5CE6; --orange:#FF9500; --green:#34C759; --gray:#8E8E93;
+    --r:18px;
+  }
+  *{box-sizing:border-box} html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; line-height:1.55}
+  a{color:inherit; text-decoration:none}
+  .wrap{max-width:1180px; margin:0 auto; padding:0 24px}
+
+  /* hero */
+  header.hero{padding:56px 0 30px}
+  .badge{display:inline-block; font-size:12px; font-weight:600; color:var(--blue);
+    background:var(--blue-l); padding:5px 12px; border-radius:999px; margin-bottom:14px}
+  h1{font-size:40px; line-height:1.12; letter-spacing:-.8px; margin:0 0 12px; font-weight:700}
+  .lede{font-size:17px; color:var(--sub); max-width:760px; margin:0 0 26px}
+  .lede strong{color:var(--ink); font-weight:600}
+
+  /* stats */
+  .stats{display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:44px}
+  .stat{background:var(--card); border-radius:14px; padding:16px 14px; box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .stat .n{font-size:26px; font-weight:700; letter-spacing:-.5px; line-height:1.1}
+  .stat .l{font-size:12px; color:var(--sub); margin-top:3px}
+
+  /* section */
+  section{margin-bottom:44px}
+  h2{font-size:14px; text-transform:uppercase; letter-spacing:.8px; color:var(--sub);
+     margin:0 0 14px; font-weight:700}
+  h2 span{color:var(--ink)}
+
+  /* deliverable cards */
+  .cards{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  .card{background:var(--card); border-radius:var(--r); padding:24px; box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.05);
+    position:relative; transition:transform .18s ease, box-shadow .18s ease; display:block}
+  .card:hover{transform:translateY(-3px); box-shadow:0 2px 4px rgba(0,0,0,.05),0 16px 40px rgba(0,0,0,.09)}
+  .card .ic{width:40px; height:40px; border-radius:11px; display:grid; place-items:center;
+    font-size:19px; margin-bottom:14px}
+  .card h3{margin:0 0 4px; font-size:19px; letter-spacing:-.3px; font-weight:650}
+  .card .path{font-size:11.5px; color:var(--gray); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; margin-bottom:10px}
+  .card p{margin:0 0 14px; font-size:14px; color:#4a4a50}
+  .card .foot{display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:var(--blue)}
+  .card .foot .arrow{transition:transform .18s}
+  .card:hover .foot .arrow{transform:translateX(4px)}
+  .chip-line{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px}
+  .cchip{font-size:11px; padding:3px 8px; border-radius:6px; background:#F0F0F4; color:#55555c}
+
+  /* findings */
+  .find{background:var(--card); border-radius:var(--r); padding:4px 0; box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .frow{display:flex; gap:16px; padding:18px 24px; border-bottom:1px solid var(--line)}
+  .frow:last-child{border-bottom:0}
+  .frow .k{font-size:22px; font-weight:700; color:var(--blue); min-width:26px; line-height:1.2}
+  .frow .b b{display:block; font-size:15.5px; margin-bottom:3px; letter-spacing:-.2px}
+  .frow .b span{font-size:13.5px; color:#4a4a50}
+
+  /* doc grid */
+  .docs{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+  .doc{background:var(--card); border-radius:14px; padding:16px 18px; box-shadow:0 1px 2px rgba(0,0,0,.04);
+    transition:transform .16s, box-shadow .16s; display:block}
+  .doc:hover{transform:translateY(-2px); box-shadow:0 10px 26px rgba(0,0,0,.08)}
+  .doc .t{font-size:14.5px; font-weight:600; margin-bottom:2px}
+  .doc .p{font-size:11.5px; color:var(--gray); font-family:ui-monospace,Menlo,monospace; margin-bottom:7px}
+  .doc .d{font-size:12.5px; color:var(--sub)}
+  .dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:middle}
+
+  /* table */
+  .tbl{background:var(--card); border-radius:var(--r); overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  table{width:100%; border-collapse:collapse; font-size:13.5px}
+  th{text-align:left; font-size:11.5px; text-transform:uppercase; letter-spacing:.5px; color:var(--sub);
+     padding:13px 18px; border-bottom:1px solid var(--line); font-weight:700; background:#FAFAFC}
+  td{padding:12px 18px; border-bottom:1px solid #F0F0F4; vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:#FAFBFD}
+  td.code{font-family:ui-monospace,Menlo,monospace; font-size:12px; color:var(--blue); white-space:nowrap}
+  .pill{font-size:11px; padding:2px 8px; border-radius:6px; font-weight:600; white-space:nowrap}
+  .p1{background:rgba(0,102,204,.10); color:var(--blue)}
+  .p2{background:rgba(255,149,0,.14); color:#B25000}
+  .p3{background:#F0F0F4; color:#6E6E73}
+
+  .note{background:var(--blue-l); border:1px solid rgba(0,102,204,.15); border-radius:14px;
+    padding:14px 18px; font-size:13.5px; color:#004b96; margin-bottom:16px}
+  .note b{font-weight:650}
+
+  /* next */
+  .next-row{background:var(--card); border-radius:var(--r); padding:20px 24px; box-shadow:0 1px 2px rgba(0,0,0,.04); margin-bottom:12px}
+  .next-row .h{font-size:15px; font-weight:650; margin-bottom:8px}
+  .next-row ul{margin:0; padding-left:20px; font-size:13.5px; color:#4a4a50}
+  .next-row li{margin-bottom:5px}
+
+  footer{padding:26px 0 60px; color:var(--sub); font-size:12.5px; border-top:1px solid var(--line); margin-top:20px}
+  footer .wrap{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap}
+
+  @media (max-width:900px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .cards{grid-template-columns:1fr}
+    .docs{grid-template-columns:1fr}
+    h1{font-size:30px}
+    header.hero{padding:36px 0 22px}
+    .tbl{overflow-x:auto}
+    table{min-width:640px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="badge">Project · v0.1 · 2026-10-31</span>
+    <h1>EPC-Design-Management</h1>
+    <p class="lede">污水厂 EPC 项目的<strong>工程与设计管理</strong>研究与工具蓝本项目。主线是从「一个主观的分包商跟踪表」走向<strong>一条可审计的工程数字主线</strong>——把设计基础 → 交付物状态 → 接口承诺 → 供应商资料 → 变更因果 → 资产移交串成闭环。</p>
+    <div class="stats">
+      <div class="stat"><div class="n">2</div><div class="l">成品交付物</div></div>
+      <div class="stat"><div class="n">12</div><div class="l">能力域 / 应用蓝图</div></div>
+      <div class="stat"><div class="n">19</div><div class="l">网络图节点</div></div>
+      <div class="stat"><div class="n">33</div><div class="l">关联边</div></div>
+      <div class="stat"><div class="n">100%</div><div class="l">离线自包含</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- 核心交付物 -->
+  <section>
+    <h2>核心交付物 <span>★</span></h2>
+    <div class="cards">
+      <a class="card" href="deliverables/EPC-Wastewater-Engineering-Management-Research.html">
+        <div class="ic" style="background:rgba(0,102,204,.10);color:#0066CC">📘</div>
+        <h3>深度研究报告</h3>
+        <div class="path">deliverables/…Research.html</div>
+        <p>13 章完整研究：为什么污水厂难管、12 个能力域瓶颈矩阵、工具全景与七个空白、12 个应用规格、共享数据模型、自建 vs 采购、18 个月路线图、9 项 KPI 与 6 个失败模式。</p>
+        <div class="chip-line">
+          <span class="cchip">13 章</span><span class="cchip">13 万字符</span><span class="cchip">侧边导航</span><span class="cchip">可打印</span>
+        </div>
+        <div class="foot">打开研究报告 <span class="arrow">→</span></div>
+      </a>
+
+      <a class="card" href="deliverables/EPC-Engineering-Network-Chart.html">
+        <div class="ic" style="background:rgba(94,92,230,.12);color:#5E5CE6">🕸</div>
+        <h3>要素关联网络图</h3>
+        <div class="path">deliverables/…Network-Chart.html</div>
+        <p>把 MDR、Procurement Plan、EWP Index、Structure Index、MTO 等 19 个要素按「谁驱动谁」画成力导向网络。点击节点看关键字段与上下游、悬停高亮邻域、可拖拽/缩放/筛选/搜索。</p>
+        <div class="chip-line">
+          <span class="cchip">19 节点</span><span class="cchip">33 边</span><span class="cchip">可拖拽</span><span class="cchip">覆盖 A01–A12</span>
+        </div>
+        <div class="foot">打开网络图 <span class="arrow">→</span></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- 三句话结论 -->
+  <section>
+    <h2>三句话核心结论 <span>↳</span></h2>
+    <div class="find">
+      <div class="frow"><div class="k">1</div><div class="b"><b>失效集中在边界，不在专业</b><span>多数 EPC 延误源自两个专业各自做对、却基于不同假设；真正的缺口是接口没有被显式登记、按时关闭、留证验证。</span></div></div>
+      <div class="frow"><div class="k">2</div><div class="b"><b>数字失去因果就失去用途</b><span>进度若来自自评百分比，既不能收款也不能预测；必须把「交付物状态 → 工时 → 挣值 → 商务」串成可审计链。</span></div></div>
+      <div class="frow"><div class="k">3</div><div class="b"><b>上游一个假设，下游全部返工</b><span>进水表征与设计基础是唯一不可补偿的根节点；它错了，工艺模拟、选型、性能保证全部继承同一个错误并向后放大。</span></div></div>
+    </div>
+  </section>
+
+  <!-- 12 应用 -->
+  <section>
+    <h2>12 个应用蓝图 <span>A01–A12</span></h2>
+    <div class="note"><b>组合关系：</b>A01 是根 → A02/A03 让状态可见 → A04 管边界 → A05/A06 管外部输入 → A07 管因果 → A08 管质量闸门 → A09 管工艺正确性 → A10/A11 管交付 → <b>A12 闭环</b>。共享主数据（地基）：Project、WBS、Discipline、EquipmentTag、DocumentId、Person/Role。</div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>#</th><th>应用</th><th>解决的痛点</th><th>网络图节点</th><th>优先级</th></tr></thead>
+        <tbody>
+          <tr><td class="code">A01</td><td><b>Design Basis Manager</b></td><td>假设未被登记，假设错了全链返工</td><td class="code">dbm</td><td><span class="pill p1">P1</span></td></tr>
+          <tr><td class="code">A02</td><td><b>Deliverable Register &amp; IFA/IFC Gate</b></td><td>MDR 只是清单，无状态语义、不可审计</td><td class="code">mdr</td><td><span class="pill p1">P1</span></td></tr>
+          <tr><td class="code">A03</td><td><b>Stage-weighted EVM Engine</b></td><td>工时≠进度，预算/实耗/挣值三张表不互连</td><td class="code">evm / sched</td><td><span class="pill p1">P1</span></td></tr>
+          <tr><td class="code">A04</td><td><b>Interface Register</b></td><td>接口在施工期才被发现</td><td class="code">intf</td><td><span class="pill p1">P1</span></td></tr>
+          <tr><td class="code">A05</td><td><b>Procurement–Engineering Link</b></td><td>长周期项下单时设计成熟度不够</td><td class="code">proc / mto / bom</td><td><span class="pill p1">P1</span></td></tr>
+          <tr><td class="code">A06</td><td><b>Vendor Document Tracker</b></td><td>供应商评审 2–4 周，退回再 +3–6 周</td><td class="code">vdt</td><td><span class="pill p2">P2</span></td></tr>
+          <tr><td class="code">A07</td><td><b>Change &amp; RFI Intelligence</b></td><td>无因果结构，事后无法证明归责</td><td class="code">chg</td><td><span class="pill p2">P2</span></td></tr>
+          <tr><td class="code">A08</td><td><b>Cross-discipline QA &amp; Clash Gate</b></td><td>冲突只存在于专业之间，逐专业审查看不到</td><td class="code">qa</td><td><span class="pill p2">P2</span></td></tr>
+          <tr><td class="code">A09</td><td><b>Process Design Workbook</b></td><td>工艺计算孤立，无法追溯到选型与 P&amp;ID</td><td class="code">pwb</td><td><span class="pill p2">P2</span></td></tr>
+          <tr><td class="code">A10</td><td><b>Commissioning &amp; Turnover</b></td><td>生物启动按生物钟走，不按工期走</td><td class="code">comm</td><td><span class="pill p2">P2</span></td></tr>
+          <tr><td class="code">A11</td><td><b>Asset Data Handover</b></td><td>数据在移交时重建，错漏、耗时数年</td><td class="code">asset</td><td><span class="pill p3">P3</span></td></tr>
+          <tr><td class="code">A12</td><td><b>Lessons &amp; Design Rules Library</b></td><td>同类错误跨项目重复</td><td class="code">less</td><td><span class="pill p3">P3</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 12 能力域 -->
+  <section>
+    <h2>瓶颈排序 <span>影响 × 可修复性</span></h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>序</th><th>能力域</th><th>为什么</th><th>量化代价</th></tr></thead>
+        <tbody>
+          <tr><td class="code">1</td><td><b>C1 设计基础</b></td><td>上游根因，错了全错</td><td>超支率 19–27%</td></tr>
+          <tr><td class="code">2</td><td><b>C4 接口</b></td><td>延误主因</td><td>多数延误源自专业边界而非专业内部</td></tr>
+          <tr><td class="code">3</td><td><b>C2 + C3 交付物 / 挣值</b></td><td>让前两项可被看见、可被度量</td><td>自评百分比不可用于计量与预测</td></tr>
+          <tr><td class="code">4</td><td><b>C5 + C6 采购 / 供应商资料</b></td><td>关键路径最大变量</td><td>单次 resubmittal 增加 3–6 周</td></tr>
+          <tr><td class="code">5</td><td><b>C8 + C9 跨专业校审 / 模型协调</b></td><td>返工主因</td><td>返工占成本 5–9%；早期协调可减变更 40%</td></tr>
+          <tr><td class="code">6</td><td><b>C7 变更归责</b></td><td>争议与利润保护</td><td>RFI 约 1,080 美元/条；30–60% 可避免</td></tr>
+          <tr><td class="code">7</td><td><b>C10 + C11 调试 / 资产移交</b></td><td>现金回收与尾款</td><td>生化启动 4–12 周，最易失控</td></tr>
+          <tr><td class="code">8</td><td><b>C12 知识复用</b></td><td>长期护城河</td><td>无量化，但复利效应最大</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 文档与素材 -->
+  <section>
+    <h2>笔记 · 源片段 · 素材 <span>📂</span></h2>
+    <div class="note">研究底稿与报告源片段已归档，<b>后续迭代可直接改源片段而不必重写整篇</b>。`.md` 用浏览器打开会显示为纯文本，建议用编辑器打开。</div>
+    <div class="docs">
+      <a class="doc" href="README.md"><div class="t">README.md</div><div class="p">README.md</div><div class="d">项目说明、目录结构、快速开始、迭代约定</div></a>
+      <a class="doc" href="WORKPLAN.md"><div class="t">WORKPLAN.md</div><div class="p">WORKPLAN.md</div><div class="d">决策记录、待办 ISS 清单、变更与版本记录</div></a>
+      <a class="doc" href="notes/capability-map.md"><div class="t">能力地图与瓶颈诊断</div><div class="p">notes/capability-map.md</div><div class="d">12 能力域矩阵、瓶颈排序、工具缺口分析</div></a>
+      <a class="doc" href="notes/app-blueprints.md"><div class="t">12 个应用蓝图 <span class="pill p1" style="margin-left:2px">权威源</span></div><div class="p">notes/app-blueprints.md</div><div class="d">字段级数据模型；应用编号以此为准</div></a>
+      <a class="doc" href="notes/source/report-part1-foundation.html"><div class="t">报告源 · Part 1</div><div class="p">source/report-part1-foundation.html</div><div class="d">执行摘要 / 为何污水厂难管</div></a>
+      <a class="doc" href="notes/source/report-part2-lifecycle.html"><div class="t">报告源 · Part 2</div><div class="p">source/report-part2-lifecycle.html</div><div class="d">全链路 / 12 个失败点 / 工具全景</div></a>
+      <a class="doc" href="notes/source/report-part3-blueprints.html"><div class="t">报告源 · Part 3</div><div class="p">source/report-part3-blueprints.html</div><div class="d">应用组合 / 12 个应用规格</div></a>
+      <a class="doc" href="notes/source/report-part4-roadmap.html"><div class="t">报告源 · Part 4</div><div class="p">source/report-part4-roadmap.html</div><div class="d">数据模型 / 自建vs采购 / 路线图 / KPI / 风险</div></a>
+      <a class="doc" href="assets/verification/network-chart-desktop.png"><div class="t">验证截图 · 网络图</div><div class="p">assets/verification/</div><div class="d">桌面渲染、选中 MDR、移动端共 3 张</div></a>
+    </div>
+  </section>
+
+  <!-- 下一步 -->
+  <section>
+    <h2>下一步 <span>待你确认</span></h2>
+    <div class="next-row">
+      <div class="h">P1 · 建议先做</div>
+      <ul>
+        <li><b>ISS-002</b> — 确认 "Nero network chart" 的具体所指（通用网络图？还是 Neo4j / 某个特定库），再决定数据层是否调整</li>
+        <li><b>ISS-006</b> — 选定首个试点应用（建议 <b>A01 Design Basis Manager</b>，根因、体积小、见效快）</li>
+        <li><b>ISS-007</b> — 定义共享主数据字典，尤其是 <b>EquipmentTag 命名规则</b>：12 个应用的地基</li>
+      </ul>
+    </div>
+    <div class="next-row">
+      <div class="h">P2 · 深化</div>
+      <ul>
+        <li><b>ISS-003</b> — 网络图是否补 <b>CDE / BIM</b> 节点，以完整对齐 12 个能力域</li>
+        <li><b>ISS-004</b> — 把某一应用从"规格"推进到 MVP 数据模型 + 原型界面</li>
+        <li><b>ISS-008</b> — 给网络图的边加语义标签（feeds / gates / validates / rolls-up-to）</li>
+      </ul>
+    </div>
+    <div style="margin-top:14px"><a class="foot" href="WORKPLAN.md" style="color:var(--blue);font-weight:600;font-size:13.5px">查看完整待办与 ISS 清单 →</a></div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <span><b>EPC-Design-Management</b> · v0.1 · 2026-10-31</span>
+      <span>视角：EPC 承包商工程团队 · 标准语境：跨司法辖区通用（ISO 19650 / FIDIC / IEC）· 单文件自包含，离线可用</span>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

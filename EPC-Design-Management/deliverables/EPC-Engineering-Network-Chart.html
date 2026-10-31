@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EPC 污水厂工程设计管理 · 要素关联网络图</title>
+<style>
+  :root{
+    --blue:#0066CC; --indigo:#5E5CE6; --orange:#FF9500; --green:#34C759; --gray:#8E8E93;
+    --bg:#F5F5F7; --card:#FFFFFF; --ink:#1D1D1F; --sub:#6E6E73; --line:#E3E3E8;
+    --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  header.top{
+    padding:28px 24px 18px; max-width:1280px; margin:0 auto;
+  }
+  header.top h1{font-size:26px; line-height:1.25; margin:0 0 6px; letter-spacing:-.3px}
+  header.top p{margin:0; color:var(--sub); font-size:14px; max-width:760px}
+  .tag{display:inline-block; font-size:12px; color:var(--blue); background:rgba(0,102,204,.08);
+       padding:3px 9px; border-radius:999px; margin-bottom:10px; font-weight:600}
+
+  main{max-width:1280px; margin:0 auto; padding:0 24px 40px;
+       display:grid; grid-template-columns:1fr 340px; gap:20px; align-items:start}
+
+  .canvas-card{background:var(--card); border-radius:18px; box-shadow:var(--shadow);
+       overflow:hidden; position:relative}
+  .toolbar{display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+       padding:12px 14px; border-bottom:1px solid var(--line)}
+  .toolbar .grow{flex:1 1 auto}
+  .btn{appearance:none; border:1px solid var(--line); background:#fff; color:var(--ink);
+       font:inherit; font-size:13px; padding:6px 11px; border-radius:10px; cursor:pointer;
+       transition:.15s; display:inline-flex; align-items:center; gap:5px}
+  .btn:hover{border-color:#c9c9d0; background:#fafafa}
+  .btn.active{background:var(--blue); border-color:var(--blue); color:#fff}
+  .search{appearance:none; border:1px solid var(--line); border-radius:10px; padding:6px 11px;
+       font:inherit; font-size:13px; width:160px; background:#fff}
+  .search:focus{outline:none; border-color:var(--blue)}
+  .chips{display:flex; flex-wrap:wrap; gap:6px}
+  .chip{font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--line);
+       background:#fff; cursor:pointer; user-select:none; display:inline-flex; align-items:center; gap:6px}
+  .chip .dot{width:9px;height:9px;border-radius:50%}
+  .chip.off{opacity:.4}
+  .svg-wrap{position:relative; width:100%; height:62vh; min-height:440px; touch-action:none}
+  svg#net{width:100%; height:100%; display:block; cursor:grab; background:
+       radial-gradient(circle at 30% 20%, #fbfbfd 0%, #f3f3f6 70%)}
+  svg#net.grabbing{cursor:grabbing}
+  .edge{stroke:#c8c8d0; stroke-width:1.4; fill:none; transition:stroke .15s, stroke-width .15s, opacity .15s}
+  .edge.hot{stroke:var(--blue); stroke-width:2.4; opacity:1}
+  .edge.dim{opacity:.12}
+  .node circle{stroke:#fff; stroke-width:2.5; cursor:pointer; transition:opacity .15s}
+  .node text{font-size:11px; fill:var(--ink); pointer-events:none; font-weight:500;
+       paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round}
+  .node.dim{opacity:.22}
+  .node.sel circle{stroke:var(--ink); stroke-width:3}
+  .hint{position:absolute; left:14px; bottom:12px; font-size:11px; color:var(--sub);
+       background:rgba(255,255,255,.7); padding:4px 9px; border-radius:8px; pointer-events:none}
+
+  aside.panel{background:var(--card); border-radius:18px; box-shadow:var(--shadow);
+       padding:20px; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto}
+  aside.panel .empty{color:var(--sub); font-size:14px}
+  .p-cat{font-size:11px; font-weight:700; letter-spacing:.4px; text-transform:uppercase}
+  .p-title{font-size:19px; font-weight:700; margin:4px 0 2px; letter-spacing:-.2px}
+  .p-sub{font-size:12.5px; color:var(--sub); margin-bottom:12px}
+  .p-desc{font-size:13.5px; color:#3a3a3f; margin:0 0 14px}
+  .p-sec{font-size:12px; font-weight:700; color:var(--sub); margin:14px 0 6px; text-transform:uppercase; letter-spacing:.3px}
+  .p-fields{list-style:none; margin:0; padding:0; font-size:13px}
+  .p-fields li{padding:5px 0; border-bottom:1px dashed var(--line); display:flex; gap:8px}
+  .p-fields li:last-child{border-bottom:0}
+  .p-fields b{color:var(--ink); min-width:92px; display:inline-block; font-weight:600}
+  .p-fields span{color:#48484d}
+  .links{display:flex; flex-direction:column; gap:6px}
+  .linkrow{font-size:12.5px; padding:7px 10px; border-radius:10px; background:#f6f6f8; display:flex; gap:8px; align-items:flex-start}
+  .linkrow .dir{font-size:11px; font-weight:700; color:#fff; background:var(--blue); border-radius:6px; padding:1px 6px; white-space:nowrap; margin-top:1px}
+  .linkrow .dir.in{background:var(--gray)}
+  .linkrow b{font-weight:600}
+  .mapref{margin-top:12px; font-size:12.5px; background:rgba(0,102,204,.06); color:var(--blue);
+       border-radius:10px; padding:9px 11px; border:1px solid rgba(0,102,204,.14)}
+  .mapref b{color:var(--blue)}
+
+  footer{max-width:1280px; margin:0 auto; padding:8px 24px 50px; color:var(--sub); font-size:12.5px}
+  footer .legend{display:flex; flex-wrap:wrap; gap:14px; margin-bottom:10px}
+  footer .legend span{display:inline-flex; align-items:center; gap:7px}
+  footer .legend i{width:11px;height:11px;border-radius:50%;display:inline-block}
+  footer .note{border-top:1px solid var(--line); padding-top:12px}
+
+  @media (max-width:900px){
+    main{grid-template-columns:1fr}
+    aside.panel{position:relative; top:0; max-height:none}
+    .svg-wrap{height:52vh}
+    header.top h1{font-size:22px}
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="tag">EPC Engineering Management · 关联网络图</span>
+  <h1>EPC 污水厂工程设计管理 — 要素关联网络图</h1>
+  <p>把研究报告里建议的核心要素（MDR、Procurement Plan、EWP Index、Structure Index、MTO 等）按"谁驱动谁、谁喂给谁"画成一张可交互的力导向网络。点击节点看关键字段与上下游；悬停高亮邻域；滚轮缩放、拖拽平移、拖动节点重新布局。</p>
+</header>
+
+<main>
+  <section class="canvas-card">
+    <div class="toolbar">
+      <div class="chips" id="chips"></div>
+      <div class="grow"></div>
+      <input class="search" id="search" placeholder="搜索要素 / 缩写…" autocomplete="off">
+      <button class="btn" id="zoomOut" title="缩小">−</button>
+      <button class="btn" id="zoomIn" title="放大">＋</button>
+      <button class="btn" id="reheat" title="重新布局">↻ 布局</button>
+      <button class="btn" id="reset" title="复位视图">复位</button>
+    </div>
+    <div class="svg-wrap">
+      <svg id="net" xmlns="http://www.w3.org/2000/svg">
+        <g id="viewport">
+          <g id="edges"></g>
+          <g id="nodes"></g>
+        </g>
+      </svg>
+      <div class="hint">提示：点击节点查看详情 · 拖动节点可重新布局 · 滚轮缩放</div>
+    </div>
+  </section>
+
+  <aside class="panel" id="panel">
+    <div class="empty">点击左侧任一节点查看该要素的定义、关键字段、上下游关联，以及它在研究报告里对应的应用蓝图。</div>
+  </aside>
+</main>
+
+<footer>
+  <div class="legend" id="legend"></div>
+  <div class="note">
+    图例说明：箭头方向表示<strong>信息流 / 驱动关系</strong>（A → B 读作"B 由 A 驱动 / A 喂给 B"）。
+    实线为正式交付链路，粗箭头表示关键路径依赖。节点大小表示其在工程管理体系中的<strong>中枢度</strong>（被越多要素依赖，半径越大）。
+    本图与研究报告《EPC Wastewater Engineering Management Research》中的 12 个应用蓝图一一对应——"详情面板 · 研究映射"给出对应应用。
+    若 "Nero" 指特定工具/库（如 Neo4j 图数据库导出），可在此基础上替换数据层。
+  </div>
+</footer>
+
+<script>
+/* ---------- 数据：节点（EPC 工程设计管理要素） ---------- */
+const CATS = {
+  control:    {label:"控制 · 计划 · 登记", color:"#0066CC"},
+  design:     {label:"设计 · 工程",         color:"#5E5CE6"},
+  procurement:{label:"采购 · 供应商",       color:"#FF9500"},
+  execution:  {label:"施工 · 调试 · 移交",  color:"#34C759"},
+  knowledge:  {label:"知识 · 合同",         color:"#8E8E93"},
+};
+
+const NODES = [
+  {id:"contract",label:"Contract / Brief",zh:"合同 · 项目任务书",cat:"knowledge",size:26,
+   desc:"业主合同与项目任务书是全部工程范围的源头。它定义性能保证、界区、适用标准（如 PUB/ISO 19650）与验收口径。",
+   fields:[["范围界区","Battery limits, 业主/承包商分工"],["性能保证","出水水质、负荷、可用率"],["标准","PUB / ISO 19650 / GB"],["商务模式","Lump-sum D&B / EPC"]],
+   map:"对应研究：项目启动与 Design Basis Manager 的输入源"},
+
+  {id:"dbm",label:"Design Basis Memo",zh:"设计基础备忘录 (DBM)",cat:"design",size:23,
+   desc:"唯一不可补偿的根节点。汇总进水表征、设计参数、假设与余量。下游工艺模拟、选型、性能保证全部继承它的正确性。",
+   fields:[["进水水质","BOD/COD/TSS/N/P, 峰值系数"],["设计余量","保守度 factor of safety"],["关键假设","温度、流量变化、工业废水"],["可追溯","每条假设 ↔ 来源文件"]],
+   map:"对应研究 App A01：Design Basis Manager（假设登记 + 因果可追溯）"},
+
+  {id:"wbs",label:"WBS",zh:"工作分解结构",cat:"control",size:15,
+   desc:"把项目拆成可管理、可估算、可排程的工作包层级，是 EWP、进度、成本、挣值的共同骨架。",
+   fields:[["层级","L1 项目 → L4 工作包"],["编码","唯一 WBS 编码规则"],["责任","OBS 对应到 WBS"],["口径","与 EWP 对齐"]],
+   map:"对应研究：共享主数据 / 编号体系地基"},
+
+  {id:"ewp",label:"EWP Index",zh:"工程工作包索引",cat:"control",size:23,
+   desc:"你点名要的 EWP Index。它是工程执行的原子单元——每个 EWP 定义范围、专业、交付物、工时预算与进度窗口，是连接设计、进度、成本与采购的枢纽。",
+   fields:[["EWP 编码","唯一、可排序"],["范围","包含/排除清单"],["专业","Process/Mech/Civil/ELE/I&C"],["交付物","关联 MDR 行"],["工时预算","供 EVM 用"],["接口","关联 Interface Register"]],
+   map:"对应研究 App A02/A04：Deliverable Register 与 Interface Register 的聚合层"},
+
+  {id:"dstruct",label:"Discipline Structure",zh:"专业结构索引",cat:"design",size:16,
+   desc:"你点名要的 Structure Index。按专业（工艺/机械/土建/电气/仪控/管线）组织图纸卷册、模型分区与编号体系，是 EWP 与 MDR 的横向骨架。",
+   fields:[["专业树","Process→Mech→Piping…"],["卷册编码","图号规则 / 卷册清单"],["模型分区","BIM 拆分"],["编号规则","统一 tag 体系"]],
+   map:"对应研究：共享主数据 / 编号与卷册体系"},
+
+  {id:"pwb",label:"Process Workbook",zh:"工艺设计工作簿",cat:"design",size:18,
+   desc:"工艺负荷计算、单元水力核算与模拟（BioWin / GPS-X / Sumo）的载体，产出各单元尺寸与 MTO 的工艺量。",
+   fields:[["模拟模型","BioWin / GPS-X"],["单元核算","曝气、二沉、污泥"],["负荷曲线","逐时/逐月"],["性能预测","出水达标余量"]],
+   map:"对应研究 App A09：Process Design Workbook"},
+
+  {id:"mdr",label:"MDR",zh:"主交付物登记册",cat:"control",size:23,
+   desc:"你点名要的 MDR（Master Deliverable Register）。跨专业统一登记全部交付物（图/规格书/计算书/模型），含状态、版本、计划/实际日期与 IFA/IFC 评审轮次。它是进度与 EVM 的事实源。",
+   fields:[["交付物 ID","唯一编码"],["类型","DWG/SPEC/CALC/MDL"],["状态","Plan/IFA/IFC/AFC"],["计划/实际","日期 + 轮次"],["关联","EWP / 专业 / 接口"]],
+   map:"对应研究 App A02：Deliverable Register & IFA/IFC Gate"},
+
+  {id:"mto",label:"MTO",zh:"材料提量表",cat:"design",size:18,
+   desc:"你点名要的 MTO（Material Take-Off）。从图纸与模型中抽取的数量清单，是 BOM 与采购计划的量源；工艺与土建/管线 MTO 共同推动采购。",
+   fields:[["物料编码","匹配 BOM"],["数量/单位","按专业汇总"],["来源","图号 / 模型构件"],["精度等级","估算 vs 精算"]],
+   map:"对应研究 App A05：Procurement–Engineering Link 的量源（MTO→BOM→采购）"},
+
+  {id:"bom",label:"BOM",zh:"物料清单",cat:"design",size:14,
+   desc:"由 MTO 归并出的采购级物料清单，按设备/材料类聚合并带供应商可选清单，直接喂给 Procurement Plan。",
+   fields:[["物料类","设备/管材/电缆"],["合并量","去重 + 损耗"],["候选厂商","approved vendor list"],["规格","技术参数"]],
+   map:"对应研究：Procurement Link 的数据中枢"},
+
+  {id:"proc",label:"Procurement Plan",zh:"采购计划",cat:"procurement",size:21,
+   desc:"你点名要的 Procurement Plan。基于 BOM 与长周期设备关键路径排定请购、招标、订单、到场节奏；与 EWP 进度和施工节点咬合。",
+   fields:[["长周期项","lead time 排序"],["里程碑","PO / 到场 / 安装"],["预算","CAPEX 划分"],["风险","单一来源 / 关税"]],
+   map:"对应研究 App A05：Procurement–Engineering Link（计划 ↔ EWP ↔ 到场）"},
+
+  {id:"vdt",label:"Vendor Data Tracker",zh:"供应商文件跟踪器",cat:"procurement",size:18,
+   desc:"跟踪设备数据表、图纸、计算书与 IFA/IFC 评审循环（常 +3–6 周 resubmittal）。供应商文件既是采购交付物，也回流进 MDR 与资产数据。",
+   fields:[["设备 tag","关联 MDR/BOM"],["文件类型","EDS / GAD / calc"],["评审轮","IFA→IFC→AFC"],["催交","expediting 状态"]],
+   map:"对应研究 App A06：Vendor Document Tracker"},
+
+  {id:"intf",label:"Interface Register",zh:"接口登记册",cat:"control",size:16,
+   desc:"显式登记跨专业/跨包边界的接口（如工艺→仪控信号、机电→土建预留）。多数 EPC 延误源于接口未按时关闭——它是 EWP 与 MDR 的触发源。",
+   fields:[["接口 ID","唯一"],["两端","提供方/接收方"],["内容","信号/荷载/预留"],["状态","Open/Closed/Verified"]],
+   map:"对应研究 App A04：Interface Register（接口因果链）"},
+
+  {id:"chg",label:"Change / RFI Log",zh:"变更 / 澄清日志",cat:"control",size:16,
+   desc:"记录 RFI 与变更，量化每条对 MDR、EWP、采购的连锁影响。后期变更的返工成本远高于前期（约 30–60% 的 RFI 可避免）。",
+   fields:[["RFI/变更号","唯一"],["影响","范围/进度/成本"],["状态","待答/已决"],["成本","rework 估算"]],
+   map:"对应研究 App A07：Change & RFI Intelligence"},
+
+  {id:"qa",label:"QA / Clash Gate",zh:"跨专业校审 · 碰撞闸门",cat:"design",size:16,
+   desc:"图纸与模型发布前的跨专业自洽闸门，检查只存在于专业之间的冲突（设备荷载↔基础、管线↔结构、电缆路由↔土建预留、工艺设备↔控制 I/O）。单张图都对、合起来冲突——这是返工主因，占项目成本 5–9%。查出的缺陷直接转为 Change Event。",
+   fields:[["校审清单","专业/阶段/必检项"],["碰撞项","模型 A↔B、位置、严重度"],["图纸集自洽","缺尺寸/不匹配/孤立规格"],["处置","缺陷 → Change Event"]],
+   map:"对应研究 App A08：Cross-discipline QA & Clash Gate"},
+
+  {id:"sched",label:"Schedule (P6)",zh:"进度计划 (P6)",cat:"control",size:16,
+   desc:"Primavera P6 类主进度，把 EWP 链接到时间轴与关键路径，为 EVM 提供计划基准（BCWS）。",
+   fields:[["活动","关联 EWP"],["逻辑关系","FS/SS/FF"],["关键路径","浮动分析"],["基准","BCWS"]],
+   map:"对应研究 App A03：EVM Engine 的计划侧（P6 提供 BCWS）"},
+
+  {id:"evm",label:"EVM Engine",zh:"挣值进度引擎",cat:"control",size:16,
+   desc:"把 MDR 交付物状态 → 完成工时 → 挣值（EV）→ 商务串成可审计链。自评百分比既不能收款也不能预测，必须基于可验证的交付物。",
+   fields:[["EV","基于交付物"],["CPI/SPI","绩效指数"],["预测","EAC/ETC"],["审计链","状态→工时→款"]],
+   map:"对应研究 App A03：Stage-weighted EVM Engine（交付物→挣值→商务）"},
+
+  {id:"comm",label:"Commissioning",zh:"调试与移交",cat:"execution",size:20,
+   desc:"单试/联调/性能测试/生物启动（MLSS/SVI 日志，4–12 周不可压缩）。交付物打包成 ITR 与 turnover 包，是资产数据的来源。",
+   fields:[["ITR","检验测试记录"],["生物启动","MLSS/SVI 日志"],["性能测试","30 天达标"],["Turnover","移交包"]],
+   map:"对应研究 App A10：Commissioning & Turnover"},
+
+  {id:"asset",label:"Asset Handover",zh:"资产数据移交",cat:"execution",size:18,
+   desc:"按 COBie / CFIHOS 移交可机读资产数据（设备 tag、参数、文档链接），直接来自 Vendor Data 与 Commissioning，形成数字孪生底座。",
+   fields:[["COBie/CFIHOS","结构化"],["设备 tag","关联 VDT"],["文档链接","指向源文件"],["校验","完整性规则"]],
+   map:"对应研究 App A11：Asset Data Handover"},
+
+  {id:"less",label:"Lessons / Rules",zh:"教训与规则库",cat:"knowledge",size:16,
+   desc:"把项目教训沉淀为可执行的检查规则，回流到 DBM、EWP 与变更评审，形成组织级复利（避免重复踩坑）。",
+   fields:[["教训条目","可追溯"],["规则","自动化检查"],["回流点","DBM/EWP/RFI"],["复用","跨项目"]],
+   map:"对应研究 App A12：Lessons & Design Rules Library"},
+];
+
+/* ---------- 数据：有向边（驱动 / 喂给关系） ---------- */
+/* s 驱动/喂给 t */
+const EDGES = [
+  ["contract","dbm"],["contract","wbs"],["contract","sched"],
+  ["dbm","pwb"],["dbm","ewp"],["dbm","mdr"],
+  ["pwb","mto"],
+  ["wbs","ewp"],
+  ["dstruct","ewp"],["dstruct","mdr"],["dstruct","mto"],
+  ["ewp","mdr"],["ewp","sched"],["ewp","comm"],
+  ["mdr","evm"],["mdr","comm"],
+  ["mto","bom"],
+  ["bom","proc"],
+  ["proc","vdt"],
+  ["vdt","mdr"],["vdt","asset"],
+  ["intf","ewp"],["intf","mdr"],
+  ["mdr","qa"],["qa","chg"],
+  ["chg","mdr"],["chg","ewp"],["chg","proc"],
+  ["sched","evm"],
+  ["comm","asset"],
+  ["less","dbm"],["less","ewp"],["less","chg"],
+];
+
+/* ---------- 构建图结构 ---------- */
+const NM = {}; NODES.forEach(n=>NM[n.id]=n);
+const ADJ = {}; NODES.forEach(n=>ADJ[n.id]=new Set());
+EDGES.forEach(([s,t])=>{ ADJ[s].add(t); ADJ[t].add(s); });
+// 出度（驱动了多少下游）
+const outdeg = {}; NODES.forEach(n=>outdeg[n.id]=0);
+EDGES.forEach(([s,t])=>outdeg[s]++);
+
+/* ---------- SVG 与坐标 ---------- */
+const svg = document.getElementById("net");
+const gVP = document.getElementById("viewport");
+const gE  = document.getElementById("edges");
+const gN  = document.getElementById("nodes");
+const SVGNS = "http://www.w3.org/2000/svg";
+
+let W=0,H=0,CX=0,CY=0;
+function measure(){
+  const r = svg.getBoundingClientRect();
+  W=r.width; H=r.height; CX=W/2; CY=H/2;
+}
+const view = {tx:0,ty:0,scale:1};
+function applyView(){
+  gVP.setAttribute("transform",`translate(${view.tx},${view.ty}) scale(${view.scale})`);
+}
+
+/* ---------- 初始化节点位置（圆环 + 轻微随机） ---------- */
+function seed(){
+  measure();
+  const R = Math.min(W,H)*0.36;
+  NODES.forEach((n,i)=>{
+    const a = (i/NODES.length)*Math.PI*2;
+    n.x = CX + R*Math.cos(a) + (Math.random()-.5)*30;
+    n.y = CY + R*Math.sin(a) + (Math.random()-.5)*30;
+    n.vx=0; n.vy=0; n.fixed=false;
+  });
+}
+
+/* ---------- 力导向模拟 ---------- */
+let alpha=1, running=false, raf=null;
+function tick(){
+  // 斥力
+  for(let i=0;i<NODES.length;i++){
+    for(let j=i+1;j<NODES.length;j++){
+      const a=NODES[i],b=NODES[j];
+      let dx=a.x-b.x, dy=a.y-b.y;
+      let d2=dx*dx+dy*dy; if(d2<1)d2=1;
+      const d=Math.sqrt(d2);
+      const f=9000/d2;
+      const ux=dx/d, uy=dy/d;
+      if(!a.fixed){a.vx+=ux*f; a.vy+=uy*f;}
+      if(!b.fixed){b.vx-=ux*f; b.vy-=uy*f;}
+    }
+  }
+  // 弹簧（边）
+  EDGES.forEach(([s,t])=>{
+    const a=NM[s],b=NM[t];
+    let dx=b.x-a.x, dy=b.y-a.y;
+    let d=Math.sqrt(dx*dx+dy*dy)||1;
+    const rest=150, k=0.025;
+    const f=k*(d-rest);
+    const ux=dx/d, uy=dy/d;
+    if(!a.fixed){a.vx+=ux*f; a.vy+=uy*f;}
+    if(!b.fixed){b.vx-=ux*f; b.vy-=uy*f;}
+  });
+  // 向心力
+  NODES.forEach(n=>{
+    if(!n.fixed){ n.vx+=(CX-n.x)*0.011; n.vy+=(CY-n.y)*0.011; }
+  });
+  // 积分
+  NODES.forEach(n=>{
+    if(n.fixed){n.vx=0;n.vy=0;return;}
+    n.vx*=0.86; n.vy*=0.86;
+    const sp=Math.hypot(n.vx,n.vy);
+    if(sp>30){n.vx*=30/sp; n.vy*=30/sp;}
+    n.x+=n.vx*alpha; n.y+=n.vy*alpha;
+  });
+  render();
+  alpha*=0.985;
+  if(alpha>0.02){ raf=requestAnimationFrame(tick); }
+  else { running=false; }
+}
+function reheat(a=1){ alpha=a; if(!running){running=true; raf=requestAnimationFrame(tick);} }
+
+/* ---------- 渲染（创建一次，之后只更新属性） ---------- */
+const edgeEls=[]; const nodeEls={};
+function buildGraph(){
+  gE.innerHTML=""; gN.innerHTML=""; edgeEls.length=0;
+  EDGES.forEach(([s,t],i)=>{
+    const ln=document.createElementNS(SVGNS,"line");
+    ln.setAttribute("class","edge");
+    gE.appendChild(ln);
+    edgeEls.push({el:ln,s,t});
+  });
+  NODES.forEach(n=>{
+    const g=document.createElementNS(SVGNS,"g");
+    g.setAttribute("class","node"); g.dataset.id=n.id;
+    const c=document.createElementNS(SVGNS,"circle");
+    c.setAttribute("r",n.size);
+    c.setAttribute("fill",CATS[n.cat].color);
+    const tx=document.createElementNS(SVGNS,"text");
+    tx.setAttribute("text-anchor","middle");
+    tx.setAttribute("dy", n.size+13);
+    tx.textContent=n.label;
+    g.appendChild(c); g.appendChild(tx);
+    g.addEventListener("click",(e)=>{ e.stopPropagation(); select(n.id); });
+    g.addEventListener("mouseenter",()=>hover(n.id));
+    g.addEventListener("mouseleave",()=>{ if(!selected) clearHi(); });
+    gN.appendChild(g);
+    nodeEls[n.id]=g;
+  });
+}
+function render(){
+  edgeEls.forEach(({el,s,t})=>{
+    el.setAttribute("x1",NM[s].x); el.setAttribute("y1",NM[s].y);
+    el.setAttribute("x2",NM[t].x); el.setAttribute("y2",NM[t].y);
+  });
+  NODES.forEach(n=>{ nodeEls[n.id].setAttribute("transform",`translate(${n.x},${n.y})`); });
+}
+
+/* ---------- 高亮与选中 ---------- */
+let selected=null, hovered=null;
+function hover(id){ hovered=id; paintHi(id); }
+function clearHi(){ if(selected){paintHi(selected);} else paintHi(null); }
+function paintHi(id){
+  const keep = id? ADJ[id] : null;
+  NODES.forEach(n=>{
+    const g=nodeEls[n.id];
+    if(!id){ g.classList.remove("dim"); }
+    else { g.classList.toggle("dim", n.id!==id && !(keep&&keep.has(n.id))); }
+  });
+  edgeEls.forEach(({el,s,t})=>{
+    el.classList.remove("hot","dim");
+    if(!id) return;
+    if(s===id||t===id) el.classList.add("hot");
+    else if(!(keep.has(s)&&keep.has(t))) el.classList.add("dim");
+  });
+}
+function select(id){
+  selected=id;
+  NODES.forEach(n=>nodeEls[n.id].classList.toggle("sel", n.id===id));
+  paintHi(id);
+  showPanel(id);
+}
+
+/* ---------- 详情面板 ---------- */
+const panel=document.getElementById("panel");
+function showPanel(id){
+  const n=NM[id];
+  const outs=EDGES.filter(e=>e[0]===id).map(e=>NM[e[1]]);
+  const ins =EDGES.filter(e=>e[1]===id).map(e=>NM[e[0]]);
+  const fields=n.fields.map(f=>`<li><b>${f[0]}</b><span>${f[1]}</span></li>`).join("");
+  const outRows=outs.length?outs.map(o=>`<div class="linkrow"><span class="dir">喂给</span><span><b>${o.label}</b> · ${o.zh}</span></div>`).join("")
+                          :`<div class="linkrow"><span class="dir">—</span><span>无下游（末端要素）</span></div>`;
+  const inRows=ins.length?ins.map(o=>`<div class="linkrow"><span class="dir in">来自</span><span><b>${o.label}</b> · ${o.zh}</span></div>`).join("")
+                         :`<div class="linkrow"><span class="dir in">—</span><span>无上游（根要素）</span></div>`;
+  panel.innerHTML=`
+    <div class="p-cat" style="color:${CATS[n.cat].color}">${CATS[n.cat].label}</div>
+    <div class="p-title">${n.label}</div>
+    <div class="p-sub">${n.zh} · 驱动 ${outdeg[id]} 个下游要素</div>
+    <p class="p-desc">${n.desc}</p>
+    <div class="p-sec">关键字段</div>
+    <ul class="p-fields">${fields}</ul>
+    <div class="p-sec">上游（来自）</div>
+    <div class="links">${inRows}</div>
+    <div class="p-sec">下游（喂给）</div>
+    <div class="links">${outRows}</div>
+    <div class="mapref"><b>研究映射：</b>${n.map}</div>
+  `;
+  panel.scrollTop=0;
+}
+
+/* ---------- 分类筛选 ---------- */
+const activeCats=new Set(Object.keys(CATS));
+function buildChips(){
+  const wrap=document.getElementById("chips");
+  Object.entries(CATS).forEach(([k,v])=>{
+    const c=document.createElement("span");
+    c.className="chip"; c.dataset.cat=k;
+    c.innerHTML=`<i class="dot" style="background:${v.color}"></i>${v.label}`;
+    c.addEventListener("click",()=>{
+      if(activeCats.has(k)){activeCats.delete(k); c.classList.add("off");}
+      else{activeCats.add(k); c.classList.remove("off");}
+      applyFilter();
+    });
+    wrap.appendChild(c);
+  });
+}
+function applyFilter(){
+  NODES.forEach(n=>{
+    nodeEls[n.id].style.display = activeCats.has(n.cat)?"":"none";
+  });
+  edgeEls.forEach(({el,s,t})=>{
+    const vis = activeCats.has(NM[s].cat) && activeCats.has(NM[t].cat);
+    el.style.display = vis?"":"none";
+  });
+}
+
+/* ---------- 图例 ---------- */
+function buildLegend(){
+  const el=document.getElementById("legend");
+  el.innerHTML=Object.values(CATS).map(v=>`<span><i style="background:${v.color}"></i>${v.label}</span>`).join("");
+}
+
+/* ---------- 交互：缩放 / 平移 / 拖拽节点 ---------- */
+function clientToWorld(cx,cy){
+  const r=svg.getBoundingClientRect();
+  return {x:(cx-r.left-view.tx)/view.scale, y:(cy-r.top-view.ty)/view.scale};
+}
+svg.addEventListener("wheel",(e)=>{
+  e.preventDefault();
+  const r=svg.getBoundingClientRect();
+  const mx=e.clientX-r.left, my=e.clientY-r.top;
+  const factor = e.deltaY<0?1.12:1/1.12;
+  const ns=Math.min(3,Math.max(.3,view.scale*factor));
+  // 以光标为中心缩放
+  view.tx = mx - (mx-view.tx)*(ns/view.scale);
+  view.ty = my - (my-view.ty)*(ns/view.scale);
+  view.scale=ns; applyView();
+},{passive:false});
+
+let drag=null;
+svg.addEventListener("pointerdown",(e)=>{
+  const w=clientToWorld(e.clientX,e.clientY);
+  // 命中节点？
+  let hit=null;
+  for(const n of NODES){
+    if(nodeEls[n.id].style.display==="none")continue;
+    if((w.x-n.x)**2+(w.y-n.y)**2 <= (n.size+4)**2){ hit=n; break; }
+  }
+  svg.setPointerCapture(e.pointerId);
+  if(hit){
+    drag={type:"node",node:hit,dx:w.x-hit.x,dy:w.y-hit.y};
+    hit.fixed=true;
+  }else{
+    drag={type:"pan",sx:e.clientX,sy:e.clientY,tx0:view.tx,ty0:view.ty};
+    svg.classList.add("grabbing");
+  }
+});
+svg.addEventListener("pointermove",(e)=>{
+  if(!drag)return;
+  if(drag.type==="node"){
+    const w=clientToWorld(e.clientX,e.clientY);
+    drag.node.x=w.x-drag.dx; drag.node.y=w.y-drag.dy;
+    render();
+  }else{
+    view.tx=drag.tx0+(e.clientX-drag.sx);
+    view.ty=drag.ty0+(e.clientY-drag.sy);
+    applyView();
+  }
+});
+function endDrag(e){
+  if(!drag)return;
+  if(drag.type==="node"){ drag.node.fixed=false; reheat(.5); }
+  svg.classList.remove("grabbing");
+  drag=null;
+}
+svg.addEventListener("pointerup",endDrag);
+svg.addEventListener("pointercancel",endDrag);
+svg.addEventListener("click",(e)=>{ if(e.target===svg){ selected=null; NODES.forEach(n=>n.classList&&nodeEls[n.id].classList.remove("sel")); paintHi(null); panel.innerHTML='<div class="empty">点击左侧任一节点查看该要素的定义、关键字段、上下游关联，以及它在研究报告里对应的应用蓝图。</div>'; } });
+
+document.getElementById("zoomIn").onclick=()=>{view.scale=Math.min(3,view.scale*1.15);applyView();};
+document.getElementById("zoomOut").onclick=()=>{view.scale=Math.max(.3,view.scale/1.15);applyView();};
+document.getElementById("reheat").onclick=()=>{ seed(); reheat(1); };
+document.getElementById("reset").onclick=()=>{view.tx=0;view.ty=0;view.scale=1;applyView();};
+
+const search=document.getElementById("search");
+search.addEventListener("input",()=>{
+  const q=search.value.trim().toLowerCase();
+  if(!q){ paintHi(selected); return; }
+  let found=null;
+  for(const n of NODES){
+    if(n.id.includes(q)||n.label.toLowerCase().includes(q)||n.zh.toLowerCase().includes(q)){found=n;break;}
+  }
+  if(found){ // 居中到该节点
+    view.tx=W/2-found.x*view.scale; view.ty=H/2-found.y*view.scale; applyView();
+    select(found.id);
+  }
+});
+
+/* ---------- 启动 ---------- */
+function boot(){
+  measure(); seed(); buildGraph(); buildChips(); buildLegend(); applyView();
+  reheat(1);
+}
+window.addEventListener("resize",()=>{ measure(); applyView(); });
+boot();
+</script>
+</body>
+</html>

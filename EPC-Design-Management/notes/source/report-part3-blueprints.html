@@ -1,0 +1,823 @@
+<!-- ============ 06 应用蓝图总览 ============ -->
+<section id="s6">
+  <div class="sec-head">
+    <span class="sec-kicker">06 — PORTFOLIO</span>
+    <h2>应用蓝图：一个组合，不是十二个孤岛</h2>
+  </div>
+
+  <p class="lead">十二个应用如果各自独立，就只是十二个更好的 Excel。它们必须共享同一套主数据，并沿一条因果链互相供数：设计基础定义前提，交付物与接口定义承诺，供应商资料与变更定义扰动，调试与资产数据定义交付。</p>
+
+  <h3>6.1 信息流：谁喂谁</h3>
+  <p>读这张图的方式是：箭头代表"数据被另一个应用消费"。注意链条的形状是<strong>从 A01 出发的一个扇出，再收敛到 A10/A11 的一个扇入</strong>——这正好对应"一个假设引发全局，最终汇聚成一份移交包"。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:70px">应用</th><th>上游输入（消费什么）</th><th>下游输出（被谁消费）</th><th style="width:130px">节奏</th></tr></thead>
+    <tbody>
+      <tr><td class="mono"><strong>A01</strong></td><td>进水监测数据、许可条件、工艺方案、既有条件勘察/扫描</td><td>A02（确定交付物清单）、A04（接口的技术前提）、A09（模拟输入）、A05（设计成熟度基线）</td><td><span class="pill b">项目启动前</span></td></tr>
+      <tr><td class="mono"><strong>A02</strong></td><td>A01 的工艺与系统划分、WBS、组织架构</td><td>A03（挣值计算对象）、A04（接口挂靠）、A06（供应商资料的需求日期）、A10（ITR 与交付物对应）</td><td><span class="pill b">第 0 月起</span></td></tr>
+      <tr><td class="mono"><strong>A03</strong></td><td>A02 的预算工时与阶段达成、工时系统</td><td>项目控制报告、商务计量、A05（采购工时预测）</td><td><span class="pill g">每月/每周</span></td></tr>
+      <tr><td class="mono"><strong>A04</strong></td><td>A02 交付物、设备标签、系统边界</td><td>A07（接口破裂是变更的最大根因之一）、A08（模型协调对象）、A10（接口必须在调试中"证明"）</td><td><span class="pill b">第 2 月起</span></td></tr>
+      <tr><td class="mono"><strong>A05</strong></td><td>A01 设计成熟度、A02 交付物计划、采购台账</td><td>A06（纳入跟踪的供应商文件）、A03（采购工时）、进度基线</td><td><span class="pill g">每周</span></td></tr>
+      <tr><td class="mono"><strong>A06</strong></td><td>A05 的 PO 与要求日期、A02 的交付物依赖</td><td>A07（供应商偏差触发变更）、A08（数据表与图纸一致性）、A02（资料回来才能推进相关交付物）</td><td><span class="pill g">每周</span></td></tr>
+      <tr><td class="mono"><strong>A07</strong></td><td>A02/A04/A06 的事件、RFI 与变更记录</td><td>A12（根因沉淀为规则）、A03（影响工时）、A08（新增检查项）</td><td><span class="pill g">实时</span></td></tr>
+      <tr><td class="mono"><strong>A08</strong></td><td>A02 阶段闸门、A04 接口、A06 供应商数据、A09 计算结果</td><td>A02（阻断或放行阶段）、A07（发现即事件）</td><td><span class="pill b">IFC 前</span></td></tr>
+      <tr><td class="mono"><strong>A09</strong></td><td>A01 设计基础、模拟软件结果</td><td>A02（计算书作为交付物）、A05（数据表与选型）、A08（设计余量检查）</td><td><span class="pill b">设计期</span></td></tr>
+      <tr><td class="mono"><strong>A10</strong></td><td>A02 交付物、A04 接口、A06 设备信息、A08 遗留项</td><td>A11（资产数据来源）、A12（启动教训）</td><td><span class="pill g">第 12 月起</span></td></tr>
+      <tr><td class="mono"><strong>A11</strong></td><td>A06 供应商数据、A10 试验记录、CDE 图纸</td><td>业主 AMIS/CMMS、A12</td><td><span class="pill g">第 14 月起</span></td></tr>
+      <tr><td class="mono"><strong>A12</strong></td><td>A07 根因、A08 发现、A10 教训</td><td>A01（默认假设库）、A02（检查清单）、A08（新检查项）</td><td><span class="pill g">持续</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>6.2 五个应用的"骨架"与七个应用的"增强"</h3>
+  <p>从交付价值与依赖关系看，实际上只有五个应用是不可省的骨架，其余七个是在骨架上加装能力：</p>
+
+  <div class="card-grid">
+    <div class="card tight" style="border-left:3px solid var(--blue)">
+      <h5 style="margin-top:0">骨架（缺一不可）</h5>
+      <p style="margin-bottom:0;font-size:14px"><strong>A01 设计基础</strong> · 前提<br><strong>A02 交付物登记</strong> · 对象<br><strong>A04 接口登记</strong> · 边界<br><strong>A03 挣值</strong> · 度量<br><strong>A07 变更与 RFI</strong> · 因果<br><span style="color:var(--ink-3)">这五个构成最小可用的"工程管理操作系统"。</span></p>
+    </div>
+    <div class="card tight" style="border-left:3px solid var(--amber)">
+      <h5 style="margin-top:0">增强（按项目类型选配）</h5>
+      <p style="margin-bottom:0;font-size:14px"><strong>A05</strong> 采购联动 · 设备密集型优先<br><strong>A06</strong> 供应商文件 · 成套供货多者优先<br><strong>A08</strong> 跨专业闸门 · 紧凑厂区优先<br><strong>A09</strong> 工艺工作簿 · 新建/提标优先<br><strong>A10</strong> 调试 · 新厂优先<br><strong>A11</strong> 资产移交 · 业主要求 BIM 交付时强制<br><strong>A12</strong> 规则库 · 组织级长期投入</p>
+    </div>
+  </div>
+
+  <h3>6.3 一个务实的架构建议</h3>
+  <p>如果这是一个自建项目，最容易失败的架构是"做一个大平台"。更可行的做法是<strong>一个共享数据层 + 若干薄应用</strong>：</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:150px">层</th><th>内容</th><th style="width:210px">技术取向</th></tr></thead>
+    <tbody>
+      <tr><td><strong>主数据层</strong></td><td>Project、WBS、Discipline、Package、EquipmentTag、DocumentId、Person/Role、System/Subsystem</td><td>关系型数据库 + 稳定的 ID 策略（标签编号是命脉）</td></tr>
+      <tr><td><strong>事件层</strong></td><td>状态变更、接口关闭、资料收到、变更登记——全部为不可变事件</td><td>事件表 / append-only log，保证可审计与可重放</td></tr>
+      <tr><td><strong>视图层</strong></td><td>每个应用本质上是同一个数据层的一个"视角"</td><td>薄前端；避免在应用间复制数据</td></tr>
+      <tr><td><strong>集成层</strong></td><td>CDE（文档）、P6（进度）、工时系统、ERP/采购、BIM 模型</td><td>以"ID 对账 + 定时同步"为主，API 为辅；CSV 兜底</td></tr>
+      <tr><td><strong>分析层</strong></td><td>挣值、S 曲线、根因分布、就绪度</td><td>在数据层上直接算，不做二次录入</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout blue">
+    <div class="ct">为什么强调 append-only</div>
+    <p>工程管理工具最大的隐性价值是<strong>争议时的举证能力</strong>。如果"接口关闭日期"可以被覆盖，那它在索赔桌上就没有价值。不可变事件流让每一次状态变更都带时间戳与责任人，这与 CDE 的"数据不可变"设计逻辑一致，也是本报告把 A04 与 A07 设计成事件驱动的原因。</p>
+  </div>
+</section>
+
+<!-- ============ 07 应用规格 ============ -->
+<section id="s7">
+  <div class="sec-head">
+    <span class="sec-kicker">07 — SPECIFICATIONS</span>
+    <h2>十二个应用规格</h2>
+  </div>
+
+  <p class="lead">每个规格包含：要解决的精确问题、核心数据对象（字段级）、关键交互与规则、MVP 范围、以及一个能被验证的成功指标。点击展开。数据模型用类 TypeScript 伪类型表达，便于直接转成实现。</p>
+
+  <!-- A01 -->
+  <details class="app" open>
+    <summary>
+      <span class="app-id">A01</span>
+      <span class="app-head">
+        <h3>Design Basis Manager · 设计基础与假设登记</h3>
+        <p>把"我们假设了什么"变成一等公民，并让每个假设可以反向查询它影响的所有交付物</p>
+      </span>
+      <span class="app-chev">▶</span>
+    </summary>
+    <div class="app-body">
+      <div class="app-grid">
+        <div>
+          <h5>要解决的问题</h5>
+          <p>设计基础通常是一份 Word 设计说明加几个 Excel 表。它有三个致命弱点：<strong>假设不可见</strong>（读者不知道哪些是实测、哪些是猜的）、<strong>变更无传播</strong>（改了峰值因子，没人知道要重算哪些东西）、<strong>无法举证</strong>（争议时无法证明"这是业主给的数据"）。</p>
+          <h5>关键设计决策</h5>
+          <p>引入 <code class="mono">Assumption</code> 作为独立对象，与 <code class="mono">DesignBasis</code> 平行。每个假设必须有置信度、验证方法与影响面。这不是文档管理的思路，而是<em>风险登记</em>的思路。</p>
+          <h5>成功指标</h5>
+          <ul style="margin-bottom:0">
+            <li>假设闭环率 ≥ 90%（在 IFC 前完成验证或书面接受）</li>
+            <li>因假设变化引发的返工工时占比 &lt; 3%</li>
+            <li>任一交付物可在一分钟内追溯其依赖的全部假设</li>
+          </ul>
+        </div>
+        <div>
+          <h5>核心数据模型</h5>
+          <div class="codelist"><span class="cm">// 设计基础（版本化，一版一冻结）</span>
+<span class="kw">DesignBasis</span> {
+  id, project_id, revision, status,
+  <span class="cm">// draft | issued | approved</span>
+  flow: { avg, peak_hour, peak_factor,
+          min, wet_weather },
+  loads: { BOD, COD, TSS, TN, TP,
+           FOG, metals[], NH3N },
+  temperature: { min, max, seasonal },
+  alkalinity, pH_range, sulphide,
+  source_refs: DocumentId[]   <span class="cm">// 数据来源</span>
+}
+
+<span class="cm">// 进水表征：分布而非单值</span>
+<span class="kw">InfluentProfile</span> {
+  stream, parameter, unit,
+  stat: p50|p95|max|min,
+  sample_count, period_from, period_to,
+  method: <span class="cm">// SM / EPA / ISO 条款</span>
+  dataset_ref                <span class="cm">// 原始数据</span>
+}
+
+<span class="cm">// 假设：本项目最重要的对象</span>
+<span class="kw">Assumption</span> {
+  id, statement, category,
+  basis: <span class="cm">// 实测 / 类比 / 规范默认 / 业主提供</span>
+  confidence: 1..5,
+  validation_method, validation_date,
+  owner, status,
+  impact_if_wrong: {
+    cost_impact, schedule_days,
+    affected_deliverables: DeliverableId[],
+    affected_equipment: TagId[]
+  }
+}</div>
+        </div>
+      </div>
+      <h5>MVP 范围</h5>
+      <p style="margin-bottom:0">先做三件事：① 结构化 DesignBasis 与 InfluentProfile；② Assumption 登记与依赖挂靠；③ 一页"设计基础卡片"导出 PDF 供合同与设计交底使用。暂不做：自动采样数据接入、与模拟软件双向同步（放到 A09）。</p>
+    </div>
+  </details>
+
+  <!-- A02 -->
+  <details class="app">
+    <summary>
+      <span class="app-id">A02</span>
+      <span class="app-head">
+        <h3>Deliverable Register · 交付物登记与阶段闸门</h3>
+        <p>让"完成"有定义：不是谁说了算，而是过了哪道闸门、有谁签、有什么证据</p>
+      </span>
+      <span class="app-chev">▶</span>
+    </summary>
+    <div class="app-body">
+      <div class="app-grid">
+        <div>
+          <h5>要解决的问题</h5>
+          <p>典型的 MDR 是一张长表，有编号、名称、专业、计划日期、实际日期、状态。问题是<strong>状态是自由文本</strong>（"进行中""基本完成""待审"），而"基本完成"对不同的人意味着 40% 到 95%。</p>
+          <h5>关键设计决策</h5>
+          <p>用<strong>固定的状态机 + 可配置的闸门</strong>替代自由文本。状态只允许沿 <code class="mono">NotStarted → InProgress → Checked → IFR → IFA → IFC → AFC → AsBuilt</code> 前进，每跳一次必须满足该阶段的检查清单并有签署人。跳步被系统拒绝。</p>
+          <h5>成功指标</h5>
+          <ul style="margin-bottom:0">
+            <li>IFC 准时交付率（±5 天窗口）≥ 85%</li>
+            <li>平均评审周转 ≤ 10 个工作日</li>
+            <li>阶段闸门跳步事件 = 0（硬性）</li>
+          </ul>
+        </div>
+        <div>
+          <h5>核心数据模型</h5>
+          <div class="codelist"><span class="kw">Deliverable</span> {
+  id, code, title, discipline,
+  deliverable_type, <span class="cm">// Drawing / Calc / Datasheet / Spec / Report</span>
+  package, system, wbs_code,
+  budget_hours, weight_in_discipline,
+  planned: { start, ifr, ifa, ifc, afc },
+  actual:  { ... },
+  responsible, checker, approver,
+  status, current_stage,
+  depends_on: DeliverableId[],
+  depends_on_vendor_docs: VendorDocId[],
+  cde_ref: DocumentId
+}
+
+<span class="kw">Stage</span> {
+  name, weight_pct,   <span class="cm">// 阶段权重</span>
+  required_checklist: ChecklistId,
+  min_reviewers, signed_by[],
+  actual_date, evidence: link[]
+}
+
+<span class="kw">GateCheck</span> {
+  deliverable_id, stage,
+  items: [{ question, pass|fail|na,
+            evidence_ref }],
+  blocked_by: [],     <span class="cm">// 未闭合的接口/资料</span>
+  released_at, released_by
+}</div>
+        </div>
+      </div>
+      <h5>MVP 范围</h5>
+      <p style="margin-bottom:0">Register + 状态机 + 阶段权重 + 与 CDE 的文档链接。先在一个专业（建议：工艺或机械，交付物数量适中、接口多）试点，验证闸门不会变成新的瓶颈。不做：自动从 BIM 提取交付物清单。</p>
+      <div class="callout amber" style="margin-bottom:0;margin-top:16px">
+        <div class="ct">实施陷阱</div>
+        <p style="margin-bottom:0">闸门过严会把工程师逼到系统外——他们会先在 Excel 里干完，再一次性录入。必须让"录入"与"干活"是同一个动作：在设计文件命名、提交到 CDE 时自动触发状态推进，而不是要求额外填报。</p>
+      </div>
+    </div>
+  </details>
+
+  <!-- A03 -->
+  <details class="app">
+    <summary>
+      <span class="app-id">A03</span>
+      <span class="app-head">
+        <h3>Earned Value Engine · 阶段权重挣值</h3>
+        <p>用"哪一个里程碑被达成"来计量进度，而不是"工程师觉得自己完成了多少"</p>
+      </span>
+      <span class="app-chev">▶</span>
+    </summary>
+    <div class="app-body">
+      <div class="app-grid">
+        <div>
+          <h5>要解决的问题</h5>
+          <p>工程进度长期靠自评百分比。这类数字无法用于收款、无法用于预测、也无法指出哪些交付物真的有风险。而施工阶段早已用挣值解决这个问题：进度不是意见，而是"哪些物理里程碑已完成、它们带多少预算"。</p>
+          <h5>核心公式</h5>
+          <div class="codelist"><span class="cm">// 挣值工时：由事件推导，不由人填写</span>
+EarnedHours(d) =
+    Σ ( d.budget_hours
+        × d.stages.achieved.weight_pct )
+
+<span class="cm">// 三个数必须同时存在才有意义</span>
+Budget  = Σ d.budget_hours        <span class="cm">// 基准</span>
+Actual  = Σ timesheet.hours       <span class="cm">// 实耗</span>
+Earned  = Σ EarnedHours(d)        <span class="cm">// 挣值</span>
+
+SPI = Earned / Planned
+CPI = Earned / Actual
+EAC = BAC / CPI</div>
+          <h5>成功指标</h5>
+          <ul style="margin-bottom:0">
+            <li>超支预警提前期 ≥ 4 周（在 CPI 跌破 0.95 前发出）</li>
+            <li>进度报告与现场实测偏差 &lt; 5%</li>
+            <li>所有计量收款有可追溯到交付物的依据</li>
+          </ul>
+        </div>
+        <div>
+          <h5>三条读数规则</h5>
+          <p style="font-size:14px;margin-bottom:10px"><strong>实际 &gt; 挣值</strong> → 生产率低于计划，团队花得比挣得多。</p>
+          <p style="font-size:14px;margin-bottom:10px"><strong>挣值 &gt; 实际</strong> → 生产率高于计划，可以借调资源或加速。</p>
+          <p style="font-size:14px;margin-bottom:0"><strong>预算消耗快于挣值积累</strong> → 该专业正在走向成本超支，且这个信号会<em>早于</em>进度延误出现。</p>
+          <h5>关键集成</h5>
+          <ul style="margin-bottom:0">
+            <li>工时系统：按交付物（而非按人）记录工时</li>
+            <li>P6：工程活动作为 WBS 段，与交付物建立映射</li>
+            <li>商务：计量支付节点引用交付物阶段</li>
+          </ul>
+        </div>
+      </div>
+      <h5>MVP 范围</h5>
+      <p style="margin-bottom:0">以专业为单位的周度 SPI/CPI + 一张 S 曲线。工时按交付物归集的准确度是难点——初期可允许"按交付物类别分摊"，但必须在三个月内过渡到逐交付物记录，否则挣值退化为估算。</p>
+    </div>
+  </details>
+
+  <!-- A04 -->
+  <details class="app">
+    <summary>
+      <span class="app-id">A04</span>
+      <span class="app-head">
+        <h3>Interface Register · 接口承诺与关闭证据</h3>
+        <p>把专业之间"我以为你会给我"变成有责任人、有到期日、有关闭证据的可审计记录</p>
+      </span>
+      <span class="app-chev">▶</span>
+    </summary>
+    <div class="app-body">
+      <div class="app-grid">
+        <div>
+          <h5>要解决的问题</h5>
+          <p>多数多专业 EPC 的失败不是明显的技术错误，而是当一方假设另一方会在某天之前提供数据、空间、容量、通道、电源、支承、控制或批准，而这个依赖没有被显式化。<strong>每个专业都可以显得局部完整，而整合后的项目无法建造、无法试验、无法运行。</strong></p>
+          <h5>关键设计决策</h5>
+          <p>接口点必须<strong>由设计人在设计阶段创建</strong>，而不是在施工现场被发现。接口必须<strong>绑定到期日与"迟到的后果"</strong>，否则只是清单。接口关闭必须<strong>有证据</strong>——图纸批准、安装完成、试验通过，三者之一，不能是"已沟通"。</p>
+          <h5>成功指标</h5>
+          <ul style="margin-bottom:0">
+            <li>接口按期关闭率 ≥ 90%</li>
+            <li>施工期新发现的接口数量 &lt; 总数的 10%</li>
+            <li>因接口导致的变更数量同比下降 50%</li>
+          </ul>
+        </div>
+        <div>
+          <h5>核心数据模型</h5>
+          <div class="codelist"><span class="kw">InterfacePoint</span> {
+  id, project, type,
+  <span class="cm">// Hard: 物理/电气/管道/信号</span>
+  <span class="cm">// Soft: 数据/参数/逻辑/规范</span>
+  from_party, to_party,
+  disciplines: Discipline[],
+  description, <span class="cm">// 交换什么，精度多少</span>
+  required_date,
+  status, <span class="cm">// Open/Agreed/Delivered/Verified/Closed</span>
+  consequence_if_late: {
+    activity_id, days_of_float,
+    cost_impact
+  },
+  evidence: Evidence[],  <span class="cm">// 关闭必须有</span>
+  ref_deliverables: DeliverableId[],
+  ref_tags: TagId[],
+  ref_model_elements: ElementId[]
+}
+
+<span class="kw">InterfaceAgreement</span> {
+  parties: Party[],
+  scope_split, <span class="cm">// 谁做什么，到哪为止</span>
+  acceptance_criteria,
+  signed_at, version
+}
+
+<span class="kw">InterfaceQuery</span> {
+  ip_id, raised_by, question,
+  response, responded_at,
+  closed_at, closed_by
+}</div>
+        </div>
+      </div>
+
+      <h5>污水厂的高频接口清单（可直接用作初始模板）</h5>
+      <div class="tbl-wrap" style="margin-bottom:0">
+      <table>
+        <thead><tr><th style="width:150px">硬接口</th><th>交换内容</th><th style="width:160px">迟到的典型后果</th></tr></thead>
+        <tbody>
+          <tr><td>设备 ↔ 基础/结构</td><td>荷载、动载、预埋件、地脚螺栓位置、检修空间</td><td>基础浇筑后无法改，现场凿改或加固</td></tr>
+          <tr><td>机械包 ↔ 电气供电</td><td>容量、启动方式、电缆路径、MCC 回路</td><td>电缆规格错误或桥架不够</td></tr>
+          <tr><td>电缆路由 ↔ 结构</td><td>桥架穿越、开孔位置、载荷</td><td>结构开孔影响配筋与抗渗</td></tr>
+          <tr><td>工艺设备 ↔ 控制 I/O</td><td>测点清单、信号类型、联锁条件</td><td>I/O 点数不足、控制柜返工</td></tr>
+          <tr><td>成套撬块 ↔ 厂区公用工程</td><td>水电气接口位置、压力、流量</td><td>接管位置不符，二次改造</td></tr>
+          <tr><td>保护系统 ↔ SCADA</td><td>通信协议、点表、报警分级</td><td>调试期协议不兼容</td></tr>
+          <tr><td>建筑 ↔ 可维护净空</td><td>吊装孔、检修通道、顶部净空</td><td>设备无法吊入或无法检修</td></tr>
+          <tr><td>池体 ↔ 管道穿池</td><td>套管位置、标高、防水套管型式</td><td>穿池泄漏，后期处理成本极高</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </details>
+
+  <!-- A05 -->
+  <details class="app">
+    <summary>
+      <span class="app-id">A05</span>
+      <span class="app-head">
+        <h3>Procurement–Engineering Link · 长周期项与设计成熟度联动</h3>
+        <p>下单不只看日期，还要看设计是否成熟到能锁定接口</p>
+      </span>
+      <span class="app-chev">▶</span>
+    </summary>
+    <div class="app-body">
+      <div class="app-grid">
+        <div>
+          <h5>要解决的问题</h5>
+          <p>长周期设备有一个双向依赖：<strong>设计必须成熟到能下单，下单后又需要供应商资料才能继续设计</strong>。如果这个往返没有被计划为"双向前置"，项目会出现隐蔽僵局：设备在路上，但土建、电气、自控都在等资料。</p>
+          <h5>常见错误（可直接写进检查清单）</h5>
+          <ul style="margin-bottom:0;font-size:14px">
+            <li>在 RFQ 之后才识别长周期项</li>
+            <li>把制造周期当作总周期（漏掉资料、检验、FAT、物流）</li>
+            <li>在不冻结关键接口的情况下提前采购</li>
+            <li>进度里没有供应商资料这一项前置</li>
+            <li>只替换预测而不更新基线</li>
+            <li>把"贵"等同于"关键"——低值但卡在联锁上的仪表可能更关键</li>
+          </ul>
+        </div>
+        <div>
+          <h5>核心数据模型</h5>
+          <div class="codelist"><span class="kw">LLIItem</span> {
+  tag, package, system,
+  lead_time_wks,        <span class="cm">// 仅制造</span>
+  total_lead_wks,       <span class="cm">// 含资料/检验/FAT/物流</span>
+  required_on_site,     <span class="cm">// 现场需要日期</span>
+  acceptable_window,    <span class="cm">// 早到也是风险</span>
+  requisition_date, award_date,
+  vendor_data: [{ doc_type,
+                  required_by, received }],
+  fat_date, ship_date,
+  float_wks,            <span class="cm">// 采购浮动余量</span>
+  criticality: {        <span class="cm">// 不只按金额</span>
+    schedule_dependency,
+    replacement_difficulty,
+    cert_exposure,
+    transport_constraint,
+    alternative_availability
+  }
+}
+
+<span class="kw">RequisitionGate</span> {
+  package,
+  design_maturity_required, <span class="cm">// 需达到哪一阶段</span>
+  design_maturity_actual,   <span class="cm">// 实际</span>
+  interfaces_frozen: [],    <span class="cm">// 必须已冻结的接口</span>
+  released: bool
+}</div>
+        </div>
+      </div>
+      <h5>成功指标</h5>
+      <p style="margin-bottom:0">关键包采购浮动余量 ≥ 4 周；逾期关键供应商资料数 = 0；因设计不成熟导致的下单延迟天数逐季下降；关键项识别覆盖率 100%（在 MR 发出前）。</p>
+    </div>
+  </details>
+
+  <!-- A06 -->
+  <details class="app">
+    <summary>
+      <span class="app-id">A06</span>
+      <span class="app-head">
+        <h3>Vendor Document Tracker · 供应商文件与意见闭环</h3>
+        <p>让每一条评审意见都有 ID、有主人、有状态，并且永不丢失</p>
+      </span>
+      <span class="app-chev">▶</span>
+    </summary>
+    <div class="app-body">
+      <div class="app-grid">
+        <div>
+          <h5>要解决的问题</h5>
+          <p>供应商文件评审是 EPC 里最"钝"的环节：典型一轮 2–4 周，退回重交再增加 3–6 周。而真正让周期失控的不是评审时长，而是<strong>循环次数</strong>。一个 C 码往返三次，两个月就没了，即使所有人都守时。</p>
+          <h5>最致命的小问题：意见丢失</h5>
+          <p>"Rev B 里答复了、但 Rev C 里没有被验证"的意见，等于一条被丢失的意见，而丢失意见就是返工的开始。这必须在数据结构上解决：开放意见自动带入下一版，并在下一版强制逐条确认。</p>
+          <h5>成功指标</h5>
+          <ul style="margin-bottom:0">
+            <li>首次通过率（A/B 码）≥ 70%</li>
+            <li>平均评审循环 ≤ 1.5 轮</li>
+            <li>跨版本意见丢失 = 0（硬性）</li>
+          </ul>
+        </div>
+        <div>
+          <h5>核心数据模型</h5>
+          <div class="codelist"><span class="kw">VendorDocument</span> {
+  vendor, po_ref, tag,
+  doc_no, rev, doc_type,
+  <span class="cm">// Datasheet / GA / ITP / Calc / Manual</span>
+  required_date, received_date,
+  review_cycle, review_code,
+  <span class="cm">// A 批准 / B 有意见批准</span>
+  <span class="cm">// C 修改重交 / D 拒绝</span>
+  reviewer, returned_date,
+  linked_deliverables: DeliverableId[],
+  <span class="cm">// 设计在等这份资料</span>
+  deviations: Deviation[]
+}
+
+<span class="kw">Comment</span> {
+  id, doc_id, rev,
+  clause_ref, <span class="cm">// 规范/图纸条款</span>
+  severity, <span class="cm">// Must / Should / Info</span>
+  category, <span class="cm">// Safety / Tech / Compliance</span>
+  text, owner,
+  status, <span class="cm">// Open / Answered / Verified / Closed</span>
+  carried_to_rev, <span class="cm">// 必须非空直到闭合</span>
+  verified_in_rev, verified_by
+}</div>
+        </div>
+      </div>
+      <h5>MVP 与自动化边界</h5>
+      <p style="margin-bottom:0">MVP：文档登记 + 评审码 + 意见逐条状态 + 跨版本带入。<strong>不要一开始就做 AI 全自动审阅</strong>：先让流程可追溯。等意见库积累到一个项目的量（通常 2,000–5,000 条），再把"资料表 vs 项目规范"的偏差检查交给 AI 做初筛，人只做判断。</p>
+    </div>
+  </details>
+
+  <!-- A07 -->
+  <details class="app">
+    <summary>
+      <span class="app-id">A07</span>
+      <span class="app-head">
+        <h3>Change &amp; RFI Intelligence · 变更与 RFI 的因果结构</h3>
+        <p>不问"改了什么"，而问"为什么会改、谁的责任、能不能不再改"</p>
+      </span>
+      <span class="app-chev">▶</span>
+    </summary>
+    <div class="app-body">
+      <div class="app-grid">
+        <div>
+          <h5>要解决的问题</h5>
+          <p>大多数变更台账记录"变更描述、金额、时间"，但不记录<strong>根因分类</strong>。后果是双重的：争议时无法分离"承包商责任"与"业主/设计责任"；管理上无法知道下一次该在哪防。</p>
+          <h5>关键设计决策</h5>
+          <p>每条 RFI 与变更必须打上两个标签：<code class="mono">root_cause</code> 与 <code class="mono">avoidable</code>。这两个字段是整个系统的"学习接口"——它们直接决定 A08 要新增什么检查项、A12 要写什么规则。</p>
+          <h5>根因分类（建议直接用）</h5>
+          <ul style="margin-bottom:0;font-size:14px">
+            <li>图纸跨专业冲突</li>
+            <li>尺寸缺失或前后不一致</li>
+            <li>规范/材料等级未覆盖</li>
+            <li>业主需求变更</li>
+            <li>供应商偏差（数据表不符）</li>
+            <li>现场实际条件与图纸不符</li>
+            <li>设计基础假设变化</li>
+            <li>法规/许可条件变化</li>
+          </ul>
+        </div>
+        <div>
+          <h5>核心数据模型</h5>
+          <div class="codelist"><span class="kw">ChangeEvent</span> {
+  id, type, <span class="cm">// DesignChange/Variation/FieldInstruction</span>
+  trigger, root_cause, <span class="cm">// 见左列分类</span>
+  avoidable: bool,
+  discovered_at_stage,
+  <span class="cm">// Design / Procurement / Construction / Cx</span>
+  affected_deliverables: [],
+  affected_packages: [],
+  affected_interfaces: InterfaceId[],
+  cost_impact, time_impact_days,
+  responsibility, <span class="cm">// Contractor/Owner/Vendor/Third party</span>
+  evidence: [], <span class="cm">// 同期记录，决定举证成败</span>
+  linked_rfi: RFIId
+}
+
+<span class="kw">RFI</span> {
+  id, question, raised_by,
+  discipline, system,
+  avoidable, root_cause,
+  days_open, answer_at,
+  design_response_owner,
+  resulted_in_change: bool
+}</div>
+        </div>
+      </div>
+      <h5>成功指标</h5>
+      <p style="margin-bottom:0">RFI 密度（条/百万元）季度下降；可避免比例从 30–60% 降到 20% 以下；设计原因变更占比下降；每条变更都能在一分钟内给出"根因—影响—责任—证据"四要素。</p>
+      <div class="callout amber" style="margin-bottom:0;margin-top:16px">
+        <div class="ct">组织阻力</div>
+        <p style="margin-bottom:0">工程师不愿意承认某条 RFI"本可避免"。解法是把 <code class="mono">avoidable</code> 定义为<strong>系统属性而非个人过失</strong>：它标记的是"图纸集当时不具备回答条件"，用于改进检查项，不进入个人考核。这一点必须在推行时说清楚，否则数据会立刻失真。</p>
+      </div>
+    </div>
+  </details>
+
+  <!-- A08 -->
+  <details class="app">
+    <summary>
+      <span class="app-id">A08</span>
+      <span class="app-head">
+        <h3>Cross-discipline QA Gate · 跨专业校审与图纸集自洽</h3>
+        <p>审核每张图都对、合起来错的地方——也就是专业之间的那些位置</p>
+      </span>
+      <span class="app-chev">▶</span>
+    </summary>
+    <div class="app-body">
+      <div class="app-grid">
+        <div>
+          <h5>要解决的问题</h5>
+          <p>传统审图按专业分工进行，于是跨专业冲突恰好是存活到现场的那一类。每一项单独检查都正确，但组合起来是错的——因为没有<strong>任何一个人拥有两张图之间的空间</strong>。</p>
+          <h5>三类检查（按投入产出排序）</h5>
+          <ol style="font-size:14px">
+            <li><strong>参数一致性</strong>：同一设备在不同文件里的参数是否一致（数据表 vs 布置图 vs P&amp;ID vs 单线图）。这是最容易自动化、收益最高的一类。</li>
+            <li><strong>图纸集完整性</strong>：缺失尺寸、图号交叉引用断链、被引用但未绘制的详图。</li>
+            <li><strong>空间与净空</strong>：模型碰撞、检修通道、吊装路径、阀门操作空间。</li>
+          </ol>
+          <p style="margin-bottom:0;font-size:14px">污水厂要特别关注：池内回流管、曝气支管、仪表线槽三者的空间冲突；以及设备吊装孔与顶部净空。</p>
+        </div>
+        <div>
+          <h5>核心数据模型</h5>
+          <div class="codelist"><span class="kw">ReviewChecklist</span> {
+  discipline, stage,
+  items: [{ id, question,
+            mandatory, evidence_type,
+            auto_checkable }]
+}
+
+<span class="kw">SetCompletenessFinding</span> {
+  drawing_set, type,
+  <span class="cm">// missing_dimension</span>
+  <span class="cm">// cross_ref_broken</span>
+  <span class="cm">// param_mismatch</span>
+  <span class="cm">// spec_orphan</span>
+  location, severity,
+  owner, resolved_at
+}
+
+<span class="kw">ClashIssue</span> {
+  model_a, model_b,
+  element_a, element_b,
+  location, clearance_required,
+  severity, owner,
+  resolved_at, resolution
+}</div>
+        </div>
+      </div>
+      <h5>成功指标</h5>
+      <p style="margin-bottom:0">IFC 发布前严重冲突数 = 0；图纸集自洽缺陷数逐版下降；首轮评审通过率提升。注意：这类工具的收益必须用"避免的 RFI 与返工"来度量，而不是用"发现的冲突数"——发现得多不代表好。</p>
+    </div>
+  </details>
+
+  <!-- A09 -->
+  <details class="app">
+    <summary>
+      <span class="app-id">A09</span>
+      <span class="app-head">
+        <h3>Process Design Workbook · 工艺设计工作簿与保守度监控</h3>
+        <p>让每一个工艺数字都能追到它的计算、它的假设，以及它最终变成了哪台设备</p>
+      </span>
+      <span class="app-chev">▶</span>
+    </summary>
+    <div class="app-body">
+      <div class="app-grid">
+        <div>
+          <h5>要解决的问题</h5>
+          <p>工艺计算在 Excel、模拟在 BioWin/GPS-X、选型在数据表、P&amp;ID 在 CAD——四者之间靠人记。结果是：改了回流比，没人知道要重算哪些池子；业主问"为什么这个池子这么大"，答不上来；设计院为求快而"拔高设计"，无人监控。</p>
+          <h5>最有价值的功能：保守度监控</h5>
+          <p>把 FEED 基准与详细设计的每个关键参数并排对比（池容、停留时间、风机风量、泵扬程、管径），自动标出放大比例超过阈值的项。这不是省钱技巧，而是<strong>利润保护</strong>：行业实践明确指出，"拔高设计"是普遍现象且需要被监控纠正。</p>
+          <h5>成功指标</h5>
+          <ul style="margin-bottom:0">
+            <li>关键计算书 100% 可追溯（输入→公式→输出→设备）</li>
+            <li>设计余量分布可视化，超阈项 100% 有书面理由</li>
+            <li>能耗强度（kWh/m³）在同类项目基准区间内</li>
+          </ul>
+        </div>
+        <div>
+          <h5>核心数据模型</h5>
+          <div class="codelist"><span class="kw">CalculationSet</span> {
+  id, unit_process, <span class="cm">// 如 A2O/二沉/消毒</span>
+  inputs: { param, value, unit,
+            assumption_ref },
+  formula_ref, <span class="cm">// 规范条款或文献</span>
+  outputs: { param, value, unit },
+  version, engineer, checked_by,
+  design_basis_rev
+}
+
+<span class="kw">ModelRun</span> {
+  software, version, <span class="cm">// BioWin/GPS-X/SUMO</span>
+  scenario, influent_profile_id,
+  calibration_source,
+  results: { effluent, energy,
+             sludge, chemicals },
+  run_date, engineer
+}
+
+<span class="kw">SizingLink</span> {
+  calculation_id → equipment_tag
+    → datasheet_id → p_id_ref
+}
+
+<span class="kw">ConservatismCheck</span> {
+  parameter, unit,
+  feed_value, detailed_value,
+  ratio, threshold, <span class="cm">// 如 1.15</span>
+  justification, approved_by
+}</div>
+        </div>
+      </div>
+      <h5>MVP 范围</h5>
+      <p style="margin-bottom:0">先做 CalculationSet 的结构化登记与 SizingLink，再补 ConservatismCheck。<strong>不要试图重写模拟引擎</strong>——BioWin/GPS-X 的机理模型已经被行业验证三十年，自研没有胜算。这个应用的定位是"模拟的记账本与追溯层"。</p>
+    </div>
+  </details>
+
+  <!-- A10 -->
+  <details class="app">
+    <summary>
+      <span class="app-id">A10</span>
+      <span class="app-head">
+        <h3>Commissioning &amp; Turnover · 调试就绪度与生物启动</h3>
+        <p>把"系统能否启动"从会议上的判断，变成一张实时的就绪度视图</p>
+      </span>
+      <span class="app-chev">▶</span>
+    </summary>
+    <div class="app-body">
+      <div class="app-grid">
+        <div>
+          <h5>要解决的问题</h5>
+          <p>调试期最典型的现象是：最后一两周才发现某个系统缺一个回路校验、缺一份 FAT 报告、缺一台仪表的校准证书，于是整个启动顺序被打乱。而污水厂还有一个别的资产没有的问题——<strong>生物启动不可压缩</strong>。</p>
+          <h5>污水厂特有的两个数据对象</h5>
+          <p><strong>启动曲线</strong>：进水量按周爬坡（如 25% → 50% → 100%），伴随 MLSS、SVI、F/M、DO 的每日记录。<strong>接种记录</strong>：污泥来源厂、运输量、运输条件（需曝气）、接种比例。这两件事决定了能否在合同期内达标，必须有数据支撑而不是口头汇报。</p>
+          <h5>成功指标</h5>
+          <ul style="margin-bottom:0">
+            <li>系统就绪度在启动前 4 周可见且可预测</li>
+            <li>ITR 完成率曲线无末端突刺（说明证据是逐步积累的）</li>
+            <li>性能试验一次通过</li>
+            <li>移交包在机械竣工时已 80% 就绪，而非事后拼装</li>
+          </ul>
+        </div>
+        <div>
+          <h5>核心数据模型</h5>
+          <div class="codelist"><span class="kw">System</span> {
+  id, name, boundary,
+  subsystems: SystemId[],
+  tags: TagId[],
+  prerequisite_systems: []
+}
+
+<span class="kw">ITR</span> {
+  tag, system, test_type,
+  <span class="cm">// LoopCheck / Flush / Hydrotest</span>
+  <span class="cm">// Function / Interlock / SAT</span>
+  status, signed_by, date,
+  evidence: photo|pdf|data,
+  result: pass|fail|conditional
+}
+
+<span class="kw">PunchItem</span> {
+  location, category, severity,
+  owner, due, verified_by,
+  linked_itr
+}
+
+<span class="kw">TurnoverPackage</span> {
+  system,
+  certificates: [MC, RFC, RFSU],
+  docs: [], <span class="cm">// 图纸/手册/试验</span>
+  outstanding_punch,
+  accepted_at
+}
+
+<span class="cm">// 污水厂特有</span>
+<span class="kw">BiomassLog</span> {
+  date, MLSS, SVI, F_M, DO,
+  feed_pct_of_design,
+  seed_source, seed_volume,
+  note
+}</div>
+        </div>
+      </div>
+      <h5>关键设计决策：从设计期开始</h5>
+      <p style="margin-bottom:0">系统边界（System/Subsystem）必须在设计阶段就定义好，因为它是接口、ITR、移交包、资产数据的共同骨架。如果等到调试期才划系统，意味着接口无法挂靠、资产无法归类。<strong>这也是 A10 不能推迟到项目后期的原因。</strong></p>
+    </div>
+  </details>
+
+  <!-- A11 -->
+  <details class="app">
+    <summary>
+      <span class="app-id">A11</span>
+      <span class="app-head">
+        <h3>Asset Data Handover · 资产数据移交</h3>
+        <p>让业主继承一个可查询的资产数据库，而不是几十个纸箱</p>
+      </span>
+      <span class="app-chev">▶</span>
+    </summary>
+    <div class="app-body">
+      <div class="app-grid">
+        <div>
+          <h5>要解决的问题</h5>
+          <p>资产数据通常在设计、采购、施工、调试四个阶段被记录了四次，然后在移交时被重建第五次。结果是台账与现场不符，运维团队拿到的是 PDF 而非数据，尾款因资料不齐而滞留。</p>
+          <h5>关键设计决策</h5>
+          <p>资产台账必须是<strong>设计阶段的副产品</strong>，而不是移交阶段的产物。设备标签（tag）在数据表里生成时，资产记录就同时存在；供应商资料、试验记录、O&amp;M 手册都挂到同一个 tag 上。</p>
+          <h5>标准对接</h5>
+          <p>若业主要求结构化交付，对齐 COBie 或 CFIHOS 一类的信息移交规范；若要求 BIM 资产模型，按 ISO 19650 的资产信息要求（AIR）组织。工具的价值在于<strong>一处录入、多格式导出</strong>，而不是手工填五张表。</p>
+          <h5>成功指标</h5>
+          <ul style="margin-bottom:0">
+            <li>资产数据完整率（必填字段）≥ 98%</li>
+            <li>移交包一次验收通过</li>
+            <li>移交周期缩短 50% 以上</li>
+          </ul>
+        </div>
+        <div>
+          <h5>核心数据模型</h5>
+          <div class="codelist"><span class="kw">Asset</span> {
+  tag, class, <span class="cm">// Uniclass/OmniClass</span>
+  description, system, location,
+  manufacturer, model, serial,
+  install_date, warranty_end,
+  design_capacity, <span class="cm">// 来自数据表</span>
+  spare_parts: [],
+  maintenance_interval,
+  documents: DocumentId[],
+  <span class="cm">// O&M / 图纸 / 证书</span>
+  test_records: ITRId[],
+  model_element: ElementId
+}
+
+<span class="kw">HandoverExport</span> {
+  format, <span class="cm">// COBie / CFIHOS / JSON</span>
+  scope, <span class="cm">// 全厂 / 单系统</span>
+  completeness_report,
+  validation_errors: [],
+  generated_at
+}</div>
+        </div>
+      </div>
+      <h5>与数字孪生的关系</h5>
+      <p style="margin-bottom:0">不要从"数字孪生"倒推。行业经验反复显示，大多数数字孪生项目死在调试阶段，原因是从仪表盘开始，而不是从"需求 → 可验证的竣工信息 → 结构化资产数据 → 集成"这个顺序开始。<strong>先让资产数据可信，孪生是之后的自然延伸。</strong></p>
+    </div>
+  </details>
+
+  <!-- A12 -->
+  <details class="app">
+    <summary>
+      <span class="app-id">A12</span>
+      <span class="app-head">
+        <h3>Lessons &amp; Design Rules · 教训转规则库</h3>
+        <p>教训如果不变成检查项，它就不会被执行；执行不了，就等于没学到</p>
+      </span>
+      <span class="app-chev">▶</span>
+    </summary>
+    <div class="app-body">
+      <div class="app-grid">
+        <div>
+          <h5>要解决的问题</h5>
+          <p>每个项目结束都有一份"经验教训"报告，然后下一个项目重复同样的错误。原因不是大家不学习，而是<strong>教训停留在散文层</strong>——没有变成任何流程里的一个强制动作。</p>
+          <h5>关键设计决策</h5>
+          <p>每条教训必须转化成一个 <code class="mono">DesignRule</code>，而每条规则必须挂到具体的<strong>检查清单条目</strong>或<strong>校审提示</strong>上。无法转化的教训，允许只作为阅读材料，但要显式标注"未转化"，让这个比例成为管理指标。</p>
+          <h5>成功指标</h5>
+          <ul style="margin-bottom:0">
+            <li>教训转化率 ≥ 60%（进入检查项或规则）</li>
+            <li>同类问题跨项目重复率逐年下降</li>
+            <li>规则命中率可统计（哪条规则真的拦下过问题）</li>
+          </ul>
+        </div>
+        <div>
+          <h5>核心数据模型</h5>
+          <div class="codelist"><span class="kw">LessonRecord</span> {
+  project, event_date, event,
+  root_cause,
+  cost_impact, rework_hours,
+  schedule_impact_days,
+  what_would_have_prevented_it,
+  converted_to_rule: bool
+}
+
+<span class="kw">DesignRule</span> {
+  id, rule_text, discipline,
+  trigger, <span class="cm">// 何时适用</span>
+  check_type,
+  <span class="cm">// checklist / auto / ai_prompt</span>
+  linked_checklist_item,
+  evidence_of_value, <span class="cm">// 命中记录</span>
+  owner, version
+}</div>
+        </div>
+      </div>
+      <h5>为什么把它放在最后</h5>
+      <p style="margin-bottom:0">A12 依赖 A07（根因）与 A10（调试教训）产生的数据。没有前两者的结构化数据，规则库只能靠访谈整理，质量低且不可持续。<strong>先让事件有结构，再谈沉淀。</strong></p>
+    </div>
+  </details>
+</section>
