@@ -14,7 +14,7 @@
 | 当前版本 | **v0.1**（2026-10-31） |
 | 阶段 | 研究与蓝图完成 → 等待决定下一步走向（实现 / 深化某一域 / 转向落地试点） |
 | 交付物 | 2 个成品 HTML + 2 份笔记 + 4 段报告源片段，全部验证通过 |
-| 阻塞项 | **ISS-011** — 在线分享链接发布被服务端 `403` 拦截，待授权后重试；**不影响本地交付** |
+| 阻塞项 | **ISS-011** — 在线分享链接发布被服务端 `403` 拦截，待授权后重试；**不影响本地交付**。ISS-012 / ISS-013 已于 2026-11-01 解决（推上 workbuddy、删除原始独立副本、理顺同步）。 |
 | 下一件事 | 见 §5 待办 P1 |
 
 ---
@@ -99,11 +99,8 @@
 
 ### P1 — 建议先做
 
-- [ ] **ISS-012** 完成 Git 版本管理的远端搭建。**本地历史已就绪**（分支 `main`、提交 `24ea459`、标签 `v0.1`、18 个文件入库，已排除 `*.zip`）。**待你完成**：
-  1. GitHub 新建**空私有仓库**（勿勾 README/license，否则首推冲突）
-  2. 给沙箱写权限：**Deploy key**（推荐，仅对该仓库）或 **PAT**（`Contents: Read and write`）
-  3. 绑定 remote 并首推（`git remote add origin … && git push -u origin main`）
-  - 完成后：沙箱侧由我 `git pull` / 提交；本地侧用 `git-sync.ps1`（PowerShell）或 `git-sync.sh`（WSL）双向同步。
+- [x] **ISS-012（已解决）** Git 远端搭建完成。2026-11-01 以 `git subtree` 推上 `github.com/chinwarsoon/workbuddy`（子目录 `EPC-Design-Management/`），落库提交 `c8f2f39`；沙箱 SSH Deploy key 已授权。见 §7 v0.1.1。
+- [x] **ISS-013（已解决）** 删除沙箱内独立的 `/workspace/EPC-Design-Management` 原始副本，确立 `workbuddy/EPC-Design-Management/` 为**唯一真源**；重写 `git-sync.sh` / `git-sync.ps1` 为**在 workbuddy 仓库内、只同步本子目录**的助手（自动定位仓库根、仅 add 本子目录、提交带 `feat(EPC-Design-Management):` scope）。见 §7 v0.1.1。
 - [ ] **ISS-002** 确认 "Nero network chart" 的具体所指：是通用网络图（当前实现），还是指 Neo4j 图数据库 / 某个特定库？确认后再决定是否调整数据层。
 - [ ] **ISS-006** 选定首个试点应用。建议 **A01 Design Basis Manager**（根因、体积小、见效快），或 **A02 Deliverable Register**（中心枢纽，但依赖主数据先铺好）。**待你定**。
 - [ ] **ISS-007** 定义共享主数据字典，尤其是 **EquipmentTag 命名规则**——这是全部 12 个应用的地基，先定它可以避免后期大规模返工。
@@ -157,4 +154,13 @@
 **遗留**
 
 - ISS-002 / ISS-003 待确认后再动。
-- **ISS-011** 在线分享链接待授权后重新发布（v0.1.1 待办）。发布时的既定方案：先逐个发布 6 个文件（两份 deliverable HTML + README + WORKPLAN + 两份笔记 md），收集链接，再生成链接指向这些地址的 Web 版 Hub 并单独发布——因为发布服务一次只能上传单个文件，直接用相对路径的 Hub 会导致卡片全部失效。
+- **ISS-011** 在线分享链接待授权后重新发布。发布时的既定方案：先逐个发布 6 个文件（两份 deliverable HTML + README + WORKPLAN + 两份笔记 md），收集链接，再生成链接指向这些地址的 Web 版 Hub 并单独发布——因为发布服务一次只能上传单个文件，直接用相对路径的 Hub 会导致卡片全部失效。
+
+---
+
+### v0.1.1 — 2026-11-01 · 推上 GitHub 并理顺同步
+
+- **ISS-012（解决）** — 以 `git subtree` 将项目作为子目录 `EPC-Design-Management/` 推上 `github.com/chinwarsoon/workbuddy`（main 分支，提交 `c8f2f39`）。沙箱 SSH Deploy key 已授权，可正常拉推。
+- **ISS-013（解决）** — 删除沙箱内独立原始副本 `/workspace/EPC-Design-Management`（删除前已逐字节校验与 workbuddy 副本一致，18 文件）。此后唯一真源 = `workbuddy/EPC-Design-Management/`。
+- 重写 `git-sync.sh` / `git-sync.ps1`：自动向上定位 workbuddy 仓库根、仅 `git add` 本子目录、提交信息统一 `feat(EPC-Design-Management): <msg>`、pull 用 `--rebase --autostash`；凭证走本机 SSH/PAT，不硬编码沙箱 key。
+- 更新 `README.md`「版本管理」章节：改为单一真源 = workbuddy 副本，并给出两种同步方式（EPC 脚本 / 根 `git-sync.bat`）。

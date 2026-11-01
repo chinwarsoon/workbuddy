@@ -114,49 +114,42 @@ EPC-Design-Management/
 
 ## 版本管理（Git 工作流）
 
-架构：**本沙箱 ←→ GitHub 私有仓库 ←→ 你的本地磁盘**（GitHub 作为三方汇聚的中枢）
+架构：**你的本地磁盘 ←→ GitHub `chinwarsoon/workbuddy` ←→（沙箱按需同步）**。本项目以**子目录 `EPC-Design-Management/`** 形式存在于 `workbuddy` 仓库（与 `action-log/`、`PPP/` 等并列），**不是独立仓库**。
 
 ```
-   ┌─────────────────┐        push / pull        ┌──────────────┐
-   │ WorkBuddy 沙箱  │  ←─────────────────────→  │              │
-   │ /workspace/…    │                           │    GitHub    │
-   └─────────────────┘                           │  私有仓库     │
-                                                 │              │
-   ┌─────────────────┐        push / pull        │              │
-   │ 本地 Windows /  │  ←─────────────────────→  │              │
-   │ WSL             │                           └──────────────┘
-   └─────────────────┘
+   你的本地磁盘  ←── push / pull ──→  GitHub: chinwarsoon/workbuddy
+   (workbuddy/EPC-Design-Management/)        │  main 分支
+                                            │  子目录: EPC-Design-Management/
+   WorkBuddy 沙箱  ←── 同上（仅助手用于同步）──┘
 ```
 
-**已完成** — 本地版本历史已建立：
+**已完成**：
 
 | 项 | 值 |
 |---|---|
+| 仓库 | `github.com/chinwarsoon/workbuddy`（子目录 `EPC-Design-Management/`） |
 | 分支 | `main` |
-| 首个提交 | `24ea459` · v0.1 初始项目归档 |
-| 标签 | `v0.1` |
-| 入库文件 | 18 |
-| 排除项 | `*.zip`（可由目录重建）、`.DS_Store`、编辑器临时文件 |
+| 落库提交 | `c8f2f39` · `feat(EPC-Design-Management): add wastewater EPC …` |
+| 文件数 | 18（与 `action-log/`、`PPP/` 等并列） |
+| 历史 | 以 `git subtree` 并入 `workbuddy`，原始 v0.1 提交保留 |
+| 排除项 | `*.zip`、`.DS_Store`、编辑器临时文件 |
 
-**待你完成** — 需要 GitHub 凭证（沙箱侧目前 `gh` 未登录、无 SSH key，故无法自行推送）：
+**单一真源**：2026-11-01 已删除沙箱内独立的 `/workspace/EPC-Design-Management` 副本。此后**唯一真源 = `workbuddy` 仓库内的 `EPC-Design-Management/` 子目录**（已在 GitHub）。改动只在该副本上进行，避免两份漂移。
 
-1. 在 GitHub 新建一个**空的私有仓库**（**不要**勾选 README / .gitignore / license，否则首推会冲突），例如 `EPC-Design-Management`
-2. 给沙箱写入权限：**Deploy key**（推荐，仅对该仓库生效）或 **PAT**（fine-grained，`Contents: Read and write`）
-3. 在本仓库绑定远端后推送（命令见 § Canonical Commands 或聊天记录）
-
-**日常同步** — 用同步助手，一条命令完成「提交 → 拉取 → 推送」：
+**日常同步** — 两种方式任选：
 
 ```
-# Windows PowerShell（零安装，推荐）
-.\git-sync.ps1 -Message "v0.2 细化 A05 采购联动"
+# 方式 A（推荐，只同步本子项目）：在 EPC-Design-Management/ 目录内运行
+.\git-sync.ps1 -Message "v0.2 细化 A05 采购联动"   # Windows PowerShell
+./git-sync.sh "v0.2 细化 A05 采购联动"             # WSL / Git Bash
+# 不带参数 = 仅拉取并查看状态；自动只 add 本子目录，
+# 提交信息带 scope：feat(EPC-Design-Management): <msg>；pull 用 --rebase --autostash
 
-# WSL / Git Bash
-./git-sync.sh "v0.2 细化 A05 采购联动"
+# 方式 B（同步整个 workbuddy 仓库）：在 workbuddy 根目录运行
+git-sync.bat                                       # 沿用仓库既有 review-first 菜单
 ```
 
-不带参数运行则只拉取并查看状态。拉取统一用 `--rebase --autostash`，避免多余的 merge 提交并自动暂存未提交改动；冲突时会停下来交给你手动 `git status` → 解决 → `git rebase --continue`。
-
-> **重要**：我在沙箱里重新生成任何交付物之前，你跑一次同步；我动笔之前也会先 `git pull`，避免双向覆盖。
+> **重要**：改任何文件前先 `git pull`（或跑一次同步助手）拿最新；助手重新生成交付物前也会先拉取，避免双向覆盖。
 
 ---
 
