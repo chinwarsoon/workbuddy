@@ -1,3 +1,13 @@
+// Revision 1.15 | 2026-11-01 | opencode (AI) | P7 / D15, D17: Tier 1 accepts a declared inline
+// classic script (cfg.inlineClassicScript) as standalone delivery. Tier 4c scopes sticky to tables
+// inside a `.tableScroll`, exempts a split pair's body half from the I-90 header-height rule, and
+// compares a fragment's width to body + `--ds-sbw` instead of the body alone. Verified against PPP.
+// Revision 1.14 | 2026-10-30 | opencode (AI) | Tier 3 now accepts an optional per-dashboard
+// `groundTruth` adapter (cfg.groundTruth({workbookPath, readFileSync, pathToFileURL})). A dashboard
+// whose model/state/view shape differs from MDL returns {model, state, view, kpis, issueCount}; the
+// MDL-only dated-series checks are skipped for it. The default MDL path is unchanged. Tier 3 also
+// honours a cfg.filterRoundTrip.apply(page, cfg) callback, and skips it when it returns null. Added
+// for PPP I-76 P4.
 // Revision 1.13 | 2026-10-25 | CodeBuddy (AI) | Tier 5 `lintC3` now also checks the C3 summary table: it is present, it shows its eight columns, it has a Total footer row, and it repaints when the Month selector changes.
 // Revision 1.12 | 2026-10-25 | CodeBuddy (AI) | Tier 5 now guarantees its own starting state. It
 // used to inherit whatever page the previous tier left, which was often unloaded, so every chart
@@ -124,16 +134,20 @@ async function runTier1(cfg) {
   // Browser-computed styles and warning bounds are checked in Tier 2; CSS may be external.
   const localCss = [...html.matchAll(/<link\b[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["']/gi)].map(m=>m[1]);
   ok('dashboard CSS is project-local', localCss.some(src => !/^[a-z]+:\/\//i.test(src) && !/(?:^|\/)common\//.test(src)) || /<style\b/i.test(html));
-  // Spec §3.9: a standalone dashboard inlines its module, so an inline `<script type="module">`
-  // passes. A linked module still has to be project-local, never a CDN or the shared `common/` folder.
+  // Spec §3.9: a standalone dashboard inlines its code. An inline `<script type="module">` passes.
+  // A dashboard that declares `inlineClassicScript` (a single classic IIFE, also standalone and
+  // fetch-free) passes on the same tier — the marker is about shipping project-local code, not
+  // about the module syntax the browser never requires. A linked module must still be project-local.
   const moduleScripts = [...html.matchAll(/<script\b(?=[^>]*\btype=["']module["'])[^>]*>/gi)].map(m => m[0]);
   const linkedLocal = moduleScripts.some(tag => {
     const src = tag.match(/\bsrc=["']([^"']+)["']/i);
     return !!src && !/^[a-z]+:\/\//i.test(src[1]) && !/(?:^|\/)common\//.test(src[1]);
   });
   const inlineModule = moduleScripts.some(tag => !/\bsrc=/i.test(tag));
-  ok('dashboard ships a project-local module, linked or inlined', linkedLocal || inlineModule,
-    `module scripts: ${moduleScripts.length}, local link: ${linkedLocal}, inline: ${inlineModule}`);
+  const inlineClassic = !!cfg.inlineClassicScript
+    && /<script\b(?![^>]*\bsrc=)[^>]*>[\s\S]{200,}?<\/script>/i.test(html);
+  ok('dashboard ships a project-local module, linked or inlined', linkedLocal || inlineModule || inlineClassic,
+    `module scripts: ${moduleScripts.length}, local link: ${linkedLocal}, inline: ${inlineModule}, inline classic declared: ${inlineClassic}`);
   const srcs = [...html.matchAll(/<(?:script|link)\b[^>]*(?:src|href)=["']([^"']+)["'][^>]*>/gi)].map(m=>m[1]);
   ok('dashboard refers to local or root-relative assets', srcs.every(src => !/^[a-z]+:\/\//i.test(src) || src.startsWith('data:')),
     srcs.filter(src => /^[a-z]+:\/\//i.test(src) && !src.startsWith('data:')).join(', '));
@@ -271,19 +285,25 @@ async function runTier3(page, cfg, workbookPath) {
   }
 
   // ── Ground truth via pipeline import ──
+  // A dashboard whose model/state shape differs from MDL may supply cfg.groundTruth().
+  // It returns { model, state, view, kpis, issueCount } and the MDL-specific series checks are skipped.
+  const adapter = typeof cfg.groundTruth === 'function'
+    ? await cfg.groundTruth({ workbookPath, cfg, readFileSync, pathToFileURL })
+    : null;
   const { readXlsx } = await import(pathToFileURL(cfg.xlsxReaderPath).href);
   const { buildModel } = await import(pathToFileURL(cfg.pipelinePath).href);
   const { deriveView } = await import(pathToFileURL(cfg.renderPath).href);
-
   const readWorkbook = async filePath => {
     const buf = readFileSync(filePath);
     const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
     return readXlsx(ab);
   };
-  const wb = await readWorkbook(workbookPath);
+  const wb = adapter ? null : await readWorkbook(workbookPath);
   let model;
   let companionPath = null;
-  if (cfg.companionWorkbook) {
+  if (adapter) {
+    model = adapter.model;
+  } else if (cfg.companionWorkbook) {
     companionPath = cfg.companionWorkbook;
     if (!existsSync(companionPath)) {
       console.log('  INFO: companion workbook not found at', companionPath, '— Tier 3 skipped');
@@ -299,15 +319,16 @@ async function runTier3(page, cfg, workbookPath) {
 
   // Default state: all disciplines, all non-excluded stages
   const EXCL = ['Deleted', 'Void', 'Superseded'];
-  const sourceRows = model.records || model.planned || [];
+  const sourceRows = (model.records || model.planned || []);
   const fullDisc = new Set(sourceRows.map(r => r.discipline).filter(Boolean));
   // D33/D43 — a blank Stage is a real filter value: it is listed as "Blank" and every registered
   // document counts. Dropping it from the tick set made the ground truth lose those rows
   // (7,513 instead of 7,631) and reported a false KPI failure.
   const fullStg  = new Set(sourceRows.map(r => r.stage ?? '').filter(s => !EXCL.includes(s)));
-  const state = { disciplines: fullDisc, stages: fullStg, search: '', searchCol: 'Document No.', rule: null };
-  const view = deriveView(model, state);
-  const gt = view.kpis;
+  const state = adapter ? adapter.state : { disciplines: fullDisc, stages: fullStg, search: '', searchCol: 'Document No.', rule: null };
+  const view = adapter ? adapter.view : deriveView(model, state);
+  const gt = adapter ? adapter.kpis : view.kpis;
+  const issueCount = adapter ? adapter.issueCount : view.issues.length;
 
   // ── Load dashboard in browser and inject workbook ──
   const url = dashboardUrl(cfg);
@@ -349,24 +370,24 @@ async function runTier3(page, cfg, workbookPath) {
   // §3.3.2 / D43 — a date-axis series plots only rows that carry the plan date, while totals count
   // every registered document. Assert the relationship, not a literal, so a new workbook cannot
   // break the check.
-  const datedPlans = (model.planned || []).filter(row => row.documentNo
+  const datedPlans = adapter ? [] : (model.planned || []).filter(row => row.documentNo
     && fullDisc.has(row.discipline)
     && fullStg.has(row.stage ?? '')
     && /^\d{4}-\d{2}-\d{2}/.test(String(row.fields['Planned 1st Issue Date'] || '')));
   const gtAsOfYm = String(model.meta?.asOfDate || '').slice(0, 7);
   const datedPlansAsOf = datedPlans.filter(row => String(row.fields['Planned 1st Issue Date']).slice(0, 7) <= gtAsOfYm);
-  if (view.c1 && !view.c1.empty && Array.isArray(view.c1.pCum)) {
+  if (!adapter && view.c1 && !view.c1.empty && Array.isArray(view.c1.pCum)) {
     const last = view.c1.pCum[view.c1.pCum.length - 1];
     ok(`C1 planned series plots every dated plan row (${datedPlans.length})`, last === datedPlans.length, `series=${last} dated=${datedPlans.length}`);
   } else {
-    skipped('C1 planned series (no S-curve series in this dashboard)');
+    if (!adapter) skipped('C1 planned series (no S-curve series in this dashboard)');
   }
-  if (gtAsOfYm && view.c3 && typeof view.c3.planCount === 'function') {
+  if (!adapter && gtAsOfYm && view.c3 && typeof view.c3.planCount === 'function') {
     const c3Plan = [...fullDisc].reduce((sum, discipline) => sum + view.c3.planCount('discipline', discipline, 'ALL'), 0);
     ok(`C3 All-months Total Plan counts dated plan rows up to ${gtAsOfYm} (${datedPlansAsOf.length})`,
       c3Plan === datedPlansAsOf.length, `c3=${c3Plan} dated=${datedPlansAsOf.length}`);
   } else {
-    skipped('C3 All-months Total Plan (no as-of month or no C3 view)');
+    if (!adapter) skipped('C3 All-months Total Plan (no as-of month or no C3 view)');
   }
 
   // Submitted
@@ -383,7 +404,14 @@ async function runTier3(page, cfg, workbookPath) {
 
   // ── Filter round-trip ──
   // Apply a discipline filter via the real UI control, then verify the DOM count narrows
-  if (cfg.filterRoundTrip?.type === 'select' && fullDisc.size > 1) {
+  if (cfg.filterRoundTrip?.apply) {
+    const filteredGt = await cfg.filterRoundTrip.apply(page, { ...cfg, _adapter: adapter });
+    if (filteredGt == null) skipped('configured filter (adapter supplied no case)');
+    else {
+      const domFiltered = await readKpi(cfg.kpiSelectors?.totalPlanned || '[data-kpi="totalPlanned"] .v, .kpi:first-child .v');
+      ok(`configured filter: DOM ${domFiltered} = pipeline ${filteredGt}`, domFiltered === filteredGt, `DOM=${domFiltered} pipeline=${filteredGt}`);
+    }
+  } else if (cfg.filterRoundTrip?.type === 'select' && fullDisc.size > 1) {
     const firstDisc = [...fullDisc].find(discipline => {
       const candidate = deriveView(model, { ...state, disciplines: new Set([discipline]) }).kpis.totalPlanned;
       return candidate > 0 && candidate < gt.totalPlanned;
@@ -421,6 +449,17 @@ async function runTier3(page, cfg, workbookPath) {
 
       const domFiltered = await readKpi(cfg.kpiSelectors?.totalPlanned || '[data-kpi="totalPlanned"] .v, .kpi:first-child .v');
       ok(`filter "${firstDisc}": DOM ${domFiltered} = pipeline ${filteredGt}`, domFiltered === filteredGt, `DOM=${domFiltered} pipeline=${filteredGt}`);
+      // Restore "all disciplines". The round-trip above deliberately narrows the view, and the
+      // 'select' branch above restores it with selectOption(''); this branch did not, so every later
+      // check measured the FILTERED view — the status-bar total then failed against the unfiltered
+      // gt.totalPlanned. Same rule as I-95: a check must restore the state it changed.
+      await page.locator(cfg.filterTriggerSelector).first().click();
+      const allCbRestore = page.locator('.tf-all input[type=checkbox]').first();
+      if (await allCbRestore.isVisible().catch(() => false)) {
+        if (!(await allCbRestore.isChecked())) await allCbRestore.click();
+      }
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(250);
     } else {
       skipped(`filter round-trip (chip for "${firstDisc}" not found)`);
     }
@@ -435,8 +474,8 @@ async function runTier3(page, cfg, workbookPath) {
       await page.waitForTimeout(100);
     }
     const domIssues = await readKpi(cfg.validationCountSelector);
-    ok(`validation issue count: DOM ${domIssues} = pipeline ${view.issues.length}`,
-      domIssues === view.issues.length, `DOM=${domIssues} pipeline=${view.issues.length}`);
+    ok(`validation issue count: DOM ${domIssues} = pipeline ${issueCount}`,
+      domIssues === issueCount, `DOM=${domIssues} pipeline=${issueCount}`);
     if (cfg.validationPage) await page.locator('[data-page="Overview"]').first().click();
   } else skipped('validation issue count (no selector configured)');
 
@@ -519,6 +558,8 @@ async function measureTables(page, selector, limit) {
         tdOverflow: tcs ? tcs.overflow : null,
         tdTextOverflow: tcs ? tcs.textOverflow : null,
         scrollOverflow: t.scrollWidth > t.clientWidth + 1,
+        // A split pair's body half is inside .tableScroll; its header lives in the fragment.
+        inSplitBody: !!t.closest('.tableScroll') && !!t.closest('.splitcard'),
       };
     });
   }, [selector, limit]);
@@ -620,6 +661,9 @@ async function lintTableChrome(page, cfg) {
       return;
     }
     const stickyRows = h.rows.filter(r => r.pos === 'sticky');
+    // §7.2.15 scopes the rule to BOUNDED tables (`.tableScroll`). A table that does not scroll has
+    // no header drift to prevent, so `position:sticky` is not required there.
+    if (!h.hasScroller) { skipped(`sticky headers #${h.i}: header sticky (table is not inside a .tableScroll)`); return; }
     ok(`sticky headers #${h.i}: every header row computes to position:sticky`,
       stickyRows.length === h.rows.length, h.rows.map(r => r.pos).join('/'));
     if (multiRow && h.rows.length > 1) {
@@ -655,8 +699,9 @@ async function lintTableChrome(page, cfg) {
   // scroll proof: every header row stays glued to the top of its scroller AND keeps its stacking order.
   // After scrolling, row ri must sit at scrollerTop + (its pre-scroll top − first row's pre-scroll top):
   // i.e. each band stays exactly where sticky pinned it, relative to the scroller.
-  const proof = await page.evaluate(p => [...document.querySelectorAll('table.ds-table')]
-    .filter(t => t.offsetHeight && t.querySelector('thead tr th'))
+  const proof = await page.evaluate(([p, fsel]) => [...document.querySelectorAll('table.ds-table')]
+    .filter(t => t.offsetHeight && t.querySelector('thead tr th')
+      && !(fsel && t.matches(fsel)) && !t.closest('.splitcard'))
     .map((t, i) => {
       const sc = t.closest('.tableScroll');
       if (!sc || sc.scrollHeight <= sc.clientHeight + 1) return { i, scrollable: false };
@@ -669,7 +714,7 @@ async function lintTableChrome(page, cfg) {
       const scrolled = sc.scrollTop;
       sc.scrollTop = 0;
       return { i, scrollable: true, before, after, scTopBefore, scTopAfter, scrolled };
-    }), probe);
+    }), [probe, fragSel]);
   const scrollable = proof.filter(p => p.scrollable && p.scrolled > 10);
   if (!scrollable.length) skipped(`sticky headers: scroll proof (no scrollable table scroller)`);
   else scrollable.forEach(p => {
@@ -739,6 +784,7 @@ async function lintTableChrome(page, cfg) {
           scrollerRadius: cs(sc).borderTopLeftRadius,
           scrollerBorderW: cs(sc).borderTopWidth,
           fragW: +R(frag).width.toFixed(1), scW: +R(sc).width.toFixed(1), bodyW: +R(body).width.toFixed(1),
+          sbw: +Math.max(0, sc.offsetWidth - sc.clientWidth).toFixed(1),
           // the column rule is a positioned ::after — it only paints while the th is a containing block
           rule: ra ? { content: ra.content, position: ra.position, width: ra.width } : null,
           thPosition: ruleCell ? cs(ruleCell).position : null,
@@ -764,9 +810,9 @@ async function lintTableChrome(page, cfg) {
         p.mism.length === 0, p.mism.join(' '));
       ok(`split-header #${p.i} [${p.label}]: header columns align with body columns`,
         p.maxDelta <= 2, `maxDelta=${p.maxDelta}px`);
-      ok(`split-header #${p.i} [${p.label}]: header width equals its body's width`,
-        Math.abs(p.fragW - p.scW) <= 2 && Math.abs(p.fragW - p.bodyW) <= 2,
-        `head=${p.fragW} scroller=${p.scW} body=${p.bodyW}`);
+      ok(`split-header #${p.i} [${p.label}]: header width equals its body's width plus the scrollbar gutter`,
+        Math.abs(p.fragW - p.scW) <= 2 && Math.abs(p.fragW - (p.bodyW + p.sbw)) <= 2,
+        `head=${p.fragW} scroller=${p.scW} body=${p.bodyW}+sbw=${p.sbw}`);
       ok(`split-header #${p.i} [${p.label}]: columns fit the display area (no horizontal overflow)`,
         p.overW <= 1, `overflow=${p.overW}px`);
     });
@@ -941,8 +987,8 @@ function lintGeometry(report, tag, exp, tol, strict = true) {
     const colsOk = m.colgroupCols > 0 && (m.colgroupCols === m.firstRowCells || m.colgroupCols === m.theadCells);
     verdict(`${lbl}: <colgroup> cols = rendered columns`, colsOk,
       `colgroup=${m.colgroupCols} bodyCells=${m.firstRowCells} theadCells=${m.theadCells}`);
-    if (m.hasThead) verdict(`${lbl}: header height = ${exp.head}px`, Math.abs(m.headerH - exp.head) <= tol, `${m.headerH}px`);
-    else skipped(`${lbl}: header height (no <thead> — body fragment)`);
+    if (m.hasThead && !m.inSplitBody) verdict(`${lbl}: header height = ${exp.head}px`, Math.abs(m.headerH - exp.head) <= tol, `${m.headerH}px`);
+    else skipped(`${lbl}: header height (${m.inSplitBody ? 'body half of a split pair' : 'no <thead> — body fragment'})`);
     if (m.heights.length) {
       const spread = Math.max(...m.heights) - Math.min(...m.heights);
       verdict(`${lbl}: row heights uniform (${m.heights.length}/${m.bodyRows} rows, ${m.zeroRows} collapsed)`,
@@ -1120,8 +1166,10 @@ async function lintL3(page, cfg = {}) {
     }, [idx, by]);
     for (let ti = 0; ti < gripTables.length; ti++) {
       const idx = gripTables[ti];
+      await page.waitForTimeout(600); // let the table layout settle before measuring (avoids transient-width drift)
       const before = await colW(idx);
       await drag(idx, 90);
+      await page.waitForTimeout(150);
       const after = await colW(idx);
       ok(`I-95: table #${idx} — dragging a grip widens the column`, after.w > before.w + 40,
         `${before.w.toFixed(0)}px → ${after.w.toFixed(0)}px`);
@@ -1136,6 +1184,7 @@ async function lintL3(page, cfg = {}) {
       // 90 px drag, in a table that fits exactly when measured on its own. A check must restore the
       // state it changed, or every check after it is measuring something else.
       await drag(idx, -90);
+      await page.waitForTimeout(150);
       const restored = await colW(idx);
       ok(`I-95: table #${idx} — the resize test restores the width it changed`,
         Math.abs(restored.w - before.w) <= 2, `${before.w.toFixed(0)}px → ${restored.w.toFixed(0)}px`);
@@ -1508,6 +1557,166 @@ async function lintC3(page, cfg) {
   okC3('C3 Bar view restores the bar chart', (await count(c.svgSelector)) === 1);
 }
 
+// Tier 6 loads the workbook and waits for the page navigation (the §4.6 window lives on the
+// Analytical and Overview pages; the dashboard defaults to Overview). It only needs the shell +
+// data to be ready, then lintHoverWindow navigates to each page.
+async function ensureLoadedForTier6(page, cfg, workbookPath) {
+  if (!workbookPath || !existsSync(workbookPath)) return false;
+  try {
+    await page.goto(dashboardUrl(cfg));
+    await injectWorkbook(page, workbookPath, cfg);
+    await page.waitForSelector('.page-link', { timeout: 20000 });
+    return true;
+  } catch (error) {
+    console.log(`  INFO: Tier 6 could not load the workbook — ${error.message.split('\n')[0]}`);
+    return false;
+  }
+}
+
+// ── Tier 6: §4.6 hover floating window (spec §4.6) ───────────────────────────
+// General side-bar exploration. The dashboard renders different content per `[data-page]` menu item
+// (Overview, Submittals, Validation, Forward and Overdue, Analytical, Help, Settings). Tier 6 visits
+// every menu item, discovers every hover-window host on that view, and also clicks in-page button
+// switches (segmented controls, tabs, toggles) so views revealed only by a switch are explored too.
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function discoverPages(page) {
+  return page.evaluate(() => {
+    const seen = new Set(); const out = [];
+    for (const b of document.querySelectorAll('[data-page]')) {
+      const name = b.dataset.page; if (!name || seen.has(name)) continue;
+      seen.add(name);
+      out.push({ name, text: (b.textContent || '').trim() || name });
+    }
+    return out;
+  });
+}
+
+async function visitPage(page, name) {
+  await page.click(`[data-page="${name}"]`).catch(() => {});
+  await sleep(150); // paint() swaps [data-page-content] synchronously; allow layout to settle
+}
+
+async function lintHoverWindow(page, cfg) {
+  const h = cfg.hover; if (!h) { skipped('Tier 6 hover window (§4.6) — no hover config'); return; }
+  console.log('\n── Tier 6: §4.6 hover floating window ────────────────────────');
+  const pages = await discoverPages(page);
+  if (!pages.length) { skipped('Tier 6 hover window (no side-bar pages found)'); return; }
+
+  // Generic host discovery: every bound window root carries aria-describedby → a role="tooltip" tip and
+  // is focusable. This finds C1 (.scurve), C2 (.c2-stack), C3 (.c3-card), C4 (.c4-chart) and KPI
+  // (.kpi-card) on every page — charts, KPI cards and any future board, with no hard-coded page list.
+  const gatherHosts = async (pageName) => page.evaluate(({ boards, pageName }) => {
+    const hosts = [...document.querySelectorAll('[aria-describedby]')].filter((board) => {
+      const tip = document.getElementById(board.getAttribute('aria-describedby'));
+      return tip && (tip.getAttribute('role') === 'tooltip' || (tip.className || '').includes('chart-tip'));
+    });
+    return hosts.map((board) => {
+      const tipId = board.getAttribute('aria-describedby');
+      let cursor = 'crosshair', snap = false, ctL = false, name = 'hover host';
+      const cls = board.className || '';
+      if (cls.includes('kpi-card')) { cursor = 'help'; name = 'KPI card'; }
+      for (const b of boards) {
+        if (board.matches(b.selector) || board.closest(b.selector)) {
+          cursor = b.cursor; snap = !!b.snap; ctL = !!b.ctL; name = b.name; break;
+        }
+      }
+      if (board.closest('.c2-stack')) ctL = true; // guard C2 grouping wherever it appears
+      const rect = board.getBoundingClientRect();
+      return { tipId, cursor, snap, ctL, name, pageName, visible: rect.width > 0 && rect.height > 0 };
+    });
+  }, { boards: h.boards || [], pageName });
+
+  // Run the §4.6 assertions on one host (located by its tip id).
+  const checkedTips = new Set();
+  const checkHost = async (host) => {
+    const r = await page.evaluate(({ tipId, snap, ctL }) => {
+      const sel = '[aria-describedby="' + (window.CSS ? CSS.escape(tipId) : tipId) + '"]';
+      const board = document.querySelector(sel);
+      const out = { absent: !board };
+      if (!board) return out;
+      const describedBy = board.getAttribute('aria-describedby');
+      out.describedBy = !!describedBy;
+      const tip = describedBy ? document.getElementById(describedBy) : null;
+      out.tipExists = !!tip;
+      out.tipRole = tip ? tip.getAttribute('role') === 'tooltip' : false;
+      out.focusable = board.hasAttribute('tabindex');
+      const cs = getComputedStyle(board);
+      out.cursor = cs.cursor;
+      out.cursorOk = cs.cursor && cs.cursor !== 'auto' && cs.cursor !== 'default'; // affordance present
+      if (snap) { const svg = board.querySelector('svg'); out.snap = !!(svg && svg.querySelector('.chart-snap')); }
+      const fire = (el, type, cx, cy) => el.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, clientX: cx, clientY: cy, pointerId: 1, isPrimary: true }));
+      // Element mode: dispatch on a concrete [data-tip] child (or the board itself for KPI cards).
+      // Nearest mode (C1/C2) has no [data-tip] child, so fall back to a pointermove over the SVG.
+      let triggered = false;
+      const t = board.matches('[data-tip]') ? board : board.querySelector('[data-tip]');
+      if (t) {
+        const rr = t.getBoundingClientRect();
+        fire(t, 'pointerdown', rr.left + rr.width / 2, rr.top + rr.height / 2);
+        fire(t, 'pointermove', rr.left + rr.width / 2, rr.top + rr.height / 2);
+        if (tip && tip.classList.contains('show')) triggered = true;
+      }
+      if (!triggered) {
+        const svg = board.querySelector('svg');
+        if (svg) { const rr = svg.getBoundingClientRect(); fire(svg, 'pointermove', rr.left + rr.width / 2, rr.top + rr.height / 2); if (tip && tip.classList.contains('show')) triggered = true; }
+      } else out.trigger = true;
+      if (tip && triggered) {
+        out.shown = tip.classList.contains('show');
+        const html = tip.innerHTML || '';
+        out.hasContent = html.trim().length > 0;
+        out.ctL = ctL ? html.includes('ct-l') : true;
+        fire(board, 'pointerleave', 0, 0);
+        out.hides = !tip.classList.contains('show');
+      }
+      return out;
+    }, { tipId: host.tipId, snap: host.snap, ctL: host.ctL });
+    if (r.absent) return null;
+    if (checkedTips.has(host.tipId)) return null; // avoid recounting the same window across pages/switches
+    checkedTips.add(host.tipId);
+    const id = `${host.pageName} · ${host.name}`;
+    ok(`${id}: host carries aria-describedby`, r.describedBy);
+    ok(`${id}: tooltip element exists`, r.tipExists);
+    ok(`${id}: window carries role="tooltip"`, r.tipRole);
+    ok(`${id}: host is focusable (tabindex)`, r.focusable);
+    ok(`${id}: cursor affordance present (got ${r.cursor})`, r.cursorOk);
+    if (host.snap) ok(`${id}: nearest chart exposes .chart-snap line`, r.snap);
+    if (r.shown !== undefined) {
+      ok(`${id}: window reveals on hover/tap`, r.shown);
+      ok(`${id}: window has content`, r.hasContent);
+      if (host.ctL) ok(`${id}: C2 series row keeps .ct-l swatch+label group`, r.ctL);
+      if (r.hides !== undefined) ok(`${id}: window hides on pointer-leave`, r.hides);
+    } else if (r.tipExists) {
+      warn(`${id}: no hover trigger on this view (view may differ)`, false, 'could not reveal window');
+    }
+    return r;
+  };
+
+  // In-page button switches (segmented controls, tabs, toggles). Action buttons (export/print/etc.)
+  // are skipped. After each click the view is re-scanned.
+  const switchSelector = '.seg button, [role="tab"], button[aria-pressed], [data-view]';
+
+  for (const p of pages) {
+    console.log(`\n  Side-bar page: ${p.text || p.name}`);
+    await visitPage(page, p.name);
+    const hosts = await gatherHosts(p.name);
+    for (const ho of hosts) await checkHost(ho);
+    const switches = await page.$$(switchSelector);
+    for (const handle of switches) {
+      const safe = await handle.evaluate((b) => {
+        if (b.dataset.page) return false;
+        if (b.offsetParent === null) return false;
+        const sig = (b.className || '') + ' ' + (b.getAttribute('aria-label') || '') + ' ' + (b.textContent || '');
+        return !/export|print|file|open|reset|download|close|help|settings/i.test(sig);
+      }).catch(() => false);
+      if (!safe) continue;
+      await handle.click().catch(() => {});
+      await sleep(180);
+      const swHosts = await gatherHosts(`${p.name} (switch)`);
+      for (const ho of swHosts) await checkHost(ho);
+    }
+  }
+}
+
 // Tier 5 inspects the rendered charts, so it needs a dashboard that already holds data. Earlier
 // tiers navigate the page for their own purposes and can leave it freshly loaded with no workbook,
 // which made every Tier 5 check fail (and `lintC1` block on a missing control until it timed out).
@@ -1570,6 +1779,12 @@ for (const name of dashboards) {
       if (cfg.c1) await lintC1(page, cfg); else skipped('Tier 5 C1 chart (no c1 config)');
       if (cfg.c3) await lintC3(page, cfg); else skipped('Tier 5 C3 chart (no c3 config)');
     }
+  }
+  if (!targetTier || targetTier === 6) {
+    if (!cfg.hover) { skipped('Tier 6 hover window (§4.6) — no hover config for this dashboard'); }
+    else if (!page) { skipped('Tier 6 hover window (browser unavailable)'); }
+    else if (!(await ensureLoadedForTier6(page, cfg, workbookPath))) { skipped('Tier 6 hover window (no dashboard data)'); }
+    else { await lintHoverWindow(page, cfg); }
   }
 }
 

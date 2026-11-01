@@ -6,7 +6,7 @@ import { deriveView, renderDashboard, EXCLUDED_STAGES } from './render.js';
 
 const $ = selector => document.querySelector(selector);
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
-const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', c2View: 'stacked', c2Nfs: true, collapsedPanels: [] };
+const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', c2View: 'stacked', c2Nfs: true, foView: 'lookahead', foLane: 'all', foHorizon: 4, c4View: 'scatter', collapsedPanels: [] };
 let contract;
 let uiHelp;
 let files = { mdl: null, log: null };
@@ -33,7 +33,7 @@ function updateFiles() {
 }
 function updateSidebarWidth(width) {
   // §3.2 — the floor is the width at which the widest menu title still fits (135 px), rounded up.
-  const min = 140, max = 460;
+  const min = 190, max = 460;
   const value = Math.max(min, Math.min(max, width));
   document.documentElement.style.setProperty('--sidebar-w', `${value}px`);
   localStorage.setItem('sub-dashboard-left-sidebar-width', String(value));
@@ -54,7 +54,7 @@ function chartSvgStyle() {
   const cs = getComputedStyle(document.documentElement);
   const v = n => (cs.getPropertyValue(n) || '').trim();
   const plan = v('--color-plan'), forecast = v('--color-forecast'), actual = v('--color-actual'), border = v('--border'), text = v('--text'), text2 = v('--text2'), text3 = v('--text3'), danger = v('--danger'), slate = v('--slate');
-  return `<style>.sc-bar-plan{fill:${plan}}.sc-bar-actual{fill:${actual}}.sc-bar-actualresub{fill:${actual};fill-opacity:.45}.sc-line-plan{stroke:${plan};stroke-width:2.5;fill:none;stroke-dasharray:6 3}.sc-line-forecast{stroke:${forecast};stroke-width:2.5;fill:none;stroke-dasharray:2 2}.sc-line-actual{stroke:${actual};stroke-width:2.5;fill:none}.sc-line-actualresub{stroke:${actual};stroke-width:2.5;fill:none;stroke-dasharray:3 3;opacity:.85}.sc-dot{stroke:none}.sc-dot-plan{fill:${plan}}.sc-dot-forecast{fill:${forecast}}.sc-dot-actual{fill:${actual}}.sc-dot-actualresub{fill:${actual}}.sc-grid{stroke:${border};stroke-width:1}.sc-axis{fill:${text2};font-size:10px}.sc-barval{fill:${text2};font-size:9px}.sc-leg-t{fill:${text}}.sc-ref-start{stroke:${danger};stroke-width:1.5;stroke-dasharray:5 3}.sc-ref-today{stroke:${slate};stroke-width:1.5;stroke-dasharray:2 2}.scurve-snap{stroke:${text3};stroke-width:1;stroke-dasharray:3 3}</style>`;
+  return `<style>.sc-bar-plan{fill:${plan}}.sc-bar-actual{fill:${actual}}.sc-bar-actualresub{fill:${actual};fill-opacity:.45}.sc-line-plan{stroke:${plan};stroke-width:2.5;fill:none;stroke-dasharray:6 3}.sc-line-forecast{stroke:${forecast};stroke-width:2.5;fill:none;stroke-dasharray:2 2}.sc-line-actual{stroke:${actual};stroke-width:2.5;fill:none}.sc-line-actualresub{stroke:${actual};stroke-width:2.5;fill:none;stroke-dasharray:3 3;opacity:.85}.sc-dot{stroke:none}.sc-dot-plan{fill:${plan}}.sc-dot-forecast{fill:${forecast}}.sc-dot-actual{fill:${actual}}.sc-dot-actualresub{fill:${actual}}.sc-grid{stroke:${border};stroke-width:1}.sc-axis{fill:${text2};font-size:10px}.sc-barval{fill:${text2};font-size:9px}.sc-leg-t{fill:${text}}.sc-ref-start{stroke:${danger};stroke-width:1.5;stroke-dasharray:5 3}.sc-ref-today{stroke:${slate};stroke-width:1.5;stroke-dasharray:2 2}.chart-snap{stroke:${text3};stroke-width:1;stroke-dasharray:3 3}</style>`;
 }
 function serializeC1Svg() {
   const svg = document.querySelector('.scurve svg');
@@ -385,6 +385,10 @@ function wireSplitHeaders(root) {
     if (!headTable || !port || !scroll || !bodyTable) continue;
     const headCols = [...headTable.querySelectorAll('colgroup col')].filter(col => !col.classList.contains('ds-gut'));
     const bodyCols = [...bodyTable.querySelectorAll('colgroup col')];
+    // Container width as of the last sync. The fit pass below must run when the CONTAINER changed,
+    // never when the COLUMNS did: a column drag changes the column sum, and re-fitting on that path
+    // scales the width the operator just dragged straight back down, so the resize does not stick.
+    let lastAvail = null;
     const syncWidth = () => {
       // Both tables are pinned to the same explicit pixel width, so the frozen header stays aligned
       // with its body column (see §7.2.15). Pinning must not freeze the table at its first-render
@@ -410,7 +414,12 @@ function wireSplitHeaders(root) {
       const avail = scroll.clientWidth - bar;
       // Re-flow on container resize: scale the cached column widths to the new width so the table
       // follows the screen scale / window width instead of keeping its first-render pixel width.
-      if (total > 0 && Math.abs(avail - total) > 1) {
+      // Gate on the CONTAINER width, never on the column sum. `null` on the first pass means "fit
+      // once on load"; after that only a real container change re-fits, so a manual drag survives.
+      // §7.2.15 invariant 5 fits the SHIPPED DEFAULTS, not a width the user chose.
+      const containerChanged = lastAvail === null || Math.abs(avail - lastAvail) > 1;
+      lastAvail = avail;
+      if (total > 0 && containerChanged && Math.abs(avail - total) > 1) {
         const scale = avail / total;
         headCols.forEach((col, index) => {
           const w = parseFloat(col.style.width);
@@ -677,6 +686,10 @@ document.addEventListener('click', async event => {
   if (target.hasAttribute('data-c2nfs')) { state.c2Nfs = state.c2Nfs === false ? true : false; paint(); }
   if (target.hasAttribute('data-c2png')) { exportC2Png(); }
   if (target.hasAttribute('data-c2copy')) { copyC2Svg(); }
+  if (target.dataset.foView) { state.foView = target.dataset.foView; paint(); }
+  if (target.dataset.foLane) { state.foLane = target.dataset.foLane; paint(); }
+  if (target.dataset.foHorizon) { state.foHorizon = target.dataset.foHorizon; paint(); }
+  if (target.dataset.c4view) { state.c4View = target.dataset.c4view; paint(); }
   if (target.dataset.export) {
     const view = model ? deriveView(model, state) : null;
     const docs = view?.documents || [];

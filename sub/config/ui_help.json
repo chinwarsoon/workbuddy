@@ -49,7 +49,7 @@
     "Overview": "Submission totals, plan coverage, status, approval, and delay measures.",
     "Submittals": "All submission rows and calculated turnaround and delay values.",
     "Validation": "All business-rule issues and the source workbook rule reference.",
-    "Forward Plan": "Planned MDL rows without an unambiguous submitted record.",
+    "Forward and Overdue": "Look-ahead (next 1–4 weeks), Overdue (past due), and Coverage (not-yet-submitted MDL rows).",
     "Analytical": "Open overdue records, review aging, and the forward queue.",
     "Help": "Load both workbooks, use global filters, and select a page.",
     "Settings": "Theme and warning area preferences."

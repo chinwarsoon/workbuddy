@@ -8,6 +8,25 @@ export const EXCLUDED_STAGES = new Set(['Deleted', 'Void', 'Superseded']);
 export const APPROVAL_CODES = ['APP', 'AWC', 'NAP', 'REJ', 'INF'];
 
 /** Build the shared filtered set and all dashboard measures. @param {object} model @param {object} state @returns {object} */
+// I073 — small ISO-date helpers for the Forward and Overdue page; Excel serials also become Dates.
+function toDateValue(value) {
+  if (value == null || value === '') return null;
+  if (typeof value === 'number') return new Date(Date.UTC(1899, 11, 30) + value * 86400000);
+  const t = Date.parse(value);
+  return Number.isNaN(t) ? null : new Date(t);
+}
+function daysBetween(a, b) {
+  const da = toDateValue(a), db = toDateValue(b);
+  if (!da || !db) return null;
+  return Math.round((da - db) / 86400000);
+}
+function addDaysISO(value, n) {
+  const d = toDateValue(value);
+  if (!d) return null;
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
 export function deriveView(model, state = {}) {
   const disciplines = state.disciplines instanceof Set ? state.disciplines : new Set([...model.planned.map(row => row.discipline).filter(Boolean), 'Unknown']);
   // A blank Stage is missing data, not an excluded stage. It stays in the default set so those
@@ -262,6 +281,61 @@ export function deriveView(model, state = {}) {
     };
     return { months, rows, planCount };
   })();
+  // ===== Analytical page — Bottleneck KPI strip (workplan §4.9, I079) =====
+  // All five cards source from the active Submission Log against asOf. The Master
+  // Document List is not used by these cards.
+  const asOfDate = model.meta && model.meta.asOfDate;
+  // Long-due (aging SUR): open SUR rows past each record's Target Return Date.
+  // Days past target = asOf - targetReturnDate. Records without a target are excluded.
+  const longDue = { lt30: 0, b30_60: 0, b60_90: 0, gt90: 0, total: 0 };
+  for (const row of activeSubmissions) {
+    if (row.submissionStatus !== 'SUR' || row.actualReturnDate) continue;
+    if (!row.targetReturnDate) continue;
+    const past = daysBetween(asOfDate, row.targetReturnDate); // asOf - targetReturnDate
+    if (past == null || past < 0) continue; // future or unparseable target
+    if (past < 30) longDue.lt30++;
+    else if (past < 60) longDue.b30_60++;
+    else if (past < 90) longDue.b60_90++;
+    else longDue.gt90++;
+    longDue.total++;
+  }
+  // Rework Rate = resubmitted records / total submission records (%).
+  const reworkRate = activeSubmissions.length
+    ? (activeSubmissions.filter(row => row.flagResubmission).length / activeSubmissions.length) * 100
+    : 0;
+  // Avg Review Cycle = mean(actualReturnDate - submissionDate) per record with both dates.
+  const reviewCycles = activeSubmissions
+    .filter(row => row.submissionDate && row.actualReturnDate)
+    .map(row => daysBetween(row.actualReturnDate, row.submissionDate));
+  const avgReviewCycle = reviewCycles.length
+    ? reviewCycles.reduce((sum, value) => sum + value, 0) / reviewCycles.length
+    : 0;
+  // Avg Approval Cycle = mean(firstApprovalDate - firstSubmissionDate) per document.
+  // firstSubmissionDate = earliest submissionDate per document (documentGroups sorted ascending).
+  // firstApprovalDate = date of the first row carrying an approval code (APP/AWC/NAP/REJ/INF);
+  //   uses actualReturnDate when present, else that row's submissionDate.
+  const approvalCycles = [];
+  for (const group of documentGroups) {
+    const firstSubmission = group[0].submissionDate;
+    const firstApproval = group.find(r => APPROVAL_CODES.includes(r.approvalStatus));
+    if (!firstSubmission || !firstApproval) continue;
+    const approvalDate = firstApproval.actualReturnDate || firstApproval.submissionDate;
+    const diff = daysBetween(approvalDate, firstSubmission);
+    if (diff != null) approvalCycles.push(diff);
+  }
+  const avgApprovalCycle = approvalCycles.length
+    ? approvalCycles.reduce((sum, value) => sum + value, 0) / approvalCycles.length
+    : 0;
+  // C4 scatter points (turnaround x review-delay), one per submission that has both values.
+  // Overdue flag = open SUR past its Target Return Date (same basis as the Long-due buckets).
+  const c4Scatter = activeSubmissions
+    .filter(r => Number.isFinite(r.turnaroundDays) && Number.isFinite(r.delayDays))
+    .map(r => ({
+      doc: r.documentNo,
+      x: r.turnaroundDays,
+      y: r.delayDays,
+      overdue: r.submissionStatus === 'SUR' && !r.actualReturnDate && r.targetReturnDate && (daysBetween(asOfDate, r.targetReturnDate) || 0) > 0
+    }));
   return {
     active: activeSubmissions,
     documents: documentGroups,
@@ -271,6 +345,7 @@ export function deriveView(model, state = {}) {
     c2,
     c1,
     c3,
+    c4Scatter,
     kpis: {
       totalPlanned: activePlans.length,
       // D32 — a repeated Document No. is the same document, so the card counts distinct documents.
@@ -281,6 +356,10 @@ export function deriveView(model, state = {}) {
       onTimeRate: dated.length ? onTime / dated.length : 0,
       averageDelay: delayMean,
       overdue: activeSubmissions.filter(row => !row.actualReturnDate && row.delayDays > 0).length,
+      longDue,
+      reworkRate,
+      avgReviewCycle,
+      avgApprovalCycle,
       issueCount: issueRows.length
     }
   };
@@ -294,7 +373,31 @@ export function renderDashboard(doc, model, state = {}) {
   const page = state.page || 'Overview';
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
   // §5 — a card is exactly two lines: value and label. The status class colours the 3 px top strip.
-  const card = (label, value, status = '') => `<article class="kpi-card${status ? ` ${status}` : ''}"><div class="v">${esc(value)}</div><div class="l">${esc(label)}</div></article>`;
+  const attr = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const KPI_META = {
+    'Documents Logged': { purpose: 'Every submission record loaded from the workbooks.', source: 'MDL + Submission log', calc: 'Row count of active submissions.' },
+    'Documents Submitted / In Plan': { purpose: 'Submitted count against the planned count.', source: 'MDL planned + submission log', calc: 'Submitted ÷ planned.' },
+    'Under Review (SUR)': { purpose: 'Open submissions still under review (SUR, no actual return date).', source: 'Submission log', calc: 'Rows where status = SUR and Actual Return Date is blank.' },
+    'Approved (APP + AWC)': { purpose: 'Documents approved (APP or AWC).', source: 'Submission log', calc: 'Count of APP + AWC rows.' },
+    'On-Time Return Rate': { purpose: 'Share of submissions returned on or before target.', source: 'Submission log', calc: 'On-time returns ÷ total returns.' },
+    'Average Review Delay': { purpose: 'Mean delay between target and actual return.', source: 'Submission log', calc: 'Average (Actual Return − Target Return) in days.' },
+    'Long-due SUR <30d': { purpose: 'Open SUR overdue by less than 30 days.', source: 'Submission log', calc: 'SUR open, 0–30 days past target.' },
+    'Long-due SUR 30-60d': { purpose: 'Open SUR overdue by 30–60 days.', source: 'Submission log', calc: 'SUR open, 30–60 days past target.' },
+    'Long-due SUR 60-90d': { purpose: 'Open SUR overdue by 60–90 days.', source: 'Submission log', calc: 'SUR open, 60–90 days past target.' },
+    'Long-due SUR >90d': { purpose: 'Open SUR overdue by more than 90 days.', source: 'Submission log', calc: 'SUR open, >90 days past target.' },
+    'Rework Rate': { purpose: 'Share of submissions requiring resubmission.', source: 'Submission log', calc: 'Resubmissions ÷ submissions.' },
+    'Avg Review Cycle': { purpose: 'Mean end-to-end review cycle time.', source: 'Submission log', calc: 'Average (approval − submission) in days.' },
+    'Avg Approval Cycle': { purpose: 'Mean time from submission to approval.', source: 'Submission log', calc: 'Average (approval − submission) in days.' }
+  };
+  const kpiTipHtml = label => {
+    const m = KPI_META[label];
+    if (!m) return `<b>${esc(label)}</b>`;
+    return `<b>${esc(label)}</b>`
+      + (m.purpose ? `<div class="chart-tip-row">${esc(m.purpose)}</div>` : '')
+      + `<div class="chart-tip-row"><span class="chart-tip-k">Source</span>${esc(m.source || '—')}</div>`
+      + `<div class="chart-tip-foot">${esc(m.calc || '')}</div>`;
+  };
+  const card = (label, value, status = '') => `<article class="kpi-card${status ? ` ${status}` : ''}" data-tip="${attr(kpiTipHtml(label))}"><div class="v">${esc(value)}</div><div class="l">${esc(label)}</div></article>`;
   const tableRows = new Map();
   // §7.1 B7 — column-visibility chooser, one implementation for every table. The contents follow the
   // normative floating-panel order (master → note → divider → item list → footer). The first two
@@ -355,17 +458,52 @@ export function renderDashboard(doc, model, state = {}) {
   };
   // §4 — `data-panel` is assigned after insertion, in document order, and only to top-level panels;
   // nested sub-panels inherit their parent's number and show no badge of their own.
-  const activePanel = (name, content, full = false) => {
+  const activePanel = (name, content, full = false, leadingControls = '') => {
     const collapsed = Array.isArray(state.collapsedPanels) && state.collapsedPanels.includes(name);
     const label = collapsed ? 'Expand' : 'Collapse';
-    // §4 — Help is the first child of the cluster and the collapse toggle is rightmost. The border
-    // wraps only the content (charts / tables / filters / buttons) inside `.panel-body`; the header
-    // (title + Help + toggle) sits OUTSIDE the border, per the C2 owner review (2026-10-28).
-    return `<section class="panel${full ? ' full' : ''}${collapsed ? ' collapsed' : ''}"><header class="panel-head"><h2>${esc(name)}</h2><div class="panel-actions"><button class="icon-btn help-open" data-help="${esc(name)}" aria-label="Help for ${esc(name)}" title="Help">?</button><button class="icon-btn panel-toggle" data-panel-toggle="${esc(name)}" aria-expanded="${collapsed ? 'false' : 'true'}" aria-label="${label} ${esc(name)}" title="${label}">${collapsed ? '+' : '−'}</button></div></header><div class="panel-body">${content}</div></section>`;
+    // §4 — Help is the first child of the cluster and the collapse toggle is rightmost; a panel may
+    // inject leading controls (e.g. a view toggle) to the LEFT of Help. The border wraps only the
+    // content inside `.panel-body`; the header (title + controls + Help + toggle) sits OUTSIDE the
+    // border, per the C2 owner review (2026-10-28).
+    return `<section class="panel${full ? ' full' : ''}${collapsed ? ' collapsed' : ''}"><header class="panel-head"><h2>${esc(name)}</h2><div class="panel-actions">${leadingControls}<button class="icon-btn help-open" data-help="${esc(name)}" aria-label="Help for ${esc(name)}" title="Help">?</button><button class="icon-btn panel-toggle" data-panel-toggle="${esc(name)}" aria-expanded="${collapsed ? 'false' : 'true'}" aria-label="${label} ${esc(name)}" title="${label}">${collapsed ? '+' : '−'}</button></div></header><div class="panel-body">${content}</div></section>`;
   };
   const barChart = (data, labelKey, valueKey) => {
     const max = Math.max(1, ...data.map(item => Number(item[valueKey]) || 0));
     return `<div class="bar-chart" role="img" aria-label="${esc(labelKey)} chart">${data.slice(-12).map(item => `<div class="bar-row"><span>${esc(item[labelKey])}</span><div class="bar-track"><i style="width:${Math.max(2, (Number(item[valueKey]) || 0) / max * 100)}%"></i></div><b>${esc(item[valueKey])}</b></div>`).join('') || '<p class="empty">No dated records.</p>'}</div>`;
+  };
+  // C4 — SVG scatter: x = turnaround days, y = review-delay days, one point per submission.
+  // Overdue points (open SUR past target) render red, the rest blue.
+  const c4ScatterSvg = points => {
+    const W = 820, H = 440, L = 58, R = 18, T = 18, B = 46;
+    const plotW = W - L - R, plotH = H - T - B;
+    const xs = points.map(p => p.x), ys = points.map(p => p.y);
+    const pad = (mn, mx) => { if (mn === mx) { const d = Math.abs(mn) || 1; return [mn - d * 0.1, mx + d * 0.1]; } const p = (mx - mn) * 0.05; return [mn - p, mx + p]; };
+    let [minX, maxX] = pad(Math.min(...xs), Math.max(...xs));
+    let [minY, maxY] = pad(Math.min(...ys), Math.max(...ys));
+    const sx = v => L + (v - minX) / (maxX - minX) * plotW;
+    const sy = v => T + (1 - (v - minY) / (maxY - minY)) * plotH;
+    const ticks = (mn, mx) => { const n = 5, step = (mx - mn) / n; return Array.from({ length: n + 1 }, (_, i) => mn + step * i); };
+    let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Turnaround versus review-delay scatter">`;
+    for (const t of ticks(minY, maxY)) {
+      const yy = sy(t);
+      s += `<line x1="${L}" y1="${yy.toFixed(1)}" x2="${L + plotW}" y2="${yy.toFixed(1)}" stroke="var(--border)" stroke-width="1"/>`;
+      s += `<text x="${L - 6}" y="${(yy + 3).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--text3)">${Math.round(t)}</text>`;
+    }
+    for (const t of ticks(minX, maxX)) {
+      const xx = sx(t);
+      s += `<line x1="${xx.toFixed(1)}" y1="${T}" x2="${xx.toFixed(1)}" y2="${T + plotH}" stroke="var(--border)" stroke-width="1"/>`;
+      s += `<text x="${xx.toFixed(1)}" y="${T + plotH + 14}" text-anchor="middle" font-size="10" fill="var(--text3)">${Math.round(t)}</text>`;
+    }
+    if (minY < 0 && maxY > 0) s += `<line x1="${L}" y1="${sy(0).toFixed(1)}" x2="${L + plotW}" y2="${sy(0).toFixed(1)}" stroke="var(--text3)" stroke-width="1" stroke-dasharray="4 3"/>`;
+    s += `<line x1="${L}" y1="${T}" x2="${L}" y2="${T + plotH}" stroke="var(--text2)" stroke-width="1.5"/>`;
+    s += `<line x1="${L}" y1="${T + plotH}" x2="${L + plotW}" y2="${T + plotH}" stroke="var(--text2)" stroke-width="1.5"/>`;
+    s += `<text x="${L + plotW / 2}" y="${H - 6}" text-anchor="middle" font-size="11" fill="var(--text2)">Turnaround (days) — return minus submission</text>`;
+    s += `<text x="14" y="${T + plotH / 2}" text-anchor="middle" font-size="11" fill="var(--text2)" transform="rotate(-90 14 ${T + plotH / 2})">Review delay (days) — late vs target</text>`;
+    for (const p of points) {
+      const fill = p.overdue ? 'var(--red)' : 'var(--blue)';
+      s += `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="3.4" fill="${fill}" fill-opacity="0.75" data-tip="${attr(`<b>${esc(p.doc)}</b><br>turnaround ${p.x.toFixed(1)} d, delay ${p.y.toFixed(1)} d${p.overdue ? ' (overdue, open)' : ''}`)}"></circle>`;
+    }
+    return s + '</svg>';
   };
   // ===== C1 Schedule Performance S-Curve (workplan D35) =====
   const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -461,11 +599,11 @@ export function renderDashboard(doc, model, state = {}) {
     if (bars) barDefs.forEach(([, , cls]) => { const lbl = cls === 'sc-bar-plan' ? 'Planned' : cls === 'sc-bar-forecast' ? 'Forecast' : cls === 'sc-bar-actual' ? 'Actual First' : 'Actual Resub'; leg.push(`<g transform="translate(${lx},${ly})"><rect class="${cls}" x="0" y="-8" width="12" height="12" rx="2"></rect><text class="sc-leg-t" x="16" y="2">${lbl}</text></g>`); lx += step; });
     lineDefs.forEach(([, , cls, lbl]) => { const dash = cls === 'sc-line-plan' ? '6 3' : cls === 'sc-line-forecast' ? '2 2' : cls === 'sc-line-actualresub' ? '3 3' : '0'; leg.push(`<g transform="translate(${lx},${ly})"><line class="${cls}" x1="0" y1="-2" x2="18" y2="-2" stroke-dasharray="${dash}"></line><text class="sc-leg-t" x="24" y="2">${lbl}</text></g>`); lx += step; });
     P.push(`<g class="sc-legend">${leg.join('')}</g>`);
-    P.push(`<line class="scurve-snap" x1="0" y1="${yTop}" x2="0" y2="${yBot}" style="display:none"></line>`);
+    P.push(`<line class="chart-snap" x1="0" y1="${yTop}" x2="0" y2="${yBot}" style="display:none"></line>`);
     P.push('</svg>');
     const pts = buckets.map((b, i) => ({ cx: +xCenter(i).toFixed(1), label: b.label, pNew: b.pNew, aFNew: b.aFNew, aRNew: b.aRNew, pCum: b.pCum, aFCum: b.aFCum, aRCum: b.aRCum, fCum: b.fCum }));
     const dp = JSON.stringify(pts).replace(/'/g, '&#39;'); const dg = JSON.stringify({ W, yTop, yBot }).replace(/'/g, '&#39;');
-    return `<div class="scurve sc-board" data-points='${dp}' data-geo='${dg}'>${P.join('')}<div class="scurve-tip" hidden></div></div>`;
+    return `<div class="scurve sc-board" data-points='${dp}' data-geo='${dg}'>${P.join('')}<div class="chart-tip"></div></div>`;
   };
   const schedulePerformance = (c1, st) => `${c1Controls(c1, st)}${scurveSVG(c1, st)}`;
   // ===== C3 Breakdown (workplan D36, revised by D38 / Wave 4.2) =====
@@ -618,10 +756,13 @@ export function renderDashboard(doc, model, state = {}) {
       let segs = '';
       barSeries.slice().reverse().forEach(sr => {
         const v = r.getBar(sr.key);
-        if (v > 0) segs += `<div class="seg-bar ${sr.cls}" style="height:${((v / niceMax) * C3_BAR_H).toFixed(1)}px" title="${esc(r.val)} · ${esc(sr.key === 'ur' ? 'Under Review' : sr.key)}: ${v}"></div>`;
+        const segLabel = sr.key === 'ur' ? 'Under Review' : sr.key;
+        const segTip = `<b>${esc(r.val)}</b><br>${esc(segLabel)}: ${v}`;
+        if (v > 0) segs += `<div class="seg-bar ${sr.cls}" style="height:${((v / niceMax) * C3_BAR_H).toFixed(1)}px" data-tip="${attr(segTip)}"></div>`;
       });
-      g += `<div class="g-bar" style="grid-column:${i + 2};grid-row:1">${segs}</div>`;
-      g += `<div class="g-axis" style="grid-column:${i + 2};grid-row:2" title="${esc(r.val)}">${esc(clipText(r.val, 22))}</div>`;
+      const colTip = `<b>${esc(r.val)}</b>` + barSeries.map(sr => `<div class="chart-tip-row"><span class="chart-tip-k">${esc(sr.key === 'ur' ? 'Under Review' : sr.key)}</span> ${r.getBar(sr.key)}</div>`).join('');
+      g += `<div class="g-bar" style="grid-column:${i + 2};grid-row:1" data-tip="${attr(colTip)}">${segs}</div>`;
+      g += `<div class="g-axis" style="grid-column:${i + 2};grid-row:2">${esc(clipText(r.val, 22))}</div>`;
     });
     rows.forEach(([label, fn], j) => {
       g += `<div class="g-label" style="grid-column:1;grid-row:${j + 3}">${esc(label)}</div>`;
@@ -631,6 +772,7 @@ export function renderDashboard(doc, model, state = {}) {
     return `<div class="chart c3-card">
       <div class="c3-card-head"><h3 class="c3-card-title">${title}</h3>${c3CardActions()}</div>
       <div class="c3-card-body"><div class="c3-grid" style="grid-template-columns:104px repeat(${N},minmax(0,1fr))">${g}</div>${legend}</div>
+      <div class="chart-tip"></div>
     </div>`;
   };
   const c3PieCard = (c3, st, kind) => {
@@ -658,6 +800,7 @@ export function renderDashboard(doc, model, state = {}) {
     return `<div class="chart c3-card">
       <div class="c3-card-head"><h3 class="c3-card-title">${title}</h3>${c3CardActions()}</div>
       ${svg}${leg}
+      <div class="chart-tip"></div>
     </div>`;
   };
   const c3Segments = (x, y, width, height, segs, max) => {
@@ -666,7 +809,7 @@ export function renderDashboard(doc, model, state = {}) {
     for (const seg of segs) {
       if (!seg.value) continue;
       const segW = Math.max(1, seg.value / max * width);
-      out += `<rect class="${seg.cls}" x="${cx.toFixed(1)}" y="${y}" width="${segW.toFixed(1)}" height="${height}" rx="2"><title>${esc(seg.label)}: ${seg.value}</title></rect>`;
+      out += `<rect class="${seg.cls}" x="${cx.toFixed(1)}" y="${y}" width="${segW.toFixed(1)}" height="${height}" rx="2" data-tip="${attr(`<b>${esc(seg.label)}</b>: ${seg.value}`)}"></rect>`;
       cx += segW;
     }
     return out;
@@ -690,7 +833,7 @@ export function renderDashboard(doc, model, state = {}) {
       const x0 = (cx + r * Math.cos(a0)).toFixed(2), y0 = (cy + r * Math.sin(a0)).toFixed(2);
       const x1 = (cx + r * Math.cos(a1)).toFixed(2), y1 = (cy + r * Math.sin(a1)).toFixed(2);
       const large = f1 - f0 > 0.5 ? 1 : 0;
-      P.push(`<path class="${seg.cls}-arc" d="M${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1}" fill="none" stroke-width="${sw}"><title>${esc(seg.label)}: ${seg.value}</title></path>`);
+      P.push(`<path class="${seg.cls}-arc" d="M${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1}" fill="none" stroke-width="${sw}" data-tip="${attr(`<b>${esc(title)}</b><br>${esc(seg.label)}: ${seg.value}`)}"></path>`);
     }
     P.push(`<text class="c3-total" x="${cx}" y="${cy}" text-anchor="middle" font-size="22" font-weight="700">${total}</text>`);
     P.push(`<text class="c3-sub" x="${cx}" y="${cy + 16}" text-anchor="middle" font-size="9">${esc(sub)}</text>`);
@@ -749,7 +892,7 @@ export function renderDashboard(doc, model, state = {}) {
     const footer = ['Total'];
     for (let col = 1; col <= C3_TABLE_HEADERS.length; col++) footer.push(rows.reduce((sum, row) => sum + row[col], 0));
     const headers = [dimKey === 'submitter' ? 'Submitter' : 'Discipline', ...C3_TABLE_HEADERS];
-    return `<div class="c3-summary"><div class="c3-summary-head"><h3 class="c3-summary-title">Breakdown Summary</h3><button class="btn-secondary" data-c3export title="Download the breakdown table as CSV">⤓ Download</button></div>${table(headers, rows, null, footer)}</div>`;
+    return `<div class="c3-summary"><div class="c-card"><div class="c3-summary-head"><h3 class="c3-summary-title">Breakdown Summary</h3><button class="btn-secondary" data-c3export title="Download the breakdown table as CSV">⤓ Download</button></div>${table(headers, rows, null, footer)}</div></div>`;
   };
   // §4.2 — the chart carries the shape and the table the exact numbers. T15.5 stacks them: the
   // table sits below the chart cards at full panel width. Wave 4.2 (Option 2) splits the panel into two
@@ -810,11 +953,11 @@ export function renderDashboard(doc, model, state = {}) {
     if (tx != null) P.push(`<line class="sc-ref sc-ref-today" x1="${tx.toFixed(1)}" y1="${mT}" x2="${tx.toFixed(1)}" y2="${mT + plotH}"></line>`);
     let lx = mL; const ly = H - legendH + 14, step = 130;
     series.forEach(code => { P.push(`<g transform="translate(${lx},${ly})"><rect x="0" y="-8" width="12" height="12" rx="2" fill="${c2Color(code)}"></rect><text class="c2-leg-t" x="16" y="2">${esc(code)}</text></g>`); lx += step; });
-    P.push(`<line class="scurve-snap" x1="0" y1="${mT}" x2="0" y2="${mT + plotH}" style="display:none"></line></svg>`);
+    P.push(`<line class="chart-snap" x1="0" y1="${mT}" x2="0" y2="${mT + plotH}" style="display:none"></line></svg>`);
     const pts = c2.data.map((d, i) => ({ cx: +xCenter(i).toFixed(1), label: fmtMonth(months[i]), series: series.map(code => ({ code, value: c2Val(d, code) })), total: series.reduce((s, c) => s + c2Val(d, c), 0), nfsUnscheduled: c2.nfsUnscheduled }));
     const dp = JSON.stringify(pts).replace(/'/g, '&#39;'), dg = JSON.stringify({ W, mT, mH: mT + plotH }).replace(/'/g, '&#39;');
     const note = c2.nfsUnscheduled ? `<p class="note">${c2.nfsUnscheduled} planned documents have no planned first-issue date and are not placed on the time axis.</p>` : '';
-    return `<div class="c2-stack" data-c2points='${dp}' data-c2geo='${dg}'>${P.join('')}<div class="c2-tip" hidden></div></div>${note}`;
+    return `<div class="c2-stack" data-c2points='${dp}' data-c2geo='${dg}'>${P.join('')}<div class="chart-tip"></div></div>${note}`;
   };
   const c2DelaySVG = (c2, st) => {
     const months = c2.months, nb = months.length;
@@ -830,7 +973,7 @@ export function renderDashboard(doc, model, state = {}) {
     for (let g = 0; g <= 4; g++) { const v = yMax * g / 4, y = yOf(v); P.push(`<line class="sc-grid" x1="${mL}" y1="${y}" x2="${W - mR}" y2="${y}"></line><text class="sc-axis" x="${mL - 6}" y="${y + 3}" text-anchor="end">${Math.round(v)}</text>`); }
     const pts = months.map((ym, i) => [xCenter(i), yOf(vals[i])]);
     if (pts.length > 1) P.push(`<polyline fill="none" stroke="#ff8c42" stroke-width="2" points="${pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ')}"></polyline>`);
-    pts.forEach((p, i) => P.push(`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="#ff8c42"><title>${esc(fmtMonth(months[i]))}: ${vals[i].toFixed(1)} d</title></circle>`));
+    pts.forEach((p, i) => P.push(`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="#ff8c42" data-tip="${attr(`<b>${esc(fmtMonth(months[i]))}</b><br>Avg review delay ${vals[i].toFixed(1)} d`)}"></circle>`));
     const inclined = nb > 13;
     months.forEach((ym, i) => { const x = xCenter(i).toFixed(1), lbl = fmtMonth(ym); P.push(inclined ? `<text class="sc-axis" x="${x}" y="${mT + plotH + 8}" text-anchor="end" transform="rotate(-40 ${x} ${mT + plotH + 8})">${esc(lbl)}</text>` : `<text class="sc-axis" x="${x}" y="${mT + plotH + 14}" text-anchor="middle">${esc(lbl)}</text>`); });
     const refX = ym => { const ix = months.indexOf(ym); return ix < 0 ? null : xCenter(ix); };
@@ -839,7 +982,7 @@ export function renderDashboard(doc, model, state = {}) {
     const tx = refX(String(view.c1 ? view.c1.asOf : '').slice(0, 7));
     if (tx != null) P.push(`<line class="sc-ref sc-ref-today" x1="${tx.toFixed(1)}" y1="${mT}" x2="${tx.toFixed(1)}" y2="${mT + plotH}"></line>`);
     P.push(`<text class="c2-leg-t" x="${mL}" y="${H - 8}">Avg Review Delay (days) · not-returned &amp; not-due = 0</text></svg>`);
-    return `<div class="c2-stack">${P.join('')}</div>`;
+    return `<div class="c2-stack">${P.join('')}<div class="chart-tip"></div></div>`;
   };
   const c2Funnel = (c2) => {
     const f = c2.funnel;
@@ -886,7 +1029,7 @@ export function renderDashboard(doc, model, state = {}) {
   const overview = (state) => {
     const k = view.kpis;
     const statusData = Object.entries(view.active.reduce((map, row) => { map[row.submissionStatus || 'Blank'] = (map[row.submissionStatus || 'Blank'] || 0) + 1; return map; }, {})).map(([status, count]) => ({ status, count }));
-    return `${activePanel('KPI OVERVIEW', `<div class="kpi-grid">${card('Documents Logged', k.totalSubmissions)}<article class="kpi-card"><div class="v">${k.submitted} / <span data-kpi="totalPlanned">${k.totalPlanned}</span></div><div class="l">Documents Submitted / In Plan</div></article>${card('Under Review (SUR)', k.underReview, 'amb')}${card('Approved (APP + AWC)', k.approved, 'ok')}${card('On-Time Return Rate', `${(k.onTimeRate * 100).toFixed(1)}%`, k.onTimeRate >= 1 ? 'ok' : 'amb')}${card('Average Review Delay', `${k.averageDelay.toFixed(1)} days`, k.averageDelay > 0 ? 'warn' : 'ok')}</div>`)}
+    return `${activePanel('KPI OVERVIEW', `<div class="kpi-grid">${card('Documents Logged', k.totalSubmissions)}<article class="kpi-card" data-tip="${attr(kpiTipHtml('Documents Submitted / In Plan'))}"><div class="v">${k.submitted} / <span data-kpi="totalPlanned">${k.totalPlanned}</span></div><div class="l">Documents Submitted / In Plan</div></article>${card('Under Review (SUR)', k.underReview, 'amb')}${card('Approved (APP + AWC)', k.approved, 'ok')}${card('On-Time Return Rate', `${(k.onTimeRate * 100).toFixed(1)}%`, k.onTimeRate >= 1 ? 'ok' : 'amb')}${card('Average Review Delay', `${k.averageDelay.toFixed(1)} days`, k.averageDelay > 0 ? 'warn' : 'ok')}</div>`)}
       <div class="panel-grid">${activePanel('C1 Schedule Performance', schedulePerformance(view.c1, state), true)}${activePanel('C2 Submission Flow & Delay', submissionFlow(view.c2, state), true)}${activePanel('C3 Breakdown', breakdown(view.c3, state))}</div>`;
   };
   // D41 — Submittals panel: one row per document (grouped by Document No.), with a toggleable,
@@ -933,7 +1076,7 @@ export function renderDashboard(doc, model, state = {}) {
     const chooser = columnChooser('subdoc', headers, chosen, chooserOpen);
     const controls = `<div class="table-tools"><span class="summary">${docs.length} documents</span><button class="csv-btn btn-secondary" data-export="submittals">⤓ CSV</button><button class="cc-btn btn-secondary" id="ccBtn_subdoc" aria-controls="ccPanel_subdoc" aria-haspopup="true" aria-expanded="${chooserOpen}">Columns</button>${chooser}</div>`;
     const body = docs.length ? `<tbody>${bodyRows}</tbody>` : `<tbody><tr><td class="empty" colspan="${indexes.length}">No documents match the current selection.</td></tr></tbody>`;
-    const tableHtml = `${controls}<div class="ds-split splitcard">${headFrag}<div class="tableScroll"><table class="ds-table" data-table-key="subdoc" data-column-count="${headers.length}">${colgroup}${body}</table></div></div>`;
+    const tableHtml = `<div class="c-card">${controls}<div class="ds-split splitcard">${headFrag}<div class="tableScroll"><table class="ds-table" data-table-key="subdoc" data-column-count="${headers.length}">${colgroup}${body}</table></div></div></div>`;
     return activePanel('Submittals', tableHtml, true);
   };
   const validation = () => {
@@ -963,71 +1106,220 @@ export function renderDashboard(doc, model, state = {}) {
       </div>
     `, true);
   };
-  const coverage = () => {
-    const plans = view.activePlans.filter(row => !row.isSubmitted);
-    return activePanel('Forward Plan · Coverage', `<p class="note">${view.kpis.submitted} submitted of ${view.kpis.totalPlanned} planned rows.</p>${table(['Document No.', 'Title', 'Discipline', 'Stage', 'Planned 1st Issue Date', 'Forecast 1st Issue Date'], plans.map(row => [row.documentNo, row.title, row.discipline, row.stage, row.fields['Planned 1st Issue Date'], row.fields['Forecast 1st Issue Date']]))}`, true);
+  const forwardAndOverdue = (state) => {
+    const asOf = model.meta.asOfDate;
+    const horizon = Number(state.foHorizon) || 4;
+    const lane = state.foLane || 'all';
+    const viewKey = state.foView || 'lookahead';
+    const RESUBMIT_LEAD = 14;
+    const byDoc = new Map();
+    for (const s of view.active) {
+      if (!s.documentNo) continue;
+      const arr = byDoc.get(s.documentNo) || [];
+      arr.push(s);
+      byDoc.set(s.documentNo, arr);
+    }
+    const planByDoc = new Map(view.activePlans.map(p => [p.documentNo, p]));
+    const classify = (docNo) => {
+      const subs = (byDoc.get(docNo) || []).slice().sort((a, b) => String(a.submissionDate || '').localeCompare(String(b.submissionDate || '')));
+      if (!subs.length) return { category: 'first', latest: null };
+      const latest = subs[subs.length - 1];
+      const st = latest.submissionStatus || '';
+      if (st === 'SUR') return { category: 'return', latest };
+      if (st === 'RTR' || st === 'NTS') return { category: 'resubmit', latest };
+      return { category: 'closed', latest };
+    };
+    const rows = [];
+    for (const p of view.activePlans) {
+      if (!p.documentNo || p.isSubmitted) continue;
+      const basis = p.fields['Planned 1st Issue Date'] || p.fields['Forecast 1st Issue Date'] || null;
+      rows.push({ docNo: p.documentNo, title: p.title || p.fields['Document Title'] || '—', discipline: p.discipline || 'Unknown', stage: p.stage || '—', category: 'first', status: 'NFS', basis, plan: p });
+    }
+    for (const [docNo, subs] of byDoc) {
+      const { category, latest } = classify(docNo);
+      if (category === 'closed' || category === 'first') continue;
+      const plan = planByDoc.get(docNo);
+      const base = category === 'resubmit' ? (latest.actualReturnDate || latest.targetReturnDate) : latest.targetReturnDate;
+      const basis = category === 'resubmit' && base ? addDaysISO(base, RESUBMIT_LEAD) : base;
+      rows.push({ docNo, title: (latest.fields && latest.fields['Document Title']) || (plan && plan.title) || '—', discipline: latest.discipline || (plan && plan.discipline) || 'Unknown', stage: (plan && plan.stage) || '—', category, status: latest.submissionStatus || '', basis, plan });
+    }
+    const dated = rows.map(r => ({ ...r, delta: r.basis ? daysBetween(r.basis, asOf) : null })).filter(r => r.delta !== null);
+    const laneMatch = r => lane === 'all' || (lane === 'first' && r.category === 'first') || (lane === 'resubmit' && r.category === 'resubmit') || (lane === 'return' && r.category === 'return');
+    const lower = 7, upper = horizon * 7;
+    const look = dated.filter(r => r.delta >= lower && r.delta <= upper && laneMatch(r)).sort((a, b) => a.delta - b.delta);
+    const over = dated.filter(r => r.delta < 0 && laneMatch(r)).sort((a, b) => a.delta - b.delta);
+    const cov = dated.filter(r => r.category === 'first').sort((a, b) => String(a.basis).localeCompare(String(b.basis)));
+    const pillClass = s => s === 'NFS' ? 'nfs' : s === 'SUR' ? 'sur' : (s === 'RTR' || s === 'NTS') ? 'rtr' : '';
+    const actionLabel = { first: 'First submit', resubmit: 'Resubmit', return: 'Return' };
+    const pill = s => `<span class="fo-pill ${pillClass(s)}">${esc(s)}</span>`;
+    const foTable = (headers, data, key, widths = null) => {
+      const indexes = headers.map((_, i) => i);
+      const numeric = new Set(indexes.filter(i => { const vals = data.map(r => String(r[i] ?? '').replace(/<[^>]*>/g, '').trim()).filter(Boolean); return vals.length && vals.every(v => /^-?[\d,]+(?:\.\d+)?$/.test(v)); }));
+      const attrs = i => { const c = []; if (numeric.has(i)) c.push('num'); if (i === 0) c.push('ds-pinned'); return (i ? ` data-col="${i}"` : '') + (c.length ? ` class="${c.join(' ')}"` : ''); };
+      const tr = r => `<tr>${indexes.map(i => `<td${attrs(i)}>${r[i]}</td>`).join('')}</tr>`;
+      const colgroup = indexes.map((i, pos) => `<col${i ? ` data-col="${i}"` : ''}${widths && widths[i] != null ? ` style="width:${widths[i]}px"` : (i === 0 ? ' style="width:150px"' : '')}>`).join('');
+      const heads = indexes.map(i => `<th scope="col"${attrs(i)}><span class="th-wrap"><span class="lb">${esc(headers[i])}</span></span>${i ? `<span class="ds-resize" data-col="${i}" role="separator" aria-label="Resize ${esc(headers[i])}"></span>` : ''}</th>`).join('');
+      const body = data.length ? `<tbody>${data.map(tr).join('')}</tbody>` : `<tbody><tr><td class="empty" colspan="${indexes.length}">No rows match the current selection.</td></tr></tbody>`;
+      const frag = `<div class="vheadwrap"><table class="ds-table vheadtab" data-table-key="${key}"><colgroup>${colgroup}<col class="ds-gut"></colgroup><thead><tr>${heads}<th class="ds-gut" scope="col" aria-hidden="true"></th></tr></thead></table></div>`;
+      tableRows.set(key, { headers, rows: data, indexes, windowed: false });
+      return `<div class="ds-split splitcard" style="--pin-first-col:150px">${frag}<div class="tableScroll"><table class="ds-table" data-table-key="${key}" data-column-count="${headers.length}"><colgroup>${colgroup}</colgroup>${body}</table></div></div>`;
+    };
+    const seg = (cur, items, attr) => `<div class="seg">${items.map(([v, l]) => `<button class="seg-btn${cur === v ? ' active' : ''}" data-${attr}="${v}">${l}</button>`).join('')}</div>`;
+    const viewSeg = seg(viewKey, [['lookahead', 'Look-Ahead'], ['overdue', 'Overdue'], ['coverage', 'Coverage']], 'fo-view');
+    const laneSeg = seg(lane, [['all', 'All'], ['first', 'First submit'], ['resubmit', 'Resubmit'], ['return', 'Return']], 'fo-lane');
+    const horizonSeg = seg(String(horizon), [['1', '1 wk'], ['2', '2 wks'], ['3', '3 wks'], ['4', '4 wks']], 'fo-horizon');
+    const csvBtn = key => `<button class="csv-btn btn-secondary" data-export-table="${key}">⤓ CSV</button>`;
+    let summary, tableHtml, right;
+    if (viewKey === 'lookahead') {
+      const headers = ['Document No.', 'Title', 'Discipline', 'Stage', 'Action', 'Status', 'Basis Date', 'In (days)'];
+      const widths = [150, 300, 90, 70, 110, 70, 120, 90];
+      const data = look.map(r => [r.docNo, r.title, r.discipline, r.stage, actionLabel[r.category], pill(r.status), r.basis, r.delta]);
+      summary = `Next ${horizon} week${horizon > 1 ? 's' : ''} (+7 to +${upper} days): ${look.length} document${look.length === 1 ? '' : 's'} due. Overdue is in the Overdue view.`;
+      tableHtml = foTable(headers, data, 'fo-lookahead', widths);
+      right = `${horizonSeg}${laneSeg}${csvBtn('fo-lookahead')}`;
+    } else if (viewKey === 'overdue') {
+      const f = over.filter(r => r.category === 'first').length, r2 = over.filter(r => r.category === 'resubmit').length, u = over.filter(r => r.category === 'return').length;
+      const headers = ['Document No.', 'Title', 'Discipline', 'Stage', 'Action', 'Status', 'Basis Date', 'Overdue (days)'];
+      const widths = [150, 300, 90, 70, 110, 70, 120, 100];
+      const data = over.map(r => [r.docNo, r.title, r.discipline, r.stage, actionLabel[r.category], pill(r.status), r.basis, r.delta]);
+      summary = `Backward-looking: ${over.length} overdue — ${f} to first submit · ${r2} to resubmit · ${u} to return.` + (lane !== 'all' ? ` Showing ${over.length}.` : '');
+      tableHtml = foTable(headers, data, 'fo-overdue', widths);
+      right = `${laneSeg}${csvBtn('fo-overdue')}`;
+    } else {
+      const headers = ['Document No.', 'Title', 'Discipline', 'Stage', 'Planned 1st Issue Date', 'Forecast 1st Issue Date'];
+      const widths = [150, 300, 90, 70, 150, 150];
+      const data = cov.map(r => [r.docNo, r.title, r.discipline, r.stage, (r.plan && r.plan.fields['Planned 1st Issue Date']) || '—', (r.plan && r.plan.fields['Forecast 1st Issue Date']) || '—']);
+      summary = `Coverage: ${cov.length} planned rows not yet submitted (NFS).`;
+      tableHtml = foTable(headers, data, 'fo-coverage', widths);
+      right = csvBtn('fo-coverage');
+    }
+    const controls = `<div class="fo-controls">${viewSeg}<div class="table-tools fo-right">${right}</div></div>`;
+    return activePanel('Forward and Overdue', `<p class="note">${summary}</p><div class="c-card">${controls}${tableHtml}</div>`);
   };
-  const analytics = () => `${activePanel('Bottleneck KPIs', `<div class="kpi-grid">${card('Overdue Open', view.kpis.overdue)}${card('Open SUR', view.active.filter(row => row.submissionStatus === 'SUR' && !row.actualReturnDate).length)}${card('Rework', view.active.filter(row => row.flagResubmission).length)}${card('Average Delay', `${view.kpis.averageDelay.toFixed(1)} days`)}${card('Due in 4 Weeks', model.planned.filter(row => row.fields['Planned 1st Issue Date'] >= model.meta.asOfDate).length)}</div>`)}<div class="panel-grid">${activePanel('C4 Turnaround & Aging', barChart(view.active.filter(row => row.delayDays > 0).map(row => ({ documentNo: row.documentNo, delay: row.delayDays })).sort((a, b) => b.delay - a.delay).slice(0, 20), 'documentNo', 'delay'))}${activePanel('C5 Forward Plan', coverage())}</div>`;
+  // Long-due (aging SUR) — split into four age-bucket cards (workplan §4.9, I079).
+  const analytics = () => {
+    // C4 — Scatter (turnaround x delay) <-> Age buckets (open SUR by days past target).
+    const c4ViewSeg = st => {
+      const mode = st.c4View === 'buckets' ? 'buckets' : 'scatter';
+      const seg = key => `<button class="seg-btn${mode === key ? ' active' : ''}" data-c4view="${key}">${key === 'scatter' ? 'Scatter' : 'Age buckets'}</button>`;
+      return `<div class="seg" role="group" aria-label="C4 view">${seg('scatter')}${seg('buckets')}</div>`;
+    };
+    const ld = view.kpis.longDue;
+    const openSur = view.active.filter(r => r.submissionStatus === 'SUR' && !r.actualReturnDate).length;
+    const bk = [['<30 d', ld.lt30], ['30–60 d', ld.b30_60], ['60–90 d', ld.b60_90], ['>90 d', ld.gt90]];
+    const c4BucketsHtml = barChart(bk.map(([label, value]) => ({ label, value })), 'label', 'value')
+      + `<p class="note">Open SUR (submitted, not yet returned) split by days past each record's Target Return Date. Total open SUR = ${openSur}; of those, ${ld.total} are past target (overdue).</p>`;
+    const c4ScatterHtml = c4ScatterSvg(view.c4Scatter)
+      + '<div class="legend"><span><i style="background:var(--blue)"></i>Returned / on-time submission</span><span><i style="background:var(--red)"></i>Open &amp; past target (overdue)</span></div>';
+    const c4Content = `<div class="c-card c4-chart">${state.c4View === 'buckets' ? c4BucketsHtml : c4ScatterHtml}<div class="chart-tip"></div></div>`;
+    const c4 = activePanel('C4 Turnaround & Aging', c4Content, false, c4ViewSeg(state));
+    return `${activePanel('Bottleneck KPIs', `<div class="kpi-grid">${card('Long-due SUR <30d', view.kpis.longDue.lt30)}${card('Long-due SUR 30–60d', view.kpis.longDue.b30_60)}${card('Long-due SUR 60–90d', view.kpis.longDue.b60_90)}${card('Long-due SUR >90d', view.kpis.longDue.gt90)}${card('Rework Rate', `${view.kpis.reworkRate.toFixed(1)}%`)}${card('Avg Review Cycle', `${view.kpis.avgReviewCycle.toFixed(1)} days`)}${card('Avg Approval Cycle', `${view.kpis.avgApprovalCycle.toFixed(1)} days`)}${card('Avg Review Delay', `${view.kpis.averageDelay.toFixed(1)} days`, view.kpis.averageDelay > 0 ? 'warn' : 'ok')}</div>`)}<div class="panel-grid">${c4}</div>`;
+  };
   const help = (state) => { const copy = state.uiHelp?.pages || {}; const glossary = state.uiHelp?.statusGlossary || {}; return activePanel('Help', `<p>${esc(copy.Help || 'Load both workbooks and use the shared filters.')}</p><p>${esc(state.uiHelp?.filePanel?.instructions || '')}</p><p>Source files: ${esc(model.meta.mdlWorkbookName)} and ${esc(model.meta.logWorkbookName)}.</p><h3>Status glossary</h3>${Object.entries(glossary).flatMap(([group, items]) => Object.entries(items).map(([code, label]) => `<p><b>${esc(group)} · ${esc(code)}</b> — ${esc(label)}</p>`)).join('')}`); };
   const settings = (state) => activePanel('Settings', `<label>Theme <select data-setting="theme">${['dark','light','sky','ocean','presentation'].map(theme => `<option value="${theme}"${(state.theme || 'dark') === theme ? ' selected' : ''}>${theme}</option>`).join('')}</select></label><label><input type="checkbox" data-setting="showWarnings"${state.showWarnings === false ? '' : ' checked'}> Show warnings</label><label><input type="checkbox" data-setting="rememberNames"${state.rememberNames ? ' checked' : ''}> Remember workbook names</label>`);
-  const views = { Overview: overview, Submittals: submissions, Validation: validation, 'Forward Plan': coverage, Analytical: analytics, Help: help, Settings: settings };
+  const views = { Overview: overview, Submittals: submissions, Validation: validation, 'Forward and Overdue': forwardAndOverdue, Analytical: analytics, Help: help, Settings: settings };
   root.innerHTML = (views[page] || overview)(state);
-  // C1 — hover snap line + floating window
+  // §4.6 — shared delegated hover binder (one function for every chart board + KPI card)
+  // Modes: nearest (C1/C2 line/area, data-driven) or element (C3/C4/KPI, reads [data-tip] from the
+  // hovered element — robust for donuts, scatter and HTML bars). Auto-detects: if data-points/geo are
+  // present it uses nearest, otherwise element. Adds a touch tap-to-show variant, focus/keyboard parity,
+  // an opacity-only transition, and a below-card placement for KPI cards.
+  const _chartTipBindings = [];
+  if (!window.__chartTipOutside) {
+    window.__chartTipOutside = true;
+    document.addEventListener('pointerdown', e => {
+      for (const b of _chartTipBindings) {
+        if (!document.contains(b.root)) continue;
+        if (!b.root.contains(e.target) && !b.tip.contains(e.target)) b.hide();
+      }
+    }, true);
+  }
+  const bindChartHover = (root, opts = {}) => {
+    if (!root || typeof root.querySelector !== 'function') return;
+    const { pointsAttr = 'data-points', geoAttr = 'data-geo', render, placement = 'cursor', snap = true, focusable = true } = opts;
+    const svg = root.querySelector('svg');
+    const tip = root.querySelector('.chart-tip');
+    if (!tip) return;
+    let pts = [], geo = {}, nearest = false;
+    try { pts = JSON.parse((root.getAttribute(pointsAttr) || '[]').replace(/&#39;/g, "'")); } catch (_) {}
+    try { geo = JSON.parse((root.getAttribute(geoAttr) || '{}').replace(/&#39;/g, "'")); } catch (_) {}
+    nearest = !!(pts.length && geo.W);
+    const snapEl = snap && svg ? svg.querySelector('.chart-snap') : null;
+    if (focusable) {
+      if (!root.hasAttribute('tabindex')) root.setAttribute('tabindex', '0');
+      root.setAttribute('role', root.getAttribute('role') || 'img');
+      const tipId = (root.id ? root.id + '-tip' : 'chtip-' + Math.random().toString(36).slice(2));
+      tip.id = tipId;
+      tip.setAttribute('role', 'tooltip');
+      root.setAttribute('aria-describedby', tipId);
+    }
+    let active = -1, activeEl = null;
+    const place = e => {
+      const br = root.getBoundingClientRect();
+      const tw = tip.offsetWidth, th = tip.offsetHeight;
+      if (placement === 'below') {
+        let tx = (br.width - tw) / 2; tx = Math.max(4, Math.min(tx, br.width - tw - 4));
+        tip.style.left = tx + 'px'; tip.style.top = (root.offsetHeight + 6) + 'px';
+        return;
+      }
+      const px = e ? e.clientX - br.left : br.width / 2;
+      const py = e ? e.clientY - br.top : br.height / 2;
+      let tx = px + 14, ty = py + 14;
+      if (tx + tw > br.width) tx = px - tw - 14;
+      if (tx < 0) tx = 4;
+      if (ty + th > br.height) ty = py - th - 14;
+      if (ty < 0) ty = 4;
+      tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
+    };
+    const show = html => { if (html == null) return hide(); tip.innerHTML = html; tip.classList.add('show'); };
+    const hide = () => { tip.classList.remove('show'); active = -1; activeEl = null; if (snapEl) snapEl.style.display = 'none'; };
+    const onMove = e => {
+      if (nearest) {
+        const rect = svg.getBoundingClientRect(); if (!rect.width) return;
+        const ux = (e.clientX - rect.left) / rect.width * geo.W;
+        let best = 0, bd = Infinity;
+        pts.forEach((p, i) => { const d = Math.abs(p.cx - ux); if (d < bd) { bd = d; best = i; } });
+        const p = pts[best]; if (!p) return;
+        if (snapEl) { snapEl.setAttribute('x1', p.cx); snapEl.setAttribute('x2', p.cx); snapEl.style.display = ''; }
+        if (best === active) { place(e); return; }
+        active = best; show(render(p)); place(e);
+      } else {
+        const el = e.target && e.target.closest ? e.target.closest('[data-tip]') : null;
+        if (el) { if (el === activeEl) { place(e); return; } activeEl = el; show(el.getAttribute('data-tip')); place(e); }
+        else { hide(); }
+      }
+    };
+    const target = svg || root;
+    target.addEventListener('pointermove', onMove);
+    root.addEventListener('pointerdown', onMove);
+    root.addEventListener('pointerleave', hide);
+    root.addEventListener('blur', hide);
+    if (focusable) root.addEventListener('focus', () => {
+      if (nearest) { const r = root.getBoundingClientRect(); onMove({ clientX: r.left + root.offsetWidth / 2, clientY: r.top + root.offsetHeight / 2, target: svg || root }); }
+      else { const el = root.querySelector('[data-tip]'); activeEl = el; show(el ? el.getAttribute('data-tip') : null); place(); }
+    });
+    for (let i = _chartTipBindings.length - 1; i >= 0; i--) if (!document.contains(_chartTipBindings[i].root)) _chartTipBindings.splice(i, 1);
+    _chartTipBindings.push({ root, tip, hide });
+  };
+  // C1 — hover snap line + floating window (nearest-datum mode)
   const scRoot = typeof root.querySelector === 'function' ? root.querySelector('.scurve') : null;
-  if (scRoot) {
-    const scSvg = scRoot.querySelector('svg');
-    const tip = scRoot.querySelector('.scurve-tip');
-    const snap = scSvg && scSvg.querySelector('.scurve-snap');
-    const pts = scSvg ? JSON.parse((scRoot.getAttribute('data-points') || '[]').replace(/&#39;/g, "'")) : [];
-    const geo = scSvg ? JSON.parse(scRoot.getAttribute('data-geo') || '{}') : {};
-    if (scSvg && snap && pts.length && geo.W) {
-      scSvg.addEventListener('mousemove', e => {
-        const rect = scSvg.getBoundingClientRect(); if (!rect.width) return;
-        const ux = (e.clientX - rect.left) / rect.width * geo.W;
-        let best = 0, bd = Infinity;
-        pts.forEach((p, i) => { const d = Math.abs(p.cx - ux); if (d < bd) { bd = d; best = i; } });
-        const p = pts[best]; if (!p) return;
-        snap.setAttribute('x1', p.cx); snap.setAttribute('x2', p.cx); snap.style.display = '';
-        if (tip) {
-          tip.hidden = false;
-          tip.innerHTML = `<b>${p.label}</b><br>Plan ${p.pNew} · Σ ${p.pCum}<br>Forecast Σ ${p.fCum}<br>Actual First ${p.aFNew} · Σ ${p.aFCum}<br>Actual Resub ${p.aRNew} · Σ ${p.aRCum}`;
-          const hr = scRoot.getBoundingClientRect();
-          let tx = e.clientX - hr.left + 14, ty = e.clientY - hr.top + 14;
-          if (tx + 210 > hr.width) tx = e.clientX - hr.left - 210;
-          tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
-        }
-      });
-      scSvg.addEventListener('mouseleave', () => { if (snap) snap.style.display = 'none'; if (tip) tip.hidden = true; });
-    }
-  }
-  // C2 — hover snap line + floating window (Stacked view only; matches the C1 pattern)
+  if (scRoot) bindChartHover(scRoot, {
+    pointsAttr: 'data-points', geoAttr: 'data-geo',
+    render: p => `<b>${p.label}</b><br>Plan ${p.pNew} · Σ ${p.pCum}<br>Forecast Σ ${p.fCum}<br>Actual First ${p.aFNew} · Σ ${p.aFCum}<br>Actual Resub ${p.aRNew} · Σ ${p.aRCum}`
+  });
+  // C2 — hover floating window (nearest-datum for Stacked; element mode for Delay/other)
   const c2Root = typeof root.querySelector === 'function' ? root.querySelector('.c2-stack') : null;
-  if (c2Root) {
-    const c2Svg = c2Root.querySelector('svg');
-    const tip = c2Root.querySelector('.c2-tip');
-    const snap = c2Svg && c2Svg.querySelector('.scurve-snap');
-    const pts = c2Svg ? JSON.parse((c2Root.getAttribute('data-c2points') || '[]').replace(/&#39;/g, "'")) : [];
-    const geo = c2Svg ? JSON.parse((c2Root.getAttribute('data-c2geo') || '{}').replace(/&#39;/g, "'")) : {};
-    if (c2Svg && snap && pts.length && geo.W) {
-      c2Svg.addEventListener('mousemove', e => {
-        const rect = c2Svg.getBoundingClientRect(); if (!rect.width) return;
-        const ux = (e.clientX - rect.left) / rect.width * geo.W;
-        let best = 0, bd = Infinity;
-        pts.forEach((p, i) => { const d = Math.abs(p.cx - ux); if (d < bd) { bd = d; best = i; } });
-        const p = pts[best]; if (!p) return;
-        snap.setAttribute('x1', p.cx); snap.setAttribute('x2', p.cx); snap.style.display = '';
-        if (tip) {
-          tip.hidden = false;
-          tip.innerHTML = `<b>${esc(p.label)}</b>` + p.series.map(s => `<div class="c2-tip-row"><span class="c2-swatch" style="background:${c2Color(s.code)}"></span>${esc(s.code)} <b>${s.value}</b></div>`).join('') + `<div class="c2-tip-row">Total <b>${p.total}</b></div>`;
-          const hr = c2Root.getBoundingClientRect();
-          let tx = e.clientX - hr.left + 14, ty = e.clientY - hr.top + 14;
-          if (tx + 200 > hr.width) tx = e.clientX - hr.left - 200;
-          tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
-        }
-      });
-      c2Svg.addEventListener('mouseleave', () => { if (snap) snap.style.display = 'none'; if (tip) tip.hidden = true; });
-    }
-  }
+  if (c2Root) bindChartHover(c2Root, {
+    pointsAttr: 'data-c2points', geoAttr: 'data-c2geo',
+    render: p => `<b>${esc(p.label)}</b>` + p.series.map(s => `<div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch" style="background:${c2Color(s.code)}"></span>${esc(s.code)}</span><b>${s.value}</b></div>`).join('') + `<div class="chart-tip-foot">Total <b>${p.total}</b></div>`
+  });
+  // C3 — hover floating window (element mode; per-segment data-tip)
+  if (typeof root.querySelectorAll === 'function') root.querySelectorAll('.c3-card').forEach(c => bindChartHover(c, { snap: false }));
+  // C4 — hover floating window (element mode; per-point data-tip on the scatter)
+  const c4Root = typeof root.querySelector === 'function' ? root.querySelector('.c4-chart') : null;
+  if (c4Root) bindChartHover(c4Root, { snap: false });
+  // KPI cards — below-card floating window (Purpose / Data source / Calculation)
+  if (typeof root.querySelectorAll === 'function') root.querySelectorAll('.kpi-card').forEach(c => bindChartHover(c, { placement: 'below', snap: false }));
   // C2 — align the funnel's top to the first discipline row and its bottom (the cube) to the last
   // discipline row, so the funnel spans exactly the per-discipline table body (header + Total excluded).
   const fr = typeof root.querySelector === 'function' ? root.querySelector('.c2-funnel-row') : null;

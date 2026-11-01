@@ -70,8 +70,8 @@ export default {
     lineSelector: '.scurve svg polyline',
     barSelector: '.scurve svg > rect[class^="sc-bar-"]',
     boardSelector: '.sc-board',
-    refStartSelector: '.sc-ref-start',
-    refTodaySelector: '.sc-ref-today',
+    refStartSelector: '.scurve .sc-ref-start',
+    refTodaySelector: '.scurve .sc-ref-today',
     refLabelSelector: '.sc-ref-lbl',
     asOfSelector: '.sc-asof',
     barsToggleSelector: '[data-c1bars]',
@@ -105,5 +105,20 @@ export default {
     summaryTableSelector: '.c3-summary .tableScroll table.ds-table',
     summaryFooterSelector: '.c3-summary .tableScroll table.ds-table tfoot',
     summaryHeadSelector: '.c3-summary .vheadtab thead th:not(.ds-gut)',
+  },
+
+  // Tier 6 — §4.6 hover floating window (spec §4.6). Verifies the standardized window across the
+  // chart boards (C1–C4) and KPI cards: focusable host + aria-describedby → role="tooltip" window, the
+  // cursor affordance, nearest charts expose .chart-snap, hover/tap reveals the window, and the C2
+  // series-row swatch+label group (.ct-l) is preserved (I092 regression guard).
+  // `snap` = the chart is expected to expose a .chart-snap line; `ctL` = guard the .ct-l grouping.
+  hover: {
+    boards: [
+      { name: 'C1 S-curve', selector: '.scurve', snap: true, cursor: 'crosshair' },
+      { name: 'C2 Submission Flow', selector: '.c2-stack', snap: true, cursor: 'crosshair', ctL: true },
+      { name: 'C3 Breakdown', selector: '.c3-card', snap: false, cursor: 'crosshair' },
+      { name: 'C4 Turnaround', selector: '.c4-chart', snap: false, cursor: 'crosshair' },
+    ],
+    kpi: { name: 'KPI card', selector: '.kpi-card', snap: false, cursor: 'help' },
   },
 };

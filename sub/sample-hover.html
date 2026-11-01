@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chart Hover Floating-Window — Standard Sample</title>
+<style>
+  :root{
+    --bg:#f4f6fa; --surface:#fff; --border:#d8dee9; --shadow:0 6px 20px rgba(15,30,55,.14);
+    --text:#1f314f; --text2:#5b6b85; --text3:#9aa7bd;
+    --color-plan:#2b6cf6; --color-forecast:#F9A825; --color-actual:#17a67a;
+    --color-new:#1f6fb2; --color-resub:#f4a259;
+    --color-app:#65a30d; --color-awc:#0891b2; --color-nap:#db2777; --color-rej:#d23b3b; --color-inf:#64748B;
+    --red:#d23b3b; --blue:#2b6cf6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,Segoe UI,Roboto,Arial,sans-serif}
+  .app-top{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px}
+  .app-top h1{margin:0;font-size:16px}
+  .app-top p{margin:4px 0 0;color:var(--text2);font-size:12px}
+  .wrap{max-width:1100px;margin:20px auto;padding:0 20px;display:grid;gap:18px}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px}
+  .panel h2{margin:0 0 4px;font-size:14px}
+  .panel .sub{margin:0 0 12px;color:var(--text2);font-size:12px}
+  .legend{display:flex;gap:16px;font-size:11px;color:var(--text2);margin-top:10px;flex-wrap:wrap}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:middle}
+  .notes{background:#eef3fb;border:1px solid var(--border);border-radius:12px;padding:14px 16px;font-size:12px;color:var(--text2)}
+  .notes b{color:var(--text)}
+  .notes ul{margin:8px 0 0;padding-left:18px}
+  .notes li{margin:3px 0}
+
+  /* ===== STANDARDIZED floating window (spec §4.x) ===== */
+  .chart-board{position:relative;max-width:100%}
+  .chart-svg{display:block;width:100%}
+  .chart-tip{
+    position:absolute; pointer-events:none;
+    background:var(--surface); border:1px solid var(--border); border-radius:8px;
+    box-shadow:var(--shadow); padding:8px 10px; font-size:11px; line-height:1.45;
+    color:var(--text); z-index:30; max-width:230px;
+  }
+  .chart-tip[hidden]{display:none}
+  .chart-tip b{font-weight:700}
+  .ct-row{display:flex;align-items:center;gap:6px;justify-content:space-between;margin-top:2px}
+  .ct-row .ct-l{display:flex;align-items:center;gap:6px}
+  .ct-sw{width:9px;height:9px;border-radius:2px;display:inline-block}
+  .ct-foot{margin-top:6px;padding-top:5px;border-top:1px solid var(--border);font-weight:700;display:flex;justify-content:space-between}
+  .chart-snap{stroke:var(--text3);stroke-width:1;stroke-dasharray:3 3}
+  .ct-tot{margin-top:6px;padding-top:5px;border-top:1px solid var(--border)}
+
+  /* ===== KPI cards (also use the standardized floating window) ===== */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;cursor:help}
+  .kpi-card .kpi-label{font-size:11px;color:var(--text2)}
+  .kpi-card .kpi-value{font-size:20px;font-weight:700;margin-top:4px}
+  .kpi-card .kpi-value.warn{color:var(--red)}
+  .ct-block{margin-top:6px;font-size:10.5px;line-height:1.4;color:var(--text2)}
+  .ct-block .ct-k{display:block;font-weight:700;color:var(--text);font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:1px}
+</style>
+</head>
+<body>
+  <div class="app-top">
+    <h1>Chart Hover Floating-Window — Standard Sample</h1>
+    <p>One unified <code>.chart-tip</code> component across chart types. Content (header / series rows / totals) is authored per chart in its workplan §; the window shell, styling, positioning and snap line are standardized here.</p>
+  </div>
+
+  <div class="wrap">
+    <div class="panel">
+      <h2>C1 — Schedule Performance (S-curve)</h2>
+      <p class="sub">Axis chart · snap line ON · content = month + Plan / Forecast / Actual</p>
+      <div class="chart-board" id="board-sc"></div>
+      <div class="legend">
+        <span><i style="background:var(--color-plan)"></i>Plan</span>
+        <span><i style="background:var(--color-forecast)"></i>Forecast</span>
+        <span><i style="background:var(--color-actual)"></i>Actual</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>C3 — Breakdown (grouped bars)</h2>
+      <p class="sub">Axis chart · snap line ON · content = discipline + New / Resub + Total</p>
+      <div class="chart-board" id="board-bar"></div>
+      <div class="legend">
+        <span><i style="background:var(--color-new)"></i>New</span>
+        <span><i style="background:var(--color-resub)"></i>Resubmission</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>C3 — Approval Mix (pie)</h2>
+      <p class="sub">Radial chart · snap line OFF (optional per chart) · nearest point is 2-D · content = segment + value + %</p>
+      <div class="chart-board" id="board-pie"></div>
+      <div class="legend">
+        <span><i style="background:var(--color-app)"></i>APP</span>
+        <span><i style="background:var(--color-awc)"></i>AWC</span>
+        <span><i style="background:var(--color-nap)"></i>NAP</span>
+        <span><i style="background:var(--color-rej)"></i>REJ</span>
+        <span><i style="background:var(--color-inf)"></i>INF</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Bottleneck KPI cards</h2>
+      <p class="sub">No axis · window placed <b>below</b> the card (never covers it) · content = purpose / data source / calculation (authored per KPI in workplan)</p>
+      <div class="kpi-grid" id="kpi-strip"></div>
+    </div>
+
+    <div class="notes">
+      <b>Standardized details demonstrated (for spec review):</b>
+      <ul>
+        <li><b>Single component</b>: one <code>.chart-tip</code> class + one <code>.chart-snap</code> class for every chart (replaces the divergent <code>.scurve-tip</code> vs <code>.c2-tip</code>).</li>
+        <li><b>Tokenized visual contract</b>: surface/border/shadow/radius(8px)/font(11px)/max-width(230px)/z-index(30) all from design tokens; <code>pointer-events:none</code>. (Fixes the C2 hard-coded dark style.)</li>
+        <li><b>4-edge clamping</b>: window flips left near the right edge and up near the bottom edge (uses real <code>offsetWidth/Height</code>); never escapes the chart board.</li>
+        <li><b>Optional snap line</b>: present on axis charts, omitted on the pie — the standard allows per-chart choice.</li>
+        <li><b>Single delegated binder</b>: one <code>bindChartHover(board)</code> function, applied to every <code>.chart-board</code>; not duplicated per chart.</li>
+        <li><b>Content separation</b>: each point carries pre-rendered <code>html</code>; the chart's workplan § decides what to show, the standard only presents it.</li>
+        <li><b>Unified data plumbing</b>: <code>data-points</code> (with cx, optional cy, html) + <code>data-geo</code> ({W,H}) on the board.</li>
+        <li><b>Trigger</b>: <code>mousemove</code> opens, <code>mouseleave</code> closes (touch/tap variant TBD in spec).</li>
+        <li><b>Accessibility</b>: <code>role="tooltip"</code>; note for review — keyboard/focus parity still to be specified.</li>
+        <li><b>KPI cards</b>: the same <code>.chart-tip</code> is applied to KPI cards, but placed <b>below</b> the card (never covers it). Proves the standard is chart-agnostic and that placement can vary by host; per-KPI content (purpose / data source / calculation) is defined in the workplan, not the spec.</li>
+        <li><b>Totals &amp; percentages</b>: S-curve and bar hovers now append a totals block (one top border) — grand totals plus a percentage where applicable: S-curve shows Total plan / Total actual / Actual % of plan; bars show Total / Resub % / Share of all.</li>
+      </ul>
+    </div>
+  </div>
+
+<script>
+function el(html){ const d=document.createElement('div'); d.innerHTML=html.trim(); return d.firstElementChild; }
+
+/* ---------- shared hover binder (the standardized behavior) ---------- */
+function bindChartHover(board){
+  const tip = board.querySelector('.chart-tip');
+  if(!tip) return;
+  const svg = board.querySelector('svg');
+  const snap = svg ? svg.querySelector('.chart-snap') : null;
+  const raw = board.getAttribute('data-points');
+  const tipAttr = board.getAttribute('data-tip');
+  const pts = raw ? JSON.parse(raw.replace(/&#39;/g,"'"))
+                  : (tipAttr ? [{html: tipAttr.replace(/&#39;/g,"'")}] : []);
+  const geo = JSON.parse(board.getAttribute('data-geo')||'{}');
+  if(!pts.length) return;
+  // cursor-following placement for charts (clamped to all four edges)
+  const placeCursor = e => {
+    const br = board.getBoundingClientRect();
+    let tx = e.clientX - br.left + 14, ty = e.clientY - br.top + 14;
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    if (tx + tw > br.width)  tx = e.clientX - br.left - tw - 14;   // flip left
+    if (tx < 0) tx = 4;
+    if (ty + th > br.height) ty = e.clientY - br.top - th - 14;    // flip up
+    if (ty < 0) ty = 4;
+    tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
+  };
+  // below-host placement for KPI cards: always below the card, never covers it (centred, clamped)
+  const placeBelow = () => {
+    const br = board.getBoundingClientRect();
+    const tw = tip.offsetWidth;
+    let tx = (br.width - tw) / 2; if (tx < 0) tx = 0;
+    tip.style.left = tx + 'px';
+    tip.style.top = (br.height + 8) + 'px';
+  };
+  if (svg && geo.W){
+    svg.addEventListener('mousemove', e => {
+      const rect = svg.getBoundingClientRect(); if(!rect.width) return;
+      const ux = (e.clientX - rect.left) / rect.width * geo.W;
+      const uy = geo.H ? (e.clientY - rect.top) / rect.height * geo.H : 0;
+      let best = 0, bd = Infinity;
+      pts.forEach((p,i) => {
+        const dx = p.cx - ux;
+        const dy = (p.cy != null) ? (p.cy - uy) : 0;   // 2-D for radial, 1-D for axis
+        const d = Math.hypot(dx, dy);
+        if (d < bd){ bd = d; best = i; }
+      });
+      const p = pts[best]; if(!p) return;
+      if (snap){ snap.setAttribute('x1', p.cx); snap.setAttribute('x2', p.cx); snap.style.display = ''; }
+      tip.hidden = false; tip.innerHTML = p.html; placeCursor(e);
+    });
+    svg.addEventListener('mouseleave', () => { if(snap) snap.style.display='none'; tip.hidden = true; });
+  } else {
+    // KPI / single-point host: no axis — show below the card (never covers it).
+    const showBelow = () => { tip.hidden = false; tip.innerHTML = pts[0].html; placeBelow(); };
+    board.addEventListener('mousemove', showBelow);
+    board.addEventListener('mouseleave', () => { tip.hidden = true; });
+  }
+}
+
+/* ---------- C1 S-curve ---------- */
+(function(){
+  const W=820,H=340,mL=58,mR=18,mT=18,mB=42,plotW=W-mL-mR,plotH=H-mT-mB;
+  const months=['2026-01','2026-02','2026-03','2026-04','2026-05','2026-06'];
+  const plan=[10,25,45,70,95,120], forecast=[12,28,50,78,104,130], actual=[8,20,38,60,85,110];
+  const planTotal=plan[plan.length-1], actualTotal=actual[actual.length-1];
+  const n=months.length, max=140;
+  const x=i=> mL + (n===1?plotW/2:i/(n-1)*plotW);
+  const y=v=> mT + (1 - v/max)*plotH;
+  const line=(arr,cls)=>`<polyline class="${cls}" fill="none" stroke-width="2.5" points="${arr.map((v,i)=>x(i).toFixed(1)+','+y(v).toFixed(1)).join(' ')}"/>`;
+  let s=`<svg class="chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="S-curve">`;
+  for(let g=0;g<=4;g++){const v=max*g/4,yy=y(v);s+=`<line x1="${mL}" y1="${yy.toFixed(1)}" x2="${mL+plotW}" y2="${yy.toFixed(1)}" stroke="var(--border)"/>`;s+=`<text x="${mL-6}" y="${(yy+3).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--text3)">${v}</text>`;}
+  s+=line(plan,'sc-line-plan'); s+=line(forecast,'sc-line-forecast'); s+=line(actual,'sc-line-actual');
+  s+=`<line class="chart-snap" x1="0" y1="${mT}" x2="0" y2="${mT+plotH}" style="display:none"/>`;
+  s+='</svg>';
+  const board=document.getElementById('board-sc');
+  board.innerHTML=s+'<div class="chart-tip" role="tooltip" hidden></div>';
+  const pts=months.map((m,i)=>{const pct=actual[i]/planTotal*100;return{cx:x(i),html:`<b>${m}</b>`+
+    `<div class="ct-row"><span class="ct-l"><i class="ct-sw" style="background:var(--color-plan)"></i>Plan</span><b>${plan[i]}</b></div>`+
+    `<div class="ct-row"><span class="ct-l"><i class="ct-sw" style="background:var(--color-forecast)"></i>Forecast</span><b>${forecast[i]}</b></div>`+
+    `<div class="ct-row"><span class="ct-l"><i class="ct-sw" style="background:var(--color-actual)"></i>Actual</span><b>${actual[i]}</b></div>`+
+    `<div class="ct-tot">`+
+      `<div class="ct-row"><span>Total plan</span><b>${planTotal}</b></div>`+
+      `<div class="ct-row"><span>Total actual</span><b>${actualTotal}</b></div>`+
+      `<div class="ct-row"><span>Actual % of plan</span><b>${pct.toFixed(1)}%</b></div>`+
+    `</div>`};});
+  board.setAttribute('data-points',JSON.stringify(pts));
+  board.setAttribute('data-geo',JSON.stringify({W,H}));
+  bindChartHover(board);
+})();
+
+/* ---------- C3 grouped bars ---------- */
+(function(){
+  const W=820,H=320,mL=50,mR=18,mT=18,mB=42,plotW=W-mL-mR,plotH=H-mT-mB;
+  const discs=['Arch','Struct','MEP','Civil'];
+  const neu=[20,15,18,10], res=[3,2,4,1];
+  const max=Math.max(...neu.map((v,i)=>v+res[i]))*1.15;
+  const grandTotal=discs.reduce((s,_,i)=>s+neu[i]+res[i],0);
+  const n=discs.length, gw=plotW/n, bw=gw*0.26;
+  const y=v=> mT + (1 - v/max)*plotH;
+  let s=`<svg class="chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Breakdown bars">`;
+  for(let g=0;g<=4;g++){const v=max*g/4,yy=y(v);s+=`<line x1="${mL}" y1="${yy.toFixed(1)}" x2="${mL+plotW}" y2="${yy.toFixed(1)}" stroke="var(--border)"/>`;s+=`<text x="${mL-6}" y="${(yy+3).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--text3)">${Math.round(v)}</text>`;}
+  discs.forEach((d,i)=>{
+    const cx=mL+gw*i+gw/2;
+    const xN=cx-bw-2, xR=cx+2;
+    s+=`<rect x="${xN.toFixed(1)}" y="${y(neu[i]).toFixed(1)}" width="${bw}" height="${(mT+plotH-y(neu[i])).toFixed(1)}" rx="2" fill="var(--color-new)"/>`;
+    s+=`<rect x="${xR.toFixed(1)}" y="${y(res[i]).toFixed(1)}" width="${bw}" height="${(mT+plotH-y(res[i])).toFixed(1)}" rx="2" fill="var(--color-resub)"/>`;
+    s+=`<text x="${cx.toFixed(1)}" y="${(mT+plotH+16).toFixed(1)}" text-anchor="middle" font-size="11" fill="var(--text2)">${d}</text>`;
+  });
+  s+=`<line class="chart-snap" x1="0" y1="${mT}" x2="0" y2="${mT+plotH}" style="display:none"/>`;
+  s+='</svg>';
+  const board=document.getElementById('board-bar');
+  board.innerHTML=s+'<div class="chart-tip" role="tooltip" hidden></div>';
+  const pts=discs.map((d,i)=>{const tot=neu[i]+res[i];const resPct=res[i]/tot*100;const share=tot/grandTotal*100;return{cx:mL+gw*i+gw/2,html:`<b>${d}</b>`+
+    `<div class="ct-row"><span class="ct-l"><i class="ct-sw" style="background:var(--color-new)"></i>New</span><b>${neu[i]}</b></div>`+
+    `<div class="ct-row"><span class="ct-l"><i class="ct-sw" style="background:var(--color-resub)"></i>Resubmission</span><b>${res[i]}</b></div>`+
+    `<div class="ct-tot">`+
+      `<div class="ct-row"><span>Total</span><b>${tot}</b></div>`+
+      `<div class="ct-row"><span>Resub %</span><b>${resPct.toFixed(1)}%</b></div>`+
+      `<div class="ct-row"><span>Share of all</span><b>${share.toFixed(1)}%</b></div>`+
+    `</div>`};});
+  board.setAttribute('data-points',JSON.stringify(pts));
+  board.setAttribute('data-geo',JSON.stringify({W,H}));
+  bindChartHover(board);
+})();
+
+/* ---------- C3 pie (radial, no snap line) ---------- */
+(function(){
+  const W=320,H=320,cx=160,cy=150,r=110,sw=22;
+  const segs=[['APP',52,'var(--color-app)'],['AWC',28,'var(--color-awc)'],['NAP',9,'var(--color-nap)'],['REJ',6,'var(--color-rej)'],['INF',5,'var(--color-inf)']];
+  const total=segs.reduce((s,x)=>s+x[1],0);
+  let ang=-Math.PI/2, s=`<svg class="chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Approval mix pie">`;
+  const pts=[];
+  segs.forEach(([label,val,color])=>{
+    const a0=ang, a1=ang+val/total*Math.PI*2; ang=a1;
+    const large=(a1-a0)>Math.PI?1:0;
+    const x0=cx+r*Math.cos(a0), y0=cy+r*Math.sin(a0), x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1);
+    s+=`<path d="M${x0.toFixed(1)} ${y0.toFixed(1)} A ${r} ${r} 0 ${large} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}" fill="none" stroke="${color}" stroke-width="${sw}"/>`;
+    const mid=(a0+a1)/2, mr=r; // centroid of ring segment ~ mid radius
+    pts.push({cx:cx+mr*Math.cos(mid), cy:cy+mr*Math.sin(mid), html:`<b>${label}</b>`+
+      `<div class="ct-row"><span class="ct-l"><i class="ct-sw" style="background:${color}"></i>${label}</span><b>${val}</b></div>`+
+      `<div class="ct-foot"><span>Share</span><span>${(val/total*100).toFixed(1)}%</span></div>`});
+  });
+  s+='</svg>';
+  const board=document.getElementById('board-pie');
+  board.innerHTML=s+'<div class="chart-tip" role="tooltip" hidden></div>';
+  board.setAttribute('data-points',JSON.stringify(pts));
+  board.setAttribute('data-geo',JSON.stringify({W,H}));
+  bindChartHover(board);
+})();
+
+/* ---------- Bottleneck KPI cards (no axis; window placed below the card) ---------- */
+(function(){
+  // KPI hover content is authored per card: Purpose / Data source / Calculation.
+  const kpiTip = (name, purpose, source, calc) =>
+    `<b>${name}</b>`+
+    `<div class="ct-block"><span class="ct-k">Purpose</span>${purpose}</div>`+
+    `<div class="ct-block"><span class="ct-k">Data source</span>${source}</div>`+
+    `<div class="ct-block"><span class="ct-k">Calculation</span>${calc}</div>`;
+  const kpis=[
+    {label:'Long-due SUR &lt;30d', value:'11', warn:false,
+     tip:kpiTip('Long-due SUR &lt;30d',
+       'Flags submissions that are still open (submitted but not yet returned) and already 0 to 30 days past their Target Return Date, so reviewers can act before they age further.',
+       'Submission Log — records with status SUR and no actual return date, matched to each record Target Return Date, evaluated against the asOf date.',
+       'Count of open SUR records where (asOf minus Target Return Date) is between 0 and 30 days.')},
+    {label:'Rework Rate', value:'18.3%', warn:false,
+     tip:kpiTip('Rework Rate',
+       'Shows how much rework the review process is generating through resubmissions.',
+       'Submission Log — documents with at least one resubmission (a submission after the first for the same document).',
+       'Resubmitted documents divided by total documents, times 100 percent.')},
+    {label:'Avg Review Cycle', value:'14.2 d', warn:false,
+     tip:kpiTip('Avg Review Cycle',
+       'Shows the typical turnaround time from submission to return.',
+       'Submission Log — records that have both a submission date and an actual return date.',
+       'Mean of (actual return date minus submission date) in days.')},
+    {label:'Avg Approval Cycle', value:'21.0 d', warn:false,
+     tip:kpiTip('Avg Approval Cycle',
+       'Shows how long it takes from first submission to first approval.',
+       'Submission Log — first submission date (earliest submission date per document) and first approval date (first AWC or APC status date per document).',
+       'Mean of (first approval date minus first submission date) in days.')},
+    {label:'Avg Review Delay', value:'6.4 d', warn:true,
+     tip:kpiTip('Avg Review Delay',
+       'Quantifies how late returns are versus the promised target.',
+       'Submission Log — delay days per returned record (returned late versus target).',
+       'Mean of delay days across returned records.')}
+  ];
+  const wrap=document.getElementById('kpi-strip');
+  kpis.forEach(k=>{
+    const card=el(`<div class="kpi-card chart-board" data-tip='${k.tip.replace(/'/g,"&#39;")}'>`+
+      `<div class="kpi-label">${k.label}</div><div class="kpi-value${k.warn?' warn':''}">${k.value}</div>`+
+      `<div class="chart-tip" role="tooltip" hidden></div></div>`);
+    wrap.appendChild(card);
+    bindChartHover(card);
+  });
+})();
+</script>
+</body>
+</html>

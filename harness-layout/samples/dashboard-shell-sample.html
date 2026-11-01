@@ -1,0 +1,688 @@
+<!doctype html>
+<!--
+  Revision 1.1 | 2026-10-30 | opencode (AI) | Raised chip text contrast to --text with a status
+  dot, added --amber-ink for warning codes, and widened the sidebar to 190 px so the menu labels
+  do not wrap.
+  Revision 1.0 | 2026-10-30 | CodeBuddy (AI) | First shell review sample. Implements the
+  Dashboard-UI-Design-Spec.md shell: three-row title bar with the active page label, one-row menu
+  bar (toggle, Load, Export left; filters, Search, Warnings right; layout toggle at the right end),
+  menu-only navy left sidebar with Settings and Help pinned to the bottom, warning surface inside
+  the content area, and the navy status bar. No welcome overlay and no data pipeline, because this
+  page is a layout review artefact only. See README.md in this folder.
+-->
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Dashboard shell — review sample</title>
+  <style>
+/* Shell review sample. Tokens follow Dashboard-UI-Design-Spec.md §6; shell follows §3.1-§3.3. */
+:root{
+  color-scheme:light;
+  --navy:#15314f; --blue:#2b6cf6; --green:#17a67a; --amber:#F9A825; --red:#d23b3b; --slate:#64748B;
+  --bg:#eef2f8; --surface:#FFFFFF; --surface2:#F1F5F9; --surface3:#E8EDF3;
+  --border:#D9E1E8; --text:#1F2A37; --text2:#526171; --text3:#6b7785;
+  --accent:#2b6cf6; --accent-alt:#17a67a; --success:#17a67a; --warning:#F9A825; --danger:#d23b3b; --info:#2b6cf6;
+  --amber-ink:#8a5a00;
+  --tag-bg:#EAF2FB; --tag-border:#CBDDEF; --row-stripe:#F7F9FB; --row-hover:#EAF2FB; --th-bg:#E8EDF3;
+  --shadow:0 1px 2px rgba(16,32,64,.04),0 8px 24px rgba(16,32,64,.05);
+  --titlebar-h:56px; --menubar-h:48px; --sidebar-w:190px; --statusbar-h:30px;
+  --radius:12px; --radius-sm:6px; --radius-lg:14px;
+  --line:#D9E1E8; --muted:#526171; --soft:#EAF2FB; --accent-ink:#2b6cf6;
+  --font-ui:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+}
+[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0f1722; --surface:#16202e; --surface2:#1d2a3b; --surface3:#243446;
+  --border:#2c3c52; --text:#e6edf5; --text2:#aebccd; --text3:#7e8ea2; --muted:#aebccd;
+  --accent:#2b6cf6; --accent-alt:#17a67a; --success:#17a67a; --warning:#F9A825; --danger:#d23b3b; --info:#2b6cf6;
+  --amber-ink:#f5c451;
+  --tag-bg:#1d2a3b; --tag-border:#34507a; --row-stripe:#121b27; --row-hover:#1d2a3b; --th-bg:#1b2838;
+  --shadow:0 1px 2px rgba(15,45,82,.18);
+}
+[data-theme="sky"]{
+  color-scheme:dark;
+  --bg:#0b1a2e; --surface:#10233b; --surface2:#172e4b; --surface3:#203b5b;
+  --border:#2b4968; --text:#ecf5ff; --text2:#bfd0e2; --text3:#91a8bf; --muted:#bfd0e2;
+  --accent:#69b7ff; --accent-alt:#74d2d0; --success:#4fc58b; --warning:#f0bd52; --danger:#ff8278; --info:#69b7ff;
+  --amber-ink:#f0bd52;
+  --tag-bg:#173858; --tag-border:#31597d; --row-stripe:#102037; --row-hover:#1b3858; --th-bg:#18324f;
+  --shadow:0 1px 4px #0004;
+}
+[data-theme="ocean"]{
+  color-scheme:dark;
+  --bg:#0a1929; --surface:#10263a; --surface2:#17324a; --surface3:#20415d;
+  --border:#2b4b65; --text:#e8f6f8; --text2:#b5cdd3; --text3:#88a9b3; --muted:#b5cdd3;
+  --accent:#43c6c8; --accent-alt:#71a9f7; --success:#59c69b; --warning:#e4b958; --danger:#fb7e7e; --info:#43c6c8;
+  --amber-ink:#e4b958;
+  --tag-bg:#14394a; --tag-border:#2c5966; --row-stripe:#0f2234; --row-hover:#19384e; --th-bg:#173349;
+  --shadow:0 1px 4px #0004;
+}
+[data-theme="presentation"]{
+  color-scheme:dark;
+  --bg:#0c0c0c; --surface:#171717; --surface2:#202020; --surface3:#2a2a2a;
+  --border:#3a3a3a; --text:#ffffff; --text2:#d8d8d8; --text3:#9a9a9a; --muted:#d8d8d8;
+  --accent:#55aaff; --accent-alt:#c69bff; --success:#55d68b; --warning:#ffd166; --danger:#ff6b6b; --info:#55aaff;
+  --amber-ink:#ffd166;
+  --tag-bg:#202020; --tag-border:#505050; --row-stripe:#141414; --row-hover:#252525; --th-bg:#202020;
+  --shadow:0 1px 4px #0006;
+}
+*{box-sizing:border-box}
+html,body{height:100%;overflow:hidden;margin:0}
+body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);
+  font:13px/1.45 var(--font-ui);transition:background .25s,color .25s}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* ===== Shell — spec §3.1 ===== */
+.app{display:flex;flex-direction:column;height:100vh;min-height:0;overflow:hidden}
+.app-bar{flex:none;display:flex;flex-direction:column;z-index:20}
+.app-top{display:flex;justify-content:space-between;align-items:center;gap:12px;
+  background:var(--navy);color:#fff;padding:10px 20px;min-height:var(--titlebar-h)}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{height:36px;padding:0 8px;background:#fff;color:var(--navy);border-radius:6px;
+  font-size:11px;font-weight:700;letter-spacing:.06em;display:flex;align-items:center;
+  box-shadow:0 1px 3px rgba(0,0,0,.2);flex-shrink:0}
+.ttl-stack{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ttl{font-size:17px;font-weight:600;line-height:1.2;margin:0;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.ttl-stack .sub{font-size:12px;font-weight:500;color:rgba(255,255,255,.8);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.ttl-stack .meta{font-size:11px;font-weight:400;opacity:.85}
+.page-title{font-size:16px;font-weight:600;line-height:1.2;color:#fff;white-space:nowrap;flex-shrink:0}
+
+/* ===== Menu bar — one row, spec §3.1 ===== */
+.app-menu{display:flex;align-items:center;gap:12px;background:var(--surface);color:var(--text);
+  padding:8px 20px;min-height:var(--menubar-h);border-bottom:1px solid var(--border);flex-wrap:nowrap}
+.app-menu .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.app-menu .filter-group{display:flex;align-items:center;gap:8px;margin-left:auto;
+  flex-wrap:nowrap;flex-shrink:0;overflow:visible}
+.app-menu .btn{border:0;background:transparent;color:var(--navy);cursor:pointer;font-size:12px;
+  font-weight:600;line-height:1.2;min-height:32px;padding:7px 14px;border-radius:6px}
+[data-theme="dark"] .app-menu .btn,[data-theme="sky"] .app-menu .btn,
+[data-theme="ocean"] .app-menu .btn,[data-theme="presentation"] .app-menu .btn{color:var(--text)}
+.app-menu .btn:hover{background:var(--surface2)}
+.app-menu .btn-primary{background:var(--blue);color:#fff}
+.app-menu .btn-primary:hover{background:#1f5fcc}
+.app-menu .btn[data-shell-toggle]{padding:7px 8px;margin-right:-4px;font-size:14px}
+.app-menu .warn-toggle{display:flex;align-items:center;gap:6px;margin-left:6px}
+.app-menu .warn-toggle .badge{background:var(--amber);color:#1b2a41;border-radius:10px;
+  padding:1px 7px;font-weight:700;font-size:11px}
+.app-menu #layout-button{padding:7px 8px;flex-shrink:0}
+.tf-wrap{position:relative;flex-shrink:0}
+.tf-btn{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;
+  color:var(--navy);padding:7px 12px;min-height:32px;font-size:12px;font-weight:600;
+  line-height:normal;border-radius:6px;white-space:nowrap;cursor:pointer}
+[data-theme="dark"] .tf-btn,[data-theme="sky"] .tf-btn,
+[data-theme="ocean"] .tf-btn,[data-theme="presentation"] .tf-btn{color:var(--text)}
+.tf-btn:hover{background:var(--soft)}
+.tf-btn[aria-expanded="true"],.tf-btn.is-filtered{background:var(--soft)}
+.tf-cnt{font-size:10px;font-weight:700;color:var(--accent-ink);padding-left:2px}
+.tf-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:60;min-width:220px;
+  max-width:min(340px,90vw);max-height:320px;overflow:auto;background:var(--surface);
+  border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:10px}
+.tf-panel[hidden]{display:none}
+.tf-panel .tf-all,.tf-panel .tf-item{display:flex;align-items:center;gap:8px;font-size:12px;
+  padding:5px 2px;border-radius:4px;cursor:pointer}
+.tf-panel .tf-item:hover{background:var(--soft)}
+.tf-panel .tf-all input,.tf-panel .tf-item input{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0}
+.tf-panel .tf-all b{font-weight:700}
+.tf-panel .tf-hint{margin:2px 2px 6px;font-size:10px;color:var(--muted);line-height:1.35}
+.tf-panel .tf-divider{height:1px;background:var(--border);margin:2px 0 6px}
+.search-panel{width:min(92vw,640px);max-width:none}
+.search-row{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+.search{display:flex;align-items:center;background:var(--surface);border:1px solid var(--border);
+  border-radius:6px;min-height:28px;flex:1 1 auto;min-width:240px}
+.search:focus-within{border-color:var(--blue);box-shadow:0 0 0 2px var(--soft)}
+.search select{border:0;border-right:1px solid var(--border);background:var(--bg);
+  color:var(--text);font-weight:600;font-size:12px;border-radius:6px 0 0 6px;height:26px;padding:0 8px}
+.search input{border:0;background:transparent;font-size:12px;flex:1 1 220px;min-width:0;
+  height:26px;padding:0 8px;outline:none}
+.search input::placeholder{color:var(--muted)}
+.btn-primary{background:var(--blue);color:#fff;border:0;padding:7px 14px;border-radius:6px;
+  font-size:12px;font-weight:600;min-height:32px}
+.btn-primary:hover{background:#1f5fcc}
+.btn-secondary{background:var(--surface);border:1px solid var(--border);color:var(--navy);
+  padding:7px 14px;border-radius:6px;font-size:12px;font-weight:600;min-height:32px}
+[data-theme="dark"] .btn-secondary,[data-theme="sky"] .btn-secondary,
+[data-theme="ocean"] .btn-secondary,[data-theme="presentation"] .btn-secondary{color:var(--text)}
+.btn-secondary:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* ===== Shell row, sidebar, content — spec §3.2 / §3.3 ===== */
+.shell-row{flex:1;min-height:0;display:flex}
+.left-sidebar{position:relative;flex:none;width:var(--sidebar-w);min-width:0;background:var(--navy);
+  color:#E8EDF3;overflow:auto;transition:width .2s ease;z-index:15;display:flex;
+  flex-direction:column;padding:10px;border-right:1px solid rgba(255,255,255,.18)}
+.closed-left-sidebar .left-sidebar{width:0!important;border:0;padding-left:0;padding-right:0;overflow:hidden}
+.closed-left-sidebar .left-sidebar>*{display:none}
+.sb-menu,.sb-bottom{display:flex;flex-direction:column}
+.sb-bottom{margin-top:auto}
+.page-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;
+  color:#dfe8f3;font-size:14px;font-weight:400;border:0;background:transparent;text-align:left}
+.page-link:hover{background:rgba(255,255,255,.1)}
+.page-link.active{background:var(--blue);color:#fff;font-weight:600}
+.resize-handle{position:absolute;top:0;right:0;width:5px;height:100%;cursor:col-resize}
+.resize-handle:hover,.resize-handle:active{background:rgba(255,255,255,.35)}
+.content{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg)}
+.filter-area{padding:0 16px}
+.content-body{flex:1;min-height:0;overflow:auto;padding:0 16px 16px}
+
+/* ===== Warning surface — spec §3.5 ===== */
+.warning-area{margin:12px 0 0;padding:10px 12px;border-radius:8px;background:var(--surface);
+  border:1px solid var(--border)}
+.warning-area[hidden]{display:none}
+.warn-item{display:flex;align-items:baseline;gap:8px;font-size:12px;font-weight:400;padding:3px 0}
+.warn-item b{font-weight:700}
+.warn-item.warning b{color:var(--amber-ink)}
+.warn-item.info b{color:var(--info)}
+.warn-item.fatal b{color:var(--danger)}
+
+/* ===== Panels — spec §4 ===== */
+.panel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:12px;
+  align-items:start;margin-top:12px}
+body[data-layout="1"] .panel-grid{grid-template-columns:minmax(0,1fr)}
+body[data-layout="2"] .panel-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+body[data-layout="3"] .panel-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.panel.wide{grid-column:1/-1}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  box-shadow:var(--shadow);padding:14px 14px 26px;position:relative;min-width:0;margin:0}
+.panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;
+  bottom:8px;font-size:10px;letter-spacing:.04em;color:var(--muted);pointer-events:none}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 10px}
+.panel h2{font-size:13px;font-weight:700;margin:0;color:var(--navy);text-transform:uppercase;
+  letter-spacing:.04em;line-height:1.4}
+[data-theme="dark"] .panel h2,[data-theme="sky"] .panel h2,
+[data-theme="ocean"] .panel h2,[data-theme="presentation"] .panel h2{color:var(--text)}
+.panel-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;
+  min-height:26px;padding:0;font-size:13px;font-weight:600;line-height:1;border:1px solid var(--line);
+  border-radius:6px;background:var(--surface);color:var(--muted)}
+.icon-btn:hover{background:var(--surface2);color:var(--navy)}
+.panel.collapsed>.panel-body{display:none}
+
+/* ===== KPI — spec §5 ===== */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.kpi{box-sizing:border-box;height:72px;padding:10px;background:var(--surface);
+  border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;box-shadow:none}
+.kpi .v{font-size:22px;font-weight:700;color:var(--navy)}
+[data-theme="dark"] .kpi .v,[data-theme="sky"] .kpi .v,
+[data-theme="ocean"] .kpi .v,[data-theme="presentation"] .kpi .v{color:var(--text)}
+.kpi .l{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.kpi.ok{border-top-color:var(--green)}
+.kpi.amb{border-top-color:var(--amber)}
+.kpi.warn{border-top-color:var(--red)}
+.kpi.muted{border-top-color:var(--slate)}
+.kpi.err{border-top-color:#8E24AA}
+
+/* ===== List rows (illustrative, not a bounded table) ===== */
+.fp-row{display:grid;grid-template-columns:120px minmax(0,1fr) 96px;gap:10px;align-items:center;
+  padding:7px 2px;border-bottom:1px solid var(--border);font-size:12px}
+.fp-row:last-child{border-bottom:0}
+.fp-row .doc{font-family:var(--font-mono);font-size:11px;color:var(--text2)}
+.fp-row .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:1px 8px;border-radius:10px;
+  font-size:11px;font-weight:700;border:1px solid var(--border);background:var(--surface2);color:var(--text)}
+.chip::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--chip,var(--slate));flex:none}
+.chip.late{--chip:var(--danger);border-color:var(--danger)}
+.chip.soon{--chip:var(--warning);border-color:var(--warning)}
+.chip.ok{--chip:var(--success);border-color:var(--success)}
+.list-note{margin:8px 0 0;font-size:10px;color:var(--muted)}
+.vrow{display:grid;grid-template-columns:86px minmax(0,1fr);gap:10px;padding:8px 2px;
+  border-bottom:1px solid var(--border);font-size:12px;align-items:baseline}
+.vrow:last-child{border-bottom:0}
+.vrow .rule{font-family:var(--font-mono);font-size:11px;color:var(--text2)}
+.vrow .msg{color:var(--text)}
+.vrow .msg b{font-weight:700}
+
+/* ===== Status bar — spec §3.6 ===== */
+.status-bar{flex:none;height:var(--statusbar-h);display:flex;align-items:center;
+  justify-content:space-between;gap:12px;background:var(--navy);color:#fff;padding:0 16px;
+  font-size:12px;white-space:nowrap;overflow:hidden}
+.status-bar .status-left{display:flex;gap:6px;align-items:baseline;min-width:0;overflow:hidden;
+  text-overflow:ellipsis}
+.status-bar b{color:#bfe0ff;font-weight:700}
+.status-bar .status-right{color:rgba(255,255,255,.7);flex-shrink:0}
+
+/* ===== Modals ===== */
+.modal{position:fixed;inset:0;z-index:100;background:rgba(15,25,40,.45);display:flex;
+  align-items:center;justify-content:center;padding:24px}
+.modal[hidden]{display:none}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  box-shadow:var(--shadow);width:min(520px,94vw);max-height:80vh;overflow:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:12px 14px;border-bottom:1px solid var(--border)}
+.modal-head h3{margin:0;font-size:14px;color:var(--navy)}
+[data-theme="dark"] .modal-head h3,[data-theme="sky"] .modal-head h3,
+[data-theme="ocean"] .modal-head h3,[data-theme="presentation"] .modal-head h3{color:var(--text)}
+.modal-body{padding:14px}
+.setting{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;
+  font-size:13px}
+.setting select{min-height:32px;border:1px solid var(--border);border-radius:6px;
+  background:var(--surface);color:var(--text);padding:0 8px}
+.help-line{margin:0 0 10px;font-size:13px;color:var(--text2)}
+.help-line code{font-family:var(--font-mono);font-size:12px;color:var(--text)}
+</style>
+</head>
+<body data-layout="2">
+
+<div class="app">
+  <header class="app-bar">
+    <div class="app-top" data-shell="titlebar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">SAMPLE</div>
+        <div class="ttl-stack">
+          <h1 class="ttl">Sample Project — Engineering Document Control</h1>
+          <div class="sub">Procurement Package Plan · Document Submittal Log</div>
+          <div class="meta">Project start 2026-03-19 · as of 2026-10-30</div>
+        </div>
+      </div>
+      <div class="page-title" id="page-title" aria-live="polite">Overview</div>
+    </div>
+
+    <div class="app-menu" data-shell="menubar">
+      <button class="btn" id="sidebar-toggle" data-shell-toggle="left-sidebar"
+        aria-expanded="true" aria-controls="left-sidebar" title="Toggle navigation panel"
+        aria-label="Toggle navigation panel">☰</button>
+      <div class="actions">
+        <button class="btn btn-primary" id="load-btn" title="Choose the project workbooks">Load Workbook</button>
+        <button class="btn" id="export-btn" title="Export the current view">Export</button>
+      </div>
+
+      <div class="filter-group" id="global-filters">
+        <div class="tf-wrap">
+          <button class="tf-btn" id="fDiscipline" aria-haspopup="true" aria-expanded="false"
+            aria-controls="panelDiscipline">Discipline <span class="tf-cnt" id="cntDiscipline">All</span> ▾</button>
+          <div class="tf-panel" id="panelDiscipline" hidden>
+            <label class="tf-all"><input type="checkbox" id="allDiscipline" checked> <b>All disciplines</b></label>
+            <div class="tf-hint">Narrows every panel — this is a global filter.</div>
+            <div class="tf-divider"></div>
+            <label class="tf-item"><input type="checkbox" class="disc" checked> Civil</label>
+            <label class="tf-item"><input type="checkbox" class="disc" checked> Mechanical</label>
+            <label class="tf-item"><input type="checkbox" class="disc" checked> Electrical</label>
+            <label class="tf-item"><input type="checkbox" class="disc" checked> Piping</label>
+            <label class="tf-item"><input type="checkbox" class="disc" checked> (blank)</label>
+          </div>
+        </div>
+
+        <div class="tf-wrap">
+          <button class="tf-btn" id="fStatus" aria-haspopup="true" aria-expanded="false"
+            aria-controls="panelStatus">Status <span class="tf-cnt" id="cntStatus">All</span> ▾</button>
+          <div class="tf-panel" id="panelStatus" hidden>
+            <label class="tf-all"><input type="checkbox" id="allStatus" checked> <b>All statuses</b></label>
+            <div class="tf-hint">Narrows every panel — this is a global filter.</div>
+            <div class="tf-divider"></div>
+            <label class="tf-item"><input type="checkbox" class="st" checked> Issued</label>
+            <label class="tf-item"><input type="checkbox" class="st" checked> Not issued</label>
+            <label class="tf-item"><input type="checkbox" class="st" checked> Overdue</label>
+          </div>
+        </div>
+
+        <div class="tf-wrap">
+          <button class="btn" id="search-button" aria-haspopup="dialog" aria-expanded="false"
+            aria-controls="searchPanel" title="Search applies to all panels">Search</button>
+          <div class="tf-panel search-panel" id="searchPanel" role="dialog" hidden
+            aria-label="Search documents — applies to all panels">
+            <div class="search-row">
+              <div class="search">
+                <select id="fCol" aria-label="Search column">
+                  <option value="all">All fields</option>
+                  <option value="document">Document No.</option>
+                  <option value="title">Title</option>
+                  <option value="discipline">Discipline</option>
+                </select>
+                <input id="fSearch" type="search" placeholder="Document number, title, or discipline"
+                  aria-label="Search value">
+              </div>
+              <button class="btn-primary" id="fGo" type="button">Find</button>
+              <button class="btn-secondary" id="fReset" type="button">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn warn-toggle" id="warnBtn" aria-pressed="true"
+          aria-controls="warningArea" aria-label="Data-quality warnings (2)">
+          <span class="badge" id="warning-count">2</span> <span>Warnings</span>
+        </button>
+      </div>
+
+      <button class="btn" id="layout-button" title="Change panel layout"
+        aria-label="Change panel layout">▦</button>
+    </div>
+  </header>
+
+  <main class="shell-row">
+    <aside class="left-sidebar" id="left-sidebar" data-shell="left-sidebar"
+      aria-label="Navigation">
+      <nav class="sb-menu page-links" aria-label="Pages">
+        <button class="page-link active" data-page="overview">Overview</button>
+        <button class="page-link" data-page="forward">Forward and Overdue</button>
+        <button class="page-link" data-page="validation">Validation</button>
+      </nav>
+      <nav class="sb-bottom" aria-label="Application">
+        <button class="page-link" id="settings-btn">Settings</button>
+        <button class="page-link" id="help-btn">Help</button>
+      </nav>
+      <div class="resize-handle" data-shell-resize="left-sidebar" role="separator"
+        aria-orientation="vertical" aria-label="Resize navigation panel" tabindex="0"></div>
+    </aside>
+
+    <section class="content" data-shell="content">
+      <div class="filter-area" data-shell="filter-area">
+        <div class="warning-area" id="warningArea" data-shell="warnings"
+          role="alert" aria-live="assertive">
+          <div class="warn-item warning"><b>V-26</b> <span>PO Actual date is set but the PO Number is blank — 19 packages.</span></div>
+          <div class="warn-item info"><b>INFO</b> <span>2 workbooks loaded. The shell sample shows static content.</span></div>
+        </div>
+      </div>
+
+      <div class="content-body" data-shell="body">
+        <div class="panel-grid" id="panelGrid">
+
+          <section class="panel wide" data-panel="1" data-belongs="overview" id="panel-kpi">
+            <div class="panel-head">
+              <h2>KPI Overview</h2>
+              <div class="panel-actions">
+                <button class="icon-btn" data-help="kpi" aria-label="Help for KPI Overview" title="Help">?</button>
+                <button class="icon-btn" data-collapse aria-label="Collapse KPI Overview" title="Collapse">−</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="kpis">
+                <div class="kpi"><div class="v">129</div><div class="l">Packages</div></div>
+                <div class="kpi ok"><div class="v">46</div><div class="l">PO issued</div></div>
+                <div class="kpi amb"><div class="v">19</div><div class="l">PO number missing</div></div>
+                <div class="kpi warn"><div class="v">12</div><div class="l">Overdue</div></div>
+                <div class="kpi muted"><div class="v">64</div><div class="l">Not issued</div></div>
+                <div class="kpi err"><div class="v">0</div><div class="l">Data errors</div></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" data-panel="2" data-belongs="overview forward" id="panel-forward">
+            <div class="panel-head">
+              <h2>Forward and Overdue</h2>
+              <div class="panel-actions">
+                <button class="icon-btn" data-help="forward" aria-label="Help for Forward and Overdue" title="Help">?</button>
+                <button class="icon-btn" data-collapse aria-label="Collapse Forward and Overdue" title="Collapse">−</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="fp-row"><span class="doc">MR-M-0021</span><span class="name">Line pipe, 24 in, API 5L X65</span><span class="chip late">Overdue</span></div>
+              <div class="fp-row"><span class="doc">MR-M-0022</span><span class="name">Pipe fittings, butt-weld, CS</span><span class="chip late">Overdue</span></div>
+              <div class="fp-row"><span class="doc">MR-E-0114</span><span class="name">LV switchgear, 400 V</span><span class="chip soon">Due 7 d</span></div>
+              <div class="fp-row"><span class="doc">MR-C-0031</span><span class="name">Structural steel, bolted</span><span class="chip ok">On plan</span></div>
+              <p class="list-note">4 of 4 rows shown · illustrative content</p>
+            </div>
+          </section>
+
+          <section class="panel" data-panel="3" data-belongs="overview validation" id="panel-validation">
+            <div class="panel-head">
+              <h2>Validation</h2>
+              <div class="panel-actions">
+                <button class="icon-btn" data-help="validation" aria-label="Help for Validation" title="Help">?</button>
+                <button class="icon-btn" data-collapse aria-label="Collapse Validation" title="Collapse">−</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="vrow"><span class="rule">V-26</span><span class="msg"><b>Warning</b> — PO Actual date is set but the PO Number is blank.</span></div>
+              <div class="vrow"><span class="rule">V-08</span><span class="msg"><b>Warning</b> — Supplier name is blank.</span></div>
+              <div class="vrow"><span class="rule">V-20</span><span class="msg"><b>Warning</b> — Long-lead flag is set without a lead time.</span></div>
+              <p class="list-note">3 rules · illustrative content</p>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="status-bar" data-shell="statusbar">
+    <span class="status-left"><b id="status-files">2 workbooks</b> · <span id="status-message">Overview</span></span>
+    <span class="status-right">SHELL SAMPLE v1.0</span>
+  </footer>
+</div>
+
+<div class="modal" id="settings-modal" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <header class="modal-head">
+      <h3 id="settingsTitle">Settings</h3>
+      <button class="icon-btn" data-close="settings-modal" aria-label="Close settings">✕</button>
+    </header>
+    <div class="modal-body">
+      <label class="setting"><span>Theme</span>
+        <select id="theme-select">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="sky">Sky</option>
+          <option value="ocean">Ocean</option>
+          <option value="presentation">Presentation</option>
+        </select>
+      </label>
+      <label class="setting"><span>Show warnings</span>
+        <input type="checkbox" id="show-warnings" checked>
+      </label>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="help-modal" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <header class="modal-head">
+      <h3 id="helpTitle">Help</h3>
+      <button class="icon-btn" data-close="help-modal" aria-label="Close help">✕</button>
+    </header>
+    <div class="modal-body" id="help-body">
+      <p class="help-line">This page reviews the dashboard shell only: title bar, menu bar, left navigation panel, warning surface, and status bar.</p>
+      <p class="help-line">The panels hold static content. Filters, Search, and Load show the control chrome but do not change data.</p>
+      <p class="help-line">Spec clauses: shell <code>§3.1-§3.3</code>, warnings <code>§3.5</code>, status <code>§3.6</code>, panels <code>§4</code>, KPI <code>§5</code>.</p>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} }
+};
+
+function setStatus(msg) { $('#status-message').textContent = msg; }
+
+/* Theme ---------------------------------------------------------------- */
+const themeKey = 'shellsample-theme';
+function applyTheme(name) {
+  document.documentElement.dataset.theme = name;
+  $('#theme-select').value = name;
+  store.set(themeKey, name);
+}
+applyTheme(store.get(themeKey, 'light'));
+$('#theme-select').addEventListener('change', e => applyTheme(e.target.value));
+
+/* Sidebar collapse + resize ------------------------------------------- */
+const sidebar = $('#left-sidebar');
+const toggle = $('#sidebar-toggle');
+const widthKey = 'shellsample-sidebar-w';
+const MIN_W = 180, MAX_W = 320;
+function setSidebarWidth(w) {
+  const v = Math.max(MIN_W, Math.min(MAX_W, w));
+  document.documentElement.style.setProperty('--sidebar-w', v + 'px');
+  return v;
+}
+const savedW = Number(store.get(widthKey, 0));
+if (savedW) setSidebarWidth(savedW);
+
+toggle.addEventListener('click', () => {
+  const closed = document.body.classList.toggle('closed-left-sidebar');
+  toggle.setAttribute('aria-expanded', String(!closed));
+  setStatus(closed ? 'Navigation panel hidden' : 'Navigation panel shown');
+});
+
+let drag = null;
+$('.resize-handle').addEventListener('pointerdown', e => {
+  drag = { x: e.clientX, start: sidebar.getBoundingClientRect().width };
+  e.preventDefault();
+});
+window.addEventListener('pointermove', e => {
+  if (!drag) return;
+  const w = setSidebarWidth(drag.start + (e.clientX - drag.x));
+  drag.last = w;
+});
+window.addEventListener('pointerup', () => {
+  if (!drag) return;
+  if (drag.last) store.set(widthKey, String(Math.round(drag.last)));
+  drag = null;
+});
+
+/* Filter popovers ------------------------------------------------------ */
+function closePopovers(except) {
+  $$('.tf-panel').forEach(p => {
+    if (p === except) return;
+    p.hidden = true;
+    const btn = document.querySelector(`[aria-controls="${p.id}"]`);
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  });
+}
+$$('[aria-haspopup]').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const panel = document.getElementById(btn.getAttribute('aria-controls'));
+    if (!panel) return;
+    const open = panel.hidden;
+    closePopovers(panel);
+    panel.hidden = !open;
+    btn.setAttribute('aria-expanded', String(open));
+  });
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('.tf-wrap')) closePopovers();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closePopovers(); closeModal(); }
+});
+
+function wireFilter(itemsSel, allSel, countSel, noun) {
+  const items = $$(itemsSel);
+  const all = $(allSel);
+  const count = $(countSel);
+  const sync = () => {
+    const n = items.filter(i => i.checked).length;
+    all.checked = n === items.length;
+    all.indeterminate = n > 0 && n < items.length;
+    count.textContent = n === items.length ? 'All' : (n === 0 ? 'None' : `${n} of ${items.length}`);
+    const btn = count.closest('.tf-btn');
+    btn.classList.toggle('is-filtered', n !== items.length);
+  };
+  all.addEventListener('change', () => {
+    items.forEach(i => { i.checked = all.checked; });
+    sync();
+    setStatus(`${noun}: ${count.textContent}`);
+  });
+  items.forEach(i => i.addEventListener('change', () => {
+    sync();
+    setStatus(`${noun}: ${count.textContent}`);
+  }));
+  sync();
+}
+wireFilter('.disc', '#allDiscipline', '#cntDiscipline', 'Discipline');
+wireFilter('.st', '#allStatus', '#cntStatus', 'Status');
+
+/* Search popover (sample: reports the query, does not filter) ---------- */
+$('#fGo').addEventListener('click', () => {
+  const q = $('#fSearch').value.trim();
+  const col = $('#fCol').selectedOptions[0].textContent;
+  setStatus(q ? `Search (sample): ${col} = “${q}”` : 'Search (sample): no query');
+});
+$('#fReset').addEventListener('click', () => {
+  $('#fSearch').value = '';
+  $('#fCol').value = 'all';
+  setStatus('Search reset');
+});
+
+/* Warnings toggle ------------------------------------------------------ */
+const warnBtn = $('#warnBtn');
+const warnArea = $('#warningArea');
+const warnKey = 'shellsample-warn-visible';
+function setWarningsVisible(show) {
+  warnArea.hidden = !show;
+  warnBtn.setAttribute('aria-pressed', String(show));
+  $('#show-warnings').checked = show;
+  store.set(warnKey, show ? '1' : '0');
+}
+setWarningsVisible(store.get(warnKey, '1') === '1');
+warnBtn.addEventListener('click', () => {
+  setWarningsVisible(warnArea.hidden);
+  setStatus(warnArea.hidden ? 'Warnings hidden (2 kept)' : 'Warnings shown');
+});
+$('#show-warnings').addEventListener('change', e => setWarningsVisible(e.target.checked));
+
+/* Layout toggle -------------------------------------------------------- */
+const layouts = [1, 2, 3];
+let layoutIndex = 1;
+$('#layout-button').addEventListener('click', () => {
+  layoutIndex = (layoutIndex + 1) % layouts.length;
+  const n = layouts[layoutIndex];
+  document.body.dataset.layout = String(n);
+  setStatus(`${n}-column layout`);
+});
+
+/* Page switching ------------------------------------------------------- */
+const PAGES = {
+  overview: { title: 'Overview', panels: ['overview'] },
+  forward: { title: 'Forward and Overdue', panels: ['forward'] },
+  validation: { title: 'Validation', panels: ['validation'] }
+};
+function showPage(key) {
+  const page = PAGES[key];
+  if (!page) return;
+  $$('.page-link[data-page]').forEach(b => b.classList.toggle('active', b.dataset.page === key));
+  $('#page-title').textContent = page.title;
+  $$('.panel[data-belongs]').forEach(p => {
+    p.hidden = !p.dataset.belongs.split(' ').includes(key);
+  });
+  setStatus(page.title);
+}
+$$('.page-link[data-page]').forEach(b => b.addEventListener('click', () => showPage(b.dataset.page)));
+
+/* Panel help + collapse ------------------------------------------------ */
+$$('[data-collapse]').forEach(btn => btn.addEventListener('click', () => {
+  const panel = btn.closest('.panel');
+  const collapsed = panel.classList.toggle('collapsed');
+  btn.textContent = collapsed ? '+' : '−';
+  btn.setAttribute('aria-label', `${collapsed ? 'Expand' : 'Collapse'} ${panel.querySelector('h2').textContent}`);
+  setStatus(`${panel.querySelector('h2').textContent} ${collapsed ? 'collapsed' : 'expanded'}`);
+}));
+$$('[data-help]').forEach(btn => btn.addEventListener('click', () => openModal('help-modal')));
+
+/* Modals --------------------------------------------------------------- */
+function openModal(id) {
+  const m = document.getElementById(id);
+  if (!m) return;
+  m.hidden = false;
+  const focusable = m.querySelector('button, select, input');
+  if (focusable) focusable.focus();
+}
+function closeModal(id) {
+  const m = id ? document.getElementById(id) : $('.modal:not([hidden])');
+  if (m) m.hidden = true;
+}
+$('#settings-btn').addEventListener('click', () => openModal('settings-modal'));
+$('#help-btn').addEventListener('click', () => openModal('help-modal'));
+$$('[data-close]').forEach(b => b.addEventListener('click', () => closeModal(b.dataset.close)));
+$$('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); }));
+
+/* Load / Export (sample) ---------------------------------------------- */
+$('#load-btn').addEventListener('click', () => setStatus('Load Workbook (sample): file picker opens in the real page'));
+$('#export-btn').addEventListener('click', () => setStatus('Export (sample): writes the visible view in the real page'));
+</script>
+</body>
+</html>
+

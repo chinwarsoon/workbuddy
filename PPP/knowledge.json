@@ -1,0 +1,679 @@
+{
+  "$schema": "https://github.com/chinwarsoon/workbuddy/schemas/knowledge_base_schema/1.0.0",
+  "$id": "https://github.com/chinwarsoon/workbuddy/PPP/knowledge/1.0.0",
+  "version": "1.0.0",
+  "title": "TWRP C3B2 Procurement Package Plan Dashboard — Knowledge Base",
+  "description": "Machine-readable blueprint of the PPP dashboard: a self-contained offline HTML page that reads the Procurement Package Plan workbook and renders procurement status, plan coverage, look-ahead and validation views.",
+  "project_metadata": {
+    "name": "TWRP C3B2 — Procurement Package Plan Interactive Dashboard",
+    "abbreviation": "PPP",
+    "version": "1.58",
+    "date": "2026-11-01",
+    "description": "Single-file, offline procurement dashboard driven entirely by the Code sheet contract inside the source workbook.",
+    "purpose": "Show package scope, procurement stage coverage, PO issuance trend, look-ahead work, overdue packages, and data-quality findings from one Procurement Package Plan workbook.",
+    "status": "Maintenance",
+    "last_updated": "2026-11-01"
+  },
+  "architecture_overview": {
+    "status": "Modular pipeline (P1-P4, 2026-10-30): src/xlsx-reader.mjs (S0/S1), src/pipeline.mjs (contract, S2, S3, stage helpers, isExcelError/isAbsent) and src/render.mjs (S4 deriveView, paint-only S5, CSV row builders, boot). deriveView(model, STATE) is the only aggregation step. Blank and formula-error cells are absent at S2; S3 emits a fatal W-FORMULA per affected column. build.mjs inlines the modules into the single offline Procurement-Dashboard.html. Five test layers (units, imports, edges, build, panels) and a harness Tier 3 adapter verify it: 236 assertions; harness Tiers 1-4 pass (one advisory). P8.6 is complete (workplan 8.15): the search panel carries an attached column picker and the query is scoped to the chosen column. P8.5 is complete (workplan 8.14): the category filter and search controls follow spec 7.1 B1/A5. P8.4 is complete (workplan 8.13): the layout reflows on any width change (panels shrink, the PO chart follows its host, split tables re-sync) and navigation stays reachable below 820 px. P8.3 is complete (workplan 8.12): stacked panels are separated by a 14 px content-column gap (spec 4, assertion 19). P8.2 is complete (workplan 8.11): the notice area is pinned below the menu bar and outside the scrolling body (spec 3.5, assertion 18). P8.1 is complete (workplan 8.10): per-month bands fix the stale PO hover window and a dashed snap line follows the hovered month. P8 is complete (workplan 8.9): chart and KPI hover detail with keyboard and touch, four-page routing, full validation list with fixed-size severity icons, component polish and contrast enforced hard. 263 assertions; Tiers 1-4 pass with no advisories. Documentation (Rev 1.49): the workplan was restructured (Document ID, scope summary, file reference, decision register), all issues moved to the canonical log, and general UI rules left to the spec. Pipeline status: CONFORMING to spec §3.8 (P5 close-out). P6.1 (2026-10-30): shared spec shell in place (title bar, menu bar, nav sidebar, content zones, status bar); search is an S4 filter. P6.2 (2026-11-01): panels 1-7 conform to spec 4-4.5 - title row with Help/Collapse and a DOM-order number, .c-card chart surfaces, split headers with row counts and CSV, drill accordion with a real button, validation count strip / Rules table / Columns toggle. P6.3 (2026-11-01): KPI cards conform to spec 5 (72 px, two lines, status-class strip), component colour literals are tokens, and the CSV actions use the canonical .btn-secondary with data-act. P6.4 (2026-11-01): five themes (light, dark, sky, ocean, presentation) are token-only remaps with a Settings picker and persistence; workplan 8.9 holds the conformance record with 17 spec 8.2 assertions. P7 (2026-11-01) implemented the spec 7.2.15 split-header contract (one .splitcard container, .vheadwrap header port, --ds-sbw gutter, body-derived column widths, ResizeObserver lock-step) through one syncSplitTable() helper, and closed deviations D15-D18; Tier 4 now passes 85/0.",
+    "modules": [
+      {
+        "name": "Dashboard page",
+        "path": "Procurement-Dashboard.html",
+        "status": "Generated deliverable; one inline IIFE from build.mjs; runnable from file://."
+      },
+      {
+        "name": "XLSX reader",
+        "path": "src/xlsx-reader.mjs",
+        "status": "Complete; ZIP/EOCX + sheet-XML reader (parseXlsx / parseSheet). See I-23 and I-24."
+      },
+      {
+        "name": "Code sheet contract parser",
+        "path": "src/pipeline.mjs",
+        "status": "Complete; parseCodeSheet / buildFieldToCol / parseFieldTypes / findLookupColumns."
+      },
+      {
+        "name": "Model builder",
+        "path": "src/pipeline.mjs",
+        "status": "Complete; buildModel produces model.packages, lookups, lookupMeta and errorTable."
+      },
+      {
+        "name": "Validation engine",
+        "path": "src/pipeline.mjs",
+        "status": "Complete; validate() runs V-01 to V-26 and tags every issue as error, warning or info, and returns W-FORMULA warnings from the S2 token counts. STAGES and the stage date helpers live here (P2)."
+      },
+      {
+        "name": "Render layer",
+        "path": "src/render.mjs",
+        "status": "Complete; deriveView(model, STATE) is the single S4 aggregation step. Renderers paint the derived view only; DOM wiring is in boot(). S3/S4/S5 have their own boundaries. W-FORMULA reaches #errBanner as a fatal strip and never blocks the load."
+      },
+      {
+        "name": "Pipeline test harness",
+        "path": "test/test_pipeline.mjs",
+        "status": "Complete; test/test_pipeline.mjs imports src/ (71 assertions). test_units (37), test_edges (22), test_build (19) and test_panels (63) add the other layers. harness-layout checks/ppp.mjs supplies Tier 3 ground truth."
+      }
+    ],
+    "data_flows": [
+      "Workbook ArrayBuffer -> parseXlsx -> sheet grids",
+      "Code sheet grid -> contract (fields, columns, types, lookups, error wording)",
+      "PPP grid + contract -> buildModel -> model.packages",
+      "model + STATE -> validate -> report -> panels, banner and CSV",
+      "model + filter state -> derived views (KPIs, charts, tables, drill-down)"
+    ],
+    "integration_points": [
+      "Procurement Package Plan workbook (TWRP C3B2 - Procurement Package Plan.xlsx)",
+      "Browser localStorage for theme and layout preferences",
+      "Shared UI standards in Dashboard-UI-Design-Spec.md and AGENTS.md"
+    ]
+  },
+  "domain_concepts": {
+    "core_entities": [
+      "Package — one procurement package row in the PPP sheet, keyed by Package No. or Package Title",
+      "Stage — MR, PO, VD, FAT and ROS, each with Plan, Forecast and Actual dates",
+      "Lookup — Discipline, Criticality, Package Status and Item Category code/description pairs",
+      "Validation issue — one finding with severity, rule code, package, field, value and message",
+      "Code sheet contract — the metadata rows and field mappings that define every other rule"
+    ],
+    "relationships": [
+      "One Code sheet defines the contract for one PPP sheet",
+      "Each package belongs to one discipline, one criticality and one status",
+      "A stage date pair (Plan vs Actual) drives coverage, overdue and look-ahead logic",
+      "Every validation issue may cite one package and one field; aggregate issues cite no package"
+    ],
+    "terminology": [
+      "PPP — Procurement Package Plan",
+      "MR — Material Requisition",
+      "PO — Purchase Order",
+      "VD — Vendor Documentation",
+      "FAT — Factory Acceptance Test",
+      "ROS — Receipt on Site",
+      "Look-ahead — POs planned inside the selected horizon (1m to 6m, default 3m)"
+    ]
+  },
+  "key_schemas": [
+    {
+      "name": "Code sheet contract",
+      "path": "TWRP C3B2 - Procurement Package Plan.xlsx",
+      "version": "workbook as of 2026-10-30",
+      "status": "Active; the runtime contract. Group 1 rows 2-41 define metadata and field-to-column mappings.",
+      "description": "Rows 1-9 hold metadata (title, code, client, consultant, dashboard title, start date, header row, list end row); rows 10-41 map each field label to a Column-X letter and a data type. Lookup blocks and the error table are located by row-1 header text."
+    },
+    {
+      "name": "Knowledge base schema",
+      "path": "../config/schemas/knowledge_base_schema.json",
+      "version": "1.0.0",
+      "status": "Active; shared repository schema that this file validates against.",
+      "description": "Required top-level sections for every project knowledge base."
+    }
+  ],
+  "workflows": [
+    {
+      "id": "W1",
+      "name": "Load and render the dashboard",
+      "entry_point": "handleFile() via file picker or drag-and-drop",
+      "status": "Complete",
+      "steps": [
+        "Read the selected .xlsx as an ArrayBuffer",
+        "parseXlsx -> sheet grids",
+        "parseCodeSheet + buildFieldToCol -> contract",
+        "buildModel -> packages, lookups, errorTable",
+        "validate -> report",
+        "Reveal the shell only after validation succeeds, then render panels"
+      ]
+    },
+    {
+      "id": "W2",
+      "name": "Add a contract field",
+      "entry_point": "Workbook Code sheet Group 1, then CODE_SHEET_KEYS",
+      "status": "Complete; exercised by PO Number in Rev 1.28",
+      "steps": [
+        "Add a Group 1 row (label, Column-X, data type) and the matching PPP header",
+        "Shift later Column-X mappings to match the new column order",
+        "Register the label in CODE_SHEET_KEYS",
+        "Add a harness assertion that the label maps to the expected column",
+        "Run node test/test_pipeline.mjs and update the workplan table"
+      ]
+    },
+    {
+      "id": "W3",
+      "name": "Run the pipeline test harness",
+      "entry_point": "node test/test_pipeline.mjs (working directory PPP)",
+      "status": "Complete; 64 passed, 4 failed on 2026-10-30 due to I-80 workbook data",
+      "steps": [
+        "Extract the inline script from the HTML",
+        "Inject the __H hook object before the IIFE closes",
+        "Run in a VM with a DOM stub",
+        "Parse the real workbook and assert contract, model, validation and render output"
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "buildDashboard",
+      "module": "Dashboard page",
+      "path": "src/render.mjs",
+      "status": "Complete",
+      "description": "Orchestrates parse, model build, validation and render. Reveals the shell only after validation succeeds.",
+      "inputs": [
+        "parsed workbook sheets",
+        "file name"
+      ],
+      "outputs": [
+        "rendered dashboard",
+        "STATE.report"
+      ]
+    },
+    {
+      "name": "parseXlsx",
+      "module": "XLSX reader",
+      "path": "src/xlsx-reader.mjs",
+      "status": "Complete",
+      "description": "Reads a ZIP/EOCX workbook in the browser and returns a map of sheet name to row-major grid.",
+      "inputs": [
+        "ArrayBuffer"
+      ],
+      "outputs": [
+        "object of sheet grids"
+      ]
+    },
+    {
+      "name": "parseCodeSheet",
+      "module": "Code sheet contract parser",
+      "path": "src/pipeline.mjs",
+      "status": "Complete",
+      "description": "Reads metadata rows and the field mapping table into meta and metaTypes.",
+      "inputs": [
+        "Code sheet grid"
+      ],
+      "outputs": [
+        "meta",
+        "metaTypes"
+      ]
+    },
+    {
+      "name": "buildFieldToCol",
+      "module": "Code sheet contract parser",
+      "path": "src/pipeline.mjs",
+      "status": "Complete",
+      "description": "Resolves each CODE_SHEET_KEYS label to a zero-based PPP column index through the Code sheet Column-X value.",
+      "inputs": [
+        "Code sheet meta"
+      ],
+      "outputs": [
+        "field to column index map"
+      ]
+    },
+    {
+      "name": "buildModel",
+      "module": "Model builder",
+      "path": "src/pipeline.mjs",
+      "status": "Complete",
+      "description": "Builds typed packages, lookup lists, lookup metadata and the error wording map from the workbook.",
+      "inputs": [
+        "parsed workbook",
+        "file name"
+      ],
+      "outputs": [
+        "model",
+        "validation context"
+      ]
+    },
+    {
+      "name": "validate",
+      "module": "Validation engine",
+      "path": "src/pipeline.mjs",
+      "status": "Complete",
+      "description": "Runs V-01 to V-25 over the model and returns a report of issues with severity and workbook wording.",
+      "inputs": [
+        "packages",
+        "context"
+      ],
+      "outputs": [
+        "report with issues"
+      ]
+    },
+    {
+      "name": "renderKPIs",
+      "module": "Render layer",
+      "path": "src/render.mjs",
+      "status": "Complete",
+      "description": "Renders the six KPI cards with status classes."
+    },
+    {
+      "name": "renderCat",
+      "module": "Render layer",
+      "path": "src/render.mjs",
+      "status": "Complete",
+      "description": "Renders a category chart (status, discipline, engineer, criticality, lead time) as bar or pie."
+    },
+    {
+      "name": "renderPOMonthly",
+      "module": "Render layer",
+      "path": "src/render.mjs",
+      "status": "Complete",
+      "description": "Renders the monthly PO plan versus actual grouped bars with cumulative lines."
+    },
+    {
+      "name": "renderLookAhead",
+      "module": "Render layer",
+      "path": "src/render.mjs",
+      "status": "Complete",
+      "description": "Lists POs planned inside the selected horizon."
+    }
+  ],
+  "data_flows": [
+    {
+      "id": "DF1",
+      "name": "Workbook to packages",
+      "source": "TWRP C3B2 - Procurement Package Plan.xlsx",
+      "transformations": [
+        "ZIP and XML parse",
+        "contract resolution by label",
+        "type coercion (Date, Number, Text)",
+        "date serial to Date via toDate()"
+      ],
+      "checks": [
+        "V-01 required title",
+        "V-02 invalid date",
+        "V-19 header row points at headers",
+        "V-20 parsed count versus List End Row"
+      ],
+      "destination": "model.packages"
+    },
+    {
+      "id": "DF2",
+      "name": "Packages to validation report",
+      "source": "model.packages",
+      "transformations": [
+        "per-package rules",
+        "aggregate rules",
+        "severity and workbook wording lookup"
+      ],
+      "checks": [
+        "V-21 every rule code has an error-table row"
+      ],
+      "destination": "STATE.report"
+    }
+  ],
+  "data_quality_checks": [
+    "V-01 package title present",
+    "V-02 date cells parse to real dates",
+    "V-05 criticality present in the lookup",
+    "V-07 package status canonical",
+    "V-12 engineer spelling variants",
+    "V-14 lead time coverage",
+    "V-19 header row validity",
+    "V-20 parsed row count versus List End Row",
+    "V-23 execution progress is not zero",
+    "V-24 engineer assigned",
+    "V-25 plan-date consistency"
+  ],
+  "dependencies": {
+    "libraries": [
+      "None at runtime — the HTML is self-contained and uses only browser APIs",
+      "Node.js standard library only for test/test_pipeline.mjs (node:fs, node:vm, node:path)"
+    ],
+    "infrastructure": [
+      "Any modern browser; runs from file:// with no web server"
+    ]
+  },
+  "known_issues": [
+    {
+      "id": "I-80",
+      "title": "MR-M-0021 carried invalid FAT/ROS plan dates",
+      "status": "RESOLVED",
+      "severity": "High",
+      "details": "PPP!AD22 held 1900-01-15 (serial 15, because 15 was typed into a date cell) and PPP!AA22 held the formula =AD22-30, which gave 1899-12-15 (serial -15). toDate() rejected both, V-02 fired twice, and four harness assertions failed. The owner set AD22 to 2027-01-15 and AA22 to 2026-12-16. Harness result: 68 passed, 0 failed, errors=0. No code change."
+    },
+    {
+      "id": "I-81",
+      "title": "PO Number registered but had no consumer",
+      "status": "ALIGNED",
+      "severity": "Medium",
+      "details": "Rev 1.28 added poNo to CODE_SHEET_KEYS. Rev 1.31 makes it meaningful with V-26 (warning, data): a package with a PO Actual date must carry a PO Number. The workbook has the Code sheet row Q27:V27. Current result: 19 warnings, 0 errors; harness 71/71. PO Number is not shown in the look-ahead or overdue tables by design, because those packages have no PO issued. No CSV or KPI change."
+    },
+    {
+      "id": "I-76",
+      "title": "Pipeline is not importable as Node modules",
+      "status": "IN_PROGRESS",
+      "severity": "Medium",
+      "details": "LEGACY RECORD, migrated verbatim to the issue log on 2026-11-01. Parsing, modelling, validation and rendering live in one inline script. Extraction into src/ modules plus build.mjs mirrors the MDL structure and enables independent pipeline tests. Checked against spec section 3.8 on 2026-10-30 (workplan section 8.7): the split is also missing deriveView (S4/S5), isExcelError with the W-FORMULA notice (section 3.8.4), and an import-based test. Owner decisions D8-D11 recorded on 2026-10-30 (workplan section 8.8): standalone page with no server and no external reference; a complete five-layer test that covers all seven panels; duplicate aggregation removed so every count is computed once in S4; an error token is absent data, excluded from all counts, and reported by W-FORMULA without blocking the render. The root Dashboard-UI-Design-Spec.md is authoritative, so P6 (tasks T8.8.18-T8.8.21) adopts the spec shell and panels; D1-D7 resolve to the spec. Plan approved 2026-10-30 with tasks T8.8.1-T8.8.21. P1 completed 2026-10-30: src/ modules and build.mjs exist, 71/71, page loads from file:// with no error. P2 deriveView, P3 isExcelError/W-FORMULA, P4 import tests and harness module paths, P6 UI conformance remain. P2 completed 2026-10-30: deriveView is the only aggregation, renderers paint only, STATE holds the view and the PO window, per-stage boundaries added, stage helpers moved to pipeline.mjs. P3 isExcelError/W-FORMULA, P4 import tests and harness module paths, P6 UI conformance remain. P3 completed 2026-10-30: isExcelError/isAbsent, blank and token cells are absent, per-column W-FORMULA. P4 import tests and harness module paths, P6 UI conformance remain. P4 completed 2026-10-30: five test layers, 212 assertions, harness Tier 3 adapter. P5 documentation and P6 UI conformance remain. I-82 (NaN in an empty filter) was found and fixed during P4."
+    },
+    {
+      "id": "I-77",
+      "title": "Look-ahead horizon chip is below the 3:1 contrast floor",
+      "status": "DEFERRED",
+      "severity": "Low",
+      "details": "LEGACY RECORD, migrated to the issue log on 2026-11-01 and still open. The selected 3m chip measures 2.27:1. Raise the label/fill pair to 3:1 or more, then enforce chrome.controlContrast as hard."
+    },
+    {
+      "id": "I-79",
+      "title": "Drill-down does not match the shared expandable model",
+      "status": "RESOLVED",
+      "severity": "Low",
+      "details": "RESOLVED in P6.2 (2026-11-01): the overdue rows use tr.expandable with a real button.drill-btn that carries aria-expanded and aria-controls, a .drill-chev that rotates 90 degrees, one open row at a time, a sibling .sub / .sub-inner detail, and token colours. Evidence: TL011, test_panels.mjs."
+    },
+    {
+      "id": "I-83",
+      "title": "UI spec conformance (P6)",
+      "severity": "Medium",
+      "status": "ALIGNED",
+      "details": "P6.1-P6.4 are complete (2026-11-01): shell, panels, KPI/tokens/components and the 8.9 conformance record; 236 assertions; Tier 1 8/1, Tier 2 23/0, Tier 3 3/0, Tier 4 70/9. Five themes are live. Of the 17 spec 8.2 assertions, 14 pass, 1 is advisory (I-77), 2 are unverified and 1 is N/A; deviations D15-D18 are recorded and carried to P7."
+    },
+    {
+      "id": "I-84",
+      "title": "Chart points have no detail window",
+      "severity": "High",
+      "status": "ALIGNED",
+      "details": "Delivered in P8: one floating detail window with label, values, total and share; keyboard, touch, edge clamping; native titles retired."
+    },
+    {
+      "id": "I-85",
+      "title": "Validation list stops at 80 rows",
+      "severity": "High",
+      "status": "ALIGNED",
+      "details": "Delivered in P8: the 80-row cap is removed; all rows render and the count is the true total."
+    },
+    {
+      "id": "I-86",
+      "title": "Severity is a font symbol, not a fixed-size icon",
+      "severity": "Medium",
+      "status": "ALIGNED",
+      "details": "Delivered in P8: one flat 14x14 icon per tier in both tables."
+    },
+    {
+      "id": "I-87",
+      "title": "KPI cards have no detail on hover",
+      "severity": "Medium",
+      "status": "ALIGNED",
+      "details": "Delivered in P8: KPI cards are focusable and show name, value, denominator, share and definition below the card."
+    },
+    {
+      "id": "I-88",
+      "title": "One long page with 7 menu items",
+      "severity": "Medium",
+      "status": "ALIGNED",
+      "details": "Delivered in P8: four pages, only the page panels render, last page restored, print is the current page."
+    },
+    {
+      "id": "I-89",
+      "title": "Row expander is smaller and squarer than other icon buttons",
+      "severity": "Low",
+      "status": "ALIGNED",
+      "details": "Delivered in P8: expander 26 px with a 6 px radius and an accessible name."
+    },
+    {
+      "id": "I-90",
+      "title": "Column control has no menu and no visible state",
+      "severity": "Low",
+      "status": "ALIGNED",
+      "details": "Delivered in P8: column control has its own class and a visible pressed state."
+    },
+    {
+      "id": "I-91",
+      "title": "Validation severity and rule columns are not frozen",
+      "severity": "Low",
+      "status": "WONT_IMPLEMENT",
+      "details": "D26: not adopted because the table does not scroll sideways; reopen only if it is introduced."
+    },
+    {
+      "id": "I-92",
+      "title": "Two normative names are not used",
+      "severity": "Low",
+      "status": "ALIGNED",
+      "details": "Delivered in P8: the header fragment carries the normative class and the column control uses its own class."
+    },
+    {
+      "id": "I-93",
+      "title": "PO hover window keeps the first month",
+      "severity": "High",
+      "status": "ALIGNED",
+      "details": "Fixed in P8.1: the host carries only the focus payload; one full-height band per month carries the month payload; bar charts gained a full-row band."
+    },
+    {
+      "id": "I-94",
+      "title": "No position line while hovering a chart",
+      "severity": "Medium",
+      "status": "ALIGNED",
+      "details": "Fixed in P8.1: one dashed snap line per hovering chart, moved to the month centre and hidden on leave, blur and scroll."
+    },
+    {
+      "id": "I-95",
+      "title": "Warning area scrolls away with the content",
+      "severity": "Medium",
+      "status": "ALIGNED",
+      "details": "Fixed in P8.2: the notice area is the first block of the content column, directly below the menu bar and above the filter strip, outside the scroller. Spec 3.5 is normative and 8.2 assertion 18 covers it."
+    },
+    {
+      "id": "I-96",
+      "title": "Two panels on one page touch each other",
+      "severity": "Medium",
+      "status": "ALIGNED",
+      "details": "Fixed in P8.3: the content column is a single-column grid with a 14 px gap; hidden panels add no gap; card gaps inside panels confirmed at 16 px and 12 px. Spec 4 is normative and 8.2 assertion 19 covers it."
+    },
+    {
+      "id": "I-97",
+      "title": "Content keeps its first-render width when the window narrows",
+      "severity": "High",
+      "status": "ALIGNED",
+      "details": "Fixed in P8.4: panels min-width 0, host-width PO chart redrawn by ResizeObserver, percentage validation columns, truncating control-row text; 24 page x width combinations with zero overflow."
+    },
+    {
+      "id": "I-98",
+      "title": "Page navigation unreachable below 820 px",
+      "severity": "Medium",
+      "status": "ALIGNED",
+      "details": "Fixed in P8.4: the sidebar collapses to 0 px instead of display:none; the menu-bar toggle opens it to 160 px at 800 px with zero content overflow."
+    },
+    {
+      "id": "I-99",
+      "title": "Category filter and search do not match the control spec",
+      "severity": "Medium",
+      "status": "ALIGNED",
+      "details": "Fixed in P8.5: trigger is text + count badge (12 px/600, borderless, no caret, is-filtered); panel order master/note/divider/list/footer with count and Reset; search has an affixed 36 px accent submit and Enter applies."
+    },
+    {
+      "id": "I-100",
+      "title": "Search has no column picker",
+      "severity": "Medium",
+      "status": "ALIGNED",
+      "details": "Fixed in P8.6: one row with an attached B5 picker (All columns plus five columns), flexible input and A5 submit; the query is scoped to the chosen column, persisted and named in the chip. Spec revision 1.55, assertion 20."
+    }
+  ],
+  "total_issues_resolved": 19,
+  "total_issues_deferred": 1,
+  "revision_history": [
+    {
+      "version": "1.31.0",
+      "date": "2026-11-01",
+      "author": "opencode (AI)",
+      "summary": "P8.6 complete: the search panel is one row with an attached B5 column picker (All columns plus five columns), a flexible input and the A5 submit; the query is scoped to the chosen column, persisted and named in the chip. Spec 7.1 composition rule and assertion 20. 292 assertions; I-100 aligned. Project version raised to 1.58."
+    },
+    {
+      "version": "1.30.0",
+      "date": "2026-11-01",
+      "author": "opencode (AI)",
+      "summary": "P8.5 complete: the category filter trigger (text + count badge, no icon or caret, 12 px/600, borderless, is-filtered) and its panel (master, note, divider, list, footer with Reset) match spec 7.1 B1; the search control gains the affixed A5 submit. 286 assertions; I-99 aligned. Project version raised to 1.57."
+    },
+    {
+      "version": "1.29.0",
+      "date": "2026-11-01",
+      "author": "opencode (AI)",
+      "summary": "P8.4 complete: layout reflows on any viewport width change (panels shrink, PO chart follows its host and redraws, split tables re-sync, validation columns scale) and navigation stays reachable below 820 px. Spec 3.4.1 gained the screen-change/resize clause. 280 assertions; I-97 and I-98 aligned. Project version raised to 1.56."
+    },
+    {
+      "version": "1.28.0",
+      "date": "2026-11-01",
+      "author": "opencode (AI)",
+      "summary": "Spec 4.7 promoted the panel-spacing rule to a dedicated normative section; assertion 19 cites it. No code change; P8.3 already meets it (14 px measured). Project version raised to 1.55."
+    },
+    {
+      "version": "1.27.0",
+      "date": "2026-11-01",
+      "author": "opencode (AI)",
+      "summary": "P8.3 complete: stacked panels are separated by a 14 px content-column gap; card gaps inside panels confirmed; spec 4 made normative with assertion 19. 275 assertions; I-96 aligned. Project version raised to 1.54."
+    },
+    {
+      "version": "1.26.0",
+      "date": "2026-11-01",
+      "author": "opencode (AI)",
+      "summary": "P8.2 complete: the warning area is pinned below the menu bar, above the filter strip and outside the scrolling body; spec 3.5 made normative with assertion 18. 272 assertions; Tier 2 23/0; I-95 aligned. Project version raised to 1.53."
+    },
+    {
+      "version": "1.25.0",
+      "date": "2026-11-01",
+      "author": "opencode (AI)",
+      "summary": "P8.1 complete: the PO hover window no longer goes stale (per-month bands; the host keeps only the focus payload) and a dashed snap line follows the hovered month. 269 assertions; I-93 and I-94 aligned. Project version raised to 1.52."
+    },
+    {
+      "version": "1.24.0",
+      "date": "2026-11-01",
+      "author": "opencode (AI)",
+      "summary": "P8 complete: one floating detail window for chart points and KPI cards (mouse, keyboard, touch), four-page routing, full validation list with fixed-size severity icons, component polish and contrast hard. 263 assertions; Tiers 1-4 pass with 0 advisories. D22-D26 confirmed; I-84-I-90 and I-92 aligned, I-91 not adopted. Project version raised to 1.51."
+    },
+    {
+      "version": "1.23.0",
+      "date": "2026-11-01",
+      "author": "opencode (AI)",
+      "summary": "P8 planned (workplan 8.9): nine tasks T8.8.25-T8.8.33 for chart and KPI hover detail (keyboard, touch), page routing with a smaller menu, the full validation list, fixed-size severity marks, component polish, contrast, and conditional frozen columns. Milestones, dependencies, risks and acceptance criteria recorded; D22-D26 listed as pending. Issue log 2.1 links each open issue to its task; status stays OPEN until approval. No code change."
+    },
+    {
+      "version": "1.22.0",
+      "date": "2026-11-01",
+      "author": "opencode (AI)",
+      "summary": "Workplan restructured to the AGENTS §15 outline: Document ID, corrected contents, scope summary, file and artefact reference, decision register; dashboard design corrected to the shipped UI (KPI cards, chart inventory, one combined PO chart, split-header tables, overdue and validation panels, preferences, status bar); retired cards labelled. Issues I-01–I-81 migrated verbatim to log/issue_log.md and the workplan issue section reduced to a pointer. General-rule material (§8.2, §8.6) removed; normative text lives in the spec and the verbatim copy in archive/. Old workplan archived as v1.48; pre-1.49 status narrative and dead contents entries preserved in Appendices A and B. Project version raised to 1.49. No code, test or harness change."
+    },
+    {
+      "version": "1.21.0",
+      "date": "2026-11-01",
+      "author": "opencode (AI)",
+      "summary": "UI conformance review logged as I-84 to I-92 (9 open): chart detail window, validation 80-row cap, severity icons, KPI hover detail, page and menu structure, expander size, column control, frozen columns, two normative names. I-77 contrast joins the set from workplan 7. No code change."
+    },
+    {
+      "version": "1.20.0",
+      "date": "2026-11-01",
+      "author": "opencode (AI)",
+      "summary": "P7 complete: spec 7.2.15 split-header contract implemented (one .splitcard container, .vheadwrap port, --ds-sbw gutter, width pin, ResizeObserver lock-step, 1 px column rule) with one syncSplitTable() helper; harness accepts the inline classic script, scopes sticky to .tableScroll, exempts split bodies, and checks the gutter-aware width. Deviations D15-D18 closed (D16 as N/A). 236 assertions; Tier 1 9/0, Tier 2 23/0, Tier 3 3/0, Tier 4 85/0 (1 advisory). Project version raised to 1.48."
+    },
+    {
+      "version": "1.19.0",
+      "date": "2026-11-01",
+      "author": "opencode (AI)",
+      "summary": "P6.4 complete and P6 closed: five themes (light, dark, sky, ocean, presentation) as token-only remaps with a Settings picker and persistence; dark surfaces and text fixed. Workplan 8.9 records the generic checks, the 17 spec 8.2 assertions and deviations D15-D18, carried to a planned P7. 236 assertions, Tier 2 23/0, Tier 4 70/9. Project version raised to 1.47; I-83 ALIGNED."
+    },
+    {
+      "version": "1.18.0",
+      "date": "2026-11-01",
+      "author": "opencode (AI)",
+      "summary": "P6.3 complete: KPI cards follow spec 5 (72 px, two lines, 22/700 value, 10/400 label, status-class strip), component colour literals replaced by tokens, --font-ui added, .csv-btn retired in favour of .btn-secondary + data-act; 232 assertions, Tier 2 23/0, Tier 4 unchanged 70/9. Project version raised to 1.46. The 6 five-theme gap is recorded as PARTIAL."
+    },
+    {
+      "version": "1.17.0",
+      "date": "2026-11-01",
+      "author": "opencode (AI)",
+      "summary": "P6.2 complete: panels 1-7 conform to spec 4-4.5 - panel head with Help/Collapse and DOM-order numbers, .c-card chart surfaces, split headers with row counts and CSV, drill accordion with a real button, validation count strip / Rules table / Columns toggle; 225 assertions, Tier 2 23/0, Tier 4 improved 23 to 9 fails. I-79 resolved. Project version raised to 1.45."
+    },
+    {
+      "version": "1.16.0",
+      "date": "2026-10-30",
+      "author": "opencode (AI)",
+      "summary": "P6.1 complete: spec shell (three-row title bar, one-row menu bar, 160 px nav sidebar, status bar), warning area in content, Search/Export/layout wired; Tier 1 8/1, Tier 2 23/0, 212 assertions green. Project version raised to 1.44."
+    },
+    {
+      "version": "1.15.0",
+      "date": "2026-10-30",
+      "author": "opencode (AI)",
+      "summary": "P6 opened: D12 Search filter, D13 Export both CSVs, D14 KPI density toggle; P6 split into four sub-phases. I-83 recorded as IN_PROGRESS. Project version raised to 1.43. No code change."
+    },
+    {
+      "version": "1.14.0",
+      "date": "2026-10-30",
+      "author": "opencode (AI)",
+      "summary": "P5 close-out: §8.7 records CONFORMING to §3.8; acceptance criteria 1-4 ticked; records and logs aligned. P6 shell conformance remains. Project version raised to 1.42."
+    },
+    {
+      "version": "1.13.0",
+      "date": "2026-10-30",
+      "author": "opencode (AI)",
+      "summary": "P4 complete (I-76): five test layers (212 assertions), import-based pipeline test, build artifact and file:// KPI check, all-panel/filter/CSV layer, harness Tier 3 adapter (3/0). I-82 NaN guard. Project version raised to 1.41."
+    },
+    {
+      "version": "1.12.0",
+      "date": "2026-10-30",
+      "author": "opencode (AI)",
+      "summary": "P3 complete (I-76): ten-token isExcelError, blank/error cells absent in S2, per-field token counts, fatal W-FORMULA per column in the banner. 71/71. Started KPI is 69% because a blank status is now absent. Project version raised to 1.40."
+    },
+    {
+      "version": "1.11.0",
+      "date": "2026-10-30",
+      "author": "opencode (AI)",
+      "summary": "P2 complete (I-76): single deriveView S4 aggregation, paint-only renderers, PO window and overdue stage in STATE, stage helpers moved to pipeline.mjs, per-stage error boundaries. 71/71 with unchanged KPI and panel values. Project version raised to 1.39."
+    },
+    {
+      "version": "1.10.0",
+      "date": "2026-10-30",
+      "author": "opencode (AI)",
+      "summary": "P1 pipeline extraction complete (I-76): src/xlsx-reader.mjs, src/pipeline.mjs, src/render.mjs, build.mjs; delivered HTML generated; 71/71; no behaviour change. Project version raised to 1.38."
+    },
+    {
+      "version": "1.9.0",
+      "date": "2026-10-30",
+      "author": "opencode (AI)",
+      "summary": "D9 and UI scope confirmed (workplan section 8.8): the test covers all seven panels; the root UI spec is authoritative, so P6 adds UI conformance (tasks T8.8.18-T8.8.21) and D1-D7 resolve to the spec. Project version raised to 1.37."
+    },
+    {
+      "version": "1.8.0",
+      "date": "2026-10-30",
+      "author": "opencode (AI)",
+      "summary": "Owner decisions D8-D11 recorded (workplan section 8.8): standalone delivery, complete four-layer test, single aggregation engine, error tokens as absent data. I-76 moved from DEFERRED to APPROVED with tasks T8.8.1-T8.8.16. Project version raised to 1.36."
+    },
+    {
+      "version": "1.7.0",
+      "date": "2026-10-30",
+      "author": "opencode (AI)",
+      "summary": "Pipeline decision rationale added for D8-D11 (workplan section 8.8): the clause conflict for each option, the consequence of each choice, and the recommendation. No code change. Project version raised to 1.35."
+    },
+    {
+      "version": "1.6.0",
+      "date": "2026-10-30",
+      "author": "opencode (AI)",
+      "summary": "Pipeline build plan recorded for review (workplan section 8.8). Target structure is src/xlsx-reader.mjs, src/pipeline.mjs, src/render.mjs, build.mjs and test/test_build.mjs, with five phases and 16 tasks. Adds deriveView, per-stage error boundaries, isExcelError with the W-FORMULA notice, import-based tests and harness module paths. I-76 stays DEFERRED until the plan is approved. Project version raised to 1.34."
+    },
+    {
+      "version": "1.5.0",
+      "date": "2026-10-30",
+      "author": "opencode (AI)",
+      "summary": "Data pipeline status confirmed against spec section 3.8 (workplan section 8.7). The spec pipeline is not created: one inline script, no src modules, no build step, and null harness module paths. Runtime rules mostly hold, but formula-error normalization (section 3.8.4), the S4/S5 split and import-based testing are missing. I-76 remains DEFERRED pending a decision. Project version raised to 1.33."
+    },
+    {
+      "version": "1.4.0",
+      "date": "2026-10-30",
+      "author": "opencode (AI)",
+      "summary": "Shell sample study for review. Workplan raised to 1.32 with a new section 8.6: a review-only shell sample, measured geometry, harness results (Tier 1 8/0/1, Tier 2 23/0) and open decisions D1 to D7. PPP itself is non-conforming to the spec shell and is unchanged pending adoption."
+    },
+    {
+      "version": "1.3.0",
+      "date": "2026-10-30",
+      "author": "CodeBuddy (AI)",
+      "summary": "I-81 implemented and aligned. V-26 (warning) enforces that a package with a PO Actual date carries a PO Number. Current workbook gives 19 warnings and 0 errors; the harness passes 71 of 71. Project version raised to 1.31."
+    },
+    {
+      "version": "1.2.0",
+      "date": "2026-10-30",
+      "author": "CodeBuddy (AI)",
+      "summary": "I-81 approved. The owner confirmed that PO Actual is the only evidence of a PO issued, and that an issued package must carry a PO Number. V-26 (warning) is added to the workplan section 6 and waits for the Code sheet row before the code change. Project version raised to 1.30."
+    },
+    {
+      "version": "1.1.0",
+      "date": "2026-10-30",
+      "author": "CodeBuddy (AI)",
+      "summary": "I-80 resolved. The workbook now holds real FAT/ROS plan dates for MR-M-0021 (2026-12-16 and 2027-01-15). The harness is green: 68 passed, 0 failed, errors=0. Project version raised to 1.29."
+    },
+    {
+      "version": "1.0.0",
+      "date": "2026-10-30",
+      "author": "CodeBuddy (AI)",
+      "summary": "Initial knowledge base created at the Rev 1.28 PO Number change. Records the single-file architecture, the workbook-driven contract, the three workflows, the validation rules and five open or deferred issues."
+    }
+  ]
+}

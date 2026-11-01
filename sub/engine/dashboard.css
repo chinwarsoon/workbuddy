@@ -8,7 +8,7 @@
   --accent:#2b6cf6; --accent-alt:#17a67a; --success:#17a67a; --warning:#F9A825; --danger:#d23b3b; --info:#2b6cf6;
   --tag-bg:#EAF2FB; --tag-border:#CBDDEF; --row-stripe:#F7F9FB; --row-hover:#EAF2FB; --th-bg:#E8EDF3; --th-hover:#DAE3ED;
   --shadow:0 1px 2px rgba(16,32,64,.04),0 8px 24px rgba(16,32,64,.05);
-  /* §3.2 — the left panel is sized to its menu titles: the widest, "Forward Plan", is 91 px at
+  /* §3.2 — the left panel is sized to its menu titles: the widest, "Forward and Overdue", is ≈135 px at
      14 px / 400, which with the button's 12 px horizontal padding and the panel's 10 px padding
      needs 135 px, and 25 px of slack is left on top. */
   --titlebar-h:56px; --menubar-h:48px; --sidebar-w:160px; --statusbar-h:30px;
@@ -252,6 +252,9 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .bar-track{flex:1;background:var(--surface2);border-radius:6px;height:14px;overflow:hidden}
 .bar-track i{display:block;height:100%;background:var(--blue)}
 .bar-row b{min-width:34px;text-align:right;color:var(--text)}
+/* ===== C4 scatter legend ===== */
+.legend{display:flex;gap:16px;font-size:11px;color:var(--text2);margin:8px 2px 0}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
 /* ===== Misc ===== */
 .note{color:var(--text2);font-size:13px;line-height:1.5;margin:6px 0}
 .summary-chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
@@ -294,8 +297,14 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .seg-btn.active{background:var(--blue);color:#fff}
 .scurve{position:relative;max-width:100%}
 .scurve-svg{display:block}
-.scurve-tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:8px 10px;font-size:11px;line-height:1.45;color:var(--text);z-index:30;max-width:230px}
-.scurve-tip[hidden]{display:none}
+.chart-tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:8px 10px;font-size:11px;line-height:1.45;color:var(--text);z-index:30;max-width:230px;opacity:0;transition:opacity .12s ease}
+.chart-tip.show{opacity:1}
+.chart-tip-foot{display:flex;justify-content:space-between;gap:12px;margin-top:4px;padding-top:4px;border-top:1px solid var(--border);font-weight:600}
+.chart-tip-k{color:var(--text2);font-weight:600}
+.sc-board,.c2-stack,.c3-card,.c4-chart,.kpi-card{position:relative}
+.scurve.sc-board,.c2-stack,.c3-card,.c4-chart{cursor:crosshair}
+.kpi-card{cursor:help}
+.panel,.panel-body,.kpi-grid,.c3-cards,.c3-body,.c-card{overflow:visible}
 .sc-bar-plan{fill:var(--color-plan)}
 .sc-bar-forecast{fill:var(--color-forecast)}
 .sc-bar-actual{fill:var(--color-actual)}
@@ -319,13 +328,13 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .sc-leg-t{fill:var(--text);font-size:11px}
 .sc-ref-start{stroke:var(--danger);stroke-width:1.5;stroke-dasharray:5 3}
 .sc-ref-today{stroke:var(--slate);stroke-width:1.5;stroke-dasharray:2 2}
-.scurve-snap{stroke:var(--text3);stroke-width:1;stroke-dasharray:3 3}
+.chart-snap{stroke:var(--text3);stroke-width:1;stroke-dasharray:3 3}
 /* ===== C3 Breakdown (workplan D36) ===== */
 :root{
   /* Submission series (New vs Resubmission) and the five approval codes. New and Resubmission use
      hues outside the approval set, because the two series are separate measures, not a split of one. */
   --color-new:#1f6fb2; --color-resub:#f4a259; --color-ur:#7c3aed;
-  --color-app:#17a67a; --color-awc:#2b6cf6; --color-nap:#F9A825; --color-rej:#d23b3b; --color-inf:#64748B;
+  --color-app:#65a30d; --color-awc:#0891b2; --color-nap:#db2777; --color-rej:#d23b3b; --color-inf:#64748B;
 }
 .c3-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 10px}
 .c3-controls .controls-left{display:flex;align-items:center;gap:8px}
@@ -446,12 +455,9 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .c2-svg{display:block}
 .c2-stack{position:relative;min-width:0;overflow-x:auto}
 .c2-leg-t{fill:var(--text);font-size:11px}
-.c2-tip{position:absolute;pointer-events:none;background:rgba(21,49,79,.95);color:#fff;
-  font-size:12px;line-height:1.5;padding:8px 10px;border-radius:6px;min-width:150px;
-  box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:5}
-.c2-tip[hidden]{display:none}
-.c2-tip-row{display:flex;justify-content:space-between;gap:12px}
-.c2-swatch{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.chart-tip-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ct-l{display:flex;align-items:center;gap:6px}
+.chart-swatch{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle}
 .c2-ftab{width:auto;border-collapse:collapse;margin-top:10px;font-size:13px}
 .c2-ftab th,.c2-ftab td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--border)}
 .c2-ftab th:first-child,.c2-ftab td:first-child{text-align:left}
@@ -467,13 +473,25 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .table-tools{position:relative;display:flex;align-items:center;gap:8px;margin:0 0 8px;flex-wrap:wrap}
 .table-tools .summary{font-size:12px;color:var(--text2)}
 .table-tools .csv-btn{margin-left:auto}
+/* I073 — Forward and Overdue page controls + status pills */
+.fo-controls{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 8px;flex-wrap:wrap}
+.fo-controls .fo-right{margin:0}
+.fo-horizon{font-size:12px;color:var(--text2);display:inline-flex;align-items:center;gap:4px}
+.fo-horizon select{border:1px solid var(--border);border-radius:6px;padding:4px 6px;background:var(--surface);color:var(--text)}
+.fo-pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;line-height:1.4}
+.fo-pill.nfs{background:#eceff1;color:#546e7a}
+.fo-pill.sur{background:#e3f2fd;color:#1565c0}
+.fo-pill.rtr,.fo-pill.nts{background:#fff3e0;color:#e65100}
 /* I072 — Validation panel layout: summary row, card-separated tables, title aligned with tools */
 .v-summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px}
 .v-summary .v-count{font-size:14px;font-weight:700;color:var(--navy)}
 .v-summary .v-meta{font-size:12px;color:var(--text2);margin-left:auto}
 .table-head{display:flex;justify-content:space-between;align-items:center;margin:0 0 8px}
 .table-head .tt{font-size:13px;margin:0;color:var(--navy);text-transform:uppercase;letter-spacing:.04em}
-.c-card .ds-split{border:0;border-radius:0;margin-top:0}
+/* §4 — when a card wraps a table, the table's own `.ds-split` border is the single external border;
+   the card must not add a second border around it. */
+.c-card:has(.ds-split){border:0}
+.c-card:has(.ds-split) .ds-split{margin-top:0}
 /* §7.1 B7 — column-visibility control: own class, floating panel, no filter badge */
 .cc-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;line-height:1.2}
 .cc-btn:hover{background:var(--surface2)}

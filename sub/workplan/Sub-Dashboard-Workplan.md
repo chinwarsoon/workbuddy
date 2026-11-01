@@ -2,6 +2,21 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 2.65 | 2026-11-01 | CodeBuddy (AI) | Added a §4.6 hover-window regression guard to the shared layout harness: new **Tier 6** in `harness-layout/harness.mjs` (`lintHoverWindow` + dispatch) and a `hover` config block in `harness-layout/checks/sub.mjs`. It asserts, per chart board (C1–C4) and KPI card, the focusable host + `aria-describedby` → `role="tooltip"` window, the `cursor:crosshair`/`help` affordance, the `.chart-snap` line on nearest charts, and that a hover/tap reveals the window (which hides on pointer-leave); the C2 `.ct-l` swatch+label grouping is guarded where configured. Closes harness issue I002 and prevents the I092 C2 defect from silently regressing. |
+| 2.64 | 2026-11-01 | CodeBuddy (AI) | Follow-up fix **I092** (issue log 0.80) — C2 hover window not per spec §4.6. Added `.ct-l` label-group class + `align-items:center` on `.chart-tip-row` and wrapped the C2 swatch + label in `.ct-l` so swatch and label stay grouped (value on the right); set `role="tooltip"` on the window in the shared `bindChartHover` (benefits every chart and KPI card). The C2 swatch still uses a hard-coded hex from `c2Color()`; full tokenization of C2 status colours is a separate, larger task. |
+| 2.63 | 2026-11-01 | CodeBuddy (AI) | Completed **T-D3 / T-D4 / T-D5** of the hover floating-window work. T-D3 replaced every native `<title>` (C3 bar segments, C3 donut arcs, C4 scatter, C2 Delay) with the shared `.chart-tip` driven by per-element `data-tip` (**I090 resolved**). T-D4 gave every KPI card a below-card `.chart-tip` with Purpose / Data source / Calculation from `KPI_META` (**I091 resolved**). T-D5 added `cursor:crosshair` affordance (**I080**), focusable boards + `aria-describedby` + show-on-focus (**I081**), a touch tap-to-show variant (**I082**), an opacity-only transition with the update-on-change guard (**I085 / I086**), a unified `.chart-tip-foot` (**I084**), and `overflow:visible` on chart hosts / ancestors (**I088**). The delegated `bindChartHover` now supports nearest-datum and element modes plus below-card placement. All hover-window issues I080–I091 are resolved. |
+| 2.62 | 2026-11-01 | CodeBuddy (AI) | Completed **T-D1** — extracted the delegated `bindChartHover` binder, renamed `.scurve-tip` / `.c2-tip` → `.chart-tip`, unified `.chart-snap`, and renamed inner classes. C2 dark tip removed (**I089 resolved**); I086 update-on-change guard added (opacity transition pending T-D5). The old duplicated C1 / C2 hover blocks were removed. |
+| 2.61 | 2026-11-01 | CodeBuddy (AI) | Resolved I083 — removed three duplicate series colour hues in `sub/engine/dashboard.css` (app=actual green, awc=plan blue, nap=forecast amber); reassigned app→lime `#65a30d`, awc→cyan `#0891b2`, nap→pink `#db2777`; aligned `sub/sample-hover.html` to the same palette. Built HTML outputs to be regenerated. |
+| 2.60 | 2026-11-01 | CodeBuddy (AI) | Recorded review decisions on hover-window issues: I082 touch variant REQUIRED (no desktop-only fallback); I090 C3 / C4 confirmed to adopt the floating window (native `<title>` not accepted — removed the open decision from §4.11); I083 action assigned — verify the live token set and remove duplicate hues. Docs only; no dashboard code changed. |
+| 2.59 | 2026-11-01 | CodeBuddy (AI) | Drafted the **Chart hover floating window** standard. UI spec §4.6 (rev 1.50) replaces the per-chart RECOMMENDED hover note with one normative component contract (`.chart-tip` / `.chart-snap`) covering all chart boards (C1–C4) and KPI cards: tokenized visual contract, header/body/footer layout with unique series tokens, 4-edge clamping, below-card KPI variant, `cursor:crosshair` affordance, required touch variant, optional snap line, `data-points`/`data-geo` plumbing, opacity-only motion with update-on-change, accessibility (focusable board + `aria-describedby`), `overflow:visible` containers, and a single delegated binder. Both spec copies re-synced. Workplan §4.11 records the implementation plan and current divergence (C2 dark tip, C3/C4 native `<title>`, KPI no window). Issues I080–I091 logged. Review sample `sub/sample-hover.html`. For review. |
+| 2.58 | 2026-10-31 | CodeBuddy (AI) | Removed the **C5 Forward and Overdue** panel from the Analytical page (engine `render.js` `analytics()`) because it duplicated the dedicated **Forward and Overdue** side-menu page (§4.8). The `forwardAndOverdue` view is retained and is now reached only via the side menu. The Analytical page now carries a single combined chart (C4 Turnaround & Aging) in the shared content grid plus the Bottleneck KPI strip. §4.8/§4.9 and the D6/D9 regrouping notes updated; standalone HTML rebuilt. |
+| 2.57 | 2026-10-30 | CodeBuddy (AI) | Refined the Analytical page Bottleneck KPI strip per owner review (issue I079). Dropped *Overdue* and *Look-ahead* from the strip because the C5 card on the same page already covers them (no duplication). Five live cards are now distinct bottleneck lenses, each sourced from the Submission Log against `asOf`: **Long-due (aging SUR)** buckets <30 / 30–60 / 60–90 / >90 days **past each record's target return date** (replacing the earlier `asOf − submissionDate` age basis); **Rework Rate** = resubmitted ÷ total submissions (%); **Avg Review Cycle** = mean(actualReturnDate − submissionDate) per record where both dates exist; **Avg Approval Cycle** = mean(firstApprovalDate − firstSubmissionDate) per document (firstApprovalDate derived from first AWC/APC status, firstSubmissionDate = earliest submissionDate per document); **Avg Review Delay** = mean(delayDays), already implemented (view.kpis.averageDelay). Required Review FTE remains deferred with §4.10. Data-source / calculation table added to workplan §4.9; issue log 0.74. |
+| 2.56 | 2026-10-30 | CodeBuddy (AI) | Corrected the I077 table-border fix per owner review: the table's own `.ds-split` border must be the single external border, not the card's. Replaced `.c-card .ds-split{border:0}` with `.c-card:has(.ds-split){border:0}` (engine + standalone CSS); now every table keeps its border and any card wrapping a table drops its own border (no double border). All eight data tables show one clear external border. Issue log 0.73; spec §4 gained a normative note (revision 1.49). |
+| 2.55 | 2026-10-30 | CodeBuddy (AI) | Fixed table external-border inconsistency (I077): Submittals and the C3 Breakdown summary rendered a bare `.ds-split` border instead of living in a `.c-card` (the §4 card contract says every table + its controls share one card, which supplies the single border). Wrapped both in `.c-card` (engine `render.js` + standalone HTML); `.c-card .ds-split{border:0}` now removes the redundant table border so all eight data tables share one border model. Issue log 0.72. |
+| 2.54 | 2026-10-30 | CodeBuddy (AI) | Fixed table-corner non-compliance (I076): six `.ds-split` tables inside `.c-card` (C2 per-discipline, Validation Rules + Issues, Forward and Overdue ×3) rendered square corners because `.c-card .ds-split{border-radius:0}` flattened the base 10 px radius. Removed `border-radius:0` so card tables keep rounded corners while the card still supplies the only border. Audit: Submittals and C3 per-card tables were already compliant. UI spec §4 gained a normative note (root + harness, revision 1.48); issue log 0.71. Standalone HTML updated. |
+| 2.53 | 2026-10-30 | CodeBuddy (AI) | Fixed a panel-chrome regression on the Forward and Overdue page (I075): `forwardAndOverdue` returned a bare `.c-card`, so the page lost the §4 edge border and title (the page renderer does not wrap views; only `activePanel()` emits them). Wrapped the view in `activePanel('Forward and Overdue', …)`, matching the old `coverage` nesting under C5. UI spec §4 gained a normative rule that every view wraps its own output in `activePanel()` (root + harness, revision 1.47); issue log 0.70. Standalone HTML updated. |
+| 2.52 | 2026-10-30 | CodeBuddy (AI) | Refined the Forward and Overdue page (I074, owner review of I073). The Horizon control is now a segmented toggle (1/2/3/4 wks) matching the Lane filter button style; the Look-Ahead view shows a window subtitle ("Next N weeks (+7 to +N×7 days): M documents due"). All three tables show Document No. and Title together, with widths that show the full Document No. (150 px, pinned) and Title (300 px). UI spec §4 gained a normative rule (Document No. + Title, full-width columns) — revision 1.46; harness spec re-synced; issue log 0.69; standalone HTML updated. |
+| 2.51 | 2026-10-30 | CodeBuddy (AI) | Redesigned the Forward and Overdue page (renamed from "Forward Plan"; I073). The side-menu page and the Analytical C5 card now carry three views — Look-Ahead (forward-only, 1–4 week horizon starting +7 days, three lanes: first submit / resubmit / return), Overdue (the same three categories past due), and Coverage (NFS) — inside one `.c-card` that groups the view toggle, view-specific controls and table. Every table offers a `⤓ CSV` of the on-screen rows. Spec §4 gained two normative rules: a data table and its controls share one `.c-card` (extending the chart-card contract to tables), and every on-screen `.ds-table` MUST offer a `⤓ CSV`. UI spec revision 1.45; issue log 0.68; workplan §4.8, §4.9, §4.3 module table and the sidebar-width note updated; decisions D44 and D45 captured. Engine implementation (render.js / dashboard.css) is the next task. |
 | 2.50 | 2026-10-29 | CodeBuddy (AI) | Resolved I071 and I072 (Wave 18, T18.8–T18.9). **I071**: the Validation panel wrapped its Rules + Issues tables in a native `<details>/<summary>` disclosure toggle, redundant with the left-sidebar page navigation; removed it so the tables show directly, and added a `⤓ CSV` export to the Issues table tools (right-aligned beside `Columns`), with `exportKeyedTableCsv(key)` in `dashboard.js`. Spec §4 gained a normative no-in-panel-disclosure rule (revision 1.43). **I072**: reorganized the Validation panel to the §4.5 layout standard (revision 1.44) — one `.v-summary` flex row (count + severity chips + meta line), each table in its own `.c-card` (inner `.ds-split` border removed), a `.table-head` row aligning each card title with its tool cluster, a clearer `Showing X of Y rows` count, and default column widths that give the Rules Description (≈420 px) and Issues Message (≈360 px) / Value (≈130 px) the most room. The shared `table()` helper gained an optional `opts` (`widths`, `title`). Files: `render.js`, `dashboard.css`, both spec copies, standalone bundle. The 4 pre-existing V-33 data-count test failures remain. |
 | 2.49 | 2026-10-29 | CodeBuddy (AI) | Added validation code **V-33** to the MDL plan-row pass (`sub/engine/pipeline.js` `parseMdl`): a registered `Document No.` with a blank `Planned 1st Issue Date` raises `V-33` (Error, Group `Data quality`; message "Planned 1st Issue Date is blank. Every registered document needs a first-issue plan date."). The 16:40 workbook `Code` sheet already carries the V-33 row (confirmed present). Measured on the 2026-10-29 (16:40) baseline: `V-33` = 1676 (matches `blankPlanDate`), `asOf` = 2026-10-29, `workbookRows` = 7729, `withDocumentNo` = 7631. Catalog, the new-sub-codes table and the Excel edit guide updated to `V-29`…`V-33`. |
 | 2.48 | 2026-10-29 | CodeBuddy (AI) | Resolved I069 and I070 (Wave 18, T18.6–T18.7). **I069**: the Submittals drill cell painted a clipped ellipsis (two dots) after the chevron, because `.drill-cell` (0,1,0) lost the cascade to `.ds-table th, .ds-table td` (0,1,1); the rule is now `.ds-table .drill-cell` with `overflow:hidden;text-overflow:clip`, and the spec's 4 px padding applies for the first time (spec §4.4, revisions 1.40 and 1.41). **I070**: the column-visibility chooser was rebuilt to §7.1 B7 — one shared `columnChooser` builder (master → note → divider → item list → footer), pinned identity columns listed ticked and disabled, tri-state master, `N hidden` + `Reset to defaults`, 380 px panel, `.cc-btn` + `aria-expanded`, stays open across a tick, closes on an outside click or Escape. The global filters now start from the data: all five dimensions fully ticked (Stage 9 of 12, master indeterminate), blank values listed as `(blank)`, and an empty tick set filters every row out (D42, spec §7.1 revision 1.42). Files: `render.js`, `dashboard.js`, `dashboard.css`, standalone bundle (259,121 B). Pipeline 18/18 and render 20/20 pass; Chromium evidence recorded in I069 and I070. Wave 18 report filed: `workplan/reports/Wave-18-Submittals-and-Chooser.md`; `update_log.md` 1.25 and `test_log.md` 1.18 filed. |
@@ -571,8 +586,9 @@ single `active` set (S4); no DOM recompute. The global Discipline filter still a
   counts per `Document No.` using the first approval (§3.3.2, D36). Overdue / lag cells are flagged.
 
 **Regrouping note**: the earlier seven Overview charts plus the analytical panels are consolidated into
-six interactive charts (C1–C6). Folded here: *Approval Mix* → C3 "Approval Mix" metric; *S-Curve
-Variance* → C1 "Per Discipline" view; the standalone *Coverage* panel → C5 "Coverage" view (§4.9). Net
+interactive charts. Folded here: *Approval Mix* → C3 "Approval Mix" metric; *S-Curve
+Variance* → C1 "Per Discipline" view; the standalone *Coverage* panel → **Coverage** view on the Forward
+and Overdue page (§4.8; C5 was removed from Analytical to avoid duplicating that page). Net
 14 separate visuals → 6 charts. Each chart uses the active shared layout; C6 is on the Staffing page.
 
 ### 4.4 Submittals page (review and filter all details)
@@ -744,32 +760,67 @@ Dashboard preferences the user can change and save in `localStorage`:
 - Data sources and version.
 - Contact or issue link.
 
-### 4.8 Coverage — now a view inside the Forward Plan (C5)
+### 4.8 Forward and Overdue — the forward / coverage page
 
-Coverage (MDL scope minus submitted documents: pending and not-submitted count and list) is **no longer a
-standalone Overview panel**. It is offered as the **Coverage** view inside the Analytical **Forward Plan**
-chart (C5, §4.9), alongside the Look-Ahead list. This keeps the forward/coverage story on one screen and
-removes a redundant Overview panel.
+The side-menu page is **Forward and Overdue** (renamed from "Forward Plan"). It presents three views, all
+rendered inside one `.c-card` (spec §4) that wraps the view toggle, the view-specific controls and the
+table together:
+
+- **Look-Ahead** (forward-only): documents becoming due in the next **1–4 weeks** (Horizon toggle (segmented), default
+  4 weeks; the window starts at **+7 days**, so the current week is skipped — D44). It answers *what is
+  coming* with three lanes — **to be first submitted** (MDL scope not yet lodged, by Planned / Forecast 1st
+  Issue Date), **to be resubmitted** (latest submission `RTR` / `NTS`, not yet resubmitted, by
+  `(actualReturnDate || targetReturnDate) + resubmitLead` — D45), and **to be returned** (open `SUR`, by
+  `targetReturnDate`). Sorted ascending by due date; each row carries a status pill (`NFS` / `RTR` / `NTS` /
+  `SUR`) and an `In (days)` numeric column. Per spec §4.3 the look-ahead is **forward-only** and must **not**
+  overlap the Overdue list — overdue is the separate backward view below.
+- **Overdue** (backward-looking): the same three categories as the forward lanes, but for items already past
+  their date — **overdue to first submit**, **overdue to resubmit**, **overdue to return** — sorted descending
+  by days overdue. This is the spec's separate backward list (§4.3 mirror rule), surfaced in the same page so
+  forward and overdue share one screen.
+- **Coverage**: the former standalone Coverage panel — MDL scope minus submitted documents (NFS), the
+  planned-vs-forecast 1st-issue list (§3.3).
+
+Every view's table offers a **`⤓ CSV`** export (right-aligned in the control row) that downloads exactly the
+on-screen rows (UTF-8 BOM). The view toggle (`Look-Ahead` / `Overdue` / `Coverage`) is left-aligned in the
+control row; the view-specific controls (Horizon, Lane, `⤓ CSV`) are right-aligned. The page is reached from
+the side menu.
+
+Every table shows **Document No.** and **Document Title** in adjacent columns, with column widths that show the full Document No. (150 px, pinned) and the full Title (300 px); the table scrolls horizontally on narrow viewports. The Horizon control is a **segmented toggle** (1/2/3/4 wks) that matches the Lane filter button style; the active choice is highlighted, and the Look-Ahead view shows a subtitle that states the window — "Next N weeks (+7 to +N×7 days): M documents due".
 
 ---
 
 ### 4.9 Analytical page (bottlenecks, delays, projected delays)
 
 The Analytical page answers *where is it stuck* and *what is coming*. It carries a bottleneck KPI strip
-and two combined interactive charts that follow the shared content layout.
+and one combined interactive chart (C4 Turnaround & Aging) that follows the shared content layout.
 
-**Bottleneck KPI strip (6 cards)**: Overdue (past Target Return, still open) · Open SUR older than 60 d ·
-Rework Rate (RTR / resubmission) · Avg Cycle (return→approval) · Look-ahead (docs due in next 4 wks) ·
-Required Review FTE (Dec) — the last is the staffing hand-off to §4.10 (deferred — see §9.9).
+**Bottleneck KPI strip — 5 live cards + 1 deferred (owner review, 2026-10-30).** The strip deliberately
+omits *Overdue* and *Look-ahead*, which are covered by the dedicated **Forward and Overdue** side-menu page (§4.8), to
+avoid duplication. The five live cards are distinct bottleneck lenses, each sourced from the **Submission
+Log** (`view.active`) against `asOf = model.meta.asOfDate`; the Master Document List is not used by these
+cards. Data source and calculation per card:
+
+| Card | Data source | How calculated |
+|---|---|---|
+| **Long-due (aging SUR)** | Submission Log → `SUR` & `!actualReturnDate` (open, under review) | For each open SUR, `daysPastTarget = asOf − targetReturnDate`; distribute into **<30 / 30–60 / 60–90 / >90 days** past target return date (records without a target return date are excluded). Replaces the earlier `asOf − submissionDate` age basis. |
+| **Rework Rate** | Submission Log → `flagResubmission` | `resubmitted ÷ total submissions`, shown as a % (denominator = total submission records). |
+| **Avg Review Cycle** | Submission Log → `submissionDate` & `actualReturnDate` | Mean of `(actualReturnDate − submissionDate)` over records where **both** dates exist (per-record review duration). |
+| **Avg Approval Cycle** | Submission Log → `firstSubmissionDate` & `firstApprovalDate` | Mean of `(firstApprovalDate − firstSubmissionDate)` per document; `firstApprovalDate` = first `AWC` / `APC` status date (derived), `firstSubmissionDate` = earliest `submissionDate` per document. |
+| **Avg Review Delay** | Submission Log → `delayDays` | Mean of `delayDays` (negative = ahead of plan); already computed as `view.kpis.averageDelay`, reused from the Overview strip. |
+| *(deferred)* **Required Review FTE** | — | `projected volume × review-hours/document ÷ productive-hours/reviewer`; deferred with the Staffing page (§4.10) until manhour benchmarks exist (Open Question §9.9). |
+
+**Implementation status**: all six cards are implemented — Avg Review Delay (reused from
+`view.kpis.averageDelay`) plus Long-due buckets, Rework Rate, Avg Review Cycle and Avg Approval Cycle, all
+derived in `deriveView` (§11.3). Required Review FTE remains deferred with §4.10. See issue I079.
 
 - **C4 Turnaround & Aging** (shared content grid): process-time analysis. **Controls**: *Scatter* (turnaround days on
   x, review-delay days on y, one point per submission) ↔ *Age buckets* (open SUR split <30 / 30–60 /
   60–90 / >90 d; overdue = past Target Return still open). Surfaces the bottleneck stage and where time
   is lost.
-- **C5 Forward Plan** (shared content grid): the forward/coverage view. **Controls**: *Look-ahead* (documents due by
-  Target Return within the next 4–8 weeks, with status pills and a total) ↔ *Coverage* (NFS: MDL scope
-  with no matching Submittal Log Document No., the former Coverage panel §4.8). Enables projected-delay
-  spotting before the queue builds.
+- **C5 Forward and Overdue** — *removed from the Analytical page* (2026-10-31). It duplicated the dedicated
+  **Forward and Overdue** side-menu page (§4.8), which is unchanged and reached only via the side menu. The
+  `forwardAndOverdue` derivation is retained; the Analytical page now carries only C4 in the shared content grid.
 
 ### 4.10 Staffing page (manhour / capacity analysis) — **DEFERRED**
 
@@ -800,6 +851,33 @@ document**, so the manhour figure cannot be computed from the workbooks alone �
 `review-hours/document` assumption. Treat the output as a *load / throughput* estimate, not an absolute
 manhour number. **Open**: confirm the discipline-weight table for `review-hours/document` and whether a
 current-FTE input is wanted (Settings, §4.6).
+
+---
+
+### 4.11 Chart hover floating window — spec & implementation (rev 2026-11-01)
+
+**Design contract.** The hover floating window is standardized in the UI spec **§4.6** (rev 1.50). This section records the dashboard's implementation plan and current divergence; it does not restate the visual / behaviour contract.
+
+**Component.** One `.chart-tip` window + one optional `.chart-snap` line, delivered by a **single delegated binder** (`bindChartHover(host)`) attached to each chart host. Point / geometry travels in `data-points` (`{cx, optional cy, html}`) and `data-geo` (`{W, H}`); the per-point `html` is authored by each chart's workplan § (C1 §4.2, C2 / C3 / C4 their §, KPI §4.9).
+
+**Placement.** Chart boards: cursor-relative at `(+14, +14) px`, clamped on all four edges. KPI cards: below the card, centred / left-clamped, never covering the card.
+
+**Current state / divergence.** Issues I080–I091 are resolved. Follow-up review **I092** corrected the C2 series-row layout and the missing `role="tooltip"`.
+- **C1 S-curve** — implemented with the shared `.chart-tip` + snap line; the delegated binder was extracted in T-D1 and gained the opacity-only transition in T-D5 (**I086 resolved**).
+- **C2 Submission Flow** — migrated to the tokenized `.chart-tip` in T-D1; the hard-coded dark style is removed (**I089 resolved**).
+- **C3 Breakdown** and **C4 Turnaround & Aging** — migrated to the floating window in T-D3; native `<title>` replaced with per-element `data-tip` (bar segments, donut arcs, scatter points) — **I090 resolved**.
+- **KPI cards** — gained the below-card floating window in T-D4, showing Purpose / Data source / Calculation per KPI — **I091 resolved**.
+- **Cross-cutting (all resolved)** — `cursor:crosshair` affordance added to chart boards (I080); boards are focusable with `aria-describedby` and show the window on focus (I081); a touch tap-to-show variant is implemented (I082); series colour tokens are unique (I083); footer uses one unified `.chart-tip-foot` style (I084); the window updates only on datum change and fades via an opacity-only transition (I085 / I086); chart hosts and ancestors are `overflow:visible` (I088).
+- **I092 (follow-up, resolved)** — C2 hover series row put the swatch, label and value as three separate flex children under `justify-content:space-between`, detaching the swatch from its label; the window also lacked `role="tooltip"`. Fixed: added `.ct-l` label group + `align-items:center` on `.chart-tip-row`, wrapped the C2 swatch + label in `.ct-l`, and set `role="tooltip"` on the window in `bindChartHover` (benefits every chart and KPI card). C2 swatch still uses a hard-coded hex (`c2Color()`); full tokenization of C2 status colours is a separate, larger task.
+
+**Development tasks (proposed).**
+- **T-D1** — **DONE (2026-11-01)**: extracted the delegated `bindChartHover` binder, renamed `.scurve-tip` / `.c2-tip` → `.chart-tip`, unified `.scurve-snap` → `.chart-snap`, and renamed the inner `.c2-tip-row` / `.c2-swatch` → `.chart-tip-row` / `.chart-swatch`.
+- **T-D2** — **DONE** via T-D1 (the dark `.c2-tip` style was removed; C2 now uses the shared `.chart-tip`).
+- **T-D3** — **DONE (2026-11-01)**: replaced every native `<title>` (C3 bar segments, C3 donut arcs, C4 scatter, C2 Delay) with the shared `.chart-tip` via per-element `data-tip`; native `<title>` is gone (**I090 resolved**).
+- **T-D4** — **DONE (2026-11-01)**: every KPI card carries a below-card `.chart-tip` with Purpose / Data source / Calculation from `KPI_META` (**I091 resolved**).
+- **T-D5** — **DONE (2026-11-01)**: added `cursor:crosshair` affordance, focusable boards + `aria-describedby` + show-on-focus (keyboard / screen-reader parity), a touch tap-to-show variant, the update-on-change guard with an opacity-only transition, and `overflow:visible` on chart hosts / ancestors (**I080 / I081 / I082 / I085 / I086 / I088 resolved**).
+
+**Review sample.** `sub/sample-hover.html` demonstrates the unified window across S-curve, grouped bars, pie and KPI cards (below-card placement, totals / percentages); it is the reference for the §4.6 implementation.
 
 ---
 
@@ -928,18 +1006,21 @@ discipline dimension. Open issues I046, I047 and I048 are tracked in `issue_log.
 - **D4 — Shared shell and global controls** (§4.0–4.2). The dashboard uses the shell in `AGENTS.md` §18.2. Global filters live in the shared filter area below the content toolbar; actions stay in the toolbar. The sidebars use the shared shell behavior. This decision replaces the former two-row header proposal.
 - **D5 — Source-contract parsing (spec §3.8.3)** (§3.4). Resolve source positions and lookup values from each workbook contract at runtime. The MDL `Code` sheet provides its field map. The Submittal Log uses its row-1 field headers and `Code` sheet where present. Missing or repeated required fields are validation errors.
 
-- **D6 — Six combined interactive charts (C1–C6) replace 14 separate visuals** (§4.3, §4.9, §4.10).
-  The Overview's seven charts and the Analytical's seven panels are regrouped by shared question:
-  C1 Schedule Performance (S-curve) · C2 Submission Flow & Delay · C3 Breakdown (incl. Approval Mix) ·
-  C4 Turnaround & Aging · C5 Forward Plan (Look-ahead + Coverage) · C6 Staffing Estimator. Each chart has a control cluster (toggle/view) and re-renders `deriveView` on `active`
-  (S4 only — no DOM recompute), reusing MDL's SVG chart kit. Net 14 → 6.
+- **D6 — Combined interactive charts replace 14 separate visuals** (§4.3, §4.9, §4.10). The Overview's
+  seven charts and the Analytical panels are regrouped by shared question: C1 Schedule Performance
+  (S-curve) · C2 Submission Flow & Delay · C3 Breakdown (incl. Approval Mix) · C4 Turnaround & Aging are on
+  the Analytical page; **C5 Forward and Overdue was removed from Analytical** (2026-10-31) because it
+  duplicated the dedicated Forward and Overdue side-menu page (§4.8); C6 Staffing Estimator is its own
+  side-menu page (§4.10). Each chart has a control cluster (toggle/view) and re-renders `deriveView` on
+  `active` (S4 only — no DOM recompute), reusing MDL's SVG chart kit.
 - **D7 — Staffing is its own side-menu page** (§4.2, §4.10). The manhour/staffing analysis (C6) is a
   separate **Staffing** nav item, not folded into Analytical, so the capacity question is reviewed on
   its own with its own KPI strip. The menu label **Analytical** is retained. **Deferred**: scheduled
   only after the user supplies manhour benchmarks (§9.9); the menu item and C6 spec are retained.
 - **D8 — Shared layout behavior** (§4.0): the status bar and sidebars follow `AGENTS.md` §18.2. The layout button selects one, two, or three content columns. The S-curve (C1) may span the content width. Panel grids must fit each selected layout.
 - **D9 — Redundancy folded, not lost** (§4.3, §4.9): *Approval Mix* → C3 "Approval Mix" metric;
-  *S-Curve Variance* → C1 "Per Discipline" view; standalone *Coverage* panel → C5 "Coverage" view. The
+  *S-Curve Variance* → C1 "Per Discipline" view; standalone *Coverage* panel → **Coverage** view on the
+  Forward and Overdue page (§4.8; C5 was removed from Analytical to avoid duplicating that page). The
   Status Funnel is **kept** as the C2 "Funnel" view (distinct stage drop-off). No chart is dropped
   outright — each original question remains reachable.
 - **D40 — C2 Stacked view is a time-river stacked area** (§4.2, owner review 2026-10-27): the C2 Stacked
@@ -966,6 +1047,8 @@ discipline dimension. Open issues I046, I047 and I048 are tracked in `issue_log.
   stage a razor-thin sliver; a 14px floor keeps labels readable. The per-Discipline table repeats the five
   measures with a Total row. The Funnel is document-level for Submitted/Under Review/AWC/Approved (distinct
   `Document No.`), unlike the Stacked/Delay views, which are row-level per month.
+- **D44 — Look-ahead horizon starts at +7 days** (§4.8 / §4.9, owner 2026-10-30). The Look-Ahead window is the next **1–4 weeks**, selectable, default 4 weeks. The lower bound is **as-of + 7 days** (the current week is skipped) and the upper bound is **as-of + horizon×7 days** (so 4 weeks = +7…+28 days). Bands are Week 1 (+7–13 d), Week 2 (+14–20 d), Week 3 (+21–27 d), Week 4 (+28–34 d). Overdue is excluded from the forward view (it has its own backward view, §4.3).
+- **D45 — Resubmission target basis** (§4.8 / §4.9, owner 2026-10-30). The "to be resubmitted" target date = `(actualReturnDate || targetReturnDate) + resubmitLead`. A returned document (latest row `RTR` / `NTS`, no later resubmission) uses its **Actual Return Date**; a still-open review projects from its **Target Return Date**. `resubmitLead` (duration to resubmit) is a project config value (sample default 14 days). The Submittal Log `Review Period Days` (20 first / 14 subsequent) is read per row and is **not** hardcoded in the render layer.
 - **D41 — Submittals panel: one row per document with consolidated, toggleable history** (§4.4, owner review 2026-10-28). The Submittals page groups the filtered Submittal Log by `Document No.` and shows **one row per document**. The main row carries the History toggle (▸/▾, default collapsed), `Document No.`, `Document Title`, `Discipline`, `Submissions` (revision count), `Current Submission Status` (latest row) and `Current Approval Status` (latest row). `Document Title` reads from the MDL planned row via `linkedPlannedId` → `planned.title` and falls back to the submission's prolog subject (`fields['Document Title']`) when MDL has none; `Discipline` likewise comes from MDL, falling back to the submission. The expanded detail lists every submission for the document, ordered by `Submission Date`: `#`, `Prolog / Transmittal No.` (per submission — a document may have several distinct Prolog numbers, so it is shown per row, not consolidated), `Submission Date`, `Return Date`, `Submission Status`, `Approval Status`. The CSV button is right-aligned and the column-visibility control follows spec §7.1 B7 (`.cc-btn`, floating `.column-chooser`, no filter badge). One summary line (`N documents`) sits under the panel title. The change is additive: it exposes `view.documents` (the existing `documentGroups`) and leaves `view.active` and every other panel's data intact.
 
 - **D42 — Filter selection semantics** (§7.1, owner review 2026-10-29). Every global dimension starts
@@ -1078,8 +1161,9 @@ discipline dimension. Open issues I046, I047 and I048 are tracked in `issue_log.
 - **D28 — The left panel is sized to its menu titles** (§3.2). Resolves I016. The panel was 240 px for
   135 px of content, so 105 px was empty — a leftover of the old panel, which also carried a
   full-width collapse toggle and two section titles, all removed by I015. `--sidebar-w` is now
-  **160 px**: the widest title, "Forward Plan", is 91 px at 14 px / 400, which with the button's 12 px
-  horizontal padding and the panel's 10 px padding needs 135 px, plus 25 px of slack. The clamp in
+  **160 px**: the widest title, "Forward and Overdue" (renamed from "Forward Plan"), is ≈135 px at 14 px / 400,
+  which with the button's 12 px horizontal padding and the panel's 10 px padding needs ≈175 px — the 160 px
+  default no longer clears it; raise `updateSidebarWidth` min to ~190 px (the clamp runs on load whenever a width is The clamp in
   `updateSidebarWidth` had to move too: it was `min = 180`, and it runs on load whenever a width is
   saved in local storage, so a narrower default would have been forced back to 180 px. It is now
   **140**, the width at which the widest title still fits. The 25 px of slack is deliberate — it keeps
@@ -1220,7 +1304,7 @@ layout drift) are accepted in the mockup but **must not** carry into the project
   to the affected views.
 
 - **9.8 Chart regrouping — RESOLVED** (D6/D9): the 14 visuals are consolidated into 6 interactive
-  charts (C1–C6); Approval Mix folded into C3, S-Curve Variance into C1, Coverage into C5, Status Funnel
+  charts (C1–C6); Approval Mix folded into C3, S-Curve Variance into C1, Coverage into the Forward and Overdue page (formerly C5), Status Funnel
   kept as C2 view. Confirmed in review 2026-10-23.
 - **9.9 Staffing model parameter — DEFERRED (awaiting manhour benchmarks)**: the C6 estimator needs a
   `review-hours/document` (discipline-weighted) planner input and optionally a current-FTE input (§4.6).
@@ -1254,7 +1338,7 @@ layout drift) are accepted in the mockup but **must not** carry into the project
 |---|---|---|---|---|
 | Side panel | Static page list | No | None (`STATE` only) | Nav + active highlight |
 | KPIs (6) | `active` | Yes (re-derived) | S4 | KPI cards (§5) |
-| Charts C1–C5 (C6 deferred) | `active` | Yes | S4 | SVG (grid follows shared layout; C1 may span the content width; C6 Staffing estimator deferred — §4.10) |
+| Charts C1–C4 on Analytical (C5 removed → Forward and Overdue side-menu page; C6 deferred) | `active` | Yes | S4 | SVG (grid follows shared layout; C1 may span the content width; C6 Staffing estimator deferred — §4.10) |
 | Submittals table | `active` + panel-local filter | Yes + local | S4 + local | HTML table + CSV |
 | Validation page | `issues[]`/`warnings[]` | No | S2/S3 | List + counts |
 | Warning bar | structural fatal + formula strips + `V-xx` issues | No | S2/S3 | `#errBanner` |
@@ -1267,5 +1351,5 @@ layout drift) are accepted in the mockup but **must not** carry into the project
 | **C2 Submission Flow & Delay** | `Submission Status` + `Review Delay Days` per row | Normalise status via Code sheet; add NFS only for MDL rows without a valid submitted log match | *Stacked*: per-month counts by status + total (optional NFS); *Delay*: monthly avg, not-returned & not-due = 0; *Funnel*: submitted→review→returned→approved | SVG stacked bar / line / funnel |
 | **C3 Breakdown** (incl. Approval Mix) | `Discipline` / `Submitted By` + `Approval Status` + `Review Delay Days` + `Resubmission Required` | Normalise status/approval via Code sheet; join submitted↔planned for *Plan vs Actual* | *Count* / *Plan vs Actual* / *Delay* / *Rework* per dimension; *Approval Mix* = APP/AWC/NAP/REJ/INF counts + total | SVG h-bar / donut |
 | **C4 Turnaround & Aging** | `Turnaround`, `Review Delay Days`, `Target Return`, `Actual Return` | Pair per submission; flag overdue (Target Return passed, still open) | *Scatter*: turnaround × delay; *Age buckets*: open SUR <30/30–60/60–90/>90 d | SVG scatter / bars |
-| **C5 Forward Plan** (Look-ahead + Coverage) | MDL planned/forecast first-issue + Log trend; MDL scope minus Log matches | Normalise dates; compute NFS set | *Look-ahead*: docs due in next 4–8 wks; *Coverage*: NFS count + list | Table + list |
+| **Forward and Overdue page** (Look-ahead + Overdue + Coverage; was Analytical C5) | MDL planned/forecast first-issue + Log trend; MDL scope minus Log matches | Normalise dates; compute NFS set | *Look-ahead*: docs due in next 1–4 wks (first submit / resubmit / return); *Overdue*: same 3 categories past due; *Coverage*: NFS count + list | Table + list |
 | **C6 Staffing Estimator** — *deferred* | Projected volume (§4.3 + Log trend); `review-hours/document` (Settings input); `productive-hours/reviewer` (Settings) | Planner inputs only — no workbook field | `volume × hrs/doc ÷ hrs/reviewer`; compare with historical throughput | Form + read-only derived FTE |

@@ -1,28 +1,16 @@
-/* Headless pipeline test for Procurement-Dashboard.html
- * Runs the REAL shipped script (extracted from <script>) against the REAL workbook,
- * with a minimal DOM stub so render() can be exercised without a browser.
- * Verifies the Wave 0-3 refactor end-to-end: parse -> model -> validate -> render.
+/* Headless pipeline test for the PPP dashboard (spec §3.8.5).
+ * Imports the real modules - xlsx-reader, pipeline and render - and runs the real workbook
+ * through parse -> model -> validate -> render with a minimal DOM stub.
+ * Revision 1.1 - 2026-10-30 - opencode (AI): P4. No more <script> extraction or vm: the test
+ * imports src/ directly, so a build is no longer needed to run the pipeline checks.
  */
 import fs from 'node:fs';
-import vm from 'node:vm';
 import path from 'node:path';
+import { parseXlsx, parseCSV } from '../src/xlsx-reader.mjs';
+import { parseCodeSheet, findLookupColumns, buildFieldToCol, toDate, buildModel, validate } from '../src/pipeline.mjs';
+import { buildDashboard, deriveView, render, STATE, CHART, svgHBar, svgPie, topN } from '../src/render.mjs';
 
-const HTML = path.resolve('Procurement-Dashboard.html');
 const XLSX = path.resolve('TWRP C3B2 - Procurement Package Plan.xlsx');
-
-const src = fs.readFileSync(HTML, 'utf8');
-const m = src.match(/<script>([\s\S]*)<\/script>/);
-if (!m) throw new Error('no <script> block found');
-let code = m[1];
-
-const closeIdx = code.lastIndexOf('})();');
-if (closeIdx < 0) throw new Error('IIFE close not found');
-const HOOK = `
-  globalThis.__H = { parseXlsx, parseCSV, parseCodeSheet, findLookupColumns, buildFieldToCol,
-                     toDate, buildModel, buildDashboard, validate, STATE, CHART,
-                     svgHBar, svgPie, topN };
-`;
-code = code.slice(0, closeIdx) + HOOK + code.slice(closeIdx);
 
 /* ---------------- DOM stubs ---------------- */
 const els = new Map();
@@ -67,26 +55,15 @@ const documentStub = {
   readyState: 'complete', title: 'test',
 };
 
-const sandbox = {
-  document: documentStub,
-  window: { addEventListener() {}, scrollTo() {}, matchMedia: () => ({ matches: false, addEventListener() {}, addListener() {} }), devicePixelRatio: 1 },
-  localStorage: {
-    getItem: k => (k in lsStore ? lsStore[k] : null),
-    setItem: (k, v) => { lsStore[k] = String(v); },
-    removeItem: k => { delete lsStore[k]; }, clear: () => {},
-  },
-  navigator: { clipboard: {}, userAgent: 'node' },
-  setTimeout, clearTimeout, setInterval, clearInterval,
-  console, TextDecoder, TextEncoder, Blob, URL: Object.assign(Object.create(URL), { createObjectURL: () => 'blob:x', revokeObjectURL() {} }),
-  DecompressionStream, atob, btoa, crypto,
-  location: { href: 'file:///test.html' },
-};
-sandbox.self = sandbox;
-sandbox.globalThis = sandbox;
-vm.createContext(sandbox);
-vm.runInContext(code, sandbox, { filename: 'dashboard.js' });
+globalThis.document = documentStub;
+globalThis.window = { addEventListener() {}, scrollTo() {}, matchMedia: () => ({ matches: false, addEventListener() {} }), devicePixelRatio: 1 };
+globalThis.localStorage = { getItem: k => (k in lsStore ? lsStore[k] : null), setItem: (k, v) => { lsStore[k] = String(v); }, removeItem: k => { delete lsStore[k]; }, clear: () => {} };
+globalThis.navigator = { clipboard: {}, userAgent: 'node' };
 
-const H = sandbox.__H;
+const H = { parseXlsx, parseCSV, parseCodeSheet, findLookupColumns, buildFieldToCol,
+            toDate, buildModel, buildDashboard, validate, deriveView, render, STATE, CHART,
+            svgHBar, svgPie, topN };
+
 const pass = [], fail = [];
 const ok = (name, cond, detail = '') => (cond ? pass : fail).push({ name, detail });
 const line = s => console.log(s);
@@ -149,6 +126,13 @@ line('='.repeat(72));
       return `${f}=${f2c[f] != null ? colL(f2c[f]) : '—'}`;
     }).join('   '));
   });
+
+  /* Rev 1.28: the workbook gained a "PO Number" row in the Code sheet (row 22,
+     Column-M). A new contract field only takes effect when CODE_SHEET_KEYS names
+     it, so assert the wiring end-to-end: label -> column -> parsed package field. */
+  ok('Rev 1.28: "PO Number" is registered and maps to PPP column M',
+    f2c.poNo === 12 && model.packages.every(p => 'poNo' in p),
+    `poNo -> ${f2c.poNo != null ? colL(f2c.poNo) : '—'} (expected M/12); packages with poNo=${model.packages.filter(p => 'poNo' in p).length}/${model.packages.length}`);
 
   line('--- lookup code-column mapping (I-51) ---');
   ['discipline', 'criticality', 'status', 'category'].forEach(k => {
@@ -272,6 +256,30 @@ try {
   ok('I-50: V-20 stays a warning, never an error (accepted: List End Row 300 = template bound)',
     report.issues.filter(i => i.code === 'V-20').every(i => i.sev === 'warning'),
     report.issues.filter(i => i.code === 'V-20').map(i => i.sev).join(',') || 'not fired');
+
+  /* ---------- I-81 / V-26: PO Actual set but PO Number blank ---------- */
+  line('');
+  line('--- I-81: V-26 PO Number required once PO Actual is set ---');
+  const v26 = report.issues.filter(i => i.code === 'V-26');
+  /* cross-realm safe: the packages are built inside the VM, so a main-realm
+     `instanceof Date` is false. Use the tag, which works across contexts. */
+  const isDate = d => Object.prototype.toString.call(d) === '[object Date]' && !isNaN(d);
+  const expectV26 = model.packages.filter(p =>
+    isDate(p.poActual) && String(p.poNo || '').trim() === '');
+  ok('I-81: V-26 fires on every issued package with a blank PO Number, and only those',
+    v26.length === expectV26.length && v26.every(i => expectV26.some(p => p.id === i.pkg)),
+    `V-26=${v26.length} expected=${expectV26.length}`);
+  ok('I-81: V-26 is warning severity and never blocks the dashboard',
+    v26.every(i => i.sev === 'warning') && report.counts.error === 0,
+    `sev=${[...new Set(v26.map(i => i.sev))].join(',') || 'not fired'} errors=${report.counts.error}`);
+  const issuedPkg = model.packages.find(p => isDate(p.poActual));
+  if (issuedPkg) {
+    const withPoNo = model.packages.map(p => p === issuedPkg ? Object.assign({}, p, { poNo: 'PO-12345' }) : p);
+    const rV26b = H.validate(withPoNo, vctx);
+    ok('I-81: V-26 does not fire when the PO Number is present',
+      !rV26b.issues.some(i => i.code === 'V-26' && i.pkg === issuedPkg.id),
+      `false positives: ${rV26b.issues.filter(i => i.code === 'V-26' && i.pkg === issuedPkg.id).length}`);
+  }
 
   /* ---------- I-11: the Code sheet Error table is now the wording source ---------- */
   line('');

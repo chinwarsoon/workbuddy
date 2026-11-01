@@ -2,6 +2,17 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.55 | 2026-11-01 | opencode (AI) | §7.1 gained a normative **search panel composition** rule: one row with an attached B5 column picker (All columns plus each searchable column), a flexible input and the A5 submit; the picker re-applies the query without clearing it and the query applies only to the chosen column. §8.2 gained assertion 20. |
+| 1.54 | 2026-11-01 | opencode (AI) | §3.4.1 gained a normative **screen change / window resize** clause: reflow on any viewport width change (another display, resize, sidebar toggle, zoom) without reload or horizontal scrolling, using a `ResizeObserver` and not only a window listener; fixed-width inner content must re-fit or scroll inside its own card, split headers re-sync, and computed-width charts redraw; controls stay reachable and navigation remains available at every width. The truncated re-sync sentence was completed. |
+| 1.53 | 2026-11-01 | opencode (AI) | §4 gained a dedicated normative **§4.7 Panel spacing**: 14 px between top-level panels (rows and columns), container `gap` or the panel margin but never both, never 0, hidden panels add nothing, print keeps it, and card spacing inside a panel stays separate (16 px charts / 12 px validation). §8.2 assertion 19 now cites §4.7. |
+| 1.52 | 2026-11-01 | opencode (AI) | §4 gained a normative rule: stacked top-level panels are separated by the same **14 px** the panel margin defines (container gap or margin), never 0; hidden panels add no gap. |
+| 1.51 | 2026-11-01 | opencode (AI) | §3.5 **placement made normative**: the notice area is pinned below the menu bar, above the filter strip and outside the scrolling body, so panel scrolling never moves it; §8.2 gains assertion 18. |
+| 1.50 | 2026-11-01 | CodeBuddy (AI) | §4 gained a normative **§4.6 Chart hover floating window — standard**, replacing the per-chart RECOMMENDED hover note in §4.2. One `.chart-tip` / `.chart-snap` component now covers every chart board (C1–C4) and the KPI cards: tokenized visual contract (removes the C2 hard-coded dark `.c2-tip`), header/body/footer layout with unique series colour tokens and a unified footer, cursor-relative 4-edge clamping, a below-card KPI variant, `cursor:crosshair` affordance, a required touch tap-to-show variant, optional snap line, `data-points`/`data-geo` plumbing, opacity-only motion with update-on-change, accessibility (focusable board + `aria-describedby` + show on focus), `overflow:visible` containers, and a single delegated binder. §4.2's hover note now points to §4.6 and is normative. Re-synced to the harness bundled spec; issues I080–I091 logged. |
+| 1.49 | 2026-10-30 | CodeBuddy (AI) | §4 gained a normative note correcting the table-border model: inside a `.c-card`, the table's own `.ds-split` border is the single external border and the card must not add a second (`.c-card:has(.ds-split){border:0}`). This fixes the I077 regression where `.c-card .ds-split{border:0}` deleted the table's border and left only the card border. Engine + standalone CSS updated; issue I078. Re-synced to the harness bundled spec. |
+| 1.48 | 2026-10-30 | CodeBuddy (AI) | §4 gained a normative note: a `.ds-split` table inside a `.c-card` keeps the §4 rounding (remove only the redundant border, never `border-radius:0`), fixing the square-corner regression on card tables (C2 per-discipline, Validation, Forward and Overdue) — issue I076. Re-synced to the harness bundled spec. |
+| 1.47 | 2026-10-30 | CodeBuddy (AI) | §4 gained a normative rule: every view MUST wrap its top-level output in `activePanel()` because the page renderer adds no panel wrapper; a bare `.c-card` silently loses the §4 edge border, title and Panel N number. Root cause of the recurring panel-chrome regressions (I019 / I066 / I067); fixes the forwardAndOverdue regression (issue I075). Re-synced to the harness bundled spec. |
+| 1.46 | 2026-10-30 | CodeBuddy (AI) | §4 gained a normative rule for the Forward and Overdue tables (I074): every such table shows Document No. and Title together, with column widths that show the full values without truncation (horizontal scroll when narrow). The Horizon control is a segmented toggle (1–4 weeks) that matches the lane-filter button style; the Look-Ahead view shows a subtitle with the active window. Re-synced to the harness bundled spec. |
+| 1.45 | 2026-10-30 | CodeBuddy (AI) | §4 gained two normative layout rules, driven by the Forward and Overdue page (I073): (1) a data table and its controls share one `.c-card` — the inner border wraps the table plus its control cluster, extending the chart-card contract (§4) to tables; (2) every on-screen `.ds-table` MUST offer a right-aligned `⤓ CSV` that exports exactly the visible rows (UTF-8 BOM). Re-synced to the harness bundled spec. |
 | 1.44 | 2026-10-29 | CodeBuddy (AI) | §4.5 (Validation panel) rewritten to a normative layout standard, driven by I072 (SUB Validation panel). The panel organises as: one `.v-summary` flex row (count + severity chips + lighter meta line), each of the two tables in its own `.c-card` (inner `.ds-split` border removed, `.c-card .ds-split{border:0}`), a `.table-head` row aligning each card title with its tool cluster, a clear `Showing X of Y rows` count, and default column widths that give the Rules Description (≈420 px) and Issues Message (≈360 px) / Value (≈130 px) the most room. The panel-level CSV was removed (the per-issue table carries `⤓ CSV`); the stale `<details>` collapsible and `#vmap`/`#vref` references were deleted. `table()` gained an optional `opts` (`widths`, `title`). |
 | 1.43 | 2026-10-29 | CodeBuddy (AI) | §4 gained a normative rule: a panel reached via the left-sidebar page links MUST show its content directly and MUST NOT wrap its content in an in-panel disclosure toggle (for example a native `<details>` / `<summary>` element), because the sidebar already controls which panel is visible. When a panel must collapse, use the panel-level Collapse `−`/`+` toggle (§4), not a content disclosure. Driven by I071 (SUB Validation panel). |
 | 1.42 | 2026-10-29 | CodeBuddy (AI) | §7.1 gained **selection semantics** (normative), because the chrome rules were not enough. A dimension MUST open with every value ticked except documented exclusions. A blank cell is a selectable value shown as `(blank)`. An **empty tick set filters every row out** — an absent set is the only "no filter" state. A tick applies at once and MUST NOT close the panel; an outside click or `Escape` MUST close it. Found while fixing I070: three of the five dimensions started with an empty set, so the panel showed nothing ticked while the dashboard filtered nothing, and un-ticking every value changed no row. Compliance checklist gained row 17. |
@@ -264,14 +275,36 @@ the panel at its first render.
 This rule covers panel size only. It does NOT govern the cards, charts or tables inside a panel. An
 inner card MAY keep a fixed pixel width where a requirement demands it (for example, a constant bar
 width so values compare across months). Such inner fixed widths are out of scope for §3.4.1; the
-panel around them MUST still fit the screen. A panel that contains fixed-pixel inner content (for example, a split-header table) MUST re-sync that content on the `window` / `visualViewport` resize event as well as on element resize: browser zoom changes the screen scale without always re-firing an element `ResizeObserver`, so without the window / `visualViewport` listener the inner content keeps its first-render pixel width and does not follow the zoom. The panel grid itself MUST use `minmax(0, 1fr)` tracks with responsive breakpoints (or an `auto-fit` pattern like the KPI grid) so it reflows — dropping columns as the width shrinks — instead of keeping a fixed first-render column count that overflows the screen on zoom; the chosen `data-layout` count is the maximum, not a fixed floor.
+panel around them MUST still fit the screen. A panel that contains fixed-pixel inner content (for
+example, a split-header table or a fixed-width chart) MUST re-fit that content to the panel width:
+either re-render it at the new width or let it scroll inside its own card. The page and the content
+column MUST NOT gain a horizontal scrollbar.
+
+**Screen change and window resize (normative, rev 2026-11-01).** The rule applies to every viewport
+width change, including dragging the window to a display with a different width or pixel density,
+resizing it, collapsing or expanding the sidebar, and browser zoom. The layout MUST reflow without a
+reload, MUST NOT keep a first-render pixel width, and MUST NOT gain horizontal page or content
+scrolling. Changes that a browser reports only through layout (not a `resize` event) MUST still be
+handled: use a `ResizeObserver` on the affected container, not only a `window` resize listener.
+Split-header pairs MUST re-sync their column widths after every such change; a chart with a
+computed width MUST be redrawn at the new width or scale to its host.
+
+**Minimum usable width.** Below the width where its controls still fit, a dashboard MUST keep every
+control reachable: allow the control row to truncate its secondary text or wrap to a second line
+rather than overflow the panel. Navigation MUST stay reachable at every width.
 
 This requirement was confirmed in the Submittal dashboard review (panel-fit-to-screen, 2026-10-27):
 the KPI panel is the reference, and inner cards with a fixed bar width are explicitly out of scope.
 
 ### 3.5 System and configuration notices
 Show notices in one warning area inside the content area. The area spans the content area's width and
-MUST NOT cover either sidebar. Do not use a viewport-wide fixed bar. The area MUST use `role="alert"`
+MUST NOT cover either sidebar. Do not use a viewport-wide fixed bar.
+
+**Placement (normative, rev 2026-11-01).** The warning area is pinned to the top of the content
+column, immediately below the menu bar, and **above the filter strip and the scrolling body**. It
+MUST NOT sit inside the scrolling body: scrolling the panels MUST NOT move, hide or shrink it. It is
+therefore always visible while a notice is present. When the content column has other fixed strips
+(filter area, page toolbar), the warning area is the first of them. The area MUST use `role="alert"`
 and `aria-live="assertive"`; hide it when empty. Show fatal, warning, and info notices in that order,
 with icon, bold code, and message. Use semantic tokens defined in the dashboard project's UI stylesheet.
 
@@ -505,6 +538,12 @@ a dashboard uses in its own workplan.
   same contract. A single-graph panel (e.g. C1) needs no inner card — the panel edge alone frames it
   (I068). The panel edge (above) is the **outer** border; the `.c-card` border is the **inner**
   border around a single graph.
+- **Tables follow the same card contract (normative).** A data table (`.ds-table`, §7.2) and its own controls — view toggle, filters, lane / horizon selectors, export — sit together in one `.c-card`, exactly like a graph: the inner border wraps the table **plus its control cluster** (the owner rule for the Forward and Overdue page). A panel that shows several tables gives each its own `.c-card`.
+- **A table inside a `.c-card` carries its own border; the card must not double-border it (normative).** When a `.c-card` wraps a table, the table's `.ds-split` border is the **single** external border; the card's own border is removed (`.c-card:has(.ds-split){border:0}`) so exactly one visible border remains — on the table, not the card. This corrects the I077 regression where `.c-card .ds-split{border:0}` deleted the table's border and left only the (too-subtle) card border. Chart cards (no `.ds-split`) keep their card border.
+- **Every on-screen table offers CSV (normative).** A `⤓ CSV` button lives in the table's control cluster, right-aligned, and downloads **exactly the currently visible rows** (header + body, UTF-8 BOM), so any filtered or sorted view is exportable. This applies to every `.ds-table` in the dashboard, not just a few panels.
+- **Forward and Overdue tables name the document (normative).** Every Forward and Overdue table shows the **Document No.** and the **Document Title** in adjacent columns, and the column widths show the full Document No. and the full Title without truncation (the table scrolls horizontally when the viewport is narrow).
+- **Every view wraps its own output in `activePanel` (normative).** The page renderer inserts each view's returned markup verbatim and adds NO panel wrapper, so every view function MUST wrap its top-level output in `activePanel(name, content)`. That helper is the only source of the §4 edge border (`.panel`), the title row (Help `?` + Collapse `−`) and the corner `Panel N` number. A view that returns raw markup (for example a bare `.c-card`) silently loses the border and title — the recurring failure class of I019 / I066 / I067 (see issue I075).
+- **A table inside a `.c-card` keeps the §4 rounding (normative).** When a `.ds-split` table sits inside a `.c-card`, remove only its redundant outer border (the card already provides the edge) — never flatten its corners. The base `.ds-split` carries `border-radius:10px; overflow:hidden`; the card rule MUST NOT set `border-radius:0`. This prevents the square-corner regression (issue I076).
 - **Position**: `relative` on `.panel` (so the panel number can anchor inside the edge).
 - **Padding**: `14px 14px 26px` on `.panel`. The 26 px bottom gap reserves clearance for the corner
   panel number (`bottom:8px`) so it **never overlaps** the last card / content line. Dynamic chart
@@ -544,6 +583,7 @@ a dashboard uses in its own workplan.
 - **The panel margin yields to a grid gap.** Panels are often children of a grid that already sets
   `gap`; the panel's own `margin:14px 0` then stacks on top of the gap and doubles the spacing.
   Inside such a container the panel margin MUST be `0`.
+- **Stacked panels are always separated.** The gap is normative in §4.7.
 - **The collapse state outlives the element (normative).** A re-render replaces the panel element,
   so the collapsed state MUST be persisted outside it — in the dashboard's view state, keyed by
   panel name — and re-applied on render. Keeping it only on the element silently re-opens the
@@ -790,11 +830,7 @@ a single shared time axis instead of two stacked charts:
   `.sc-win .msg{font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap}` — the range
   text is muted body copy at §8 sizes, never a small green success-coloured label.
 
-- **A hover snap line with a floating window is RECOMMENDED.** Moving the cursor over the plot draws a
-  thin vertical dashed line snapped to the nearest time bucket and shows a floating window (an HTML
-  overlay positioned near the cursor, **not** inside the SVG) listing that bucket's per-period counts
-  (Planned / Actual) and the three cumulative totals. The window is `position:absolute` over the chart
-  host with `pointer-events:none` so it never blocks the hover.
+- **Hover floating window — normative (§4.6).** Moving the cursor (or focusing) a chart board draws the optional snap line and shows the `.chart-tip` window near the cursor, listing that bucket's per-period counts and cumulative totals; the window is an HTML overlay with `pointer-events:none` (never inside the SVG). The full contract — tokenized visual style, 4-edge clamping, a below-card KPI variant, `cursor:crosshair` affordance, required touch variant, accessibility and the single delegated binder — is defined in **§4.6**.
 
 ### 4.3 Long lists → bounded data table (never an open-ended list)
 Any panel whose content is a **list of records that can grow** (look-ahead, overdue packages,
@@ -1011,6 +1047,63 @@ only the short inline hint.
 
 ---
 
+### 4.6 Chart hover floating window — standard (rev 2026-11-01)
+
+A **hover floating window** is the single reusable component that shows per-point / per-card detail on pointer hover or keyboard focus over any chart board or KPI card. It is distinct from the §7.1 *click-triggered* floating panels (filter / column choosers). This section standardizes the **window shell only**; the **content** (which fields, units and series rows appear) is defined per chart in the workplan § and is out of scope here.
+
+**Scope (normative).** The standard applies to every chart board — C1 S-curve, C2 Submission Flow, C3 Breakdown, C4 Turnaround & Aging — and to the Bottleneck KPI cards. A chart that shows point detail MUST use this component; native SVG `<title>` tooltips are NOT an accepted substitute (issues I090 / I082).
+
+**Component & classes.** One window class `.chart-tip` and one optional snap-line class `.chart-snap`. These replace the divergent `.scurve-tip` (C1) and `.c2-tip` (C2).
+
+**Visual contract (tokenized, normative).** The window uses only design tokens — `background:var(--surface)`, `border:1px solid var(--border)`, `border-radius:8px`, `box-shadow:var(--shadow)`, `padding:8px 10px`, `font-size:11px`, `line-height:1.45`, `color:var(--text)`, `max-width:230px`, `z-index:30`, and `pointer-events:none`. It MUST follow the active theme (light/dark) automatically — no hard-coded surface or text colour (this removes the C2 dark `.c2-tip`, which is non-compliant).
+
+**Content layout.** Three zones: (1) a bold **header** carrying the hovered identity (month, dimension value, or KPI name); (2) **body rows**, each `swatch · label · value` in a space-between flex row; (3) a **footer** separated by a single top border, carrying any totals / percentages. One unified footer style MUST be used across every chart (no per-chart bold/normal divergence — I084). The series swatch MUST use the on-chart series **token**, never a hard-coded hex. **Series colour tokens MUST be unique per semantic** — two distinct series MUST NOT share a hue (e.g. Actual and AWC, or Forecast and Resubmission, MUST NOT be the same colour — I083). Units are explicit: durations show `d` (one decimal), counts are plain integers (label "docs" only if ambiguous), and zero is shown as `0`, never blank.
+
+**Trigger & dismissal (normative).** `pointermove` / `mousemove` opens the window; `mouseleave` (and `blur`) closes it. Hovering empty chart area MUST snap to the nearest datum (no dead zone). A **touch / no-hover variant is REQUIRED**: on touch devices the window shows on tap (tap-to-show, tap-away to dismiss); the dashboard MUST NOT silently leave point detail unreachable on touch (I082).
+
+**Positioning & edge handling (normative).** For chart boards the window is **cursor-relative** at a `(+14, +14)` px offset and MUST clamp on **all four edges** — flip left when it would overflow the right edge, flip up when it would overflow the bottom edge, and clamp left/top to `≥4 px` — so it never escapes the chart host. For **KPI cards** the window is placed **below the card**, centred and left-clamped, so it never covers the card; placement MAY vary by host, but a card's own window MUST NOT obscure the card.
+
+**Affordance (normative).** An interactive chart board MUST signal hoverability with `cursor:crosshair` (or an equivalent hover affordance); KPI cards carry `cursor:help`. Without this, users cannot discover the window (I080).
+
+**Snap line (optional per chart).** When present, `.chart-snap` is `stroke:var(--text3)`, `stroke-width:1`, `stroke-dasharray:3 3`; it spans only the plot area, is hidden until hover, and snaps to the nearest datum (`min |cx − ux|`; 2-D nearest for radial charts). It is omitted on radial charts (e.g. the C3 pie) where a vertical line is meaningless.
+
+**Data plumbing.** The board carries `data-points` (each `{cx, optional cy, html}`) and `data-geo` (`{W, H}`). The per-point `html` is authored by the chart's workplan §; the binder only presents it. Geometry is required for positioning and nearest-datum selection.
+
+**Motion (normative).** A short **opacity-only** transition (≤120 ms) MAY be used on show/hide; the window position MUST NOT transition (no trailing/lag). The binder MUST update the window only when the active datum changes — it MUST NOT re-render content on every `mousemove` (I085 / I086).
+
+**Accessibility (normative).** The window carries `role="tooltip"`. The chart board MUST be focusable (`tabindex="0"`) and the window MUST also show on `focus` (keyboard / screen-reader parity); link it with `aria-describedby`. Secondary text contrast MUST be ≥4.5:1. Colour is never the sole series cue — every series row carries a textual label.
+
+**Containers (normative).** The chart host and its ancestors MUST be `overflow:visible` so the window (and any flipped / below-card placement) is never clipped (I088).
+
+**Lifecycle (normative).** The behaviour is delivered by **one delegated binder** attached to the chart host — not re-bound on every render and not duplicated per chart.
+
+---
+
+### 4.7 Panel spacing (normative, rev 2026-11-01)
+
+Two or more top-level panels on one page MUST be separated by **14 px** — the same spacing the panel
+margin defines. The separation applies **between rows and between columns** when a page lays panels
+out in more than one column.
+
+**Mechanism.** The page's panel container SHOULD be a grid that sets `gap:14px`; inside such a
+container the panel margin MUST be `0` (see §4). Where the panels are not in a grid, the panel's own
+`margin:14px 0` supplies the same 14 px. The two mechanisms MUST NOT be combined (that doubles the
+spacing).
+
+**Invariants.**
+
+- The separation MUST NOT be `0`: two panel borders must never touch.
+- Panels hidden by page routing take no space and contribute no gap of their own.
+- Print keeps the same separation; panels are never merged or overlapped to save space.
+- The spacing between **panels** is independent of the spacing between **cards inside a panel**:
+  16 px between chart cards (§4.1) and 12 px between the validation cards (§4.5).
+
+**Enforcement.** Harness Tier 2 and the per-dashboard browser suite measure border-to-border distance
+between visible panels on each page (spec §8.2 assertion 19).
+
+---
+
+
 ## 5. KPI Overview Panel
 
 - First panel on every dashboard. Title `KPI OVERVIEW`, inline `?` (help, **left**) and `−`
@@ -1186,6 +1279,14 @@ shipped, and when it migrated are recorded in its own workplan — never here (�
 | Active-state cue | count badge on the trigger + `is-filtered` emphasis | the chosen value is visible in the control itself |
 
 A user must be able to tell, from the chrome alone, both (a) how many values the control accepts and (b) whether it filters **rows**. B7 exists so a layout control can never be mistaken for a row filter.
+
+**Search panel composition (normative, rev 2026-11-01).** A dashboard whose menu bar offers Search
+MUST render its panel as **one row**: an attached column picker (**B5** `.inter-sel.is-attached`) on the
+left, the search input in the middle (flexible), and the **A5** submit on the right. The picker MUST
+offer an **All columns** option (the default) plus each searchable column, MUST be labelled, and MUST
+keep the chosen column visible. Changing the picker re-applies the current query immediately to the new
+column and MUST NOT clear it. A query MUST apply only to the selected column; **All columns** searches
+the dashboard's defined searchable fields. The row is the panel's only content row.
 
 **Global dimensions are multi-select (normative).** A dimension exposed in the shared global filter
 area (§3.1, §3.2) MUST accept **several values at once**, and MUST therefore use **B1** `.tf-btn` with
@@ -1515,6 +1616,9 @@ hard-coded into the generic check.
 | 15 | The delivered HTML is standalone: it runs from `file://` with no web server, contains no `href` / `src` that points at a local file, and uses no `fetch` of local files or cross-file ES-module `import` | §3.9 |
 | 16 | Every KPI card is 72 px high and at least 210 px wide, carries a 3 px top strip in a status token, contains exactly two children (`.v`, `.l`), and has no box shadow | §5 |
 | 17 | Filter selection semantics hold: every dimension opens fully ticked except documented exclusions, `(blank)` is selectable, an empty tick set filters every row out, a tick keeps the panel open, and an outside click or `Escape` closes it | §7.1 |
+| 18 | The warning area is pinned below the menu bar, above the filter strip and outside the scrolling body; scrolling the panels does not move it, and it spans the content width without covering a sidebar | §3.5 |
+| 19 | Stacked top-level panels are separated by 14 px (container gap or panel margin, never both); borders never touch; hidden panels add no gap | §4.7 |
+| 20 | The search panel is one row: attached column picker (All columns plus each searchable column), flexible input, affixed submit; the picker re-applies the query and does not clear it | §7.1 B5 / A5 |
 
 ### 8.3 Pipeline testability
 

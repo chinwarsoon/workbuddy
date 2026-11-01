@@ -22,6 +22,7 @@ It runs three tiers of automated checks against a compiled dashboard HTML file:
 | 4 | Layout geometry | Yes (Playwright) | Yes (.xlsx) | **Rendered** table metrics: row height, header height, `table-layout:fixed`, `<colgroup>` vs rendered columns, cell truncation, one row metric across all tables (I-90); plus the I-89 executable sample |
 | 4b | L3 capabilities | Yes (Playwright) | Yes (.xlsx) | Pinned columns, column chooser, column resize (I-95) and windowing invariants (I-96), driven through the UI |
 | 4c | Table chrome | Yes (Playwright) | Best-effort | **Compulsory**: table-title colour consistency and sticky table headers |
+| 6 | §4.6 hover window | Yes (Playwright) | Best-effort | General side-bar loop: every `[data-page]` visited; every `[aria-describedby]`→`role="tooltip"` host checked (C1–C4, KPI on any page); in-page switches (`.seg`, tabs, toggles) clicked and re-scanned; cursor affordance, `.chart-snap`, reveal/hide, and C2 `.ct-l` grouping guarded |
 
 ---
 
@@ -222,6 +223,40 @@ intentionally narrower than `colMinWidth`.)
    - **Fit** — no horizontal overflow; **lock-step** — if the body scrolls sideways, the header moves with
      it (skipped as N/A when the body does not scroll).
 
+---
+
+## Tier 6 checks (§4.6 hover window — `lintHoverWindow`)
+
+Runs only when the dashboard config provides a `hover` block; dashboards without one are skipped. It
+loads the workbook, then runs a **general side-bar exploration** (`discoverPages` / `visitPage`):
+
+1. It finds every side-bar menu item (`[data-page]`) and visits each one — Overview, Submittals,
+   Validation, Forward and Overdue, Analytical, Help, Settings — so no page is skipped because of the
+   default landing page.
+2. On each page it discovers **every** hover-window host by scanning `[aria-describedby]` whose
+   referenced tip carries `role="tooltip"`. This finds C1 (`.scurve`), C2 (`.c2-stack`), C3
+   (`.c3-card`), C4 (`.c4-chart`) and KPI (`.kpi-card`) on every page — not just a hard-coded list.
+3. It also clicks **in-page button switches** (`.seg button`, `[role="tab"]`, `button[aria-pressed]`,
+   `[data-view]` — action buttons such as export/print are skipped) and re-scans, so views revealed
+   only by a switch (for example the C3 dimension selector) are explored too.
+
+For each host it asserts, via synthetic `pointermove` / `pointerdown` / `pointerleave` events:
+
+1. The host carries `aria-describedby` and the referenced element exists with `role="tooltip"`.
+2. The host is focusable (`tabindex`).
+3. A cursor affordance is present (charts: `crosshair`; KPI cards: `help`).
+4. Nearest charts (C1, C2) expose a `.chart-snap` line inside their SVG.
+5. A hover (or tap) reveals the window (`class="show"`) and the window is non-empty.
+6. The window hides on `pointerleave`.
+7. Where the host is inside `.c2-stack`, the revealed window contains the `.ct-l` swatch+label group
+   — the direct regression guard for sub issue I092.
+
+The same `discoverPages` / `visitPage` utilities are reusable by other tiers (charts, tables) when they
+need to explore every page and in-page switch rather than a single hard-coded view.
+Run: `node harness.mjs --dashboard sub --tier 6`.
+
+---
+
 ## Dashboard config schema (`checks/*.mjs`)
 
 ```js
@@ -336,3 +371,4 @@ is the final gate.
 | §7.2 | .ds-table, .tableScroll, --ds-row-h, .sev-svg |
 | §7.9 | .help-modal hidden initially |
 | §4.2 | C3 bar y-axis grid lines + numbers (I060): 5 horizontal grid lines at 0/25/50/75/100% of a nice max, bars scaled to that max, tick labels right-aligned flush in the metric-label column (no gap, aligned with the table below); Pie cards exempt. Advisory until a dedicated check is added. |
+| §4.6 | Hover floating window: focusable host + aria-describedby → role="tooltip"; cursor:crosshair (charts)/help (KPI); nearest charts expose .chart-snap; window reveals on hover/tap and hides on leave; C2 .ct-l grouping guarded (Tier 6) |

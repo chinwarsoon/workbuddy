@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Forward and Overdue — Spec-driven sample</title>
+<!-- Design follows Dashboard-UI-Design-Spec.md §4.3 (bounded data table), §4.38 (chart card: a graph
+     sits in its own bordered .c-card with its controls), the Look-ahead general requirement
+     (§4.3, lines 835-865), and §7.2 split-header / .ds-table.
+     Revision: the view toggle + view-specific buttons share one control row inside a bordered
+     .c-card that also wraps the table. -->
+<style>
+:root{
+  --navy:#15314f; --blue:#2b6cf6; --green:#17a67a; --amber:#F9A825; --red:#d23b3b; --slate:#64748B;
+  --bg:#eef2f8; --surface:#FFFFFF; --surface2:#F1F5F9; --surface3:#E8EDF3;
+  --border:#D9E1E8; --text:#1F2A37; --text2:#526171; --text3:#6b7785;
+  --tag-bg:#EAF2FB; --tag-border:#CBDDEF; --row-stripe:#F7F9FB; --row-hover:#EAF2FB; --th-bg:#E8EDF3;
+  --shadow:0 1px 2px rgba(16,32,64,.04),0 8px 24px rgba(16,32,64,.05);
+  --font-ui:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 var(--font-ui);padding:20px}
+.head-note{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;
+  margin-bottom:14px;color:var(--text2);font-size:12px}
+.head-note b{color:var(--text)}
+/* shell mock */
+.app{display:flex;align-items:flex-start;gap:16px}
+.sidebar{width:200px;flex:none;background:var(--navy);color:#E8EDF3;border-radius:10px;padding:12px}
+.sidebar .brand{font-weight:700;font-size:13px;padding:4px 8px 12px;color:#fff;letter-spacing:.03em}
+.sidebar nav{display:flex;flex-direction:column;gap:2px}
+.sidebar a{display:block;padding:8px 10px;border-radius:6px;color:#cdd9e6;text-decoration:none;font-size:13px}
+.sidebar a:hover{background:rgba(255,255,255,.08)}
+.sidebar a.active{background:var(--blue);color:#fff;font-weight:600}
+.content{flex:1;min-width:0}
+.page-head{font-size:16px;font-weight:600;color:var(--navy);margin:0 0 12px}
+/* §4 — panel chrome (title sits outside the card) */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);
+  padding:14px 14px 26px;position:relative;margin-bottom:14px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 10px}
+.panel h2{margin:0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--navy);line-height:1.4}
+.panel-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.panel.collapsed>*:not(.panel-head){display:none}
+/* summary note — left, under panel title */
+.summary{font-size:12px;color:var(--text2);margin:0 0 10px}
+/* §4.38 — chart card: border wraps the controls + the table together */
+.c-card{border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--surface)}
+/* control row: view toggle left, view-specific buttons right (spec §4.38) */
+.ctrl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px}
+.ctrl .spacer{margin-left:auto}
+.ctrl .rc{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ctrl .lbl{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase}
+/* §7.5 — segmented control */
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.seg-btn{border:0;background:transparent;color:var(--text2);padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer}
+.seg-btn.active{background:var(--blue);color:#fff}
+.btn-secondary{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:6px;
+  padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer}
+.btn-secondary:hover{background:var(--surface2)}
+/* §7.2 — split-header table */
+.ds-split{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:6px}
+.vheadwrap{overflow:hidden}
+.vheadtab{margin:0;width:100%;table-layout:fixed;border-collapse:collapse}
+.vheadtab thead th{background:var(--navy);color:#fff;font-weight:600;height:40px;text-align:left;
+  padding:0 10px;font-size:12px;border-bottom:1px solid var(--border)}
+.tableScroll{overflow:auto;max-height:340px}
+.ds-table{width:100%;border-collapse:collapse;font-size:12px;background:var(--surface);table-layout:fixed}
+.ds-table th,.ds-table td{border-bottom:1px solid var(--border);padding:0 10px;text-align:left;
+  vertical-align:middle;height:40px;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ds-table tbody tr:nth-child(even){background:var(--row-stripe)}
+.ds-table tbody tr:hover{background:var(--row-hover)}
+.ds-table .num{text-align:right;font-variant-numeric:tabular-nums}
+.ds-table td.ds-pinned,.ds-table th.ds-pinned{position:sticky;left:0;background:var(--surface);z-index:2}
+.ds-table thead th.ds-pinned{background:var(--navy);z-index:3}
+.ds-table .wk{background:var(--surface3);font-weight:700;color:var(--navy);height:30px}
+.ds-table .wk td{padding:0 10px}
+/* status pills */
+.pill{display:inline-block;padding:1px 9px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid}
+.pill.NFS{background:var(--tag-bg);border-color:var(--tag-border);color:var(--green)}
+.pill.RTR{background:var(--tag-bg);border-color:var(--tag-border);color:var(--amber)}
+.pill.NTS{background:var(--tag-bg);border-color:var(--tag-border);color:var(--slate)}
+.pill.SUR{background:var(--tag-bg);border-color:var(--tag-border);color:var(--blue)}
+/* toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--navy);color:#fff;
+  padding:8px 16px;border-radius:8px;font-size:12px;box-shadow:var(--shadow);opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+.muted{color:var(--text3);text-align:center;padding:18px}
+</style>
+</head>
+<body>
+<div class="head-note">
+  <b>Spec-driven sample — Forward and Overdue.</b> As-of 2026-10-30. Design follows
+  <b>Dashboard-UI-Design-Spec.md</b> §4.3 (bounded data table), §4.38 (chart card: a graph and its
+  controls share one bordered <code>.c-card</code>), the Look-ahead general requirement (§4.3,
+  lines 835–865), and §7.2 split-header / <code>.ds-table</code>.
+  <br>• <b>Rename:</b> side-menu page is <b>"Forward and Overdue"</b> (was "Forward Plan").
+  <br>• <b>Border + controls with table (§4.38):</b> the view toggle (<b>Look-Ahead / Overdue / Coverage</b>)
+  is left-aligned; the view-specific buttons (Horizon, Lane, <b>⤓ CSV</b>) are right-aligned; both live in
+  one control row inside a bordered <code>.c-card</code> that also wraps the table.
+  <br>• <b>Overdue categories:</b> filtered by a lane button like Look-ahead — to first submit / to resubmit / to return.
+  <br>• <b>Layout:</b> summary note left, under the panel title. Forward-only look-ahead excludes overdue
+  (separate view). Resubmission target = (actualReturnDate <i>or</i> targetReturnDate) + <b>resubmitLead</b> (14 d — project config).
+</div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">Submittal Dashboard</div>
+    <nav>
+      <a href="#">Overview</a>
+      <a href="#">Submittals</a>
+      <a href="#">Validation</a>
+      <a href="#" class="active">Forward and Overdue</a>
+      <a href="#">Analytical</a>
+      <a href="#">Help</a>
+      <a href="#">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <div class="page-head">Forward and Overdue</div>
+
+    <section class="panel" data-panel="C5">
+      <div class="panel-head">
+        <h2>Forward and Overdue</h2>
+        <div class="panel-actions">
+          <button class="btn-secondary" title="Help" aria-label="Help">?</button>
+          <button class="btn-secondary" title="Collapse" aria-label="Collapse" onclick="this.closest('.panel').classList.toggle('collapsed')">−</button>
+        </div>
+      </div>
+
+      <div class="summary" id="summary"></div>
+
+      <!-- ===== One bordered card: control row (toggle left + specific buttons right) + table ===== -->
+      <div class="c-card">
+        <div class="ctrl">
+          <div class="seg" id="view">
+            <button class="seg-btn active" data-v="look">Look-Ahead</button>
+            <button class="seg-btn" data-v="over">Overdue</button>
+            <button class="seg-btn" data-v="cov">Coverage</button>
+          </div>
+          <span class="spacer"></span>
+          <div class="rc" id="rcLook">
+            <span class="lbl">Horizon</span>
+            <div class="seg" id="horizon">
+              <button class="seg-btn" data-h="1">1W</button>
+              <button class="seg-btn" data-h="2">2W</button>
+              <button class="seg-btn" data-h="3">3W</button>
+              <button class="seg-btn active" data-h="4">4W</button>
+            </div>
+            <span class="lbl">Lane</span>
+            <div class="seg" id="lane">
+              <button class="seg-btn active" data-l="all">All</button>
+              <button class="seg-btn" data-l="first">First submit</button>
+              <button class="seg-btn" data-l="resub">Resubmit</button>
+              <button class="seg-btn" data-l="return">Return</button>
+            </div>
+            <button class="btn-secondary" id="csv">⤓ CSV</button>
+          </div>
+          <div class="rc" id="rcOver" style="display:none">
+            <span class="lbl">Lane</span>
+            <div class="seg" id="laneO">
+              <button class="seg-btn active" data-l="all">All</button>
+              <button class="seg-btn" data-l="first">First submit</button>
+              <button class="seg-btn" data-l="resub">Resubmit</button>
+              <button class="seg-btn" data-l="return">Return</button>
+            </div>
+            <button class="btn-secondary" id="csvO">⤓ CSV</button>
+          </div>
+        </div>
+
+        <!-- Look-Ahead table (forward-only) -->
+        <div class="ds-split" id="lookTbl">
+          <div class="vheadwrap">
+            <table class="vheadtab"><colgroup>
+              <col style="width:120px"><col style="width:90px"><col style="width:110px">
+              <col style="width:110px"><col style="width:90px"><col style="width:120px"><col style="width:80px">
+            </colgroup><thead><tr>
+              <th class="ds-pinned">Document No.</th><th>Discipline</th><th>Stage</th>
+              <th>Action</th><th>Status</th><th>Due Date</th><th class="num">In (days)</th>
+            </tr></thead></table>
+          </div>
+          <div class="tableScroll">
+            <table class="ds-table"><colgroup>
+              <col style="width:120px"><col style="width:90px"><col style="width:110px">
+              <col style="width:110px"><col style="width:90px"><col style="width:120px"><col style="width:80px">
+            </colgroup><tbody id="lookBody"></tbody></table>
+          </div>
+        </div>
+
+        <!-- Overdue table (three categories via lane button) -->
+        <div class="ds-split" id="overTbl" style="display:none">
+          <div class="vheadwrap">
+            <table class="vheadtab"><colgroup>
+              <col style="width:120px"><col style="width:90px"><col style="width:110px">
+              <col style="width:110px"><col style="width:90px"><col style="width:120px"><col style="width:90px">
+            </colgroup><thead><tr>
+              <th class="ds-pinned">Document No.</th><th>Discipline</th><th>Stage</th>
+              <th>Action</th><th>Status</th><th>Basis Date</th><th class="num">Overdue (days)</th>
+            </tr></thead></table>
+          </div>
+          <div class="tableScroll">
+            <table class="ds-table"><colgroup>
+              <col style="width:120px"><col style="width:90px"><col style="width:110px">
+              <col style="width:110px"><col style="width:90px"><col style="width:120px"><col style="width:90px">
+            </colgroup><tbody id="overBody"></tbody></table>
+          </div>
+        </div>
+
+        <!-- Coverage table (existing NFS list) -->
+        <div class="ds-split" id="covTbl" style="display:none">
+          <div class="vheadwrap">
+            <table class="vheadtab"><colgroup>
+              <col style="width:120px"><col style="width:200px"><col style="width:90px">
+              <col style="width:110px"><col style="width:130px"><col style="width:130px">
+            </colgroup><thead><tr>
+              <th class="ds-pinned">Document No.</th><th>Title</th><th>Discipline</th>
+              <th>Stage</th><th>Planned 1st Issue</th><th>Forecast 1st Issue</th>
+            </tr></thead></table>
+          </div>
+          <div class="tableScroll">
+            <table class="ds-table"><colgroup>
+              <col style="width:120px"><col style="width:200px"><col style="width:90px">
+              <col style="width:110px"><col style="width:130px"><col style="width:130px">
+            </colgroup><tbody>
+              <tr><td class="ds-pinned">DOC-7001</td><td>Pump schedule</td><td>Mec</td><td>Design</td><td>—</td><td>2026-11-10</td></tr>
+              <tr><td class="ds-pinned">DOC-7002</td><td>Cable tray layout</td><td>Elec</td><td>Design</td><td>2026-11-08</td><td>—</td></tr>
+              <tr><td class="ds-pinned">DOC-7003</td><td>Valve list</td><td>Mec</td><td>Review</td><td>2026-11-14</td><td>—</td></tr>
+              <tr><td class="ds-pinned">DOC-7004</td><td>Duct route</td><td>Civ</td><td>Const</td><td>—</td><td>2026-11-19</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const ASOF = new Date('2026-10-30');
+  const RESUB_LEAD = 14; // days — project config in real build
+  const addDays = (iso,n)=>{ const d=new Date(iso); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); };
+  const off = iso => Math.round((new Date(iso)-ASOF)/86400000);
+  const actionLabel = {first:'First submit',resub:'Resubmit',return:'Return'};
+  // ---- Look-ahead (forward-only) ----
+  const look = [
+    {doc:'DOC-1001',disc:'Elec',stage:'Design',action:'first',status:'NFS',due:'2026-11-07'},
+    {doc:'DOC-1002',disc:'Civ', stage:'Const', action:'first',status:'NFS',due:'2026-11-12'},
+    {doc:'DOC-1003',disc:'Mec', stage:'Design',action:'first',status:'NFS',due:'2026-11-20'},
+    {doc:'DOC-1004',disc:'Elec',stage:'Review',action:'first',status:'NFS',due:'2026-11-25'},
+    {doc:'DOC-1005',disc:'Proc',stage:'Design',action:'first',status:'NFS',due:'2026-12-03'},
+    {doc:'DOC-2001',disc:'Elec',stage:'Design',action:'resub',status:'RTR',due:addDays('2026-10-28',RESUB_LEAD)},
+    {doc:'DOC-2002',disc:'Mec', stage:'Design',action:'resub',status:'NTS',due:addDays('2026-11-02',RESUB_LEAD)},
+    {doc:'DOC-2003',disc:'Civ', stage:'Const', action:'resub',status:'RTR',due:addDays('2026-11-05',RESUB_LEAD)},
+    {doc:'DOC-2004',disc:'Elec',stage:'Review',action:'resub',status:'RTR',due:addDays('2026-11-09',RESUB_LEAD)},
+    {doc:'DOC-3001',disc:'Elec',stage:'Design',action:'return',status:'SUR',due:'2026-11-06'},
+    {doc:'DOC-3002',disc:'Mec', stage:'Design',action:'return',status:'SUR',due:'2026-11-13'},
+    {doc:'DOC-3003',disc:'Civ', stage:'Const', action:'return',status:'SUR',due:'2026-11-18'},
+    {doc:'DOC-3004',disc:'Elec',stage:'Review',action:'return',status:'SUR',due:'2026-11-22'},
+    {doc:'DOC-3005',disc:'Proc',stage:'Design',action:'return',status:'SUR',due:'2026-11-29'}
+  ];
+  // ---- Overdue (backward-looking) ----
+  const over = [
+    {doc:'DOC-5001',disc:'Mec', stage:'Design',action:'first', status:'NFS',basis:'2026-10-20'},
+    {doc:'DOC-5002',disc:'Elec',stage:'Design',action:'first', status:'NFS',basis:'2026-10-25'},
+    {doc:'DOC-2005',disc:'Civ', stage:'Const', action:'resub', status:'RTR',basis:'2026-10-25'},
+    {doc:'DOC-6001',disc:'Mec', stage:'Design',action:'resub', status:'NTS',basis:'2026-10-29'},
+    {doc:'DOC-3006',disc:'Mec', stage:'Design',action:'return',status:'SUR',basis:'2026-10-26'},
+    {doc:'DOC-3007',disc:'Elec',stage:'Review',action:'return',status:'SUR',basis:'2026-10-22'}
+  ].map(r=>({...r, o:-off(r.basis)}));
+  const overCounts = {first:over.filter(r=>r.action==='first').length,
+                      resub:over.filter(r=>r.action==='resub').length,
+                      return:over.filter(r=>r.action==='return').length};
+  const covTotal = 4;
+  let state = {horizon:4, laneLook:'all', laneOver:'all', view:'look'};
+
+  function renderLook(){
+    const lower=7, upper=7+state.horizon*7;
+    const rows = look.filter(r=>state.laneLook==='all'||r.action===state.laneLook)
+      .map(r=>({...r,o:off(r.due)})).filter(r=>r.o>=lower&&r.o<=upper).sort((a,b)=>a.o-b.o);
+    const bands={};
+    for(const r of rows){ const w=Math.floor((r.o-7)/7)+1; (bands[w]=bands[w]||[]).push(r); }
+    let html='';
+    for(let w=1; w<=state.horizon; w++){
+      if(!bands[w]||!bands[w].length) continue;
+      const lo=7+(w-1)*7, hi=7+w*7-1;
+      html+=`<tr class="wk"><td colspan="7">Week ${w} — due in +${lo} to +${hi} days</td></tr>`;
+      for(const r of bands[w])
+        html+=`<tr><td class="ds-pinned">${r.doc}</td><td>${r.disc}</td><td>${r.stage}</td>`
+          +`<td>${actionLabel[r.action]}</td><td><span class="pill ${r.status}">${r.status}</span></td>`
+          +`<td>${r.due}</td><td class="num">${r.o}</td></tr>`;
+    }
+    document.getElementById('lookBody').innerHTML = html || '<tr><td class="muted" colspan="7">Nothing to show in this window.</td></tr>';
+    window.__lookRows = rows;
+  }
+  function renderOver(){
+    const rows = over.filter(r=>state.laneOver==='all'||r.action===state.laneOver).sort((a,b)=>b.o-a.o);
+    let html='';
+    for(const r of rows)
+      html+=`<tr><td class="ds-pinned">${r.doc}</td><td>${r.disc}</td><td>${r.stage}</td>`
+        +`<td>${actionLabel[r.action]}</td><td><span class="pill ${r.status}">${r.status}</span></td>`
+        +`<td>${r.basis}</td><td class="num">${r.o}</td></tr>`;
+    document.getElementById('overBody').innerHTML = html || '<tr><td class="muted" colspan="7">Nothing overdue in this category.</td></tr>';
+    window.__overRows = rows;
+  }
+  function updateSummary(){
+    const el=document.getElementById('summary');
+    if(state.view==='look'){
+      const upper=7+state.horizon*7, n=(window.__lookRows||[]).length;
+      el.textContent = `Forward-looking: ${n} due in next ${state.horizon} week${state.horizon>1?'s':''} (+7 to +${upper} days). Overdue is shown in the Overdue view.`;
+    } else if(state.view==='over'){
+      const t=over.length, shown=(window.__overRows||[]).length, f=overCounts.first, r=overCounts.resub, u=overCounts.return;
+      const lead = state.laneOver==='all' ? '' : ` Showing ${shown} (${state.laneOver}).`;
+      el.textContent = `Backward-looking: ${t} overdue — ${f} to first submit · ${r} to resubmit · ${u} to return.${lead}`;
+    } else {
+      el.textContent = `Coverage: ${covTotal} planned rows not yet submitted (NFS).`;
+    }
+  }
+  function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show');
+    clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800); }
+
+  document.getElementById('horizon').addEventListener('click',e=>{ const b=e.target.closest('.seg-btn'); if(!b)return;
+    [...e.currentTarget.children].forEach(x=>x.classList.remove('active')); b.classList.add('active');
+    state.horizon=+b.dataset.h; renderLook(); updateSummary(); });
+  document.getElementById('lane').addEventListener('click',e=>{ const b=e.target.closest('.seg-btn'); if(!b)return;
+    [...e.currentTarget.children].forEach(x=>x.classList.remove('active')); b.classList.add('active');
+    state.laneLook=b.dataset.l; renderLook(); });
+  document.getElementById('laneO').addEventListener('click',e=>{ const b=e.target.closest('.seg-btn'); if(!b)return;
+    [...e.currentTarget.children].forEach(x=>x.classList.remove('active')); b.classList.add('active');
+    state.laneOver=b.dataset.l; renderOver(); updateSummary(); });
+  document.getElementById('view').addEventListener('click',e=>{ const b=e.target.closest('.seg-btn'); if(!b)return;
+    [...e.currentTarget.children].forEach(x=>x.classList.remove('active')); b.classList.add('active');
+    state.view=b.dataset.v;
+    document.getElementById('lookTbl').style.display = state.view==='look'?'block':'none';
+    document.getElementById('overTbl').style.display = state.view==='over'?'block':'none';
+    document.getElementById('covTbl').style.display  = state.view==='cov'?'block':'none';
+    document.getElementById('rcLook').style.display = state.view==='look'?'flex':'none';
+    document.getElementById('rcOver').style.display = state.view==='over'?'flex':'none';
+    updateSummary(); });
+  function csv(rows, name){ if(!rows.length){ toast('Nothing to export'); return; }
+    const head=['Document No.','Discipline','Stage','Action','Status','Basis Date','Days'];
+    const lines=[head.join(',')].concat(rows.map(r=>[r.doc,r.disc,r.stage,actionLabel[r.action],r.status,r.due||r.basis,r.o].join(',')));
+    const blob=new Blob([lines.join('\n')],{type:'text/csv'}); const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download=name; a.click(); toast('Exported '+rows.length+' rows'); }
+  document.getElementById('csv').addEventListener('click',()=>csv(window.__lookRows||[],'forward-and-overdue-lookahead.csv'));
+  document.getElementById('csvO').addEventListener('click',()=>csv(window.__overRows||[],'forward-and-overdue-overdue.csv'));
+
+  renderLook(); renderOver(); updateSummary();
+</script>
+</body>
+</html>
