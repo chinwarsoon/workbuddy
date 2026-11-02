@@ -42,6 +42,7 @@ These folders are not projects. Every project in §1.1 may use them.
 |--------|---------|
 | `docs/` | Shared standards. Holds `ASD-STE100-Issue-9/`. See §5 Rule 19. |
 | `harness-layout/` | Shared layout harness and the STE prose lint. See §5 Rule 19. |
+| `harness-pipeline/` | Shared pipeline harness — Tier-1 regression for every sub-project's data pipeline + UI-spec design-compliance (the pipeline counterpart to `harness-layout/`, which is layout/visual only). See §6.1 carve-out. |
 
 ### 1.3 Projects in another repository
 
@@ -194,6 +195,7 @@ until it has been archived, and preserve its revision history when you move it (
 - Embedded test directories (e.g., `<project>/workflow/*/test/`, `<project>/engine/*/tests/`) must be migrated to `<project>/test/`. During migration, create a subfolder within `<project>/test/` (e.g., `test/processor_engine/`) to preserve logical grouping while obeying the single-root rule.
 - Test runtime artifacts (generated files, output directories, temp databases) must be placed in `<project>/test_output/` or use `tempfile.TemporaryDirectory` for automatic cleanup. They must never leak to the repository root.
 - At each phase completion, verify zero test files exist outside `<project>/test/`.
+- **Shared harness folders are exempt.** `harness-layout/` and `harness-pipeline/` are shared harnesses, not product projects; their auto-discovered `checks/*.mjs` (not `<project>/test/`) are the sanctioned location for cross-project harness checks, because a single check may assert across multiple projects and cannot live in one project's `test/`. Their runtime artifacts go to `<harness>/test_output/` and must be git-ignored.
 
 ## 7. Files and Context
 

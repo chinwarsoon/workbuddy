@@ -1,0 +1,19 @@
+{
+  "name": "harness-pipeline",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Tier-1 pipeline + design conformance harness for workbuddy sub-projects. References each sub-project workplan and the pipeline spec sections of Dashboard-UI-Design-Spec.md. Layer 1 of the spec §8 two-layer check model (Layer 2 = harness-layout).",
+  "scripts": {
+    "test": "node harness.mjs",
+    "test:ppp": "node harness.mjs --subproject ppp",
+    "test:mdl": "node harness.mjs --subproject mdl",
+    "test:actionlog": "node harness.mjs --subproject actionlog",
+    "test:english": "node harness.mjs --subproject english",
+    "test:all": "node harness.mjs --all",
+    "run": "node run.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
