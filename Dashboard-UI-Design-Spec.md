@@ -2,6 +2,7 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.56 | 2026-11-02 | CodeBuddy (AI) | §7.2.15 invariant 5 **clarified — fit on a container change, never on a column change**: the fit pass MUST run when the container width moves (window resize, sidebar toggle, zoom, another display) and MUST NOT run because the sum of the columns changed; a column resize changes that sum, and re-fitting on that path scales the width the operator just dragged straight back down, so the drag does not stick and a drag by +d then −d does not land where it started. Implementations MUST cache the container width and re-fit only when it moves, still fitting once on first render; a drag wider than the display area is permitted, because this invariant governs the SHIPPED DEFAULTS and not a width the user chose. §3.5 gained a normative **addressability** rule: the warning area MUST carry the stable id `errBanner` so conformance checks and assistive tooling can locate it. Driven by the Sub dashboard run that went from 216 passed / 6 failed to 222 passed / 0 failed (sub issues I093, I095, I096). |
 | 1.55 | 2026-11-01 | opencode (AI) | §7.1 gained a normative **search panel composition** rule: one row with an attached B5 column picker (All columns plus each searchable column), a flexible input and the A5 submit; the picker re-applies the query without clearing it and the query applies only to the chosen column. §8.2 gained assertion 20. |
 | 1.54 | 2026-11-01 | opencode (AI) | §3.4.1 gained a normative **screen change / window resize** clause: reflow on any viewport width change (another display, resize, sidebar toggle, zoom) without reload or horizontal scrolling, using a `ResizeObserver` and not only a window listener; fixed-width inner content must re-fit or scroll inside its own card, split headers re-sync, and computed-width charts redraw; controls stay reachable and navigation remains available at every width. The truncated re-sync sentence was completed. |
 | 1.53 | 2026-11-01 | opencode (AI) | §4 gained a dedicated normative **§4.7 Panel spacing**: 14 px between top-level panels (rows and columns), container `gap` or the panel margin but never both, never 0, hidden panels add nothing, print keeps it, and card spacing inside a panel stays separate (16 px charts / 12 px validation). §8.2 assertion 19 now cites §4.7. |
@@ -313,6 +314,12 @@ appear in a badge. Keep notices and the count while collapsed. Persist the choic
 prefixed local-storage key. Hide the warning area in print. A parse failure appears as a fatal notice.
 Formula-error tokens that can corrupt counts appear as one fatal notice per affected column; see
 §3.8.4. Row-level data issues belong in the Validation panel (§4.5).
+
+**Addressability (normative, rev 2026-11-02).** The warning area MUST carry the stable id `errBanner`
+so that conformance checks and assistive tooling can locate it without guessing at the markup. A notice
+area that renders and reads correctly but has no stable hook is invisible to the shared layout harness,
+so a missing or hidden banner cannot be detected. The id is part of the contract, not an implementation
+detail; the collapse control and the count badge keep their own semantics (see above).
 
 ### 3.6 Status information
 Use the full-width status bar from `AGENTS.md` §18.2 (~30 px, navy). Its left and right values are
@@ -1552,6 +1559,14 @@ advisory.
    that is wider than the body, or that stays put while the body scrolls, is non-conformant.
    (Clarified 2026-10-21: the minimum-sum test makes "unavoidable" verifiable — 13 columns at
    a 60 px floor need 780 px and so must fit a 1216 px panel, while 27 columns need 1620 px and cannot.)
+   (Clarified 2026-11-02 — **fit on a container change, never on a column change.** The fit pass MUST
+   run when the container width moves: window resize, sidebar toggle, zoom, or a move to a display of
+   another width. It MUST NOT run because the sum of the columns changed. A column resize — a user
+   drag — changes that sum, and re-fitting on that path scales the width the operator just dragged
+   straight back down, so the drag does not stick. Cache the container width and re-fit only when it
+   moves; fitting once on first render is still required. A drag that makes the table wider than the
+   display area is permitted and MUST be honoured: this invariant governs the SHIPPED DEFAULTS, not a
+   width the user chose.)
 6. **One implementation** — the pairing is wired by a single shared helper used by every split-header
    table. A table MUST NOT hand-roll a partial copy of this contract.
 
