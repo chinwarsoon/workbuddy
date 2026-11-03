@@ -155,11 +155,16 @@ function parseSheet(xmlBytes, shared){
   const rows = []; // 1-based; rows[0] unused
   // find each <c ...>...</c> OR self-closing (Excel never self-closes <c> with content, but be safe)
   const cRe = /<c\b([\s\S]*?)<\/c>/g; let m;
+  // I029 — a cell that holds a formula (<f>) is read from its cached <v> result, because the
+  // workbook was never recalculated by Excel. Record the reference so the pipeline can mark
+  // the value as cached. The reference keeps the column letter and the row, e.g. "U12".
+  const formulaRefs = new Set();
   while((m = cRe.exec(xml))){
     const block = m[1] + '</c>'; // ensure we have closing for attrs+inner
     const open = /<c\b([^>]*)>/.exec(m[1].split('>')[0] + '>');
     const a = attrs(open ? open[1] : m[1]);
     const ref = a.r; if(!ref) continue;
+    if(/<f\b/.test(block)) formulaRefs.add(ref);
     const col = ref.replace(/\d+$/, '');
     const rowNum = parseInt(ref.match(/\d+$/)[0], 10);
     const val = cellValue(block, shared);
@@ -169,7 +174,7 @@ function parseSheet(xmlBytes, shared){
   }
   let maxRow = 0;
   for(let i=1;i<rows.length;i++) if(rows[i]) maxRow = i;
-  return { rows, maxRow };
+  return { rows, maxRow, formulaRefs };
 }
 
 /** Read an XLSX ArrayBuffer and return a plain error if parsing fails.

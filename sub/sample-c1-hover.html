@@ -1,0 +1,179 @@
+<!doctype html>
+<!-- Review sample — C1 Schedule Performance hover window, proposed §4.6 layout.
+     READ-ONLY ARTIFACT: nothing in engine/ changes by opening this file.
+     Numbers are real, read live from the two workbooks on 2026-11-03 (as-of 2026-10-24):
+       2026-10  new p=158 f=138 aF=77 aR=10 · cum p=284 f=245 aF=190 aR=51  → actual Σ 241, 43 behind plan (84.9%)
+       2026-06  new p=8 f=10 aF=11 aR=11 · cum p=24 f=21 aF=51 aR=16        → actual Σ 67, 43 ahead of plan (279.2%)
+     Owner decisions this sample implements: footer = gap + % of plan (A+B); Actual Resub gets its own hue. -->
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>C1 hover window — review sample (no engine change)</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#eef2f8; --surface:#FFFFFF; --surface2:#F1F5F9; --surface3:#E8EDF3;
+  --border:#D9E1E8; --text:#1F2A37; --text2:#526171; --text3:#6b7785;
+  --navy:#15314f; --shadow:0 1px 2px rgba(16,32,64,.04),0 8px 24px rgba(16,32,64,.05);
+  --font-ui:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  /* C1 series tokens (current three) + the proposed fourth. */
+  --color-plan:#2b6cf6; --color-forecast:#F9A825; --color-actual:#17a67a;
+  --color-actualresub:#c026d3; /* PROPOSED — see section 3 */
+}
+[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0f1722; --surface:#16202e; --surface2:#1d2a3b; --surface3:#243446;
+  --border:#2c3c52; --text:#e6edf5; --text2:#aebccd; --text3:#7e8ea2;
+  --shadow:0 1px 2px rgba(15,45,82,.18);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 var(--font-ui);padding:24px}
+h1{font-size:18px;margin:0 0 4px}
+h2{font-size:14px;margin:28px 0 8px;color:var(--navy)}
+.sub{color:var(--text2);font-size:12px;margin:0 0 16px}
+.theme{display:flex;gap:8px;margin-bottom:8px}
+.theme button{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:6px;padding:6px 12px;font:600 12px var(--font-ui);cursor:pointer}
+.theme button.on{background:var(--surface3);border-color:var(--color-plan);color:var(--color-plan)}
+.row{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}
+.note{max-width:360px;font-size:12px;color:var(--text2)}
+.note ul{margin:6px 0 0 16px;padding:0}
+.note li{margin-bottom:4px}
+.tag{display:inline-block;font:600 10px var(--font-ui);color:var(--text2);border:1px solid var(--border);border-radius:99px;padding:2px 8px;margin-left:8px;vertical-align:2px}
+
+/* §4.6 window — visual contract copied verbatim from dashboard.css, minus the hover trigger. */
+.tip{background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);
+  padding:8px 10px;font-size:11px;line-height:1.45;color:var(--text);max-width:230px;width:max-content}
+.tip b.h{display:block;margin-bottom:2px}
+.chart-tip-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ct-l{display:inline-flex;align-items:center;gap:6px}
+.chart-swatch{display:inline-block;width:9px;height:9px;border-radius:2px;flex:none}
+.chart-tip-foot{display:flex;justify-content:space-between;gap:12px;margin-top:4px;padding-top:4px;border-top:1px solid var(--border);font-weight:600}
+.chart-tip-k{color:var(--text2);font-weight:600}
+.c1-plan{background:var(--color-plan)} .c1-forecast{background:var(--color-forecast)}
+.c1-actual{background:var(--color-actual)} .c1-resub{background:var(--color-actualresub)}
+
+/* Section 3 — colour comparison */
+.swatch-line{display:flex;align-items:center;gap:8px;margin:6px 0}
+.swatch-line svg{flex:none}
+.lbl{font-size:11px;color:var(--text2);width:150px;display:inline-block}
+
+/* Section 4 — mock board */
+.board{position:relative;border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:12px;width:640px;cursor:crosshair}
+.board svg{display:block}
+.board .tip{position:absolute;left:300px;top:34px}
+.crosshair{stroke:var(--text3);stroke-width:1;stroke-dasharray:3 3}
+</style>
+</head>
+<body>
+<h1>C1 hover window — proposed §4.6 layout <span class="tag">review sample · no engine change</span></h1>
+<p class="sub">All numbers are real, read from the two workbooks (as-of 2026-10-24). Your decisions applied: footer = gap + % of plan; Actual Resub gets its own hue.</p>
+
+<div class="theme">
+  <button class="on" data-t="light">Light</button>
+  <button data-t="dark">Dark</button>
+</div>
+
+<h2>1 · Current — as the dashboard renders it today</h2>
+<div class="row">
+  <div class="tip"><b class="h">2026-10</b>Plan 158 · Σ 284<br>Forecast Σ 245<br>Actual First 77 · Σ 190<br>Actual Resub 10 · Σ 51</div>
+  <div class="note">What is wrong here:<ul>
+    <li>no colour swatch beside each series label (§4.6 body row contract: <code>swatch · label · value</code>)</li>
+    <li><b>Forecast has no per-month count</b> — every other series shows “N · Σ M”; forecast shows only Σ, because <code>fNew</code> is never put into <code>data-points</code></li>
+    <li>no footer — §4.6 requires a totals / percentages zone under a single top border</li>
+  </ul></div>
+</div>
+
+<h2>2 · Proposed — §4.6 layout, footer = gap + % of plan</h2>
+<div class="row">
+  <div class="tip"><b class="h">2026-10</b>
+    <div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c1-plan"></span>Plan</span><b>158 · Σ 284</b></div>
+    <div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c1-forecast"></span>Forecast</span><b>138 · Σ 245</b></div>
+    <div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c1-actual"></span>Actual First</span><b>77 · Σ 190</b></div>
+    <div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c1-resub"></span>Actual Resub</span><b>10 · Σ 51</b></div>
+    <div class="chart-tip-foot"><span>Actual Σ 241</span><b>85% of plan · 43 behind</b></div>
+  </div>
+  <div class="tip"><b class="h">2026-06</b>
+    <div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c1-plan"></span>Plan</span><b>8 · Σ 24</b></div>
+    <div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c1-forecast"></span>Forecast</span><b>10 · Σ 21</b></div>
+    <div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c1-actual"></span>Actual First</span><b>11 · Σ 51</b></div>
+    <div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c1-resub"></span>Actual Resub</span><b>11 · Σ 16</b></div>
+    <div class="chart-tip-foot"><span>Actual Σ 67</span><b>279% of plan · 43 ahead</b></div>
+  </div>
+  <div class="note">Both directions of the footer, from real months:<ul>
+    <li>2026-10 — behind plan (submissions lag the schedule)</li>
+    <li>2026-06 — ahead of plan (279% is honest: 67 submitted against 24 planned)</li>
+    <li>each body row is <code>swatch · label</code> left, <code>N · Σ M</code> right, space-between — same structure C2 already uses</li>
+  </ul></div>
+</div>
+
+<h3 style="font-size:12px;margin:16px 0 6px">Edge case — MDL carries no Forecast dates (synthetic projection)</h3>
+<div class="row">
+  <div class="tip"><b class="h">2026-10</b>
+    <div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c1-plan"></span>Plan</span><b>158 · Σ 284</b></div>
+    <div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c1-forecast"></span>Forecast (projected)</span><b>— · Σ 295</b></div>
+    <div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c1-actual"></span>Actual First</span><b>77 · Σ 190</b></div>
+    <div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c1-resub"></span>Actual Resub</span><b>10 · Σ 51</b></div>
+    <div class="chart-tip-foot"><span>Actual Σ 241</span><b>85% of plan · 43 behind</b></div>
+  </div>
+  <div class="note">When the MDL has no Forecast dates the line is <code>plan × 1.04</code>, so the row is labelled “projected” and the per-month count shows <b>—</b>, never a misleading <code>0</code>. Your current workbooks <b>do</b> carry forecast dates, so today you would see the normal rows.</div>
+</div>
+
+<h2>3 · Colour — Actual Resub gets its own token</h2>
+<div class="row">
+  <div>
+    <div class="swatch-line"><span class="lbl">Plan — token</span><svg width="18" height="10"><rect width="18" height="10" rx="2" fill="#2b6cf6"/></svg><code>--color-plan</code></div>
+    <div class="swatch-line"><span class="lbl">Forecast — token</span><svg width="18" height="10"><rect width="18" height="10" rx="2" fill="#F9A825"/></svg><code>--color-forecast</code></div>
+    <div class="swatch-line"><span class="lbl">Actual First — token</span><svg width="18" height="10"><rect width="18" height="10" rx="2" fill="#17a67a"/></svg><code>--color-actual</code></div>
+    <div class="swatch-line"><span class="lbl">Actual Resub — current</span><svg width="18" height="10"><rect width="18" height="10" rx="2" fill="#17a67a" fill-opacity=".45"/></svg><code>--color-actual @45%</code></div>
+    <div class="swatch-line"><span class="lbl">Actual Resub — proposed</span><svg width="18" height="10"><rect width="18" height="10" rx="2" fill="#c026d3"/></svg><b><code>--color-actualresub</code></b></div>
+  </div>
+  <div class="note">Current: Actual Resub is the same green as Actual First at 45% opacity — §4.6 says two distinct series MUST NOT share a hue, and names Resubmission in the example. Proposed: a magenta token <code>#c026d3</code>, distinct from every hue already in use (blue, amber, green, orange, violet, lime, cyan, pink, red, slate).<br><br>
+  <b>This changes the on-chart bars, line and dots too</b> — the 45%-green bar and dashed green line become solid magenta. The swatch above shows both. C2’s Resubmission orange was considered for cross-chart consistency and rejected: it sits next to the forecast amber, which §4.6 explicitly forbids.</div>
+</div>
+
+<h2>4 · In context — placement on the board</h2>
+<div class="board">
+  <svg width="616" height="150" viewBox="0 0 616 150">
+    <rect x="40"  y="110" width="12" height="20" fill="var(--color-plan)"/>
+    <rect x="54"  y="96"  width="12" height="34" fill="var(--color-forecast)"/>
+    <rect x="68"  y="104" width="12" height="26" fill="var(--color-actual)"/>
+    <rect x="82"  y="138" width="12" height="6"  fill="var(--color-actualresub)"/>
+    <rect x="220" y="102" width="12" height="28" fill="var(--color-plan)"/>
+    <rect x="234" y="88"  width="12" height="42" fill="var(--color-forecast)"/>
+    <rect x="248" y="96"  width="12" height="34" fill="var(--color-actual)"/>
+    <rect x="262" y="130" width="12" height="14" fill="var(--color-actualresub)"/>
+    <rect x="400" y="60"  width="12" height="70" fill="var(--color-plan)"/>
+    <rect x="414" y="72"  width="12" height="58" fill="var(--color-forecast)"/>
+    <rect x="428" y="90"  width="12" height="40" fill="var(--color-actual)"/>
+    <rect x="442" y="128" width="12" height="12" fill="var(--color-actualresub)"/>
+    <line x1="40" y1="130" x2="200" y2="70" stroke="var(--color-plan)" stroke-width="2.5" stroke-dasharray="6 3"/>
+    <line x1="40" y1="132" x2="200" y2="76" stroke="var(--color-forecast)" stroke-width="2.5" stroke-dasharray="2 2"/>
+    <line x1="40" y1="134" x2="200" y2="60" stroke="var(--color-actual)" stroke-width="2.5"/>
+    <line x1="40" y1="146" x2="200" y2="112" stroke="var(--color-actualresub)" stroke-width="2.5" stroke-dasharray="3 3"/>
+    <line x1="230" y1="126" x2="390" y2="46" stroke="var(--color-plan)" stroke-width="2.5" stroke-dasharray="6 3"/>
+    <line x1="230" y1="128" x2="390" y2="52" stroke="var(--color-forecast)" stroke-width="2.5" stroke-dasharray="2 2"/>
+    <line x1="230" y1="122" x2="390" y2="30" stroke="var(--color-actual)" stroke-width="2.5"/>
+    <line x1="230" y1="138" x2="390" y2="96" stroke="var(--color-actualresub)" stroke-width="2.5" stroke-dasharray="3 3"/>
+    <line class="crosshair" x1="434" y1="8" x2="434" y2="146"/>
+    <text x="440" y="16" font-size="9" fill="var(--text2)">snap line at the hovered month</text>
+  </svg>
+  <div class="tip"><b class="h">2026-10</b>
+    <div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c1-plan"></span>Plan</span><b>158 · Σ 284</b></div>
+    <div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c1-forecast"></span>Forecast</span><b>138 · Σ 245</b></div>
+    <div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c1-actual"></span>Actual First</span><b>77 · Σ 190</b></div>
+    <div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c1-resub"></span>Actual Resub</span><b>10 · Σ 51</b></div>
+    <div class="chart-tip-foot"><span>Actual Σ 241</span><b>85% of plan · 43 behind</b></div>
+  </div>
+</div>
+
+<script>
+for (const b of document.querySelectorAll('.theme button'))
+  b.addEventListener('click', () => {
+    document.documentElement.dataset.theme = b.dataset.t;
+    for (const x of document.querySelectorAll('.theme button')) x.classList.toggle('on', x === b);
+  });
+</script>
+</body>
+</html>

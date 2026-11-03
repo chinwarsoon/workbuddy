@@ -114,9 +114,9 @@ export default {
   // `snap` = the chart is expected to expose a .chart-snap line; `ctL` = guard the .ct-l grouping.
   hover: {
     boards: [
-      { name: 'C1 S-curve', selector: '.scurve', snap: true, cursor: 'crosshair' },
-      { name: 'C2 Submission Flow', selector: '.c2-stack', snap: true, cursor: 'crosshair', ctL: true },
-      { name: 'C3 Breakdown', selector: '.c3-card', snap: false, cursor: 'crosshair' },
+      { name: 'C1 S-curve', selector: '.scurve', snap: true, cursor: 'crosshair', ctL: true, nearest: true },
+      { name: 'C2 Submission Flow', selector: '.c2-stack', snap: true, cursor: 'crosshair', ctL: true, nearest: true, elementViews: ['Funnel'] },
+      { name: 'C3 Breakdown', selector: '.c3-card', snap: false, cursor: 'crosshair', ctL: true },
       { name: 'C4 Turnaround', selector: '.c4-chart', snap: false, cursor: 'crosshair' },
     ],
     kpi: { name: 'KPI card', selector: '.kpi-card', snap: false, cursor: 'help' },

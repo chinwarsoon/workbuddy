@@ -1,3 +1,7 @@
+// Revision 0.8 | 2026-11-03 | CodeBuddy (AI) | I103 — the C2 Delay chart moved from element mode to nearest-datum mode: element mode (data-tip on the r=3 dots) left the hover window reachable only on those dots, a dead zone everywhere else, which §4.6 forbids; the line/dot colour is tokenised (--color-c2delay) and the window follows §4.6 (swatch row + "Docs in mean" footer, c2DelayTipHtml exported). I104 — the Funnel view returned a `.c2-stack` with no `.chart-tip` at all (the I100 defect class), so it never bound; each funnel stage now carries a data-tip window (header, swatch row, "% of planned" footer). The C4 Age-buckets bars (barChart) gained data-tip rows with a "share of overdue" footer — the only barChart caller had no hover detail.
+// Revision 0.7 | 2026-11-03 | CodeBuddy (AI) | I102 — the C1 hover window follows §4.6: body rows are `swatch · label · value` (`.ct-l` + tokenised `.chart-swatch.c1-*`), the forecast per-period count is shown (it was computed and drawn as a bar but never put into `data-points`), and the footer carries the owner's A+B summary — actual cumulative total, % of plan, ahead/behind gap. Chart-level facts ride on `data-c1meta` (fc = the MDL holds real forecast dates; vis = the visible series keys, so hidden series drop their rows). Without MDL forecast dates the row is labelled "Forecast (projected)" and the count is an em dash, never a misleading 0. `c1TipHtml` is exported for the render suite.
+// Revision 0.6 | 2026-11-02 | CodeBuddy (AI) | I099 — the All-months Approval donut gained a "No Outcome" segment (grey, `.c3-no`), so a document that is neither open under review nor carrying an approval code is visible instead of vanishing; the two rings now total the same distinct-document count. `c3Metrics` returns `noOutcome` and `c3Totals` sums it. A single month is unchanged: it shows that month's activity, and a row with no approval is not an approval event.
+// Revision 0.5 | 2026-11-02 | CodeBuddy (AI) | I046 — the C3 Breakdown drops the Total Plan column and metric row in the submitter view, because the Master Document List has no submitter column; a note under the table states the reason. I026 — the Validation meta line records that a blank MDL Document No. is reported by MDL (D33).
 // Revision 0.4 | 2026-10-26 | CodeBuddy (AI) | T15.3 (Wave 4.2): split the C3 Breakdown into two side-by-side vertical-bar charts — left Submissions (First Submission, Resubmission, Under Review via D38), right Approval Status — replacing the single horizontal-bar / concentric-ring component. Under Review (D38) deducts First Submission and Resubmission in the as-of month.
 // Revision 0.3 | 2026-10-25 | CodeBuddy (AI) | Added the C3 Breakdown panel (workplan D36). `deriveView` returns `c3`: one classified row per active submission (`isNew`, `seq`, `submissionStatus`, `actualReturnDate`), the month list, and `planCount(dimKey, dimVal, month)` which tallies Master Document List rows for Total Plan. `renderDashboard` draws two series per dimension value — Submissions (New + Resubmission) and Approval Status (the five codes) — as horizontal bars or two concentric rings inside a §4.2 component board, then renders the summary table in the shared `.ds-table` style with a Total footer row. `table()` gained an optional `footer` argument; callers that pass nothing are unchanged.
 // Revision 0.2 | 2026-10-24 | CodeBuddy (AI) | D33: a blank Stage is counted as a planned document and a row without a Document No. is not. Exported EXCLUDED_STAGES for dashboard.js.
@@ -246,7 +250,24 @@ export function deriveView(model, state = {}) {
       sorted.forEach((row, index) => push(row, String(row.documentNo).trim().toUpperCase(), index));
     }
     for (const row of blanks) push(row, '', -1);
-    const months = [...new Set(rows.map(row => row.month).filter(Boolean))].sort();
+    // I106 — list every past month (project start → as-of) in the C3 month filter, even when the
+    // month has zero submissions. The old list came only from submission rows, so empty months were
+    // unselectable and their Total Plan was invisible. Mirrors C1's start→as-of span.
+    const asOfYm = String(model.meta.asOfDate || '').slice(0, 7);
+    const projYm = String(model.meta.projectStartDate || '').slice(0, 7);
+    const subYms = rows.map(row => row.month).filter(Boolean);
+    let startYm = asOfYm || projYm;
+    for (const ym of subYms) if (ym < startYm) startYm = ym;
+    if (projYm && projYm < startYm) startYm = projYm;
+    const months = [];
+    if (startYm) {
+      let [y, m] = startYm.split('-').map(Number);
+      const [ey, em] = asOfYm ? asOfYm.split('-').map(Number) : [y, m];
+      while (y < ey || (y === ey && m <= em)) {
+        months.push(`${y}-${String(m).padStart(2, '0')}`);
+        if (m === 12) { y++; m = 1; } else m++;
+      }
+    }
     // Total Plan reads the Master Document List. It carries no submitter column, so a plan row can
     // reach a submitter only through the submission rows linked to it; unlinked rows cannot be
     // attributed and do not appear in the Submitter view. An empty month key holds the rows whose
@@ -365,6 +386,39 @@ export function deriveView(model, state = {}) {
   };
 }
 
+// I102 — the C1 hover-window body and footer, exported so the render suite can assert the §4.6
+// layout without a browser. `p` is one data-points entry; `meta` is the chart-level `data-c1meta`
+// payload (fc = the MDL holds real forecast dates, vis = the visible series keys).
+export function c1TipHtml(p, meta = {}) {
+  const vis = Array.isArray(meta.vis) && meta.vis.length ? meta.vis : ['plan', 'forecast', 'actualFirst', 'actualResub'];
+  const e = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+  const row = (cls, label, value) => `<div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch ${cls}"></span>${e(label)}</span><b>${value}</b></div>`;
+  let out = `<b>${e(p.label)}</b>`;
+  if (vis.includes('plan')) out += row('c1-plan', 'Plan', `${p.pNew} · Σ ${p.pCum}`);
+  // Without MDL forecast dates the line is plan × 1.04, so the row is labelled "projected" and the
+  // per-period count is an em dash, never a misleading 0.
+  if (vis.includes('forecast')) out += row('c1-forecast', meta.fc ? 'Forecast' : 'Forecast (projected)', `${meta.fc ? p.fNew : '—'} · Σ ${p.fCum}`);
+  if (vis.includes('actualFirst')) out += row('c1-actual', 'Actual First', `${p.aFNew} · Σ ${p.aFCum}`);
+  if (vis.includes('actualResub')) out += row('c1-resub', 'Actual Resub', `${p.aRNew} · Σ ${p.aRCum}`);
+  // Footer (owner decision, A+B): actual cumulative total on the left; % of plan and the gap on the
+  // right. "ahead" = more submitted than planned, "behind" = fewer.
+  const aTot = (p.aFCum || 0) + (p.aRCum || 0);
+  const pCum = p.pCum || 0;
+  const right = pCum > 0 ? `${Math.round(100 * aTot / pCum)}% of plan · ${Math.abs(aTot - pCum)} ${aTot >= pCum ? 'ahead' : 'behind'}` : '—';
+  out += `<div class="chart-tip-foot"><span>Actual Σ ${aTot}</span><b>${right}</b></div>`;
+  return out;
+}
+
+// I103 — the C2 Delay hover-window body and footer, exported so the render suite can assert the
+// §4.6 layout without a browser. `p` is one data-points entry: label = month, delay = the average
+// review delay in days (one decimal), n = the documents averaged that month.
+export function c2DelayTipHtml(p) {
+  const e = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+  return `<b>${e(p.label)}</b>`
+    + `<div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c2-delay"></span>Avg review delay</span><b>${Number(p.delay || 0).toFixed(1)} d</b></div>`
+    + `<div class="chart-tip-foot"><span>Docs in mean</span><b>${p.n || 0}</b></div>`;
+}
+
 /** Render dashboard content from one derived view. @param {Document} doc @param {object} model @param {object} state @returns {object} */
 export function renderDashboard(doc, model, state = {}) {
   const view = deriveView(model, state);
@@ -397,7 +451,9 @@ export function renderDashboard(doc, model, state = {}) {
       + `<div class="chart-tip-row"><span class="chart-tip-k">Source</span>${esc(m.source || '—')}</div>`
       + `<div class="chart-tip-foot">${esc(m.calc || '')}</div>`;
   };
-  const card = (label, value, status = '') => `<article class="kpi-card${status ? ` ${status}` : ''}" data-tip="${attr(kpiTipHtml(label))}"><div class="v">${esc(value)}</div><div class="l">${esc(label)}</div></article>`;
+  // The window element must exist inside the card: `bindChartHover` returns early when a root has no
+  // `.chart-tip`, so a KPI card carrying only `data-tip` showed the cursor and nothing else.
+  const card = (label, value, status = '') => `<article class="kpi-card${status ? ` ${status}` : ''}" data-tip="${attr(kpiTipHtml(label))}"><div class="v">${esc(value)}</div><div class="l">${esc(label)}</div><div class="chart-tip" role="tooltip"></div></article>`;
   const tableRows = new Map();
   // §7.1 B7 — column-visibility chooser, one implementation for every table. The contents follow the
   // normative floating-panel order (master → note → divider → item list → footer). The first two
@@ -467,9 +523,9 @@ export function renderDashboard(doc, model, state = {}) {
     // border, per the C2 owner review (2026-10-28).
     return `<section class="panel${full ? ' full' : ''}${collapsed ? ' collapsed' : ''}"><header class="panel-head"><h2>${esc(name)}</h2><div class="panel-actions">${leadingControls}<button class="icon-btn help-open" data-help="${esc(name)}" aria-label="Help for ${esc(name)}" title="Help">?</button><button class="icon-btn panel-toggle" data-panel-toggle="${esc(name)}" aria-expanded="${collapsed ? 'false' : 'true'}" aria-label="${label} ${esc(name)}" title="${label}">${collapsed ? '+' : '−'}</button></div></header><div class="panel-body">${content}</div></section>`;
   };
-  const barChart = (data, labelKey, valueKey) => {
+  const barChart = (data, labelKey, valueKey, tip) => {
     const max = Math.max(1, ...data.map(item => Number(item[valueKey]) || 0));
-    return `<div class="bar-chart" role="img" aria-label="${esc(labelKey)} chart">${data.slice(-12).map(item => `<div class="bar-row"><span>${esc(item[labelKey])}</span><div class="bar-track"><i style="width:${Math.max(2, (Number(item[valueKey]) || 0) / max * 100)}%"></i></div><b>${esc(item[valueKey])}</b></div>`).join('') || '<p class="empty">No dated records.</p>'}</div>`;
+    return `<div class="bar-chart" role="img" aria-label="${esc(labelKey)} chart">${data.slice(-12).map(item => `<div class="bar-row"${tip ? ` data-tip="${attr(tip(item))}"` : ''}><span>${esc(item[labelKey])}</span><div class="bar-track"><i style="width:${Math.max(2, (Number(item[valueKey]) || 0) / max * 100)}%"></i></div><b>${esc(item[valueKey])}</b></div>`).join('') || '<p class="empty">No dated records.</p>'}</div>`;
   };
   // C4 — SVG scatter: x = turnaround days, y = review-delay days, one point per submission.
   // Overdue points (open SUR past target) render red, the rest blue.
@@ -601,9 +657,14 @@ export function renderDashboard(doc, model, state = {}) {
     P.push(`<g class="sc-legend">${leg.join('')}</g>`);
     P.push(`<line class="chart-snap" x1="0" y1="${yTop}" x2="0" y2="${yBot}" style="display:none"></line>`);
     P.push('</svg>');
-    const pts = buckets.map((b, i) => ({ cx: +xCenter(i).toFixed(1), label: b.label, pNew: b.pNew, aFNew: b.aFNew, aRNew: b.aRNew, pCum: b.pCum, aFCum: b.aFCum, aRCum: b.aRCum, fCum: b.fCum }));
+    // I102 — `fNew` must reach the hover window: the forecast bar is drawn from it, but the window
+    // could not show the per-period count because it was never put into data-points.
+    const pts = buckets.map((b, i) => ({ cx: +xCenter(i).toFixed(1), label: b.label, pNew: b.pNew, fNew: b.fNew, aFNew: b.aFNew, aRNew: b.aRNew, pCum: b.pCum, fCum: b.fCum, aFCum: b.aFCum, aRCum: b.aRCum }));
     const dp = JSON.stringify(pts).replace(/'/g, '&#39;'); const dg = JSON.stringify({ W, yTop, yBot }).replace(/'/g, '&#39;');
-    return `<div class="scurve sc-board" data-points='${dp}' data-geo='${dg}'>${P.join('')}<div class="chart-tip"></div></div>`;
+    // Chart-level facts the window needs but a point cannot carry: whether the MDL holds real
+    // forecast dates (else the line is a plan × 1.04 projection) and which series are visible.
+    const dm = JSON.stringify({ fc: c1.hasMdlForecast, vis: [...series] }).replace(/'/g, '&#39;');
+    return `<div class="scurve sc-board" data-points='${dp}' data-geo='${dg}' data-c1meta='${dm}'>${P.join('')}<div class="chart-tip"></div></div>`;
   };
   const schedulePerformance = (c1, st) => `${c1Controls(c1, st)}${scurveSVG(c1, st)}`;
   // ===== C3 Breakdown (workplan D36, revised by D38 / Wave 4.2) =====
@@ -632,7 +693,7 @@ export function renderDashboard(doc, model, state = {}) {
     const recs = c3RowsFor(month).filter(row => row[dimKey] === dimVal && row.doc);
     const byDoc = new Map();
     for (const row of recs) { const group = byDoc.get(row.doc) || []; group.push(row); byDoc.set(row.doc, group); }
-    let newCount = 0, resubCount = 0;
+    let newCount = 0, resubCount = 0, noOutcome = 0;
     const appr = { APP: 0, AWC: 0, NAP: 0, REJ: 0, INF: 0, SUR: 0 };
     if (all) {
       // All months: per Document No. (Option A) — each document counted once.
@@ -642,7 +703,10 @@ export function renderDashboard(doc, model, state = {}) {
         if (hasResub) resubCount++; else newCount++;
         const latest = sorted[sorted.length - 1];
         if (c3IsReview(latest)) appr.SUR++;
-        else { const first = sorted.find(c3HasApproval); if (first && appr[first.approvalStatus] !== undefined) appr[first.approvalStatus]++; }
+        // I099 — a document that is neither open under review nor carrying an approval code has no
+        // recorded outcome. It used to fall out of the donut silently, so the two rings disagreed.
+        // It now gets its own segment, and the pipeline raises V-35 for the same condition.
+        else { const first = sorted.find(c3HasApproval); if (first && appr[first.approvalStatus] !== undefined) appr[first.approvalStatus]++; else noOutcome++; }
       }
     } else {
       // A specific month: row-level activity (R2) — ignores history.
@@ -651,13 +715,14 @@ export function renderDashboard(doc, model, state = {}) {
         if (c3HasApproval(row) && appr[row.approvalStatus] !== undefined) appr[row.approvalStatus]++;
       }
     }
-    return { dimVal, submitted: recs.length, newCount, resubCount, appr };
+    return { dimVal, submitted: recs.length, newCount, resubCount, noOutcome, appr };
   };
   const c3Totals = metrics => {
-    const totals = { New: 0, Resubmission: 0, APP: 0, AWC: 0, NAP: 0, REJ: 0, INF: 0, SUR: 0 };
+    const totals = { New: 0, Resubmission: 0, NoOutcome: 0, APP: 0, AWC: 0, NAP: 0, REJ: 0, INF: 0, SUR: 0 };
     for (const item of metrics) {
       totals.New += item.newCount;
       totals.Resubmission += item.resubCount;
+      totals.NoOutcome += item.noOutcome || 0;
       for (const code of ['APP', 'AWC', 'NAP', 'REJ', 'INF', 'SUR']) totals[code] += (item.appr[code] || 0);
     }
     return totals;
@@ -740,8 +805,11 @@ export function renderDashboard(doc, model, state = {}) {
     const N = recs.length;
     const maxVal = Math.max(1, ...recs.map(r => barSeries.reduce((s, sr) => s + Math.max(0, r.getBar(sr.key)), 0)));
     const niceMax = niceCeil(maxVal); // C1/C2-style nice axis max so the top grid line is a round number (I060)
+    // I046 — Total Plan is a discipline-only metric (see C3_PLAN_NOTE).
     const rows = kind === 'submissions'
-      ? [['Total Plan', r => r.plan], ['First Submission', r => r.m.newCount], ['Resubmission', r => r.m.resubCount], ['Under Review', r => all ? r.m.appr.SUR : r.ur]]
+      ? (dimKey === 'submitter'
+          ? [['First Submission', r => r.m.newCount], ['Resubmission', r => r.m.resubCount], ['Under Review', r => all ? r.m.appr.SUR : r.ur]]
+          : [['Total Plan', r => r.plan], ['First Submission', r => r.m.newCount], ['Resubmission', r => r.m.resubCount], ['Under Review', r => all ? r.m.appr.SUR : r.ur]])
       : (all ? ['APP', 'AWC', 'NAP', 'REJ', 'INF', 'SUR'] : ['APP', 'AWC', 'NAP', 'REJ', 'INF'])
           .map(code => [code, r => code === 'SUR' ? r.m.appr.SUR : (r.m.appr[code] || 0)]);
     let g = '';
@@ -753,14 +821,15 @@ export function renderDashboard(doc, model, state = {}) {
     for (let t = 0; t <= 4; t++) { const tv = Math.round(niceMax * (4 - t) / 4); ticks += `<span class="g-ytick" style="top:${(t * 25)}%">${tv}</span>`; }
     g += `<div class="g-yaxis" style="grid-column:1;grid-row:1">${ticks}</div>`;
     recs.forEach((r, i) => {
+      const colTotal = barSeries.reduce((s, sr) => s + Math.max(0, r.getBar(sr.key)), 0);
+      // I106 — §4.6 hover window: header = the column (discipline/submitter), one swatch·label·value row
+      // per series (on-chart series token), footer = the column total. Mirrors C1/C2.
+      const colTip = `<b>${esc(r.val)}</b>` + barSeries.map(sr => `<div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c3-swatch ${sr.cls}"></span>${esc(sr.key === 'ur' ? 'Under Review' : sr.key)}</span><b>${r.getBar(sr.key)}</b></div>`).join('') + `<div class="chart-tip-foot">Total <b>${colTotal}</b></div>`;
       let segs = '';
       barSeries.slice().reverse().forEach(sr => {
         const v = r.getBar(sr.key);
-        const segLabel = sr.key === 'ur' ? 'Under Review' : sr.key;
-        const segTip = `<b>${esc(r.val)}</b><br>${esc(segLabel)}: ${v}`;
-        if (v > 0) segs += `<div class="seg-bar ${sr.cls}" style="height:${((v / niceMax) * C3_BAR_H).toFixed(1)}px" data-tip="${attr(segTip)}"></div>`;
+        if (v > 0) segs += `<div class="seg-bar ${sr.cls}" style="height:${((v / niceMax) * C3_BAR_H).toFixed(1)}px" data-tip="${attr(colTip)}"></div>`;
       });
-      const colTip = `<b>${esc(r.val)}</b>` + barSeries.map(sr => `<div class="chart-tip-row"><span class="chart-tip-k">${esc(sr.key === 'ur' ? 'Under Review' : sr.key)}</span> ${r.getBar(sr.key)}</div>`).join('');
       g += `<div class="g-bar" style="grid-column:${i + 2};grid-row:1" data-tip="${attr(colTip)}">${segs}</div>`;
       g += `<div class="g-axis" style="grid-column:${i + 2};grid-row:2">${esc(clipText(r.val, 22))}</div>`;
     });
@@ -789,8 +858,12 @@ export function renderDashboard(doc, model, state = {}) {
       ? (all
           ? [{ cls: 'c3-new', label: 'First Submission', value: totals.New }, { cls: 'c3-resub', label: 'Resubmission', value: totals.Resubmission }]
           : [{ cls: 'c3-new', label: 'First Submission', value: totals.New }, { cls: 'c3-resub', label: 'Resubmission', value: totals.Resubmission }, { cls: 'c3-ur', label: 'Under Review', value: urTotal }])
+      // I099 — All months shows the state of every document, so a document with no recorded outcome
+      // gets a segment; otherwise it vanishes and the two rings disagree. A single month shows the
+      // activity of that month only, so a row with no approval is not an approval event and stays out.
       : (all
           ? [...APPROVAL_CODES, 'SUR'].map(code => ({ cls: code === 'SUR' ? 'c3-ur' : C3_FILL[code], label: code, value: totals[code] }))
+              .concat([{ cls: 'c3-no', label: 'No Outcome', value: totals.NoOutcome }])
           : APPROVAL_CODES.map(code => ({ cls: C3_FILL[code], label: code, value: totals[code] })));
     const title = kind === 'submissions' ? 'Submissions' : 'Approval Status';
     const total = segs.reduce((s, x) => s + x.value, 0);
@@ -809,7 +882,7 @@ export function renderDashboard(doc, model, state = {}) {
     for (const seg of segs) {
       if (!seg.value) continue;
       const segW = Math.max(1, seg.value / max * width);
-      out += `<rect class="${seg.cls}" x="${cx.toFixed(1)}" y="${y}" width="${segW.toFixed(1)}" height="${height}" rx="2" data-tip="${attr(`<b>${esc(seg.label)}</b>: ${seg.value}`)}"></rect>`;
+      out += `<rect class="${seg.cls}" x="${cx.toFixed(1)}" y="${y}" width="${segW.toFixed(1)}" height="${height}" rx="2" data-tip="${attr(`<b>${esc(seg.label)}</b><div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c3-swatch ${seg.cls}"></span>${esc(seg.label)}</span><b>${seg.value}</b></div>`)}"></rect>`;
       cx += segW;
     }
     return out;
@@ -825,6 +898,10 @@ export function renderDashboard(doc, model, state = {}) {
     const denom = Math.max(1, total);
     const P = [`<svg class="c3-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%" role="img" aria-label="${esc(title)}">`];
     P.push(`<circle class="c3-track-bg" cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke-width="${sw}"></circle>`);
+    // I106 — §4.6 donut hover: every arc shows the full swatch·label·value breakdown plus a total
+    // footer, mirroring the bar cards. Uses the on-chart series token for each swatch.
+    const c3TipRows = segs.filter(s => s.value).map(s => `<div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c3-swatch ${s.cls}"></span>${esc(s.label)}</span><b>${s.value}</b></div>`).join('');
+    const fullTip = `<b>${esc(title)}</b>${c3TipRows}<div class="chart-tip-foot">Total <b>${total}</b></div>`;
     let frac = 0;
     for (const seg of segs) {
       if (!seg.value) continue;
@@ -833,7 +910,7 @@ export function renderDashboard(doc, model, state = {}) {
       const x0 = (cx + r * Math.cos(a0)).toFixed(2), y0 = (cy + r * Math.sin(a0)).toFixed(2);
       const x1 = (cx + r * Math.cos(a1)).toFixed(2), y1 = (cy + r * Math.sin(a1)).toFixed(2);
       const large = f1 - f0 > 0.5 ? 1 : 0;
-      P.push(`<path class="${seg.cls}-arc" d="M${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1}" fill="none" stroke-width="${sw}" data-tip="${attr(`<b>${esc(title)}</b><br>${esc(seg.label)}: ${seg.value}`)}"></path>`);
+      P.push(`<path class="${seg.cls}-arc" d="M${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1}" fill="none" stroke-width="${sw}" data-tip="${attr(fullTip)}"></path>`);
     }
     P.push(`<text class="c3-total" x="${cx}" y="${cy}" text-anchor="middle" font-size="22" font-weight="700">${total}</text>`);
     P.push(`<text class="c3-sub" x="${cx}" y="${cy + 16}" text-anchor="middle" font-size="9">${esc(sub)}</text>`);
@@ -877,9 +954,15 @@ export function renderDashboard(doc, model, state = {}) {
   };
   // §7.2 — the shared .ds-table, one row per dimension value plus a Total footer row.
   const C3_TABLE_HEADERS = ['Total Plan', 'New Submissions', 'Resubmissions', 'Total Submitted', 'Total Approved', 'Total AWC', 'Total Under Review'];
+  // I046 — the Master Document List carries no submitter column, so a plan row can reach a submitter
+  // only through the submissions linked to it. In the submitter view Total Plan therefore counts
+  // linked rows only and reads low, so the column is dropped there instead of showing a number that
+  // cannot grow. It stays in the discipline view, where every plan row has a discipline.
+  const C3_PLAN_NOTE = 'Total Plan is not shown for the submitter view: the Master Document List has no submitter column, so a plan row can be counted only through the submissions linked to it.';
   const c3Table = (c3, st) => {
     const month = st.c3Month || 'ALL';
     const dimKey = st.c3Dim === 'submitter' ? 'submitter' : 'discipline';
+    const showPlan = dimKey !== 'submitter';
     const values = c3ValuesFor(dimKey, month);
     if (!values.length) return '<div class="c3-summary"><p class="empty">No rows match the current selection.</p></div>';
     const asOfM = String(view.c1.asOf || '').slice(0, 7);
@@ -887,12 +970,14 @@ export function renderDashboard(doc, model, state = {}) {
       const m = c3Metrics(dimKey, value, month);
       const ur = month === 'ALL' ? m.appr.SUR : c3UnderReviewD38(dimKey, value, month, asOfM);
       const tot = month === 'ALL' ? m.newCount + m.resubCount : m.submitted;
-      return [value, c3.planCount(dimKey, value, month), m.newCount, m.resubCount, tot, m.appr.APP, m.appr.AWC, ur];
+      const counts = [m.newCount, m.resubCount, tot, m.appr.APP, m.appr.AWC, ur];
+      return showPlan ? [value, c3.planCount(dimKey, value, month), ...counts] : [value, ...counts];
     });
     const footer = ['Total'];
-    for (let col = 1; col <= C3_TABLE_HEADERS.length; col++) footer.push(rows.reduce((sum, row) => sum + row[col], 0));
-    const headers = [dimKey === 'submitter' ? 'Submitter' : 'Discipline', ...C3_TABLE_HEADERS];
-    return `<div class="c3-summary"><div class="c-card"><div class="c3-summary-head"><h3 class="c3-summary-title">Breakdown Summary</h3><button class="btn-secondary" data-c3export title="Download the breakdown table as CSV">⤓ Download</button></div>${table(headers, rows, null, footer)}</div></div>`;
+    const headers = [dimKey === 'submitter' ? 'Submitter' : 'Discipline', ...(showPlan ? C3_TABLE_HEADERS : C3_TABLE_HEADERS.slice(1))];
+    for (let col = 1; col <= headers.length - 1; col++) footer.push(rows.reduce((sum, row) => sum + row[col], 0));
+    const note = showPlan ? '' : `<p class="note">${esc(C3_PLAN_NOTE)}</p>`;
+    return `<div class="c3-summary"><div class="c-card"><div class="c3-summary-head"><h3 class="c3-summary-title">Breakdown Summary</h3><button class="btn-secondary" data-c3export title="Download the breakdown table as CSV">⤓ Download</button></div>${table(headers, rows, null, footer)}${note}</div></div>`;
   };
   // §4.2 — the chart carries the shape and the table the exact numbers. T15.5 stacks them: the
   // table sits below the chart cards at full panel width. Wave 4.2 (Option 2) splits the panel into two
@@ -947,10 +1032,14 @@ export function renderDashboard(doc, model, state = {}) {
     const inclined = nb > 13;
     months.forEach((ym, i) => { const x = xCenter(i).toFixed(1), lbl = fmtMonth(ym); P.push(inclined ? `<text class="sc-axis" x="${x}" y="${mT + plotH + 8}" text-anchor="end" transform="rotate(-40 ${x} ${mT + plotH + 8})">${esc(lbl)}</text>` : `<text class="sc-axis" x="${x}" y="${mT + plotH + 14}" text-anchor="middle">${esc(lbl)}</text>`); });
     const refX = ym => { const ix = months.indexOf(ym); return ix < 0 ? null : xCenter(ix); };
+    // I105 — label the Start and Today reference lines (mirrors the C1 S-curve), so the unlabelled
+    // verticals become identifiable. The CSS classes reuse the line colours (--danger / --slate).
+    const startM = fmtMonth(String(view.c1 ? view.c1.projectStart : '').slice(0, 7));
+    const asOfM = fmtMonth(String(view.c1 ? view.c1.asOf : '').slice(0, 7));
     const sx = refX(String(view.c1 ? view.c1.projectStart : '').slice(0, 7));
-    if (sx != null) P.push(`<line class="sc-ref sc-ref-start" x1="${sx.toFixed(1)}" y1="${mT}" x2="${sx.toFixed(1)}" y2="${mT + plotH}"></line>`);
+    if (sx != null) { P.push(`<line class="sc-ref sc-ref-start" x1="${sx.toFixed(1)}" y1="${mT}" x2="${sx.toFixed(1)}" y2="${mT + plotH}"></line>`); P.push(`<text class="sc-ref-lbl sc-ref-lbl-start" transform="translate(${(sx + 4).toFixed(1)},${mT + 14}) rotate(90)">Start · ${startM}</text>`); }
     const tx = refX(String(view.c1 ? view.c1.asOf : '').slice(0, 7));
-    if (tx != null) P.push(`<line class="sc-ref sc-ref-today" x1="${tx.toFixed(1)}" y1="${mT}" x2="${tx.toFixed(1)}" y2="${mT + plotH}"></line>`);
+    if (tx != null) { P.push(`<line class="sc-ref sc-ref-today" x1="${tx.toFixed(1)}" y1="${mT}" x2="${tx.toFixed(1)}" y2="${mT + plotH}"></line>`); P.push(`<text class="sc-ref-lbl sc-ref-lbl-today" transform="translate(${(tx + 4).toFixed(1)},${mT + 14}) rotate(90)">Today · ${asOfM}</text>`); }
     let lx = mL; const ly = H - legendH + 14, step = 130;
     series.forEach(code => { P.push(`<g transform="translate(${lx},${ly})"><rect x="0" y="-8" width="12" height="12" rx="2" fill="${c2Color(code)}"></rect><text class="c2-leg-t" x="16" y="2">${esc(code)}</text></g>`); lx += step; });
     P.push(`<line class="chart-snap" x1="0" y1="${mT}" x2="0" y2="${mT + plotH}" style="display:none"></line></svg>`);
@@ -963,6 +1052,7 @@ export function renderDashboard(doc, model, state = {}) {
     const months = c2.months, nb = months.length;
     if (!nb) return '<p class="empty">No dated records.</p>';
     const vals = c2.data.map(d => { const a = d.delay || []; return a.length ? a.reduce((s, v) => s + v, 0) / a.length : 0; });
+    const counts = c2.data.map(d => (d.delay || []).length);
     const yMax = Math.max(1, ...vals) * 1.1;
     const colW = 46, mL = 44, mR = 16, mT = 14, plotH = 240, xLabelH = nb > 13 ? 48 : 22, legH = 26;
     const W = Math.max(nb * colW, 360, mL + 200), H = mT + plotH + xLabelH + legH;
@@ -972,17 +1062,28 @@ export function renderDashboard(doc, model, state = {}) {
     const P = [`<svg class="c2-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%" role="img" aria-label="Average review delay">`];
     for (let g = 0; g <= 4; g++) { const v = yMax * g / 4, y = yOf(v); P.push(`<line class="sc-grid" x1="${mL}" y1="${y}" x2="${W - mR}" y2="${y}"></line><text class="sc-axis" x="${mL - 6}" y="${y + 3}" text-anchor="end">${Math.round(v)}</text>`); }
     const pts = months.map((ym, i) => [xCenter(i), yOf(vals[i])]);
-    if (pts.length > 1) P.push(`<polyline fill="none" stroke="#ff8c42" stroke-width="2" points="${pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ')}"></polyline>`);
-    pts.forEach((p, i) => P.push(`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="#ff8c42" data-tip="${attr(`<b>${esc(fmtMonth(months[i]))}</b><br>Avg review delay ${vals[i].toFixed(1)} d`)}"></circle>`));
+    // I103 — tokenised series colour (§4.6: the window swatch must use the on-chart series token).
+    if (pts.length > 1) P.push(`<polyline class="c2-delay-line" points="${pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ')}"></polyline>`);
+    pts.forEach(p => P.push(`<circle class="c2-delay-dot" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3"></circle>`));
     const inclined = nb > 13;
     months.forEach((ym, i) => { const x = xCenter(i).toFixed(1), lbl = fmtMonth(ym); P.push(inclined ? `<text class="sc-axis" x="${x}" y="${mT + plotH + 8}" text-anchor="end" transform="rotate(-40 ${x} ${mT + plotH + 8})">${esc(lbl)}</text>` : `<text class="sc-axis" x="${x}" y="${mT + plotH + 14}" text-anchor="middle">${esc(lbl)}</text>`); });
     const refX = ym => { const ix = months.indexOf(ym); return ix < 0 ? null : xCenter(ix); };
+    // I105 — label the Start and Today reference lines (mirrors the C1 S-curve), so the unlabelled
+    // verticals become identifiable. The CSS classes reuse the line colours (--danger / --slate).
+    const startM = fmtMonth(String(view.c1 ? view.c1.projectStart : '').slice(0, 7));
+    const asOfM = fmtMonth(String(view.c1 ? view.c1.asOf : '').slice(0, 7));
     const sx = refX(String(view.c1 ? view.c1.projectStart : '').slice(0, 7));
-    if (sx != null) P.push(`<line class="sc-ref sc-ref-start" x1="${sx.toFixed(1)}" y1="${mT}" x2="${sx.toFixed(1)}" y2="${mT + plotH}"></line>`);
+    if (sx != null) { P.push(`<line class="sc-ref sc-ref-start" x1="${sx.toFixed(1)}" y1="${mT}" x2="${sx.toFixed(1)}" y2="${mT + plotH}"></line>`); P.push(`<text class="sc-ref-lbl sc-ref-lbl-start" transform="translate(${(sx + 4).toFixed(1)},${mT + 14}) rotate(90)">Start · ${startM}</text>`); }
     const tx = refX(String(view.c1 ? view.c1.asOf : '').slice(0, 7));
-    if (tx != null) P.push(`<line class="sc-ref sc-ref-today" x1="${tx.toFixed(1)}" y1="${mT}" x2="${tx.toFixed(1)}" y2="${mT + plotH}"></line>`);
-    P.push(`<text class="c2-leg-t" x="${mL}" y="${H - 8}">Avg Review Delay (days) · not-returned &amp; not-due = 0</text></svg>`);
-    return `<div class="c2-stack">${P.join('')}<div class="chart-tip"></div></div>`;
+    if (tx != null) { P.push(`<line class="sc-ref sc-ref-today" x1="${tx.toFixed(1)}" y1="${mT}" x2="${tx.toFixed(1)}" y2="${mT + plotH}"></line>`); P.push(`<text class="sc-ref-lbl sc-ref-lbl-today" transform="translate(${(tx + 4).toFixed(1)},${mT + 14}) rotate(90)">Today · ${asOfM}</text>`); }
+    P.push(`<text class="c2-leg-t" x="${mL}" y="${H - 8}">Avg Review Delay (days) · not-returned &amp; not-due = 0</text>`);
+    P.push(`<line class="chart-snap" x1="0" y1="${mT}" x2="0" y2="${mT + plotH}" style="display:none"></line></svg>`);
+    // I103 — nearest-datum payload: element mode (data-tip on the dots) left the window reachable
+    // only on the 3 px dots, a dead zone everywhere else. Each point carries the month, the average
+    // delay (days, one decimal) and the document count in that mean.
+    const dp = JSON.stringify(months.map((ym, i) => ({ cx: +xCenter(i).toFixed(1), label: fmtMonth(ym), delay: +vals[i].toFixed(1), n: counts[i] }))).replace(/'/g, '&#39;');
+    const dg = JSON.stringify({ W, mT, mB: mT + plotH }).replace(/'/g, '&#39;');
+    return `<div class="c2-stack" data-points='${dp}' data-geo='${dg}'>${P.join('')}<div class="chart-tip"></div></div>`;
   };
   const c2Funnel = (c2) => {
     const f = c2.funnel;
@@ -1006,11 +1107,16 @@ export function renderDashboard(doc, model, state = {}) {
     let p = `<svg class="c2-funnel-svg" width="${W}" viewBox="0 0 ${W} ${VBH}" preserveAspectRatio="none" role="img" aria-label="Submission funnel">`;
     STAGES.forEach((s, i) => {
       const yTop = i * segH, yBot = (i + 1) * segH, v = f[s.key];
+      // I104 — per-stage hover window: the funnel board never bound, because its `.c2-stack`
+      // carried no `.chart-tip`. Header = stage, body row = swatch · count, footer = share of
+      // planned. The swatch hex follows the on-chart stage fill (tokenisation tracked with the
+      // C2 stacked series, I092).
+      const tipHtml = `<b>${esc(s.label)}</b><div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch" style="background:${s.color}"></span>Documents</span><b>${v}</b></div><div class="chart-tip-foot"><span>Share of planned</span><b>${f.planned ? Math.round(100 * v / f.planned) : 0}%</b></div>`;
       if (i < STAGES.length - 1) {
         const topW = widthOf(v), botW = widthOf(f[STAGES[i + 1].key]);
-        p += `<path d="M${cx - topW / 2},${yTop} L${cx + topW / 2},${yTop} L${cx + botW / 2},${yBot} L${cx - botW / 2},${yBot} Z" fill="${s.color}" fill-opacity="0.92" stroke="#fff" stroke-width="1.5"></path>`;
+        p += `<path d="M${cx - topW / 2},${yTop} L${cx + topW / 2},${yTop} L${cx + botW / 2},${yBot} L${cx - botW / 2},${yBot} Z" fill="${s.color}" fill-opacity="0.92" stroke="#fff" stroke-width="1.5" data-tip="${attr(tipHtml)}"></path>`;
       } else {
-        p += `<rect x="${cx - SQ / 2}" y="${yBot - SQ - 4}" width="${SQ}" height="${SQ}" rx="4" fill="${s.color}" stroke="#fff" stroke-width="1.5"></rect>`;
+        p += `<rect x="${cx - SQ / 2}" y="${yBot - SQ - 4}" width="${SQ}" height="${SQ}" rx="4" fill="${s.color}" stroke="#fff" stroke-width="1.5" data-tip="${attr(tipHtml)}"></rect>`;
       }
       const mid = i < STAGES.length - 1 ? (yTop + yBot) / 2 : yBot - 4 - SQ / 2;
       p += `<text class="c2-funnel-lab" x="${gut - 4}" y="${mid - 3}" text-anchor="end">${esc(s.label)}</text>`;
@@ -1019,7 +1125,7 @@ export function renderDashboard(doc, model, state = {}) {
     p += '</svg>';
     const rows = f.byDisc.map(r => `<tr><td>${esc(r.discipline)}</td><td>${r.planned}</td><td>${r.submitted}</td><td>${r.inReview}</td><td>${r.awc}</td><td>${r.approved}</td></tr>`).join('');
     const table = `<table class="c2-ftab"><thead><tr><th>Discipline</th><th>Planned Deliverables</th><th>Submitted for Review</th><th>Under Review</th><th>AWC</th><th>Approved</th></tr></thead><tbody>${rows}<tr class="tot"><td>Total</td><td>${f.planned}</td><td>${f.submitted}</td><td>${f.inReview}</td><td>${f.awc}</td><td>${f.approved}</td></tr></tbody></table>`;
-    return `<div class="c2-stack"><div class="c2-funnel-row"><div class="c2-ftab-wrap">${table}</div><div class="c2-funnel-wrap">${p}</div></div></div>`;
+    return `<div class="c2-stack"><div class="c2-funnel-row"><div class="c2-ftab-wrap">${table}</div><div class="c2-funnel-wrap">${p}</div></div><div class="chart-tip"></div></div>`;
   };
   const submissionFlow = (c2, st) => {
     const view = st.c2View || 'stacked';
@@ -1029,7 +1135,7 @@ export function renderDashboard(doc, model, state = {}) {
   const overview = (state) => {
     const k = view.kpis;
     const statusData = Object.entries(view.active.reduce((map, row) => { map[row.submissionStatus || 'Blank'] = (map[row.submissionStatus || 'Blank'] || 0) + 1; return map; }, {})).map(([status, count]) => ({ status, count }));
-    return `${activePanel('KPI OVERVIEW', `<div class="kpi-grid">${card('Documents Logged', k.totalSubmissions)}<article class="kpi-card" data-tip="${attr(kpiTipHtml('Documents Submitted / In Plan'))}"><div class="v">${k.submitted} / <span data-kpi="totalPlanned">${k.totalPlanned}</span></div><div class="l">Documents Submitted / In Plan</div></article>${card('Under Review (SUR)', k.underReview, 'amb')}${card('Approved (APP + AWC)', k.approved, 'ok')}${card('On-Time Return Rate', `${(k.onTimeRate * 100).toFixed(1)}%`, k.onTimeRate >= 1 ? 'ok' : 'amb')}${card('Average Review Delay', `${k.averageDelay.toFixed(1)} days`, k.averageDelay > 0 ? 'warn' : 'ok')}</div>`)}
+    return `${activePanel('KPI OVERVIEW', `<div class="kpi-grid">${card('Documents Logged', k.totalSubmissions)}<article class="kpi-card" data-tip="${attr(kpiTipHtml('Documents Submitted / In Plan'))}"><div class="v">${k.submitted} / <span data-kpi="totalPlanned">${k.totalPlanned}</span></div><div class="l">Documents Submitted / In Plan</div><div class="chart-tip" role="tooltip"></div></article>${card('Under Review (SUR)', k.underReview, 'amb')}${card('Approved (APP + AWC)', k.approved, 'ok')}${card('On-Time Return Rate', `${(k.onTimeRate * 100).toFixed(1)}%`, k.onTimeRate >= 1 ? 'ok' : 'amb')}${card('Average Review Delay', `${k.averageDelay.toFixed(1)} days`, k.averageDelay > 0 ? 'warn' : 'ok')}</div>`)}
       <div class="panel-grid">${activePanel('C1 Schedule Performance', schedulePerformance(view.c1, state), true)}${activePanel('C2 Submission Flow & Delay', submissionFlow(view.c2, state), true)}${activePanel('C3 Breakdown', breakdown(view.c3, state))}</div>`;
   };
   // D41 — Submittals panel: one row per document (grouped by Document No.), with a toggleable,
@@ -1037,11 +1143,17 @@ export function renderDashboard(doc, model, state = {}) {
   // detail (incl. Prolog / Transmittal No.) expands on toggle. Title reads from the MDL planned row,
   // falling back to the submission's prolog subject when MDL has none.
   const submissions = () => {
-    const docs = view.documents || [];
+    const allDocs = view.documents || [];
     const plannedById = new Map(model.planned.map(p => [p.id, p]));
     const planOf = row => plannedById.get(row.linkedPlannedId);
     const titleFor = group => { const plan = planOf(group[0]); return plan?.title || group[0].fields['Document Title'] || '—'; };
     const discFor = group => { const plan = planOf(group[0]); return plan?.discipline || group[0].discipline || 'Unknown'; };
+    // I107 — month filter: list months that have at least one submission, then keep only documents with a
+    // submission in the selected month (default "ALL" = every month). The expanded history is limited to that month.
+    const monthOf = r => String(r.submissionDate || '').slice(0, 7);
+    const subMonth = state.subMonth || 'ALL';
+    const months = [...new Set(allDocs.flatMap(g => g.map(monthOf).filter(Boolean)))].sort();
+    const docs = subMonth === 'ALL' ? allDocs : allDocs.filter(g => g.some(r => monthOf(r) === subMonth));
     const headers = ['', 'Document No.', 'Document Title', 'Discipline', 'Submissions', 'Current Submission Status', 'Current Approval Status'];
     // Column-visibility control (spec §7.1 B7): own .cc-btn class, floating .column-chooser, no filter badge.
     const chosen = Array.isArray(state.columnSets?.subdoc) ? new Set(state.columnSets.subdoc) : new Set(headers.map((_, i) => i));
@@ -1061,10 +1173,14 @@ export function renderDashboard(doc, model, state = {}) {
         default: return '';
       }
     };
+    // I107 — when a month is selected, the expanded history shows only that month's submission(s), ordered by date.
+    const histFor = group => (subMonth === 'ALL' ? group : group.filter(r => monthOf(r) === subMonth))
+      .slice().sort((a, b) => (a.submissionDate || '').localeCompare(b.submissionDate || ''));
     const bodyRows = docs.map(group => {
       const docNo = group[0].documentNo || '';
       const cells = indexes.map(i => `<td${cellAttrs(i)}>${cellHtml(group, i)}</td>`).join('');
-      const inner = group.map((r, i) => `<tr><td>${i + 1}</td><td>${esc(r.fields['Prolog No.'] || '—')}</td><td>${esc(r.submissionDate || '—')}</td><td>${esc(r.actualReturnDate || '—')}</td><td>${esc(r.submissionStatus || '—')}</td><td>${esc(r.approvalStatus || '—')}</td></tr>`).join('');
+      const hist = histFor(group);
+      const inner = hist.map((r, i) => `<tr><td>${i + 1}</td><td>${esc(r.fields['Prolog No.'] || '—')}</td><td>${esc(r.submissionDate || '—')}</td><td>${esc(r.actualReturnDate || '—')}</td><td>${esc(r.submissionStatus || '—')}</td><td>${esc(r.approvalStatus || '—')}</td></tr>`).join('');
       const innerTable = `<table class="ds-table hist-table"><tbody><tr class="hist-head"><th>#</th><th>Prolog / Transmittal No.</th><th>Submission Date</th><th>Return Date</th><th>Submission Status</th><th>Approval Status</th></tr>${inner}</tbody></table>`;
       const detail = `<tr class="sub" id="subd-${esc(docNo)}" data-doc="${esc(docNo)}" hidden><td colspan="${indexes.length}"><div class="sub-inner">${innerTable}</div></td></tr>`;
       return `<tr class="expandable" data-doc="${esc(docNo)}" tabindex="0">${cells}</tr>${detail}`;
@@ -1074,10 +1190,21 @@ export function renderDashboard(doc, model, state = {}) {
     const headFrag = `<div class="vheadwrap"><table class="ds-table vheadtab" data-table-key="subdoc" data-column-count="${headers.length}"><colgroup>${colgroup}<col class="ds-gut"></colgroup><thead><tr>${heads}<th class="ds-gut" scope="col" aria-hidden="true"></th></tr></thead></table></div>`;
     const chooserOpen = state.openChooser === 'subdoc';
     const chooser = columnChooser('subdoc', headers, chosen, chooserOpen);
-    const controls = `<div class="table-tools"><span class="summary">${docs.length} documents</span><button class="csv-btn btn-secondary" data-export="submittals">⤓ CSV</button><button class="cc-btn btn-secondary" id="ccBtn_subdoc" aria-controls="ccPanel_subdoc" aria-haspopup="true" aria-expanded="${chooserOpen}">Columns</button>${chooser}</div>`;
+    // I107 — cumulative "total as-of month" summary: submissions from project start through the selected month.
+    const projYm = String(model.meta.projectStartDate || '').slice(0, 7);
+    const allSubs = allDocs.flatMap(g => g);
+    const cum = subMonth === 'ALL'
+      ? allSubs.length
+      : allSubs.filter(r => { const ym = monthOf(r); return (!projYm || ym >= projYm) && ym <= subMonth; }).length;
+    const monthSel = `<label class="sub-month-lbl">Month</label><select class="sub-month" data-submonth>${['ALL', ...months].map(m => `<option value="${esc(m)}"${m === subMonth ? ' selected' : ''}>${m === 'ALL' ? 'All months' : esc(fmtMonth(m))}</option>`).join('')}</select>`;
+    const cumLabel = `Total as-of ${subMonth === 'ALL' ? 'all months' : esc(fmtMonth(subMonth))}: ${cum}`;
+    // I108 — panel summary on its own line, above the control row (spec §4: subtitle optional).
+    const summary = `<div class="panel-summary"><span class="summary">${docs.length} documents</span><span class="summary">${cumLabel}</span></div>`;
+    const controls = `<div class="table-tools">${monthSel}<button class="csv-btn btn-secondary" data-export="submittals">⤓ CSV</button><button class="cc-btn btn-secondary" id="ccBtn_subdoc" aria-controls="ccPanel_subdoc" aria-haspopup="true" aria-expanded="${chooserOpen}">Columns</button>${chooser}</div>`;
     const body = docs.length ? `<tbody>${bodyRows}</tbody>` : `<tbody><tr><td class="empty" colspan="${indexes.length}">No documents match the current selection.</td></tr></tbody>`;
     const tableHtml = `<div class="c-card">${controls}<div class="ds-split splitcard">${headFrag}<div class="tableScroll"><table class="ds-table" data-table-key="subdoc" data-column-count="${headers.length}">${colgroup}${body}</table></div></div></div>`;
-    return activePanel('Submittals', tableHtml, true);
+    // I109 — subtitle sits in the panel body before the .c-card, aligned to the content edge (matches Forward/Overdue .note).
+    return activePanel('Submittals', `${summary}${tableHtml}`, true);
   };
   const validation = () => {
     const counts = new Map();
@@ -1087,8 +1214,12 @@ export function renderDashboard(doc, model, state = {}) {
     const err = view.issues.filter(x => String(x.severity).toLowerCase() === 'error').length;
     const warn = view.issues.filter(x => String(x.severity).toLowerCase() === 'warning').length;
     const info = view.issues.filter(x => String(x.severity).toLowerCase() === 'info').length;
-    const meta = `${model.contract.mdlFields.length.toLocaleString()} MDL fields · ${model.contract.logHeaders.length.toLocaleString()} log headers · ${model.contract.errorRules.length} rules loaded · rule text from workbook Code sheet`;
+    // I026 — a blank MDL Document No. is reported by MDL (decision D33), so the sub Validation page
+    // no longer raises V-01 for it. The line keeps the reason visible on the page.
+    const meta = `${model.contract.mdlFields.length.toLocaleString()} MDL fields · ${model.contract.logHeaders.length.toLocaleString()} log headers · ${model.contract.errorRules.length} rules loaded · rule text from workbook Code sheet · a blank MDL Document No. is reported by MDL (D33), not here`;
+    // I110 — meta line is a .note subtitle directly under the title, above the v-summary row (spec §4 subtitle standard).
     return activePanel('Validation', `
+      <p class="note">${meta}</p>
       <div class="v-summary">
         <span class="v-count" data-validation-count>${issueRows.length.toLocaleString()} issues</span>
         <div class="summary-chips">
@@ -1096,7 +1227,6 @@ export function renderDashboard(doc, model, state = {}) {
           <span class="vchip w">Warning ${warn}</span>
           <span class="vchip i">Info ${info}</span>
         </div>
-        <span class="v-meta">${meta}</span>
       </div>
       <div class="c-card v-section">
         ${table(['Severity', 'Code', 'Group', 'Description', 'Count'], rules, null, null, { widths: [110, 90, 130, 420, 70], title: 'Rules' })}
@@ -1207,7 +1337,12 @@ export function renderDashboard(doc, model, state = {}) {
     const ld = view.kpis.longDue;
     const openSur = view.active.filter(r => r.submissionStatus === 'SUR' && !r.actualReturnDate).length;
     const bk = [['<30 d', ld.lt30], ['30–60 d', ld.b30_60], ['60–90 d', ld.b60_90], ['>90 d', ld.gt90]];
-    const c4BucketsHtml = barChart(bk.map(([label, value]) => ({ label, value })), 'label', 'value')
+    // I103 follow-up — the buckets bars carried no hover detail at all (the fixed Tier 6 switch
+    // sweep surfaced it as an advisory). Each row gets a §4.6 window: header = bucket, body row =
+    // swatch · count, footer = share of overdue.
+    const overdue = ld.total || 0;
+    const c4BucketsHtml = barChart(bk.map(([label, value]) => ({ label, value, pct: overdue ? Math.round(100 * value / overdue) : 0 })), 'label', 'value',
+      item => `<b>${esc(item.label)}</b><div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c4-bucket"></span>Open SUR past target</span><b>${item.value}</b></div><div class="chart-tip-foot"><span>Share of overdue</span><b>${item.pct}%</b></div>`)
       + `<p class="note">Open SUR (submitted, not yet returned) split by days past each record's Target Return Date. Total open SUR = ${openSur}; of those, ${ld.total} are past target (overdue).</p>`;
     const c4ScatterHtml = c4ScatterSvg(view.c4Scatter)
       + '<div class="legend"><span><i style="background:var(--blue)"></i>Returned / on-time submission</span><span><i style="background:var(--red)"></i>Open &amp; past target (overdue)</span></div>';
@@ -1296,20 +1431,32 @@ export function renderDashboard(doc, model, state = {}) {
     root.addEventListener('blur', hide);
     if (focusable) root.addEventListener('focus', () => {
       if (nearest) { const r = root.getBoundingClientRect(); onMove({ clientX: r.left + root.offsetWidth / 2, clientY: r.top + root.offsetHeight / 2, target: svg || root }); }
-      else { const el = root.querySelector('[data-tip]'); activeEl = el; show(el ? el.getAttribute('data-tip') : null); place(); }
+      else {
+        // A KPI card carries `data-tip` on the root itself, not on a descendant, so the focus path
+        // must fall back to the root or keyboard focus would open nothing.
+        const el = root.querySelector('[data-tip]') || (root.hasAttribute('data-tip') ? root : null);
+        activeEl = el; show(el ? el.getAttribute('data-tip') : null); place();
+      }
     });
     for (let i = _chartTipBindings.length - 1; i >= 0; i--) if (!document.contains(_chartTipBindings[i].root)) _chartTipBindings.splice(i, 1);
     _chartTipBindings.push({ root, tip, hide });
   };
-  // C1 — hover snap line + floating window (nearest-datum mode)
+  // C1 — hover snap line + floating window (nearest-datum mode). I102: the body is the §4.6
+  // swatch · label · value rows and the footer carries the owner's A+B summary; the chart-level
+  // facts (real vs projected forecast, visible series) ride on data-c1meta.
   const scRoot = typeof root.querySelector === 'function' ? root.querySelector('.scurve') : null;
-  if (scRoot) bindChartHover(scRoot, {
-    pointsAttr: 'data-points', geoAttr: 'data-geo',
-    render: p => `<b>${p.label}</b><br>Plan ${p.pNew} · Σ ${p.pCum}<br>Forecast Σ ${p.fCum}<br>Actual First ${p.aFNew} · Σ ${p.aFCum}<br>Actual Resub ${p.aRNew} · Σ ${p.aRCum}`
-  });
-  // C2 — hover floating window (nearest-datum for Stacked; element mode for Delay/other)
+  if (scRoot) {
+    let c1meta = {};
+    try { c1meta = JSON.parse((scRoot.getAttribute('data-c1meta') || '{}').replace(/&#39;/g, "'")); } catch (_) {}
+    bindChartHover(scRoot, { pointsAttr: 'data-points', geoAttr: 'data-geo', render: p => c1TipHtml(p, c1meta) });
+  }
+  // C2 — hover floating window. The Stacked view is nearest-datum over its own payload; the Delay
+  // view (I103) is nearest-datum over data-points — element mode had left its window reachable only
+  // on the 3 px dots, a dead zone everywhere else. The Funnel view is element mode (per-stage
+  // data-tip, I104).
   const c2Root = typeof root.querySelector === 'function' ? root.querySelector('.c2-stack') : null;
-  if (c2Root) bindChartHover(c2Root, {
+  if (c2Root && c2Root.hasAttribute('data-points')) bindChartHover(c2Root, { render: c2DelayTipHtml });
+  else if (c2Root) bindChartHover(c2Root, {
     pointsAttr: 'data-c2points', geoAttr: 'data-c2geo',
     render: p => `<b>${esc(p.label)}</b>` + p.series.map(s => `<div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch" style="background:${c2Color(s.code)}"></span>${esc(s.code)}</span><b>${s.value}</b></div>`).join('') + `<div class="chart-tip-foot">Total <b>${p.total}</b></div>`
   });
@@ -1362,4 +1509,43 @@ export function renderDashboard(doc, model, state = {}) {
     }, { passive: true });
   }
   return view;
+}
+
+/**
+ * I107 — Build the Submittals CSV with dynamic per-submission column groups.
+ * Base columns stay; then N groups of five columns (one per submission, ordered by
+ * Submission Date), where N is the highest submission count among the exported documents.
+ * When `subMonth` is set, only documents with a submission in that month are exported and
+ * the history is limited to that month's submission(s).
+ * @param {object} model @param {object} view @param {string} [subMonth='ALL']
+ * @returns {{cols: string[], rows: string[][]}}
+ */
+export function buildSubmittalsCsv(model, view, subMonth = 'ALL') {
+  const plannedById = new Map((model?.planned || []).map(p => [p.id, p]));
+  const planOf = row => plannedById.get(row.linkedPlannedId);
+  const titleFor = group => { const plan = planOf(group[0]); return plan?.title || group[0].fields['Document Title'] || ''; };
+  const discFor = group => { const plan = planOf(group[0]); return plan?.discipline || group[0].discipline || 'Unknown'; };
+  const monthOf = r => String(r.submissionDate || '').slice(0, 7);
+  const docs = view.documents || [];
+  const inMonth = g => subMonth === 'ALL' ? g : g.filter(r => monthOf(r) === subMonth);
+  const sorted = g => [...inMonth(g)].sort((a, b) => (a.submissionDate || '').localeCompare(b.submissionDate || ''));
+  const filtered = subMonth === 'ALL' ? docs : docs.filter(g => g.some(r => monthOf(r) === subMonth));
+  const maxSubs = filtered.reduce((m, g) => Math.max(m, sorted(g).length), 0);
+  const base = ['Document No.', 'Document Title', 'Discipline', 'Submissions', 'Current Submission Status', 'Current Approval Status'];
+  const groupCols = [];
+  for (let n = 1; n <= maxSubs; n++)
+    groupCols.push(`Sub ${n} Prolog / Transmittal No.`, `Sub ${n} Submission Date`, `Sub ${n} Return Date`, `Sub ${n} Submission Status`, `Sub ${n} Approval Status`);
+  const cols = [...base, ...groupCols];
+  const rows = filtered.map(group => {
+    const subs = sorted(group);
+    const latest = subs[subs.length - 1];
+    const cells = [group[0].documentNo || '', titleFor(group), discFor(group), String(subs.length), latest?.submissionStatus || '', latest?.approvalStatus || ''];
+    for (let n = 0; n < maxSubs; n++) {
+      const r = subs[n];
+      if (r) cells.push(r.fields['Prolog No.'] || '', r.submissionDate || '', r.actualReturnDate || '', r.submissionStatus || '', r.approvalStatus || '');
+      else cells.push('', '', '', '', '');
+    }
+    return cells;
+  });
+  return { cols, rows };
 }

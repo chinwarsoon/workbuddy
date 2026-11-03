@@ -1,3 +1,7 @@
+/* Revision 2.7 | 2026-11-03 | CodeBuddy (AI) | I103 — the C2 Delay series is tokenised (`--color-c2delay`, line + dot + swatch classes; §4.6 forbids a hard-coded swatch hex), and the C4 Age-buckets swatch class `.c4-bucket` follows the bar's `--blue`. */
+/* Revision 2.6 | 2026-11-03 | CodeBuddy (AI) | I102 — C1 hover window follows §4.6: tokenised `.chart-swatch.c1-*` classes for the four series, and Actual Resub leaves Actual First's hue for its own token `--color-actualresub` (the bar, line and dot rules follow it; §4.6 forbids two distinct series sharing a hue). */
+/* Revision 2.5 | 2026-11-02 | CodeBuddy (AI) | I099 — added the .c3-no colour pair (arc, swatch) for the "No Outcome" donut segment: neutral grey, because a missing outcome is a gap in the data, not an approval state. */
+/* Revision 2.4 | 2026-11-02 | CodeBuddy (AI) | I020 — every dark theme now sets --line and --soft, so .icon-btn borders and soft surfaces are visible in dark, sky, ocean and presentation. */
 /* Revision 2.3 | 2026-10-25 | CodeBuddy (AI) | C3 Breakdown: submission and approval colour tokens, the chart-component board, bar/arc classes and the summary-table spacing. */
 /* Revision 2.2 | 2026-10-24 | CodeBuddy (AI) | Option B shell: MDL two-row header + navy left nav sidebar; light default. */
 :root{
@@ -5,7 +9,7 @@
   --navy:#15314f; --blue:#2b6cf6; --green:#17a67a; --amber:#F9A825; --red:#d23b3b; --slate:#64748B;
   --bg:#eef2f8; --surface:#FFFFFF; --surface2:#F1F5F9; --surface3:#E8EDF3;
   --border:#D9E1E8; --text:#1F2A37; --text2:#526171; --text3:#6b7785;
-  --accent:#2b6cf6; --accent-alt:#17a67a; --success:#17a67a; --warning:#F9A825; --danger:#d23b3b; --info:#2b6cf6;
+  --accent:#2b6cf6; --accent-alt:#17a67a; --success:#17a67a; --warning:#F9A825; --danger:#d23b3b; --info:#2b6cf6; --danger-bg:#fde2e2; --warning-bg:#fff3cd; --warning-ink:#8a6d00;
   --tag-bg:#EAF2FB; --tag-border:#CBDDEF; --row-stripe:#F7F9FB; --row-hover:#EAF2FB; --th-bg:#E8EDF3; --th-hover:#DAE3ED;
   --shadow:0 1px 2px rgba(16,32,64,.04),0 8px 24px rgba(16,32,64,.05);
   /* §3.2 — the left panel is sized to its menu titles: the widest, "Forward and Overdue", is ≈135 px at
@@ -21,7 +25,10 @@
   --bg:#0f1722; --surface:#16202e; --surface2:#1d2a3b; --surface3:#243446;
   --border:#2c3c52; --text:#e6edf5; --text2:#aebccd; --text3:#7e8ea2;
   --muted:#aebccd;
-  --accent:#2b6cf6; --accent-alt:#17a67a; --success:#17a67a; --warning:#F9A825; --danger:#d23b3b; --info:#2b6cf6;
+  /* I020 — --line and --soft were declared in :root only, so .icon-btn and every soft surface kept
+     the light-theme colour in the dark themes. Each theme now sets its own. */
+  --line:#2c3c52; --soft:#1d2a3b;
+  --accent:#2b6cf6; --accent-alt:#17a67a; --success:#17a67a; --warning:#F9A825; --danger:#d23b3b; --info:#2b6cf6; --danger-bg:#3a1f24; --warning-bg:#3a3119; --warning-ink:#f0bd52;
   --tag-bg:#1d2a3b; --tag-border:#34507a; --row-stripe:#121b27; --row-hover:#1d2a3b; --th-bg:#1b2838; --th-hover:#243648;
   --shadow:0 1px 2px rgba(15,45,82,.18);
 }
@@ -29,8 +36,8 @@
   color-scheme:dark;
   --bg:#0b1a2e; --surface:#10233b; --surface2:#172e4b; --surface3:#203b5b;
   --border:#2b4968; --text:#ecf5ff; --text2:#bfd0e2; --text3:#91a8bf;
-  --muted:#bfd0e2;
-  --accent:#69b7ff; --accent-alt:#74d2d0; --success:#4fc58b; --warning:#f0bd52; --danger:#ff8278; --info:#69b7ff;
+  --muted:#bfd0e2; --line:#2b4968; --soft:#172e4b;
+  --accent:#69b7ff; --accent-alt:#74d2d0; --success:#4fc58b; --warning:#f0bd52; --danger:#ff8278; --info:#69b7ff; --danger-bg:#3a2228; --warning-bg:#3a3119; --warning-ink:#f0bd52;
   --tag-bg:#173858; --tag-border:#31597d; --row-stripe:#102037; --row-hover:#1b3858; --th-bg:#18324f; --th-hover:#244363;
   --shadow:0 1px 4px #0004;
 }
@@ -38,8 +45,8 @@
   color-scheme:dark;
   --bg:#0a1929; --surface:#10263a; --surface2:#17324a; --surface3:#20415d;
   --border:#2b4b65; --text:#e8f6f8; --text2:#b5cdd3; --text3:#88a9b3;
-  --muted:#b5cdd3;
-  --accent:#43c6c8; --accent-alt:#71a9f7; --success:#59c69b; --warning:#e4b958; --danger:#fb7e7e; --info:#43c6c8;
+  --muted:#b5cdd3; --line:#2b4b65; --soft:#17324a;
+  --accent:#43c6c8; --accent-alt:#71a9f7; --success:#59c69b; --warning:#e4b958; --danger:#fb7e7e; --info:#43c6c8; --danger-bg:#3a2222; --warning-bg:#3a3320; --warning-ink:#e4b958;
   --tag-bg:#14394a; --tag-border:#2c5966; --row-stripe:#0f2234; --row-hover:#19384e; --th-bg:#173349; --th-hover:#24465d;
   --shadow:0 1px 4px #0004;
 }
@@ -47,8 +54,8 @@
   color-scheme:dark;
   --bg:#0c0c0c; --surface:#171717; --surface2:#202020; --surface3:#2a2a2a;
   --border:#3a3a3a; --text:#ffffff; --text2:#d8d8d8; --text3:#9a9a9a;
-  --muted:#d8d8d8;
-  --accent:#55aaff; --accent-alt:#c69bff; --success:#55d68b; --warning:#ffd166; --danger:#ff6b6b; --info:#55aaff;
+  --muted:#d8d8d8; --line:#3a3a3a; --soft:#202020;
+  --accent:#55aaff; --accent-alt:#c69bff; --success:#55d68b; --warning:#ffd166; --danger:#ff6b6b; --info:#55aaff; --danger-bg:#3a1f1f; --warning-bg:#3a3320; --warning-ink:#ffd166;
   --tag-bg:#202020; --tag-border:#505050; --row-stripe:#141414; --row-hover:#252525; --th-bg:#202020; --th-hover:#303030;
   --shadow:0 1px 4px #0006;
 }
@@ -259,8 +266,8 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .note{color:var(--text2);font-size:13px;line-height:1.5;margin:6px 0}
 .summary-chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
 .vchip{font-size:11px;padding:3px 10px;border-radius:6px;font-weight:700;text-transform:capitalize;line-height:1.4}
-.vchip.e{background:#fde2e2;color:#a11}.vchip.w{background:#fff3cd;color:#8a6d00}.vchip.i{background:#eee;color:#555}
-.status-bar{flex:none;display:flex;align-items:center;gap:8px;background:var(--navy);color:#E8EDF3;font-size:12px;padding:6px 14px;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
+.vchip.e{background:var(--danger-bg);color:var(--danger)}.vchip.w{background:var(--warning-bg);color:var(--warning-ink)}.vchip.i{background:var(--tag-bg);color:var(--info)}
+.status-bar{flex:none;display:flex;align-items:center;gap:8px;background:var(--navy);color:var(--surface3);font-size:12px;padding:6px 14px;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
 .status-bar #status-right{margin-left:auto;opacity:.85}
 /* ===== Modals ===== */
 .modal{position:fixed;inset:0;background:rgba(15,45,82,.4);display:flex;align-items:center;justify-content:center;z-index:50}
@@ -279,6 +286,12 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 :root{
   /* Series colours — shared by bars and their cumulative lines so the hue is consistent. */
   --color-plan:#2b6cf6; --color-forecast:#F9A825; --color-actual:#17a67a;
+  /* I102 — Actual Resub is its own series, not a faded Actual First: §4.6 forbids shared hues, and
+     names Resubmission in the example. Magenta is unused by any other series token. */
+  --color-actualresub:#c026d3;
+  /* I103 — the C2 Delay line/dots keep their hue but become a token, so the hover-window swatch
+     can reference the on-chart series colour (§4.6: never a hard-coded hex). */
+  --color-c2delay:#ff8c42;
 }
 .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:6px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;line-height:1.2}
 .btn:hover{background:var(--surface2)}
@@ -301,6 +314,13 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .chart-tip.show{opacity:1}
 .chart-tip-foot{display:flex;justify-content:space-between;gap:12px;margin-top:4px;padding-top:4px;border-top:1px solid var(--border);font-weight:600}
 .chart-tip-k{color:var(--text2);font-weight:600}
+/* I102 — the C1 hover-window swatches. Tokens only, never a hard-coded hex (§4.6). */
+.chart-swatch.c1-plan{background:var(--color-plan)}
+.chart-swatch.c1-forecast{background:var(--color-forecast)}
+.chart-swatch.c1-actual{background:var(--color-actual)}
+.chart-swatch.c1-resub{background:var(--color-actualresub)}
+.chart-swatch.c2-delay{background:var(--color-c2delay)}
+.chart-swatch.c4-bucket{background:var(--blue)}
 .sc-board,.c2-stack,.c3-card,.c4-chart,.kpi-card{position:relative}
 .scurve.sc-board,.c2-stack,.c3-card,.c4-chart{cursor:crosshair}
 .kpi-card{cursor:help}
@@ -308,7 +328,7 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .sc-bar-plan{fill:var(--color-plan)}
 .sc-bar-forecast{fill:var(--color-forecast)}
 .sc-bar-actual{fill:var(--color-actual)}
-.sc-bar-actualresub{fill:var(--color-actual);fill-opacity:.45}
+.sc-bar-actualresub{fill:var(--color-actualresub)}
 .sc-board{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fff}
 .sc-ref-lbl{font-size:9px;font-weight:700}
 .sc-ref-lbl-start{fill:var(--danger)}
@@ -317,9 +337,9 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .sc-line-plan{stroke:var(--color-plan);stroke-width:2.5;fill:none;stroke-dasharray:6 3}
 .sc-line-forecast{stroke:var(--color-forecast);stroke-width:2.5;fill:none;stroke-dasharray:2 2}
 .sc-line-actual{stroke:var(--color-actual);stroke-width:2.5;fill:none}
-.sc-line-actualresub{stroke:var(--color-actual);stroke-width:2.5;fill:none;stroke-dasharray:3 3;opacity:.85}
+.sc-line-actualresub{stroke:var(--color-actualresub);stroke-width:2.5;fill:none;stroke-dasharray:3 3;opacity:.85}
 .sc-dot{stroke:none}
-.sc-dot-plan{fill:var(--color-plan)} .sc-dot-forecast{fill:var(--color-forecast)} .sc-dot-actual{fill:var(--color-actual)} .sc-dot-actualresub{fill:var(--color-actual)}
+.sc-dot-plan{fill:var(--color-plan)} .sc-dot-forecast{fill:var(--color-forecast)} .sc-dot-actual{fill:var(--color-actual)} .sc-dot-actualresub{fill:var(--color-actualresub)}
 .sc-grid{stroke:var(--border);stroke-width:1}
 .sc-axis{fill:var(--text2);font-size:10px}
 .sc-axis-title{font-weight:700}
@@ -356,6 +376,8 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .c3-rej{fill:var(--color-rej)} .c3-rej-arc{stroke:var(--color-rej)}
 .c3-inf{fill:var(--color-inf)} .c3-inf-arc{stroke:var(--color-inf)}
 .c3-ur{fill:var(--color-ur)} .c3-ur-arc{stroke:var(--color-ur)}
+/* I099 — "No Outcome" is a gap in the data, not an approval state, so it carries a neutral grey. */
+.c3-no{fill:var(--text3)} .c3-no-arc{stroke:var(--text3)}
 .c3-track-bg{fill:var(--border);fill-opacity:.18}
 .c3-axis{stroke:var(--border);stroke-width:1}
 /* ===== C3 two stacked-bar cards (Wave 4.2, Option 2) ===== */
@@ -386,6 +408,7 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .c3-swatch.c3-new{background:var(--color-new)}
 .c3-swatch.c3-resub{background:var(--color-resub)}
 .c3-swatch.c3-ur{background:var(--color-ur)}
+.c3-swatch.c3-no{background:var(--text3)}
 .c3-swatch.c3-app{background:var(--color-app)}
 .c3-swatch.c3-awc{background:var(--color-awc)}
 .c3-swatch.c3-nap{background:var(--color-nap)}
@@ -455,6 +478,9 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .c2-svg{display:block}
 .c2-stack{position:relative;min-width:0;overflow-x:auto}
 .c2-leg-t{fill:var(--text);font-size:11px}
+/* I103 — the C2 Delay series, tokenised so the line, the dots and the hover-window swatch agree. */
+.c2-delay-line{fill:none;stroke:var(--color-c2delay);stroke-width:2}
+.c2-delay-dot{fill:var(--color-c2delay)}
 .chart-tip-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .ct-l{display:flex;align-items:center;gap:6px}
 .chart-swatch{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle}
@@ -471,8 +497,12 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .c2-funnel-val{fill:var(--text);font-size:12px}
 /* D41 — Submittals panel: one row per document, consolidated toggleable history */
 .table-tools{position:relative;display:flex;align-items:center;gap:8px;margin:0 0 8px;flex-wrap:wrap}
-.table-tools .summary{font-size:12px;color:var(--text2)}
+/* D41/I108/I109 — Submittals panel: optional summary line above the control row (spec §4, matches Forward/Overdue .note) */
+.panel-summary{margin:6px 0;font-size:13px;line-height:1.5;color:var(--text2);display:flex;gap:12px;flex-wrap:wrap}
 .table-tools .csv-btn{margin-left:auto}
+/* I107 — Submittals month filter */
+.sub-month-lbl{font-size:11px;color:var(--text2);margin-left:4px}
+.sub-month{border:1px solid var(--border);border-radius:6px;padding:4px 6px;background:var(--surface);color:var(--text)}
 /* I073 — Forward and Overdue page controls + status pills */
 .fo-controls{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 8px;flex-wrap:wrap}
 .fo-controls .fo-right{margin:0}
@@ -485,7 +515,7 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 /* I072 — Validation panel layout: summary row, card-separated tables, title aligned with tools */
 .v-summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px}
 .v-summary .v-count{font-size:14px;font-weight:700;color:var(--navy)}
-.v-summary .v-meta{font-size:12px;color:var(--text2);margin-left:auto}
+/* I110 — the meta line is now a .note subtitle above .v-summary; the inline .v-meta rule is removed */
 .table-head{display:flex;justify-content:space-between;align-items:center;margin:0 0 8px}
 .table-head .tt{font-size:13px;margin:0;color:var(--navy);text-transform:uppercase;letter-spacing:.04em}
 /* §4 — when a card wraps a table, the table's own `.ds-split` border is the single external border;

@@ -1606,31 +1606,72 @@ async function lintHoverWindow(page, cfg) {
   // Generic host discovery: every bound window root carries aria-describedby → a role="tooltip" tip and
   // is focusable. This finds C1 (.scurve), C2 (.c2-stack), C3 (.c3-card), C4 (.c4-chart) and KPI
   // (.kpi-card) on every page — charts, KPI cards and any future board, with no hard-coded page list.
-  const gatherHosts = async (pageName) => page.evaluate(({ boards, pageName }) => {
+  const gatherHosts = async (pageName, viewLabel = '') => page.evaluate(({ boards, pageName, viewLabel }) => {
     const hosts = [...document.querySelectorAll('[aria-describedby]')].filter((board) => {
       const tip = document.getElementById(board.getAttribute('aria-describedby'));
       return tip && (tip.getAttribute('role') === 'tooltip' || (tip.className || '').includes('chart-tip'));
     });
     return hosts.map((board) => {
       const tipId = board.getAttribute('aria-describedby');
-      let cursor = 'crosshair', snap = false, ctL = false, name = 'hover host';
+      let cursor = 'crosshair', snap = false, ctL = false, nearest = false, name = 'hover host';
       const cls = board.className || '';
       if (cls.includes('kpi-card')) { cursor = 'help'; name = 'KPI card'; }
       for (const b of boards) {
         if (board.matches(b.selector) || board.closest(b.selector)) {
-          cursor = b.cursor; snap = !!b.snap; ctL = !!b.ctL; name = b.name; break;
+          cursor = b.cursor; ctL = !!b.ctL; name = b.name;
+          // `elementViews` names the switch states in which the board works in element mode
+          // (per-element data-tip), so the nearest-datum assertions do not apply there.
+          const elementView = (b.elementViews || []).includes(viewLabel);
+          snap = !!b.snap && !elementView;
+          nearest = !!b.nearest && !elementView;
+          break;
         }
       }
       if (board.closest('.c2-stack')) ctL = true; // guard C2 grouping wherever it appears
       const rect = board.getBoundingClientRect();
-      return { tipId, cursor, snap, ctL, name, pageName, visible: rect.width > 0 && rect.height > 0 };
+      // `nearestMode` = the board carries a points payload, so the binder snaps to the nearest
+      // datum. `nearest` (config) asserts a board that MUST work that way (§4.6 no dead zone).
+      return { tipId, cursor, snap, ctL, nearest,
+        nearestMode: ['data-points', 'data-c2points'].some(a => board.hasAttribute(a)),
+        name, pageName, visible: rect.width > 0 && rect.height > 0 };
     });
-  }, { boards: h.boards || [], pageName });
+  }, { boards: h.boards || [], pageName, viewLabel });
+
+  // §4.6 coverage — the discovery above finds hosts BY `aria-describedby`, and the binder sets that
+  // attribute only after it finds the window element. A board that never binds is therefore invisible
+  // to every check that follows: all six KPI cards carried `data-tip` but no `.chart-tip`, so no KPI
+  // window could open while Tier 6 still reported zero failures (I100). Count what the config says
+  // exists and require every one of those hosts to be bound.
+  const expectedHosts = [
+    ...(h.boards || []).map(board => ({ selector: board.selector, name: board.name })),
+    ...(h.kpi ? [{ selector: h.kpi.selector, name: h.kpi.name }] : []),
+  ];
+  const coveredMax = new Map();
+  const checkCoverage = async (pageName) => {
+    if (!expectedHosts.length) return;
+    const report = await page.evaluate(({ targets }) => targets.map(({ selector }) => {
+      const found = [...document.querySelectorAll(selector)];
+      const bound = found.filter((el) => {
+        const describedBy = el.getAttribute('aria-describedby');
+        if (!describedBy) return false;
+        const tip = document.getElementById(describedBy);
+        return !!tip && (tip.getAttribute('role') === 'tooltip' || (tip.className || '').includes('chart-tip'));
+      });
+      return { selector, found: found.length, bound: bound.length };
+    }), { targets: expectedHosts });
+    for (const row of report) {
+      if (!row.found) continue; // board is not on this view; presence is asserted after the sweep
+      const spec = expectedHosts.find(item => item.selector === row.selector);
+      coveredMax.set(row.selector, Math.max(coveredMax.get(row.selector) || 0, row.found));
+      ok(`${pageName} · ${spec.name}: every host carries a bound window (${row.bound} of ${row.found})`,
+        row.bound === row.found, `${row.found - row.bound} host(s) never received a window`);
+    }
+  };
 
   // Run the §4.6 assertions on one host (located by its tip id).
   const checkedTips = new Set();
   const checkHost = async (host) => {
-    const r = await page.evaluate(({ tipId, snap, ctL }) => {
+    const r = await page.evaluate(({ tipId, snap, ctL, nearest }) => {
       const sel = '[aria-describedby="' + (window.CSS ? CSS.escape(tipId) : tipId) + '"]';
       const board = document.querySelector(sel);
       const out = { absent: !board };
@@ -1668,8 +1709,22 @@ async function lintHoverWindow(page, cfg) {
         fire(board, 'pointerleave', 0, 0);
         out.hides = !tip.classList.contains('show');
       }
+      // §4.6 no dead zone (I103): a nearest-mode chart must reveal the window on a hover over EMPTY
+      // chart area, not only on a datum. The C2 Delay view shipped in element mode — its window was
+      // reachable only on the 3 px dots, invisible everywhere else. Dispatched on the SVG itself, so
+      // the coordinates decide (nearest mode) while the target stays the svg.
+      if (nearest) {
+        out.nearestMode = ['data-points', 'data-c2points'].some(a => board.hasAttribute(a));
+        const svgN = board.querySelector('svg');
+        if (svgN && tip) {
+          const rr = svgN.getBoundingClientRect();
+          fire(svgN, 'pointermove', rr.left + rr.width / 2, rr.top + rr.height / 2);
+          out.emptyHoverShows = tip.classList.contains('show') && (tip.innerHTML || '').trim().length > 0;
+          fire(board, 'pointerleave', 0, 0);
+        }
+      }
       return out;
-    }, { tipId: host.tipId, snap: host.snap, ctL: host.ctL });
+    }, { tipId: host.tipId, snap: host.snap, ctL: host.ctL, nearest: host.nearest });
     if (r.absent) return null;
     if (checkedTips.has(host.tipId)) return null; // avoid recounting the same window across pages/switches
     checkedTips.add(host.tipId);
@@ -1680,10 +1735,15 @@ async function lintHoverWindow(page, cfg) {
     ok(`${id}: host is focusable (tabindex)`, r.focusable);
     ok(`${id}: cursor affordance present (got ${r.cursor})`, r.cursorOk);
     if (host.snap) ok(`${id}: nearest chart exposes .chart-snap line`, r.snap);
+    if (host.nearest) {
+      ok(`${id}: nearest-datum payload present (§4.6 no dead zone)`, r.nearestMode);
+      ok(`${id}: hover on empty chart area reveals the window (§4.6)`, r.emptyHoverShows === true,
+        r.nearestMode ? 'the window did not open on empty chart area' : 'the board carries no points payload — element mode?');
+    }
     if (r.shown !== undefined) {
       ok(`${id}: window reveals on hover/tap`, r.shown);
       ok(`${id}: window has content`, r.hasContent);
-      if (host.ctL) ok(`${id}: C2 series row keeps .ct-l swatch+label group`, r.ctL);
+      if (host.ctL) ok(`${id}: series row keeps .ct-l swatch+label group (§4.6)`, r.ctL);
       if (r.hides !== undefined) ok(`${id}: window hides on pointer-leave`, r.hides);
     } else if (r.tipExists) {
       warn(`${id}: no hover trigger on this view (view may differ)`, false, 'could not reveal window');
@@ -1692,28 +1752,64 @@ async function lintHoverWindow(page, cfg) {
   };
 
   // In-page button switches (segmented controls, tabs, toggles). Action buttons (export/print/etc.)
-  // are skipped. After each click the view is re-scanned.
+  // are skipped. Targets are STABLE CSS PATHS, not element handles: one click repaints the page and
+  // detaches every collected handle, so the old single up-front collection left all switches after
+  // the first silently unclicked (I103 — the C2 Delay view was never verified). After each click the
+  // view is re-scanned, coverage included: a re-rendered board that loses its window must fail, not
+  // vanish (the funnel view shipped with no `.chart-tip` at all).
   const switchSelector = '.seg button, [role="tab"], button[aria-pressed], [data-view]';
+  const collectSwitches = () => page.evaluate((sel) => {
+    const path = (el) => {
+      const parts = [];
+      for (let n = el; n && n.nodeType === 1; n = n.parentElement) {
+        if (n.id) { parts.unshift('#' + n.id); return parts.join(' > '); }
+        if (n.tagName === 'BODY') { parts.unshift('body'); return parts.join(' > '); }
+        const same = [...n.parentElement.children].filter(c => c.tagName === n.tagName);
+        parts.unshift(`${n.tagName.toLowerCase()}:nth-of-type(${same.indexOf(n) + 1})`);
+      }
+      return parts.join(' > ');
+    };
+    const out = [];
+    for (const b of document.querySelectorAll(sel)) {
+      if (b.dataset.page) continue;
+      if (b.offsetParent === null) continue;
+      const sig = (b.className || '') + ' ' + (b.getAttribute('aria-label') || '') + ' ' + (b.textContent || '');
+      if (/export|print|file|open|reset|download|close|help|settings/i.test(sig)) continue;
+      // Each switch is tested IN ISOLATION from the page's default state, then restored: a seg
+      // button restores the sibling that was active at collection time, a standalone toggle
+      // (aria-pressed) restores by clicking itself again. Without the restore a view change
+      // sticks — clicking Funnel left the C2 board in element mode for the rest of the sweep.
+      const group = b.closest('.seg, [role="group"], [role="tablist"]');
+      const active = group ? group.querySelector('.active, [aria-selected="true"]') : null;
+      out.push({ css: path(b), restore: (active && active !== b) ? path(active) : path(b),
+        label: (b.textContent || '').trim() || b.getAttribute('aria-label') || 'switch' });
+    }
+    return out;
+  }, switchSelector);
 
   for (const p of pages) {
     console.log(`\n  Side-bar page: ${p.text || p.name}`);
     await visitPage(page, p.name);
+    await checkCoverage(p.name);
     const hosts = await gatherHosts(p.name);
     for (const ho of hosts) await checkHost(ho);
-    const switches = await page.$$(switchSelector);
-    for (const handle of switches) {
-      const safe = await handle.evaluate((b) => {
-        if (b.dataset.page) return false;
-        if (b.offsetParent === null) return false;
-        const sig = (b.className || '') + ' ' + (b.getAttribute('aria-label') || '') + ' ' + (b.textContent || '');
-        return !/export|print|file|open|reset|download|close|help|settings/i.test(sig);
-      }).catch(() => false);
-      if (!safe) continue;
-      await handle.click().catch(() => {});
+    const switches = await collectSwitches();
+    for (const sw of switches) {
+      await page.click(sw.css, { timeout: 2000 }).catch(() => {});
       await sleep(180);
-      const swHosts = await gatherHosts(`${p.name} (switch)`);
+      const label = `${p.name} · ${sw.label}`;
+      await checkCoverage(label);
+      const swHosts = await gatherHosts(label, sw.label);
       for (const ho of swHosts) await checkHost(ho);
+      await page.click(sw.restore, { timeout: 2000 }).catch(() => {});
+      await sleep(120);
     }
+  }
+  // A configured board that appears on no view would otherwise be silently unverifiable, exactly like
+  // a host that never binds: the sweep would simply report nothing about it.
+  for (const spec of expectedHosts) {
+    ok(`§4.6 coverage: "${spec.name}" (${spec.selector}) is present on at least one view`,
+      (coveredMax.get(spec.selector) || 0) > 0, 'the configured selector matched nothing on any page');
   }
 }
 

@@ -2,11 +2,11 @@
 // Revision 2.2 | 2026-10-24 | CodeBuddy (AI) | Option B shell (MDL two-row header + left nav sidebar). Engine contract unchanged; UI handlers rewired to menu bar + modals.
 import { readXlsx } from './xlsx-reader.js';
 import { buildModel, inspectWorkbook } from './pipeline.js';
-import { deriveView, renderDashboard, EXCLUDED_STAGES } from './render.js';
+import { deriveView, renderDashboard, EXCLUDED_STAGES, buildSubmittalsCsv } from './render.js';
 
 const $ = selector => document.querySelector(selector);
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
-const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', c2View: 'stacked', c2Nfs: true, foView: 'lookahead', foLane: 'all', foHorizon: 4, c4View: 'scatter', collapsedPanels: [] };
+const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', c2View: 'stacked', c2Nfs: true, foView: 'lookahead', foLane: 'all', foHorizon: 4, c4View: 'scatter', subMonth: 'ALL', collapsedPanels: [] };
 let contract;
 let uiHelp;
 let files = { mdl: null, log: null };
@@ -692,18 +692,8 @@ document.addEventListener('click', async event => {
   if (target.dataset.c4view) { state.c4View = target.dataset.c4view; paint(); }
   if (target.dataset.export) {
     const view = model ? deriveView(model, state) : null;
-    const docs = view?.documents || [];
-    const plannedById = new Map(model ? model.planned.map(p => [p.id, p]) : []);
-    const planOf = row => plannedById.get(row.linkedPlannedId);
-    const titleFor = group => { const plan = planOf(group[0]); return plan?.title || group[0].fields['Document Title'] || ''; };
-    const discFor = group => { const plan = planOf(group[0]); return plan?.discipline || group[0].discipline || 'Unknown'; };
-    const cols = ['Document No.', 'Document Title', 'Discipline', 'Submissions', 'Current Submission Status', 'Current Approval Status', 'Prolog / Transmittal No. (history)', 'Submission History'];
-    const rows = docs.map(group => {
-      const latest = group[group.length - 1];
-      const prolog = [...new Set(group.map(r => r.fields['Prolog No.']).filter(Boolean))].join('; ');
-      const hist = group.map(r => [r.fields['Prolog No.'] || '', r.submissionDate || '', r.actualReturnDate || '', r.submissionStatus || '', r.approvalStatus || ''].join(' ').trim()).join(' | ');
-      return [group[0].documentNo, titleFor(group), discFor(group), group.length, latest.submissionStatus, latest.approvalStatus, prolog, hist];
-    });
+    // I107 — dynamic per-submission columns; follows the Submittals month filter.
+    const { cols, rows } = buildSubmittalsCsv(model, view, state.subMonth || 'ALL');
     const text = [cols, ...rows].map(row => row.map(value => `"${String(value ?? '').replaceAll('"', '""')}"`).join(',')).join('\r\n');
     const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' })); link.download = 'submittals.csv'; link.click(); URL.revokeObjectURL(link.href);
   }
@@ -784,6 +774,7 @@ document.addEventListener('change', async event => {
     return;
   }
   if (event.target.hasAttribute('data-c3month')) { state.c3Month = event.target.value; paint(); return; }
+  if (event.target.hasAttribute('data-submonth')) { state.subMonth = event.target.value; paint(); return; }
   if (setting === 'theme') { state.theme = event.target.value; paint(); }
   if (setting === 'showWarnings') { state.showWarnings = event.target.checked; showWarnings(); }
   if (setting === 'rememberNames') { state.rememberNames = event.target.checked; localStorage.setItem('sub-dashboard-remember-names', String(state.rememberNames)); }

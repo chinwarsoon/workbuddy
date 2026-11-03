@@ -1,3 +1,5 @@
+// Revision 0.8 | 2026-11-02 | CodeBuddy (AI) | Owner instruction: no static workbook counts. The "133 submissions" assertion now derives the count from the active set.
+// Revision 0.7 | 2026-11-02 | CodeBuddy (AI) | Added an I046 regression test: the C3 Breakdown submitter view drops the Total Plan column and metric row and shows the reason, while the discipline view keeps it.
 // Revision 0.6 | 2026-10-26 | CodeBuddy (AI) | T15.3 (Wave 4.2): added a C3 two-side-by-side vertical-bar-chart test (Submissions + Approval Status, Under Review via D38) and dropped the now-invalid All-months percentages assertion from the bar-view test (percentages remain a pie-view detail).
 // Revision 0.5 | 2026-10-25 | CodeBuddy (AI) | Added two C3 summary-table tests: the shared `.ds-table` renders below the chart with all eight columns and a Total footer row, and Total Plan for All months covers every planned month rather than only the rows whose Planned 1st Issue Date is blank (a bug found by probing the rendered output).
 // Revision 0.4 | 2026-10-25 | CodeBuddy (AI) | Added C3 Breakdown tests (workplan D36). Corrected the
@@ -13,7 +15,18 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { readXlsx } from '../engine/xlsx-reader.js';
 import { buildModel } from '../engine/pipeline.js';
-import { deriveView, renderDashboard } from '../engine/render.js';
+import { c1TipHtml, c2DelayTipHtml, deriveView, renderDashboard, buildSubmittalsCsv } from '../engine/render.js';
+
+// The hover-window bindings in render.js bind to `window` and `document` (revision 0.62 series).
+// The harness supplies a fake `document` to renderDashboard but no `window`, so every rendering test
+// failed with "window is not defined". These stubs give the browser API the module expects; nothing
+// else reads them.
+globalThis.window = {
+  addEventListener() {}, removeEventListener() {},
+  matchMedia: () => ({ matches: false, addEventListener() {}, removeEventListener() {} }),
+  requestAnimationFrame: fn => fn(), innerWidth: 1440, innerHeight: 900
+};
+globalThis.document = { addEventListener() {}, removeEventListener() {} };
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const config = JSON.parse(fs.readFileSync(path.join(root, 'config/pipeline_contract.json'), 'utf8'));
@@ -26,8 +39,12 @@ const defaultPlanCount = model.planned.filter(row => row.documentNo && !['Delete
 test('derives all overview measures from one shared active set', () => {
   const view = deriveView(model);
   assert.equal(view.kpis.totalPlanned, defaultPlanCount);
-  assert.equal(view.kpis.totalSubmissions, 133);
-  assert.equal(view.active.length, 183);
+  // The workbook grows, so the count is derived from the active set, not remembered from a run.
+  assert.equal(view.kpis.totalSubmissions, new Set(view.active.map(row => String(row.documentNo || '').trim().toUpperCase())).size);
+  // The workbook grows, so this is a relationship, not a remembered count: the active set is a
+  // subset of the parsed log rows and it must not be empty.
+  assert.ok(view.active.length > 0, 'the active set holds rows');
+  assert.ok(view.active.length <= model.submissions.length, 'the active set is a subset of the parsed log rows');
   assert.equal(view.activePlans.length, defaultPlanCount);
   assert.equal(view.kpis.issueCount, model.issues.length);
 });
@@ -223,7 +240,11 @@ test('T15.3 (Wave 4.2): C3 splits into two side-by-side vertical-bar charts; All
   // A specific month keeps Under Review in the Submissions chart (D38).
   let monthHtml = '';
   const monthNode = { set innerHTML(value) { monthHtml = value; }, get innerHTML() { return monthHtml; } };
-  renderDashboard({ querySelector: s => s === '[data-page-content]' ? monthNode : null }, model, { page: 'Overview', c3Month: deriveView(model).c3.months[0] });
+  const c3v = deriveView(model);
+  // I106 widened c3.months to project start → as-of, so [0] may be a zero-submission month (empty card).
+  // Pick a month that actually has rows so the "Under Review appears" assertion has something to match.
+  const dataMonth = c3v.c3.months.find(m => c3v.c3.rows.some(r => r.month === m)) || c3v.c3.months[0];
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? monthNode : null }, model, { page: 'Overview', c3Month: dataMonth });
   assert.match(monthHtml, /Under Review/, 'a specific month shows Under Review in Submissions');
 });
 
@@ -238,6 +259,27 @@ test('renders the C3 Breakdown summary table below the chart', () => {
   for (const head of ['Total Plan', 'New Submissions', 'Resubmissions', 'Total Submitted', 'Total Approved', 'Total AWC', 'Total Under Review'])
     assert.match(html, new RegExp(head), `column ${head} is present`);
   assert.match(html, /<tfoot>/, 'a Total footer row is rendered');
+});
+
+// I046 — the Master Document List has no submitter column, so Total Plan can only reach the rows
+// linked to a submission. The submitter view drops the column instead of showing a number that
+// cannot grow, and a note states the reason. The discipline view keeps it.
+test('I046 — the C3 submitter view drops Total Plan and explains why', () => {
+  let submitterHtml = '';
+  const submitterNode = { set innerHTML(value) { submitterHtml = value; }, get innerHTML() { return submitterHtml; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? submitterNode : null }, model, { page: 'Overview', c3Dim: 'submitter' });
+  // The note is the only place the words can appear: it names the column it explains. One hit means
+  // the header, the metric row and every bar label are gone.
+  const submitterHits = (submitterHtml.match(/Total Plan/g) || []).length;
+  assert.equal(submitterHits, 1, 'the submitter view carries no Total Plan column or metric row');
+  assert.match(submitterHtml, /New Submissions/, 'the other columns stay');
+  assert.match(submitterHtml, /Master Document List has no submitter column/, 'the note states the reason');
+  assert.match(submitterHtml, /<tfoot>/, 'the Total footer row still renders');
+
+  let disciplineHtml = '';
+  const disciplineNode = { set innerHTML(value) { disciplineHtml = value; }, get innerHTML() { return disciplineHtml; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? disciplineNode : null }, model, { page: 'Overview', c3Dim: 'discipline' });
+  assert.match(disciplineHtml, /Total Plan/, 'the discipline view keeps Total Plan');
 });
 
 test('T15.5 (Wave 4.2): the C3 summary table sits below the charts at full width', () => {
@@ -358,6 +400,169 @@ test('T15.4 (Wave 4.2): Pie view shows two equal-total donuts (Submissions, Appr
   assert.doesNotMatch(monthHtml, /\(\d+%\)/, 'a single month shows counts only (no percentages)');
 });
 
+// I099 — a document that is neither open under review nor carrying an approval code used to vanish
+// from the Approval donut, so the two rings totalled different numbers. It now gets a "No Outcome"
+// segment, and the pipeline raises V-35 for the same condition.
+test('I099 — the Approval donut gives every document a segment, including "No Outcome"', () => {
+  let pieHtml = '';
+  const pieNode = { set innerHTML(value) { pieHtml = value; }, get innerHTML() { return pieHtml; } };
+  renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? pieNode : null }, model, { page: 'Overview', c3View: 'pie' });
+  const totals = [...pieHtml.matchAll(/class="c3-total"[^>]*>(\d+)</g)].map(m => +m[1]);
+  assert.equal(totals.length, 2, 'two donut totals render');
+  assert.equal(totals[0], totals[1], 'All-months: both donuts total the same distinct-document count');
+  // The donut counts a document once, for the disciplines the breakdown lists (c3Metrics + universe).
+  const universe = new Set([...model.planned.map(row => row.discipline).filter(Boolean), 'Unknown']);
+  const activeDocs = new Set(deriveView(model).active.filter(row => row.documentNo && universe.has(row.discipline)).map(row => String(row.documentNo).trim().toUpperCase()));
+  assert.equal(totals[0], activeDocs.size, 'the total is the distinct-document count');
+  const noOutcome = model.issues.filter(issue => issue.code === 'V-35').length;
+  const hasSegment = /c3-no-arc/.test(pieHtml);
+  assert.equal(hasSegment, noOutcome > 0, 'the No Outcome arc is drawn only when documents lack one');
+  if (noOutcome) assert.match(pieHtml, /No Outcome/, 'the legend names the segment');
+});
+
+// §4.6 — a KPI card must carry its window element INSIDE it. `bindChartHover` returns early when a
+// root has no `.chart-tip`, so a card carrying only `data-tip` showed the `help` cursor and no window
+// (owner report 2026-11-02: "only cursor is showing up"). Tier 6 could not catch it, because it
+// discovers hosts by `aria-describedby`, which the binder sets only after it finds the window.
+test('§4.6 — every KPI card carries its own hover window', () => {
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? node : null }, model, { page: 'Overview' });
+  const cards = html.match(/<article class="kpi-card[^>]*>[\s\S]*?<\/article>/g) || [];
+  assert.ok(cards.length >= 1, 'the Overview page renders KPI cards');
+  const noWindow = cards.filter(cardHtml => !/class="chart-tip"/.test(cardHtml));
+  assert.equal(noWindow.length, 0, `${noWindow.length} KPI card(s) render without a .chart-tip window`);
+  const noTip = cards.filter(cardHtml => !/data-tip="/.test(cardHtml));
+  assert.equal(noTip.length, 0, 'every KPI card carries data-tip');
+});
+
+// I102 — the C1 hover window follows §4.6: swatch · label · value rows, the forecast per-period
+// count (previously drawn as a bar but never passed to the window), and the owner's A+B footer
+// (actual cumulative total, % of plan, ahead/behind gap).
+test('I102 — C1 hover window carries swatch rows, the forecast count and the A+B footer', () => {
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Overview' });
+  const board = html.match(/<div class="scurve sc-board"[^>]*>/);
+  assert.ok(board, 'the C1 board renders');
+  const tag = board[0];
+  const c1 = deriveView(model).c1;
+  const dp = JSON.parse(tag.match(/data-points='([^']*)'/)[1].replace(/&#39;/g, "'"));
+  assert.ok(dp.length > 0, 'data-points parses');
+  for (const p of dp) assert.ok('fNew' in p, 'every point carries fNew');
+  // Month grain, default period = the whole timeline, so buckets line up 1:1 with c1.months.
+  assert.equal(dp.length, c1.months.length, 'default period covers every month');
+  const meta = JSON.parse(tag.match(/data-c1meta='([^']*)'/)[1].replace(/&#39;/g, "'"));
+  assert.equal(meta.fc, c1.hasMdlForecast, 'data-c1meta mirrors hasMdlForecast');
+  assert.equal(meta.vis.length, 4, 'all four series visible by default');
+  const last = dp[dp.length - 1];
+  const tip = c1TipHtml(last, meta);
+  assert.equal((tip.match(/chart-swatch /g) || []).length, 4, 'four swatch rows');
+  for (const s of ['Plan', 'Forecast', 'Actual First', 'Actual Resub']) assert.ok(tip.includes(`>${s}</span>`), `the ${s} row renders`);
+  assert.ok(tip.includes(`${last.fNew} · Σ ${last.fCum}`), 'the forecast row shows the per-period count');
+  assert.match(tip, /chart-tip-foot/);
+  assert.match(tip, /% of plan · \d+ (ahead|behind)/);
+  assert.ok(tip.includes(`Actual Σ ${(last.aFCum || 0) + (last.aRCum || 0)}`), 'the footer carries the actual cumulative total');
+  // No MDL forecast dates → the line is a plan × 1.04 projection: labelled, count is an em dash.
+  const projected = c1TipHtml({ label: '2026-10', pNew: 1, fNew: 0, aFNew: 0, aRNew: 0, pCum: 2, fCum: 2.08, aFCum: 1, aRCum: 0 }, { fc: false, vis: ['plan', 'forecast'] });
+  assert.match(projected, /Forecast \(projected\)/);
+  assert.ok(projected.includes('— · Σ 2.08'), 'the projected count is an em dash, never a misleading 0');
+  assert.ok(!projected.includes('Actual First'), 'a hidden series drops its row');
+  assert.match(projected, /50% of plan · 1 behind/, 'the footer math: 1 of 2, one behind');
+});
+
+// I103 — the C2 Delay view is nearest-datum (element mode left the window reachable only on the
+// 3 px dots — a dead zone everywhere else); the Funnel view binds (it returned no .chart-tip at
+// all, the I100 defect class); the C4 Age-buckets rows carry a hover window (they had none).
+test('I103 — C2 Delay is nearest-datum; Funnel and C4 buckets carry hover windows', () => {
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  const doc = { querySelector: s => s === '[data-page-content]' ? node : null };
+
+  renderDashboard(doc, model, { page: 'Overview', c2View: 'delay' });
+  const tag = (html.match(/<div class="c2-stack"[^>]*>/) || [])[0];
+  assert.ok(tag, 'the delay board renders');
+  assert.ok(/ data-points='/.test(tag), 'the delay board carries the nearest-datum payload');
+  const pts = JSON.parse(tag.match(/data-points='([^']*)'/)[1].replace(/&#39;/g, "'"));
+  assert.ok(pts.length > 0, 'points parse');
+  for (const p of pts) assert.ok('delay' in p && 'n' in p, 'every point carries delay and n');
+  assert.ok(html.includes('c2-delay-line') && html.includes('c2-delay-dot'), 'the tokenised delay series classes are used');
+  assert.ok(html.includes('class="chart-snap"'), 'the delay chart exposes a snap line');
+  const svgPart = html.slice(html.indexOf('<div class="c2-stack"'), html.indexOf('</svg>', html.indexOf('<div class="c2-stack"')));
+  assert.ok(!/<circle[^>]*data-tip=/.test(svgPart), 'no dot-only data-tip targets remain');
+  const tip = c2DelayTipHtml(pts[0]);
+  assert.ok(tip.includes('chart-swatch c2-delay') && tip.includes('Avg review delay'), 'the tip carries the §4.6 swatch row');
+  assert.match(tip, />\d+\.\d d</);
+  assert.ok(tip.includes('Docs in mean'), 'the tip carries the footer');
+
+  renderDashboard(doc, model, { page: 'Overview', c2View: 'funnel' });
+  assert.ok(/class="chart-tip"/.test(html), 'the funnel board has a window element');
+  const fBoard = html.slice(html.indexOf('c2-funnel'));
+  assert.ok(/data-tip="/.test(fBoard), 'funnel stages carry data-tip');
+  assert.ok(fBoard.includes('Share of planned'), 'the funnel tip carries the % footer');
+
+  renderDashboard(doc, model, { page: 'Analytical', c4View: 'buckets' });
+  const c4 = html.slice(html.indexOf('c4-chart'));
+  assert.ok(/bar-row[^>]*data-tip="/.test(c4), 'bucket rows carry data-tip');
+  assert.ok(c4.includes('Share of overdue'), 'the bucket tip carries the % footer');
+});
+
+// I105 — the C2 Stacked and Delay charts label their Start and Today reference lines. The lines
+// existed but carried no text; C1's S-curve labels them as `Start · <month>` / `Today · <month>`.
+test('I105 — C2 Stacked and Delay label the Start and Today reference lines', () => {
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  const doc = { querySelector: s => s === '[data-page-content]' ? node : null };
+  const svgOf = view => {
+    renderDashboard(doc, model, { page: 'Overview', c2View: view });
+    const start = html.indexOf('<svg class="c2-svg"');
+    return html.slice(start, html.indexOf('</svg>', start) + 6);
+  };
+  for (const view of ['stacked', 'delay']) {
+    const svg = svgOf(view);
+    assert.ok(svg.includes('sc-ref-lbl-start'), `${view}: the Start line is labelled`);
+    assert.ok(svg.includes('sc-ref-lbl-today'), `${view}: the Today line is labelled`);
+    assert.match(svg, /Start · \S/, `${view}: the Start label carries the month`);
+    assert.match(svg, /Today · \S/, `${view}: the Today label carries the month`);
+  }
+});
+
+// I106 — the C3 month filter must list every past month (project start → as-of), even months with
+// zero submissions. The old list came only from submission rows, so empty months were unselectable
+// and their Total Plan was invisible.
+test('I106 — C3 month filter lists all past months, including zero-submission months', () => {
+  const view = deriveView(model);
+  const startYm = String(model.meta.projectStartDate || '').slice(0, 7);
+  const asOfYm = String(model.meta.asOfDate || '').slice(0, 7);
+  const expected = [];
+  if (startYm && asOfYm) {
+    let [y, m] = startYm.split('-').map(Number);
+    const [ey, em] = asOfYm.split('-').map(Number);
+    while (y < ey || (y === ey && m <= em)) { expected.push(`${y}-${String(m).padStart(2, '0')}`); if (m === 12) { y++; m = 1; } else m++; }
+  }
+  assert.deepStrictEqual(view.c3.months, expected, 'c3.months must span project start → as-of, contiguously (zero-submission months included)');
+  // Every month in the span must be present and well-formed, even when no submission falls in it.
+  for (const m of view.c3.months) assert.match(m, /^\d{4}-\d{2}$/, `${m} is a YYYY-MM`);
+});
+
+// I106 — C3 hover windows follow §4.6: a swatch·label·value row per series (tokenised c3-* swatch)
+// plus a footer. `chart-swatch c3-swatch` is C3-specific, so its presence proves the §4.6 swatch.
+test('I106 — C3 hover windows follow §4.6 (swatch · label · value rows + footer)', () => {
+  const renderC3 = view => {
+    let html = '';
+    const node = { set innerHTML(v) { html = v; }, get innerHTML() { return html; } };
+    const doc = { querySelector: s => s === '[data-page-content]' ? node : null };
+    renderDashboard(doc, model, { page: 'Overview', c3View: view });
+    return html;
+  };
+  for (const view of ['bar', 'pie']) {
+    const html = renderC3(view);
+    assert.ok(html.includes('chart-swatch c3-swatch'), `${view}: C3 hover window uses the tokenised swatch`);
+    assert.ok(html.includes('ct-l'), `${view}: C3 hover window groups swatch+label in .ct-l`);
+    assert.ok(html.includes('chart-tip-foot'), `${view}: C3 hover window has a footer`);
+  }
+});
+
 test('D41: Submittals panel groups one row per document with a toggleable consolidated history', () => {
   let html = '';
   const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
@@ -379,10 +584,88 @@ test('D41: Submittals panel groups one row per document with a toggleable consol
   assert.match(html, /class="sub"/);
   assert.match(html, /class="sub-inner"/);
   assert.match(html, /Prolog \/ Transmittal No\./);
-  // One summary line only (no duplicate count text).
-  assert.equal((html.match(/class="summary"/g) || []).length, 1, 'exactly one summary line');
+  // Two summary lines now: documents count and the cumulative "total as-of" total (I107).
+  assert.equal((html.match(/class="summary"/g) || []).length, 2, 'documents count + cumulative total summary lines');
   // CSV is right-aligned via its own class; column visibility uses the B7 .cc-btn class.
   assert.match(html, /class="csv-btn/);
   assert.match(html, /class="cc-btn/);
   assert.doesNotMatch(html, /submission records/, 'no old per-record summary text');
+});
+
+// I107 — Submittals month filter + dynamic-column CSV export (study 2026-11-03).
+test('I107 — Submittals month filter limits the dashboard table to that month and shows a cumulative total', () => {
+  const view = deriveView(model);
+  const someMonth = [...new Set(view.documents.flatMap(g => g.map(r => String(r.submissionDate || '').slice(0, 7)).filter(Boolean)))].sort()[0];
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? rootNode : null }, model, { page: 'Submittals', subMonth: someMonth });
+  assert.match(html, /data-submonth/, 'the month filter control is present');
+  assert.match(html, new RegExp(`<option value="${someMonth}" selected>`), 'the selected month is marked');
+  assert.match(html, /Total as-of/, 'the cumulative total summary is shown');
+  const shown = [...html.matchAll(/data-doc="([^"]+)"/g)].map(m => m[1]);
+  const expected = new Set(view.documents.filter(g => g.some(r => String(r.submissionDate || '').slice(0, 7) === someMonth)).map(g => g[0].documentNo));
+  assert.deepStrictEqual(new Set(shown), expected, 'only documents with a submission in the month are listed');
+});
+
+test('I107 — Submittals CSV uses dynamic per-submission columns (N = max submissions)', () => {
+  const view = deriveView(model);
+  const { cols, rows } = buildSubmittalsCsv(model, view, 'ALL');
+  const maxSubs = Math.max(...view.documents.map(g => g.length));
+  assert.equal((cols.length - 6) / 5, maxSubs, 'N column groups = highest submission count per document');
+  assert.equal(cols[0], 'Document No.', 'base columns lead the CSV');
+  assert.equal(cols[cols.length - 1], `Sub ${maxSubs} Approval Status`, 'the last column is the final submission group approval status');
+  for (const row of rows) assert.equal(row.length, cols.length, 'every row matches the column count');
+  const short = rows.find(r => r.slice(6).filter(Boolean).length < maxSubs * 5);
+  assert.ok(short, 'at least one document has fewer than N submissions (blank padding present)');
+});
+
+test('I107 — Submittals CSV follows the month filter (only that month, dynamic columns)', () => {
+  const view = deriveView(model);
+  const someMonth = [...new Set(view.documents.flatMap(g => g.map(r => String(r.submissionDate || '').slice(0, 7)).filter(Boolean)))].sort()[0];
+  const { cols, rows } = buildSubmittalsCsv(model, view, someMonth);
+  const n = (cols.length - 6) / 5;
+  const expectedDocs = view.documents.filter(g => g.some(r => String(r.submissionDate || '').slice(0, 7) === someMonth));
+  assert.equal(rows.length, expectedDocs.length, 'only documents with a submission in the month are exported');
+  for (const row of rows) {
+    for (let i = 0; i < n; i++) {
+      const date = row[6 + i * 5 + 1]; // Submission Date cell of group i
+      if (date) assert.equal(String(date).slice(0, 7), someMonth, `exported submission date ${date} falls in the selected month`);
+    }
+  }
+});
+
+// I108 — panel summary sits below the title and above the control row (spec §4: subtitle optional).
+test('I108 — Submittals panel summary renders above the control row', () => {
+  const view = deriveView(model);
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? rootNode : null }, model, { page: 'Submittals', subMonth: 'ALL' });
+  assert.match(html, /class="panel-summary"/, 'the summary block is present');
+  const sumIdx = html.indexOf('class="panel-summary"');
+  const toolIdx = html.indexOf('class="table-tools"');
+  assert.ok(sumIdx > -1 && toolIdx > sumIdx, 'summary appears before the control row');
+  assert.doesNotMatch(html, /class="table-tools"><span class="summary"/, 'summary is not inline inside the control row');
+});
+
+// I109 — Submittals subtitle aligns with the Forward/Overdue panel (gap + edge alignment, spec §4).
+test('I109 — Submittals subtitle sits before the card at the content edge (matches .note)', () => {
+  const view = deriveView(model);
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? rootNode : null }, model, { page: 'Submittals', subMonth: 'ALL' });
+  const sumIdx = html.indexOf('class="panel-summary"');
+  const cardIdx = html.indexOf('<div class="c-card">');
+  assert.ok(sumIdx > -1 && cardIdx > sumIdx, 'summary appears before the .c-card (aligned to the content edge)');
+});
+
+// I110 — Validation panel: the small summary text (meta) moves up below the title, above the v-summary row (spec §4 subtitle standard).
+test('I110 — Validation meta line sits above the v-summary row', () => {
+  const view = deriveView(model);
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? rootNode : null }, model, { page: 'Validation' });
+  const noteIdx = html.indexOf('class="note"');
+  const sumIdx = html.indexOf('class="v-summary"');
+  assert.ok(noteIdx > -1 && sumIdx > noteIdx, 'the meta .note appears before the .v-summary row');
+  assert.doesNotMatch(html, /class="v-summary"[\s\S]*class="v-meta"/, 'the meta is no longer inside the .v-summary row');
 });

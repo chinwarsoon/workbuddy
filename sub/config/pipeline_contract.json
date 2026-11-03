@@ -1,8 +1,14 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "title": "Sub Dashboard Pipeline Contract",
   "description": "Required source fields and source sheet names for the Sub dashboard pipeline.",
   "revisionHistory": [
+    {
+      "revision": "0.3.0",
+      "date": "2026-11-02",
+      "author": "CodeBuddy (AI)",
+      "summary": "Added mdl.optionalFields with \"Actual 1st Issue Date\" (I027). An optional field is read only when the Code sheet maps it, so a workbook without the column still loads."
+    },
     {
       "revision": "0.2.0",
       "date": "2026-10-24",
@@ -60,6 +66,9 @@
       "Project Code",
       "Project Prefix",
       "Number"
+    ],
+    "optionalFields": [
+      "Actual 1st Issue Date"
     ]
   },
   "submittalLog": {

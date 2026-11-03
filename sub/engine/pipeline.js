@@ -1,3 +1,6 @@
+// Revision 0.4 | 2026-11-02 | CodeBuddy (AI) | Owner instruction (I099): a submission with no recorded outcome is a data-quality defect. New `V-35`, raised once per document on its latest submission row — the row the Approval donut reads — when the document carries no approval code and is not open under review (SUR with no return date). Outcome codes come from the Submittal Log Code sheet.
+// Revision 0.3 | 2026-11-02 | CodeBuddy (AI) | Owner instruction: `W-CODE-MISSING` reports every validation code the dashboard raises that the Code sheets do not define (or define with empty Rule text), naming each code so the owner can add it.
+// Revision 0.2 | 2026-11-02 | CodeBuddy (AI) | I026 — the MDL `V-01` (blank Document No.) is no longer raised; D33 gives it to MDL, and the Submittal Log keeps its own `V-01`. I027 / I028 — new `V-34` (data quality): a planned row carries an `Actual 1st Issue Date` while the Submittal Log holds no row for that document, plus the aggregated warning `W-MDL-LOG-MISMATCH`. I029 — the reader records formula cells, `codeIssue` marks a cached value, and `W-CACHED-VALUE` reports one warning per source.
 // Revision 0.1 | 2026-10-24 | Codex | Added the Sub dashboard S2/S3 pipeline.
 // Source fields and required columns are defined in config/pipeline_contract.json.
 
@@ -217,7 +220,14 @@ function readMdlContract(workbook, config) {
     approval: readCodeTable(codeSheet, 'Approval Code', 'Approval Status', sourceName)
   };
   const errors = readErrorCatalog(codeSheet, sourceName);
-  return { codeSheet, fields, metadata, disciplines, statusDomains, errors };
+  // I027 — optional fields are read only when the Code sheet maps them. A required field that the
+  // Code sheet does not map raises a fatal PipelineError, so a workbook without the column must not
+  // be forced to carry it: V-34 then stays silent instead of breaking the load.
+  const optionalFields = new Map();
+  for (const name of config.mdl.optionalFields || []) {
+    if (fields.has(name)) optionalFields.set(name, fields.get(name));
+  }
+  return { codeSheet, fields, optionalFields, metadata, disciplines, statusDomains, errors };
 }
 
 /** Read Submittal Log columns, domains, and rule definitions. @param {object} workbook @param {object} config @returns {object} */
@@ -293,9 +303,26 @@ function normalizeValue(raw, type, counts, sourceName, field) {
   return typeof raw === 'string' ? raw.trim() : raw;
 }
 
+/** Collect the fields of one row whose cell holds a formula, so the value can be marked as cached (I029).
+ * @param {object} sheet @param {number} rowNumber @param {Map} mappings @returns {Set|null} */
+function cachedFieldsFor(sheet, rowNumber, mappings) {
+  const refs = sheet?.formulaRefs;
+  if (!refs || !refs.size) return null;
+  const cached = new Set();
+  for (const [field, mapping] of mappings) {
+    if (refs.has(`${columnName(mapping.column)}${rowNumber}`)) cached.add(field);
+  }
+  return cached.size ? cached : null;
+}
+
 /** Build a row-level issue using the workbook's rule text and severity. @param {string} code @param {object} record @param {Map} catalog @param {object} details @returns {object} */
 function codeIssue(code, record, catalog, details = {}) {
   const definition = catalog.get(code) || {};
+  const field = details.field || null;
+  let value = details.value ?? null;
+  // I029 — a value read from a cached formula result is marked, so a workbook that was never
+  // recalculated is visible in the Validation list instead of looking like a typed value.
+  if (field && record?.cachedFields?.has(field) && value !== null && value !== '') value = `${value} (cached)`;
   return {
     code,
     severity: definition.severity || 'Warning',
@@ -305,8 +332,8 @@ function codeIssue(code, record, catalog, details = {}) {
     sheet: details.sheet || record?.sheet || null,
     row: details.row ?? record?.row ?? null,
     documentNo: details.documentNo ?? record?.documentNo ?? null,
-    field: details.field || null,
-    value: details.value ?? null
+    field,
+    value
   };
 }
 
@@ -315,6 +342,8 @@ function parseMdl(workbook, mdlContract, formulaErrors, config, sourceName = 'Ma
   const records = [];
   const issues = [];
   const requiredFields = mdlContract.fields;
+  // I027 — required fields plus every optional field the Code sheet maps (Actual 1st Issue Date).
+  const mappedFields = new Map([...requiredFields, ...(mdlContract.optionalFields || [])]);
   const knownDisciplines = new Set(mdlContract.disciplines.keys());
   const sheetNames = new Set(Object.keys(workbook.sheets));
   for (const discipline of knownDisciplines) {
@@ -326,12 +355,13 @@ function parseMdl(workbook, mdlContract, formulaErrors, config, sourceName = 'Ma
       if (!row) continue;
       const rawFields = {};
       let hasMappedContent = false;
-      for (const [field, mapping] of requiredFields) {
+      for (const [field, mapping] of mappedFields) {
         const raw = cellAt(row, mapping.column);
         if (!isBlank(raw)) hasMappedContent = true;
         const normalized = normalizeValue(raw, mapping.type, formulaErrors, sourceName, field);
         if (normalized !== undefined) rawFields[field] = normalized;
       }
+      const cachedFields = cachedFieldsFor(sheet, rowNumber, mappedFields);
       const documentNo = rawFields['Document No.'];
       const title = rawFields['Document Title'];
       if (!hasMappedContent || (isBlank(documentNo) && isBlank(title) && isBlank(rawFields['SNo.']))) continue;
@@ -344,10 +374,14 @@ function parseMdl(workbook, mdlContract, formulaErrors, config, sourceName = 'Ma
         discipline,
         stage: rawFields.Stage ?? '',
         title: title ?? '',
+        cachedFields,
         fields: { ...rawFields }
       };
       records.push(record);
-      if (isBlank(documentNo)) issues.push(codeIssue('V-01', record, mdlContract.errors, { field: 'Document No.', value: '(blank)' }));
+      // I026 — V-01 on a Master Document List row is removed. Decision D33 gives a blank MDL
+      // Document No. to the MDL dashboard, so the sub Validation page no longer repeats it.
+      // The Submittal Log keeps its own V-01 (parseSubmittals), because a log row without a
+      // document number is a sub defect.
       if (record.documentNo && config.placeholderTokens.some(token => record.documentNo.toLowerCase().includes(token.toLowerCase()))) {
         issues.push(codeIssue('V-15', record, mdlContract.errors, { field: 'Document No.', value: record.documentNo }));
       }
@@ -383,6 +417,9 @@ function parseSubmittals(logContract, mdlContract, formulaErrors, asOfDate, sour
   const issues = [];
   const mapped = new Map();
   for (const [field, column] of columns) mapped.set(field, column.index);
+  // I029 — cachedFieldsFor reads `mapping.column`, so the index map is wrapped in the same shape
+  // the MDL contract uses ({ column, type }).
+  const mappedColumns = new Map([...mapped].map(([field, index]) => [field, { column: index, type: '' }]));
   const end = sheet.maxRow || 1;
   const knownDisciplines = new Set(mdlContract.disciplines.keys());
   const rawDomain = new Map([...logContract.statusDomains.submission, ...mdlContract.statusDomains.submission]);
@@ -413,6 +450,7 @@ function parseSubmittals(logContract, mdlContract, formulaErrors, asOfDate, sour
     if (!hasRowIdentity) continue;
     const fields = {};
     const formulaErrorFields = new Set();
+    const cachedFields = cachedFieldsFor(sheet, rowNumber, mappedColumns);
     for (const [field, column] of mapped) {
       const raw = cellAt(row, column);
       const type = /date/i.test(field) ? 'Date' : '';
@@ -430,6 +468,7 @@ function parseSubmittals(logContract, mdlContract, formulaErrors, asOfDate, sour
       discipline: '',
       fields,
       formulaErrorFields,
+      cachedFields,
       submissionDate: fields['Submission Date'] || null,
       targetReturnDate: fields['Target Return Date'] || null,
       actualReturnDate: fields['Actual Return Date'] || null,
@@ -590,6 +629,80 @@ export function buildModel(mdlWorkbook, logWorkbook, options = {}) {
     severity: 'Fatal', code: 'W-FORMULA', source, field, count,
     message: `${field} contains ${count} spreadsheet formula-error cell${count === 1 ? '' : 's'}. The value was treated as absent.`
   }));
+  // I027 / I028 — "issued in the Master Document List but not in the log". The MDL workbook marks a
+  // document as submitted when its Actual 1st Issue Date is present. If the Submittal Log holds no row
+  // for that document number, the two files disagree. Raise one V-34 per planned row (so the
+  // Validation list carries the document, the sheet and the row) and one aggregated warning for the
+  // banner. The check uses the log's document numbers, not the link result, so an ambiguous MDL
+  // duplicate does not become a false mismatch.
+  const loggedDocuments = new Set();
+  for (const record of joinedSubmissions) {
+    if (record.documentNo) loggedDocuments.add(linkKey(record.documentNo));
+  }
+  const mismatchDocuments = new Set();
+  for (const record of plannedRows) {
+    if (!record.documentNo) continue;
+    const issued = record.fields['Actual 1st Issue Date'];
+    if (isBlank(issued) || loggedDocuments.has(linkKey(record.documentNo))) continue;
+    mismatchDocuments.add(linkKey(record.documentNo));
+    issues.push(codeIssue('V-34', record, allErrors, { field: 'Actual 1st Issue Date', value: issued }));
+  }
+  if (mismatchDocuments.size) {
+    warnings.push({
+      severity: 'Warning', code: 'W-MDL-LOG-MISMATCH', source: 'Master Document List', field: 'Actual 1st Issue Date',
+      count: mismatchDocuments.size,
+      message: `${mismatchDocuments.size} document(s) carry an Actual 1st Issue Date in the Master Document List but have no row in the Submittal Log. The two files disagree — name the authoritative file. Details are in the Validation list under V-34.`
+    });
+  }
+  // Owner instruction (2026-11-02, I099): a submission with no recorded outcome is a data-quality
+  // defect, so it is raised, not silently dropped from the dashboard. One document, one issue, on the
+  // row the donut reads: the latest submission. A document whose latest row is open under review
+  // (SUR with no return date) has a state rather than a gap, so it is not raised. The outcome codes
+  // come from the Submittal Log Code sheet, the same list the Approval donut draws.
+  const outcomeCodes = new Set([...logContract.statusDomains.approval].map(entry => (Array.isArray(entry) ? entry[0] : entry)));
+  const submissionsByDocument = new Map();
+  for (const record of joinedSubmissions) {
+    const key = linkKey(record.documentNo);
+    if (!key) continue;
+    const group = submissionsByDocument.get(key) || [];
+    group.push(record);
+    submissionsByDocument.set(key, group);
+  }
+  for (const group of submissionsByDocument.values()) {
+    const sorted = [...group].sort((a, b) => (a.submissionDate || '9999-12-31').localeCompare(b.submissionDate || '9999-12-31') || a.row - b.row);
+    const latest = sorted[sorted.length - 1];
+    if (latest.submissionStatus === 'SUR' && !latest.actualReturnDate) continue;
+    if (sorted.some(record => outcomeCodes.has(record.approvalStatus))) continue;
+    issues.push(codeIssue('V-35', latest, allErrors, { field: 'Approval Status', value: '(blank)' }));
+  }
+  // I029 — a formula cell is read from the workbook cache, never recalculated. Report one warning
+  // per source and field, so a stale workbook is visible where the numbers come from.
+  const cachedCounts = new Map();
+  for (const record of [...plannedRows, ...joinedSubmissions]) {
+    if (!record.cachedFields) continue;
+    for (const field of record.cachedFields) {
+      const key = `${record.source}:${field}`;
+      cachedCounts.set(key, { source: record.source, field, count: (cachedCounts.get(key)?.count || 0) + 1 });
+    }
+  }
+  // One warning per source, not one per field: the workbook holds thousands of formula cells, so a
+  // per-field warning would put about twenty chips in the banner. The per-field detail stays in the
+  // message, and the per-value detail stays in the Validation list.
+  const cachedBySource = new Map();
+  for (const { source, field, count } of cachedCounts.values()) {
+    const entry = cachedBySource.get(source) || { source, count: 0, fields: [] };
+    entry.count += count;
+    entry.fields.push({ field, count });
+    cachedBySource.set(source, entry);
+  }
+  for (const { source, count, fields } of cachedBySource.values()) {
+    fields.sort((a, b) => b.count - a.count);
+    const top = fields.slice(0, 3).map(item => `${item.field} (${item.count.toLocaleString()})`).join(', ');
+    warnings.push({
+      severity: 'Warning', code: 'W-CACHED-VALUE', source, field: 'formula cells', count,
+      message: `${count.toLocaleString()} value(s) were read from cached spreadsheet formulas across ${fields.length} field(s) — mostly ${top}. The dashboard reads the saved result. Recalculate and save the workbook to refresh these values; cached values carry a "cached" mark in the Validation list.`
+    });
+  }
   const returnedComparisons = formulaComparisons.filter(item => item.field === 'Review Delay Days');
   const formulaDifferences = returnedComparisons.filter(item => item.difference !== 0);
   if (formulaDifferences.length) warnings.push({
@@ -597,6 +710,23 @@ export function buildModel(mdlWorkbook, logWorkbook, options = {}) {
     count: formulaDifferences.length,
     message: `${formulaDifferences.length} returned row(s) differ from the cached workbook delay value. The dashboard keeps negative delay for early returns and recalculates open rows from the target date.`
   });
+  // Owner instruction (2026-11-02): the Code sheet is the owner's file, so the dashboard must say
+  // when it raises a code that the sheet does not define. Without this the rule would appear on the
+  // Validation page with a fallback text and a default severity, and nobody would know to add it.
+  const usedCodes = [...new Set(issues.map(issue => issue.code))].sort();
+  const undefinedCodes = usedCodes.filter(code => !allErrors.has(code));
+  const textlessCodes = usedCodes.filter(code => allErrors.has(code) && !allErrors.get(code).rule);
+  const codesToAdd = [
+    ...undefinedCodes.map(code => `${code} (no row in the Code sheet)`),
+    ...textlessCodes.map(code => `${code} (row present, Rule text empty)`)
+  ];
+  if (codesToAdd.length) {
+    warnings.push({
+      severity: 'Warning', code: 'W-CODE-MISSING', source: 'Code sheet', field: 'Error Code',
+      count: codesToAdd.length,
+      message: `${codesToAdd.length} validation code(s) have no definition in the workbooks: ${codesToAdd.join('; ')}. Add each one to the Code sheet of BOTH workbooks (Error Code, Group, Rule, Severity), or the dashboard shows a fallback text and a default severity.`
+    });
+  }
   const duplicatePlannedIds = [...planned.counts].filter(([, count]) => count > 1).length;
   const metaLabels = config.metadataLabels || {};
   const dashboardTitleLabel = metaLabels.dashboardTitle || 'Dashboard Title';

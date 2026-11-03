@@ -572,9 +572,15 @@ a dashboard uses in its own workplan.
   is used instead. A dashboard MUST give the row its own element.
 - **Corner panel number**: absolutely positioned bottom-right, `Panel N`, 10 px, muted,
   letter-spacing .04 em, `pointer-events:none`.
-- **No explanatory subtitles**: panels do not carry a description line under the title. All
-  explanation (what the panel shows, what the lines/labels mean) lives in the **Help modal**
-  (§7.9) — never duplicate it in the panel body.
+- **Optional panel summary (subtitle)**: a panel MAY show a short, compact summary line directly
+  under the title (for example a document or row count, or a cumulative total). The summary is
+  data only — counts and totals, not prose. Long explanatory text stays in the **Help modal**
+  (§7.9) and MUST NOT be duplicated in the panel body. Layout (normative, matches the Forward and
+  Overdue panel): the summary sits on its own line in the panel body **before** the `.c-card`,
+  aligned to the panel content edge (no extra indent); it uses the `.note` style — `margin:6px 0`
+  below the 10 px title row (≈16 px visual gap to the title), left-aligned, `color:var(--text2)`,
+  `font-size:13px`, `line-height:1.5`. The control row (filters, CSV, Columns) stays inside the
+  `.c-card`, below the summary.
 - **Numbering rule**: *every* top-level panel is numbered sequentially in document order
   (`Panel 1`, `Panel 2`, …). The number is static — authored once per panel via the
   `.panel-no` span (or `.panel[data-panel]::after`). Dynamically generated sub-panels
