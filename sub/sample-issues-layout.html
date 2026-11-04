@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Validation — Issues layout sample (spec-faithful)</title>
+<style>
+  :root{
+    --navy:#15314f; --blue:#2b6cf6; --green:#17a67a; --amber:#F9A825; --red:#d23b3b; --slate:#64748B;
+    --bg:#eef2f8; --surface:#FFFFFF; --surface2:#F1F5F9; --surface3:#E8EDF3;
+    --border:#D9E1E8; --text:#1F2A37; --text2:#526171; --text3:#6b7785;
+    --tag-bg:#EAF2FB; --tag-border:#CBDDEF; --row-stripe:#F7F9FB; --row-hover:#EAF2FB; --th-bg:#E8EDF3; --th-hover:#DAE3ED;
+    --radius:12px; --radius-sm:6px; --font-ui:'Segoe UI',system-ui,-apple-system,'Inter',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 var(--font-ui)}
+  .page{max-width:1180px;margin:0 auto;padding:20px}
+  /* 1 — page title, then the panel-level meta note directly under it (§4 subtitle standard) */
+  .page-title{font-size:20px;font-weight:700;color:var(--navy);margin:0 0 4px}
+  .note{margin:0 0 14px;color:var(--text2);font-size:12px}
+  /* summary chips */
+  .v-summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px}
+  .v-count{font-size:14px;font-weight:700;color:var(--navy)}
+  .summary-chips{display:flex;gap:8px}
+  .vchip{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;border:1px solid var(--border);background:var(--surface)}
+  .vchip.e{color:var(--red);border-color:#f3b4b4;background:#fdecec}
+  .vchip.w{color:var(--amber);border-color:#f3dca0;background:#fff6e0}
+  .vchip.i{color:var(--blue);border-color:var(--tag-border);background:var(--tag-bg)}
+  /* cards */
+  .c-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 1px 2px rgba(16,32,64,.04),0 8px 24px rgba(16,32,64,.05);margin:0 0 18px;overflow:hidden}
+  /* 2 — table head: title on its own line, tool cluster below it (stacked) */
+  .table-head{padding:12px 14px 0}
+  .table-head--stack{display:flex;flex-direction:column;align-items:stretch;gap:6px}
+  .tt{font-size:15px;font-weight:700;color:var(--navy);margin:0;text-align:left}
+  /* 3/4 — table tools (control): page controls left, code filter + CSV + Columns right */
+  .table-tools{display:flex;align-items:center;gap:10px;padding:10px 14px 12px;flex-wrap:wrap}
+  .pg-left{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)}
+  .pg-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .pg-btn{border:1px solid var(--border);border-radius:6px;padding:4px 10px;background:var(--surface);color:var(--text);cursor:pointer}
+  .pg-btn:disabled{opacity:.45;cursor:default}
+  .v-page,.v-code{border:1px solid var(--border);border-radius:6px;padding:4px 6px;background:var(--surface);color:var(--text)}
+  .csv-btn,.cc-btn{border:1px solid var(--border);border-radius:6px;padding:5px 10px;background:var(--surface);color:var(--text);cursor:pointer}
+  /* split header: the header fragment lives OUTSIDE the scroller (§7.2.15) */
+  .ds-split{border-top:1px solid var(--border)}
+  .vheadwrap{overflow:hidden}
+  .ds-table{width:100%;border-collapse:collapse;font-size:12px}
+  .ds-table.vheadtab thead th{background:var(--th-bg);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);font-weight:600;color:var(--text2)}
+  .tableScroll{max-height:360px;overflow:auto}
+  .ds-table tbody td{padding:7px 10px;border-bottom:1px solid var(--surface3);white-space:nowrap}
+  .ds-table tbody tr:nth-child(even){background:var(--row-stripe)}
+  .sev{font-weight:700}
+  .sev.Error{color:var(--red)} .sev.Warning{color:var(--amber)} .sev.Info{color:var(--blue)}
+  .cap{padding:14px;color:var(--text2);font-size:12px}
+  .legend{margin:4px 0 0;font-size:11px;color:var(--text3)}
+</style>
+</head>
+<body>
+<div class="page">
+  <!-- 1 — page title, then the panel-level meta note directly under it (NOT under the Issues table title) -->
+  <h1 class="page-title">Validation</h1>
+  <p class="note">1,234 MDL fields · 56 log headers · 48 rules loaded · rule text from workbook Code sheet · a blank MDL Document No. is reported by MDL (D33), not here</p>
+
+  <div class="v-summary">
+    <span class="v-count">1,024 issues</span>
+    <div class="summary-chips">
+      <span class="vchip e">Error 12</span>
+      <span class="vchip w">Warning 940</span>
+      <span class="vchip i">Info 72</span>
+    </div>
+  </div>
+
+  <!-- Rules card (unchanged shape) -->
+  <div class="c-card">
+    <div class="table-head"><h3 class="tt">Rules</h3></div>
+    <div class="ds-split">
+      <div class="vheadwrap">
+        <table class="ds-table vheadtab">
+          <colgroup><col style="width:110px"><col style="width:90px"><col style="width:130px"><col style="width:420px"><col style="width:70px"></colgroup>
+          <thead><tr><th>Severity</th><th>Code</th><th>Group</th><th>Description</th><th>Count</th></tr></thead>
+        </table>
+      </div>
+      <div class="tableScroll">
+        <table class="ds-table">
+          <colgroup><col style="width:110px"><col style="width:90px"><col style="width:130px"><col style="width:420px"><col style="width:70px"></colgroup>
+          <tbody>
+            <tr><td><span class="sev Warning">Warning</span></td><td>V-23</td><td>Business rule</td><td>Discipline mismatch between Log and MDL</td><td>940</td></tr>
+            <tr><td><span class="sev Error">Error</span></td><td>V-07</td><td>Business rule</td><td>Missing transmittal link</td><td>12</td></tr>
+            <tr><td><span class="sev Info">Info</span></td><td>V-31</td><td>Business rule</td><td>Stale revision note</td><td>72</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Issues card — proposed new layout, spec-faithful (split header) -->
+  <div class="c-card">
+    <!-- 2 — title left aligned; 3 — page controls at the TOP; 4 — code filter, csv, columns right aligned -->
+    <div class="table-head table-head--stack">
+      <h3 class="tt">Issues</h3>
+      <div class="table-tools">
+        <div class="pg-left">
+          <button class="pg-btn" data-page="prev" disabled>‹ Prev</button>
+          <label>Page
+            <select class="v-page" id="vPage"></select><span id="vTotal"> / 6</span>
+          </label>
+          <button class="pg-btn" data-page="next">Next ›</button>
+          <span id="totalRows">1,024 rows</span>
+        </div>
+        <div class="pg-right">
+          <select class="v-code" aria-label="Filter by error code">
+            <option value="ALL">All codes</option><option value="V-23">V-23</option><option value="V-07">V-07</option><option value="V-31">V-31</option>
+          </select>
+          <button class="csv-btn">⤓ CSV</button>
+          <button class="cc-btn">Columns</button>
+        </div>
+      </div>
+    </div>
+    <div class="ds-split">
+      <div class="vheadwrap">
+        <table class="ds-table vheadtab">
+          <colgroup><col style="width:90px"><col style="width:90px"><col style="width:120px"><col style="width:110px"><col style="width:130px"><col style="width:360px"><col style="width:100px"><col style="width:70px"></colgroup>
+          <thead><tr><th>Severity</th><th>Rule</th><th>Doc No.</th><th>Field</th><th>Value</th><th>Message</th><th>Source Tab</th><th>Row</th></tr></thead>
+        </table>
+      </div>
+      <div class="tableScroll">
+        <table class="ds-table">
+          <colgroup><col style="width:90px"><col style="width:90px"><col style="width:120px"><col style="width:110px"><col style="width:130px"><col style="width:360px"><col style="width:100px"><col style="width:70px"></colgroup>
+          <tbody id="issueBody">
+            <tr data-code="V-23" data-count="313"><td><span class="sev Warning">Warning</span></td><td>V-23</td><td>D-1001</td><td>Discipline</td><td>ARCH</td><td>Discipline mismatch between Log and MDL</td><td>SubmittalLog</td><td>14</td></tr>
+            <tr data-code="V-23" data-count="314"><td><span class="sev Warning">Warning</span></td><td>V-23</td><td>D-1002</td><td>Discipline</td><td>CIVL</td><td>Discipline mismatch between Log and MDL</td><td>SubmittalLog</td><td>15</td></tr>
+            <tr data-code="V-07" data-count="12"><td><span class="sev Error">Error</span></td><td>V-07</td><td>D-1003</td><td>Transmittal</td><td>—</td><td>Missing transmittal link</td><td>SubmittalLog</td><td>16</td></tr>
+            <tr data-code="V-31" data-count="72"><td><span class="sev Info">Info</span></td><td>V-31</td><td>D-1004</td><td>Revision</td><td>3</td><td>Stale revision note</td><td>SubmittalLog</td><td>17</td></tr>
+            <tr data-code="V-23" data-count="313"><td><span class="sev Warning">Warning</span></td><td>V-23</td><td>D-1005</td><td>Discipline</td><td>MECH</td><td>Discipline mismatch between Log and MDL</td><td>SubmittalLog</td><td>18</td></tr>
+          </tbody>
+        </table>
+        <p class="cap">The code filter drives this table. Choose a code on the right to show only its rows. In the live dashboard only 200 rows load per page.</p>
+      </div>
+    </div>
+  </div>
+  <p class="legend">Review sample — engine updated to match this layout (split header, panel-level meta, top tool cluster).</p>
+</div>
+<script>
+  const codeSel = document.querySelector('.v-code');
+  const rows = Array.from(document.querySelectorAll('#issueBody tr'));
+  const total = document.getElementById('totalRows');
+  const vPage = document.getElementById('vPage');
+  const vTotal = document.getElementById('vTotal');
+  const prevBtn = document.querySelector('[data-page="prev"]');
+  const nextBtn = document.querySelector('[data-page="next"]');
+  const PAGE_SIZE = 200;
+  let currentPage = 1;
+  let pages = 1;
+  function applyFilter(){
+    const code = codeSel.value;
+    let filteredTotal = 0;
+    for (const tr of rows){
+      const ok = code === 'ALL' || tr.dataset.code === code;
+      tr.style.display = ok ? '' : 'none';
+      if (ok) filteredTotal += Number(tr.dataset.count || 0);
+    }
+    pages = Math.max(1, Math.ceil(filteredTotal / PAGE_SIZE));
+    if (currentPage > pages) currentPage = pages;
+    vPage.innerHTML = Array.from({length: pages}, (_, i) => `<option value="${i+1}"${i+1===currentPage?' selected':''}>${i+1}</option>`).join('');
+    vTotal.textContent = ' / ' + pages;
+    total.textContent = filteredTotal.toLocaleString() + ' rows (filtered)';
+    prevBtn.disabled = currentPage <= 1;
+    nextBtn.disabled = currentPage >= pages;
+  }
+  function setPage(p){
+    currentPage = Math.min(Math.max(1, p), pages);
+    applyFilter();
+  }
+  vPage.addEventListener('change', () => setPage(Number(vPage.value)));
+  prevBtn.addEventListener('click', () => setPage(currentPage - 1));
+  nextBtn.addEventListener('click', () => setPage(currentPage + 1));
+  codeSel.addEventListener('change', () => { currentPage = 1; applyFilter(); });
+  applyFilter();
+</script>
+</body>
+</html>

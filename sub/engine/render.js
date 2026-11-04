@@ -455,6 +455,8 @@ export function renderDashboard(doc, model, state = {}) {
   // `.chart-tip`, so a KPI card carrying only `data-tip` showed the cursor and nothing else.
   const card = (label, value, status = '') => `<article class="kpi-card${status ? ` ${status}` : ''}" data-tip="${attr(kpiTipHtml(label))}"><div class="v">${esc(value)}</div><div class="l">${esc(label)}</div><div class="chart-tip" role="tooltip"></div></article>`;
   const tableRows = new Map();
+  // I112 — full filtered Issues set, retained so CSV export covers every filtered row (not just the visible page).
+  let lastIssueExport = null;
   // §7.1 B7 — column-visibility chooser, one implementation for every table. The contents follow the
   // normative floating-panel order (master → note → divider → item list → footer). The first two
   // pinned identity columns are listed, checked and disabled, because they can never be hidden
@@ -479,12 +481,18 @@ export function renderDashboard(doc, model, state = {}) {
     const widths = opts && opts.widths ? opts.widths : null;
     const title = opts && opts.title ? opts.title : null;
     const firstWidth = widths && widths[0] != null ? widths[0] : 150;
+    const pageSize = opts && opts.pageSize ? opts.pageSize : 0;
+    const page = opts && opts.page ? opts.page : 1;
+    const totalPages = pageSize ? Math.max(1, Math.ceil(rows.length / pageSize)) : 1;
     const chosen = key && Array.isArray(state.columnSets?.[key]) ? new Set(state.columnSets[key]) : new Set(headers.map((_, index) => index));
     const indexes = headers.map((_, index) => index).filter(index => chosen.has(index));
-    const windowed = Boolean(key && rows.length > 500);
+    // I112 — pagination takes precedence over windowing for large tables (spec §4.3): a paginated
+    // table materialises only the current page, so it must not also window.
+    const windowed = Boolean(key && !pageSize && rows.length > 500);
     if (key) tableRows.set(key, { headers, rows, indexes, windowed });
     const countId = key === 'detail' ? 'dCnt' : key === 'issue' ? 'vCnt' : '';
-    const shown = windowed ? Math.min(120, rows.length) : rows.length;
+    const pageRows = pageSize ? rows.slice((page - 1) * pageSize, page * pageSize) : rows;
+    const shown = windowed ? Math.min(120, rows.length) : pageRows.length;
     // A column is numeric when every non-empty value in it is a number, so the right alignment
     // follows the data instead of a hand-kept list of column names.
     const numeric = new Set(indexes.filter(index => {
@@ -500,16 +508,34 @@ export function renderDashboard(doc, model, state = {}) {
     const renderRow = row => `<tr>${indexes.map(index => `<td${cellAttrs(index)}>${esc(row[index])}</td>`).join('')}</tr>`;
     const colgroup = indexes.map((index, pos) => { const w = widths && widths[index] != null ? widths[index] : (key && pos === 0 ? 150 : null); return `<col${key ? ` data-col="${index}"` : ''}${w != null ? ` style="width:${w}px"` : ''}>`; }).join('');
     const heads = indexes.map(index => `<th scope="col"${cellAttrs(index)}><span class="th-wrap"><span class="lb">${esc(headers[index])}</span></span>${key ? `<span class="ds-resize" data-col="${index}" role="separator" aria-label="Resize ${esc(headers[index])}"></span>` : ''}</th>`).join('');
-    const body = rows.length ? `${windowed ? '<tr class="win-pad"><td colspan="' + indexes.length + '" style="height:0px;padding:0"></td></tr>' : ''}${rows.slice(0, shown).map(renderRow).join('')}${windowed ? '<tr class="win-pad"><td colspan="' + indexes.length + '" style="height:' + Math.max(0, rows.length - shown) * 40 + 'px;padding:0"></td></tr>' : ''}` : `<tr><td class="empty" colspan="${indexes.length}">No rows match the current selection.</td></tr>`;
+    const body = rows.length
+      ? (windowed
+          ? `<tr class="win-pad"><td colspan="${indexes.length}" style="height:0px;padding:0"></td></tr>${rows.slice(0, shown).map(renderRow).join('')}<tr class="win-pad"><td colspan="${indexes.length}" style="height:${Math.max(0, rows.length - shown) * 40}px;padding:0"></td></tr>`
+          : pageRows.map(renderRow).join(''))
+      : `<tr><td class="empty" colspan="${indexes.length}">No rows match the current selection.</td></tr>`;
     const chooserOpen = state.openChooser === key;
-    const controls = key ? `<div class="table-tools"><span id="${countId}">${windowed ? `Showing ${shown.toLocaleString()} of ${rows.length.toLocaleString()} rows` : `${rows.length.toLocaleString()} rows`}</span><button class="csv-btn btn-secondary" data-export-table="${key}">⤓ CSV</button><button class="cc-btn btn-secondary" id="ccBtn_${key}" aria-controls="ccPanel_${key}" aria-haspopup="true" aria-expanded="${chooserOpen}">Columns</button>${columnChooser(key, headers, chosen, chooserOpen)}</div>` : '';
+    const countLabel = pageSize
+      ? `Page ${page} / ${totalPages}`
+      : (windowed ? `Showing ${shown.toLocaleString()} of ${rows.length.toLocaleString()} rows` : `${rows.length.toLocaleString()} rows`);
     const foot = footer ? `<tfoot><tr>${indexes.map(index => `<td${cellAttrs(index)}>${esc(footer[index])}</td>`).join('')}</tr></tfoot>` : '';
     // §7.2.15 — the header fragment carries one extra trailing column for the scrollbar (.ds-gut), so
     // the navy band runs the full card width and the body's scrollbar starts below it.
     // The fragment carries the same table key as its body, because the resize grips live here and
     // persist their widths under that key (§7.2.6 / D40).
     const headFrag = `<div class="vheadwrap"><table class="ds-table vheadtab"${key ? ` data-table-key="${key}"` : ''}><colgroup>${colgroup}<col class="ds-gut"></colgroup><thead><tr>${heads}<th class="ds-gut" scope="col" aria-hidden="true"></th></tr></thead></table></div>`;
-    const titleRow = title ? `<div class="table-head"><h3 class="tt">${title}</h3>${controls}</div>` : controls;
+    // I112 (sample design) — the page controls sit at the TOP, grouped left; the filter + CSV + Columns
+    // sit right. A paginated table never renders the separate bottom pager.
+    let pagerControls;
+    if (pageSize && totalPages > 1) {
+      pagerControls = `<button class="pg-btn" data-page="prev"${page <= 1 ? ' disabled' : ''}>‹ Prev</button><label class="pg-jump">Page <select class="v-page" data-pagejump="${key}">${[...Array(totalPages)].map((_, i) => `<option value="${i + 1}"${i + 1 === page ? ' selected' : ''}>${i + 1}</option>`).join('')}</select> / ${totalPages}</label><button class="pg-btn" data-page="next"${page >= totalPages ? ' disabled' : ''}>Next ›</button><span class="pg-total" id="${countId}">${rows.length.toLocaleString()} rows</span>`;
+    } else {
+      pagerControls = `<span class="pg-total" id="${countId}">${countLabel}</span>`;
+    }
+    const controls = key ? `<div class="table-tools"><div class="pg-left">${pagerControls}</div><div class="pg-right">${opts.filter ? opts.filter : ''}<button class="csv-btn btn-secondary" data-export-table="${key}">⤓ CSV</button><button class="cc-btn btn-secondary" id="ccBtn_${key}" aria-controls="ccPanel_${key}" aria-haspopup="true" aria-expanded="${chooserOpen}">Columns</button>${columnChooser(key, headers, chosen, chooserOpen)}</div></div>` : '';
+    // I112 — title on its own line; the tool cluster sits below it (right-aligned groups via CSS).
+    const subtitle = opts && opts.subtitle ? `<p class="note tt-note">${opts.subtitle}</p>` : '';
+    const stackCls = (title && (subtitle || opts.filter)) ? ' table-head--stack' : '';
+    const titleRow = title ? `<div class="table-head${stackCls}"><h3 class="tt">${esc(title)}</h3>${subtitle}${controls}</div>` : controls;
     return `${titleRow}<div class="ds-split splitcard" style="--pin-first-col:${firstWidth}px">${headFrag}<div class="tableScroll"><table class="ds-table"${key ? ` data-table-key="${key}" data-column-count="${headers.length}"` : ''}${windowed ? ' data-windowed="true"' : ''}><colgroup>${colgroup}</colgroup><tbody>${body}</tbody>${foot}</table></div></div>`;
   };
   // §4 — `data-panel` is assigned after insertion, in document order, and only to top-level panels;
@@ -1148,11 +1174,26 @@ export function renderDashboard(doc, model, state = {}) {
     const planOf = row => plannedById.get(row.linkedPlannedId);
     const titleFor = group => { const plan = planOf(group[0]); return plan?.title || group[0].fields['Document Title'] || '—'; };
     const discFor = group => { const plan = planOf(group[0]); return plan?.discipline || group[0].discipline || 'Unknown'; };
-    // I107 — month filter: list months that have at least one submission, then keep only documents with a
-    // submission in the selected month (default "ALL" = every month). The expanded history is limited to that month.
+    // I107/I111 — month filter spans project start → as-of (like C3 I106), so the as-of month is
+    // selectable even with no submissions yet; it then keeps only documents with a submission in the
+    // selected month (default "ALL" = every month). The expanded history is limited to that month.
     const monthOf = r => String(r.submissionDate || '').slice(0, 7);
     const subMonth = state.subMonth || 'ALL';
-    const months = [...new Set(allDocs.flatMap(g => g.map(monthOf).filter(Boolean)))].sort();
+    const asOfYm = String(model.meta.asOfDate || '').slice(0, 7);
+    const projYmSpan = String(model.meta.projectStartDate || '').slice(0, 7);
+    const dataYms = allDocs.flatMap(g => g.map(monthOf).filter(Boolean));
+    let startYm = asOfYm || projYmSpan;
+    for (const ym of dataYms) if (ym < startYm) startYm = ym;
+    if (projYmSpan && projYmSpan < startYm) startYm = projYmSpan;
+    const months = [];
+    if (startYm) {
+      let [y, m] = startYm.split('-').map(Number);
+      const [ey, em] = asOfYm ? asOfYm.split('-').map(Number) : [y, m];
+      while (y < ey || (y === ey && m <= em)) {
+        months.push(`${y}-${String(m).padStart(2, '0')}`);
+        if (m === 12) { y++; m = 1; } else m++;
+      }
+    }
     const docs = subMonth === 'ALL' ? allDocs : allDocs.filter(g => g.some(r => monthOf(r) === subMonth));
     const headers = ['', 'Document No.', 'Document Title', 'Discipline', 'Submissions', 'Current Submission Status', 'Current Approval Status'];
     // Column-visibility control (spec §7.1 B7): own .cc-btn class, floating .column-chooser, no filter badge.
@@ -1217,7 +1258,17 @@ export function renderDashboard(doc, model, state = {}) {
     // I026 — a blank MDL Document No. is reported by MDL (decision D33), so the sub Validation page
     // no longer raises V-01 for it. The line keeps the reason visible on the page.
     const meta = `${model.contract.mdlFields.length.toLocaleString()} MDL fields · ${model.contract.logHeaders.length.toLocaleString()} log headers · ${model.contract.errorRules.length} rules loaded · rule text from workbook Code sheet · a blank MDL Document No. is reported by MDL (D33), not here`;
-    // I110 — meta line is a .note subtitle directly under the title, above the v-summary row (spec §4 subtitle standard).
+    // I112 — panel-local error-code filter (§7.2.7 pt 6 / §7.1 B6): narrows only the Issues table, never the Rules table.
+    const code = state.issueCode || 'ALL';
+    const codes = [...new Set(view.issues.map(i => i.code))].sort();
+    const codeSel = `<select class="v-code" data-vcode aria-label="Filter by error code">${['ALL', ...codes].map(c => `<option value="${esc(c)}"${c === code ? ' selected' : ''}>${c === 'ALL' ? 'All codes' : esc(c)}</option>`).join('')}</select>`;
+    const filteredIssueRows = code === 'ALL' ? issueRows : issueRows.filter(r => r[1] === code);
+    const issueHeaders = ['Severity', 'Rule', 'Doc No.', 'Field', 'Value', 'Message', 'Source Tab', 'Row'];
+    const page = state.issuePage || 1;
+    // I112 — retain the full filtered set so CSV export covers every filtered row, not just the visible page.
+    lastIssueExport = { headers: issueHeaders, rows: filteredIssueRows };
+    // I112 (sample design) — the meta note is PANEL level, directly under the Validation page title,
+    // above the .v-summary row (§4 subtitle standard). It is no longer the Issues table subtitle.
     return activePanel('Validation', `
       <p class="note">${meta}</p>
       <div class="v-summary">
@@ -1232,7 +1283,7 @@ export function renderDashboard(doc, model, state = {}) {
         ${table(['Severity', 'Code', 'Group', 'Description', 'Count'], rules, null, null, { widths: [110, 90, 130, 420, 70], title: 'Rules' })}
       </div>
       <div class="c-card v-section">
-        ${table(['Severity', 'Rule', 'Doc No.', 'Field', 'Value', 'Message', 'Source Tab', 'Row'], issueRows, 'issue', null, { widths: [90, 90, 120, 110, 130, 360, 100, 70], title: 'Issues' })}
+        ${table(issueHeaders, filteredIssueRows, 'issue', null, { widths: [90, 90, 120, 110, 130, 360, 100, 70], title: 'Issues', filter: codeSel, pageSize: 200, page })}
       </div>
     `, true);
   };
@@ -1548,4 +1599,16 @@ export function buildSubmittalsCsv(model, view, subMonth = 'ALL') {
     return cells;
   });
   return { cols, rows };
+}
+
+// I112 — CSV export for the Validation Issues table. Returns the full FILTERED set (respecting the
+// error-code filter and the column chooser), not just the visible 200-row page, so an export always
+// covers every row the operator filtered to.
+export function buildIssueCsv() {
+  if (!lastIssueExport) return '';
+  const { headers, rows } = lastIssueExport;
+  const chosen = Array.isArray(state.columnSets?.issue) ? new Set(state.columnSets.issue) : new Set(headers.map((_, i) => i));
+  const indexes = headers.map((_, i) => i).filter(i => chosen.has(i));
+  const q = v => { v = String(v ?? ''); return /[",\n\r]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v; };
+  return '﻿' + [indexes.map(i => q(headers[i])), ...rows.map(r => indexes.map(i => q(r[i])))].map(r => r.join(',')).join('\r\n');
 }

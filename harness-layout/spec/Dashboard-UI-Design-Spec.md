@@ -839,6 +839,14 @@ open-ended list that stretches the page.
 - **Windowing (L3, §7.2.8).** Because the list is never truncated, a table whose *columns × rows*
   product makes full DOM materialisation expensive MUST render only the visible window. The
   control row still reports the **full** count.
+- **Pagination (all bounded tables).** When a bounded table holds **more than 200 rows**, it MUST
+  paginate at **200 rows per page**. Only the current page is materialised into the DOM; the page
+  navigation buttons (**Previous / Next**) are required and MUST stay reachable, optionally with a
+  page-jump selector showing `Page n / total`. The navigation sits at the **top** of the card, in the
+  same tool cluster as the filter and export controls. The tool cluster reports the position
+  (e.g. `Page 2 / 5 · 1,024 rows`); the **full row count is always communicated**. CSV / export
+  MUST cover the **entire filtered set**, not only the visible page (§7.1). Pagination takes
+  precedence over Windowing (§7.2.8) for large tables: a paginated table does not also window.
 - **Print (§7.2.11).** `.tableScroll` MUST be released inside `@media print`, otherwise the 340 px
   cap clips every long table in the exported PDF.
 - **Panel title must not hard-code the filter value.** Name the panel after the *view*
@@ -974,30 +982,39 @@ once.
    the generic 999 px pill radius to **6 px**, with **11 px / 700** and `text-transform:capitalize`.
    The generic pill shape does **not** apply to these chips.
 3. **Summary row** (`.v-summary`, one flex row, no `<details>`): the bold issue **count** (e.g.
-   `16,562 issues`), the **severity chips** (item 2), and a lighter **meta line** (loaded MDL
-   fields · log headers · rule count · source note). The three sit on one organised line, not as
-   stacked blocks. The content below shows **directly** — the sidebar already selects the panel
+   `16,562 issues`), the **severity chips** (item 2), and a **panel-level meta line** (loaded MDL
+   fields · log headers · rule count) shown as the `.note` directly under the page title, above the
+   severity chips. The content below shows **directly** — the sidebar already selects the panel
    (§4 no-in-panel-disclosure rule), so no toggle hides it.
 4. **Rule reference card** (`.c-card`): a `Rules` title row above a small table — `severity
    symbol · code · group · description · count`, **one row per fired rule code** (de-duplicated).
    **Never individual per-rule cards.** Wording priority: the Error table on the Code sheet is the
    source of truth; if a code is absent there, the dashboard supplies the description (flagged as
    such). See *Layout rules* for the wide Description column.
-5. **Per-issue card** (`.c-card`): an `Issues` title row and its tool cluster on the **same line**
-   (see *Layout rules*), then the full issue list — an instance of `.tableScroll` / `.ds-table`
-   (§4.3 & §7.2).
+5. **Per-issue card** (`.c-card`): an `Issues` title row (left aligned), then the tool cluster at the
+   **top** — **page controls on the left** (`‹ Prev · Page n / total (jump) · Next › · N rows`) and the
+   **error-code panel-local filter + `⤓ CSV` + `Columns` on the right** (see *Layout rules*) — then the
+   issue list, an instance of `.tableScroll` / `.ds-table` (§4.3 & §7.2). The source note is a
+   **panel-level** `.note` under the Validation page title (item 0 / §4 subtitle standard), not a card
+   subtitle.
 
 **Layout rules (normative).**
 - **Card separation.** Each table sits in its own `.c-card` (bordered surface, §4 chart-card
   rule). The inner `.ds-split` border is removed inside the card (`.c-card .ds-split{border:0}`)
   so there is no double border; a 12 px gap separates the two cards.
-- **Title and tools on one row.** Each card's title and its tool buttons share one `.table-head`
-  flex row: the title (`h3.tt`, left) and the tool cluster (right) are horizontally aligned. For
-  the per-issue card the cluster is `count · ⤓ CSV · Columns`; for the rule card the title stands
-  alone. The CSV button carries `data-export-table="issue"` and is right-aligned beside `Columns`
-  via `.table-tools .csv-btn{margin-left:auto}`.
-- **Count text.** The cluster shows `Showing X of Y rows` (windowed) or `Y rows` (full), with a
-  thousands separator and the noun `rows`. It MUST NOT show a bare `X of Y` pair without a noun.
+- **Title and tools stacked; page controls at the top.** Each card's title (`h3.tt`, left) sits on
+  its own line. The tool cluster sits **below the title** in its own `.table-tools` row. For the
+  per-issue card the cluster is split into two groups: **page controls on the left** (`‹ Prev · Page
+  n / total (jump) · Next ›` and the `N rows` total) and **Code filter · `⤓ CSV` · `Columns` on the
+  right** (`.pg-right` carries `margin-left:auto`); the page navigation sits at the **top** of the
+  card, never the bottom. For the rule card the title stands alone. The CSV button carries
+  `data-export-table="issue"`.
+- **Panel-level subtitle.** The source note (loaded MDL fields · log headers · rule count) is a
+  **panel-level** `.note` directly under the Validation page title (above the `.v-summary` row), per
+  the §4 subtitle standard — not a card subtitle.
+- **Count text.** When paginated the cluster shows `Page n / total`; when windowed `Showing X of Y
+  rows`; otherwise `Y rows` (full) — each with a thousands separator and the noun `rows`. It MUST
+  NOT show a bare `X of Y` pair without a noun.
 - **Wide detail columns.** Default column widths give the focus columns the most room: Rule
   reference **Description** (≈420 px) and per-issue **Message** (≈360 px) and **Value** (≈130 px).
   Severity and Rule stay pinned on the left when the table scrolls.
@@ -1020,10 +1037,12 @@ allowable there.)
 - **Value** = the *validation result* — the specific offending cell value the pipeline found,
   **never** a pass/fail flag.
 
-**No row cap.** Every issue renders inside the `.tableScroll` scroller (§4.3); the row count is
-reported in the tool cluster (see *Layout rules*), **not** by truncating. (The previous 80-row
-truncation is removed.) Empty state: zero issues → `.empty` caption in the table and the `.ok`
-chip shown.
+**Pagination, not truncation.** The Issues table paginates at 200 rows per page (§4.3); page
+navigation buttons (**Previous / Next**, plus a page-jump selector) are required whenever there is
+more than one page. The full issue count is reported in the tool cluster. A panel-local **error-code
+filter** narrows the list further (it affects only the Issues table, never the Rule Reference, per
+§7.2.7 pt 6); CSV / export covers the **full filtered set**. Empty state: zero issues → `.empty`
+caption in the table and the `.ok` chip shown.
 
 **Explanatory note placement.** The source note (*"rule text from the workbook Code sheet"*) lives
 in the summary row meta line and is always visible — never buried in a collapsed region (there is

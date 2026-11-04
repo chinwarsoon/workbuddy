@@ -658,14 +658,93 @@ test('I109 — Submittals subtitle sits before the card at the content edge (mat
   assert.ok(sumIdx > -1 && cardIdx > sumIdx, 'summary appears before the .c-card (aligned to the content edge)');
 });
 
-// I110 — Validation panel: the small summary text (meta) moves up below the title, above the v-summary row (spec §4 subtitle standard).
-test('I110 — Validation meta line sits above the v-summary row', () => {
+// I110 — Validation meta line is a panel-level .note under the page title, above the v-summary row.
+test('I110 — Validation meta line is a panel-level .note above the v-summary row', () => {
   const view = deriveView(model);
   let html = '';
   const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
   renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? rootNode : null }, model, { page: 'Validation' });
   const noteIdx = html.indexOf('class="note"');
   const sumIdx = html.indexOf('class="v-summary"');
+  const issuesTitleIdx = html.indexOf('<h3 class="tt">Issues</h3>');
   assert.ok(noteIdx > -1 && sumIdx > noteIdx, 'the meta .note appears before the .v-summary row');
-  assert.doesNotMatch(html, /class="v-summary"[\s\S]*class="v-meta"/, 'the meta is no longer inside the .v-summary row');
+  assert.ok(issuesTitleIdx === -1 || sumIdx < issuesTitleIdx, 'the meta sits above the Issues card (panel level)');
+  assert.ok(html.indexOf('tt-note') === -1, 'the Issues table has no subtitle (meta is panel-level)');
+});
+
+// I111 — Submittals month filter spans project start → as-of (matches C3 I106), so the as-of month is selectable.
+test('I111 — Submittals month filter spans project start → as-of (matches C3, includes the as-of month)', () => {
+  const view = deriveView(model);
+  let html = '';
+  const rootNode = { set innerHTML(v) { html = v; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? rootNode : null }, model, { page: 'Submittals', subMonth: 'ALL' });
+  const asOfYm = String(model.meta.asOfDate || '').slice(0, 7);
+  const projYm = String(model.meta.projectStartDate || '').slice(0, 7);
+  assert.ok(html.includes('value="ALL"'), 'the filter keeps the ALL option');
+  const sel = html.match(/<select class="sub-month"[^>]*>([\s\S]*?)<\/select>/);
+  assert.ok(sel, 'the Submittals month <select> is present');
+  const opts = [...sel[1].matchAll(/value="([^"]+)"/g)].map(m => m[1]).filter(v => v !== 'ALL');
+  // Expected contiguous span — mirrors the render fix exactly.
+  const dataYms = view.documents.flatMap(g => g.map(r => String(r.submissionDate || '').slice(0, 7))).filter(Boolean);
+  let startYm = asOfYm || projYm;
+  for (const ym of dataYms) if (ym < startYm) startYm = ym;
+  if (projYm && projYm < startYm) startYm = projYm;
+  const expected = [];
+  if (startYm) {
+    let [y, m] = startYm.split('-').map(Number);
+    const [ey, em] = asOfYm ? asOfYm.split('-').map(Number) : [y, m];
+    while (y < ey || (y === ey && m <= em)) { expected.push(`${y}-${String(m).padStart(2, '0')}`); if (m === 12) { y++; m = 1; } else m++; }
+  }
+  assert.deepStrictEqual(opts.sort(), expected, 'Submittals month options must span project start → as-of, contiguously (zero-submission months included), matching C3');
+  assert.ok(opts.includes(asOfYm), `the as-of month ${asOfYm} is selectable even with no submission in it`);
+});
+
+// I112 — Validation Issues table: title left, top tool cluster (page controls + code filter + CSV/Columns), no subtitle.
+test('I112 — Validation Issues table: top tool cluster with page controls + code filter + CSV/Columns, no subtitle', () => {
+  const view = deriveView(model);
+  let html = '';
+  const rootNode = { set innerHTML(v) { html = v; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? rootNode : null }, model, { page: 'Validation' });
+  const headIdx = html.indexOf('<h3 class="tt">Issues</h3>');
+  assert.ok(headIdx > -1, 'the Issues table has its own title');
+  assert.ok(html.indexOf('tt-note') === -1, 'the Issues table has no subtitle (meta moved to panel level)');
+  const toolsIdx = html.indexOf('class="table-tools"', headIdx);
+  assert.ok(toolsIdx > headIdx, 'the tool cluster sits below the title');
+  // page controls at the top
+  assert.ok(html.includes('data-page="prev"') && html.includes('data-page="next"'), 'the page navigation buttons are present at the top');
+  assert.ok(html.includes('data-pagejump="issue"'), 'the page-jump selector is present');
+  assert.ok(html.includes('class="pg-total"'), 'the row total is shown');
+  // filter + export on the right
+  assert.ok(html.includes('class="v-code" data-vcode'), 'the error-code filter is present');
+  assert.ok(html.includes('data-export-table="issue"'), 'the Issues table keeps its CSV button');
+  assert.ok(html.includes('id="ccBtn_issue"'), 'the Issues table keeps its Columns button');
+});
+
+// I112 — the error-code filter narrows only the Issues table.
+test('I112 — Validation error-code filter narrows only the Issues table', () => {
+  const view = deriveView(model);
+  const codes = [...new Set(view.issues.map(i => i.code))];
+  assert.ok(codes.length > 1, 'the fixture has more than one error code');
+  const countsByCode = new Map();
+  for (const i of view.issues) countsByCode.set(i.code, (countsByCode.get(i.code) || 0) + 1);
+  // Pick a code with fewer than 200 rows so its page shows every row (one page, no truncation).
+  const small = [...countsByCode.entries()].find(([, n]) => n > 0 && n < 200);
+  assert.ok(small, 'the fixture has an error code with fewer than 200 rows');
+  const target = small[0];
+  const expected = small[1];
+  const countIssueRows = h => {
+    const sel = h.match(/<table class="ds-table" data-table-key="issue"[\s\S]*?<\/table>/);
+    assert.ok(sel, 'the Issues table is present');
+    return (sel[0].match(/<tr>/g) || []).length;
+  };
+  let htmlAll = '';
+  let node = { set innerHTML(v) { htmlAll = v; }, get innerHTML() { return htmlAll; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Validation', issueCode: 'ALL' });
+  const allCount = countIssueRows(htmlAll);
+  let htmlOne = '';
+  node = { set innerHTML(v) { htmlOne = v; }, get innerHTML() { return htmlOne; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Validation', issueCode: target });
+  const oneCount = countIssueRows(htmlOne);
+  assert.strictEqual(oneCount, expected, `selecting code ${target} shows only its rows (${expected})`);
+  assert.ok(oneCount < allCount, 'the filter reduces the visible row count');
 });

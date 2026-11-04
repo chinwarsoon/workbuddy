@@ -2,11 +2,11 @@
 // Revision 2.2 | 2026-10-24 | CodeBuddy (AI) | Option B shell (MDL two-row header + left nav sidebar). Engine contract unchanged; UI handlers rewired to menu bar + modals.
 import { readXlsx } from './xlsx-reader.js';
 import { buildModel, inspectWorkbook } from './pipeline.js';
-import { deriveView, renderDashboard, EXCLUDED_STAGES, buildSubmittalsCsv } from './render.js';
+import { deriveView, renderDashboard, EXCLUDED_STAGES, buildSubmittalsCsv, buildIssueCsv } from './render.js';
 
 const $ = selector => document.querySelector(selector);
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
-const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', c2View: 'stacked', c2Nfs: true, foView: 'lookahead', foLane: 'all', foHorizon: 4, c4View: 'scatter', subMonth: 'ALL', collapsedPanels: [] };
+const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', c2View: 'stacked', c2Nfs: true, foView: 'lookahead', foLane: 'all', foHorizon: 4, c4View: 'scatter', subMonth: 'ALL', issueCode: 'ALL', issuePage: 1, collapsedPanels: [] };
 let contract;
 let uiHelp;
 let files = { mdl: null, log: null };
@@ -255,9 +255,14 @@ function exportKeyedTableCsv(key) {
   }).join(','));
   if (!rows.length) return;
   const csv = '﻿' + rows.join('\r\n'); // BOM so Excel opens UTF-8 correctly
+  downloadCsv(csv, `${key}-table.csv`);
+}
+
+// Shared CSV download helper (BOM so Excel opens UTF-8 correctly).
+function downloadCsv(csv, name) {
   const link = document.createElement('a');
   link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-  link.download = `${key}-table.csv`;
+  link.download = name;
   link.click();
   URL.revokeObjectURL(link.href);
 }
@@ -681,7 +686,17 @@ document.addEventListener('click', async event => {
   if (target.hasAttribute('data-c3png')) { exportC3Png(target); }
   if (target.hasAttribute('data-c3copy')) { copyC3Svg(target); }
   if (target.hasAttribute('data-c3export')) { exportC3TableCsv(); }
-  if (target.hasAttribute('data-export-table')) { exportKeyedTableCsv(target.getAttribute('data-export-table')); }
+  if (target.hasAttribute('data-export-table')) {
+    const key = target.getAttribute('data-export-table');
+    if (key === 'issue') { const csv = buildIssueCsv(); if (csv) downloadCsv(csv, 'issue-table.csv'); }
+    else exportKeyedTableCsv(key);
+  }
+  if (target.classList?.contains('pg-btn')) {
+    const p = target.dataset.page;
+    if (p === 'prev') state.issuePage = Math.max(1, (state.issuePage || 1) - 1);
+    else if (p === 'next') state.issuePage = (state.issuePage || 1) + 1;
+    paint();
+  }
   if (target.dataset.c2view) { state.c2View = target.dataset.c2view; paint(); }
   if (target.hasAttribute('data-c2nfs')) { state.c2Nfs = state.c2Nfs === false ? true : false; paint(); }
   if (target.hasAttribute('data-c2png')) { exportC2Png(); }
@@ -732,6 +747,8 @@ document.addEventListener('change', async event => {
     paint();
     return;
   }
+  if (event.target.dataset.vcode) { state.issueCode = event.target.value; state.issuePage = 1; paint(); return; }
+  if (event.target.dataset.pagejump) { state.issuePage = Number(event.target.value) || 1; paint(); return; }
   const filterAll = event.target.dataset.filterAll;
   if (filterAll) {
     const dimension = filterDimensions.find(([key]) => key === filterAll);
