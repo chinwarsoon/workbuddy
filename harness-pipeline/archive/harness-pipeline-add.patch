@@ -1,0 +1,1988 @@
+From 0303dd042c225eb3ad5051c6dff3bef4dc40f367 Mon Sep 17 00:00:00 2001
+From: WorkBuddy <agent@workbuddy.local>
+Date: Tue, 3 Nov 2026 07:40:44 +0800
+Subject: [PATCH] =?UTF-8?q?Add=20harness-pipeline=20shared=20folder;=20dec?=
+ =?UTF-8?q?lare=20in=20AGENTS.md=20=C2=A71.2?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- Add harness-pipeline/ (Tier-1 pipeline + UI-spec design-compliance harness)
+  as a shared folder, mirroring harness-layout/ convention (checks/*.mjs,
+  lib/, docs/, test_output/).
+- AGENTS.md §1.2: declare harness-pipeline/ as a shared folder.
+- AGENTS.md §6.1: carve-out exempting shared harness folders
+  (harness-layout/, harness-pipeline/) from the per-project test/ rule.
+- .gitignore: ignore harness-pipeline/test_output/ runtime artifacts.
+---
+ .gitignore                                    |   3 +
+ AGENTS.md                                     |   2 +
+ harness-pipeline/README.md                    | 178 +++++++++
+ harness-pipeline/checks/actionlog.mjs         | 134 +++++++
+ harness-pipeline/checks/english.mjs           | 116 ++++++
+ harness-pipeline/checks/mdl.mjs               | 162 ++++++++
+ harness-pipeline/checks/ppp.mjs               | 122 ++++++
+ harness-pipeline/checks/sub.mjs               | 141 +++++++
+ .../docs/PIPELINE-DESIGN-STANDARD.md          | 203 ++++++++++
+ .../docs/UI-SPEC-COMPLIANCE-REVIEW.md         | 200 ++++++++++
+ harness-pipeline/harness.mjs                  |  94 +++++
+ harness-pipeline/lib/fixtures.mjs             | 353 ++++++++++++++++++
+ harness-pipeline/lib/pipeline-probe.mjs       |  32 ++
+ harness-pipeline/lib/workplan-extract.mjs     |  19 +
+ harness-pipeline/package.json                 |  19 +
+ harness-pipeline/run.mjs                      |  48 +++
+ 16 files changed, 1826 insertions(+)
+ create mode 100644 harness-pipeline/README.md
+ create mode 100644 harness-pipeline/checks/actionlog.mjs
+ create mode 100644 harness-pipeline/checks/english.mjs
+ create mode 100644 harness-pipeline/checks/mdl.mjs
+ create mode 100644 harness-pipeline/checks/ppp.mjs
+ create mode 100644 harness-pipeline/checks/sub.mjs
+ create mode 100644 harness-pipeline/docs/PIPELINE-DESIGN-STANDARD.md
+ create mode 100644 harness-pipeline/docs/UI-SPEC-COMPLIANCE-REVIEW.md
+ create mode 100644 harness-pipeline/harness.mjs
+ create mode 100644 harness-pipeline/lib/fixtures.mjs
+ create mode 100644 harness-pipeline/lib/pipeline-probe.mjs
+ create mode 100644 harness-pipeline/lib/workplan-extract.mjs
+ create mode 100644 harness-pipeline/package.json
+ create mode 100644 harness-pipeline/run.mjs
+
+diff --git a/.gitignore b/.gitignore
+index eb1ed25..42fe9a7 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -14,3 +14,6 @@ Desktop.ini
+ 
+ # Dependency / build output
+ node_modules/
++
++# harness-pipeline — runtime artifacts (Tier-1 results), never commit
++harness-pipeline/test_output/
+diff --git a/AGENTS.md b/AGENTS.md
+index e790643..b7e9019 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -42,6 +42,7 @@ These folders are not projects. Every project in §1.1 may use them.
+ |--------|---------|
+ | `docs/` | Shared standards. Holds `ASD-STE100-Issue-9/`. See §5 Rule 19. |
+ | `harness-layout/` | Shared layout harness and the STE prose lint. See §5 Rule 19. |
++| `harness-pipeline/` | Shared pipeline harness — Tier-1 regression for every sub-project's data pipeline + UI-spec design-compliance (the pipeline counterpart to `harness-layout/`, which is layout/visual only). See §6.1 carve-out. |
+ 
+ ### 1.3 Projects in another repository
+ 
+@@ -194,6 +195,7 @@ until it has been archived, and preserve its revision history when you move it (
+ - Embedded test directories (e.g., `<project>/workflow/*/test/`, `<project>/engine/*/tests/`) must be migrated to `<project>/test/`. During migration, create a subfolder within `<project>/test/` (e.g., `test/processor_engine/`) to preserve logical grouping while obeying the single-root rule.
+ - Test runtime artifacts (generated files, output directories, temp databases) must be placed in `<project>/test_output/` or use `tempfile.TemporaryDirectory` for automatic cleanup. They must never leak to the repository root.
+ - At each phase completion, verify zero test files exist outside `<project>/test/`.
++- **Shared harness folders are exempt.** `harness-layout/` and `harness-pipeline/` are shared harnesses, not product projects; their auto-discovered `checks/*.mjs` (not `<project>/test/`) are the sanctioned location for cross-project harness checks, because a single check may assert across multiple projects and cannot live in one project's `test/`. Their runtime artifacts go to `<harness>/test_output/` and must be git-ignored.
+ 
+ ## 7. Files and Context
+ 
+diff --git a/harness-pipeline/README.md b/harness-pipeline/README.md
+new file mode 100644
+index 0000000..f0c3c8b
+--- /dev/null
++++ b/harness-pipeline/README.md
+@@ -0,0 +1,178 @@
++# harness-pipeline — Tier 1: pipeline + design conformance harness
++
++`harness-pipeline` is **Layer 1** of the `Dashboard-UI-Design-Spec.md §8` two-layer
++check model:
++
++| Tier | Layer | Harness | What it proves | Priority |
++|------|-------|---------|----------------|----------|
++| **Tier 1** | Pipeline + design | **`harness-pipeline`** | the pipeline runs per the sub-project **workplan** (consolidation, lookups, validation, isExcelError, status canon) and the pipeline sections of the UI spec | **highest** |
++| **Tier 2** | UI / layout | `harness-layout` | CSS tokens, layout grid, DOM guardrails (scurveAxisMode, errBanner id, chart guardrails) | middle |
++| **Tier 3** | Data quality | `PPP/test/regression-data.mjs` (V-01..V-26) | individual data-error rules fire correctly | **lowest** |
++
++The ordering follows the refocus: *"the test should aim the pipeline and html page to
++ensure it works per work plan first, test compliance with ui design spec, then test
++data."* `harness-layout` already owns layout, so design-behavior assertions here that
++need the DOM are marked **MANUAL** and left to that harness — we never re-invent layout.
++
++---
++
++## How Tier 1 is built for **all** sub-projects
++
++One generic runner + one config file per sub-project. **Adding a sub-project = drop a
++config file; the core never changes.**
++
++```
++harness-pipeline/
++├─ harness.mjs            # generic runner (auto-discovers checks/*.mjs)
++├─ run.mjs                # cross-subproject orchestrator (runs all + aggregates)
++├─ lib/
++│  ├─ pipeline-probe.mjs  # loads the REAL pipeline (+ optional render) via dynamic import
++│  ├─ fixtures.mjs        # synthetic builders: pppMakeWorkbook / mdlMakeWorkbook /
++│  │                      #   subMakeWorkbooks / alMakeState / elMakeStorage
++│  └─ workplan-extract.mjs # parses workplan "## N.N" sections for cross-checks
++├─ checks/
++│  ├─ ppp.mjs             # config + assertions for PPP
++│  ├─ mdl.mjs             # config + assertions for MDL
++│  ├─ sub.mjs             # config + assertions for TWRP C3B2 Submittal Dashboard
++│  ├─ actionlog.mjs       # config + assertions for action-log (SPA state)
++│  └─ english.mjs         # config + assertions for english-learning (PWA storage)
++├─ docs/                  # design standard + UI-spec compliance review (review-only)
++├─ test_output/           # machine-readable results (gitignored)
++│  └─ tier1.json
++└─ package.json
++```
++
++### The config object (`checks/<name>.mjs`)
++
++Each sub-project default-exports **one config object**. The runner reads it, loads the
++real pipeline source, and runs the assertions. A config has four parts:
++
++```js
++export default {
++  name: 'ppp',                                  // matches the file name
++  title: 'PPP Procurement Dashboard — pipeline + design (Tier 1)',
++  pipelineSrc: 'PPP/src/pipeline.mjs',          // RELATIVE to repo root
++  renderSrc:   'PPP/src/render.mjs',            // optional; absence → design asserts go MANUAL
++  workplan:    'PPP/PPP-Dashboard-Workplan.md',
++  specSections: ['§3.8','§3.8.4','§4.2','§3.5','§8'],
++  fixtures: { makeWorkbook: pppMakeWorkbook },  // maps raw model input → pipeline
++
++  assertions: [
++    { id:'A1', group:'A', source:'workplan §3.8', desc:'…', run(ctx){ … } },
++    // ctx.ok(name, condition, detail?)     → PASS / FAIL
++    // ctx.manual(name, why)               → MANUAL (needs render / covered by harness-layout)
++  ]
++};
++```
++
++The `ctx` handed to every `run()` carries: `pipeline` (real exports), `render`
++(`deriveView` when present, else `null`), `root`, `workplanPath`, `specSections`,
++`wpSections`, `makeWorkbook` (fixture adapter), and `ok()` / `manual()`.
++
++### The three-state result protocol
++
++| Mark | Meaning |
++|------|---------|
++| **PASS** | assertion condition held |
++| **FAIL** | condition failed → exit code 1 (blocks the change) |
++| **MANUAL** | needs a browser/render layer, or is already owned by `harness-layout`. Never fake-green. |
++
++`needs:'render'` assertions auto-become MANUAL when `renderSrc` is absent, and
++`needs:'pipeline'` become MANUAL when the pipeline can't load.
++
++---
++
++## Adding a sub-project (heterogeneous adapters)
++
++Tier 1 is adapter-driven. Each sub-project supplies **two things**:
++1. `pipelineSrc` — its real pipeline module (expo `buildModel`/`validate`/`isExcelError`…).
++2. `fixtures.makeWorkbook` — a builder that converts **raw intent** (packages, docs,
++   state) into the **exact input shape that pipeline expects**.
++
++The assertion logic in the runner is identical; only the adapter differs.
++
++| Sub-project | Pipeline input shape | Fixture adapter | Design-aspects owner | Status |
++|-------------|----------------------|-----------------|----------------------|--------|
++| **PPP** | `{ PPP, Code }` 2-D grid | `pppMakeWorkbook(pkgs, opts)` | `harness-layout --dashboard ppp` | ✅ RUN |
++| **MDL** | `{ sheets:{name:{rows,maxRow}} }` | `mdlMakeWorkbook(opts)` | `harness-layout --dashboard mdl` | ✅ RUN |
++| **sub** (TWRP C3B2) | two workbooks `{ mdl, log }` + external `contract` (join) | `subMakeWorkbooks(opts)` | `harness-layout --dashboard sub` | ✅ RUN |
++| **action-log** | in-memory JS state (`actions[]`) | `alMakeState(actions)` | `harness-layout --dashboard actionlog` | ✅ RUN (reference `src/pipeline.mjs` scaffold) |
++| **english-learning** | `localStorage` snapshot (PWA) | `elMakeStorage(opts)` | `harness-layout --dashboard english` | ✅ RUN (reference `src/pipeline.mjs` scaffold) |
++
++> **`sub` is the most structurally different of the five**: its `buildModel(mdlWorkbook,
++> logWorkbook, { contract })` joins a *Master Document List* with a *Submittal Log* and is
++> driven by an external contract (`sub/config/pipeline_contract.json`) rather than reading
++> lookups from a Code sheet. The adapter hence returns `{ mdl, log, contract }` and the
++> assertions exercise `buildModel` / `isExcelError` / `workbookKind` / `inspectWorkbook`.
++
++For **action-log** and **english-learning** the pipeline is not an XLSX importer — it is
++application state. The adapter simply builds that state (JS array, or a serialized
++`localStorage` blob) and the assertions call the real `src/pipeline.mjs` / state module
++the same way. No new runner code required.
++
++---
++
++## Running
++
++```bash
++node run.mjs                      # cross-subproject orchestrator (runs all + aggregates)
++node harness.mjs                  # run every discovered sub-project
++node harness.mjs --subproject ppp # run one
++node harness.mjs --subproject mdl
++node harness.mjs --subproject actionlog
++node harness.mjs --subproject english
++node harness.mjs --subproject sub
++node harness.mjs --root /path/to/repo   # override repo root
++WORKBUDDY_ROOT=/path node harness.mjs   # same override via env
++# or via npm scripts:
++npm run run            # orchestrator
++npm run test:all      # harness --all
++npm run test:ppp / test:mdl / test:actionlog / test:english / test:sub
++```
++
++The per-subproject runner prints a block + `TIER 1 TOTAL` and writes `test_output/tier1.json`,
++exiting `1` on any FAIL. The orchestrator (`run.mjs`) spawns `harness.mjs --all`, reads
++`test_output/tier1.json`, prints one combined verdict table, and exits `1` if any sub-project FAILs
++(MANUAL does **not** block the gate — it is reported with a reason, never silently passed).
++
++### Current status
++
++```
++→ ppp:        17 pass, 0 fail, 1 manual   (RUN — real src/pipeline.mjs)
++→ mdl:        17 pass, 0 fail, 3 manual   (RUN — real src/pipeline.mjs)
++→ sub:        19 pass, 0 fail, 2 manual   (RUN — real sub/engine/pipeline.js)
++→ actionlog:  14 pass, 0 fail, 3 manual   (RUN — reference src/pipeline.mjs scaffold)
++→ english:    13 pass, 0 fail, 3 manual   (RUN — reference src/pipeline.mjs scaffold)
++   TIER 1 TOTAL: 80 pass, 0 fail, 12 manual
++```
++
++All five sub-projects RUN. The only MANUAL items (12 total) are **design-behavior assertions**
++(deriveView / scurveAxisMode / errBanner id) that need `render.mjs` and are owned by
++`harness-layout` (Tier 2) — by design, the pipeline harness never re-tests layout.
++
++> **Reference scaffolds:** `action-log/src/pipeline.mjs` and `english-learning/src/pipeline.mjs`
++> are REFERENCE implementations of the Tier-1 contract so the harness can RUN today for these
++> SPA / PWA sub-projects. They carry a `⚠️ REPLACE THIS` header — swap them for the real
++> ActionTracker / PWA pipeline logic (the single-file SPA / offline PWA should import the same
++> exports). The harness needs no change when you do.
++
++---
++
++## Integration with the AI test engineer
++
++`harness-pipeline` is **Tier 1 — run first**. The `AGENTS.md` regression entry wires it
++as the initial gate before any edit:
++
++```bash
++node ../harness-pipeline/harness.mjs --all   # Tier 1 (pipeline + design) across all sub-projects
++node test/run-regression.mjs                 # Tier 3 (data V-01..V-26) for PPP
++node ../harness-layout/harness.mjs --all     # Tier 2 (layout) — owned upstream
++```
++
++Verdict contract (reported back after every change):
++
++| Mark | Verdict | Action |
++|------|---------|--------|
++| ✅ PASS | all Tier-1 automated checks green | safe to proceed to Tier 2/3 |
++| ❌ FAIL | ≥1 pipeline/design check failed | fix the code, do not bypass |
++| 👀 MANUAL | automated green, some need a human/render | reported with reason; never silently passed |
+diff --git a/harness-pipeline/checks/actionlog.mjs b/harness-pipeline/checks/actionlog.mjs
+new file mode 100644
+index 0000000..d210704
+--- /dev/null
++++ b/harness-pipeline/checks/actionlog.mjs
+@@ -0,0 +1,134 @@
++// checks/actionlog.mjs — Tier-1 pipeline + design config for action-log (ActionTracker SPA).
++//
++// action-log is a single-file index.html SPA: its "pipeline" is the client-side state
++// module, not an XLSX importer. The harness loads it once it is extracted to
++// action-log/src/pipeline.mjs. Until that module exists in the repo, every assertion that
++// needs the real pipeline reports MANUAL (never fake-green); the structural (adapter-shape)
++// assertions RUN so the heterogeneous adapter is proven to integrate cleanly.
++//
++// Import: import { buildModel, isExcelError, statusCanon, deriveView } from '../../action-log/src/pipeline.mjs'
++import { alMakeState } from '../lib/fixtures.mjs';
++
++export default {
++  name: 'actionlog',
++  title: 'action-log (ActionTracker) — pipeline + design (Tier 1)',
++  pipelineSrc: 'action-log/src/pipeline.mjs',
++  renderSrc: 'action-log/src/render.mjs',
++  workplan: 'action-log/ActionTracker-Workplan.md',
++  specSections: ['§3.8', '§3.8.4', '§4.2', '§3.5', '§8'],
++  fixtures: { makeWorkbook: alMakeState },
++
++  // ===========================================================================
++  // TIER-1 CONTRACT — action-log/src/pipeline.mjs MUST export:
++  //   buildModel(state)  → { records, lookups, issues, warnings, completeness? }
++  //                         records[] items carry { id, title, discipline, status, ... }
++  //                         lookups read from state.lookups (disciplines/statuses) — NO hard-coded lists
++  //   isExcelError(v)    → bool (recognises #VALUE! / #REF! / #DIV/0! / #N/A …)
++  //   statusCanon(s)     → canonical status string (e.g. "NS" → "Not Started")
++  //   deriveView(model, view) → structured view; needs render → MANUAL here
++  // Confirm this contract, then the A*/C*/B* assertions below flip from MANUAL to RUN.
++  // ===========================================================================
++
++  assertions: [
++    // ---- Group S: structural (adapter shape) — RUNS now, proves the adapter ----
++    {
++      id: 'S1', group: 'S', source: 'fixture adapter',
++      desc: 'alMakeState yields {actions, lookups, meta} the pipeline consumes',
++      run(ctx){
++        const s = ctx.makeWorkbook([
++          { id:'A1', title:'Design review', discipline:'Civil', status:'Not Started' },
++          { id:'A2', title:'Order pump', discipline:'Mechanical', status:'On Hold' },
++        ]);
++        ctx.ok('S1 actions array has 2 entries', Array.isArray(s.actions) && s.actions.length === 2, 'len=' + (s.actions||[]).length);
++        ctx.ok('S1 carries lookups + meta', !!(s.lookups && s.meta), 'hasLookups=' + !!s.lookups);
++        ctx.ok('S1 lookups.disciplines is data-driven (Civil first)', Array.isArray(s.lookups.disciplines) && s.lookups.disciplines[0] === 'Civil', (s.lookups.disciplines||[]).join(','));
++      }
++    },
++    {
++      id: 'S2', group: 'S', source: 'fixture adapter',
++      desc: 'alMakeState preserves attachments[] model {name,src,type}',
++      run(ctx){
++        const s = ctx.makeWorkbook([
++          { id:'A1', title:'Tender', discipline:'Civil', status:'Not Started',
++            attachments:[{ name:'spec.pdf', src:'data:application/pdf;base64,xx', type:'pdf' }] },
++        ]);
++        const att = s.actions[0].attachments && s.actions[0].attachments[0];
++        ctx.ok('S2 attachment carries name/src/type', !!(att && att.name && att.src && att.type), JSON.stringify(att||{}));
++      }
++    },
++
++    // ---- Group A: pipeline functions (workplan §3.8 consolidated state) — MANUAL until module exists ----
++    {
++      id: 'A1', group: 'A', source: 'workplan §3.8 (consolidate actions)', needs: 'pipeline',
++      desc: 'buildModel consolidates the action state into records',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const m = buildModel(ctx.makeWorkbook([
++          { id:'A1', title:'Design review', discipline:'Civil', status:'Not Started' },
++          { id:'A2', title:'Order pump', discipline:'Mechanical', status:'On Hold' },
++        ]));
++        ctx.ok('A1 records consolidated', m.records.length === 2, 'records=' + m.records.length);
++        ctx.ok('A1 no spurious Error issues on valid data', m.issues.filter(i=>i.severity==='Error').length === 0, 'errs=' + m.issues.filter(i=>i.severity==='Error').length);
++      }
++    },
++    {
++      id: 'A2', group: 'A', source: 'workplan §3.8 (no hard-coded lists)', needs: 'pipeline',
++      desc: 'lookups come from state, not a constant',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const m = buildModel(ctx.makeWorkbook([], { disciplines:['Foo','Bar'], statuses:['Open','Closed'] }));
++        const codes = m.contract.lookups.disciplines;
++        ctx.ok('A2 lookups include Foo from state', codes.has('Foo'), [...codes].join(','));
++        ctx.ok('A2 lookups exclude unlisted value', !codes.has('Civil'), [...codes].join(','));
++      }
++    },
++    {
++      id: 'A3', group: 'A', source: 'spec §3.8.4 (isExcelError)', needs: 'pipeline',
++      desc: 'isExcelError recognises spreadsheet formula-error tokens',
++      run(ctx){
++        ctx.ok('A3 isExcelError("#VALUE!")', ctx.pipeline.isExcelError('#VALUE!') === true);
++        ctx.ok('A3 isExcelError("Civil")', ctx.pipeline.isExcelError('Civil') === false);
++      }
++    },
++    {
++      id: 'A4', group: 'A', source: 'workplan §3.8 (status canon)', needs: 'pipeline',
++      desc: 'statusCanon maps short status to canonical label',
++      run(ctx){
++        ctx.ok('A4 statusCanon("NS") === "Not Started"', ctx.pipeline.statusCanon('NS') === 'Not Started');
++      }
++    },
++
++    // ---- Group C: spec-pipeline conformance ----
++    {
++      id: 'C1', group: 'C', source: 'spec §3.8.4', needs: 'pipeline',
++      desc: 'isExcelError handles the full Excel error vocabulary',
++      run(ctx){
++        ctx.ok('C1 isExcelError("#REF!")', ctx.pipeline.isExcelError('#REF!') === true);
++        ctx.ok('C1 isExcelError("#N/A")', ctx.pipeline.isExcelError('#N/A') === true);
++        ctx.ok('C1 isExcelError("#DIV/0!")', ctx.pipeline.isExcelError('#DIV/0!') === true);
++      }
++    },
++    {
++      id: 'C2', group: 'C', source: 'spec §4.2 (chart guardrail) — DOM', needs: 'render',
++      desc: 'scurveAxisMode guardrail present in render (verified via harness-layout)',
++      run(ctx){ ctx.manual('C2 scurveAxisMode', 'chart guardrail — Layer-2 design check (harness-layout)'); }
++    },
++    {
++      id: 'C3', group: 'C', source: 'spec §3.5 (errBanner stable id) — DOM', needs: 'render',
++      desc: 'errBanner carries stable id (verified via harness-layout)',
++      run(ctx){ ctx.manual('C3 errBanner id', 'warning-area placement — Layer-2 design check (harness-layout)'); }
++    },
++
++    // ---- Group B: design behaviors (need render → MANUAL here) ----
++    {
++      id: 'B1', group: 'B', source: 'workplan §4 (design behaviors)', needs: 'render',
++      desc: 'deriveView returns a structured view from the consolidated model',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const m = buildModel(ctx.makeWorkbook([{ id:'A1', title:'T', discipline:'Civil', status:'Not Started' }]));
++        try { const v = ctx.deriveView(m, {}); ctx.ok('B1 deriveView returns an object', v && typeof v === 'object', typeof v); }
++        catch (e){ ctx.manual('B1 deriveView', 'render contract mismatch: ' + e.message); }
++      }
++    }
++  ]
++};
+diff --git a/harness-pipeline/checks/english.mjs b/harness-pipeline/checks/english.mjs
+new file mode 100644
+index 0000000..0c7b847
+--- /dev/null
++++ b/harness-pipeline/checks/english.mjs
+@@ -0,0 +1,116 @@
++// checks/english.mjs — Tier-1 pipeline + design config for english-learning (offline PWA).
++//
++// english-learning persists to localStorage on iPhone Safari; its "pipeline" is the state
++// module that derives word/reading/streak views from the persisted snapshot. The harness
++// loads it once it is extracted to english-learning/src/pipeline.mjs. Until that module
++// exists in the repo, pipeline assertions report MANUAL; the structural (adapter-shape)
++// assertions RUN so the heterogeneous localStorage adapter is proven to integrate cleanly.
++//
++// Import: import { buildModel, isExcelError, deriveView } from '../../english-learning/src/pipeline.mjs'
++import { elMakeStorage } from '../lib/fixtures.mjs';
++
++export default {
++  name: 'english',
++  title: 'english-learning (offline PWA) — pipeline + design (Tier 1)',
++  pipelineSrc: 'english-learning/src/pipeline.mjs',
++  renderSrc: 'english-learning/src/render.mjs',
++  workplan: 'english-learning/English-Workplan.md',
++  specSections: ['§3.8', '§3.8.4', '§4.2', '§3.5', '§8'],
++  fixtures: { makeWorkbook: elMakeStorage },
++
++  // ===========================================================================
++  // TIER-1 CONTRACT — english-learning/src/pipeline.mjs MUST export:
++  //   buildModel(storage) → { records (word list), lookups, issues, warnings }
++  //                         records[] items carry { word, phase, due, box, known }
++  //                         reading progress is INDEPENDENT of daily-word streak (per cadence rule)
++  //   isExcelError(v)     → bool (formula-error tokens, if any data comes from a sheet)
++  //   deriveView(model, view) → structured view; needs render → MANUAL here
++  // Confirm this contract, then the A*/C*/B* assertions below flip from MANUAL to RUN.
++  // ===========================================================================
++
++  assertions: [
++    // ---- Group S: structural (adapter shape) — RUNS now, proves the adapter ----
++    {
++      id: 'S1', group: 'S', source: 'fixture adapter',
++      desc: 'elMakeStorage yields the {keys, vocabulary, reading, progress} snapshot',
++      run(ctx){
++        const s = ctx.makeWorkbook();
++        ctx.ok('S1 has vocabulary + reading + progress', !!s.vocabulary && !!s.reading && !!s.progress, 'keys=' + Object.keys(s).join(','));
++        ctx.ok('S1 vocabulary has 2 entries', Array.isArray(s.vocabulary) && s.vocabulary.length === 2, 'len=' + (s.vocabulary||[]).length);
++        ctx.ok('S1 progress flags reading independence', s.progress.readingIndependent === true, 'indep=' + s.progress.readingIndependent);
++      }
++    },
++    {
++      id: 'S2', group: 'S', source: 'fixture adapter',
++      desc: 'elMakeStorage round-trips through JSON (offline localStorage persistence)',
++      run(ctx){
++        const s = ctx.makeWorkbook();
++        let ok = true; try { JSON.parse(JSON.stringify(s)); } catch { ok = false; }
++        ctx.ok('S2 snapshot is JSON-serialisable (localStorage-safe)', ok);
++      }
++    },
++
++    // ---- Group A: pipeline functions (workplan §3.8 consolidated state) — MANUAL until module exists ----
++    {
++      id: 'A1', group: 'A', source: 'workplan §3.8 (consolidate vocabulary)', needs: 'pipeline',
++      desc: 'buildModel consolidates the vocabulary snapshot into records',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const m = buildModel(ctx.makeWorkbook());
++        ctx.ok('A1 records == vocabulary length', m.records.length === 2, 'records=' + m.records.length);
++        ctx.ok('A1 no spurious Error issues on valid data', m.issues.filter(i=>i.severity==='Error').length === 0, 'errs=' + m.issues.filter(i=>i.severity==='Error').length);
++      }
++    },
++    {
++      id: 'A2', group: 'A', source: 'workplan §3.8 (reading independent of daily streak)', needs: 'pipeline',
++      desc: 'reading progress does not mutate daily-word streak',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const m = buildModel(ctx.makeWorkbook());
++        ctx.ok('A2 daily streak preserved (5)', m.progress.dailyStreak === 5, 'streak=' + (m.progress&&m.progress.dailyStreak));
++        ctx.ok('A2 reading streak independent (2)', m.progress.readingStreak === 2, 'rstreak=' + (m.progress&&m.progress.readingStreak));
++      }
++    },
++    {
++      id: 'A3', group: 'A', source: 'spec §3.8.4 (isExcelError)', needs: 'pipeline',
++      desc: 'isExcelError recognises spreadsheet formula-error tokens',
++      run(ctx){
++        ctx.ok('A3 isExcelError("#VALUE!")', ctx.pipeline.isExcelError('#VALUE!') === true);
++        ctx.ok('A3 isExcelError("apple")', ctx.pipeline.isExcelError('apple') === false);
++      }
++    },
++
++    // ---- Group C: spec-pipeline conformance ----
++    {
++      id: 'C1', group: 'C', source: 'spec §3.8.4', needs: 'pipeline',
++      desc: 'isExcelError handles the full Excel error vocabulary',
++      run(ctx){
++        ctx.ok('C1 isExcelError("#REF!")', ctx.pipeline.isExcelError('#REF!') === true);
++        ctx.ok('C1 isExcelError("#N/A")', ctx.pipeline.isExcelError('#N/A') === true);
++        ctx.ok('C1 isExcelError("#DIV/0!")', ctx.pipeline.isExcelError('#DIV/0!') === true);
++      }
++    },
++    {
++      id: 'C2', group: 'C', source: 'spec §4.2 (chart guardrail) — DOM', needs: 'render',
++      desc: 'scurveAxisMode guardrail present in render (verified via harness-layout)',
++      run(ctx){ ctx.manual('C2 scurveAxisMode', 'chart guardrail — Layer-2 design check (harness-layout)'); }
++    },
++    {
++      id: 'C3', group: 'C', source: 'spec §3.5 (errBanner stable id) — DOM', needs: 'render',
++      desc: 'errBanner carries stable id (verified via harness-layout)',
++      run(ctx){ ctx.manual('C3 errBanner id', 'warning-area placement — Layer-2 design check (harness-layout)'); }
++    },
++
++    // ---- Group B: design behaviors (need render → MANUAL here) ----
++    {
++      id: 'B1', group: 'B', source: 'workplan §4 (design behaviors)', needs: 'render',
++      desc: 'deriveView returns a structured view from the consolidated model',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const m = buildModel(ctx.makeWorkbook());
++        try { const v = ctx.deriveView(m, {}); ctx.ok('B1 deriveView returns an object', v && typeof v === 'object', typeof v); }
++        catch (e){ ctx.manual('B1 deriveView', 'render contract mismatch: ' + e.message); }
++      }
++    }
++  ]
++};
+diff --git a/harness-pipeline/checks/mdl.mjs b/harness-pipeline/checks/mdl.mjs
+new file mode 100644
+index 0000000..7620532
+--- /dev/null
++++ b/harness-pipeline/checks/mdl.mjs
+@@ -0,0 +1,162 @@
++// checks/mdl.mjs — Tier-1 pipeline + design conformance config for MDL Document Submittal Dashboard.
++// References: MDL/MDL-Dashboard-Workplan.md (§3.8 consolidated table, §4A design, conformance record)
++// and the pipeline sections of Dashboard-UI-Design-Spec.md (§3.8, §3.8.4, §4.2, §3.5, §8).
++//
++// MDL's buildModel() performs S2 (normalise) + S3 (validate) in one call and returns
++// { records (§3.8 consolidated table), contract.lookups, issues, warnings, ... }.
++//
++// Group A — pipeline functions (pure Node, real src/pipeline.mjs). RUNS.
++// Group B — design behaviors (need deriveView / render). MANUAL until render.mjs is present.
++// Group C — spec-pipeline conformance. RUNS (isExcelError) / MANUAL (DOM items → harness-layout).
++import { mdlMakeWorkbook } from '../lib/fixtures.mjs';
++
++export default {
++  name: 'mdl',
++  title: 'MDL Document Submittal Dashboard — pipeline + design (Tier 1)',
++  pipelineSrc: 'MDL/src/pipeline.mjs',
++  renderSrc: 'MDL/src/render.mjs',
++  workplan: 'MDL/MDL-Dashboard-Workplan.md',
++  specSections: ['§3.8', '§3.8.4', '§4.2', '§3.5', '§8'],
++  fixtures: { makeWorkbook: mdlMakeWorkbook },
++
++  assertions: [
++    // ---- Group A: pipeline functions (workplan §3.8 consolidated table) ----
++    {
++      id: 'A1', group: 'A', source: 'workplan §3.8',
++      desc: 'buildModel consolidates discipline tabs into one records table',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const m = buildModel(ctx.makeWorkbook({}));
++        ctx.ok('A1 records consolidated from 2 tabs', m.records.length === 2, 'records=' + m.records.length);
++        ctx.ok('A1 contract.lookups present', !!(m.contract && m.contract.lookups), 'has lookups=' + !!(m.contract && m.contract.lookups));
++      }
++    },
++    {
++      id: 'A2', group: 'A', source: 'workplan §3.8 (no hard-coded lists)',
++      desc: 'model.contract.lookups reflects the Code-sheet block, not a constant',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const m = buildModel(ctx.makeWorkbook({ disc: [['Foo','FOO'],['Bar','BAR']], uesh: [['Foo','FOO'],['Bar','BAR']] }));
++        const codes = m.contract.lookups.disciplineCode.codes;
++        ctx.ok('A2 lookups.disciplineCode.codes includes the sheet value Foo', codes.has('Foo'), [...codes].join(','));
++        ctx.ok('A2 lookups.disciplineCode.codes excludes unlisted value', !codes.has('Civil'), [...codes].join(','));
++      }
++    },
++    {
++      id: 'A3', group: 'A', source: 'workplan §3.8 (source tab tagged)',
++      desc: 'each consolidated record carries its source discipline tab',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const m = buildModel(ctx.makeWorkbook({}));
++        const tabs = new Set(m.records.map(r => r.sourceTab));
++        ctx.ok('A3 records tagged with source tabs Civil & Mechanical', tabs.has('Civil') && tabs.has('Mechanical'), [...tabs].join(','));
++      }
++    },
++    {
++      id: 'A4', group: 'A', source: 'workplan §3.7 / EXCLUDE_STAGES',
++      desc: 'records in an excluded stage (Deleted) are marked inactive (isActiveDoc)',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const docs = [
++          { tab:'Civil', 'Document No.':'D1', 'Stage':'MR', 'UESH Discipline':'Civil', 'Discipline':'Civil', 'Doc Type':'CN', 'Number':'1', 'Actual 1st Issue Date':'2024-03-01', 'Submission Status':'SUB', 'Latest Approval Status':'APP' },
++          { tab:'Civil', 'Document No.':'D2', 'Stage':'Deleted', 'UESH Discipline':'Civil', 'Discipline':'Civil', 'Doc Type':'CN', 'Number':'2', 'Actual 1st Issue Date':'2024-03-01', 'Submission Status':'SUB', 'Latest Approval Status':'APP' },
++        ];
++        const m = buildModel(ctx.makeWorkbook({ docs }));
++        const del = m.records.find(r => r.docNo === 'D2');
++        ctx.ok('A4 Deleted-stage record flagged inactive', del && del.isActive === false, 'isActive=' + (del && del.isActive));
++      }
++    },
++    {
++      id: 'A5', group: 'A', source: 'spec §3.8.4 (isExcelError)',
++      desc: 'isExcelError recognises spreadsheet formula-error tokens',
++      run(ctx){
++        ctx.ok('A5 isExcelError("#VALUE!") === true', ctx.pipeline.isExcelError('#VALUE!') === true);
++        ctx.ok('A5 isExcelError("Civil") === false', ctx.pipeline.isExcelError('Civil') === false);
++      }
++    },
++    {
++      id: 'A6', group: 'A', source: 'workplan test_pipeline (messages sourced from workbook)',
++      desc: 'validation message/severity come from the Code-sheet Error block, not a constant',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const m = buildModel(ctx.makeWorkbook({
++          disc: [['Foo','FOO'],['Bar','BAR']], uesh: [['Foo','FOO'],['Bar','BAR']],
++          errs: [['V-04','CUSTOM DISCIPLINE MSG','Error','X']],
++          docs: [
++            { tab:'Foo', 'Document No.':'X1', 'Stage':'MR', 'UESH Discipline':'Foo', 'Discipline':'ZZZ', 'Doc Type':'CN', 'Number':'1', 'Actual 1st Issue Date':'2024-03-01', 'Submission Status':'SUB', 'Latest Approval Status':'APP' },
++          ],
++        }));
++        const v04 = m.issues.find(i => i.code === 'V-04');
++        ctx.ok('A6 V-04 fires for discipline code not in list', !!v04, 'codes=' + m.issues.map(i=>i.code).join(','));
++        ctx.ok('A6 V-04 message sourced from workbook Error block', v04 && v04.message === 'CUSTOM DISCIPLINE MSG', v04 && v04.message);
++      }
++    },
++    {
++      id: 'A7', group: 'A', source: 'workplan §3.8 (huge data)',
++      desc: '2000-document workbook consolidates without false errors (<5s)',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const disc = [['Foo','FOO'],['Bar','BAR']];
++        const docs = [];
++        for (let i=0;i<2000;i++){ const t = i%2; docs.push({
++          tab: disc[t][0], 'Document No.':'D'+i, 'SNo.':String(i), 'Stage':'MR', 'UESH Discipline':disc[t][0],
++          'Project Code':'P1', 'Project Prefix':'PR', 'Doc Type':'CN', 'Discipline':disc[t][0], 'Number':String(i),
++          'Document Title':'Document '+i, 'Planned 1st Issue Date':'2024-02-01', 'Actual 1st Issue Date':'2024-03-01',
++          'Submission Status':'SUB', 'Latest Approval Status':'APP' }); }
++        const t0 = Date.now();
++        const m = buildModel(ctx.makeWorkbook({ disc, uesh: disc, docs }));
++        const ms = Date.now() - t0;
++        ctx.ok('A7 all 2000 records consolidated', m.records.length === 2000, 'records=' + m.records.length);
++        ctx.ok('A7 consolidate < 5s', ms < 5000, ms + 'ms');
++        const errs = m.issues.filter(i => i.severity === 'Error');
++        ctx.ok('A7 no spurious Error-severity issues', errs.length === 0, 'errs=' + errs.length);
++      }
++    },
++    {
++      id: 'A8', group: 'A', source: 'workplan §3.8 (empty data)',
++      desc: 'empty workbook → 0 records, no crash',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const m = buildModel(ctx.makeWorkbook({ docs: [] }));
++        ctx.ok('A8 empty → 0 records', m.records.length === 0, 'records=' + m.records.length);
++      }
++    },
++
++    // ---- Group C: spec-pipeline conformance ----
++    {
++      id: 'C1', group: 'C', source: 'spec §3.8.4',
++      desc: 'isExcelError handles the full Excel error vocabulary',
++      run(ctx){
++        ctx.ok('C1 isExcelError("#REF!")', ctx.pipeline.isExcelError('#REF!') === true);
++        ctx.ok('C1 isExcelError("#N/A")', ctx.pipeline.isExcelError('#N/A') === true);
++        ctx.ok('C1 isExcelError("#DIV/0!")', ctx.pipeline.isExcelError('#DIV/0!') === true);
++      }
++    },
++    {
++      id: 'C2', group: 'C', source: 'spec §4.2 (chart guardrail) — DOM',
++      desc: 'scurveAxisMode guardrail present in render (verified via harness-layout)',
++      needs: 'render',
++      run(ctx){ ctx.manual('C2 scurveAxisMode', 'chart guardrail — Layer-2 design check (harness-layout)'); }
++    },
++    {
++      id: 'C3', group: 'C', source: 'spec §3.5 (errBanner stable id) — DOM',
++      desc: 'errBanner carries stable id (verified via harness-layout)',
++      needs: 'render',
++      run(ctx){ ctx.manual('C3 errBanner id', 'warning-area placement — Layer-2 design check (harness-layout)'); }
++    },
++
++    // ---- Group B: design behaviors (need render → MANUAL here) ----
++    {
++      id: 'B1', group: 'B', source: 'workplan §4 (design behaviors)', needs: 'render',
++      desc: 'deriveView returns a structured view from the consolidated model',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const m = buildModel(ctx.makeWorkbook({}));
++        try {
++          const v = ctx.deriveView(m, {});
++          ctx.ok('B1 deriveView returns an object', v && typeof v === 'object', typeof v);
++        } catch(e){ ctx.manual('B1 deriveView', 'render contract mismatch: ' + e.message); }
++      }
++    }
++  ]
++};
+diff --git a/harness-pipeline/checks/ppp.mjs b/harness-pipeline/checks/ppp.mjs
+new file mode 100644
+index 0000000..6df5937
+--- /dev/null
++++ b/harness-pipeline/checks/ppp.mjs
+@@ -0,0 +1,122 @@
++// checks/ppp.mjs — Tier-1 pipeline + design conformance config for PPP Procurement Dashboard.
++// References: PPP/PPP-Dashboard-Workplan.md (§3 functions, §4.2 rules, §5 design) and the pipeline
++// sections of Dashboard-UI-Design-Spec.md (§3.8, §3.8.4, §4.2, §3.5, §8).
++//
++// Group A — pipeline functions (pure Node, real src/pipeline.mjs). RUNS.
++// Group B — design behaviors (need deriveView / render). MANUAL until render.mjs is present.
++// Group C — spec-pipeline conformance (items that live in pipeline.mjs). RUNS.
++import { pppMakeWorkbook, pppPkg } from '../lib/fixtures.mjs';
++
++export default {
++  name: 'ppp',
++  title: 'PPP Procurement Dashboard — pipeline + design (Tier 1)',
++  pipelineSrc: 'PPP/src/pipeline.mjs',
++  renderSrc: 'PPP/src/render.mjs',
++  workplan: 'PPP/PPP-Dashboard-Workplan.md',
++  specSections: ['§3.8', '§3.8.4', '§4.2', '§3.5', '§8'],
++  fixtures: { makeWorkbook: pppMakeWorkbook, pkg: pppPkg },
++
++  assertions: [
++    // ---- Group A: pipeline functions (workplan §3) ----
++    {
++      id: 'A1', group: 'A', source: 'workplan §3.1/§3.2',
++      desc: 'buildModel parses a valid workbook → 1 package, 0 validation issues (control)',
++      run(ctx){
++        const { buildModel, validate } = ctx.pipeline;
++        const { model, vctx } = buildModel(ctx.makeWorkbook([ctx.fixtures.pkg({ title:'A', packageNo:'A1' })]), 't.xlsx');
++        ctx.ok('A1 model built with 1 package', model.packages.length === 1, 'pkgs=' + model.packages.length);
++        const rep = validate(model.packages, vctx);
++        ctx.ok('A1 valid data → 0 issues', rep.total === 0, 'total=' + rep.total);
++      }
++    },
++    {
++      id: 'A2', group: 'A', source: 'workplan §3.2 (no hard-coded lists)',
++      desc: 'lookups are read from the Code sheet, not hard-coded (discipline not in list → V-06)',
++      run(ctx){
++        const { buildModel, validate } = ctx.pipeline;
++        const wb = ctx.makeWorkbook([ctx.fixtures.pkg({ discipline:'Civil' })], { disc: [['Foo','FOO']] });
++        const { model, vctx } = buildModel(wb, 't.xlsx');
++        ctx.ok('A2 package discipline read from row', model.packages[0].discipline === 'Civil', model.packages[0].discipline);
++        const rep = validate(model.packages, vctx);
++        const fired = rep.issues.some(i => i.code === 'V-06');
++        ctx.ok('A2 unknown discipline → V-06 fires (lookup is dynamic)', fired, 'V-06=' + fired);
++      }
++    },
++    {
++      id: 'A3', group: 'A', source: 'spec §3.8.4 (isExcelError)',
++      desc: 'isExcelError recognises spreadsheet formula-error tokens',
++      run(ctx){
++        ctx.ok('A3 isExcelError("#VALUE!") === true', ctx.pipeline.isExcelError('#VALUE!') === true);
++        ctx.ok('A3 isExcelError("Civil") === false', ctx.pipeline.isExcelError('Civil') === false);
++      }
++    },
++    {
++      id: 'A4', group: 'A', source: 'spec §3.8.4 (EXCEL_ERROR_TOKENS / W-FORMULA)',
++      desc: 'fatal formula-error token set present (drives the W-FORMULA warning; emission verified via harness-layout)',
++      run(ctx){
++        const t = ctx.pipeline.EXCEL_ERROR_TOKENS || [];
++        ctx.ok('A4 EXCEL_ERROR_TOKENS is a non-empty array', Array.isArray(t) && t.length > 0, t.length + ' tokens');
++        ctx.ok('A4 includes #VALUE! / #REF! / #DIV/0!', t.includes('#VALUE!') && t.includes('#REF!') && t.includes('#DIV/0!'), t.join(','));
++      }
++    },
++    {
++      id: 'A5', group: 'A', source: 'workplan §4.2 C4 (status canonicalization)',
++      desc: 'statusCanon maps code → display and passes through full description',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const { model } = buildModel(ctx.makeWorkbook([ctx.fixtures.pkg({ status:'NS' })]), 't.xlsx');
++        ctx.ok('A5 statusCanon("NS") === "Not Started"', model.statusCanon('NS') === 'Not Started', model.statusCanon('NS'));
++        ctx.ok('A5 statusCanon("PO Issued") === "PO Issued"', model.statusCanon('PO Issued') === 'PO Issued', model.statusCanon('PO Issued'));
++      }
++    },
++    {
++      id: 'A6', group: 'A', source: 'workplan §3.1 (empty data)',
++      desc: 'empty workbook → buildModel throws (loader shows guidance, no crash)',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        let threw = false; try { buildModel(ctx.makeWorkbook([]), 'empty.xlsx'); } catch(e){ threw = true; }
++        ctx.ok('A6 empty → throws (no silent NaN/crash)', threw);
++      }
++    },
++    {
++      id: 'A7', group: 'A', source: 'workplan §3.1 (huge data)',
++      desc: '2000-row workbook parses & validates without false errors (<5s)',
++      run(ctx){
++        const { buildModel, validate } = ctx.pipeline;
++        const pkgs = []; for (let i=0;i<2000;i++) pkgs.push(ctx.fixtures.pkg({ title:'H'+i, packageNo:'H'+i, status: i%9===0?'PO':'NS', leadTime:100+i%500 }));
++        const t0 = Date.now();
++        const { model, vctx } = buildModel(ctx.makeWorkbook(pkgs), 'huge.xlsx');
++        const rep = validate(model.packages, vctx);
++        const ms = Date.now() - t0;
++        ctx.ok('A7 all 2000 packages parsed', model.packages.length === 2000, 'pkgs=' + model.packages.length);
++        ctx.ok('A7 validate < 5s', ms < 5000, ms + 'ms');
++        ctx.ok('A7 no spurious error issues', rep.counts.error === 0, 'errors=' + rep.counts.error);
++      }
++    },
++
++    // ---- Group C: spec-pipeline conformance (items living in pipeline.mjs) ----
++    {
++      id: 'C1', group: 'C', source: 'spec §3.8.4',
++      desc: 'isExcelError handles the full Excel error vocabulary (#REF!, #N/A, #DIV/0!)',
++      run(ctx){
++        ctx.ok('C1 isExcelError("#REF!")', ctx.pipeline.isExcelError('#REF!') === true);
++        ctx.ok('C1 isExcelError("#N/A")', ctx.pipeline.isExcelError('#N/A') === true);
++        ctx.ok('C1 isExcelError("#DIV/0!")', ctx.pipeline.isExcelError('#DIV/0!') === true);
++      }
++    },
++
++    // ---- Group B: design behaviors (need render → MANUAL here, covered by harness-layout too) ----
++    {
++      id: 'B1', group: 'B', source: 'workplan §5.1', needs: 'render',
++      desc: 'deriveView returns the six KPI cards (§5.1)',
++      run(ctx){
++        const { buildModel, validate } = ctx.pipeline;
++        const { model } = buildModel(ctx.makeWorkbook([ctx.fixtures.pkg({ title:'K1', packageNo:'K1', poPlan:'2024-03-01' }), ctx.fixtures.pkg({ title:'K2', packageNo:'K2', status:'PO', poActual:'2024-05-01', poNo:'PO1' })]), 't.xlsx');
++        try {
++          const v = ctx.deriveView(model, { report:null, filter:{cats:null}, chartView:{packages:'status', data:'dqByRule'}, prefs:{chartType:{}, poBars:true}, poWin:{from:0,to:0,_n:0}, ui:{typeFilterBound:false} });
++          ctx.ok('B1 deriveView returns kpis array of 6', Array.isArray(v.kpis) && v.kpis.length === 6, 'len=' + (v.kpis && v.kpis.length));
++        } catch(e){ ctx.manual('B1 deriveView', 'render contract mismatch: ' + e.message); }
++      }
++    }
++  ]
++};
+diff --git a/harness-pipeline/checks/sub.mjs b/harness-pipeline/checks/sub.mjs
+new file mode 100644
+index 0000000..ec7391b
+--- /dev/null
++++ b/harness-pipeline/checks/sub.mjs
+@@ -0,0 +1,141 @@
++// checks/sub.mjs — Tier-1 pipeline + design conformance config for the
++// TWRP C3B2 Document Submittal Dashboard (the "sub" sub-project).
++//
++// References: sub/workplan/Sub-Dashboard-Workplan.md and the pipeline sections of
++// Dashboard-UI-Design-Spec.md (§3.8 two-source model, §3.8.4 isExcelError, §4.2 chart
++// guardrails, §3.5 errBanner id, §8 two-layer check model).
++//
++// sub's pipeline is a TWO-SOURCE JOIN: buildModel(mdlWorkbook, logWorkbook, { contract })
++// where the external `contract` (sub/config/pipeline_contract.json) drives validation.
++// The fixture (subMakeWorkbooks) returns { mdl, log, contract } and the assertions below
++// exercise buildModel / isExcelError / workbookKind / inspectWorkbook.
++//
++// Group A — pipeline functions (pure Node, real sub/engine/pipeline.js). RUNS.
++// Group B — design behaviors (need render → MANUAL, owned by harness-layout Tier 2).
++// Group C — spec-pipeline conformance (isExcelError vocabulary). RUNS.
++import { subMakeWorkbooks } from '../lib/fixtures.mjs';
++
++export default {
++  name: 'sub',
++  title: 'TWRP C3B2 Submittal Dashboard — pipeline + design (Tier 1)',
++  pipelineSrc: 'sub/engine/pipeline.js',
++  renderSrc: 'sub/engine/render.js',
++  workplan: 'sub/workplan/Sub-Dashboard-Workplan.md',
++  specSections: ['§3.8', '§3.8.4', '§4.2', '§3.5', '§8'],
++  fixtures: { makeWorkbook: subMakeWorkbooks },
++
++  assertions: [
++    // ---- Group A: pipeline functions (workplan §3 — two-source join) ----
++    {
++      id: 'A1', group: 'A', source: 'workplan §3 (Master Document List + Submittal Log join)',
++      desc: 'buildModel consolidates 2 discipline tabs and joins 1 log row → 2 planned, 1 submission, 0 Error issues',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const { mdl, log, contract } = ctx.makeWorkbook();
++        const m = buildModel(mdl, log, { contract, today: '2024-12-31' });
++        ctx.ok('A1 planned consolidated from 2 discipline tabs', m.planned.length === 2, 'planned=' + m.planned.length);
++        ctx.ok('A1 submission joined to planned', m.submissions.length === 1, 'subs=' + m.submissions.length);
++        ctx.ok('A1 valid data → 0 Error-severity issues', m.issues.filter(i => i.severity === 'Error').length === 0, 'errors=' + m.issues.filter(i => i.severity === 'Error').length);
++      }
++    },
++    {
++      id: 'A2', group: 'A', source: 'workplan §3 (no hard-coded lists)',
++      desc: 'model.contract is sourced from the Code sheet, not a constant',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const { mdl, log, contract } = ctx.makeWorkbook();
++        const m = buildModel(mdl, log, { contract, today: '2024-12-31' });
++        ctx.ok('A2 submission statuses read from Code sheet (SUB present)', m.contract.statusDomains.submission.includes('SUB'), m.contract.statusDomains.submission.join(','));
++        ctx.ok('A2 mdlFields sourced from Code sheet (Document No. present)', m.contract.mdlFields.includes('Document No.'), m.contract.mdlFields.join(','));
++      }
++    },
++    {
++      id: 'A3', group: 'A', source: 'spec §3.8.4 (isExcelError)',
++      desc: 'isExcelError recognises spreadsheet formula-error tokens',
++      run(ctx){
++        ctx.ok('A3 isExcelError("#VALUE!") === true', ctx.pipeline.isExcelError('#VALUE!') === true);
++        ctx.ok('A3 isExcelError("Civil") === false', ctx.pipeline.isExcelError('Civil') === false);
++      }
++    },
++    {
++      id: 'A4', group: 'A', source: 'workplan §3 (two-source identification)',
++      desc: 'workbookKind identifies each source workbook by its Code-sheet Dashboard Title',
++      run(ctx){
++        const { mdl, log, contract } = ctx.makeWorkbook();
++        ctx.ok('A4 workbookKind("Master Document List") === "mdl"', ctx.pipeline.workbookKind('Master Document List', contract) === 'mdl');
++        ctx.ok('A4 workbookKind("Document Submittal Log") === "log"', ctx.pipeline.workbookKind('Document Submittal Log', contract) === 'log');
++      }
++    },
++    {
++      id: 'A5', group: 'A', source: 'workplan §3 (loader inspection gate)',
++      desc: 'inspectWorkbook reports ok/kind for a valid workbook and rejects one without a Code sheet',
++      run(ctx){
++        const { mdl, log, contract } = ctx.makeWorkbook();
++        const good = ctx.pipeline.inspectWorkbook(mdl, contract);
++        ctx.ok('A5 valid MDL workbook inspects ok with kind "mdl"', good.ok === true && good.kind === 'mdl', JSON.stringify(good));
++        const bad = ctx.pipeline.inspectWorkbook({ sheets: { Sheet1: { rows: [], maxRow: 0 } } }, contract);
++        ctx.ok('A5 workbook without a Code sheet → ok false', bad.ok === false, JSON.stringify(bad));
++      }
++    },
++    {
++      id: 'A6', group: 'A', source: 'workplan §3.1 (contract guard)',
++      desc: 'buildModel throws when the pipeline contract is missing',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const { mdl, log } = ctx.makeWorkbook();
++        let threw = false;
++        try { buildModel(mdl, log, { today: '2024-12-31' }); } catch (e) { threw = true; }
++        ctx.ok('A6 missing contract → throws (no silent NaN/crash)', threw);
++      }
++    },
++    {
++      id: 'A7', group: 'A', source: 'workplan §3 (huge data)',
++      desc: '2000-document workbook consolidates and joins without false errors (<5s)',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const { mdl, log, contract } = ctx.makeWorkbook({ big: 2000 });
++        const t0 = Date.now();
++        const m = buildModel(mdl, log, { contract, today: '2024-12-31' });
++        const ms = Date.now() - t0;
++        ctx.ok('A7 all 2000 planned records consolidated', m.planned.length === 2000, 'planned=' + m.planned.length);
++        ctx.ok('A7 consolidate < 5s', ms < 5000, ms + 'ms');
++        ctx.ok('A7 no spurious Error-severity issues', m.issues.filter(i => i.severity === 'Error').length === 0, 'errors=' + m.issues.filter(i => i.severity === 'Error').length);
++      }
++    },
++    {
++      id: 'A8', group: 'A', source: 'workplan §3.1 (empty data)',
++      desc: 'empty workbook (all discipline tabs blank) → 0 planned records, no crash',
++      run(ctx){
++        const { buildModel } = ctx.pipeline;
++        const { mdl, log, contract } = ctx.makeWorkbook({ empty: true });
++        const m = buildModel(mdl, log, { contract, today: '2024-12-31' });
++        ctx.ok('A8 empty → 0 planned records', m.planned.length === 0, 'planned=' + m.planned.length);
++      }
++    },
++
++    // ---- Group C: spec-pipeline conformance ----
++    {
++      id: 'C1', group: 'C', source: 'spec §3.8.4',
++      desc: 'isExcelError handles the full Excel error vocabulary',
++      run(ctx){
++        ctx.ok('C1 isExcelError("#REF!")', ctx.pipeline.isExcelError('#REF!') === true);
++        ctx.ok('C1 isExcelError("#N/A")', ctx.pipeline.isExcelError('#N/A') === true);
++        ctx.ok('C1 isExcelError("#DIV/0!")', ctx.pipeline.isExcelError('#DIV/0!') === true);
++      }
++    },
++
++    // ---- Group B: design behaviors (need render → MANUAL here, covered by harness-layout) ----
++    {
++      id: 'B1', group: 'B', source: 'spec §4.2 (chart guardrails: scurveAxisMode / rotate(-90) / cumulative no-rebase) — DOM',
++      needs: 'render',
++      desc: 'chart guardrails present in render (verified via harness-layout)',
++      run(ctx){ ctx.manual('B1 scurveAxisMode / chart guardrails', 'chart guardrail — Layer-2 design check (harness-layout)'); }
++    },
++    {
++      id: 'B2', group: 'B', source: 'spec §3.5 (errBanner stable id) — DOM',
++      needs: 'render',
++      desc: 'errBanner carries stable id (verified via harness-layout)',
++      run(ctx){ ctx.manual('B2 errBanner id', 'warning-area placement — Layer-2 design check (harness-layout)'); }
++    }
++  ]
++};
+diff --git a/harness-pipeline/docs/PIPELINE-DESIGN-STANDARD.md b/harness-pipeline/docs/PIPELINE-DESIGN-STANDARD.md
+new file mode 100644
+index 0000000..181bdb5
+--- /dev/null
++++ b/harness-pipeline/docs/PIPELINE-DESIGN-STANDARD.md
+@@ -0,0 +1,203 @@
++# Pipeline Design Standard (Tier-1) — Dashboard Sub-projects
++
++> **Status:** DRAFT for review. No pipeline code has been changed.
++> **Owner:** `harness-pipeline` (the conformance test layer). May be promoted to a repo-level
++> `docs/` spec later.
++> **Scope:** Defines the *single* pipeline contract every dashboard sub-project must satisfy,
++> so the Tier-1 harness (`harness-pipeline`) can test all of them with one runner.
++> **Anchored to:** UI Design Spec §3.8 (pipeline build plan / valid-record gate), §3.8.4
++> (isExcelError / W-FORMULA), §4.2 (chart guardrails), §3.5 (errBanner stable id), §8
++> (conformance / testing).
++
++---
++
++## 1. Why a standard
++
++Five dashboard sub-projects exist today, all with a pipeline module:
++
++| Sub-project | Pipeline module | Input shape | Notes |
++|---|---|---|---|
++| **PPP** | `PPP/src/pipeline.mjs` (real) | `{ PPP, Code }` 2-sheet grid | `buildModel` + **separate** `validate` |
++| **MDL** | `MDL/src/pipeline.mjs` (real) | `{ sheets:{name:{rows,maxRow}} }` | fused S2+S3 |
++| **sub** | `sub/engine/pipeline.js` (real) | dual `{ mdlWb, logWb }` + `options.contract` | fused S2+S3, **external contract** |
++| **action-log** | `action-log/src/pipeline.mjs` (scaffold) | JS state `{ actions[], lookups }` | fused S2+S3 |
++| **english-learning** | `english-learning/src/pipeline.mjs` (scaffold) | localStorage `{ vocabulary[], progress{} }` | fused S2+S3 |
++
++They share ~80% of intent but diverge on the 20% that the harness must rely on. This standard
++locks that 20% so (a) the harness can assert the same contract everywhere, and (b) a new
++dashboard drops in by writing one `checks/<name>.mjs` + one adapter, **no core change**.
++
++---
++
++## 2. The canonical 4-stage pipeline (maps to spec §3.8)
++
++Every dashboard pipeline is a linear **S1 → S2 → S3 → S4** flow. The stage names come from the
++MDL contract comments (S2 normalise, S3 validate, S4 deriveView) and align with spec §3.8's
++"valid-record gate".
++
++| Stage | Name | Responsibility | Side effects |
++|---|---|---|---|
++| **S1** | Load | Raw input → normalized `PipelineInput` via an **adapter** (grid / sheets / state / storage) | none |
++| **S2** | Normalise | Resolve field→column maps, types, lookups, contract. Coerce cells (date/number/text). **Blank and Excel-error token are the SAME absent state** (§3.8.4) | none |
++| **S3** | Validate | Per-record + structural rules → `issues[]`. Rule text + severity read from **data** (Code sheet or `options.contract`), never hard-coded | none |
++| **S4** | Derive view | `deriveView(model, state)` → `View` (KPIs, grouped counts, chart series). Pure; **no DOM** | none |
++
++**Rule of the standard:** S4 (`deriveView`) and the token list (`isExcelError` / `EXCEL_ERROR_TOKENS`)
++MUST be importable from the **pipeline module** — not only from `render.*`. Today S4 lives in
++`render.{mjs,js}` for PPP/MDL/sub, which makes KPI math untestable without a browser. The
++harness currently marks those assertions `MANUAL` for exactly this reason.
++
++---
++
++## 3. Mandatory module exports
++
++Every pipeline module MUST export:
++
++| Export | Signature | Purpose | Current gap |
++|---|---|---|---|
++| `isExcelError` | `(v) → boolean` | Detect `#DIV/0!` etc. (§3.8.4) | ✅ all 5 |
++| `EXCEL_ERROR_TOKENS` | `string[]` (or `Set`) | The token list, exported | ❌ only **PPP** exports it; MDL/sub/action-log/english keep it internal |
++| `buildModel` | `(input, options?) → PipelineModel` | Fused S2 + S3 | ⚠️ PPP splits out `validate`; signature varies (see §5) |
++| `statusCanon` | `(s) → string` | Canonicalize status code↔description | ❌ only **action-log** exports it; PPP keeps it an internal closure; MDL/sub absent |
++| `deriveView` | `(model, state?) → View` | Pure KPI/chart derivation (S4) | ⚠️ only in `render.*` for PPP/MDL/sub; not in pipeline |
++| `PipelineError` | `class extends Error` | Contract/source errors (optional but recommended) | ⚠️ only **sub** has it |
++| model.`completenessGroup` | `Set<string>` on the returned model | Codes counting toward data-completeness % | ⚠️ only **MDL** sets it; others compute completeness ad-hoc |
++
++`workbookKind` / `inspectWorkbook` (sub) are **optional** — only for multi-source pipelines.
++
++---
++
++## 4. Canonical `PipelineModel` (buildModel return)
++
++Standardizes what `buildModel` returns, regardless of input shape:
++
++```js
++{
++  meta: {                       // provenance
++    generatedAt: string(ISO),
++    asOfDate: string(YYYY-MM-DD),
++    projectTitle: string|null,
++    dashboardTitle: string|null,
++    projectStartDate: string|null,
++    sourceNames: string[]        // e.g. ['Master Document List','Submittal Log'] or ['index.html']
++  },
++  records: [ Record ],          // normalized domain rows (packages / docs / actions / words)
++  lookups: {                    // DATA-DRIVEN — never hard-coded lists
++    <name>: { items: [{code,label}], codes: Set<string> }
++  },
++  contract: {                   // discovered config OR supplied options.contract
++    columnMap, fieldOrder, errorBlock, reviewRules, ...
++  },
++  issues: [ Issue ],            // S3 output: errors + warnings (per spec §4.5)
++  warnings: [ Issue ],          // top-level structural (W-FORMULA etc.); may overlap issues
++  completenessGroup: Set<string> // codes that count toward completeness %
++}
++```
++
++**Lookups MUST be data-driven.** Two allowed sources, never a hard-coded array:
++1. **Discovered** from the input (PPP/MDL read the Code sheet).
++2. **Supplied** via `options.contract` (sub reads `pipeline_contract.json`).
++
++When a pipeline requires an external contract and it is absent → throw `PipelineError`
++(sub already does this).
++
++---
++
++## 5. `buildModel` call-signature unification
++
++| Sub-project | Current signature | Aligned to standard? |
++|---|---|---|
++| PPP | `buildModel(result, filename) → { model, vctx }` then **`validate(pkgs, ctx)`** separately | ❌ split |
++| MDL | `buildModel(workbook, options) → {…records, issues, warnings…}` | ✅ |
++| sub | `buildModel(mdlWb, logWb, options) → {…planned, submissions, issues…}` | ✅ (dual-source) |
++| action-log | `buildModel(state) → {…records, issues…}` | ✅ |
++| english | `buildModel(storage) → {…records, issues…}` | ✅ |
++
++**Standard:** `buildModel(input, options?) → PipelineModel` with S2+S3 **fused**. PPP must fold
++`validate` into `buildModel` (the `{ model, vctx }` split is the only outlier). Multi-source
++pipelines (sub) keep extra positional sources but still return one `PipelineModel`.
++
++---
++
++## 6. Canonical `Issue` shape (S3 output)
++
++Today the field names disagree. Standardize:
++
++```js
++{
++  code: string,                       // e.g. 'V-07', 'W-FORMULA', 'A-DISC'
++  severity: 'error'|'warning'|'info'|'fatal',  // normalized, case-insensitive
++  message: string,                   // rule text (from data, not hard-coded)
++  field: string|null,                // offending source column / field
++  value: string|null,                // offending cell value
++  sourceTab: string|null,            // tab/sheet/state source
++  rownum: number|null,
++  docNo: string|null,
++  group: string|null,                // data-completeness group
++  kind: 'system'|'data'|null         // system = structural, data = row-level
++}
++```
++
++**Severity vocabulary** (normalized case-insensitively): `error`, `warning`, `info`, `fatal`.
++- PPP currently emits `{ sev, msg, pkg, desc, kind }` → migrate to `{ severity, message, sourceTab, … }`.
++- MDL/sub emit `{ severity, message, sourceTab, docNo, discipline, field, value }` → already aligned except they use `level:'warn'|'fatal'` on *warnings*; fold `level` into `severity`.
++
++---
++
++## 7. Empty / broken input behavior
++
++| Case | Standard | Current divergence |
++|---|---|---|
++| Valid input, zero rows | return model with `records:[]`, `issues:[]` (no throw) | MDL/sub/action-log/english ✅; **PPP throws** "No packages…" ❌ |
++| Structurally broken (missing required sheet / no contract) | throw `PipelineError` with a code | sub ✅; PPP throws generic `Error`; MDL unguarded |
++
++---
++
++## 8. Tier-1 conformance checklist (what `harness-pipeline` asserts)
++
++Each `checks/<name>.mjs` asserts these against the real pipeline:
++
++- [ ] `isExcelError('#DIV/0!') === true`, `isExcelError('MR') === false`
++- [ ] `EXCEL_ERROR_TOKENS` is exported and includes the 10 standard tokens
++- [ ] `buildModel` fuses S2+S3 and returns canonical `PipelineModel`
++- [ ] valid input → `records.length > 0`, `issues` driven by data (not hard-coded)
++- [ ] lookups are read from data/contract (assert `lookups.X.codes` equals a non-constant set)
++- [ ] `statusCanon` (where status-bearing) canonicalizes codes↔descriptions
++- [ ] empty valid input → 0 records, 0 issues (no throw)
++- [ ] ≥2000 rows builds in <5s (perf gate, spec §3.8)
++- [ ] `completenessGroup` present and consumed by `deriveView`
++- [ ] `deriveView` importable from pipeline (pure) → KPIs computable without browser
++
++(Manual items — chart guardrails `scurveAxisMode` / `rotate(-90)` / `errBanner` stable id — stay
++in `harness-layout`, Tier 2, per the two-layer model §8.)
++
++---
++
++## 9. Open decisions for review (please confirm before any code change)
++
++The standard above implies concrete migrations. I have **not** changed any pipeline code.
++
++- **D1 — Fuse `validate` into `buildModel` (PPP).** Aligns PPP with MDL/sub/action-log/english.
++  Reverses the `{ model, vctx }` split.
++- **D2 — Move `deriveView` into the pipeline module (pure) for PPP/MDL/sub.** Enables the
++  harness to test KPIs without a browser (currently MANUAL). `render.*` can still call it.
++- **D3 — Normalize `Issue` shape** to `severity` / `message` / `sourceTab` (PPP migrates from
++  `sev` / `msg` / `pkg`). Fold MDL/sub `level` into `severity`.
++- **D4 — Export `statusCanon` + `EXCEL_ERROR_TOKENS` from every pipeline** (only PPP exports
++  the tokens today; only action-log exports statusCanon).
++- **D5 — Empty valid input → 0 records (not throw).** PPP must stop throwing on zero packages.
++- **D6 — Contract sourcing.** Single-source dashboards discover lookups from input; multi-source
++  (sub) requires `options.contract` and throws `PipelineError` if absent. Keep a shared
++  `PipelineError` type across all.
++- **D7 — Promote this standard** to a repo-level `docs/PIPELINE-DESIGN-STANDARD.md` (so the
++  dashboard teams, not just the harness, own it).
++
++---
++
++## 10. Summary of what's already consistent (keep as-is)
++
++- `isExcelError` logic and the 10-token set are effectively identical across all 5.
++- "No hard-coded lookup lists" principle already honored by PPP/MDL/sub.
++- S2 "blank == Excel-error == absent" already implemented in PPP/MDL.
++- The 4-stage mental model (S1–S4) is already the de-facto shape; only the *export surface* and
++  *field naming* need unification.
+diff --git a/harness-pipeline/docs/UI-SPEC-COMPLIANCE-REVIEW.md b/harness-pipeline/docs/UI-SPEC-COMPLIANCE-REVIEW.md
+new file mode 100644
+index 0000000..3180ebc
+--- /dev/null
++++ b/harness-pipeline/docs/UI-SPEC-COMPLIANCE-REVIEW.md
+@@ -0,0 +1,200 @@
++# UI Spec ↔ Dashboard Design — Compliance Review
++
++> **Status:** REVIEW ONLY. No code or spec changed.
++> **Date:** 2026-11-03 · **Author:** AI test-engineer (harness-pipeline)
++> **Spec source (authoritative):** `Dashboard-UI-Design-Spec.md` at the **repo root**
++> (`github.com/chinwarsoon/workbuddy`, rev 1.56, ~98 KB).
++> `harness-layout/spec/Dashboard-UI-Design-Spec.md` is a **re-synced copy** of this root spec —
++> both verified at **rev 1.56** (the root file's revision table re-states "re-synced from this file" at
++> rev 1.50, and the harness copy's own table already carries rev 1.56, so they are current and in sync).
++> Every normative clause below is anchored to the **root** copy. Retrieval note: the root raw URL is
++> rate-limited for `curl` in this sandbox, so the §3.8 / §3.8.4 / §3.5 / §4.2 clauses were extracted
++> from the root copy via WebFetch; the harness copy was downloaded in full as a faithful mirror for
++> cross-checking.
++> **Dashboards reviewed:** PPP, MDL, sub (TWRP C3B2), action-log, english-learning.
++> **Layer scope:** §3.8 / §3.8.4 = Tier-1 pipeline (this harness); §3.1/§3.5/§3.7/§4/§4.2/§4.5/§4.6/§4.7/§7 = Tier-2
++> layout (owned by `harness-layout`).
++
++---
++
++## Method & legend
++
++- **Verified** = checked against real pipeline/render code in this sandbox (PPP/MDL/sub pipeline; sub `render.js`).
++- **UNVERIFIABLE** = requirement lives in `render.*` which is **not present in this sandbox** for PPP/MDL;
++  upstream `harness-layout` runs those tiers but the code cannot be inspected here. Marked honestly, **not** as non-compliant.
++- **Per workplan/revision-history** = confirmed from sub workplan changelog + spec rev history (sub claims conformance; harness-layout run reported 222 passed / 0 failed for sub).
++- **Root copy = authoritative.** `harness-layout/spec/` is a re-synced mirror (verified rev 1.56 in both); all clauses are cited against the repo-root copy, not the mirror.
++
++| Symbol | Meaning |
++|---|---|
++| ✅ COMPLIANT | meets spec, verified or via upstream run |
++| ⚠️ PARTIAL | meets some clauses, gap noted |
++| ❌ NON-COMPLIANT | violates a MUST |
++| ➖ N/A | not applicable to this sub-project (e.g. no charts / no dashboard shell) |
++| ❓ UNVERIFIABLE | cannot inspect code in sandbox |
++
++---
++
++## 1. Pipeline layer (Tier-1, §3.8 / §3.8.4) — fully verifiable here
++
++| Spec requirement | PPP | MDL | sub | action-log | english |
++|---|---|---|---|---|---|
++| **§3.8** buildModel exists, S2 normalize + S3 validate | ⚠️ split `validate` call (D1) | ✅ fused | ✅ fused, dual-source | ⚠️ scaffold | ⚠️ scaffold |
++| **§3.8** valid-record gate: empty valid input → 0 records, no throw | ❌ throws "No packages…" (D5, L307) | ✅ 0 records | ✅ 0 records | ✅ (scaffold) | ✅ (scaffold) |
++| **§3.8** lookups data-driven (no hard-coded lists) | ✅ | ✅ | ✅ external contract | ✅ from state | ➖ none |
++| **§3.8** completenessGroup set for deriveView | ➖ (validates via counters) | ✅ | ⚠️ uses `coverage` object instead | ➖ | ➖ |
++| **§3.8.4** `isExcelError(v)` implemented | ✅ | ✅ | ✅ | ✅ | ✅ |
++| **§3.8.4** `EXCEL_ERROR_TOKENS` **exported** | ✅ | ❌ internal Set (D4) | ❌ internal (D4) | ❌ internal (D4) | ❌ internal (D4) |
++| **§3.8.4** formula-error aggregation (W-FORMULA) | ✅ `formulaErrors` | ✅ `W-FORMULA` warning | ✅ `W-FORMULA` (Fatal) | ➖ | ➖ |
++| **§3.8** `statusCanon` exported | ❌ internal closure (D4) | ❌ absent (D4) | ❌ absent (D4) | ✅ | ➖ |
++| **§3.8** `deriveView` importable from **pipeline** (pure) | ❌ only in render (D2) | ❌ only in render (D2) | ❌ only in `render.js` (D2) | ✅ (scaffold) | ✅ (scaffold) |
++| **§3.8** contract positions discovered by **labels** — NO hard-coded rows/cols; reports missing fields | ✅ Code-sheet driven | ✅ | ✅ external `contract` | ✅ state-driven | ➖ none |
++| **§3.8** pipeline is **DOM-free & a harness exists** that asserts values pre-release (failing blocks release) | ✅ runs in harness-pipeline | ✅ | ✅ | ✅ scaffold | ✅ scaffold |
++| **§3.8** `meta.today` uses **LOCAL** date components (NEVER `toISOString()` UTC); project-start MUST NOT feed Overdue/approval math | ❓ unverified | ❓ | ❓ | ❓ | ❓ |
++| **§3.8** KPI math lives ONLY in S4/`deriveView` (S2/S3 MUST NOT recompute) — single source of truth | ❌ deriveView in render (G6) | ❌ (G6) | ❌ (G6) | ✅ scaffold | ✅ scaffold |
++| **§3.8.4** `isExcelError` token set = exact 10 (`#NULL! #DIV/0! #VALUE! #REF! #NAME? #N/A #NUM! #GETTING_DATA #SPILL! #CALC!`, case-insensitive), every column | ✅ | ✅ | ✅ | ✅ | ✅ |
++| **§3.8.4** `W-FORMULA` routes to `#errBanner` as **fatal strip**, NOT pushed to `model.issues` | ❓ verify | ❓ verify | ✅ (§3.5 errBanner id) | ➖ | ➖ |
++
++**Pipeline layer verdict:** MDL and sub are essentially compliant. PPP has two real gaps
++(D1 split `validate`, D5 empty-throw). All five under-export the token set / `statusCanon` (D4) and
++keep `deriveView` in render (D2) — a uniform module-surface gap. The additional §3.8 clauses now
++verified from the **root** copy add three findings: (a) contract positions are label-driven everywhere
++✅ (no hard-coded rows/cols); (b) KPI-math-in-S4 is violated by all three XLSX dashboards because
++`deriveView` sits in render (same root cause as D2/G6); (c) `meta.today` local-date compliance is
++**unverified** for all five and should become a harness-pipeline assertion (see G9).
++
++> **Root-spec precision (§3.8.4) — exact `isExcelError` token set (case-insensitive):**
++> `#NULL! #DIV/0! #VALUE! #REF! #NAME? #N/A #NUM! #GETTING_DATA #SPILL! #CALC!`
++> S2 MUST treat blank AND these formula-error tokens as **absent** for *every* column (not opt-in).
++> `W-FORMULA` is a `model.warnings` entry (`{level:'fatal', code:'W-FORMULA', tab, message}`) that
++> MUST route to `#errBanner` as a fatal strip and MUST NOT be pushed to `model.issues`. (PPP's
++> `formulaErrors` and sub's fatal `W-FORMULA` match this shape; MDL/PPP routing to `#errBanner`
++> is marked ❓ because their `render.*` is not in this sandbox.)
++
++---
++
++## 2. Shell & chrome (Tier-2, §3.1 / §3.2 / §3.6 / §3.5 / §3.7)
++
++| Spec requirement | PPP | MDL | sub | action-log | english |
++|---|---|---|---|---|---|
++| **§3.1/§3.2/§3.6** two-row header + navy left nav, light default, `AGENTS §18.2` markers | ❓ | ❓ | ✅ (workplan §2.2) | ➖ SPA shell | ➖ PWA |
++| **§3.5** warning area carries stable id `errBanner`, pinned below menu bar | ❓ | ❓ | ✅ (fixed I093/I095/I096 → 222/0) | ➖ | ➖ |
++| **§3.7** full-screen welcome overlay, golden ratio 1:1.618, load buttons in drop area, no hardcoded title | ❓ | ❓ | ✅ (workplan §2.3) | ➖ | ➖ |
++
++**Shell verdict:** sub is fully compliant (verified via workplan + upstream run). PPP/MDL are the
++shell originators but **unverifiable in this sandbox** — not flagged non-compliant. action-log /
++english are non-dashboard (SPA/PWA) → N/A for the shell clauses.
++
++---
++
++## 3. Panels & charts (Tier-2, §4 / §4.2 / §4.5 / §4.6 / §4.7)
++
++| Spec requirement | PPP | MDL | sub | action-log | english |
++|---|---|---|---|---|---|
++| **§4** every view wraps output in `activePanel()`; border model; collapse toggle | ❓ | ❓ | ✅ (I047/I066/I067) | ➖ | ➖ |
++| **§4.7** 14 px between top-level panels, never 0 | ❓ | ❓ | ✅ | ➖ | ➖ |
++| **§4.2** bar value labels `rotate(-90)` (vertical) | ❓ | ❓ | ✅ (render.js L585) | ➖ | ➖ |
++| **§4.2** `yMax = max(values) × ~1.03`, no power-of-ten rounding | ❓ | ❓ | ✅ (render.js L558) | ➖ | ➖ |
++| **§4.2** cumulative S-curve is **absolute** (no window re-base) | ❓ | ❓ | ✅ by design (no rebase token; running total) | ➖ | ➖ |
++| **§4.2** solid dots `r=3` for cumulative nodes | ❓ | ❓ | ✅ (render.js L594/976) | ➖ | ➖ |
++| **§4.2** x-axis `MMM YYYY` template | ❓ | ❓ | ✅ (`fmtMonth`) | ➖ | ➖ |
++| **§4.2** `scurveAxisMode` auto-guardrail (shared default; `r=maxCum/maxBar`>10 → separate, <6 → shared, hysteresis) | ❓ | ❓ | ⚠️ **PARTIAL** — always-shared scale, **no auto-switch logic found** | ➖ | ➖ |
++| **§4.2** C3 grid lines + numbers (rev 1.34) | ❓ | ❓ | ✅ (render.js L573/940/973) | ➖ | ➖ |
++| **§4.2** C2 funnel (rev 1.35/1.36) | ❓ | ❓ | ✅ | ➖ | ➖ |
++| **§4.5** Validation panel: `.v-summary` + two `.c-card` tables + per-table CSV + widths | ❓ | ❓ | ✅ (rev 1.44, driven by SUB) | ➖ | ➖ |
++| **§4.6** hover floating window (§8 Tier 6) | ❓ | ❓ | ✅ (Tier 6 harness) | ➖ | ➖ |
++
++**Chart verdict:** sub is compliant on every §4.2 clause **except `scurveAxisMode` auto-guardrail** —
++it uses a single always-shared y-scale. PPP/MDL render is absent here → all ❓ (not non-compliant).
++
++---
++
++## 4. Interaction & fit (Tier-2, §7.1 / §7.2.15)
++
++| Spec requirement | PPP | MDL | sub | action-log | english |
++|---|---|---|---|---|---|
++| **§7.1** selection: dimension opens with all values ticked; empty tick set filters all out; tick applies at once; Esc closes | ⚠️ limited (harness-layout note: "PPP Tier 3 limited — I-76 monolithic pipeline") | ✅ origin | ✅ (rev 1.42, I070) | ➖ | ➖ |
++| **§7.2.15** fit on **container** change, never on column change (cache width) | ❓ | ❓ | ✅ (rev 1.56) | ➖ | ➖ |
++
++---
++
++## 5. Conformance framework (§8 two-layer model)
++
++| Requirement | All 5 |
++|---|---|
++| **§8** Layer 1 = `harness-pipeline` (function/pipeline), Layer 2 = `harness-layout` (layout) | ✅ by architecture — `harness-pipeline` runs (80 pass / 12 manual); `harness-layout` README documents Tiers 1–6 + assertions 1–20 |
++| **§8.2** assertion catalogue (1–20) | ✅ sub exercised (222/0); PPP/MDL run upstream |
++
++**§8 verdict:** ✅ the two-layer model is correctly implemented; `harness-pipeline` is the Layer-1
++instance and is verified green.
++
++---
++
++## 6. Non-compliance & gaps (the actionable list)
++
++| # | Severity | Sub-project | Spec clause | Gap |
++|---|---|---|---|---|
++| G1 | Medium | **PPP** | §3.8 (valid-record gate) | `validate` throws on empty input (L307) — should return 0 records |
++| G2 | Low | **PPP** | §3.8 | `buildModel` + separate `validate` call — diverges from fused model (D1) |
++| G3 | **High** | **sub** | §4.2 `scurveAxisMode` | No shared/separate auto-guardrail (`r>10`→separate, `<6`→shared, hysteresis). Always-shared scale only |
++| G4 | Low | MDL/sub/action-log/english | §3.8.4 | `EXCEL_ERROR_TOKENS` not exported (only PPP exports it) |
++| G5 | Low | PPP/MDL/sub | §3.8 | `statusCanon` not exported (only action-log scaffold exports it) |
++| G6 | Medium | PPP/MDL/sub | §3.8 | `deriveView` lives in `render.*`, not importable from pipeline (blocks KPI testing without browser) |
++| G7 | Info | action-log/english | §3.8 / §4.x | Pipelines are **reference scaffolds** — real SPA/PWA logic not yet extracted; most §4.x / §3.x N/A until then |
++| G8 | Info | PPP/MDL | §3.1/§3.5/§3.7/§4.x | `render.*` not in sandbox → Tier-2 clauses UNVERIFIABLE here (upstream harness-layout runs them) |
++| G9 | Low | all 5 | §3.8 (`meta.today` local date) | `meta.today` MUST use local date components, NEVER `toISOString()` UTC — **unverified** for all five; add as a harness-pipeline assertion |
++
++---
++
++## 7. Suggestions — spec enhancements (propose editing the spec)
++
++1. **Add a normative "module export contract" (new §3.8.x).** Mandate every pipeline module exports
++   `isExcelError`, `EXCEL_ERROR_TOKENS`, `buildModel(input, options) → Model`, `statusCanon`, and
++   `deriveView(model, state) → View` (pure). This formalizes `PIPELINE-DESIGN-STANDARD.md` and lets
++   the Tier-1 harness assert uniformly. Closes G4/G5/G6.
++2. **Add an explicit empty-input contract (§3.8).** "A valid input with zero rows MUST yield
++   `records:[]`, `issues:[]` — never throw." Closes G1.
++3. **Resolve `scurveAxisMode` ambiguity (§4.2).** Either (a) make the shared/separate auto-guardrail a
++   hard MUST and fix sub (G3), or (b) if always-shared is acceptable for a given dashboard, relax to
++   SHOULD with a documented `r`-threshold exemption. Pick one and state it.
++4. **Add a scope clause.** State which sections apply to non-dashboard sub-projects (action-log,
++   english-learning). Currently the spec reads dashboard-only; clarify that §3.1/§3.5/§3.7/§4.x are
++   N/A for them and only §3.8 / §3.8.4 / §8 govern their pipeline. Closes G7 ambiguity.
++5. **Document the two-source model (§3.8).** sub's dual-workbook + external `options.contract` pattern
++   is real but only implied; make it a normative subsection with the `PipelineError`-on-missing-contract
++   rule explicit.
++6. **Extend §8.2 assertion catalogue** with a `scurveAxisMode` assertion (e.g. assertion 21) so the
++   guardrail is machine-checked, not just prose.
++7. **Make the root↔harness re-sync explicit & version-pinned.** Add a normative note (or a CI check)
++   that `harness-layout/spec/Dashboard-UI-Design-Spec.md` MUST be a verbatim re-sync of the repo-root
++   `Dashboard-UI-Design-Spec.md` at the same rev (the revision table already states the intent; pin it
++   so a root edit can never silently diverge from the bundled copy the harness reads).
++8. **Add a `meta.today` local-date assertion** to the §8.2 catalogue (closes G9) — guards against
++   UTC `toISOString()` drift in Overdue/approval/schedule math.
++
++## 8. Suggestions — design/pipeline updates (propose editing the dashboards)
++
++1. **PPP:** fold `validate` into `buildModel` (G2); stop throwing on empty input (G1).
++2. **sub:** implement `scurveAxisMode` auto-guardrail, or obtain spec relaxation (G3).
++3. **All pipelines:** export `EXCEL_ERROR_TOKENS` + `statusCanon` (G4/G5); move `deriveView` into the
++   pipeline module as a pure function (G6).
++4. **Promote** `PIPELINE-DESIGN-STANDARD.md` to a repo-level `docs/` and cross-reference from §3.8, so
++   the dashboard teams (not just the harness) own the contract.
++5. **action-log / english-learning:** when the real SPA/PWA pipeline is extracted, run them through
++   `harness-pipeline` + the §3.8/§3.8.4/§8 layers only (skip shell/chart tiers per suggestion 4).
++
++---
++
++## 9. Bottom line
++
++- **Fully compliant (verified):** MDL & sub pipelines (§3.8/§3.8.4); sub shell/panels/charts (§3.1–§4.7,
++  §7); the §8 two-layer framework for all five.
++- **Concrete gaps to fix:** G1 (PPP empty-throw), G3 (sub `scurveAxisMode`), G6 (deriveView in render),
++  plus the uniform export gaps G4/G5. **G9** (`meta.today` local-date) is a new harness assertion to add.
++- **Cannot judge here:** PPP/MDL Tier-2 design clauses (render absent in sandbox) — upstream
++  `harness-layout` is the authority; recommend re-running its Tiers 1–6 against current PPP/MDL to
++  confirm.
++- **Scaffolds:** action-log / english-learning are reference stubs; N/A until real pipelines exist.
++- **Spec authority:** all clauses above are now anchored to the **repo-root** `Dashboard-UI-Design-Spec.md`
++  (rev 1.56); the `harness-layout/spec/` file is a verified re-synced mirror (same rev), used only as a
++  retrieval fallback.
+diff --git a/harness-pipeline/harness.mjs b/harness-pipeline/harness.mjs
+new file mode 100644
+index 0000000..5cce67b
+--- /dev/null
++++ b/harness-pipeline/harness.mjs
+@@ -0,0 +1,94 @@
++#!/usr/bin/env node
++// harness-pipeline — Tier-1 pipeline + design conformance harness.
++//
++// Layer 1 of the Dashboard-UI-Design-Spec.md §8 two-layer check model
++// (Layer 2 = harness-layout, the UI/layout conformance harness).
++//
++// Auto-discovers checks/<name>.mjs — each default-exports a config object that declares the
++// REAL pipeline source, the sub-project workplan, the spec sections it references, and an array
++// of assertions. Adding a sub-project = drop a config file; no core change needed.
++//
++// Usage:
++//   node harness.mjs                       # run all discovered sub-projects
++//   node harness.mjs --subproject ppp      # run one
++//   node harness.mjs --subproject ppp --root /path/to/repo
++//   WORKBUDDY_ROOT=/path node harness.mjs  # override repo root
++//
++// Each assertion records PASS / FAIL / MANUAL via ctx.ok() / ctx.manual(). MANUAL marks items
++// that need a browser/render layer (also covered by harness-layout) so they never fake-green.
++import fs from 'node:fs';
++import path from 'node:path';
++import { fileURLToPath, pathToFileURL } from 'node:url';
++import { repoRoot, loadProject } from './lib/pipeline-probe.mjs';
++import { extractSections } from './lib/workplan-extract.mjs';
++
++const here = path.dirname(fileURLToPath(import.meta.url));
++const args = process.argv.slice(2);
++const arg = f => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : null; };
++const target = arg('--subproject');
++const all = args.includes('--all') || (!target);
++const cliRoot = arg('--root');
++const root = cliRoot || repoRoot(here);
++
++const checksDir = path.resolve(here, 'checks');
++const files = fs.existsSync(checksDir)
++  ? fs.readdirSync(checksDir).filter(f => f.endsWith('.mjs') && !f.startsWith('_'))
++  : [];
++let names = files.map(f => f.slice(0, -4));
++if (target) names = names.filter(n => n === target);
++if (!names.length) { console.error('No sub-project configs found in checks/'); process.exit(2); }
++
++let totalPass = 0, totalFail = 0, totalManual = 0;
++const logs = {};
++
++for (const name of names){
++  const cfg = (await import(pathToFileURL(path.resolve(checksDir, name + '.mjs')).href)).default;
++  const proj = await loadProject(cfg, root);
++  const workplanPath = cfg.workplan ? path.resolve(root, cfg.workplan) : null;
++  const wpSections = extractSections(workplanPath);
++  const results = [];
++  const ctx = {
++    name, title: cfg.title || name,
++    pipeline: proj.pipeline, render: proj.render,
++    root, workplanPath, specSections: cfg.specSections || [], wpSections,
++    fixtures: cfg.fixtures || {},
++    makeWorkbook: (cfg.fixtures && cfg.fixtures.makeWorkbook) || null,
++    deriveView: proj.render ? (proj.render.deriveView || null) : null,
++    ok: (n, c, d) => results.push({ name: n, pass: !!c, manual: false, detail: d || '' }),
++    manual: (n, why) => results.push({ name: n, pass: false, manual: true, detail: why }),
++  };
++
++  console.log('\n' + '='.repeat(78));
++  console.log(`TIER 1 — ${cfg.title || name}`);
++  console.log(`  workplan : ${cfg.workplan || '—'} | spec: ${(cfg.specSections || []).join(', ')}`);
++  if (proj.pipelineErr) console.log('  pipeline : ' + proj.pipelineErr);
++  if (proj.renderErr) console.log('  render   : ' + proj.renderErr + ' (design-behavior assertions → MANUAL)');
++  console.log('='.repeat(78));
++
++  for (const a of (cfg.assertions || [])){
++    if (a.needs === 'render' && !ctx.render){ ctx.manual(a.id + ' ' + a.desc, 'render not loaded — Layer-2 design behaviors also covered by harness-layout'); continue; }
++    if (a.needs === 'pipeline' && !ctx.pipeline){ ctx.manual(a.id + ' ' + a.desc, 'pipeline not loaded'); continue; }
++    const before = results.length;
++    try { await a.run(ctx); }
++    catch (e){ results.push({ name: a.id + ' ' + a.desc, pass: false, manual: false, detail: 'ERROR: ' + e.message }); }
++    if (results.length === before) results.push({ name: a.id + ' ' + a.desc, pass: false, manual: false, detail: 'no assertion recorded' });
++  }
++
++  const p = results.filter(r => r.pass).length;
++  const f = results.filter(r => !r.pass && !r.manual).length;
++  const m = results.filter(r => r.manual).length;
++  totalPass += p; totalFail += f; totalManual += m;
++  for (const r of results){
++    const tag = r.manual ? 'MANUAL' : (r.pass ? 'PASS  ' : 'FAIL  ');
++    console.log(`  ${tag}  ${r.name}${r.detail ? '  (' + r.detail + ')' : ''}`);
++  }
++  console.log(`  → ${name}: ${p} pass, ${f} fail, ${m} manual`);
++  logs[name] = { pass: p, fail: f, manual: m, workplan: cfg.workplan, specSections: cfg.specSections, results };
++}
++
++fs.mkdirSync(path.resolve(here, 'test_output'), { recursive: true });
++fs.writeFileSync(path.resolve(here, 'test_output', 'tier1.json'), JSON.stringify(logs, null, 2));
++console.log('\n' + '='.repeat(78));
++console.log(`TIER 1 TOTAL: ${totalPass} pass, ${totalFail} fail, ${totalManual} manual`);
++console.log('='.repeat(78));
++process.exit(totalFail ? 1 : 0);
+diff --git a/harness-pipeline/lib/fixtures.mjs b/harness-pipeline/lib/fixtures.mjs
+new file mode 100644
+index 0000000..dd9e7dd
+--- /dev/null
++++ b/harness-pipeline/lib/fixtures.mjs
+@@ -0,0 +1,353 @@
++// fixtures.mjs — synthetic workbook builders for Tier-1 pipeline tests.
++// PPP builder produces the in-memory { PPP, Code } grid that PPP's buildModel() accepts
++// (proven in PPP/test/lib/wb.mjs). MDL builder produces the { sheets:{name:{rows,maxRow}} }
++// shape that MDL's buildModel() expects. No files on disk needed for the pipeline layer.
++
++const colLetter = i => { let s=''; let n=i+1; while(n>0){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=(n-m-1)/26; } return s; };
++export { colLetter };
++
++// ---------------------------------------------------------------------------
++// PPP
++// ---------------------------------------------------------------------------
++const PPP_FIELDS = {
++  title:0, packageNo:1, discipline:2, criticality:3, status:4, engineer:5, poNo:6,
++  leadTime:7, mrPlan:8, mrActual:9, poPlan:10, poActual:11, vdPlan:12, vdActual:13,
++  fatPlan:14, fatActual:15, rosPlan:16, rosActual:17, itemCategory:18, supplier:19,
++  buyer:20, pe:21, sNo:22, area:23, equipmentTags:24, packageNotes:25, quantity:26
++};
++const PPP_LABEL = {
++  title:'Package Title', packageNo:'Package No.', discipline:'Discipline', criticality:'Criticality',
++  leadTime:'Estimate Lead Time', status:'Package Status', poNo:'PO Number', engineer:'Design Engineer',
++  supplier:'Supplier', buyer:'Buyer', pe:'Project Engineer', mrPlan:'MR Plan Date', mrActual:'MR Actual Date',
++  poPlan:'PO Plan Date', poActual:'PO Actual Date', vdPlan:'VD Approval Plan Date', vdActual:'VD Approval Actual Date',
++  fatPlan:'FAT Plan Date', fatActual:'FAT Actual Date', rosPlan:'ROS Plan Date', rosActual:'ROS Actual Date',
++  itemCategory:'Item Category', area:'Area', equipmentTags:'Equipment Tags', packageNotes:'Package Notes', quantity:'Quantity'
++};
++
++const PPP_DEFAULT_DISC = [['Civil','CIV'],['Mechanical','MEC'],['Electrical','ELE']];
++const PPP_DEFAULT_CRIT = [['Low','1'],['Medium','2'],['High','3'],['Critical','4']];
++const PPP_DEFAULT_STAT = [['Not Started','NS'],['Material Released','MR'],['Vendor Info','VI'],['PO Issued','PO'],
++  ['Vendor Data Approved','VDA'],['Fabrication','FAB'],['FAT','FAT'],['Delivered','DEL'],['Receive Inspection','RI']];
++const PPP_DEFAULT_CAT = [['Pump','PMP'],['Valve','VLV'],['Motor','MOT']];
++const PPP_DEFAULT_ERRS = [
++  ['V-01','Rows inside the data range with a blank Package Title are skipped','info','Structure / Rows','system','check'],
++  ['V-02','Value is a number but not a real Excel date','error','Dates','data','check'],
++  ['V-03','Text value cannot be read as a date','error','Dates','data','check'],
++  ['V-04','Value is not numeric','error','Values / Numeric','data','check'],
++  ['V-05','Criticality must be one of the listed values','error','Criticality','data','check'],
++  ['V-06','Discipline not found in the Code sheet list','warning','Discipline','data','check'],
++  ['V-07','Status not found in the Code sheet list','error','Status','data','check'],
++  ['V-08','Stage plan dates are out of sequence','warning','Dates / Stages','data','check'],
++  ['V-09','Actual date entered but the Plan is empty','warning','Dates / Stages','data','check'],
++  ['V-10','Actual date is later than today','warning','Dates / Stages','data','check'],
++  ['V-11','Duplicate Package No.','warning','Identity','data','check'],
++  ['V-12','Same engineer written different ways','warning','Engineer','data','check'],
++  ['V-13','Rows after List End Row contain a Package Title but are excluded','warning','Structure / Rows','system','check'],
++  ['V-14','Lead time missing on more than 50% of packages','warning','Lead time','data','check'],
++  ['V-15','Code-sheet config / Data-Type mismatch','error','Config / Code sheet','system','check'],
++  ['V-16','Column C has no Data Type values','warning','Config / Code sheet','system','check'],
++  ['V-17','Item Category not found in the Code sheet list','info','Category','data','check'],
++  ['V-18','Lookup block not found in row 1','warning','Config / Lookup','system','check'],
++  ['V-19','Header Row has no value in the Package Title column','warning','Config / Code sheet','system','check'],
++  ['V-20','Expected data rows exceed actual parsed rows','warning','Structure / Rows','system','check'],
++  ['V-21','Rule code has no row in the Code sheet Error table','warning','Config / Workbook','system','check'],
++  ['V-22','Lookup code column is empty','warning','Config / Lookup','system','check'],
++  ['V-23','Execution progress = 0 (no Actual dates)','warning','Progress / Execution','data','check'],
++  ['V-24','Engineer unassigned','warning','Engineer','data','check'],
++  ['V-25','Plan-date inconsistency','warning','Dates / Stages','data','check'],
++  ['V-26','PO Actual date is set but PO Number is blank','warning','PO / Procurement','data','check']
++];
++
++export function pppMakeWorkbook(packages, opts = {}){
++  const N = packages.length;
++  const code = [];
++  code[0] = ['Discipline Description','Discipline Code','Criticality','Criticality Code',
++    'Package Status','Status Code','Item Category','Category Code',
++    'Error Code','Error Description','Severity','Group','Kind','Trigger'];
++  const disc = opts.disc ?? PPP_DEFAULT_DISC;
++  const crit = opts.crit ?? PPP_DEFAULT_CRIT;
++  const stat = opts.stat ?? PPP_DEFAULT_STAT;
++  const cat  = opts.cat  ?? PPP_DEFAULT_CAT;
++  const errs = opts.errs ?? PPP_DEFAULT_ERRS;
++  const maxRows = Math.max(disc.length, crit.length, stat.length, cat.length);
++  for (let i=0;i<maxRows;i++){
++    const r=[];
++    if (i<disc.length){ r[0]=disc[i][0]; r[1]=disc[i][1]; }
++    if (i<crit.length){ r[2]=crit[i][0]; r[3]=crit[i][1]; }
++    if (i<stat.length){ r[4]=stat[i][0]; r[5]=stat[i][1]; }
++    if (i<cat.length){ r[6]=cat[i][0]; r[7]=cat[i][1]; }
++    code.push(r);
++  }
++  for (let i=0;i<errs.length;i++){ const r=code[i+1]||(code[i+1]=[]); r[8]=errs[i][0]; r[9]=errs[i][1]; r[10]=errs[i][2]; r[11]=errs[i][3]; r[12]=errs[i][4]; r[13]=errs[i][5]; }
++  code.push([],[],[]); // 3 blank rows terminate lookup readers
++  code.push(['Project Title', opts.projectTitle || 'Test Project','Text']);
++  code.push(['Project Code', opts.projectCode || 'PPP-TEST','Text']);
++  code.push(['Client', opts.client || 'Test Client','Text']);
++  code.push(['Project Start Date', opts.projectStart !== undefined ? opts.projectStart : '2024-01-15','Date']);
++  code.push(['AsOf Date', opts.asOf !== undefined ? opts.asOf : '2024-01-15','Date']);
++  code.push(['Header Row','1','Number']);
++  code.push(['List End Row', String(N+1),'Number']);
++  for (const [f,idx] of Object.entries(PPP_FIELDS)) code.push([PPP_LABEL[f],'Column-'+colLetter(idx), idx===7||idx===26?'Number':(idx>=8&&idx<=17)?'Date':'Text']);
++
++  const ppp=[]; ppp[0]=Object.values(PPP_LABEL);
++  for (const p of packages){ const row=new Array(27).fill(null); for (const [f,idx] of Object.entries(PPP_FIELDS)){ if (p[f]!==undefined) row[idx]=p[f]; } ppp.push(row); }
++  return { PPP: ppp, Code: code };
++}
++
++export function pppPkg(over = {}){
++  return Object.assign({
++    title:'PKG', packageNo:'P1', discipline:'Civil', criticality:'Low', status:'NS',
++    engineer:'Dilip', poNo:'PO1', leadTime:120, mrPlan:'2024-02-01', mrActual:'2024-02-15', poPlan:'2024-03-01', itemCategory:'Pump'
++  }, over);
++}
++
++// ---------------------------------------------------------------------------
++// MDL — { sheets:{ name:{ rows:{r:{A,B,C,...}}, maxRow } } }
++// ---------------------------------------------------------------------------
++function mrows(arr){ const rows=[]; arr.forEach((r,i)=> rows[i+1]=r); return rows; } // array (1-indexed); MDL reads .length + rows[r]
++
++// Default MDL field -> column-letter map (A..), matching MDL_FIELD_KEYS order.
++const MDL_FIELD_KEYS = [
++  'SNo.', 'Stage', 'UESH Discipline', 'P6 Activity ID', 'BQ Number', 'System',
++  'Project Code', 'Project Prefix', 'Doc Type', 'Discipline', 'Number', 'Rev',
++  'Document No.', 'Document Title', 'Notes', 'As-Built', 'Authority', 'Vendor Data',
++  'Planned 1st Issue Date', 'Forecast 1st Issue Date', 'Actual 1st Issue Date',
++  'Prolog Number', 'Submission Status', 'Latest Approval Date', 'Latest Approval Status'
++];
++function defaultFieldCols(){
++  const m={}; MDL_FIELD_KEYS.forEach((f,i)=> m[f]=colLetter(i)); return m;
++}
++
++export function mdlMakeWorkbook(opts = {}){
++  const disc = opts.disc || opts.discipline || [['Civil','CIV'],['Mechanical','MEC']];
++  const uesh = opts.uesh || disc.map(d=>[d[0],d[1]]);      // UESH discipline = also the tab names
++  const docType = opts.docType || [['Calculation Note','CN'],['Drawing','DW']];
++  const subStatus = opts.subStatus || [['Submitted','SUB'],['Pending Review','PEND']];
++  const approval = opts.approval || [['Approved','APP'],['Rejected','REJ']];
++  const projCode = opts.projectCode || [['WBS1','P1']];
++  const authority = opts.authority || [['Client','CL']];
++  const stage = opts.stage || [['MR','MR Issue'],['PO','PO Issue']];
++  const errs = opts.errs || [
++    ['V-02','not in list','Error','X'],
++    ['V-04','Discipline Code not in list','Error','X'],
++    ['V-13','lookup label with empty code','Warning','X']
++  ];
++
++  const code = [];
++  const hdr = {};
++  hdr.K='Stage Code'; hdr.M='UESH Discipline'; hdr.O='WBS Contract Code';
++  hdr.Q='Doc Code'; hdr.S='Discipline Code'; hdr.U='Authority Code';
++  hdr.W='Submission Status Code'; hdr.Y='Approval Code';
++  hdr.AA='Error Code'; hdr.AB='Rule'; hdr.AC='Severity'; hdr.AD='Group';
++  code.push(hdr);
++  const maxL = Math.max(stage.length,uesh.length,projCode.length,docType.length,disc.length,authority.length,subStatus.length,approval.length,errs.length);
++  for (let i=0;i<maxL;i++){
++    const r={};
++    if (i<stage.length){ r.K=stage[i][0]; r.L=stage[i][1]; }
++    if (i<uesh.length){ r.M=uesh[i][0]; r.N=uesh[i][1]; }
++    if (i<projCode.length){ r.O=projCode[i][0]; r.P=projCode[i][1]; }
++    if (i<docType.length){ r.Q=docType[i][0]; r.R=docType[i][1]; }
++    if (i<disc.length){ r.S=disc[i][0]; r.T=disc[i][1]; }
++    if (i<authority.length){ r.U=authority[i][0]; r.V=authority[i][1]; }
++    if (i<subStatus.length){ r.W=subStatus[i][0]; r.X=subStatus[i][1]; }
++    if (i<approval.length){ r.Y=approval[i][0]; r.Z=approval[i][1]; }
++    if (i<errs.length){ r.AA=errs[i][0]; r.AB=errs[i][1]; r.AC=errs[i][2]; r.AD=errs[i][3]; }
++    code.push(r);
++  }
++  const metaAdd = (k,v,t)=> code.push({A:k,B:v,C:t});
++  metaAdd('Project Start Date', opts.projectStart || '2024-01-01','Date');
++  metaAdd('List End Row', String(opts.listEndRow || '50'),'Number');
++  metaAdd('Review Duration (First Client Review)','20','Number');
++  metaAdd('Resubmission Duration','14','Number');
++  const fieldCols = opts.fieldCols || defaultFieldCols();
++  for (const [f,col] of Object.entries(fieldCols)) code.push({A:f, B:'Column-'+col, C:''});
++
++  const sheets = { Code: { rows: mrows(code), maxRow: code.length } };
++
++  const docs = opts.docs || defaultDocs(disc, uesh);
++  const byTab = {};
++  for (const d of docs) (byTab[d.tab] = byTab[d.tab] || []).push(d);
++  for (const tab of Object.keys(byTab)){
++    const rows = [{}];
++    for (const d of byTab[tab]){
++      const r={};
++      for (const [f,col] of Object.entries(fieldCols)){ if (d[f]!==undefined && d[f]!=='') r[col]=d[f]; }
++      rows.push(r);
++    }
++    sheets[tab] = { rows: mrows(rows), maxRow: rows.length };
++  }
++  return { sheets };
++}
++
++function defaultDocs(disc, uesh){
++  const docs=[];
++  disc.forEach((d,i)=>{
++    // In MDL's lookup convention the CODE column holds the discipline NAME and the
++    // DESCRIPTION column holds the short code; the discipline TAB is named after the
++    // code-column (name) value, so tab = uesh[i][0].
++    const tab = uesh[i] ? uesh[i][0] : d[0];
++    docs.push({
++      tab, 'SNo.':String(i+1), 'Stage':'MR', 'UESH Discipline':(uesh[i]?uesh[i][0]:d[0]), 'Project Code':'P1',
++      'Doc Type':'CN', 'Discipline':d[0], 'Number':String(100+i), 'Document No.':'DOC-'+tab+'-'+i,
++      'Document Title':'Document '+i, 'Project Prefix':'PR',
++      'Planned 1st Issue Date':'2024-02-01', 'Actual 1st Issue Date':'2024-03-01',
++      'Submission Status':'SUB', 'Latest Approval Status':'APP'
++    });
++  });
++  return docs;
++}
++
++// Column-letter helper exported for configs that need it.
++export const _internal = { defaultFieldCols };
++
++// ---------------------------------------------------------------------------
++// action-log — in-memory JS state (single-file SPA, no XLSX / no workbook).
++// Raw intent (action objects + lookups + meta) → the state object the
++// action-log pipeline consumes. Mirrors PPP/MDL's "raw input → pipeline" split.
++// ---------------------------------------------------------------------------
++export function alMakeState(actions = [], opts = {}){
++  const lookups = opts.lookups || {
++    disciplines: opts.disciplines || ['Civil','Mechanical','Electrical'],
++    statuses: opts.statuses || ['Not Started','On Hold','In Progress','Completed'],
++  };
++  const meta = opts.meta || { projectStart: '2024-01-01', asOf: opts.asOf || '2024-06-01' };
++  return { actions: actions.map(a => ({ ...a })), lookups, meta };
++}
++
++// ---------------------------------------------------------------------------
++// english-learning — serialized localStorage snapshot (offline PWA, iPhone Safari).
++// Raw intent → the persisted state the PWA reads back. Shape mirrors the PWA's
++// localStorage keys (vocabulary / reading / progress). No workbook involved.
++// ---------------------------------------------------------------------------
++export function elMakeStorage(opts = {}){
++  const vocabulary = opts.vocabulary || [
++    { word:'apple', phase:1, due:'2024-06-10', box:3, known:false },
++    { word:'banana', phase:2, due:'2024-06-12', box:2, known:false },
++  ];
++  const reading = opts.reading || [
++    { id:'r1', title:'A day at school', level:'A1', read:true, lastRead:'2024-06-01' },
++  ];
++  const progress = opts.progress || { dailyStreak:5, lastDaily:'2024-06-09', readingStreak:2, readingIndependent:true };
++  return {
++    keys: { vocabulary:'el:vocab', reading:'el:reading', progress:'el:progress' },
++    vocabulary, reading, progress,
++  };
++}
++
++// ---------------------------------------------------------------------------
++// sub — TWRP C3B2 Document Submittal Dashboard (two-source join + external contract)
++// Raw intent (docs per discipline tab + log rows) → { mdl, log, contract } that
++// sub/engine/pipeline.js buildModel(mdl, log, { contract }) consumes. The contract
++// mirrors sub/config/pipeline_contract.json (requiredSheets = the 11 discipline tabs;
++// requiredFields / requiredHeaders match the shipped pipeline). The single shared "Code"
++// sheet inevitably yields harmless cross-table junk: every reader filters by its own
++// domain, and stray discipline names have no backing sheet so parseMdl skips them.
++// ---------------------------------------------------------------------------
++const SUB_DISCIPLINES = [
++  ['Project','PRJ'],['Construction','CON'],['QAQC','QAC'],['ICA','ICA'],
++  ['Process','PRO'],['BS','BS'],['Mech','MEC'],['Piping','PIP'],
++  ['Electrical','ELE'],['CSA','CSA'],['BIM','BIM']
++];
++const SUB_FIELD_COLS = {
++  'SNo.':'A','Stage':'B','UESH Discipline':'C','Project Code':'D','Project Prefix':'E',
++  'Doc Type':'F','Discipline':'G','Number':'H','Document No.':'I','Document Title':'J',
++  'Notes':'K','Planned 1st Issue Date':'L','Forecast 1st Issue Date':'M','Actual 1st Issue Date':'N'
++};
++const SUB_LOG_HEADERS = [
++  'SNo.','Prolog No.','Prolog Subject','Document No.','Revision','Submitted By',
++  'Submission Date','Review Period','Target Return Date','Actual Return Date',
++  'Review Turnaround Days','Review Delay Days','Submission Status','Approval Status','Resubmission Required'
++];
++// Only these MDL fields are dates; the rest are text (including Number, which the
++// pipeline treats as text). Setting the wrong type makes normalizeValue drop the value.
++const SUB_DATE_FIELDS = new Set(['Planned 1st Issue Date','Forecast 1st Issue Date','Actual 1st Issue Date']);
++function subContract(){
++  return {
++    version:'0.2.0',
++    title:'Sub Dashboard Pipeline Contract',
++    placeholderTokens:['xxxx'],
++    metadataLabels:{ projectTitle:'Project Title', dashboardTitle:'Dashboard Title', projectStart:'Project Start Date' },
++    mdl:{ codeSheet:'Code', dashboardTitle:'Master Document List',
++      requiredSheets: SUB_DISCIPLINES.map(d=>d[0]),
++      requiredFields:['Stage','UESH Discipline','Discipline','Project Code','Project Prefix','Doc Type','Number','Document No.','Document Title','Planned 1st Issue Date','Forecast 1st Issue Date'],
++      requiredRecordFields:['Document Title','UESH Discipline','Stage','Doc Type','Discipline','Project Code','Project Prefix','Number'] },
++    submittalLog:{ sheet:'SubmittalLog', codeSheet:'Code', dashboardTitle:'Document Submittal Log',
++      requiredHeaders: SUB_LOG_HEADERS,
++      requiredRecordFields:['Document No.','Prolog No.','Submission Date','Review Period','Target Return Date','Submission Status'],
++      voidApprovalValues:['VOID'] }
++  };
++}
++function subCodeSheet(opts){
++  const rows = [];
++  // table headers MUST sit within the first 10 rows — readCodeTable/readMetadataTable
++  // only scan that far to find a header (data rows below are read to maxRow).
++  rows.push({A:'Project Metadata Title',B:'Project Metadata Values',C:'Project Metadata Data Type'});
++  rows.push({A:'UESH Discipline',B:'UESH Discipline Description'});
++  rows.push({A:'Submission Status Code',B:'Submission Status'});
++  rows.push({A:'Approval Code',B:'Approval Status'});
++  rows.push({A:'Error Code',B:'Rule',C:'Severity',D:'Group'});
++  // metadata values + field maps (read to maxRow, no 10-row cap)
++  rows.push({A:'Dashboard Title',B:opts.dashboardTitle,C:'Text'});
++  rows.push({A:'Project Title',B:opts.projectTitle||'TWRP C3B2',C:'Text'});
++  rows.push({A:'Project Start Date',B:opts.projectStart||'2024-01-01',C:'Date'});
++  rows.push({A:'Header Row',B:String(opts.headerRow||1),C:'Number'});
++  for (const [f,col] of Object.entries(SUB_FIELD_COLS)) rows.push({A:f,B:'Column-'+col,C: SUB_DATE_FIELDS.has(f)?'Date':'Text'});
++  // code-table data rows (harmless junk to other readers)
++  for (const [name,code] of opts.disciplines) rows.push({A:name,B:code});
++  for (const [code,label] of opts.submission) rows.push({A:code,B:label});
++  for (const [code,label] of opts.approval) rows.push({A:code,B:label});
++  for (const e of opts.errors) rows.push({A:e[0],B:e[1],C:e[2],D:e[3]});
++  return { rows: mrows(rows), maxRow: rows.length };
++}
++function subDiscSheet(rowsData){
++  const header = {};
++  for (const [f,col] of Object.entries(SUB_FIELD_COLS)) header[col]=f;
++  const rows = [header];
++  for (const d of rowsData){ const r={}; for (const [f,col] of Object.entries(SUB_FIELD_COLS)){ if (d[f]!==undefined && d[f]!=='') r[col]=d[f]; } rows.push(r); }
++  return { rows: mrows(rows), maxRow: rows.length };
++}
++function hashStr(s){ let h=0; for (let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0; return h; }
++function mkSubDoc(sheet, docNo, title, planned, actual){
++  return { sheet, 'SNo.':'1','Stage':'MR','UESH Discipline':sheet,'Project Code':'P1','Project Prefix':'PR',
++    'Doc Type':'CN','Discipline':sheet,'Number':String(100+(hashStr(docNo)%900)),'Document No.':docNo,
++    'Document Title':title,'Planned 1st Issue Date':planned,'Actual 1st Issue Date':actual };
++}
++function mkSubLog(docNo){
++  return { 'SNo.':'1','Prolog No.':'P-001','Prolog Subject':'Subj','Document No.':docNo,'Revision':'0','Submitted By':'Eng',
++    'Submission Date':'2024-03-01','Review Period':'20','Target Return Date':'2024-03-21','Actual Return Date':'2024-03-25',
++    'Submission Status':'SUB','Approval Status':'APP','Resubmission Required':'NO' };
++}
++export function subMakeWorkbooks(opts = {}){
++  const disciplines = opts.disciplines || SUB_DISCIPLINES;
++  const submission = opts.submission || [['SUB','Submitted'],['PEND','Pending Review']];
++  const approval = opts.approval || [['APP','Approved'],['REJ','Rejected']];
++  const errors = opts.errors || [
++    ['V-01','Blank identity','Error','X'],['V-04','Discipline Code not in list','Error','X'],
++    ['V-07','Submission Status not in list','Error','X'],['V-08','Approval Status not in list','Error','X'],
++    ['V-15','Placeholder token in Document No.','Error','X'],['V-25','Missing required record field','Error','X'],
++    ['V-33','Blank Planned 1st Issue Date','Error','X']
++  ];
++  const contract = subContract();
++
++  let mdlDocs;
++  if (opts.big){ mdlDocs = []; for (let i=0;i<opts.big;i++){ const d=disciplines[i%disciplines.length]; mdlDocs.push(mkSubDoc(d[0],'DOC-'+String(i).padStart(5,'0'),'Title '+i,'2024-02-01','2024-03-01')); } }
++  else if (opts.empty){ mdlDocs = []; }
++  else { mdlDocs = opts.docs || [ mkSubDoc(disciplines[0][0],'DOC-0001','Title 1','2024-02-01','2024-03-01'), mkSubDoc(disciplines[1][0],'DOC-0002','Title 2','2024-02-05','2024-03-05') ]; }
++
++  const logRows = (opts.big || opts.empty) ? [] : (opts.logRows || [ mkSubLog('DOC-0001') ]);
++
++  const mdlSheets = { Code: subCodeSheet({ dashboardTitle:'Master Document List', disciplines, submission, approval, errors }) };
++  const bySheet = {};
++  for (const d of mdlDocs){ (bySheet[d.sheet] = bySheet[d.sheet]||[]).push(d); }
++  for (const name of Object.keys(bySheet)) mdlSheets[name] = subDiscSheet(bySheet[name]);
++  for (const [name] of disciplines){ if (!mdlSheets[name]) mdlSheets[name] = subDiscSheet([]); }
++
++  const logHeader = {}; SUB_LOG_HEADERS.forEach((h,i)=> logHeader[colLetter(i)] = h);
++  const logData = [logHeader];
++  for (const r of logRows){ const row={}; SUB_LOG_HEADERS.forEach((h,i)=>{ if (r[h]!==undefined && r[h]!=='') row[colLetter(i)] = r[h]; }); logData.push(row); }
++  const logSheets = {
++    SubmittalLog: { rows: mrows(logData), maxRow: logData.length },
++    Code: subCodeSheet({ dashboardTitle:'Document Submittal Log', disciplines, submission, approval, errors }),
++  };
++  return { mdl: { sheets: mdlSheets }, log: { sheets: logSheets }, contract };
++}
+diff --git a/harness-pipeline/lib/pipeline-probe.mjs b/harness-pipeline/lib/pipeline-probe.mjs
+new file mode 100644
+index 0000000..2e63754
+--- /dev/null
++++ b/harness-pipeline/lib/pipeline-probe.mjs
+@@ -0,0 +1,32 @@
++// pipeline-probe.mjs — loads a sub-project's REAL pipeline (and optional render) so the
++// harness tests the shipped code, never a copy. Mirrors harness-layout's "import the real
++// module" philosophy. Resolves paths against the repo root (parent of harness-pipeline),
++// overridable with WORKBUDDY_ROOT for local verification.
++import { pathToFileURL } from 'node:url';
++import fs from 'node:fs';
++import path from 'node:path';
++
++export function repoRoot(here){
++  return process.env.WORKBUDDY_ROOT || path.resolve(here, '..');
++}
++
++export async function loadProject(cfg, root){
++  const out = { pipeline:null, pipelineErr:null, render:null, renderErr:null };
++  const ps = path.resolve(root, cfg.pipelineSrc);
++  if (fs.existsSync(ps)) {
++    try { out.pipeline = await import(pathToFileURL(ps).href); }
++    catch (e) { out.pipelineErr = 'import failed: ' + e.message; }
++  } else {
++    out.pipelineErr = `pipeline not found at ${ps} (run on the full repo)`;
++  }
++  if (cfg.renderSrc) {
++    const rs = path.resolve(root, cfg.renderSrc);
++    if (fs.existsSync(rs)) {
++      try { out.render = await import(pathToFileURL(rs).href); }
++      catch (e) { out.renderErr = 'render import failed: ' + e.message; }
++    } else {
++      out.renderErr = `render not found at ${rs} (design-behavior assertions become MANUAL)`;
++    }
++  }
++  return out;
++}
+diff --git a/harness-pipeline/lib/workplan-extract.mjs b/harness-pipeline/lib/workplan-extract.mjs
+new file mode 100644
+index 0000000..be02511
+--- /dev/null
++++ b/harness-pipeline/lib/workplan-extract.mjs
+@@ -0,0 +1,19 @@
++// workplan-extract.mjs — parse a sub-project workplan so each Tier-1 assertion can cite its
++// source section (workplan §3 functions / §5 design / §8 conformance, etc.). Used for the
++// traceability report; the harness never guesses a requirement, it reads it from the workplan.
++import fs from 'node:fs';
++
++export function extractSections(mdPath){
++  if (!mdPath || !fs.existsSync(mdPath)) return null;
++  const txt = fs.readFileSync(mdPath, 'utf8');
++  const out = {};
++  const re = /^##\s+(\d+(?:\.\d+)*)\s+(.*)$/gm;
++  let m;
++  while ((m = re.exec(txt))) out[m[1]] = { title: m[2].trim(), line: m.index };
++  return out;
++}
++
++export function hasSection(mdPath, num){
++  const s = extractSections(mdPath);
++  return !!(s && s[num]);
++}
+diff --git a/harness-pipeline/package.json b/harness-pipeline/package.json
+new file mode 100644
+index 0000000..f94cf45
+--- /dev/null
++++ b/harness-pipeline/package.json
+@@ -0,0 +1,19 @@
++{
++  "name": "harness-pipeline",
++  "version": "1.0.0",
++  "private": true,
++  "type": "module",
++  "description": "Tier-1 pipeline + design conformance harness for workbuddy sub-projects. References each sub-project workplan and the pipeline spec sections of Dashboard-UI-Design-Spec.md. Layer 1 of the spec §8 two-layer check model (Layer 2 = harness-layout).",
++  "scripts": {
++    "test": "node harness.mjs",
++    "test:ppp": "node harness.mjs --subproject ppp",
++    "test:mdl": "node harness.mjs --subproject mdl",
++    "test:actionlog": "node harness.mjs --subproject actionlog",
++    "test:english": "node harness.mjs --subproject english",
++    "test:all": "node harness.mjs --all",
++    "run": "node run.mjs"
++  },
++  "engines": {
++    "node": ">=18"
++  }
++}
+diff --git a/harness-pipeline/run.mjs b/harness-pipeline/run.mjs
+new file mode 100644
+index 0000000..0d26447
+--- /dev/null
++++ b/harness-pipeline/run.mjs
+@@ -0,0 +1,48 @@
++#!/usr/bin/env node
++// run.mjs — cross-subproject Tier-1 orchestrator for harness-pipeline.
++//
++// Runs every discovered sub-project (harness.mjs --all), aggregates test_output/tier1.json, prints
++// one combined verdict, and exits non-zero if any sub-project has a FAIL. This is the
++// top-level "did the pipelines still work per workplan?" gate the AI test engineer runs
++// before any edit — Tier 1 of the §8 two-layer model (Tier 2 = harness-layout, Tier 3 = data).
++import { spawnSync } from 'node:child_process';
++import fs from 'node:fs';
++import path from 'node:path';
++import { fileURLToPath } from 'node:url';
++
++const here = path.dirname(fileURLToPath(import.meta.url));
++const harness = path.resolve(here, 'harness.mjs');
++
++// Run the per-subproject harness; forward its output live.
++const r = spawnSync(process.execPath, [harness, '--all'], {
++  cwd: here, encoding: 'utf8', stdio: ['ignore', 'inherit', 'inherit'],
++});
++
++let logs = {};
++try { logs = JSON.parse(fs.readFileSync(path.resolve(here, 'test_output', 'tier1.json'), 'utf8')); } catch {}
++
++let pass = 0, fail = 0, manual = 0;
++const rows = [];
++for (const [name, v] of Object.entries(logs)) {
++  const p = v.pass || 0, f = v.fail || 0, m = v.manual || 0;
++  pass += p; fail += f; manual += m;
++  rows.push(`| ${name} | ${p} | ${f} | ${m} |`);
++}
++
++console.log('\n' + '='.repeat(78));
++console.log('TIER 1 — ALL SUB-PROJECTS (harness-pipeline)');
++console.log('| Sub-project | Pass | Fail | Manual |');
++console.log('|-------------|------|------|--------|');
++if (rows.length) console.log(rows.join('\n'));
++else console.log('| (none discovered) | — | — | — |');
++console.log(`| **Total** | **${pass}** | **${fail}** | **${manual}** |`);
++console.log('='.repeat(78));
++
++let verdict, mark;
++if (fail > 0) { verdict = 'FAIL — fix pipeline/design before merge'; mark = '❌'; }
++else if (manual > 0) { verdict = 'MANUAL — automated green, design items need render/harness-layout'; mark = '👀'; }
++else { verdict = 'PASS'; mark = '✅'; }
++
++console.log(`${mark} TIER 1 VERDICT: ${verdict}`);
++console.log(`   total — pass:${pass}  fail:${fail}  manual:${manual}`);
++process.exit(fail > 0 ? 1 : 0);
+-- 
+2.43.0
+

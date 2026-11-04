@@ -36,11 +36,31 @@ harness-pipeline/
 │  ├─ sub.mjs             # config + assertions for TWRP C3B2 Submittal Dashboard
 │  ├─ actionlog.mjs       # config + assertions for action-log (SPA state)
 │  └─ english.mjs         # config + assertions for english-learning (PWA storage)
-├─ docs/                  # design standard + UI-spec compliance review (review-only)
+├─ docs/                  # design standard, UI-spec review, pipeline workflow/coverage chart
+│  ├─ PIPELINE-DESIGN-STANDARD.md
+│  ├─ UI-SPEC-COMPLIANCE-REVIEW.md
+│  └─ pipeline-workflow-coverage.html  # S0–S6 stages × real functions × Tier-1 coverage
+├─ archive/               # retained history (not executable; never auto-discovered)
+│  ├─ harness-pipeline-add.patch        # original apply-ready patch, superseded by direct push
+│  ├─ root-duplicate-harness.mjs       # byte-identical stray root copies, moved here
+│  ├─ root-duplicate-run.mjs
+│  └─ root-duplicate-README.md
 ├─ test_output/           # machine-readable results (gitignored)
 │  └─ tier1.json
 └─ package.json
 ```
+
+### Folder conventions
+
+- **`docs/`** — review-only design material. `pipeline-workflow-coverage.html` is a standalone
+  chart mapping spec §3.8.1 (S0–S6) to the real pipeline/render exports and to the harness
+  assertions that cover each stage. Open it directly from disk; no server needed.
+- **`archive/`** — retained history, not part of the runner. `harness-pipeline-add.patch` was the
+  original apply-ready patch, superseded when the folder was pushed directly as commit `94709f8`.
+  The three `root-duplicate-*` files are byte-identical copies that used to sit at the sandbox
+  workspace root; they were archived here so **every harness-pipeline file lives under this
+  folder**. Nothing in `archive/` is loaded at runtime — the runner auto-discovers only
+  `checks/*.mjs` and imports only from `lib/`.
 
 ### The config object (`checks/<name>.mjs`)
 

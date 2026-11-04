@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pipeline 工作流 × harness-pipeline 覆盖图 · Spec rev 1.56</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:28px;background:var(--wb-bg,#F5F5F7);color:var(--wb-ink,#1D1D1F);
+       font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+       -webkit-font-smoothing:antialiased;line-height:1.5}
+  .wb{max-width:1040px;margin:0 auto}
+  .wb-head{margin-bottom:18px}
+  .wb-h1{font-size:22px;font-weight:700;letter-spacing:-.3px;margin:0 0 6px}
+  .wb-sub{font-size:12.5px;color:var(--wb-muted,#6E6E73);margin:0}
+  .wb-rev{display:inline-block;background:var(--wb-blue,#0066CC);color:#fff;border-radius:999px;
+          padding:2px 10px;font-size:11px;font-weight:600;margin-right:8px;vertical-align:2px}
+  .wb-legend{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 22px}
+  .wb-lg{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;
+         background:#fff;border:1px solid var(--wb-line,#E5E5EA);border-radius:999px;padding:5px 11px}
+  .wb-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .d-ok{background:#1E8E3E}.d-man{background:#B25000}.d-gap{background:#D70015}.d-blue{background:#0066CC}
+  .wb-flow{position:relative;padding-left:2px}
+  .wb-stage{display:grid;grid-template-columns:66px 1fr 246px;gap:14px;margin-bottom:12px;
+            background:#fff;border:1px solid var(--wb-line,#E5E5EA);border-radius:18px;
+            padding:14px 16px 14px 12px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .wb-badge{width:52px;height:52px;border-radius:14px;background:var(--wb-blue,#0066CC);color:#fff;
+            display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none}
+  .wb-badge b{font-size:18px;font-weight:700;line-height:1}
+  .wb-badge small{font-size:8.5px;opacity:.85;margin-top:3px;letter-spacing:.4px}
+  .wb-title{font-size:15px;font-weight:700;margin:0 0 3px;letter-spacing:-.2px}
+  .wb-mod{font-size:11px;color:var(--wb-muted,#6E6E73);font-weight:500;margin-bottom:9px}
+  .wb-io{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:11px;margin-bottom:9px}
+  .wb-io span{background:var(--wb-soft,#F5F5F7);border:1px solid var(--wb-line,#E5E5EA);
+              border-radius:7px;padding:3px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .wb-io i{font-style:normal;color:var(--wb-blue,#0066CC);font-weight:700}
+  .wb-lab{font-size:10px;font-weight:700;letter-spacing:.6px;color:var(--wb-muted,#6E6E73);
+          text-transform:uppercase;margin:9px 0 5px}
+  .wb-fns{display:flex;flex-wrap:wrap;gap:5px}
+  .wb-fn{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;
+         background:#EEF5FF;border:1px solid #D3E4FB;color:#004B99;border-radius:6px;padding:3px 7px}
+  .wb-fn em{font-style:normal;color:#6E6E73;font-family:inherit}
+  .wb-rule{font-size:10.5px;color:var(--wb-muted,#6E6E73);margin-top:9px}
+  .wb-rule b{color:#1D1D1F;font-weight:600}
+  .wb-cov{border-left:1px solid var(--wb-line,#E5E5EA);padding-left:14px}
+  .wb-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
+  .wb-pill{font-size:10.5px;font-weight:700;border-radius:999px;padding:3px 9px;white-space:nowrap}
+  .p-ok{background:#E6F4EA;color:#137333}
+  .p-man{background:#FEF0E0;color:#9A4200}
+  .p-gap{background:#FCE8E8;color:#B00016}
+  .p-blue{background:#E8F1FC;color:#0055AA}
+  .wb-bar{display:flex;height:6px;border-radius:99px;overflow:hidden;margin-bottom:10px;background:#EFEFF4}
+  .wb-bar i{display:block;height:100%}
+  .b-ok{background:#1E8E3E}.b-man{background:#E08A00}.b-gap{background:#D70015}
+  .wb-note{font-size:11px;line-height:1.55;color:#3A3A3C}
+  .wb-note code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;
+                background:var(--wb-soft,#F5F5F7);border-radius:4px;padding:1px 4px}
+  .wb-note .g{color:#B00016;font-weight:600}
+  .wb-note .m{color:#9A4200;font-weight:600}
+  .wb-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0 16px}
+  .wb-kpi{background:#fff;border:1px solid var(--wb-line,#E5E5EA);border-radius:14px;padding:13px 14px;text-align:center}
+  .wb-kpi b{display:block;font-size:22px;font-weight:700;letter-spacing:-.5px}
+  .wb-kpi small{font-size:10.5px;color:var(--wb-muted,#6E6E73);font-weight:600;letter-spacing:.3px}
+  .wb-rules{background:#fff;border:1px solid var(--wb-line,#E5E5EA);border-radius:18px;padding:16px 18px;margin-bottom:14px}
+  .wb-rules h2{font-size:13.5px;font-weight:700;margin:0 0 11px}
+  .wb-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px 18px}
+  .wb-r{display:flex;gap:8px;align-items:flex-start;font-size:11.2px;line-height:1.45}
+  .wb-r span{flex:none;font-weight:700;font-family:ui-monospace,monospace;color:var(--wb-blue,#0066CC)}
+  .wb-r i{font-style:normal;flex:none}
+  .wb-foot{font-size:11px;color:var(--wb-muted,#6E6E73);line-height:1.6;margin-top:14px}
+  @media(max-width:900px){
+    body{padding:16px}
+    .wb-stage{grid-template-columns:56px 1fr}
+    .wb-cov{grid-column:2;border-left:0;border-top:1px solid var(--wb-line,#E5E5EA);padding-left:0;padding-top:11px;margin-top:4px}
+    .wb-sum{grid-template-columns:repeat(2,1fr)}
+    .wb-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wb">
+
+  <div class="wb-head">
+    <h1 class="wb-h1">数据管道工作流 × harness-pipeline 测试覆盖</h1>
+    <p class="wb-sub"><span class="wb-rev">rev 1.56</span>依据仓库根 <b>Dashboard-UI-Design-Spec.md</b> §3.8.1（S0–S6）/ §3.8.2 / §3.8.3 / §3.8.4 / §8.1–§8.2 · 函数名为 5 个子项目真实导出的符号 · 覆盖数据取自 <code>test_output/tier1.json</code></p>
+  </div>
+
+  <div class="wb-legend">
+    <span class="wb-lg"><i class="wb-dot d-ok"></i>RUN / PASS — 纯 Node 断言真实跑过</span>
+    <span class="wb-lg"><i class="wb-dot d-man"></i>MANUAL — 委派 Tier-2 / 等 render 模块</span>
+    <span class="wb-lg"><i class="wb-dot d-gap"></i>GAP — spec 有 MUST，Tier-1 无断言</span>
+    <span class="wb-lg"><i class="wb-dot d-blue"></i>函数 / 数据契约</span>
+  </div>
+
+  <div class="wb-flow">
+
+    <!-- S0 -->
+    <div class="wb-stage">
+      <div class="wb-badge"><b>S0</b><small>ACQUIRE</small></div>
+      <div>
+        <div class="wb-title">Acquire · 读取原始字节</div>
+        <div class="wb-mod">xlsx-reader.js · On file open only</div>
+        <div class="wb-io"><span>File</span><i>→</i><span>ArrayBuffer</span></div>
+        <div class="wb-lab">关联函数</div>
+        <div class="wb-fns">
+          <span class="wb-fn">FileReader <em>浏览器，无导出</em></span>
+          <span class="wb-fn">inspectWorkbook() <em>sub</em></span>
+        </div>
+        <div class="wb-rule"><b>spec:</b> §3.8.1 S0 · §3.8.2 #8（每阶段独立 try/catch，S1 失败 = fatal load error）</div>
+      </div>
+      <div class="wb-cov">
+        <div class="wb-pills"><span class="wb-pill p-gap">⊘ 未覆盖</span></div>
+        <div class="wb-bar"><i class="b-gap" style="width:100%"></i></div>
+        <div class="wb-note">fixture 直接构造 <code>workbook</code> 对象，跳过 <code>File → ArrayBuffer</code>；<span class="g">原始字节读取与 S0 失败分支无断言</span>。</div>
+      </div>
+    </div>
+
+    <!-- S1 -->
+    <div class="wb-stage">
+      <div class="wb-badge"><b>S1</b><small>PARSE</small></div>
+      <div>
+        <div class="wb-title">Parse · 解析容器为内存 workbook</div>
+        <div class="wb-mod">xlsx-reader.js · On file open only</div>
+        <div class="wb-io"><span>ArrayBuffer</span><i>→</i><span>workbook{sheets,rows,cells}</span></div>
+        <div class="wb-lab">关联函数</div>
+        <div class="wb-fns">
+          <span class="wb-fn">parseWorkbook() <em>PPP</em></span>
+          <span class="wb-fn">assertWorkbook() <em>sub</em></span>
+          <span class="wb-fn">inspectWorkbook() <em>sub</em></span>
+          <span class="wb-fn">workbookKind() <em>sub</em></span>
+        </div>
+        <div class="wb-rule"><b>spec:</b> §3.8.1 S1（raw workbook 在 S2 后丢弃）· §3.8.2 #2 / #8</div>
+      </div>
+      <div class="wb-cov">
+        <div class="wb-pills"><span class="wb-pill p-ok">✅ 3 PASS</span><span class="wb-pill p-gap">⊘ 部分</span></div>
+        <div class="wb-bar"><i class="b-ok" style="width:40%"></i><i class="b-gap" style="width:60%"></i></div>
+        <div class="wb-note"><code>sub A4</code> workbookKind 按标题识别 MDL / log；<code>sub A5</code> inspectWorkbook 报 ok/kind、无 Code sheet → 拒绝。<br><span class="g">缺：</span>容器解析本身、S1 失败→fatal、#2 丢弃 raw workbook。</div>
+      </div>
+    </div>
+
+    <!-- S2 -->
+    <div class="wb-stage">
+      <div class="wb-badge"><b>S2</b><small>NORMALIZE</small></div>
+      <div>
+        <div class="wb-title">Ingest / Normalize · 归一化记录表（禁止 KPI 运算）</div>
+        <div class="wb-mod">pipeline.js · On file open only · 全会话驻留内存</div>
+        <div class="wb-io"><span>workbook</span><i>→</i><span>model{records[],contract,meta}</span></div>
+        <div class="wb-lab">关联函数</div>
+        <div class="wb-fns">
+          <span class="wb-fn">buildModel() <em>×5 全部</em></span>
+          <span class="wb-fn">parseCodeSheet() <em>PPP/MDL</em></span>
+          <span class="wb-fn">readMdlContract() / readLogContract() <em>sub</em></span>
+          <span class="wb-fn">findLookupColumns() / readLookupMap() <em>PPP/MDL</em></span>
+          <span class="wb-fn">normalizeValue() / toDate() / normalizeBool() / isAbsent()</span>
+          <span class="wb-fn">isExcelError() + EXCEL_ERROR_TOKENS</span>
+          <span class="wb-fn">statusCanon()</span>
+          <span class="wb-fn">todayLocalISO() <em>sub</em> / todayMidnight() <em>PPP</em></span>
+          <span class="wb-fn">parseMdl() / parseSubmittals() <em>sub</em></span>
+        </div>
+        <div class="wb-rule"><b>spec:</b> §3.8.1 S2 · §3.8.2 #2 #3 #9 #10 · §3.8.3 #1–#4（按标签发现、运行时解析位置）· §3.8.4 · §8.2 #14</div>
+      </div>
+      <div class="wb-cov">
+        <div class="wb-pills"><span class="wb-pill p-ok">✅ ~45 PASS</span><span class="wb-pill p-gap">⊘ 4 类</span></div>
+        <div class="wb-bar"><i class="b-ok" style="width:72%"></i><i class="b-gap" style="width:28%"></i></div>
+        <div class="wb-note"><b>覆盖主力阶段。</b><code>A1/S1</code> 记录合并 5/5；<code>A2</code> 契约驱动不硬编码 4/5；<code>A3/A5+C1</code> isExcelError 5/5；<code>ppp A4</code> token 数组；<code>A5/A4</code> statusCanon；<code>A6/A7/A8</code> 2000 行 &lt;5s 与空输入边界 3/3。<br><span class="g">缺：</span>#9 meta.today 本地日期（G9）、10 token 全集/大小写不敏感、blank≡error 统一每列 + per-field 计数、#2 丢弃 raw parse。</div>
+      </div>
+    </div>
+
+    <!-- S3 -->
+    <div class="wb-stage">
+      <div class="wb-badge"><b>S3</b><small>VALIDATE</small></div>
+      <div>
+        <div class="wb-title">Validate · 行级、与筛选无关的校验（只跑一次）</div>
+        <div class="wb-mod">pipeline.js · On file open only</div>
+        <div class="wb-io"><span>records + ctx</span><i>→</i><span>issues[] / warnings[] / completenessGroup</span></div>
+        <div class="wb-lab">关联函数</div>
+        <div class="wb-fns">
+          <span class="wb-fn">validate(pkgs,ctx) <em>PPP（分离调用 D1）</em></span>
+          <span class="wb-fn">buildModel() <em>MDL（S2+S3 融合）</em></span>
+          <span class="wb-fn">runStage() <em>sub，逐阶段 try/catch</em></span>
+          <span class="wb-fn">parseSubmittals() / calculateSubmission() / codeIssue() <em>sub</em></span>
+          <span class="wb-fn">W-FORMULA <em>PPP validate L567 / MDL L380 / sub L589</em></span>
+        </div>
+        <div class="wb-rule"><b>spec:</b> §3.8.1 S3 · §3.8.2 #3 #8 · §3.8.3 #5（缺字段报错/警告）#6（文案与严重级别来自契约）· §3.8.4 W-FORMULA</div>
+      </div>
+      <div class="wb-cov">
+        <div class="wb-pills"><span class="wb-pill p-ok">✅ ~20 PASS</span><span class="wb-pill p-gap">⊘ 4 类</span></div>
+        <div class="wb-bar"><i class="b-ok" style="width:62%"></i><i class="b-gap" style="width:38%"></i></div>
+        <div class="wb-note"><code>A1</code> 有效数据 0 issues 5/5；<code>ppp A2</code> V-06、<code>mdl A6</code> V-04 + 消息取自 workbook Error block（#6）；<code>sub A6</code> 缺 contract → throws；<code>A7</code> 无误报 Error。<br><span class="g">缺：</span>W-FORMULA 形状/按列 N of total/路由 #errBanner/不进 issues、#5 缺字段分级、#8 runStage 逐阶段错误、completenessGroup。</div>
+      </div>
+    </div>
+
+    <!-- S4 -->
+    <div class="wb-stage">
+      <div class="wb-badge"><b>S4</b><small>DERIVE</small></div>
+      <div>
+        <div class="wb-title">Derive / Aggregate · 全局筛选 → active → 全部 KPI</div>
+        <div class="wb-mod">render.js · On every filter change / render · KPI 唯一来源</div>
+        <div class="wb-io"><span>model + STATE</span><i>→</i><span>view{active,kpis,issues,charts,panels}</span></div>
+        <div class="wb-lab">关联函数</div>
+        <div class="wb-fns">
+          <span class="wb-fn">deriveView(model,state) <em>×5 全部在 render.*</em></span>
+          <span class="wb-fn">STATE <em>PPP</em></span>
+          <span class="wb-fn">tally() / tallyBy() / buildMatrix() <em>PPP/MDL</em></span>
+          <span class="wb-fn">calculateSubmission() <em>sub</em></span>
+        </div>
+        <div class="wb-rule"><b>spec:</b> §3.8.1 S4 · §3.8.2 #1（KPI 只在 S4）#4（无 I/O）· §3.8.5（断言已知用例 KPI 值）· §8.2 #13</div>
+      </div>
+      <div class="wb-cov">
+        <div class="wb-pills"><span class="wb-pill p-man">👀 4 MANUAL</span><span class="wb-pill p-gap">⊘ 值未测</span></div>
+        <div class="wb-bar"><i class="b-man" style="width:35%"></i><i class="b-gap" style="width:65%"></i></div>
+        <div class="wb-note"><span class="m">B1 ×4</span>：<code>ppp</code>「6 张 KPI 卡」、<code>mdl/actionlog/english</code>「view object」→ render 缺席或契约不匹配而降级。<br><span class="g">缺：</span>§3.8.5 的 KPI 数值断言、global→active 单一工作集、#1（G6：deriveView 需移进 pipeline 才能翻绿）。</div>
+      </div>
+    </div>
+
+    <!-- S5 -->
+    <div class="wb-stage">
+      <div class="wb-badge"><b>S5</b><small>RENDER</small></div>
+      <div>
+        <div class="wb-title">Render · 写 DOM（write-only，不回读 DOM 决策）</div>
+        <div class="wb-mod">render.js · On every render · 下拉关闭时重绘一次</div>
+        <div class="wb-io"><span>view</span><i>→</i><span>DOM</span></div>
+        <div class="wb-lab">关联函数</div>
+        <div class="wb-fns">
+          <span class="wb-fn">render() <em>PPP</em></span>
+          <span class="wb-fn">renderDashboard() <em>MDL/sub</em></span>
+          <span class="wb-fn">activePanel() <em>§4</em></span>
+          <span class="wb-fn">paintWarnings() / showBanner() / addBannerNotice()</span>
+          <span class="wb-fn">syncSplitTable() / scurveAxisMode() <em>MDL</em></span>
+        </div>
+        <div class="wb-rule"><b>spec:</b> §3.8.1 S5 · §3.8.2 #6 #7 · §3.5 errBanner · §4.2 · §8.1（DOM/几何归 Tier-2）</div>
+      </div>
+      <div class="wb-cov">
+        <div class="wb-pills"><span class="wb-pill p-man">👀 8 MANUAL</span><span class="wb-pill p-blue">Tier-2</span></div>
+        <div class="wb-bar"><i class="b-man" style="width:80%"></i><i class="b-gap" style="width:20%"></i></div>
+        <div class="wb-note"><span class="m">C2/C3 ×4 + sub B1/B2</span>：scurveAxisMode、errBanner id 等 DOM 项按 §8.1 <b>显式委派 harness-layout</b>，标 MANUAL 不假绿 —— 属正确分工，<b>不是缺口</b>。<br><span class="g">仍缺：</span>#6 write-only、#7 单一 STATE、W-FORMULA→#errBanner 路由。</div>
+      </div>
+    </div>
+
+    <!-- S6 -->
+    <div class="wb-stage">
+      <div class="wb-badge"><b>S6</b><small>REACT</small></div>
+      <div>
+        <div class="wb-title">React-to-filter · 刷新循环（永不重跑 S0–S3）</div>
+        <div class="wb-mod">render.js · On filter change · 文件绝不重新解析</div>
+        <div class="wb-io"><span>user action</span><i>→</i><span>deriveView(model,state)</span><i>→</i><span>render(view)</span></div>
+        <div class="wb-lab">关联函数</div>
+        <div class="wb-fns">
+          <span class="wb-fn">refreshData() → deriveView(MODEL,STATE) <em>MDL</em></span>
+          <span class="wb-fn">renderData(wrap,v) <em>MDL</em></span>
+          <span class="wb-fn">buildDashboard() → render() <em>PPP</em></span>
+        </div>
+        <div class="wb-rule"><b>spec:</b> §3.8.1 S6 · §3.8.2 #4（纯内存）#5（no re-parse）· §7.2.7 面板级筛选在 S5 叠加</div>
+      </div>
+      <div class="wb-cov">
+        <div class="wb-pills"><span class="wb-pill p-gap">⊘ 完全未测</span></div>
+        <div class="wb-bar"><i class="b-gap" style="width:100%"></i></div>
+        <div class="wb-note">harness 无 S6 断言：<span class="g">不 re-parse、deferred render、active 复用</span> 均未验证。需浏览器/render 层，或把「no re-parse」做成可注入的调用计数断言。</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="wb-sum">
+    <div class="wb-kpi"><b style="color:#1E8E3E">80</b><small>PASS · 集中在 S2/S3</small></div>
+    <div class="wb-kpi"><b style="color:#D70015">0</b><small>FAIL · 门禁 green</small></div>
+    <div class="wb-kpi"><b style="color:#B25000">12</b><small>MANUAL · 4 S4 + 8 S5</small></div>
+    <div class="wb-kpi"><b style="color:#0066CC">6 类</b><small>Tier-1 真实缺口</small></div>
+  </div>
+
+  <div class="wb-rules">
+    <h2>§3.8.2 十条强制规则 → 覆盖状态（跨阶段）</h2>
+    <div class="wb-grid">
+      <div class="wb-r"><i style="color:#D70015">⊘</i><span>#1</span>KPI 只在 S4 唯一来源 —— 未测，且 G6：deriveView 在 render</div>
+      <div class="wb-r"><i style="color:#D70015">⊘</i><span>#2</span>S2 后丢弃 raw workbook —— 未测</div>
+      <div class="wb-r"><i style="color:#D70015">⊘</i><span>#3</span>校验一次、与筛选无关 —— 未测</div>
+      <div class="wb-r"><i style="color:#D70015">⊘</i><span>#4</span>派生无 I/O（可选 memoize / 索引）—— 未测</div>
+      <div class="wb-r"><i style="color:#D70015">⊘</i><span>#5</span>筛选变更不 re-parse —— 未测（S6）</div>
+      <div class="wb-r"><i style="color:#D70015">⊘</i><span>#6</span>Render write-only —— 未测（Tier-2 行为）</div>
+      <div class="wb-r"><i style="color:#D70015">⊘</i><span>#7</span>单一 STATE 对象 —— 未测（PPP 有 STATE 导出）</div>
+      <div class="wb-r"><i style="color:#D70015">⊘</i><span>#8</span>每阶段独立 try/catch —— 未测（sub runStage 已实现）</div>
+      <div class="wb-r"><i style="color:#D70015">⊘</i><span>#9</span>meta.today 本地日期、禁用 toISOString() —— 未测（G9）</div>
+      <div class="wb-r"><i style="color:#B25000">◐</i><span>#10</span>blank ≡ formula-error 同为空缺 —— isExcelError 判定 ✅；等价/每列统一/计数 ✗</div>
+    </div>
+  </div>
+
+  <div class="wb-foot">
+    <b>读图要点：</b>spec 把检查分两层（§8.1）—— 本 harness 是 <b>Tier-1 纯函数层</b>，DOM/几何归 harness-layout。因此 80 项 PASS 全部落在 <b>S2/S3</b>，S0/S1 因 fixture 直接构造 workbook 而被跳过，S4/S5/S6 因需 render 层而 MANUAL 或委派的 MANUAL。<b>真正要补的</b>是 6 类可纯函数化的断言：meta.today(#9)、W-FORMULA 路由、10 token 全集/大小写、§3.8.2 结构规则、§3.8.3 #5 缺字段、S0/S1 解析边界；另需一次代码调整（把 deriveView 移进 pipeline，G6）才能把 §3.8.5 的 KPI 值断言翻绿。<br>
+    <b>依据：</b>spec rev 1.56（2026-11-02）· 5 个 checks/*.mjs · harness.mjs 三态协议（PASS / FAIL / MANUAL）· test_output/tier1.json · 各 src/pipeline.mjs、engine/pipeline.js、src/render.mjs 真实导出。本图为只读解释，未改动任何文件。
+  </div>
+
+</div>
+</body>
+</html>
