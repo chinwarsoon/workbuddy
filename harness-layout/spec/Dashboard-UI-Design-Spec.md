@@ -2,6 +2,8 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.58 | 2026-11-05 | CodeBuddy (AI) | §4.3 gained a normative **Pagination control behaviour** rule and §4.5 gained a **Tool-cluster controls are local** rule, driven by sub issues I113 / I114 / I115 (owner browser review). A pager control MUST change only its own table's page and MUST NOT change the active view (it MUST NOT reuse the sidebar navigation attribute, whose unknown values fall through to the default Overview view); a panel-local filter MUST repaint its table, count and page-jump total immediately on change and reset to page 1 (a bare boolean attribute MUST be detected with `hasAttribute`, since `dataset` yields `""`); `⤓ CSV` MUST download the full filtered set. Re-synced from the root spec. |
+| 1.57 | 2026-11-04 | CodeBuddy (AI) | §4.3 rewritten: bounded tables with more than 200 rows MUST paginate at 200/page with the navigation at the **top** of the card in the tool cluster, only the current page materialised, the full row count always communicated, and CSV covering the **entire filtered set** (pagination takes precedence over windowing). §4.5 Validation panel rewritten to the approved layout: panel-level `.note` meta under the page title, left-aligned `Issues` title on its own line, a stacked `.table-tools` row with page controls left (`.pg-left`) and error-code filter + `⤓ CSV` + `Columns` right (`.pg-right`, `margin-left:auto`), no bottom pager, and a panel-local error-code filter affecting only the Issues table. Driven by sub issue I112. Re-synced from the root spec. |
 | 1.56 | 2026-11-02 | CodeBuddy (AI) | §7.2.15 invariant 5 **clarified — fit on a container change, never on a column change**: the fit pass MUST run when the container width moves (window resize, sidebar toggle, zoom, another display) and MUST NOT run because the sum of the columns changed; a column resize changes that sum, and re-fitting on that path scales the width the operator just dragged straight back down, so the drag does not stick and a drag by +d then −d does not land where it started. Implementations MUST cache the container width and re-fit only when it moves, still fitting once on first render; a drag wider than the display area is permitted, because this invariant governs the SHIPPED DEFAULTS and not a width the user chose. §3.5 gained a normative **addressability** rule: the warning area MUST carry the stable id `errBanner` so conformance checks and assistive tooling can locate it. Driven by the Sub dashboard run that went from 216 passed / 6 failed to 222 passed / 0 failed (sub issues I093, I095, I096). Re-synced from the root spec. |
 | 1.55 | 2026-11-01 | opencode (AI) | §7.1 gained a normative **search panel composition** rule: one row with an attached B5 column picker (All columns plus each searchable column), a flexible input and the A5 submit; the picker re-applies the query without clearing it and the query applies only to the chosen column. §8.2 gained assertion 20. |
 | 1.54 | 2026-11-01 | opencode (AI) | §3.4.1 gained a normative **screen change / window resize** clause: reflow on any viewport width change (another display, resize, sidebar toggle, zoom) without reload or horizontal scrolling, using a `ResizeObserver` and not only a window listener; fixed-width inner content must re-fit or scroll inside its own card, split headers re-sync, and computed-width charts redraw; controls stay reachable and navigation remains available at every width. The truncated re-sync sentence was completed. |
@@ -847,6 +849,15 @@ open-ended list that stretches the page.
   (e.g. `Page 2 / 5 · 1,024 rows`); the **full row count is always communicated**. CSV / export
   MUST cover the **entire filtered set**, not only the visible page (§7.1). Pagination takes
   precedence over Windowing (§7.2.8) for large tables: a paginated table does not also window.
+- **Pagination control behaviour (normative).** Previous / Next and the page-jump selector MUST
+  change only the current page of their own table. They MUST NOT change the active view and MUST NOT
+  reuse the sidebar navigation attribute (`data-page`): a non-page value such as `prev` falls through
+  a `views[page] || overview` dispatcher and silently lands on the default Overview view. The pager
+  MUST use a distinct attribute, and the navigation handler MUST accept only real page names. A
+  filter change MUST repaint the table, its row count and the page total at once and reset to page 1;
+  a bare boolean attribute used as a filter hook MUST be detected with `hasAttribute`, because its
+  `dataset` value is `""` (falsy). `⤓ CSV` MUST download the **full filtered set**, not only the
+  visible page (§7.1).
 - **Print (§7.2.11).** `.tableScroll` MUST be released inside `@media print`, otherwise the 340 px
   cap clips every long table in the exported PDF.
 - **Panel title must not hard-code the filter value.** Name the panel after the *view*
@@ -1009,6 +1020,10 @@ once.
   right** (`.pg-right` carries `margin-left:auto`); the page navigation sits at the **top** of the
   card, never the bottom. For the rule card the title stands alone. The CSV button carries
   `data-export-table="issue"`.
+- **Tool-cluster controls are local.** The page controls, error-code filter, `⤓ CSV` and `Columns`
+  act **only** on the Issues table and MUST leave the active sidebar page unchanged. Selecting a code
+  MUST immediately repaint the table, the row count and the page-jump total, and reset to page 1.
+  `⤓ CSV` MUST download the full filtered set. These are the I114 / I115 invariants.
 - **Panel-level subtitle.** The source note (loaded MDL fields · log headers · rule count) is a
   **panel-level** `.note` directly under the Validation page title (above the `.v-summary` row), per
   the §4 subtitle standard — not a card subtitle.

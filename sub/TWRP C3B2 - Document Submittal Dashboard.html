@@ -9,7 +9,7 @@
   <meta http-equiv="Expires" content="0">
   <meta name="description" content="Document submittal dashboard for the TWRP C3B2 project.">
   <title>TWRP C3B2 · Document Submittal Dashboard</title>
-                                                                                                                                                                                                                                          <!-- STANDALONE:BEGIN -->
+                                                                                                                                                                                                                                              <!-- STANDALONE:BEGIN -->
   <style>
 /* Revision 2.7 | 2026-11-03 | CodeBuddy (AI) | I103 — the C2 Delay series is tokenised (`--color-c2delay`, line + dot + swatch classes; §4.6 forbids a hard-coded swatch hex), and the C4 Age-buckets swatch class `.c4-bucket` follows the bar's `--blue`. */
 /* Revision 2.6 | 2026-11-03 | CodeBuddy (AI) | I102 — C1 hover window follows §4.6: tokenised `.chart-swatch.c1-*` classes for the four series, and Actual Resub leaves Actual First's hue for its own token `--color-actualresub` (the bar, line and dot rules follow it; §4.6 forbids two distinct series sharing a hue). */
@@ -2179,6 +2179,9 @@ function c2DelayTipHtml(p) {
     + `<div class="chart-tip-foot"><span>Docs in mean</span><b>${p.n || 0}</b></div>`;
 }
 
+// I112 — module-level store of the last rendered Issues table (full FILTERED set) so buildIssueCsv()
+// can export every filtered row even though the table only materialises the current 200-row page.
+let lastIssueExport = null;
 /** Render dashboard content from one derived view. @param {Document} doc @param {object} model @param {object} state @returns {object} */
 function renderDashboard(doc, model, state = {}) {
   const view = deriveView(model, state);
@@ -2215,8 +2218,6 @@ function renderDashboard(doc, model, state = {}) {
   // `.chart-tip`, so a KPI card carrying only `data-tip` showed the cursor and nothing else.
   const card = (label, value, status = '') => `<article class="kpi-card${status ? ` ${status}` : ''}" data-tip="${attr(kpiTipHtml(label))}"><div class="v">${esc(value)}</div><div class="l">${esc(label)}</div><div class="chart-tip" role="tooltip"></div></article>`;
   const tableRows = new Map();
-  // I112 — full filtered Issues set, retained so CSV export covers every filtered row (not just the visible page).
-  let lastIssueExport = null;
   // §7.1 B7 — column-visibility chooser, one implementation for every table. The contents follow the
   // normative floating-panel order (master → note → divider → item list → footer). The first two
   // pinned identity columns are listed, checked and disabled, because they can never be hidden
@@ -2287,7 +2288,7 @@ function renderDashboard(doc, model, state = {}) {
     // sit right. A paginated table never renders the separate bottom pager.
     let pagerControls;
     if (pageSize && totalPages > 1) {
-      pagerControls = `<button class="pg-btn" data-page="prev"${page <= 1 ? ' disabled' : ''}>‹ Prev</button><label class="pg-jump">Page <select class="v-page" data-pagejump="${key}">${[...Array(totalPages)].map((_, i) => `<option value="${i + 1}"${i + 1 === page ? ' selected' : ''}>${i + 1}</option>`).join('')}</select> / ${totalPages}</label><button class="pg-btn" data-page="next"${page >= totalPages ? ' disabled' : ''}>Next ›</button><span class="pg-total" id="${countId}">${rows.length.toLocaleString()} rows</span>`;
+      pagerControls = `<button class="pg-btn" data-pg="prev"${page <= 1 ? ' disabled' : ''}>‹ Prev</button><label class="pg-jump">Page <select class="v-page" data-pagejump="${key}">${[...Array(totalPages)].map((_, i) => `<option value="${i + 1}"${i + 1 === page ? ' selected' : ''}>${i + 1}</option>`).join('')}</select> / ${totalPages}</label><button class="pg-btn" data-pg="next"${page >= totalPages ? ' disabled' : ''}>Next ›</button><span class="pg-total" id="${countId}">${rows.length.toLocaleString()} rows</span>`;
     } else {
       pagerControls = `<span class="pg-total" id="${countId}">${countLabel}</span>`;
     }
@@ -3026,13 +3027,13 @@ function renderDashboard(doc, model, state = {}) {
     const issueHeaders = ['Severity', 'Rule', 'Doc No.', 'Field', 'Value', 'Message', 'Source Tab', 'Row'];
     const page = state.issuePage || 1;
     // I112 — retain the full filtered set so CSV export covers every filtered row, not just the visible page.
-    lastIssueExport = { headers: issueHeaders, rows: filteredIssueRows };
+    lastIssueExport = { headers: issueHeaders, rows: filteredIssueRows, columns: Array.isArray(state.columnSets?.issue) ? state.columnSets.issue : null };
     // I112 (sample design) — the meta note is PANEL level, directly under the Validation page title,
     // above the .v-summary row (§4 subtitle standard). It is no longer the Issues table subtitle.
     return activePanel('Validation', `
       <p class="note">${meta}</p>
       <div class="v-summary">
-        <span class="v-count" data-validation-count>${issueRows.length.toLocaleString()} issues</span>
+        <span class="v-count" data-validation-count>${filteredIssueRows.length.toLocaleString()} issues</span>
         <div class="summary-chips">
           <span class="vchip e">Error ${err}</span>
           <span class="vchip w">Warning ${warn}</span>
@@ -3366,8 +3367,8 @@ function buildSubmittalsCsv(model, view, subMonth = 'ALL') {
 // covers every row the operator filtered to.
 function buildIssueCsv() {
   if (!lastIssueExport) return '';
-  const { headers, rows } = lastIssueExport;
-  const chosen = Array.isArray(state.columnSets?.issue) ? new Set(state.columnSets.issue) : new Set(headers.map((_, i) => i));
+  const { headers, rows, columns } = lastIssueExport;
+  const chosen = Array.isArray(columns) ? new Set(columns) : new Set(headers.map((_, i) => i));
   const indexes = headers.map((_, i) => i).filter(i => chosen.has(i));
   const q = v => { v = String(v ?? ''); return /[",\n\r]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v; };
   return '﻿' + [indexes.map(i => q(headers[i])), ...rows.map(r => indexes.map(i => q(r[i])))].map(r => r.join(',')).join('\r\n');
@@ -3834,8 +3835,11 @@ function wireSplitHeaders(root) {
 function paint() {
   if (!model) return;
   $('[data-page-content]').hidden = false;
+  const scrollEl = document.querySelector('.content-body');
+  const scrollTop = scrollEl ? scrollEl.scrollTop : 0;
   document.body.classList.add('loaded');
   const view = renderDashboard(document, model, { ...state, uiHelp });
+  if (scrollEl) scrollEl.scrollTop = scrollTop;
   wireSplitHeaders(document);
   document.querySelectorAll('[data-page]').forEach(button => button.classList.toggle('active', button.dataset.page === state.page));
   const pageTitle = document.getElementById('page-title');
@@ -3991,10 +3995,11 @@ document.addEventListener('click', event => {
   if (!target.closest?.('.tf-panel') && !target.closest?.('.tf-btn') && !target.closest?.('.search-panel') && !target.closest?.('#search-button')) closeFilterPanels();
   if (state.openChooser && !target.closest?.('.column-chooser') && !target.closest?.('.cc-btn')) closeColumnChoosers();
 });
+const NAV_PAGES = new Set(['Overview', 'Submittals', 'Validation', 'Forward and Overdue', 'Analytical', 'Help', 'Settings']);
 document.addEventListener('click', async event => {
   const target = event.target.closest('button, tr.expandable');
   if (!target) return;
-  if (target.dataset.page) { state.page = target.dataset.page; paint(); }
+  if (target.dataset.page && NAV_PAGES.has(target.dataset.page)) { state.page = target.dataset.page; paint(); }
   if (target.dataset.shellToggle) document.body.classList.toggle(`closed-${target.dataset.shellToggle}`);
   if (target.id === 'settings-button') openModal('settings-modal');
   if (target.id === 'help-button') { $('#help-body').innerHTML = helpHtml(); openModal('help-modal'); }
@@ -4065,7 +4070,7 @@ document.addEventListener('click', async event => {
     else exportKeyedTableCsv(key);
   }
   if (target.classList?.contains('pg-btn')) {
-    const p = target.dataset.page;
+    const p = target.dataset.pg;
     if (p === 'prev') state.issuePage = Math.max(1, (state.issuePage || 1) - 1);
     else if (p === 'next') state.issuePage = (state.issuePage || 1) + 1;
     paint();
@@ -4120,7 +4125,7 @@ document.addEventListener('change', async event => {
     paint();
     return;
   }
-  if (event.target.dataset.vcode) { state.issueCode = event.target.value; state.issuePage = 1; paint(); return; }
+  if (event.target.hasAttribute('data-vcode')) { state.issueCode = event.target.value; state.issuePage = 1; paint(); return; }
   if (event.target.dataset.pagejump) { state.issuePage = Number(event.target.value) || 1; paint(); return; }
   const filterAll = event.target.dataset.filterAll;
   if (filterAll) {

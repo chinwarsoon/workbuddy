@@ -461,8 +461,11 @@ function wireSplitHeaders(root) {
 function paint() {
   if (!model) return;
   $('[data-page-content]').hidden = false;
+  const scrollEl = document.querySelector('.content-body');
+  const scrollTop = scrollEl ? scrollEl.scrollTop : 0;
   document.body.classList.add('loaded');
   const view = renderDashboard(document, model, { ...state, uiHelp });
+  if (scrollEl) scrollEl.scrollTop = scrollTop;
   wireSplitHeaders(document);
   document.querySelectorAll('[data-page]').forEach(button => button.classList.toggle('active', button.dataset.page === state.page));
   const pageTitle = document.getElementById('page-title');
@@ -618,10 +621,11 @@ document.addEventListener('click', event => {
   if (!target.closest?.('.tf-panel') && !target.closest?.('.tf-btn') && !target.closest?.('.search-panel') && !target.closest?.('#search-button')) closeFilterPanels();
   if (state.openChooser && !target.closest?.('.column-chooser') && !target.closest?.('.cc-btn')) closeColumnChoosers();
 });
+const NAV_PAGES = new Set(['Overview', 'Submittals', 'Validation', 'Forward and Overdue', 'Analytical', 'Help', 'Settings']);
 document.addEventListener('click', async event => {
   const target = event.target.closest('button, tr.expandable');
   if (!target) return;
-  if (target.dataset.page) { state.page = target.dataset.page; paint(); }
+  if (target.dataset.page && NAV_PAGES.has(target.dataset.page)) { state.page = target.dataset.page; paint(); }
   if (target.dataset.shellToggle) document.body.classList.toggle(`closed-${target.dataset.shellToggle}`);
   if (target.id === 'settings-button') openModal('settings-modal');
   if (target.id === 'help-button') { $('#help-body').innerHTML = helpHtml(); openModal('help-modal'); }
@@ -692,7 +696,7 @@ document.addEventListener('click', async event => {
     else exportKeyedTableCsv(key);
   }
   if (target.classList?.contains('pg-btn')) {
-    const p = target.dataset.page;
+    const p = target.dataset.pg;
     if (p === 'prev') state.issuePage = Math.max(1, (state.issuePage || 1) - 1);
     else if (p === 'next') state.issuePage = (state.issuePage || 1) + 1;
     paint();
@@ -747,7 +751,7 @@ document.addEventListener('change', async event => {
     paint();
     return;
   }
-  if (event.target.dataset.vcode) { state.issueCode = event.target.value; state.issuePage = 1; paint(); return; }
+  if (event.target.hasAttribute('data-vcode')) { state.issueCode = event.target.value; state.issuePage = 1; paint(); return; }
   if (event.target.dataset.pagejump) { state.issuePage = Number(event.target.value) || 1; paint(); return; }
   const filterAll = event.target.dataset.filterAll;
   if (filterAll) {

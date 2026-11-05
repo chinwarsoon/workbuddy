@@ -419,6 +419,9 @@ export function c2DelayTipHtml(p) {
     + `<div class="chart-tip-foot"><span>Docs in mean</span><b>${p.n || 0}</b></div>`;
 }
 
+// I112 — module-level store of the last rendered Issues table (full FILTERED set) so buildIssueCsv()
+// can export every filtered row even though the table only materialises the current 200-row page.
+let lastIssueExport = null;
 /** Render dashboard content from one derived view. @param {Document} doc @param {object} model @param {object} state @returns {object} */
 export function renderDashboard(doc, model, state = {}) {
   const view = deriveView(model, state);
@@ -455,8 +458,6 @@ export function renderDashboard(doc, model, state = {}) {
   // `.chart-tip`, so a KPI card carrying only `data-tip` showed the cursor and nothing else.
   const card = (label, value, status = '') => `<article class="kpi-card${status ? ` ${status}` : ''}" data-tip="${attr(kpiTipHtml(label))}"><div class="v">${esc(value)}</div><div class="l">${esc(label)}</div><div class="chart-tip" role="tooltip"></div></article>`;
   const tableRows = new Map();
-  // I112 — full filtered Issues set, retained so CSV export covers every filtered row (not just the visible page).
-  let lastIssueExport = null;
   // §7.1 B7 — column-visibility chooser, one implementation for every table. The contents follow the
   // normative floating-panel order (master → note → divider → item list → footer). The first two
   // pinned identity columns are listed, checked and disabled, because they can never be hidden
@@ -527,7 +528,7 @@ export function renderDashboard(doc, model, state = {}) {
     // sit right. A paginated table never renders the separate bottom pager.
     let pagerControls;
     if (pageSize && totalPages > 1) {
-      pagerControls = `<button class="pg-btn" data-page="prev"${page <= 1 ? ' disabled' : ''}>‹ Prev</button><label class="pg-jump">Page <select class="v-page" data-pagejump="${key}">${[...Array(totalPages)].map((_, i) => `<option value="${i + 1}"${i + 1 === page ? ' selected' : ''}>${i + 1}</option>`).join('')}</select> / ${totalPages}</label><button class="pg-btn" data-page="next"${page >= totalPages ? ' disabled' : ''}>Next ›</button><span class="pg-total" id="${countId}">${rows.length.toLocaleString()} rows</span>`;
+      pagerControls = `<button class="pg-btn" data-pg="prev"${page <= 1 ? ' disabled' : ''}>‹ Prev</button><label class="pg-jump">Page <select class="v-page" data-pagejump="${key}">${[...Array(totalPages)].map((_, i) => `<option value="${i + 1}"${i + 1 === page ? ' selected' : ''}>${i + 1}</option>`).join('')}</select> / ${totalPages}</label><button class="pg-btn" data-pg="next"${page >= totalPages ? ' disabled' : ''}>Next ›</button><span class="pg-total" id="${countId}">${rows.length.toLocaleString()} rows</span>`;
     } else {
       pagerControls = `<span class="pg-total" id="${countId}">${countLabel}</span>`;
     }
@@ -1266,13 +1267,13 @@ export function renderDashboard(doc, model, state = {}) {
     const issueHeaders = ['Severity', 'Rule', 'Doc No.', 'Field', 'Value', 'Message', 'Source Tab', 'Row'];
     const page = state.issuePage || 1;
     // I112 — retain the full filtered set so CSV export covers every filtered row, not just the visible page.
-    lastIssueExport = { headers: issueHeaders, rows: filteredIssueRows };
+    lastIssueExport = { headers: issueHeaders, rows: filteredIssueRows, columns: Array.isArray(state.columnSets?.issue) ? state.columnSets.issue : null };
     // I112 (sample design) — the meta note is PANEL level, directly under the Validation page title,
     // above the .v-summary row (§4 subtitle standard). It is no longer the Issues table subtitle.
     return activePanel('Validation', `
       <p class="note">${meta}</p>
       <div class="v-summary">
-        <span class="v-count" data-validation-count>${issueRows.length.toLocaleString()} issues</span>
+        <span class="v-count" data-validation-count>${filteredIssueRows.length.toLocaleString()} issues</span>
         <div class="summary-chips">
           <span class="vchip e">Error ${err}</span>
           <span class="vchip w">Warning ${warn}</span>
@@ -1606,8 +1607,8 @@ export function buildSubmittalsCsv(model, view, subMonth = 'ALL') {
 // covers every row the operator filtered to.
 export function buildIssueCsv() {
   if (!lastIssueExport) return '';
-  const { headers, rows } = lastIssueExport;
-  const chosen = Array.isArray(state.columnSets?.issue) ? new Set(state.columnSets.issue) : new Set(headers.map((_, i) => i));
+  const { headers, rows, columns } = lastIssueExport;
+  const chosen = Array.isArray(columns) ? new Set(columns) : new Set(headers.map((_, i) => i));
   const indexes = headers.map((_, i) => i).filter(i => chosen.has(i));
   const q = v => { v = String(v ?? ''); return /[",\n\r]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v; };
   return '﻿' + [indexes.map(i => q(headers[i])), ...rows.map(r => indexes.map(i => q(r[i])))].map(r => r.join(',')).join('\r\n');

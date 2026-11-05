@@ -99,11 +99,11 @@
       <h3 class="tt">Issues</h3>
       <div class="table-tools">
         <div class="pg-left">
-          <button class="pg-btn" data-page="prev" disabled>‹ Prev</button>
+          <button class="pg-btn" data-pg="prev" disabled>‹ Prev</button>
           <label>Page
             <select class="v-page" id="vPage"></select><span id="vTotal"> / 6</span>
           </label>
-          <button class="pg-btn" data-page="next">Next ›</button>
+          <button class="pg-btn" data-pg="next">Next ›</button>
           <span id="totalRows">1,024 rows</span>
         </div>
         <div class="pg-right">
@@ -145,8 +145,8 @@
   const total = document.getElementById('totalRows');
   const vPage = document.getElementById('vPage');
   const vTotal = document.getElementById('vTotal');
-  const prevBtn = document.querySelector('[data-page="prev"]');
-  const nextBtn = document.querySelector('[data-page="next"]');
+  const prevBtn = document.querySelector('[data-pg="prev"]');
+  const nextBtn = document.querySelector('[data-pg="next"]');
   const PAGE_SIZE = 200;
   let currentPage = 1;
   let pages = 1;

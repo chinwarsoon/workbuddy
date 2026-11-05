@@ -711,7 +711,8 @@ test('I112 — Validation Issues table: top tool cluster with page controls + co
   const toolsIdx = html.indexOf('class="table-tools"', headIdx);
   assert.ok(toolsIdx > headIdx, 'the tool cluster sits below the title');
   // page controls at the top
-  assert.ok(html.includes('data-page="prev"') && html.includes('data-page="next"'), 'the page navigation buttons are present at the top');
+  assert.ok(html.includes('data-pg="prev"') && html.includes('data-pg="next"'), 'the page navigation buttons are present at the top');
+  assert.ok(!html.includes('data-page="prev"') && !html.includes('data-page="next"'), 'pager buttons must NOT use data-page (it collides with sidebar navigation)');
   assert.ok(html.includes('data-pagejump="issue"'), 'the page-jump selector is present');
   assert.ok(html.includes('class="pg-total"'), 'the row total is shown');
   // filter + export on the right
