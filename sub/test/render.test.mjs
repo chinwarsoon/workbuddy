@@ -1,3 +1,13 @@
+// Revision 0.16 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.67 / I122 — the rev 1.66 markup test now expects ONE `.seg` group of `.seg-btn` buttons, the new print / wrap CSS and the stored-preset client code; its 6M case passes `c1Preset: '6M'`. A new test asserts exact mutual exclusion for every preset, NO active chip for `c1Preset: null` (manual custom range), collided clipped ranges no longer light two chips, and the `flex-wrap:nowrap` / 1280 px wrap breakpoint CSS. No assertion was weakened or removed.
+// Revision 0.15 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.66 / I121 — two new tests cover the dual-handle C1 period time bar: `c1PresetRange()` (6M / 12M / 24M anchor and clamp, YTD from January of the as-of year, All, unknown and empty input), and the emitted markup (ONE shared track, two native `step="1"` handles with `data-c1period` / `aria-label` / `aria-valuetext`, one tick per reporting month, five `aria-pressed` chips, no old From / To inputs) plus the CSS print / focus rules and the client live-drag decoupling.
+// Revision 0.14 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.65 / I119 — one new test proves the shared C1 Y axis follows the period window from the windowed `pts`, enabled series, Bars toggle and grain; cumulative values stay absolute (no rebase); metadata, labels, grid lines, `c1PlotSvg` refit and the 300-unit plot height all stay in agreement. No separate bar scale is introduced.
+// Revision 0.13 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.64 / I118 — replaced `niceAxisMax` with `niceAxisTicks`; the I117 tick assertions now allow the dynamic label count, and a new test covers the 7-interval / 8-label cap, the ~40 px spacing, the nice-number step sequence, the one `data-c1meta` payload (static ticks, SVG grid lines and refit), the visible-series axis maximum and the unchanged 300-unit plot height.
+// Revision 0.12 | 2026-11-06 | CodeBuddy (AI) | I117 — the C1 caption assertion follows the new "Documents" text, and one new test covers the four owner fixes: the caption text, the nice-step round Y ticks (`niceAxisMax`), the bar value anchored above its bar (`text-anchor="start"` + `dominant-baseline="central"`) and per-month centring of the visible (non-zero) bars with series colours kept in order.
+// Revision 0.11 | 2026-11-06 | CodeBuddy (AI) | §4.2 rev 1.63 — added a production-build assertion for the promoted Option B attached-table interaction: four tokenised gradients and soft areas, one hidden pointer-transparent month band at W / N, `data-c1col` on every month header and value cell, tokenised CSS stops, the global §4.6 hidden-window ARIA fix, and the PNG / Copy export stripping.
+// Revision 0.10 | 2026-11-06 | CodeBuddy (AI) | §4.2 rev 1.62 moved the C1 legend above the plot: the refit test now asserts `yTop > 0`, `H === yBot` and a legend row above `yTop`, and the axis-line test derives `y1`/`y2` instead of hard-coding `y2="300"`.
+// Revision 0.9 | 2026-11-06 | CodeBuddy (AI) | Added a §4.2 rev 1.59 C1 test: one vertical
+// Y-axis line, the rotated side unit caption, the omitted as-of subtitle, the semantic
+// <caption> that contributes no gap, and static width/height matching the viewBox.
 // Revision 0.8 | 2026-11-02 | CodeBuddy (AI) | Owner instruction: no static workbook counts. The "133 submissions" assertion now derives the count from the active set.
 // Revision 0.7 | 2026-11-02 | CodeBuddy (AI) | Added an I046 regression test: the C3 Breakdown submitter view drops the Total Plan column and metric row and shows the reason, while the discipline view keeps it.
 // Revision 0.6 | 2026-10-26 | CodeBuddy (AI) | T15.3 (Wave 4.2): added a C3 two-side-by-side vertical-bar-chart test (Submissions + Approval Status, Under Review via D38) and dropped the now-invalid All-months percentages assertion from the bar-view test (percentages remain a pie-view detail).
@@ -15,7 +25,7 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { readXlsx } from '../engine/xlsx-reader.js';
 import { buildModel } from '../engine/pipeline.js';
-import { c1TipHtml, c2DelayTipHtml, deriveView, renderDashboard, buildSubmittalsCsv } from '../engine/render.js';
+import { c1TipHtml, c2DelayTipHtml, c1PlotSvg, niceAxisTicks, deriveView, renderDashboard, buildSubmittalsCsv, c1PresetRange, C1_PRESETS } from '../engine/render.js';
 
 // The hover-window bindings in render.js bind to `window` and `document` (revision 0.62 series).
 // The harness supplies a fake `document` to renderDashboard but no `window`, so every rendering test
@@ -151,6 +161,390 @@ test('renders C1 S-curve controls and SVG in Overview', () => {
   assert.match(html, /class="scurve sc-board"/, 'chart-component board border is drawn');
   assert.match(html, /sc-ref-lbl-start/, 'Start reference label is drawn');
   assert.match(html, /sc-ref-lbl-today/, 'Today reference label is drawn');
+});
+
+// T19.1 / I116 — spec §4.2 rev 1.59: one native attached table in one alignment grid, in the
+// static HTML (no scripts), with data-driven rows and no ARIA table roles.
+test('T19.1 / I116 — C1 S-curve carries one native attached table in one alignment grid', () => {
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Overview' });
+  const nb = deriveView(model).c1.months.length;
+  assert.equal((html.match(/class="scurve sc-board"/g) || []).length, 1, 'one chart board');
+  assert.equal((html.match(/class="c1-grid"/g) || []).length, 1, 'one alignment grid');
+  assert.equal((html.match(/class="c1-plot"/g) || []).length, 1, 'one curve plot');
+  assert.match(html, /--c1-gutter:\d+px/, 'the gutter track is set');
+  assert.match(html, /--c1-cols:\d+/, 'the period track count is set');
+  const svgTag = html.match(/<svg[^>]*class="scurve-svg"[^>]*>/);
+  assert.ok(svgTag, 'one curve SVG');
+  assert.match(svgTag[0], /viewBox="0 0 \d+ \d+"/, 'the viewBox scales the whole curve into the card');
+  assert.match(svgTag[0], /preserveAspectRatio="xMidYMid meet"/, 'the aspect ratio is kept');
+  assert.match(svgTag[0], /role="img"/, 'the curve SVG keeps role="img"');
+  const found = html.match(/<table class="c1-table[^"]*">[\s\S]*?<\/table>/);
+  assert.ok(found, 'the attached table renders in static HTML');
+  const table = found[0];
+  assert.match(table, /<caption>[^<]+<\/caption>/, 'caption present');
+  assert.match(table, /<colgroup>/, 'colgroup present');
+  assert.equal((table.match(/<col\b/g) || []).length, nb + 1, 'one gutter col plus one col per period');
+  assert.match(table, /<thead>[\s\S]*<th class="g-corner" scope="col">Reporting Month<\/th>/, 'corner header present');
+  assert.equal((table.match(/scope="col"/g) || []).length, nb + 1, 'one column header per period plus the corner');
+  const rows = (table.match(/scope="row"/g) || []).length;
+  assert.ok(rows > 0, 'metric row headers present');
+  assert.equal((table.match(/<td class="g-val/g) || []).length, rows * nb, 'every metric row has one value per period');
+  assert.doesNotMatch(table, /role="(table|row|cell|columnheader|rowheader)"/, 'no ARIA table roles');
+  assert.doesNotMatch(table, /display:\s*contents/, 'no display:contents');
+});
+
+// The client ResizeObserver calls the same renderer with the measured width. X points, the
+// hover payload and the viewBox must share that width so the snap line stays on its month column.
+test('T19.1 — the C1 curve refit keeps X points aligned at a new width', () => {
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Overview' });
+  const board = html.match(/<div class="scurve sc-board"[^>]*>/)[0];
+  const pts = JSON.parse(board.match(/data-points='([^']*)'/)[1].replace(/&#39;/g, "'"));
+  const meta = JSON.parse(board.match(/data-c1meta='([^']*)'/)[1].replace(/&#39;/g, "'"));
+  const geo = JSON.parse(board.match(/data-geo='([^']*)'/)[1].replace(/&#39;/g, "'"));
+  assert.ok(Math.abs(pts[0].cx - 0.5 * geo.W / pts.length) < 0.2, 'static cx uses (i+0.5)*W/N');
+  const built = c1PlotSvg(pts, meta, 900);
+  assert.equal(built.W, 900, 'the refit uses the measured width');
+  assert.ok((built.inner.match(/<polyline/g) || []).length > 0, 'the refit redraws the series lines');
+  assert.ok(built.yTop > 0, '§4.2 rev 1.62: the wrapped legend reserves a band above the plot');
+  assert.equal(built.H, built.yBot, 'the plot bottom is the SVG viewBox bottom');
+  const legendY = Number(built.inner.match(/<g class="sc-legend"><g transform="translate\([\d.]+,([\d.]+)\)"/)[1]);
+  assert.ok(legendY < built.yTop, 'the legend rows sit above the plot');
+  const firstX = Number(built.inner.match(/points="([^"]+)"/)[1].split(' ')[0].split(',')[0]);
+  assert.ok(Math.abs(firstX - 0.5 * 900 / pts.length) < 0.2, 'refit cx uses the same (i+0.5)*W/N rule');
+});
+
+// §4.2 rev 1.63 — the reviewed Option B prototype is now the production build. Assert the
+// generated markup, the tokenised CSS, the shared binder's opt-in flag and the export stripping.
+// Tier 5 / Tier 6 of the layout harness measure the live two-way hover behaviour in a browser.
+test('§4.2 rev 1.63 — C1 attached-table interaction is in the production build', () => {
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Overview' });
+  const nb = deriveView(model).c1.months.length;
+  const board = html.match(/<div class="scurve sc-board"[^>]*>/)[0];
+  const geo = JSON.parse(board.match(/data-geo='([^']*)'/)[1].replace(/&#39;/g, "'"));
+  const svg = html.match(/<svg[^>]*class="scurve-svg"[^>]*>([\s\S]*?)<\/svg>/)[1];
+  assert.equal((svg.match(/<linearGradient /g) || []).length, 4, 'one gradient per visible cumulative series');
+  assert.equal((svg.match(/<path class="sc-area"/g) || []).length, 4, 'one soft area per visible cumulative series');
+  for (const id of ['plan', 'forecast', 'actual', 'resub']) {
+    assert.match(svg, new RegExp(`id="sc-grad-${id}"`), `gradient ${id} is defined`);
+    assert.match(svg, new RegExp(`class="sc-stop-${id}"`), `gradient ${id} stops are class-tokenised`);
+  }
+  assert.doesNotMatch(svg, /stop-color="#[0-9a-f]{3,8}"/i, 'gradient stops carry no hard-coded hex (§4.6)');
+  assert.equal((svg.match(/pointer-events="none"/g) || []).length, 5, 'four areas plus one band cannot steal hover');
+  const band = svg.match(/<rect class="sc-hover-band"[^>]*>/)[0];
+  assert.match(band, /style="display:none"/, 'the band starts hidden');
+  assert.match(band, /pointer-events="none"/, 'the band is pointer-transparent');
+  assert.ok(Math.abs(Number(band.match(/width="([\d.]+)"/)[1]) - geo.W / nb) < 0.2, 'band width is W / N');
+  assert.ok(svg.indexOf('<rect class="sc-hover-band"') < svg.indexOf('<line class="sc-grid"'), 'the band is behind all marks');
+  const table = html.match(/<table class="c1-table[^"]*">[\s\S]*?<\/table>/)[0];
+  const rows = (table.match(/scope="row"/g) || []).length;
+  assert.equal((table.match(/data-c1col="/g) || []).length, nb + rows * nb, 'every month header and value cell carries data-c1col');
+  assert.equal((table.match(/<th class="g-axis" scope="col" data-c1col="/g) || []).length, nb, 'one data-c1col per month header');
+  assert.doesNotMatch(table, /data-col="/, 'data-col stays reserved for .ds-table choosers and resize grips');
+  const css = fs.readFileSync(path.join(root, 'engine/dashboard.css'), 'utf8');
+  for (const [cls, token] of [['plan', 'plan'], ['forecast', 'forecast'], ['actual', 'actual'], ['resub', 'actualresub']]) {
+    assert.match(css, new RegExp(`\\.sc-stop-${cls}\\{stop-color:var\\(--color-${token}\\)\\}`), `.sc-stop-${cls} uses its series token`);
+  }
+  assert.match(css, /\.sc-area\{[^}]*pointer-events:none/, 'areas are pointer-transparent');
+  assert.match(css, /\.sc-hover-band\{[^}]*pointer-events:none/, 'the band is pointer-transparent');
+  assert.match(css, /\.c1-table \[data-c1col\]\.col-active\{/, 'the column highlight is defined');
+  const src = fs.readFileSync(path.join(root, 'engine/render.js'), 'utf8');
+  assert.match(src, /attachedTable = false/, 'the shared binder gates the C1 behaviour behind an opt-in flag');
+  assert.match(src, /attachedTable: true/, 'only the C1 call site opts in');
+  assert.match(src, /tip\.setAttribute\('aria-hidden', 'true'\)/, 'a hidden window carries aria-hidden (§4.6)');
+  assert.match(src, /tip\.textContent = ''/, 'a hidden window carries no stale text (§4.6)');
+  const dash = fs.readFileSync(path.join(root, 'engine/dashboard.js'), 'utf8');
+  assert.match(dash, /sc-stop-resub\{stop-color:\$\{resub\}\}/, 'PNG / Copy resolve the gradient stops');
+  assert.match(dash, /clone\.querySelectorAll\('\.chart-snap, \.sc-hover-band'\)/, 'PNG / Copy strip transient hover marks');
+  assert.match(dash, /activeCells/, 'PNG / Copy neutralise .col-active before reading text colours');
+});
+
+// §4.2 rev 1.59 and the owner decisions of 2026-11-06: one vertical Y-axis line, a rotated
+// side unit caption, no as-of subtitle, a semantic <caption> that adds no header gap, and
+// static width/height that agree with the viewBox (otherwise xMidYMid meet letterboxes).
+test('T19.1 — C1 Y axis, unit caption, as-of subtitle and caption visibility follow §4.2', () => {
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Overview' });
+  assert.equal((html.match(/<line class="sc-yaxis-line"/g) || []).length, 1, 'one vertical Y-axis line');
+  const axis = html.match(/<line class="sc-yaxis-line"[^>]*>/)[0];
+  assert.match(axis, /x1="0"/, 'the axis line sits at the plot left edge');
+  assert.match(axis, /x2="0"/, 'the axis line is vertical');
+  const axisY1 = Number(axis.match(/y1="([\d.]+)"/)[1]);
+  const axisY2 = Number(axis.match(/y2="([\d.]+)"/)[1]);
+  assert.ok(axisY1 > 0, 'the axis line starts below the top legend band');
+  assert.equal(axisY2 - axisY1, 300, 'the axis line spans the plot height');
+  const c1SvgTag = html.match(/<svg[^>]*class="scurve-svg"[^>]*>/)[0];
+  assert.equal(Number(c1SvgTag.match(/viewBox="0 0 \d+ (\d+)"/)[1]), axisY2, 'the plot bottom is the SVG bottom');
+  assert.doesNotMatch(html, /class="sc-asof"/, 'the as-of subtitle is omitted');
+  assert.match(html, /<span class="c1-ycap">Documents<\/span>/, 'the unit caption names the measure');
+  assert.match(html, /<caption>[^<]+<\/caption>/, 'the semantic caption stays in the DOM');
+  const svgTag = html.match(/<svg[^>]*class="scurve-svg"[^>]*>/)[0];
+  const vb = svgTag.match(/viewBox="0 0 (\d+) (\d+)"/);
+  assert.ok(vb, 'viewBox present');
+  assert.equal(svgTag.match(/width="(\d+)"/)[1], vb[1], 'static width matches the viewBox width');
+  assert.equal(svgTag.match(/height="(\d+)"/)[1], vb[2], 'static height matches the viewBox height');
+  const css = fs.readFileSync(path.join(root, 'engine/dashboard.css'), 'utf8');
+  assert.match(css, /\.c1-yaxis \.c1-ycap\{[^}]*writing-mode:vertical-rl/, 'the unit caption is rotated along the axis');
+  assert.match(css, /\.c1-table caption\{[^}]*position:absolute/, 'the caption contributes no header gap');
+  assert.match(css, /\.sc-yaxis-line\{/, 'the axis line is a 1 px light rule');
+  assert.doesNotMatch(css, /\.sc-asof\{/, 'the dead as-of style is removed');
+});
+
+// I117 — owner review of the C1 panel: the unit caption reads "Documents", the Y ticks are round
+// numbers, the bar values sit fully above their bars, and each month centres its visible (non-zero)
+// bars on the band centre. §4.2 rev 1.64 made the tick count dynamic (see the I118 test below).
+test('I117 — C1 caption, round Y ticks, bar values above bars and per-month bar centring', () => {
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Overview' });
+  assert.match(html, /<span class="c1-ycap">Documents<\/span>/, 'the unit caption reads Documents');
+  assert.doesNotMatch(html, /Cumulative documents/, 'the old caption text is gone');
+  const meta = JSON.parse(html.match(/data-c1meta='([^']*)'/)[1].replace(/&#39;/g, "'"));
+  const tickTexts = [...html.matchAll(/<span class="c1-ytick"[^>]*>([\d,]+)<\/span>/g)].map(m => Number(m[1].replace(/,/g, '')));
+  assert.ok(tickTexts.length >= 2 && tickTexts.length <= 8, 'the dynamic Y tick count stays within the rev 1.64 cap');
+  for (const t of tickTexts) assert.equal(t % meta.yStep, 0, `tick ${t} is a round multiple of the step ${meta.yStep}`);
+  // One synthetic payload: month 0 has only Plan non-zero, month 1 has all four series.
+  const pts = [
+    { pNew: 10, fNew: 0, aFNew: 0, aRNew: 0, pCum: 10, fCum: 0, aFCum: 0, aRCum: 0 },
+    { pNew: 5, fNew: 7, aFNew: 3, aRNew: 2, pCum: 15, fCum: 7, aFCum: 3, aRCum: 2 }
+  ];
+  const built = c1PlotSvg(pts, { yMax: 20 }, 600);
+  const band = 600 / 2, xc0 = 0.5 * band, xc1 = 1.5 * band;
+  const rects = [...built.inner.matchAll(/<rect class="(sc-bar-[a-z]+)" x="([\d.]+)" y="(-?[\d.]+)" width="([\d.]+)"/g)]
+    .map(m => ({ cls: m[1], x: Number(m[2]), y: Number(m[3]), w: Number(m[4]) }))
+    .filter(r => r.y >= 0); // legend swatches sit at y=-8 and stay out
+  const m0 = rects.filter(r => r.x < band), m1 = rects.filter(r => r.x >= band);
+  assert.equal(m0.length, 1, 'month 0 draws only its one non-zero bar');
+  assert.ok(Math.abs(m0[0].x - (xc0 - 9)) < 0.2, 'month 0 centres its single bar (group start xc - 9)');
+  assert.deepEqual(m1.map(r => r.cls), ['sc-bar-plan', 'sc-bar-forecast', 'sc-bar-actual', 'sc-bar-actualresub'], 'month 1 keeps the series colour classes in order');
+  for (let k = 0; k < 4; k++) assert.ok(Math.abs(m1[k].x - (xc1 - 36 + k * 18)) < 0.2, `month 1 bar ${k} starts at its centred group slot`);
+  // The rotated value starts 4 px above its bar top and reads upward, so it never overlaps the bar.
+  const texts = [...built.inner.matchAll(/<text class="sc-barval" x="([\d.]+)" y="([\d.]+)" text-anchor="start" dominant-baseline="central" transform="rotate\(-90 [\d.]+ [\d.]+\)">(\d+)<\/text>/g)]
+    .map(m => ({ x: Number(m[1]), y: Number(m[2]), v: Number(m[3]) }));
+  assert.equal(texts.length, 5, 'one value label per drawn bar');
+  const pairs = [[m0[0], texts[0]], [m1[0], texts[1]], [m1[1], texts[2]], [m1[2], texts[3]], [m1[3], texts[4]]];
+  for (const [rect, text] of pairs) {
+    assert.ok(text.y <= rect.y - 3, `value ${text.v} sits fully above its bar top`);
+    assert.ok(Math.abs(text.x - (rect.x + rect.w / 2)) < 9, 'the value column stays on its bar');
+  }
+});
+
+// §4.2 rev 1.64 / I118 — the C1 dynamic Y tick standard. One metadata payload drives the grid
+// lines, the static HTML ticks and the client refit; the plot height stays 300 units.
+test('§4.2 rev 1.64 — C1 Y ticks follow the dynamic nice-number standard', () => {
+  const cases = [
+    [5955, 6000, 1000, 6], [6100, 7000, 1000, 7], [8100, 10000, 2000, 5],
+    [6133.65, 7000, 1000, 7], [3, 3, 1, 3], [1, 1, 1, 1]
+  ];
+  for (const [m, yMax, step, intervals] of cases) {
+    const a = niceAxisTicks(m);
+    assert.deepEqual({ yMax: a.yMax, step: a.step, intervals: a.intervals }, { yMax, step, intervals }, `M=${m} picks the smallest nice step that fits`);
+    assert.equal(a.ticks.length, intervals + 1, `M=${m}: labels = intervals + 1`);
+    assert.ok(intervals <= 7 && a.ticks.length <= 8, `M=${m} respects the 7-interval / 8-label cap`);
+    assert.ok(300 / intervals >= 40 - 1e-9, `M=${m} keeps at least ~40 units between major ticks`);
+    assert.ok(a.ticks.every((v, i) => v === i * step), `M=${m}: labels are nice-number multiples`);
+  }
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  const render = state => {
+    renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Overview', ...state });
+    return html;
+  };
+  render({});
+  const board = html.match(/<div class="scurve sc-board"[^>]*>/)[0];
+  const meta = JSON.parse(board.match(/data-c1meta='([^']*)'/)[1].replace(/&#39;/g, "'"));
+  assert.deepEqual([meta.yMax, meta.yStep, meta.yIntervals], [6000, 1000, 6], 'real workbooks: visible max 5955 -> 6000 / 1000 / 6');
+  const labels = [...html.matchAll(/<span class="c1-ytick"[^>]*>([\d,]+)<\/span>/g)]
+    .map(m => Number(m[1].replace(/,/g, ''))).sort((a, b) => a - b);
+  assert.deepEqual(labels, [0, 1000, 2000, 3000, 4000, 5000, 6000], 'static ticks come from yStep / yIntervals');
+  const c1svg = html.match(/<svg[^>]*class="scurve-svg"[^>]*>([\s\S]*?)<\/svg>/)[1];
+  const gridY = [...c1svg.matchAll(/<line class="sc-grid" x1="0" y1="([\d.]+)"/g)].map(m => Number(m[1])).sort((a, b) => a - b);
+  assert.equal(gridY.length, labels.length, 'one SVG grid line per Y label');
+  const gaps = gridY.slice(1).map((y, i) => y - gridY[i]);
+  assert.ok(Math.min(...gaps) >= 40 - 1e-9, `major ticks stay >= 40 units apart (min ${Math.min(...gaps)})`);
+  // The client refit reads the SAME payload and preserves the 300-unit plot height.
+  const pts = JSON.parse(board.match(/data-points='([^']*)'/)[1].replace(/&#39;/g, "'"));
+  const built = c1PlotSvg(pts, meta, 900);
+  assert.equal(built.yMax, meta.yMax, 'refit keeps yMax');
+  assert.equal(built.yStep, meta.yStep, 'refit keeps yStep');
+  assert.equal(built.yIntervals, meta.yIntervals, 'refit keeps yIntervals');
+  assert.equal((built.inner.match(/<line class="sc-grid"/g) || []).length, labels.length, 'refit draws one grid line per label');
+  assert.equal(built.yBot - built.yTop, 300, 'the chart area height stays 300 units');
+  // Hiding series re-fits the axis to the VISIBLE maximum (aFCum peak = 190 -> 200).
+  render({ c1Series: new Set(['actualFirst']) });
+  const hidden = JSON.parse(html.match(/data-c1meta='([^']*)'/)[1].replace(/&#39;/g, "'"));
+  assert.deepEqual([hidden.yMax, hidden.yStep, hidden.yIntervals], [200, 50, 4], 'the axis follows the visible series');
+  assert.equal((html.match(/class="c1-ytick"/g) || []).length, hidden.yIntervals + 1, 'the label count follows the visible series');
+});
+
+// §4.2 rev 1.65 / I119 — the shared Y axis follows the selected period window, recomputing on
+// every repaint. Cumulative values stay absolute; no second Y-axis or separate bar scale exists.
+test('§4.2 rev 1.65 — C1 shared Y axis follows the period window without rebasing', () => {
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  const render = state => {
+    renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Overview', ...state });
+    return html;
+  };
+  const boardOf = h => h.match(/<div class="scurve sc-board"[^>]*>/)[0];
+  const metaOf = h => JSON.parse(boardOf(h).match(/data-c1meta='([^']*)'/)[1].replace(/&#39;/g, "'"));
+  const ptsOf = h => JSON.parse(boardOf(h).match(/data-points='([^']*)'/)[1].replace(/&#39;/g, "'"));
+  const labelsOf = h => [...h.matchAll(/<span class="c1-ytick"[^>]*>([\d,]+)<\/span>/g)].map(m => Number(m[1].replace(/,/g, '')));
+  const gridOf = h => (h.match(/<svg[^>]*class="scurve-svg"[^>]*>([\s\S]*?)<\/svg>/)[1].match(/<line class="sc-grid"/g) || []).length;
+  const cum = p => ['pCum', 'fCum', 'aFCum', 'aRCum'].map(k => Number(p[k]) || 0);
+  const byLabel = arr => Object.fromEntries(arr.map(p => [p.label, cum(p)]));
+
+  render({});
+  const full = metaOf(html), fullPts = ptsOf(html);
+  assert.deepEqual([full.yMax, full.yStep, full.yIntervals], [6000, 1000, 6], 'full window: axis 6000 / step 1000 / 6 intervals');
+  assert.deepEqual(labelsOf(html), [6000, 5000, 4000, 3000, 2000, 1000, 0], 'full window: descending round ticks');
+  assert.equal(gridOf(html), 7, 'one grid line per label');
+
+  render({ c1Period: [0, 9] });
+  const narrow = metaOf(html), narrowPts = ptsOf(html);
+  assert.deepEqual([narrow.yMax, narrow.yStep, narrow.yIntervals], [300, 50, 6], '2026-01..2026-10: axis 300 / step 50 / 6 intervals');
+  assert.deepEqual([...labelsOf(html)].sort((a, b) => a - b), [0, 50, 100, 150, 200, 250, 300], 'narrow window ticks come from the same metadata');
+  assert.equal(gridOf(html), 7, 'narrow window keeps one grid line per label');
+  assert.ok(narrowPts.length < fullPts.length, 'the narrow window has fewer points');
+  const fullMap = byLabel(fullPts), narrowMap = byLabel(narrowPts), shared = Object.keys(narrowMap);
+  assert.ok(shared.length > 0, 'the two windows share months');
+  for (const label of shared) assert.deepEqual(narrowMap[label], fullMap[label], `absolute cumulative values kept for ${label}`);
+  // The client refit reads the SAME payload as the static render.
+  const built = c1PlotSvg(narrowPts, narrow, 900);
+  assert.deepEqual([built.yMax, built.yStep, built.yIntervals], [300, 50, 6], 'refit keeps the windowed axis');
+  assert.equal((built.inner.match(/<line class="sc-grid"/g) || []).length, 7, 'refit draws one grid line per label');
+  assert.equal(built.yBot - built.yTop, 300, 'the chart area height stays 300 units');
+
+  render({ c1Period: [9, 9] });
+  assert.deepEqual([metaOf(html).yMax, metaOf(html).yStep, metaOf(html).yIntervals], [300, 50, 6], 'single-month window re-fits the axis');
+  assert.equal(ptsOf(html).length, 1, 'the single-month window has one point');
+
+  // Cumulative values are absolute, so moving only From leaves the peak (and the axis) unchanged.
+  render({ c1Period: [20, 30] });
+  assert.equal(metaOf(html).yMax, 6000, 'a later From with the same To keeps the absolute peak');
+
+  render({ c1Series: new Set(['actualFirst']), c1Bars: false });
+  const hidden = metaOf(html);
+  assert.deepEqual([hidden.yMax, hidden.yStep, hidden.yIntervals], [200, 50, 4], 'visible series + Bars off re-fit the axis');
+  assert.equal(labelsOf(html).length, 5, 'the label count follows the windowed peak');
+  assert.equal(gridOf(html), 5, 'the grid follows the windowed peak');
+
+  // Quarter grain sums the monthly bars into buckets; the axis still comes from those windowed pts.
+  render({ c1Grain: 'quarter', c1Period: [0, 9] });
+  const q = metaOf(html), qPts = ptsOf(html);
+  const qPeak = Math.max(1, ...qPts.flatMap(p => ['pCum', 'fCum', 'aFCum', 'aRCum', 'pNew', 'fNew', 'aFNew', 'aRNew'].map(k => Number(p[k]) || 0)));
+  assert.equal(q.yMax, niceAxisTicks(qPeak).yMax, 'quarter-grain axis follows the windowed bucket peak');
+  assert.ok(q.yMax < full.yMax && q.yMax >= qPeak, 'the quarter-grain window re-fits without clipping the peak');
+  assert.equal(gridOf(html), q.yIntervals + 1, 'quarter grain keeps one grid line per label');
+});
+
+test('§4.2 rev 1.66 — c1PresetRange resolves the five whole-month presets', () => {
+  const keys = Array.from({ length: 31 }, (_, i) => new Date(Date.UTC(2024, i, 1)).toISOString().slice(0, 7));
+  const asOf = '2026-11-06';
+  assert.equal(keys[0], '2024-01');
+  assert.equal(keys[30], '2026-07');
+  assert.deepEqual(C1_PRESETS, ['6M', '12M', '24M', 'YTD', 'All']);
+  assert.deepEqual(c1PresetRange('6M', keys, 30, asOf), [25, 30], '6 whole months ending at the anchor');
+  assert.deepEqual(c1PresetRange('12M', keys, 30, asOf), [19, 30], '12 whole months ending at the anchor');
+  assert.deepEqual(c1PresetRange('24M', keys, 30, asOf), [7, 30], '24 whole months ending at the anchor');
+  assert.deepEqual(c1PresetRange('YTD', keys, 30, asOf), [24, 30], 'January 2026 through the last month at or before 2026-11');
+  assert.deepEqual(c1PresetRange('YTD', keys, 30, '2025-04-30'), [12, 15], '2025-01 through 2025-04');
+  assert.deepEqual(c1PresetRange('All', keys, 30, asOf), [0, 30], 'All spans every month');
+  assert.deepEqual(c1PresetRange('6M', keys, 3, asOf), [0, 3], 'a short anchor clamps at the first month');
+  assert.deepEqual(c1PresetRange('All', keys, 999, asOf), [0, 30], 'an out-of-range anchor clamps');
+  assert.equal(c1PresetRange('bogus', keys, 30, asOf), null, 'an unknown preset returns null');
+  assert.equal(c1PresetRange('All', [], 0, asOf), null, 'an empty month list returns null');
+});
+
+test('§4.2 rev 1.66 — C1 renders one dual-handle month-snapped track with ticks and preset chips', () => {
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  const render = state => {
+    renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Overview', ...state });
+    return html;
+  };
+  const chipsOf = h => [...h.matchAll(/data-c1preset="([^"]+)" aria-pressed="(true|false)"/g)].map(m => [m[1], m[2]]);
+  render({});
+  const bar = html.match(/<div class="c1-ts" id="c1TimeBar"[^>]*>/)?.[0];
+  assert.ok(bar, 'the C1 period group is present');
+  const months = JSON.parse(bar.match(/data-c1months="([^"]*)"/)[1].replace(/&quot;/g, '"'));
+  const n = months.length;
+  assert.ok(n > 12, `the workbook supplies several reporting months (got ${n})`);
+  assert.equal((html.match(/class="c1-ts-track"/g) || []).length, 1, 'ONE shared visual track');
+  const inputs = [...html.matchAll(/<input type="range" class="c1-ts-input[^>]*>/g)].map(m => m[0]);
+  assert.equal(inputs.length, 2, 'two native range handles');
+  assert.ok(inputs.some(x => x.includes('data-c1period="from"')) && inputs.some(x => x.includes('data-c1period="to"')),
+    'both handles keep the data-c1period attributes');
+  for (const input of inputs) {
+    assert.ok(input.includes('step="1"'), 'hard magnetic month snap');
+    assert.ok(input.includes('min="0"') && input.includes(`max="${n - 1}"`), 'both handles share the same month bounds');
+    assert.match(input, /aria-label="Period (start|end)"/);
+    assert.match(input, /aria-valuetext="[^"]+"/);
+  }
+  assert.ok(!html.includes('class="c1-range"') && !html.includes('c1-range-wrap'), 'the separate From / To inputs are gone');
+  const ticks = [...html.matchAll(/data-c1month="(\d+)"/g)].map(m => Number(m[1]));
+  assert.equal(ticks.length, n, 'one tick per reporting month');
+  assert.deepEqual(ticks, Array.from({ length: n }, (_, i) => i), 'tick indices are sequential whole months');
+  assert.deepEqual(chipsOf(html).map(x => x[0]), C1_PRESETS, 'five chips in the specified order');
+  assert.deepEqual(chipsOf(html).find(x => x[0] === 'All'), ['All', 'true'], 'All is pressed at the default full period');
+  assert.match(html, /<span class="c1-period-text" id="c1PeriodText">[^<]+<\/span>/);
+  assert.ok(html.includes('role="group" aria-label="Period presets"'));
+  assert.ok(html.includes('class="seg c1-ts-chips"'), 'the presets form one joined segmented group');
+  const segGroup = html.match(/<div class="seg c1-ts-chips"[^>]*>([\s\S]*?)<\/div>/)?.[1] || '';
+  assert.equal((segGroup.match(/class="seg-btn/g) || []).length, 5, 'five segmented buttons');
+  assert.ok(!html.includes('class="c1-ts-chip"'), 'the rev 1.66 pill buttons are gone');
+
+  // A preset window drives state.c1Period, state.c1Preset and the windowed payload together.
+  const six = c1PresetRange('6M', months, n - 1, '2026-11-06');
+  render({ c1Period: six, c1Preset: '6M' });
+  assert.equal(chipsOf(html).find(x => x[0] === '6M')[1], 'true', '6M chip follows the selected window');
+  const board = html.match(/<div class="scurve sc-board"[^>]*>/)[0];
+  const pts = JSON.parse(board.match(/data-points='([^']*)'/)[1].replace(/&#39;/g, "'"));
+  assert.equal(pts.length, six[1] - six[0] + 1, 'the windowed payload matches the preset range');
+
+  // CSS and client behaviour keep the track usable, printable and decoupled from the repaint.
+  const css = fs.readFileSync(path.join(root, 'engine/dashboard.css'), 'utf8');
+  const js = fs.readFileSync(path.join(root, 'engine/dashboard.js'), 'utf8');
+  assert.ok(css.includes('.c1-ts-track::before'), 'one shared track has one visual rail');
+  assert.ok(css.includes('.c1-ts-input:focus-visible{outline'), 'the handles have a focus outline');
+  assert.ok(css.includes('@media print{.c1-ts-body,.c1-ts-chips.seg{display:none}}'), 'print hides the interactive controls');
+  assert.ok(css.includes('@media(max-width:760px){.c1-ts-body'), 'the track wraps on a narrow card');
+  assert.ok(css.includes('.c1-ts{--c1-thumb:14px;display:flex;align-items:center;gap:10px;flex-wrap:nowrap'), 'the cluster does not wrap at desktop widths');
+  assert.ok(css.includes('@media(max-width:1279px){.c1-ts{flex-wrap:wrap}'), 'wrapping starts below the 1280 px minimum');
+  assert.ok(css.includes('.seg-btn.active{background:var(--blue);color:#fff}'), 'the Sub segmented active token is used');
+  assert.ok(js.includes('function c1SyncTimeBar()'), 'the visual-only sync exists');
+  assert.ok(js.includes('if (event.target.dataset.c1period) { state.c1Preset = null; c1SyncTimeBar(); }'), 'input events clear the preset and do not repaint the chart');
+  assert.ok(js.includes('c1PresetRange(target.dataset.c1preset'), 'chips use the shared preset helper');
+  assert.ok((js.match(/c1SyncTimeBar\(\);/g) || []).length >= 2, 'paint and the input listener both call the visual sync');
+});
+
+test('§4.2 rev 1.67 — presets are mutually exclusive and a manual range clears them', () => {
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  const doc = { querySelector: s => s === '[data-page-content]' ? node : null };
+  const active = h => [...h.matchAll(/data-c1preset="([^"]+)" aria-pressed="true"/g)].map(m => m[1]);
+  const show = state => renderDashboard(doc, model, { page: 'Overview', ...state });
+  for (const p of C1_PRESETS) {
+    show({ c1Preset: p });
+    assert.deepEqual(active(html), [p], `only ${p} is active when ${p} is stored`);
+    const seg = html.match(/<div class="seg c1-ts-chips"[^>]*>([\s\S]*?)<\/div>/)?.[1] || '';
+    assert.equal((seg.match(/class="seg-btn active"/g) || []).length, 1, `exactly one .seg-btn.active for ${p}`);
+  }
+  show({ c1Preset: null });
+  assert.deepEqual(active(html), [], 'a manual custom range leaves NO active chip');
+  const bar = html.match(/<div class="c1-ts" id="c1TimeBar"[^>]*>/)?.[0];
+  const months = JSON.parse(bar.match(/data-c1months="([^"]*)"/)[1].replace(/&quot;/g, '"'));
+  // At anchor 10 the clipped 12M / 24M / YTD ranges all used to resolve to [0,10].
+  const collided = c1PresetRange('12M', months, 10, '2026-11-07');
+  assert.deepEqual(c1PresetRange('24M', months, 10, '2026-11-07'), collided, 'the collision still exists in the data');
+  show({ c1Period: collided, c1Preset: '12M' });
+  assert.deepEqual(active(html), ['12M'], 'collided clipped ranges no longer light two chips');
 });
 
 test('derives C3 Breakdown rows with one New per document and the rest Resubmissions (workplan D36)', () => {

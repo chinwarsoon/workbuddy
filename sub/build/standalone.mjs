@@ -1,3 +1,4 @@
+// Revision 0.2 | 2026-11-06 | CodeBuddy (AI) | Made the rebuild idempotent. The pre-block slice kept the existing leading spaces before STANDALONE:BEGIN, and the new block added two more, so each rebuild grew the file by 2 characters (254 leading spaces at discovery). Line 53 now strips trailing spaces and tabs from that slice, so the marker keeps a fixed 2-space indent. Two consecutive rebuilds report the same character count.
 // Revision 0.1 | 2026-10-24 | CodeBuddy (AI) | Builds the standalone dashboard HTML.
 // The dashboard must run from file:// with no web server, so it cannot use ES-module
 // `import` or `fetch` — both are blocked on the file: origin. This script inlines the
@@ -50,7 +51,7 @@ const block = [
 
 let html = fs.readFileSync(TARGET, 'utf8');
 if (html.includes(BEGIN) && html.includes(END)) {
-  const before = html.slice(0, html.indexOf(BEGIN));
+  const before = html.slice(0, html.indexOf(BEGIN)).replace(/[ \t]+$/, '');
   const after = html.slice(html.indexOf(END) + END.length);
   html = before + block + after;
 } else {

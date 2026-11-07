@@ -2,6 +2,15 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.67 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.66's **C1 preset chips** clause and **control-cluster row** clause are now normative (rev 1.67, C1 only, owner decision 2026-11-07, issue `I122`). Owner-reported defect: `12M` and `24M` showed as selected together, because rev 1.66 derived each chip's `aria-pressed` by comparing the current `[from, to]` with every preset's computed range; clipped ranges collide (with 31 months, anchors 0–11 produce 2 or 3 matches). Owner-reported defect: the tools below the panel title used two rows at 1280 px, because `.c1-ts{flex-wrap:wrap}` dropped the chips to a second line. **Fixes.** The five presets MUST now form ONE joined `.seg` group of `.seg-btn` buttons, using the existing Sub `.seg-btn.active` / `--blue` token for consistency. The selection MUST be stored as ONE preset name in view state, not derived from range equality. `undefined` gives the default `All` selection; `null` gives a manual custom range with NO active chip; any preset name gives exactly that ONE active chip. A handle `input` or `change` MUST set the selection to `null`. Clipped ranges MUST NOT light two chips. The `.seg` group keeps `data-c1preset`, `aria-pressed` and `aria-label`; `c1PresetRange()` keeps computing the period. `.c1-ts` MUST use `flex-wrap:nowrap` down to the 1280 px minimum desktop viewport width, with `flex-shrink:0` on the label, period text and chip group and only `.c1-ts-body` shrinking (basis 190 px, min-width 120 px). Below 1280 px the §3.4.1 wrap rule re-enables `flex-wrap:wrap`. Print MUST hide `.c1-ts-body` and `.c1-ts-chips.seg`. §8.2 assertion 21, `harness-layout/SKILL.md` rev 1.10, `checks/sub.mjs` rev 1.13, `harness.mjs` rev 1.23, the workplan gate, the render suite rev 0.16 and the review sample rev 0.6 now cite rev 1.67. The B2 token gap (§7.5 B2 says `.on` with `--navy`; Sub uses `.active` with `--blue`) is recorded as a SEPARATE deferred item (`I123`); this revision does NOT change other Sub segmented controls. `state.c1Period`, windowed `pts`, absolute cumulative values, `niceAxisTicks()`, the rev 1.65 shared Y axis, PNG/Copy and every other control are unchanged. Historical rows 1.60, 1.28, 1.64, 1.65 and 1.66 are preserved verbatim. Both copies re-synced byte-identical. |
+| 1.66 | 2026-11-07 | CodeBuddy (AI) | §4.2 gained a normative **C1 period time bar** clause (rev 1.66, C1 only, owner decision 2026-11-07, issue `I121`). The C1 period window MUST now be ONE dual-handle range track, not two separate From / To inputs: two overlaid native `<input type="range" step="1">` elements on one shared visual track, with `min="0"`, `max="N-1"` and the existing `data-c1period="from" / "to"` attributes. `step="1"` gives hard magnetic snapping to whole reporting-month indices, so fractional months are unreachable and the chart, the attached `<thead>` columns and `data-points` always rebuild from the same `N`. One subtle tick MUST be drawn per active reporting month (`data-c1month`), with pointer events disabled; January ticks MAY carry a year label, and active / near states MUST follow the selected window. Five preset chips `6M`, `12M`, `24M`, `YTD`, `All` MUST sit beside the track with `aria-pressed`; the three month presets anchor to the current `to` index, `YTD` spans January of the as-of year through the as-of month, and `All` spans the full range. A preset MUST set the same period state and use the same single full-repaint path as a handle change. An `input` event MUST update only the track visuals (fill, ticks, period text, `aria-valuetext`, chip state); the `change` event MUST perform the ONE full repaint, with no chart rebuild while dragging and no animation or debounce. Both inputs MUST keep `aria-label` and `aria-valuetext` and a visible focus outline, and one keyboard step MUST move one month. Print MUST hide the interactive track and chips but keep the period text. `state.c1Period`, the windowed `pts` payload, absolute cumulative values, the attached table, `niceAxisTicks()`, the rev 1.65 shared Y axis, PNG/Copy and every other control are unchanged; no second Y-axis or separate bar scale is introduced. §8.2 assertion 21, the harness C1 checks and the workplan gate now cite rev 1.66. Historical rows 1.60, 1.28, 1.64 and 1.65 are preserved verbatim. Both copies re-synced byte-identical. |
+| 1.65 | 2026-11-07 | CodeBuddy (AI) | §4.2 now states explicitly that the shared C1 Y-axis maximum is computed **over the selected period window** — from the windowed `data-points` payload (`pts`), filtered by the enabled series and the Bars toggle — and is recalculated on every relevant repaint (period, series, Bars, grain), immediately and with no animation or debounce. This makes explicit the visible-window requirement already present in the §4.2 shared-scale rule of 2026-10-13 and the VISIBLE wording of rev 1.64; it does not change `niceAxisTicks()`, the 300-unit plot height, the seven-interval / eight-label / ~40 px limits, or the one `data-c1meta` payload. Cumulative values MUST remain **absolute** and MUST NOT be rebased to the window; only the scale adapts, and chart, `line.sc-grid`, HTML axis labels, hover / refit metadata and PNG/Copy MUST all represent the same Y-axis scale after a period change. No second Y-axis or separate bar scale is introduced: the §4.2 scale-mode guardrail (`r = maxCum / maxBar > 10` → separate scales) remains a **documented requirement that is outstanding**, recorded as `I120` (`DEFERRED_STUDY`) for a future technical investigation. §8.2 assertion 21 and the Tier 5 gate now cite rev 1.65. Historical rows 1.60, 1.28 and 1.64 are preserved verbatim. Both copies re-synced byte-identical. Owner decision 2026-11-07; issue `I119`. |
+| 1.64 | 2026-11-07 | CodeBuddy (AI) | §4.2 gained a normative **C1 dynamic Y tick standard** that SUPERSEDES the fixed-five-tick count of rev 1.60 (the rev 1.60 and rev 1.28 revision rows are preserved verbatim as history). For a C1 plot of `H = 300` SVG units: major ticks MUST be at least ~40 units apart, so at most `min(7, floor(H / 40)) = 7` intervals and at most **eight labels** (intervals + 1, including zero); steps MUST come from the standard nice-number sequence `{1, 2, 2.5, 5} × 10^k` with `step >= 1` for integer document counts; choose the SMALLEST step `s` with `ceil(M / s) <= 7` where `M` is the maximum of the VISIBLE series, set `yMax = ceil(M / s) × s` and `intervals = yMax / s`; tick labels, `.sc-grid` lines, the static HTML ticks, the `ResizeObserver` refit and PNG/Copy MUST all derive from the SAME C1 metadata payload (`data-c1meta.yMax` / `yStep` / `yIntervals`) — no fixed `[4,3,2,1,0]` loop. The plot height MUST stay 300 units; only the scale changes, and every mark scales from that one `yMax` (real workbooks: `M = 5955` → step 1000 → axis 6000 → 6 intervals / 7 labels / 50 px spacing / 99.25% fill). This revision also SUPERSEDES the 2026-10-25 §4.2 body sentence that prohibited ANY rounded-up step: a FINE nice step that keeps the curve at full plot height preserves that rule's intent while giving round tick numbers. §8.2 assertion 21, the Tier 5 geometry gate, `harness-layout/checks/sub.mjs`, `harness-layout/SKILL.md` and the workplan gate row 11 now cite rev 1.64. Both copies re-synced byte-identical from the root copy (the bundled copy had drifted by four clauses: §4.2 font-family, table cell fonts, tabular-nums and one §4.6 wording). Owner decision 2026-11-07; issue `I118`. |
+| 1.63 | 2026-11-06 | CodeBuddy (AI) | §4.2 gained a normative **Attached-table interaction (C1 only)** clause promoting the reviewed Option B prototype into the production build: four tokenised `<linearGradient>` defs and `<path class="sc-area">` area fills beneath the cumulative lines; one hidden `.sc-hover-band` (`width = W / N`) behind all marks; `data-c1col` on every month `<th>` and value `<td>`; two-way month-column sync (chart → `.col-active` table cells, table → snap line and band); and a `.chart-tip` window that opens **only** while the cursor is inside the SVG chart area. Gradient stops MUST use the on-chart series tokens, never hard-coded hex (§4.6); PNG/Copy MUST serialize the gradients with resolved token colours and strip the band and `.col-active` so no transient hover state is captured. `data-c1col` is distinct from `data-col`, which is reserved for `.ds-table` column choosers and resize grips. §4.6 gained two normative clauses: (1) a hidden window MUST be `aria-hidden="true"` **and** empty of text, with the attribute removed before show — an element directly referenced by `aria-describedby` can still be exposed by assistive tech despite `aria-hidden`, so clearing text is REQUIRED; (2) the §4.6 touch tap-to-show requirement applies to the SVG chart area; a tap on a table cell MUST still activate the snap line, column band and column highlight, but need not open the floating window because the cell value and its `<th>` headers are already in the native table accessibility tree (I082). §8.2 assertion 21 extended. The C1-only trigger is explicit — C2, C3, C4, KPI cards and the MDL dashboard are out of scope — and rev 1.62 geometry, the legend rule and all historical revision rows are unchanged. Re-synced to the harness bundled spec. |
+| 1.62 | 2026-11-06 | CodeBuddy (AI) | §4.2 gained a normative **Legend Placement & Table Attachment Rule** that supersedes owner decision 1 of 2026-11-06 for attached-table panels: where a `.c1-grid` panel renders a native `<table>` whose `<thead>` month cells are the shared X labels, the in-SVG legend MUST sit **above** the plotting area and the plot bottom MUST touch the `<thead>` with zero intermediate layout elements; every other §4.2 combined chart keeps the bottom legend (`SHOULD`). The C1-only trigger is explicit — C2, C3, C4 and the MDL dashboard are out of scope — and HTML / toolbar legends remain excluded so PNG/Copy fidelity is preserved. The four-series / `floor(W / 132)` wrapped-row description from rev 1.61 is retained for both branches, the inclined-X-label bottom-padding clause is scoped to the bottom-legend branch, and the §4.2 grid contract plus §8.2 assertion 21 now require the `<thead>` to be flush with the plot bottom. Verified by layout-harness Tier 5 after the engine refactor. Re-synced to the harness bundled spec. |
+| 1.61 | 2026-11-06 | CodeBuddy (AI) | §4.2's combined-chart legend clause updated so its descriptive wording matches the built, Tier 5-verified C1 design: one bar swatch and one `Cum. …` line sample per visible series (four series → eight entries), wrapped into rows of `floor(W / 132)` items at plot width `W`, with every row inside the SVG `viewBox`. The core rule — in-SVG at the bottom, no HTML legend — is unchanged from rev 1.27 and keeps its `SHOULD` strength; the old "Planned / Actual" + "three `Cum. …` line samples in one row" text described a superseded 2/3-series model. Scope is limited to this one C1 clause; no new MUST obligation, and C2, C3, C4 and all engine / harness files are untouched. Re-synced to the harness bundled spec. |
+| 1.60 | 2026-11-06 | CodeBuddy (AI) | §4.2 gained a normative **Y axis contract**: one vertical `sc-yaxis-line` at `x = 0` spanning the plot height, five right-aligned Y ticks in grid column 1, and the unit caption (`Cumulative documents` or equivalent) rotated along the side of the axis with `writing-mode:vertical-rl` or an equivalent rotate transform. §4.2's **Fallback, reflow and print** clause replaced "A wide period MUST scroll inside the chart board": the whole curve MUST stay visible inside the board at every container width, with no `min-width` and no horizontal scrollbar; the `ResizeObserver` pass MUST keep the `width` / `height` attributes, `viewBox`, `data-geo.W`, every `data-points[].cx`, `--c1-cols` and `<colgroup>` in sync so `preserveAspectRatio="xMidYMid meet"` cannot letterbox the plot; a period-window change MUST rebuild the curve payload and the table columns from the same `N`. §8.2 assertion 21 extended to cover the Y axis, `<thead>` adjacency, no separate SVG X labels, no-scroll fitting and post-reflow alignment. Owner decisions 2026-11-06; verified by layout-harness Tier 5 (34 passed / 0 failed / 1 skipped) and the sub render suite (40/0). Re-synced to the harness bundled spec. |
+| 1.59 | 2026-11-05 | CodeBuddy (AI) | §0 Definitions gained the universal UI-spec vocabulary (app shell, CSS grid tracks, flow container, gutter / spacing scale, attached table, semantic table, native vs ARIA structures, scoping & hierarchy, reflow, `ResizeObserver`, scroll boundary, axis scaling & coordinates, export & serialization, accessibility tree, normative rule, traceability). §4.2 gained a normative **S-curve attached table** clause: it is universal across dashboards, metric rows are data-driven and the clause names no row; one `.c1-grid` CSS grid with explicit `--c1-gutter` / `--c1-cols` tracks is the alignment container; one `<svg>` curve carries a `ResizeObserver` on its host; one native `<table>` (Option B) sits in one spanning grid item with `<caption>`, `<colgroup>`, `<thead>`, `<tbody>` and `scope`; static and rebuilt cells share one structure; the panel edge plus one `.sc-board` border are the only borders; PNG/Copy rebuild the table as native SVG following the C3 method; `role="img"` stays on the SVG and ARIA table roles are not used. §4.2 also records the §4.3 / §7.2.15 exemptions, the CSV scope, and the C3 traceability citations. §8.2 gained assertion 21. Re-synced to the harness bundled spec. |
 | 1.58 | 2026-11-05 | CodeBuddy (AI) | §4.3 gained a normative **Pagination control behaviour** rule and §4.5 gained a **Tool-cluster controls are local** rule, driven by sub issues I113 / I114 / I115 (owner browser review). A pager control MUST change only its own table's page and MUST NOT change the active view (it MUST NOT reuse the sidebar navigation attribute, whose unknown values fall through to the default Overview view); a panel-local filter MUST repaint its table, count and page-jump total immediately on change and reset to page 1 (a bare boolean attribute MUST be detected with `hasAttribute`, since `dataset` yields `""`); `⤓ CSV` MUST download the full filtered set. Re-synced to the harness bundled spec. |
 | 1.57 | 2026-11-04 | CodeBuddy (AI) | §4.3 rewritten: bounded tables with more than 200 rows MUST paginate at 200/page with the navigation at the **top** of the card in the tool cluster, only the current page materialised, the full row count always communicated, and CSV covering the **entire filtered set** (pagination takes precedence over windowing). §4.5 Validation panel rewritten to the approved layout: panel-level `.note` meta under the page title, left-aligned `Issues` title on its own line, a stacked `.table-tools` row with page controls left (`.pg-left`) and error-code filter + `⤓ CSV` + `Columns` right (`.pg-right`, `margin-left:auto`), no bottom pager, and a panel-local error-code filter affecting only the Issues table. Driven by sub issue I112. Re-synced to the harness bundled spec. |
 | 1.56 | 2026-11-02 | CodeBuddy (AI) | §7.2.15 invariant 5 **clarified — fit on a container change, never on a column change**: the fit pass MUST run when the container width moves (window resize, sidebar toggle, zoom, another display) and MUST NOT run because the sum of the columns changed; a column resize changes that sum, and re-fitting on that path scales the width the operator just dragged straight back down, so the drag does not stick and a drag by +d then −d does not land where it started. Implementations MUST cache the container width and re-fit only when it moves, still fitting once on first render; a drag wider than the display area is permitted, because this invariant governs the SHIPPED DEFAULTS and not a width the user chose. §3.5 gained a normative **addressability** rule: the warning area MUST carry the stable id `errBanner` so conformance checks and assistive tooling can locate it. Driven by the Sub dashboard run that went from 216 passed / 6 failed to 222 passed / 0 failed (sub issues I093, I095, I096). |
@@ -102,6 +111,22 @@ These terms are used normatively throughout this spec.
 | **Layout control** | A control that changes *how* something is presented (which columns are shown, which sort applies) and never which rows are returned. It must not use filter chrome (§7.1 B7). |
 | **Chrome** | The visual treatment of a control — its shape, badge and emphasis. Chrome must let the reader tell a row filter from a layout control (§7.1 B). |
 | **Conformance check** | An automated assertion that a rendered dashboard satisfies a normative clause (§8). |
+| **App shell / Layout shell** | The root container of the application. It holds the title bar, menu bar, left sidebar, content zone and status bar (§3.1). |
+| **CSS grid tracks** | The columns and rows of a CSS grid. They are set by `grid-template-columns`, `minmax()` and `fr` (§3.4.1, §4.2, §4.7). |
+| **Flow container** | A one-dimensional flex container. It aligns toolbars, header rows and control clusters (§3.1, §4.1). |
+| **Gutter / Spacing scale** | The fixed whitespace between grid tracks and panels: 14 px between top-level panels, 16 px between chart cards (§4.1, §4.7). |
+| **Attached table** | A data table drawn inside the same chart board as its chart. Its columns share the chart's X positions (§4.1, §4.2). It is not a **Bounded data table**. |
+| **Semantic table** | A native `<table>` with `<caption>`, `<colgroup>`, `<thead>`, `<tbody>` and `scope` on its header cells (§4.2). |
+| **Native vs ARIA structures** | Tabular data MUST use a native `<table>`. ARIA roles and attributes are allowed only on non-tabular graphics: `role="img"`, `aria-label`, `aria-describedby` (§4.2, §4.6, §7.2.4). ARIA table roles MUST NOT be used. |
+| **Scoping & hierarchy** | The `scope="col"` and `scope="row"` bindings that link a header cell to its column or row (§4.2). |
+| **Reflow / Responsive breakpoint** | The rearrangement of panels and cards when the viewport or container width changes (§3.4, §3.4.1). |
+| **ResizeObserver** | The mechanism that observes a container width change and triggers a chart redraw or a layout recalculation (§3.4.1, §4.2). |
+| **Scroll boundary / Overflow** | The rule that wide inner content scrolls inside its own card, not the page (§3.4.1, §4.2). |
+| **Axis scaling & coordinates** | The mapping from data values to SVG positions: Y-axis ticks, X-axis intervals (`xc(i) = (i + 0.5) * W / N`) and `viewBox` boundaries (§4.2). |
+| **Export & serialization** | The rebuild of a chart card as a self-contained native SVG of `<rect>` and `<text>` for PNG / Copy, with no `<foreignObject>` (§4.1, §4.2). |
+| **Accessibility tree** | The browser representation that assistive technology reads. `display:contents` can remove table elements from it (§4.2). |
+| **Normative rule / Assertion** | A MUST or MUST NOT clause, and the automated check that enforces it (§8, §8.2). |
+| **Traceability & citations** | The § references, revision rows and workplan citations that link an implementation to its rule (§1, §4.2, §8.2). |
 
 ---
 
@@ -763,7 +788,7 @@ a single shared time axis instead of two stacked charts:
     legend states which axis each family uses (bars → right, `Cum. …` lines → left); and a note
     states *"Monthly bars use the right-hand scale; Cum. lines use the left cumulative scale."*
     `padR` widens to ~52 px while separate. Cross-family height comparison is **never** valid.
-- **The y-max uses the raw visible maximum, not a rounded-up step (rev 2026-10-25).** Compute `yMax = max(1, …visible bar values, …visible line values) × ~1.03` — a small headroom pad so the peak line clears the top edge. Do **not** round the maximum up to a power-of-ten (or other coarse) step; that shrinks the curves to a fraction of the plot height and leaves the top empty. Mirrors the MDL reference, where the curves fill the full chart height.
+- **The y-max follows the dynamic Y tick standard (rev 1.64; supersedes the 2026-10-25 rule).** Compute `yMax` from the maximum `M` of the VISIBLE cumulative and bar values with the **Dynamic Y tick standard** in §4.2 below: the smallest nice-number step `s` with `ceil(M / s) <= min(7, floor(H / 40))`, then `yMax = ceil(M / s) × s`. The plot height stays 300 units and every mark scales from that one `yMax`. The superseded 2026-10-25 rule read: "Compute `yMax = max(1, …visible bar values, …visible line values) × ~1.03`; do **not** round the maximum up to a power-of-ten (or other coarse) step". Its INTENT — curves fill the chart height, with no large empty band above the peak — remains normative; its prohibition on every step-based maximum is superseded, because a fine nice step keeps the fill at ~99% on the current workbooks while giving round tick numbers. **Rev 1.65 — window scope.** `M` is the maximum **within the selected period window**, computed from the windowed `data-points` payload (`pts`) and filtered by the enabled series and the Bars toggle. It MUST be recomputed on every relevant repaint (period, series visibility, Bars, grain), immediately and without animation or debounce. Cumulative values MUST remain **absolute** — `pts` carries `c1.*Cum[lastIdx]` — and MUST NOT be rebased to the window; only the scale adapts. After any period change the curve, bars, `line.sc-grid`, HTML axis labels, hover / refit metadata and PNG/Copy MUST all represent the same Y-axis scale. The historical revision-table row 1.28 is unchanged.
 - **Cumulative values are ABSOLUTE — never rebased to the window (rev 2026-10-13).** A cumulative
   point always shows the true running total from the start of the series, so the value read off
   the chart is the real total-to-date and it does **not** change when the period window moves. Do
@@ -774,10 +799,20 @@ a single shared time axis instead of two stacked charts:
 - Every series is drawn **twice**: once as bars, once as a cumulative line. Lines are
   distinguished from their bar counterpart by dash pattern (e.g. Plan `6,3`, Forecast `2,2`,
   Actual solid) and are named `Cum. <series>` in the legend.
-- **The combined-chart legend SHOULD be rendered INSIDE the SVG, at the bottom (in-SVG).** It travels
-  with the exported PNG, so an HTML `.legend` div is discouraged — a legend outside the SVG is lost on
-  export. It holds the bar swatches (Planned / Actual) and the three `Cum. …` line samples in one row
-  beneath the plot.
+- **The combined-chart legend MUST be rendered INSIDE the SVG (in-SVG).** It travels with the
+  exported PNG, so an HTML `.legend` div or a toolbar legend is not permitted — a legend outside the
+  SVG is lost on export. It holds one bar swatch and one `Cum. …` line sample per visible series
+  (four series → eight entries). The entries wrap into rows of `floor(W / 132)` items at plot width
+  `W`, and every row MUST stay inside the SVG `viewBox`, so a narrow panel neither clips the legend
+  nor needs a horizontal scrollbar.
+    - **With an attached table (C1 only).** Where a `.c1-grid` panel renders a native `<table>`
+      whose `<thead>` month cells are the chart's shared X labels, the legend MUST sit **above** the
+      plotting area, inside the top of the SVG canvas. `yTop` MUST be sized for the legend rows,
+      `yBot` MUST be the bottom edge of the SVG `viewBox`, and the plot's bottom edge MUST touch the
+      `<thead>` with zero intermediate layout elements. C2, C3, C4 and the MDL dashboard are out of
+      scope for this branch.
+    - **Without an attached table.** For every other §4.2 combined chart (C2 stacked and delay),
+      the legend SHOULD stay at the bottom, beneath the plot area.
 - **Months are labelled with the `MMM YYYY` template (e.g. `Mar 2026`).** Every month shown in the
   S-curve — the x-axis ticks, the period-window range message, and the `<title>` tooltips — is
   formatted through the shared month-label helper. A raw `YYYY-MM` key, or any `slice()` of it
@@ -797,7 +832,9 @@ a single shared time axis instead of two stacked charts:
 - **Dense x-axis labels MAY be inclined** (rotated ~40°, `text-anchor="start"`) so they hug the axis
   with a **minimised gap** and save horizontal space; wherever inclined, the legend MUST sit **clear
   of the labels** (no overlap) — the bottom padding is sized for the rotated text plus the legend, not
-  for the labels alone.
+  for the labels alone. This bottom-padding rule applies only to the no-attached-table branch, where
+  the legend sits beneath the plot; an attached-table panel places the legend above the plot and keeps
+  its X labels in the table `<thead>`.
 - **Every plotted point on a cumulative line is a SOLID dot — `r=3`, filled with the series
   colour.** Nodes are never hollow rings (`fill="var(--surface)"` with a coloured stroke): a solid dot stays
   legible where series cross — the standard form for every S-curve.
@@ -833,6 +870,52 @@ a single shared time axis instead of two stacked charts:
   narrow. The **period window MAY be realised as a bar / brush selection** — a single track with two
   drag handles selecting a contiguous range — instead of two separate From / To inputs; when the card
   is too narrow the brush wraps below the cluster row.
+- **C1 period time bar (rev 1.66; C1 only, normative).** In a C1 S-curve attached-table panel
+  the period window MUST be **one dual-handle range track**. Two native
+  `<input type="range" step="1">` elements sit over one shared visual track, carry
+  `min="0"` / `max="N-1"` and keep `data-c1period="from"` and `data-c1period="to"`.
+  `step="1"` makes fractional month indices unreachable: each handle snaps to a whole
+  reporting month, so the curve, the attached `<thead>` columns and the windowed
+  `data-points` payload always come from the same `N`. Two separate From / To inputs MUST NOT
+  be used for C1.
+  - **Month ticks.** Draw exactly one subtle tick per active reporting month, with
+    `data-c1month` equal to that month's index and `pointer-events:none`. January ticks MAY
+    carry the year label. The active and near states MUST follow the selected window. Ticks
+    MUST NOT take pointer events or change `N`.
+  - **Preset chips (rev 1.67; single-select, normative).** The five presets `6M`, `12M`,
+    `24M`, `YTD`, `All` MUST form ONE joined `.seg` group of `.seg-btn` buttons beside the
+    track, with `aria-label` on the group and `aria-pressed` on each button. Use the existing
+    Sub `.seg-btn.active` / `--blue` token. `6M`, `12M` and `24M` select 6, 12 and 24 whole
+    months ending at the current `to` index and clamp at the first month. `YTD` runs from
+    January of the as-of year through the as-of month; when the as-of month is absent from the
+    data, use the last month at or before it. `All` selects `[0, N-1]`. A preset MUST write the
+    same period state and MUST use the same single full-repaint path as a handle change.
+    - **Stored selection.** The active preset MUST be stored as ONE preset name in view
+      state. Do NOT derive `aria-pressed` by comparing `[from, to]` with each preset's
+      computed range: clipped ranges collide, so two or more chips would light together.
+      `undefined` gives the default `All` selection. `null` gives a manual custom range with
+      NO active chip. Any preset name gives exactly that ONE active chip. A handle `input`
+      or `change` MUST set the selection to `null`. The visual sync MUST read the stored
+      value and MUST also toggle the `.active` class of that ONE button.
+  - **One-row control cluster (rev 1.67; normative).** The tools below the panel title MUST
+    form ONE visual row at the 1280 px minimum desktop viewport width. `.c1-ts` MUST use
+    `flex-wrap:nowrap` at that width and above. Set `flex-shrink:0` on the period label,
+    the period text and the segmented chip group. Let only `.c1-ts-body` shrink, with a
+    190 px flex basis and a 120 px minimum width. Below 1280 px the §3.4.1 minimum-width
+    rule re-enables `flex-wrap:wrap` so every control stays reachable. Print MUST hide
+    `.c1-ts-body` and `.c1-ts-chips.seg` and MUST keep the period text.
+  - **Drag and repaint.** An `input` event MUST update only the track visuals: the fill, the
+    tick states, the period text, both `aria-valuetext` values and the chip `aria-pressed`
+    states. The `change` event MUST perform the ONE full repaint. Do not rebuild the curve,
+    grid, table or Y axis while a handle moves. A crossing handle MUST push the other handle,
+    never invert the range. Repaint remains immediate, with no animation or debounce.
+  - **Accessibility and print.** Both inputs MUST keep an `aria-label`, an `aria-valuetext`
+    with the formatted month, a visible `:focus-visible` outline and a one-month keyboard
+    step. Print MUST hide the interactive track and the chips and MUST keep the period text.
+  - **Unchanged.** `state.c1Period`, the windowed `pts`, absolute cumulative values, the
+    attached table, `niceAxisTicks()`, the rev 1.65 shared Y axis, hover / refit metadata,
+    PNG/Copy, the grain toggle, Bars and series multi-select are unchanged. No second Y-axis
+    or separate bar scale is introduced.
 - These panels stay **full width** (`.card.full`) — one wide chart, not a 2-column grid.
 - **No nested chart title** when a panel holds a single chart: the panel's own `h2` is enough, so
   do not add an `h3` sub-title. The chart component nevertheless draws **its own chart-card board**
@@ -846,6 +929,119 @@ a single shared time axis instead of two stacked charts:
   text is muted body copy at §8 sizes, never a small green success-coloured label.
 
 - **Hover floating window — normative (§4.6).** Moving the cursor (or focusing) a chart board draws the optional snap line and shows the `.chart-tip` window near the cursor, listing that bucket's per-period counts and cumulative totals; the window is an HTML overlay with `pointer-events:none` (never inside the SVG). The full contract — tokenized visual style, 4-edge clamping, a below-card KPI variant, `cursor:crosshair` affordance, required touch variant, accessibility and the single delegated binder — is defined in **§4.6**.
+
+- **S-curve attached table (normative, rev 2026-11-05).** This rule applies to **every** dashboard
+  that draws an S-curve with an **Attached table** (§0). It is universal: the metric rows come from
+  the dashboard's own data and workplan (§1), and this clause names no row. The C3 Bar cards remain
+  the reference implementation (§4.1, revisions 1.33 / 1.34).
+  - **Page and panel structure.** The page panel container is a CSS grid (§3.4, §4.7). The
+    **Panel** is the atomic page unit (§4), and `activePanel()` supplies the edge, title row and
+    Panel N number. A single-graph C1 panel has **no inner `.c-card`** (§4.1, I068). One
+    `.sc-board` carries the chart board border around the control cluster, the plot and the
+    attached table. No third bordered wrapper is permitted.
+  - **Grid contract.** One `.c1-grid` CSS grid is the alignment container. Define `--c1-gutter`
+    (`104px`) and `--c1-cols` (`N`) once, and set
+    `grid-template-columns:var(--c1-gutter) repeat(var(--c1-cols),minmax(0,1fr))`. Set
+    `column-gap:0`. Column 1 holds the Y ticks, the Y caption and the metric labels. Columns
+    2..N+1 hold one period each. Row 1 holds the curve. Row 2 holds the X labels, which are also
+    the table column headers. Rows 3+ hold the metric rows. The SVG `viewBox` bottom MUST equal the
+    plot bottom, so the `<thead>` row touches the curve's X axis with no intervening legend band
+    (§4.2 legend rule).
+  - **SVG contract.** One `<svg>` with `role="img"` and an `aria-label` draws the curve inside
+    `.c1-plot`, which spans columns 2..-1 of row 1. Use `xc(i) = (i + 0.5) * W / N`, where `W` is
+    the measured width of that spanning cell. A **`ResizeObserver` on `.c1-plot` MUST** recompute
+    `W` and redraw the curve on every container width change (§3.4.1). A `window` resize listener
+    alone is not sufficient.
+  - **Y axis contract.** The curve SVG MUST draw one vertical `sc-yaxis-line` at `x = 0`,
+    spanning the full plot height (`yTop` to `yBot`) as a 1 px light rule. Grid column 1 MUST
+    carry the right-aligned Y tick labels generated by the **Dynamic Y tick standard** below,
+    flush with the plot's left edge, plus the unit caption (`Documents` or the equivalent measure
+    name) rotated to read along the side of the axis — `writing-mode:vertical-rl` or an
+    equivalent rotate transform. A horizontal unit caption above the axis does not satisfy this
+    rule. All text elements within this panel — SVG annotations, Y-axis tick labels, and attached table cells — inherit `font-family: var(--font-ui)` from `.c1-grid` (normative, §6). Do not override with per-element font-family declarations unless a domain-specific requirement exists — such overrides must be documented in the dashboard workplan.
+  - **Dynamic Y tick standard (rev 1.64; supersedes the fixed-five-tick count of rev 1.60).**
+    All measurements are in SVG units for the C1 plot of height `H = 300`. (a) Major ticks MUST
+    be at least ~40 units apart; therefore `intervals <= min(7, floor(H / 40)) = 7` and the
+    number of labels MUST NOT exceed **eight** (`intervals + 1`, including the zero label).
+    (b) Steps MUST come from the standard nice-number sequence `{1, 2, 2.5, 5} × 10^k`;
+    `step >= 1` MUST hold because the measure is an integer document count. (c) Choose the
+    SMALLEST step `s` with `ceil(M / s) <= 7`, where `M >= 1` is the maximum of the VISIBLE
+    cumulative and bar values **within the selected period window**, taken from the windowed
+    `data-points` payload (`pts`) and filtered by the enabled series and the Bars toggle; set
+    `yMax = ceil(M / s) × s` and `intervals = yMax / s`. `M` MUST be recomputed on every
+    repaint (rev 1.65); cumulative values stay absolute and MUST NOT be rebased. The top
+    grid line then carries a round number and the peak sits close to it (`M / yMax`).
+    (d) `yMax`, `yStep` and `yIntervals` MUST be stored in the ONE C1 chart metadata payload
+    (`data-c1meta`) that drives `c1PlotSvg`, the static HTML Y ticks, the `ResizeObserver`
+    refit, the hover payload and PNG/Copy. Every consumer MUST generate its ticks from that
+    metadata; a fixed tick list such as `[4, 3, 2, 1, 0]` MUST NOT be used. The SVG MUST draw
+    exactly one `line.sc-grid` per label at `yOf(label)`, and the HTML Y-axis column MUST
+    contain exactly `intervals + 1` `.c1-ytick` labels. (e) The plot height MUST remain 300
+    units. Only the scale changes: cumulative lines, area fills, bars, dots, reference lines,
+    the Start / Today annotations, the hover payload and the exported SVG MUST all scale from
+    that same `yMax`. Worked examples: `M = 5955` → `s = 1000`, `yMax = 6000`, 6 intervals /
+    7 labels / 50 px / 99.25% fill; `M = 6100` → `s = 1000`, `yMax = 7000`, 7 intervals /
+    8 labels / 42.86 px; `M = 8100` → `s = 2000`, `yMax = 10000`, 5 intervals / 6 labels /
+    60 px. The remaining headroom in the third case is the defined cost of a nice step plus
+    the seven-interval cap. Only the rev 1.60 **count** requirement is superseded; its axis
+    line, rotated caption, no-scroll reflow and alignment rules stay in force.
+  - **Table contract (Option B).** One native `<table>` sits in one grid item that spans all
+    columns. It MUST carry a short `<caption>`, a `<colgroup>` driven by `--c1-gutter` and
+    `--c1-cols`, `table-layout:fixed`, a `<thead>` with `<th scope="col">` month cells, and a
+    `<tbody>` with `<th scope="row">` labels and one `<td>` per month. ARIA table roles MUST NOT
+    be used, and `display:contents` MUST NOT be applied to the table elements (§0,
+    **Accessibility tree**). The     `<colgroup>` widths MUST match the `.c1-grid` tracks, so the SVG,
+    the headers and the values share one horizontal boundary for every period column. Table cell fonts inherit `font-family: var(--font-ui)` from `.c1-grid` (normative, §6). Table column headers (`.c1-table th[scope="col"]`) typically render at 11–12 px weight 600 in var(--muted). Table row headers (`.c1-table th[scope="row"]`) at 12 px weight 600 left-aligned. Data cells (`.c1-table td`) at 12 px weight 400 with `font-variant-numeric: tabular-nums` right-aligned. These sizes support clean numerical scanning across 20+ month timelines.
+  - **Attached-table interaction (C1 only, rev 1.63).** Where a `.c1-grid` panel renders a native
+    `<table>` whose `<thead>` month cells are the shared X labels, the following MUST hold. C2, C3,
+    C4, KPI cards and the MDL dashboard are out of scope.
+    - **Soft area gradients.** The SVG MUST define one `<linearGradient>` per visible series in
+      `<defs>` and one `<path class="sc-area">` beneath each cumulative line, drawn behind the grid
+      lines, bars and curves. Gradient stops MUST use the on-chart series **tokens** (`--color-*`),
+      never a hard-coded hex (§4.6). Area paths MUST carry `pointer-events:none` so they cannot
+      steal the nearest-datum hover.
+    - **Month-column highlight band.** One `<rect class="sc-hover-band">` MUST be a direct child of
+      the SVG, hidden until activation, spanning `yTop`..`yBot`, with `width = W / N` and
+      `pointer-events:none`. It MUST be drawn behind all marks.
+    - **Two-way month-column sync.** Every month `<th scope="col">` and every value `<td>` MUST
+      carry `data-c1col="${i}"`. `data-c1col` is distinct from `data-col`, which `.ds-table` column
+      choosers and resize grips already use. Hovering a month column in the SVG MUST activate the
+      band, the snap line and the `.col-active` class on that column's cells; hovering a header or
+      value cell MUST activate the same band and snap line. A `ResizeObserver` refit MUST rebuild
+      the band from the new `W / N`, and the binder MUST query the band fresh rather than cache the
+      node across `innerHTML` replacement.
+    - **Chart-only hover window.** The `.chart-tip` window MUST open **only** while the cursor is
+      inside the SVG chart area. When the cursor is in the attached table the window MUST stay
+      closed, while the band, snap line and `.col-active` highlight remain active (§4.6). This
+      gating is opt-in on the shared `bindChartHover()` binder and MUST NOT alter any other board.
+    - **Export fidelity.** PNG/Copy MUST serialize the gradient `<defs>` and area paths with
+      resolved token colours, and MUST strip the hover band and `.col-active` classes so no
+      transient hover state is captured.
+  - **Labels and rules.** Use the `MMM YYYY` month template (§4.2). Put `Reporting Month` in the
+    corner cell, left aligned above the X labels. Use 1 px light rules only. Keep the Start and
+    Today reference lines. Omit the as-of subtitle.
+  - **Fallback, reflow and print.** Static HTML cells MUST show the table when scripts do not run.
+    The script MUST rebuild the same cells. The **whole curve MUST stay visible inside the chart
+    board at every container width**: the SVG MUST NOT gain `min-width` and the board MUST NOT
+    gain a horizontal scrollbar (§3.4.1). The `ResizeObserver` pass MUST keep the `width` /
+    `height` attributes, the `viewBox`, `data-geo.W`, every `data-points[].cx`, `--c1-cols` and
+    `<colgroup>` in sync, so one SVG unit stays one CSS pixel and
+    `preserveAspectRatio="xMidYMid meet"` cannot letterbox the plot. Changing the period window
+    MUST rebuild the curve payload and the table columns from the same `N`. Print MUST show the
+    full grid.
+  - **Export.** `⤓ PNG` and `⧉ Copy` MUST include the attached table. Rebuild the table text and
+    rules as a self-contained native SVG of `<rect>` and `<text>` (§0, **Export &
+    serialization**), following the C3 `c3CardToSvg` method (§4.1, revision 1.33). Do not
+    serialize only the curve `<svg>`, and do not use `<foreignObject>`.
+  - **Accessibility.** Keep `role="img"` on the SVG so its inner `<text>` is not read twice. Keep
+    the short `<caption>` and every `scope` attribute. Link `aria-describedby` to `.chart-tip`
+    only (§4.6); do not point it at the table. Keep every cell in the DOM when the grid scrolls.
+    A skip link is not required for one static table.
+  - **Exemptions and CSV.** The attached table is not a **Bounded data table** and not a
+    `.ds-table`. §4.3 and §7.2.15 do not apply. The §4 CSV rule is scoped to `.ds-table`; each
+    dashboard MUST record in its workplan whether its attached table also offers `⤓ CSV` (§1).
+  - **C3 traceability.** C3 Bar cards keep their div grid. C3 code and the review samples in
+    `sub/ref/` MUST cite §4.1, §4.2, §3.4.1 and revisions 1.33 / 1.34 in comments or notes.
 
 ### 4.3 Long lists → bounded data table (never an open-ended list)
 Any panel whose content is a **list of records that can grow** (look-ahead, overdue packages,
@@ -1102,11 +1298,15 @@ A **hover floating window** is the single reusable component that shows per-poin
 
 **Component & classes.** One window class `.chart-tip` and one optional snap-line class `.chart-snap`. These replace the divergent `.scurve-tip` (C1) and `.c2-tip` (C2).
 
-**Visual contract (tokenized, normative).** The window uses only design tokens — `background:var(--surface)`, `border:1px solid var(--border)`, `border-radius:8px`, `box-shadow:var(--shadow)`, `padding:8px 10px`, `font-size:11px`, `line-height:1.45`, `color:var(--text)`, `max-width:230px`, `z-index:30`, and `pointer-events:none`. It MUST follow the active theme (light/dark) automatically — no hard-coded surface or text colour (this removes the C2 dark `.c2-tip`, which is non-compliant).
+**Visual contract (tokenized, normative).** The window uses only design tokens — `background:var(--surface)`, `border:1px solid var(--border)`, `border-radius:8px`, `box-shadow:var(--shadow)`, `padding:8px 10px`, `font-size:11px`, `font-variant-numeric: tabular-nums`, `line-height:1.45`, `color:var(--text)`, `max-width:230px`, `z-index:30`, and `pointer-events:none`. It MUST follow the active theme (light/dark) automatically — no hard-coded surface or text colour (this removes the C2 dark `.c2-tip`, which is non-compliant).
 
 **Content layout.** Three zones: (1) a bold **header** carrying the hovered identity (month, dimension value, or KPI name); (2) **body rows**, each `swatch · label · value` in a space-between flex row; (3) a **footer** separated by a single top border, carrying any totals / percentages. One unified footer style MUST be used across every chart (no per-chart bold/normal divergence — I084). The series swatch MUST use the on-chart series **token**, never a hard-coded hex. **Series colour tokens MUST be unique per semantic** — two distinct series MUST NOT share a hue (e.g. Actual and AWC, or Forecast and Resubmission, MUST NOT be the same colour — I083). Units are explicit: durations show `d` (one decimal), counts are plain integers (label "docs" only if ambiguous), and zero is shown as `0`, never blank.
 
 **Trigger & dismissal (normative).** `pointermove` / `mousemove` opens the window; `mouseleave` (and `blur`) closes it. Hovering empty chart area MUST snap to the nearest datum (no dead zone). A **touch / no-hover variant is REQUIRED**: on touch devices the window shows on tap (tap-to-show, tap-away to dismiss); the dashboard MUST NOT silently leave point detail unreachable on touch (I082).
+
+**Hidden-window ARIA state (normative, rev 1.63).** When the window is hidden — on `mouseleave`, `blur`, `Escape`, an outside click, a period reflow, or a cursor move into an attached table — it MUST carry `aria-hidden="true"` **and** contain no text. Before it is shown again the attribute MUST be removed and the current datum's content written. The board's persistent `aria-describedby` link stays intact. An element **directly referenced** by `aria-describedby` can still be exposed by assistive technology despite `aria-hidden`, so clearing the text is REQUIRED: the ARIA attribute alone does not prevent a screen reader from announcing a stale month over an unrelated cell.
+
+**Attached-table touch variant (rev 1.63).** For a C1 panel with an attached table (§4.2), the §4.6 touch tap-to-show requirement applies to the **SVG chart area**. A tap on a table cell MUST still activate the snap line, column band and column highlight, but need not open the floating window: the cell value and its row / column `<th>` headers are already exposed by the native table accessibility tree, so point detail is not unreachable (I082). A dedicated table-cell tap affordance is a workplan follow-up, not a blocker for the pointer implementation.
 
 **Positioning & edge handling (normative).** For chart boards the window is **cursor-relative** at a `(+14, +14)` px offset and MUST clamp on **all four edges** — flip left when it would overflow the right edge, flip up when it would overflow the bottom edge, and clamp left/top to `≥4 px` — so it never escapes the chart host. For **KPI cards** the window is placed **below the card**, centred and left-clamped, so it never covers the card; placement MAY vary by host, but a card's own window MUST NOT obscure the card.
 
@@ -1252,6 +1452,8 @@ harness tier and dashboard test suite.
 
 - **Reference.** MDL is the reference implementation of this scale. A dashboard that drifts from it
   renders the same content at a different size, which is the drift this clause prevents.
+
+- **Recommendation.** When rendering tabular numerical data within `.ds-table` cells, use `font-variant-numeric: tabular-nums` to ensure digits align in vertical columns. This applies to all tables containing numeric values and is consistent with the spec's SSOT principle (§10) for global parameters that outlive a single function.
 
 ### Shadow
 - Subtle only: `var(--shadow)`. No large/decorative shadows.
@@ -1674,6 +1876,7 @@ hard-coded into the generic check.
 | 18 | The warning area is pinned below the menu bar, above the filter strip and outside the scrolling body; scrolling the panels does not move it, and it spans the content width without covering a sidebar | §3.5 |
 | 19 | Stacked top-level panels are separated by 14 px (container gap or panel margin, never both); borders never touch; hidden panels add no gap | §4.7 |
 | 20 | The search panel is one row: attached column picker (All columns plus each searchable column), flexible input, affixed submit; the picker re-applies the query and does not clear it | §7.1 B5 / A5 |
+| 21 | An S-curve attached table uses one `.c1-grid` with explicit `--c1-gutter` / `--c1-cols` tracks and `column-gap:0`, one `<svg role="img">` whose host carries a `ResizeObserver`, one native `<table>` in one spanning grid item with `<caption>` / `<colgroup>` / `<thead>` / `<tbody>` / `scope`, static and rebuilt cells with the same structure, no third bordered wrapper, and PNG/Copy that include the table; the SVG draws one vertical `sc-yaxis-line` at the plot's left edge, grid column 1 carries at most eight dynamically generated Y ticks (§4.2 rev 1.64: max 7 intervals, min ~40 px spacing, nice-number steps, one `line.sc-grid` per label, all derived from the same `data-c1meta.yMax` / `yStep` / `yIntervals` payload) and a rotated unit caption; after a period change the Y-axis maximum MUST be recomputed from the selected period window with cumulative values unchanged (§4.2 rev 1.65), and chart / grid / labels / hover-refit metadata / PNG-Copy MUST share that one Y-axis scale; the C1 period control is ONE dual-handle month-snapped track with one tick per active reporting month and the `6M` / `12M` / `24M` / `YTD` / `All` preset chips (§4.2 rev 1.66: `step="1"`, `input` visual-only, `change` single repaint, `aria-valuetext` / `aria-pressed`, print hides the interactive controls), and those five chips are ONE joined `.seg` group of `.seg-btn` buttons with EXACTLY one `aria-pressed="true"` at a time, a stored preset name (default `All`), NO active chip after a manual handle `input` / `change`, and the tools below the panel title stay on ONE visual row at the 1280 px minimum desktop width with `flex-wrap:nowrap` on `.c1-ts` (§4.2 rev 1.67); the in-SVG legend sits above the plot, the `<thead>` row is flush with the plot bottom (which is also the SVG bottom) with no separate SVG X labels, the whole curve fits the board with no horizontal scroll, and bar / dot / `data-points.cx` alignment holds after the period window changes; the SVG draws four tokenised `<linearGradient>` defs and `path.sc-area` fills plus one hidden `rect.sc-hover-band` behind all marks, every month `<th>` and value `<td>` carries `data-c1col`, hovering a month column in either direction activates the band / snap line / `.col-active` highlight, and the `.chart-tip` window opens only inside the SVG chart area and is `aria-hidden="true"` with empty text whenever hidden; `aria-describedby` points at `.chart-tip` only | §4.2, §4.6 |
 
 ### 8.3 Pipeline testability
 

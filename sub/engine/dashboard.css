@@ -1,3 +1,6 @@
+/* Revision 2.10 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.67 / I122 — the five preset chips are ONE joined `.seg` group of `.seg-btn` buttons, using the existing Sub `.seg-btn.active` / `--blue` token. The pill rules are removed. `.c1-ts` is `flex-wrap:nowrap` down to the 1280 px desktop minimum: the label, period text and chip group do not shrink, and only `.c1-ts-body` shrinks (basis 190 px, min-width 120 px). Below 1280 px the §3.4.1 wrap rule re-enables `flex-wrap:wrap`, and below 760 px the track still takes a full line. Print hides `.c1-ts-body` and `.c1-ts-chips.seg`. */
+/* Revision 2.9 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.66 / I121 — C1 uses ONE dual-handle period track. Two native `step="1"` range inputs sit on one shared visual track with a token-coloured fill, month ticks, year labels and preset chips. The old `.c1-range-wrap` / `.c1-range` rules are removed. Focus-visible outlines, a narrow-screen wrap and a print rule that hides only the interactive track and chips are added. Colour comes from --blue / --border / --surface / --text2, so every theme keeps contrast. */
+/* Revision 2.8 | 2026-11-06 | CodeBuddy (AI) | §4.2 rev 1.63 — C1 attached-table interaction: tokenised `.sc-stop-*` gradient stops, pointer-transparent `.sc-area` / `.sc-hover-band`, and the theme-safe `.col-active` month-column highlight. No hard-coded series hex (§4.6). */
 /* Revision 2.7 | 2026-11-03 | CodeBuddy (AI) | I103 — the C2 Delay series is tokenised (`--color-c2delay`, line + dot + swatch classes; §4.6 forbids a hard-coded swatch hex), and the C4 Age-buckets swatch class `.c4-bucket` follows the bar's `--blue`. */
 /* Revision 2.6 | 2026-11-03 | CodeBuddy (AI) | I102 — C1 hover window follows §4.6: tokenised `.chart-swatch.c1-*` classes for the four series, and Actual Resub leaves Actual First's hue for its own token `--color-actualresub` (the bar, line and dot rules follow it; §4.6 forbids two distinct series sharing a hue). */
 /* Revision 2.5 | 2026-11-02 | CodeBuddy (AI) | I099 — added the .c3-no colour pair (arc, swatch) for the "No Outcome" donut segment: neutral grey, because a missing outcome is a gap in the data, not an approval state. */
@@ -299,12 +302,39 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .btn-secondary:hover{background:var(--surface2)}
 .btn-secondary.on{background:var(--surface3);border-color:var(--blue);color:var(--blue)}
 .c1-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 10px}
-.c1-controls .controls-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.c1-controls .controls-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1 1 520px;min-width:0}
 .c1-controls .controls-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
 .c1-period-label{font-weight:600;font-size:12px;color:var(--text2)}
-.c1-range-wrap{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)}
-.c1-range{width:120px;accent-color:var(--blue)}
-.c1-period-text{font-size:11px;color:var(--text2);white-space:nowrap}
+.c1-period-text{font-size:11px;color:var(--text2);white-space:nowrap;font-variant-numeric:tabular-nums}
+/* §4.2 rev 1.66 — one dual-handle track. Month ticks are visual only and never take pointer events. */
+/* §4.2 rev 1.67 — keep the cluster on ONE line down to the 1280 px desktop minimum. */
+.c1-ts{--c1-thumb:14px;display:flex;align-items:center;gap:10px;flex-wrap:nowrap;width:100%}
+.c1-period-label,.c1-period-text,.c1-ts-chips{flex-shrink:0}
+.c1-ts-body{position:relative;flex:1 1 190px;min-width:120px;max-width:440px;height:26px}
+.c1-ts-track{position:relative;height:26px}
+.c1-ts-track::before{content:"";position:absolute;left:calc(var(--c1-thumb)/2);right:calc(var(--c1-thumb)/2);top:12px;height:4px;border-radius:2px;background:var(--border)}
+.c1-ts-fill{position:absolute;top:12px;height:4px;border-radius:2px;background:var(--blue);pointer-events:none}
+.c1-ts-ticks{position:absolute;inset:0;pointer-events:none}
+.c1-ts-tick{position:absolute;top:9px;width:1px;height:6px;background:var(--border);pointer-events:none;transition:height .12s ease,top .12s ease,background .12s ease}
+.c1-ts-tick.is-year{top:7px;height:10px;background:var(--text2)}
+.c1-ts-tick.is-active{background:var(--blue)}
+.c1-ts-tick.is-near{top:6px;height:12px;background:var(--blue)}
+.c1-ts-year{position:absolute;top:-12px;left:0;transform:translateX(-50%);font-size:9px;color:var(--text2);white-space:nowrap}
+.c1-ts-input{position:absolute;left:0;top:0;width:100%;height:26px;margin:0;appearance:none;-webkit-appearance:none;background:transparent;pointer-events:none}
+.c1-ts-input::-webkit-slider-runnable-track{height:26px;background:transparent;border:0}
+.c1-ts-input::-moz-range-track{height:26px;background:transparent;border:0}
+.c1-ts-input::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:var(--c1-thumb);height:var(--c1-thumb);margin-top:6px;border-radius:50%;background:var(--blue);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--blue);cursor:grab;pointer-events:auto;transition:transform .12s ease}
+.c1-ts-input::-moz-range-thumb{width:var(--c1-thumb);height:var(--c1-thumb);border-radius:50%;background:var(--blue);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--blue);cursor:grab;pointer-events:auto;transition:transform .12s ease}
+.c1-ts-input:active::-webkit-slider-thumb,.c1-ts-input:active::-moz-range-thumb{transform:scale(1.15);cursor:grabbing}
+.c1-ts-input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.c1-ts-input-from{z-index:3}
+.c1-ts-input-to{z-index:4}
+.c1-ts-chips.seg{flex-shrink:0;flex-wrap:nowrap}
+.c1-ts-chips .seg-btn{padding:5px 8px;font-size:11px}
+.c1-ts-chips .seg-btn:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+/* §3.4.1 — below the 1280 px minimum the control row may wrap, but stays reachable. */
+@media(max-width:1279px){.c1-ts{flex-wrap:wrap}.c1-ts-body{flex-basis:260px;min-width:190px}}
+@media(max-width:760px){.c1-ts-body{flex-basis:100%;max-width:none}.c1-ts-year{display:none}}
 .seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
 .seg-btn{border:0;background:transparent;color:var(--text2);padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer}
 .seg-btn.active{background:var(--blue);color:#fff}
@@ -333,14 +363,22 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .sc-ref-lbl{font-size:9px;font-weight:700}
 .sc-ref-lbl-start{fill:var(--danger)}
 .sc-ref-lbl-today{fill:var(--slate)}
-.sc-asof{font-size:9px;fill:var(--text2)}
 .sc-line-plan{stroke:var(--color-plan);stroke-width:2.5;fill:none;stroke-dasharray:6 3}
 .sc-line-forecast{stroke:var(--color-forecast);stroke-width:2.5;fill:none;stroke-dasharray:2 2}
 .sc-line-actual{stroke:var(--color-actual);stroke-width:2.5;fill:none}
 .sc-line-actualresub{stroke:var(--color-actualresub);stroke-width:2.5;fill:none;stroke-dasharray:3 3;opacity:.85}
 .sc-dot{stroke:none}
 .sc-dot-plan{fill:var(--color-plan)} .sc-dot-forecast{fill:var(--color-forecast)} .sc-dot-actual{fill:var(--color-actual)} .sc-dot-actualresub{fill:var(--color-actualresub)}
+/* §4.2 rev 1.63 — soft areas and the month-column band. Stops use the on-chart series tokens;
+   chartSvgStyle() resolves them to literal colours for the standalone PNG / Copy SVG. */
+.sc-stop-plan{stop-color:var(--color-plan)}
+.sc-stop-forecast{stop-color:var(--color-forecast)}
+.sc-stop-actual{stop-color:var(--color-actual)}
+.sc-stop-resub{stop-color:var(--color-actualresub)}
+.sc-area{stroke:none;pointer-events:none}
+.sc-hover-band{fill:var(--blue);fill-opacity:.08;pointer-events:none}
 .sc-grid{stroke:var(--border);stroke-width:1}
+.sc-yaxis-line{stroke:var(--border);stroke-width:1}
 .sc-axis{fill:var(--text2);font-size:10px}
 .sc-axis-title{font-weight:700}
 .sc-barval{fill:var(--text2);font-size:9px}
@@ -349,6 +387,40 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .sc-ref-start{stroke:var(--danger);stroke-width:1.5;stroke-dasharray:5 3}
 .sc-ref-today{stroke:var(--slate);stroke-width:1.5;stroke-dasharray:2 2}
 .chart-snap{stroke:var(--text3);stroke-width:1;stroke-dasharray:3 3}
+/* ===== C1 attached data table (spec §4.2 rev 1.59 / T19.1 / I116) =====
+   One CSS grid is the alignment container. Column 1 holds the Y caption, the Y ticks and the
+   metric labels. Columns 2..N+1 hold one period each. Row 1 holds the curve. Row 2 holds the
+   native table, whose column headers are the X labels. No min-width and no horizontal scroll:
+   the SVG viewBox scales the whole curve into the card at every panel width. */
+.c1-grid{display:grid;grid-template-columns:var(--c1-gutter,104px) repeat(var(--c1-cols,1),minmax(0,1fr));column-gap:0;row-gap:0;min-width:0;width:100%}
+.c1-yaxis{grid-column:1;grid-row:1;position:relative;min-width:0;pointer-events:none}
+/* §4.2 — the unit caption runs along the side of the Y axis, reading bottom-to-top. */
+.c1-yaxis .c1-ycap{position:absolute;left:2px;top:50%;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;text-orientation:mixed;font-size:10px;font-weight:700;letter-spacing:.02em;color:var(--text2);white-space:nowrap}
+.c1-yaxis .c1-ytick{position:absolute;right:6px;transform:translateY(-50%);font-size:10px;line-height:1;color:var(--text2);text-align:right;padding-right:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.c1-plot{grid-column:2/-1;grid-row:1;min-width:0;overflow:visible}
+.c1-plot svg.scurve-svg{display:block;width:100%;height:auto;max-width:100%}
+.c1-table{grid-column:1/-1;grid-row:2;width:100%;min-width:0;table-layout:fixed;border-collapse:collapse}
+/* §4.2 requires the short <caption> in the accessibility tree, and §4.2's grid contract
+   requires the X-label header row flush against the plot. A visually hidden caption keeps
+   both: it stays in the DOM but contributes no height, so the header sits on the X axis. */
+.c1-table caption{position:absolute;width:1px;height:1px;padding:0;margin:0;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0}
+.c1-table th,.c1-table td{border-top:1px solid var(--border);border-right:1px solid var(--border);padding:4px 2px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis}
+.c1-table tr > :last-child{border-right:0}
+.c1-table thead th.g-corner{display:table-cell;text-align:left;vertical-align:bottom;background:var(--surface2);color:var(--navy);font-size:10px;font-weight:700;padding-left:8px}
+.c1-table thead th.g-axis{display:table-cell;writing-mode:horizontal-tb;text-align:center;vertical-align:bottom;background:var(--surface2);color:var(--text2);font-size:11px;font-weight:600;height:26px;padding:2px}
+.c1-table thead th.g-axis span{display:inline-block;writing-mode:horizontal-tb;white-space:nowrap}
+.c1-table.c1-many thead th.g-axis{height:88px}
+.c1-table.c1-many thead th.g-axis span{writing-mode:vertical-rl;text-orientation:mixed}
+.c1-table tbody th.g-label{display:table-cell;text-align:right;vertical-align:middle;background:var(--surface2);color:var(--text2);font-size:11px;font-weight:600;padding-right:8px;white-space:nowrap}
+.c1-table tbody td.g-val{text-align:center;vertical-align:middle;color:var(--text);font-size:12px;font-variant-numeric:tabular-nums}
+.c1-table tbody td.g-val.neg{color:var(--danger)}
+/* §4.2 rev 1.63 — two-way month-column highlight. --soft and --text are theme-aware, so the
+   active column stays readable in light, dark, sky, ocean and presentation. */
+.c1-table [data-c1col].col-active{background:var(--soft);color:var(--text);font-weight:600}
+.c1-table thead th.g-axis.col-active span{color:var(--text)}
+@media print{.c1-grid,.c1-plot,.c1-table{overflow:visible;width:100%}}
+/* §4.2 rev 1.66 — print keeps the period text but hides the interactive track and chips. */
+@media print{.c1-ts-body,.c1-ts-chips.seg{display:none}}
 /* ===== C3 Breakdown (workplan D36) ===== */
 :root{
   /* Submission series (New vs Resubmission) and the five approval codes. New and Resubmission use

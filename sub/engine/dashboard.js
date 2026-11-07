@@ -1,12 +1,16 @@
+// Revision 2.7 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.67 / I122 — `state.c1Preset` now holds the ONE active preset name, defaults to `All`, and is set on a chip click. A handle `input` or `change` sets it to `null`, so a manual custom range leaves NO chip active. `c1SyncTimeBar()` reads that stored value instead of comparing `[from, to]` with each preset range, so clipped ranges can no longer light two chips. It also toggles the `.active` class that the joined `.seg` group uses. `state.c1Period`, `c1PresetRange()`, `paint()`, hover, PNG/Copy and the rev 1.65 shared Y axis are unchanged.
+// Revision 2.6 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.66 / I121 — `c1SyncTimeBar()` keeps the single dual-handle track, its month ticks, period text, `aria-valuetext` and chip `aria-pressed` state in step while a handle moves. An `input` listener calls only that light visual sync; the existing `change` listener still performs the ONE full `paint()`. A new click branch resolves `data-c1preset` through `c1PresetRange()` and sets `state.c1Period`, so presets use the same repaint path as the handles. `c1Refit`, hover, PNG/Copy and the rev 1.65 window axis are unchanged.
+// Revision 2.5 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.64 / I118 — `c1Refit()` regenerates the HTML Y ticks from the same `data-c1meta.yMax` / `yStep` / `yIntervals` payload used by `c1PlotSvg`, instead of the fixed `[4,3,2,1,0]` loop. Tick count, values and positions follow the dynamic nice-number rule; PNG / Copy keep serialising the rendered `.c1-ytick` spans.
+// Revision 2.4 | 2026-11-06 | CodeBuddy (AI) | §4.2 rev 1.63 export fidelity. `chartSvgStyle()` now resolves the four `.sc-stop-*` gradient stops to literal token colours, so PNG / Copy keep the soft areas. `c1BoardToSvg()` removes the transient `.sc-hover-band` from the clone and reads table text with `.col-active` temporarily cleared, so no hover state is captured. `serializeC1Svg()`'s fallback strips the band and snap line too. `c1Refit()` rebuilds the band from the new W / N with every refit; the binder queries it fresh after `innerHTML` replacement.
 // Revision 2.3 | 2026-10-24 | CodeBuddy (AI) | D33: the Stage filter lists (blank) plus Deleted, Void and Superseded, and its badge is measured against the default ticked set.
 // Revision 2.2 | 2026-10-24 | CodeBuddy (AI) | Option B shell (MDL two-row header + left nav sidebar). Engine contract unchanged; UI handlers rewired to menu bar + modals.
 import { readXlsx } from './xlsx-reader.js';
 import { buildModel, inspectWorkbook } from './pipeline.js';
-import { deriveView, renderDashboard, EXCLUDED_STAGES, buildSubmittalsCsv, buildIssueCsv } from './render.js';
+import { deriveView, renderDashboard, EXCLUDED_STAGES, buildSubmittalsCsv, buildIssueCsv, c1PlotSvg, c1PresetRange } from './render.js';
 
 const $ = selector => document.querySelector(selector);
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
-const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', c2View: 'stacked', c2Nfs: true, foView: 'lookahead', foLane: 'all', foHorizon: 4, c4View: 'scatter', subMonth: 'ALL', issueCode: 'ALL', issuePage: 1, collapsedPanels: [] };
+const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c1Preset: 'All', c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', c2View: 'stacked', c2Nfs: true, foView: 'lookahead', foLane: 'all', foHorizon: 4, c4View: 'scatter', subMonth: 'ALL', issueCode: 'ALL', issuePage: 1, collapsedPanels: [] };
 let contract;
 let uiHelp;
 let files = { mdl: null, log: null };
@@ -53,20 +57,96 @@ function showWarnings() {
 function chartSvgStyle() {
   const cs = getComputedStyle(document.documentElement);
   const v = n => (cs.getPropertyValue(n) || '').trim();
-  const plan = v('--color-plan'), forecast = v('--color-forecast'), actual = v('--color-actual'), border = v('--border'), text = v('--text'), text2 = v('--text2'), text3 = v('--text3'), danger = v('--danger'), slate = v('--slate');
-  return `<style>.sc-bar-plan{fill:${plan}}.sc-bar-actual{fill:${actual}}.sc-bar-actualresub{fill:${actual};fill-opacity:.45}.sc-line-plan{stroke:${plan};stroke-width:2.5;fill:none;stroke-dasharray:6 3}.sc-line-forecast{stroke:${forecast};stroke-width:2.5;fill:none;stroke-dasharray:2 2}.sc-line-actual{stroke:${actual};stroke-width:2.5;fill:none}.sc-line-actualresub{stroke:${actual};stroke-width:2.5;fill:none;stroke-dasharray:3 3;opacity:.85}.sc-dot{stroke:none}.sc-dot-plan{fill:${plan}}.sc-dot-forecast{fill:${forecast}}.sc-dot-actual{fill:${actual}}.sc-dot-actualresub{fill:${actual}}.sc-grid{stroke:${border};stroke-width:1}.sc-axis{fill:${text2};font-size:10px}.sc-barval{fill:${text2};font-size:9px}.sc-leg-t{fill:${text}}.sc-ref-start{stroke:${danger};stroke-width:1.5;stroke-dasharray:5 3}.sc-ref-today{stroke:${slate};stroke-width:1.5;stroke-dasharray:2 2}.chart-snap{stroke:${text3};stroke-width:1;stroke-dasharray:3 3}</style>`;
+  const plan = v('--color-plan'), forecast = v('--color-forecast'), actual = v('--color-actual'), resub = v('--color-actualresub') || actual;
+  const border = v('--border'), text = v('--text'), text2 = v('--text2'), text3 = v('--text3'), danger = v('--danger'), slate = v('--slate');
+  // §4.2 rev 1.63 — CSS variables do not resolve inside a serialized standalone SVG, so the four
+  // gradient stops receive the resolved token colours here. The area paths keep pointer-events:none.
+  return `<style>.sc-stop-plan{stop-color:${plan}}.sc-stop-forecast{stop-color:${forecast}}.sc-stop-actual{stop-color:${actual}}.sc-stop-resub{stop-color:${resub}}.sc-area{pointer-events:none;stroke:none}.sc-bar-plan{fill:${plan}}.sc-bar-forecast{fill:${forecast}}.sc-bar-actual{fill:${actual}}.sc-bar-actualresub{fill:${resub}}.sc-line-plan{stroke:${plan};stroke-width:2.5;fill:none;stroke-dasharray:6 3}.sc-line-forecast{stroke:${forecast};stroke-width:2.5;fill:none;stroke-dasharray:2 2}.sc-line-actual{stroke:${actual};stroke-width:2.5;fill:none}.sc-line-actualresub{stroke:${resub};stroke-width:2.5;fill:none;stroke-dasharray:3 3;opacity:.85}.sc-dot{stroke:none}.sc-dot-plan{fill:${plan}}.sc-dot-forecast{fill:${forecast}}.sc-dot-actual{fill:${actual}}.sc-dot-actualresub{fill:${resub}}.sc-grid{stroke:${border};stroke-width:1}.sc-yaxis-line{stroke:${border};stroke-width:1}.sc-axis{fill:${text2};font-size:10px}.sc-axis-title{font-weight:700}.sc-x{font-size:10px}.sc-barval{fill:${text2};font-size:9px}.sc-leg-t{fill:${text};font-size:11px}.sc-ref-start{stroke:${danger};stroke-width:1.5;stroke-dasharray:5 3}.sc-ref-today{stroke:${slate};stroke-width:1.5;stroke-dasharray:2 2}.sc-ref-lbl{font-size:9px;font-weight:700}.sc-ref-lbl-start{fill:${danger}}.sc-ref-lbl-today{fill:${slate}}.chart-snap{stroke:${text3};stroke-width:1;stroke-dasharray:3 3}</style>`;
+}
+// Rebuild the C1 board (curve + native attached table) as one self-contained native SVG.
+// A nested <svg> holds the curve; the table cells become 1 px <line> rules and <text>. No
+// <foreignObject>, so canvas rasterization stays taint-free and Copy receives the same SVG.
+function c1BoardToSvg() {
+  const board = document.querySelector('.scurve.sc-board');
+  const grid = board && board.querySelector('.c1-grid');
+  const svg = grid && grid.querySelector('svg.scurve-svg');
+  const table = grid && grid.querySelector('table.c1-table');
+  if (!board || !grid || !svg || !table) return null;
+  const root = grid.getBoundingClientRect();
+  const W = Math.max(1, Math.ceil(root.width)), H = Math.max(1, Math.ceil(root.height));
+  const cs = getComputedStyle(document.documentElement);
+  const v = n => (cs.getPropertyValue(n) || '').trim();
+  const surface = v('--surface') || '#fff', border = v('--border') || '#d9e1e8', text = v('--text') || '#1f2a37';
+  const escSvg = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const box = el => { const r = el.getBoundingClientRect(); return { x: r.left - root.left, y: r.top - root.top, w: r.width, h: r.height }; };
+  let out = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="100%" height="100%" fill="${surface}"/>`;
+  out += chartSvgStyle();
+  const sr = box(svg);
+  const clone = svg.cloneNode(true);
+  clone.removeAttribute('style');
+  clone.setAttribute('x', sr.x.toFixed(1));
+  clone.setAttribute('y', sr.y.toFixed(1));
+  clone.setAttribute('width', Math.max(1, sr.w).toFixed(1));
+  clone.setAttribute('height', Math.max(1, sr.h).toFixed(1));
+  // §4.2 rev 1.63 — transient hover state must never reach the exported SVG.
+  clone.querySelectorAll('.chart-snap, .sc-hover-band').forEach(el => el.remove());
+  out += new XMLSerializer().serializeToString(clone);
+  const placeText = (el, vertical, label) => {
+    const r = box(el), st = getComputedStyle(el);
+    const fill = (st.color || text).trim();
+    const fs = parseFloat(st.fontSize) || 11;
+    const fw = (st.fontWeight === 'bold' || +st.fontWeight >= 600) ? ' font-weight="600"' : '';
+    const fam = (st.fontFamily || 'sans-serif').replace(/"/g, "'");
+    const txt = String(label == null ? el.textContent : label).trim();
+    if (!txt) return;
+    if (vertical) {
+      const cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+      out += `<text transform="rotate(-90 ${cx.toFixed(1)} ${cy.toFixed(1)})" x="${cx.toFixed(1)}" y="${cy.toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-family="${fam}" font-size="${fs}"${fw} fill="${fill}">${escSvg(txt)}</text>`;
+    } else {
+      const ta = st.textAlign;
+      const anchor = ta === 'center' ? 'middle' : (ta === 'right' || ta === 'end') ? 'end' : 'start';
+      const tx = anchor === 'middle' ? r.x + r.w / 2 : anchor === 'end' ? r.x + r.w - 4 : r.x + 4;
+      out += `<text x="${tx.toFixed(1)}" y="${(r.y + r.h / 2).toFixed(1)}" text-anchor="${anchor}" dominant-baseline="central" font-family="${fam}" font-size="${fs}"${fw} fill="${fill}">${escSvg(txt)}</text>`;
+    }
+  };
+  table.querySelectorAll('tr').forEach(tr => {
+    const r = box(tr);
+    out += `<line x1="${r.x.toFixed(1)}" y1="${r.y.toFixed(1)}" x2="${(r.x + r.w).toFixed(1)}" y2="${r.y.toFixed(1)}" stroke="${border}" stroke-width="1"/>`;
+  });
+  // §4.2 keeps the semantic <caption> in the DOM but visually hides it. It is clipped to
+  // 1 x 1 px, so skip it here: drawing it would leave a stray <text> outside the viewBox.
+  // The unit caption reads bottom-to-top along the Y axis; the dynamic ticks stay horizontal.
+  const yCap = grid.querySelector('.c1-yaxis .c1-ycap');
+  if (yCap) placeText(yCap, true);
+  grid.querySelectorAll('.c1-yaxis .c1-ytick').forEach(el => placeText(el, false));
+  const many = table.classList.contains('c1-many');
+  // §4.2 rev 1.63 — placeText() reads the live computed colour. Clear .col-active for the read so
+  // an active month column cannot be baked into the PNG / Copy text, then restore the hover state.
+  const activeCells = [...table.querySelectorAll('.col-active')];
+  activeCells.forEach(el => el.classList.remove('col-active'));
+  try {
+    table.querySelectorAll('th, td').forEach(cell => {
+      const span = cell.querySelector('span');
+      placeText(span || cell, !!(many && span && cell.classList.contains('g-axis')), (span || cell).textContent);
+    });
+  } finally {
+    activeCells.forEach(el => el.classList.add('col-active'));
+  }
+  return out + '</svg>';
 }
 function serializeC1Svg() {
+  const built = c1BoardToSvg();
+  if (built) return built;
   const svg = document.querySelector('.scurve svg');
   if (!svg) return null;
   const clone = svg.cloneNode(true);
   clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  // §4.2 rev 1.63 — the fallback path strips the same transient hover marks as c1BoardToSvg().
+  clone.querySelectorAll('.chart-snap, .sc-hover-band').forEach(el => el.remove());
   clone.insertAdjacentHTML('afterbegin', chartSvgStyle());
   return new XMLSerializer().serializeToString(clone);
 }
 function exportC1Png() {
-  const svg = document.querySelector('.scurve svg');
-  if (!svg) return;
   const str = serializeC1Svg();
   if (!str) return;
   const blob = new Blob([str], { type: 'image/svg+xml;charset=utf-8' });
@@ -74,9 +154,9 @@ function exportC1Png() {
   const img = new Image();
   img.onload = () => {
     const scale = 2;
-    const vb = svg.viewBox.baseVal;
+    const w = img.naturalWidth || 800, h = img.naturalHeight || 400;
     const canvas = document.createElement('canvas');
-    canvas.width = vb.width * scale; canvas.height = vb.height * scale;
+    canvas.width = w * scale; canvas.height = h * scale;
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = (getComputedStyle(document.documentElement).getPropertyValue('--surface') || '').trim() || '#fff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -458,6 +538,142 @@ function wireSplitHeaders(root) {
     splitSyncers.push(syncWidth);
   }
 }
+// ===== C1 attached table: re-render the curve at the measured panel width (spec §3.4.1) =====
+// The static HTML already shows the whole curve through its viewBox. This pass replaces nominal W
+// with the measured width of .c1-plot, so one SVG unit is one CSS pixel and no text is scaled down.
+// The curve still fits completely in the card. data-geo.W and every data-points[].cx are rewritten
+// in the same pass, so the nearest-datum hover snap line stays on its month column.
+let c1Observer = null;
+let c1ResizeBound = false;
+let c1Raf = 0;
+function c1Refit(scope) {
+  const root = scope || document;
+  const board = root.querySelector && root.querySelector('.scurve.sc-board');
+  if (!board) return;
+  const grid = board.querySelector('.c1-grid');
+  const plot = grid && grid.querySelector('.c1-plot');
+  const svg = plot && plot.querySelector('svg.scurve-svg');
+  if (!grid || !plot || !svg) return;
+  let pts = [], meta = {};
+  try { pts = JSON.parse((board.getAttribute('data-points') || '[]').replace(/&#39;/g, "'")); } catch (_) {}
+  try { meta = JSON.parse((board.getAttribute('data-c1meta') || '{}').replace(/&#39;/g, "'")); } catch (_) {}
+  if (!pts.length) return;
+  const W = Math.round(plot.getBoundingClientRect().width);
+  if (!(W > 0)) return;
+  if (Math.abs(W - Number(board.getAttribute('data-c1w') || 0)) < 2) return;
+  const built = c1PlotSvg(pts, meta, W);
+  // Keep the very same .chart-snap node: bindChartHover holds a reference to it.
+  const snap = svg.querySelector('.chart-snap');
+  svg.setAttribute('viewBox', `0 0 ${built.W} ${built.H}`);
+  // CSS height:auto derives the intrinsic ratio from the width/height attributes, not the
+  // viewBox. Keep all three in sync: a stale pair makes xMidYMid meet letterbox the plot,
+  // so every bar, dot and data-points.cx drifts away from its month column.
+  svg.setAttribute('width', String(built.W));
+  svg.setAttribute('height', String(built.H));
+  // §4.2 rev 1.63 — built.inner carries a fresh .sc-hover-band at W / N. The binder queries it
+  // fresh; drop the stale column classes because the rebuilt band starts hidden.
+  svg.innerHTML = built.inner;
+  grid.querySelectorAll('.c1-table [data-c1col].col-active').forEach(el => el.classList.remove('col-active'));
+  if (snap) {
+    // §4.2 rev 1.62 — yTop now depends on the wrapped legend row count, so the reused
+    // .chart-snap node's Y span must be refreshed too. bindChartHover only updates x1/x2.
+    snap.setAttribute('y1', String(built.yTop));
+    snap.setAttribute('y2', String(built.yBot));
+    svg.appendChild(snap);
+  }
+  const next = pts.map((p, i) => ({ ...p, cx: +((i + 0.5) * built.W / pts.length).toFixed(1) }));
+  board.setAttribute('data-points', JSON.stringify(next).replace(/'/g, '&#39;'));
+  board.setAttribute('data-geo', JSON.stringify({ W: built.W, yTop: built.yTop, yBot: built.yBot }).replace(/'/g, '&#39;'));
+  board.setAttribute('data-c1w', String(built.W));
+  grid.style.setProperty('--c1-cols', String(pts.length));
+  grid.style.setProperty('--c1-gutter', `${Number(meta.gutter) || 104}px`);
+  const colgroup = grid.querySelector('.c1-table colgroup');
+  if (colgroup) colgroup.innerHTML = `<col class="c1-gut" style="width:var(--c1-gutter)">${'<col>'.repeat(pts.length)}`;
+  // §4.2 rev 1.64 — the legend can wrap to a different number of rows at a new width, which
+  // changes the viewBox height. Regenerate the HTML Y ticks from the SAME data-c1meta payload as
+  // the SVG: one label per grid line, values = g × yStep, positions derived from yMax.
+  const yMax = Number(meta.yMax) || 1;
+  const yStep = Number(meta.yStep) > 0 ? Number(meta.yStep) : yMax / 4;
+  const yIntervals = Math.max(1, Math.min(7, Number(meta.yIntervals) > 0
+    ? Math.round(Number(meta.yIntervals)) : Math.max(1, Math.round(yMax / yStep))));
+  const axis = grid.querySelector('.c1-yaxis');
+  if (axis) {
+    axis.querySelectorAll('.c1-ytick').forEach(el => el.remove());
+    for (let g = yIntervals; g >= 0; g--) {
+      const value = g * yStep;
+      const span = document.createElement('span');
+      span.className = 'c1-ytick';
+      const y = built.yBot - (value / yMax) * (built.yBot - built.yTop);
+      span.style.top = `${(y / built.H * 100).toFixed(3)}%`;
+      span.textContent = String(Math.round(value));
+      axis.appendChild(span);
+    }
+  }
+}
+function wireC1Grid(root) {
+  if (c1Observer) { c1Observer.disconnect(); c1Observer = null; }
+  const scope = root || document;
+  const plot = scope.querySelector && scope.querySelector('.c1-plot');
+  c1Refit(scope);
+  if (plot && typeof ResizeObserver === 'function') {
+    c1Observer = new ResizeObserver(() => {
+      if (c1Raf) return;
+      c1Raf = requestAnimationFrame(() => { c1Raf = 0; c1Refit(document); });
+    });
+    c1Observer.observe(plot);
+  }
+  if (!c1ResizeBound && typeof window !== 'undefined') {
+    c1ResizeBound = true;
+    const onResize = () => c1Refit(document);
+    window.addEventListener('resize', onResize, { passive: true });
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', onResize, { passive: true });
+  }
+}
+// §4.2 rev 1.66 / I121 — a visual-only sync for the single dual-handle period track.
+// It never rebuilds the chart. The `change` listener performs the one full repaint.
+function c1SyncTimeBar() {
+  const bar = document.querySelector('#c1TimeBar');
+  if (!bar) return;
+  let months = [];
+  try { months = JSON.parse(bar.dataset.c1months || '[]'); } catch { return; }
+  const n = months.length;
+  if (!n) return;
+  const fromEl = bar.querySelector('input[data-c1period="from"]');
+  const toEl = bar.querySelector('input[data-c1period="to"]');
+  const fill = bar.querySelector('.c1-ts-fill');
+  const text = bar.querySelector('.c1-period-text');
+  if (!fromEl || !toEl || !fill || !text) return;
+  const last = n - 1, denom = Math.max(1, last);
+  const posPct = i => `calc(var(--c1-thumb) / 2 + (100% - var(--c1-thumb)) * ${(i / denom).toFixed(6)})`;
+  const names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const label = ym => {
+    const [y, m] = String(ym || '').split('-').map(Number);
+    return `${names[m - 1] || ''} ${y || ''}`.trim() || String(ym || '');
+  };
+  let f = Math.max(0, Math.min(Number(fromEl.value) || 0, last));
+  let t = Math.max(0, Math.min(Number(toEl.value) || 0, last));
+  if (f > t) { if (document.activeElement === fromEl) t = f; else f = t; }
+  fromEl.value = String(f);
+  toEl.value = String(t);
+  fromEl.setAttribute('aria-valuetext', label(months[f]));
+  toEl.setAttribute('aria-valuetext', label(months[t]));
+  // Lift the `from` thumb above the `to` thumb when the two handles are close.
+  fromEl.style.zIndex = (t - f <= 1) ? '5' : '';
+  fill.style.left = posPct(f);
+  fill.style.width = `calc((100% - var(--c1-thumb)) * ${((t - f) / denom).toFixed(6)})`;
+  bar.querySelectorAll('.c1-ts-tick[data-c1month]').forEach(el => {
+    const i = Number(el.dataset.c1month);
+    el.classList.toggle('is-active', i >= f && i <= t);
+    el.classList.toggle('is-near', i === f || i === t);
+  });
+  text.textContent = `${label(months[f])} – ${label(months[t])}`;
+  // §4.2 rev 1.67 — ONE stored selection, never a derived range match.
+  bar.querySelectorAll('[data-c1preset]').forEach(chip => {
+    const on = chip.dataset.c1preset === state.c1Preset;
+    chip.setAttribute('aria-pressed', String(on));
+    chip.classList.toggle('active', on);
+  });
+}
 function paint() {
   if (!model) return;
   $('[data-page-content]').hidden = false;
@@ -467,6 +683,8 @@ function paint() {
   const view = renderDashboard(document, model, { ...state, uiHelp });
   if (scrollEl) scrollEl.scrollTop = scrollTop;
   wireSplitHeaders(document);
+  wireC1Grid(document);
+  c1SyncTimeBar();
   document.querySelectorAll('[data-page]').forEach(button => button.classList.toggle('active', button.dataset.page === state.page));
   const pageTitle = document.getElementById('page-title');
   if (pageTitle) pageTitle.textContent = state.page;
@@ -683,6 +901,17 @@ document.addEventListener('click', async event => {
   if (target.id === 'fReset') { state.search = ''; $('#fSearch').value = ''; paint(); }
   if (target.dataset.c1grain) { state.c1Grain = target.dataset.c1grain; closeFilterPanels(); paint(); }
   if (target.hasAttribute('data-c1bars')) { state.c1Bars = !state.c1Bars; paint(); }
+  if (target.dataset.c1preset) {
+    const bar = document.querySelector('#c1TimeBar');
+    if (bar) {
+      let months = [];
+      try { months = JSON.parse(bar.dataset.c1months || '[]'); } catch { months = []; }
+      const toEl = bar.querySelector('input[data-c1period="to"]');
+      const anchor = toEl ? Number(toEl.value) : Math.max(0, months.length - 1);
+      const range = c1PresetRange(target.dataset.c1preset, months, anchor, bar.dataset.c1asof);
+      if (range) { state.c1Period = range; state.c1Preset = target.dataset.c1preset; paint(); }
+    }
+  }
   if (target.hasAttribute('data-c1png')) { exportC1Png(); }
   if (target.hasAttribute('data-c1copy')) { copyC1Svg(); }
   if (target.dataset.c3dim) { state.c3Dim = target.dataset.c3dim; paint(); }
@@ -791,6 +1020,8 @@ document.addEventListener('change', async event => {
     let f = Number(fromEl.value), t = Number(toEl.value);
     if (f > t) { if (event.target.dataset.c1period === 'from') { t = f; toEl.value = String(t); } else { f = t; fromEl.value = String(f); } }
     state.c1Period = [f, t];
+    // §4.2 rev 1.67 — a handle change is a custom range, so no preset stays active.
+    state.c1Preset = null;
     paint();
     return;
   }
@@ -805,7 +1036,12 @@ document.addEventListener('change', async event => {
     await acceptSelection(chosen);
   }
 });
-document.addEventListener('input', event => { if (event.target.id === 'fSearch') state.search = event.target.value; });
+document.addEventListener('input', event => {
+  if (event.target.id === 'fSearch') state.search = event.target.value;
+  // §4.2 rev 1.66 — drag updates only the track visuals. `change` performs the full repaint.
+  // §4.2 rev 1.67 — a manual drag clears the preset at once, so no chip claims a custom range.
+  if (event.target.dataset.c1period) { state.c1Preset = null; c1SyncTimeBar(); }
+});
 document.addEventListener('change', event => { if (event.target.id === 'fCol') state.searchCol = event.target.value; });
 document.addEventListener('pointerdown', event => {
   const grip = event.target.closest('.ds-resize');

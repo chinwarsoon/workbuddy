@@ -2,8 +2,8 @@
   "project_metadata": {
     "name": "TWRP C3B2 — Document Submittal Log Interactive Dashboard",
     "abbreviation": "SUB",
-    "version": "2.25.0",
-    "date": "2026-10-29",
+    "version": "2.26.0",
+    "date": "2026-11-06",
     "description": "Browser dashboard for planned documents and submission history.",
     "purpose": "Show document scope, submission status, review delay, approval outcomes, and coverage from the project MDL and Document Submittal Log workbooks."
   },
@@ -256,6 +256,12 @@
     }
   ],
   "revisionHistory": [
+    {
+      "revision": "2.26",
+      "date": "2026-11-06",
+      "author": "CodeBuddy (AI)",
+      "summary": "UI spec §4.2 rev 1.63 promoted the reviewed Option B attached-table interaction into the C1 production build: four tokenised gradients and soft areas, one hidden .sc-hover-band, data-c1col on every month header and value cell, two-way chart / table column sync, and a chart-only .chart-tip. §4.6 gained hidden-window ARIA and touch clauses. render.js rev 0.10, dashboard.css rev 2.8 and dashboard.js rev 2.4 implement it; render.test.mjs rev 0.11, checks/sub.mjs rev 1.9 and harness.mjs rev 1.18 assert it. Both UI spec copies stayed byte-identical. build/standalone.mjs rev 0.2 makes repeated rebuilds idempotent; after the HTML header note two runs both report 353,309 characters and the file on disk is 354,043 bytes. Both review samples relabelled: Option B adopted, Option A the pre-rev-1.63 baseline. harness.mjs rev 1.19 fixed the I-96 windowing trigger: pagination takes precedence on large tables since I-112, so Tier 4b now requires a real windowed table and skips with an explicit reason when none exists. Verified: pipeline 24/0, render 41/0, Tier 5 44 passed / 0 failed / 0 advisory / 1 skipped, full harness 2082 passed / 0 failed / 0 advisory / 29 skipped; MDL Tier 4 I-96 4/4 PASS; PPP Tier 4 78 passed / 0 failed. Records: workplan 2.91 / 2.92 / T19.2; update log U027 / U028 / harness U003; test log TEST-022 / TEST-023; issue logs 1.11 / 1.12 / harness I005; SKILL.md 1.5 / 1.6."
+    },
     {
       "revision": "2.25",
       "date": "2026-10-29",

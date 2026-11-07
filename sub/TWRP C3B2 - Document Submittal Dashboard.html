@@ -1,4 +1,4 @@
-<!-- Revision 2.20 | 2026-10-24 | CodeBuddy (AI) | Chart panels now meet spec §4: titles are 13 px / 700 uppercase navy in a real .panel-head flex row, a .panel-actions cluster holds Help first and a new Collapse − toggle rightmost, every top-level panel carries a sequential corner number assigned in DOM order after render, and the surface is 14px 14px 26px padding at 10 px radius on a relative box. The title-bar page label is now 16 px / 600 plain text with no background, padding or border, replacing the 12 px translucent pill, so it sits on the bar's 20 px edge and steps just below the 17 px project title. The content toolbar is removed; the active page shows at the right of the title bar and updates on every left-panel selection change, and the layout toggle moved to the right end of the menu bar. The left panel is now sized to its menu titles: 160 px instead of 240, being the 135 px the widest title needs plus 25 px of slack, and the resize floor dropped from 180 px to 140 px so the new width survives a resize or a saved width. The left panel now holds menus only: the five page links at the top, then Settings and Help pinned to the bottom by margin-top:auto. The in-panel collapse toggle is gone, because the menu bar already carries that control; both section titles and the section dividers are gone; the resizer is kept, since the panel stays resizable. The sidebar toggle is now compact: 8 px horizontal padding on each side of the glyph instead of 14 px, so it is 27 px wide instead of 39, and an 8 px gap after it instead of 12 px; its left edge stays on the bar's 20 px padding, aligned with the logo. Title-bar logo and menu-bar control metrics now match MDL: the logo is 36 px tall and non-shrinking in a 12 px brand group, and every menu-bar button is 32 px tall at 12 px / 600 with 14 px padding and a 1.2 line height, so the controls land pixel-identically (Search x=1212, Warnings x=1301, last control ending at x=1420). Title-bar and menu-bar spacing now match MDL: the title-bar rows stack with a 2 px gap and MDL's line heights (17 px / 600 at 1.2, 12 px / 500 and 11 px / 400 at the body line height), so the title bar is 78 px as MDL's is; the menu-bar gap is 12 px with 8 px inside each group and a 6 px left margin on the Warnings toggle. Menu-bar typography and alignment now match MDL: every menu-bar control is bold at 12 px / 600, and the left-panel toggle, Load Workbook and Export are left-aligned while the filter triggers, Search and Warnings are pushed to the right. Filter chrome now matches MDL exactly: the trigger is borderless, with a count badge and no caret, and the popup is MDL's .tf-all master, hint, divider and .tf-item rows; the search popup puts its border and radius on the .search box and leaves both children borderless; Help joined Settings in the left side panel and the menu-bar right group is gone; the filter group is no longer a scroll container, which had clipped the panels. Menu bar matches MDL: one non-wrapping row with the filter triggers in a flex row; theme button removed and the theme design deferred; Load Workbook is the highlighted primary action and opens the picker when no workbooks are chosen; the Search popover follows MDL's .tf-panel.search-panel; Settings moved to the left side panel; the side panel's workbook-loading section is removed. Global filters are multi-select: each of the five dimensions is a .tf-btn trigger with a count badge opening a .tf-panel led by an All <dimension> master above a hint, a divider and .tf-item rows; Search, its panel and Warnings now sit inside .filter-group as in MDL. Fonts follow the shared spec type scale (body 13/1.45, KPI 22, icon button 13/600 in a 26 px square, trigger 12/600, menu row 12, count badge 10/700). Workbooks are identified by the Dashboard Title in their Code sheet, not by file name; a selection is inspected in full and committed only when every check passes (unreadable file, no Code sheet, no dashboard title, unmatched title, duplicate type, or differing Project Title all reject the whole selection with no partial update). Title bar shows three rows: project title, dashboard title(s), project start and as of. STANDALONE: one self-contained file that runs from file:// with no web server (mirrors MDL). The stylesheet, both config JSONs, the whole engine and the logo are inlined — no external refs, no ES-module imports, no fetch. Rebuild with `node sub/build/standalone.mjs` after editing engine/ or config/. Option B shell: MDL two-row header (navy title + white menu) + navy left navigation sidebar; no icon bar / right sidebar; light default. Full-screen welcome (no dashboard parts until data loads), golden-ratio drop holding the load buttons, no hardcoded project title. I005: menu-bar Load Data uses id load-button-menu. I006: generic welcome title restored. I007: workbook picks are merged by name. Expect card has no label prefix; all control labels are title case. -->
+<!-- Revision 2.20 | 2026-10-24 | CodeBuddy (AI) | Chart panels now meet spec §4: titles are 13 px / 700 uppercase navy in a real .panel-head flex row, a .panel-actions cluster holds Help first and a new Collapse − toggle rightmost, every top-level panel carries a sequential corner number assigned in DOM order after render, and the surface is 14px 14px 26px padding at 10 px radius on a relative box. The title-bar page label is now 16 px / 600 plain text with no background, padding or border, replacing the 12 px translucent pill, so it sits on the bar's 20 px edge and steps just below the 17 px project title. The content toolbar is removed; the active page shows at the right of the title bar and updates on every left-panel selection change, and the layout toggle moved to the right end of the menu bar. The left panel is now sized to its menu titles: 160 px instead of 240, being the 135 px the widest title needs plus 25 px of slack, and the resize floor dropped from 180 px to 140 px so the new width survives a resize or a saved width. The left panel now holds menus only: the five page links at the top, then Settings and Help pinned to the bottom by margin-top:auto. The in-panel collapse toggle is gone, because the menu bar already carries that control; both section titles and the section dividers are gone; the resizer is kept, since the panel stays resizable. The sidebar toggle is now compact: 8 px horizontal padding on each side of the glyph instead of 14 px, so it is 27 px wide instead of 39, and an 8 px gap after it instead of 12 px; its left edge stays on the bar's 20 px padding, aligned with the logo. Title-bar logo and menu-bar control metrics now match MDL: the logo is 36 px tall and non-shrinking in a 12 px brand group, and every menu-bar button is 32 px tall at 12 px / 600 with 14 px padding and a 1.2 line height, so the controls land pixel-identically (Search x=1212, Warnings x=1301, last control ending at x=1420). Title-bar and menu-bar spacing now match MDL: the title-bar rows stack with a 2 px gap and MDL's line heights (17 px / 600 at 1.2, 12 px / 500 and 11 px / 400 at the body line height), so the title bar is 78 px as MDL's is; the menu-bar gap is 12 px with 8 px inside each group and a 6 px left margin on the Warnings toggle. Menu-bar typography and alignment now match MDL: every menu-bar control is bold at 12 px / 600, and the left-panel toggle, Load Workbook and Export are left-aligned while the filter triggers, Search and Warnings are pushed to the right. Filter chrome now matches MDL exactly: the trigger is borderless, with a count badge and no caret, and the popup is MDL's .tf-all master, hint, divider and .tf-item rows; the search popup puts its border and radius on the .search box and leaves both children borderless; Help joined Settings in the left side panel and the menu-bar right group is gone; the filter group is no longer a scroll container, which had clipped the panels. Menu bar matches MDL: one non-wrapping row with the filter triggers in a flex row; theme button removed and the theme design deferred; Load Workbook is the highlighted primary action and opens the picker when no workbooks are chosen; the Search popover follows MDL's .tf-panel.search-panel; Settings moved to the left side panel; the side panel's workbook-loading section is removed. Global filters are multi-select: each of the five dimensions is a .tf-btn trigger with a count badge opening a .tf-panel led by an All <dimension> master above a hint, a divider and .tf-item rows; Search, its panel and Warnings now sit inside .filter-group as in MDL. Fonts follow the shared spec type scale (body 13/1.45, KPI 22, icon button 13/600 in a 26 px square, trigger 12/600, menu row 12, count badge 10/700). Workbooks are identified by the Dashboard Title in their Code sheet, not by file name; a selection is inspected in full and committed only when every check passes (unreadable file, no Code sheet, no dashboard title, unmatched title, duplicate type, or differing Project Title all reject the whole selection with no partial update). Title bar shows three rows: project title, dashboard title(s), project start and as of. STANDALONE: one self-contained file that runs from file:// with no web server (mirrors MDL). The stylesheet, both config JSONs, the whole engine and the logo are inlined — no external refs, no ES-module imports, no fetch. Rebuild with `node sub/build/standalone.mjs` after editing engine/ or config/. Option B shell: MDL two-row header (navy title + white menu) + navy left navigation sidebar; no icon bar / right sidebar; light default. Full-screen welcome (no dashboard parts until data loads), golden-ratio drop holding the load buttons, no hardcoded project title. I005: menu-bar Load Data uses id load-button-menu. I006: generic welcome title restored. I007: workbook picks are merged by name. Expect card has no label prefix; all control labels are title case. UI spec §4.2 rev 1.63 (2026-11-06): the reviewed Option B attached-table interaction is in the production build (four tokenised gradients, one hidden month band, data-c1col, two-way chart / table column sync and a chart-only hover window). The standalone build is idempotent, and the I-96 windowing check was fixed in harness.mjs rev 1.19. -->
 <!doctype html>
 <html lang="en" data-theme="light">
 <head>
@@ -9,8 +9,11 @@
   <meta http-equiv="Expires" content="0">
   <meta name="description" content="Document submittal dashboard for the TWRP C3B2 project.">
   <title>TWRP C3B2 · Document Submittal Dashboard</title>
-                                                                                                                                                                                                                                              <!-- STANDALONE:BEGIN -->
+  <!-- STANDALONE:BEGIN -->
   <style>
+/* Revision 2.10 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.67 / I122 — the five preset chips are ONE joined `.seg` group of `.seg-btn` buttons, using the existing Sub `.seg-btn.active` / `--blue` token. The pill rules are removed. `.c1-ts` is `flex-wrap:nowrap` down to the 1280 px desktop minimum: the label, period text and chip group do not shrink, and only `.c1-ts-body` shrinks (basis 190 px, min-width 120 px). Below 1280 px the §3.4.1 wrap rule re-enables `flex-wrap:wrap`, and below 760 px the track still takes a full line. Print hides `.c1-ts-body` and `.c1-ts-chips.seg`. */
+/* Revision 2.9 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.66 / I121 — C1 uses ONE dual-handle period track. Two native `step="1"` range inputs sit on one shared visual track with a token-coloured fill, month ticks, year labels and preset chips. The old `.c1-range-wrap` / `.c1-range` rules are removed. Focus-visible outlines, a narrow-screen wrap and a print rule that hides only the interactive track and chips are added. Colour comes from --blue / --border / --surface / --text2, so every theme keeps contrast. */
+/* Revision 2.8 | 2026-11-06 | CodeBuddy (AI) | §4.2 rev 1.63 — C1 attached-table interaction: tokenised `.sc-stop-*` gradient stops, pointer-transparent `.sc-area` / `.sc-hover-band`, and the theme-safe `.col-active` month-column highlight. No hard-coded series hex (§4.6). */
 /* Revision 2.7 | 2026-11-03 | CodeBuddy (AI) | I103 — the C2 Delay series is tokenised (`--color-c2delay`, line + dot + swatch classes; §4.6 forbids a hard-coded swatch hex), and the C4 Age-buckets swatch class `.c4-bucket` follows the bar's `--blue`. */
 /* Revision 2.6 | 2026-11-03 | CodeBuddy (AI) | I102 — C1 hover window follows §4.6: tokenised `.chart-swatch.c1-*` classes for the four series, and Actual Resub leaves Actual First's hue for its own token `--color-actualresub` (the bar, line and dot rules follow it; §4.6 forbids two distinct series sharing a hue). */
 /* Revision 2.5 | 2026-11-02 | CodeBuddy (AI) | I099 — added the .c3-no colour pair (arc, swatch) for the "No Outcome" donut segment: neutral grey, because a missing outcome is a gap in the data, not an approval state. */
@@ -312,12 +315,39 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .btn-secondary:hover{background:var(--surface2)}
 .btn-secondary.on{background:var(--surface3);border-color:var(--blue);color:var(--blue)}
 .c1-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 10px}
-.c1-controls .controls-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.c1-controls .controls-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1 1 520px;min-width:0}
 .c1-controls .controls-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
 .c1-period-label{font-weight:600;font-size:12px;color:var(--text2)}
-.c1-range-wrap{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)}
-.c1-range{width:120px;accent-color:var(--blue)}
-.c1-period-text{font-size:11px;color:var(--text2);white-space:nowrap}
+.c1-period-text{font-size:11px;color:var(--text2);white-space:nowrap;font-variant-numeric:tabular-nums}
+/* §4.2 rev 1.66 — one dual-handle track. Month ticks are visual only and never take pointer events. */
+/* §4.2 rev 1.67 — keep the cluster on ONE line down to the 1280 px desktop minimum. */
+.c1-ts{--c1-thumb:14px;display:flex;align-items:center;gap:10px;flex-wrap:nowrap;width:100%}
+.c1-period-label,.c1-period-text,.c1-ts-chips{flex-shrink:0}
+.c1-ts-body{position:relative;flex:1 1 190px;min-width:120px;max-width:440px;height:26px}
+.c1-ts-track{position:relative;height:26px}
+.c1-ts-track::before{content:"";position:absolute;left:calc(var(--c1-thumb)/2);right:calc(var(--c1-thumb)/2);top:12px;height:4px;border-radius:2px;background:var(--border)}
+.c1-ts-fill{position:absolute;top:12px;height:4px;border-radius:2px;background:var(--blue);pointer-events:none}
+.c1-ts-ticks{position:absolute;inset:0;pointer-events:none}
+.c1-ts-tick{position:absolute;top:9px;width:1px;height:6px;background:var(--border);pointer-events:none;transition:height .12s ease,top .12s ease,background .12s ease}
+.c1-ts-tick.is-year{top:7px;height:10px;background:var(--text2)}
+.c1-ts-tick.is-active{background:var(--blue)}
+.c1-ts-tick.is-near{top:6px;height:12px;background:var(--blue)}
+.c1-ts-year{position:absolute;top:-12px;left:0;transform:translateX(-50%);font-size:9px;color:var(--text2);white-space:nowrap}
+.c1-ts-input{position:absolute;left:0;top:0;width:100%;height:26px;margin:0;appearance:none;-webkit-appearance:none;background:transparent;pointer-events:none}
+.c1-ts-input::-webkit-slider-runnable-track{height:26px;background:transparent;border:0}
+.c1-ts-input::-moz-range-track{height:26px;background:transparent;border:0}
+.c1-ts-input::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:var(--c1-thumb);height:var(--c1-thumb);margin-top:6px;border-radius:50%;background:var(--blue);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--blue);cursor:grab;pointer-events:auto;transition:transform .12s ease}
+.c1-ts-input::-moz-range-thumb{width:var(--c1-thumb);height:var(--c1-thumb);border-radius:50%;background:var(--blue);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--blue);cursor:grab;pointer-events:auto;transition:transform .12s ease}
+.c1-ts-input:active::-webkit-slider-thumb,.c1-ts-input:active::-moz-range-thumb{transform:scale(1.15);cursor:grabbing}
+.c1-ts-input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.c1-ts-input-from{z-index:3}
+.c1-ts-input-to{z-index:4}
+.c1-ts-chips.seg{flex-shrink:0;flex-wrap:nowrap}
+.c1-ts-chips .seg-btn{padding:5px 8px;font-size:11px}
+.c1-ts-chips .seg-btn:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+/* §3.4.1 — below the 1280 px minimum the control row may wrap, but stays reachable. */
+@media(max-width:1279px){.c1-ts{flex-wrap:wrap}.c1-ts-body{flex-basis:260px;min-width:190px}}
+@media(max-width:760px){.c1-ts-body{flex-basis:100%;max-width:none}.c1-ts-year{display:none}}
 .seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
 .seg-btn{border:0;background:transparent;color:var(--text2);padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer}
 .seg-btn.active{background:var(--blue);color:#fff}
@@ -346,14 +376,22 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .sc-ref-lbl{font-size:9px;font-weight:700}
 .sc-ref-lbl-start{fill:var(--danger)}
 .sc-ref-lbl-today{fill:var(--slate)}
-.sc-asof{font-size:9px;fill:var(--text2)}
 .sc-line-plan{stroke:var(--color-plan);stroke-width:2.5;fill:none;stroke-dasharray:6 3}
 .sc-line-forecast{stroke:var(--color-forecast);stroke-width:2.5;fill:none;stroke-dasharray:2 2}
 .sc-line-actual{stroke:var(--color-actual);stroke-width:2.5;fill:none}
 .sc-line-actualresub{stroke:var(--color-actualresub);stroke-width:2.5;fill:none;stroke-dasharray:3 3;opacity:.85}
 .sc-dot{stroke:none}
 .sc-dot-plan{fill:var(--color-plan)} .sc-dot-forecast{fill:var(--color-forecast)} .sc-dot-actual{fill:var(--color-actual)} .sc-dot-actualresub{fill:var(--color-actualresub)}
+/* §4.2 rev 1.63 — soft areas and the month-column band. Stops use the on-chart series tokens;
+   chartSvgStyle() resolves them to literal colours for the standalone PNG / Copy SVG. */
+.sc-stop-plan{stop-color:var(--color-plan)}
+.sc-stop-forecast{stop-color:var(--color-forecast)}
+.sc-stop-actual{stop-color:var(--color-actual)}
+.sc-stop-resub{stop-color:var(--color-actualresub)}
+.sc-area{stroke:none;pointer-events:none}
+.sc-hover-band{fill:var(--blue);fill-opacity:.08;pointer-events:none}
 .sc-grid{stroke:var(--border);stroke-width:1}
+.sc-yaxis-line{stroke:var(--border);stroke-width:1}
 .sc-axis{fill:var(--text2);font-size:10px}
 .sc-axis-title{font-weight:700}
 .sc-barval{fill:var(--text2);font-size:9px}
@@ -362,6 +400,40 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .sc-ref-start{stroke:var(--danger);stroke-width:1.5;stroke-dasharray:5 3}
 .sc-ref-today{stroke:var(--slate);stroke-width:1.5;stroke-dasharray:2 2}
 .chart-snap{stroke:var(--text3);stroke-width:1;stroke-dasharray:3 3}
+/* ===== C1 attached data table (spec §4.2 rev 1.59 / T19.1 / I116) =====
+   One CSS grid is the alignment container. Column 1 holds the Y caption, the Y ticks and the
+   metric labels. Columns 2..N+1 hold one period each. Row 1 holds the curve. Row 2 holds the
+   native table, whose column headers are the X labels. No min-width and no horizontal scroll:
+   the SVG viewBox scales the whole curve into the card at every panel width. */
+.c1-grid{display:grid;grid-template-columns:var(--c1-gutter,104px) repeat(var(--c1-cols,1),minmax(0,1fr));column-gap:0;row-gap:0;min-width:0;width:100%}
+.c1-yaxis{grid-column:1;grid-row:1;position:relative;min-width:0;pointer-events:none}
+/* §4.2 — the unit caption runs along the side of the Y axis, reading bottom-to-top. */
+.c1-yaxis .c1-ycap{position:absolute;left:2px;top:50%;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;text-orientation:mixed;font-size:10px;font-weight:700;letter-spacing:.02em;color:var(--text2);white-space:nowrap}
+.c1-yaxis .c1-ytick{position:absolute;right:6px;transform:translateY(-50%);font-size:10px;line-height:1;color:var(--text2);text-align:right;padding-right:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.c1-plot{grid-column:2/-1;grid-row:1;min-width:0;overflow:visible}
+.c1-plot svg.scurve-svg{display:block;width:100%;height:auto;max-width:100%}
+.c1-table{grid-column:1/-1;grid-row:2;width:100%;min-width:0;table-layout:fixed;border-collapse:collapse}
+/* §4.2 requires the short <caption> in the accessibility tree, and §4.2's grid contract
+   requires the X-label header row flush against the plot. A visually hidden caption keeps
+   both: it stays in the DOM but contributes no height, so the header sits on the X axis. */
+.c1-table caption{position:absolute;width:1px;height:1px;padding:0;margin:0;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0}
+.c1-table th,.c1-table td{border-top:1px solid var(--border);border-right:1px solid var(--border);padding:4px 2px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis}
+.c1-table tr > :last-child{border-right:0}
+.c1-table thead th.g-corner{display:table-cell;text-align:left;vertical-align:bottom;background:var(--surface2);color:var(--navy);font-size:10px;font-weight:700;padding-left:8px}
+.c1-table thead th.g-axis{display:table-cell;writing-mode:horizontal-tb;text-align:center;vertical-align:bottom;background:var(--surface2);color:var(--text2);font-size:11px;font-weight:600;height:26px;padding:2px}
+.c1-table thead th.g-axis span{display:inline-block;writing-mode:horizontal-tb;white-space:nowrap}
+.c1-table.c1-many thead th.g-axis{height:88px}
+.c1-table.c1-many thead th.g-axis span{writing-mode:vertical-rl;text-orientation:mixed}
+.c1-table tbody th.g-label{display:table-cell;text-align:right;vertical-align:middle;background:var(--surface2);color:var(--text2);font-size:11px;font-weight:600;padding-right:8px;white-space:nowrap}
+.c1-table tbody td.g-val{text-align:center;vertical-align:middle;color:var(--text);font-size:12px;font-variant-numeric:tabular-nums}
+.c1-table tbody td.g-val.neg{color:var(--danger)}
+/* §4.2 rev 1.63 — two-way month-column highlight. --soft and --text are theme-aware, so the
+   active column stays readable in light, dark, sky, ocean and presentation. */
+.c1-table [data-c1col].col-active{background:var(--soft);color:var(--text);font-weight:600}
+.c1-table thead th.g-axis.col-active span{color:var(--text)}
+@media print{.c1-grid,.c1-plot,.c1-table{overflow:visible;width:100%}}
+/* §4.2 rev 1.66 — print keeps the period text but hides the interactive track and chips. */
+@media print{.c1-ts-body,.c1-ts-chips.seg{display:none}}
 /* ===== C3 Breakdown (workplan D36) ===== */
 :root{
   /* Submission series (New vs Resubmission) and the five approval codes. New and Resubmission use
@@ -1758,6 +1830,13 @@ function buildModel(mdlWorkbook, logWorkbook, options = {}) {
 }
 
 /* ===== engine/render.js ===== */
+// Revision 0.15 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.67 / I122 — preset chips now form ONE joined `.seg` group of `.seg-btn` buttons. The active state comes from the stored `st.c1Preset` value, NOT from comparing `[from, to]` with each preset's range; clipped preset ranges therefore cannot light two chips at once. `undefined` means the default `All` selection, `null` means a manual custom range with NO active chip, and any of the five preset names means exactly that ONE active chip. The group keeps `data-c1preset`, `aria-pressed`, `aria-label`, the client payloads and `c1PresetRange()` unchanged, so `state.c1Period`, windowed `pts`, the rev 1.65 shared Y axis and every export path keep their behaviour.
+// Revision 0.14 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.66 / I121 — the C1 period control is now ONE dual-handle track. `c1Controls()` emits two overlaid native `<input type="range" step="1">` elements on one shared visual track, one tick per reporting month, five preset chips and a live period text. `c1PresetRange()` is exported for the client and the render suite: 6M / 12M / 24M anchor to the current `to` index, YTD runs from January of the as-of year through the as-of month, and All spans every month. The `data-c1period="from" / "to"` attributes, `state.c1Period`, the windowed `pts` payload, the rev 1.65 shared Y axis and every other control are unchanged.
+// Revision 0.13 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.65 / I119 — the shared C1 Y-axis maximum now comes from the WINDOWED `pts` payload, filtered by enabled series and the Bars toggle, instead of the full c1.* arrays. Cumulative values stay ABSOLUTE (never rebased); only the scale adapts. `niceAxisTicks()`, the 300-unit plot height and all rev 1.64 limits are unchanged. Period, series, Bars and grain changes all repaint, so the axis is recalculated immediately with no animation or debounce; `data-c1meta` keeps the same keys, so `c1Refit`, hover, the table, PNG and Copy all follow the new scale. No separate bar scale is introduced.
+// Revision 0.12 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.64 / I118 — replaced `niceAxisMax()` (four fixed quarter intervals) with `niceAxisTicks()`: max 7 intervals / 8 labels over the 300-unit plot, >= ~40 px major-tick spacing, nice-number steps `{1, 2, 2.5, 5} × 10^k` (step >= 1), and the SMALLEST step that fits. `yMax`, `yStep` and `yIntervals` now travel in the one `data-c1meta` payload and drive `c1PlotSvg`, the grid lines, the static HTML ticks, the client refit and PNG/Copy. The axis maximum follows the VISIBLE series. The plot height remains 300; only the scale changes. Real workbooks: M=5955 → step 1000 → yMax 6000 → 7 labels / 50 px / 99.25% fill.
+// Revision 0.11 | 2026-11-06 | CodeBuddy (AI) | I117 — four owner-reported C1 fixes: the side unit caption reads "Documents"; the Y-axis maximum is rounded UP to a nice step (`niceAxisMax`), so the five ticks are round numbers; the rotated bar value starts above the bar top (`text-anchor="start"` + `dominant-baseline="central"`, 4 px gap) instead of straddling it; and each month centres its visible (non-zero) bars on the band centre, so months with fewer active series (future months have no actuals) no longer lean to one side. Series order and colour classes are unchanged.
+// Revision 0.10 | 2026-11-06 | CodeBuddy (AI) | §4.2 rev 1.63 promotes the reviewed Option B attached-table interaction into the production build. `c1PlotSvg()` emits four tokenised `<linearGradient>` defs, `<path class="sc-area">` fills behind the marks and one hidden `.sc-hover-band` (`width = W / N`); `schedulePerformance()` puts `data-c1col` on every month `<th>` and value `<td>`. `bindChartHover()` gains an opt-in `attachedTable` flag passed ONLY by C1: it delegates pointermove to the board, drives the band + snap line + `.col-active` cells in both directions, and opens the floating window ONLY while the cursor is inside the SVG. §4.6: hiding now clears the window text AND sets `aria-hidden="true"`; showing removes the attribute. C2, C3, C4 and the KPI cards keep their original binding and gain the global ARIA fix.
+// Revision 0.9 | 2026-11-06 | CodeBuddy (AI) | §4.2 rev 1.62 — `c1PlotSvg()` now reserves the wrapped legend rows ABOVE the plot (`yTop = legendH`, `yBot = yTop + plotH`, `H = yBot`) so the C1 plot bottom touches the attached table's `<thead>` with no intervening band. All Y coordinates (grid lines, Y-axis line, Start/Today lines and labels, bars, bar values, polylines, dots, `data-geo`, static Y ticks and `.chart-snap`) follow `yTop`/`yBot`; X geometry is unchanged. Owner decision 2026-11-06 supersedes decision 1 for attached-table panels; in-SVG placement keeps PNG/Copy fidelity.
 // Revision 0.8 | 2026-11-03 | CodeBuddy (AI) | I103 — the C2 Delay chart moved from element mode to nearest-datum mode: element mode (data-tip on the r=3 dots) left the hover window reachable only on those dots, a dead zone everywhere else, which §4.6 forbids; the line/dot colour is tokenised (--color-c2delay) and the window follows §4.6 (swatch row + "Docs in mean" footer, c2DelayTipHtml exported). I104 — the Funnel view returned a `.c2-stack` with no `.chart-tip` at all (the I100 defect class), so it never bound; each funnel stage now carries a data-tip window (header, swatch row, "% of planned" footer). The C4 Age-buckets bars (barChart) gained data-tip rows with a "share of overdue" footer — the only barChart caller had no hover detail.
 // Revision 0.7 | 2026-11-03 | CodeBuddy (AI) | I102 — the C1 hover window follows §4.6: body rows are `swatch · label · value` (`.ct-l` + tokenised `.chart-swatch.c1-*`), the forecast per-period count is shown (it was computed and drawn as a bar but never put into `data-points`), and the footer carries the owner's A+B summary — actual cumulative total, % of plan, ahead/behind gap. Chart-level facts ride on `data-c1meta` (fc = the MDL holds real forecast dates; vis = the visible series keys, so hidden series drop their rows). Without MDL forecast dates the row is labelled "Forecast (projected)" and the count is an em dash, never a misleading 0. `c1TipHtml` is exported for the render suite.
 // Revision 0.6 | 2026-11-02 | CodeBuddy (AI) | I099 — the All-months Approval donut gained a "No Outcome" segment (grey, `.c3-no`), so a document that is neither open under review nor carrying an approval code is visible instead of vanishing; the two rings now total the same distinct-document count. `c3Metrics` returns `noOutcome` and `c3Totals` sums it. A single month is unchanged: it shows that month's activity, and a row with no approval is not an approval event.
@@ -2169,6 +2248,189 @@ function c1TipHtml(p, meta = {}) {
   return out;
 }
 
+// ===== C1 attached table (spec §4.2 rev 1.59 / workplan T19.1 / issue I116) =====
+// One curve renderer serves both the static HTML and the client ResizeObserver refit. Both read the
+// same `data-points` payload, so the SVG X points and the native table columns cannot drift apart.
+// The SVG spans grid columns 2..-1 and has NO internal left or right margin: xc(i) = (i+0.5)*W/N,
+// where W is the width of that spanning cell. Column 1 holds the Y ticks and the metric labels.
+const C1_LINE_DEFS = [
+  ['plan', 'pCum', 'sc-line-plan', 'Cum. Plan', 'sc-dot-plan'],
+  ['forecast', 'fCum', 'sc-line-forecast', 'Cum. Forecast', 'sc-dot-forecast'],
+  ['actualFirst', 'aFCum', 'sc-line-actual', 'Cum. Actual First', 'sc-dot-actual'],
+  ['actualResub', 'aRCum', 'sc-line-actualresub', 'Cum. Actual Resub', 'sc-dot-actual']
+];
+const C1_BAR_DEFS = [
+  ['plan', 'pNew', 'sc-bar-plan', 'Plan'],
+  ['forecast', 'fNew', 'sc-bar-forecast', 'Forecast'],
+  ['actualFirst', 'aFNew', 'sc-bar-actual', 'Actual First'],
+  ['actualResub', 'aRNew', 'sc-bar-actualresub', 'Actual Resub']
+];
+// §4.2 rev 1.64 / I118 — dynamic C1 Y ticks. Distances are SVG units; the plot is 300 tall.
+// At most 7 intervals (>= ~40 units apart) and 8 labels. Steps come from the standard
+// nice-number sequence {1, 2, 2.5, 5} × 10^k and are >= 1 for integer document counts.
+// Pick the SMALLEST step with ceil(M / step) <= 7, then yMax = step × intervals, so the peak
+// stays close to the top grid line. Examples: 5955 → 1000/6000/6 intervals; 6100 → 1000/7000/7;
+// 8100 → 2000/10000/5. The returned ticks are the single source for every consumer.
+function niceAxisTicks(rawMax, plotH = 300, minSpacing = 40, maxIntervalsCap = 7) {
+  const M = Math.max(1, Number(rawMax) || 1);
+  const maxIntervals = Math.max(1, Math.min(maxIntervalsCap, Math.floor(plotH / minSpacing)));
+  const pow = 10 ** Math.floor(Math.log10(M / maxIntervals));
+  let step = M, intervals = 1;
+  outer:
+  for (let k = 0; k < 16; k++) {
+    const base = pow * 10 ** k;
+    for (const m of [1, 2, 2.5, 5]) {
+      const s = Math.max(1, m * base);
+      const n = Math.ceil(M / s - 1e-9);
+      if (n >= 1 && n <= maxIntervals) { step = s; intervals = n; break outer; }
+    }
+  }
+  const yMax = step * intervals;
+  const ticks = Array.from({ length: intervals + 1 }, (_, i) => i * step);
+  return { yMax, step, intervals, ticks };
+}
+// §4.2 rev 1.66 / I121 — C1 period presets. `keys` are ISO `YYYY-MM` reporting months in
+// data order, `anchor` is the current `to` index and `asOf` is the snapshot date. Indices are
+// whole months only, so the chart, the attached table and `data-points` always use the same N.
+const C1_PRESETS = ['6M', '12M', '24M', 'YTD', 'All'];
+function c1PresetRange(preset, keys, anchor, asOf) {
+  const list = Array.isArray(keys) ? keys.map(String) : [];
+  const n = list.length;
+  if (!n) return null;
+  const last = n - 1;
+  const a = Math.max(0, Math.min(Number(anchor) || 0, last));
+  const clamp = (f, t) => [Math.max(0, Math.min(f, last)), Math.max(0, Math.min(t, last))];
+  const idxOfOrBefore = ym => {
+    const hit = list.indexOf(ym);
+    if (hit >= 0) return hit;
+    let found = 0;
+    for (let i = 0; i < n; i++) { if (list[i] <= ym) found = i; else break; }
+    return found;
+  };
+  if (preset === '6M') return clamp(a - 5, a);
+  if (preset === '12M') return clamp(a - 11, a);
+  if (preset === '24M') return clamp(a - 23, a);
+  if (preset === 'YTD') {
+    const ym = String(asOf || '').slice(0, 7);
+    if (!/^\d{4}-\d{2}$/.test(ym)) return clamp(0, a);
+    const f = idxOfOrBefore(`${ym.slice(0, 4)}-01`);
+    const t = idxOfOrBefore(ym);
+    return clamp(Math.min(f, t), Math.max(f, t));
+  }
+  if (preset === 'All') return [0, last];
+  return null;
+}
+/** Build the C1 S-curve inner SVG markup from one data-points payload.
+ * @param {object[]} pts @param {object} meta @param {number} W @returns {object} */
+function c1PlotSvg(pts, meta = {}, W = 720) {
+  const e = s => String(s ?? '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+  const N = Math.max(1, pts.length);
+  const width = Math.max(1, Number(W) || 720);
+  const vis = Array.isArray(meta.vis) && meta.vis.length ? meta.vis : ['plan', 'forecast', 'actualFirst', 'actualResub'];
+  const bars = meta.bars !== false;
+  const lineDefs = C1_LINE_DEFS.filter(d => vis.includes(d[0]));
+  const barDefs = bars ? C1_BAR_DEFS.filter(d => vis.includes(d[0])) : [];
+  const yMax = Math.max(1, Number(meta.yMax) || 1);
+  // §4.2 rev 1.64 — ticks come from the SAME metadata payload as every mark. The fallback keeps
+  // older boards (meta without yStep) renderable with the legacy four intervals.
+  const yStep = Number(meta.yStep) > 0 ? Number(meta.yStep) : yMax / 4;
+  const yIntervals = Math.max(1, Math.min(7, Number(meta.yIntervals) > 0
+    ? Math.round(Number(meta.yIntervals)) : Math.max(1, Math.round(yMax / yStep))));
+  const bandW = width / N;
+  const xc = i => (i + 0.5) * width / N;
+  // §4.2 rev 1.62 — the C1 attached table needs the plot bottom flush with its <thead>, so the
+  // legend bands sit ABOVE the plot. Wrap the legend into rows so no item can fall outside the
+  // viewBox at a narrow panel width, then reserve exactly that many rows at the top.
+  const step = 132, perRow = Math.max(1, Math.floor(width / step));
+  const legendRows = Math.max(1, Math.ceil((barDefs.length + lineDefs.length) / perRow));
+  const legendH = 24 + Math.max(0, legendRows - 1) * 18;
+  const plotH = 300, yTop = legendH, yBot = yTop + plotH;
+  const H = yBot;
+  const yOf = v => yBot - (v / yMax) * plotH;
+  const P = [];
+  // §4.2 rev 1.63 — attached-table interaction. Gradient stops carry CSS classes so the
+  // on-chart series tokens (never a hard-coded hex) drive the fills; chartSvgStyle() resolves
+  // those tokens to literal colours for the standalone PNG/Copy SVG.
+  // lineDefs carries the cumulative point keys (pCum / fCum / aFCum / aRCum), not the series keys.
+  const gradOf = { pCum: 'plan', fCum: 'forecast', aFCum: 'actual', aRCum: 'resub' };
+  P.push(`<defs>${lineDefs.map(([, key]) => {
+    const id = gradOf[key] || 'plan';
+    return `<linearGradient id="sc-grad-${id}" x1="0" y1="0" x2="0" y2="1"><stop class="sc-stop-${id}" offset="0%" stop-opacity=".20"></stop><stop class="sc-stop-${id}" offset="100%" stop-opacity="0"></stop></linearGradient>`;
+  }).join('')}</defs>`);
+  // Hidden until activation, behind every mark, pointer-transparent so it cannot steal hover.
+  P.push(`<rect class="sc-hover-band" data-c1band="1" x="0" y="${yTop}" width="${bandW.toFixed(1)}" height="${plotH}" pointer-events="none" style="display:none"></rect>`);
+  // Soft area fills: one per visible cumulative series, closed against the plot's X axis.
+  const actualLastForArea = Number.isInteger(meta.actualLast) ? meta.actualLast : N - 1;
+  lineDefs.forEach(([, key]) => {
+    const id = gradOf[key] || 'plan';
+    const last = (key === 'aFCum' || key === 'aRCum') ? actualLastForArea : N - 1;
+    if (last < 0) return;
+    const seg = pts.slice(0, Math.min(N, last + 1));
+    const d = `M${xc(0).toFixed(1)},${yBot} ` + seg.map((p, i) => `L${xc(i).toFixed(1)},${yOf(Number(p[key]) || 0).toFixed(1)}`).join(' ')
+      + ` L${xc(seg.length - 1).toFixed(1)},${yBot} Z`;
+    P.push(`<path class="sc-area" d="${d}" fill="url(#sc-grad-${id})" pointer-events="none"></path>`);
+  });
+  // §4.2 — one vertical Y-axis line at the plot's left edge. It is a direct SVG child so
+  // the Tier 5 geometry check can measure it, and a 1 px light rule so PNG/Copy keep it.
+  P.push(`<line class="sc-yaxis-line" x1="0" y1="${yTop}" x2="0" y2="${yBot}"></line>`);
+  // §4.2 rev 1.64 — exactly one grid line per Y label, at yOf(label). No fixed four-interval loop.
+  for (let g = 0; g <= yIntervals; g++) {
+    const v = Math.min(yMax, g * yStep), y = yOf(v).toFixed(1);
+    P.push(`<line class="sc-grid" x1="0" y1="${y}" x2="${width}" y2="${y}"></line>`);
+  }
+  const refY = yTop + 14;
+  [[meta.startIdx, 'sc-ref-start', 'sc-ref-lbl-start', meta.startLabel || 'Start'],
+    [meta.todayIdx, 'sc-ref-today', 'sc-ref-lbl-today', meta.todayLabel || 'Today']].forEach(([idx, cls, lblCls, label]) => {
+      if (idx == null || idx < 0 || idx >= N) return;
+      const x = xc(idx).toFixed(1);
+      P.push(`<line class="sc-ref ${cls}" x1="${x}" y1="${yTop}" x2="${x}" y2="${yBot}"></line>`);
+      P.push(`<text class="sc-ref-lbl ${lblCls}" transform="translate(${(+x + 4).toFixed(1)},${refY}) rotate(90)">${e(label)}</text>`);
+    });
+  // §4.2 rev 1.59 — "Omit the as-of subtitle". Start and Today carry that information.
+  if (barDefs.length) {
+    // I117 — each month centres its VISIBLE (non-zero) bars on the band centre, so a month with
+    // fewer active series (future months have no actuals) does not lean to one side. Series order
+    // and colour classes are unchanged, so every bar keeps its series colour at any offset.
+    pts.forEach((p, i) => {
+      const shown = barDefs.filter(([, key]) => (Number(p[key]) || 0) > 0);
+      if (!shown.length) return;
+      const bwTotal = Math.min(bandW * 0.7, 18 * shown.length), bw = bwTotal / shown.length;
+      shown.forEach(([, key, cls], k) => {
+        const v = Number(p[key]) || 0;
+        const x = xc(i) - bwTotal / 2 + k * bw;
+        const h = (v / yMax) * plotH, y = yBot - h;
+        const cx = (x + bw / 2).toFixed(1), cy = (y - 4).toFixed(1);
+        P.push(`<rect class="${cls}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${Math.max(1, bw - 2).toFixed(1)}" height="${h.toFixed(1)}" rx="2"></rect>`);
+        // I117 — after rotate(-90) the text flows upward from the anchor, so text-anchor="start"
+        // puts the whole value above the bar top (4 px gap) instead of straddling it;
+        // dominant-baseline="central" keeps the glyph column centred on the bar.
+        if (bandW > 26) P.push(`<text class="sc-barval" x="${cx}" y="${cy}" text-anchor="start" dominant-baseline="central" transform="rotate(-90 ${cx} ${cy})">${v}</text>`);
+      });
+    });
+  }
+  const actualLast = Number.isInteger(meta.actualLast) ? meta.actualLast : N - 1;
+  lineDefs.forEach(([, key, cls, , dotCls]) => {
+    const isActual = key === 'aFCum' || key === 'aRCum';
+    const last = isActual ? actualLast : N - 1;
+    if (last < 0) return;
+    const seg = pts.slice(0, Math.min(N, last + 1));
+    P.push(`<polyline class="${cls}" points="${seg.map((p, i) => `${xc(i).toFixed(1)},${yOf(Number(p[key]) || 0).toFixed(1)}`).join(' ')}"></polyline>`);
+    seg.forEach((p, i) => { if (p[key] != null) P.push(`<circle class="sc-dot ${dotCls}" cx="${xc(i).toFixed(1)}" cy="${yOf(Number(p[key]) || 0).toFixed(1)}" r="3"></circle>`); });
+  });
+  const leg = []; let li = 0;
+  const putLegend = (shape, label) => {
+    const col = li % perRow, row = Math.floor(li / perRow); li++;
+    leg.push(`<g transform="translate(${(col * step + 4).toFixed(1)},${(14 + row * 18).toFixed(1)})">${shape}<text class="sc-leg-t" x="22" y="2">${e(label)}</text></g>`);
+  };
+  barDefs.forEach(([, , cls, label]) => putLegend(`<rect class="${cls}" x="0" y="-8" width="12" height="12" rx="2"></rect>`, label));
+  lineDefs.forEach(([, , cls, label]) => {
+    const dash = cls === 'sc-line-plan' ? '6 3' : cls === 'sc-line-forecast' ? '2 2' : cls === 'sc-line-actualresub' ? '3 3' : '0';
+    putLegend(`<line class="${cls}" x1="0" y1="-2" x2="18" y2="-2" stroke-dasharray="${dash}"></line>`, label);
+  });
+  P.push(`<g class="sc-legend">${leg.join('')}</g>`);
+  return { inner: P.join(''), H, yTop, yBot, bandW, W: width, yMax, yStep, yIntervals };
+}
+
 // I103 — the C2 Delay hover-window body and footer, exported so the render suite can assert the
 // §4.6 layout without a browser. `p` is one data-points entry: label = month, delay = the average
 // review delay in days (one decimal), n = the documents averaged that month.
@@ -2366,13 +2628,40 @@ function renderDashboard(doc, model, state = {}) {
     const sItems = all.map(v => `<label class="tf-item"><input type="checkbox" data-c1series="${v}"${series.has(v) ? ' checked' : ''}><span>${v === 'plan' ? 'Plan' : v === 'forecast' ? 'Forecast' : v === 'actualFirst' ? 'Actual First' : 'Actual Resub'}</span></label>`).join('');
     const masterChecked = series.size >= all.length ? ' checked' : '';
     const cnt = (series.size > 0 && series.size < all.length) ? String(series.size) : '';
+    // §4.2 rev 1.66 / I121 — one dual-handle track. `step="1"` makes fractional month indices
+    // unreachable, so the handles, the month ticks and the attached table columns stay aligned.
+    // Both inputs keep `data-c1period`, so `state.c1Period` and the rev 1.65 window axis are unchanged.
+    const from = Math.max(0, Math.min(period[0], n - 1));
+    const to = Math.max(from, Math.min(period[1], n - 1));
+    const denom = Math.max(1, n - 1);
+    const posPct = i => `calc(var(--c1-thumb) / 2 + (100% - var(--c1-thumb)) * ${(i / denom).toFixed(6)})`;
+    const ticks = c1.months.map((ym, i) => {
+      const isYear = String(ym).slice(5, 7) === '01';
+      const cls = `c1-ts-tick${isYear ? ' is-year' : ''}${i >= from && i <= to ? ' is-active' : ''}${i === from || i === to ? ' is-near' : ''}`;
+      return `<span class="${cls}" data-c1month="${i}" style="left:${posPct(i)}">${isYear ? `<span class="c1-ts-year">${String(ym).slice(0, 4)}</span>` : ''}</span>`;
+    }).join('');
+    // §4.2 rev 1.67 / I122 — the selection is stored state, not a derived range match.
+    // `undefined` keeps the default `All` selection. `null` is a manual custom range with no active chip.
+    const preset = st.c1Preset === undefined ? 'All' : st.c1Preset;
+    const chips = C1_PRESETS.map(p => {
+      const on = preset === p;
+      return `<button type="button" class="seg-btn${on ? ' active' : ''}" data-c1preset="${p}" aria-pressed="${on}">${p}</button>`;
+    }).join('');
+    const timeBar = `<div class="c1-ts" id="c1TimeBar" role="group" aria-label="Period" data-c1months="${esc(JSON.stringify(c1.months))}" data-c1asof="${esc(String(c1.asOf || ''))}">
+          <span class="c1-period-label">Period</span>
+          <div class="c1-ts-body">
+            <div class="c1-ts-track" id="c1TsTrack">
+              <div class="c1-ts-fill" id="c1TsFill" style="left:${posPct(from)};width:calc((100% - var(--c1-thumb)) * ${((to - from) / denom).toFixed(6)})"></div>
+              <div class="c1-ts-ticks" id="c1TsTicks">${ticks}</div>
+              <input type="range" class="c1-ts-input c1-ts-input-from" min="0" max="${n - 1}" step="1" value="${from}" data-c1period="from" aria-label="Period start" aria-valuetext="${fmtMonth(c1.months[from])}">
+              <input type="range" class="c1-ts-input c1-ts-input-to" min="0" max="${n - 1}" step="1" value="${to}" data-c1period="to" aria-label="Period end" aria-valuetext="${fmtMonth(c1.months[to])}">
+            </div>
+          </div>
+          <span class="c1-period-text" id="c1PeriodText">${fmtMonth(c1.months[from])} – ${fmtMonth(c1.months[to])}</span>
+          <div class="seg c1-ts-chips" role="group" aria-label="Period presets">${chips}</div>
+        </div>`;
     return `<div class="c1-controls">
-      <div class="controls-left">
-        <span class="c1-period-label">Period</span>
-        <label class="c1-range-wrap">From <input type="range" class="c1-range" min="0" max="${n - 1}" value="${period[0]}" data-c1period="from" aria-label="Period start"></label>
-        <label class="c1-range-wrap">To <input type="range" class="c1-range" min="0" max="${n - 1}" value="${period[1]}" data-c1period="to" aria-label="Period end"></label>
-        <span class="c1-period-text" id="c1PeriodText">${fmtMonth(c1.months[period[0]])} – ${fmtMonth(c1.months[period[1]])}</span>
-      </div>
+      <div class="controls-left">${timeBar}</div>
       <div class="controls-right">
         <div class="seg" role="group" aria-label="Time grain">${seg('month')}${seg('quarter')}${seg('year')}</div>
         <button class="btn-secondary${bars ? ' on' : ''}" data-c1bars aria-pressed="${bars}">Bars</button>
@@ -2397,63 +2686,83 @@ function renderDashboard(doc, model, state = {}) {
     const nb = buckets.length;
     const asOfM = String(c1.asOf).slice(0, 7);
     const asOfIdx = c1.months.indexOf(asOfM);
-    const asOfWin = asOfIdx < 0 ? -1 : (asOfIdx < from ? -1 : (asOfIdx > to ? to : asOfIdx - from));
-    const yMax = Math.max(1, ...c1.pCum, ...c1.fCum, ...c1.aFCum, ...c1.aRCum) * 1.03;
-    const mL = 52, mR = 16, mT = 14, plotH = 300, colW = 46;
-    const lineDefs = [['plan', 'pCum', 'sc-line-plan', 'Cum. Plan', 'sc-dot-plan'], ['forecast', 'fCum', 'sc-line-forecast', 'Cum. Forecast', 'sc-dot-forecast'], ['actualFirst', 'aFCum', 'sc-line-actual', 'Cum. Actual First', 'sc-dot-actual'], ['actualResub', 'aRCum', 'sc-line-actualresub', 'Cum. Actual Resub', 'sc-dot-actual']].filter(d => series.has(d[0]));
-    const barDefs = [['plan', 'pNew', 'sc-bar-plan'], ['forecast', 'fNew', 'sc-bar-forecast'], ['actualFirst', 'aFNew', 'sc-bar-actual'], ['actualResub', 'aRNew', 'sc-bar-actualresub']].filter(d => series.has(d[0]));
-    const legendCount = (bars ? barDefs.length : 0) + lineDefs.length;
-    const step = 132;
-    const W = Math.max(nb * colW, 360, mL + legendCount * step + 20);
-    const xLabelH = nb > 13 ? 48 : 22; const legendH = 56;
-    const H = mT + plotH + xLabelH + legendH;
-    const plotW = W - mL - mR; const bandW = plotW / nb;
-    const xCenter = i => nb === 1 ? mL + plotW / 2 : mL + bandW * (i + 0.5);
-    const yOf = v => mT + plotH - (v / yMax) * plotH;
-    const yTop = mT, yBot = mT + plotH;
-    const P = [];
-    P.push(`<svg class="scurve-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%" role="img" aria-label="Schedule performance S-curve">`);
-    for (let g = 0; g <= 4; g++) { const v = yMax * g / 4; const y = yOf(v); P.push(`<line class="sc-grid" x1="${mL}" y1="${y}" x2="${W - mR}" y2="${y}"></line>`); P.push(`<text class="sc-axis" x="${mL - 6}" y="${y + 3}" text-anchor="end">${Math.round(v)}</text>`); }
-    P.push(`<text class="sc-axis sc-axis-title" x="${mL - 6}" y="${yTop - 4}" text-anchor="end">Docs</text>`);
-    const refX = ym => { const ix = c1.months.indexOf(String(ym).slice(0, 7)); if (ix < from || ix > to) return null; return xCenter(ix - from); };
-    const sx = refX(c1.projectStart); if (sx != null) P.push(`<line class="sc-ref sc-ref-start" x1="${sx.toFixed(1)}" y1="${yTop}" x2="${sx.toFixed(1)}" y2="${yBot}"></line>`);
-    const tx = refX(c1.asOf); if (tx != null) P.push(`<line class="sc-ref sc-ref-today" x1="${tx.toFixed(1)}" y1="${yTop}" x2="${tx.toFixed(1)}" y2="${yBot}"></line>`);
-    const refLabelY = yTop + 14;
-    if (sx != null) P.push(`<text class="sc-ref-lbl sc-ref-lbl-start" transform="translate(${(sx + 4).toFixed(1)},${refLabelY}) rotate(90)">Start · ${fmtMonth(String(c1.projectStart).slice(0, 7))}</text>`);
-    if (tx != null) P.push(`<text class="sc-ref-lbl sc-ref-lbl-today" transform="translate(${(tx + 4).toFixed(1)},${refLabelY}) rotate(90)">Today · ${fmtMonth(asOfM)}</text>`);
-    P.push(`<text class="sc-asof" x="${(W - mR).toFixed(1)}" y="${(yTop - 3).toFixed(1)}" text-anchor="end">As of ${c1.asOf}</text>`);
-    if (bars && barDefs.length) {
-      const bwTotal = Math.min(bandW * 0.7, 18 * barDefs.length); const bw = bwTotal / barDefs.length;
-      const startX = i => xCenter(i) - bwTotal / 2;
-      buckets.forEach((b, i) => barDefs.forEach(([, key, cls], j) => { const v = b[key]; if (!v) return; const x = startX(i) + j * bw; const h = (v / yMax) * plotH; const y = yBot - h; const cx = (x + bw / 2).toFixed(1); P.push(`<rect class="${cls}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${Math.max(1, bw - 2).toFixed(1)}" height="${h.toFixed(1)}" rx="2"></rect>`); if (bandW > 26) P.push(`<text class="sc-barval" x="${cx}" y="${(y - 3).toFixed(1)}" text-anchor="middle" transform="rotate(-90 ${cx} ${(y - 3).toFixed(1)})">${v}</text>`); }));
-    }
-    lineDefs.forEach(([, key, cls, , dotCls]) => {
-      const isActual = key === 'aFCum' || key === 'aRCum';
-      const last = isActual ? asOfWin : nb - 1;
-      if (last < 0) return;
-      const seg = buckets.slice(0, last + 1);
-      const pts = seg.map((b, i) => `${xCenter(i).toFixed(1)},${yOf(b[key]).toFixed(1)}`).join(' ');
-      P.push(`<polyline class="${cls}" points="${pts}"></polyline>`);
-      seg.forEach((b, i) => { if (b[key] != null) P.push(`<circle class="sc-dot ${dotCls}" cx="${xCenter(i).toFixed(1)}" cy="${yOf(b[key]).toFixed(1)}" r="3"></circle>`); });
-    });
-    const inclined = nb > 13;
-    buckets.forEach((b, i) => { const x = xCenter(i).toFixed(1); if (inclined) P.push(`<text class="sc-axis sc-x" x="${x}" y="${yBot + 8}" text-anchor="end" transform="rotate(-40 ${x} ${yBot + 8})">${b.label}</text>`); else P.push(`<text class="sc-axis sc-x" x="${x}" y="${yBot + 14}" text-anchor="middle">${b.label}</text>`); });
-    const ly = yBot + xLabelH + 18; let lx = mL; const leg = [];
-    if (bars) barDefs.forEach(([, , cls]) => { const lbl = cls === 'sc-bar-plan' ? 'Planned' : cls === 'sc-bar-forecast' ? 'Forecast' : cls === 'sc-bar-actual' ? 'Actual First' : 'Actual Resub'; leg.push(`<g transform="translate(${lx},${ly})"><rect class="${cls}" x="0" y="-8" width="12" height="12" rx="2"></rect><text class="sc-leg-t" x="16" y="2">${lbl}</text></g>`); lx += step; });
-    lineDefs.forEach(([, , cls, lbl]) => { const dash = cls === 'sc-line-plan' ? '6 3' : cls === 'sc-line-forecast' ? '2 2' : cls === 'sc-line-actualresub' ? '3 3' : '0'; leg.push(`<g transform="translate(${lx},${ly})"><line class="${cls}" x1="0" y1="-2" x2="18" y2="-2" stroke-dasharray="${dash}"></line><text class="sc-leg-t" x="24" y="2">${lbl}</text></g>`); lx += step; });
-    P.push(`<g class="sc-legend">${leg.join('')}</g>`);
-    P.push(`<line class="chart-snap" x1="0" y1="${yTop}" x2="0" y2="${yBot}" style="display:none"></line>`);
-    P.push('</svg>');
-    // I102 — `fNew` must reach the hover window: the forecast bar is drawn from it, but the window
-    // could not show the per-period count because it was never put into data-points.
-    const pts = buckets.map((b, i) => ({ cx: +xCenter(i).toFixed(1), label: b.label, pNew: b.pNew, fNew: b.fNew, aFNew: b.aFNew, aRNew: b.aRNew, pCum: b.pCum, fCum: b.fCum, aFCum: b.aFCum, aRCum: b.aRCum }));
-    const dp = JSON.stringify(pts).replace(/'/g, '&#39;'); const dg = JSON.stringify({ W, yTop, yBot }).replace(/'/g, '&#39;');
-    // Chart-level facts the window needs but a point cannot carry: whether the MDL holds real
-    // forecast dates (else the line is a plan × 1.04 projection) and which series are visible.
-    const dm = JSON.stringify({ fc: c1.hasMdlForecast, vis: [...series] }).replace(/'/g, '&#39;');
-    return `<div class="scurve sc-board" data-points='${dp}' data-geo='${dg}' data-c1meta='${dm}'>${P.join('')}<div class="chart-tip"></div></div>`;
+    const vis = [...series];
+    // Nominal width for the static HTML. The client ResizeObserver replaces it with the measured
+    // width of .c1-plot, so one SVG unit becomes one CSS pixel and no text is scaled down.
+    const gutter = 104, colW = 46;
+    const W = Math.max(nb * colW, 360);
+    // I102 — `fNew` reaches the hover window. One payload drives the curve, the table and the refit.
+    const pts = buckets.map((b, i) => ({ cx: +((i + 0.5) * W / nb).toFixed(1), label: b.label, pNew: b.pNew, fNew: b.fNew, aFNew: b.aFNew, aRNew: b.aRNew, pCum: b.pCum, fCum: b.fCum, aFCum: b.aFCum, aRCum: b.aRCum }));
+    // §4.2 rev 1.65 / I119 — the shared Y-axis maximum is computed from the WINDOWED points, the
+    // enabled series and the Bars toggle. Cumulative values stay ABSOLUTE (never rebased): `pts`
+    // carries c1.*Cum[lastIdx], so only the scale adapts. Quarter / year grain is handled because
+    // buckets already hold the summed monthly bars. Every repaint (period, series, Bars, grain)
+    // rebuilds this payload, so the axis is recalculated immediately, with no animation or debounce.
+    const valueKeys = [];
+    if (vis.includes('plan')) valueKeys.push('pCum', ...(bars ? ['pNew'] : []));
+    if (vis.includes('forecast')) valueKeys.push('fCum', ...(bars ? ['fNew'] : []));
+    if (vis.includes('actualFirst')) valueKeys.push('aFCum', ...(bars ? ['aFNew'] : []));
+    if (vis.includes('actualResub')) valueKeys.push('aRCum', ...(bars ? ['aRNew'] : []));
+    const windowMax = pts.reduce((m, p) => Math.max(m, ...valueKeys.map(k => Number(p[k]) || 0)), 1);
+    const axis = niceAxisTicks(windowMax);
+    const { yMax, step: yStep, intervals: yIntervals } = axis;
+    // Map a calendar month to its bucket index. This works for month, quarter and year grain.
+    const bucketOfMonth = ym => {
+      const ix = c1.months.indexOf(String(ym || '').slice(0, 7));
+      if (ix < from || ix > to) return -1;
+      const key = bucketKey(c1.months[ix], grain);
+      return buckets.findIndex(b => b.key === key);
+    };
+    const startIdx = bucketOfMonth(c1.projectStart);
+    const todayIdx = bucketOfMonth(c1.asOf);
+    const actualLast = asOfIdx < 0 || asOfIdx < from ? -1 : (todayIdx >= 0 ? todayIdx : nb - 1);
+    const meta = {
+      fc: c1.hasMdlForecast, vis, bars, grain, yMax, yStep, yIntervals, gutter,
+      startIdx: startIdx < 0 ? null : startIdx, todayIdx: todayIdx < 0 ? null : todayIdx,
+      startLabel: startIdx >= 0 ? `Start · ${fmtMonth(String(c1.projectStart).slice(0, 7))}` : 'Start',
+      todayLabel: todayIdx >= 0 ? `Today · ${fmtMonth(asOfM)}` : 'Today',
+      actualLast
+    };
+    const plot = c1PlotSvg(pts, meta, W);
+    // The whole curve stays visible: viewBox + width:100% + height:auto scale it into the card.
+    const svg = `<svg class="scurve-svg" viewBox="0 0 ${plot.W} ${plot.H}" width="${plot.W}" height="${plot.H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Schedule performance S-curve">${plot.inner}<line class="chart-snap" x1="0" y1="${plot.yTop}" x2="0" y2="${plot.yBot}" style="display:none"></line></svg>`;
+    // Column 1 of row 1 holds the Y caption and the Y ticks. §4.2 rev 1.64 — the label count,
+    // values and positions come from the same metadata that drew the SVG grid lines. Percentages
+    // keep them on those lines at every rendered height, with or without the client refit.
+    const yTicks = Array.from({ length: plot.yIntervals + 1 }, (_, k) => plot.yIntervals - k).map(g => {
+      const value = g * plot.yStep;
+      const y = plot.yBot - (value / plot.yMax) * (plot.yBot - plot.yTop);
+      return `<span class="c1-ytick" style="top:${(y / plot.H * 100).toFixed(3)}%">${Math.round(value)}</span>`;
+    }).join('');
+    const yaxis = `<div class="c1-yaxis" aria-hidden="true"><span class="c1-ycap">Documents</span>${yTicks}</div>`;
+    // Option B — one native table in one spanning grid item. No ARIA table roles, no display:contents.
+    // Rows come from the point keys of the visible series, never from a fixed row set.
+    const rowDefs = [
+      ...C1_BAR_DEFS.filter(d => vis.includes(d[0])).map(([, key, , label]) => ({ key, label, get: p => p[key] })),
+      ...C1_LINE_DEFS.filter(d => vis.includes(d[0])).map(([, key, , label]) => ({ key, label, get: p => p[key] })),
+      { key: 'sum', label: 'Actual Σ', get: p => (p.aFCum || 0) + (p.aRCum || 0) },
+      { key: 'gap', label: 'Gap vs Plan', neg: true, get: p => (p.aFCum || 0) + (p.aRCum || 0) - (p.pCum || 0) }
+    ];
+    // §4.2 rev 1.63 — data-c1col is the C1-only two-way hover hook. It is deliberately NOT
+    // data-col, which the .ds-table column choosers and resize grips already use.
+    const body = rowDefs.map(r => `<tr><th class="g-label" scope="row">${esc(r.label)}</th>${pts.map((p, i) => {
+      const value = Number(r.get(p)) || 0;
+      return `<td class="g-val${r.neg && value < 0 ? ' neg' : ''}" data-c1col="${i}">${value}</td>`;
+    }).join('')}</tr>`).join('');
+    const monthHeads = pts.map((p, i) => `<th class="g-axis" scope="col" data-c1col="${i}"><span>${esc(p.label)}</span></th>`).join('');
+    // colgroup track 1 = --c1-gutter; the N bare cols split the rest equally, which is bandW = W/N.
+    // That is the same X boundary the SVG uses, at every width, with or without scripts.
+    const colgroup = `<colgroup><col class="c1-gut" style="width:var(--c1-gutter)">${'<col>'.repeat(nb)}</colgroup>`;
+    const many = nb > 13 ? ' c1-many' : ' c1-few';
+    const table = `<table class="c1-table${many}"><caption>Schedule performance by reporting month</caption>${colgroup}<thead><tr><th class="g-corner" scope="col">Reporting Month</th>${monthHeads}</tr></thead><tbody>${body}</tbody></table>`;
+    const dp = JSON.stringify(pts).replace(/'/g, '&#39;');
+    const dg = JSON.stringify({ W: plot.W, yTop: plot.yTop, yBot: plot.yBot }).replace(/'/g, '&#39;');
+    const dm = JSON.stringify(meta).replace(/'/g, '&#39;');
+    // role="group" keeps the native table in the accessibility tree. bindChartHover writes
+    // role="img" only when the host has no role, which would flatten every child of this board.
+    return `<div class="scurve sc-board" role="group" aria-label="Schedule performance" data-points='${dp}' data-geo='${dg}' data-c1meta='${dm}' data-c1w="${plot.W}">${c1Controls(c1, st)}<div class="c1-grid" style="--c1-gutter:${gutter}px;--c1-cols:${nb};grid-template-columns:${gutter}px repeat(${nb},minmax(0,1fr))">${yaxis}<div class="c1-plot">${svg}</div>${table}</div><div class="chart-tip"></div></div>`;
   };
-  const schedulePerformance = (c1, st) => `${c1Controls(c1, st)}${scurveSVG(c1, st)}`;
+  const schedulePerformance = (c1, st) => scurveSVG(c1, st);
   // ===== C3 Breakdown (workplan D36, revised by D38 / Wave 4.2) =====
   // Two series per dimension value, never one stacked bar. T15.3 splits the panel into two side-by-side
   // vertical-bar charts: left = Submissions (First Submission + Resubmission; a specific month also adds
@@ -3183,14 +3492,22 @@ function renderDashboard(doc, model, state = {}) {
   }
   const bindChartHover = (root, opts = {}) => {
     if (!root || typeof root.querySelector !== 'function') return;
-    const { pointsAttr = 'data-points', geoAttr = 'data-geo', render, placement = 'cursor', snap = true, focusable = true } = opts;
+    const { pointsAttr = 'data-points', geoAttr = 'data-geo', render, placement = 'cursor', snap = true, focusable = true, live = false, attachedTable = false } = opts;
     const svg = root.querySelector('svg');
     const tip = root.querySelector('.chart-tip');
     if (!tip) return;
+    // §4.6 rev 1.63 — the window starts hidden and aria-hidden. Every board keeps its persistent
+    // aria-describedby link; only the hidden state and the text change.
+    tip.setAttribute('aria-hidden', 'true');
     let pts = [], geo = {}, nearest = false;
-    try { pts = JSON.parse((root.getAttribute(pointsAttr) || '[]').replace(/&#39;/g, "'")); } catch (_) {}
-    try { geo = JSON.parse((root.getAttribute(geoAttr) || '{}').replace(/&#39;/g, "'")); } catch (_) {}
-    nearest = !!(pts.length && geo.W);
+    // `live` charts (C1) re-read their payload on each move. The C1 ResizeObserver rewrites
+    // data-points.cx and data-geo.W when the panel width changes, so the snap line must follow.
+    const readPayload = () => {
+      try { pts = JSON.parse((root.getAttribute(pointsAttr) || '[]').replace(/&#39;/g, "'")); } catch (_) {}
+      try { geo = JSON.parse((root.getAttribute(geoAttr) || '{}').replace(/&#39;/g, "'")); } catch (_) {}
+      nearest = !!(pts.length && geo.W);
+    };
+    readPayload();
     const snapEl = snap && svg ? svg.querySelector('.chart-snap') : null;
     if (focusable) {
       if (!root.hasAttribute('tabindex')) root.setAttribute('tabindex', '0');
@@ -3218,9 +3535,64 @@ function renderDashboard(doc, model, state = {}) {
       if (ty < 0) ty = 4;
       tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
     };
-    const show = html => { if (html == null) return hide(); tip.innerHTML = html; tip.classList.add('show'); };
-    const hide = () => { tip.classList.remove('show'); active = -1; activeEl = null; if (snapEl) snapEl.style.display = 'none'; };
+    // §4.6 rev 1.63 — an element directly referenced by aria-describedby can still be exposed by
+    // assistive tech despite aria-hidden, so hiding MUST clear the text too, not just the class.
+    const hideTip = () => {
+      if (tip.classList.contains('show') || tip.textContent !== '' || !tip.hasAttribute('aria-hidden')) {
+        tip.classList.remove('show'); tip.textContent = ''; tip.setAttribute('aria-hidden', 'true');
+      }
+    };
+    const showTipWindow = html => { tip.innerHTML = html; tip.removeAttribute('aria-hidden'); tip.classList.add('show'); };
+    // §4.2 rev 1.63 — C1-only two-way month-column sync. Query the band fresh on each activation:
+    // c1Refit() replaces svg.innerHTML, so a cached node would go stale after a width change.
+    const columnBand = () => svg ? svg.querySelector('.sc-hover-band') : null;
+    const setColumn = i => {
+      const band = columnBand();
+      if (band) {
+        const bw = (Number(geo.W) || (svg ? svg.viewBox.baseVal.width : 0)) / Math.max(1, pts.length);
+        band.setAttribute('x', (i * bw).toFixed(1));
+        band.setAttribute('width', bw.toFixed(1));
+        band.style.display = '';
+      }
+      root.querySelectorAll('.c1-table [data-c1col].col-active').forEach(el => el.classList.remove('col-active'));
+      root.querySelectorAll(`.c1-table [data-c1col="${i}"]`).forEach(el => el.classList.add('col-active'));
+    };
+    const clearColumn = () => {
+      const band = columnBand(); if (band) band.style.display = 'none';
+      root.querySelectorAll('.c1-table [data-c1col].col-active').forEach(el => el.classList.remove('col-active'));
+    };
+    const show = html => { if (html == null) return hide(); showTipWindow(html); };
+    const hide = () => { hideTip(); active = -1; activeEl = null; if (snapEl) snapEl.style.display = 'none'; if (attachedTable) clearColumn(); };
     const onMove = e => {
+      // C1 controls now live inside the board. A click on them must not open the datum window.
+      if (e.target && e.target.closest && e.target.closest('.c1-controls')) { hide(); return; }
+      if (attachedTable && svg) {
+        const inSvg = e.target === svg || (e.target && svg.contains && svg.contains(e.target));
+        const cell = !inSvg && e.target && e.target.closest ? e.target.closest('[data-c1col]') : null;
+        // §4.2 rev 1.63 — table hover keeps the snap line, band and column highlight but the
+        // floating window stays closed so it never covers the numbers it describes.
+        const tableHover = !inSvg && !!cell;
+        if (!inSvg && !tableHover) { hide(); return; }
+        if (live) readPayload();
+        if (!nearest || !svg.getBoundingClientRect().width) return;
+        let best = 0;
+        if (tableHover) best = Number(cell.getAttribute('data-c1col')) || 0;
+        else {
+          const rect = svg.getBoundingClientRect();
+          const ux = (e.clientX - rect.left) / rect.width * geo.W;
+          let bd = Infinity;
+          pts.forEach((p, i) => { const d = Math.abs(p.cx - ux); if (d < bd) { bd = d; best = i; } });
+        }
+        const p = pts[best]; if (!p) return;
+        if (snapEl) { snapEl.setAttribute('x1', p.cx); snapEl.setAttribute('x2', p.cx); snapEl.style.display = ''; }
+        setColumn(best);
+        if (tableHover) { hideTip(); active = -1; return; }
+        if (best === active) { place(e); return; }
+        active = best; show(render(p)); place(e);
+        return;
+      }
+      // All other boards: unchanged element / nearest-datum behaviour plus the ARIA fix.
+      if (live) readPayload();
       if (nearest) {
         const rect = svg.getBoundingClientRect(); if (!rect.width) return;
         const ux = (e.clientX - rect.left) / rect.width * geo.W;
@@ -3236,11 +3608,13 @@ function renderDashboard(doc, model, state = {}) {
         else { hide(); }
       }
     };
-    const target = svg || root;
+    // C1 delegates pointermove to the root so table cells are covered; other boards keep the SVG.
+    const target = attachedTable ? root : (svg || root);
     target.addEventListener('pointermove', onMove);
     root.addEventListener('pointerdown', onMove);
     root.addEventListener('pointerleave', hide);
     root.addEventListener('blur', hide);
+    root.addEventListener('keydown', e => { if (e.key === 'Escape') hide(); });
     if (focusable) root.addEventListener('focus', () => {
       if (nearest) { const r = root.getBoundingClientRect(); onMove({ clientX: r.left + root.offsetWidth / 2, clientY: r.top + root.offsetHeight / 2, target: svg || root }); }
       else {
@@ -3260,7 +3634,9 @@ function renderDashboard(doc, model, state = {}) {
   if (scRoot) {
     let c1meta = {};
     try { c1meta = JSON.parse((scRoot.getAttribute('data-c1meta') || '{}').replace(/&#39;/g, "'")); } catch (_) {}
-    bindChartHover(scRoot, { pointsAttr: 'data-points', geoAttr: 'data-geo', render: p => c1TipHtml(p, c1meta) });
+    // §4.2 rev 1.63 — attachedTable is opt-in and passed ONLY here. C2, C3, C4 and the KPI cards
+    // keep the shared binder's original behaviour and the global §4.6 ARIA fix.
+    bindChartHover(scRoot, { pointsAttr: 'data-points', geoAttr: 'data-geo', live: true, attachedTable: true, render: p => c1TipHtml(p, c1meta) });
   }
   // C2 — hover floating window. The Stacked view is nearest-datum over its own payload; the Delay
   // view (I103) is nearest-datum over data-points — element mode had left its window reachable only
@@ -3375,12 +3751,16 @@ function buildIssueCsv() {
 }
 
 /* ===== engine/dashboard.js ===== */
+// Revision 2.7 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.67 / I122 — `state.c1Preset` now holds the ONE active preset name, defaults to `All`, and is set on a chip click. A handle `input` or `change` sets it to `null`, so a manual custom range leaves NO chip active. `c1SyncTimeBar()` reads that stored value instead of comparing `[from, to]` with each preset range, so clipped ranges can no longer light two chips. It also toggles the `.active` class that the joined `.seg` group uses. `state.c1Period`, `c1PresetRange()`, `paint()`, hover, PNG/Copy and the rev 1.65 shared Y axis are unchanged.
+// Revision 2.6 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.66 / I121 — `c1SyncTimeBar()` keeps the single dual-handle track, its month ticks, period text, `aria-valuetext` and chip `aria-pressed` state in step while a handle moves. An `input` listener calls only that light visual sync; the existing `change` listener still performs the ONE full `paint()`. A new click branch resolves `data-c1preset` through `c1PresetRange()` and sets `state.c1Period`, so presets use the same repaint path as the handles. `c1Refit`, hover, PNG/Copy and the rev 1.65 window axis are unchanged.
+// Revision 2.5 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.64 / I118 — `c1Refit()` regenerates the HTML Y ticks from the same `data-c1meta.yMax` / `yStep` / `yIntervals` payload used by `c1PlotSvg`, instead of the fixed `[4,3,2,1,0]` loop. Tick count, values and positions follow the dynamic nice-number rule; PNG / Copy keep serialising the rendered `.c1-ytick` spans.
+// Revision 2.4 | 2026-11-06 | CodeBuddy (AI) | §4.2 rev 1.63 export fidelity. `chartSvgStyle()` now resolves the four `.sc-stop-*` gradient stops to literal token colours, so PNG / Copy keep the soft areas. `c1BoardToSvg()` removes the transient `.sc-hover-band` from the clone and reads table text with `.col-active` temporarily cleared, so no hover state is captured. `serializeC1Svg()`'s fallback strips the band and snap line too. `c1Refit()` rebuilds the band from the new W / N with every refit; the binder queries it fresh after `innerHTML` replacement.
 // Revision 2.3 | 2026-10-24 | CodeBuddy (AI) | D33: the Stage filter lists (blank) plus Deleted, Void and Superseded, and its badge is measured against the default ticked set.
 // Revision 2.2 | 2026-10-24 | CodeBuddy (AI) | Option B shell (MDL two-row header + left nav sidebar). Engine contract unchanged; UI handlers rewired to menu bar + modals.
 
 const $ = selector => document.querySelector(selector);
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
-const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', c2View: 'stacked', c2Nfs: true, foView: 'lookahead', foLane: 'all', foHorizon: 4, c4View: 'scatter', subMonth: 'ALL', issueCode: 'ALL', issuePage: 1, collapsedPanels: [] };
+const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c1Preset: 'All', c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', c2View: 'stacked', c2Nfs: true, foView: 'lookahead', foLane: 'all', foHorizon: 4, c4View: 'scatter', subMonth: 'ALL', issueCode: 'ALL', issuePage: 1, collapsedPanels: [] };
 let contract;
 let uiHelp;
 let files = { mdl: null, log: null };
@@ -3427,20 +3807,96 @@ function showWarnings() {
 function chartSvgStyle() {
   const cs = getComputedStyle(document.documentElement);
   const v = n => (cs.getPropertyValue(n) || '').trim();
-  const plan = v('--color-plan'), forecast = v('--color-forecast'), actual = v('--color-actual'), border = v('--border'), text = v('--text'), text2 = v('--text2'), text3 = v('--text3'), danger = v('--danger'), slate = v('--slate');
-  return `<style>.sc-bar-plan{fill:${plan}}.sc-bar-actual{fill:${actual}}.sc-bar-actualresub{fill:${actual};fill-opacity:.45}.sc-line-plan{stroke:${plan};stroke-width:2.5;fill:none;stroke-dasharray:6 3}.sc-line-forecast{stroke:${forecast};stroke-width:2.5;fill:none;stroke-dasharray:2 2}.sc-line-actual{stroke:${actual};stroke-width:2.5;fill:none}.sc-line-actualresub{stroke:${actual};stroke-width:2.5;fill:none;stroke-dasharray:3 3;opacity:.85}.sc-dot{stroke:none}.sc-dot-plan{fill:${plan}}.sc-dot-forecast{fill:${forecast}}.sc-dot-actual{fill:${actual}}.sc-dot-actualresub{fill:${actual}}.sc-grid{stroke:${border};stroke-width:1}.sc-axis{fill:${text2};font-size:10px}.sc-barval{fill:${text2};font-size:9px}.sc-leg-t{fill:${text}}.sc-ref-start{stroke:${danger};stroke-width:1.5;stroke-dasharray:5 3}.sc-ref-today{stroke:${slate};stroke-width:1.5;stroke-dasharray:2 2}.chart-snap{stroke:${text3};stroke-width:1;stroke-dasharray:3 3}</style>`;
+  const plan = v('--color-plan'), forecast = v('--color-forecast'), actual = v('--color-actual'), resub = v('--color-actualresub') || actual;
+  const border = v('--border'), text = v('--text'), text2 = v('--text2'), text3 = v('--text3'), danger = v('--danger'), slate = v('--slate');
+  // §4.2 rev 1.63 — CSS variables do not resolve inside a serialized standalone SVG, so the four
+  // gradient stops receive the resolved token colours here. The area paths keep pointer-events:none.
+  return `<style>.sc-stop-plan{stop-color:${plan}}.sc-stop-forecast{stop-color:${forecast}}.sc-stop-actual{stop-color:${actual}}.sc-stop-resub{stop-color:${resub}}.sc-area{pointer-events:none;stroke:none}.sc-bar-plan{fill:${plan}}.sc-bar-forecast{fill:${forecast}}.sc-bar-actual{fill:${actual}}.sc-bar-actualresub{fill:${resub}}.sc-line-plan{stroke:${plan};stroke-width:2.5;fill:none;stroke-dasharray:6 3}.sc-line-forecast{stroke:${forecast};stroke-width:2.5;fill:none;stroke-dasharray:2 2}.sc-line-actual{stroke:${actual};stroke-width:2.5;fill:none}.sc-line-actualresub{stroke:${resub};stroke-width:2.5;fill:none;stroke-dasharray:3 3;opacity:.85}.sc-dot{stroke:none}.sc-dot-plan{fill:${plan}}.sc-dot-forecast{fill:${forecast}}.sc-dot-actual{fill:${actual}}.sc-dot-actualresub{fill:${resub}}.sc-grid{stroke:${border};stroke-width:1}.sc-yaxis-line{stroke:${border};stroke-width:1}.sc-axis{fill:${text2};font-size:10px}.sc-axis-title{font-weight:700}.sc-x{font-size:10px}.sc-barval{fill:${text2};font-size:9px}.sc-leg-t{fill:${text};font-size:11px}.sc-ref-start{stroke:${danger};stroke-width:1.5;stroke-dasharray:5 3}.sc-ref-today{stroke:${slate};stroke-width:1.5;stroke-dasharray:2 2}.sc-ref-lbl{font-size:9px;font-weight:700}.sc-ref-lbl-start{fill:${danger}}.sc-ref-lbl-today{fill:${slate}}.chart-snap{stroke:${text3};stroke-width:1;stroke-dasharray:3 3}</style>`;
+}
+// Rebuild the C1 board (curve + native attached table) as one self-contained native SVG.
+// A nested <svg> holds the curve; the table cells become 1 px <line> rules and <text>. No
+// <foreignObject>, so canvas rasterization stays taint-free and Copy receives the same SVG.
+function c1BoardToSvg() {
+  const board = document.querySelector('.scurve.sc-board');
+  const grid = board && board.querySelector('.c1-grid');
+  const svg = grid && grid.querySelector('svg.scurve-svg');
+  const table = grid && grid.querySelector('table.c1-table');
+  if (!board || !grid || !svg || !table) return null;
+  const root = grid.getBoundingClientRect();
+  const W = Math.max(1, Math.ceil(root.width)), H = Math.max(1, Math.ceil(root.height));
+  const cs = getComputedStyle(document.documentElement);
+  const v = n => (cs.getPropertyValue(n) || '').trim();
+  const surface = v('--surface') || '#fff', border = v('--border') || '#d9e1e8', text = v('--text') || '#1f2a37';
+  const escSvg = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const box = el => { const r = el.getBoundingClientRect(); return { x: r.left - root.left, y: r.top - root.top, w: r.width, h: r.height }; };
+  let out = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="100%" height="100%" fill="${surface}"/>`;
+  out += chartSvgStyle();
+  const sr = box(svg);
+  const clone = svg.cloneNode(true);
+  clone.removeAttribute('style');
+  clone.setAttribute('x', sr.x.toFixed(1));
+  clone.setAttribute('y', sr.y.toFixed(1));
+  clone.setAttribute('width', Math.max(1, sr.w).toFixed(1));
+  clone.setAttribute('height', Math.max(1, sr.h).toFixed(1));
+  // §4.2 rev 1.63 — transient hover state must never reach the exported SVG.
+  clone.querySelectorAll('.chart-snap, .sc-hover-band').forEach(el => el.remove());
+  out += new XMLSerializer().serializeToString(clone);
+  const placeText = (el, vertical, label) => {
+    const r = box(el), st = getComputedStyle(el);
+    const fill = (st.color || text).trim();
+    const fs = parseFloat(st.fontSize) || 11;
+    const fw = (st.fontWeight === 'bold' || +st.fontWeight >= 600) ? ' font-weight="600"' : '';
+    const fam = (st.fontFamily || 'sans-serif').replace(/"/g, "'");
+    const txt = String(label == null ? el.textContent : label).trim();
+    if (!txt) return;
+    if (vertical) {
+      const cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+      out += `<text transform="rotate(-90 ${cx.toFixed(1)} ${cy.toFixed(1)})" x="${cx.toFixed(1)}" y="${cy.toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-family="${fam}" font-size="${fs}"${fw} fill="${fill}">${escSvg(txt)}</text>`;
+    } else {
+      const ta = st.textAlign;
+      const anchor = ta === 'center' ? 'middle' : (ta === 'right' || ta === 'end') ? 'end' : 'start';
+      const tx = anchor === 'middle' ? r.x + r.w / 2 : anchor === 'end' ? r.x + r.w - 4 : r.x + 4;
+      out += `<text x="${tx.toFixed(1)}" y="${(r.y + r.h / 2).toFixed(1)}" text-anchor="${anchor}" dominant-baseline="central" font-family="${fam}" font-size="${fs}"${fw} fill="${fill}">${escSvg(txt)}</text>`;
+    }
+  };
+  table.querySelectorAll('tr').forEach(tr => {
+    const r = box(tr);
+    out += `<line x1="${r.x.toFixed(1)}" y1="${r.y.toFixed(1)}" x2="${(r.x + r.w).toFixed(1)}" y2="${r.y.toFixed(1)}" stroke="${border}" stroke-width="1"/>`;
+  });
+  // §4.2 keeps the semantic <caption> in the DOM but visually hides it. It is clipped to
+  // 1 x 1 px, so skip it here: drawing it would leave a stray <text> outside the viewBox.
+  // The unit caption reads bottom-to-top along the Y axis; the dynamic ticks stay horizontal.
+  const yCap = grid.querySelector('.c1-yaxis .c1-ycap');
+  if (yCap) placeText(yCap, true);
+  grid.querySelectorAll('.c1-yaxis .c1-ytick').forEach(el => placeText(el, false));
+  const many = table.classList.contains('c1-many');
+  // §4.2 rev 1.63 — placeText() reads the live computed colour. Clear .col-active for the read so
+  // an active month column cannot be baked into the PNG / Copy text, then restore the hover state.
+  const activeCells = [...table.querySelectorAll('.col-active')];
+  activeCells.forEach(el => el.classList.remove('col-active'));
+  try {
+    table.querySelectorAll('th, td').forEach(cell => {
+      const span = cell.querySelector('span');
+      placeText(span || cell, !!(many && span && cell.classList.contains('g-axis')), (span || cell).textContent);
+    });
+  } finally {
+    activeCells.forEach(el => el.classList.add('col-active'));
+  }
+  return out + '</svg>';
 }
 function serializeC1Svg() {
+  const built = c1BoardToSvg();
+  if (built) return built;
   const svg = document.querySelector('.scurve svg');
   if (!svg) return null;
   const clone = svg.cloneNode(true);
   clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  // §4.2 rev 1.63 — the fallback path strips the same transient hover marks as c1BoardToSvg().
+  clone.querySelectorAll('.chart-snap, .sc-hover-band').forEach(el => el.remove());
   clone.insertAdjacentHTML('afterbegin', chartSvgStyle());
   return new XMLSerializer().serializeToString(clone);
 }
 function exportC1Png() {
-  const svg = document.querySelector('.scurve svg');
-  if (!svg) return;
   const str = serializeC1Svg();
   if (!str) return;
   const blob = new Blob([str], { type: 'image/svg+xml;charset=utf-8' });
@@ -3448,9 +3904,9 @@ function exportC1Png() {
   const img = new Image();
   img.onload = () => {
     const scale = 2;
-    const vb = svg.viewBox.baseVal;
+    const w = img.naturalWidth || 800, h = img.naturalHeight || 400;
     const canvas = document.createElement('canvas');
-    canvas.width = vb.width * scale; canvas.height = vb.height * scale;
+    canvas.width = w * scale; canvas.height = h * scale;
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = (getComputedStyle(document.documentElement).getPropertyValue('--surface') || '').trim() || '#fff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -3832,6 +4288,142 @@ function wireSplitHeaders(root) {
     splitSyncers.push(syncWidth);
   }
 }
+// ===== C1 attached table: re-render the curve at the measured panel width (spec §3.4.1) =====
+// The static HTML already shows the whole curve through its viewBox. This pass replaces nominal W
+// with the measured width of .c1-plot, so one SVG unit is one CSS pixel and no text is scaled down.
+// The curve still fits completely in the card. data-geo.W and every data-points[].cx are rewritten
+// in the same pass, so the nearest-datum hover snap line stays on its month column.
+let c1Observer = null;
+let c1ResizeBound = false;
+let c1Raf = 0;
+function c1Refit(scope) {
+  const root = scope || document;
+  const board = root.querySelector && root.querySelector('.scurve.sc-board');
+  if (!board) return;
+  const grid = board.querySelector('.c1-grid');
+  const plot = grid && grid.querySelector('.c1-plot');
+  const svg = plot && plot.querySelector('svg.scurve-svg');
+  if (!grid || !plot || !svg) return;
+  let pts = [], meta = {};
+  try { pts = JSON.parse((board.getAttribute('data-points') || '[]').replace(/&#39;/g, "'")); } catch (_) {}
+  try { meta = JSON.parse((board.getAttribute('data-c1meta') || '{}').replace(/&#39;/g, "'")); } catch (_) {}
+  if (!pts.length) return;
+  const W = Math.round(plot.getBoundingClientRect().width);
+  if (!(W > 0)) return;
+  if (Math.abs(W - Number(board.getAttribute('data-c1w') || 0)) < 2) return;
+  const built = c1PlotSvg(pts, meta, W);
+  // Keep the very same .chart-snap node: bindChartHover holds a reference to it.
+  const snap = svg.querySelector('.chart-snap');
+  svg.setAttribute('viewBox', `0 0 ${built.W} ${built.H}`);
+  // CSS height:auto derives the intrinsic ratio from the width/height attributes, not the
+  // viewBox. Keep all three in sync: a stale pair makes xMidYMid meet letterbox the plot,
+  // so every bar, dot and data-points.cx drifts away from its month column.
+  svg.setAttribute('width', String(built.W));
+  svg.setAttribute('height', String(built.H));
+  // §4.2 rev 1.63 — built.inner carries a fresh .sc-hover-band at W / N. The binder queries it
+  // fresh; drop the stale column classes because the rebuilt band starts hidden.
+  svg.innerHTML = built.inner;
+  grid.querySelectorAll('.c1-table [data-c1col].col-active').forEach(el => el.classList.remove('col-active'));
+  if (snap) {
+    // §4.2 rev 1.62 — yTop now depends on the wrapped legend row count, so the reused
+    // .chart-snap node's Y span must be refreshed too. bindChartHover only updates x1/x2.
+    snap.setAttribute('y1', String(built.yTop));
+    snap.setAttribute('y2', String(built.yBot));
+    svg.appendChild(snap);
+  }
+  const next = pts.map((p, i) => ({ ...p, cx: +((i + 0.5) * built.W / pts.length).toFixed(1) }));
+  board.setAttribute('data-points', JSON.stringify(next).replace(/'/g, '&#39;'));
+  board.setAttribute('data-geo', JSON.stringify({ W: built.W, yTop: built.yTop, yBot: built.yBot }).replace(/'/g, '&#39;'));
+  board.setAttribute('data-c1w', String(built.W));
+  grid.style.setProperty('--c1-cols', String(pts.length));
+  grid.style.setProperty('--c1-gutter', `${Number(meta.gutter) || 104}px`);
+  const colgroup = grid.querySelector('.c1-table colgroup');
+  if (colgroup) colgroup.innerHTML = `<col class="c1-gut" style="width:var(--c1-gutter)">${'<col>'.repeat(pts.length)}`;
+  // §4.2 rev 1.64 — the legend can wrap to a different number of rows at a new width, which
+  // changes the viewBox height. Regenerate the HTML Y ticks from the SAME data-c1meta payload as
+  // the SVG: one label per grid line, values = g × yStep, positions derived from yMax.
+  const yMax = Number(meta.yMax) || 1;
+  const yStep = Number(meta.yStep) > 0 ? Number(meta.yStep) : yMax / 4;
+  const yIntervals = Math.max(1, Math.min(7, Number(meta.yIntervals) > 0
+    ? Math.round(Number(meta.yIntervals)) : Math.max(1, Math.round(yMax / yStep))));
+  const axis = grid.querySelector('.c1-yaxis');
+  if (axis) {
+    axis.querySelectorAll('.c1-ytick').forEach(el => el.remove());
+    for (let g = yIntervals; g >= 0; g--) {
+      const value = g * yStep;
+      const span = document.createElement('span');
+      span.className = 'c1-ytick';
+      const y = built.yBot - (value / yMax) * (built.yBot - built.yTop);
+      span.style.top = `${(y / built.H * 100).toFixed(3)}%`;
+      span.textContent = String(Math.round(value));
+      axis.appendChild(span);
+    }
+  }
+}
+function wireC1Grid(root) {
+  if (c1Observer) { c1Observer.disconnect(); c1Observer = null; }
+  const scope = root || document;
+  const plot = scope.querySelector && scope.querySelector('.c1-plot');
+  c1Refit(scope);
+  if (plot && typeof ResizeObserver === 'function') {
+    c1Observer = new ResizeObserver(() => {
+      if (c1Raf) return;
+      c1Raf = requestAnimationFrame(() => { c1Raf = 0; c1Refit(document); });
+    });
+    c1Observer.observe(plot);
+  }
+  if (!c1ResizeBound && typeof window !== 'undefined') {
+    c1ResizeBound = true;
+    const onResize = () => c1Refit(document);
+    window.addEventListener('resize', onResize, { passive: true });
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', onResize, { passive: true });
+  }
+}
+// §4.2 rev 1.66 / I121 — a visual-only sync for the single dual-handle period track.
+// It never rebuilds the chart. The `change` listener performs the one full repaint.
+function c1SyncTimeBar() {
+  const bar = document.querySelector('#c1TimeBar');
+  if (!bar) return;
+  let months = [];
+  try { months = JSON.parse(bar.dataset.c1months || '[]'); } catch { return; }
+  const n = months.length;
+  if (!n) return;
+  const fromEl = bar.querySelector('input[data-c1period="from"]');
+  const toEl = bar.querySelector('input[data-c1period="to"]');
+  const fill = bar.querySelector('.c1-ts-fill');
+  const text = bar.querySelector('.c1-period-text');
+  if (!fromEl || !toEl || !fill || !text) return;
+  const last = n - 1, denom = Math.max(1, last);
+  const posPct = i => `calc(var(--c1-thumb) / 2 + (100% - var(--c1-thumb)) * ${(i / denom).toFixed(6)})`;
+  const names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const label = ym => {
+    const [y, m] = String(ym || '').split('-').map(Number);
+    return `${names[m - 1] || ''} ${y || ''}`.trim() || String(ym || '');
+  };
+  let f = Math.max(0, Math.min(Number(fromEl.value) || 0, last));
+  let t = Math.max(0, Math.min(Number(toEl.value) || 0, last));
+  if (f > t) { if (document.activeElement === fromEl) t = f; else f = t; }
+  fromEl.value = String(f);
+  toEl.value = String(t);
+  fromEl.setAttribute('aria-valuetext', label(months[f]));
+  toEl.setAttribute('aria-valuetext', label(months[t]));
+  // Lift the `from` thumb above the `to` thumb when the two handles are close.
+  fromEl.style.zIndex = (t - f <= 1) ? '5' : '';
+  fill.style.left = posPct(f);
+  fill.style.width = `calc((100% - var(--c1-thumb)) * ${((t - f) / denom).toFixed(6)})`;
+  bar.querySelectorAll('.c1-ts-tick[data-c1month]').forEach(el => {
+    const i = Number(el.dataset.c1month);
+    el.classList.toggle('is-active', i >= f && i <= t);
+    el.classList.toggle('is-near', i === f || i === t);
+  });
+  text.textContent = `${label(months[f])} – ${label(months[t])}`;
+  // §4.2 rev 1.67 — ONE stored selection, never a derived range match.
+  bar.querySelectorAll('[data-c1preset]').forEach(chip => {
+    const on = chip.dataset.c1preset === state.c1Preset;
+    chip.setAttribute('aria-pressed', String(on));
+    chip.classList.toggle('active', on);
+  });
+}
 function paint() {
   if (!model) return;
   $('[data-page-content]').hidden = false;
@@ -3841,6 +4433,8 @@ function paint() {
   const view = renderDashboard(document, model, { ...state, uiHelp });
   if (scrollEl) scrollEl.scrollTop = scrollTop;
   wireSplitHeaders(document);
+  wireC1Grid(document);
+  c1SyncTimeBar();
   document.querySelectorAll('[data-page]').forEach(button => button.classList.toggle('active', button.dataset.page === state.page));
   const pageTitle = document.getElementById('page-title');
   if (pageTitle) pageTitle.textContent = state.page;
@@ -4057,6 +4651,17 @@ document.addEventListener('click', async event => {
   if (target.id === 'fReset') { state.search = ''; $('#fSearch').value = ''; paint(); }
   if (target.dataset.c1grain) { state.c1Grain = target.dataset.c1grain; closeFilterPanels(); paint(); }
   if (target.hasAttribute('data-c1bars')) { state.c1Bars = !state.c1Bars; paint(); }
+  if (target.dataset.c1preset) {
+    const bar = document.querySelector('#c1TimeBar');
+    if (bar) {
+      let months = [];
+      try { months = JSON.parse(bar.dataset.c1months || '[]'); } catch { months = []; }
+      const toEl = bar.querySelector('input[data-c1period="to"]');
+      const anchor = toEl ? Number(toEl.value) : Math.max(0, months.length - 1);
+      const range = c1PresetRange(target.dataset.c1preset, months, anchor, bar.dataset.c1asof);
+      if (range) { state.c1Period = range; state.c1Preset = target.dataset.c1preset; paint(); }
+    }
+  }
   if (target.hasAttribute('data-c1png')) { exportC1Png(); }
   if (target.hasAttribute('data-c1copy')) { copyC1Svg(); }
   if (target.dataset.c3dim) { state.c3Dim = target.dataset.c3dim; paint(); }
@@ -4165,6 +4770,8 @@ document.addEventListener('change', async event => {
     let f = Number(fromEl.value), t = Number(toEl.value);
     if (f > t) { if (event.target.dataset.c1period === 'from') { t = f; toEl.value = String(t); } else { f = t; fromEl.value = String(f); } }
     state.c1Period = [f, t];
+    // §4.2 rev 1.67 — a handle change is a custom range, so no preset stays active.
+    state.c1Preset = null;
     paint();
     return;
   }
@@ -4179,7 +4786,12 @@ document.addEventListener('change', async event => {
     await acceptSelection(chosen);
   }
 });
-document.addEventListener('input', event => { if (event.target.id === 'fSearch') state.search = event.target.value; });
+document.addEventListener('input', event => {
+  if (event.target.id === 'fSearch') state.search = event.target.value;
+  // §4.2 rev 1.66 — drag updates only the track visuals. `change` performs the full repaint.
+  // §4.2 rev 1.67 — a manual drag clears the preset at once, so no chip claims a custom range.
+  if (event.target.dataset.c1period) { state.c1Preset = null; c1SyncTimeBar(); }
+});
 document.addEventListener('change', event => { if (event.target.id === 'fCol') state.searchCol = event.target.value; });
 document.addEventListener('pointerdown', event => {
   const grip = event.target.closest('.ds-resize');

@@ -1,0 +1,439 @@
+<!doctype html>
+<!-- Review sample — C1 Schedule Performance, OPTION A (baseline — not adopted).
+     HISTORICAL BASELINE: this file predates UI spec revisions 1.65 and 1.66 and is kept
+     unchanged as a pre-revision-1.66 comparison artefact. Its two separate From / To range
+     inputs are the original time bar; §4.2 rev 1.66's single dual-handle track, month ticks
+     and preset chips are NOT present here by design. Its fixed five-tick axis and whole-range scaling are
+     intentional historical behaviour; do not update its algorithm to appear compliant with
+     rev 1.65 (I119), or its value as a historical comparison is reduced. No functional change.
+     READ-ONLY ARTIFACT: no engine change, no workbook load, no build run, no test impact.
+     Revision 0.2 | 2026-11-06 | CodeBuddy (AI) | Mirrors the verified pre-rev-1.63 C1:
+     UI spec §4.2 rev 1.60 / 1.62 and §8.2 assertion 21, Tier 5 34 passed / 0 failed.
+     One .c1-grid; one native <table> with <caption>/<colgroup>/<thead>/<tbody>/scope;
+     --c1-gutter / --c1-cols; an in-SVG wrapped legend ABOVE the plot with yTop reserved
+     and yBot = H; one sc-yaxis-line; a rotated "Cumulative documents" caption; five Y
+     ticks; the <thead> flush with the plot X axis; no min-width and no horizontal scroll;
+     a ResizeObserver refit; tabular-nums; a nearest-datum snap line and .chart-tip (§4.6).
+     OPTION A carries NONE of the §4.2 rev 1.63 attached-table interaction features.
+     Compare with sample-c1-table.html (Option B), which is the ADOPTED design now in the
+     production build. Option A is kept only as the pre-rev-1.63 baseline.
+     Revision 0.3 | 2026-11-06 | CodeBuddy (AI) | §4.6 accessibility polish: when the hover
+     window is hidden (table area, pointerleave, blur, period change) .chart-tip is BOTH
+     aria-hidden="true" AND emptied of text, and the hidden state is removed before it is
+     shown again. Clearing the text matters because an element directly referenced by
+     aria-describedby can still be exposed to assistive tech despite aria-hidden.
+     Revision 0.4 | 2026-11-06 | CodeBuddy (AI) | Relabelled: UI spec §4.2 rev 1.63 adopted
+     Option B, so Option A is no longer the production-faithful reference. -->
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>C1 S-curve with attached table — Option A (pre-rev-1.63 baseline)</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#eef2f8; --surface:#FFFFFF; --surface2:#F1F5F9; --surface3:#E8EDF3;
+  --border:#D9E1E8; --text:#1F2A37; --text2:#526171; --text3:#6b7785;
+  --navy:#15314f; --blue:#2b6cf6; --soft:#EAF2FB;
+  --warn-bg:#FFF4D6; --warn-border:#E8C766;
+  --shadow:0 1px 2px rgba(16,32,64,.04),0 8px 24px rgba(16,32,64,.05);
+  --font-ui:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 var(--font-ui);padding:24px}
+h1{font-size:18px;margin:0 0 4px}
+.sub{color:var(--text2);font-size:12px;margin:0 0 14px}
+.tag{display:inline-block;font:600 10px var(--font-ui);color:var(--text2);border:1px solid var(--border);border-radius:99px;padding:2px 8px;margin-left:8px;vertical-align:2px}
+.tag.a{color:#2a5a3f;border-color:#9ccbb0;background:#EAF7EF}
+.compare{display:inline-block;margin-left:8px;font:600 11px var(--font-ui)}
+.compare a{color:var(--blue);text-decoration:none;border-bottom:1px solid var(--blue)}
+.compare a:hover{background:var(--soft)}
+.review{max-width:980px;margin:0 0 12px;padding:12px 14px;background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:8px;font-size:12px;color:#6b5000}
+.review b{color:inherit}
+.review ol{margin:8px 0 0 18px;padding:0}
+.review li{margin-bottom:5px}
+
+/* §4.1 — one panel, one board surface. No third bordered wrapper. */
+.panel{max-width:980px;border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:14px;box-shadow:var(--shadow)}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 12px}
+.panel-head h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--navy);margin:0}
+.panel-actions{display:flex;gap:6px}
+.icon-btn{width:26px;height:26px;border:1px solid var(--border);background:var(--surface);color:var(--text3);border-radius:6px;font:600 13px var(--font-ui);line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.help-note{margin:0 0 12px;padding:8px 10px;background:var(--soft);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text2)}
+.sc-board{position:relative;border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:12px;cursor:crosshair}
+.sc-board:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.c1-period-label{font-size:12px;font-weight:600;color:var(--text2)}
+.c1-range-wrap{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.c1-range{width:120px;accent-color:var(--navy);cursor:pointer}
+.c1-period-text{font-size:12px;color:var(--text2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.icon-btn:focus-visible,.c1-range:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+
+/* §4.2 grid contract — one grid, zero gaps, no min-width, no horizontal scroll. */
+.c1-grid{display:grid;column-gap:0;row-gap:0;--c1-gutter:104px;--c1-cols:16;
+  grid-template-columns:var(--c1-gutter) repeat(var(--c1-cols),minmax(0,1fr))}
+.c1-yaxis{position:relative;grid-column:1;grid-row:1;min-width:0;pointer-events:none}
+.c1-yaxis .c1-ytick{position:absolute;right:6px;transform:translateY(-50%);font-size:10px;line-height:1;
+  color:var(--text2);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.c1-yaxis .c1-ycap{position:absolute;left:3px;top:50%;transform:translateY(-50%) rotate(180deg);
+  writing-mode:vertical-rl;text-orientation:mixed;font:600 10px var(--font-ui);color:var(--text2);
+  letter-spacing:.02em;white-space:nowrap}
+.c1-plot{grid-column:2 / -1;grid-row:1;min-width:0}
+.c1-plot svg{display:block;width:100%;height:auto}
+
+/* §4.2 Option B attached table — one native table in one spanning grid item.
+   No ARIA table roles, no display:contents. The <caption> stays in the accessibility
+   tree but is visually hidden so the <thead> row sits flush on the plot X axis. */
+.c1-table{grid-column:1 / -1;grid-row:2;width:100%;table-layout:fixed;border-collapse:collapse;min-width:0}
+.c1-table caption{position:absolute;width:1px;height:1px;padding:0;margin:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+.c1-table th,.c1-table td{border-top:1px solid var(--border);overflow:hidden}
+.c1-table .g-corner{display:table-cell;vertical-align:middle;padding:0 0 0 8px;font:600 10px var(--font-ui);
+  color:var(--navy);text-align:left;white-space:nowrap;background:var(--surface2)}
+.c1-table .g-axis{vertical-align:middle;height:96px;padding:0;background:var(--surface2);font-weight:600}
+.c1-table .g-axis span{display:block;writing-mode:vertical-rl;text-orientation:mixed;
+  font:600 11px var(--font-ui);color:var(--text2);white-space:nowrap;margin:0 auto}
+.c1-table .g-label{text-align:right;padding:6px 8px 6px 0;font-size:11px;font-weight:400;
+  color:var(--text2);background:var(--surface2);white-space:nowrap}
+.c1-table .g-val{text-align:center;vertical-align:middle;padding:6px 2px;font-size:12px;
+  color:var(--text);font-variant-numeric:tabular-nums}
+.c1-table .g-val.neg{color:#b45309}
+
+/* §4.6 — one HTML tooltip overlay and one SVG snap line. */
+.chart-tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;box-shadow:var(--shadow);padding:8px 10px;font-size:11px;line-height:1.45;
+  color:var(--text);z-index:30;min-width:170px;max-width:230px;opacity:0;transition:opacity .12s ease}
+.chart-tip.show{opacity:1}
+.chart-tip b{display:block;margin-bottom:4px;font-size:12px}
+.ct-row{display:flex;align-items:center;gap:6px;justify-content:space-between}
+.ct-row .ct-l{display:inline-flex;align-items:center;gap:6px}
+.chart-swatch{display:inline-block;width:8px;height:8px;border-radius:2px;flex:none}
+.ct-foot{display:flex;justify-content:space-between;gap:8px;margin-top:5px;padding-top:5px;border-top:1px solid var(--border);color:var(--text2)}
+
+/* SVG chart classes. The legend is a child of the SVG so PNG/Copy keep it. */
+.sc-grid{stroke:#E3E9F0;stroke-width:1}
+.sc-yaxis-line{stroke:var(--border);stroke-width:1}
+.sc-ref-start{stroke:#c0392b;stroke-width:1.5;stroke-dasharray:5 3}
+.sc-ref-today{stroke:#607d8b;stroke-width:1.5;stroke-dasharray:2 2}
+.sc-ref-lbl{font:700 9px var(--font-ui)}
+.sc-ref-lbl-start{fill:#c0392b}
+.sc-ref-lbl-today{fill:#607d8b}
+.sc-line{fill:none;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.sc-line-plan{stroke:#2b6cf6;stroke-dasharray:6 3}
+.sc-line-forecast{stroke:#F9A825;stroke-dasharray:2 2}
+.sc-line-actual{stroke:#17a67a}
+.sc-line-resub{stroke:#c026d3;stroke-dasharray:3 3}
+.sc-barval{fill:var(--text2);font-size:9px}
+.sc-bar-plan,.sc-dot-plan{fill:#2b6cf6}
+.sc-bar-forecast,.sc-dot-forecast{fill:#F9A825}
+.sc-bar-actual,.sc-dot-actual{fill:#17a67a}
+.sc-bar-resub,.sc-dot-resub{fill:#c026d3}
+.sc-leg-t{fill:var(--text);font-size:11px}
+.chart-snap{stroke:var(--text3);stroke-width:1;stroke-dasharray:3 3}
+
+.hint{margin:8px 2px 0;font-size:12px;color:var(--text3)}
+.foot-note{margin:10px 2px 0;font-size:11px;color:var(--text3)}
+@media(max-width:880px){.c1-range{width:90px}}
+@media print{.controls,.panel-actions,.chart-tip{display:none}}
+</style>
+</head>
+<body>
+<h1>C1 Schedule Performance — attached table <span class="tag a">Option A · baseline (not adopted)</span><span class="compare"><a href="sample-c1-table.html">compare with Option B →</a></span></h1>
+<p class="sub">Standalone page. Static illustrative data only. It does not load a workbook, and it does not call <code>engine/</code> or <code>build/</code>. This sample keeps the pre-rev-1.63 C1: no attached-table interaction. The production build now follows Option B.</p>
+
+<div class="review">
+  <b>Baseline recorded before UI spec §4.2 rev 1.63 — then verified at rev 1.60 / 1.62, §8.2 assertion 21 (Tier 5: 34 passed / 0 failed).</b>
+  <ol>
+    <li><b>Option B attached table.</b> One <code>.c1-grid</code>, one native <code>&lt;table&gt;</code> with <code>&lt;caption&gt;</code>, <code>&lt;colgroup&gt;</code>, <code>&lt;thead&gt;</code>, <code>&lt;tbody&gt;</code> and <code>scope</code>. No <code>display:contents</code>, no ARIA table roles, no third bordered wrapper. <code>--c1-gutter</code> / <code>--c1-cols</code> drive the grid tracks and the colgroup together, so every month column locks to its curve point.</li>
+    <li><b>In-SVG legend above the plot.</b> §4.2 rev 1.62: for an attached table the legend MUST sit above the plotting area, inside the SVG, with <code>yTop</code> sized for the wrapped rows and <code>yBot</code> at the <code>viewBox</code> bottom. It wraps into <code>floor(W / 132)</code> items per row (four series → four bar swatches + four <code>Cum. …</code> line samples). No HTML legend.</li>
+    <li><b>Y axis contract.</b> One vertical <code>sc-yaxis-line</code>, five right-aligned Y ticks, and the rotated <em>Cumulative documents</em> side caption. The <code>&lt;thead&gt;</code> row is flush with the plot's X axis; the chart draws no separate X labels.</li>
+    <li><b>No-scroll reflow.</b> A <code>ResizeObserver</code> on <code>.c1-plot</code> keeps the SVG <code>width</code>/<code>height</code>, <code>viewBox</code>, <code>data-points[].cx</code>, <code>--c1-cols</code> and <code>&lt;colgroup&gt;</code> in sync at every width and zoom level. No <code>min-width</code> and no horizontal scrollbar. Move From / To and the columns rebuild from the same <code>N</code>.</li>
+    <li><b>Tabular typography and hover.</b> <code>tabular-nums</code> on ticks, values and the tooltip. A nearest-datum snap line and a <code>.chart-tip</code> window cover the whole month slice, so there is no 3 px dot dead zone (§4.6). The table is display-only: it does not drive the chart, and no column band or area gradient is drawn.</li>
+  </ol>
+</div>
+
+<div class="panel">
+  <div class="panel-head">
+    <h2>C1 Schedule Performance</h2>
+    <div class="panel-actions">
+      <button class="icon-btn" id="helpBtn" title="Help" aria-label="Help" aria-expanded="false">?</button>
+      <button class="icon-btn" id="collapseBtn" title="Collapse" aria-label="Collapse">−</button>
+    </div>
+  </div>
+  <div class="help-note" id="helpNote" hidden>The curve shows the shape; the attached table shows the exact numbers. Drag From and To to change the period. Hover anywhere in the plot for the nearest month's snap line and datum window.</div>
+
+  <div id="panelBody">
+    <div class="sc-board" id="board" role="group" aria-label="Schedule performance" aria-describedby="tip" tabindex="0">
+      <div class="controls c1-controls">
+        <span class="c1-period-label">Period</span>
+        <label class="c1-range-wrap">From <input type="range" class="c1-range" id="rFrom" min="0" max="15" value="0" data-c1period="from" aria-label="Period start"></label>
+        <label class="c1-range-wrap">To <input type="range" class="c1-range" id="rTo" min="0" max="15" value="15" data-c1period="to" aria-label="Period end"></label>
+        <span class="c1-period-text" id="periodText"></span>
+      </div>
+
+      <div class="c1-grid" id="grid">
+        <div class="c1-yaxis" id="yaxis" aria-hidden="true"></div>
+        <div class="c1-plot" id="plot"><svg id="svg" class="scurve-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 928 342" width="928" height="342" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Schedule performance S-curve"></svg></div>
+        <table class="c1-table" id="c1table"><caption>Schedule performance by reporting month</caption></table>
+      </div>
+
+      <div class="chart-tip" id="tip" role="tooltip" aria-hidden="true"></div>
+      <p class="hint" id="hint"></p>
+    </div>
+    <p class="foot-note">Static illustrative data. The last month (2026-10) uses the live cumulative figures: Cum. Plan 284, Cum. Forecast 245, Cum. Actual First 190, Cum. Actual Resub 51. Earlier months are illustrative. The native table renders even when scripts do not run. Option A is the pre-rev-1.63 baseline; the production build now follows Option B.</p>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* Static data. Cumulative series are given; per-period values are the differences. */
+const KEYS = ['2025-07','2025-08','2025-09','2025-10','2025-11','2025-12',
+              '2026-01','2026-02','2026-03','2026-04','2026-05','2026-06',
+              '2026-07','2026-08','2026-09','2026-10'];
+const P  = [8,18,30,45,62,82,104,128,154,180,204,224,240,252,268,284];
+const F  = [6,15,26,39,54,72,92,114,138,162,184,202,217,228,238,245];
+const AF = [2,6,12,20,30,42,56,72,90,108,124,138,150,162,176,190];
+const AR = [0,1,2,4,7,10,14,18,23,28,33,37,41,45,48,51];
+const MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmt = k => MN[Number(k.slice(5,7))-1] + ' ' + k.slice(0,4);
+const esc = s => String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+const diff = (a,i) => i === 0 ? a[0] : a[i]-a[i-1];
+const DATA = KEYS.map((k,i) => ({
+  key:k, label:fmt(k),
+  pNew:diff(P,i), fNew:diff(F,i), aFNew:diff(AF,i), aRNew:diff(AR,i),
+  pCum:P[i], fCum:F[i], aFCum:AF[i], aRCum:AR[i],
+  sum:AF[i]+AR[i], gap:AF[i]+AR[i]-P[i], pct:(AF[i]+AR[i])/P[i]*100
+}));
+const ROWS = [
+  ['Plan', r=>r.pNew],
+  ['Forecast', r=>r.fNew],
+  ['Actual First', r=>r.aFNew],
+  ['Actual Resub', r=>r.aRNew],
+  ['Cum. Plan', r=>r.pCum],
+  ['Cum. Forecast', r=>r.fCum],
+  ['Actual Σ', r=>r.sum],
+  ['Gap vs Plan', r=>r.gap, true]
+];
+/* Four visible series, drawn twice: once as bars, once as a cumulative line.
+   The order drives the wrapped in-SVG legend (§4.2 rev 1.62). */
+const SERIES = [
+  { id:'plan',     barKey:'pNew',  cumKey:'pCum',  bar:'sc-bar-plan',      line:'sc-line-plan',      dot:'sc-dot-plan',      color:'#2b6cf6', dash:'6 3', label:'Plan',         cumLabel:'Cum. Plan' },
+  { id:'forecast', barKey:'fNew',  cumKey:'fCum',  bar:'sc-bar-forecast',  line:'sc-line-forecast',  dot:'sc-dot-forecast',  color:'#F9A825', dash:'2 2', label:'Forecast',     cumLabel:'Cum. Forecast' },
+  { id:'actual',   barKey:'aFNew', cumKey:'aFCum', bar:'sc-bar-actual',    line:'sc-line-actual',    dot:'sc-dot-actual',    color:'#17a67a', dash:'0',   label:'Actual First', cumLabel:'Cum. Actual First' },
+  { id:'resub',    barKey:'aRNew', cumKey:'aRCum', bar:'sc-bar-resub',     line:'sc-line-resub',     dot:'sc-dot-resub',     color:'#c026d3', dash:'3 3', label:'Actual Resub', cumLabel:'Cum. Actual Resub' }
+];
+const $ = id => document.getElementById(id);
+const state = { from:0, to:KEYS.length-1, n:null, W:928, H:342, yTop:42, yBot:342, bandW:58, cx:[], d:[], active:-1 };
+const windowData = () => DATA.slice(state.from, state.to+1);
+const niceMax = d => Math.max(50, Math.ceil(Math.max(1,...d.map(r=>Math.max(r.pCum,r.fCum,r.aFCum,r.aRCum)))/50)*50);
+const PLOT_H = 300, GUTTER = 104, STEP = 132;
+
+/* §4.2 rev 1.62 — build the whole curve as SVG markup from one data-points payload.
+   The legend rows are reserved ABOVE the plot, so yBot is the viewBox bottom and the
+   table <thead> can sit flush on the X axis with no intervening band. */
+function c1PlotSvg(d, W){
+  const n = d.length, max = niceMax(d);
+  const bandW = W / n;
+  const xc = i => (i + 0.5) * bandW;
+  const perRow = Math.max(1, Math.floor(W / STEP));
+  const legendRows = Math.max(1, Math.ceil((SERIES.length * 2) / perRow));
+  const legendH = 24 + (legendRows - 1) * 18;
+  const yTop = legendH, yBot = yTop + PLOT_H, H = yBot;
+  const yOf = v => yBot - (v / max) * PLOT_H;
+  const g = [];
+
+  g.push(`<line class="sc-yaxis-line" x1="0" y1="${yTop}" x2="0" y2="${yBot}"></line>`);
+  for(let k=0;k<=4;k++){
+    const y = yOf(max*k/4).toFixed(1);
+    g.push(`<line class="sc-grid" x1="0" y1="${y}" x2="${W}" y2="${y}"></line>`);
+  }
+
+  const bwTotal = Math.min(bandW * 0.7, 18 * SERIES.length), bw = bwTotal / SERIES.length;
+  d.forEach((r,i) => SERIES.forEach((s,j) => {
+    const v = Number(r[s.barKey]) || 0; if (!v) return;
+    const x = xc(i) - bwTotal/2 + j*bw;
+    const h = (v/max)*PLOT_H, y = yBot-h;
+    const cx = (x+bw/2).toFixed(1), cy = (y-3).toFixed(1);
+    g.push(`<rect class="${s.bar}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${Math.max(1,bw-2).toFixed(1)}" height="${h.toFixed(1)}" rx="2"></rect>`);
+    if (bandW > 26) g.push(`<text class="sc-barval" x="${cx}" y="${cy}" text-anchor="middle" transform="rotate(-90 ${cx} ${cy})">${v}</text>`);
+  }));
+
+  [['2025-07','sc-ref-start','sc-ref-lbl-start','Start'],
+   ['2026-10','sc-ref-today','sc-ref-lbl-today','Today']].forEach(([key,cls,lbl,word]) => {
+    const i = d.findIndex(r=>r.key===key); if (i < 0) return;
+    const x = xc(i).toFixed(1);
+    g.push(`<line class="${cls}" x1="${x}" y1="${yTop}" x2="${x}" y2="${yBot}"></line>`);
+    g.push(`<text class="sc-ref-lbl ${lbl}" transform="translate(${(+x+4).toFixed(1)},${yTop+14}) rotate(90)">${word} · ${esc(d[i].label)}</text>`);
+  });
+
+  SERIES.forEach(s => {
+    const pts = d.map((r,i)=>`${xc(i).toFixed(1)},${yOf(r[s.cumKey]).toFixed(1)}`).join(' ');
+    g.push(`<polyline class="sc-line ${s.line}" points="${pts}" stroke-dasharray="${s.dash}"></polyline>`);
+    d.forEach((r,i)=>g.push(`<circle class="${s.dot}" cx="${xc(i).toFixed(1)}" cy="${yOf(r[s.cumKey]).toFixed(1)}" r="3"></circle>`));
+  });
+
+  g.push(`<line class="chart-snap" id="chartSnap" x1="0" y1="${yTop}" x2="0" y2="${yBot}" style="display:none"></line>`);
+
+  /* The legend is a direct child of the SVG, in the reserved top band. */
+  const leg = []; let li = 0;
+  const put = (shape,label) => {
+    const col = li % perRow, row = Math.floor(li / perRow); li++;
+    leg.push(`<g transform="translate(${(col*STEP+4).toFixed(1)},${(14+row*18).toFixed(1)})">${shape}<text class="sc-leg-t" x="22" y="2">${esc(label)}</text></g>`);
+  };
+  SERIES.forEach(s => put(`<rect class="${s.bar}" x="0" y="-8" width="12" height="12" rx="2"></rect>`, s.label));
+  SERIES.forEach(s => put(`<line class="sc-line ${s.line}" x1="0" y1="-2" x2="18" y2="-2" stroke-dasharray="${s.dash}"></line>`, s.cumLabel));
+  g.push(`<g class="sc-legend" id="legend">${leg.join('')}</g>`);
+
+  return { inner:g.join(''), W, H, yTop, yBot, bandW, max };
+}
+
+/* One native table. <colgroup> and the grid tracks share the same variables. */
+function renderTable(d){
+  const n = d.length;
+  const cols = `<colgroup><col class="c1-gut" style="width:var(--c1-gutter)">${'<col>'.repeat(n)}</colgroup>`;
+  const head = `<thead><tr><th class="g-corner" scope="col">Reporting Month</th>`
+    + d.map(r=>`<th class="g-axis" scope="col"><span>${esc(r.label)}</span></th>`).join('') + `</tr></thead>`;
+  const body = `<tbody>` + ROWS.map(row => `<tr><th class="g-label" scope="row">${esc(row[0])}</th>`
+    + d.map(r=>{
+      const v = row[1](r), neg = row[2] && v<0 ? ' neg' : '';
+      return `<td class="g-val${neg}">${esc(v)}</td>`;
+    }).join('') + `</tr>`).join('') + `</tbody>`;
+  $('c1table').innerHTML = `<caption>Schedule performance by reporting month</caption>${cols}${head}${body}`;
+}
+
+function render(){
+  const d = windowData(), n = d.length;
+  if (state.from > state.to) state.to = state.from;
+  $('rFrom').value = state.from;
+  $('rTo').value = state.to;
+  $('periodText').textContent = fmt(KEYS[state.from]) + ' – ' + fmt(KEYS[state.to]);
+  $('grid').style.setProperty('--c1-cols', String(n));
+  $('grid').style.setProperty('--c1-gutter', GUTTER + 'px');
+  if (state.n !== n) { renderTable(d); state.n = n; }
+
+  const W = Math.max(1, Math.round($('plot').clientWidth || 928));
+  const built = c1PlotSvg(d, W);
+  const svg = $('svg');
+  /* Keep width/height and viewBox in sync, otherwise xMidYMid meet letterboxes the plot. */
+  svg.setAttribute('viewBox', `0 0 ${built.W} ${built.H}`);
+  svg.setAttribute('width', String(built.W));
+  svg.setAttribute('height', String(built.H));
+  svg.innerHTML = built.inner;
+
+  $('yaxis').innerHTML = '<span class="c1-ycap">Cumulative documents</span>'
+    + [0,1,2,3,4].map(k => {
+      const y = built.yBot - (k/4)*(built.yBot-built.yTop);
+      return `<span class="c1-ytick" style="top:${(y/built.H*100).toFixed(3)}%">${Math.round(built.max*k/4)}</span>`;
+    }).join('');
+
+  state.d = d; state.W = built.W; state.H = built.H;
+  state.yTop = built.yTop; state.yBot = built.yBot; state.bandW = built.bandW;
+  state.cx = d.map((_,i)=>+((i+0.5)*built.W/n).toFixed(1));
+  $('hint').textContent = n + ' month columns stay inside the card at every width — no horizontal scroll. Bars, dots and table headers share one X boundary.';
+  clearHover();
+}
+
+/* §4.6 nearest-datum hover: snap line + tooltip. The table is display-only. */
+function tipHtml(r){
+  return `<b>${esc(r.label)}</b>`
+    + SERIES.map(s => `<div class="ct-row"><span class="ct-l"><i class="chart-swatch" style="background:${s.color}"></i>${esc(s.label)}</span><b>${r[s.barKey]}</b></div>`).join('')
+    + `<div class="ct-foot"><span>Actual Σ / plan</span><b>${r.sum} · ${r.pct.toFixed(0)}%</b></div>`;
+}
+function placeTip(e){
+  const tip = $('tip'), br = $('board').getBoundingClientRect();
+  const px = e ? e.clientX - br.left : br.width/2;
+  const py = e ? e.clientY - br.top  : br.height/2;
+  let tx = px + 14, ty = py + 14;
+  if (tx + tip.offsetWidth > br.width) tx = px - tip.offsetWidth - 14;
+  if (ty + tip.offsetHeight > br.height) ty = py - tip.offsetHeight - 14;
+  tip.style.left = Math.max(4, tx) + 'px';
+  tip.style.top  = Math.max(4, ty) + 'px';
+}
+/* §4.6 — .chart-tip is the persistent aria-describedby target. An element directly
+   referenced by aria-describedby can still be exposed by assistive tech even when
+   aria-hidden="true", so hiding it must clear its text as well as its ARIA state. */
+function hideTip(){
+  const tip = $('tip');
+  tip.classList.remove('show');
+  tip.textContent = '';
+  tip.setAttribute('aria-hidden', 'true');
+}
+function showTipWindow(html){
+  const tip = $('tip');
+  tip.innerHTML = html;
+  tip.removeAttribute('aria-hidden');
+  tip.classList.add('show');
+}
+function clearHover(){
+  const snap = $('chartSnap');
+  if (snap) snap.style.display = 'none';
+  hideTip();
+  state.active = -1;
+}
+function activate(i, e){
+  if (i < 0 || i >= state.n) return clearHover();
+  state.active = i;
+  const snap = $('chartSnap');
+  if (snap){ snap.setAttribute('x1', state.cx[i]); snap.setAttribute('x2', state.cx[i]); snap.style.display = ''; }
+  showTipWindow(tipHtml(state.d[i]));
+  placeTip(e);
+}
+
+$('board').addEventListener('pointermove', e => {
+  if (e.target.closest && e.target.closest('.c1-controls')) { clearHover(); return; }
+  const svg = $('svg');
+  if (e.target === svg || svg.contains(e.target)) {
+    const rect = svg.getBoundingClientRect(); if (!rect.width) return;
+    const ux = (e.clientX - rect.left) / rect.width * state.W;
+    let best = 0, bd = Infinity;
+    state.cx.forEach((cx,i) => { const dd = Math.abs(cx - ux); if (dd < bd) { bd = dd; best = i; } });
+    return activate(best, e);
+  }
+  clearHover();
+});
+$('board').addEventListener('pointerleave', clearHover);
+$('board').addEventListener('focus', () => activate(Math.floor(state.n/2), null));
+$('board').addEventListener('blur', clearHover);
+$('board').addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft'){
+    state.active = Math.max(0, Math.min(state.n-1, state.active + (e.key === 'ArrowRight' ? 1 : -1)));
+    activate(state.active, null); e.preventDefault();
+  } else if (e.key === 'Escape') clearHover();
+});
+
+$('rFrom').addEventListener('input', e => {
+  state.from = Number(e.target.value);
+  if (state.from > state.to) state.to = state.from;
+  render();
+});
+$('rTo').addEventListener('input', e => {
+  state.to = Number(e.target.value);
+  if (state.to < state.from) state.from = state.to;
+  render();
+});
+$('collapseBtn').addEventListener('click', e => {
+  const body = $('panelBody');
+  body.hidden = !body.hidden;
+  e.currentTarget.textContent = body.hidden ? '+' : '−';
+  e.currentTarget.setAttribute('aria-label', body.hidden ? 'Expand' : 'Collapse');
+});
+$('helpBtn').addEventListener('click', e => {
+  const note = $('helpNote');
+  note.hidden = !note.hidden;
+  e.currentTarget.setAttribute('aria-expanded', String(!note.hidden));
+});
+
+/* §4.2 rev 1.60 — a ResizeObserver on .c1-plot, never a horizontal scrollbar. */
+if (window.ResizeObserver) {
+  let lastW = 0;
+  new ResizeObserver(entries => {
+    const w = Math.round(entries[0].contentRect.width);
+    if (Math.abs(w - lastW) < 2) return;   // width-only guard: height changes must not loop
+    lastW = w; render();
+  }).observe($('plot'));
+} else {
+  window.addEventListener('resize', render);
+}
+render();
+</script>
+</body>
+</html>

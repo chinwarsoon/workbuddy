@@ -1,3 +1,22 @@
+// Revision 1.23 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.67 / I122 — Tier 5 `lintC1TimeBar()` now measures the STORED single selection, not a derived range match. New checks: ONE joined `.seg.c1-ts-chips` group of five `.seg-btn` buttons, EXACTLY one `aria-pressed="true"` and one `.active` at a time, NO active chip after a manual handle `input` / `change`, every preset still selects its whole-month window, and ONE visual control row at `oneRowWidth: 1280` with `flex-wrap:nowrap` on `.c1-ts`. The focus and print rules follow the new `.seg-btn` selectors. Other dashboards keep their Tier 5 behaviour.
+// Revision 1.22 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.66 / I121 — Tier 5 gained `lintC1TimeBar()`, a C1-only config-gated probe for the dual-handle period track: exactly one track with two native `step="1"` handles, whole-month values and bounds, one tick per reporting month with no pointer events, the five preset chips with `aria-pressed`, live `input` decoupling from the full `change` repaint, one-month keyboard steps, focus-visible CSS and print-hidden controls. Preset ranges and the shared Y-axis / table payload are measured in the browser. Other dashboards are unchanged.
+// Revision 1.21 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.65 / I119 — `measureC1Geometry` now measures the windowed peak and the absolute cumulative values from `data-points`; the four rev 1.64 tick assertions are shared by `assertC1Axis()` and re-run after a period change. `c1PickAxisProbe()` derives the probe window from the DATA (bounds-checked, grain-checked, peak-checked and expected-axis-checked) and returns a SKIP instead of a FAIL when no meaningful shorter window exists. New checks: axis recomputed from the period window, absolute cumulative values unchanged, and a harness-only fill threshold. Both spec copies re-synced byte-identical.
+// Revision 1.20 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.64 — Tier 5 C1 geometry no longer asserts a fixed five ticks. `measureC1Geometry` reads `data-c1meta.yMax` / `yStep` / `yIntervals`, the rendered tick labels and the `line.sc-grid` Y coordinates; `lintC1Geometry` asserts metadata/label/grid-line agreement, the 7-interval and 8-label caps, >= ~40 px major-tick spacing, and nice-number label multiples. Both spec copies re-synced byte-identical. Issue I118.
+// Revision 1.19 | 2026-11-06 | CodeBuddy (AI) | I-96 windowing check corrected at its source. Since Sub I-112 (2026-11-04) gave large tables pagination instead of windowing, the old probe used `#vCnt` (a paginated table's 16,393-row count) as the trigger and fell back to the first `.ds-table` when no `tr.win-pad` existed — often a header fragment with no `tbody`, so it reported 0 drawn rows and 0 spacers. Tier 4b now requires a real windowed table with spacer rows and skips with an explicit reason when none is present on the view. MDL, which still ships a windowed table, keeps the same four assertions unchanged.
+// Revision 1.18 | 2026-11-06 | CodeBuddy (AI) | §4.2 rev 1.63 — Tier 5 gained `lintC1Interaction`, a C1-only opt-in browser probe for the promoted Option B model: four tokenised gradients and soft areas, one hidden pointer-transparent month band at W / N, `data-c1col` coverage, two-way chart / table column sync, chart-only floating window, and the cleared state on pointer-leave. Tier 6 gained the config-driven §4.6 hidden-window ARIA assertions: hidden windows must be aria-hidden AND empty of text, and shown windows must remove the attribute. Both additions are config-gated, so other dashboards are unchanged.
+// Revision 1.17 | 2026-11-06 | CodeBuddy (AI) | §4.2 rev 1.62 — the C1 legend now sits ABOVE the
+// plot. Tier 5 measures `legendAbovePlot` (legend bottom at or above the first grid line) instead
+// of asserting a bottom legend, and `headTopDelta` now compares the `<thead>` to the last grid
+// line (the plot's X axis) rather than to the SVG box bottom, so the assertion name matches what
+// it measures. The expectation is config-driven via `c1.legendAbovePlot`. Owner decision 1 of
+// 2026-11-06 is superseded for attached-table panels.
+// Revision 1.16 | 2026-11-06 | CodeBuddy (AI) | Tier 5 gained C1 attached-table geometry checks
+// (spec §4.2 rev 1.59 / §8.2 assertion 21). Measured in the browser: bar containment within a
+// month column, data-points.cx mapped to month-header centres, grid tracks vs colgroup widths,
+// the in-SVG bottom legend, a vertical Y-axis line, a rotated side Y caption, header adjacency
+// to the SVG bottom, no separate SVG X labels and no horizontal scroll. The alignment group is
+// repeated after the From / To period sliders move. The as-of caption assertion is inverted to
+// the spec's "omit the as-of subtitle". Owner decisions 2026-11-06.
 // Revision 1.15 | 2026-11-01 | opencode (AI) | P7 / D15, D17: Tier 1 accepts a declared inline
 // classic script (cfg.inlineClassicScript) as standalone delivery. Tier 4c scopes sticky to tables
 // inside a `.tableScroll`, exempts a split pair's body half from the I-90 header-height rule, and
@@ -1193,11 +1212,14 @@ async function lintL3(page, cfg = {}) {
     await page.evaluate(() => Object.keys(localStorage).filter(k => /_widths$/.test(k)).forEach(k => localStorage.removeItem(k)));
   } else skipped('I-95: column resize (no grip found)');
 
-  // 4. windowing (I-96) — few rows drawn, full count reported, scroll height preserved
+  // 4. windowing (I-96) — few rows drawn, full count reported, scroll height preserved.
+  // I-112 (2026-11-04) makes pagination take precedence over windowing for large tables, so a
+  // large control-row count alone is NOT a valid trigger. Require a real windowed table with
+  // spacer rows. Without this gate the old fallback selected an arbitrary .ds-table (often a
+  // header fragment with no tbody) and asserted windowing on a paginated view: 0 rows drawn.
   const win = await page.evaluate(() => {
-    // the windowed table is the one carrying spacer rows
-    const t = [...document.querySelectorAll('table.ds-table')].find(x => x.querySelector('tr.win-pad'))
-      || document.querySelector('table.ds-table');
+    const t = [...document.querySelectorAll('table.ds-table')].find(x => x.querySelector('tr.win-pad'));
+    if (!t) return { windowed: false };
     const pick = id => {
       const el = document.getElementById(id);
       if (!el) return null;
@@ -1205,6 +1227,7 @@ async function lintL3(page, cfg = {}) {
       return m ? { shown: +m[1].replace(/,/g, ''), total: m[2] ? +m[2].replace(/,/g, '') : +m[1].replace(/,/g, '') } : null;
     };
     return {
+      windowed: true,
       drawn: t.querySelectorAll('tbody tr:not(.win-pad)').length,
       pads: t.querySelectorAll('tbody tr.win-pad').length,
       scrollH: t.closest('.tableScroll')?.scrollHeight || 0,
@@ -1212,7 +1235,9 @@ async function lintL3(page, cfg = {}) {
     };
   });
   const winCount = win.vcnt || win.cnt;
-  if (winCount?.total > 500) {
+  if (!win.windowed) {
+    skipped('I-96: windowing (no windowed table on this view)');
+  } else if (winCount?.total > 500) {
     ok('I-96: a windowed table draws far fewer rows than it has', win.drawn > 0 && win.drawn < 200, `${win.drawn} rows drawn`);
     ok('I-96: spacer rows present (scroll height preserved)', win.pads === 2);
     ok('I-96: the control row still reports the FULL count (§4.3 contract)', !!(winCount && winCount.total > win.drawn), JSON.stringify(winCount));
@@ -1444,6 +1469,744 @@ async function runTier4(page, cfg, workbookPath) {
   await lintTableChrome(page, cfg);
 }
 
+// ── Tier 5: C1 attached-table geometry (spec §4.2 rev 1.62 / 1.64 / §8.2 assertion 21) ──
+// The four owner-reported details are measured in the browser, not inferred from the
+// markup: (1) each bar lies wholly inside its month column and data-points.cx maps to
+// the month-header centres, at the default period AND after the From / To sliders move;
+// (2) the legend is a child of the SVG and, for an attached-table panel, sits ABOVE the
+// first horizontal grid line; (3) a vertical Y-axis line spans the plot at its left edge
+// and the Y caption is rotated in grid column 1; (4) the table header row is flush with
+// the plot's X axis (the last grid line) and the SVG draws no separate X labels. Owner
+// decisions 2026-11-06 omit the as-of subtitle and forbid horizontal scrolling; decision
+// 1 is superseded for attached-table panels so the plot bottom can touch the <thead>.
+async function measureC1Geometry(page, c) {
+  return page.evaluate(cfg => {
+    const board = document.querySelector(cfg.boardSelector);
+    if (!board) return { missing: true };
+    const grid = board.querySelector(cfg.gridSelector);
+    const plot = board.querySelector(cfg.plotSelector);
+    const svg = plot && plot.querySelector('svg');
+    const table = board.querySelector(cfg.tableSelector);
+    if (!grid || !plot || !svg || !table) return { missing: true };
+    const R = el => {
+      const r = el.getBoundingClientRect();
+      return {
+        l: r.left, t: r.top, r: r.right, b: r.bottom, w: r.width, h: r.height,
+        cx: (r.left + r.right) / 2, cy: (r.top + r.bottom) / 2
+      };
+    };
+    const svgBox = R(svg), plotBox = R(plot);
+    const heads = [...table.querySelectorAll(cfg.monthHeadSelector)].map(R);
+    const corner = table.querySelector(cfg.cornerHeadSelector);
+    const headRow = table.querySelector('thead tr');
+    const cols = table.querySelectorAll(cfg.colSelector).length;
+    const barEls = [...svg.querySelectorAll(cfg.barSelector)];
+    const dots = [...svg.querySelectorAll(cfg.dotSelector)].map(R);
+    const gridLines = [...svg.querySelectorAll(cfg.gridLineSelector)].map(R);
+    const yAxis = grid.querySelector(cfg.yAxisSelector);
+    const yTicks = yAxis ? yAxis.querySelectorAll(cfg.yTickSelector).length : 0;
+    const yCap = yAxis && yAxis.querySelector(cfg.yCaptionSelector);
+    const yCapCs = yCap ? getComputedStyle(yCap) : null;
+    const yCapBox = yCap ? R(yCap) : null;
+    const legend = svg.querySelector(cfg.legendSelector);
+    const legendBox = legend ? R(legend) : null;
+    const axisLine = document.querySelector(cfg.axisLineSelector);
+    const axisBox = axisLine ? R(axisLine) : null;
+    const htmlLegend = document.querySelectorAll(cfg.htmlLegendSelector).length;
+    const svgXLabels = svg.querySelectorAll(cfg.svgXLabelSelector).length;
+    const gridCs = getComputedStyle(grid);
+    const tracks = (gridCs.gridTemplateColumns || '').trim().split(/\s+/).map(parseFloat).filter(Number.isFinite);
+    // preserveAspectRatio="xMidYMid meet" can letterbox the viewBox. Derive the real
+    // scale and the X offset before comparing SVG units with CSS pixels.
+    const vb = svg.viewBox && svg.viewBox.baseVal;
+    const scale = vb && vb.width ? Math.min(svgBox.w / vb.width, svgBox.h / vb.height) : 1;
+    const offX = vb ? svgBox.l + (svgBox.w - vb.width * scale) / 2 : svgBox.l;
+    let pts = [];
+    try { pts = JSON.parse((board.getAttribute('data-points') || '[]').replace(/&#39;/g, "'")); } catch (_) {}
+    // §4.2 rev 1.64 — the ONE C1 metadata payload is the source of truth for Y ticks.
+    // Read it together with the rendered labels and the grid-line Y coordinates (SVG units).
+    let c1meta = {};
+    try { c1meta = JSON.parse((board.getAttribute('data-c1meta') || '{}').replace(/&#39;/g, "'")); } catch (_) {}
+    // §4.2 rev 1.65 — the windowed peak and the absolute cumulative values come from the SAME
+    // data-points payload; the enabled series and Bars toggle come from the one metadata object.
+    const axisVis = Array.isArray(c1meta.vis) ? c1meta.vis : [];
+    const axisBars = c1meta.bars !== false;
+    const axisKeys = [];
+    if (axisVis.includes('plan')) axisKeys.push('pCum', ...(axisBars ? ['pNew'] : []));
+    if (axisVis.includes('forecast')) axisKeys.push('fCum', ...(axisBars ? ['fNew'] : []));
+    if (axisVis.includes('actualFirst')) axisKeys.push('aFCum', ...(axisBars ? ['aFNew'] : []));
+    if (axisVis.includes('actualResub')) axisKeys.push('aRCum', ...(axisBars ? ['aRNew'] : []));
+    const windowPeak = pts.reduce((m, p) => Math.max(m, ...axisKeys.map(k => Number(p[k]) || 0)), 0);
+    const cumByLabel = {};
+    pts.forEach(p => { cumByLabel[p.label] = ['pCum', 'fCum', 'aFCum', 'aRCum'].map(k => Number(p[k]) || 0); });
+    const tickLabels = (yAxis ? [...yAxis.querySelectorAll(cfg.yTickSelector)] : [])
+      .map(el => Number(String(el.textContent || '').replace(/,/g, '')))
+      .filter(Number.isFinite).sort((a, b) => a - b);
+    const gridYUnits = [...svg.querySelectorAll(cfg.gridLineSelector)]
+      .map(el => Number(el.getAttribute('y1'))).filter(Number.isFinite).sort((a, b) => a - b);
+    const minGridSpacing = gridYUnits.length > 1
+      ? Math.min(...gridYUnits.slice(1).map((y, i) => y - gridYUnits[i])) : 0;
+    // §4.2 rev 1.65 — acceptance: chart grid lines, HTML axis labels and the hover / refit
+    // geometry (data-geo.yTop / yBot) must all represent the SAME Y-axis scale after a period
+    // change. PNG/Copy serialise those same .c1-ytick labels, so they follow the same scale.
+    let geo = {};
+    try { geo = JSON.parse((board.getAttribute('data-geo') || '{}').replace(/&#39;/g, "'")); } catch (_) {}
+    const geoTop = Number(geo.yTop), geoBot = Number(geo.yBot), metaMax = Number(c1meta.yMax);
+    const gridScaleMaxDelta = (() => {
+      if (!(geoBot > geoTop) || !(metaMax > 0) || gridYUnits.length !== tickLabels.length || !gridYUnits.length) return Infinity;
+      const expected = tickLabels.map(v => geoBot - (v / metaMax) * (geoBot - geoTop)).sort((a, b) => a - b);
+      return Math.max(...expected.map((y, i) => Math.abs(y - gridYUnits[i])));
+    })();
+    const tol = cfg.alignTolerance;
+    const nearest = x => heads.reduce(
+      (best, h, i) => Math.abs(h.cx - x) < best.d ? { i, d: Math.abs(h.cx - x) } : best,
+      { i: -1, d: Infinity }
+    );
+    const pointDelta = pts.map((p, i) => heads[i]
+      ? Math.abs(offX + Number(p.cx) * scale - heads[i].cx) : Infinity).filter(Number.isFinite);
+    const bandW = vb && pts.length ? vb.width / pts.length : 0;
+    let barOutside = 0, barWrongColumn = 0;
+    barEls.forEach(el => {
+      const b = R(el);
+      const hit = heads.findIndex(h => b.l >= h.l - tol && b.r <= h.r + tol);
+      // The bar's x attribute is in SVG user units. Match it to the month whose
+      // data-points.cx it belongs to, then require the rendered box in that SAME
+      // column. Containment alone would pass when a stretched SVG shifts the bar
+      // into a neighbouring column.
+      const ux = parseFloat(el.getAttribute('x')) + parseFloat(el.getAttribute('width')) / 2;
+      const idx = bandW > 0 ? pts.findIndex(p => Math.abs(Number(p.cx) - ux) <= bandW / 2 + 1) : -1;
+      if (hit < 0 || idx < 0) barOutside++;
+      else if (idx !== hit) barWrongColumn++;
+    });
+    let dotOutside = 0, dotMaxDelta = 0;
+    dots.forEach(d => {
+      const n = nearest(d.cx);
+      if (n.i < 0 || n.d > tol + 2) dotOutside++;
+      if (Number.isFinite(n.d)) dotMaxDelta = Math.max(dotMaxDelta, n.d);
+    });
+    const trackDeltas = heads.map((h, i) => tracks[i + 1] != null ? Math.abs(tracks[i + 1] - h.w) : Infinity);
+    if (corner && tracks[0] != null) trackDeltas.push(Math.abs(tracks[0] - R(corner).w));
+    const firstGridY = gridLines.length ? Math.min(...gridLines.map(g => g.cy)) : null;
+    const lastGridY = gridLines.length ? Math.max(...gridLines.map(g => g.cy)) : null;
+    return {
+      missing: false,
+      pointCount: pts.length, headCount: heads.length, colCount: cols,
+      bars: barEls.length, dots: dots.length, gridLines: gridLines.length, yTicks,
+      c1meta: {
+        yMax: Number(c1meta.yMax) || null,
+        yStep: Number(c1meta.yStep) || null,
+        yIntervals: Number(c1meta.yIntervals) || null
+      },
+      tickLabels, minGridSpacing, gridScaleMaxDelta, windowPeak, cumByLabel,
+      pointMaxDelta: pointDelta.length ? Math.max(...pointDelta) : Infinity,
+      barOutside, barWrongColumn, dotOutside, dotMaxDelta,
+      diag: {
+        vbW: vb ? vb.width : null, vbH: vb ? vb.height : null,
+        svgW: +svgBox.w.toFixed(1), svgH: +svgBox.h.toFixed(1),
+        scale: +scale.toFixed(4), inset: +(offX - svgBox.l).toFixed(1),
+        svgLeft: +svgBox.l.toFixed(1), plotLeft: +plotBox.l.toFixed(1),
+        point0: pts[0] ? Number(pts[0].cx) : null,
+        head0: heads[0] ? +heads[0].cx.toFixed(1) : null
+      },
+      trackMaxDelta: trackDeltas.length ? Math.max(...trackDeltas) : Infinity,
+      tracks: tracks.length, tracksExpected: heads.length + 1,
+      legendInsideSvg: !!(legend && svg.contains(legend)),
+      legendBelowPlot: !!(legendBox && lastGridY != null && legendBox.t >= lastGridY - tol),
+      legendAbovePlot: !!(legendBox && firstGridY != null && legendBox.b <= firstGridY + tol),
+      legendWithinSvg: !!(legendBox && legendBox.b <= svgBox.b + tol && legendBox.l >= svgBox.l - tol && legendBox.r <= svgBox.r + tol),
+      htmlLegend, svgXLabels,
+      axisLinePresent: !!axisLine,
+      axisVertical: !!(axisBox && axisBox.w <= 2 && axisBox.h > 0),
+      axisAtPlotLeft: !!(axisBox && Math.abs(axisBox.l - svgBox.l) <= tol + 2),
+      axisSpansPlot: !!(axisBox && lastGridY != null && firstGridY != null && axisBox.h >= (lastGridY - firstGridY) * 0.9),
+      yCapPresent: !!yCap,
+      yCapRotated: !!(yCapCs && (/vertical/.test(yCapCs.writingMode) || /rotate/.test(yCapCs.transform || ''))),
+      yCapInColumn1: !!(yCapBox && yCapBox.l < plotBox.l),
+      // §4.2 rev 1.62 — adjacency is measured against the plot's X axis (last grid line),
+      // not the SVG box bottom, so a bottom legend band cannot masquerade as a flush join.
+      headTopDelta: headRow && lastGridY != null ? Math.abs(R(headRow).t - lastGridY) : Infinity,
+      rowGap: parseFloat(gridCs.rowGap) || 0, columnGap: parseFloat(gridCs.columnGap) || 0,
+      noHScroll: grid.getBoundingClientRect().width > 0 && grid.scrollWidth <= grid.clientWidth + tol
+    };
+  }, c);
+}
+
+// A repaint rewrites data-points and the viewBox together. Wait until they agree so a
+// pending ResizeObserver callback cannot be measured halfway through a refit.
+async function waitForC1Stable(page) {
+  await page.waitForTimeout(150);
+  await page.waitForFunction(() => {
+    const b = document.querySelector('.scurve.sc-board');
+    const s = b && b.querySelector('svg');
+    if (!b || !s || !s.viewBox || !s.viewBox.baseVal) return false;
+    return Math.abs(Number(b.getAttribute('data-c1w') || 0) - s.viewBox.baseVal.width) < 2;
+  }, null, { timeout: 4000 }).catch(() => {});
+}
+
+// Move the From / To range sliders to a different period window. The C1 change handler
+// reads both inputs on every change event and repaints, so N changes and both the curve
+// payload and the table columns must be rebuilt from the same period count.
+async function c1ChangePeriod(page, c) {
+  const from = page.locator(c.periodFromSelector), to = page.locator(c.periodToSelector);
+  if (!(await from.count()) || !(await to.count())) return null;
+  const max = Number(await to.getAttribute('max'));
+  const f0 = Number(await from.inputValue()), t0 = Number(await to.inputValue());
+  if (!(Number.isFinite(max) && max > 0) || !Number.isFinite(f0) || !Number.isFinite(t0)) return null;
+  let f = f0, t = t0;
+  if (t0 - f0 >= 2) { f = f0 + 1; t = t0 - 1; }
+  else if (t0 < max) t = Math.min(max, t0 + 1);
+  else f = Math.max(0, f0 - 1);
+  if (f === f0 && t === t0) return null;
+  await from.evaluate((el, v) => { el.value = String(v); el.dispatchEvent(new Event('change', { bubbles: true })); }, f);
+  await page.waitForTimeout(200);
+  await to.evaluate((el, v) => { el.value = String(v); el.dispatchEvent(new Event('change', { bubbles: true })); }, t);
+  await waitForC1Stable(page);
+  return { f: f0, t: t0 };
+}
+
+async function c1RestorePeriod(page, c, original) {
+  await page.evaluate(cfg => {
+    const a = document.querySelector(cfg.fromSelector), b = document.querySelector(cfg.toSelector);
+    if (!a || !b) return;
+    a.value = String(cfg.f); b.value = String(cfg.t);
+    a.dispatchEvent(new Event('change', { bubbles: true }));
+  }, { fromSelector: c.periodFromSelector, toSelector: c.periodToSelector, f: original.f, t: original.t });
+  await waitForC1Stable(page);
+}
+
+// §4.2 rev 1.64 — the four dynamic-tick assertions are shared so they can be re-run after a
+// period change (rev 1.65). `tag` only labels the verdict in the harness output.
+function assertC1Axis(g, c, tag) {
+  const mt = g.c1meta || {}, labels = g.tickLabels || [];
+  const maxI = c.maxTickIntervals ?? 7, minS = c.minTickSpacing ?? 40, maxL = c.maxTickLabels ?? 8;
+  const spacingTol = c.tickSpacingTolerance ?? 1;
+  ok(`C1 Y ticks are generated from the one chart metadata payload (rev 1.64, ${tag})`,
+    mt.yMax > 0 && mt.yStep > 0 && mt.yIntervals >= 1 &&
+    labels.length === mt.yIntervals + 1 && g.gridLines === labels.length && g.yTicks === labels.length,
+    `yMax=${mt.yMax} step=${mt.yStep} intervals=${mt.yIntervals} labels=${labels.length} gridLines=${g.gridLines} yTicks=${g.yTicks}`);
+  ok(`C1 Y ticks respect the 7-interval / 8-label cap (${tag})`,
+    mt.yIntervals >= 1 && mt.yIntervals <= maxI && labels.length >= 2 && labels.length <= maxL,
+    `intervals=${mt.yIntervals} labels=${labels.length} maxIntervals=${maxI} maxLabels=${maxL}`);
+  ok(`C1 major ticks are at least ~40 units apart (${tag})`,
+    g.minGridSpacing >= minS - spacingTol,
+    `minSpacing=${g.minGridSpacing} min=${minS}`);
+  ok(`C1 tick labels are nice-number multiples of yStep with a round top (${tag})`,
+    labels.length === mt.yIntervals + 1 && labels.every((v, i) => Math.abs(v - i * mt.yStep) < 1) &&
+    Math.abs(mt.yStep * mt.yIntervals - mt.yMax) < 1 &&
+    Math.abs(labels[labels.length - 1] - mt.yMax) < 1,
+    `labels=${labels.join('/')} step=${mt.yStep} yMax=${mt.yMax}`);
+}
+
+// §4.2 rev 1.65 / I119 — pick a SHORTER period window from the DATA, not a fixed fraction.
+// The candidate index must be in range, leave at least minAxisProbePoints months, have a
+// materially lower peak than the full window AND yield a different nice-number axis. Otherwise
+// return a skip reason; an unsuitable dataset must never fail the harness.
+async function c1PickAxisProbe(page, c) {
+  return page.evaluate(cfg => {
+    const board = document.querySelector(cfg.boardSelector);
+    const fromEl = document.querySelector(cfg.fromSelector), toEl = document.querySelector(cfg.toSelector);
+    if (!board || !fromEl || !toEl) return { skip: 'C1 board or period sliders unavailable' };
+    let pts = [], meta = {};
+    try { pts = JSON.parse((board.getAttribute('data-points') || '[]').replace(/&#39;/g, "'")); } catch (_) {}
+    try { meta = JSON.parse((board.getAttribute('data-c1meta') || '{}').replace(/&#39;/g, "'")); } catch (_) {}
+    if (meta.grain !== 'month') return { skip: 'probe requires month grain' };
+    const vis = Array.isArray(meta.vis) ? meta.vis : [], bars = meta.bars !== false, keys = [];
+    if (vis.includes('plan')) keys.push('pCum', ...(bars ? ['pNew'] : []));
+    if (vis.includes('forecast')) keys.push('fCum', ...(bars ? ['fNew'] : []));
+    if (vis.includes('actualFirst')) keys.push('aFCum', ...(bars ? ['aFNew'] : []));
+    if (vis.includes('actualResub')) keys.push('aRCum', ...(bars ? ['aRNew'] : []));
+    const minPoints = cfg.minAxisProbePoints ?? 3;
+    const maxI = Math.max(1, Math.min(cfg.maxTickIntervals ?? 7, Math.floor(300 / (cfg.minTickSpacing ?? 40))));
+    // Local copy of the standard nice-number rule, used only to check that the probe would
+    // actually change the axis. It is not a second source of truth for the dashboard.
+    const niceMax = M => {
+      const m = Math.max(1, M), pow = 10 ** Math.floor(Math.log10(m / maxI));
+      let step = m, n = 1;
+      outer: for (let k = 0; k < 16; k++) {
+        const base = pow * 10 ** k;
+        for (const mult of [1, 2, 2.5, 5]) {
+          const s = Math.max(1, mult * base), q = Math.ceil(m / s - 1e-9);
+          if (q >= 1 && q <= maxI) { step = s; n = q; break outer; }
+        }
+      }
+      return step * n;
+    };
+    const peaks = [];
+    let running = 0;
+    pts.forEach(p => { running = Math.max(running, ...keys.map(k => Number(p[k]) || 0)); peaks.push(running); });
+    const fullPeak = peaks[peaks.length - 1] || 0, fullAxis = niceMax(fullPeak);
+    const f = Number(fromEl.value), t = Number(toEl.value), maxTo = Number(toEl.max);
+    if (!Number.isFinite(f) || !Number.isFinite(t) || !Number.isFinite(maxTo)) return { skip: 'period range values not finite' };
+    if (pts.length < minPoints || !(fullPeak > 0)) return { skip: `dataset too short or no positive peak (points=${pts.length}, peak=${fullPeak})` };
+    const threshold = fullPeak * (cfg.axisPeakDropRatio ?? 0.9);
+    const guess = Math.max(minPoints - 1, Math.min(pts.length - 1, Math.floor((pts.length - 1) * (cfg.axisWindowProbeFraction ?? 0.33))));
+    const usable = i => {
+      const peak = peaks[i], to = f + i;
+      return i >= minPoints - 1 && i < pts.length && peak > 0 && peak <= threshold &&
+        to >= f && to <= maxTo && to <= t && niceMax(peak) < fullAxis;
+    };
+    let idx = -1;
+    for (let i = guess; i >= minPoints - 1; i--) if (usable(i)) { idx = i; break; }
+    if (idx < 0) for (let i = guess + 1; i < pts.length; i++) if (usable(i)) { idx = i; break; }
+    if (idx < 0) return { skip: `no shorter window with a meaningfully lower peak (points=${pts.length}, fullPeak=${fullPeak}, fullAxis=${fullAxis})` };
+    return { f, t, to: f + idx, idx, fullPeak, probePeak: peaks[idx], fullAxis, probeAxis: niceMax(peaks[idx]) };
+  }, {
+    boardSelector: c.boardSelector, fromSelector: c.periodFromSelector, toSelector: c.periodToSelector,
+    axisWindowProbeFraction: c.axisWindowProbeFraction, axisPeakDropRatio: c.axisPeakDropRatio,
+    minAxisProbePoints: c.minAxisProbePoints, maxTickIntervals: c.maxTickIntervals,
+    minTickSpacing: c.minTickSpacing
+  });
+}
+
+async function c1ApplyAxisWindow(page, c, value) {
+  await page.evaluate(({ sel, v }) => {
+    const el = document.querySelector(sel);
+    if (el) { el.value = String(v); el.dispatchEvent(new Event('change', { bubbles: true })); }
+  }, { sel: c.periodToSelector, v: value });
+  await waitForC1Stable(page);
+}
+
+async function lintC1Geometry(page, cfg) {
+  const c = cfg.c1; if (!c) return;
+  console.log('\n── Tier 5: C1 attached-table geometry (§4.2 / §8.2 assertion 21) ──');
+  const tol = c.alignTolerance ?? 2, adj = c.adjacencyTolerance ?? 2;
+  await waitForC1Stable(page);
+  const g = await measureC1Geometry(page, c);
+  ok('C1 one grid, one plot and one native attached table', !g.missing,
+    g.missing ? 'missing .c1-grid / .c1-plot / svg / table.c1-table' : '');
+  if (g.missing) return;
+  console.log('  INFO C1 viewBox geometry', JSON.stringify(g.diag));
+  ok('C1 data-points, month headers and colgroup columns agree',
+    g.pointCount > 0 && g.pointCount === g.headCount && g.colCount === g.headCount + 1,
+    `points=${g.pointCount} heads=${g.headCount} cols=${g.colCount}`);
+  ok('C1 grid tracks and table colgroup share one X boundary',
+    g.tracks === g.tracksExpected && g.trackMaxDelta <= tol,
+    `tracks=${g.tracks} expected=${g.tracksExpected} maxDelta=${g.trackMaxDelta}`);
+  ok('C1 bars lie wholly inside their own month columns',
+    g.bars > 0 && g.barOutside === 0 && g.barWrongColumn === 0,
+    `bars=${g.bars} outside=${g.barOutside} wrongColumn=${g.barWrongColumn}`);
+  ok('C1 line dots snap to month column centres',
+    g.dots > 0 && g.dotOutside === 0 && g.dotMaxDelta <= tol,
+    `dots=${g.dots} outside=${g.dotOutside} maxDelta=${g.dotMaxDelta}`);
+  ok('C1 data-points.cx maps to month column centres', g.pointMaxDelta <= tol,
+    `maxDelta=${g.pointMaxDelta} viewBox=${JSON.stringify(g.diag)}`);
+  const legendAbove = c.legendAbovePlot === true;
+  const legendOk = legendAbove ? g.legendAbovePlot : g.legendBelowPlot;
+  ok(`C1 legend sits inside the SVG ${legendAbove ? 'above' : 'below'} the plot`,
+    g.legendInsideSvg && legendOk && g.legendWithinSvg && g.htmlLegend === 0,
+    `inside=${g.legendInsideSvg} above=${g.legendAbovePlot} below=${g.legendBelowPlot} within=${g.legendWithinSvg} html=${g.htmlLegend}`);
+  ok('C1 vertical Y-axis line spans the plot at its left edge',
+    g.axisLinePresent && g.axisVertical && g.axisAtPlotLeft && g.axisSpansPlot,
+    `present=${g.axisLinePresent} vertical=${g.axisVertical} atLeft=${g.axisAtPlotLeft} spans=${g.axisSpansPlot}`);
+  ok('C1 Y caption is rotated along the axis in column 1',
+    g.yCapPresent && g.yCapRotated && g.yCapInColumn1,
+    `present=${g.yCapPresent} rotated=${g.yCapRotated} inColumn1=${g.yCapInColumn1}`);
+  // §4.2 rev 1.64 — dynamic Y ticks. One metadata payload drives labels, grid lines and marks.
+  assertC1Axis(g, c, 'full window');
+  ok('C1 table header row is flush with the chart X axis', g.headTopDelta <= adj,
+    `gap=${g.headTopDelta}px tolerance=${adj}px`);
+  ok('C1 chart draws no separate X labels', g.svgXLabels === 0, `svgXLabels=${g.svgXLabels}`);
+  ok('C1 grid has zero gaps and no horizontal scroll',
+    g.rowGap === 0 && g.columnGap === 0 && g.noHScroll,
+    `rowGap=${g.rowGap} columnGap=${g.columnGap} noHScroll=${g.noHScroll}`);
+
+  const original = await c1ChangePeriod(page, c);
+  if (!original) {
+    skipped('C1 alignment after a time-range change (period sliders unavailable)');
+  } else {
+    const g2 = await measureC1Geometry(page, c);
+    ok('C1 time-range change rebuilds points, headers and colgroup together',
+      !g2.missing && g2.pointCount > 0 && g2.pointCount === g2.headCount && g2.colCount === g2.headCount + 1,
+      g2.missing ? 'board missing after repaint' : `points=${g2.pointCount} heads=${g2.headCount} cols=${g2.colCount}`);
+    if (!g2.missing) {
+      ok('C1 bars stay in their month columns after a time-range change',
+        g2.bars > 0 && g2.barOutside === 0 && g2.barWrongColumn === 0,
+        `bars=${g2.bars} outside=${g2.barOutside} wrongColumn=${g2.barWrongColumn}`);
+      ok('C1 line dots stay snapped after a time-range change',
+        g2.dots > 0 && g2.dotOutside === 0 && g2.dotMaxDelta <= tol,
+        `dots=${g2.dots} outside=${g2.dotOutside} maxDelta=${g2.dotMaxDelta}`);
+      ok('C1 data-points.cx stays mapped after a time-range change', g2.pointMaxDelta <= tol,
+        `maxDelta=${g2.pointMaxDelta} viewBox=${JSON.stringify(g2.diag)}`);
+      ok('C1 grid tracks stay aligned after a time-range change',
+        g2.tracks === g2.tracksExpected && g2.trackMaxDelta <= tol,
+        `tracks=${g2.tracks} expected=${g2.tracksExpected} maxDelta=${g2.trackMaxDelta}`);
+    }
+    await c1RestorePeriod(page, c, original);
+  }
+
+  // §4.2 rev 1.65 / I119 — after a period change, chart, grid, labels, hover/refit metadata and
+  // PNG/Copy must all represent the SAME Y-axis scale. The probe window is chosen from the data;
+  // an unsuitable dataset is SKIPPED, never FAILED. axisMinFill is a harness quality criterion.
+  const probe = await c1PickAxisProbe(page, c);
+  if (!probe || probe.skip) {
+    skipped(`C1 window-based Y-axis probe (${probe && probe.skip ? probe.skip : 'probe unavailable'})`);
+    return;
+  }
+  await c1ApplyAxisWindow(page, c, probe.to);
+  const g3 = await measureC1Geometry(page, c);
+  const tolPeak = c.axisPeakTolerance ?? 1;
+  const yMax3 = (g3.c1meta || {}).yMax || 0;
+  assertC1Axis(g3, c, 'short window');
+  ok('C1 Y-axis maximum is recomputed from the selected period window (rev 1.65)',
+    !g3.missing && g3.windowPeak > 0 &&
+    Math.abs(g3.windowPeak - probe.probePeak) <= tolPeak &&
+    g3.windowPeak < probe.fullPeak &&
+    yMax3 >= probe.probePeak - tolPeak && yMax3 < (g.c1meta || {}).yMax &&
+    Math.abs(yMax3 - probe.probeAxis) <= tolPeak,
+    `fullPeak=${probe.fullPeak} fullYMax=${(g.c1meta || {}).yMax} probePeak=${probe.probePeak} probeAxis=${probe.probeAxis} windowYMax=${yMax3} idx=${probe.idx}`);
+  ok('C1 window keeps the axis fill above the harness quality threshold',
+    g3.windowPeak / (yMax3 || 1) >= (c.axisMinFill ?? 0.75),
+    `fill=${((g3.windowPeak / (yMax3 || 1)) * 100).toFixed(1)}% min=${c.axisMinFill ?? 0.75}`);
+  // Absolute cumulative values: every month present in both windows keeps the same four values.
+  ok('C1 chart grid, axis labels, hover/refit geometry and PNG/Copy share one Y-axis scale after a period change',
+    g3.gridScaleMaxDelta <= tolPeak,
+    `maxDelta=${g3.gridScaleMaxDelta} yMax=${yMax3} labels=${(g3.tickLabels || []).join('/')}`);
+  const shared = Object.keys(g3.cumByLabel || {}).filter(k => Object.hasOwn(g.cumByLabel || {}, k));
+  ok('C1 cumulative values stay absolute after a period change (no rebase)',
+    shared.length > 0 && shared.every(k => {
+      const a = g.cumByLabel[k], b = g3.cumByLabel[k];
+      return a.length === 4 && b.length === 4 && a.every((v, i) => Math.abs(v - b[i]) <= tolPeak);
+    }),
+    `sharedMonths=${shared.length}`);
+  await c1RestorePeriod(page, c, { f: probe.f, t: probe.t });
+}
+
+// ── Tier 5: C1 dual-handle period time bar (spec §4.2 rev 1.66 / §8.2 assertion 21) ──
+// C1-only and opt-in via cfg.c1.timeBar. Measures the live DOM and the browser's own
+// `input` / `change` split, so the drag decoupling and the preset ranges are not inferred.
+async function lintC1TimeBar(page, cfg) {
+  const t = cfg.c1 && cfg.c1.timeBar;
+  if (!t) return;
+  console.log('\n── Tier 5: C1 dual-handle period time bar (§4.2 rev 1.66 / 1.67) ──');
+  await waitForC1Stable(page);
+  // §4.2 rev 1.67 — earlier C1 lint steps end on a manual custom range with NO active chip.
+  // Select `All` first so the single-select assertions start from a known preset state.
+  await page.locator(`${t.chipSelector}[data-c1preset="All"]`).first().click();
+  await waitForC1Stable(page);
+  const probe = () => page.evaluate(s => {
+    const q = x => document.querySelector(x);
+    const qa = x => [...document.querySelectorAll(x)];
+    const bar = q(s.barSelector);
+    if (!bar) return { missing: true };
+    const board = bar.closest('.sc-board');
+    const tracks = qa(s.trackSelector).filter(el => bar.contains(el));
+    const inputs = tracks.length === 1 ? [...tracks[0].querySelectorAll('input[type="range"]')] : [];
+    const from = inputs.find(el => el.dataset.c1period === 'from');
+    const to = inputs.find(el => el.dataset.c1period === 'to');
+    const ticks = qa(s.tickSelector).filter(el => bar.contains(el));
+    const chips = qa(s.chipSelector).filter(el => bar.contains(el));
+    let months = [];
+    try { months = JSON.parse(bar.dataset.c1months || '[]'); } catch { months = []; }
+    let points = [];
+    try { points = JSON.parse(board?.getAttribute('data-points') || '[]'); } catch { points = []; }
+    return {
+      tracks: tracks.length, inputs: inputs.length, hasFrom: !!from, hasTo: !!to,
+      steps: inputs.map(el => Number(el.getAttribute('step'))),
+      min: from ? Number(from.getAttribute('min')) : -1,
+      maxFrom: from ? Number(from.getAttribute('max')) : -1,
+      maxTo: to ? Number(to.getAttribute('max')) : -1,
+      values: [from ? Number(from.value) : -1, to ? Number(to.value) : -1],
+      whole: inputs.every(el => Number.isInteger(Number(el.value))),
+      ariaLabels: inputs.every(el => !!el.getAttribute('aria-label')),
+      ariaTexts: inputs.every(el => !!el.getAttribute('aria-valuetext')),
+      ticks: ticks.length, tickIndices: ticks.map(el => Number(el.dataset.c1month)),
+      tickPointer: ticks.every(el => getComputedStyle(el).pointerEvents === 'none'),
+      months: months.length, monthsList: months, asOf: bar.dataset.c1asof || '',
+      heads: board ? board.querySelectorAll('table.c1-table thead th.g-axis').length : 0,
+      points: points.length,
+      presets: chips.map(el => el.dataset.c1preset),
+      pressed: chips.map(el => el.getAttribute('aria-pressed')),
+      pressedMap: chips.reduce((acc, el) => { acc[el.dataset.c1preset] = el.getAttribute('aria-pressed'); return acc; }, {}),
+      pressedTrue: chips.filter(el => el.getAttribute('aria-pressed') === 'true').map(el => el.dataset.c1preset),
+      activeClass: chips.filter(el => el.classList.contains('active')).map(el => el.dataset.c1preset),
+      segGroups: document.querySelectorAll(s.segmentedSelector).length,
+      segButtons: document.querySelectorAll(s.segmentedButtonSelector).length,
+      chipGroupLabel: !!q(s.chipsSelector)?.getAttribute('aria-label'),
+      periodText: (q(s.periodTextSelector)?.textContent || '').trim(),
+    };
+  }, t);
+  const r = await probe();
+  ok('C1 period control is ONE dual-handle track with two native range inputs (rev 1.66)',
+    !r.missing && r.tracks === 1 && r.inputs === 2 && r.hasFrom && r.hasTo,
+    r.missing ? 'no #c1TimeBar' : `tracks=${r.tracks} inputs=${r.inputs} from=${r.hasFrom} to=${r.hasTo}`);
+  if (r.missing) return;
+  const step = t.periodStep ?? 1;
+  ok('C1 time bar snaps magnetically to whole reporting months (step="1")',
+    r.steps.length === 2 && r.steps.every(v => v === step) && r.whole &&
+    r.min === 0 && r.maxFrom === r.maxTo && r.maxTo === r.months - 1 && r.months > 1,
+    `steps=${r.steps} min=${r.min} max=${r.maxFrom}/${r.maxTo} months=${r.months} values=${r.values}`);
+  ok('C1 time bar draws one visual-only tick per reporting month',
+    r.ticks === r.months && r.tickIndices.every((v, i) => v === i) && r.tickPointer,
+    `ticks=${r.ticks} months=${r.months} pointerEventsNone=${r.tickPointer}`);
+  ok('C1 presets form ONE joined segmented group of five buttons (rev 1.67)',
+    JSON.stringify(r.presets) === JSON.stringify(t.expectedPresets) && r.chipGroupLabel &&
+    r.segGroups === 1 && r.segButtons === t.expectedPresets.length,
+    `presets=${r.presets} segGroups=${r.segGroups} segButtons=${r.segButtons} groupLabel=${r.chipGroupLabel}`);
+  ok('C1 presets are mutually exclusive: exactly ONE active chip (rev 1.67)',
+    r.pressedTrue.length === 1 && r.pressedTrue[0] === 'All' &&
+    r.activeClass.length === 1 && r.activeClass[0] === 'All' &&
+    r.pressed.every(v => v === 'true' || v === 'false'),
+    `pressed=${r.pressed} pressedTrue=${r.pressedTrue} activeClass=${r.activeClass}`);
+  ok('C1 time bar handles carry aria-label, aria-valuetext and a period text',
+    r.ariaLabels && r.ariaTexts && r.periodText.length > 0,
+    `labels=${r.ariaLabels} valueTexts=${r.ariaTexts} text="${r.periodText}"`);
+  const focusCss = await page.evaluate(() => [...document.styleSheets].some(sheet => {
+    try {
+      const rules = [...sheet.cssRules];
+      return rules.some(rule => /c1-ts-input:focus-visible/.test(rule.cssText) && /outline/.test(rule.cssText)) &&
+        rules.some(rule => /c1-ts-chips \.seg-btn:focus-visible/.test(rule.cssText));
+    } catch { return false; }
+  }));
+  ok('C1 time bar inputs and chips have a visible focus-visible outline (rev 1.66)', focusCss,
+    `focusCss=${focusCss}`);
+
+  // Live drag: an `input` event alone MUST change only the track visuals, not the chart payload.
+  const live = await page.evaluate(s => {
+    const bar = document.querySelector(s.barSelector);
+    const from = bar?.querySelector('input[data-c1period="from"]');
+    const to = bar?.querySelector('input[data-c1period="to"]');
+    if (!bar || !from || !to) return null;
+    const f = Number(from.value), e = Number(to.value);
+    const before = (document.querySelector(s.periodTextSelector)?.textContent || '').trim();
+    let el = null;
+    if (f + 1 <= e) { from.value = String(f + 1); el = from; }
+    else if (e - 1 >= f) { to.value = String(e - 1); el = to; }
+    if (!el) return null;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    const board = bar.closest('.sc-board');
+    return {
+      before,
+      after: (document.querySelector(s.periodTextSelector)?.textContent || '').trim(),
+      points: JSON.parse(board?.getAttribute('data-points') || '[]').length,
+      activeTicks: document.querySelectorAll(`${s.tickSelector}.is-active`).length,
+      ariaText: el.getAttribute('aria-valuetext'),
+      pressedTrue: [...document.querySelectorAll(s.chipSelector)].filter(c => c.getAttribute('aria-pressed') === 'true').length,
+      activeClass: [...document.querySelectorAll(s.chipSelector)].filter(c => c.classList.contains('active')).length,
+    };
+  }, t);
+  ok('C1 input event updates only the track visuals (rev 1.66 live-drag decoupling)',
+    !!live && live.after !== live.before && live.points === r.points &&
+    live.activeTicks > 0 && !!live.ariaText,
+    live ? `before="${live.before}" after="${live.after}" points=${live.points}/${r.points} activeTicks=${live.activeTicks}` : 'probe unavailable');
+  ok('C1 manual handle input clears every preset chip (rev 1.67)',
+    !!live && live.pressedTrue === 0 && live.activeClass === 0,
+    live ? `pressedTrue=${live.pressedTrue} activeClass=${live.activeClass}` : 'probe unavailable');
+
+  // Presets. `All` restores the anchor before each probe, so every preset starts from the same `to`.
+  const monthsList = r.monthsList, asOf = r.asOf, last = monthsList.length - 1;
+  const expectedRange = (preset, anchor) => {
+    const clamp = (f, e) => [Math.max(0, Math.min(f, last)), Math.max(0, Math.min(e, last))];
+    const idxOfOrBefore = ym => {
+      const hit = monthsList.indexOf(ym);
+      if (hit >= 0) return hit;
+      let found = 0;
+      for (let i = 0; i < monthsList.length; i++) { if (monthsList[i] <= ym) found = i; else break; }
+      return found;
+    };
+    if (preset === '6M') return clamp(anchor - 5, anchor);
+    if (preset === '12M') return clamp(anchor - 11, anchor);
+    if (preset === '24M') return clamp(anchor - 23, anchor);
+    if (preset === 'YTD') {
+      const ym = String(asOf).slice(0, 7);
+      if (!/^\d{4}-\d{2}$/.test(ym)) return clamp(0, anchor);
+      const f = idxOfOrBefore(`${ym.slice(0, 4)}-01`), e = idxOfOrBefore(ym);
+      return clamp(Math.min(f, e), Math.max(f, e));
+    }
+    return [0, last];
+  };
+  const chipSel = p => `${t.chipSelector}[data-c1preset="${p}"]`;
+  for (const preset of t.expectedPresets) {
+    await page.locator(chipSel('All')).first().click();
+    await waitForC1Stable(page);
+    const anchor = (await probe()).values[1];
+    const expected = expectedRange(preset, anchor);
+    await page.locator(chipSel(preset)).first().click();
+    await waitForC1Stable(page);
+    const s = await probe();
+    ok(`C1 preset ${preset} selects its whole-month window and rebuilds the table from the same N (rev 1.66)`,
+      s.values[0] === expected[0] && s.values[1] === expected[1] &&
+      s.points === s.values[1] - s.values[0] + 1 && s.heads === s.points &&
+      s.pressedMap[preset] === 'true' && s.pressedTrue.length === 1 &&
+      s.activeClass.length === 1 && s.activeClass[0] === preset,
+      `anchor=${anchor} expected=${expected} got=${s.values} points=${s.points} heads=${s.heads} pressed=${JSON.stringify(s.pressedMap)} pressedTrue=${s.pressedTrue} activeClass=${s.activeClass}`);
+  }
+  // One keyboard step MUST move exactly one month.
+  await page.locator(chipSel('All')).first().click();
+  await waitForC1Stable(page);
+  const kbBefore = (await probe()).values[0];
+  await page.locator(`${t.trackSelector} input[data-c1period="from"]`).first().focus();
+  await page.keyboard.press('ArrowRight');
+  await waitForC1Stable(page);
+  const kb = await probe();
+  ok('C1 time bar keyboard step moves exactly one reporting month (rev 1.66)',
+    kb.values[0] === kbBefore + step && kb.whole,
+    `before=${kbBefore} after=${kb.values[0]} step=${step}`);
+  ok('C1 manual handle change leaves NO active preset chip (rev 1.67)',
+    kb.pressedTrue.length === 0 && kb.activeClass.length === 0,
+    `pressedTrue=${kb.pressedTrue} activeClass=${kb.activeClass}`);
+  // §4.2 rev 1.67 — ONE visual row at the 1280 px minimum desktop viewport width.
+  const vp = page.viewportSize();
+  const oneRowWidth = t.oneRowWidth ?? 1280;
+  await page.setViewportSize({ width: oneRowWidth, height: vp?.height ?? 900 });
+  await waitForC1Stable(page);
+  const rows = await page.evaluate(s => {
+    const q = x => document.querySelector(x);
+    const tops = el => [...el.children].map(c => Math.round(c.getBoundingClientRect().top));
+    const spread = a => (a.length ? Math.max(...a) - Math.min(...a) : 0);
+    const ctl = q(s.controlSelector), ts = q(s.barSelector);
+    return {
+      ctlSpread: ctl ? spread(tops(ctl)) : -1,
+      tsSpread: ts ? spread(tops(ts)) : -1,
+      tsKids: ts ? ts.children.length : -1,
+      flexWrap: ts ? getComputedStyle(ts).flexWrap : '',
+    };
+  }, t);
+  await page.setViewportSize({ width: vp?.width ?? 1440, height: vp?.height ?? 900 });
+  await waitForC1Stable(page);
+  ok('C1 tools stay on ONE visual row at the 1280 px minimum desktop width (rev 1.67)',
+    rows.ctlSpread >= 0 && rows.ctlSpread <= 16 && rows.tsSpread >= 0 &&
+    rows.tsSpread <= 16 && rows.tsKids === 4 && rows.flexWrap === 'nowrap',
+    `width=${oneRowWidth} ${JSON.stringify(rows)}`);
+  // Print keeps the period text but hides the interactive track and chips.
+  await page.emulateMedia({ media: 'print' });
+  const printed = await page.evaluate(s => {
+    const q = x => document.querySelector(x);
+    const hidden = x => { const el = q(x); return !!el && getComputedStyle(el).display === 'none'; };
+    return {
+      body: hidden(s.bodySelector), chips: hidden(s.chipsSelector),
+      text: !!q(s.periodTextSelector) && getComputedStyle(q(s.periodTextSelector)).display !== 'none',
+    };
+  }, t);
+  await page.emulateMedia({ media: 'screen' });
+  ok('C1 print view hides the interactive track and chips but keeps the period text (rev 1.66)',
+    printed.body && printed.chips && printed.text, JSON.stringify(printed));
+  await page.locator(chipSel('All')).first().click();
+  await waitForC1Stable(page);
+}
+
+// ── Tier 5: C1 attached-table interaction (spec §4.2 rev 1.63 / §8.2 assertion 21) ──
+// C1-only and opt-in via cfg.c1.interaction. Dispatches synthetic pointer events so the whole
+// two-way model is measured in the browser, not inferred from markup: chart hover opens the
+// window, table hover keeps the visual sync with the window closed, pointer-leave clears all.
+async function lintC1Interaction(page, cfg) {
+  const i = cfg.c1 && cfg.c1.interaction;
+  if (!i) return;
+  console.log('\n── Tier 5: C1 attached-table interaction (§4.2 rev 1.63) ──');
+  await waitForC1Stable(page);
+  const r = await page.evaluate((sel) => {
+    const q = s => document.querySelector(s);
+    const qa = s => [...document.querySelectorAll(s)];
+    const out = {};
+    const board = q('.scurve.sc-board');
+    const svg = board && board.querySelector('svg.scurve-svg');
+    const tip = board && board.querySelector('.chart-tip');
+    if (!board || !svg || !tip) { out.missing = true; return out; }
+    const band = q(sel.bandSelector);
+    out.areas = qa(sel.areaSelector).length;
+    out.gradients = qa(sel.gradientSelector).length;
+    out.stops = qa(sel.stopSelector).length;
+    out.stopClasses = [...new Set(qa(sel.stopSelector).map(el => el.getAttribute('class')))].sort();
+    out.areaPointer = qa(sel.areaSelector).every(el => el.getAttribute('pointer-events') === 'none');
+    out.bandPresent = !!band;
+    out.bandPointer = !!band && band.getAttribute('pointer-events') === 'none';
+    out.bandHidden = !!band && getComputedStyle(band).display === 'none';
+    out.bandBehind = !!band && (() => {
+      const kids = [...svg.children], at = kids.indexOf(band);
+      return at >= 0 && kids.slice(at + 1).some(el => el.matches('line.sc-grid, path.sc-area, polyline, rect[class^="sc-bar-"]'));
+    })();
+    const vb = (svg.getAttribute('viewBox') || '0 0 0 0').split(/\s+/).map(Number);
+    const pts = JSON.parse((board.getAttribute('data-points') || '[]').replace(/&#39;/g, "'"));
+    out.bandWidth = band ? Number(band.getAttribute('width')) : 0;
+    out.expectedBandWidth = vb[2] / Math.max(1, pts.length);
+    out.pointCount = pts.length;
+    out.heads = qa(sel.monthHeadSelector).length;
+    out.headCols = new Set(qa(sel.monthHeadSelector).map(el => el.getAttribute('data-c1col'))).size;
+    out.valueCols = new Set(qa(sel.valueCellSelector).map(el => el.getAttribute('data-c1col'))).size;
+    out.dataColLeak = qa('table.c1-table [data-col]').length;
+
+    const fire = (el, type, cx, cy) => el.dispatchEvent(new PointerEvent(type, {
+      bubbles: true, cancelable: true, clientX: cx, clientY: cy, pointerId: 1, isPrimary: true
+    }));
+    const centre = el => { const b = el.getBoundingClientRect(); return [b.left + b.width / 2, b.top + b.height / 2]; };
+    const hidden = () => !tip.classList.contains('show') && tip.getAttribute('aria-hidden') === 'true'
+      && (tip.textContent || '').trim().length === 0;
+    const activeCols = () => [...new Set(qa(sel.activeSelector).map(el => el.getAttribute('data-c1col')))];
+    const snapShown = () => { const s = q(sel.snapSelector); return !!s && getComputedStyle(s).display !== 'none'; };
+    const bandShown = () => !!band && getComputedStyle(band).display !== 'none';
+
+    const [cx, cy] = centre(svg);
+    fire(svg, 'pointermove', cx, cy);
+    out.chartTipShown = tip.classList.contains('show') && (tip.textContent || '').trim().length > 0;
+    out.chartAriaRemoved = !tip.hasAttribute('aria-hidden');
+    out.chartSnap = snapShown();
+    out.chartBand = bandShown();
+    out.chartX = band ? Number(band.getAttribute('x')) : -1;
+    out.chartActive = activeCols();
+
+    const cells = qa(sel.valueCellSelector);
+    const cell = cells.find(el => el.getAttribute('data-c1col') === '3') || cells[0];
+    const [tx, ty] = centre(cell);
+    fire(cell, 'pointermove', tx, ty);
+    out.tableTipHidden = hidden();
+    out.tableSnap = snapShown();
+    out.tableBand = bandShown();
+    out.tableActive = activeCols();
+    out.tableCol = cell.getAttribute('data-c1col');
+    out.tableX = band ? Number(band.getAttribute('x')) : -1;
+
+    const heads = qa(sel.monthHeadSelector);
+    const head = heads.find(el => el.getAttribute('data-c1col') === '5') || heads[0];
+    const [hx, hy] = centre(head);
+    fire(head, 'pointermove', hx, hy);
+    out.headTipHidden = hidden();
+    out.headActive = activeCols();
+    out.headCol = head.getAttribute('data-c1col');
+
+    fire(board, 'pointerleave', 0, 0);
+    out.leaveHidden = hidden();
+    out.leaveSnap = !snapShown();
+    out.leaveBand = !bandShown();
+    out.leaveActive = activeCols().length;
+    return out;
+  }, i);
+
+  ok('C1 rev 1.63 draws four tokenised gradients and four soft areas',
+    !r.missing && r.gradients === i.expectedGradients && r.areas === i.expectedAreas
+    && r.stops === i.expectedGradients * 2,
+    `gradients=${r.gradients} areas=${r.areas} stops=${r.stops}`);
+  ok('C1 gradient stops use the four on-chart series classes',
+    !r.missing && r.stopClasses.length === 4
+    && r.stopClasses.every(v => /^sc-stop-(plan|forecast|actual|resub)$/.test(v)),
+    `classes=${JSON.stringify(r.stopClasses)}`);
+  ok('C1 areas and month band are pointer-transparent, hidden and behind the marks',
+    !r.missing && r.areaPointer && r.bandPresent && r.bandPointer && r.bandHidden && r.bandBehind,
+    `areaPointer=${r.areaPointer} band=${r.bandPresent} pointer=${r.bandPointer} hidden=${r.bandHidden} behind=${r.bandBehind}`);
+  ok('C1 month band width equals W / N',
+    !r.missing && Math.abs(r.bandWidth - r.expectedBandWidth) <= (i.widthTolerance ?? 2),
+    `width=${r.bandWidth} expected=${r.expectedBandWidth}`);
+  ok('C1 data-c1col covers every month header and value cell',
+    !r.missing && r.heads === r.pointCount && r.headCols === r.pointCount
+    && r.valueCols === r.pointCount && r.dataColLeak === 0,
+    `heads=${r.heads} points=${r.pointCount} headCols=${r.headCols} valueCols=${r.valueCols} dataColLeak=${r.dataColLeak}`);
+  ok('C1 chart hover opens the window, band, snap line and column highlight',
+    !r.missing && r.chartTipShown && r.chartAriaRemoved && r.chartSnap && r.chartBand
+    && r.chartActive.length === 1,
+    `tip=${r.chartTipShown} aria=${r.chartAriaRemoved} snap=${r.chartSnap} band=${r.chartBand} active=${JSON.stringify(r.chartActive)}`);
+  ok('C1 table hover keeps the visual sync but hides and empties the window',
+    !r.missing && r.tableTipHidden && r.tableSnap && r.tableBand
+    && r.tableActive.length === 1 && r.tableActive[0] === r.tableCol,
+    `tipHidden=${r.tableTipHidden} snap=${r.tableSnap} band=${r.tableBand} active=${JSON.stringify(r.tableActive)} column=${r.tableCol}`);
+  ok('C1 table hover moves the band to the hovered month column',
+    !r.missing && r.tableCol !== undefined && Math.abs(r.tableX - Number(r.tableCol) * r.expectedBandWidth) <= (i.widthTolerance ?? 2),
+    `column=${r.tableCol} x=${r.tableX} width=${r.expectedBandWidth}`);
+  ok('C1 month-header hover drives the same column',
+    !r.missing && r.headTipHidden && r.headActive.length === 1 && r.headActive[0] === r.headCol,
+    `tipHidden=${r.headTipHidden} active=${JSON.stringify(r.headActive)} column=${r.headCol}`);
+  ok('C1 pointer-leave clears the band, snap line, highlight and hidden-window ARIA state',
+    !r.missing && r.leaveHidden && r.leaveSnap && r.leaveBand && r.leaveActive === 0,
+    `hidden=${r.leaveHidden} snap=${r.leaveSnap} band=${r.leaveBand} active=${r.leaveActive}`);
+}
+
 // ── Tier 5: C1 Schedule Performance S-Curve (workplan D35) ─────────────────
 // Live checks of the combined S-curve card: structure, the Bars toggle, and the
 // series multi-filter popup behaviour (it must stay open during a toggle, and
@@ -1464,7 +2227,10 @@ async function lintC1(page, cfg) {
   okC1('C1 Start reference line present', (await count(c.refStartSelector)) === 1);
   okC1('C1 Today reference line present', (await count(c.refTodaySelector)) === 1);
   okC1('C1 reference labels present', (await count(c.refLabelSelector)) >= 2);
-  okC1('C1 As-of caption present', (await count(c.asOfSelector)) === 1);
+  // §4.2 rev 1.59 says "Omit the as-of subtitle". The old assertion required one,
+  // which conflicted with the spec. Owner decision 2026-11-06: enforce the absence.
+  const asOf = await count(c.asOfSelector);
+  okC1('C1 omits the as-of subtitle (§4.2 rev 1.59)', asOf === 0, `asOf=${asOf}`);
   // Bar toggle — the Bars button must switch the bars on and off.
   await page.locator(c.barsToggleSelector).click();
   await page.waitForTimeout(150);
@@ -1496,6 +2262,13 @@ async function lintC1(page, cfg) {
   await page.mouse.click(5, 5);
   await page.waitForTimeout(150);
   okC1('C1 popup closes on outside click', !(await page.locator(c.seriesPanelSelector).isVisible()));
+  // Geometry runs last: it repaints the board when it moves the period sliders.
+  await lintC1Geometry(page, cfg);
+  // §4.2 rev 1.63 — the interaction probe runs after the period restore, so the board is back
+  // at its default month range and every W / N measurement matches the live payload.
+  await lintC1Interaction(page, cfg);
+  // §4.2 rev 1.66 — runs last and restores the full period with the `All` chip.
+  await lintC1TimeBar(page, cfg);
 }
 
 // ── Tier 5: C3 Breakdown (workplan D36) ───────────────────────────────────────
@@ -1681,6 +2454,9 @@ async function lintHoverWindow(page, cfg) {
       const tip = describedBy ? document.getElementById(describedBy) : null;
       out.tipExists = !!tip;
       out.tipRole = tip ? tip.getAttribute('role') === 'tooltip' : false;
+      // §4.6 rev 1.63 — a hidden window MUST be aria-hidden AND free of stale datum text.
+      out.initialAriaHidden = tip ? tip.getAttribute('aria-hidden') === 'true' : false;
+      out.initialEmpty = tip ? (tip.textContent || '').trim().length === 0 : false;
       out.focusable = board.hasAttribute('tabindex');
       const cs = getComputedStyle(board);
       out.cursor = cs.cursor;
@@ -1706,8 +2482,11 @@ async function lintHoverWindow(page, cfg) {
         const html = tip.innerHTML || '';
         out.hasContent = html.trim().length > 0;
         out.ctL = ctL ? html.includes('ct-l') : true;
+        out.shownAria = !tip.hasAttribute('aria-hidden');
         fire(board, 'pointerleave', 0, 0);
         out.hides = !tip.classList.contains('show');
+        out.hiddenAria = tip.getAttribute('aria-hidden') === 'true';
+        out.hiddenEmpty = (tip.textContent || '').trim().length === 0;
       }
       // §4.6 no dead zone (I103): a nearest-mode chart must reveal the window on a hover over EMPTY
       // chart area, not only on a datum. The C2 Delay view shipped in element mode — its window was
@@ -1734,6 +2513,12 @@ async function lintHoverWindow(page, cfg) {
     ok(`${id}: window carries role="tooltip"`, r.tipRole);
     ok(`${id}: host is focusable (tabindex)`, r.focusable);
     ok(`${id}: cursor affordance present (got ${r.cursor})`, r.cursorOk);
+    // §4.6 rev 1.63 — config-driven so dashboards without the rule keep their current assertions.
+    if (h.ariaHidden) {
+      ok(`${id}: hidden window starts aria-hidden and empty (§4.6 rev 1.63)`,
+        r.initialAriaHidden === true && r.initialEmpty === true,
+        `ariaHidden=${r.initialAriaHidden} empty=${r.initialEmpty}`);
+    }
     if (host.snap) ok(`${id}: nearest chart exposes .chart-snap line`, r.snap);
     if (host.nearest) {
       ok(`${id}: nearest-datum payload present (§4.6 no dead zone)`, r.nearestMode);
@@ -1745,6 +2530,12 @@ async function lintHoverWindow(page, cfg) {
       ok(`${id}: window has content`, r.hasContent);
       if (host.ctL) ok(`${id}: series row keeps .ct-l swatch+label group (§4.6)`, r.ctL);
       if (r.hides !== undefined) ok(`${id}: window hides on pointer-leave`, r.hides);
+      if (h.ariaHidden) {
+        ok(`${id}: shown window removes aria-hidden (§4.6 rev 1.63)`, r.shownAria === true);
+        ok(`${id}: hidden window is aria-hidden and empty (§4.6 rev 1.63)`,
+          r.hiddenAria === true && r.hiddenEmpty === true,
+          `ariaHidden=${r.hiddenAria} empty=${r.hiddenEmpty}`);
+      }
     } else if (r.tipExists) {
       warn(`${id}: no hover trigger on this view (view may differ)`, false, 'could not reveal window');
     }
