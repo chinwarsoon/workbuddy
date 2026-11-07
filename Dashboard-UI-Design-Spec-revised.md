@@ -1,0 +1,1916 @@
+# Dashboard UI Design Standard
+
+| Revision | Date | Author | Summary |
+|---|---|---|---|
+| 1.64 | 2026-11-06 | ChatGPT (AI) | Governance and consistency revision: defines universal/conditional/optional/exempt applicability; resolves shell navigation ownership and narrow-viewport behavior; separates UI derivation/rendering responsibilities; reconciles modular development with standalone delivery; strengthens accessibility and requirement-to-test traceability; corrects document metadata. Existing component contracts are retained where applicable. |
+| 1.63 | 2026-11-06 | CodeBuddy (AI) | §4.2 gained a normative **Attached-table interaction (C1 only)** clause promoting the reviewed Option B prototype into the production build: four tokenised `<linearGradient>` defs and `<path class="sc-area">` area fills beneath the cumulative lines; one hidden `.sc-hover-band` (`width = W / N`) behind all marks; `data-c1col` on every month `<th>` and value `<td>`; two-way month-column sync (chart → `.col-active` table cells, table → snap line and band); and a `.chart-tip` window that opens **only** while the cursor is inside the SVG chart area. Gradient stops MUST use the on-chart series tokens, never hard-coded hex (§4.6); PNG/Copy MUST serialize the gradients with resolved token colours and strip the band and `.col-active` so no transient hover state is captured. `data-c1col` is distinct from `data-col`, which is reserved for `.ds-table` column choosers and resize grips. §4.6 gained two normative clauses: (1) a hidden window MUST be `aria-hidden="true"` **and** empty of text, with the attribute removed before show — an element directly referenced by `aria-describedby` can still be exposed by assistive tech despite `aria-hidden`, so clearing text is REQUIRED; (2) the §4.6 touch tap-to-show requirement applies to the SVG chart area; a tap on a table cell MUST still activate the snap line, column band and column highlight, but need not open the floating window because the cell value and its `<th>` headers are already in the native table accessibility tree (I082). §8.2 assertion 21 extended. The C1-only trigger is explicit — C2, C3, C4, KPI cards and the MDL dashboard are out of scope — and rev 1.62 geometry, the legend rule and all historical revision rows are unchanged. Re-synced to the harness bundled spec. |
+| 1.62 | 2026-11-06 | CodeBuddy (AI) | §4.2 gained a normative **Legend Placement & Table Attachment Rule** that supersedes owner decision 1 of 2026-11-06 for attached-table panels: where a `.c1-grid` panel renders a native `<table>` whose `<thead>` month cells are the shared X labels, the in-SVG legend MUST sit **above** the plotting area and the plot bottom MUST touch the `<thead>` with zero intermediate layout elements; every other §4.2 combined chart keeps the bottom legend (`SHOULD`). The C1-only trigger is explicit — C2, C3, C4 and the MDL dashboard are out of scope — and HTML / toolbar legends remain excluded so PNG/Copy fidelity is preserved. The four-series / `floor(W / 132)` wrapped-row description from rev 1.61 is retained for both branches, the inclined-X-label bottom-padding clause is scoped to the bottom-legend branch, and the §4.2 grid contract plus §8.2 assertion 21 now require the `<thead>` to be flush with the plot bottom. Verified by layout-harness Tier 5 after the engine refactor. Re-synced to the harness bundled spec. |
+| 1.61 | 2026-11-06 | CodeBuddy (AI) | §4.2's combined-chart legend clause updated so its descriptive wording matches the built, Tier 5-verified C1 design: one bar swatch and one `Cum. …` line sample per visible series (four series → eight entries), wrapped into rows of `floor(W / 132)` items at plot width `W`, with every row inside the SVG `viewBox`. The core rule — in-SVG at the bottom, no HTML legend — is unchanged from rev 1.27 and keeps its `SHOULD` strength; the old "Planned / Actual" + "three `Cum. …` line samples in one row" text described a superseded 2/3-series model. Scope is limited to this one C1 clause; no new MUST obligation, and C2, C3, C4 and all engine / harness files are untouched. Re-synced to the harness bundled spec. |
+| 1.60 | 2026-11-06 | CodeBuddy (AI) | §4.2 gained a normative **Y axis contract**: one vertical `sc-yaxis-line` at `x = 0` spanning the plot height, five right-aligned Y ticks in grid column 1, and the unit caption (`Cumulative documents` or equivalent) rotated along the side of the axis with `writing-mode:vertical-rl` or an equivalent rotate transform. §4.2's **Fallback, reflow and print** clause replaced "A wide period MUST scroll inside the chart board": the whole curve MUST stay visible inside the board at every container width, with no `min-width` and no horizontal scrollbar; the `ResizeObserver` pass MUST keep the `width` / `height` attributes, `viewBox`, `data-geo.W`, every `data-points[].cx`, `--c1-cols` and `<colgroup>` in sync so `preserveAspectRatio="xMidYMid meet"` cannot letterbox the plot; a period-window change MUST rebuild the curve payload and the table columns from the same `N`. §8.2 assertion 21 extended to cover the Y axis, `<thead>` adjacency, no separate SVG X labels, no-scroll fitting and post-reflow alignment. Owner decisions 2026-11-06; verified by layout-harness Tier 5 (34 passed / 0 failed / 1 skipped) and the sub render suite (40/0). Re-synced to the harness bundled spec. |
+| 1.59 | 2026-11-05 | CodeBuddy (AI) | §0 Definitions gained the universal UI-spec vocabulary (app shell, CSS grid tracks, flow container, gutter / spacing scale, attached table, semantic table, native vs ARIA structures, scoping & hierarchy, reflow, `ResizeObserver`, scroll boundary, axis scaling & coordinates, export & serialization, accessibility tree, normative rule, traceability). §4.2 gained a normative **S-curve attached table** clause: it is universal across dashboards, metric rows are data-driven and the clause names no row; one `.c1-grid` CSS grid with explicit `--c1-gutter` / `--c1-cols` tracks is the alignment container; one `<svg>` curve carries a `ResizeObserver` on its host; one native `<table>` (Option B) sits in one spanning grid item with `<caption>`, `<colgroup>`, `<thead>`, `<tbody>` and `scope`; static and rebuilt cells share one structure; the panel edge plus one `.sc-board` border are the only borders; PNG/Copy rebuild the table as native SVG following the C3 method; `role="img"` stays on the SVG and ARIA table roles are not used. §4.2 also records the §4.3 / §7.2.15 exemptions, the CSV scope, and the C3 traceability citations. §8.2 gained assertion 21. Re-synced to the harness bundled spec. |
+| 1.58 | 2026-11-05 | CodeBuddy (AI) | §4.3 gained a normative **Pagination control behaviour** rule and §4.5 gained a **Tool-cluster controls are local** rule, driven by sub issues I113 / I114 / I115 (owner browser review). A pager control MUST change only its own table's page and MUST NOT change the active view (it MUST NOT reuse the sidebar navigation attribute, whose unknown values fall through to the default Overview view); a panel-local filter MUST repaint its table, count and page-jump total immediately on change and reset to page 1 (a bare boolean attribute MUST be detected with `hasAttribute`, since `dataset` yields `""`); `⤓ CSV` MUST download the full filtered set. Re-synced to the harness bundled spec. |
+| 1.57 | 2026-11-04 | CodeBuddy (AI) | §4.3 rewritten: bounded tables with more than 200 rows MUST paginate at 200/page with the navigation at the **top** of the card in the tool cluster, only the current page materialised, the full row count always communicated, and CSV covering the **entire filtered set** (pagination takes precedence over windowing). §4.5 Validation panel rewritten to the approved layout: panel-level `.note` meta under the page title, left-aligned `Issues` title on its own line, a stacked `.table-tools` row with page controls left (`.pg-left`) and error-code filter + `⤓ CSV` + `Columns` right (`.pg-right`, `margin-left:auto`), no bottom pager, and a panel-local error-code filter affecting only the Issues table. Driven by sub issue I112. Re-synced to the harness bundled spec. |
+| 1.56 | 2026-11-02 | CodeBuddy (AI) | §7.2.15 invariant 5 **clarified — fit on a container change, never on a column change**: the fit pass MUST run when the container width moves (window resize, sidebar toggle, zoom, another display) and MUST NOT run because the sum of the columns changed; a column resize changes that sum, and re-fitting on that path scales the width the operator just dragged straight back down, so the drag does not stick and a drag by +d then −d does not land where it started. Implementations MUST cache the container width and re-fit only when it moves, still fitting once on first render; a drag wider than the display area is permitted, because this invariant governs the SHIPPED DEFAULTS and not a width the user chose. §3.5 gained a normative **addressability** rule: the warning area MUST carry the stable id `errBanner` so conformance checks and assistive tooling can locate it. Driven by the Sub dashboard run that went from 216 passed / 6 failed to 222 passed / 0 failed (sub issues I093, I095, I096). |
+| 1.55 | 2026-11-01 | opencode (AI) | §7.1 gained a normative **search panel composition** rule: one row with an attached B5 column picker (All columns plus each searchable column), a flexible input and the A5 submit; the picker re-applies the query without clearing it and the query applies only to the chosen column. §8.2 gained assertion 20. |
+| 1.54 | 2026-11-01 | opencode (AI) | §3.4.1 gained a normative **screen change / window resize** clause: reflow on any viewport width change (another display, resize, sidebar toggle, zoom) without reload or horizontal scrolling, using a `ResizeObserver` and not only a window listener; fixed-width inner content must re-fit or scroll inside its own card, split headers re-sync, and computed-width charts redraw; controls stay reachable and navigation remains available at every width. The truncated re-sync sentence was completed. |
+| 1.53 | 2026-11-01 | opencode (AI) | §4 gained a dedicated normative **§4.7 Panel spacing**: 14 px between top-level panels (rows and columns), container `gap` or the panel margin but never both, never 0, hidden panels add nothing, print keeps it, and card spacing inside a panel stays separate (16 px charts / 12 px validation). §8.2 assertion 19 now cites §4.7. |
+| 1.52 | 2026-11-01 | opencode (AI) | §4 gained a normative rule: stacked top-level panels are separated by the same **14 px** the panel margin defines (container gap or margin), never 0; hidden panels add no gap. |
+| 1.51 | 2026-11-01 | opencode (AI) | §3.5 **placement made normative**: the notice area is pinned below the menu bar, above the filter strip and outside the scrolling body, so panel scrolling never moves it; §8.2 gains assertion 18. |
+| 1.50 | 2026-11-01 | CodeBuddy (AI) | §4 gained a normative **§4.6 Chart hover floating window — standard**, replacing the per-chart RECOMMENDED hover note in §4.2. One `.chart-tip` / `.chart-snap` component now covers every chart board (C1–C4) and the KPI cards: tokenized visual contract (removes the C2 hard-coded dark `.c2-tip`), header/body/footer layout with unique series colour tokens and a unified footer, cursor-relative 4-edge clamping, a below-card KPI variant, `cursor:crosshair` affordance, a required touch tap-to-show variant, optional snap line, `data-points`/`data-geo` plumbing, opacity-only motion with update-on-change, accessibility (focusable board + `aria-describedby` + show on focus), `overflow:visible` containers, and a single delegated binder. §4.2's hover note now points to §4.6 and is normative. Re-synced to the harness bundled spec; issues I080–I091 logged. |
+| 1.49 | 2026-10-30 | CodeBuddy (AI) | §4 gained a normative note correcting the table-border model: inside a `.c-card`, the table's own `.ds-split` border is the single external border and the card must not add a second (`.c-card:has(.ds-split){border:0}`). This fixes the I077 regression where `.c-card .ds-split{border:0}` deleted the table's border and left only the card border. Engine + standalone CSS updated; issue I078. Re-synced to the harness bundled spec. |
+| 1.48 | 2026-10-30 | CodeBuddy (AI) | §4 gained a normative note: a `.ds-split` table inside a `.c-card` keeps the §4 rounding (remove only the redundant border, never `border-radius:0`), fixing the square-corner regression on card tables (C2 per-discipline, Validation, Forward and Overdue) — issue I076. Re-synced to the harness bundled spec. |
+| 1.47 | 2026-10-30 | CodeBuddy (AI) | §4 gained a normative rule: every view MUST wrap its top-level output in `activePanel()` because the page renderer adds no panel wrapper; a bare `.c-card` silently loses the §4 edge border, title and Panel N number. Root cause of the recurring panel-chrome regressions (I019 / I066 / I067); fixes the forwardAndOverdue regression (issue I075). Re-synced to the harness bundled spec. |
+| 1.46 | 2026-10-30 | CodeBuddy (AI) | §4 gained a normative rule for the Forward and Overdue tables (I074): every such table shows Document No. and Title together, with column widths that show the full values without truncation (horizontal scroll when narrow). The Horizon control is a segmented toggle (1–4 weeks) that matches the lane-filter button style; the Look-Ahead view shows a subtitle with the active window. Re-synced to the harness bundled spec. |
+| 1.45 | 2026-10-30 | CodeBuddy (AI) | §4 gained two normative layout rules, driven by the Forward and Overdue page (I073): (1) a data table and its controls share one `.c-card` — the inner border wraps the table plus its control cluster, extending the chart-card contract (§4) to tables; (2) every on-screen `.ds-table` MUST offer a right-aligned `⤓ CSV` that exports exactly the visible rows (UTF-8 BOM). Re-synced to the harness bundled spec. |
+| 1.44 | 2026-10-29 | CodeBuddy (AI) | §4.5 (Validation panel) rewritten to a normative layout standard, driven by I072 (SUB Validation panel). The panel organises as: one `.v-summary` flex row (count + severity chips + lighter meta line), each of the two tables in its own `.c-card` (inner `.ds-split` border removed, `.c-card .ds-split{border:0}`), a `.table-head` row aligning each card title with its tool cluster, a clear `Showing X of Y rows` count, and default column widths that give the Rules Description (≈420 px) and Issues Message (≈360 px) / Value (≈130 px) the most room. The panel-level CSV was removed (the per-issue table carries `⤓ CSV`); the stale `<details>` collapsible and `#vmap`/`#vref` references were deleted. `table()` gained an optional `opts` (`widths`, `title`). |
+| 1.43 | 2026-10-29 | CodeBuddy (AI) | §4 gained a normative rule: a panel reached via the left-sidebar page links MUST show its content directly and MUST NOT wrap its content in an in-panel disclosure toggle (for example a native `<details>` / `<summary>` element), because the sidebar already controls which panel is visible. When a panel must collapse, use the panel-level Collapse `−`/`+` toggle (§4), not a content disclosure. Driven by I071 (SUB Validation panel). |
+| 1.42 | 2026-10-29 | CodeBuddy (AI) | §7.1 gained **selection semantics** (normative), because the chrome rules were not enough. A dimension MUST open with every value ticked except documented exclusions. A blank cell is a selectable value shown as `(blank)`. An **empty tick set filters every row out** — an absent set is the only "no filter" state. A tick applies at once and MUST NOT close the panel; an outside click or `Escape` MUST close it. Found while fixing I070: three of the five dimensions started with an empty set, so the panel showed nothing ticked while the dashboard filtered nothing, and un-ticking every value changed no row. Compliance checklist gained row 17. |
+| 1.41 | 2026-10-29 | CodeBuddy (AI) | §4.4 `.drill-cell` selector raised to `.ds-table .drill-cell`. The base rule `.ds-table th, .ds-table td` (specificity 0,1,1) sets `overflow:hidden` and `text-overflow:ellipsis`; a bare `.drill-cell` (0,1,0) loses the cascade, so the revision 1.40 `text-overflow:clip` never applied and the 4 px padding was dropped too — the cell kept 10 px padding and the 24 px button overflowed a 12 px content box. Measured in Chromium before the fix: `textOverflow:"ellipsis"`, `clientWidth:32`, `scrollWidth:53`. The block now uses the higher-specificity selector, which beats 0,1,1. A normative sentence records the requirement. |
+| 1.40 | 2026-10-29 | CodeBuddy (AI) | §4.4 `.drill-cell` MUST NOT paint a truncation mark. The cell is 32 px with 4 px padding on each side, so its 24 px content box fits the 24 px `.drill-btn` exactly. `.ds-table` cells inherit `overflow:hidden` + `text-overflow:ellipsis`, so the sub-pixel remainder drew a clipped ellipsis (two dots) after the chevron in every Submittals row. The normative block now carries `overflow:hidden;text-overflow:clip`, and a normative bullet records that the drill cell truncates no text and therefore shows no ellipsis. Found in the SUB Submittals panel (owner screenshot). |
+| 1.39 | 2026-10-29 | CodeBuddy (AI) | §4.4 drill-down standardized and reconciled with §7.1 B4. An expandable row is `.expandable`; the expand control is a real `<button class="drill-btn">` (an `.icon-btn` variant) carrying `aria-expanded` + `aria-controls` and a `.drill-chev` glyph rotated 90° when expanded (no glyph swap). The sibling detail row is `.sub` with a `.sub-inner` wrapper (§7.2.0). The whole row is a pointer shortcut; the button is the accessible control. Accordion (one open), keyboard Enter/Space, delegated listener. Tokens standardized: `--line` (hairline), `--soft` (detail background + hover), `--muted` (chevron), `--navy` (chevron hover), `--blue` (focus ring); no hard-coded colours. Normative classes added to §7.2.0. |
+| 1.8 | 2026-10-24 | Codex | Made `ui/`, `data/`, and `output/` optional and made module paths project-defined; aligned the harness contract. |
+| 1.9 | 2026-10-24 | CodeBuddy (AI) | Adopted the MDL shell model: §3.1/§3.2/§3.6 now define a two-row header (navy title bar + white menu bar) + navy left navigation sidebar; dropped the 48 px icon bar and the right sidebar; moved Settings/Help to the menu bar / modal; use the updated `AGENTS.md` §18.2 shell markers (`titlebar`, `menubar`, `left-sidebar`, `content`, `statusbar`). Default theme is light. |
+| 1.30 | 2026-10-27 | CodeBuddy (AI) | §4.2 card-control rule reconciled with the C3 Breakdown panel:
+| 1.31 | 2026-10-27 | CodeBuddy (AI) | §4.2 C3 Breakdown further refined:
+| 1.32 | 2026-10-27 | CodeBuddy (AI) | §4.2 C3 Breakdown PNG/Copy restored for the Bar cards:
+| 1.33 | 2026-10-27 | CodeBuddy (AI) | §4.2 C3 Breakdown summary table gained a Download button: the shared `.c3-summary` table (below the two cards) renders a header with a `⤓ Download` control that exports the current Month / Break-down-by rows as `breakdown-table.csv` (UTF-8 BOM, `.ds-gut` scrollbar spacer skipped). This complements the per-card PNG/Copy (I058). after the I057 div-grid redesign the per-card PNG/Copy buttons serialized a non-existent `<svg>`; they now rebuild the card (bars + vertical axis labels + attached table + legend) as a self-contained native SVG (rects + text) so the existing raster/copy path works for both Bar and Pie views. each card lists the full MDL discipline set (and all submitters) even when a month is zero, and draws its bars inside one aligned CSS grid whose columns also carry the vertical axis labels and an attached per-card data table (Submissions = Total Plan / First Submission / Resubmission / Under Review; Approval Status = the codes). The shared summary table is kept. This extends revision 1.30's shared-control exception. Month + Break-down-by are one shared cluster above the two cards (panel-owned), only PNG/Copy per card; the Pie view shows two donut cards (Submissions, Approval Status), not a consolidated two-ring card. This is the documented exception to "every card owns its controls" for that panel. |
+| 1.34 | 2026-10-28 | CodeBuddy (AI) | §4.2 C3 Breakdown bars now carry a y-axis with grid lines + numbers, matching the C1 S-curve and C2 stacked-area panels: each card draws 5 horizontal grid lines at 0 / 25% / 50% / 75% / 100% of a nice maximum (niceCeil of the largest category total), the bars are scaled to that same max, and the numeric tick labels are right-aligned in the metric-label column and flush against the bars (no gap; aligned with the table below). Zero-discipline categories still show the empty grid. The Pie cards are exempt. Decision recorded as I060; review sample `sub/ref/sample-c3-grid-lines.html`. The harness bundled spec (`harness-layout/spec/Dashboard-UI-Design-Spec.md`) was re-synced from this file. |
+| 1.35 | 2026-10-28 | CodeBuddy (AI) | §4.2 C2 Submission Flow Funnel layout: the funnel is a **vertical shape to the right of a per-Discipline table** (table left, funnel right). Its **top aligns with the first discipline row** and its **bottom — a cube block for Approved — aligns with the last discipline row** (the table header and Total row are outside the funnel span). Five stages top→bottom: Planned Deliverables → Submitted for Review → Under Review → AWC → Approved. Band widths use **square-root compression** so a large ratio between stages does not make a small stage a razor-thin sliver. Stage label is "Under Review" (not "In Review"); AWC is its own stage, separate from Approved. See `sub/ref/C2-Funnel-Sample.html`. |
+| 1.36 | 2026-10-28 | CodeBuddy (AI) | §4.2 C2 Funnel refined per owner review of the first live render: stage names and values moved to a **left label gutter** (right-aligned beside the bands, theme-aware text color) so long names like "Submitted for Review" never clip against a narrow band; the separate legend row was removed (every stage is labeled beside its band); the Approved base is now a **solid square block** (92 px, owner request) instead of a sliver-wide 3D cube whose label overflowed. Funnel column widened to 350 px. Fixed I064 first: the funnel had never rendered because the stage key `underReview` did not match `c2.funnel`'s `inReview`, so every path coordinate was `NaN`. Logged I065; workplan changelog 2.43. |
+| 1.37 | 2026-10-28 | CodeBuddy (AI) | §4 Panel border now wraps **only the content** (charts / tables / filters / buttons) inside a new bordered `.panel-body`; the title row — with Help `?` and the Collapse `−` toggle — sits **outside** the border (owner review 2026-10-28). The corner `Panel N` number moved onto `.panel-body` (inside the border). The §4 diagram, Surface bullet and CSS block were updated; `.panel` is now a borderless section. Driven by I066; workplan changelog 2.44. |
+| 1.38 | 2026-10-28 | CodeBuddy (AI) | §4 Panel model corrected per owner review (supersedes 1.37). The panel edge (same `--surface` background + 1px `--border` + radius + shadow + padding) is restored on `.panel`, and the title row — title, Help `?`, Collapse `−` — sits **inside** that edge (MDL panel model: every panel shares the same background and edge). Each individual graph now sits in its own bordered `.c-card` (or C3's `.c3-card`) **inside** the panel, so multiple graphs are visually separated; the inner border wraps only a graph plus its own controls, while the panel-level Help/toggle stay in the header. Removed the I066/1.37 borderless-`.panel` model. Engine: `render.js` keeps the header inside `.panel`, `schedulePerformance` and `submissionFlow` wrap their graph in `.c-card`, and the `Panel N` number moved back to `.panel`. Logged I067; workplan changelog 2.45. |
+| 1.39 | 2026-10-29 | CodeBuddy (AI) | §4.1 clarified the chart-card rule: an inner `.c-card` / `.c3-card` border is required only when a panel holds **more than one graph** (to separate them) or to group a graph with its own controls (C2's single `.c-card`); a **single-graph** panel (C1 S-curve) uses the panel edge alone, so its redundant inner border was removed (I068). No change to the panel-edge rule (rev 1.38). Driven by I068; workplan changelog 2.46. |
+| 1.29 | 2026-10-27 | CodeBuddy (AI) | §3.4 Responsive layout enhanced with §3.4.1 Panel size fits the screen. Panels MUST follow the content width at every screen scale (including Control + scroll zoom) and MUST NOT keep a first-render pixel width; the KPI panel (auto-fit grid, no fixed widths) is the reference. Scope is panel size only; inner cards may keep a fixed width by requirement (for example, a constant bar width). |
+| 1.28 | 2026-10-25 | CodeBuddy (AI) | §4.2 S-curve clarified from the Submittal C1 re-review: the chart-card board is a 1 px border around the whole chart component (control cluster + plot), not an in-plot rectangle, so the one-board / one-card-border rule is unambiguous; the y-max MUST use the raw visible maximum with a small headroom pad (~3%) and MUST NOT be rounded up to a power-of-ten step, so the curves fill the chart height like the MDL reference. Workplan D35 / §7 now include the Forecast bar (`fNew`). |
+| 1.27 | 2026-10-25 | CodeBuddy (AI) | §4.2 S-curve hardened from the Submittal C1 review: a Month / Quarter / Year time-grain toggle MAY be offered (rebuckets labels, bars and the cumulative curve); the period window MAY be a bar / brush selection that wraps below when narrow; the control cluster is right-aligned by default and the period selection MAY be left-aligned with the filters (grain, Bars, series multi-select) preceding the exports (PNG, Copy) on the right; the combined-chart legend SHOULD be in-SVG at the bottom (not an HTML `.legend`); dense x-axis labels MAY be inclined (rotated ~40°) hugging the axis with the legend kept clear; and a hover snap line with a floating window is RECOMMENDED. The PNG / Copy, one-board / one-card-border, absolute-cumulative, Start / Today and shared-scale rules were already normative. |
+| 1.26 | 2026-10-24 | CodeBuddy (AI) | §4 panel chrome made enforceable. The title row now has its own element — the 10 px gap belongs to the row and the `h2` is `margin:0` — because the sketch previously put the flex on the `h2`, which only works when the buttons sit inside the heading. Four rules added: **numbers follow DOM order, assigned after render** (numbering from construction order produced `1, 2, 4, 3`), with the `::after` badge gated on `[data-panel]` so an unnumbered sub-panel does not render a bare `Panel`; **nested sub-panels inherit the parent's number and show no badge**; **the panel margin yields to a grid gap** (`0` inside a grid that sets `gap`, or the spacing doubles); and **the collapse state outlives the element** — it MUST be persisted in view state, keyed by panel name, and re-applied on render, or a filter change silently re-opens the panel. The sketch CSS is updated to match. |
+| 1.25 | 2026-10-24 | CodeBuddy (AI) | The title-bar page label is larger and unstyled. §3.1 revises the active-page rule: the label is now **16 px / 600 at `line-height:1.2`**, one step below the 17 px project title, and is **plain text with no background, padding, border or radius** — a page indicator rather than a badge or pill. Version 1.24 had put it at the menu-bar control scale (12 px / 600) inside a translucent pill. |
+| 1.24 | 2026-10-24 | CodeBuddy (AI) | The content toolbar is removed, and the page name and layout toggle move into the shell. §3.3 adds a normative rule: there is no content toolbar — a dashboard MUST NOT render a strip above its panels holding a page heading, subtitle or layout control — and the content zone begins with the optional filter area and then the body. §3.1 adds two rules: **the active page is shown in the title bar** — right-aligned on the bar's 20 px padding, at 12 px / 600, updated on every selection change, announced with `aria-live="polite"`, and not repeated as a heading in the content area — and **the layout toggle lives in the menu bar** — an icon control at the right end after the filter group, never in the content area, using the compact 8 px padding. §3.1's shell markers no longer require a `toolbar` zone. |
+| 1.23 | 2026-10-24 | CodeBuddy (AI) | The left-panel width is sized to its menu titles. §3.2 adds a normative rule: `--sidebar-w` is 160 px, derived from the widest title — "Forward Plan" measures 91 px at 14 px / 400, which with the button's 12 px horizontal padding and the panel's 10 px padding needs 135 px, plus 25 px of slack. A dashboard whose menu titles differ MUST derive the width the same way and MUST NOT let a title wrap or clip; resizing MUST clamp at the width where the widest title still fits, 140 px here. |
+| 1.22 | 2026-10-24 | CodeBuddy (AI) | The left panel holds menus only. §3.2 adds a normative rule: the left sidebar MUST contain only menu items — the page links, then Settings and Help pinned to the bottom with `margin-top:auto` — and MUST NOT contain a collapse toggle (which belongs in the menu bar), section titles, or divider rules; its resizer MUST remain. §3.1 now records that the `data-shell-toggle="left-sidebar"` control sits in the menu bar rather than in the sidebar, and §3.2 no longer lists Help among the menu-bar contents. |
+| 1.21 | 2026-10-24 | CodeBuddy (AI) | The sidebar toggle is compact. §3.1 adds a normative rule: the left-panel toggle is one glyph, so it MUST NOT carry the 14 px horizontal padding of a text control — it uses 8 px horizontally, the gap after it is 8 px rather than the menu bar's 12 px, and it keeps the menu-bar control's 32 px height and 12 px / 600 type, with its left edge on the bar's 20 px padding aligned with the title-bar logo. |
+| 1.20 | 2026-10-24 | CodeBuddy (AI) | Title-bar logo and menu-bar control metrics, measured against MDL. §3.1 adds two normative rules: **title-bar logo** — the logo is 36 px tall, MUST NOT shrink (`flex-shrink:0`), and the brand group uses a 12 px gap — and **menu-bar control metrics** — a menu-bar button is 12 px / 600 at `line-height:1.2` with `min-height:32px` and `padding:7px 14px`, while a filter trigger is 12 px / 600 at `line-height:normal` with `min-height:32px` and `padding:7px 12px`; both render 32 px tall. |
+| 1.19 | 2026-10-24 | CodeBuddy (AI) | Title-bar and menu-bar spacing. §3.1 adds two normative rules: **title-bar spacing** — the rows stack in a `.ttl-stack` column with a 2 px gap, the project title is 17 px / 600 at `line-height:1.2`, and a dashboard MUST NOT substitute its own line height for the stack — and **menu-bar gap** — 12 px between groups, 8 px inside each group, plus a 6 px left margin on the Warnings toggle. §6 type scale gains two normative rows: title-bar project title 17 px / 600 and title-bar dashboard title 12 px / 500. |
+| 1.18 | 2026-10-24 | CodeBuddy (AI) | Menu-bar typography and alignment. §3.1 adds two normative rules: **menu-bar alignment** — the left-panel toggle, the load action and Export are left-aligned, and everything else (filter triggers, Search with its popover, Warnings) is right-aligned, mirroring MDL's `justify-content:space-between` — and **menu-bar type is bold** — every control in the menu bar MUST be 600, never the default body weight. §6 type scale gains a normative row fixing the menu-bar control at 12 px / 600. |
+| 1.17 | 2026-10-24 | CodeBuddy (AI) | MDL parity for the filter chrome. §7.1 **B1** no longer requires a caret glyph or a visible border: the trigger is text plus a count badge, and it is **borderless in the menu bar** (the base control keeps 1 px `--border`, which the menu-bar chrome strips). §7.1 **B3** replaces the `.chips label` pill with MDL's structure — an `.tf-all` `All <dimension>` master, a hint, a divider and `.tf-item` value rows — and the grammar table, the global-dimension paragraph and the normative class list now name `tf-all` / `tf-item` instead of `chips`. §6 type scale: the filter menu row is 12 px (was 11 px) and a new normative row fixes the count badge at 10 px / 700. |
+| 1.16 | 2026-10-24 | CodeBuddy (AI) | Corrected the shell composition for MDL parity: §3.1 now states the menu bar holds the actions group (the highlighted load primary plus Export), the global filter group (triggers, Search with its popover, Warnings) and Help, that Settings is NOT in the menu bar but a menu in the left side panel, that the menu bar MUST NOT wrap to a second row (the filter group scrolls horizontally instead), and that the load control MUST be the one highlighted `.btn-primary` control. §3.2 now states the left side panel holds page links and Settings and MUST NOT hold workbook-loading controls. |
+| 1.15 | 2026-10-24 | CodeBuddy (AI) | Added §6 Typography (normative): one shared `--font-ui` stack and one shared type scale (body 13/1.45, panel h2 13 uppercase, chart-card h3 13/700, KPI value 22/700, KPI label 10 uppercase, icon button 13/600, filter trigger 12/600, filter chip 11, single-select 12/600, title-bar meta 11, system banner 12, severity chip 11/700). Added §7.1: global dimensions MUST be multi-select and MUST use B1 `.tf-btn` + B3 `.chips label` with a count badge and an `All <dimension>` master toggle; B5 is reserved for non-row-filter pickers and the B6 panel-local filter; the menu-bar filter group MUST contain the triggers, Search and Warnings; and the classes `tf-btn` / `chips` / `tf-panel` are normative. |
+| 1.14 | 2026-10-24 | CodeBuddy (AI) | Added §3.1 title bar rows (mandatory): the title bar MUST show three rows rendered from model metadata — project title, dashboard title(s) joined with ` · ` when the two workbooks differ, and project start plus as-of date. Added §3.7: workbooks MUST be identified by the `Dashboard Title` in their Code sheet, matched against the contract, never by file name; a selection MUST be inspected in full and committed only when every check passes, rejecting the whole selection (non-readable file, no Code sheet, no dashboard title, unmatched title, same type twice, or differing `Project Title`) with the reason shown and no partial update; the check SHOULD read the Code sheet only. |
+| 1.13 | 2026-10-24 | CodeBuddy (AI) | Added §3.9 standalone delivery (mandatory): a dashboard is one self-contained HTML that MUST run from `file://` with no web server — no `fetch` of local files, no cross-file ES-module `import`, stylesheet / config / engine / images inlined, no local `href` or `src` references; source modules stay separate for the test harness. Added conformance assertion 15 in §8.2. |
+| 1.12 | 2026-10-24 | CodeBuddy (AI) | Broadened the §7.1 casing rule to **control label casing**. It now names the applicable cases (button labels; a `<label>` rendered as a button; form-control labels for checkbox, radio and select; navigation and menu items) and the excluded cases (prose, sentences, hints, status messages, placeholders, data values, `title` / `aria-label` wording). |
+| 1.11 | 2026-10-24 | CodeBuddy (AI) | Added §7.1 button label casing (mandatory): every visible button label MUST use title case, capitalising the first letter of every word. Added §3.7: the welcome instruction card MUST NOT carry a label prefix such as `What this does —`; show only the instruction text. |
+| 1.10 | 2026-10-24 | CodeBuddy (AI) | Hardened §3.7 (initial / file-loading state): the welcome is an MDL-style full-screen overlay that hides dashboard chrome until load; fixed-proportion welcome surfaces (file drop area, welcome card) SHOULD use the golden ratio (1 : 1.618); the load buttons MUST live inside the file drop area; and the welcome MUST NOT hardcode a project title (the project/dashboard title renders from the loaded model after load). |
+| 1.7 | 2026-10-24 | Codex | Defined stable shell markers and aligned the harness with project-local dashboard assets. |
+| 1.6 | 2026-10-24 | Codex | Made dashboard UI assets project-local and aligned the harness contract with the shell spec. |
+
+**Version**: 1.64  
+**Date**: 2026-11-06  
+**Last revised**: 2026-11-06 — Governance and consistency revision. See revision 1.64 in the revision table above.  
+**Owner**: UI Design
+**Applies to**: every internal control-center dashboard — present and future
+
+> This document is the shared source for dashboard layout, components, and behavior. Dashboard pages
+> use project-local CSS and JavaScript. `AGENTS.md` §18.2 defines the shell geometry and behavior.
+>
+> **It is a general standard, not a project log.** This spec states *what any dashboard must do*.
+> Anything that belongs to one dashboard — its status vocabulary, its dimension list, its migration
+> state, its issue history — lives in **that dashboard's own workplan**. A reference to a specific
+> dashboard in this document is either an illustration of a general rule or a pointer to the
+> workplan; it is never a rule that applies to one dashboard only.
+>
+> **Document boundary:** visual and interaction requirements live here; business/data requirements
+> live in the dashboard workplan and data contract; technical module, pipeline, packaging and
+> deployment requirements live in the companion Dashboard Application Architecture Standard.
+
+---
+
+## 0. Definitions
+
+These terms are used normatively throughout this spec.
+
+| Term | Meaning |
+|---|---|
+| **Dashboard** | One internal control-center application (its own page, pipeline and workplan). |
+| **Workplan** | The dashboard's own document: its data contract, module specs, decisions and its **spec-conformance record** (which spec clauses it satisfies, how, and any deviation). Cited from §1. |
+| **Panel** | The atomic page unit (§4). The CSS class name is free. |
+| **Bounded data table** | A long list rendered inside a scroller with a fixed max-height — never an open-ended list (§4.3). |
+| **Split header** | A `<thead>` rendered outside the scroll container as a thead-only fragment, so the vertical scrollbar starts below the header (§7.2.15). |
+| **Global dimension** | A filter dimension exposed in the global filter area whose selection re-derives the shared set for **every** panel (§7.2.7). Which dimensions are global is a per-dashboard decision. |
+| **`active`** | The single reduced working set produced by the derivation layer after global dimensions are applied. Every panel view model derives from it (§3.8, §7.2.7). |
+| **Panel filter** | A control that narrows one panel's rows in that panel's view-model derivation on top of `active`. It can only narrow further (§7.2.7 pt 2). |
+| **Panel-local filter** | A panel filter that affects **only the tables inside its own panel** — never KPIs, charts, the matrix or another panel (§7.2.7 pt 6, §7.1 B6). |
+| **Layout control** | A control that changes *how* something is presented (which columns are shown, which sort applies) and never which rows are returned. It must not use filter chrome (§7.1 B7). |
+| **Chrome** | The visual treatment of a control — its shape, badge and emphasis. Chrome must let the reader tell a row filter from a layout control (§7.1 B). |
+| **Conformance check** | An automated assertion that a rendered dashboard satisfies a normative clause (§8). |
+| **App shell / Layout shell** | The root container of the application. It holds the title bar, menu bar, left sidebar, content zone and status bar (§3.1). |
+| **CSS grid tracks** | The columns and rows of a CSS grid. They are set by `grid-template-columns`, `minmax()` and `fr` (§3.4.1, §4.2, §4.7). |
+| **Flow container** | A one-dimensional flex container. It aligns toolbars, header rows and control clusters (§3.1, §4.1). |
+| **Gutter / Spacing scale** | The fixed whitespace between grid tracks and panels: 14 px between top-level panels, 16 px between chart cards (§4.1, §4.7). |
+| **Attached table** | A data table drawn inside the same chart board as its chart. Its columns share the chart's X positions (§4.1, §4.2). It is not a **Bounded data table**. |
+| **Semantic table** | A native `<table>` with `<caption>`, `<colgroup>`, `<thead>`, `<tbody>` and `scope` on its header cells (§4.2). |
+| **Native vs ARIA structures** | Tabular data MUST use a native `<table>`. ARIA roles and attributes are allowed only on non-tabular graphics: `role="img"`, `aria-label`, `aria-describedby` (§4.2, §4.6, §7.2.4). ARIA table roles MUST NOT be used. |
+| **Scoping & hierarchy** | The `scope="col"` and `scope="row"` bindings that link a header cell to its column or row (§4.2). |
+| **Reflow / Responsive breakpoint** | The rearrangement of panels and cards when the viewport or container width changes (§3.4, §3.4.1). |
+| **ResizeObserver** | The mechanism that observes a container width change and triggers a chart redraw or a layout recalculation (§3.4.1, §4.2). |
+| **Scroll boundary / Overflow** | The rule that wide inner content scrolls inside its own card, not the page (§3.4.1, §4.2). |
+| **Axis scaling & coordinates** | The mapping from data values to SVG positions: Y-axis ticks, X-axis intervals (`xc(i) = (i + 0.5) * W / N`) and `viewBox` boundaries (§4.2). |
+| **Export & serialization** | The rebuild of a chart card as a self-contained native SVG of `<rect>` and `<text>` for PNG / Copy, with no `<foreignObject>` (§4.1, §4.2). |
+| **Accessibility tree** | The browser representation that assistive technology reads. `display:contents` can remove table elements from it (§4.2). |
+| **Normative rule / Assertion** | A MUST or MUST NOT clause, and the automated check that enforces it (§8, §8.2). |
+| **Traceability & citations** | The § references, revision rows and workplan citations that link an implementation to its rule (§1, §4.2, §8.2). |
+| **Applicability class** | The scope label that determines whether a clause applies to every dashboard, only when a component/capability is present, or only by explicit adoption (§1). |
+| **Universal (U)** | A requirement that applies to every dashboard unless a documented exemption is approved. |
+| **Conditional (C)** | A requirement that applies when the dashboard includes the named component, data, or interaction. |
+| **Optional (O)** | A capability that a dashboard may adopt; once adopted, its stated component contract applies. |
+| **Exempt (E)** | A requirement that does not apply to a dashboard, with the reason and evidence recorded in its workplan. |
+| **UI view model** | The presentation-ready data structure supplied to a renderer; it contains derived values but does not own business rules or source parsing. |
+| **Design token** | A named semantic value for colour, spacing, typography, border, radius, or elevation, defined by the project theme (§6). |
+
+---
+
+## 1. Scope & Governance
+
+### 1.1 Purpose and boundaries
+
+This document is the shared **UI design and interaction standard** for internal control-center
+dashboards. It defines the visual system, application shell, responsive behavior, reusable UI
+components, accessibility baseline, and UI conformance requirements.
+
+It does **not** define each dashboard's business rules, source-data contract, KPI formulas,
+document-control workflow, data-processing implementation, persistence strategy, or deployment
+build system. Those belong in the dashboard workplan and the companion **Dashboard Application
+Architecture Standard**.
+
+### 1.2 Applicability classes
+
+Every requirement is interpreted using one of these classes:
+
+| Class | Meaning | How to apply |
+|---|---|---|
+| **U — Universal** | Applies to every dashboard. | MUST be implemented unless an approved exemption is recorded. |
+| **C — Conditional** | Applies when the named component, data, or capability exists. | MUST be implemented when its trigger condition is true. |
+| **O — Optional** | A capability a dashboard may choose to provide. | If adopted, the applicable component contract becomes mandatory. |
+| **E — Exempt** | Does not apply to the dashboard. | Record the clause, reason, evidence, and approver in the workplan. |
+
+A section without a narrower label inherits the applicability stated in its parent section.
+A clause marked MUST within a conditional component specification means “MUST when that
+component is used”; it does not require every dashboard to implement that component.
+
+### 1.3 Shared and project-specific responsibilities
+
+- **Universal shell and visual system (U).** Every dashboard uses the shell and shared design
+  principles in §§2–3, the project-local tokens in §6, and the applicable accessibility baseline
+  in §7.3.
+- **Project-local assets (U).** Each dashboard owns its UI assets. The workplan defines their
+  paths. A `ui/` folder is optional. Do not add a repository-level `common/` dependency for
+  dashboard CSS or JavaScript.
+- **Component contracts (C/O).** §§4, 5 and 7 define contracts for components and interactions.
+  A dashboard implements only the components it needs. If it uses a component, it follows that
+  component's applicable contract.
+- **Status vocabulary (U principle; C values).** Every status communicates with **Icon + Text +
+  Colour**. The actual status names, severity mapping and tokens are defined by the dashboard
+  workplan.
+- **Dashboard-specific content (U).** Data dimensions, status vocabularies, labels, project
+  metadata, source-file sets, business calculations, review SLAs, workflow states and migration
+  plans belong in the dashboard workplan or data contract.
+- **Applicability record (U).** Each dashboard workplan MUST include an applicability matrix for
+  the clauses in this standard. Mark each clause U, C, O or E; identify the trigger for C/O; and
+  record a reason and evidence for every E.
+- **Design decisions (U).** A deviation from a universal requirement requires a documented
+  decision, rationale, impact, owner and review/expiry date. A dashboard workplan cannot silently
+  override this standard.
+- **Reference hierarchy (U).** If this standard conflicts with a dashboard workplan, this standard
+  governs UI behavior. The workplan governs business meaning and project-specific data. The
+  companion Application Architecture Standard governs technical implementation and packaging.
+  Record and resolve any cross-document conflict rather than choosing whichever rule is convenient.
+
+### 1.4 Normative language
+
+**MUST / MUST NOT** are release requirements. **SHOULD / SHOULD NOT** are strong recommendations;
+a deviation requires a reason in the workplan. **MAY** indicates an allowed option. Examples and
+illustrations are not requirements unless explicitly labelled normative.
+
+## 2. Design Philosophy
+
+> Professional Document Control System **first**, Dashboard **second**.
+
+**Style**: Clean Industrial · Swiss Modernist · Enterprise Application
+
+**Influences**: Microsoft Project · Primavera P6 · SharePoint Modern · Engineering
+Document-Control Systems · Enterprise Project-Management Platforms
+
+**Design goals** — these guide design; they are not release gates unless a workplan defines a review.
+- High information density. Aim to make overdue items and exceptions easy to find.
+- Readable during a full work day.
+- Accessible controls: use icon + text + colour and meet AA contrast.
+
+**Explicitly avoided**
+- Glassmorphism / heavy translucency / blur
+- Excessive animation
+- Consumer-app styling
+- Large decorative charts
+- Neon colour themes
+- **Apple "Bento" soft-tile aesthetic** (large radii, shadow-only separation, airy
+  whitespace) — inappropriate for dense data tools.
+
+---
+
+## 3. App Shell & Layout Architecture
+
+### 3.1 Shared application shell
+Every dashboard MUST use the shell in `AGENTS.md` §18.2 (MDL two-row header + left navigation
+sidebar): a navy title bar, a white menu bar, a collapsible/resizable navy left sidebar, a
+scrollable content area, and a full-width navy status bar. There is no 48 px icon bar and no
+right sidebar. Implement the shell in project-local UI assets.
+
+**Authoritative shell-zone ownership (U).** The following map is the single source of truth and
+supersedes any older or illustrative wording elsewhere in this document:
+
+| Zone | Owns | MUST NOT own |
+|---|---|---|
+| Title bar | Brand/project identity, loaded dashboard title(s), project/as-of metadata, active-page indicator | Navigation controls, filters, file actions |
+| Menu bar | Sidebar toggle; primary file/load action; Export; global filter triggers; Search; Warnings; optional layout control | Settings, Help, page links, panel-specific actions |
+| Left sidebar | Primary page links; Settings and Help pinned at the bottom | File loading, Export, global filters, Search, Warnings, collapse toggle |
+| Content warning area | System/configuration notices | Page navigation or ordinary panel content |
+| Content filter area | Optional filter summary or dashboard-specific filter strip only when explicitly adopted | Duplicate copies of controls already exposed in the menu bar |
+| Content body | Active page panels and dashboard content | A duplicate page title or a second global toolbar |
+| Status bar | Persistent application status / context | Primary navigation or transient warnings |
+
+Settings and Help MUST be in the left sidebar, pinned to its bottom. Help detail and configuration
+forms MAY open in modal dialogs. The menu bar MUST NOT contain Settings or Help.
+
+For repeatable automated checks, shell zones MUST carry these stable attributes:
+`data-shell="titlebar"`, `menubar`, `left-sidebar`, `content`, and `statusbar`. The `content`
+zone MUST contain the optional `data-shell="warnings"` area first, then optional
+`data-shell="filter-area"`, then `body`, in that order; it MUST NOT contain a `toolbar` zone (§3.3).
+These attributes identify structure; they do not prescribe CSS class names. The left sidebar
+control MUST use `data-shell-toggle="left-sidebar"` — that control sits in the **menu bar**, not in
+the sidebar itself (§3.2) — and its resizer MUST use `data-shell-resize="left-sidebar"`. If a warning area is present, it MUST use
+`data-shell="warnings"` and remain a descendant of the content zone.
+
+- **Title bar metadata (U; fields conditional on availability).** The title bar MUST show the
+  project/application identity and the active-page indicator. When supplied by the loaded model,
+  show the project title, dashboard title(s), project-start date and as-of date. Never fabricate
+  missing metadata or use a project-specific static title before the data is loaded. If multiple
+  loaded sources carry different dashboard titles, show the distinct titles joined with ` · `.
+
+  This mirrors MDL's `.ttl` / `.sub` / `.meta` block.
+- **Title-bar spacing (normative when metadata rows are present).** Metadata rows stack in a
+  `.ttl-stack` column with a **2 px** gap. The project title is 17 px / 600 with `line-height:1.2`;
+  the dashboard-title row is 12 px / 500 and the date row is 11 px / 400, both at the body line
+  height. A dashboard MUST NOT substitute its own line height for the stack.
+- **Title-bar logo (normative).** The logo is **36 px** tall and MUST NOT shrink (`flex-shrink:0`),
+  and the brand group holding it uses a **12 px** gap, as MDL does.
+- **The active page is shown in the title bar (normative).** The title bar MUST show the currently
+  selected left-panel page, **right-aligned** — the bar is `justify-content:space-between` with the
+  brand group on the left and this label on the right, sitting on the bar's 20 px padding. The label
+  MUST be **16 px / 600 at `line-height:1.2`** — one step below the 17 px project title, so the two do
+  not compete — and MUST be **plain text, with no background, padding, border or radius**. It is a
+  page indicator, not a badge or a pill. The label MUST update whenever the selection changes and MUST
+  announce the change with `aria-live="polite"`. Because the page name lives here, the content area
+  MUST NOT repeat it as a heading (§3.3).
+The menu bar holds the sidebar toggle, the actions group (the highlighted load primary plus
+Export), the global filter group (filter triggers, Search with its popover, and Warnings), and an
+optional layout toggle at its right end. The active page name lives in the title bar, not in the
+content area (§3.3). Search opens a search panel; it is not an inline text field.
+- **Menu-bar desktop layout (U).** At wide desktop widths, the menu bar SHOULD use one row and MUST
+  preserve the left actions / right filters grouping. Settings and Help remain in the sidebar.
+- **No clipping (U).** The menu bar and filter group MUST NOT clip, hide, or make any control
+  unreachable. The filter group MUST NOT be given `overflow:hidden` where that clips its popovers.
+- **Responsive fallback (U).** When all controls cannot fit, apply the compact/overflow behavior in
+  §3.4.2. Do not preserve a one-row layout by shrinking controls below their minimum usable size
+  or by clipping them.
+- **The load action is the primary.** The control that chooses or reloads the workbooks MUST be the
+  one highlighted (`.btn-primary`) control in the menu bar, as MDL's "Load Workbook" is.
+- **Menu-bar alignment (normative).** The left-panel toggle, the load action and Export are
+  **left-aligned**. Everything else — the filter triggers, Search with its popover, and the Warnings
+  toggle — is **right-aligned**. This mirrors MDL, whose menu bar is `justify-content:space-between`
+  with the actions group on the left and the filter group on the right. A dashboard MUST NOT render
+  the filter group immediately after the actions group with no gap.
+- **Menu-bar type is bold (normative).** Every control in the menu bar MUST be **bold (600)**, as
+  MDL's are. A dashboard MUST NOT render a menu-bar control at the default body weight.
+- **Menu-bar gap (normative).** The menu bar uses a **12 px** gap between its groups and **8 px**
+  inside each group, as MDL does, and the Warnings toggle carries a further **6 px** left margin.
+- **Menu-bar control metrics (normative).** A menu-bar button is 12 px / 600 at `line-height:1.2`
+  with `min-height:32px` and `padding:7px 14px`. A filter trigger is 12 px / 600 at
+  `line-height:normal` with `min-height:32px` and `padding:7px 12px`. Both render 32 px tall.
+- **The layout toggle lives in the menu bar (normative).** Where a dashboard offers a panel-layout
+  control, it MUST be an icon control at the **right end** of the menu bar, after the filter group,
+  and MUST NOT sit in the content area. Being an icon, it uses the compact 8 px horizontal padding
+  (§3.1) rather than the 14 px of a text control.
+- **The sidebar toggle is compact (normative).** The left-panel toggle is a single glyph, so it MUST
+  NOT carry the 14 px horizontal padding of a text control. It uses **8 px** horizontally, and the gap
+  after it is **8 px**, not the menu bar's 12 px. It keeps the menu-bar control's 32 px height and its
+  12 px / 600 type, and its left edge stays on the bar's 20 px padding, aligned with the title-bar
+  logo. A dashboard MUST NOT render it as a full-width text control.
+
+### 3.2 Navigation
+
+Primary page navigation MUST live in the left sidebar. Settings and Help MUST be pinned to the
+bottom of that sidebar (`margin-top:auto`) and MUST remain reachable at every supported viewport
+width. The menu bar owns only the global actions and controls listed in §3.1.
+
+- **Sidebar content (U).** The sidebar contains page links followed by Settings and Help. It MUST
+  NOT contain file-loading controls, Export, global filters, Search, Warnings, or a collapse
+  toggle. It MUST NOT contain decorative section headings or divider rules unless a dashboard
+  workplan records a justified information-architecture need.
+- **Sidebar toggle (U).** The toggle lives in the menu bar and uses
+  `data-shell-toggle="left-sidebar"`. Its resizer uses `data-shell-resize="left-sidebar"`.
+- **Sidebar sizing (U principle; project values).** The sidebar width MUST be sufficient for the
+  widest navigation label without wrapping or clipping. The default design target is 160 px;
+  a dashboard with different labels MAY use a different measured width. The minimum resize width
+  MUST still keep labels usable. Exact widths and clamps are recorded in the workplan.
+- **Active page (U).** The active page MUST be visually distinguishable and programmatically
+  exposed (for example, `aria-current="page"`). The title-bar page indicator MUST update with it.
+- **Small-screen navigation (U).** The sidebar MAY collapse to a drawer or overlay at narrow
+  widths, but all page links, Settings and Help MUST remain available by keyboard and pointer.
+
+### 3.3 Content area
+The content area owns a scrollable body and **has no toolbar**. Render panels (§4), dashboard metrics
+(§5), and any disclaimer in this body. Keep page-level scrolling disabled as required by `AGENTS.md`
+§18.2. Panel grids may change with the available content width. Do not set a fixed page width that
+reduces the shell's flexible content area.
+- **There is no content toolbar (normative).** A dashboard MUST NOT render a horizontal strip above
+  its panels holding a page heading, a subtitle, or a layout control. The content zone begins with
+  the optional filter area (the warning surface) and then the body. The page name belongs in the
+  title bar (§3.1) and the layout toggle in the menu bar (§3.1), so nothing is lost by dropping it.
+
+### 3.4 Responsive layout
+
+Responsive behavior is a universal requirement. The shell, panels and controls MUST remain usable
+without horizontal page scrolling or clipped actions. Each dashboard workplan records its chosen
+breakpoints, grid transitions and minimum usable viewport width. Breakpoints MAY differ by
+dashboard because content density and navigation labels differ.
+
+- **Wide desktop.** Show the expanded sidebar and the full menu-bar action/filter groups.
+- **Medium width.** Collapse lower-priority menu actions into a labelled overflow menu. Keep the
+  primary load/open action, active global-filter summary, Search and Warnings directly reachable.
+- **Narrow width.** Collapse the sidebar to a drawer/overlay. The menu bar MAY use two compact rows
+  or a compact toolbar, but MUST keep all actions reachable and MUST NOT overlap the warning area.
+  Global filters MAY open from one labelled Filters control with active-filter count.
+- **Panel layout.** Panels and KPI grids reflow to the available content width. Dense tables and
+  fixed-width chart content MAY scroll within their own bounded component only when the component
+  contract permits it; the page and shell content column MUST NOT gain horizontal scrolling.
+- **No hidden controls.** A control MUST NOT become unreachable because it is clipped, off-screen,
+  hidden behind a sidebar, or trapped beneath an overlay. Provide an accessible overflow/drawer
+  route when direct placement is not possible.
+
+#### 3.4.2 Menu-bar overflow and compact behavior (U)
+
+The menu bar MUST prioritize controls in this order when width is constrained:
+
+1. Sidebar toggle and primary Load/Open action.
+2. Global filter access, including a visible active-filter count or summary.
+3. Search.
+4. Export and Warnings.
+5. Optional layout and secondary actions.
+
+The order above determines which controls remain directly visible; it does not authorize removing
+any function. Secondary actions MAY move into an overflow menu. The overflow menu MUST have an
+accessible name, keyboard operation, visible focus, and Escape/outside-click dismissal. Its items
+MUST retain their original action and state semantics.
+
+The filter popover MUST be positioned so it is not clipped by the menu bar, sidebar, or content
+scroll container. Use a portal or an equivalent overlay strategy where required. The menu bar MUST
+not rely on horizontal scrolling as its only narrow-screen fallback.
+
+#### 3.4.1 Panel size fits the screen (screen scale / zoom)
+Panels are the outermost content containers: the `.panel` surface, the `.kpi-grid` and the panel-grid
+cells. Their size MUST follow the available content width at every screen scale, including browser
+zoom set with Control + mouse scroll. A panel MUST NOT keep a first-render pixel width when the
+viewport or the zoom changes. It MUST reflow so it always fills the column it occupies.
+
+The KPI panel is the reference pattern. Its cards use an auto-fit grid
+(`repeat(auto-fit, minmax(210px, 1fr))`) with no fixed pixel widths, so the cards fill the width and
+reflow as the column narrows or widens. Every other panel MUST reach the same result: a fluid grid or
+flex container whose columns are `1fr` (or `auto-fit`), never a hard-coded pixel width that freezes
+the panel at its first render.
+
+This rule covers panel size only. It does NOT govern the cards, charts or tables inside a panel. An
+inner card MAY keep a fixed pixel width where a requirement demands it (for example, a constant bar
+width so values compare across months). Such inner fixed widths are out of scope for §3.4.1; the
+panel around them MUST still fit the screen. A panel that contains fixed-pixel inner content (for
+example, a split-header table or a fixed-width chart) MUST re-fit that content to the panel width:
+either re-render it at the new width or let it scroll inside its own card. The page and the content
+column MUST NOT gain a horizontal scrollbar.
+
+**Screen change and window resize (normative, rev 2026-11-01).** The rule applies to every viewport
+width change, including dragging the window to a display with a different width or pixel density,
+resizing it, collapsing or expanding the sidebar, and browser zoom. The layout MUST reflow without a
+reload, MUST NOT keep a first-render pixel width, and MUST NOT gain horizontal page or content
+scrolling. Changes that a browser reports only through layout (not a `resize` event) MUST still be
+handled: use a `ResizeObserver` on the affected container, not only a `window` resize listener.
+Split-header pairs MUST re-sync their column widths after every such change; a chart with a
+computed width MUST be redrawn at the new width or scale to its host.
+
+**Minimum usable width.** Below the width where its controls still fit, a dashboard MUST keep every
+control reachable: allow the control row to truncate its secondary text or wrap to a second line
+rather than overflow the panel. Navigation MUST stay reachable at every width.
+
+This requirement was confirmed in the Submittal dashboard review (panel-fit-to-screen, 2026-10-27):
+the KPI panel is the reference, and inner cards with a fixed bar width are explicitly out of scope.
+
+### 3.5 System and configuration notices
+Show notices in one warning area inside the content area. The area spans the content area's width and
+MUST NOT cover either sidebar. Do not use a viewport-wide fixed bar.
+
+**Placement (normative, rev 2026-11-01).** The warning area is pinned to the top of the content
+column, immediately below the menu bar, and **above the filter strip and the scrolling body**. It
+MUST NOT sit inside the scrolling body: scrolling the panels MUST NOT move, hide or shrink it. It is
+therefore always visible while a notice is present. When the content column has other fixed strips
+(filter area, page toolbar), the warning area is the first of them. The area MUST use `role="alert"`
+and `aria-live="assertive"`; hide it when empty. Show fatal, warning, and info notices in that order,
+with icon, bold code, and message. Use semantic tokens defined in the dashboard project's UI stylesheet.
+
+The area may collapse, but its button keeps the visible label `Warnings` in both states. A count may
+appear in a badge. Keep notices and the count while collapsed. Persist the choice with a project-
+prefixed local-storage key. Hide the warning area in print. A parse failure appears as a fatal notice.
+Data-quality conditions that can corrupt counts MUST be surfaced as a clear system/data notice.
+Their detection and normalization rules belong in the Application Architecture Standard and
+dashboard data contract. Row-level data issues belong in the Validation panel (§4.5) when that
+component is adopted.
+
+**Addressability (normative, rev 2026-11-02).** The warning area MUST carry the stable id `errBanner`
+so that conformance checks and assistive tooling can locate it without guessing at the markup. A notice
+area that renders and reads correctly but has no stable hook is invisible to the shared layout harness,
+so a missing or hidden banner cannot be detected. The id is part of the contract, not an implementation
+detail; the collapse control and the count badge keep their own semantics (see above).
+
+### 3.6 Status information
+Use the full-width status bar from `AGENTS.md` §18.2 (~30 px, navy). Its left and right values are
+dashboard-specific and MUST be named in the workplan. Do not prescribe package counts, percent
+started, or other domain metrics here. The shared status bar owns its height and position. Keep
+scrollable content clear of it through the shell layout; do not add a second fixed bar.
+
+### 3.7 Initial and file-loading state (C — when dashboard loads user-selected files)
+When a dashboard requires users to select or load source files, it MUST provide a clear initial
+and loading state. A full-screen welcome overlay is the reference pattern, but dashboards that do
+not load user-selected files mark this section N/A in their applicability matrix. The MDL-specific
+workbook-selection example below is illustrative, not a universal business rule:
+
+- **Welcome overlay.** When a first-run screen is needed, the welcome SHOULD be a full-screen,
+  centred overlay. It MAY hide dashboard chrome until the first successful load. Do not show
+  data-dependent panels before the required data is available. (This supersedes the
+  older "keep the shell visible" guidance; the MDL welcome is the reference behaviour.)
+- **Ratio.** The welcome fills the viewport (the MDL ratio: width and height are 100% of the
+  viewport, fluid, no fixed aspect ratio, no page scroll) per `AGENTS.md` §18.2. Fixed-proportion
+  surfaces on the welcome — the file drop area and the welcome card — SHOULD use the golden ratio
+  (1 : 1.618) for their width : height.
+- **Load controls live inside the drop area.** The file-drop zone MUST contain its action buttons
+  (Choose / Load). The drop zone is both the click target and the drag-and-drop target.
+- **The instruction card has no label prefix.** The welcome instruction card MUST NOT carry a lead-in
+  label such as `What this does —`. Show only the instruction text; bold the file names inside it.
+- **Identify source files by their declared contract.** A dashboard MUST use the source contract,
+  schema, or content metadata defined in its workplan to identify selected files. It MUST NOT rely
+  on file names alone where names are not contractually stable. The Code-sheet / `Dashboard Title`
+  approach is one possible implementation for workbooks that provide that structure.
+- **Validate before commit.** A multi-file selection MUST be validated as a complete set before it
+  replaces the active selection. On rejection, show a useful reason and preserve the prior valid
+  selection; do not partially apply a failed selection.
+- **Efficient inspection.** The file-selection check SHOULD read only the metadata needed to
+  establish file identity and compatibility. Full parsing belongs to the application pipeline.
+- **No hardcoded project title.** The welcome MUST NOT display a project-specific title, because the
+  project title is unknown until the workbooks load. Show at most a generic application label. Render
+  the real project / dashboard title from the loaded model in the shell title bar after load, never from
+  static HTML.
+- **File-loading behavior.** Provide the input methods required by the project (for example,
+  file picker, drag-and-drop, or a configured default source). The workplan MUST list required files,
+  selection order, validation behavior and recovery guidance. Put project-specific instructions in
+  the file panel or `ui_help.json`.
+
+### 3.8 Data and rendering boundary (U)
+
+This section defines the UI-facing boundary only. Detailed parsing, normalization, source-contract
+discovery, validation, business calculations, caching, error recovery, module layout and build
+implementation belong in the companion **Dashboard Application Architecture Standard** and the
+dashboard workplan. They MUST NOT be specified independently or duplicated in this UI standard.
+
+The UI MUST follow this logical flow:
+
+`source data → normalized domain model → validated model → derived view model → rendered UI`
+
+- **Single source of truth (U).** Each displayed KPI, chart, count, table and status MUST be derived
+  from one authoritative calculation for that measure. A component MUST NOT independently
+  recalculate a business metric from rendered DOM text or a different source subset.
+- **Derivation/render separation (U).** Filtering, sorting, grouping, KPI calculations, overdue
+  calculations and aggregation MUST occur before DOM rendering in a dedicated derivation/service
+  layer. The renderer MUST receive a view model and MUST be responsible only for presentation and
+  UI event wiring. The renderer MUST NOT own business calculations.
+- **State ownership (U).** UI state (selected filters, selected page, sort order, expanded panels,
+  visible columns and presentation preferences) MUST have one explicit state owner. DOM attributes
+  MAY reflect state for styling and accessibility, but MUST NOT be the authoritative data store.
+- **Filter behavior (U).** Global filters and panel-local filters MUST follow the cascade in
+  §7.2.7. A panel-local filter MUST NOT silently change KPIs, charts, or other panels unless the
+  workplan explicitly defines the control as global.
+- **No unnecessary source reload (U).** A presentation-only interaction or filter change MUST NOT
+  cause a source file to be parsed again unless the underlying source has changed or the user
+  explicitly requests a reload.
+- **Failure isolation (U).** A failure affecting one panel SHOULD be contained to that panel when
+  safe; a failure that prevents trustworthy global data MUST be surfaced as a system/data warning
+  using §3.5. Error messages MUST distinguish load, data-quality, calculation and presentation
+  failures.
+- **Traceable business rules (U).** Business calculations and date anchors MUST be defined in the
+  dashboard workplan/data contract, with examples and tests. The UI standard does not prescribe
+  domain-specific date formulas or source column mappings.
+
+### 3.9 Delivery and runtime modes (U)
+
+The development source and the delivered application are separate concerns. A dashboard workplan
+MUST declare which delivery mode applies.
+
+**Mode A — modular development / local application (default for active development).**
+
+- Source code SHOULD be organized into importable modules with explicit responsibilities, such as
+  source acquisition/parsing, normalization/validation, derivation, state and rendering.
+- A local development server MAY be used where required by browser module loading, local file
+  access, or the project's test harness.
+- Tests MUST run against the source modules and MUST include data correctness, UI behavior and
+  accessibility checks.
+- The use of a bundler or build tool is a project architecture decision, not a UI-standard
+  requirement.
+
+**Mode B — standalone HTML distribution (conditional).**
+
+When the dashboard is required to run by opening a single file from disk (`file://`), the delivered
+artifact MUST be self-contained and MUST NOT depend on a local web server or network access at
+runtime. The packaging process MAY inline CSS, JavaScript, configuration and images into the final
+HTML. The source SHOULD remain modular and the packaging process MUST be repeatable and tested.
+
+**Mode C — hosted deployment (conditional).**
+
+When the dashboard is hosted, its deployment environment, routing, asset paths, security headers,
+network dependencies and access controls MUST be documented in the workplan or architecture
+standard. A local `serve.py` requirement MUST NOT be confused with a standalone `file://` delivery
+requirement.
+
+A dashboard MAY support more than one mode. The workplan MUST state which modes are supported and
+which artifact is the release artifact. No clause in this UI standard independently requires
+`serve.py`, forbids a build step, or requires all source files to be inlined.
+
+## 4. Panel / Card Standard (C — for components adopted by the dashboard)
+
+The component contracts in this section apply only when the dashboard uses the named component.
+Domain-specific examples (including MDL workbook names, disciplines, status codes, counts and
+metric labels) illustrate possible data; they do not define universal dashboard content. The
+dashboard workplan MUST supply the actual data fields, labels, business meaning and component
+selection. A component-level MUST is mandatory only when that component's applicability trigger
+is met.
+
+A **Panel** is the atomic page unit. **The class name is free** — a dashboard may call it `.panel`,
+`.card` or anything else; only the tokens, spacing and behaviour below are fixed. Record the name
+a dashboard uses in its own workplan.
+
+```
+┌───────────────────────────────────────────────┐   ← .panel edge (SAME background + border for every panel)
+│ KPI OVERVIEW                    ( ? ) ( − )     │   ← title row INSIDE the edge: title left, Help ? + Collapse − right
+│                                                  │
+│   ┌──────────────────────────────────────────┐  │   ← .c-card: one graph + its own controls
+│   │ …chart / table / controls…               │  │
+│   └──────────────────────────────────────────┘  │
+│                                Panel 14          │   ← corner panel number, bottom-right (inside the edge)
+└───────────────────────────────────────────────┘
+```
+
+- **Panel surface**: the bordered surface is `.panel` — white (`--surface`); 1px solid `--border`;
+  radius 10 px; subtle shadow; `position:relative`. It carries the **same background and edge for every
+  panel** (MDL panel model). The title row — title, **Help `?`**, and the **Collapse `−`** toggle, which
+  all apply to the whole panel — sits **inside** this edge.
+- **Chart cards**: each individual graph (with its own control filters and buttons) sits in its own
+  bordered surface — `.c-card` (`1px solid --border`; radius 10 px; `padding:12px`; `--surface`). This is
+  a card **inside** the panel and visually separates multiple graphs. A panel may hold one or several
+  `.c-card`s (the C3 Breakdown panel holds two). C3 already uses its own `.c3-card`, which follows the
+  same contract. A single-graph panel (e.g. C1) needs no inner card — the panel edge alone frames it
+  (I068). The panel edge (above) is the **outer** border; the `.c-card` border is the **inner**
+  border around a single graph.
+- **Tables follow the same card contract (normative).** A data table (`.ds-table`, §7.2) and its own controls — view toggle, filters, lane / horizon selectors, export — sit together in one `.c-card`, exactly like a graph: the inner border wraps the table **plus its control cluster** (the owner rule for the Forward and Overdue page). A panel that shows several tables gives each its own `.c-card`.
+- **A table inside a `.c-card` carries its own border; the card must not double-border it (normative).** When a `.c-card` wraps a table, the table's `.ds-split` border is the **single** external border; the card's own border is removed (`.c-card:has(.ds-split){border:0}`) so exactly one visible border remains — on the table, not the card. This corrects the I077 regression where `.c-card .ds-split{border:0}` deleted the table's border and left only the (too-subtle) card border. Chart cards (no `.ds-split`) keep their card border.
+- **Every on-screen table offers CSV (normative).** A `⤓ CSV` button lives in the table's control cluster, right-aligned, and downloads **exactly the currently visible rows** (header + body, UTF-8 BOM), so any filtered or sorted view is exportable. This applies to every `.ds-table` in the dashboard, not just a few panels.
+- **Forward and Overdue tables name the document (normative).** Every Forward and Overdue table shows the **Document No.** and the **Document Title** in adjacent columns, and the column widths show the full Document No. and the full Title without truncation (the table scrolls horizontally when the viewport is narrow).
+- **Every view wraps its own output in `activePanel` (normative).** The page renderer inserts each view's returned markup verbatim and adds NO panel wrapper, so every view function MUST wrap its top-level output in `activePanel(name, content)`. That helper is the only source of the §4 edge border (`.panel`), the title row (Help `?` + Collapse `−`) and the corner `Panel N` number. A view that returns raw markup (for example a bare `.c-card`) silently loses the border and title — the recurring failure class of I019 / I066 / I067 (see issue I075).
+- **A table inside a `.c-card` keeps the §4 rounding (normative).** When a `.ds-split` table sits inside a `.c-card`, remove only its redundant outer border (the card already provides the edge) — never flatten its corners. The base `.ds-split` carries `border-radius:10px; overflow:hidden`; the card rule MUST NOT set `border-radius:0`. This prevents the square-corner regression (issue I076).
+- **Position**: `relative` on `.panel` (so the panel number can anchor inside the edge).
+- **Padding**: `14px 14px 26px` on `.panel`. The 26 px bottom gap reserves clearance for the corner
+  panel number (`bottom:8px`) so it **never overlaps** the last card / content line. Dynamic chart
+  containers get the same `padding-bottom:26px`.
+- **Title**: 13 px, weight 700, **uppercase**, colour `--navy`, letter-spacing .04 em,
+  margin 0 0 10 px.
+- **Title row**: `display:flex; justify-content:space-between; align-items:center`.
+  Panel title left; an **action cluster pinned to the far right** containing Help `?` and the
+  Collapse `−` toggle. **Order within the cluster: Help `?` is LEFT of Collapse `−`** — the
+  toggle is always the rightmost control. Inject the `?` as the first child of `.panel-actions`
+  so this holds even when a toggle is already present. The title row is rendered **inside** the panel
+  edge (the panel border wraps the whole panel, header included); Help `?` and Collapse `−` are therefore
+  inside the edge, while each graph's own controls live inside its `.c-card` border.
+- **The flex row is the title row, not the heading (normative).** The row is the element that
+  wraps the title and the action cluster (`.panel-head` below); the 10 px gap belongs to that row
+  (`margin:0 0 10px`) and the `h2` itself is `margin:0`. Putting the flex on the `h2` — as the
+  sketch below once did — only works when the buttons are nested *inside* the heading, which puts
+  interactive elements inside a heading and leaves the cluster mispositioned the moment a wrapper
+  is used instead. A dashboard MUST give the row its own element.
+- **Corner panel number**: absolutely positioned bottom-right, `Panel N`, 10 px, muted,
+  letter-spacing .04 em, `pointer-events:none`.
+- **Optional panel summary (subtitle)**: a panel MAY show a short, compact summary line directly
+  under the title (for example a document or row count, or a cumulative total). The summary is
+  data only — counts and totals, not prose. Long explanatory text stays in the **Help modal**
+  (the dashboard workplan) and MUST NOT be duplicated in the panel body. Layout (normative, matches the Forward and
+  Overdue panel): the summary sits on its own line in the panel body **before** the `.c-card`,
+  aligned to the panel content edge (no extra indent); it uses the `.note` style — `margin:6px 0`
+  below the 10 px title row (≈16 px visual gap to the title), left-aligned, `color:var(--text2)`,
+  `font-size:13px`, `line-height:1.5`. The control row (filters, CSV, Columns) stays inside the
+  `.c-card`, below the summary.
+- **Numbering rule**: *every* top-level panel is numbered sequentially in document order
+  (`Panel 1`, `Panel 2`, …). The number is static — authored once per panel via the
+  `.panel-no` span (or `.panel[data-panel]::after`). Dynamically generated sub-panels
+  inside a panel are **not** individually numbered; they inherit the parent panel's number and
+  MUST NOT render a badge of their own.
+- **Numbers follow DOM order, assigned after render (normative).** A dashboard MUST NOT number
+  panels from the order the markup was *built*. A page can construct a panel's HTML before the
+  point where it is placed, which silently produces out-of-order numbers — the sub numbered
+  `1, 2, 4, 3` before this was fixed. Assign `data-panel` by walking the rendered top-level
+  panels in document order. Because nested sub-panels inherit the parent's number, the `::after`
+  rule MUST be gated on the attribute's presence (`.panel[data-panel]::after`), or an unnumbered
+  sub-panel renders a bare `Panel`.
+- **The panel margin yields to a grid gap.** Panels are often children of a grid that already sets
+  `gap`; the panel's own `margin:14px 0` then stacks on top of the gap and doubles the spacing.
+  Inside such a container the panel margin MUST be `0`.
+- **Stacked panels are always separated.** The gap is normative in §4.7.
+- **The collapse state outlives the element (normative).** A re-render replaces the panel element,
+  so the collapsed state MUST be persisted outside it — in the dashboard's view state, keyed by
+  panel name — and re-applied on render. Keeping it only on the element silently re-opens the
+  panel on the next filter change or page switch.
+- **No in-panel disclosure toggle when the sidebar provides navigation (normative).** A panel reached
+  through the left-sidebar page links MUST show its primary content directly. A secondary in-panel
+  toggle — for example a native `<details>` / `<summary>` disclosure — that hides the panel's own
+  content is not required, because the sidebar already controls which panel is visible. When a panel
+  must collapse, use the panel-level Collapse `−`/`+` toggle (above), not a content disclosure.
+
+```css
+.panel{margin:14px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  box-shadow:var(--shadow);padding:14px 14px 26px;position:relative;min-width:0}
+.panel-body{min-width:0}                                       /* content wrapper; no border */
+.panel-head{display:flex;justify-content:space-between;align-items:center;
+  gap:8px;margin:0 0 10px}
+.panel h2{font-size:13px;margin:0;color:var(--navy);text-transform:uppercase;
+  letter-spacing:.04em;line-height:1.4}
+.panel-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;
+  bottom:8px;font-size:10px;letter-spacing:.04em;color:var(--muted);pointer-events:none}
+.c-card{border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--surface);
+  position:relative;min-width:0;margin:0 0 12px}
+.c-card:last-child{margin-bottom:0}
+.panel-grid>.panel{margin:0}
+.panel.collapsed>*:not(.panel-head){display:none}             /* hides the bordered content */
+```
+
+### 4.1 Panels containing charts (control ownership)
+Some panels hold several **chart cards** in a grid. The panel shell still carries §4 chrome — bordered surface, own title row, corner `Panel N`. **Each chart card is a bordered surface** (`.c-card`, or `.c3-card` for C3) that contains its own chart and its own controls; the border visually separates the graphs (§4 chart-card rule). A panel may hold one or several cards. **Single-graph panels need no inner card border** — the inner `.c-card` / `.c3-card` border is used only to separate **multiple** graphs in one panel (e.g. C3's two cards) or to group a graph with its own controls (e.g. C2's single `.c-card`); a panel that shows only one graph (e.g. C1, the S-curve) uses the **panel edge** alone (its inner border was removed in I068 as redundant). Controls split strictly by scope:
+
+| Control | Owner | Notes |
+|---|---|---|
+| Help `?` | **the panel** | one per panel, in the title-row cluster; opens the modal (the dashboard workplan) |
+| Collapse `−`/`+` | **the panel** | collapses the whole grid of chart cards; state lives on the panel element so it survives re-render |
+| Chart type (Bar/Pie `.seg`) | **each chart card** | **independent per chart** — keyed by card id (e.g. `inter-<cardId>`), so switching one chart must never flip the others (seg contract: §7.5) |
+| Breakdown / dimension select | **each chart card** | each card groups by its own dimension |
+| Period window (From / To / range text) | **each chart card** | scopes only the chart it belongs to (the dashboard workplan) |
+| **Bars** toggle | **each chart card** | shows / hides that card's per-period bars |
+| `⤓ PNG` / `⧉ Copy` | **each chart card** | exports that single chart only |
+
+- **Related controls belong to the card they act on — never to the panel area (mandatory).** Any
+  control that affects **one card's** content must sit **on that card's board**, in that card's own
+  **right-aligned** control cluster above its plot. It must **not** float in the panel's general
+  area — the panel head, the panel body, or a free-standing row between cards. Only controls that
+  act on the **whole panel** — Help `?` and Collapse `−`/`+` — live on the panel's own title-row
+  cluster. Rationale: a control sitting in the panel area reads as scoping the *whole panel*, which
+  misleads as soon as the panel holds several cards, and it leaves the card with no board of its own
+  once cards are bordered. This applies to **every** card type (breakdown charts, combined charts,
+  tables): **every card owns its controls; the panel owns only its own chrome.** Cluster order is
+  fixed — period window → **Bars** → range text → `⤓ PNG` → `⧉ Copy` (§4.2). There is **no Reset**
+  control (the dashboard workplan).
+- **C3 Breakdown panel exception.** The C3 Breakdown panel's two cards are fixed-dimension views
+  (Submissions, Approval Status) that always share the same period and the same secondary breakdown
+  (Discipline / Submitter). Month + Break-down-by therefore live in ONE shared cluster above the cards
+  (the panel owns them), and only `⤓ PNG` / `⧉ Copy` stay per card. This is the deliberate deviation from
+  "every card owns its controls": two per-card copies would be redundant and read as independent when
+  both cards use the identical secondary dimension. Each card also shows the full MDL discipline set (and all submitters) even at zero, and its bars share one CSS grid with the vertical axis labels and an attached per-card data table (Submissions = Total Plan / First Submission / Resubmission / Under Review; Approval Status = the codes). The Pie view renders the same two cards as their own
+  donuts (one Submissions donut, one Approval Status donut) — there is no consolidated two-ring card.
+- **C3 bar y-axis grid lines + numbers.** To match the C1 S-curve and C2 stacked-area panels, each C3 card
+  draws a y-axis on the left of its bar plot. There are **5 horizontal grid lines** (light `.sc-grid`-style rules)
+  at 0 / 25% / 50% / 75% / 100% of a **"nice" maximum** — the axis top is `niceCeil` of the largest category
+  total (the same rounding C1/C2 use), *not* the raw max — and the bars are scaled to that same nice maximum, so
+  the top grid line is a round number and the plot fills its height. The numeric **tick labels (the document
+  count)** are right-aligned in the metric-label column and flush against the bars, so there is **no gap** between
+  a tick label and the grid line it sits on, and the labels align with the attached data table below. A
+  zero-discipline category still renders its empty bar against the full grid. The Pie cards are exempt (they are
+  donuts, not bars). Decision recorded as I060; review sample `sub/ref/sample-c3-grid-lines.html`.
+- **C2 Submission Flow Funnel (per-Discipline table left, funnel right).** The C2 Funnel view draws a
+  **vertical funnel to the right of a per-Discipline table**: the table (Discipline rows + a Total row) is on
+  the left, the funnel on the right. The funnel's **top aligns with the first discipline row** and its **bottom
+  aligns with the last discipline row** — the table header and Total row sit outside the funnel's vertical span.
+  Five stages run top→bottom: **Planned Deliverables → Submitted for Review → Under Review → AWC → Approved**.
+  Stage names and values sit in a **left label gutter** (right-aligned beside the bands), so long stage names
+  never clip against a narrow band; there is no separate legend row. **Band widths
+  use square-root compression** (widest stage = max width; a 14 px floor) so a large ratio between stages (e.g.
+  Planned 1000 vs Submitted 100) does not make a small stage a razor-thin sliver. The bottom stage (Approved) is
+  drawn as a **solid square block** (owner request 2026-10-28, replacing the cube) so the funnel ends on a solid
+  base. The stage label reads
+  **Under Review** (not "In Review"); **AWC** is shown as its own stage, separate from Approved. The
+  per-Discipline table repeats the five measures with a Total row. Counting rules: Planned Deliverables = MDL
+  planned rows (D11); Submitted for Review = distinct `Document No.` with ≥1 submission row (D34); Under Review
+  = latest `SUR` with no `Actual Return Date` (D34); AWC and Approved split by the document's first approval code
+  (APP vs AWC, C3 All-months rule). See `sub/ref/C2-Funnel-Sample.html`.
+- Chart cards do **not** get their own Help/Collapse and are **not** individually numbered —
+  they inherit the parent panel's number (see numbering rule above). Only the panel shows one.
+- **Chart-card titles** follow §8: `h3` (`.panel-head h3`), 13 px / 700 `--navy`, **not**
+  uppercase — they are nested sub-panels, unlike the panel's own uppercase `h2`.
+- **A chart-card title names the *view*, not the *selection* (mandatory).** The card heading
+  carries its own **stable group name** and must **not** track the breakdown currently picked in
+  that card's `<select>`. A user-changeable value in a heading either goes stale or merely restates
+  its control. The per-card `<select>` already indicates what is applied, so echoing it in the
+  heading is redundant. (The chart's *own* plot caption is a plot label, not this heading, and is
+  unaffected.)
+- **Interactive chart panel title.** The panel's `h2` MUST read **`Interactive Chart`** — rendered
+  uppercase by the §4 `text-transform:uppercase` rule — and **not** `Charts`. This is the canonical
+  name for a panel holding user-switchable interactive charts; the matching Help-modal entry uses
+  the same title.
+- **Panel board + chart-card grid alignment, border & plot height (mandatory).** **Every
+  panel has one board**: its shell draws a bordered surface per §4 chrome (own title row, corner
+  `Panel N`). This applies to panels that hold chart cards too, so `.panel.panel-flat` (`border:0;
+  background:transparent; box-shadow:none`) is **not** permitted there. Inside the panel board each
+  **chart card is exactly one bordered surface** (`.chart`: 1px solid `--border`, `border-radius:10px`);
+  a card must **never** be wrapped in a second `.chart` element, since card-in-card draws a *double*
+  border and is **forbidden**. A panel therefore draws **one** border and each of its chart cards draws
+  **one** border — two distinct, non-nested surfaces. **This also applies to a panel that holds a
+  single chart** (§4.2 combined chart panels): the plot is wrapped in **one chart card** drawing its
+  own board **inside** the panel board, even though such a panel has no card grid and no card title.
+  Cards sit in a 2-up grid (`.charts`) with
+  `align-items:stretch` so the cards are **always equal in height** and their borders align on both top
+  and bottom even when one chart has far more categories than the other. Each card's border is its only
+  frame. The chart
+  drawing area (`.chart-host`) flexes (`flex:1`) with a **shared `min-height` of 300 px**, and **both
+  chart types MUST render at the same 300 px plot height** — the bar renderer distributes its rows over
+  300 px (`rowH` derived from the row count, clamped, with short blocks centred) and the pie renderer
+  uses `H=300`. A pie and a horizontal bar chart must therefore occupy the **same vertical extent**, so
+  the two chart areas are aligned in height (do not let one chart's canvas be shorter than the other's).
+- **Collapse must survive re-render**: when a panel's contents are rebuilt via `innerHTML`, keep
+  the collapsed flag as a class on the **panel element itself** (which is not replaced) and
+  re-derive the toggle button's glyph/`aria-expanded` from it on each render.
+
+---
+
+### 4.2 Combined chart panels (bars + cumulative curve)
+When a chart needs to show **both per-period detail and a running total**, use **one** chart with
+a single shared time axis instead of two stacked charts:
+
+- **Shared y-scale by default; a separate bar scale is a documented exception (rev 2026-10-13).**
+  Monthly bars (per-period counts) and cumulative lines (running totals) are normally plotted
+  against the **same** scale and the **same** single value axis (left, captioned with the unit,
+  e.g. `pkgs` / `docs`). Rationale: with separate bar/cumulative axes the *same number* renders
+  at two different heights — a bar of `5` sits far taller than a cumulative point of `5`, which
+  reads as a bug ("the cumulative curve is lower than the bar"). A single scale keeps the two
+  representations directly comparable, and the **Bars** toggle (below) is the way to inspect the
+  curve on its own. **Shared is the default mode; the guardrail below is the one exception.**
+  - In **shared** mode the scale is `max(1, …visible bar values, …visible line values)` — computed
+    over the **visible window**, so it rescales as the period window moves. Bars and lines share
+    **one** `y(v)` function; no second `y` function may exist for the same plot.
+  - In **shared** mode there is no right axis, so the right-side axis padding is minimal
+    (`padR ≈ 18`, not the ~52 px a second axis needs). Only **one** set of tick labels is drawn,
+    on the left, plus a single unit caption above the axis. Do not label the axis `/mo` and
+    `cum.` separately — there is only one scale.
+  - **Scale-mode guardrail (default).** Each workplan MUST confirm these cutoffs against its data and plot size. Let `r = maxCum / maxBar` over the
+    visible window, where `maxCum` is the largest cumulative value and `maxBar` the largest
+    monthly bar value.
+    - `maxBar == 0`, or the **Bars** toggle is off → **shared** (a separate scale is meaningless).
+    - `r > 10` → engage **separate scales automatically**. Justification: above this ratio the
+      tallest bar occupies under ~1/10 of the plot height (< ~30 px in a 300 px plot), too small
+      for its printed value label — it reads as a sliver. Because cumulative totals can be one to
+      two orders of magnitude larger than any single month, this is where the shared scale stops
+      being usable.
+    - `r < 6` → revert to **shared**. Between 6 and 10 the active mode is **retained** (hysteresis),
+      so dragging the From / To sliders cannot flicker the axis on and off.
+    - A **Shared / Separate** control may be offered so a reader can override the automatic
+      decision; it defaults to **Shared** and is a state toggle (carries `aria-pressed`, persisted).
+      Whichever mode is active, each axis always **auto-fits** its own family: a user is **never**
+      allowed a free-form bar-height multiplier, because that would let one month be drawn taller
+      than the running total (a false reading) and would make exported PNGs non-reproducible.
+  - **Whenever separate scales are active** these mitigations are mandatory, because the original
+    "two heights for one number" hazard is then live: both axes captioned (left `… cumulative`,
+    right `… per month`); the right axis line **and its ticks** coloured to the bar family; the
+    legend states which axis each family uses (bars → right, `Cum. …` lines → left); and a note
+    states *"Monthly bars use the right-hand scale; Cum. lines use the left cumulative scale."*
+    `padR` widens to ~52 px while separate. Cross-family height comparison is **never** valid.
+- **The y-max uses the raw visible maximum, not a rounded-up step (rev 2026-10-25).** Compute `yMax = max(1, …visible bar values, …visible line values) × ~1.03` — a small headroom pad so the peak line clears the top edge. Do **not** round the maximum up to a power-of-ten (or other coarse) step; that shrinks the curves to a fraction of the plot height and leaves the top empty. Mirrors the MDL reference, where the curves fill the full chart height.
+- **Cumulative values are ABSOLUTE — never rebased to the window (rev 2026-10-13).** A cumulative
+  point always shows the true running total from the start of the series, so the value read off
+  the chart is the real total-to-date and it does **not** change when the period window moves. Do
+  **not** subtract the pre-window cumulative (no "anchoring at the window start"): that turns the
+  numbers into deltas that silently change as the reader drags the window, and it forced a
+  "cumulative within period" caption to explain them. The window selects **which months are
+  shown**; it never re-zeroes the curve.
+- Every series is drawn **twice**: once as bars, once as a cumulative line. Lines are
+  distinguished from their bar counterpart by dash pattern (e.g. Plan `6,3`, Forecast `2,2`,
+  Actual solid) and are named `Cum. <series>` in the legend.
+- **The combined-chart legend MUST be rendered INSIDE the SVG (in-SVG).** It travels with the
+  exported PNG, so an HTML `.legend` div or a toolbar legend is not permitted — a legend outside the
+  SVG is lost on export. It holds one bar swatch and one `Cum. …` line sample per visible series
+  (four series → eight entries). The entries wrap into rows of `floor(W / 132)` items at plot width
+  `W`, and every row MUST stay inside the SVG `viewBox`, so a narrow panel neither clips the legend
+  nor needs a horizontal scrollbar.
+    - **With an attached table (C1 only).** Where a `.c1-grid` panel renders a native `<table>`
+      whose `<thead>` month cells are the chart's shared X labels, the legend MUST sit **above** the
+      plotting area, inside the top of the SVG canvas. `yTop` MUST be sized for the legend rows,
+      `yBot` MUST be the bottom edge of the SVG `viewBox`, and the plot's bottom edge MUST touch the
+      `<thead>` with zero intermediate layout elements. C2, C3, C4 and the MDL dashboard are out of
+      scope for this branch.
+    - **Without an attached table.** For every other §4.2 combined chart (C2 stacked and delay),
+      the legend SHOULD stay at the bottom, beneath the plot area.
+- **Months are labelled with the `MMM YYYY` template (e.g. `Mar 2026`).** Every month shown in the
+  S-curve — the x-axis ticks, the period-window range message, and the `<title>` tooltips — is
+  formatted through the shared month-label helper. A raw `YYYY-MM` key, or any `slice()` of it
+  (`26-03`), is never rendered: it is not a readable month and it differs from every other date in
+  the dashboard. Both dashboards use the same template.
+- **A Month / Quarter / Year time-grain toggle MAY be offered on an S-curve.** When present it
+  rebuckets the data: the x-axis labels, the bar aggregation and the cumulative curve all follow the
+  selected grain — `MMM YYYY` for Month, `Qn YYYY` (e.g. `Q1 2026`) for Quarter, `YYYY` for Year. At
+  Quarter / Year the cumulative line plots at each bucket boundary (the cumulative at the bucket end),
+  and the `MMM YYYY` template is replaced by the grain template through an extended shared label
+  helper (never a raw key).
+- **Bar values are printed VERTICALLY — rotated 90°, reading bottom-to-top.** A horizontal count
+  above a bar collides with its neighbour as soon as the bars get close together, and the collision
+  worsens the more digits the count has. Rotating the label gives it a fixed ~12 px horizontal
+  footprint regardless of magnitude, so values never overlap. The label is anchored just above the
+  bar top and rotated about that anchor (`text-anchor="start"` + `transform="rotate(-90 x y)"`).
+- **Dense x-axis labels MAY be inclined** (rotated ~40°, `text-anchor="start"`) so they hug the axis
+  with a **minimised gap** and save horizontal space; wherever inclined, the legend MUST sit **clear
+  of the labels** (no overlap) — the bottom padding is sized for the rotated text plus the legend, not
+  for the labels alone. This bottom-padding rule applies only to the no-attached-table branch, where
+  the legend sits beneath the plot; an attached-table panel places the legend above the plot and keeps
+  its X labels in the table `<thead>`.
+- **Every plotted point on a cumulative line is a SOLID dot — `r=3`, filled with the series
+  colour.** Nodes are never hollow rings (`fill="var(--surface)"` with a coloured stroke): a solid dot stays
+  legible where series cross — the standard form for every S-curve.
+- **Forecast is always drawn** — it is never hidden merely because the Forecast column is sparse.
+  The fallback is applied **per item**: a package with no Forecast date contributes to the
+  Forecast series using its **Plan** date (mirrors *due = Forecast ∥ Plan*). When the whole
+  column is blank the Forecast series legitimately mirrors Plan instead of disappearing.
+- **Bars are the INDIVIDUAL period quantity, never cumulative.** Keep the two representations as
+  two separate arrays: per-period counts feed the bars, the running total feeds the lines. Never
+  accumulate the per-period array in place and then alias it to the cumulative series — that
+  silently turns the bars into cumulative values.
+- **Every series stops at its last real date — Actual runs to TODAY.** Plan and Forecast (bars
+  and curves) end at the last period holding that kind of date, so no curve is drawn as a
+  misleading flat tail; if there is no such date the series is drawn as nothing (never a flat
+  zero line). Cumulative **Actual** is the exception: it runs through **today** (not merely the
+  last actual month) so achieved progress stays readable up to the reporting date. Actual *bars*
+  still stop at the last month with an actual PO.
+- **Every non-zero bar shows its value** printed above it (12 px, matching the bar-combo chart). Zero
+  bars are skipped so the plot stays readable.
+- The time range extends **exactly one extra month** beyond the last data month (not three or
+  four) so the last bar is not flush against the plot edge.
+- A **Bars** toggle hides the per-period bars so the cumulative curve can be read alone. It lives in
+  the **chart card's** control cluster (§4.1 ownership) — **not** in the chart, and **not** in the
+  panel area. Bars are **visible by default**. The button is a state toggle, not a momentary action:
+  it carries `aria-pressed` and is dimmed (`opacity:.55`) when bars are hidden, so its state is
+  visible without re-reading the chart.
+- The card's controls form **one cluster on the card's own board**, directly above the plot
+  (**§4.1** ownership). The cluster is **right-aligned by default**; the **period selection** (window
+  or brush) MAY instead be **left-aligned** with `margin-right:auto`, pushing the remaining controls
+  to the right. Internal order is fixed: **grain toggle (when present) → Bars → series multi-select
+  (when present) → date-range text → `⤓ PNG` → `⧉ Copy`** — filters before exports, PNG before Copy.
+  `align-items:center`. The cluster prefers a single line and may wrap only when the card is too
+  narrow. The **period window MAY be realised as a bar / brush selection** — a single track with two
+  drag handles selecting a contiguous range — instead of two separate From / To inputs; when the card
+  is too narrow the brush wraps below the cluster row.
+- These panels stay **full width** (`.card.full`) — one wide chart, not a 2-column grid.
+- **No nested chart title** when a panel holds a single chart: the panel's own `h2` is enough, so
+  do not add an `h3` sub-title. The chart component nevertheless draws **its own chart-card board**
+  (§4.1) — a 1 px border around the **whole chart component** (control cluster + plot), **not** a
+  rectangle drawn inside the plot area — and the control cluster above renders **inside** that board.
+- **CSS contract (mandatory, so the rule is testable).**
+  `.chart-actions{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:6px}`
+  — the cluster right-aligns **to the card**; a cluster that merely carries the class while sitting
+  left-aligned in the panel body still violates this rule. And
+  `.sc-win .msg{font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap}` — the range
+  text is muted body copy at §8 sizes, never a small green success-coloured label.
+
+- **Hover floating window — normative (§4.6).** Moving the cursor (or focusing) a chart board draws the optional snap line and shows the `.chart-tip` window near the cursor, listing that bucket's per-period counts and cumulative totals; the window is an HTML overlay with `pointer-events:none` (never inside the SVG). The full contract — tokenized visual style, 4-edge clamping, a below-card KPI variant, `cursor:crosshair` affordance, required touch variant, accessibility and the single delegated binder — is defined in **§4.6**.
+
+- **S-curve attached table (normative, rev 2026-11-05).** This rule applies to **every** dashboard
+  that draws an S-curve with an **Attached table** (§0). It is universal: the metric rows come from
+  the dashboard's own data and workplan (§1), and this clause names no row. The C3 Bar cards remain
+  the reference implementation (§4.1, revisions 1.33 / 1.34).
+  - **Page and panel structure.** The page panel container is a CSS grid (§3.4, §4.7). The
+    **Panel** is the atomic page unit (§4), and `activePanel()` supplies the edge, title row and
+    Panel N number. A single-graph C1 panel has **no inner `.c-card`** (§4.1, I068). One
+    `.sc-board` carries the chart board border around the control cluster, the plot and the
+    attached table. No third bordered wrapper is permitted.
+  - **Grid contract.** One `.c1-grid` CSS grid is the alignment container. Define `--c1-gutter`
+    (`104px`) and `--c1-cols` (`N`) once, and set
+    `grid-template-columns:var(--c1-gutter) repeat(var(--c1-cols),minmax(0,1fr))`. Set
+    `column-gap:0`. Column 1 holds the Y ticks, the Y caption and the metric labels. Columns
+    2..N+1 hold one period each. Row 1 holds the curve. Row 2 holds the X labels, which are also
+    the table column headers. Rows 3+ hold the metric rows. The SVG `viewBox` bottom MUST equal the
+    plot bottom, so the `<thead>` row touches the curve's X axis with no intervening legend band
+    (§4.2 legend rule).
+  - **SVG contract.** One `<svg>` with `role="img"` and an `aria-label` draws the curve inside
+    `.c1-plot`, which spans columns 2..-1 of row 1. Use `xc(i) = (i + 0.5) * W / N`, where `W` is
+    the measured width of that spanning cell. A **`ResizeObserver` on `.c1-plot` MUST** recompute
+    `W` and redraw the curve on every container width change (§3.4.1). A `window` resize listener
+    alone is not sufficient.
+  - **Y axis contract.** The curve SVG MUST draw one vertical `sc-yaxis-line` at `x = 0`,
+    spanning the full plot height (`yTop` to `yBot`) as a 1 px light rule. Grid column 1 MUST
+    carry five right-aligned Y tick labels flush with the plot's left edge, plus the unit
+    caption (`Cumulative documents` or the equivalent measure name) rotated to read along the
+    side of the axis — `writing-mode:vertical-rl` or an equivalent rotate transform. A
+    horizontal unit caption above the axis does not satisfy this rule. All text elements within this panel — SVG annotations, Y-axis tick labels, and attached table cells — inherit `font-family: var(--font-ui)` from `.c1-grid` (normative, §6). Do not override with per-element font-family declarations unless a domain-specific requirement exists — such overrides must be documented in the dashboard workplan.
+  - **Table contract (Option B).** One native `<table>` sits in one grid item that spans all
+    columns. It MUST carry a short `<caption>`, a `<colgroup>` driven by `--c1-gutter` and
+    `--c1-cols`, `table-layout:fixed`, a `<thead>` with `<th scope="col">` month cells, and a
+    `<tbody>` with `<th scope="row">` labels and one `<td>` per month. ARIA table roles MUST NOT
+    be used, and `display:contents` MUST NOT be applied to the table elements (§0,
+    **Accessibility tree**). The     `<colgroup>` widths MUST match the `.c1-grid` tracks, so the SVG,
+    the headers and the values share one horizontal boundary for every period column. Table cell fonts inherit `font-family: var(--font-ui)` from `.c1-grid` (normative, §6). Table column headers (`.c1-table th[scope="col"]`) typically render at 11–12 px weight 600 in var(--muted). Table row headers (`.c1-table th[scope="row"]`) at 12 px weight 600 left-aligned. Data cells (`.c1-table td`) at 12 px weight 400 with `font-variant-numeric: tabular-nums` right-aligned. These sizes support clean numerical scanning across 20+ month timelines.
+  - **Attached-table interaction (C1 only, rev 1.63).** Where a `.c1-grid` panel renders a native
+    `<table>` whose `<thead>` month cells are the shared X labels, the following MUST hold. C2, C3,
+    C4, KPI cards and the MDL dashboard are out of scope.
+    - **Soft area gradients.** The SVG MUST define one `<linearGradient>` per visible series in
+      `<defs>` and one `<path class="sc-area">` beneath each cumulative line, drawn behind the grid
+      lines, bars and curves. Gradient stops MUST use the on-chart series **tokens** (`--color-*`),
+      never a hard-coded hex (§4.6). Area paths MUST carry `pointer-events:none` so they cannot
+      steal the nearest-datum hover.
+    - **Month-column highlight band.** One `<rect class="sc-hover-band">` MUST be a direct child of
+      the SVG, hidden until activation, spanning `yTop`..`yBot`, with `width = W / N` and
+      `pointer-events:none`. It MUST be drawn behind all marks.
+    - **Two-way month-column sync.** Every month `<th scope="col">` and every value `<td>` MUST
+      carry `data-c1col="${i}"`. `data-c1col` is distinct from `data-col`, which `.ds-table` column
+      choosers and resize grips already use. Hovering a month column in the SVG MUST activate the
+      band, the snap line and the `.col-active` class on that column's cells; hovering a header or
+      value cell MUST activate the same band and snap line. A `ResizeObserver` refit MUST rebuild
+      the band from the new `W / N`, and the binder MUST query the band fresh rather than cache the
+      node across `innerHTML` replacement.
+    - **Chart-only hover window.** The `.chart-tip` window MUST open **only** while the cursor is
+      inside the SVG chart area. When the cursor is in the attached table the window MUST stay
+      closed, while the band, snap line and `.col-active` highlight remain active (§4.6). This
+      gating is opt-in on the shared `bindChartHover()` binder and MUST NOT alter any other board.
+    - **Export fidelity.** PNG/Copy MUST serialize the gradient `<defs>` and area paths with
+      resolved token colours, and MUST strip the hover band and `.col-active` classes so no
+      transient hover state is captured.
+  - **Labels and rules.** Use the `MMM YYYY` month template (§4.2). Put `Reporting Month` in the
+    corner cell, left aligned above the X labels. Use 1 px light rules only. Keep the Start and
+    Today reference lines. Omit the as-of subtitle.
+  - **Fallback, reflow and print.** Static HTML cells MUST show the table when scripts do not run.
+    The script MUST rebuild the same cells. The **whole curve MUST stay visible inside the chart
+    board at every container width**: the SVG MUST NOT gain `min-width` and the board MUST NOT
+    gain a horizontal scrollbar (§3.4.1). The `ResizeObserver` pass MUST keep the `width` /
+    `height` attributes, the `viewBox`, `data-geo.W`, every `data-points[].cx`, `--c1-cols` and
+    `<colgroup>` in sync, so one SVG unit stays one CSS pixel and
+    `preserveAspectRatio="xMidYMid meet"` cannot letterbox the plot. Changing the period window
+    MUST rebuild the curve payload and the table columns from the same `N`. Print MUST show the
+    full grid.
+  - **Export.** `⤓ PNG` and `⧉ Copy` MUST include the attached table. Rebuild the table text and
+    rules as a self-contained native SVG of `<rect>` and `<text>` (§0, **Export &
+    serialization**), following the C3 `c3CardToSvg` method (§4.1, revision 1.33). Do not
+    serialize only the curve `<svg>`, and do not use `<foreignObject>`.
+  - **Accessibility.** Keep `role="img"` on the SVG so its inner `<text>` is not read twice. Keep
+    the short `<caption>` and every `scope` attribute. Link `aria-describedby` to `.chart-tip`
+    only (§4.6); do not point it at the table. Keep every cell in the DOM when the grid scrolls.
+    A skip link is not required for one static table.
+  - **Exemptions and CSV.** The attached table is not a **Bounded data table** and not a
+    `.ds-table`. §4.3 and §7.2.15 do not apply. The §4 CSV rule is scoped to `.ds-table`; each
+    dashboard MUST record in its workplan whether its attached table also offers `⤓ CSV` (§1).
+  - **C3 traceability.** C3 Bar cards keep their div grid. C3 code and the review samples in
+    `sub/ref/` MUST cite §4.1, §4.2, §3.4.1 and revisions 1.33 / 1.34 in comments or notes.
+
+### 4.3 Long lists → bounded data table (never an open-ended list)
+Any panel whose content is a **list of records that can grow** (look-ahead, overdue packages,
+validation issues) must render as a **data table inside a fixed-height scroller** — never as an
+open-ended list that stretches the page.
+
+- Container: `.tableScroll` (`max-height:340px; overflow:auto; margin-top:8px;
+  border:1px solid --line; border-radius:10px`). The header is rendered as a **split header**
+  (§7.2.15): `<thead>` lives outside the scroller, so the panel keeps a stable height no matter how
+  many rows match, only the body scrolls, and the **vertical scrollbar starts below the header row**.
+  (A sticky in-scroller `thead` was the pre-2026-10-21 pattern and is retired — see §7.2.15.)
+- The **row count is shown in the control row** (e.g. `PO Plan from … to … (N packages)`), so the
+  full size is still communicated even though the list is clipped.
+- Row content: one record per row, no duplicated paragraph text; numeric columns right-aligned
+  with `.num` + tabular figures.
+- **Windowing (L3, §7.2.8).** Because the list is never truncated, a table whose *columns × rows*
+  product makes full DOM materialisation expensive MUST render only the visible window. The
+  control row still reports the **full** count.
+- **Pagination (all bounded tables).** When a bounded table holds **more than 200 rows**, it MUST
+  paginate at **200 rows per page**. Only the current page is materialised into the DOM; the page
+  navigation buttons (**Previous / Next**) are required and MUST stay reachable, optionally with a
+  page-jump selector showing `Page n / total`. The navigation sits at the **top** of the card, in the
+  same tool cluster as the filter and export controls. The tool cluster reports the position
+  (e.g. `Page 2 / 5 · 1,024 rows`); the **full row count is always communicated**. CSV / export
+  MUST cover the **entire filtered set**, not only the visible page (§7.1). Pagination takes
+  precedence over Windowing (§7.2.8) for large tables: a paginated table does not also window.
+- **Pagination control behaviour (normative).** Previous / Next and the page-jump selector MUST
+  change only the current page of their own table. They MUST NOT change the active view and MUST NOT
+  reuse the sidebar navigation attribute (`data-page`): a non-page value such as `prev` falls through
+  a `views[page] || overview` dispatcher and silently lands on the default Overview view. The pager
+  MUST use a distinct attribute, and the navigation handler MUST accept only real page names. A
+  filter change MUST repaint the table, its row count and the page total at once and reset to page 1;
+  a bare boolean attribute used as a filter hook MUST be detected with `hasAttribute`, because its
+  `dataset` value is `""` (falsy). `⤓ CSV` MUST download the **full filtered set**, not only the
+  visible page (§7.1).
+- **Print (§7.2.11).** `.tableScroll` MUST be released inside `@media print`, otherwise the 340 px
+  cap clips every long table in the exported PDF.
+- **Panel title must not hard-code the filter value.** Name the panel after the *view*
+  (`PO Look-Ahead`), not after the current selection (`3-Month PO Look-Ahead`) — the horizon is
+  a user control, so the title describing it goes stale the moment the user changes it.
+
+#### Horizon / range filters
+When a list is scoped by a time window, expose the window as a **segmented control** (§7.5) in
+the panel's control row, not as a hard-coded constant:
+
+- Typical options: `1m / 2m / 3m / 4m / 6m`, default `3m`, persisted via a dashboard preference key.
+- The horizon is measured in **calendar months** (`new Date(y, m + n, d)`), never a fixed day
+  count such as `+90 days` — a day count drifts against the calendar and does not mean what the
+  label says.
+- Changing the horizon **re-renders only that panel**; the last data set is cached by the
+  renderer so the control can redraw without a full dashboard reload.
+- The control sits in **one row** with its label and the count text (same rule as §4.2's period
+  window): `flex-wrap:nowrap; align-items:center`, count text `margin-left:auto`.
+
+#### Look-ahead lists — general requirement
+A **look-ahead** is any panel answering *"what is coming up in the next N periods"*. Every
+look-ahead list must satisfy all of the following, on every dashboard:
+
+1. **It is a data table** in a bounded scroller (§4.3 above) — not a prose list, and not a chart
+   of the same rows. Rows are one record each; no duplicated paragraph text.
+2. **Forward-looking only.** The window starts at **today / the operational as-of** — never at the
+   project start. Anything already **completed is excluded**: if the tracked milestone has an
+   *Actual* date, the item is done and must not appear in a forward-looking list (this is the same
+   canonical done-rule as Overdue — *Actual present ⇒ stage complete*).
+3. **Sorted ascending by the due date**, so the soonest item is always the first row.
+4. **Shows the distance to the due date** as a numeric, right-aligned column (`.num`, tabular
+   figures) — e.g. `In (days)` — so urgency is readable without mental arithmetic.
+5. **Carries the current status** column so the reader can see at a glance whether the item is
+   still open.
+6. **The window is a control, not a constant** — exposed as the horizon filter above. Never
+   hard-code `90 days` or any other span, and never require a metadata/config row just to widen
+   the window.
+7. **The panel title names the view, not the selection** (`PO Look-Ahead`, never
+   `3-Month PO Look-Ahead`) — the horizon is user-changeable, so a title carrying it goes stale.
+8. **The row count is reported in the control row** (`… (N packages)`), because the list is
+   clipped by the scroller and the reader cannot count rows to get the total.
+9. **It offers a `⤓ CSV` download** (§7.8) in the same control row as the horizon filter. The
+   exported rows must be **exactly the rows on screen** — same filter, same sort, same horizon —
+   so the renderer caches the resolved list and the exporter serialises that cache rather than
+   re-deriving it (re-deriving risks a silent mismatch). Empty list ⇒ `Nothing to export` toast,
+   never an empty file.
+
+- A look-ahead is the mirror image of an **overdue / delay** list: overdue is backward-looking
+  (`due < as-of`), look-ahead is forward-looking (`as-of ≤ due ≤ as-of + horizon`), and the two
+  must never overlap because of rule 2.
+
+### 4.4 Drill-down (row detail) — accordion, one open at a time
+
+Expandable detail inside a table row (metadata + stage grid + that row's issues). The class names and
+tokens below are **normative** (§7.2.0); a dashboard MUST use them verbatim and MUST NOT substitute
+its own.
+
+**Standard class names (normative).**
+
+| Class | On | Role |
+|---|---|---|
+| `.expandable` | the owner `<tr>` | marks a row that owns a `.sub` detail; adds the pointer cursor and row hover |
+| `.drill-cell` | the owner row's first `<td>` / `<th>` | narrow, centred cell that holds the drill button |
+| `.drill-btn` | a real `<button>` in `.drill-cell` | the expand control (§7.1 B4); an `.icon-btn` variant carrying `aria-expanded` + `aria-controls` |
+| `.drill-chev` | the `<span>` inside `.drill-btn` | the `▸` glyph; rotated 90° when the button is expanded |
+| `.sub` | the sibling `<tr>` detail | the drill-down child row (§7.2.0) |
+| `.sub-inner` | the `<div>` inside `.sub > td` | padded content wrapper |
+
+**Behaviour (normative).**
+
+- **Only one detail may be open at a time.** Opening a row closes any other open row before it opens.
+  A stack of expanded details turns a bounded list back into an unbounded wall of nested content,
+  which defeats §4.3.
+- **The control is a real `<button>`** (`.drill-btn`) — never a `<td>` or a `<div>` with
+  `role="button"` (§7.1 B4). It carries `aria-expanded` and `aria-controls` pointing at the `.sub`
+  detail.
+- **The whole row is a pointer shortcut.** A click anywhere on the `.expandable` row toggles the same
+  detail. The button stays the accessible control; the row click MUST NOT replace it.
+- The `.sub` detail is a sibling `<tr>` with `hidden` toggled; the `.drill-btn` and the detail are
+  updated together, including when the accordion closes the row *programmatically*.
+- Rows are operable by **pointer and keyboard**: the button is natively focusable (Enter / Space); a
+  delegated listener on the table container also handles Enter / Space on `.expandable` rows.
+- The expand affordance is the chevron `▸` (`.drill-chev`) **rotated 90°** when the button is
+  expanded — by CSS, not by swapping the glyph. `▾` is never used as a separate glyph.
+- **The drill cell shows no truncation mark.** `.drill-cell` holds one button and truncates no text,
+  so it MUST NOT paint an ellipsis. `.ds-table` cells inherit `text-overflow:ellipsis`, which draws a
+  clipped ellipsis at the cell edge when the content box is not wider than the button. `.drill-cell`
+  therefore sets `overflow:hidden` and `text-overflow:clip`. The rule MUST out-specify the base cell
+  rule (`.ds-table th, .ds-table td`, specificity 0,1,1). Written as a bare `.drill-cell` (0,1,0) it
+  loses the cascade, and both the 4 px padding and the clip are dropped.
+- Re-rendering the table (e.g. after a filter change) collapses everything — detail state is not
+  preserved across a rebuild, which is acceptable because the row set has changed.
+
+**CSS (normative tokens).**
+
+```css
+.expandable{cursor:pointer}
+.expandable:hover{background:var(--soft)}
+.ds-table .drill-cell{width:32px;text-align:center;padding:0 4px;overflow:hidden;text-overflow:clip}
+.drill-btn{appearance:none;border:0;background:transparent;color:var(--muted);
+  width:24px;height:24px;line-height:1;cursor:pointer;border-radius:4px}
+.drill-btn:hover{background:var(--soft);color:var(--navy)}
+.drill-btn:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.drill-chev{display:inline-block;transition:transform .12s;font-size:11px}
+.drill-btn[aria-expanded="true"] .drill-chev{transform:rotate(90deg)}
+.sub > td{padding:0;border-top:1px dashed var(--line);background:var(--soft)}
+.sub-inner{padding:12px 16px 14px}
+```
+
+**Token rules.** Use `--line` for the hairline (the `dashed` `.sub` top edge), `--soft` for the detail
+background and hover, `--muted` for the chevron, `--navy` for its hover, and `--blue` for the focus
+ring. Do not hard-code colours (no `#fafbfc` / `#f3f7fc`).
+
+---
+
+### 4.5 Validation panel (C — when adopted)
+
+Shows the **row-level validation results produced by the data-validation layer**
+(filter-independent, run once at load). It is **distinct from** the §3.5 system/config warning bar: that bar carries only
+*system/config* notices (missing columns, row-count mismatches) plus the fatal `W-FORMULA`
+exception; the Validation panel carries the *per-package data* issues. Both can be present at
+once.
+
+**Components, in this order (one panel):**
+
+1. **Title row** — panel title `Validation`; inline `?` (help `vcard`, **left**) and `−`
+   (collapse, **right**) in the right-aligned action cluster (§4.1). There is **no** panel-level
+   CSV button; the per-issue table carries its own `⤓ CSV` (item 5). The severity summary chips
+   move to the summary row (item 3).
+2. **Severity summary chips** (`.vchip`, in the summary row, item 3): totals for error / warning / info,
+   plus a hidden `.ok` **"no issues"** chip shown **only** when the issue count is 0. **Shape
+   (normative override)** — use the standard `.e / .w / .i / .ok` colour tiers but **override**
+   the generic 999 px pill radius to **6 px**, with **11 px / 700** and `text-transform:capitalize`.
+   The generic pill shape does **not** apply to these chips.
+3. **Summary row** (`.v-summary`, one flex row, no `<details>`): the bold issue **count** (e.g.
+   `16,562 issues`), the **severity chips** (item 2), and a **panel-level meta line** (loaded MDL
+   fields · log headers · rule count) shown as the `.note` directly under the page title, above the
+   severity chips. The content below shows **directly** — the sidebar already selects the panel
+   (§4 no-in-panel-disclosure rule), so no toggle hides it.
+4. **Rule reference card** (`.c-card`): a `Rules` title row above a small table — `severity
+   symbol · code · group · description · count`, **one row per fired rule code** (de-duplicated).
+   **Never individual per-rule cards.** Wording priority: the Error table on the Code sheet is the
+   source of truth; if a code is absent there, the dashboard supplies the description (flagged as
+   such). See *Layout rules* for the wide Description column.
+5. **Per-issue card** (`.c-card`): an `Issues` title row (left aligned), then the tool cluster at the
+   **top** — **page controls on the left** (`‹ Prev · Page n / total (jump) · Next › · N rows`) and the
+   **error-code panel-local filter + `⤓ CSV` + `Columns` on the right** (see *Layout rules*) — then the
+   issue list, an instance of `.tableScroll` / `.ds-table` (§4.3 & §7.2). The source note is a
+   **panel-level** `.note` under the Validation page title (item 0 / §4 subtitle standard), not a card
+   subtitle.
+
+**Layout rules (normative).**
+- **Card separation.** Each table sits in its own `.c-card` (bordered surface, §4 chart-card
+  rule). The inner `.ds-split` border is removed inside the card (`.c-card .ds-split{border:0}`)
+  so there is no double border; a 12 px gap separates the two cards.
+- **Title and tools stacked; page controls at the top.** Each card's title (`h3.tt`, left) sits on
+  its own line. The tool cluster sits **below the title** in its own `.table-tools` row. For the
+  per-issue card the cluster is split into two groups: **page controls on the left** (`‹ Prev · Page
+  n / total (jump) · Next ›` and the `N rows` total) and **Code filter · `⤓ CSV` · `Columns` on the
+  right** (`.pg-right` carries `margin-left:auto`); the page navigation sits at the **top** of the
+  card, never the bottom. For the rule card the title stands alone. The CSV button carries
+  `data-export-table="issue"`.
+- **Tool-cluster controls are local.** The page controls, error-code filter, `⤓ CSV` and `Columns`
+  act **only** on the Issues table and MUST leave the active sidebar page unchanged. Selecting a code
+  MUST immediately repaint the table, the row count and the page-jump total, and reset to page 1.
+  `⤓ CSV` MUST download the full filtered set. These are the I114 / I115 invariants.
+- **Panel-level subtitle.** The source note (loaded MDL fields · log headers · rule count) is a
+  **panel-level** `.note` directly under the Validation page title (above the `.v-summary` row), per
+  the §4 subtitle standard — not a card subtitle.
+- **Count text.** When paginated the cluster shows `Page n / total`; when windowed `Showing X of Y
+  rows`; otherwise `Y rows` (full) — each with a thousands separator and the noun `rows`. It MUST
+  NOT show a bare `X of Y` pair without a noun.
+- **Wide detail columns.** Default column widths give the focus columns the most room: Rule
+  reference **Description** (≈420 px) and per-issue **Message** (≈360 px) and **Value** (≈130 px).
+  Severity and Rule stay pinned on the left when the table scrolls.
+
+**Per-issue table columns:** severity **first**, then `Rule · Doc No · Field · Value · Message`
+(+ `Source Tab` / `Row` where the dashboard tracks them). Severity renders as a **bare `.sev`
+glyph** — a **fixed-size inline SVG** (14×14, `role="img"` + `aria-label`, §7.2.4), one shape
+per tier (red circle-cross / amber triangle / blue circle-i), *not* the colour-emoji `⛔ ⚠️ ℹ️`
+whose per-glyph font metrics inflate the row and differ between severities. **The `.sev` glyph
+must be flat: no filled circular / pill background, no `border-radius`, no padding** — it sits
+inline inside the cell without overlapping cell borders. The glyph lives on an **inner `<span>`**
+that carries `.sev-error` / `.sev-warning` / `.sev-info`; that class MUST NOT be applied to the
+`<td>` (§7.2.4). This applies to **both** the per-issue table *(c)* and the Rule Reference table
+*(b)* (`#vref`), which share those classes. (Distinct from the §4.5.2 `.vchip` summary chips,
+which keep their 6 px shape with colour fill and are not in a table, so the emoji is
+allowable there.)
+
+- **Field** = the column the *business rule* (Code-sheet Error block) checks — a real source
+  column name (e.g. `Actual 1st Issue Date`, `Latest Approval Date`, `Rev`, `CUESH Discipline`).
+- **Value** = the *validation result* — the specific offending cell value the pipeline found,
+  **never** a pass/fail flag.
+
+**Pagination, not truncation.** The Issues table paginates at 200 rows per page (§4.3); page
+navigation buttons (**Previous / Next**, plus a page-jump selector) are required whenever there is
+more than one page. The full issue count is reported in the tool cluster. A panel-local **error-code
+filter** narrows the list further (it affects only the Issues table, never the Rule Reference, per
+§7.2.7 pt 6); CSV / export covers the **full filtered set**. Empty state: zero issues → `.empty`
+caption in the table and the `.ok` chip shown.
+
+**Explanatory note placement.** The source note (*"rule text from the workbook Code sheet"*) lives
+in the summary row meta line and is always visible — never buried in a collapsed region (there is
+none; see §4 no-in-panel-disclosure rule).
+
+**Help:** `vcard` in the Help modal (the dashboard workplan) carries the longer explanation; the panel body keeps
+only the short inline hint.
+
+*Cross-refs:* table base §7.2 · scroller §4.3 · severity symbols §3.5 · chip shape
+(overridden above, §4.5 item 2) · panel action cluster §4.1.
+
+---
+
+### 4.6 Chart hover floating window — standard (rev 2026-11-01)
+
+A **hover floating window** is the single reusable component that shows per-point / per-card detail on pointer hover or keyboard focus over any chart board or KPI card. It is distinct from the §7.1 *click-triggered* floating panels (filter / column choosers). This section standardizes the **window shell only**; the **content** (which fields, units and series rows appear) is defined per chart in the workplan § and is out of scope here.
+
+**Scope (normative).** The standard applies to every chart board — C1 S-curve, C2 Submission Flow, C3 Breakdown, C4 Turnaround & Aging — and to the Bottleneck KPI cards. A chart that shows point detail MUST use this component; native SVG `<title>` tooltips are NOT an accepted substitute (issues I090 / I082).
+
+**Component & classes.** One window class `.chart-tip` and one optional snap-line class `.chart-snap`. These replace the divergent `.scurve-tip` (C1) and `.c2-tip` (C2).
+
+**Visual contract (tokenized, normative).** The window uses only design tokens — `background:var(--surface)`, `border:1px solid var(--border)`, `border-radius:8px`, `box-shadow:var(--shadow)`, `padding:8px 10px`, `font-size:11px`, `font-variant-numeric: tabular-nums`, `line-height:1.45`, `color:var(--text)`, `max-width:230px`, `z-index:30`, and `pointer-events:none`. It MUST follow the active theme (light/dark) automatically — no hard-coded surface or text colour (this removes the C2 dark `.c2-tip`, which is non-compliant).
+
+**Content layout.** Three zones: (1) a bold **header** carrying the hovered identity (month, dimension value, or KPI name); (2) **body rows**, each `swatch · label · value` in a space-between flex row; (3) a **footer** separated by a single top border, carrying any totals / percentages. One unified footer style MUST be used across every chart (no per-chart bold/normal divergence — I084). The series swatch MUST use the on-chart series **token**, never a hard-coded hex. **Series colour tokens MUST be unique per semantic** — two distinct series MUST NOT share a hue (e.g. Actual and AWC, or Forecast and Resubmission, MUST NOT be the same colour — I083). Units are explicit: durations show `d` (one decimal), counts are plain integers (label "docs" only if ambiguous), and zero is shown as `0`, never blank.
+
+**Trigger & dismissal (normative).** `pointermove` / `mousemove` opens the window; `mouseleave` (and `blur`) closes it. Hovering empty chart area MUST snap to the nearest datum (no dead zone). A **touch / no-hover variant is REQUIRED**: on touch devices the window shows on tap (tap-to-show, tap-away to dismiss); the dashboard MUST NOT silently leave point detail unreachable on touch (I082).
+
+**Hidden-window ARIA state (normative, rev 1.63).** When the window is hidden — on `mouseleave`, `blur`, `Escape`, an outside click, a period reflow, or a cursor move into an attached table — it MUST carry `aria-hidden="true"` **and** contain no text. Before it is shown again the attribute MUST be removed and the current datum's content written. The board's persistent `aria-describedby` link stays intact. An element **directly referenced** by `aria-describedby` can still be exposed by assistive technology despite `aria-hidden`, so clearing the text is REQUIRED: the ARIA attribute alone does not prevent a screen reader from announcing a stale month over an unrelated cell.
+
+**Attached-table touch variant (rev 1.63).** For a C1 panel with an attached table (§4.2), the §4.6 touch tap-to-show requirement applies to the **SVG chart area**. A tap on a table cell MUST still activate the snap line, column band and column highlight, but need not open the floating window: the cell value and its row / column `<th>` headers are already exposed by the native table accessibility tree, so point detail is not unreachable (I082). A dedicated table-cell tap affordance is a workplan follow-up, not a blocker for the pointer implementation.
+
+**Positioning & edge handling (normative).** For chart boards the window is **cursor-relative** at a `(+14, +14)` px offset and MUST clamp on **all four edges** — flip left when it would overflow the right edge, flip up when it would overflow the bottom edge, and clamp left/top to `≥4 px` — so it never escapes the chart host. For **KPI cards** the window is placed **below the card**, centred and left-clamped, so it never covers the card; placement MAY vary by host, but a card's own window MUST NOT obscure the card.
+
+**Affordance (normative).** An interactive chart board MUST signal hoverability with `cursor:crosshair` (or an equivalent hover affordance); KPI cards carry `cursor:help`. Without this, users cannot discover the window (I080).
+
+**Snap line (optional per chart).** When present, `.chart-snap` is `stroke:var(--text3)`, `stroke-width:1`, `stroke-dasharray:3 3`; it spans only the plot area, is hidden until hover, and snaps to the nearest datum (`min |cx − ux|`; 2-D nearest for radial charts). It is omitted on radial charts (e.g. the C3 pie) where a vertical line is meaningless.
+
+**Data plumbing.** The board carries `data-points` (each `{cx, optional cy, html}`) and `data-geo` (`{W, H}`). The per-point `html` is authored by the chart's workplan §; the binder only presents it. Geometry is required for positioning and nearest-datum selection.
+
+**Motion (normative).** A short **opacity-only** transition (≤120 ms) MAY be used on show/hide; the window position MUST NOT transition (no trailing/lag). The binder MUST update the window only when the active datum changes — it MUST NOT re-render content on every `mousemove` (I085 / I086).
+
+**Accessibility (normative).** The window carries `role="tooltip"`. The chart board MUST be focusable (`tabindex="0"`) and the window MUST also show on `focus` (keyboard / screen-reader parity); link it with `aria-describedby`. Secondary text contrast MUST be ≥4.5:1. Colour is never the sole series cue — every series row carries a textual label.
+
+**Containers (normative).** The chart host and its ancestors MUST be `overflow:visible` so the window (and any flipped / below-card placement) is never clipped (I088).
+
+**Lifecycle (normative).** The behaviour is delivered by **one delegated binder** attached to the chart host — not re-bound on every render and not duplicated per chart.
+
+---
+
+### 4.7 Panel spacing (normative, rev 2026-11-01)
+
+Two or more top-level panels on one page MUST be separated by **14 px** — the same spacing the panel
+margin defines. The separation applies **between rows and between columns** when a page lays panels
+out in more than one column.
+
+**Mechanism.** The page's panel container SHOULD be a grid that sets `gap:14px`; inside such a
+container the panel margin MUST be `0` (see §4). Where the panels are not in a grid, the panel's own
+`margin:14px 0` supplies the same 14 px. The two mechanisms MUST NOT be combined (that doubles the
+spacing).
+
+**Invariants.**
+
+- The separation MUST NOT be `0`: two panel borders must never touch.
+- Panels hidden by page routing take no space and contribute no gap of their own.
+- Print keeps the same separation; panels are never merged or overlapped to save space.
+- The spacing between **panels** is independent of the spacing between **cards inside a panel**:
+  16 px between chart cards (§4.1) and 12 px between the validation cards (§4.5).
+
+**Enforcement.** Harness Tier 2 and the per-dashboard browser suite measure border-to-border distance
+between visible panels on each page (spec §8.2 assertion 19).
+
+---
+
+
+## 5. KPI Overview Panel (C — when adopted)
+
+A KPI Overview panel is conditional, not mandatory for every dashboard. Use it when a concise
+cross-dashboard summary materially helps the user's task. The dashboard workplan defines which
+metrics appear, their business meaning, calculation source and applicable status vocabulary.
+
+When a KPI Overview panel is adopted, the following component contract applies:
+
+- The panel SHOULD be the first content panel when it is the primary summary view. Its title,
+  Help and Collapse controls follow the general panel contract in §4.
+- **KPI cards** use `repeat(auto-fit, minmax(210px, 1fr))` with a 10 px gap (§18.10). At a
+  1310 px content width this gives six 210 px cards. No breakpoint media query is needed:
+  `auto-fit` drops to five, four, three, two or one column as the width falls.
+- The KPI panel carries **no subtitle** — the per-panel explanation lives in the Help modal
+  (the dashboard workplan). Do not duplicate explanatory copy in the panel body.
+
+### KPI card
+- **Size (normative)**: height **72 px**, width **210 px or more**, `box-sizing: border-box`.
+  The height is 4 px of border + 20 px of padding + 48 px of content. It does not change with
+  the number of digits. Do not clamp, truncate or scroll the card content.
+- White surface, 1px `--border`, **3 px coloured top strip**, radius 8 px, padding 10 px.
+- **No box shadow.** A KPI card is flat. `--shadow` (§6) does not apply to it.
+- **Number** (`.v`): 22 px, weight 700, colour `--navy`. 28 px is for a single hero KPI only.
+- **Label** (`.l`): 10 px, uppercase, `--muted`, `margin-top: 2px`.
+- **Do not set `line-height` on `.v` or `.l`.** The inherited 1.45 from the page body is what
+  makes the card 72 px high. An override changes the height.
+- **Exactly two lines.** A card contains one `.v` element and one `.l` element and nothing else.
+  It has no sub-status line, no icon, no gauge, no third line and no nested card.
+- **Status strip — five states.** The top strip carries the status. Use one class at a time.
+
+  | Class | Meaning | Token |
+  |---|---|---|
+  | *(none)* | no status | `--blue` |
+  | `.ok` | ok | `--green` |
+  | `.amb` | attention | `--amber` |
+  | `.warn` | bad | `--red` |
+  | `.muted` | not applicable, inactive | `--slate` |
+  | `.err` | data error | `#8E24AA` |
+
+  The class name states the colour, not the English word. `.warn` is red and `.amb` is amber.
+  Never describe `.warn` as "amber", and never put `.amb` and `.warn` on one card.
+
+### KPI card CSS (normative example)
+```css
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.kpi{box-sizing:border-box;height:72px;padding:10px;background:var(--surface);
+  border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;
+  box-shadow:none}
+.kpi .v{font-size:22px;font-weight:700;color:var(--navy)}
+.kpi .l{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.kpi.ok{border-top-color:var(--green)} .kpi.amb{border-top-color:var(--amber)}
+.kpi.warn{border-top-color:var(--red)} .kpi.muted{border-top-color:var(--slate)}
+.kpi.err{border-top-color:#8E24AA}
+```
+
+> Note: **22 px is standardised** for compact KPI strips. Use 28 px only for a single hero KPI.
+> A hero card is exempt from the 72 px height. Record that exemption as a deviation (§8.4).
+
+---
+
+## 6. Project-local design tokens
+
+Each dashboard defines the design tokens in its project-local UI stylesheet. Do not load dashboard
+styles from `/common/`. Use the semantic names in the examples below and keep their meaning and values
+consistent across dashboards. Define token values for all five themes in `AGENTS.md` §18.4. Use system
+font stacks from `AGENTS.md` §18.1; do not require a CDN font.
+
+The shell layout, typography, spacing, and semantic color tokens are part of this shared dashboard
+spec. A project may add tokens for its domain, but it MUST NOT change the shared token meanings or
+shell geometry. The harness checks shell geometry; theme and contrast checks belong to the applicable
+harness tier and dashboard test suite.
+
+### Spacing scale
+`4 · 8 · 12 · 16 · 24 · 32 · 48` px. (8 pt-based; use consistently.)
+
+### Radius
+- Panel: **10 px** · Card / KPI: **8 px** · Button: **6 px** · Input/select: **8 px**.
+
+### Typography (normative)
+- **One shared font stack.** Every dashboard MUST define `--font-ui` with this same stack, so text
+  renders identically across dashboards:
+  `'Segoe UI', system-ui, -apple-system, 'Inter', 'Source Sans Pro', Roboto, Helvetica, Arial, sans-serif`.
+  These are system fonts; no CDN font is loaded (`AGENTS.md` §18.1).
+- **One shared type scale.** The sizes below are normative for the elements named. A dashboard MUST
+  NOT substitute its own size for them, and MUST NOT introduce a per-dashboard variation.
+
+  | Element | Size | Weight |
+  |---|---|---|
+  | Body copy | 13 px / 1.45 | 400 |
+  | Panel title `h2` | 13 px, uppercase | 600 |
+  | Chart-card title `h3` | 13 px | 700 |
+  | KPI value (compact strip) | 22 px | 700 |
+  | KPI label | 10 px, uppercase | 400 |
+  | Icon button (A4) | 13 px | 600 |
+  | Menu-bar control (§3.1) | 12 px | 600 |
+  | Filter trigger (B1) | 12 px | 600 |
+  | Filter menu row (B3) | 12 px | 400 |
+  | Filter count badge | 10 px | 700 |
+  | Native single-select (B5) | 12 px | 600 |
+  | Title-bar project title | 17 px | 600 |
+  | Title-bar dashboard title | 12 px | 500 |
+  | Title-bar meta line | 11 px | 400 |
+  | Status / system banner | 12 px | 400 |
+  | Severity chip `.vchip` | 11 px | 700 |
+
+- **Reference.** MDL is the reference implementation of this scale. A dashboard that drifts from it
+  renders the same content at a different size, which is the drift this clause prevents.
+
+- **Recommendation.** When rendering tabular numerical data within `.ds-table` cells, use `font-variant-numeric: tabular-nums` to ensure digits align in vertical columns. This applies to all tables containing numeric values and is consistent with the single-source-of-truth principle (§3.8) for global parameters that outlive a single function.
+
+### Shadow
+- Subtle only: `var(--shadow)`. No large/decorative shadows.
+
+### Semantic & tint tokens
+Components MUST use the semantic tokens defined in the project-local UI stylesheet for status and tint surfaces. The stylesheet must define all tokens that component rules use. Every dashboard uses the five themes from `AGENTS.md` §18.4;
+a dashboard MUST NOT add a separate theme system or a local dark-theme override.
+
+---
+
+## 7. Component Library
+
+### 7.1 Buttons
+
+**Single standard — no per-dashboard button variations.** Every dashboard uses the *same* classes, sizes, colours and hover behaviour, and every action is a real `<button>` element (never a `<td>`/`<div>` with `role="button"`). Buttons fall into three families:
+
+#### A. Action buttons
+| Type | Class | Use | Style |
+|---|---|---|---|
+| A1 Primary | `.btn` / `.btn-primary` | one main action per view highest-emphasis CTA — *Open / Load workbook* only; Print / Save / Export are **not** primary | `--blue` solid, white text, radius 6 px, min-height 32 px |
+| A2 Secondary / Ghost | `.btn.ghost` / `.btn-secondary` | low-emphasis alternative / cancel / dismiss; "Load another file" | white, 1px `--border`, **navy** text; hover → `--blue` fill, white text |
+| A3 Text action | `.btn-secondary` (glyph + label) | tool / footer-row actions: export, copy, CSV (e.g. `⤓ PNG`, `⧉ Copy`, `⤓ CSV`) | white, **navy** text, glyph + space + label; hover → `--blue` fill, white text |
+| A4 Icon / Mini | `.icon-btn` | icon-only: Help `?`, Collapse `−`, Theme, modal close `✕` | `width:26px;height:26px;min-height:26px` — 26 px **square**; radius 6 px; 1px `--line`; `background:var(--surface)`; `color:var(--muted)`; `font:inherit`; **13 px** / 600; `line-height:1`; inline-flex centred. Hover → `--soft` background + `--navy` text. **Must carry `aria-label` + tooltip** |
+| A5 Search | `.search-btn` | search submit, affixed to the search input (right edge, single-side radius) | `--accent` fill, white glyph, radius `0 6px 6px 0`, attached to input |
+
+**A3 — one canonical class name (normative).** `.btn-secondary` is the **canonical** A3 class. Every
+text action (export / copy / CSV / reset) MUST use it. A dashboard MUST NOT introduce a parallel class
+for the same logical control.
+
+**Why the class name is normative, not cosmetic.** The class name is the only link between a rendered
+control and the spec rule that governs it. When two dashboards name the same logical control
+differently, a style change made to satisfy A3 on one silently misses the other, and no shared
+selector exists for a test to assert against. That drift stays invisible until two dashboards are
+compared side by side — the precise failure the shared spec exists to prevent. A legacy alias is
+therefore **tolerated, never endorsed**: it is written down **in the dashboard's own workplan** so the
+divergence is visible and has a defined end state — migration to the canonical name.
+
+**Two consequences of a single shared name (normative).**
+
+- **A text action's class MUST NOT be used as a behaviour hook.** One shared class can no longer
+  discriminate two different actions (export vs copy), so behaviour belongs on a **data attribute**
+  (for example `data-act="dl"` / `data-act="copy"`) — never on the class.
+- **The shared class must be governing, not decorative.** A dashboard MUST wire `.btn-secondary` into
+  the rule that actually implements A3 in its stylesheet, so a change to the shared class reaches it.
+  A shared class that is declared but not governing is drift waiting to happen.
+
+**Assertion (required).** A conformance check MUST assert that every dashboard carries
+`.btn-secondary`, that none introduces a parallel class, and that all declare the same A3 geometry —
+the tripwire that stops dashboards drifting apart again (§8).
+
+**Migration status is per-dashboard.** Whether a dashboard already conforms, which legacy names it
+shipped, and when it migrated are recorded in its own workplan — never here (§1).
+
+#### B. Selection controls
+| Type | Class | Use | Style |
+|---|---|---|---|
+| B1 Filter trigger | `.tf-btn` | **MULTI-SELECT row filter** — opens a filter menu (Discipline / Stage / Category), distinct from the rows *inside* the menu. **Reserved for controls that narrow rows**; a show/hide-columns control MUST NOT use it (see B7) | text + count badge, radius 6 px, **borderless in the menu bar** — the base control carries 1 px `--border` and the menu-bar chrome strips it; **no caret glyph**; hover → `--soft`; selected → `.is-filtered`, whose visible cue is the count badge |
+| B2 Segmented | `.seg button` | single-select among 2–6 inline options (Bar/Pie, month horizon 1m–6m, overdue cases); active `.on` = **`--navy`** fill (a *selection* state, not an action) | joined group, 1px `--border`, radius 6 px, overflow hidden; inactive hover → `--blue` fill |
+| B3 Filter rows | `.tf-all` + `.tf-item` | multi-select toggles *inside* the B1 filter menu — an `All <dimension>` master, then a hint, a divider, and the value rows | master 12 px / 700; rows 12 px; row hover → `--soft` |
+| B4 Drill / Expand | `.drill-btn` (an `.icon-btn` variant) | row drill-down / expand (`.expandable` row → `.sub` detail; `▸ stages`); the button carries `aria-expanded` + `aria-controls` | **must be a real `<button>`** — never a `<td>` or `<div>` with `role="button"`; may be icon or text + icon; the owning `.expandable` row is a pointer shortcut, not the control (§4.4) |
+| B5 Native single-select | `.inter-sel` | **SINGLE-SELECT picker** — breakdown dimension, month, type (chart group / matrix Month / Overdue Type); distinct from the multi-select `.tf-btn` filter (B1) and from the `.seg` segmented control (B2) | 12 px / 600, 1px `--border`, radius 8–9 px, white surface, `--ink` text; `:focus-visible` 2 px `--blue` ring; `max-width:260 px`; attached variant `.inter-sel.is-attached` (search-column picker: no own border, left-rounded, right divider) |
+| B6 Panel-local filter | `.inter-sel` in the panel's control cluster | a single-value filter that narrows **only the tables inside one panel** (e.g. the issue rule-code filter in the Validation / Issues panel). Its subset is derived in the panel's view-model path before rendering; it MUST NOT change KPIs, charts, the matrix or any other panel (§7.2.7 pt 6) | as B5 |
+| B7 Column-visibility control | own class (`.cc-btn`) | **show/hide columns — a *layout* control, not a filter.** It changes which columns are painted, never which rows are returned. MUST NOT reuse the B1 filter look, filter badge, or `[aria-expanded]` active-filter emphasis | own styling; MAY reuse the floating-panel shape, but without a count badge or active-filter emphasis |
+
+**Multi-select vs single-select — the grammar (normative).** A filter's chrome is chosen by how many values the user may select at once, not by where the control sits:
+
+| | Multi-select | Single-select |
+|---|---|---|
+| Control | **B1** `.tf-btn` filter trigger + floating menu | **B5** `.inter-sel` labelled native select |
+| Toggles inside the menu | **B3** `.tf-all` master + `.tf-item` rows | not applicable |
+| Values at once | many (a checkbox list, plus an "All <dimension>" master) | one (an explicit "All / <dimension>" neutral option) |
+| Active-state cue | count badge on the trigger + `is-filtered` emphasis | the chosen value is visible in the control itself |
+
+A user must be able to tell, from the chrome alone, both (a) how many values the control accepts and (b) whether it filters **rows**. B7 exists so a layout control can never be mistaken for a row filter.
+
+**Search panel composition (normative, rev 2026-11-01).** A dashboard whose menu bar offers Search
+MUST render its panel as **one row**: an attached column picker (**B5** `.inter-sel.is-attached`) on the
+left, the search input in the middle (flexible), and the **A5** submit on the right. The picker MUST
+offer an **All columns** option (the default) plus each searchable column, MUST be labelled, and MUST
+keep the chosen column visible. Changing the picker re-applies the current query immediately to the new
+column and MUST NOT clear it. A query MUST apply only to the selected column; **All columns** searches
+the dashboard's defined searchable fields. The row is the panel's only content row.
+
+**Global dimensions are multi-select (normative).** A dimension exposed in the shared global filter
+area (§3.1, §3.2) MUST accept **several values at once**, and MUST therefore use **B1** `.tf-btn` with
+**B3** `.tf-all` master plus `.tf-item` toggles inside a floating panel and a count badge on the
+trigger. A global
+filter re-derives the shared `active` set for every panel (§7.2.7 pt 1), so the reader must be able to
+select more than one value. A dashboard MUST NOT render a global dimension as a native single-select;
+**B5** `.inter-sel` is reserved for single-value pickers that are not row filters (breakdown
+dimension, month, type) and for the **B6** panel-local filter. The floating panel MUST open with an
+`All <dimension>` master toggle at the top, per the ordering rule below.
+
+**Filter group contents (normative).** The menu-bar filter group MUST contain the global filter
+triggers, the Search button with its panel, and the Warnings toggle. Placing Search or Warnings
+outside the group breaks the shared grouping and MUST NOT be done.
+
+**Filter class names are normative.** A global filter trigger MUST carry class `tf-btn`, its master
+toggle `tf-all`, its value rows `tf-item`, and its panel `tf-panel`. A dashboard MUST NOT invent a
+parallel class for the same control.
+The reason is the same as for A3 above: the class name is the only link between a rendered control and
+the spec rule that governs it, so a parallel name hides the control from every shared selector.
+
+**Floating-panel internal ordering (normative).** Every floating
+multi-select panel — the **B1** filter popover and the **B7** column-visibility chooser alike —
+MUST lay its contents out in this order:
+
+| # | Region | Rule |
+|---|---|---|
+| 1 | **Master** | an `All <dimension>` checkbox (`All Disciplines`, `All columns`, …) at the **top**, acting on the panel's whole selectable set |
+| 2 | **Note** | the panel's explanatory line, directly beneath the master and above the divider |
+| 3 | **Divider** | a 1 px rule separating the header block from the scrollable list |
+| 4 | **Item list** | one checkbox row per value — the only region that scrolls |
+| 5 | **Footer** | actions and counts only (`Reset to defaults`, `N hidden`) |
+
+The note MUST NOT be placed after the item list. Both panels are `overflow:auto` with a `max-height`
+(320 px filter / 380 px chooser), so a trailing note sits below a scrolling list and stays invisible
+until the reader scrolls to the very end — while it is precisely the text a first-time reader needs.
+The two panels' notes say different things (deferred apply vs immediate apply) and MUST keep their own
+wording; only their position is shared.
+
+**Master scope and tri-state (normative).** The master ranges over the **selectable** set only. Where
+a panel locks some rows — the chooser's **pinned identity columns are permanently checked and disabled**
+— the master MUST be scoped to the remaining (non-pinned) rows and MUST be tri-state: checked when every
+non-pinned row is on, **indeterminate** when only some are on, unchecked when none are. A master that
+also spans locked rows can never read as checked and would be permanently stuck.
+Every item toggle and any reset action MUST re-sync the master (and any footer count), so the header can
+never contradict the list below it.
+
+**Selection semantics (normative).** The chrome rules above are not sufficient. The *state* behind the
+panel MUST also agree with the rows the dashboard paints.
+
+- **Initial state.** A dimension opens with **every** value ticked, except documented exclusions: the
+  chooser's pinned identity columns, and any value the project deliberately excludes. A master that
+  starts blank while the dashboard filters nothing is a defect.
+- **Blank is a value.** An empty cell is selectable and reads `(blank)`, so the full tick set covers
+  every row and no row disappears unseen.
+- **Empty means none.** An empty tick set MUST filter every row out. An **absent** set is the only
+  "no filter" state. A filter control MUST NOT mean "no filter" while it shows nothing ticked.
+- **Immediate apply, panel stays open.** A tick applies at once and MUST NOT close the panel. An
+  outside click or `Escape` MUST close it.
+
+#### C. Indicator (not a button)
+| Type | Class | Use | Style |
+|---|---|---|---|
+| C1 Status pill | `.pill` | status / count badge — **not an action** | 10 px / 600, radius 999, semantic colour variant |
+
+- **Font:** 12–14 px / 600 (A4 icon buttons **13 px**).
+- **Hover (A2 / A3):** `--blue` fill, white text — *not* a `--soft` tint.
+- **A1 Primary** keeps `--blue` (the *action* colour); the **B2 segmented active state** is `--navy` (a *selection* state) — different semantics, intentionally different colours.
+- **Modal is a container, not a button type:** its close `✕` = A4; its footer actions = A1 / A2 / A3.
+- **A4 is used ALONE, and must stay 26 px square.** `.icon-btn` is never combined with `.btn`
+  If an element has to carry both, `.icon-btn` **must declare its own
+  `min-height:26px`**: CSS resolves `min-height` *over* `height`, so a bare `height:26px` still
+  renders **32 px** tall — A1/A2/A3 carry `min-height:32px` — while the source still reads
+  "26 px square" and passes a text-only check.
+- Inline panel actions sit in the title row, **right-aligned** as a cluster (see §4); within the cluster Help `?` is left of Collapse `−`.
+- **Text contrast is mandatory (WCAG AA).** Every control's label must meet AA contrast against its *own*
+  effective background — ≥ 4.5:1 for normal text, ≥ 3:1 for large/bold or UI text. A borderless/ghost rule
+  must **never** leave white text on a white or transparent background: the Primary CTA (A1) keeps its solid
+  `--blue` fill + white text, and pinned/sticky header buttons keep the header fill.
+  **Toggle/pressed states must also keep their fill** — e.g. the Warnings button when the bar is collapsed
+  carries `aria-pressed="true"` (white text); a `background:transparent` ghost rule must not override that
+  pressed fill and drop the label onto the page background. Enforced by the layout harness **Tier 4d
+  `controlContrast`** check, which forces the Search panel, each filter-chip dropdown, and the pressed
+  warning-toggle open and fails any control below 3:1 contrast or with no accessible name (§8).
+  **Each dashboard records its enforcement posture** — *hard* (a failure blocks release) or *advisory*
+  (reported, not blocking) — **in its own workplan**, together with the regressions that produced the
+  rule. The posture is a project decision; the contrast requirement itself is not.
+- **A control's label/title is stable and must not invert its verb with state.** A toggle button's
+  accessible name describes the control, not the result of the next click: the `Warnings` toggle therefore
+  always reads **`Warnings`** with the count in its badge (`[N] Warnings`), and never flips to `Show warnings`
+  / `Hide warnings` when collapsed/expanded. A label that changes verb with state is both confusing and a
+  contrast risk (it can force a different colour pair).
+- **Control label casing (mandatory).** Every visible label of an interactive control MUST use
+  **title case**: capitalize the first letter of every word (`Choose Workbooks`, `Show Warnings`,
+  `Remember File Names`). Do not use sentence case (`Choose workbooks`, `Show warnings`).
+  *Applicable cases* are: button labels — action, toggle, and icon buttons with visible text
+  (`☰ Navigation`); a `<label>` rendered as a button, such as a file-picker label; the label of a
+  form control — checkbox, radio, or select (`Show Warnings`, `Remember File Names`, `Theme`); and
+  navigation and menu items. *Excluded cases* are: prose and body text, sentences, hints, status
+  messages, placeholders, data values, and `title` / `aria-label` attribute wording.
+
+### 7.2 Tables (`.ds-table`) — rev 2026-10-15
+
+> **Why this revision exists.** The pre-2026-10-15 §7.2 specified *appearance and semantics
+> only*. Because none of it was enforceable, both shipped dashboards produced tables that are
+> semantically correct (`<table>` + `<th scope>`) yet visually ragged and interaction-free — most
+> visibly a severity column whose row height and baseline differ from every other column in the
+> same row. §7.2.1–§7.2.12 below add the **normative interaction and typography contract**.
+> Every **MUST** is a testable acceptance criterion.
+
+One common table style for **every** tabular view. Data tables (benchmark, look-ahead,
+overdue) and issue tables (validation) all use `.ds-table`; issue tables add severity + optional
+row drill-down on top of the same base — never a second, divergent table style.
+
+#### 7.2.0 Normative class names
+These class names are **normative** and MUST be used verbatim. A dashboard MAY add its own
+classes alongside them but MUST NOT substitute them; panel / container class names remain free
+(§4).
+
+| Class | Role |
+|---|---|
+| `.ds-table` | the one table style (`.ds-table.compact` = dense numeric variant, §7.2.3) |
+| `.tableScroll` | bounded scroller (§4.3); `.vtableWrap` is its validation instance |
+| `.num` | right-aligned numeric cell with tabular figures |
+| `.empty` | empty-state cell |
+| `.over` | overflow-highlighted row |
+| `.sub` | drill-down child row (§4.4) |
+| `.sub-inner` | padded content wrapper inside `.sub > td` (§4.4) |
+| `.expandable` | the owner `<tr>` of a `.sub` drill-down detail (§4.4) |
+| `.drill-cell` | the narrow, centred cell holding `.drill-btn` (§4.4) |
+| `.drill-btn` | the real `<button>` expand control (`.icon-btn` variant, §4.4) |
+| `.drill-chev` | the `▸` glyph inside `.drill-btn`, rotated when expanded (§4.4) |
+| `.matrix` | cross-tab variant (§7.2.9) |
+| `.th-wrap` / `.lb` | flex wrapper inside `<th>`, and the header label span inside it |
+| `.ds-sort` | the real `<button>` inside a sortable `<th>` (§7.2.6) |
+| `.ds-pinned` | a pinned (frozen) cell — a property of the column, not the position (§7.2.13) |
+| `.ds-pinned-edge` | the **last** pinned cell; carries the freeze rule and the elevation (§7.2.14) |
+| `.ds-resize` | the `--ds-grip-w` resize hit area on a header's right edge (§7.2.13) |
+| `.ds-spacer` | a windowing spacer row (§7.2.8) |
+| `.sev-error` / `.sev-warning` / `.sev-info` | severity state, on an **inner span** (§7.2.4) |
+| `.sev-chip` / `.sev-svg` | that inner chip span, and the fixed-size status SVG inside it |
+| `.vheadtab` | thead-only **header fragment** of a split header, rendered outside the scroller (§7.2.15) |
+| `.ds-gut` | trailing gutter cell / column reserving the scrollbar width in that fragment (§7.2.15) |
+
+**State classes** (added and removed by script, never hard-coded in markup):
+
+| Class | On | Meaning |
+|---|---|---|
+| `.ds-dragging` | the `<th>` | its column is current
+---
+
+#### 7.2.7 Filter population rule (global-first → panel cascade)
+
+A dashboard's filters form a **two-tier cascade**. The derivation layer applies the tiers in this
+order. The renderer paints the resulting view models; it does not execute business filtering.
+
+1. **Tier 1 — Global filters.** Combine the dashboard-defined global filters (AND) against the
+   normalized record set to produce one shared, reduced working set (`active`). Every panel
+   (KPIs, charts, overdue lists, matrix, validation/issue list, document detail) derives its view
+   from this same `active` set, so a global selection re-derives the whole dashboard at once.
+   A cross-panel control such as a matrix month selector MAY be handled as a view-model derivation
+   parameter, but its scope MUST be documented.
+2. **Tier 2 — Panel-local filters.** A panel may expose one or more single-purpose controls that
+   narrow only that panel's rows, using `active` as the starting set. The panel-local subset MUST
+   be derived before DOM rendering and MUST NOT change the global `active` set or another panel.
+   A panel filter can therefore only narrow further; it can never re-include a record excluded by
+   a global filter. Its view model contains the filtered table rows and matching count. Its summary
+   blocks MAY continue to describe the complete panel result, if the workplan defines that behavior.
+   Controls use the chrome their cardinality dictates (§7.1 B): B1 + B3 for multi-select; B5 / B6
+   for single-value controls.
+3. **All filters combine by AND.** Logically the order is associative; the cascade is enforced
+   structurally because each panel's view model is derived from `active`, not from the raw records.
+4. **Facet/count populations use the current scope.** Filter-popover option counts, badge counts
+   and column-distinct lists MUST be computed from the rows currently in scope, so they reflect
+   what the user can actually see and select. The workplan defines any intentional exceptions.
+5. **No duplicate filter dimensions.** A filter dimension appears in exactly one place. Global
+   dimensions live only in the shared global filter area; a panel MUST NOT re-offer a global
+   dimension or offer the same dimension twice. Panels may filter only on dimensions they own.
+6. **Panel-local filters stay local.** A panel-local filter MUST narrow only its own panel's table
+   data. It MUST NOT change KPIs, charts, the matrix, another panel, or the global `active` set.
+   Any export reads the same filtered array represented by the table, so screen and file agree.
+   A panel-local filter is represented in UI state and its effect is applied by the derivation
+   layer; it MUST NOT be implemented as business filtering inside the DOM renderer.
+
+Rationale: one global `active` set guarantees cross-panel consistency. Panel-local view-model
+derivation refines the result without re-introducing globally excluded records or coupling the
+renderer to business rules.
+
+#### 7.2.15 Split header (fragment pairing) — added 2026-10-18
+
+A **split header** moves `<thead>` out of the scroll container into a thead-only fragment
+(`.vheadtab`), so the vertical scrollbar starts **below** the header instead of beside it.
+
+**Standardised 2026-10-21 — every bounded data table (`.tableScroll`) uses the split
+header, grouped or single-row.** The vertical scrollbar is confined to the body: it scrolls rows only,
+the header never moves, and the header band runs the full card width with the trailing `.ds-gut` gutter
+reserving the scrollbar width. A sticky `<thead>` inside a table scroller is **retired** — sticky
+remains correct for page shell chrome (§3.1) but MUST NOT be used inside a `.tableScroll`.
+
+Why this is standardised rather than left as a choice:
+
+- **A scrollbar is a spatial proxy for the scrollable set.** A full-height track running beside a
+  header it never scrolls misstates what it controls, and offsets the track's top edge from row 0.
+- **The scrollbar strip breaks the header band.** Inside a scroller the content box excludes the
+  scrollbar, so the navy header stops short of the card edge and a scrollbar-coloured seam cuts it at
+  the top-right corner — precisely the defect `.ds-gut` exists to prevent ("so the navy is continuous
+  across the full card width").
+- **It removes an arbitrary split.** The Rule Reference is single-row and split; three other
+  single-row tables were sticky. Same header shape, two treatments, no structural reason.
+
+**Migration is per-dashboard.** A dashboard that still ships a sticky `<thead>` inside a
+`.tableScroll` is **non-conforming until it migrates**. Which tables it must convert, and when, is
+recorded in its own workplan — the same status pattern used for §7.1 A3.
+
+Splitting the header is now the **rule**, not an exception — and a rule that moves the header outside
+the scroller MUST be paid for with equivalent invariants. Splitting creates a failure mode sticky
+headers do not have: header and body are now two
+independent tables that can drift apart, and a drift is invisible to every per-table check (a shipped
+matrix once carried six visible defects while the harness reported zero failures). Every one of the
+following MUST hold. Omitting any single one produces a visible defect, so the set is normative, not
+advisory.
+
+1. **One container** — header and body MUST be wrapped in a single bordered, rounded box with
+   `overflow:hidden`, and the inner scroller's own `border`, `border-radius` and `margin-top` MUST be
+   neutralised, so the pair reads as one table with continuous corners. Left at its defaults,
+   `.tableScroll` gives an 8 px gap under the header and a square header sitting on a rounded box.
+2. **Containing block** — the fragment's cells MUST stay `position:relative` (never `static`): they are
+   the containing block for the absolutely-positioned column-rule pseudo-element (§7.2.2). Setting
+   `static` removes every column rule, while the pseudo-element itself still reports
+   `position:absolute` — so a check that inspects only the pseudo-element can never detect it.
+3. **Width pin + gutter** — script MUST pin the fragment's width to the body table's rendered width
+   **plus** the scrollbar, and keep `--ds-sbw` in sync via a `ResizeObserver` (not a window resize
+   listener: a scrollbar can appear or vanish with no resize event). Sizing to `clientWidth` leaves a
+   white notch over the scrollbar; sizing to the *scroller* leaves the header narrower than an
+   overflowing body.
+4. **One column grid** — both fragments use `table-layout:fixed` and the same data-column widths; only
+   the header adds the trailing `.ds-gut` gutter column.
+5. **Fit, then lock-step** — column widths are content-derived and the pair fits the display area.
+   Horizontal scrolling is **unavoidable**, and therefore permitted, **only** when the sum of the
+   columns' **minimum** widths exceeds the available width. In every other case the table MUST fit: a
+   default wider than the display area is a non-conformant width choice, not an unavoidable constraint.
+   Where horizontal scrolling *is* unavoidable, the header MUST follow the body's `scrollLeft`. A header
+   that is wider than the body, or that stays put while the body scrolls, is non-conformant.
+   (Clarified 2026-10-21: the minimum-sum test makes "unavoidable" verifiable — 13 columns at
+   a 60 px floor need 780 px and so must fit a 1216 px panel, while 27 columns need 1620 px and cannot.)
+   (Clarified 2026-11-02 — **fit on a container change, never on a column change.** The fit pass MUST
+   run when the container width moves: window resize, sidebar toggle, zoom, or a move to a display of
+   another width. It MUST NOT run because the sum of the columns changed. A column resize — a user
+   drag — changes that sum, and re-fitting on that path scales the width the operator just dragged
+   straight back down, so the drag does not stick. Cache the container width and re-fit only when it
+   moves; fitting once on first render is still required. A drag that makes the table wider than the
+   display area is permitted and MUST be honoured: this invariant governs the SHIPPED DEFAULTS, not a
+   width the user chose.)
+6. **One implementation** — the pairing is wired by a single shared helper used by every split-header
+   table. A table MUST NOT hand-roll a partial copy of this contract.
+
+**Alignment across a split header MUST be driven by the column, never by DOM position.** A grouped
+header with `rowspan` cells gives the header row different child indices from the body row it labels, so
+`nth-child` selectors address different logical columns in each half. Verification MUST therefore pair
+header and body cells by their rendered position, not by index.
+
+**Verification** — these are enforced by `harness-layout` Tier 4c under `chrome.splitHeader`: header/body
+gap, one rounded container, column rule in place, header-vs-data alignment, column-boundary alignment,
+width equality, fit (no horizontal overflow), and horizontal lock-step.
+
+**Matrix exception (grouped matrix header).** A matrix keeps a column rule on **every** header cell —
+the grouped (first) row *and* the final data column included — rather than suppressing them; the gutter
+stays exempt. The default `ds-table` suppression of `colspan`/last-column rules is therefore overridden
+for `.matrix`. This is enforced by harness **Tier 4g** `lintMatrixHeaderRules`, which fails if any
+non-gutter header cell lacks its painted `::after` rule (covering all header rows, not just the first
+data cell).
+
+---
+
+### 7.3 Accessibility baseline (U)
+
+All dashboards MUST meet WCAG 2.2 Level AA for applicable UI content and interactions. The
+following checks are explicit release requirements in addition to the component-specific
+requirements elsewhere in this document.
+
+- **Keyboard access.** All actions, navigation, filters, menus, dialogs, table controls and chart
+  interactions MUST be operable by keyboard. Tab order MUST follow the visual and task order.
+  Escape MUST close dismissible overlays without discarding committed data.
+- **Visible focus.** Every interactive element MUST have a clearly visible focus indicator with
+  sufficient contrast. Focus MUST NOT be hidden behind sticky regions, dialogs or clipped panels.
+- **Accessible names and state.** Controls MUST expose a meaningful accessible name, role and
+  current state. Toggle buttons expose `aria-pressed`; expandable controls expose
+  `aria-expanded` and `aria-controls`; current navigation exposes `aria-current`.
+- **Charts.** A chart MUST have an accessible title/summary or equivalent text alternative. Where
+  individual data points are needed to complete the task, provide a keyboard-accessible data table
+  or equivalent structured representation. Hover MUST NOT be the only way to obtain essential
+  information.
+- **Tables.** Use native table semantics for tabular data. Header relationships MUST be verified
+  with assistive technology. Where split header/body fragments use separate table elements, the
+  implementation MUST provide and test an accessible header association; `scope` on one table
+  MUST NOT be assumed to associate headers across a separate table.
+- **Dynamic updates.** Important asynchronous status, validation results and page changes MUST be
+  announced appropriately without repeatedly announcing entire panels. Use polite live regions for
+  routine updates and assertive alerts only for urgent failures.
+- **Dialogs and popovers.** Focus MUST move into modal dialogs, remain contained while modal, and
+  return to the invoking control on close. Non-modal popovers MUST support Escape and predictable
+  focus behavior. Tooltips MUST be available on keyboard focus and pointer hover, and MUST NOT
+  contain the only copy of essential instructions.
+- **Motion.** Respect `prefers-reduced-motion`; non-essential transitions MUST be reduced or
+  removed when requested.
+- **Zoom and reflow.** Text and controls MUST remain usable at 200% browser zoom and at narrow
+  viewport widths. No essential content may be lost through clipping or overlap.
+- **Colour and contrast.** Colour MUST NOT be the only carrier of status or meaning. Text and
+  interactive UI contrast MUST meet WCAG AA in every supported theme and relevant interaction state.
+- **Forced colours.** The dashboard MUST remain usable in operating-system forced-colour/high-contrast
+  modes; do not suppress system focus outlines without an equivalent replacement.
+
+A dashboard workplan MUST record the accessibility test method and the supported assistive-
+technology/browser combinations. Automated checks are necessary but do not replace keyboard and
+screen-reader verification.
+
+---
+
+## 8. Conformance & Testing
+
+A rule that cannot be checked is not a standard. Every normative clause in this spec is therefore
+paired with an automated check. This section states **what must be checked, where the checks live,
+and what a dashboard must be able to show** to claim conformance.
+
+### 8.1 Two layers of checks
+
+| Layer | Lives in | Checks |
+|---|---|---|
+| **Shared layout harness** | the shared `harness-layout` project — **generic checks that apply to any dashboard** | shell structure and geometry, chrome and table geometry: split-header invariants, control contrast, floating-panel ordering, search-panel layout, matrix header rules |
+| **Per-dashboard suite** | the dashboard's own repository (e.g. `test/`), plus its harness check module | that dashboard's **behavior**: data/application architecture, business derivations, panel interactions, runtime mode and the dashboard-specific assertions this spec requires |
+
+**The split is deliberate.** A check that is true of *every* dashboard belongs in the shared harness;
+a check that is true of *one* dashboard belongs to that dashboard. A dashboard MUST NOT fork a generic
+check into its own suite, and the shared harness MUST NOT encode one dashboard's behaviour.
+
+### 8.2 Required conformance assertions (normative)
+
+Each of the following MUST be asserted somewhere in the two layers above, and each cites the clause
+it enforces. Where a check needs to know a dashboard's own choice (a class name, a dimension list, an
+enforcement posture), that value is supplied **by the dashboard's check module or workplan** — never
+hard-coded into the generic check.
+
+**Applicability rule.** Assertions for conditional components run only when the workplan marks the
+component as adopted. A non-applicable assertion is recorded as N/A with its trigger condition;
+it is not silently omitted and it is not counted as a pass.
+
+| # | Assertion | Clause |
+|---|---|---|
+| 1 | Every dashboard loads project-local CSS and JS, implements the required shell tokens, and supports all five themes | §1, §3.1, §6 |
+| 2 | Every text action follows the dimensions and behavior in this spec | §7.1 A3 |
+| 3 | Every action is a real `<button>`; no `<td>`/`<div>` carries `role="button"` | §7.1 |
+| 4 | Every control's label meets WCAG AA against its own effective background (≥ 4.5:1, or ≥ 3:1 for large/UI text), including pressed/toggle states | §7.1 |
+| 5 | Every control has an accessible name | §7.1 |
+| 6 | A filter trigger (`.tf-btn`) is used **only** by controls that narrow rows; a column-visibility control uses its own class and carries no filter badge or active-filter emphasis | §7.1 B1 / B7 |
+| 7 | Every floating multi-select panel lays out master → note → divider → item list → footer, and the master re-syncs (tri-state where rows are locked) | §7.1 B |
+| 8 | A panel-local filter changes only its own panel's tables; KPIs, charts, the matrix and other panels are unaffected; exports read the same filtered array | §7.2.7 pt 6, §7.1 B6 |
+| 9 | No filter dimension is offered twice — a dimension exposed in the global filter area is not re-offered inside a panel | §7.2.7 pt 5 |
+| 10 | Every bounded data table uses the split header; no `.tableScroll` contains a sticky `<thead>` | §7.2.15 |
+| 11 | The split-header invariants hold: one container, relative containing block, width pin + gutter, one column grid, fit/lock-step, one implementation | §7.2.15 |
+| 12 | Header/body cells of a split header are paired by **rendered position**, never by DOM index | §7.2.15 |
+| 13 | Business derivation is separate from DOM rendering; the renderer consumes a view model and does not calculate business metrics | §3.8 |
+| 14 | A filter or presentation-only interaction does not re-parse unchanged source data | §3.8 |
+| 15 | The dashboard workplan declares supported runtime/delivery modes and the release artifact | §3.9 |
+| 16 | The chosen delivery mode works in its declared environment; standalone mode is tested from `file://`, hosted mode is tested at its deployed URL | §3.9 |
+| 17 | When KPI cards are adopted, each card is 72 px high and at least 210 px wide, carries a 3 px top strip in a status token, contains exactly two children (`.v`, `.l`), and has no box shadow | §5 |
+| 18 | Filter selection semantics hold: every dimension opens fully ticked except documented exclusions, `(blank)` is selectable, an empty tick set filters every row out, a tick keeps the panel open, and an outside click or `Escape` closes it | §7.1 |
+| 19 | The warning area is pinned below the menu bar, above the filter strip and outside the scrolling body; scrolling the panels does not move it, and it spans the content width without covering a sidebar | §3.5 |
+| 20 | Stacked top-level panels are separated by 14 px (container gap or panel margin, never both); borders never touch; hidden panels add no gap | §4.7 |
+| 21 | The search panel is one row: attached column picker (All columns plus each searchable column), flexible input, affixed submit; the picker re-applies the query and does not clear it | §7.1 B5 / A5 |
+| 22 | When an S-curve with an attached table is adopted, the grid tracks, SVG host resize behavior, native table semantics, static/rebuilt structure and single-board border contract hold | §4.2 |
+| 23 | The attached-table chart axis, legend placement, table-header adjacency, month labels and responsive fit remain aligned after resize and period-window changes | §4.2, §3.4.1 |
+| 24 | PNG/Copy exports include the attached table and token-resolved chart artwork, and exclude transient hover/highlight state | §4.2 |
+| 25 | C1 attached-table interactions synchronize chart and table month highlights in both directions; the floating tip is shown only in the SVG chart area and is empty plus `aria-hidden` when hidden | §4.2, §4.6 |
+| 26 | Keyboard focus is visible; chart information is not hover-only; reduced-motion, zoom/reflow, forced-colour and dynamic announcements are handled | §7.3 |
+| 27 | Split-header table header associations are verified with assistive technology, including the separate-fragment case | §7.3, §7.2.15 |
+
+### 8.3 Test-layer separation
+
+Data parsing, normalization, validation and business calculations MUST be tested in the
+dashboard's application test suite as defined by the companion Application Architecture Standard.
+UI conformance tests MUST verify the boundary described in §3.8: the renderer receives a view model,
+does not recalculate business rules, and responds correctly to state changes. Keep data-correctness
+tests distinct from DOM, visual, interaction and accessibility tests.
+
+### 8.4 Enforcement posture and the conformance record
+
+- A dashboard MUST maintain a **requirement-to-test traceability matrix** in its workplan or test
+  manifest. Each normative requirement MUST have a unique requirement ID, applicability class,
+  implementation location, test/check name, test level, acceptance criterion and evidence location.
+- Test levels MUST distinguish at least: structural/DOM checks, behavior tests, data-correctness
+  tests, visual/layout checks, accessibility checks and runtime/deployment checks.
+- A dashboard MUST record, **in its own workplan**, which generic checks it runs, at which tier, and
+  whether each is **hard** (a failure blocks release) or **advisory** (reported, not blocking).
+- A dashboard MUST record every **deviation** from this spec in its workplan, with the clause it
+  deviates from, the reason, and — where the deviation is temporary — the target end state.
+- A dashboard's workplan SHOULD cite, per spec clause, where the evidence lives (check name, test
+  file, or screenshot), so conformance can be reviewed without re-deriving it.
+
+### 8.5 Definition of done
+
+A dashboard conforms when (a) all generic checks in §8.2 that apply to it pass or are recorded as
+advisory-with-reason, (b) its own suite passes, and (c) its workplan carries the conformance record of
+§8.4. A new dashboard adopts this spec **before** its first release, not after.
+
+---
+
+## 9. Adopting this spec for a new dashboard
+
+1. **Create the dashboard workplan first.** Record the dashboard purpose, users, source files,
+   business rules, page map, global dimensions, component inventory, supported runtime modes and
+   release artifact.
+2. **Complete the applicability matrix.** Mark each clause U, C, O or E. For conditional and
+   optional clauses, state the trigger. For exemptions, record the reason and evidence.
+3. **Implement the shell.** Build the title bar, menu bar, left sidebar, warning area, content body
+   and status bar using the ownership map in §3.1. Keep the active page in the title bar and primary
+   navigation in the sidebar.
+4. **Define project-local tokens.** Implement the shared token names and five theme mappings in the
+   dashboard's project-local stylesheet (§6). Do not add a repository-level `common/` dependency.
+5. **Select components.** Implement only the panel, KPI, chart, table, filter, search, drill-down and
+   validation components required by the dashboard. Follow the corresponding conditional contract.
+6. **Define data and application architecture separately.** The workplan and companion Application
+   Architecture Standard define parsing, normalization, validation, business calculations, state,
+   modules, error handling, packaging and deployment. Keep business derivation out of the DOM renderer.
+7. **Implement responsive and accessible behavior.** Record breakpoints and minimum usable widths;
+   verify keyboard, focus, contrast, screen-reader, reduced-motion, zoom and forced-colour behavior.
+8. **Build the traceability matrix.** Map each applicable normative requirement to implementation
+   evidence and a test. Split compound tests so each requirement can fail independently.
+9. **Run conformance checks.** The shared layout harness checks genuinely generic UI rules. The
+   dashboard suite checks dashboard-specific behavior and data. Do not place project-specific
+   business rules in the shared harness.
+10. **Complete the conformance record.** Before first release, record passed, failed, advisory,
+    N/A and exempt checks with evidence, owner and any approved deviation (§8.4–§8.5).
+
+A dashboard MUST NOT claim conformance solely because it visually resembles the reference
+implementation. It must satisfy the applicable requirements and retain test evidence.
