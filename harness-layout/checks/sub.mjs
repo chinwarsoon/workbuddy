@@ -1,3 +1,5 @@
+// Revision 1.16 | 2026-11-12 | CodeBuddy (AI) | §7.1 rev 1.71 / I128 — `buttonHeights` is a new config-gated Tier 5 block for the universal button-height standard. It measures the live DOM on five pages and asserts 32 px on every visible text-bearing button and 26 px on every visible icon-only button. `c1.segmented` loses the retired `compact` selector, bounds and tokens; the preset chips now use the standard segmented group.
+// Revision 1.14 | 2026-11-09 | CodeBuddy (AI) | §4.2 rev 1.68 / I124 — `c1.timeBar` gained `grainSelector` so Tier 5 can measure the Month / Quarter / Year group and compare its markup and computed colour tokens with the preset chips. The shared base hover / focus rules are read from the live stylesheets; no new threshold was added. The block stays C1-only and opt-in.
 // Revision 1.13 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.67 / I122 — `c1.timeBar` gained `segmentedSelector`, `segmentedButtonSelector`, `controlSelector` and `oneRowWidth: 1280`. The Tier 5 checks now require ONE joined `.seg` group, EXACTLY one active chip, NO active chip after a manual handle change, and ONE visual control row at the 1280 px minimum desktop width. The block stays C1-only and opt-in; other dashboards keep their Tier 5 behaviour.
 // Revision 1.12 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.66 / I121 — `c1.timeBar` carries the C1-only Tier 5 selectors for ONE dual-handle track: the track, body, chips group, month ticks, preset chips, `expectedPresets` and `periodStep: 1`. The block is config-gated, so other dashboards keep their Tier 5 behaviour. `periodFromSelector` / `periodToSelector` are unchanged because both native handles keep `data-c1period`.
 // Revision 1.11 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.65 / I119 — added the C1 window-based Y-axis probe controls: `axisWindowProbeFraction` (starting guess), `axisPeakDropRatio`, `minAxisProbePoints`, `axisPeakTolerance` and `axisMinFill`. These are HARNESS QUALITY CRITERIA ONLY, not new UI requirements; the probe index is derived from the data, and an unsuitable dataset is skipped rather than failed.
@@ -152,6 +154,7 @@ export default {
       chipsSelector: '.c1-ts-chips',
       tickSelector: '.c1-ts-tick[data-c1month]',
       chipSelector: '[data-c1preset]',
+      grainSelector: '[data-c1grain]',
       periodTextSelector: '#c1PeriodText',
       controlSelector: '.c1-controls',
       segmentedSelector: '.c1-ts-chips.seg',
@@ -160,6 +163,30 @@ export default {
       periodStep: 1,
       // §4.2 rev 1.67 — ONE visual row at 1280 px and above; §3.4.1 allows wrapping below it.
       oneRowWidth: 1280,
+    },
+
+    // ── Tier 5 §7.1 rev 1.71 / I128 — universal button-height standard ──
+    // Config-gated and Sub-only. Every visible text-bearing button must resolve 32 px; every
+    // visible icon-only button must stay 26 px square. Overlapping selectors are deduped by node.
+    buttonHeights: {
+      textHeight: 32,
+      iconHeight: 26,
+      heightTolerance: 1,
+      textSelectors: ['.btn', '.btn-primary', '.btn-secondary', '.tf-btn', '.seg-btn', '.cc-btn', '.pg-btn', '.cc-reset'],
+      iconSelectors: ['.icon-btn', '.drill-btn'],
+      pages: ['Overview', 'Submittals', 'Validation', 'Forward and Overdue', 'Analytical'],
+    },
+
+    // ── Tier 5 §7.5 B2.1 rev 1.69 — authoritative segmented-control standard ──
+    // Config-gated and Sub-only. The compact variant is retired by §7.1 rev 1.71; every `.seg`
+    // group now uses the ONE standard height.
+    segmented: {
+      groupSelector: '.seg',
+      buttonSelector: '.seg-btn',
+      standardHeight: 32,
+      heightTolerance: 1,
+      expectedTokens: ['--seg-h', '--seg-active-bg', '--seg-hover-bg', '--seg-pressed-bg', '--seg-focus', '--seg-focus-on-active', '--seg-disabled-opacity'],
+      pages: ['Overview', 'Forward and Overdue', 'Analytical'],
     },
 
     // ── Tier 5 C1 attached-table interaction (spec §4.2 rev 1.63, §8.2 assertion 21) ──

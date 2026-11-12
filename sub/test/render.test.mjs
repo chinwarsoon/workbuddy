@@ -1,3 +1,6 @@
+// Revision 0.20 | 2026-11-12 | CodeBuddy (AI) | §7.1 rev 1.71 / I128 — ONE text-button height. The CSS contract now asserts `--btn-h:32px` on every text-bearing button family and `--icon-btn-h:26px` on icon-only buttons. The former C1 `compact` preset variant is retired: its class, tokens and override rule are gone, and the preset group uses the standard segmented markup. No data, handler, ARIA or repaint path assertion was weakened.
+// Revision 0.18 | 2026-11-11 | CodeBuddy (AI) | §7.5 B2.1 rev 1.69 / I125 — the CSS contract now reads the shared `--seg-*` custom-property tokens and the six interaction states instead of literal rule text, so the tokens can move to `:root` without weakening any assertion. A new test renders all five pages and asserts that EVERY `.seg-btn` carries `type="button"` and a dynamic `aria-pressed`, and that EVERY `.seg` group carries `role="group"` and an accessible name. Source-level assertions check all seven generators, the shared `seg-compact` class and the removal of the panel-scoped sizing rule. No assertion was weakened or removed.
+// Revision 0.17 | 2026-11-09 | CodeBuddy (AI) | §4.2 rev 1.68 / I124 — the rev 1.66 CSS contract now expects the SHARED base hover (`.seg-btn:not(.active):hover` with `--surface2` / `--blue`) and base focus (`.seg-btn:focus-visible`) rules, and expects the scoped `.c1-ts-chips .seg-btn:focus-visible` rule to be GONE. A new test asserts the grain group's `type="button"` and dynamic `aria-pressed` mirror the preset chips, that the compact override is layout-only, and that the five other `.seg-btn` generators keep their markup. No assertion was weakened or removed.
 // Revision 0.16 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.67 / I122 — the rev 1.66 markup test now expects ONE `.seg` group of `.seg-btn` buttons, the new print / wrap CSS and the stored-preset client code; its 6M case passes `c1Preset: '6M'`. A new test asserts exact mutual exclusion for every preset, NO active chip for `c1Preset: null` (manual custom range), collided clipped ranges no longer light two chips, and the `flex-wrap:nowrap` / 1280 px wrap breakpoint CSS. No assertion was weakened or removed.
 // Revision 0.15 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.66 / I121 — two new tests cover the dual-handle C1 period time bar: `c1PresetRange()` (6M / 12M / 24M anchor and clamp, YTD from January of the as-of year, All, unknown and empty input), and the emitted markup (ONE shared track, two native `step="1"` handles with `data-c1period` / `aria-label` / `aria-valuetext`, one tick per reporting month, five `aria-pressed` chips, no old From / To inputs) plus the CSS print / focus rules and the client live-drag decoupling.
 // Revision 0.14 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.65 / I119 — one new test proves the shared C1 Y axis follows the period window from the windowed `pts`, enabled series, Bars toggle and grain; cumulative values stay absolute (no rebase); metadata, labels, grid lines, `c1PlotSvg` refit and the 300-unit plot height all stay in agreement. No separate bar scale is introduced.
@@ -193,6 +196,33 @@ test('T19.1 / I116 — C1 S-curve carries one native attached table in one align
   assert.equal((table.match(/<td class="g-val/g) || []).length, rows * nb, 'every metric row has one value per period');
   assert.doesNotMatch(table, /role="(table|row|cell|columnheader|rowheader)"/, 'no ARIA table roles');
   assert.doesNotMatch(table, /display:\s*contents/, 'no display:contents');
+});
+
+// §4.2 rev 1.70 / I127 — the C1 chart board uses the universal bordered composition: the
+// alignment grid stays borderless and the three zones own the edges and radii. This is the
+// static contract; Tier 5 measures the rendered boxes, shared edges and computed radii.
+test('§4.2 rev 1.70 / I127 — C1 uses the bordered chart composition', () => {
+  const css = fs.readFileSync(path.join(root, 'engine/dashboard.css'), 'utf8');
+  const rule = selector => {
+    const key = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const hit = css.match(new RegExp(`${key}\\{([^}]*)\\}`));
+    return hit ? hit[1] : '';
+  };
+  const grid = rule('.c1-grid');
+  assert.ok(grid, 'the alignment grid rule exists');
+  assert.doesNotMatch(grid, /border\s*:/, 'the alignment grid stays borderless');
+  const yaxis = rule('.c1-yaxis');
+  assert.match(yaxis, /border:1px solid var\(--border\)/, 'the Y-axis zone owns a 1 px border');
+  assert.match(yaxis, /border-radius:10px 0 0 0/, 'the Y-axis zone squares its shared corners');
+  const plot = rule('.c1-plot');
+  assert.match(plot, /border:1px solid var\(--border\)/, 'the plot zone owns a 1 px border');
+  assert.match(plot, /border-radius:0 10px 0 0/, 'the plot zone squares its shared corners');
+  const table = rule('.c1-table');
+  assert.match(table, /border:1px solid var\(--border\)/, 'the attached table owns a 1 px border');
+  assert.match(table, /border-radius:0 0 10px 10px/, 'the attached table squares its shared top corners');
+  assert.match(table, /border-collapse:separate/, 'the table uses the separate border model required for radius clipping');
+  assert.match(table, /border-spacing:0/, 'the separate border model adds no spacing');
+  assert.match(rule('.c1-table thead th'), /border-top:0/, 'the header row does not double the plot bottom rule');
 });
 
 // The client ResizeObserver calls the same renderer with the measured width. X points, the
@@ -510,6 +540,7 @@ test('§4.2 rev 1.66 — C1 renders one dual-handle month-snapped track with tic
 
   // CSS and client behaviour keep the track usable, printable and decoupled from the repaint.
   const css = fs.readFileSync(path.join(root, 'engine/dashboard.css'), 'utf8');
+  const cssRules = css.replace(/\/\*[\s\S]*?\*\//g, '');
   const js = fs.readFileSync(path.join(root, 'engine/dashboard.js'), 'utf8');
   assert.ok(css.includes('.c1-ts-track::before'), 'one shared track has one visual rail');
   assert.ok(css.includes('.c1-ts-input:focus-visible{outline'), 'the handles have a focus outline');
@@ -517,7 +548,36 @@ test('§4.2 rev 1.66 — C1 renders one dual-handle month-snapped track with tic
   assert.ok(css.includes('@media(max-width:760px){.c1-ts-body'), 'the track wraps on a narrow card');
   assert.ok(css.includes('.c1-ts{--c1-thumb:14px;display:flex;align-items:center;gap:10px;flex-wrap:nowrap'), 'the cluster does not wrap at desktop widths');
   assert.ok(css.includes('@media(max-width:1279px){.c1-ts{flex-wrap:wrap}'), 'wrapping starts below the 1280 px minimum');
-  assert.ok(css.includes('.seg-btn.active{background:var(--blue);color:#fff}'), 'the Sub segmented active token is used');
+  // §7.1 rev 1.71 / I128 — ONE text-button height and ONE icon-only square size.
+  assert.ok(css.includes('--btn-h:32px'), 'the shared 32 px text-button height is a token');
+  assert.ok(css.includes('--icon-btn-h:26px'), 'the shared 26 px icon-button square is a token');
+  for (const sel of ['.app-menu .btn', '.btn', '.btn-primary', '.btn-secondary', '.tf-btn', '.seg-btn', '.cc-btn', '.pg-btn', '.cc-reset']) {
+    assert.ok(new RegExp(`${sel}\\{[^}]*min-height:var\\(--(?:btn-h|seg-h)\\)`).test(css),
+      `${sel} uses the shared 32 px text-button height`);
+  }
+  for (const sel of ['.icon-btn', '.drill-btn']) {
+    assert.ok(new RegExp(`${sel}\\{[^}]*width:var\\(--icon-btn-h\\)[^}]*height:var\\(--icon-btn-h\\)`).test(css),
+      `${sel} uses the shared 26 px icon-button square`);
+  }
+  assert.ok(!/^\s*\.seg-compact\b/m.test(cssRules) && !cssRules.includes('--seg-compact-'), 'the compact preset variant is retired');
+
+  // §7.5 B2.1 rev 1.69 — shared tokens and six interaction states.
+  assert.ok(css.includes('--seg-h:var(--btn-h)'), 'the segmented height derives from the shared text-button height');
+  assert.ok(css.includes('--seg-active-bg:var(--navy)'), 'the B2.1 active fill is --navy');
+  assert.ok(css.includes('--seg-hover-bg:var(--surface2)'), 'the B2.1 inactive hover is --surface2');
+  assert.ok(css.includes('--seg-pressed-bg:var(--surface3)'), 'the pressed background is tokenised');
+  assert.ok(css.includes('--seg-focus-on-active:#fff'), 'the active focus ring is high contrast');
+  assert.ok(css.includes('.seg-btn.active{background:var(--seg-active-bg);color:var(--seg-active-fg)}'), 'the active rule uses shared tokens');
+  assert.ok(css.includes('.seg-btn:not(.active):not(:disabled):hover{background:var(--seg-hover-bg);color:var(--seg-hover-fg)}'), 'inactive hover uses shared tokens and excludes disabled');
+  assert.ok(css.includes('.seg-btn.active:hover{background:var(--seg-active-bg);color:var(--seg-active-fg)}'), 'an active button keeps its selection colour on hover');
+  assert.ok(css.includes('.seg-btn:not(:disabled):active:not(.active){background:var(--seg-pressed-bg);color:var(--text)}'), 'the pressed state is defined and excludes disabled');
+  assert.ok(css.includes('.seg-btn:focus-visible{outline:2px solid var(--seg-focus);outline-offset:-2px}'), 'the base focus ring uses the shared token');
+  assert.ok(css.includes('.seg-btn.active:focus-visible{outline-color:var(--seg-focus-on-active)}'), 'the active focus ring overrides the outline colour');
+  assert.ok(css.includes('.seg-btn:disabled{opacity:var(--seg-disabled-opacity);cursor:not-allowed;pointer-events:none}'), 'the disabled state is defined');
+  assert.ok(!/^\s*\.seg-compact\b/m.test(cssRules), 'the compact override rule is gone');
+  assert.ok(!/^\.c1-ts-chips \.seg-btn\{/m.test(css), 'no panel-scoped sizing rule remains');
+  assert.ok(!/\.c1-ts-chips \.seg-btn:focus-visible\{/.test(css), 'the scoped preset focus rule is gone');
+  assert.ok(!css.includes('.c1-ts-chips .seg-btn:hover'), 'no panel-scoped hover rule remains');
   assert.ok(js.includes('function c1SyncTimeBar()'), 'the visual-only sync exists');
   assert.ok(js.includes('if (event.target.dataset.c1period) { state.c1Preset = null; c1SyncTimeBar(); }'), 'input events clear the preset and do not repaint the chart');
   assert.ok(js.includes('c1PresetRange(target.dataset.c1preset'), 'chips use the shared preset helper');
@@ -545,6 +605,46 @@ test('§4.2 rev 1.67 — presets are mutually exclusive and a manual range clear
   assert.deepEqual(c1PresetRange('24M', months, 10, '2026-11-07'), collided, 'the collision still exists in the data');
   show({ c1Period: collided, c1Preset: '12M' });
   assert.deepEqual(active(html), ['12M'], 'collided clipped ranges no longer light two chips');
+});
+
+test('§7.5 B2.1 rev 1.69 — ALL seven generators use the common markup and ARIA', () => {
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  const doc = { querySelector: s => s === '[data-page-content]' ? node : null };
+  const src = fs.readFileSync(path.join(root, 'engine/render.js'), 'utf8');
+  assert.equal((src.match(/<button type="button" class="seg-btn/g) || []).length, 7,
+    'all seven `.seg-btn` generators emit a real typed button');
+  assert.equal((src.match(/<button type="button" class="seg-btn[^>]*aria-pressed="\$\{/g) || []).length, 7,
+    'all seven generators emit a dynamic aria-pressed on the typed button');
+  assert.ok(!/<button class="seg-btn/.test(src), 'no untyped segmented button generator remains');
+  assert.equal((src.match(/class="seg c1-ts-chips"/g) || []).length, 1,
+    'the C1 presets use the standard segmented group without a compact variant');
+  assert.equal((src.match(/role="group" aria-label="\$\{label\}"/g) || []).length, 1,
+    'the three Forward and Overdue groups take an accessible name from the helper');
+  assert.equal((src.match(/data-c1grain="\$\{g\}" aria-pressed=/g) || []).length, 1,
+    'the grain group keeps its dynamic aria-pressed');
+  let pagesWithGroups = 0;
+  for (const page of ['Overview', 'Submittals', 'Validation', 'Forward and Overdue', 'Analytical']) {
+    renderDashboard(doc, model, { page, c1Grain: 'quarter' });
+    const buttons = [...html.matchAll(/<button([^>]*class="seg-btn[^"]*"[^>]*)>/g)].map(m => m[1]);
+    const groups = [...html.matchAll(/<div class="seg(?=[ "])[^"]*"([^>]*)>/g)].map(m => m[1]);
+    // A page with no segmented control (for example the Submittals table) has nothing to check.
+    if (!groups.length) { assert.equal(buttons.length, 0, `${page} has no stray segmented buttons`); continue; }
+    pagesWithGroups++;
+    assert.ok(buttons.length >= groups.length, `${page}: every group has at least one button`);
+    for (const b of buttons) {
+      assert.ok(b.includes('type="button"'), `${page}: every segmented button has type="button"`);
+      assert.match(b, /aria-pressed="(true|false)"/, `${page}: every button carries aria-pressed`);
+      assert.match(b, /class="seg-btn( active)?"/, `${page}: the active class is unchanged`);
+    }
+    for (const g of groups) {
+      assert.ok(g.includes('role="group"'), `${page}: every group has role="group"`);
+      assert.match(g, /aria-label="[^"]+"/, `${page}: every group has an accessible name`);
+    }
+    const pressedTrue = buttons.filter(b => /aria-pressed="true"/.test(b)).length;
+    assert.equal(pressedTrue, groups.length, `${page}: exactly one pressed button per group`);
+  }
+  assert.ok(pagesWithGroups >= 3, 'at least three pages render segmented groups');
 });
 
 test('derives C3 Breakdown rows with one New per document and the rest Resubmissions (workplan D36)', () => {

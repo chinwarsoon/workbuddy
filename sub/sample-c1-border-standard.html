@@ -1,0 +1,315 @@
+<!doctype html>
+<!-- Review sample - proposed border standard for S-curve panels with an attached table.
+     Revision 0.4 | 2026-11-12 | CodeBuddy (AI) | Removed self-referencing grid custom properties.
+     Revision 0.3 | 2026-11-12 | CodeBuddy (AI) | Added --bw and exact month-column alignment.
+     Revision 0.2 | 2026-11-12 | CodeBuddy (AI) | Border owner 3 moved from .c1-grid to .c1-yaxis.
+     Revision 0.1 | 2026-11-12 | CodeBuddy (AI) | Standalone review artefact.
+     It shows five border owners: .panel, .sc-board, .c1-yaxis, .c1-plot, .c1-table.
+     .c1-grid has no border. It inherits --c1-gutter and --c1-cols from :root.
+     Month columns align with SVG month bands. Static sample data only.
+     No workbook load. No engine import. No build. No tests. No production file changed. -->
+<html lang='en' data-theme='light'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>C1 border standard - review sample</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#eef2f8; --surface:#ffffff; --surface2:#f1f5f9; --surface3:#e8edf3;
+  --border:#d9e1e8; --text:#1f2a37; --text2:#526171; --text3:#6b7785;
+  --navy:#15314f; --blue:#2b6cf6; --soft:#eaf2fb; --red:#d23b3b;
+  --shadow:0 1px 2px rgba(16,32,64,.04),0 8px 24px rgba(16,32,64,.05);
+  --font-ui:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  --b-common:var(--border);
+  --b-panel:#64748b; --b-board:#2563eb; --b-yaxis:#059669;
+  --b-plot:#d97706; --b-table:#db2777;
+  --r:10px; --bw:1px; --c1-gutter:104px; --c1-cols:8;
+}
+body:has(#oneToken:checked){
+  --b-panel:var(--b-common); --b-board:var(--b-common); --b-yaxis:var(--b-common);
+  --b-plot:var(--b-common); --b-table:var(--b-common);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 var(--font-ui);padding:24px}
+.page{max-width:1180px;margin:0 auto}
+.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.page-head h1{font-size:20px;margin:0 0 4px;color:var(--navy)}
+.sub{margin:0;color:var(--text2);font-size:12px;max-width:720px}
+.tag{display:inline-block;font:700 10px var(--font-ui);letter-spacing:.04em;color:#2a4a8f;background:var(--soft);border:1px solid #cbddef;border-radius:99px;padding:2px 8px;margin-left:8px;vertical-align:2px}
+.mode fieldset{border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--surface);margin:0;box-shadow:var(--shadow)}
+.mode legend{font-size:11px;font-weight:700;color:var(--text2);padding:0 4px}
+.mode label{display:inline-flex;align-items:center;gap:6px;margin-right:12px;font-size:12px;color:var(--text2);cursor:pointer}
+.mode input{accent-color:var(--blue)}
+.mode input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.meta-card{border:1px solid var(--border);border-radius:8px;background:var(--surface);padding:14px 16px;margin:0 0 14px;box-shadow:var(--shadow)}
+.meta-card h2{font-size:14px;margin:0 0 8px;color:var(--navy)}
+.meta-card p{margin:0 0 8px;color:var(--text2);font-size:12px}
+.meta-card p:last-child{margin-bottom:0}
+.callout{border-left:4px solid var(--blue);background:var(--soft);padding:10px 12px;border-radius:6px;margin:0 0 14px;color:var(--text2);font-size:12px}
+.callout strong{color:var(--navy)}
+.std-table,.notes-table{width:100%;border-collapse:collapse;font-size:12px}
+.std-table th,.std-table td,.notes-table th,.notes-table td{border:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:top}
+.std-table th,.notes-table th{background:var(--surface2);color:var(--navy);font-size:11px;font-weight:700}
+.std-table code,.notes-table code,code.inline{font-family:var(--font-mono);font-size:11px;color:var(--navy);font-weight:700}
+.dot{display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--c);vertical-align:-1px;margin-right:5px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.legend ol{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;list-style:none;margin:0;padding:0}
+.legend li{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface2)}
+.legend .num{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--c);color:#fff;font:700 10px var(--font-ui);flex:none}
+.legend .txt{min-width:0}
+.legend .txt b{display:block;font-size:11px;color:var(--navy)}
+.legend .txt small{display:block;color:var(--text3);font-size:10px}
+.demo{margin:0 0 14px}
+.panel{--owner:var(--b-panel);position:relative;border:var(--bw) solid var(--b-panel);border-radius:var(--r);background:var(--surface);padding:14px 14px 26px;box-shadow:var(--shadow)}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 10px}
+.panel-head h2{margin:0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--navy)}
+.panel-actions{display:flex;gap:6px}
+.icon-btn{width:26px;height:26px;border:1px solid var(--border);background:var(--surface);color:var(--text3);border-radius:6px;font:700 13px var(--font-ui);line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:default}
+.icon-btn:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.panel-number{position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:.04em;color:var(--text3);pointer-events:none}
+.panel-body{min-width:0}
+.sc-board{--owner:var(--b-board);position:relative;border:var(--bw) solid var(--b-board);border-radius:var(--r);background:var(--surface);padding:12px}
+.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px;padding:8px 10px;background:var(--surface2);border-radius:6px}
+.controls .lbl{font-size:12px;font-weight:700;color:var(--text2)}
+.controls .period{font-size:11px;color:var(--text2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.track{position:relative;width:160px;height:6px;border-radius:3px;background:var(--border);overflow:hidden}
+.track .fill{position:absolute;inset:0;background:var(--blue)}
+.seg{display:inline-flex;align-items:stretch;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.seg span{display:inline-flex;align-items:center;justify-content:center;padding:5px 8px;font-size:11px;font-weight:600;color:var(--text2);background:var(--surface);border-right:1px solid var(--border)}
+.seg span:last-child{border-right:0}
+.seg span.on{background:var(--navy);color:#fff}
+.c1-grid{position:relative;display:grid;grid-template-columns:var(--c1-gutter) repeat(var(--c1-cols),minmax(0,1fr));column-gap:0;row-gap:0;min-width:0;width:100%;border:0;border-radius:0;background:transparent;padding:0}
+.c1-yaxis{--owner:var(--b-yaxis);grid-column:1;grid-row:1;position:relative;min-width:0;height:300px;border:var(--bw) solid var(--b-yaxis);border-radius:var(--r) 0 0 0;background:var(--surface);pointer-events:none}
+.c1-yaxis .c1-ytick{position:absolute;right:6px;transform:translateY(-50%);font-size:10px;line-height:1;color:var(--text2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.c1-yaxis .c1-ycap{position:absolute;left:2px;top:50%;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;text-orientation:mixed;font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.02em;white-space:nowrap}
+.c1-plot{--owner:var(--b-plot);grid-column:2/-1;grid-row:1;position:relative;min-width:0;height:300px;border:var(--bw) solid var(--b-plot);border-radius:0 var(--r) 0 0;background:var(--surface);overflow:hidden}
+.c1-plot svg{display:block;width:100%;height:100%}
+.plot-legend{position:absolute;top:6px;left:10px;right:10px;z-index:2;display:flex;flex-wrap:wrap;gap:4px 12px;padding:4px 6px;border-radius:6px;background:rgba(255,255,255,.92);color:var(--text2);font-size:10px;pointer-events:none}
+.plot-legend span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.plot-legend .sw{width:9px;height:9px;border-radius:2px;background:var(--c);flex:none}
+.sc-grid{stroke:var(--border);stroke-width:1;vector-effect:non-scaling-stroke}
+.sc-axis{stroke:var(--text3);stroke-width:1;vector-effect:non-scaling-stroke}
+.sc-line{fill:none;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.sc-line-plan{stroke:#2b6cf6;stroke-dasharray:6 3}
+.sc-line-forecast{stroke:#f9a825;stroke-dasharray:2 2}
+.sc-line-actual{stroke:#17a67a}
+.sc-line-resub{stroke:#c026d3;stroke-dasharray:3 3}
+.bar-plan{fill:#2b6cf6}.bar-forecast{fill:#f9a825}.bar-actual{fill:#17a67a}.bar-resub{fill:#c026d3}
+.c1-table{--owner:var(--b-table);grid-column:1/-1;grid-row:2;position:relative;width:100%;min-width:0;table-layout:fixed;border:var(--bw) solid var(--b-table);border-radius:0 0 var(--r) var(--r);border-collapse:separate;border-spacing:0;background:var(--surface);overflow:hidden}
+.c1-table caption{position:absolute;width:1px;height:1px;padding:0;margin:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+.c1-table th,.c1-table td{border-top:1px solid var(--border);border-right:1px solid var(--border);padding:5px 3px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c1-table thead th{border-top:0}
+.c1-table tr > :last-child{border-right:0}
+.c1-table thead th.g-corner{text-align:left;vertical-align:bottom;background:var(--surface2);color:var(--navy);font-size:10px;font-weight:700;padding-left:8px}
+.c1-table thead th.g-axis{text-align:center;vertical-align:bottom;background:var(--surface2);color:var(--text2);font-size:10px;font-weight:600;height:30px}
+.c1-table tbody th.g-label{text-align:right;background:var(--surface2);color:var(--text2);font-size:11px;font-weight:600;padding-right:8px}
+.c1-table tbody td.g-val{text-align:center;color:var(--text);font-size:11px;font-variant-numeric:tabular-nums}
+.c1-table tbody td.g-val.neg{color:var(--red)}
+[data-owner]::before{content:attr(data-owner);position:absolute;top:-9px;left:14px;z-index:9;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--owner);color:#fff;font:700 10px var(--font-ui);box-shadow:0 0 0 2px var(--surface);pointer-events:none}
+.c1-yaxis::before,.c1-plot::before,.c1-table::before{top:6px;left:auto;right:6px}
+.notes-list{margin:0;padding-left:18px;color:var(--text2);font-size:12px}
+.notes-list li{margin-bottom:5px}
+.footer{margin-top:14px;color:var(--text3);font-size:11px;text-align:center}
+@media(max-width:900px){
+  :root{--c1-gutter:84px}
+  body{padding:16px}
+  .c1-table thead th.g-axis{font-size:9px}
+  .c1-table tbody td.g-val{font-size:10px}
+  .plot-legend{font-size:9px}
+}
+@media print{.mode,.panel-actions{display:none}.page-head h1{font-size:16px}}
+</style>
+</head>
+<body>
+<main class='page'>
+  <header class='page-head'>
+    <div>
+      <h1>C1 border standard - review sample <span class='tag'>REVIEW ONLY</span></h1>
+      <p class='sub'>Target panels hold an S-curve plus an attached table. C1 is one sample. The page shows five border owners. Static sample data only. No workbook load. No engine import. No build. No tests. No production file changed.</p>
+    </div>
+    <div class='mode'>
+      <fieldset>
+        <legend>Border color mode</legend>
+        <label><input type='radio' name='mode' id='trace' checked> Review colors</label>
+        <label><input type='radio' name='mode' id='oneToken'> One token</label>
+      </fieldset>
+    </div>
+  </header>
+
+  <section class='callout' aria-label='Current spec note'>
+    <strong>Current UI spec.</strong> <code class='inline'>Dashboard-UI-Design-Spec.md</code> §4.2 rev 1.59 allows only the <code class='inline'>.panel</code> edge plus one <code class='inline'>.sc-board</code> border. It says <code class='inline'>No third bordered wrapper is permitted</code>. This page intentionally shows a proposed five-border standard for review. It does not change the spec.
+  </section>
+
+  <section class='meta-card' aria-labelledby='stdTitle'>
+    <h2 id='stdTitle'>Proposed border standard</h2>
+    <p>All five owners use a <code class='inline'>var(--bw)</code> solid border and a 10 px corner radius. Review colors identify each owner. The one-token view replaces all five colors with <code class='inline'>--border</code>.</p>
+    <table class='std-table'>
+      <thead>
+        <tr><th>Owner</th><th>Border</th><th>Radius</th><th>Review color</th><th>One-token value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>.panel</code></td><td>1 px solid</td><td>10 px</td><td><span class='dot' style='--c:var(--b-panel)'></span> slate</td><td><code>--border</code></td></tr>
+        <tr><td><code>.sc-board</code></td><td>1 px solid</td><td>10 px</td><td><span class='dot' style='--c:var(--b-board)'></span> blue</td><td><code>--border</code></td></tr>
+        <tr><td><code>.c1-yaxis</code></td><td>1 px solid</td><td>10 px</td><td><span class='dot' style='--c:var(--b-yaxis)'></span> green</td><td><code>--border</code></td></tr>
+        <tr><td><code>.c1-plot</code></td><td>1 px solid</td><td>10 px</td><td><span class='dot' style='--c:var(--b-plot)'></span> amber</td><td><code>--border</code></td></tr>
+        <tr><td><code>.c1-table</code></td><td>1 px solid</td><td>10 px</td><td><span class='dot' style='--c:var(--b-table)'></span> pink</td><td><code>--border</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class='meta-card legend' aria-label='Border owner legend'>
+    <h2>Border owners</h2>
+    <ol>
+      <li style='--c:var(--b-panel)'><span class='num'>1</span><span class='txt'><b>.panel</b><small>Outer panel edge</small></span></li>
+      <li style='--c:var(--b-board)'><span class='num'>2</span><span class='txt'><b>.sc-board</b><small>Controls, grid, plot and table</small></span></li>
+      <li style='--c:var(--b-yaxis)'><span class='num'>3</span><span class='txt'><b>.c1-yaxis</b><small>Y-axis column</small></span></li>
+      <li style='--c:var(--b-plot)'><span class='num'>4</span><span class='txt'><b>.c1-plot</b><small>SVG host</small></span></li>
+      <li style='--c:var(--b-table)'><span class='num'>5</span><span class='txt'><b>.c1-table</b><small>Attached native table</small></span></li>
+    </ol>
+    <p style='margin-top:10px'>Small numbered circles mark each border owner in the demo. The circles follow the active border color. Meta cards and control borders stay neutral. They are not part of the proposed standard.</p>
+  </section>
+
+  <section class='demo' aria-label='C1 border sample'>
+    <div class='panel' data-owner='1'>
+      <header class='panel-head'>
+        <h2>C1 Schedule Performance</h2>
+        <div class='panel-actions'>
+          <button class='icon-btn' type='button' aria-label='Help' title='Help'>?</button>
+          <button class='icon-btn' type='button' aria-label='Collapse' title='Collapse'>&minus;</button>
+        </div>
+      </header>
+      <div class='panel-body'>
+        <div class='sc-board' data-owner='2' role='group' aria-label='Schedule performance border sample'>
+          <div class='controls'>
+            <span class='lbl'>Period</span>
+            <div class='track' aria-hidden='true'><span class='fill'></span></div>
+            <span class='period'>Jan 2026 - Aug 2026</span>
+            <div class='seg' role='group' aria-label='Period presets'>
+              <span>6M</span><span>12M</span><span>24M</span><span>YTD</span><span class='on'>All</span>
+            </div>
+            <div class='seg' role='group' aria-label='Time grain'>
+              <span class='on'>Month</span><span>Quarter</span><span>Year</span>
+            </div>
+          </div>
+
+          <div class='c1-grid'>
+            <div class='c1-yaxis' data-owner='3' aria-hidden='true'>
+              <span class='c1-ytick' style='top:28px'>300</span>
+              <span class='c1-ytick' style='top:73px'>250</span>
+              <span class='c1-ytick' style='top:119px'>200</span>
+              <span class='c1-ytick' style='top:164px'>150</span>
+              <span class='c1-ytick' style='top:209px'>100</span>
+              <span class='c1-ytick' style='top:255px'>50</span>
+              <span class='c1-ytick' style='top:299px'>0</span>
+              <span class='c1-ycap'>Documents</span>
+            </div>
+
+            <div class='c1-plot' data-owner='4'>
+              <div class='plot-legend' aria-hidden='true'>
+                <span><i class='sw' style='--c:#2b6cf6'></i>Plan</span>
+                <span><i class='sw' style='--c:#f9a825'></i>Forecast</span>
+                <span><i class='sw' style='--c:#17a67a'></i>Actual First</span>
+                <span><i class='sw' style='--c:#c026d3'></i>Actual Resub</span>
+                <span><i class='sw' style='--c:#2b6cf6'></i>Cum. Plan</span>
+                <span><i class='sw' style='--c:#f9a825'></i>Cum. Forecast</span>
+                <span><i class='sw' style='--c:#17a67a'></i>Cum. Actual First</span>
+                <span><i class='sw' style='--c:#c026d3'></i>Cum. Actual Resub</span>
+              </div>
+              <svg class='scurve-svg' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 300' width='100%' height='300' preserveAspectRatio='none' role='img' aria-label='Static S-curve with four cumulative series'>
+                <title>Static S-curve</title>
+                <line class='sc-grid' x1='0' y1='28' x2='800' y2='28'></line>
+                <line class='sc-grid' x1='0' y1='73' x2='800' y2='73'></line>
+                <line class='sc-grid' x1='0' y1='119' x2='800' y2='119'></line>
+                <line class='sc-grid' x1='0' y1='164' x2='800' y2='164'></line>
+                <line class='sc-grid' x1='0' y1='209' x2='800' y2='209'></line>
+                <line class='sc-grid' x1='0' y1='255' x2='800' y2='255'></line>
+                <line class='sc-grid' x1='0' y1='300' x2='800' y2='300'></line>
+                <line class='sc-axis' x1='0' y1='28' x2='0' y2='300'></line>
+                <g aria-hidden='true'>
+                  <rect class='bar-plan' x='38' y='282' width='5' height='18' rx='1'></rect><rect class='bar-forecast' x='44' y='285' width='5' height='15' rx='1'></rect><rect class='bar-actual' x='50' y='293' width='5' height='7' rx='1'></rect><rect class='bar-resub' x='56' y='298' width='5' height='2' rx='1'></rect>
+                  <rect class='bar-plan' x='138' y='277' width='5' height='23' rx='1'></rect><rect class='bar-forecast' x='144' y='280' width='5' height='20' rx='1'></rect><rect class='bar-actual' x='150' y='289' width='5' height='11' rx='1'></rect><rect class='bar-resub' x='156' y='297' width='5' height='3' rx='1'></rect>
+                  <rect class='bar-plan' x='238' y='273' width='5' height='27' rx='1'></rect><rect class='bar-forecast' x='244' y='276' width='5' height='24' rx='1'></rect><rect class='bar-actual' x='250' y='285' width='5' height='15' rx='1'></rect><rect class='bar-resub' x='256' y='296' width='5' height='4' rx='1'></rect>
+                  <rect class='bar-plan' x='338' y='268' width='5' height='32' rx='1'></rect><rect class='bar-forecast' x='344' y='273' width='5' height='27' rx='1'></rect><rect class='bar-actual' x='350' y='282' width='5' height='18' rx='1'></rect><rect class='bar-resub' x='356' y='295' width='5' height='5' rx='1'></rect>
+                  <rect class='bar-plan' x='438' y='264' width='5' height='36' rx='1'></rect><rect class='bar-forecast' x='444' y='269' width='5' height='31' rx='1'></rect><rect class='bar-actual' x='450' y='278' width='5' height='22' rx='1'></rect><rect class='bar-resub' x='456' y='295' width='5' height='5' rx='1'></rect>
+                  <rect class='bar-plan' x='538' y='264' width='5' height='36' rx='1'></rect><rect class='bar-forecast' x='544' y='269' width='5' height='31' rx='1'></rect><rect class='bar-actual' x='550' y='276' width='5' height='24' rx='1'></rect><rect class='bar-resub' x='556' y='295' width='5' height='5' rx='1'></rect>
+                  <rect class='bar-plan' x='638' y='264' width='5' height='36' rx='1'></rect><rect class='bar-forecast' x='644' y='267' width='5' height='33' rx='1'></rect><rect class='bar-actual' x='650' y='276' width='5' height='24' rx='1'></rect><rect class='bar-resub' x='656' y='295' width='5' height='5' rx='1'></rect>
+                  <rect class='bar-plan' x='738' y='264' width='5' height='36' rx='1'></rect><rect class='bar-forecast' x='744' y='269' width='5' height='31' rx='1'></rect><rect class='bar-actual' x='750' y='276' width='5' height='24' rx='1'></rect><rect class='bar-resub' x='756' y='295' width='5' height='5' rx='1'></rect>
+                </g>
+                <polyline class='sc-line sc-line-plan' points='50,282 150,259 250,232 350,200 450,164 550,128 650,91 750,55'></polyline>
+                <polyline class='sc-line sc-line-forecast' points='50,286 150,266 250,242 350,215 450,184 550,153 650,120 750,90'></polyline>
+                <polyline class='sc-line sc-line-actual' points='50,293 150,282 250,267 350,249 450,227 550,204 650,180 750,157'></polyline>
+                <polyline class='sc-line sc-line-resub' points='50,298 150,295 250,292 350,287 450,282 550,276 650,271 750,266'></polyline>
+              </svg>
+            </div>
+
+            <table class='c1-table' data-owner='5'>
+              <caption>Schedule performance by reporting month</caption>
+              <colgroup><col style='width:var(--c1-gutter)'><col><col><col><col><col><col><col><col></colgroup>
+              <thead>
+                <tr>
+                  <th class='g-corner' scope='col'>Reporting Month</th>
+                  <th class='g-axis' scope='col'>Jan 2026</th>
+                  <th class='g-axis' scope='col'>Feb 2026</th>
+                  <th class='g-axis' scope='col'>Mar 2026</th>
+                  <th class='g-axis' scope='col'>Apr 2026</th>
+                  <th class='g-axis' scope='col'>May 2026</th>
+                  <th class='g-axis' scope='col'>Jun 2026</th>
+                  <th class='g-axis' scope='col'>Jul 2026</th>
+                  <th class='g-axis' scope='col'>Aug 2026</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><th class='g-label' scope='row'>Plan</th><td class='g-val'>20</td><td class='g-val'>25</td><td class='g-val'>30</td><td class='g-val'>35</td><td class='g-val'>40</td><td class='g-val'>40</td><td class='g-val'>40</td><td class='g-val'>40</td></tr>
+                <tr><th class='g-label' scope='row'>Forecast</th><td class='g-val'>16</td><td class='g-val'>22</td><td class='g-val'>26</td><td class='g-val'>30</td><td class='g-val'>34</td><td class='g-val'>34</td><td class='g-val'>36</td><td class='g-val'>34</td></tr>
+                <tr><th class='g-label' scope='row'>Actual First</th><td class='g-val'>8</td><td class='g-val'>12</td><td class='g-val'>16</td><td class='g-val'>20</td><td class='g-val'>24</td><td class='g-val'>26</td><td class='g-val'>26</td><td class='g-val'>26</td></tr>
+                <tr><th class='g-label' scope='row'>Actual Resub</th><td class='g-val'>2</td><td class='g-val'>3</td><td class='g-val'>4</td><td class='g-val'>5</td><td class='g-val'>6</td><td class='g-val'>6</td><td class='g-val'>6</td><td class='g-val'>6</td></tr>
+                <tr><th class='g-label' scope='row'>Cum. Plan</th><td class='g-val'>20</td><td class='g-val'>45</td><td class='g-val'>75</td><td class='g-val'>110</td><td class='g-val'>150</td><td class='g-val'>190</td><td class='g-val'>230</td><td class='g-val'>270</td></tr>
+                <tr><th class='g-label' scope='row'>Cum. Forecast</th><td class='g-val'>16</td><td class='g-val'>38</td><td class='g-val'>64</td><td class='g-val'>94</td><td class='g-val'>128</td><td class='g-val'>162</td><td class='g-val'>198</td><td class='g-val'>232</td></tr>
+                <tr><th class='g-label' scope='row'>Actual Sum</th><td class='g-val'>10</td><td class='g-val'>25</td><td class='g-val'>45</td><td class='g-val'>70</td><td class='g-val'>100</td><td class='g-val'>132</td><td class='g-val'>164</td><td class='g-val'>196</td></tr>
+                <tr><th class='g-label' scope='row'>Gap vs Plan</th><td class='g-val neg'>-10</td><td class='g-val neg'>-20</td><td class='g-val neg'>-30</td><td class='g-val neg'>-40</td><td class='g-val neg'>-50</td><td class='g-val neg'>-58</td><td class='g-val neg'>-66</td><td class='g-val neg'>-74</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <span class='panel-number'>Panel 1</span>
+    </div>
+  </section>
+
+  <section class='meta-card' aria-labelledby='notesTitle'>
+    <h2 id='notesTitle'>Review notes</h2>
+    <ul class='notes-list'>
+      <li>The page shows five border boxes. The current UI spec allows two border boxes.</li>
+      <li>Review colors identify each owner. The one-token view shows one common border token.</li>
+      <li>The one-token view uses CSS <code class='inline'>:has()</code>. If the browser does not support it, the review-color view stays active.</li>
+      <li>The table stays attached to the plot bottom. No CSS <code class='inline'>position: sticky</code> is used.</li>
+      <li>The plot border and the table border meet at the attached edge. A production standard needs a geometry decision for shared edges.</li>
+      <li>Shared corners between borders 3, 4 and 5 use right angles. Outer corners keep the 10 px radius.</li>
+      <li>The table is a native <code class='inline'>&lt;table&gt;</code> with <code class='inline'>&lt;caption&gt;</code>, <code class='inline'>&lt;colgroup&gt;</code>, <code class='inline'>&lt;thead&gt;</code>, <code class='inline'>&lt;tbody&gt;</code> and <code class='inline'>scope</code>. No ARIA table roles and no <code class='inline'>display:contents</code> are used.</li>
+      <li>The SVG uses <code class='inline'>preserveAspectRatio='none'</code>. The grid has no padding or border. The plot and table use <code class='inline'>--bw:1px</code>. Each SVG month band aligns with one table month column.</li>
+      <li>The <code class='inline'>.c1-grid</code> inherits <code class='inline'>--c1-gutter</code> and <code class='inline'>--c1-cols</code> from <code class='inline'>:root</code>. No self-referencing custom property remains.</li>
+      <li>Control borders, meta-card borders and owner circles are review aids. They are not part of the five proposed borders.</li>
+      <li>No spec, engine, standalone dashboard, test, harness, workplan, log or existing sample file changed.</li>
+      <li>A later spec change needs separate approval. This page gives no approval.</li>
+      <li>Rollback: delete <code class='inline'>sub/sample-c1-border-standard.html</code>. No other file needs a change.</li>
+    </ul>
+  </section>
+
+  <section class='meta-card' aria-labelledby='questionsTitle'>
+    <h2 id='questionsTitle'>Review questions</h2>
+    <table class='notes-table'>
+      <thead><tr><th>Question</th><th>Options shown on this page</th></tr></thead>
+      <tbody>
+        <tr><td>Keep two borders or move to five borders?</td><td>Current spec: two. This sample: five.</td></tr>
+        <tr><td>Use one token or distinct owner colors?</td><td>Use the mode switch to compare both.</td></tr>
+        <tr><td>Share the plot / table edge or keep two full borders?</td><td>This sample keeps two full borders that meet at one edge.</td></tr>
+        <tr><td>Do table columns align with chart months?</td><td>Yes. The grid has no padding or border. The plot and table use the same 1 px border width.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <p class='footer'>Open this file in a browser. Use the mode switch to compare the two views. This is a review sample only.</p>
+</main>
+</body>
+</html>

@@ -1,3 +1,6 @@
+// Revision 0.18 | 2026-11-12 | CodeBuddy (AI) | §7.1 rev 1.71 / I128 — ONE universal button-height standard. The C1 preset group now emits the standard `.seg` markup without the former `seg-compact` class, so all segmented groups use the shared 32 px height and 12 px / 600 typography from the new `--btn-h` token. Every `data-*` attribute, event handler, state key and repaint path is unchanged; no selection logic, chart, axis or export behaviour changes.
+// Revision 0.17 | 2026-11-11 | CodeBuddy (AI) | §7.5 B2.1 rev 1.69 / I125 — ALL seven `.seg-btn` generators now emit the common markup: a real `<button type="button">` with a dynamic `aria-pressed` that mirrors `.active`, inside a `.seg` group that carries `role="group"` and an accessible name. The C1 preset group gains the SHARED `seg-compact` class, so its compact dimensions come from ONE common CSS variant instead of a panel-scoped rule. Every `data-*` attribute, event handler, state key and repaint path is unchanged; no selection logic, chart, axis or export behaviour changes.
+// Revision 0.16 | 2026-11-09 | CodeBuddy (AI) | §4.2 rev 1.68 / I124 — the C1 grain group (Month / Quarter / Year) now emits `type="button"` and a dynamic `aria-pressed` that mirrors `.active`, so its markup matches the preset chips. Scope is grain ONLY: the five other `.seg-btn` generators (C2 / C3 / C4 / Validation) keep their markup. CSS hover and focus tokens are shared at the base `.seg-btn` level, so those groups gain the same visual states without a markup change. No state, axis, export or event-handler behaviour changes.
 // Revision 0.15 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.67 / I122 — preset chips now form ONE joined `.seg` group of `.seg-btn` buttons. The active state comes from the stored `st.c1Preset` value, NOT from comparing `[from, to]` with each preset's range; clipped preset ranges therefore cannot light two chips at once. `undefined` means the default `All` selection, `null` means a manual custom range with NO active chip, and any of the five preset names means exactly that ONE active chip. The group keeps `data-c1preset`, `aria-pressed`, `aria-label`, the client payloads and `c1PresetRange()` unchanged, so `state.c1Period`, windowed `pts`, the rev 1.65 shared Y axis and every export path keep their behaviour.
 // Revision 0.14 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.66 / I121 — the C1 period control is now ONE dual-handle track. `c1Controls()` emits two overlaid native `<input type="range" step="1">` elements on one shared visual track, one tick per reporting month, five preset chips and a live period text. `c1PresetRange()` is exported for the client and the render suite: 6M / 12M / 24M anchor to the current `to` index, YTD runs from January of the as-of year through the as-of month, and All spans every month. The `data-c1period="from" / "to"` attributes, `state.c1Period`, the windowed `pts` payload, the rev 1.65 shared Y axis and every other control are unchanged.
 // Revision 0.13 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.65 / I119 — the shared C1 Y-axis maximum now comes from the WINDOWED `pts` payload, filtered by enabled series and the Bars toggle, instead of the full c1.* arrays. Cumulative values stay ABSOLUTE (never rebased); only the scale adapts. `niceAxisTicks()`, the 300-unit plot height and all rev 1.64 limits are unchanged. Period, series, Bars and grain changes all repaint, so the axis is recalculated immediately with no animation or debounce; `data-c1meta` keeps the same keys, so `c1Refit`, hover, the table, PNG and Copy all follow the new scale. No separate bar scale is introduced.
@@ -792,7 +795,7 @@ export function renderDashboard(doc, model, state = {}) {
     const all = ['plan', 'forecast', 'actualFirst', 'actualResub'];
     const period = st.c1Period instanceof Array && st.c1Period.length === 2 ? st.c1Period : [0, c1.months.length - 1];
     const n = c1.months.length;
-    const seg = g => `<button class="seg-btn${grain === g ? ' active' : ''}" data-c1grain="${g}">${g === 'month' ? 'Month' : g === 'quarter' ? 'Quarter' : 'Year'}</button>`;
+    const seg = g => `<button type="button" class="seg-btn${grain === g ? ' active' : ''}" data-c1grain="${g}" aria-pressed="${grain === g}">${g === 'month' ? 'Month' : g === 'quarter' ? 'Quarter' : 'Year'}</button>`;
     const sItems = all.map(v => `<label class="tf-item"><input type="checkbox" data-c1series="${v}"${series.has(v) ? ' checked' : ''}><span>${v === 'plan' ? 'Plan' : v === 'forecast' ? 'Forecast' : v === 'actualFirst' ? 'Actual First' : 'Actual Resub'}</span></label>`).join('');
     const masterChecked = series.size >= all.length ? ' checked' : '';
     const cnt = (series.size > 0 && series.size < all.length) ? String(series.size) : '';
@@ -1023,12 +1026,12 @@ export function renderDashboard(doc, model, state = {}) {
   };
   const c3DimSeg = st => {
     const dim = st.c3Dim === 'submitter' ? 'submitter' : 'discipline';
-    const seg = key => `<button class="seg-btn${dim === key ? ' active' : ''}" data-c3dim="${key}">${key === 'discipline' ? 'Discipline' : 'Submitter'}</button>`;
+    const seg = key => `<button type="button" class="seg-btn${dim === key ? ' active' : ''}" data-c3dim="${key}" aria-pressed="${dim === key}">${key === 'discipline' ? 'Discipline' : 'Submitter'}</button>`;
     return `<div class="seg" role="group" aria-label="Break down by">${seg('discipline')}${seg('submitter')}</div>`;
   };
   const c3ViewSeg = st => {
     const mode = st.c3View === 'pie' ? 'pie' : 'bar';
-    const seg = key => `<button class="seg-btn${mode === key ? ' active' : ''}" data-c3view="${key}">${key === 'bar' ? 'Bar' : 'Pie'}</button>`;
+    const seg = key => `<button type="button" class="seg-btn${mode === key ? ' active' : ''}" data-c3view="${key}" aria-pressed="${mode === key}">${key === 'bar' ? 'Bar' : 'Pie'}</button>`;
     return `<div class="seg" role="group" aria-label="Chart view">${seg('bar')}${seg('pie')}</div>`;
   };
   // Per-card actions only (PNG / Copy). The Month and Break-down-by controls are shared at the panel
@@ -1271,7 +1274,7 @@ export function renderDashboard(doc, model, state = {}) {
   const c2Controls = (st) => {
     const view = st.c2View || 'stacked';
     const includeNfs = st.c2Nfs !== false;
-    const seg = v => `<button class="seg-btn${view === v ? ' active' : ''}" data-c2view="${v}">${v === 'stacked' ? 'Stacked' : v === 'delay' ? 'Delay' : 'Funnel'}</button>`;
+    const seg = v => `<button type="button" class="seg-btn${view === v ? ' active' : ''}" data-c2view="${v}" aria-pressed="${view === v}">${v === 'stacked' ? 'Stacked' : v === 'delay' ? 'Delay' : 'Funnel'}</button>`;
     return `<div class="c2-controls"><div class="controls-left"><div class="seg" role="group" aria-label="C2 view">${seg('stacked')}${seg('delay')}${seg('funnel')}</div><button class="btn-secondary${includeNfs ? ' on' : ''}" data-c2nfs aria-pressed="${includeNfs}">Include NFS</button></div><div class="controls-right"><button class="btn-secondary" data-c2png>⤓ PNG</button><button class="btn-secondary" data-c2copy>⧉ Copy</button></div></div>`;
   };
   const c2StackedSVG = (c2, st) => {
@@ -1583,10 +1586,11 @@ export function renderDashboard(doc, model, state = {}) {
       tableRows.set(key, { headers, rows: data, indexes, windowed: false });
       return `<div class="ds-split splitcard" style="--pin-first-col:150px">${frag}<div class="tableScroll"><table class="ds-table" data-table-key="${key}" data-column-count="${headers.length}"><colgroup>${colgroup}</colgroup>${body}</table></div></div>`;
     };
-    const seg = (cur, items, attr) => `<div class="seg">${items.map(([v, l]) => `<button class="seg-btn${cur === v ? ' active' : ''}" data-${attr}="${v}">${l}</button>`).join('')}</div>`;
-    const viewSeg = seg(viewKey, [['lookahead', 'Look-Ahead'], ['overdue', 'Overdue'], ['coverage', 'Coverage']], 'fo-view');
-    const laneSeg = seg(lane, [['all', 'All'], ['first', 'First submit'], ['resubmit', 'Resubmit'], ['return', 'Return']], 'fo-lane');
-    const horizonSeg = seg(String(horizon), [['1', '1 wk'], ['2', '2 wks'], ['3', '3 wks'], ['4', '4 wks']], 'fo-horizon');
+    // §7.5 B2.1 rev 1.69 — common markup, dynamic `aria-pressed` and an accessible group name.
+    const seg = (cur, items, attr, label) => `<div class="seg" role="group" aria-label="${label}">${items.map(([v, l]) => `<button type="button" class="seg-btn${cur === v ? ' active' : ''}" data-${attr}="${v}" aria-pressed="${cur === v}">${l}</button>`).join('')}</div>`;
+    const viewSeg = seg(viewKey, [['lookahead', 'Look-Ahead'], ['overdue', 'Overdue'], ['coverage', 'Coverage']], 'fo-view', 'Forward and Overdue view');
+    const laneSeg = seg(lane, [['all', 'All'], ['first', 'First submit'], ['resubmit', 'Resubmit'], ['return', 'Return']], 'fo-lane', 'Submission lane filter');
+    const horizonSeg = seg(String(horizon), [['1', '1 wk'], ['2', '2 wks'], ['3', '3 wks'], ['4', '4 wks']], 'fo-horizon', 'Look-ahead horizon in weeks');
     const csvBtn = key => `<button class="csv-btn btn-secondary" data-export-table="${key}">⤓ CSV</button>`;
     let summary, tableHtml, right;
     if (viewKey === 'lookahead') {
@@ -1620,7 +1624,7 @@ export function renderDashboard(doc, model, state = {}) {
     // C4 — Scatter (turnaround x delay) <-> Age buckets (open SUR by days past target).
     const c4ViewSeg = st => {
       const mode = st.c4View === 'buckets' ? 'buckets' : 'scatter';
-      const seg = key => `<button class="seg-btn${mode === key ? ' active' : ''}" data-c4view="${key}">${key === 'scatter' ? 'Scatter' : 'Age buckets'}</button>`;
+      const seg = key => `<button type="button" class="seg-btn${mode === key ? ' active' : ''}" data-c4view="${key}" aria-pressed="${mode === key}">${key === 'scatter' ? 'Scatter' : 'Age buckets'}</button>`;
       return `<div class="seg" role="group" aria-label="C4 view">${seg('scatter')}${seg('buckets')}</div>`;
     };
     const ld = view.kpis.longDue;

@@ -1,5 +1,8 @@
 <!doctype html>
-<!-- Review sample — C1 Schedule Performance, OPTION B (adopted — §4.2 rev 1.63; Y ticks rev 1.64 / 1.65; time bar rev 1.66).
+<!-- Review sample — C1 Schedule Performance, OPTION B (adopted — §4.2 rev 1.63; Y ticks rev 1.64 / 1.65; time bar rev 1.66; button heights rev 1.71).
+     Revision 0.9 | 2026-11-12 | CodeBuddy (AI) | §7.1 rev 1.71 / I128 — REVIEW SAMPLE synced with the engine's universal button-height standard. The sample now uses the shared standard segmented group for the five presets, with the same 32 px height and 12 px / 600 typography as the engine. The former `seg-compact` class and `--seg-compact-*` tokens are removed. Standalone review artefact: no engine change, no workbook load, no build run, no test impact. `sample-c1-table-option-a.html` stays unchanged as the historical baseline.
+     Revision 0.8 | 2026-11-11 | CodeBuddy (AI) | §7.5 B2.1 rev 1.69 / I125 — REVIEW SAMPLE synced with the engine's authoritative common standard. The sample carries the same `--seg-*` custom-property token set, `standard` 32 px / 12 px sizing, `--navy` active fill, `--surface2` inactive hover, `--surface3` pressed, disabled and active-hover states, the high-contrast white focus ring on an active button, and the shared `.seg-compact` variant class for the five presets. The old panel-scoped `.c1-ts-chips .seg-btn` sizing rule is replaced by that shared class. The sample has no grain, C2, C3, C4 or Forward and Overdue groups, so no other markup change applies. Standalone review artefact: no engine change, no workbook load, no build run, no test impact. `sample-c1-table-option-a.html` stays unchanged as the historical baseline.
+     Revision 0.7 | 2026-11-09 | CodeBuddy (AI) | §4.2 rev 1.68 / I124 — REVIEW SAMPLE synced with the engine's shared base tokens. `.seg-btn:not(.active):hover` uses `--surface2` / `--blue`, and `.seg-btn:focus-visible` is a BASE rule (the scoped `.c1-ts-chips .seg-btn:focus-visible` copy is removed). `.c1-ts-chips .seg-btn{padding:5px 8px;font-size:11px}` stays as an EXPLICIT 1280 px layout exception. The sample has no grain group, so no grain markup change applies. Standalone review artefact: no engine change, no workbook load, no build run, no test impact. `sample-c1-table-option-a.html` stays unchanged as the historical baseline.
      Revision 0.6 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.67 / I122 — REVIEW SAMPLE updated with the approved fixes. The five presets are ONE joined `.seg` group of `.seg-btn` buttons using the Sub `.seg-btn.active` / `--blue` token. `state.preset` stores the single selection (`All` at load, `null` after a manual handle drag), so clipped ranges can never light two chips. `.c1-ts` is `flex-wrap:nowrap` down to the 1280 px desktop minimum and wraps only below it. Standalone review artefact: no engine change, no workbook load, no build run, no test impact. `sample-c1-table-option-a.html` stays unchanged as the historical baseline.
      Revision 0.5 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.66 / I121 — REVIEW SAMPLE for the C1 time-bar redesign. One dual-handle track (two overlaid native step=1 range inputs), one subtle tick per reporting month, five left-aligned preset chips (6M / 12M / 24M / YTD / All), hard integer snapping, month-formatted aria-valuetext, live `input` visuals with the full repaint reserved for `change`, and print-hidden controls. Standalone review artefact: no engine change, no workbook load, no build run, no test impact.
      Revision 0.4 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.65 / I119: documentation only. This
@@ -50,6 +53,14 @@
   --warn-bg:#FFF4D6; --warn-border:#E8C766; --proto-bg:#EEF3FF; --proto-border:#9DB8F0;
   --shadow:0 1px 2px rgba(16,32,64,.04),0 8px 24px rgba(16,32,64,.05);
   --font-ui:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  /* §7.5 B2.1 rev 1.69 — ONE shared segmented-control token set, identical to the engine. */
+  --seg-h:32px; --seg-pad-y:6px; --seg-pad-x:10px;
+  --seg-fs:12px; --seg-fw:600; --seg-lh:1.2;
+  --seg-active-bg:var(--navy); --seg-active-fg:#fff;
+  --seg-hover-bg:var(--surface2); --seg-hover-fg:var(--blue);
+  --seg-pressed-bg:var(--surface3);
+  --seg-focus:var(--blue); --seg-focus-on-active:#fff;
+  --seg-disabled-opacity:.5;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 var(--font-ui);padding:24px}
@@ -103,13 +114,18 @@ h1{font-size:18px;margin:0 0 4px}
 .c1-ts-input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .c1-ts-input-from{z-index:3}
 .c1-ts-input-to{z-index:4}
-/* §4.2 rev 1.67 — ONE joined segmented control, single-select, Sub `.seg-btn.active` token. */
-.seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
-.seg-btn{border:0;background:transparent;color:var(--text2);padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer}
-.seg-btn.active{background:var(--blue);color:#fff}
+/* §7.5 B2.1 rev 1.69 — authoritative common standard, identical to `sub/engine/dashboard.css`. */
+.seg{display:inline-flex;align-items:stretch;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.seg-btn{display:inline-flex;align-items:center;justify-content:center;border:0;background:transparent;color:var(--text2);min-height:var(--seg-h);padding:var(--seg-pad-y) var(--seg-pad-x);font-size:var(--seg-fs);font-weight:var(--seg-fw);line-height:var(--seg-lh);cursor:pointer}
+.seg-btn.active{background:var(--seg-active-bg);color:var(--seg-active-fg)}
+.seg-btn:not(.active):not(:disabled):hover{background:var(--seg-hover-bg);color:var(--seg-hover-fg)}
+.seg-btn.active:hover{background:var(--seg-active-bg);color:var(--seg-active-fg)}
+.seg-btn:not(:disabled):active:not(.active){background:var(--seg-pressed-bg);color:var(--text)}
+.seg-btn:focus-visible{outline:2px solid var(--seg-focus);outline-offset:-2px}
+.seg-btn.active:focus-visible{outline-color:var(--seg-focus-on-active)}
+.seg-btn:disabled{opacity:var(--seg-disabled-opacity);cursor:not-allowed;pointer-events:none}
 .c1-ts-chips.seg{flex-shrink:0;flex-wrap:nowrap}
-.c1-ts-chips .seg-btn{padding:5px 8px;font-size:11px}
-.c1-ts-chips .seg-btn:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+/* §7.1 rev 1.71 — the compact variant is retired; the presets use the shared standard height. */
 .icon-btn:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
 @media(max-width:1279px){.c1-ts{flex-wrap:wrap}.c1-ts-body{flex-basis:260px;min-width:190px}}
 @media(max-width:760px){.c1-ts-body{flex-basis:100%;max-width:none}.c1-ts-year{display:none}}

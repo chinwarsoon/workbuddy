@@ -2,6 +2,10 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.71 | 2026-11-12 | CodeBuddy (AI) | **§7.1 gained a universal button-height standard** (owner decisions of 2026-11-12; `I128`). Every text-bearing button — primary, secondary and text actions, filter triggers, segmented buttons, column-visibility controls, pagination buttons and other visible text buttons — MUST share ONE `min-height:32px` token. Icon-only buttons, including the B4 drill control, stay 26 px square; the drill cell keeps its 32 px width by moving to 3 px side padding. §7.5 B2.1 now has ONE segmented variant; the former Sub C1 `compact` preset deviation is retired, and `--seg-h` derives from the universal `--btn-h` token. Historical rows 1.60–1.70 are preserved verbatim. |
+| 1.70 | 2026-11-12 | CodeBuddy (AI) | §4.2 gained a universal **bordered chart composition** clause. A chart board MAY be subdivided into axis, plot and attached-table zones. The alignment grid stays borderless. Adjacent zones share edges; shared corners use `border-radius:0`; non-shared corners use `border-radius:10px`. No additional wrapper surrounds the whole composition. Class names are implementation-specific. §8.2 assertion 21 and both byte-identical spec copies are updated. The sample page, engine, standalone dashboard, tests, harness, workplan and logs stay unchanged. Historical rows 1.60–1.69 are preserved verbatim. |
+| 1.69 | 2026-11-11 | CodeBuddy (AI) | **§7.5 B2.1 is now the authoritative segmented-control standard** (owner decisions Q01–Q10 of 2026-11-09 / 2026-11-11; `I123` resolved, `I125`). §7.5 B2.1 defines ONE common set of CSS custom-property tokens, two approved variants (`standard` 32 px / 12 px and the C1 `compact` exception at ≈ 26 px / 11 px with `padding:5px 8px`), six interaction states (default, active, hover, focus-visible, pressed, disabled), common HTML / ARIA (`type="button"`, a dynamic `aria-pressed`, `role="group"` and an accessible name on EVERY group), equal height within one group with centre alignment between groups, and a precedence rule: an explicitly approved panel-specific requirement overrides a common B2.1 default. B2 now mandates `--navy` as the active fill and `--surface2` as the inactive hover fill for every segmented control, so the former `--blue` hover / `.on` / `--navy` conflict between §7.5 B2 and §4.2 rev 1.68 is REMOVED. The active-state focus ring uses a high-contrast light colour, because `--blue` on `--navy` measures only 2.89:1, below the 3:1 non-text contrast target. No 44 × 44 px touch rule is added: the dashboards stay desktop-first at the 1280 px minimum and a separate `@media (pointer: coarse)` variant is deferred. ALL seven `.seg-btn` generators in the Sub dashboard now emit the common markup: the two C1 groups, the C2 / C3 / C4 groups and the three Forward and Overdue groups. Every `data-*` attribute, handler, state key and repaint path is unchanged. §4.2 rev 1.68's clause is reduced to the two C1-specific rules and points at §7.5 B2.1 for all common tokens. §8.2 assertion 21, both byte-identical spec copies, `SKILL.md`, `checks/sub.mjs`, `harness.mjs`, the render suite, the review sample, the workplan, `knowledge.json` and the three logs are updated. MDL / PPP hover and markup deviations are RECORDED, not changed, in the §7.5 B2.1 deviations list. A measured browser regression found that the shared `line-height:1.2` shrank the compact chips from 25.94 px to 23.19 px; a dedicated `--seg-compact-lh:1.45` token now restores the approved height. Historical rows 1.60–1.68 are preserved verbatim. |
+| 1.68 | 2026-11-09 | CodeBuddy (AI) | §4.2 gained a normative **shared segmented base-token** clause (rev 1.68, owner decision 2026-11-09, issue `I124`). A read-only token audit found that the C1 preset group and the Month / Quarter / Year grain group shared the `.seg` / `.seg-btn.active` / `--blue` colour tokens, but not the size, hover, focus or ARIA tokens: the presets had a scoped `.c1-ts-chips .seg-btn` override with `5px 8px` / `11px` plus its own `:focus-visible` rule, while the grain buttons had no `type="button"`, no `aria-pressed` and no focus rule; no `.seg-btn:hover` rule existed anywhere. **Fixes.** ALL `.seg-btn` buttons in the Sub dashboard MUST now share ONE base hover rule `.seg-btn:not(.active):hover{background:var(--surface2);color:var(--blue)}` and ONE base focus rule `.seg-btn:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}`. The `-2px` offset is required because `.seg` has `overflow:hidden`. The scoped `.c1-ts-chips .seg-btn:focus-visible` rule MUST be removed. `.c1-ts-chips .seg-btn{padding:5px 8px;font-size:11px}` MAY remain as an **explicit layout exception** so five presets fit ONE row at the 1280 px minimum; it MUST NOT carry a hover or focus rule. Owner decision: soft `--surface2` hover, **NOT** §7.5 B2's literal `--blue` hover, because Sub uses `--blue` for the active state and `I123` (B2 `.on` / `--navy` alignment) stays `DEFERRED_STUDY`. **This revision does NOT claim literal B2 compliance.** The C1 grain group MUST emit `type="button"` and a dynamic `aria-pressed` that mirrors `.active`. Scope is grain ONLY: the five other `.seg-btn` generators (C2 / C3 / C4 / Validation) keep their markup, but inherit the base hover and focus rules. §8.2 assertion 21, `harness-layout/SKILL.md` rev 1.11, `checks/sub.mjs` rev 1.14, `harness.mjs` rev 1.24, the render suite rev 0.17, the workplan gate, the review sample rev 0.7 and the logs now cite rev 1.68. `state.c1Period`, `c1PresetRange()`, windowed `pts`, absolute cumulative values, `niceAxisTicks()`, the rev 1.65 shared Y axis, PNG/Copy and every event handler are unchanged. Historical rows 1.60, 1.28, 1.64, 1.65, 1.66 and 1.67 are preserved verbatim. Both copies re-synced byte-identical. |
 | 1.67 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.66's **C1 preset chips** clause and **control-cluster row** clause are now normative (rev 1.67, C1 only, owner decision 2026-11-07, issue `I122`). Owner-reported defect: `12M` and `24M` showed as selected together, because rev 1.66 derived each chip's `aria-pressed` by comparing the current `[from, to]` with every preset's computed range; clipped ranges collide (with 31 months, anchors 0–11 produce 2 or 3 matches). Owner-reported defect: the tools below the panel title used two rows at 1280 px, because `.c1-ts{flex-wrap:wrap}` dropped the chips to a second line. **Fixes.** The five presets MUST now form ONE joined `.seg` group of `.seg-btn` buttons, using the existing Sub `.seg-btn.active` / `--blue` token for consistency. The selection MUST be stored as ONE preset name in view state, not derived from range equality. `undefined` gives the default `All` selection; `null` gives a manual custom range with NO active chip; any preset name gives exactly that ONE active chip. A handle `input` or `change` MUST set the selection to `null`. Clipped ranges MUST NOT light two chips. The `.seg` group keeps `data-c1preset`, `aria-pressed` and `aria-label`; `c1PresetRange()` keeps computing the period. `.c1-ts` MUST use `flex-wrap:nowrap` down to the 1280 px minimum desktop viewport width, with `flex-shrink:0` on the label, period text and chip group and only `.c1-ts-body` shrinking (basis 190 px, min-width 120 px). Below 1280 px the §3.4.1 wrap rule re-enables `flex-wrap:wrap`. Print MUST hide `.c1-ts-body` and `.c1-ts-chips.seg`. §8.2 assertion 21, `harness-layout/SKILL.md` rev 1.10, `checks/sub.mjs` rev 1.13, `harness.mjs` rev 1.23, the workplan gate, the render suite rev 0.16 and the review sample rev 0.6 now cite rev 1.67. The B2 token gap (§7.5 B2 says `.on` with `--navy`; Sub uses `.active` with `--blue`) is recorded as a SEPARATE deferred item (`I123`); this revision does NOT change other Sub segmented controls. `state.c1Period`, windowed `pts`, absolute cumulative values, `niceAxisTicks()`, the rev 1.65 shared Y axis, PNG/Copy and every other control are unchanged. Historical rows 1.60, 1.28, 1.64, 1.65 and 1.66 are preserved verbatim. Both copies re-synced byte-identical. |
 | 1.66 | 2026-11-07 | CodeBuddy (AI) | §4.2 gained a normative **C1 period time bar** clause (rev 1.66, C1 only, owner decision 2026-11-07, issue `I121`). The C1 period window MUST now be ONE dual-handle range track, not two separate From / To inputs: two overlaid native `<input type="range" step="1">` elements on one shared visual track, with `min="0"`, `max="N-1"` and the existing `data-c1period="from" / "to"` attributes. `step="1"` gives hard magnetic snapping to whole reporting-month indices, so fractional months are unreachable and the chart, the attached `<thead>` columns and `data-points` always rebuild from the same `N`. One subtle tick MUST be drawn per active reporting month (`data-c1month`), with pointer events disabled; January ticks MAY carry a year label, and active / near states MUST follow the selected window. Five preset chips `6M`, `12M`, `24M`, `YTD`, `All` MUST sit beside the track with `aria-pressed`; the three month presets anchor to the current `to` index, `YTD` spans January of the as-of year through the as-of month, and `All` spans the full range. A preset MUST set the same period state and use the same single full-repaint path as a handle change. An `input` event MUST update only the track visuals (fill, ticks, period text, `aria-valuetext`, chip state); the `change` event MUST perform the ONE full repaint, with no chart rebuild while dragging and no animation or debounce. Both inputs MUST keep `aria-label` and `aria-valuetext` and a visible focus outline, and one keyboard step MUST move one month. Print MUST hide the interactive track and chips but keep the period text. `state.c1Period`, the windowed `pts` payload, absolute cumulative values, the attached table, `niceAxisTicks()`, the rev 1.65 shared Y axis, PNG/Copy and every other control are unchanged; no second Y-axis or separate bar scale is introduced. §8.2 assertion 21, the harness C1 checks and the workplan gate now cite rev 1.66. Historical rows 1.60, 1.28, 1.64 and 1.65 are preserved verbatim. Both copies re-synced byte-identical. |
 | 1.65 | 2026-11-07 | CodeBuddy (AI) | §4.2 now states explicitly that the shared C1 Y-axis maximum is computed **over the selected period window** — from the windowed `data-points` payload (`pts`), filtered by the enabled series and the Bars toggle — and is recalculated on every relevant repaint (period, series, Bars, grain), immediately and with no animation or debounce. This makes explicit the visible-window requirement already present in the §4.2 shared-scale rule of 2026-10-13 and the VISIBLE wording of rev 1.64; it does not change `niceAxisTicks()`, the 300-unit plot height, the seven-interval / eight-label / ~40 px limits, or the one `data-c1meta` payload. Cumulative values MUST remain **absolute** and MUST NOT be rebased to the window; only the scale adapts, and chart, `line.sc-grid`, HTML axis labels, hover / refit metadata and PNG/Copy MUST all represent the same Y-axis scale after a period change. No second Y-axis or separate bar scale is introduced: the §4.2 scale-mode guardrail (`r = maxCum / maxBar > 10` → separate scales) remains a **documented requirement that is outstanding**, recorded as `I120` (`DEFERRED_STUDY`) for a future technical investigation. §8.2 assertion 21 and the Tier 5 gate now cite rev 1.65. Historical rows 1.60, 1.28 and 1.64 are preserved verbatim. Both copies re-synced byte-identical. Owner decision 2026-11-07; issue `I119`. |
@@ -916,6 +920,18 @@ a single shared time axis instead of two stacked charts:
     attached table, `niceAxisTicks()`, the rev 1.65 shared Y axis, hover / refit metadata,
     PNG/Copy, the grain toggle, Bars and series multi-select are unchanged. No second Y-axis
     or separate bar scale is introduced.
+- **C1 segmented control and layout (rev 1.71; normative).** Both C1 groups — the five period
+  presets and the Month / Quarter / Year grain group — MUST follow the common **§7.5 B2.1**
+  segmented-control standard for tokens, states, markup and accessibility. Only two
+  C1-specific rules remain here. (1) The five preset chips use the ONE standard variant: the
+  shared **32 px** text-button height and **12 px / 600** typography from §7.1 rev 1.71. The
+  former `compact` variant is retired and MUST NOT be used. (2) The stored single selection, the
+  dual-handle track, the one-row `flex-wrap:nowrap` cluster and the print rules from revs 1.66
+  and 1.67 are unchanged. An explicitly approved panel-specific requirement overrides a common
+  B2.1 default for that panel only; each such override MUST be recorded in the §7.5 B2.1
+  deviations list. This clause supersedes the token and markup-scope text of rev 1.68, whose
+  historical row is preserved verbatim. Rev 1.68's grain-only markup scope is RETIRED: all seven
+  generators now use the common markup.
 - These panels stay **full width** (`.card.full`) — one wide chart, not a 2-column grid.
 - **No nested chart title** when a panel holds a single chart: the panel's own `h2` is enough, so
   do not add an `h3` sub-title. The chart component nevertheless draws **its own chart-card board**
@@ -937,8 +953,14 @@ a single shared time axis instead of two stacked charts:
   - **Page and panel structure.** The page panel container is a CSS grid (§3.4, §4.7). The
     **Panel** is the atomic page unit (§4), and `activePanel()` supplies the edge, title row and
     Panel N number. A single-graph C1 panel has **no inner `.c-card`** (§4.1, I068). One
-    `.sc-board` carries the chart board border around the control cluster, the plot and the
-    attached table. No third bordered wrapper is permitted.
+    `.sc-board` carries the chart board border around the control cluster and the chart body.
+    No additional wrapper surrounds the whole composition.
+  - **Bordered chart composition (universal, rev 1.70).** Where a chart board uses bordered chart zones,
+    the standard composition is one borderless alignment grid plus bordered axis, plot and
+    attached-table zones. Each zone uses `1px solid var(--border)`. Adjacent zones share edges.
+    Shared corners between touching zones use `border-radius:0`; non-shared outer corners keep
+    `border-radius:10px`. No additional wrapper surrounds the whole composition. Class names are
+    implementation-specific; review colors are not part of the production standard.
   - **Grid contract.** One `.c1-grid` CSS grid is the alignment container. Define `--c1-gutter`
     (`104px`) and `--c1-cols` (`N`) once, and set
     `grid-template-columns:var(--c1-gutter) repeat(var(--c1-cols),minmax(0,1fr))`. Set
@@ -1175,9 +1197,9 @@ its own.
 ```css
 .expandable{cursor:pointer}
 .expandable:hover{background:var(--soft)}
-.ds-table .drill-cell{width:32px;text-align:center;padding:0 4px;overflow:hidden;text-overflow:clip}
+.ds-table .drill-cell{width:32px;text-align:center;padding:0 3px;overflow:hidden;text-overflow:clip}
 .drill-btn{appearance:none;border:0;background:transparent;color:var(--muted);
-  width:24px;height:24px;line-height:1;cursor:pointer;border-radius:4px}
+  width:26px;height:26px;min-height:26px;line-height:1;cursor:pointer;border-radius:4px}
 .drill-btn:hover{background:var(--soft);color:var(--navy)}
 .drill-btn:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
 .drill-chev{display:inline-block;transition:transform .12s;font-size:11px}
@@ -1470,12 +1492,19 @@ a dashboard MUST NOT add a separate theme system or a local dark-theme override.
 
 **Single standard — no per-dashboard button variations.** Every dashboard uses the *same* classes, sizes, colours and hover behaviour, and every action is a real `<button>` element (never a `<td>`/`<div>` with `role="button"`). Buttons fall into three families:
 
+**One text-button height (normative, rev 1.71).** Every text-bearing button MUST share ONE
+`min-height:32px` token. This covers A1 / A2 / A3 / A5, the B1 filter trigger, the B2 segmented
+button, the B7 column-visibility control, pagination buttons, and any other visible `<button>`
+that carries text. A dashboard MUST NOT introduce a shorter text-button variant. Icon-only
+buttons are the only smaller controls: A4 and B4 MUST be **26 px square**. A panel MAY change
+horizontal padding, font size or emphasis; it MUST NOT change the shared height.
+
 #### A. Action buttons
 | Type | Class | Use | Style |
 |---|---|---|---|
 | A1 Primary | `.btn` / `.btn-primary` | one main action per view highest-emphasis CTA — *Open / Load workbook* only; Print / Save / Export are **not** primary | `--blue` solid, white text, radius 6 px, min-height 32 px |
-| A2 Secondary / Ghost | `.btn.ghost` / `.btn-secondary` | low-emphasis alternative / cancel / dismiss; "Load another file" | white, 1px `--border`, **navy** text; hover → `--blue` fill, white text |
-| A3 Text action | `.btn-secondary` (glyph + label) | tool / footer-row actions: export, copy, CSV (e.g. `⤓ PNG`, `⧉ Copy`, `⤓ CSV`) | white, **navy** text, glyph + space + label; hover → `--blue` fill, white text |
+| A2 Secondary / Ghost | `.btn.ghost` / `.btn-secondary` | low-emphasis alternative / cancel / dismiss; "Load another file" | white, 1px `--border`, **navy** text; **32 px min-height**; hover → `--blue` fill, white text |
+| A3 Text action | `.btn-secondary` (glyph + label) | tool / footer-row actions: export, copy, CSV (e.g. `⤓ PNG`, `⧉ Copy`, `⤓ CSV`) | white, **navy** text, glyph + space + label; **32 px min-height**; hover → `--blue` fill, white text |
 | A4 Icon / Mini | `.icon-btn` | icon-only: Help `?`, Collapse `−`, Theme, modal close `✕` | `width:26px;height:26px;min-height:26px` — 26 px **square**; radius 6 px; 1px `--line`; `background:var(--surface)`; `color:var(--muted)`; `font:inherit`; **13 px** / 600; `line-height:1`; inline-flex centred. Hover → `--soft` background + `--navy` text. **Must carry `aria-label` + tooltip** |
 | A5 Search | `.search-btn` | search submit, affixed to the search input (right edge, single-side radius) | `--accent` fill, white glyph, radius `0 6px 6px 0`, attached to input |
 
@@ -1511,12 +1540,12 @@ shipped, and when it migrated are recorded in its own workplan — never here (�
 | Type | Class | Use | Style |
 |---|---|---|---|
 | B1 Filter trigger | `.tf-btn` | **MULTI-SELECT row filter** — opens a filter menu (Discipline / Stage / Category), distinct from the rows *inside* the menu. **Reserved for controls that narrow rows**; a show/hide-columns control MUST NOT use it (see B7) | text + count badge, radius 6 px, **borderless in the menu bar** — the base control carries 1 px `--border` and the menu-bar chrome strips it; **no caret glyph**; hover → `--soft`; selected → `.is-filtered`, whose visible cue is the count badge |
-| B2 Segmented | `.seg button` | single-select among 2–6 inline options (Bar/Pie, month horizon 1m–6m, overdue cases); active `.on` = **`--navy`** fill (a *selection* state, not an action) | joined group, 1px `--border`, radius 6 px, overflow hidden; inactive hover → `--blue` fill |
+| B2 Segmented | `.seg button` | single-select among 2–6 inline options (Bar/Pie, month horizon 1m–6m, overdue cases); active `.on` / `.active` = **`--navy`** fill (a *selection* state, not an action). **§7.5 B2.1 is the authoritative standard** | joined group, 1px `--border`, radius 6 px, overflow hidden; **32 px** standard visual height with 12 px / 600 text; inactive hover → `--surface2`; see §7.5 B2.1 for all other states and tokens |
 | B3 Filter rows | `.tf-all` + `.tf-item` | multi-select toggles *inside* the B1 filter menu — an `All <dimension>` master, then a hint, a divider, and the value rows | master 12 px / 700; rows 12 px; row hover → `--soft` |
-| B4 Drill / Expand | `.drill-btn` (an `.icon-btn` variant) | row drill-down / expand (`.expandable` row → `.sub` detail; `▸ stages`); the button carries `aria-expanded` + `aria-controls` | **must be a real `<button>`** — never a `<td>` or `<div>` with `role="button"`; may be icon or text + icon; the owning `.expandable` row is a pointer shortcut, not the control (§4.4) |
+| B4 Drill / Expand | `.drill-btn` (an `.icon-btn` variant) | row drill-down / expand (`.expandable` row → `.sub` detail; `▸ stages`); the button carries `aria-expanded` + `aria-controls` | **must be a real `<button>`** — never a `<td>` or `<div>` with `role="button"`; **26 px square** icon-only geometry (rev 1.71); may be icon or text + icon; the owning `.expandable` row is a pointer shortcut, not the control (§4.4) |
 | B5 Native single-select | `.inter-sel` | **SINGLE-SELECT picker** — breakdown dimension, month, type (chart group / matrix Month / Overdue Type); distinct from the multi-select `.tf-btn` filter (B1) and from the `.seg` segmented control (B2) | 12 px / 600, 1px `--border`, radius 8–9 px, white surface, `--ink` text; `:focus-visible` 2 px `--blue` ring; `max-width:260 px`; attached variant `.inter-sel.is-attached` (search-column picker: no own border, left-rounded, right divider) |
 | B6 Panel-local filter | `.inter-sel` in the panel's control cluster | a single-value filter that narrows **only the tables inside one panel** (e.g. the issue rule-code filter in the Validation / Issues panel). Resolved in **S5 Render**; it MUST NOT change KPIs, charts, the matrix or any other panel (§7.2.7 pt 6) | as B5 |
-| B7 Column-visibility control | own class (`.cc-btn`) | **show/hide columns — a *layout* control, not a filter.** It changes which columns are painted, never which rows are returned. MUST NOT reuse the B1 filter look, filter badge, or `[aria-expanded]` active-filter emphasis | own styling; MAY reuse the floating-panel shape, but without a count badge or active-filter emphasis |
+| B7 Column-visibility control | own class (`.cc-btn`) | **show/hide columns — a *layout* control, not a filter.** It changes which columns are painted, never which rows are returned. MUST NOT reuse the B1 filter look, filter badge, or `[aria-expanded]` active-filter emphasis | own styling; **32 px min-height** (rev 1.71); MAY reuse the floating-panel shape, but without a count badge or active-filter emphasis |
 
 **Multi-select vs single-select — the grammar (normative).** A filter's chrome is chosen by how many values the user may select at once, not by where the control sits:
 
@@ -1528,6 +1557,67 @@ shipped, and when it migrated are recorded in its own workplan — never here (�
 | Active-state cue | count badge on the trigger + `is-filtered` emphasis | the chosen value is visible in the control itself |
 
 A user must be able to tell, from the chrome alone, both (a) how many values the control accepts and (b) whether it filters **rows**. B7 exists so a layout control can never be mistaken for a row filter.
+
+#### B2.1 Segmented control standard (rev 1.71; normative)
+
+This subsection is the **authoritative** standard for every segmented control. A panel clause MAY
+override a value here only when the owner explicitly approves the override and records it in the
+deviations list at the end of this subsection. There is **no `compact` variant** at rev 1.71; the
+former Sub C1 preset exception was retired by the owner in favour of the universal §7.1 height.
+
+**Shared tokens (normative).** Define each size, typography and colour value ONCE as a CSS custom
+property in `:root`. Every colour value MUST reference a theme token, so all five themes resolve
+it at use time. Do not put a hard-coded hex value in a `.seg` rule. Required token groups:
+height, padding, font size, font weight, line height, active background / foreground, inactive
+hover background / foreground, pressed background, focus outline and disabled opacity. A generator
+MUST NOT declare its own dimensions. The segmented `--seg-h` token MUST derive from the universal
+`--btn-h` text-button token (§7.1 rev 1.71), so one owner change reaches every button family.
+
+**Variants (normative).** One variant is approved:
+
+| Variant | Group class | Visual height | Typography | Padding |
+|---|---|---|---|---|
+| `standard` | none | 32 px from `min-height` | 12 px / 600, `line-height:1.2` | the shared base padding token |
+
+No shorter segmented variant is approved. A panel MAY adjust horizontal padding only when the
+owner records it here, and it MUST NOT reduce the shared height or the 12 px / 600 typography.
+
+**Colour and states (normative).** The active fill is **`--navy`** with white text. The inactive
+hover fill is **`--surface2`** with `--blue` text. An active button MUST NOT change colour on
+hover, so the selection state stays stable. A pressed inactive button uses `--surface3`. Every
+button carries a `:focus-visible` outline of 2 px `--blue` with `outline-offset:-2px`, because
+`.seg` has `overflow:hidden`. On an active button the outline MUST use a high-contrast light
+colour: `--blue` on `--navy` measures 2.89:1, below the 3:1 non-text contrast target, while
+white on `--navy` measures 13.26:1. A disabled button carries the `disabled` attribute, keeps
+its `aria-pressed` value, receives no hover or pressed feedback, and is not focusable. Hover and
+pressed selectors MUST exclude `:disabled`.
+
+**Markup and accessibility (normative).** Every group MUST be a `.seg` element with
+`role="group"` and an `aria-label` or equivalent accessible name that describes the choice. Every
+button MUST be a real `<button type="button">` with a dynamic `aria-pressed` that mirrors its
+active class. B2's `.on` is the canonical active class name. The Sub dashboard's `.seg-btn.active`
+is an approved alias at rev 1.69, retained so no event handler or state key changes. All `data-*`
+attributes, handlers, state keys and repaint paths stay unchanged.
+
+**Dimensions and alignment (normative).** All buttons in ONE group MUST have equal height. Every
+group MUST use the shared 32 px height (§7.1 rev 1.71). Groups on one row MAY be centre-aligned by
+the row's `align-items:center`, but they MUST NOT differ in height. Visual size and interactive hit
+area are distinct: the button box is the hit area. No 44 × 44 px touch rule applies at rev 1.71,
+because the dashboards are desktop-first at a 1280 px minimum. If touch support is required later,
+add a `@media (pointer: coarse)` variant in a SEPARATE revision.
+
+**Precedence and deviations (normative).** An explicitly approved panel-specific requirement in
+§4.2 overrides a common B2.1 default for that panel only. Each override MUST be recorded here
+with its panel, requirement, owner decision and revision. Recorded deviations at rev 1.71:
+
+| Panel / dashboard | Deviation | Status |
+|---|---|---|
+| Sub C1 control row | ONE visual row at 1280 px (`flex-wrap:nowrap`) | Approved, §4.2 rev 1.67 |
+| MDL / PPP | Inactive hover `--blue` / `--accent`; no `type="button"` or `aria-pressed` | Recorded, NOT changed in rev 1.69. A cross-dashboard migration is a SEPARATE task. |
+
+The former Sub C1 `compact` preset deviation is **retired** at rev 1.71. Its chips use the shared
+32 px height and 12 px / 600 typography; the `seg-compact` class and `--seg-compact-*` tokens are
+no longer part of the standard.
 
 **Search panel composition (normative, rev 2026-11-01).** A dashboard whose menu bar offers Search
 MUST render its panel as **one row**: an attached column picker (**B5** `.inter-sel.is-attached`) on the
@@ -1601,7 +1691,8 @@ panel MUST also agree with the rows the dashboard paints.
 |---|---|---|---|
 | C1 Status pill | `.pill` | status / count badge — **not an action** | 10 px / 600, radius 999, semantic colour variant |
 
-- **Font:** 12–14 px / 600 (A4 icon buttons **13 px**).
+- **Font:** 12–14 px / 600 (A4 icon buttons **13 px**). The §7.5 B2.1 `compact` variant is the
+  only approved 11 px exception.
 - **Hover (A2 / A3):** `--blue` fill, white text — *not* a `--soft` tint.
 - **A1 Primary** keeps `--blue` (the *action* colour); the **B2 segmented active state** is `--navy` (a *selection* state) — different semantics, intentionally different colours.
 - **Modal is a container, not a button type:** its close `✕` = A4; its footer actions = A1 / A2 / A3.
@@ -1876,7 +1967,7 @@ hard-coded into the generic check.
 | 18 | The warning area is pinned below the menu bar, above the filter strip and outside the scrolling body; scrolling the panels does not move it, and it spans the content width without covering a sidebar | §3.5 |
 | 19 | Stacked top-level panels are separated by 14 px (container gap or panel margin, never both); borders never touch; hidden panels add no gap | §4.7 |
 | 20 | The search panel is one row: attached column picker (All columns plus each searchable column), flexible input, affixed submit; the picker re-applies the query and does not clear it | §7.1 B5 / A5 |
-| 21 | An S-curve attached table uses one `.c1-grid` with explicit `--c1-gutter` / `--c1-cols` tracks and `column-gap:0`, one `<svg role="img">` whose host carries a `ResizeObserver`, one native `<table>` in one spanning grid item with `<caption>` / `<colgroup>` / `<thead>` / `<tbody>` / `scope`, static and rebuilt cells with the same structure, no third bordered wrapper, and PNG/Copy that include the table; the SVG draws one vertical `sc-yaxis-line` at the plot's left edge, grid column 1 carries at most eight dynamically generated Y ticks (§4.2 rev 1.64: max 7 intervals, min ~40 px spacing, nice-number steps, one `line.sc-grid` per label, all derived from the same `data-c1meta.yMax` / `yStep` / `yIntervals` payload) and a rotated unit caption; after a period change the Y-axis maximum MUST be recomputed from the selected period window with cumulative values unchanged (§4.2 rev 1.65), and chart / grid / labels / hover-refit metadata / PNG-Copy MUST share that one Y-axis scale; the C1 period control is ONE dual-handle month-snapped track with one tick per active reporting month and the `6M` / `12M` / `24M` / `YTD` / `All` preset chips (§4.2 rev 1.66: `step="1"`, `input` visual-only, `change` single repaint, `aria-valuetext` / `aria-pressed`, print hides the interactive controls), and those five chips are ONE joined `.seg` group of `.seg-btn` buttons with EXACTLY one `aria-pressed="true"` at a time, a stored preset name (default `All`), NO active chip after a manual handle `input` / `change`, and the tools below the panel title stay on ONE visual row at the 1280 px minimum desktop width with `flex-wrap:nowrap` on `.c1-ts` (§4.2 rev 1.67); the in-SVG legend sits above the plot, the `<thead>` row is flush with the plot bottom (which is also the SVG bottom) with no separate SVG X labels, the whole curve fits the board with no horizontal scroll, and bar / dot / `data-points.cx` alignment holds after the period window changes; the SVG draws four tokenised `<linearGradient>` defs and `path.sc-area` fills plus one hidden `rect.sc-hover-band` behind all marks, every month `<th>` and value `<td>` carries `data-c1col`, hovering a month column in either direction activates the band / snap line / `.col-active` highlight, and the `.chart-tip` window opens only inside the SVG chart area and is `aria-hidden="true"` with empty text whenever hidden; `aria-describedby` points at `.chart-tip` only | §4.2, §4.6 |
+| 21 | An S-curve attached table uses one `.c1-grid` with explicit `--c1-gutter` / `--c1-cols` tracks and `column-gap:0`, one `<svg role="img">` whose host carries a `ResizeObserver`, one native `<table>` in one spanning grid item with `<caption>` / `<colgroup>` / `<thead>` / `<tbody>` / `scope`, static and rebuilt cells with the same structure, a bordered chart composition (axis / plot / table zones with shared right-angle corners and an unbordered alignment grid; rev 1.70), no third bordered wrapper, and PNG/Copy that include the table; the SVG draws one vertical `sc-yaxis-line` at the plot's left edge, grid column 1 carries at most eight dynamically generated Y ticks (§4.2 rev 1.64: max 7 intervals, min ~40 px spacing, nice-number steps, one `line.sc-grid` per label, all derived from the same `data-c1meta.yMax` / `yStep` / `yIntervals` payload) and a rotated unit caption; after a period change the Y-axis maximum MUST be recomputed from the selected period window with cumulative values unchanged (§4.2 rev 1.65), and chart / grid / labels / hover-refit metadata / PNG-Copy MUST share that one Y-axis scale; the C1 period control is ONE dual-handle month-snapped track with one tick per active reporting month and the `6M` / `12M` / `24M` / `YTD` / `All` preset chips (§4.2 rev 1.66: `step="1"`, `input` visual-only, `change` single repaint, `aria-valuetext` / `aria-pressed`, print hides the interactive controls), and those five chips are ONE joined `.seg` group of `.seg-btn` buttons with EXACTLY one `aria-pressed="true"` at a time, a stored preset name (default `All`), NO active chip after a manual handle `input` / `change`, and the tools below the panel title stay on ONE visual row at the 1280 px minimum desktop width with `flex-wrap:nowrap` on `.c1-ts` (§4.2 rev 1.67); every Sub `.seg-btn` follows the §7.5 B2.1 common standard — shared CSS custom-property tokens, `--navy` active fill, `--surface2` inactive hover, `--surface3` pressed, a disabled state, a 2 px `--blue` focus ring with `outline-offset:-2px` plus a high-contrast light ring on active buttons, `type="button"` and a dynamic `aria-pressed` on ALL seven generators, `role="group"` and an accessible name on every group, equal height within each group and centre alignment between groups, the `standard` 32 px / 12 px variant and the C1 `compact` exception at ≈ 25.94 px / 11 px / `line-height:1.45` / `padding:5px 8px` with `min-height:0` and no hover or focus rule of its own (§4.2 rev 1.69 / §7.5 B2.1); the in-SVG legend sits above the plot, the `<thead>` row is flush with the plot bottom (which is also the SVG bottom) with no separate SVG X labels, the whole curve fits the board with no horizontal scroll, and bar / dot / `data-points.cx` alignment holds after the period window changes; the SVG draws four tokenised `<linearGradient>` defs and `path.sc-area` fills plus one hidden `rect.sc-hover-band` behind all marks, every month `<th>` and value `<td>` carries `data-c1col`, hovering a month column in either direction activates the band / snap line / `.col-active` highlight, and the `.chart-tip` window opens only inside the SVG chart area and is `aria-hidden="true"` with empty text whenever hidden; `aria-describedby` points at `.chart-tip` only | §4.2, §4.6 |
 
 ### 8.3 Pipeline testability
 

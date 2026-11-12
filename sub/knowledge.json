@@ -2,8 +2,8 @@
   "project_metadata": {
     "name": "TWRP C3B2 — Document Submittal Log Interactive Dashboard",
     "abbreviation": "SUB",
-    "version": "2.26.0",
-    "date": "2026-11-06",
+    "version": "2.30.0",
+    "date": "2026-11-12",
     "description": "Browser dashboard for planned documents and submission history.",
     "purpose": "Show document scope, submission status, review delay, approval outcomes, and coverage from the project MDL and Document Submittal Log workbooks."
   },
@@ -256,6 +256,30 @@
     }
   ],
   "revisionHistory": [
+    {
+      "revision": "2.30",
+      "date": "2026-11-12",
+      "author": "CodeBuddy (AI)",
+      "summary": "I128 implemented the universal button-height standard from §7.1 rev 1.71 and closed I126. dashboard.css rev 2.14 adds --btn-h:32px and --icon-btn-h:26px, applies min-height:var(--btn-h) to every text-bearing button family, applies the 26 px square to .icon-btn and .drill-btn, and retires the C1 seg-compact variant. render.js rev 0.18 removes the compact class from the C1 preset group. sample-c1-table.html rev 0.9 removes the same compact class and tokens from the review sample. render.test.mjs rev 0.20 asserts the tokens and height rules. harness-layout/harness.mjs rev 1.27 adds lintButtonHeights() and checks/sub.mjs rev 1.16 adds c1.buttonHeights. Both UI-spec copies are byte-identical at rev 1.71. Standalone HTML rebuilt to 381,549 bytes. Measured: pipeline 24/0, render 49/0, Tier 5 111/0/0/1. No data, handler, ARIA, export or repaint path changed. Records: workplan 3.03; issue log 1.24; update log 1.42 / U039; test log 1.37 / TEST-034."
+    },
+    {
+      "revision": "2.29",
+      "date": "2026-11-12",
+      "author": "CodeBuddy (AI)",
+      "summary": "I127 Tier 5 verification passed and the C1 bordered chart composition is closed. I started harness-layout/_serve_sub.mjs on 127.0.0.1:8765, ran node harness-layout/harness.mjs --dashboard sub --tier 5, and stopped the server. Result: 103 passed, 0 failed, 0 advisory, 1 skipped. The skip is the C3 chart because no C3 data was loaded. All four new C1 checks passed: borderless .c1-grid with three 1 px solid zone borders; shared Y-axis / plot / table edges touch; 10 px outer corners with square shared corners; border-collapse:separate with zero spacing. Existing C1 geometry, ticks, period control, print and §7.5 B2.1 segmented-control checks also passed. I127 is RESOLVED. No code, spec, harness, test or build file changed in this verification step. Records: workplan 3.02; issue log 1.23; update log 1.41 / U038; test log 1.36 / TEST-033."
+    },
+    {
+      "revision": "2.28",
+      "date": "2026-11-12",
+      "author": "CodeBuddy (AI)",
+      "summary": "UI spec §4.2 rev 1.70 / I127 — the production C1 panel now uses the universal bordered chart composition approved in the sample. dashboard.css rev 2.13 gives .c1-yaxis, .c1-plot and .c1-table a 1px solid var(--border) edge; .c1-grid stays borderless; shared corners are square (10px 0 0 0, 0 10px 0 0, 0 0 10px 10px) and non-shared outer corners keep 10 px. The table uses border-collapse:separate + border-spacing:0 + overflow:hidden, and thead th drops its top rule so the plot bottom is not doubled. No render.js or dashboard.js change was needed. render.test.mjs rev 0.19 adds one static CSS test; harness.mjs rev 1.26 adds four Tier 5 computed-style / shared-edge / radius / table-border checks. Standalone HTML rebuilt to 380,287 bytes. Measured: npm test passed; render TAP 49/49, 0 failures; rebuilt HTML carries the new rules and no old collapse / overflow:visible C1 rule; linter 0. Tier 5 remains pending because two browser-command confirmation prompts timed out with no response; I127 stays IN_PROGRESS and no browser result is claimed. Both spec copies were already rev 1.70 and did not change. Records: workplan 3.01 / gate row 16; issue log 1.22; update log 1.40 / U037; test log 1.35 / TEST-032; SKILL.md 1.13; harness update log U004."
+    },
+    {
+      "revision": "2.27",
+      "date": "2026-11-11",
+      "author": "CodeBuddy (AI)",
+      "summary": "UI spec §7.5 B2.1 rev 1.69 is now the authoritative segmented-control standard (I125; I123 resolved). Owner decisions Q01-Q10: --navy active fill, --surface2 inactive hover, 32 px standard height, the C1 compact exception kept at 25.94 px / 11 px / 5px 8px, desktop-first with a deferred touch variant, type=button + dynamic aria-pressed + accessible group names on ALL groups, equal height within a group with centre alignment between groups, approved panel overrides, CSS custom properties as token location, and all five legacy generators migrated to one shared standard / compact configuration. dashboard.css rev 2.12 adds the --seg-* custom-property token set in :root, min-height:var(--seg-h), --navy active, --surface2 hover, --surface3 pressed, disabled and active-hover states, a white focus ring on active buttons (--blue on --navy is 2.89:1) and the shared .seg-compact variant; the panel-scoped .c1-ts-chips .seg-btn sizing rule is removed. render.js rev 0.17 gives ALL SEVEN .seg-btn generators a real typed button, dynamic aria-pressed, role=group and an accessible name, including the three Forward and Overdue groups. dashboard.js is unchanged: no handler, state key or repaint path changes. A measured regression showed the shared line-height:1.2 shrank the compact chips to 23.19 px; --seg-compact-lh:1.45 restores the approved 25.94 px. Governance: both spec copies rev 1.69 byte-identical (215,010 bytes, SHA256 982F5EC40CD0067AA13058196DFBCCBDB6B4437FA7FA6B2E91B0A9DC917F40FB); SKILL.md rev 1.12; checks/sub.mjs rev 1.15; harness.mjs rev 1.25; render.test.mjs rev 0.18; sample-c1-table.html rev 0.8; workplan rev 2.99 + gate row 15 + the 59-item follow-up phase register; three logs; standalone HTML rebuilt to 380,007 bytes. Measured: npm test pipeline 24/0 and render 48/0; Tier 5 99 passed / 0 failed / 0 advisory / 1 skipped (+24); full Sub harness 2757 / 0 / 0 / 29 (+24); node --check clean; linter 0 diagnostics; both sample inline scripts parse; browser probe over three pages shows 9 .seg groups / 28 buttons, all typed and aria-pressed, 8 standard groups at 32 px, 1 compact at 25.94 px, active fill rgb(21, 49, 79). No assertion weakened or removed. MDL / PPP deviations recorded in §7.5 B2.1 but not changed. Records: workplan 2.99; issue log 1.19; update log 1.38 / U035; test log 1.33 / TEST-030."
+    },
     {
       "revision": "2.26",
       "date": "2026-11-06",

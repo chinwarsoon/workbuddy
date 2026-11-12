@@ -1,3 +1,6 @@
+// Revision 1.27 | 2026-11-12 | CodeBuddy (AI) | §7.1 rev 1.71 / I128 — Tier 5 gains `lintButtonHeights()`, a config-gated universal check that visits five pages and measures every visible text-bearing button at 32 px and every visible icon-only button at 26 px square. The segmented pass loses the retired `compact` bound and now requires every `.seg` group at the ONE standard height; the shared-height token check follows `--seg-h:var(--btn-h)`. No existing assertion was weakened.
+// Revision 1.25 | 2026-11-11 | CodeBuddy (AI) | §7.5 B2.1 rev 1.69 / I125 — the Tier 5 token check now reads the shared `--seg-*` custom properties and all six interaction states instead of literal `--surface2` / `--blue` rule text, so the tokens can live in `:root` without weakening the assertion. A new config-gated `lintSegmentedControls()` visits Overview, Forward and Overdue and Analytical and asserts common markup (`type="button"`, dynamic `aria-pressed`), accessible group names, one pressed button per group, equal height within a group, the 32 px `standard` height, the ≈ 26 px `compact` bound, and a `--navy` active fill on EVERY segmented group. It restores Overview at the end. The rev 1.67 single-select, one-row, windowed Y-axis, export and interaction checks are unchanged.
+// Revision 1.24 | 2026-11-09 | CodeBuddy (AI) | §4.2 rev 1.68 / I124 — the Tier 5 focus CSS check now looks for the SHARED base `.seg-btn:focus-visible` rule and the shared `.seg-btn:not(.active):hover` rule, and rejects the old scoped `.c1-ts-chips .seg-btn:focus-visible` rule. New checks measure the grain group: three buttons with `type="button"` and one dynamic `aria-pressed="true"`, plus computed inactive colours and focus outline tokens equal to the preset group. The compact padding / font-size override is verified as the ONLY remaining scoped `.c1-ts-chips .seg-btn` rule. Other dashboards keep their Tier 5 behaviour. One-line probe correction before sign-off: the `scopedRules` matcher allows the space that CSSOM `cssText` inserts before `{`; without it a correct compact rule counted as 0 and the check failed while every other field was true.
 // Revision 1.23 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.67 / I122 — Tier 5 `lintC1TimeBar()` now measures the STORED single selection, not a derived range match. New checks: ONE joined `.seg.c1-ts-chips` group of five `.seg-btn` buttons, EXACTLY one `aria-pressed="true"` and one `.active` at a time, NO active chip after a manual handle `input` / `change`, every preset still selects its whole-month window, and ONE visual control row at `oneRowWidth: 1280` with `flex-wrap:nowrap` on `.c1-ts`. The focus and print rules follow the new `.seg-btn` selectors. Other dashboards keep their Tier 5 behaviour.
 // Revision 1.22 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.66 / I121 — Tier 5 gained `lintC1TimeBar()`, a C1-only config-gated probe for the dual-handle period track: exactly one track with two native `step="1"` handles, whole-month values and bounds, one tick per reporting month with no pointer events, the five preset chips with `aria-pressed`, live `input` decoupling from the full `change` repaint, one-month keyboard steps, focus-visible CSS and print-hidden controls. Preset ranges and the shared Y-axis / table payload are measured in the browser. Other dashboards are unchanged.
 // Revision 1.21 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.65 / I119 — `measureC1Geometry` now measures the windowed peak and the absolute cumulative values from `data-points`; the four rev 1.64 tick assertions are shared by `assertC1Axis()` and re-run after a period change. `c1PickAxisProbe()` derives the probe window from the DATA (bounds-checked, grain-checked, peak-checked and expected-axis-checked) and returns a SKIP instead of a FAIL when no meaningful shorter window exists. New checks: axis recomputed from the period window, absolute cumulative values unchanged, and a harness-only fill threshold. Both spec copies re-synced byte-identical.
@@ -1469,7 +1472,7 @@ async function runTier4(page, cfg, workbookPath) {
   await lintTableChrome(page, cfg);
 }
 
-// ── Tier 5: C1 attached-table geometry (spec §4.2 rev 1.62 / 1.64 / §8.2 assertion 21) ──
+// ── Tier 5: C1 attached-table geometry (spec §4.2 rev 1.62 / 1.64 / 1.70 / §8.2 assertion 21) ──
 // The four owner-reported details are measured in the browser, not inferred from the
 // markup: (1) each bar lies wholly inside its month column and data-points.cx maps to
 // the month-header centres, at the default period AND after the From / To sliders move;
@@ -1495,7 +1498,7 @@ async function measureC1Geometry(page, c) {
         cx: (r.left + r.right) / 2, cy: (r.top + r.bottom) / 2
       };
     };
-    const svgBox = R(svg), plotBox = R(plot);
+    const svgBox = R(svg), plotBox = R(plot), tableBox = R(table);
     const heads = [...table.querySelectorAll(cfg.monthHeadSelector)].map(R);
     const corner = table.querySelector(cfg.cornerHeadSelector);
     const headRow = table.querySelector('thead tr');
@@ -1504,6 +1507,7 @@ async function measureC1Geometry(page, c) {
     const dots = [...svg.querySelectorAll(cfg.dotSelector)].map(R);
     const gridLines = [...svg.querySelectorAll(cfg.gridLineSelector)].map(R);
     const yAxis = grid.querySelector(cfg.yAxisSelector);
+    const yAxisBox = yAxis ? R(yAxis) : null;
     const yTicks = yAxis ? yAxis.querySelectorAll(cfg.yTickSelector).length : 0;
     const yCap = yAxis && yAxis.querySelector(cfg.yCaptionSelector);
     const yCapCs = yCap ? getComputedStyle(yCap) : null;
@@ -1515,6 +1519,19 @@ async function measureC1Geometry(page, c) {
     const htmlLegend = document.querySelectorAll(cfg.htmlLegendSelector).length;
     const svgXLabels = svg.querySelectorAll(cfg.svgXLabelSelector).length;
     const gridCs = getComputedStyle(grid);
+    const yAxisCs = yAxis ? getComputedStyle(yAxis) : null;
+    const plotCs = getComputedStyle(plot);
+    const tableCs = getComputedStyle(table);
+    const sides = ['Top', 'Right', 'Bottom', 'Left'];
+    const borders = cs => !!cs && sides.every(s => cs[`border${s}Width`] === '1px' && cs[`border${s}Style`] === 'solid');
+    const radii = cs => cs ? [cs.borderTopLeftRadius, cs.borderTopRightRadius, cs.borderBottomRightRadius, cs.borderBottomLeftRadius] : [];
+    const gridBorderless = sides.every(s => parseFloat(gridCs[`border${s}Width`]) === 0);
+    const borderColorsEqual = !!yAxisCs &&
+      yAxisCs.borderTopColor === plotCs.borderTopColor &&
+      plotCs.borderTopColor === tableCs.borderTopColor;
+    const sharedEdges = !!yAxis && Math.abs(yAxisBox.r - plotBox.l) <= 1 &&
+      Math.abs(yAxisBox.b - tableBox.t) <= 1 &&
+      Math.abs(plotBox.b - tableBox.t) <= 1;
     const tracks = (gridCs.gridTemplateColumns || '').trim().split(/\s+/).map(parseFloat).filter(Number.isFinite);
     // preserveAspectRatio="xMidYMid meet" can letterbox the viewBox. Derive the real
     // scale and the X offset before comparing SVG units with CSS pixels.
@@ -1592,6 +1609,19 @@ async function measureC1Geometry(page, c) {
       missing: false,
       pointCount: pts.length, headCount: heads.length, colCount: cols,
       bars: barEls.length, dots: dots.length, gridLines: gridLines.length, yTicks,
+      borderComposition: {
+        gridBorderless,
+        yAxisBordered: borders(yAxisCs),
+        plotBordered: borders(plotCs),
+        tableBordered: borders(tableCs),
+        borderColorsEqual,
+        sharedEdges,
+        yAxisRadii: radii(yAxisCs),
+        plotRadii: radii(plotCs),
+        tableRadii: radii(tableCs),
+        tableCollapse: tableCs.borderCollapse,
+        tableSpacing: tableCs.borderSpacing
+      },
       c1meta: {
         yMax: Number(c1meta.yMax) || null,
         yStep: Number(c1meta.yStep) || null,
@@ -1776,6 +1806,23 @@ async function lintC1Geometry(page, cfg) {
     g.missing ? 'missing .c1-grid / .c1-plot / svg / table.c1-table' : '');
   if (g.missing) return;
   console.log('  INFO C1 viewBox geometry', JSON.stringify(g.diag));
+  const bc = g.borderComposition || {};
+  const radiusIs = (actual, expected) => JSON.stringify(actual) === JSON.stringify(expected);
+  ok('C1 alignment grid is borderless and all three chart zones use one 1 px solid border',
+    bc.gridBorderless === true && bc.yAxisBordered === true && bc.plotBordered === true &&
+    bc.tableBordered === true && bc.borderColorsEqual === true,
+    JSON.stringify(bc));
+  ok('C1 shared chart-zone edges touch',
+    bc.sharedEdges === true,
+    `sharedEdges=${bc.sharedEdges}`);
+  ok('C1 outer corners remain 10 px and shared corners are square',
+    radiusIs(bc.yAxisRadii, ['10px', '0px', '0px', '0px']) &&
+    radiusIs(bc.plotRadii, ['0px', '10px', '0px', '0px']) &&
+    radiusIs(bc.tableRadii, ['0px', '0px', '10px', '10px']),
+    `axis=${JSON.stringify(bc.yAxisRadii)} plot=${JSON.stringify(bc.plotRadii)} table=${JSON.stringify(bc.tableRadii)}`);
+  ok('C1 attached table uses separate zero-spacing borders for radius clipping',
+    bc.tableCollapse === 'separate' && parseFloat(bc.tableSpacing) === 0,
+    `collapse=${bc.tableCollapse} spacing=${bc.tableSpacing}`);
   ok('C1 data-points, month headers and colgroup columns agree',
     g.pointCount > 0 && g.pointCount === g.headCount && g.colCount === g.headCount + 1,
     `points=${g.pointCount} heads=${g.headCount} cols=${g.colCount}`);
@@ -1871,6 +1918,129 @@ async function lintC1Geometry(page, cfg) {
   await c1RestorePeriod(page, c, { f: probe.f, t: probe.t });
 }
 
+// ── Tier 5: §7.5 B2.1 rev 1.69 — authoritative segmented-control standard ─────
+// Config-gated via cfg.c1.segmented. Visits every page that renders a `.seg` group,
+// measures the live DOM and computed styles, and restores the starting page at the end.
+async function lintSegmentedControls(page, cfg) {
+  const s = cfg.c1 && cfg.c1.segmented;
+  if (!s) return;
+  console.log('\n── Tier 5: §7.5 B2.1 segmented-control standard (rev 1.69) ──');
+  const tokenPresence = await page.evaluate(tokens => {
+    const cs = getComputedStyle(document.documentElement);
+    return tokens.filter(name => cs.getPropertyValue(name).trim() === '');
+  }, s.expectedTokens);
+  ok('B2.1 shared --seg-* tokens are all defined in :root',
+    tokenPresence.length === 0, `missing=${tokenPresence.join(', ') || 'none'}`);
+  const probe = () => page.evaluate(sel => {
+    const groups = [...document.querySelectorAll(sel.groupSelector)];
+    const navy = (() => {
+      const d = document.createElement('div');
+      d.style.backgroundColor = 'var(--navy)';
+      document.body.appendChild(d);
+      const v = getComputedStyle(d).backgroundColor;
+      d.remove();
+      return v;
+    })();
+    return {
+      groupCount: groups.length,
+      buttonCount: groups.reduce((n, g) => n + g.querySelectorAll(sel.buttonSelector).length, 0),
+      badButtons: groups.flatMap(g => [...g.querySelectorAll(sel.buttonSelector)])
+        .filter(b => b.getAttribute('type') !== 'button' ||
+          !['true', 'false'].includes(b.getAttribute('aria-pressed'))).length,
+      unnamedGroups: groups.filter(g => g.getAttribute('role') !== 'group' ||
+        !(g.getAttribute('aria-label') || '').trim()).length,
+      balancedGroups: groups.filter(g => {
+        const buttons = [...g.querySelectorAll(sel.buttonSelector)];
+        return buttons.filter(b => b.getAttribute('aria-pressed') === 'true').length !== 1;
+      }).length,
+      variedHeights: groups.filter(g => {
+        const heights = [...g.querySelectorAll(sel.buttonSelector)].map(b => +b.getBoundingClientRect().height.toFixed(2));
+        return heights.length > 1 && Math.max(...heights) - Math.min(...heights) > 1;
+      }).length,
+      standardHeights: groups.flatMap(g => [...g.querySelectorAll(sel.buttonSelector)])
+        .map(b => +b.getBoundingClientRect().height.toFixed(2)),
+      activeBg: (() => {
+        const b = document.querySelector(sel.buttonSelector + '.active');
+        return b ? getComputedStyle(b).backgroundColor : null;
+      })(),
+      navy,
+    };
+  }, s);
+  let totalGroups = 0;
+  let totalButtons = 0;
+  for (const name of s.pages) {
+    await visitPage(page, name);
+    const current = await page.evaluate(() => document.querySelector('[data-page].active')?.dataset.page || '');
+    if (current !== name) { skipped(`${name}: segmented-control checks (page did not open)`); continue; }
+    const r = await probe();
+    if (!r.groupCount) continue;
+    totalGroups += r.groupCount;
+    totalButtons += r.buttonCount;
+    ok(`${name}: every segmented button carries type="button" and aria-pressed`,
+      r.badButtons === 0, `groups=${r.groupCount} buttons=${r.buttonCount} bad=${r.badButtons}`);
+    ok(`${name}: every segmented group has role="group" and an accessible name`,
+      r.unnamedGroups === 0, `unnamed=${r.unnamedGroups}`);
+    ok(`${name}: exactly one pressed button per group`,
+      r.balancedGroups === 0, `unbalanced=${r.balancedGroups}`);
+    ok(`${name}: equal height within each group`,
+      r.variedHeights === 0, `varied=${r.variedHeights}`);
+    ok(`${name}: segmented groups render at the shared 32 px height`,
+      r.standardHeights.length > 0 &&
+      r.standardHeights.every(h => Math.abs(h - s.standardHeight) <= s.heightTolerance),
+      `heights=${JSON.stringify(r.standardHeights)}`);
+    ok(`${name}: the active fill is --navy`,
+      !!r.activeBg && r.activeBg === r.navy, `active=${r.activeBg} navy=${r.navy}`);
+  }
+  ok('B2.1 standard covers multiple pages and groups',
+    totalGroups >= 5 && totalButtons >= 12, `groups=${totalGroups} buttons=${totalButtons}`);
+  await visitPage(page, 'Overview');
+}
+
+// ── Tier 5: §7.1 rev 1.71 — universal button-height standard ──────────────────
+// Config-gated via cfg.c1.buttonHeights. Visits every configured page, measures the live DOM,
+// dedupes overlapping selectors by node, and separates text-bearing buttons from icon-only ones.
+async function lintButtonHeights(page, cfg) {
+  const s = cfg.c1 && cfg.c1.buttonHeights;
+  if (!s) return;
+  console.log('\n── Tier 5: §7.1 button-height standard (rev 1.71) ──');
+  let textTotal = 0;
+  let iconTotal = 0;
+  for (const name of s.pages) {
+    await visitPage(page, name);
+    const current = await page.evaluate(() => document.querySelector('[data-page].active')?.dataset.page || '');
+    if (current !== name) { skipped(`${name}: button-height checks (page did not open)`); continue; }
+    const r = await page.evaluate(cfg => {
+      const measure = selectors => {
+        const seen = new Set();
+        const out = [];
+        for (const sel of selectors) {
+          for (const el of document.querySelectorAll(sel)) {
+            if (seen.has(el)) continue;
+            seen.add(el);
+            const box = el.getBoundingClientRect();
+            if (box.width <= 0 || box.height <= 0) continue;
+            out.push({ sel, h: +box.height.toFixed(2) });
+          }
+        }
+        return out;
+      };
+      return { text: measure(cfg.textSelectors), icon: measure(cfg.iconSelectors) };
+    }, s);
+    if (!r.text.length && !r.icon.length) { skipped(`${name}: button-height checks (no visible buttons)`); continue; }
+    textTotal += r.text.length;
+    iconTotal += r.icon.length;
+    ok(`${name}: every text-bearing button uses the shared 32 px height`,
+      r.text.length > 0 && r.text.every(x => Math.abs(x.h - s.textHeight) <= s.heightTolerance),
+      `count=${r.text.length} heights=${JSON.stringify(r.text)}`);
+    ok(`${name}: every icon-only button stays 26 px square`,
+      r.icon.every(x => Math.abs(x.h - s.iconHeight) <= s.heightTolerance),
+      `count=${r.icon.length} heights=${JSON.stringify(r.icon)}`);
+  }
+  ok('The button-height standard covers multiple pages and button families',
+    textTotal >= 5 && iconTotal >= 1, `text=${textTotal} icon=${iconTotal}`);
+  await visitPage(page, 'Overview');
+}
+
 // ── Tier 5: C1 dual-handle period time bar (spec §4.2 rev 1.66 / §8.2 assertion 21) ──
 // C1-only and opt-in via cfg.c1.timeBar. Measures the live DOM and the browser's own
 // `input` / `change` split, so the drag decoupling and the preset ranges are not inferred.
@@ -1922,6 +2092,39 @@ async function lintC1TimeBar(page, cfg) {
       segGroups: document.querySelectorAll(s.segmentedSelector).length,
       segButtons: document.querySelectorAll(s.segmentedButtonSelector).length,
       chipGroupLabel: !!q(s.chipsSelector)?.getAttribute('aria-label'),
+      grain: (() => {
+        const g = qa(s.grainSelector);
+        return {
+          count: g.length,
+          typed: g.filter(el => el.getAttribute('type') === 'button').length,
+          pressed: g.map(el => el.getAttribute('aria-pressed')),
+          pressedTrue: g.filter(el => el.getAttribute('aria-pressed') === 'true').length,
+          inactiveStyle: (() => {
+            const el = g.find(x => !x.classList.contains('active'));
+            if (!el) return null;
+            const st = getComputedStyle(el);
+            return { bg: st.backgroundColor, color: st.color, weight: st.fontWeight, border: st.borderWidth };
+          })(),
+          activeStyle: (() => {
+            const el = g.find(x => x.classList.contains('active'));
+            if (!el) return null;
+            const st = getComputedStyle(el);
+            return { bg: st.backgroundColor, color: st.color };
+          })(),
+        };
+      })(),
+      presetInactiveStyle: (() => {
+        const el = chips.find(x => !x.classList.contains('active'));
+        if (!el) return null;
+        const st = getComputedStyle(el);
+        return { bg: st.backgroundColor, color: st.color, weight: st.fontWeight, border: st.borderWidth };
+      })(),
+      presetActiveStyle: (() => {
+        const el = chips.find(x => x.classList.contains('active'));
+        if (!el) return null;
+        const st = getComputedStyle(el);
+        return { bg: st.backgroundColor, color: st.color };
+      })(),
       periodText: (q(s.periodTextSelector)?.textContent || '').trim(),
     };
   }, t);
@@ -1950,15 +2153,60 @@ async function lintC1TimeBar(page, cfg) {
   ok('C1 time bar handles carry aria-label, aria-valuetext and a period text',
     r.ariaLabels && r.ariaTexts && r.periodText.length > 0,
     `labels=${r.ariaLabels} valueTexts=${r.ariaTexts} text="${r.periodText}"`);
-  const focusCss = await page.evaluate(() => [...document.styleSheets].some(sheet => {
-    try {
-      const rules = [...sheet.cssRules];
-      return rules.some(rule => /c1-ts-input:focus-visible/.test(rule.cssText) && /outline/.test(rule.cssText)) &&
-        rules.some(rule => /c1-ts-chips \.seg-btn:focus-visible/.test(rule.cssText));
-    } catch { return false; }
-  }));
-  ok('C1 time bar inputs and chips have a visible focus-visible outline (rev 1.66)', focusCss,
-    `focusCss=${focusCss}`);
+  const tokenCss = await page.evaluate(() => {
+    let rules = [];
+    for (const sheet of document.styleSheets) {
+      try { rules = rules.concat([...sheet.cssRules].map(r => r.cssText)); } catch { /* cross-origin */ }
+    }
+    return {
+      inputFocus: rules.some(r => /c1-ts-input:focus-visible/.test(r) && /outline/.test(r)),
+      baseFocus: rules.some(r => /^\.seg-btn:focus-visible/.test(r) && /outline/.test(r)),
+      baseHover: rules.some(r => /^\.seg-btn:not\(\.active\):not\(:disabled\):hover/.test(r) && /--seg-hover-bg/.test(r)),
+      activeRule: rules.some(r => /^\.seg-btn\.active\s*\{/.test(r) && /--seg-active-bg/.test(r)),
+      activeHover: rules.some(r => /^\.seg-btn\.active:hover/.test(r) && /--seg-active-bg/.test(r)),
+      activeFocus: rules.some(r => /^\.seg-btn\.active:focus-visible/.test(r) && /--seg-focus-on-active/.test(r)),
+      pressedRule: rules.some(r => /^\.seg-btn:not\(:disabled\):active:not\(\.active\)/.test(r)),
+      disabledRule: rules.some(r => /^\.seg-btn:disabled/.test(r)),
+      compactRules: rules.filter(r => /seg-compact/.test(r)).length,
+      panelScopedRules: rules.filter(r => /^\.c1-ts-chips \.seg-btn\s*\{/.test(r)).length,
+      navyToken: rules.some(r => /--seg-active-bg:\s*var\(--navy\)/.test(r)),
+      surface2Token: rules.some(r => /--seg-hover-bg:\s*var\(--surface2\)/.test(r)),
+      heightToken: rules.some(r => /--btn-h:\s*32px/.test(r)) && rules.some(r => /--seg-h:\s*var\(--btn-h\)/.test(r)),
+      scopedFocusGone: !rules.some(r => /c1-ts-chips \.seg-btn:focus-visible/.test(r)),
+      scopedHoverGone: !rules.some(r => /c1-ts-chips \.seg-btn:hover/.test(r)),
+      navyBg: (() => {
+        const d = document.createElement('div');
+        d.style.backgroundColor = 'var(--navy)';
+        document.body.appendChild(d);
+        const v = getComputedStyle(d).backgroundColor;
+        d.remove();
+        return v;
+      })(),
+    };
+  });
+  ok('ALL segmented buttons follow the B2.1 shared token rules (rev 1.69)',
+    tokenCss.inputFocus && tokenCss.baseFocus && tokenCss.baseHover && tokenCss.activeRule &&
+    tokenCss.activeHover && tokenCss.activeFocus && tokenCss.pressedRule && tokenCss.disabledRule &&
+    tokenCss.compactRules === 0 && tokenCss.panelScopedRules === 0 && tokenCss.navyToken &&
+    tokenCss.surface2Token && tokenCss.heightToken && tokenCss.scopedFocusGone && tokenCss.scopedHoverGone,
+    JSON.stringify(tokenCss));
+  ok('B2.1 active fill is --navy, not the retired --blue',
+    !!r.presetActiveStyle && r.presetActiveStyle.bg === tokenCss.navyBg,
+    `active=${JSON.stringify(r.presetActiveStyle)} navy=${tokenCss.navyBg}`);
+  ok('C1 grain buttons mirror the preset chips markup (rev 1.68)',
+    r.grain.count === 3 && r.grain.typed === 3 && r.grain.pressedTrue === 1 &&
+    r.grain.pressed.every(v => v === 'true' || v === 'false'),
+    `count=${r.grain.count} typed=${r.grain.typed} pressed=${r.grain.pressed}`);
+  ok('C1 grain and preset groups share inactive and active colour tokens (rev 1.68)',
+    !!r.grain.inactiveStyle && !!r.presetInactiveStyle &&
+    r.grain.inactiveStyle.bg === r.presetInactiveStyle.bg &&
+    r.grain.inactiveStyle.color === r.presetInactiveStyle.color &&
+    r.grain.inactiveStyle.weight === r.presetInactiveStyle.weight &&
+    r.grain.inactiveStyle.border === r.presetInactiveStyle.border &&
+    !!r.grain.activeStyle && !!r.presetActiveStyle &&
+    r.grain.activeStyle.bg === r.presetActiveStyle.bg &&
+    r.grain.activeStyle.color === r.presetActiveStyle.color,
+    `grainInactive=${JSON.stringify(r.grain.inactiveStyle)} presetInactive=${JSON.stringify(r.presetInactiveStyle)} grainActive=${JSON.stringify(r.grain.activeStyle)} presetActive=${JSON.stringify(r.presetActiveStyle)}`);
 
   // Live drag: an `input` event alone MUST change only the track visuals, not the chart payload.
   const live = await page.evaluate(s => {
@@ -2269,6 +2517,10 @@ async function lintC1(page, cfg) {
   await lintC1Interaction(page, cfg);
   // §4.2 rev 1.66 — runs last and restores the full period with the `All` chip.
   await lintC1TimeBar(page, cfg);
+  // §7.1 rev 1.71 — the universal height check runs before the segmented pass restores Overview.
+  await lintButtonHeights(page, cfg);
+  // §7.5 B2.1 rev 1.69 — visits the other pages and restores Overview at the end.
+  await lintSegmentedControls(page, cfg);
 }
 
 // ── Tier 5: C3 Breakdown (workplan D36) ───────────────────────────────────────
