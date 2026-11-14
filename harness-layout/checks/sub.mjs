@@ -1,3 +1,8 @@
+// Revision 1.21 | 2026-11-14 | CodeBuddy (AI) | I133 / spec rev 1.76 — the C3 Breakdown chart moved from Overview to the new `Breakdown` page (three independent panels). `buttonHeights.pages` and `c1.tableCrosshair.pages` gain `Breakdown` between `Overview` and `Submittals`. The stale `c3.boardSelector` / `.c3-board` selectors stay unchanged as the known separate defect. No existing assertion was weakened.
+// Revision 1.20 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.75 — `c3.columnSync` gains `bandSelector`, `centreLineSelector` and `gridSelector`. Tier 5 `lintC3ColumnSync()` checks ONE hidden band and ONE hidden centre line per Bar card, DOM order behind / above the bars, the shared active grid track, no computed border on the active bar, and hide-on-leave. C1 selectors are unchanged.
+// Revision 1.19 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.74 / I131 — `c3.columnSync` is a new config-gated Tier 5 block for the general chart ↔ attached-table column sync. It drives bar → table, table → bar, one shared `.col-active` id per card, card independence, tooltip gating, no competing `.col-hover` and clear-on-leave. `c3.nativeTable` keeps its selectors, `c1.tableCrosshair` keeps its C1 page sweep, and the stale `.c3-board` selector stays unchanged.
+// Revision 1.18 | 2026-11-13 | CodeBuddy (AI) | §4.2 rev 1.73 / I130 — `c3.nativeTable` is a new config-gated Tier 5 block for the two C3 native attached tables. It checks one table per Bar card, caption, colgroup, thead, tbody, scope, shared `data-col-id`, `role="group"` on the card, bar / header column alignment and the §7.2.16 crosshair. The stale `c3.boardSelector` in `lintC3()` is left unchanged as a separate defect.
+// Revision 1.17 | 2026-11-13 | CodeBuddy (AI) | §7.2.16 / I129 — `c1.tableCrosshair` is a new config-gated Tier 5 block for the ONE global table hover crosshair. It visits five pages, verifies stable `data-col-id` cells / split-header pairing, hovers a data cell and measures row / column / intersection classes, C1 `.col-active` preservation, column rules, `position:relative` and clear-on-leave. No existing assertion was weakened.
 // Revision 1.16 | 2026-11-12 | CodeBuddy (AI) | §7.1 rev 1.71 / I128 — `buttonHeights` is a new config-gated Tier 5 block for the universal button-height standard. It measures the live DOM on five pages and asserts 32 px on every visible text-bearing button and 26 px on every visible icon-only button. `c1.segmented` loses the retired `compact` selector, bounds and tokens; the preset chips now use the standard segmented group.
 // Revision 1.14 | 2026-11-09 | CodeBuddy (AI) | §4.2 rev 1.68 / I124 — `c1.timeBar` gained `grainSelector` so Tier 5 can measure the Month / Quarter / Year group and compare its markup and computed colour tokens with the preset chips. The shared base hover / focus rules are read from the live stylesheets; no new threshold was added. The block stays C1-only and opt-in.
 // Revision 1.13 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.67 / I122 — `c1.timeBar` gained `segmentedSelector`, `segmentedButtonSelector`, `controlSelector` and `oneRowWidth: 1280`. The Tier 5 checks now require ONE joined `.seg` group, EXACTLY one active chip, NO active chip after a manual handle change, and ONE visual control row at the 1280 px minimum desktop width. The block stays C1-only and opt-in; other dashboards keep their Tier 5 behaviour.
@@ -174,7 +179,18 @@ export default {
       heightTolerance: 1,
       textSelectors: ['.btn', '.btn-primary', '.btn-secondary', '.tf-btn', '.seg-btn', '.cc-btn', '.pg-btn', '.cc-reset'],
       iconSelectors: ['.icon-btn', '.drill-btn'],
-      pages: ['Overview', 'Submittals', 'Validation', 'Forward and Overdue', 'Analytical'],
+      pages: ['Overview', 'Breakdown', 'Submittals', 'Validation', 'Forward and Overdue', 'Analytical'],
+    },
+
+    // ── Tier 5 §7.2.16 rev 1.72 / I129 — ONE global table hover crosshair ──
+    // Config-gated and Sub-only. The live browser check covers all five pages and all table
+    // families; C1 keeps its chart-linked .col-active state instead of a second .col-hover.
+    tableCrosshair: {
+      tableSelector: 'table[data-table-crosshair]',
+      cellSelector: 'table[data-table-crosshair] tbody td[data-col-id]:visible',
+      hoverWaitMs: 80,
+      outside: { x: 5, y: 5 },
+      pages: ['Overview', 'Breakdown', 'Submittals', 'Validation', 'Forward and Overdue', 'Analytical'],
     },
 
     // ── Tier 5 §7.5 B2.1 rev 1.69 — authoritative segmented-control standard ──
@@ -229,6 +245,39 @@ export default {
     summaryTableSelector: '.c3-summary .tableScroll table.ds-table',
     summaryFooterSelector: '.c3-summary .tableScroll table.ds-table tfoot',
     summaryHeadSelector: '.c3-summary .vheadtab thead th:not(.ds-gut)',
+    // §4.2 rev 1.73 / I130 — C3 Bar attached tables are native HTML tables.
+    nativeTable: {
+      cardSelector: '.c3-card',
+      groupSelector: '.c3-card[role="group"]',
+      tableSelector: 'table.c3-table[data-table-crosshair]',
+      barViewSelector: '[data-c3view="bar"]',
+      barSelector: '.c3-grid .g-bar',
+      headerSelector: 'table.c3-table thead th.g-axis[data-col-id]',
+      dataCellSelector: 'table.c3-table tbody td.g-val[data-col-id]',
+      rowHeaderSelector: 'table.c3-table tbody th.g-label[scope="row"]',
+      cornerSelector: 'table.c3-table thead th.g-corner[scope="col"]',
+      captionSelector: 'table.c3-table caption',
+      colgroupSelector: 'table.c3-table colgroup',
+      alignTolerance: 2,
+      hoverWaitMs: 80,
+    },
+    // §4.2 rev 1.74 / 1.75 — general chart ↔ attached-table column sync and the C1 visual contract.
+    columnSync: {
+      cardSelector: '.c3-card',
+      gridSelector: '.c3-grid',
+      bandSelector: '.c3-grid .c3-col-band',
+      centreLineSelector: '.c3-grid .c3-col-snap',
+      groupSelector: '.c3-card[role="group"]',
+      barViewSelector: '[data-c3view="bar"]',
+      barSelector: '.c3-grid .g-bar[data-col-id]',
+      headerSelector: 'table.c3-table thead th.g-axis[data-col-id]',
+      dataCellSelector: 'table.c3-table tbody td.g-val[data-col-id]',
+      tableSelector: 'table.c3-table[data-table-crosshair]',
+      tipSelector: '.c3-card .chart-tip',
+      activeColumnIndex: '1',
+      hoverWaitMs: 80,
+      outside: { x: 5, y: 5 },
+    },
   },
 
   // Tier 6 — §4.6 hover floating window (spec §4.6). Verifies the standardized window across the

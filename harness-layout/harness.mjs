@@ -1,3 +1,8 @@
+// Revision 1.32 | 2026-11-14 | CodeBuddy (AI) | I133 / spec rev 1.76 — `lintC3NativeTable()` and `lintC3ColumnSync()` now visit the new `Breakdown` page (C3 left Overview) and restore Overview at the end. The three per-panel independence assertions stay in the render tests; the stale `lintC3()` `.c3-board` selector defect is unchanged and still skips when no board is found. No existing assertion was weakened.
+// Revision 1.31 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.75 — Tier 5 `lintC3ColumnSync()` gains the C1 visual contract: ONE hidden band and ONE hidden centre line per C3 Bar card, DOM order behind / above the bars, hidden until hover, one shared active grid track, measured band alignment and centre position, no computed border / outline / inset ring on the active bar, table-side movement and hide-on-leave. `c3.columnSync` gains `gridSelector`, `bandSelector` and `centreLineSelector`. No existing assertion was weakened.
+// Revision 1.30 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.74 / I131 — Tier 5 gains `lintC3ColumnSync()`, a config-gated live-browser check for the general chart ↔ attached-table column sync. It measures bar → table, table → bar, ONE shared `.col-active` id per card, card independence, tooltip gating, no competing `.col-hover` and clear-on-leave. `lintC3NativeTable()` now measures `.col-active` instead of `.col-hover` on C3 tables, and `lintTableCrosshair()` treats C3 as chart-linked. No existing assertion was weakened.
+// Revision 1.29 | 2026-11-13 | CodeBuddy (AI) | §4.2 rev 1.73 / I130 — Tier 5 gains `lintC3NativeTable()`, a config-gated live-browser check for the two C3 native attached tables. It checks one table per Bar card, caption, colgroup, thead, tbody, scope, shared `data-col-id`, `role="group"`, bar / header column alignment and the §7.2.16 crosshair. `lintTableCrosshair()` recognises `.c3-table` as an explicit scope. The stale `lintC3()` board selector is a separate defect and stays unchanged.
+// Revision 1.28 | 2026-11-13 | CodeBuddy (AI) | §7.2.16 / I129 — Tier 5 gains `lintTableCrosshair()`, a config-gated live-browser check for the ONE global table hover crosshair. It visits five pages, verifies every visible `table[data-table-crosshair]` carries stable `data-col-id` cells, hovers a data cell and measures `.row-hover`, `.col-hover`, `.cell-hover`, split-header column pairing, preserved C1 `.col-active`, column rules / `position:relative`, and clear-on-leave. No existing assertion was weakened.
 // Revision 1.27 | 2026-11-12 | CodeBuddy (AI) | §7.1 rev 1.71 / I128 — Tier 5 gains `lintButtonHeights()`, a config-gated universal check that visits five pages and measures every visible text-bearing button at 32 px and every visible icon-only button at 26 px square. The segmented pass loses the retired `compact` bound and now requires every `.seg` group at the ONE standard height; the shared-height token check follows `--seg-h:var(--btn-h)`. No existing assertion was weakened.
 // Revision 1.25 | 2026-11-11 | CodeBuddy (AI) | §7.5 B2.1 rev 1.69 / I125 — the Tier 5 token check now reads the shared `--seg-*` custom properties and all six interaction states instead of literal `--surface2` / `--blue` rule text, so the tokens can live in `:root` without weakening the assertion. A new config-gated `lintSegmentedControls()` visits Overview, Forward and Overdue and Analytical and asserts common markup (`type="button"`, dynamic `aria-pressed`), accessible group names, one pressed button per group, equal height within a group, the 32 px `standard` height, the ≈ 26 px `compact` bound, and a `--navy` active fill on EVERY segmented group. It restores Overview at the end. The rev 1.67 single-select, one-row, windowed Y-axis, export and interaction checks are unchanged.
 // Revision 1.24 | 2026-11-09 | CodeBuddy (AI) | §4.2 rev 1.68 / I124 — the Tier 5 focus CSS check now looks for the SHARED base `.seg-btn:focus-visible` rule and the shared `.seg-btn:not(.active):hover` rule, and rejects the old scoped `.c1-ts-chips .seg-btn:focus-visible` rule. New checks measure the grain group: three buttons with `type="button"` and one dynamic `aria-pressed="true"`, plus computed inactive colours and focus outline tokens equal to the preset group. The compact padding / font-size override is verified as the ONLY remaining scoped `.c1-ts-chips .seg-btn` rule. Other dashboards keep their Tier 5 behaviour. One-line probe correction before sign-off: the `scopedRules` matcher allows the space that CSSOM `cssText` inserts before `{`; without it a correct compact rule counted as 0 and the check failed while every other field was true.
@@ -2041,6 +2046,115 @@ async function lintButtonHeights(page, cfg) {
   await visitPage(page, 'Overview');
 }
 
+// ── Tier 5: §7.2.16 rev 1.72 — ONE global table hover crosshair ───────────────
+// Config-gated via cfg.c1.tableCrosshair. Measures the live DOM on every configured page:
+// stable logical ids, split-header pairing, row / column / intersection classes, C1 chart
+// compatibility, column-rule / position:relative preservation and clear-on-leave.
+async function lintTableCrosshair(page, cfg) {
+  const s = cfg.c1 && cfg.c1.tableCrosshair;
+  if (!s) return;
+  console.log('\n── Tier 5: §7.2.16 table hover crosshair (I129) ──');
+  let hovered = 0;
+  let genericHovered = 0;
+  for (const name of s.pages) {
+    await visitPage(page, name);
+    const current = await page.evaluate(() => document.querySelector('[data-page].active')?.dataset.page || '');
+    if (current !== name) { skipped(`${name}: table-crosshair checks (page did not open)`); continue; }
+    const inventory = await page.evaluate(cfg => {
+      const ids = el => el ? [...new Set([...el.querySelectorAll('[data-col-id]')].map(c => c.dataset.colId))] : [];
+      const tables = [...document.querySelectorAll(cfg.tableSelector)]
+        .filter(t => { const r = t.getBoundingClientRect(); return r.width > 0 && r.height > 0; })
+        .map(t => ({
+          c1: t.classList.contains('c1-table'),
+          idCount: ids(t).length,
+          idCells: t.querySelectorAll('[data-col-id]').length,
+          c1Count: t.querySelectorAll('[data-c1col]').length
+        }));
+      const splitPairs = [...document.querySelectorAll('.ds-split')].map(card => {
+        const head = card.querySelector('table.vheadtab[data-table-crosshair]');
+        const body = card.querySelector('.tableScroll > table.ds-table[data-table-crosshair]');
+        return {
+          hasHead: !!head, hasBody: !!body,
+          same: head && body ? JSON.stringify(ids(head)) === JSON.stringify(ids(body)) : false
+        };
+      });
+      return { tables, splitPairs };
+    }, s);
+    // The Analytical page is KPI / chart only; the table contract is vacuously satisfied there.
+    if (!inventory.tables.length) { skipped(`${name}: table-crosshair checks (no visible table on this page)`); continue; }
+    ok(`${name}: every visible table opts into the shared crosshair`,
+      inventory.tables.length > 0 && inventory.tables.every(t => t.idCount > 0),
+      `tables=${JSON.stringify(inventory.tables)}`);
+    ok(`${name}: every visible C1 month cell keeps data-c1col AND the shared id`,
+      inventory.tables.filter(t => t.c1).every(t => t.c1Count > 0 && t.c1Count === t.idCells && t.idCount > 0),
+      `c1=${JSON.stringify(inventory.tables.filter(t => t.c1))}`);
+    ok(`${name}: split headers and bodies share logical column ids`,
+      inventory.splitPairs.every(p => !p.hasHead || (p.hasBody && p.same)),
+      `pairs=${JSON.stringify(inventory.splitPairs)}`);
+    const cell = page.locator(s.cellSelector).first();
+    if (!(await cell.count())) { skipped(`${name}: table-crosshair hover (no visible data cell)`); continue; }
+    await cell.hover();
+    await page.waitForTimeout(s.hoverWaitMs);
+    const probe = await page.evaluate(cfg => {
+      const cell = document.querySelector('[data-table-crosshair] .cell-hover');
+      if (!cell) return { missing: true };
+      const table = cell.closest('table[data-table-crosshair]');
+      const scope = (table.classList.contains('hist-table') || table.classList.contains('c1-table') || table.classList.contains('c2-ftab') || table.classList.contains('c3-table'))
+        ? table : (table.closest('.ds-split') || table);
+      const colHover = [...scope.querySelectorAll('.col-hover')];
+      const header = scope.querySelector('thead th') || table.querySelector('thead th');
+      const after = header ? getComputedStyle(header, '::after') : null;
+      const isDsTable = !!table.closest('.ds-table') || !!scope.querySelector('.vheadtab');
+      return {
+        c1: table.classList.contains('c1-table'),
+        c3: table.classList.contains('c3-table'),
+        hoveredId: cell.dataset.colId,
+        rows: scope.querySelectorAll('.row-hover').length,
+        cells: scope.querySelectorAll('.cell-hover').length,
+        colHover: colHover.length,
+        colIds: [...new Set(colHover.map(c => c.dataset.colId))],
+        headerColHover: scope.querySelectorAll('thead > tr > th.col-hover, tr.hist-head > th.col-hover').length,
+        colActive: scope.querySelectorAll('.col-active').length,
+        ring: getComputedStyle(cell).boxShadow,
+        isDsTable, position: getComputedStyle(cell).position,
+        // Pinned identity cells intentionally resolve to sticky; all other .ds-table cells stay relative.
+        positionOk: !isDsTable || ['relative', 'sticky'].includes(getComputedStyle(cell).position),
+        headerFound: !!header, afterContent: after ? after.content : null, afterWidth: after ? after.width : null,
+        cellTag: cell.tagName, cellClass: cell.className, tableClass: table.className, scopeClass: scope.className || scope.tagName,
+        ruleOk: !isDsTable || !header || !!(after && after.content !== 'none' && parseFloat(after.width) > 0)
+      };
+    }, s);
+    ok(`${name}: one row and one intersection cell are highlighted`,
+      !probe.missing && probe.rows === 1 && probe.cells === 1, `probe=${JSON.stringify(probe)}`);
+    if (probe.c1 || probe.c3) {
+      const family = probe.c1 ? 'C1' : 'C3';
+      ok(`${name}: ${family} keeps its chart-linked column and adds NO competing .col-hover`,
+        probe.colActive > 0 && probe.colHover === 0, `probe=${JSON.stringify(probe)}`);
+    } else {
+      genericHovered++;
+      ok(`${name}: the logical column and its header are highlighted`,
+        probe.colHover > 0 && probe.headerColHover > 0, `probe=${JSON.stringify(probe)}`);
+      ok(`${name}: column pairing uses ONE shared data-col-id`,
+        probe.colIds.length === 1 && probe.colIds[0] === probe.hoveredId, `probe=${JSON.stringify(probe)}`);
+    }
+    ok(`${name}: the intersection cell has a stronger ring and structural CSS survives`,
+      probe.ring && probe.ring !== 'none' && probe.positionOk && probe.ruleOk, `probe=${JSON.stringify(probe)}`);
+    await page.mouse.move(s.outside.x, s.outside.y);
+    await page.waitForTimeout(s.hoverWaitMs);
+    const cleared = await page.evaluate(() => ({
+      rows: document.querySelectorAll('.row-hover').length,
+      cols: document.querySelectorAll('.col-hover').length,
+      cells: document.querySelectorAll('.cell-hover').length
+    }));
+    ok(`${name}: leaving the table clears every transient class`,
+      cleared.rows === 0 && cleared.cols === 0 && cleared.cells === 0, `cleared=${JSON.stringify(cleared)}`);
+    hovered++;
+  }
+  ok('The crosshair is measured on multiple pages and table families',
+    hovered >= 3 && genericHovered >= 2, `pages=${hovered} generic=${genericHovered}`);
+  await visitPage(page, 'Overview');
+}
+
 // ── Tier 5: C1 dual-handle period time bar (spec §4.2 rev 1.66 / §8.2 assertion 21) ──
 // C1-only and opt-in via cfg.c1.timeBar. Measures the live DOM and the browser's own
 // `input` / `change` split, so the drag decoupling and the preset ranges are not inferred.
@@ -2519,6 +2633,8 @@ async function lintC1(page, cfg) {
   await lintC1TimeBar(page, cfg);
   // §7.1 rev 1.71 — the universal height check runs before the segmented pass restores Overview.
   await lintButtonHeights(page, cfg);
+  // §7.2.16 rev 1.72 — the global table crosshair visits every page and restores Overview.
+  await lintTableCrosshair(page, cfg);
   // §7.5 B2.1 rev 1.69 — visits the other pages and restores Overview at the end.
   await lintSegmentedControls(page, cfg);
 }
@@ -2580,6 +2696,193 @@ async function lintC3(page, cfg) {
   await page.locator(c.barSelector).click();
   await page.waitForTimeout(250);
   okC3('C3 Bar view restores the bar chart', (await count(c.svgSelector)) === 1);
+}
+
+// §4.2 rev 1.73 / I130 — C3 Bar attached tables are native HTML tables. This check is independent
+// of the stale lintC3() .c3-board selector, which is a separate defect.
+async function lintC3NativeTable(page, cfg) {
+  const s = cfg.c3 && cfg.c3.nativeTable;
+  if (!s) return;
+  console.log('\n── Tier 5: C3 native attached tables (§4.2 rev 1.73 / I130) ──');
+  const okC3Table = (name, cond, detail = '') => ok(name, cond, detail);
+  await visitPage(page, 'Breakdown'); // I133 — C3 lives on the Breakdown page
+  await page.locator(s.barViewSelector).click().catch(() => {});
+  await page.waitForTimeout(200);
+  const cardCount = await page.locator(s.cardSelector).count();
+  const tableCount = await page.locator(s.tableSelector).count();
+  okC3Table('C3 Bar view renders two cards', cardCount === 2, `got ${cardCount}`);
+  okC3Table('Each C3 Bar card has one native attached table', tableCount === 2, `got ${tableCount}`);
+  okC3Table('Each C3 card carries role="group"', (await page.locator(s.groupSelector).count()) === 2);
+  okC3Table('Each C3 table carries a caption', (await page.locator(s.captionSelector).count()) === 2);
+  okC3Table('Each C3 table carries a colgroup', (await page.locator(s.colgroupSelector).count()) === 2);
+  okC3Table('Each C3 table carries thead and tbody',
+    (await page.locator(`${s.tableSelector} thead`).count()) === 2 &&
+    (await page.locator(`${s.tableSelector} tbody`).count()) === 2);
+  okC3Table('Each C3 table uses scope on headers',
+    (await page.locator(s.cornerSelector).count()) === 2 &&
+    (await page.locator(s.rowHeaderSelector).count()) >= 2);
+  const ids = await page.evaluate(sel => {
+    const table = document.querySelector(sel);
+    if (!table) return { headers: [], bodyCols: [], same: false };
+    const headers = [...table.querySelectorAll('thead th.g-axis[data-col-id]')].map(e => e.getAttribute('data-col-id'));
+    const cells = [...table.querySelectorAll('tbody td.g-val[data-col-id]')].map(e => e.getAttribute('data-col-id'));
+    const bodyCols = [...new Set(cells)];
+    return { headers, bodyCols, same: headers.length > 0 && bodyCols.length === headers.length && headers.every((v, i) => v === bodyCols[i]) };
+  }, s.tableSelector);
+  okC3Table('C3 headers and value cells share data-col-id', ids.same,
+    `headers ${ids.headers.length}, body columns ${ids.bodyCols.length}`);
+  const aligned = await page.evaluate(args => {
+    const bars = [...document.querySelectorAll(args.barSel)];
+    const heads = [...document.querySelectorAll(args.headSel)];
+    if (!bars.length || bars.length !== heads.length) return { ok: false, detail: `bars ${bars.length}, headers ${heads.length}` };
+    for (let i = 0; i < bars.length; i++) {
+      const a = bars[i].getBoundingClientRect(), b = heads[i].getBoundingClientRect();
+      if (Math.abs((a.left + a.width / 2) - (b.left + b.width / 2)) > args.tol) return { ok: false, detail: `column ${i}` };
+    }
+    return { ok: true, detail: '' };
+  }, { barSel: s.barSelector, headSel: s.headerSelector, tol: s.alignTolerance });
+  okC3Table('C3 bar and table column centers align', aligned.ok, aligned.detail);
+  const cell = page.locator(s.dataCellSelector).first();
+  if (await cell.count()) {
+    await cell.hover();
+    await page.waitForTimeout(s.hoverWaitMs);
+    const hover = await page.evaluate(sel => {
+      const table = document.querySelector(sel);
+      if (!table) return { missing: true };
+      const hit = table.querySelector('.cell-hover');
+      return {
+        rows: table.querySelectorAll('tr.row-hover').length,
+        cols: table.querySelectorAll('.col-hover').length,
+        cells: table.querySelectorAll('.cell-hover').length,
+        headerCells: table.querySelectorAll('thead th.col-hover').length,
+        active: table.querySelectorAll('[data-col-id].col-active').length,
+        activeHeaderCells: table.querySelectorAll('thead th.col-active').length,
+        id: hit ? hit.getAttribute('data-col-id') : null,
+      };
+    }, s.tableSelector);
+    okC3Table('C3 crosshair highlights one row', hover.rows === 1, `got ${hover.rows}`);
+    okC3Table('C3 crosshair highlights one logical column through .col-active', hover.active > 0, `got ${hover.active}`);
+    okC3Table('C3 crosshair adds NO competing .col-hover', hover.cols === 0, `got ${hover.cols}`);
+    okC3Table('C3 crosshair highlights one intersection cell', hover.cells === 1, `got ${hover.cells}`);
+    okC3Table('C3 chart-linked column reaches the header', hover.activeHeaderCells === 1, `got ${hover.activeHeaderCells}`);
+    await page.mouse.move(5, 5);
+    await page.waitForTimeout(s.hoverWaitMs);
+    const cleared = await page.evaluate(sel => {
+      const table = document.querySelector(sel);
+      return table ? table.querySelectorAll('.row-hover,.col-hover,.cell-hover,.col-active').length : 0;
+    }, s.tableSelector);
+    okC3Table('C3 crosshair clears on pointer leave', cleared === 0, `got ${cleared}`);
+  } else skipped('Tier 5 C3 crosshair (no data cell)');
+  await visitPage(page, 'Overview');
+}
+
+// §4.2 rev 1.74 / I131 — the general chart ↔ attached-table column sync on C3 Bar cards.
+// Config-gated via cfg.c3.columnSync. Measures the live DOM after a bar hover and a table hover.
+async function lintC3ColumnSync(page, cfg) {
+  const s = cfg.c3 && cfg.c3.columnSync;
+  if (!s) return;
+  console.log('\n── Tier 5: C3 chart ↔ attached-table column sync (§4.2 rev 1.74 / 1.75) ──');
+  const okSync = (name, cond, detail = '') => ok(name, cond, detail);
+  await visitPage(page, 'Breakdown'); // I133 — C3 lives on the Breakdown page
+  await page.locator(s.barViewSelector).click().catch(() => {});
+  await page.waitForTimeout(200);
+  const probe = index => page.evaluate(args => {
+    const card = document.querySelectorAll(args.cardSel)[args.index];
+    if (!card) return { missing: true };
+    const active = [...card.querySelectorAll('.col-active')];
+    const tip = card.querySelector(args.tipSel);
+    const band = card.querySelector(args.bandSel);
+    const line = card.querySelector(args.lineSel);
+    const bars = card.querySelectorAll('.c3-grid .g-bar');
+    const firstBar = bars[0], lastBar = bars[bars.length - 1];
+    const shown = el => !!el && getComputedStyle(el).display !== 'none';
+    const activeBar = card.querySelector('.c3-grid .g-bar.col-active');
+    const cs = activeBar ? getComputedStyle(activeBar) : null;
+    const br = activeBar ? activeBar.getBoundingClientRect() : null;
+    const ar = band ? band.getBoundingClientRect() : null;
+    const lr = line ? line.getBoundingClientRect() : null;
+    return {
+      missing: false,
+      activeIds: [...new Set(active.map(e => e.getAttribute('data-col-id')))],
+      activeBars: card.querySelectorAll('.c3-grid .g-bar.col-active').length,
+      activeHeads: card.querySelectorAll('thead th.g-axis.col-active').length,
+      activeCells: card.querySelectorAll('tbody td.g-val.col-active').length,
+      colHover: card.querySelectorAll('.col-hover').length,
+      tipShown: !!tip && (tip.classList.contains('show') || tip.textContent.trim() !== ''),
+      bands: card.querySelectorAll(args.bandSel).length,
+      lines: card.querySelectorAll(args.lineSel).length,
+      bandShown: shown(band),
+      lineShown: shown(line),
+      bandTrack: band ? band.style.gridColumnStart : '',
+      lineTrack: line ? line.style.gridColumnStart : '',
+      bandBehindBars: !!band && !!firstBar && !!(band.compareDocumentPosition(firstBar) & 4),
+      lineAboveBars: !!line && !!lastBar && !!(line.compareDocumentPosition(lastBar) & 2),
+      bandAligned: !!br && !!ar && Math.abs(ar.left - br.left) <= 2 && Math.abs(ar.width - br.width) <= 2,
+      lineCentred: !!br && !!lr && Math.abs((lr.left + lr.width / 2) - (br.left + br.width / 2)) <= 2,
+      activeBarBare: !!cs && cs.boxShadow === 'none' && cs.outlineStyle === 'none' &&
+        ['borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth']
+          .every(k => parseFloat(cs[k]) === 0)
+    };
+  }, {
+    cardSel: s.cardSelector, tipSel: s.tipSelector,
+    bandSel: s.bandSelector, lineSel: s.centreLineSelector, index
+  });
+  const firstCard = page.locator(s.cardSelector).first();
+  const bar = firstCard.locator(s.barSelector).nth(1);
+  if (!(await bar.count())) { skipped('Tier 5 C3 column sync (no bar column)'); return; }
+  const initial = await probe(0);
+  okSync('Each card carries ONE band and ONE centre line',
+    !initial.missing && initial.bands === 1 && initial.lines === 1, JSON.stringify(initial));
+  okSync('The band sits behind the bars and the centre line above them',
+    !initial.missing && initial.bandBehindBars && initial.lineAboveBars, JSON.stringify(initial));
+  okSync('Both marks stay hidden until hover',
+    !initial.missing && !initial.bandShown && !initial.lineShown, JSON.stringify(initial));
+  await bar.hover();
+  await page.waitForTimeout(s.hoverWaitMs);
+  const barId = await bar.getAttribute('data-col-id');
+  const expectedTrack = String(Number(barId) + 2);
+  const fromBar = await probe(0);
+  const otherCard = await probe(1);
+  okSync('Bar hover sets ONE shared column id',
+    !fromBar.missing && fromBar.activeIds.length === 1 && fromBar.activeIds[0] === barId, JSON.stringify(fromBar));
+  okSync('Bar hover highlights the bar, header and value cells',
+    !fromBar.missing && fromBar.activeBars === 1 && fromBar.activeHeads === 1 && fromBar.activeCells > 0, JSON.stringify(fromBar));
+  okSync('Bar hover adds NO competing .col-hover', !fromBar.missing && fromBar.colHover === 0, JSON.stringify(fromBar));
+  okSync('Bar hover shows the band and centre line on ONE shared grid track',
+    !fromBar.missing && fromBar.bandShown && fromBar.lineShown &&
+    fromBar.bandTrack === expectedTrack && fromBar.lineTrack === expectedTrack, JSON.stringify(fromBar));
+  okSync('The band covers the active column and the centre line sits at its centre',
+    !fromBar.missing && fromBar.bandAligned && fromBar.lineCentred, JSON.stringify(fromBar));
+  okSync('The active bar paints NO border, outline or inset ring',
+    !fromBar.missing && fromBar.activeBarBare, JSON.stringify(fromBar));
+  okSync('The second C3 card stays independent',
+    !otherCard.missing && otherCard.activeBars === 0 && !otherCard.bandShown && !otherCard.lineShown,
+    JSON.stringify(otherCard));
+  const cell = firstCard.locator(s.dataCellSelector).nth(1);
+  if (!(await cell.count())) { skipped('Tier 5 C3 column sync (no table cell)'); return; }
+  await cell.hover();
+  await page.waitForTimeout(s.hoverWaitMs);
+  const cellId = await cell.getAttribute('data-col-id');
+  const fromTable = await probe(0);
+  okSync('Table hover sets the SAME shared column id',
+    !fromTable.missing && fromTable.activeIds.length === 1 && fromTable.activeIds[0] === cellId, JSON.stringify(fromTable));
+  okSync('Table hover highlights the matching chart bar',
+    !fromTable.missing && fromTable.activeBars === 1 && fromTable.activeHeads === 1, JSON.stringify(fromTable));
+  okSync('Table hover moves the band and centre line to the same column',
+    !fromTable.missing && fromTable.bandShown && fromTable.lineShown &&
+    fromTable.bandAligned && fromTable.lineCentred, JSON.stringify(fromTable));
+  okSync('Table hover keeps the floating window closed', !fromTable.missing && !fromTable.tipShown, JSON.stringify(fromTable));
+  okSync('Table hover adds NO competing .col-hover', !fromTable.missing && fromTable.colHover === 0, JSON.stringify(fromTable));
+  await page.mouse.move(s.outside.x, s.outside.y);
+  await page.waitForTimeout(s.hoverWaitMs);
+  const cleared = await page.evaluate(args => ({
+    active: document.querySelectorAll(`${args.cardSel} .col-active`).length,
+    marks: [...document.querySelectorAll(`${args.bandSel},${args.lineSel}`)]
+      .filter(el => getComputedStyle(el).display !== 'none').length
+  }), { cardSel: s.cardSelector, bandSel: s.bandSelector, lineSel: s.centreLineSelector });
+  okSync('Pointer leave clears every chart-linked column', cleared.active === 0, `got ${cleared.active}`);
+  okSync('Pointer leave hides every band and centre line', cleared.marks === 0, `got ${cleared.marks}`);
+  await visitPage(page, 'Overview');
 }
 
 // Tier 6 loads the workbook and waits for the page navigation (the §4.6 window lives on the
@@ -2917,6 +3220,8 @@ for (const name of dashboards) {
     else {
       if (cfg.c1) await lintC1(page, cfg); else skipped('Tier 5 C1 chart (no c1 config)');
       if (cfg.c3) await lintC3(page, cfg); else skipped('Tier 5 C3 chart (no c3 config)');
+      await lintC3NativeTable(page, cfg);
+      await lintC3ColumnSync(page, cfg);
     }
   }
   if (!targetTier || targetTier === 6) {

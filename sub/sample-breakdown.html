@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Breakdown — Sample (UI-spec review, I133)</title>
+<style>/* Revision 2.19 | 2026-11-14 | CodeBuddy (AI) | I133 — the C3 legend moves above the chart, and the new Breakdown page gets a page-scoped 2+1 panel grid with the §4.7 14 px gap. The Breakdown Summary panel gets compact row tokens and `max-height:none` on its `.tableScroll`, so no inner vertical scroll bar appears. The global `.panel-grid` gap and `body[data-layout]` rules stay unchanged. */
+/* Revision 2.18 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.75 — C3 Bar cards adopt the C1 column-highlight design. ONE hidden `.c3-col-band` paints behind the bars and ONE hidden `.c3-col-snap` dashed centre line paints on top; both are grid-row:1 children of `.c3-grid`. Active bar cells keep `.col-active` as state only and paint NO background, border, outline or inset ring. Print hides both elements. C1 rules stay unchanged. */
+/* Revision 2.17 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.74 / I131 — ONE shared chart ↔ attached-table column state per C3 Bar card. Scoped `.col-active` rules paint the active `.g-bar`, dimension header and value cells from the §7.2.16 theme tokens. C3 attached tables keep `.row-hover` / `.cell-hover` and receive no `.col-hover`. Print neutralises the bar highlight as well as the table cell highlight. C1 rules stay unchanged. */
+/* Revision 2.16 | 2026-11-13 | CodeBuddy (AI) | §4.2 rev 1.73 / I130 — C3 Bar attached data rows now use ONE native `.c3-table` per card. The `.c3-grid` keeps only row 1 (bars, Y ticks, grid lines) and uses shared `--c3-gutter` / `--c3-cols` with `column-gap:0`. The table spans row 2 with `table-layout:fixed`, `border-collapse:separate`, `border-spacing:0`, a visually hidden caption, scoped `.g-*` cell rules and `position:relative` cells for the §7.2.16 crosshair. Print keeps the grid and table visible. C1 rules stay scoped and unchanged. */
+/* Revision 2.15 | 2026-11-13 | CodeBuddy (AI) | §7.2.16 / I129 — ONE global table hover crosshair. Shared semantic `--table-*-hover` tokens resolve from each theme's existing row / surface / accent colours; `.row-hover`, `.col-hover` and `.cell-hover` are painted on cells without removing `position:relative`, column-rule pseudo-elements, pinned-cell backgrounds or split-header width pins. C1 keeps its chart-linked `.col-active` state; print neutralises every transient hover class. No data, ARIA, export or layout change. */
+/* Revision 2.14 | 2026-11-12 | CodeBuddy (AI) | §7.1 rev 1.71 / I128 — ONE text-button height. Every text-bearing button now resolves `min-height:var(--btn-h)` from the shared `--btn-h:32px` token: primary, secondary and text actions, filter triggers, segmented buttons, column-visibility controls, pagination buttons and the chooser reset. Icon-only buttons stay 26 px square through `--icon-btn-h`, and the drill cell keeps its 32 px width by moving to 3 px side padding. The approved C1 `compact` preset variant is retired; its chips use the standard 32 px height and 12 px / 600 text. No data, handler, ARIA or repaint path changes. */
+/* Revision 2.13 | 2026-11-12 | CodeBuddy (AI) | §4.2 rev 1.70 / I127 — the C1 chart board now uses the universal bordered chart composition. `.c1-grid` stays borderless; `.c1-yaxis`, `.c1-plot` and `.c1-table` each own a 1 px `--border` edge. Shared corners are square (`10px 0 0 0`, `0 10px 0 0`, `0 0 10px 10px`); non-shared outer corners keep the 10 px radius. The table switches to `border-collapse:separate` + `border-spacing:0` so the radius clips correctly, and its header row drops its top rule to avoid a doubled edge against the plot. No markup, data, hover, ARIA, export or repaint path changes. */
+/* Revision 2.12 | 2026-11-11 | CodeBuddy (AI) | §7.5 B2.1 rev 1.69 / I125 — ONE authoritative segmented-control standard for ALL seven generators. Shared CSS custom properties in `:root` own every size, typography and colour value; colour values reference theme tokens so all five themes resolve them at use time. `standard` is 32 px / 12 px, and the ONLY approved `compact` variant is the shared `.seg-compact` class for the C1 presets (11 px / `5px 8px` / `min-height:0`, ≈ 26 px). The active fill is `--navy` (resolving `I123`), the inactive hover is `--surface2`, pressed uses `--surface3`, and disabled, pressed, active-hover and focus states are all defined. The active-state focus ring is white because `--blue` on `--navy` is 2.89:1. The old panel-scoped `.c1-ts-chips .seg-btn` sizing rule is replaced by the shared variant class. A measured browser regression showed that the shared `line-height:1.2` shrank the compact chips from 25.94 px to 23.19 px, so the compact variant keeps its own `--seg-compact-lh:1.45` token to honour Q04. No `data-*` attribute, handler, state key or repaint path changes. */
+/* Revision 2.11 | 2026-11-09 | CodeBuddy (AI) | §4.2 rev 1.68 / I124 — every `.seg-btn` now shares the SAME base hover and focus tokens: `.seg-btn:not(.active):hover{background:var(--surface2);color:var(--blue)}` and `.seg-btn:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}`. The scoped `.c1-ts-chips .seg-btn:focus-visible` rule is removed. `.c1-ts-chips .seg-btn{padding:5px 8px;font-size:11px}` remains as an EXPLICIT layout exception so five presets fit one row at 1280 px; it no longer carries a focus or hover rule. Owner decision 2026-11-09: soft `--surface2` hover, NOT B2's literal `--blue` hover, because Sub uses `--blue` for the active state (`I123` deferred). */
+/* Revision 2.10 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.67 / I122 — the five preset chips are ONE joined `.seg` group of `.seg-btn` buttons, using the existing Sub `.seg-btn.active` / `--blue` token. The pill rules are removed. `.c1-ts` is `flex-wrap:nowrap` down to the 1280 px desktop minimum: the label, period text and chip group do not shrink, and only `.c1-ts-body` shrinks (basis 190 px, min-width 120 px). Below 1280 px the §3.4.1 wrap rule re-enables `flex-wrap:wrap`, and below 760 px the track still takes a full line. Print hides `.c1-ts-body` and `.c1-ts-chips.seg`. */
+/* Revision 2.9 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.66 / I121 — C1 uses ONE dual-handle period track. Two native `step="1"` range inputs sit on one shared visual track with a token-coloured fill, month ticks, year labels and preset chips. The old `.c1-range-wrap` / `.c1-range` rules are removed. Focus-visible outlines, a narrow-screen wrap and a print rule that hides only the interactive track and chips are added. Colour comes from --blue / --border / --surface / --text2, so every theme keeps contrast. */
+/* Revision 2.8 | 2026-11-06 | CodeBuddy (AI) | §4.2 rev 1.63 — C1 attached-table interaction: tokenised `.sc-stop-*` gradient stops, pointer-transparent `.sc-area` / `.sc-hover-band`, and the theme-safe `.col-active` month-column highlight. No hard-coded series hex (§4.6). */
+/* Revision 2.7 | 2026-11-03 | CodeBuddy (AI) | I103 — the C2 Delay series is tokenised (`--color-c2delay`, line + dot + swatch classes; §4.6 forbids a hard-coded swatch hex), and the C4 Age-buckets swatch class `.c4-bucket` follows the bar's `--blue`. */
+/* Revision 2.6 | 2026-11-03 | CodeBuddy (AI) | I102 — C1 hover window follows §4.6: tokenised `.chart-swatch.c1-*` classes for the four series, and Actual Resub leaves Actual First's hue for its own token `--color-actualresub` (the bar, line and dot rules follow it; §4.6 forbids two distinct series sharing a hue). */
+/* Revision 2.5 | 2026-11-02 | CodeBuddy (AI) | I099 — added the .c3-no colour pair (arc, swatch) for the "No Outcome" donut segment: neutral grey, because a missing outcome is a gap in the data, not an approval state. */
+/* Revision 2.4 | 2026-11-02 | CodeBuddy (AI) | I020 — every dark theme now sets --line and --soft, so .icon-btn borders and soft surfaces are visible in dark, sky, ocean and presentation. */
+/* Revision 2.3 | 2026-10-25 | CodeBuddy (AI) | C3 Breakdown: submission and approval colour tokens, the chart-component board, bar/arc classes and the summary-table spacing. */
+/* Revision 2.2 | 2026-10-24 | CodeBuddy (AI) | Option B shell: MDL two-row header + navy left nav sidebar; light default. */
+:root{
+  color-scheme:light;
+  --navy:#15314f; --blue:#2b6cf6; --green:#17a67a; --amber:#F9A825; --red:#d23b3b; --slate:#64748B;
+  --bg:#eef2f8; --surface:#FFFFFF; --surface2:#F1F5F9; --surface3:#E8EDF3;
+  --border:#D9E1E8; --text:#1F2A37; --text2:#526171; --text3:#6b7785;
+  --accent:#2b6cf6; --accent-alt:#17a67a; --success:#17a67a; --warning:#F9A825; --danger:#d23b3b; --info:#2b6cf6; --danger-bg:#fde2e2; --warning-bg:#fff3cd; --warning-ink:#8a6d00;
+  --tag-bg:#EAF2FB; --tag-border:#CBDDEF; --row-stripe:#F7F9FB; --row-hover:#EAF2FB; --th-bg:#E8EDF3; --th-hover:#DAE3ED;
+  --shadow:0 1px 2px rgba(16,32,64,.04),0 8px 24px rgba(16,32,64,.05);
+  /* §3.2 — the left panel is sized to its menu titles: the widest, "Forward and Overdue", is ≈135 px at
+     14 px / 400, which with the button's 12 px horizontal padding and the panel's 10 px padding
+     needs 135 px, and 25 px of slack is left on top. */
+  --titlebar-h:56px; --menubar-h:48px; --sidebar-w:160px; --statusbar-h:30px;
+  --radius:12px; --radius-sm:6px; --radius-lg:14px;
+  --line:#D9E1E8; --muted:#526171; --soft:#EAF2FB; --accent-ink:#2b6cf6;
+  --font-ui:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif; --font-mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  /* §7.5 B2.1 rev 1.69 — ONE shared segmented-control token set. Colour values reference theme
+     tokens, so all five themes resolve them at use time. No generator declares its own sizes. */
+  /* §7.1 rev 1.71 / I128 — ONE text-button height and ONE icon-only square size. Segmented
+     controls continue to expose the B2.1 `--seg-h` token, but it now derives from `--btn-h`. */
+  --btn-h:32px; --icon-btn-h:26px;
+  --seg-h:var(--btn-h); --seg-pad-y:6px; --seg-pad-x:10px;
+  --seg-fs:12px; --seg-fw:600; --seg-lh:1.2;
+  --seg-active-bg:var(--navy); --seg-active-fg:#fff;
+  --seg-hover-bg:var(--surface2); --seg-hover-fg:var(--blue);
+  --seg-pressed-bg:var(--surface3);
+  --seg-focus:var(--blue); --seg-focus-on-active:#fff;
+  --seg-disabled-opacity:.5;
+  /* §7.2.16 / I129 — one semantic crosshair token set resolves from the active theme. */
+  --table-row-hover:var(--row-hover); --table-col-hover:var(--surface3);
+  --table-cell-hover:var(--soft); --table-head-hover:var(--th-hover);
+  --table-crosshair-ring:var(--accent);
+}
+[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0f1722; --surface:#16202e; --surface2:#1d2a3b; --surface3:#243446;
+  --border:#2c3c52; --text:#e6edf5; --text2:#aebccd; --text3:#7e8ea2;
+  --muted:#aebccd;
+  /* I020 — --line and --soft were declared in :root only, so .icon-btn and every soft surface kept
+     the light-theme colour in the dark themes. Each theme now sets its own. */
+  --line:#2c3c52; --soft:#1d2a3b;
+  --accent:#2b6cf6; --accent-alt:#17a67a; --success:#17a67a; --warning:#F9A825; --danger:#d23b3b; --info:#2b6cf6; --danger-bg:#3a1f24; --warning-bg:#3a3119; --warning-ink:#f0bd52;
+  --tag-bg:#1d2a3b; --tag-border:#34507a; --row-stripe:#121b27; --row-hover:#1d2a3b; --th-bg:#1b2838; --th-hover:#243648;
+  --shadow:0 1px 2px rgba(15,45,82,.18);
+}
+[data-theme="sky"]{
+  color-scheme:dark;
+  --bg:#0b1a2e; --surface:#10233b; --surface2:#172e4b; --surface3:#203b5b;
+  --border:#2b4968; --text:#ecf5ff; --text2:#bfd0e2; --text3:#91a8bf;
+  --muted:#bfd0e2; --line:#2b4968; --soft:#172e4b;
+  --accent:#69b7ff; --accent-alt:#74d2d0; --success:#4fc58b; --warning:#f0bd52; --danger:#ff8278; --info:#69b7ff; --danger-bg:#3a2228; --warning-bg:#3a3119; --warning-ink:#f0bd52;
+  --tag-bg:#173858; --tag-border:#31597d; --row-stripe:#102037; --row-hover:#1b3858; --th-bg:#18324f; --th-hover:#244363;
+  --shadow:0 1px 4px #0004;
+}
+[data-theme="ocean"]{
+  color-scheme:dark;
+  --bg:#0a1929; --surface:#10263a; --surface2:#17324a; --surface3:#20415d;
+  --border:#2b4b65; --text:#e8f6f8; --text2:#b5cdd3; --text3:#88a9b3;
+  --muted:#b5cdd3; --line:#2b4b65; --soft:#17324a;
+  --accent:#43c6c8; --accent-alt:#71a9f7; --success:#59c69b; --warning:#e4b958; --danger:#fb7e7e; --info:#43c6c8; --danger-bg:#3a2222; --warning-bg:#3a3320; --warning-ink:#e4b958;
+  --tag-bg:#14394a; --tag-border:#2c5966; --row-stripe:#0f2234; --row-hover:#19384e; --th-bg:#173349; --th-hover:#24465d;
+  --shadow:0 1px 4px #0004;
+}
+[data-theme="presentation"]{
+  color-scheme:dark;
+  --bg:#0c0c0c; --surface:#171717; --surface2:#202020; --surface3:#2a2a2a;
+  --border:#3a3a3a; --text:#ffffff; --text2:#d8d8d8; --text3:#9a9a9a;
+  --muted:#d8d8d8; --line:#3a3a3a; --soft:#202020;
+  --accent:#55aaff; --accent-alt:#c69bff; --success:#55d68b; --warning:#ffd166; --danger:#ff6b6b; --info:#55aaff; --danger-bg:#3a1f1f; --warning-bg:#3a3320; --warning-ink:#ffd166;
+  --tag-bg:#202020; --tag-border:#505050; --row-stripe:#141414; --row-hover:#252525; --th-bg:#202020; --th-hover:#303030;
+  --shadow:0 1px 4px #0006;
+}
+*{box-sizing:border-box}html,body{height:100%;overflow:hidden;margin:0}body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);font:13px/1.45 var(--font-ui);transition:background .25s,color .25s}button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+/* ===== Welcome screen (MDL full-screen; no dashboard parts until data loads) ===== */
+.welcome-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg);z-index:5}
+body.loaded .welcome-screen{display:none}
+.app{display:none}
+body.loaded .app{display:flex;flex-direction:column;height:100vh;min-height:0;overflow:hidden}
+.welcome-err{margin:14px 0 0;padding:10px 12px;border-radius:8px;background:#fdecec;border:1px solid #f3b4b4;color:#a4262c;font-size:13px;text-align:left}
+.welcome-err[hidden]{display:none}
+#welcome-load{margin:2px 0 0}
+/* ===== Two-row header (MDL) ===== */
+.app-bar{flex:none;display:flex;flex-direction:column;z-index:20}
+.app-top{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--navy);color:#fff;padding:10px 20px;min-height:var(--titlebar-h)}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+/* MDL: the logo is 36 px tall and never shrinks. */
+.logo{height:36px;padding:3px;background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.2);flex-shrink:0}
+/* MDL: the three rows stack with a 2 px gap; the title is 17 px / 600 at line-height 1.2. */
+.ttl-stack{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ttl{font-size:17px;font-weight:600;margin:0;line-height:1.2}
+.ttl-stack .sub{font-size:12px;font-weight:500;color:rgba(255,255,255,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{font-size:11px;opacity:.85}
+.app-menu{display:flex;align-items:center;gap:12px;background:#fff;color:var(--text);padding:8px 20px;min-height:var(--menubar-h);border-bottom:1px solid var(--border);flex-wrap:nowrap}
+.app-menu .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+/* MDL: the filter group is not a scroll container — `overflow` here clips the floating panels. */
+/* MDL: the actions group is left-aligned and the filter group is pushed to the right. */
+.app-menu .filter-group{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:nowrap;flex-shrink:0}
+.app-menu .tf-filters{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+/* MDL: every control in the menu bar is 12 px / 600. */
+.app-menu .btn{border:0;background:transparent;color:var(--navy);cursor:pointer;font-size:12px;font-weight:600;line-height:1.2;min-height:var(--btn-h);padding:7px 14px;border-radius:6px}
+.app-menu .btn:hover{background:var(--surface2)}
+.app-menu .btn-primary{background:var(--blue);color:#fff}
+/* §3.1 — the sidebar toggle is compact. It is one glyph, so it drops the 14 px horizontal padding of
+   a text control for 8 px, and the gap after it is 8 px rather than the bar's 12 px. */
+.app-menu .btn[data-shell-toggle]{padding:7px 8px;margin-right:-4px}
+.app-menu .btn-primary:hover{background:#1f5fcc}
+.app-menu .choose-workbooks{background:var(--blue);color:#fff}
+.app-menu .choose-workbooks:hover{background:#1f5fcc}
+/* MDL: the Warnings toggle carries a further 6 px left margin inside the filter group. */
+.app-menu .warn-toggle{display:flex;align-items:center;gap:6px;margin-left:6px}
+.app-menu .warn-toggle .badge{background:var(--amber);color:#1b2a41;border-radius:10px;padding:1px 7px;font-weight:700;font-size:11px}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:var(--icon-btn-h);height:var(--icon-btn-h);min-height:var(--icon-btn-h);padding:0;font:inherit;font-size:13px;font-weight:600;line-height:1;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--muted);cursor:pointer}
+.icon-btn:hover{background:var(--surface2)}
+/* Theme switching is deferred (I009). The .icon-btn geometry below stays, per spec §7.1 A4. */
+/* Global filters — spec §7.1 B1 trigger + B3 rows, sized as MDL */
+.tf-wrap{position:relative;flex-shrink:0}
+.tf-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--navy);padding:7px 12px;min-height:var(--btn-h);font-size:12px;font-weight:600;line-height:normal;cursor:pointer;white-space:nowrap}
+.tf-btn:hover{background:var(--soft)}
+.tf-btn[aria-expanded="true"]{border-color:var(--blue);background:var(--soft)}
+.tf-btn.is-filtered{border-color:var(--blue)}
+.tf-cnt{font-size:10px;padding:0 0 0 4px;font-weight:700;color:var(--accent-ink);border:0;background:transparent;border-radius:10px}
+/* MDL: the menu-bar chrome strips the base 1 px border from the filter trigger (spec §7.1 B1). */
+.app-menu .tf-btn{border:0;background:transparent;color:var(--navy)}
+.app-menu .tf-btn:hover{background:var(--soft)}
+.app-menu .tf-btn[aria-expanded="true"]{background:var(--soft)}
+.tf-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:40;min-width:220px;max-width:min(340px,90vw);max-height:320px;overflow:auto;display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:10px}
+.tf-panel[hidden]{display:none}
+.tf-panel .tf-all{display:flex;align-items:center;gap:8px;padding:2px;font-size:12px;cursor:pointer}
+.tf-panel .tf-all input{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0}
+.tf-panel .tf-all b{font-weight:700}
+.tf-panel .tf-hint{margin:2px 2px 6px;font-size:10px;color:var(--muted);line-height:1.35}
+.tf-panel .tf-divider{height:1px;background:var(--border);margin:2px 0 6px}
+.tf-panel .tf-item{display:flex;align-items:center;gap:8px;padding:5px 2px;font-size:12px;cursor:pointer;border-radius:4px}
+.tf-panel .tf-item:hover{background:var(--soft)}
+.tf-panel .tf-item input{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0}
+/* ===== Shell row + sidebars ===== */
+.shell-row{flex:1;min-height:0;display:flex}
+.left-sidebar{position:relative;flex:none;width:var(--sidebar-w);min-width:0;background:var(--navy);color:#E8EDF3;overflow:auto;transition:width .2s ease;z-index:15;display:flex;flex-direction:column;padding:10px;border-right:1px solid rgba(255,255,255,.18)}
+.closed-left-sidebar .left-sidebar{width:0!important;border:0;padding-left:0;padding-right:0;overflow:hidden}
+.closed-left-sidebar .left-sidebar>*{display:none}
+/* §3.2 — the panel holds menus only: the page links at the top, then Settings and Help pinned to the
+   bottom. No collapse toggle (that lives in the menu bar), no section titles, and no dividers. */
+.sb-menu{display:flex;flex-direction:column}
+.sb-bottom{display:flex;flex-direction:column;margin-top:auto}
+.page-links{display:flex;flex-direction:column}
+.page-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:#dfe8f3;font-size:14px;border:0;background:transparent;text-align:left}
+.page-link:hover{background:rgba(255,255,255,.1)}
+.page-link.active{background:var(--blue);color:#fff;font-weight:600}
+.small-note{color:rgba(255,255,255,.6);font-size:12px;margin:2px 0}
+.file-item{display:flex;gap:8px;align-items:baseline;font-size:12px;color:rgba(255,255,255,.75)}
+.file-item span{color:#bfe0ff;font-weight:700;min-width:34px}
+.file-item b{font-weight:500;word-break:break-word}
+.drop{margin:4px 0;padding:16px;border:1.5px dashed rgba(255,255,255,.4);border-radius:10px;text-align:center;color:rgba(255,255,255,.85);cursor:pointer;transition:.15s;font-size:13px}
+.drop:hover,.drop:focus{border-color:var(--blue);background:rgba(255,255,255,.08);outline:none}
+.resize-handle{position:absolute;top:0;right:0;width:5px;height:100%;cursor:col-resize}
+.resize-handle:hover{background:rgba(255,255,255,.25)}
+.content{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg)}
+/* §3.1 / §3.3 — there is no content toolbar. The active page is shown at the right of the title bar,
+   and the layout toggle is an icon control at the right end of the menu bar. */
+.app-top .page-title{font-size:16px;font-weight:600;line-height:1.2;color:#fff;white-space:nowrap;flex-shrink:0}
+.app-menu #layout-button{padding:7px 8px;flex-shrink:0;margin-left:auto}
+.spacer{flex:1}
+.filter-area{padding:0 16px}
+/* Search popover — MDL design: .tf-panel.search-panel > .search-row > .search + Find / Reset */
+.search-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:60;display:none;width:min(92vw,640px);max-width:min(92vw,640px);padding:10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow)}
+.search-panel.open{display:block}
+.search-row{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+/* MDL: the border, radius and surface belong to the .search box; both children are borderless. */
+.search{display:flex;align-items:center;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:6px;min-height:28px;padding:0;flex:1 1 auto;width:auto;min-width:240px;max-width:none}
+.search:focus-within{border-color:var(--blue);box-shadow:0 0 0 2px var(--soft)}
+.search .inter-sel{border:0;background:var(--bg);color:var(--navy);font:inherit;font-weight:600;font-size:12px;border-radius:6px 0 0 6px;height:26px;padding:0 8px;cursor:pointer;max-width:260px}
+.search .inter-sel.is-attached{border-right:1px solid var(--border)}
+.search .search-input{border:0;background:transparent;color:var(--text);font:inherit;font-size:12px;flex:1 1 220px;min-width:0;height:26px;padding:0 8px;outline:none}
+.search .search-input::placeholder{color:var(--muted)}
+.btn-primary{background:var(--blue);color:#fff;border:0;padding:7px 14px;min-height:var(--btn-h);border-radius:6px;cursor:pointer;font-size:13px}
+.btn-primary:hover{background:#1f5fcc}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-secondary{background:var(--surface2);border:1px solid var(--border);padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px}
+.btn-secondary:hover{background:var(--surface3)}
+.warning-area{margin:0 0 12px;padding:10px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border)}
+.warning-area.collapsed{display:none}
+.sys-banner-item{font-size:12px;padding:3px 0;color:var(--text)}
+.sys-banner-item.fatal b,.sys-banner-item.error b{color:var(--danger)}
+.sys-banner-item.warning b{color:var(--warning)}
+.sys-banner-item.info b{color:var(--info)}
+.content-body{flex:1;overflow:auto;padding:16px}
+/* ===== Welcome card (MDL) ===== */
+.onboarding{max-width:480px;width:100%;margin:0;padding:40px;text-align:center;border:1px solid var(--border);border-radius:16px;background:var(--surface);box-shadow:var(--shadow)}
+.onboarding .wlogo{height:56px;width:auto;margin:0 auto 18px;display:block;border-radius:6px}
+.onboarding h2{font-size:24px;margin:0 0 8px;color:var(--text)}
+
+.onboarding .sub{color:var(--text2);font-size:14px;margin:0 0 18px}
+.onboarding .expect{margin:0 0 18px;padding:12px 14px;text-align:left;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:8px;color:var(--text2);font-size:13px;line-height:1.5}
+.onboarding .expect b{color:var(--text)}
+.onboarding .drop{width:100%;aspect-ratio:1.618;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font:inherit;margin:0 0 18px;padding:22px;border:1.5px dashed var(--text3);border-radius:12px;text-align:center;color:var(--text2);cursor:pointer;transition:.15s;background:var(--surface)}
+.onboarding .drop:hover,.onboarding .drop:focus{border-color:var(--blue);background:var(--surface2);outline:none}
+.onboarding .drop .d-title{font-size:15px;font-weight:600;color:var(--text)}
+.onboarding .drop .d-sub{font-size:12px;color:var(--text3);margin-top:4px}
+.onboarding .drop .drop-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.onboarding .drop .drop-actions .btn{margin:0}
+.onboarding .pick-state{font-size:12px;color:var(--text3);margin:0 0 12px;min-height:16px;word-break:break-word}
+.onboarding .pick-state.ready{color:var(--blue)}
+.onboarding .privacy{display:flex;align-items:center;justify-content:center;gap:6px;color:var(--text3);font-size:12px;margin-top:14px}
+.onboarding .privacy svg{width:14px;height:14px;fill:var(--text3)}
+.onboarding .copyright{color:var(--text3);font-size:11px;margin-top:10px}
+/* ===== Panels / KPI ===== */
+/* §4 — panel surface: 10 px radius on a relative box, with 26 px of bottom padding so the corner
+   number never overlaps the last line. The header (title + Help + toggle) sits INSIDE this edge. */
+.panel{margin:14px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);padding:14px 14px 26px;position:relative;min-width:0;min-height:0}
+/* §4 — content flow wrapper inside the panel; it carries no border (the panel edge already frames it).
+   Individual graphs live in their own bordered `.c-card` below. */
+.panel-body{min-width:0}
+/* §4 — title row: title left, action cluster right. The 10 px gap belongs to the row, not the heading. */
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 10px}
+.panel h2{margin:0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--navy);line-height:1.4;min-width:0}
+.panel-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+/* §4 — the corner panel number, anchored bottom-right and never clickable. */
+.panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:.04em;color:var(--text3);pointer-events:none}
+/* §4 — chart card: a graph (with its own controls) gets its own bordered surface inside the panel,
+   so multiple graphs in one panel are visually separated (MDL chart-card pattern). */
+.c-card{border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--surface);position:relative;min-width:0;margin:0 0 12px}
+.c-card:last-child{margin-bottom:0}
+/* §4.1 — collapsing a panel hides everything but its title row. */
+.panel.collapsed>*:not(.panel-head){display:none}
+/* §4 — the panel margin is neutralised inside a grid that already sets `gap`, so the gap wins. */
+.panel-grid>.panel{margin:0}
+.panel h3{margin:0 0 4px;font-size:13px;font-weight:700;color:var(--navy)}
+.panel h4{margin:14px 0 4px;font-size:13px;color:var(--text2)}
+.panel small,.panel .psub{color:var(--text2);font-size:12px}
+/* §3.4.1 — the panel grid reflows like the KPI grid (repeat(auto-fit, minmax(210px,1fr))): it must
+   follow the screen at any zoom, not keep a first-render column count. The chosen layout is the
+   MAXIMUM column count; tracks use minmax(0,1fr) so they can shrink, and media-query breakpoints
+   drop columns as the content width shrinks so no panel overflows the screen. */
+.panel-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+body[data-layout="two"] .panel-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+body[data-layout="three"] .panel-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:1100px){
+  body[data-layout="three"] .panel-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  body[data-layout="two"] .panel-grid,
+  body[data-layout="three"] .panel-grid{grid-template-columns:minmax(0,1fr)}
+}
+/* §5 — KPI cards: 3 px status strip, 8 px radius, 10 px padding, 72 px high, no shadow.
+   Value and label only. Do not set line-height: the inherited 1.45 makes the 72 px height. */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:18px}
+.kpi-card{box-sizing:border-box;height:72px;padding:10px;border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;background:var(--surface);box-shadow:none}
+.kpi-card .v{font-size:22px;font-weight:700;color:var(--navy)}
+.kpi-card .l{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+/* §5 — strip colour carries the card's status; --blue is the default above. */
+.kpi-card.ok{border-top-color:var(--green)}
+.kpi-card.amb{border-top-color:var(--amber)}
+.kpi-card.warn{border-top-color:var(--red)}
+.kpi-card.muted{border-top-color:var(--slate)}
+.kpi-card.err{border-top-color:#8E24AA}
+/* ===== Tables ===== */
+.table-scroll{max-height:520px;overflow:auto;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+table.ds{width:100%;border-collapse:collapse;font-size:13px}
+table.ds th,table.ds td{border-bottom:1px solid var(--border);padding:8px 10px;text-align:left}
+table.ds th{background:var(--th-bg);color:var(--text2);font-weight:600;position:sticky;top:0;z-index:1}
+table.ds tbody tr:nth-child(even){background:var(--row-stripe)}
+table.ds tbody tr:hover{background:var(--row-hover)}
+table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;padding:24px}
+.win-pad{height:0;padding:0!important}
+.ds-resize{cursor:col-resize}
+/* ===== Bar chart ===== */
+.bar-chart{display:flex;flex-direction:column;gap:6px}
+.bar-row{display:flex;align-items:center;gap:8px;font-size:12px}
+.bar-row>span{min-width:90px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;background:var(--surface2);border-radius:6px;height:14px;overflow:hidden}
+.bar-track i{display:block;height:100%;background:var(--blue)}
+.bar-row b{min-width:34px;text-align:right;color:var(--text)}
+/* ===== C4 scatter legend ===== */
+.legend{display:flex;gap:16px;font-size:11px;color:var(--text2);margin:8px 2px 0}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+/* ===== Misc ===== */
+.note{color:var(--text2);font-size:13px;line-height:1.5;margin:6px 0}
+.summary-chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.vchip{font-size:11px;padding:3px 10px;border-radius:6px;font-weight:700;text-transform:capitalize;line-height:1.4}
+.vchip.e{background:var(--danger-bg);color:var(--danger)}.vchip.w{background:var(--warning-bg);color:var(--warning-ink)}.vchip.i{background:var(--tag-bg);color:var(--info)}
+.status-bar{flex:none;display:flex;align-items:center;gap:8px;background:var(--navy);color:var(--surface3);font-size:12px;padding:6px 14px;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
+.status-bar #status-right{margin-left:auto;opacity:.85}
+/* ===== Modals ===== */
+.modal{position:fixed;inset:0;background:rgba(15,45,82,.4);display:flex;align-items:center;justify-content:center;z-index:50}
+.modal[hidden]{display:none}
+.modal-box{background:var(--surface);color:var(--text);border-radius:12px;box-shadow:var(--shadow);width:min(440px,92vw);max-height:86vh;overflow:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
+.modal-head h3{margin:0;font-size:16px}
+.modal-body{padding:16px;display:flex;flex-direction:column;gap:12px}
+.setting{display:flex;align-items:center;gap:8px;font-size:14px}
+.setting select{padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)}
+.setting input[type=checkbox]{width:16px;height:16px}
+/* §5 — the KPI grid needs no breakpoint: auto-fit with a 210 px floor drops columns by itself. */
+@media(max-width:1099px){.panel-grid,body[data-layout="three"] .panel-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:879px){.panel-grid,body[data-layout="two"] .panel-grid,body[data-layout="three"] .panel-grid{grid-template-columns:1fr}}
+/* ===== C1 Schedule Performance S-Curve (workplan D35) ===== */
+:root{
+  /* Series colours — shared by bars and their cumulative lines so the hue is consistent. */
+  --color-plan:#2b6cf6; --color-forecast:#F9A825; --color-actual:#17a67a;
+  /* I102 — Actual Resub is its own series, not a faded Actual First: §4.6 forbids shared hues, and
+     names Resubmission in the example. Magenta is unused by any other series token. */
+  --color-actualresub:#c026d3;
+  /* I103 — the C2 Delay line/dots keep their hue but become a token, so the hover-window swatch
+     can reference the on-chart series colour (§4.6: never a hard-coded hex). */
+  --color-c2delay:#ff8c42;
+}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:6px;padding:7px 12px;min-height:var(--btn-h);font-size:12px;font-weight:600;cursor:pointer;line-height:1.2}
+.btn:hover{background:var(--surface2)}
+.btn-secondary{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:6px;padding:7px 12px;min-height:var(--btn-h);font-size:12px;font-weight:600;cursor:pointer;line-height:1.2}
+.btn-secondary:hover{background:var(--surface2)}
+.btn-secondary.on{background:var(--surface3);border-color:var(--blue);color:var(--blue)}
+.c1-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 10px}
+.c1-controls .controls-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1 1 520px;min-width:0}
+.c1-controls .controls-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
+.c1-period-label{font-weight:600;font-size:12px;color:var(--text2)}
+.c1-period-text{font-size:11px;color:var(--text2);white-space:nowrap;font-variant-numeric:tabular-nums}
+/* §4.2 rev 1.66 — one dual-handle track. Month ticks are visual only and never take pointer events. */
+/* §4.2 rev 1.67 — keep the cluster on ONE line down to the 1280 px desktop minimum. */
+.c1-ts{--c1-thumb:14px;display:flex;align-items:center;gap:10px;flex-wrap:nowrap;width:100%}
+.c1-period-label,.c1-period-text,.c1-ts-chips{flex-shrink:0}
+.c1-ts-body{position:relative;flex:1 1 190px;min-width:120px;max-width:440px;height:26px}
+.c1-ts-track{position:relative;height:26px}
+.c1-ts-track::before{content:"";position:absolute;left:calc(var(--c1-thumb)/2);right:calc(var(--c1-thumb)/2);top:12px;height:4px;border-radius:2px;background:var(--border)}
+.c1-ts-fill{position:absolute;top:12px;height:4px;border-radius:2px;background:var(--blue);pointer-events:none}
+.c1-ts-ticks{position:absolute;inset:0;pointer-events:none}
+.c1-ts-tick{position:absolute;top:9px;width:1px;height:6px;background:var(--border);pointer-events:none;transition:height .12s ease,top .12s ease,background .12s ease}
+.c1-ts-tick.is-year{top:7px;height:10px;background:var(--text2)}
+.c1-ts-tick.is-active{background:var(--blue)}
+.c1-ts-tick.is-near{top:6px;height:12px;background:var(--blue)}
+.c1-ts-year{position:absolute;top:-12px;left:0;transform:translateX(-50%);font-size:9px;color:var(--text2);white-space:nowrap}
+.c1-ts-input{position:absolute;left:0;top:0;width:100%;height:26px;margin:0;appearance:none;-webkit-appearance:none;background:transparent;pointer-events:none}
+.c1-ts-input::-webkit-slider-runnable-track{height:26px;background:transparent;border:0}
+.c1-ts-input::-moz-range-track{height:26px;background:transparent;border:0}
+.c1-ts-input::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:var(--c1-thumb);height:var(--c1-thumb);margin-top:6px;border-radius:50%;background:var(--blue);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--blue);cursor:grab;pointer-events:auto;transition:transform .12s ease}
+.c1-ts-input::-moz-range-thumb{width:var(--c1-thumb);height:var(--c1-thumb);border-radius:50%;background:var(--blue);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--blue);cursor:grab;pointer-events:auto;transition:transform .12s ease}
+.c1-ts-input:active::-webkit-slider-thumb,.c1-ts-input:active::-moz-range-thumb{transform:scale(1.15);cursor:grabbing}
+.c1-ts-input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.c1-ts-input-from{z-index:3}
+.c1-ts-input-to{z-index:4}
+.c1-ts-chips.seg{flex-shrink:0;flex-wrap:nowrap}
+/* §7.1 rev 1.71 / I128 — the former C1 `compact` preset variant is retired. Its chips now use
+   the ONE shared 32 px text-button height and the standard 12 px / 600 typography. */
+/* §3.4.1 — below the 1280 px minimum the control row may wrap, but stays reachable. */
+@media(max-width:1279px){.c1-ts{flex-wrap:wrap}.c1-ts-body{flex-basis:260px;min-width:190px}}
+@media(max-width:760px){.c1-ts-body{flex-basis:100%;max-width:none}.c1-ts-year{display:none}}
+/* §7.5 B2.1 rev 1.69 — authoritative common standard for ALL seven `.seg-btn` generators.
+   `align-items:stretch` gives equal height inside one group; the parent row centres groups. */
+.seg{display:inline-flex;align-items:stretch;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.seg-btn{display:inline-flex;align-items:center;justify-content:center;border:0;background:transparent;color:var(--text2);min-height:var(--seg-h);padding:var(--seg-pad-y) var(--seg-pad-x);font-size:var(--seg-fs);font-weight:var(--seg-fw);line-height:var(--seg-lh);cursor:pointer}
+.seg-btn.active{background:var(--seg-active-bg);color:var(--seg-active-fg)}
+/* An active button keeps its selection colour on hover. Hover and pressed exclude :disabled. */
+.seg-btn:not(.active):not(:disabled):hover{background:var(--seg-hover-bg);color:var(--seg-hover-fg)}
+.seg-btn.active:hover{background:var(--seg-active-bg);color:var(--seg-active-fg)}
+.seg-btn:not(:disabled):active:not(.active){background:var(--seg-pressed-bg);color:var(--text)}
+.seg-btn:focus-visible{outline:2px solid var(--seg-focus);outline-offset:-2px}
+/* `--blue` on `--navy` is 2.89:1; white on `--navy` is 13.26:1 (§7.5 B2.1). */
+.seg-btn.active:focus-visible{outline-color:var(--seg-focus-on-active)}
+.seg-btn:disabled{opacity:var(--seg-disabled-opacity);cursor:not-allowed;pointer-events:none}
+.scurve{position:relative;max-width:100%}
+.scurve-svg{display:block}
+.chart-tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:8px 10px;font-size:11px;line-height:1.45;color:var(--text);z-index:30;max-width:230px;opacity:0;transition:opacity .12s ease}
+.chart-tip.show{opacity:1}
+.chart-tip-foot{display:flex;justify-content:space-between;gap:12px;margin-top:4px;padding-top:4px;border-top:1px solid var(--border);font-weight:600}
+.chart-tip-k{color:var(--text2);font-weight:600}
+/* I102 — the C1 hover-window swatches. Tokens only, never a hard-coded hex (§4.6). */
+.chart-swatch.c1-plan{background:var(--color-plan)}
+.chart-swatch.c1-forecast{background:var(--color-forecast)}
+.chart-swatch.c1-actual{background:var(--color-actual)}
+.chart-swatch.c1-resub{background:var(--color-actualresub)}
+.chart-swatch.c2-delay{background:var(--color-c2delay)}
+.chart-swatch.c4-bucket{background:var(--blue)}
+.sc-board,.c2-stack,.c3-card,.c4-chart,.kpi-card{position:relative}
+.scurve.sc-board,.c2-stack,.c3-card,.c4-chart{cursor:crosshair}
+.kpi-card{cursor:help}
+.panel,.panel-body,.kpi-grid,.c3-cards,.c3-body,.c-card{overflow:visible}
+.sc-bar-plan{fill:var(--color-plan)}
+.sc-bar-forecast{fill:var(--color-forecast)}
+.sc-bar-actual{fill:var(--color-actual)}
+.sc-bar-actualresub{fill:var(--color-actualresub)}
+.sc-board{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fff}
+.sc-ref-lbl{font-size:9px;font-weight:700}
+.sc-ref-lbl-start{fill:var(--danger)}
+.sc-ref-lbl-today{fill:var(--slate)}
+.sc-line-plan{stroke:var(--color-plan);stroke-width:2.5;fill:none;stroke-dasharray:6 3}
+.sc-line-forecast{stroke:var(--color-forecast);stroke-width:2.5;fill:none;stroke-dasharray:2 2}
+.sc-line-actual{stroke:var(--color-actual);stroke-width:2.5;fill:none}
+.sc-line-actualresub{stroke:var(--color-actualresub);stroke-width:2.5;fill:none;stroke-dasharray:3 3;opacity:.85}
+.sc-dot{stroke:none}
+.sc-dot-plan{fill:var(--color-plan)} .sc-dot-forecast{fill:var(--color-forecast)} .sc-dot-actual{fill:var(--color-actual)} .sc-dot-actualresub{fill:var(--color-actualresub)}
+/* §4.2 rev 1.63 — soft areas and the month-column band. Stops use the on-chart series tokens;
+   chartSvgStyle() resolves them to literal colours for the standalone PNG / Copy SVG. */
+.sc-stop-plan{stop-color:var(--color-plan)}
+.sc-stop-forecast{stop-color:var(--color-forecast)}
+.sc-stop-actual{stop-color:var(--color-actual)}
+.sc-stop-resub{stop-color:var(--color-actualresub)}
+.sc-area{stroke:none;pointer-events:none}
+.sc-hover-band{fill:var(--blue);fill-opacity:.08;pointer-events:none}
+.sc-grid{stroke:var(--border);stroke-width:1}
+.sc-yaxis-line{stroke:var(--border);stroke-width:1}
+.sc-axis{fill:var(--text2);font-size:10px}
+.sc-axis-title{font-weight:700}
+.sc-barval{fill:var(--text2);font-size:9px}
+.sc-x{font-size:10px}
+.sc-leg-t{fill:var(--text);font-size:11px}
+.sc-ref-start{stroke:var(--danger);stroke-width:1.5;stroke-dasharray:5 3}
+.sc-ref-today{stroke:var(--slate);stroke-width:1.5;stroke-dasharray:2 2}
+.chart-snap{stroke:var(--text3);stroke-width:1;stroke-dasharray:3 3}
+/* ===== C1 attached data table (spec §4.2 rev 1.59 / T19.1 / I116) =====
+   One CSS grid is the alignment container. Column 1 holds the Y caption, the Y ticks and the
+   metric labels. Columns 2..N+1 hold one period each. Row 1 holds the curve. Row 2 holds the
+   native table, whose column headers are the X labels. No min-width and no horizontal scroll:
+   the SVG viewBox scales the whole curve into the card at every panel width. */
+.c1-grid{display:grid;grid-template-columns:var(--c1-gutter,104px) repeat(var(--c1-cols,1),minmax(0,1fr));column-gap:0;row-gap:0;min-width:0;width:100%}
+/* §4.2 rev 1.70 — bordered chart composition. The alignment grid stays borderless; the axis,
+   plot and attached-table zones each own a 1 px edge. Shared corners are square; outer corners
+   keep the 10 px radius. */
+.c1-yaxis{grid-column:1;grid-row:1;position:relative;min-width:0;border:1px solid var(--border);border-radius:10px 0 0 0;background:var(--surface);pointer-events:none}
+/* §4.2 — the unit caption runs along the side of the Y axis, reading bottom-to-top. */
+.c1-yaxis .c1-ycap{position:absolute;left:2px;top:50%;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;text-orientation:mixed;font-size:10px;font-weight:700;letter-spacing:.02em;color:var(--text2);white-space:nowrap}
+.c1-yaxis .c1-ytick{position:absolute;right:6px;transform:translateY(-50%);font-size:10px;line-height:1;color:var(--text2);text-align:right;padding-right:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.c1-plot{grid-column:2/-1;grid-row:1;min-width:0;border:1px solid var(--border);border-radius:0 10px 0 0;background:var(--surface);overflow:hidden}
+.c1-plot svg.scurve-svg{display:block;width:100%;height:auto;max-width:100%}
+.c1-table{grid-column:1/-1;grid-row:2;width:100%;min-width:0;table-layout:fixed;border:1px solid var(--border);border-radius:0 0 10px 10px;border-collapse:separate;border-spacing:0;background:var(--surface);overflow:hidden}
+/* §4.2 requires the short <caption> in the accessibility tree, and §4.2's grid contract
+   requires the X-label header row flush against the plot. A visually hidden caption keeps
+   both: it stays in the DOM but contributes no height, so the header sits on the X axis. */
+.c1-table caption{position:absolute;width:1px;height:1px;padding:0;margin:0;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0}
+.c1-table thead th{border-top:0}
+.c1-table th,.c1-table td{border-top:1px solid var(--border);border-right:1px solid var(--border);padding:4px 2px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis}
+.c1-table tr > :last-child{border-right:0}
+.c1-table thead th.g-corner{display:table-cell;text-align:left;vertical-align:bottom;background:var(--surface2);color:var(--navy);font-size:10px;font-weight:700;padding-left:8px}
+.c1-table thead th.g-axis{display:table-cell;writing-mode:horizontal-tb;text-align:center;vertical-align:bottom;background:var(--surface2);color:var(--text2);font-size:11px;font-weight:600;height:26px;padding:2px}
+.c1-table thead th.g-axis span{display:inline-block;writing-mode:horizontal-tb;white-space:nowrap}
+.c1-table.c1-many thead th.g-axis{height:88px}
+.c1-table.c1-many thead th.g-axis span{writing-mode:vertical-rl;text-orientation:mixed}
+.c1-table tbody th.g-label{display:table-cell;text-align:right;vertical-align:middle;background:var(--surface2);color:var(--text2);font-size:11px;font-weight:600;padding-right:8px;white-space:nowrap}
+.c1-table tbody td.g-val{text-align:center;vertical-align:middle;color:var(--text);font-size:12px;font-variant-numeric:tabular-nums}
+.c1-table tbody td.g-val.neg{color:var(--danger)}
+/* §4.2 rev 1.63 — two-way month-column highlight. --soft and --text are theme-aware, so the
+   active column stays readable in light, dark, sky, ocean and presentation. */
+.c1-table [data-c1col].col-active{background:var(--soft);color:var(--text);font-weight:600}
+.c1-table thead th.g-axis.col-active span{color:var(--text)}
+@media print{.c1-grid,.c1-plot,.c1-table{overflow:visible;width:100%}}
+/* §4.2 rev 1.66 — print keeps the period text but hides the interactive track and chips. */
+@media print{.c1-ts-body,.c1-ts-chips.seg{display:none}}
+/* §7.2.16 / I129 — transient table hover state never reaches paper or PDF. */
+@media print{[data-table-crosshair] .row-hover,[data-table-crosshair] .col-hover,[data-table-crosshair] .cell-hover,[data-table-crosshair] .col-active{background:transparent!important;color:inherit!important;font-weight:inherit!important;box-shadow:none!important}}
+/* ===== C3 Breakdown (workplan D36) ===== */
+:root{
+  /* Submission series (New vs Resubmission) and the five approval codes. New and Resubmission use
+     hues outside the approval set, because the two series are separate measures, not a split of one. */
+  --color-new:#1f6fb2; --color-resub:#f4a259; --color-ur:#7c3aed;
+  --color-app:#65a30d; --color-awc:#0891b2; --color-nap:#db2777; --color-rej:#d23b3b; --color-inf:#64748B;
+}
+.c3-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 10px}
+.c3-controls .controls-left{display:flex;align-items:center;gap:8px}
+.c3-controls .controls-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
+.c3-month-wrap{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)}
+.c3-month-wrap select{padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)}
+/* §4.2 — each C3 chart is its own bordered card (Option 2, Wave 4.2): every card owns its border
+   and its controls, matching the MDL interactive-chart pattern. */
+.c3-card{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fff;display:flex;flex-direction:column}
+.c3-card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.c3-card-title{font-size:13px;font-weight:700;margin:0;color:var(--navy)}
+.c3-card-ctrls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.c3-svg{display:block}
+.c3-new{fill:var(--color-new)} .c3-new-arc{stroke:var(--color-new)}
+.c3-resub{fill:var(--color-resub)} .c3-resub-arc{stroke:var(--color-resub)}
+.c3-app{fill:var(--color-app)} .c3-app-arc{stroke:var(--color-app)}
+.c3-awc{fill:var(--color-awc)} .c3-awc-arc{stroke:var(--color-awc)}
+.c3-nap{fill:var(--color-nap)} .c3-nap-arc{stroke:var(--color-nap)}
+.c3-rej{fill:var(--color-rej)} .c3-rej-arc{stroke:var(--color-rej)}
+.c3-inf{fill:var(--color-inf)} .c3-inf-arc{stroke:var(--color-inf)}
+.c3-ur{fill:var(--color-ur)} .c3-ur-arc{stroke:var(--color-ur)}
+/* I099 — "No Outcome" is a gap in the data, not an approval state, so it carries a neutral grey. */
+.c3-no{fill:var(--text3)} .c3-no-arc{stroke:var(--text3)}
+.c3-track-bg{fill:var(--border);fill-opacity:.18}
+.c3-axis{stroke:var(--border);stroke-width:1}
+/* ===== C3 two stacked-bar cards (Wave 4.2, Option 2) ===== */
+.c3-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}
+.c3-vchart{overflow-x:auto;min-width:0}
+.c3-viewbar{display:flex;justify-content:flex-end;margin:6px 0 10px}
+.c3-label-inc{font-size:11px}
+@media(max-width:880px){.c3-cards{grid-template-columns:minmax(0,1fr)}}
+/* ===== C3 card: one bar-plot grid + one native attached table (§4.2 rev 1.73 / I130) ===== */
+.c3-card-body{overflow-x:auto;min-width:0}
+.c3-grid{--c3-gutter:104px;--c3-cols:1;display:grid;grid-template-columns:var(--c3-gutter) repeat(var(--c3-cols),minmax(0,1fr));column-gap:0;row-gap:0;margin-top:6px;width:100%}
+.c3-grid > .g-bar{height:150px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:0 3px;box-sizing:border-box}
+.seg-bar{width:60%;border-radius:2px 2px 0 0}
+.seg-bar.c3-new{background:var(--color-new)} .seg-bar.c3-resub{background:var(--color-resub)}
+.seg-bar.c3-ur{background:var(--color-ur)} .seg-bar.c3-app{background:var(--color-app)}
+.seg-bar.c3-awc{background:var(--color-awc)} .seg-bar.c3-nap{background:var(--color-nap)}
+.seg-bar.c3-rej{background:var(--color-rej)} .seg-bar.c3-inf{background:var(--color-inf)}
+.c3-table{grid-column:1 / -1;grid-row:2;width:100%;min-width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;background:transparent;font-size:12px;color:var(--text)}
+.c3-table caption{position:absolute;width:1px;height:1px;padding:0;margin:0;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0}
+.c3-table th,.c3-table td{position:relative;box-sizing:border-box;padding:4px 3px;border-top:1px solid var(--border);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+.c3-table thead th.g-corner{text-align:left;color:var(--text2);font-size:11px;font-weight:700;background:var(--surface2)}
+.c3-table thead th.g-axis{writing-mode:vertical-rl;text-orientation:mixed;text-align:left;color:var(--text2);font-size:11px;font-weight:600;height:56px;padding:2px 3px;overflow:hidden;white-space:nowrap;background:var(--surface2)}
+.c3-table tbody th.g-label{text-align:right;color:var(--text2);font-size:11px;font-weight:600;background:var(--surface2);padding-right:8px}
+.c3-table tbody td.g-val{text-align:center;color:var(--text);font-size:12px;font-variant-numeric:tabular-nums}
+.c3-table tbody tr{background:var(--surface)}
+@media print{.c3-card-body,.c3-grid,.c3-table{overflow:visible;width:100%}}
+/* §4.2 rev 1.74 / I131 — ONE shared chart ↔ attached-table column state per C3 Bar card.
+   All colours come from the §7.2.16 theme tokens. C3 keeps .row-hover / .cell-hover and
+   never receives a competing .col-hover column state. */
+/* §4.2 rev 1.75 — C1 visual contract. ONE hidden column band and ONE hidden dashed centre line
+   are grid-row:1 children of `.c3-grid`, aligned to its `--c3-gutter` / `--c3-cols` tracks. The
+   band is emitted before the bars so its normal DOM-order paint stays behind every mark; the
+   snap line is emitted after the bars and is positioned so it paints on top. The 8 % tokenised
+   blue matches C1's `fill:var(--blue)` / `fill-opacity:.08`. The fallback uses the theme's own
+   column-hover tint, so no browser ever paints a solid blue band. */
+.c3-col-band,.c3-col-snap{grid-column:2;grid-row:1;height:150px;pointer-events:none}
+.c3-col-band{background:var(--table-col-hover);background:color-mix(in srgb,var(--blue) 8%,transparent)}
+.c3-col-snap{position:relative}
+.c3-col-snap::after{content:"";position:absolute;left:50%;top:0;height:150px;width:1px;background:repeating-linear-gradient(to bottom,var(--text3) 0 3px,transparent 3px 6px)}
+/* An active C3 bar keeps `.col-active` as STATE only. It MUST NOT paint a background, border,
+   outline or inset ring over the band (§4.2 rev 1.75). */
+.c3-grid > .g-bar.col-active{background:transparent}
+.c3-table tr > [data-col-id].col-active{background:var(--table-col-hover);color:var(--text);font-weight:600}
+.c3-table thead tr > th[data-col-id].col-active{background:var(--table-head-hover);color:var(--text)}
+.c3-table tr > [data-col-id].col-active.cell-hover{background:var(--table-cell-hover);font-weight:700;box-shadow:inset 0 0 0 1px var(--table-crosshair-ring)}
+@media print{.c3-col-band,.c3-col-snap{display:none!important}.c3-grid > .g-bar.col-active{background:transparent!important}}
+/* ===== C3 y-axis grid lines + numbers (I060), matching C1/C2 ===== */
+.c3-gridlines{background-image:repeating-linear-gradient(to top,var(--border) 0,var(--border) 1px,transparent 1px,transparent 25%);background-color:transparent;pointer-events:none}
+.g-yaxis{height:150px;position:relative;pointer-events:none}
+.g-ytick{position:absolute;right:0;transform:translateY(-50%);font-size:10px;line-height:1;color:var(--text2);text-align:right;padding-right:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+/* I133 — the C3 legend sits ABOVE the chart in both Bar and Pie views. */
+.c3-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 6px 2px}
+.c3-leg{display:inline-flex;align-items:center;font-size:11px;color:var(--text2)}
+.c3-swatch{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:5px}
+.c3-swatch.c3-new{background:var(--color-new)}
+.c3-swatch.c3-resub{background:var(--color-resub)}
+.c3-swatch.c3-ur{background:var(--color-ur)}
+.c3-swatch.c3-no{background:var(--text3)}
+.c3-swatch.c3-app{background:var(--color-app)}
+.c3-swatch.c3-awc{background:var(--color-awc)}
+.c3-swatch.c3-nap{background:var(--color-nap)}
+.c3-swatch.c3-rej{background:var(--color-rej)}
+.c3-swatch.c3-inf{background:var(--color-inf)}
+.c3-label{fill:var(--text);font-size:11px}
+.c3-cap{fill:var(--text2);font-size:9px}
+.c3-val{fill:var(--text);font-size:11px;font-weight:600}
+.c3-total{fill:var(--text)}
+.c3-sub{fill:var(--text2)}
+.c3-leg-t{fill:var(--text2);font-size:11px}
+/* ===== C3 layout: chart on top, summary table below at full width (§4.2 pair, T15.5) ===== */
+.c3-body{display:flex;flex-direction:column;gap:14px;align-items:stretch}
+.c3-summary{min-width:0;width:100%}
+.c3-summary-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 4px}
+.c3-summary-title{margin:0;font-size:13px;font-weight:600;color:var(--text2)}
+/* ===== §7.2 Tables (.ds-table) — the one table style ===== */
+:root{--ds-row-h:40px;--ds-head-h:40px;--ds-cell-fs:12px;--ds-cell-lh:20px;--ds-rule-w:1px;
+  --ds-head-rule:rgba(255,255,255,.38);--ds-head-rule-hi:rgba(255,255,255,.7);--ds-sbw:0px}
+.tableScroll{overflow:auto;max-height:340px}
+.ds-table{width:100%;border-collapse:collapse;font-size:var(--ds-cell-fs);background:var(--surface);table-layout:fixed}
+.ds-table th,.ds-table td{border-bottom:1px solid var(--border);padding:0 10px;text-align:left;
+  vertical-align:middle;height:var(--ds-row-h);line-height:var(--ds-cell-lh);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;position:relative}
+.ds-table thead th{background:var(--navy);color:#fff;font-weight:600;height:var(--ds-head-h)}
+.ds-table th[scope="row"]{font-weight:400}
+.ds-table .num{text-align:right;font-variant-numeric:tabular-nums}
+.ds-table tbody tr:nth-child(even){background:var(--surface2)}
+.ds-table tbody tr:hover{background:var(--soft)}
+.ds-table .over{background:var(--warn-bg)}
+.ds-table .empty{color:var(--text3);text-align:center}
+.ds-table tfoot td{background:var(--surface2);font-weight:700;border-top:1px solid var(--border)}
+.ds-table code{font:inherit}
+/* §7.2.16 / I129 — ONE global table hover crosshair. The state classes live on cells / rows and
+   only paint background, weight and an inset ring: position:relative, the ::after column rules,
+   pinned-cell backgrounds, table-layout:fixed and split-header width pins are untouched. */
+[data-table-crosshair] tr.row-hover > th,
+[data-table-crosshair] tr.row-hover > td{background:var(--table-row-hover)}
+[data-table-crosshair] tr > th.col-hover,
+[data-table-crosshair] tr > td.col-hover{background:var(--table-col-hover)}
+[data-table-crosshair] thead tr > th.col-hover,
+[data-table-crosshair] tr.hist-head > th.col-hover{background:var(--table-head-hover);color:var(--text)}
+[data-table-crosshair] tr > th.cell-hover,
+[data-table-crosshair] tr > td.cell-hover{background:var(--table-cell-hover);font-weight:600;box-shadow:inset 0 0 0 1px var(--table-crosshair-ring)}
+[data-table-crosshair] thead tr > th.cell-hover,
+[data-table-crosshair] tr.hist-head > th.cell-hover{background:var(--table-head-hover);color:var(--text);font-weight:700}
+/* C1's chart-linked month column stays owned by .col-active / data-c1col (§4.2 rev 1.63). */
+.c1-table tr > [data-c1col].col-active{background:var(--soft);color:var(--text);font-weight:600}
+.c1-table tr > [data-c1col].col-active.cell-hover{box-shadow:inset 0 0 0 1px var(--table-crosshair-ring);font-weight:700}
+/* §7.2.2 — a 1 px column rule on the right edge of every header cell; suppressed on grouped cells,
+   the last data column and the gutter so no rule hangs past the table edge. */
+.ds-table thead th::after{content:"";position:absolute;top:6px;bottom:6px;right:0;width:var(--ds-rule-w);
+  background:var(--ds-head-rule);pointer-events:none}
+.ds-table thead th:hover::after{background:var(--ds-head-rule-hi)}
+.ds-table thead th[colspan]::after{display:none}
+.ds-table thead th:last-child:not(.ds-gut)::after{display:none}
+.ds-table thead th.ds-gut::after{display:none}
+.ds-table .ds-gut{padding:0;border-bottom:0}
+/* §7.2.13/14 — pinned identity columns. Freezing is a property of the column, not its position. */
+.ds-table th.ds-pinned,.ds-table td.ds-pinned{position:sticky;z-index:3;background:var(--surface)}
+.ds-table th.ds-pinned{z-index:5;background:var(--navy)}
+.ds-table td.ds-pinned:nth-child(1){left:0}
+.ds-table td.ds-pinned:nth-child(2){left:var(--pin-first-col,150px)}
+.ds-table th.ds-pinned:nth-child(1){left:0}
+.ds-table th.ds-pinned:nth-child(2){left:var(--pin-first-col,150px)}
+.ds-table .ds-pinned-edge{box-shadow:2px 0 4px rgba(15,23,34,.08)}
+.ds-table tr.win-pad td{padding:0;border:0;line-height:0;height:0}
+/* §7.2.15 — split header: the <thead> lives OUTSIDE the scroller, so the vertical scrollbar starts
+   below the header. Header and body share one column grid (fixed layout + the same colgroup) and
+   script pins the fragment to the body's rendered width plus the scrollbar (.ds-gut). */
+.ds-split{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:6px}
+.ds-split .tableScroll{border:0;border-radius:0;margin-top:0}
+.vheadwrap{overflow:hidden}
+.vheadtab{margin:0;width:100%}
+.vheadtab thead th{position:relative;border-bottom:1px solid var(--border)}
+.vheadtab thead th.ds-pinned{position:sticky;z-index:4}
+.th-wrap{display:flex;align-items:center;min-width:0}
+.lb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ===== C2 Submission Flow & Delay (workplan D6 / D9 / D40) ===== */
+.c2-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 10px}
+.c2-controls .controls-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.c2-controls .controls-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
+.c2-svg{display:block}
+.c2-stack{position:relative;min-width:0;overflow-x:auto}
+.c2-leg-t{fill:var(--text);font-size:11px}
+/* I103 — the C2 Delay series, tokenised so the line, the dots and the hover-window swatch agree. */
+.c2-delay-line{fill:none;stroke:var(--color-c2delay);stroke-width:2}
+.c2-delay-dot{fill:var(--color-c2delay)}
+.chart-tip-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ct-l{display:flex;align-items:center;gap:6px}
+.chart-swatch{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.c2-ftab{width:auto;border-collapse:collapse;margin-top:10px;font-size:13px}
+.c2-ftab th,.c2-ftab td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--border)}
+.c2-ftab th:first-child,.c2-ftab td:first-child{text-align:left}
+.c2-ftab thead th{color:var(--text);font-weight:600;border-bottom:2px solid var(--border)}
+.c2-ftab tbody tr.tot td{font-weight:700;border-top:2px solid var(--border)}
+.c2-funnel-row{display:flex;align-items:flex-start;gap:28px}
+.c2-ftab-wrap{flex:0 1 auto;min-width:0}
+.c2-funnel-wrap{flex:0 0 auto;display:flex;flex-direction:column;width:350px;margin-left:auto}
+.c2-funnel-svg{display:block;width:350px;height:420px}
+.c2-funnel-lab{fill:var(--text);font-size:12px;font-weight:700}
+.c2-funnel-val{fill:var(--text);font-size:12px}
+/* D41 — Submittals panel: one row per document, consolidated toggleable history */
+.table-tools{position:relative;display:flex;align-items:center;gap:8px;margin:0 0 8px;flex-wrap:wrap}
+/* D41/I108/I109 — Submittals panel: optional summary line above the control row (spec §4, matches Forward/Overdue .note) */
+.panel-summary{margin:6px 0;font-size:13px;line-height:1.5;color:var(--text2);display:flex;gap:12px;flex-wrap:wrap}
+.table-tools .csv-btn{margin-left:auto}
+/* I107 — Submittals month filter */
+.sub-month-lbl{font-size:11px;color:var(--text2);margin-left:4px}
+.sub-month{border:1px solid var(--border);border-radius:6px;padding:4px 6px;background:var(--surface);color:var(--text)}
+/* I073 — Forward and Overdue page controls + status pills */
+.fo-controls{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 8px;flex-wrap:wrap}
+.fo-controls .fo-right{margin:0}
+.fo-horizon{font-size:12px;color:var(--text2);display:inline-flex;align-items:center;gap:4px}
+.fo-horizon select{border:1px solid var(--border);border-radius:6px;padding:4px 6px;background:var(--surface);color:var(--text)}
+.fo-pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;line-height:1.4}
+.fo-pill.nfs{background:#eceff1;color:#546e7a}
+.fo-pill.sur{background:#e3f2fd;color:#1565c0}
+.fo-pill.rtr,.fo-pill.nts{background:#fff3e0;color:#e65100}
+/* I072 — Validation panel layout: summary row, card-separated tables, title aligned with tools */
+.v-summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.v-summary .v-count{font-size:14px;font-weight:700;color:var(--navy)}
+/* I110 — the meta line is now a .note subtitle above .v-summary; the inline .v-meta rule is removed */
+/* I112 — Validation Issues table: panel-level meta note, title on its own line, top tool cluster
+   (page controls left, code filter + CSV + Columns right), code filter, page controls. */
+.table-head.table-head--stack{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:6px}
+.tt-note{margin:2px 0 6px}
+.table-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.table-tools .pg-left{display:flex;align-items:center;gap:8px}
+.table-tools .pg-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.v-code{border:1px solid var(--border);border-radius:6px;padding:4px 6px;background:var(--surface);color:var(--text)}
+.pg-btn{border:1px solid var(--border);border-radius:6px;padding:4px 10px;min-height:var(--btn-h);background:var(--surface);color:var(--text);cursor:pointer}
+.pg-btn:disabled{opacity:.45;cursor:default}
+.pg-jump{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--text2)}
+.v-page{border:1px solid var(--border);border-radius:6px;padding:2px 4px;background:var(--surface);color:var(--text)}
+.pg-total{font-size:12px;color:var(--text2)}
+.table-head{display:flex;justify-content:space-between;align-items:center;margin:0 0 8px}
+.table-head .tt{font-size:13px;margin:0;color:var(--navy);text-transform:uppercase;letter-spacing:.04em}
+/* §4 — when a card wraps a table, the table's own `.ds-split` border is the single external border;
+   the card must not add a second border around it. */
+.c-card:has(.ds-split){border:0}
+.c-card:has(.ds-split) .ds-split{margin-top:0}
+/* §7.1 B7 — column-visibility control: own class, floating panel, no filter badge */
+.cc-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 12px;min-height:var(--btn-h);font-size:12px;font-weight:600;cursor:pointer;line-height:1.2}
+.cc-btn:hover{background:var(--surface2)}
+/* §7.1 B7 — column-visibility chooser. Its own floating-panel shape (no filter badge, no
+   active-filter emphasis). Contents follow the normative order: master → note → divider → list →
+   footer. Only the item list scrolls, and the panel is 380 px at most. */
+.column-chooser{position:absolute;top:calc(100% + 6px);right:0;z-index:60;display:block;padding:10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);min-width:220px;max-width:min(340px,90vw);max-height:380px;overflow:hidden}
+.column-chooser[hidden]{display:none}
+.cc-all{display:flex;align-items:center;gap:8px;padding:2px;font-size:12px;cursor:pointer}
+.cc-all b{font-weight:700}
+.cc-hint{margin:2px 2px 6px;font-size:10px;color:var(--muted);line-height:1.35}
+.cc-divider{height:1px;background:var(--border);margin:2px 0 6px}
+.cc-list{max-height:260px;overflow:auto}
+.cc-item{display:flex;align-items:center;gap:8px;padding:5px 2px;font-size:12px;cursor:pointer;border-radius:4px;white-space:nowrap}
+.cc-item:hover{background:var(--soft)}
+.cc-item input,.cc-all input{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0}
+.cc-item span{overflow:hidden;text-overflow:ellipsis}
+.cc-locked{opacity:.65;cursor:default}
+.cc-locked:hover{background:transparent}
+.cc-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
+.cc-reset{background:transparent;border:0;padding:0;min-height:var(--btn-h);display:inline-flex;align-items:center;color:var(--blue);font-size:11px;font-weight:600;cursor:pointer}
+.cc-reset:hover{text-decoration:underline}
+/* §4.4 drill-down (standardized — I068) */
+.expandable{cursor:pointer}
+.expandable:hover{background:var(--soft)}
+.ds-table .drill-cell{width:32px;text-align:center;padding:0 3px;overflow:hidden;text-overflow:clip}
+.drill-btn{appearance:none;border:0;background:transparent;color:var(--muted);width:var(--icon-btn-h);height:var(--icon-btn-h);min-height:var(--icon-btn-h);line-height:1;cursor:pointer;border-radius:4px}
+.drill-btn:hover{background:var(--soft);color:var(--navy)}
+.drill-btn:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.drill-chev{display:inline-block;transition:transform .12s;font-size:11px}
+.drill-btn[aria-expanded="true"] .drill-chev{transform:rotate(90deg)}
+.sub > td{padding:0;border-top:1px dashed var(--line);background:var(--soft)}
+.sub-inner{padding:12px 16px 14px}
+.hist-table{font-size:12px}
+.hist-table th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border);padding:4px 8px;white-space:nowrap}
+.hist-table td{padding:3px 8px;border-bottom:1px solid var(--border)}
+.hist-table tbody tr:last-child td{border-bottom:0}
+
+/* Revision 2.19 | 2026-11-14 | CodeBuddy (AI) | I133 — the Breakdown page owns THREE independent
+   panels. Row 1 holds the two chart panels, row 2 holds the full-width summary. The grid is
+   page-scoped, so the global `body[data-layout]` button keeps its behaviour on other pages.
+   §4.7 / §8.2 assertion 19 require 14 px between top-level panels. */
+body .panel-grid.breakdown-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+body .breakdown-grid > .panel{margin:0}
+body .breakdown-grid > .panel:nth-child(3){grid-column:1 / -1}
+@media(max-width:879px){
+  body .panel-grid.breakdown-grid{grid-template-columns:minmax(0,1fr)}
+  body .breakdown-grid > .panel:nth-child(3){grid-column:auto}
+}
+/* §4 — ONE outer `.panel` border and ONE inner card border. The table card keeps the `.ds-split`
+   border as its single visible edge (`.c-card:has(.ds-split){border:0}` above), with radius 10 px. */
+.breakdown-grid .c3-card{margin:0}
+.c3-summary-card{--ds-row-h:26px;--ds-head-h:28px;--ds-cell-lh:18px;--ds-cell-fs:11px;min-width:0}
+.c3-summary-card .ds-table th,.c3-summary-card .ds-table td{padding:0 8px}
+.c3-summary-card .ds-split{margin-top:0}
+/* N1 — remove the INNER vertical scroll bar. 16 submitter rows at 26 px fit about 470 px.
+   The page-level `.content-body` scroll stays, as §3.2 requires a scrollable body. */
+.c3-summary-card .tableScroll{max-height:none;overflow:visible}
+@media print{
+  .c3-summary-card .tableScroll{overflow:visible;max-height:none}
+  body .panel-grid.breakdown-grid{grid-template-columns:minmax(0,1fr)}
+  body .breakdown-grid > .panel:nth-child(3){grid-column:auto}
+}
+</style>
+<style>
+  .sample-meta{font-size:11px;color:var(--text3);margin:0 0 10px}
+</style>
+</head>
+<body class="loaded">
+  <div class="app">
+    <header class="app-bar">
+      <div class="app-top">
+        <div class="brand">
+          <div class="ttl-stack">
+            <h1 class="ttl">Document Submittal Dashboard</h1>
+            <div class="meta">SUB · Breakdown page sample (review, I133)</div>
+          </div>
+        </div>
+        <div class="page-title" id="page-title">Breakdown</div>
+      </div>
+      <div class="app-menu">
+        <button class="btn" data-shell-toggle="left-sidebar" title="Toggle navigation panel" aria-label="Toggle navigation panel">&#9776;</button>
+        <div class="actions">
+          <button class="btn btn-primary" disabled>Load Workbook</button>
+          <button class="btn" disabled>Export</button>
+        </div>
+        <button class="btn" title="Change layout" aria-label="Change layout">&#9638;</button>
+      </div>
+    </header>
+    <main class="shell-row">
+      <aside class="left-sidebar">
+        <nav class="sb-menu page-links">
+          <button class="page-link" data-page="Overview">Overview</button>
+          <button class="page-link active" data-page="Breakdown">Breakdown</button>
+          <button class="page-link" data-page="Submittals">Submittals</button>
+          <button class="page-link" data-page="Validation">Validation</button>
+          <button class="page-link" data-page="Forward and Overdue">Forward and Overdue</button>
+          <button class="page-link" data-page="Analytical">Analytical</button>
+        </nav>
+        <nav class="sb-bottom">
+          <button class="page-link" id="settings-button">Settings</button>
+          <button class="page-link" id="help-button">Help</button>
+        </nav>
+      </aside>
+      <section class="content">
+        <div class="filter-area"></div>
+        <div class="content-body">
+          <p class="sample-meta">Sample for UI-spec review (I133 / rev 1.76) — real data (as of 2026-10-24), real render path. The sidebar lists Breakdown directly under Overview. Three independent panels: Submissions, Approval Status (side by side) and Breakdown Summary (full width). Each panel owns its Month / Break-down-by / view state; the legend sits above each chart; the orphan discipline reads Others.</p>
+          <div data-page-content><div class="panel-grid breakdown-grid"><section class="panel full"><header class="panel-head"><h2>Submissions</h2><div class="panel-actions"><button class="icon-btn help-open" data-help="Submissions" aria-label="Help for Submissions" title="Help">?</button><button class="icon-btn panel-toggle" data-panel-toggle="Submissions" aria-expanded="true" aria-label="Collapse Submissions" title="Collapse">−</button></div></header><div class="panel-body"><div class="chart c3-card" role="group" aria-label="Submissions breakdown">
+      
+      <div class="c3-controls"><div class="controls-left"><label class="c3-month-wrap"><select data-c3month data-c3panel="submissions" aria-label="C3 month"><option value="ALL" selected>All months</option><option value="2026-03">Mar 2026</option><option value="2026-04">Apr 2026</option><option value="2026-05">May 2026</option><option value="2026-06">Jun 2026</option><option value="2026-07">Jul 2026</option><option value="2026-08">Aug 2026</option><option value="2026-09">Sep 2026</option><option value="2026-10">Oct 2026</option></select></label><div class="seg" role="group" aria-label="Break down by"><button type="button" class="seg-btn active" data-c3dim="discipline" data-c3panel="submissions" aria-pressed="true">Discipline</button><button type="button" class="seg-btn" data-c3dim="submitter" data-c3panel="submissions" aria-pressed="false">Submitter</button></div><div class="seg" role="group" aria-label="Chart view"><button type="button" class="seg-btn active" data-c3view="bar" data-c3panel="submissions" aria-pressed="true">Bar</button><button type="button" class="seg-btn" data-c3view="pie" data-c3panel="submissions" aria-pressed="false">Pie</button></div></div><div class="controls-right"><button class="btn-secondary" data-c3png>⤓ PNG</button><button class="btn-secondary" data-c3copy>⧉ Copy</button></div></div>
+      <div class="c3-legend"><span class="c3-leg"><span class="c3-swatch c3-new"></span>new</span><span class="c3-leg"><span class="c3-swatch c3-resub"></span>resub</span></div>
+      <div class="c3-card-body"><div class="c3-grid" style="--c3-gutter:104px;--c3-cols:10;min-width:504px"><div class="c3-gridlines" style="grid-column:2 / -1;grid-row:1"></div><div class="c3-col-band" data-c3band="1" aria-hidden="true" style="display:none"></div><div class="g-yaxis" style="grid-column:1;grid-row:1"><span class="g-ytick" style="top:0%">200</span><span class="g-ytick" style="top:25%">150</span><span class="g-ytick" style="top:50%">100</span><span class="g-ytick" style="top:75%">50</span><span class="g-ytick" style="top:100%">0</span></div><div class="g-bar" style="grid-column:2;grid-row:1" data-col-id="0" data-tip="&lt;b&gt;BIM&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;0&lt;/b&gt;&lt;/div&gt;"></div><div class="g-bar" style="grid-column:3;grid-row:1" data-col-id="1" data-tip="&lt;b&gt;BS&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;2&lt;/b&gt;&lt;/div&gt;"><div class="seg-bar c3-resub" style="height:0.8px" data-tip="&lt;b&gt;BS&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;2&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-new" style="height:0.8px" data-tip="&lt;b&gt;BS&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;2&lt;/b&gt;&lt;/div&gt;"></div></div><div class="g-bar" style="grid-column:4;grid-row:1" data-col-id="2" data-tip="&lt;b&gt;CSA&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;0&lt;/b&gt;&lt;/div&gt;"></div><div class="g-bar" style="grid-column:5;grid-row:1" data-col-id="3" data-tip="&lt;b&gt;Electrical&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;3&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;3&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;6&lt;/b&gt;&lt;/div&gt;"><div class="seg-bar c3-resub" style="height:2.3px" data-tip="&lt;b&gt;Electrical&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;3&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;3&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;6&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-new" style="height:2.3px" data-tip="&lt;b&gt;Electrical&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;3&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;3&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;6&lt;/b&gt;&lt;/div&gt;"></div></div><div class="g-bar" style="grid-column:6;grid-row:1" data-col-id="4" data-tip="&lt;b&gt;ICA&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;28&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;24&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;52&lt;/b&gt;&lt;/div&gt;"><div class="seg-bar c3-resub" style="height:18.0px" data-tip="&lt;b&gt;ICA&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;28&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;24&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;52&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-new" style="height:21.0px" data-tip="&lt;b&gt;ICA&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;28&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;24&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;52&lt;/b&gt;&lt;/div&gt;"></div></div><div class="g-bar" style="grid-column:7;grid-row:1" data-col-id="5" data-tip="&lt;b&gt;Mech&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;3&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;3&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;6&lt;/b&gt;&lt;/div&gt;"><div class="seg-bar c3-resub" style="height:2.3px" data-tip="&lt;b&gt;Mech&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;3&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;3&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;6&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-new" style="height:2.3px" data-tip="&lt;b&gt;Mech&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;3&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;3&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;6&lt;/b&gt;&lt;/div&gt;"></div></div><div class="g-bar" style="grid-column:8;grid-row:1" data-col-id="6" data-tip="&lt;b&gt;Others&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;20&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;20&lt;/b&gt;&lt;/div&gt;"><div class="seg-bar c3-new" style="height:15.0px" data-tip="&lt;b&gt;Others&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;20&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;20&lt;/b&gt;&lt;/div&gt;"></div></div><div class="g-bar" style="grid-column:9;grid-row:1" data-col-id="7" data-tip="&lt;b&gt;Piping&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;1&lt;/b&gt;&lt;/div&gt;"><div class="seg-bar c3-new" style="height:0.8px" data-tip="&lt;b&gt;Piping&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;1&lt;/b&gt;&lt;/div&gt;"></div></div><div class="g-bar" style="grid-column:10;grid-row:1" data-col-id="8" data-tip="&lt;b&gt;Process&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;90&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;13&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;103&lt;/b&gt;&lt;/div&gt;"><div class="seg-bar c3-resub" style="height:9.8px" data-tip="&lt;b&gt;Process&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;90&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;13&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;103&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-new" style="height:67.5px" data-tip="&lt;b&gt;Process&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;90&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;13&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;103&lt;/b&gt;&lt;/div&gt;"></div></div><div class="g-bar" style="grid-column:11;grid-row:1" data-col-id="9" data-tip="&lt;b&gt;QAQC&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-new&quot;&gt;&lt;/span&gt;new&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-resub&quot;&gt;&lt;/span&gt;resub&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;0&lt;/b&gt;&lt;/div&gt;"></div><div class="c3-col-snap" data-c3snap="1" aria-hidden="true" style="display:none"></div><table class="c3-table" data-table-crosshair><caption>Submissions metrics by discipline</caption><colgroup><col class="c3-gut" style="width:var(--c3-gutter)"><col><col><col><col><col><col><col><col><col><col></colgroup><thead><tr><th class="g-corner" scope="col">Breakdown</th><th class="g-axis" scope="col" data-col-id="0">BIM</th><th class="g-axis" scope="col" data-col-id="1">BS</th><th class="g-axis" scope="col" data-col-id="2">CSA</th><th class="g-axis" scope="col" data-col-id="3">Electrical</th><th class="g-axis" scope="col" data-col-id="4">ICA</th><th class="g-axis" scope="col" data-col-id="5">Mech</th><th class="g-axis" scope="col" data-col-id="6">Others</th><th class="g-axis" scope="col" data-col-id="7">Piping</th><th class="g-axis" scope="col" data-col-id="8">Process</th><th class="g-axis" scope="col" data-col-id="9">QAQC</th></tr></thead><tbody><tr><th class="g-label" scope="row">Total Plan</th><td class="g-val" data-col-id="0">0</td><td class="g-val" data-col-id="1">39</td><td class="g-val" data-col-id="2">9</td><td class="g-val" data-col-id="3">6</td><td class="g-val" data-col-id="4">58</td><td class="g-val" data-col-id="5">38</td><td class="g-val" data-col-id="6">0</td><td class="g-val" data-col-id="7">5</td><td class="g-val" data-col-id="8">129</td><td class="g-val" data-col-id="9">0</td></tr><tr><th class="g-label" scope="row">First Submission</th><td class="g-val" data-col-id="0">0</td><td class="g-val" data-col-id="1">1</td><td class="g-val" data-col-id="2">0</td><td class="g-val" data-col-id="3">3</td><td class="g-val" data-col-id="4">28</td><td class="g-val" data-col-id="5">3</td><td class="g-val" data-col-id="6">20</td><td class="g-val" data-col-id="7">1</td><td class="g-val" data-col-id="8">90</td><td class="g-val" data-col-id="9">0</td></tr><tr><th class="g-label" scope="row">Resubmission</th><td class="g-val" data-col-id="0">0</td><td class="g-val" data-col-id="1">1</td><td class="g-val" data-col-id="2">0</td><td class="g-val" data-col-id="3">3</td><td class="g-val" data-col-id="4">24</td><td class="g-val" data-col-id="5">3</td><td class="g-val" data-col-id="6">0</td><td class="g-val" data-col-id="7">0</td><td class="g-val" data-col-id="8">13</td><td class="g-val" data-col-id="9">0</td></tr><tr><th class="g-label" scope="row">Under Review</th><td class="g-val" data-col-id="0">0</td><td class="g-val" data-col-id="1">2</td><td class="g-val" data-col-id="2">0</td><td class="g-val" data-col-id="3">0</td><td class="g-val" data-col-id="4">8</td><td class="g-val" data-col-id="5">1</td><td class="g-val" data-col-id="6">11</td><td class="g-val" data-col-id="7">0</td><td class="g-val" data-col-id="8">64</td><td class="g-val" data-col-id="9">0</td></tr></tbody></table></div></div>
+      <div class="chart-tip"></div>
+    </div></div></section><section class="panel full"><header class="panel-head"><h2>Approval Status</h2><div class="panel-actions"><button class="icon-btn help-open" data-help="Approval Status" aria-label="Help for Approval Status" title="Help">?</button><button class="icon-btn panel-toggle" data-panel-toggle="Approval Status" aria-expanded="true" aria-label="Collapse Approval Status" title="Collapse">−</button></div></header><div class="panel-body"><div class="chart c3-card" role="group" aria-label="Approval Status breakdown">
+      
+      <div class="c3-controls"><div class="controls-left"><label class="c3-month-wrap"><select data-c3month data-c3panel="approval" aria-label="C3 month"><option value="ALL" selected>All months</option><option value="2026-03">Mar 2026</option><option value="2026-04">Apr 2026</option><option value="2026-05">May 2026</option><option value="2026-06">Jun 2026</option><option value="2026-07">Jul 2026</option><option value="2026-08">Aug 2026</option><option value="2026-09">Sep 2026</option><option value="2026-10">Oct 2026</option></select></label><div class="seg" role="group" aria-label="Break down by"><button type="button" class="seg-btn active" data-c3dim="discipline" data-c3panel="approval" aria-pressed="true">Discipline</button><button type="button" class="seg-btn" data-c3dim="submitter" data-c3panel="approval" aria-pressed="false">Submitter</button></div><div class="seg" role="group" aria-label="Chart view"><button type="button" class="seg-btn active" data-c3view="bar" data-c3panel="approval" aria-pressed="true">Bar</button><button type="button" class="seg-btn" data-c3view="pie" data-c3panel="approval" aria-pressed="false">Pie</button></div></div><div class="controls-right"><button class="btn-secondary" data-c3png>⤓ PNG</button><button class="btn-secondary" data-c3copy>⧉ Copy</button></div></div>
+      <div class="c3-legend"><span class="c3-leg"><span class="c3-swatch c3-app"></span>APP</span><span class="c3-leg"><span class="c3-swatch c3-awc"></span>AWC</span><span class="c3-leg"><span class="c3-swatch c3-nap"></span>NAP</span><span class="c3-leg"><span class="c3-swatch c3-rej"></span>REJ</span><span class="c3-leg"><span class="c3-swatch c3-inf"></span>INF</span><span class="c3-leg"><span class="c3-swatch c3-ur"></span>SUR</span></div>
+      <div class="c3-card-body"><div class="c3-grid" style="--c3-gutter:104px;--c3-cols:10;min-width:504px"><div class="c3-gridlines" style="grid-column:2 / -1;grid-row:1"></div><div class="c3-col-band" data-c3band="1" aria-hidden="true" style="display:none"></div><div class="g-yaxis" style="grid-column:1;grid-row:1"><span class="g-ytick" style="top:0%">200</span><span class="g-ytick" style="top:25%">150</span><span class="g-ytick" style="top:50%">100</span><span class="g-ytick" style="top:75%">50</span><span class="g-ytick" style="top:100%">0</span></div><div class="g-bar" style="grid-column:2;grid-row:1" data-col-id="0" data-tip="&lt;b&gt;BIM&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;0&lt;/b&gt;&lt;/div&gt;"></div><div class="g-bar" style="grid-column:3;grid-row:1" data-col-id="1" data-tip="&lt;b&gt;BS&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;2&lt;/b&gt;&lt;/div&gt;"><div class="seg-bar c3-ur" style="height:1.5px" data-tip="&lt;b&gt;BS&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;2&lt;/b&gt;&lt;/div&gt;"></div></div><div class="g-bar" style="grid-column:4;grid-row:1" data-col-id="2" data-tip="&lt;b&gt;CSA&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;0&lt;/b&gt;&lt;/div&gt;"></div><div class="g-bar" style="grid-column:5;grid-row:1" data-col-id="3" data-tip="&lt;b&gt;Electrical&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;4&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;6&lt;/b&gt;&lt;/div&gt;"><div class="seg-bar c3-nap" style="height:3.0px" data-tip="&lt;b&gt;Electrical&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;4&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;6&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-awc" style="height:1.5px" data-tip="&lt;b&gt;Electrical&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;4&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;6&lt;/b&gt;&lt;/div&gt;"></div></div><div class="g-bar" style="grid-column:6;grid-row:1" data-col-id="4" data-tip="&lt;b&gt;ICA&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;13&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;26&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;4&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;8&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;52&lt;/b&gt;&lt;/div&gt;"><div class="seg-bar c3-ur" style="height:6.0px" data-tip="&lt;b&gt;ICA&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;13&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;26&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;4&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;8&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;52&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-rej" style="height:0.8px" data-tip="&lt;b&gt;ICA&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;13&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;26&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;4&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;8&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;52&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-nap" style="height:3.0px" data-tip="&lt;b&gt;ICA&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;13&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;26&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;4&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;8&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;52&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-awc" style="height:19.5px" data-tip="&lt;b&gt;ICA&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;13&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;26&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;4&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;8&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;52&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-app" style="height:9.8px" data-tip="&lt;b&gt;ICA&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;13&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;26&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;4&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;8&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;52&lt;/b&gt;&lt;/div&gt;"></div></div><div class="g-bar" style="grid-column:7;grid-row:1" data-col-id="5" data-tip="&lt;b&gt;Mech&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;3&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;6&lt;/b&gt;&lt;/div&gt;"><div class="seg-bar c3-ur" style="height:0.8px" data-tip="&lt;b&gt;Mech&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;3&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;6&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-nap" style="height:1.5px" data-tip="&lt;b&gt;Mech&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;3&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;6&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-awc" style="height:2.3px" data-tip="&lt;b&gt;Mech&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;3&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;6&lt;/b&gt;&lt;/div&gt;"></div></div><div class="g-bar" style="grid-column:8;grid-row:1" data-col-id="6" data-tip="&lt;b&gt;Others&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;5&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;11&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;20&lt;/b&gt;&lt;/div&gt;"><div class="seg-bar c3-ur" style="height:8.3px" data-tip="&lt;b&gt;Others&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;5&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;11&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;20&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-inf" style="height:1.5px" data-tip="&lt;b&gt;Others&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;5&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;11&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;20&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-nap" style="height:1.5px" data-tip="&lt;b&gt;Others&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;5&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;11&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;20&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-awc" style="height:3.8px" data-tip="&lt;b&gt;Others&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;5&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;2&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;11&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;20&lt;/b&gt;&lt;/div&gt;"></div></div><div class="g-bar" style="grid-column:9;grid-row:1" data-col-id="7" data-tip="&lt;b&gt;Piping&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;1&lt;/b&gt;&lt;/div&gt;"><div class="seg-bar c3-awc" style="height:0.8px" data-tip="&lt;b&gt;Piping&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;1&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;1&lt;/b&gt;&lt;/div&gt;"></div></div><div class="g-bar" style="grid-column:10;grid-row:1" data-col-id="8" data-tip="&lt;b&gt;Process&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;6&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;22&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;9&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;64&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;101&lt;/b&gt;&lt;/div&gt;"><div class="seg-bar c3-ur" style="height:48.0px" data-tip="&lt;b&gt;Process&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;6&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;22&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;9&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;64&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;101&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-inf" style="height:6.8px" data-tip="&lt;b&gt;Process&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;6&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;22&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;9&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;64&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;101&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-nap" style="height:16.5px" data-tip="&lt;b&gt;Process&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;6&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;22&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;9&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;64&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;101&lt;/b&gt;&lt;/div&gt;"></div><div class="seg-bar c3-awc" style="height:4.5px" data-tip="&lt;b&gt;Process&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;6&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;22&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;9&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;64&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;101&lt;/b&gt;&lt;/div&gt;"></div></div><div class="g-bar" style="grid-column:11;grid-row:1" data-col-id="9" data-tip="&lt;b&gt;QAQC&lt;/b&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-app&quot;&gt;&lt;/span&gt;APP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-awc&quot;&gt;&lt;/span&gt;AWC&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-nap&quot;&gt;&lt;/span&gt;NAP&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-rej&quot;&gt;&lt;/span&gt;REJ&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-inf&quot;&gt;&lt;/span&gt;INF&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-row&quot;&gt;&lt;span class=&quot;ct-l&quot;&gt;&lt;span class=&quot;chart-swatch c3-swatch c3-ur&quot;&gt;&lt;/span&gt;SUR&lt;/span&gt;&lt;b&gt;0&lt;/b&gt;&lt;/div&gt;&lt;div class=&quot;chart-tip-foot&quot;&gt;Total &lt;b&gt;0&lt;/b&gt;&lt;/div&gt;"></div><div class="c3-col-snap" data-c3snap="1" aria-hidden="true" style="display:none"></div><table class="c3-table" data-table-crosshair><caption>Approval Status metrics by discipline</caption><colgroup><col class="c3-gut" style="width:var(--c3-gutter)"><col><col><col><col><col><col><col><col><col><col></colgroup><thead><tr><th class="g-corner" scope="col">Breakdown</th><th class="g-axis" scope="col" data-col-id="0">BIM</th><th class="g-axis" scope="col" data-col-id="1">BS</th><th class="g-axis" scope="col" data-col-id="2">CSA</th><th class="g-axis" scope="col" data-col-id="3">Electrical</th><th class="g-axis" scope="col" data-col-id="4">ICA</th><th class="g-axis" scope="col" data-col-id="5">Mech</th><th class="g-axis" scope="col" data-col-id="6">Others</th><th class="g-axis" scope="col" data-col-id="7">Piping</th><th class="g-axis" scope="col" data-col-id="8">Process</th><th class="g-axis" scope="col" data-col-id="9">QAQC</th></tr></thead><tbody><tr><th class="g-label" scope="row">APP</th><td class="g-val" data-col-id="0">0</td><td class="g-val" data-col-id="1">0</td><td class="g-val" data-col-id="2">0</td><td class="g-val" data-col-id="3">0</td><td class="g-val" data-col-id="4">13</td><td class="g-val" data-col-id="5">0</td><td class="g-val" data-col-id="6">0</td><td class="g-val" data-col-id="7">0</td><td class="g-val" data-col-id="8">0</td><td class="g-val" data-col-id="9">0</td></tr><tr><th class="g-label" scope="row">AWC</th><td class="g-val" data-col-id="0">0</td><td class="g-val" data-col-id="1">0</td><td class="g-val" data-col-id="2">0</td><td class="g-val" data-col-id="3">2</td><td class="g-val" data-col-id="4">26</td><td class="g-val" data-col-id="5">3</td><td class="g-val" data-col-id="6">5</td><td class="g-val" data-col-id="7">1</td><td class="g-val" data-col-id="8">6</td><td class="g-val" data-col-id="9">0</td></tr><tr><th class="g-label" scope="row">NAP</th><td class="g-val" data-col-id="0">0</td><td class="g-val" data-col-id="1">0</td><td class="g-val" data-col-id="2">0</td><td class="g-val" data-col-id="3">4</td><td class="g-val" data-col-id="4">4</td><td class="g-val" data-col-id="5">2</td><td class="g-val" data-col-id="6">2</td><td class="g-val" data-col-id="7">0</td><td class="g-val" data-col-id="8">22</td><td class="g-val" data-col-id="9">0</td></tr><tr><th class="g-label" scope="row">REJ</th><td class="g-val" data-col-id="0">0</td><td class="g-val" data-col-id="1">0</td><td class="g-val" data-col-id="2">0</td><td class="g-val" data-col-id="3">0</td><td class="g-val" data-col-id="4">1</td><td class="g-val" data-col-id="5">0</td><td class="g-val" data-col-id="6">0</td><td class="g-val" data-col-id="7">0</td><td class="g-val" data-col-id="8">0</td><td class="g-val" data-col-id="9">0</td></tr><tr><th class="g-label" scope="row">INF</th><td class="g-val" data-col-id="0">0</td><td class="g-val" data-col-id="1">0</td><td class="g-val" data-col-id="2">0</td><td class="g-val" data-col-id="3">0</td><td class="g-val" data-col-id="4">0</td><td class="g-val" data-col-id="5">0</td><td class="g-val" data-col-id="6">2</td><td class="g-val" data-col-id="7">0</td><td class="g-val" data-col-id="8">9</td><td class="g-val" data-col-id="9">0</td></tr><tr><th class="g-label" scope="row">SUR</th><td class="g-val" data-col-id="0">0</td><td class="g-val" data-col-id="1">2</td><td class="g-val" data-col-id="2">0</td><td class="g-val" data-col-id="3">0</td><td class="g-val" data-col-id="4">8</td><td class="g-val" data-col-id="5">1</td><td class="g-val" data-col-id="6">11</td><td class="g-val" data-col-id="7">0</td><td class="g-val" data-col-id="8">64</td><td class="g-val" data-col-id="9">0</td></tr></tbody></table></div></div>
+      <div class="chart-tip"></div>
+    </div></div></section><section class="panel full"><header class="panel-head"><h2>Breakdown Summary</h2><div class="panel-actions"><button class="icon-btn help-open" data-help="Breakdown Summary" aria-label="Help for Breakdown Summary" title="Help">?</button><button class="icon-btn panel-toggle" data-panel-toggle="Breakdown Summary" aria-expanded="true" aria-label="Collapse Breakdown Summary" title="Collapse">−</button></div></header><div class="panel-body"><div class="c-card c3-summary-card"><div class="c3-controls"><div class="controls-left"><label class="c3-month-wrap"><select data-c3month data-c3panel="summary" aria-label="C3 month"><option value="ALL" selected>All months</option><option value="2026-03">Mar 2026</option><option value="2026-04">Apr 2026</option><option value="2026-05">May 2026</option><option value="2026-06">Jun 2026</option><option value="2026-07">Jul 2026</option><option value="2026-08">Aug 2026</option><option value="2026-09">Sep 2026</option><option value="2026-10">Oct 2026</option></select></label><div class="seg" role="group" aria-label="Break down by"><button type="button" class="seg-btn active" data-c3dim="discipline" data-c3panel="summary" aria-pressed="true">Discipline</button><button type="button" class="seg-btn" data-c3dim="submitter" data-c3panel="summary" aria-pressed="false">Submitter</button></div></div><div class="controls-right"><button class="btn-secondary" data-c3export data-c3panel="summary" title="Download the breakdown table as CSV">⤓ Download</button></div></div><div class="c3-summary"><div class="ds-split splitcard" style="--pin-first-col:150px"><div class="vheadwrap"><table class="ds-table vheadtab" data-table-crosshair><colgroup><col><col><col><col><col><col><col><col><col class="ds-gut"></colgroup><thead><tr><th scope="col" data-col-id="0"><span class="th-wrap"><span class="lb">Discipline</span></span></th><th scope="col" data-col-id="1" class="num"><span class="th-wrap"><span class="lb">Total Plan</span></span></th><th scope="col" data-col-id="2" class="num"><span class="th-wrap"><span class="lb">New Submissions</span></span></th><th scope="col" data-col-id="3" class="num"><span class="th-wrap"><span class="lb">Resubmissions</span></span></th><th scope="col" data-col-id="4" class="num"><span class="th-wrap"><span class="lb">Total Submitted</span></span></th><th scope="col" data-col-id="5" class="num"><span class="th-wrap"><span class="lb">Total Approved</span></span></th><th scope="col" data-col-id="6" class="num"><span class="th-wrap"><span class="lb">Total AWC</span></span></th><th scope="col" data-col-id="7" class="num"><span class="th-wrap"><span class="lb">Total Under Review</span></span></th><th class="ds-gut" scope="col" aria-hidden="true"></th></tr></thead></table></div><div class="tableScroll"><table class="ds-table" data-table-crosshair><colgroup><col><col><col><col><col><col><col><col></colgroup><tbody><tr><td data-col-id="0">BIM</td><td data-col-id="1" class="num">0</td><td data-col-id="2" class="num">0</td><td data-col-id="3" class="num">0</td><td data-col-id="4" class="num">0</td><td data-col-id="5" class="num">0</td><td data-col-id="6" class="num">0</td><td data-col-id="7" class="num">0</td></tr><tr><td data-col-id="0">BS</td><td data-col-id="1" class="num">39</td><td data-col-id="2" class="num">1</td><td data-col-id="3" class="num">1</td><td data-col-id="4" class="num">2</td><td data-col-id="5" class="num">0</td><td data-col-id="6" class="num">0</td><td data-col-id="7" class="num">2</td></tr><tr><td data-col-id="0">CSA</td><td data-col-id="1" class="num">9</td><td data-col-id="2" class="num">0</td><td data-col-id="3" class="num">0</td><td data-col-id="4" class="num">0</td><td data-col-id="5" class="num">0</td><td data-col-id="6" class="num">0</td><td data-col-id="7" class="num">0</td></tr><tr><td data-col-id="0">Electrical</td><td data-col-id="1" class="num">6</td><td data-col-id="2" class="num">3</td><td data-col-id="3" class="num">3</td><td data-col-id="4" class="num">6</td><td data-col-id="5" class="num">0</td><td data-col-id="6" class="num">2</td><td data-col-id="7" class="num">0</td></tr><tr><td data-col-id="0">ICA</td><td data-col-id="1" class="num">58</td><td data-col-id="2" class="num">28</td><td data-col-id="3" class="num">24</td><td data-col-id="4" class="num">52</td><td data-col-id="5" class="num">13</td><td data-col-id="6" class="num">26</td><td data-col-id="7" class="num">8</td></tr><tr><td data-col-id="0">Mech</td><td data-col-id="1" class="num">38</td><td data-col-id="2" class="num">3</td><td data-col-id="3" class="num">3</td><td data-col-id="4" class="num">6</td><td data-col-id="5" class="num">0</td><td data-col-id="6" class="num">3</td><td data-col-id="7" class="num">1</td></tr><tr><td data-col-id="0">Others</td><td data-col-id="1" class="num">0</td><td data-col-id="2" class="num">20</td><td data-col-id="3" class="num">0</td><td data-col-id="4" class="num">20</td><td data-col-id="5" class="num">0</td><td data-col-id="6" class="num">5</td><td data-col-id="7" class="num">11</td></tr><tr><td data-col-id="0">Piping</td><td data-col-id="1" class="num">5</td><td data-col-id="2" class="num">1</td><td data-col-id="3" class="num">0</td><td data-col-id="4" class="num">1</td><td data-col-id="5" class="num">0</td><td data-col-id="6" class="num">1</td><td data-col-id="7" class="num">0</td></tr><tr><td data-col-id="0">Process</td><td data-col-id="1" class="num">129</td><td data-col-id="2" class="num">90</td><td data-col-id="3" class="num">13</td><td data-col-id="4" class="num">103</td><td data-col-id="5" class="num">0</td><td data-col-id="6" class="num">6</td><td data-col-id="7" class="num">64</td></tr><tr><td data-col-id="0">QAQC</td><td data-col-id="1" class="num">0</td><td data-col-id="2" class="num">0</td><td data-col-id="3" class="num">0</td><td data-col-id="4" class="num">0</td><td data-col-id="5" class="num">0</td><td data-col-id="6" class="num">0</td><td data-col-id="7" class="num">0</td></tr></tbody><tfoot><tr><td data-col-id="0">Total</td><td data-col-id="1" class="num">284</td><td data-col-id="2" class="num">146</td><td data-col-id="3" class="num">44</td><td data-col-id="4" class="num">190</td><td data-col-id="5" class="num">13</td><td data-col-id="6" class="num">43</td><td data-col-id="7" class="num">86</td></tr></tfoot></table></div></div></div></div></div></section></div></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

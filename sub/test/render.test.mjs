@@ -1,5 +1,10 @@
+// Revision 0.24 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.75 — a new test covers the C1 visual contract on C3 Bar cards: ONE hidden `.c3-col-band` before the bars, ONE hidden `.c3-col-snap` after them, both moved by one resolver in both hover directions, no border / outline / inset ring on active column cells, and print / PNG / Copy suppression. The rev 1.74 print and export assertions now read the rev 1.75 rules. No existing assertion was weakened.
+// Revision 0.23 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.74 / I131 — a new test covers the general chart ↔ attached-table column sync on C3 Bar cards: shared `data-col-id` on `.g-bar` / headers / value cells, one opt-in two-way binder path, tooltip gating, clear-on-leave, no competing `.col-hover`, scoped tokenised CSS, print neutralisation, whole-card export stripping and unchanged C1 reference behaviour. No existing assertion was weakened.
+// Revision 0.22 | 2026-11-13 | CodeBuddy (AI) | §4.2 rev 1.73 / I130 — C3 Bar attached tables are now native HTML tables. The C3 markup tests assert two `.c3-table` elements with caption, colgroup, thead, tbody, scope, data-col-id and the kept `.g-axis` / `.g-label` / `.g-val` classes. The §7.2.16 contract grows from nine to ten table emitters, and rendered Overview gains two C3 crosshair tables. A new test checks `role="group"` on the cards, `table-layout:fixed` CSS, the PNG / Copy table-rule export and hover-strip call. No existing assertion was weakened.
+// Revision 0.21 | 2026-11-13 | CodeBuddy (AI) | §7.2.16 / I129 — the table crosshair contract is now asserted in the production build. Source tests require `data-table-crosshair` on all nine table emitters, shared `data-col-id` values on every logical-column cell (including split headers, C1 month cells, C2, nested history and dynamically rebuilt windowed rows), the tokenised CSS state classes, the one delegated binder, export/print stripping and preserved C1 `.col-active` / column-rule / `position:relative` rules. No existing assertion was weakened.
 // Revision 0.20 | 2026-11-12 | CodeBuddy (AI) | §7.1 rev 1.71 / I128 — ONE text-button height. The CSS contract now asserts `--btn-h:32px` on every text-bearing button family and `--icon-btn-h:26px` on icon-only buttons. The former C1 `compact` preset variant is retired: its class, tokens and override rule are gone, and the preset group uses the standard segmented markup. No data, handler, ARIA or repaint path assertion was weakened.
 // Revision 0.18 | 2026-11-11 | CodeBuddy (AI) | §7.5 B2.1 rev 1.69 / I125 — the CSS contract now reads the shared `--seg-*` custom-property tokens and the six interaction states instead of literal rule text, so the tokens can move to `:root` without weakening any assertion. A new test renders all five pages and asserts that EVERY `.seg-btn` carries `type="button"` and a dynamic `aria-pressed`, and that EVERY `.seg` group carries `role="group"` and an accessible name. Source-level assertions check all seven generators, the shared `seg-compact` class and the removal of the panel-scoped sizing rule. No assertion was weakened or removed.
+// Revision 0.19 | 2026-11-14 | CodeBuddy (AI) | I134 — the Breakdown chart panels render ONE tool row: Month / Break-down-by / Bar-Pie left, ⤓ PNG + ⧉ Copy right, no second `.c3-card-head` row, and no visible "Month" text on the Month select. The per-card `.c3-card-ctrls` count changes from 2 to 0 and new I134 assertions cover the row order in Bar and Pie views. No assertion was weakened.\n// Revision 0.18 | 2026-11-14 | CodeBuddy (AI) | I133 — every C3 test moves from Overview to the new `Breakdown` page (spec rev 1.76). New tests: Overview keeps KPI/C1/C2 only, per-panel `c3Panels` state isolation, legend-above-chart in Bar and Pie views, the `Others` orphan label, and the sidebar order `Breakdown` directly under `Overview`. The per-panel control counts supersede the shared-cluster counts (3 `.c3-controls`, 3 `data-c3month`, 4 `data-c3view` buttons, 1 `data-c3export`). No assertion was weakened.
 // Revision 0.17 | 2026-11-09 | CodeBuddy (AI) | §4.2 rev 1.68 / I124 — the rev 1.66 CSS contract now expects the SHARED base hover (`.seg-btn:not(.active):hover` with `--surface2` / `--blue`) and base focus (`.seg-btn:focus-visible`) rules, and expects the scoped `.c1-ts-chips .seg-btn:focus-visible` rule to be GONE. A new test asserts the grain group's `type="button"` and dynamic `aria-pressed` mirror the preset chips, that the compact override is layout-only, and that the five other `.seg-btn` generators keep their markup. No assertion was weakened or removed.
 // Revision 0.16 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.67 / I122 — the rev 1.66 markup test now expects ONE `.seg` group of `.seg-btn` buttons, the new print / wrap CSS and the stored-preset client code; its 6M case passes `c1Preset: '6M'`. A new test asserts exact mutual exclusion for every preset, NO active chip for `c1Preset: null` (manual custom range), collided clipped ranges no longer light two chips, and the `flex-wrap:nowrap` / 1280 px wrap breakpoint CSS. No assertion was weakened or removed.
 // Revision 0.15 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.66 / I121 — two new tests cover the dual-handle C1 period time bar: `c1PresetRange()` (6M / 12M / 24M anchor and clamp, YTD from January of the as-of year, All, unknown and empty input), and the emitted markup (ONE shared track, two native `step="1"` handles with `data-c1period` / `aria-label` / `aria-valuetext`, one tick per reporting month, five `aria-pressed` chips, no old From / To inputs) plus the CSS print / focus rules and the client live-drag decoupling.
@@ -183,7 +188,7 @@ test('T19.1 / I116 — C1 S-curve carries one native attached table in one align
   assert.match(svgTag[0], /viewBox="0 0 \d+ \d+"/, 'the viewBox scales the whole curve into the card');
   assert.match(svgTag[0], /preserveAspectRatio="xMidYMid meet"/, 'the aspect ratio is kept');
   assert.match(svgTag[0], /role="img"/, 'the curve SVG keeps role="img"');
-  const found = html.match(/<table class="c1-table[^"]*">[\s\S]*?<\/table>/);
+  const found = html.match(/<table class="c1-table[^>]*>[\s\S]*?<\/table>/);
   assert.ok(found, 'the attached table renders in static HTML');
   const table = found[0];
   assert.match(table, /<caption>[^<]+<\/caption>/, 'caption present');
@@ -271,7 +276,7 @@ test('§4.2 rev 1.63 — C1 attached-table interaction is in the production buil
   assert.match(band, /pointer-events="none"/, 'the band is pointer-transparent');
   assert.ok(Math.abs(Number(band.match(/width="([\d.]+)"/)[1]) - geo.W / nb) < 0.2, 'band width is W / N');
   assert.ok(svg.indexOf('<rect class="sc-hover-band"') < svg.indexOf('<line class="sc-grid"'), 'the band is behind all marks');
-  const table = html.match(/<table class="c1-table[^"]*">[\s\S]*?<\/table>/)[0];
+  const table = html.match(/<table class="c1-table[^>]*>[\s\S]*?<\/table>/)[0];
   const rows = (table.match(/scope="row"/g) || []).length;
   assert.equal((table.match(/data-c1col="/g) || []).length, nb + rows * nb, 'every month header and value cell carries data-c1col');
   assert.equal((table.match(/<th class="g-axis" scope="col" data-c1col="/g) || []).length, nb, 'one data-c1col per month header');
@@ -291,7 +296,8 @@ test('§4.2 rev 1.63 — C1 attached-table interaction is in the production buil
   const dash = fs.readFileSync(path.join(root, 'engine/dashboard.js'), 'utf8');
   assert.match(dash, /sc-stop-resub\{stop-color:\$\{resub\}\}/, 'PNG / Copy resolve the gradient stops');
   assert.match(dash, /clone\.querySelectorAll\('\.chart-snap, \.sc-hover-band'\)/, 'PNG / Copy strip transient hover marks');
-  assert.match(dash, /activeCells/, 'PNG / Copy neutralise .col-active before reading text colours');
+  assert.match(dash, /withTransientTableHoverStripped\(table, \(\) => \{/, 'PNG / Copy strip every transient hover class before reading text colours');
+  assert.match(dash, /const TABLE_HOVER_CLASSES = \['row-hover', 'col-hover', 'cell-hover', 'col-active'\]/, 'PNG / Copy neutralise .col-active before reading text colours');
 });
 
 // §4.2 rev 1.59 and the owner decisions of 2026-11-06: one vertical Y-axis line, a rotated
@@ -689,21 +695,25 @@ test('counts the all-months approval mix once per document using its first appro
   assert.ok(rowApprovals >= perDoc, 'the row-level total is never below the per-document total');
 });
 
-test('renders C3 Breakdown controls and the two-series bar chart in Overview', () => {
+test('renders the Breakdown page with three independent panels (I133)', () => {
   let html = '';
   const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
   const fakeDocument = { querySelector(selector) { return selector === '[data-page-content]' ? rootNode : null; } };
-  renderDashboard(fakeDocument, model, { page: 'Overview' });
-  assert.match(html, /C3 Breakdown/);
+  renderDashboard(fakeDocument, model, { page: 'Breakdown' });
+  assert.match(html, /class="panel-grid breakdown-grid"/, 'the Breakdown page uses its own panel grid');
   assert.match(html, /class="chart c3-card"/, 'each chart is its own bordered card');
   assert.match(html, /data-c3month/);
   assert.match(html, /data-c3dim="submitter"/);
   assert.match(html, /data-c3view="pie"/);
   assert.match(html, /data-c3png/);
   assert.match(html, /data-c3copy/);
-  // Wave 4.2 (Option 2): two cards with a shared panel control cluster (Month + Break-down-by), not per-card controls.
-  assert.match(html, /class="c3-cards"/, 'the panel holds two stacked-bar cards');
-  assert.match(html, /class="c3-grid"/, 'each card is one aligned grid (bars + labels + table)');
+  // I133: three panels, each control scoped to its own panel key.
+  assert.match(html, /data-c3panel="submissions"/, 'the Submissions panel owns its controls');
+  assert.match(html, /data-c3panel="approval"/, 'the Approval Status panel owns its controls');
+  assert.match(html, /data-c3panel="summary"/, 'the summary panel owns its controls');
+  assert.match(html, /data-c3export/, 'the summary panel carries the ⤓ Download control');
+  assert.match(html, /class="c3-grid"/, 'each card keeps one bar-plot grid');
+  assert.match(html, /<table class="c3-table"/, 'each card adds one native attached table');
   assert.match(html, /seg-bar c3-new/, 'First Submission bar drawn');
   assert.match(html, /seg-bar c3-resub/, 'Resubmission bar drawn');
   assert.match(html, /seg-bar c3-app/, 'Approval APP bar drawn');
@@ -714,9 +724,10 @@ test('T15.3 (Wave 4.2): C3 splits into two side-by-side vertical-bar charts; All
   let html = '';
   const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
   const fakeDocument = { querySelector(selector) { return selector === '[data-page-content]' ? rootNode : null; } };
-  renderDashboard(fakeDocument, model, { page: 'Overview' }); // default scope = All months
-  assert.match(html, /class="c3-cards"/, 'two stacked-bar cards');
-  assert.equal((html.match(/class="c3-grid"/g) || []).length, 2, 'exactly two aligned grids render');
+  renderDashboard(fakeDocument, model, { page: 'Breakdown' }); // default scope = All months
+  assert.match(html, /class="panel-grid breakdown-grid"/, 'the two chart panels share the Breakdown grid');
+  assert.equal((html.match(/class="c3-grid"/g) || []).length, 2, 'exactly two bar-plot grids render');
+  assert.equal((html.match(/<table class="c3-table"/g) || []).length, 2, 'exactly two native attached tables render');
   assert.match(html, /Submissions/, 'left chart is Submissions');
   assert.match(html, /Approval Status/, 'right chart is Approval Status');
   // All months: Submissions = First Submission + Resubmission (Option A); Approval Status adds SUR (open review).
@@ -738,7 +749,7 @@ test('T15.3 (Wave 4.2): C3 splits into two side-by-side vertical-bar charts; All
   // I106 widened c3.months to project start → as-of, so [0] may be a zero-submission month (empty card).
   // Pick a month that actually has rows so the "Under Review appears" assertion has something to match.
   const dataMonth = c3v.c3.months.find(m => c3v.c3.rows.some(r => r.month === m)) || c3v.c3.months[0];
-  renderDashboard({ querySelector: s => s === '[data-page-content]' ? monthNode : null }, model, { page: 'Overview', c3Month: dataMonth });
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? monthNode : null }, model, { page: 'Breakdown', c3Month: dataMonth });
   assert.match(monthHtml, /Under Review/, 'a specific month shows Under Review in Submissions');
 });
 
@@ -746,7 +757,7 @@ test('renders the C3 Breakdown summary table below the chart', () => {
   let html = '';
   const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
   const fakeDocument = { querySelector(selector) { return selector === '[data-page-content]' ? rootNode : null; } };
-  renderDashboard(fakeDocument, model, { page: 'Overview' });
+  renderDashboard(fakeDocument, model, { page: 'Breakdown' });
   assert.match(html, /class="c3-summary"/);
   assert.match(html, /data-c3export/, 'the summary table has a Download (CSV) button');
   assert.match(html, /class="ds-table"/, 'the summary uses the shared table style (§7.2)');
@@ -761,7 +772,7 @@ test('renders the C3 Breakdown summary table below the chart', () => {
 test('I046 — the C3 submitter view drops Total Plan and explains why', () => {
   let submitterHtml = '';
   const submitterNode = { set innerHTML(value) { submitterHtml = value; }, get innerHTML() { return submitterHtml; } };
-  renderDashboard({ querySelector: s => s === '[data-page-content]' ? submitterNode : null }, model, { page: 'Overview', c3Dim: 'submitter' });
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? submitterNode : null }, model, { page: 'Breakdown', c3Dim: 'submitter' });
   // The note is the only place the words can appear: it names the column it explains. One hit means
   // the header, the metric row and every bar label are gone.
   const submitterHits = (submitterHtml.match(/Total Plan/g) || []).length;
@@ -772,15 +783,15 @@ test('I046 — the C3 submitter view drops Total Plan and explains why', () => {
 
   let disciplineHtml = '';
   const disciplineNode = { set innerHTML(value) { disciplineHtml = value; }, get innerHTML() { return disciplineHtml; } };
-  renderDashboard({ querySelector: s => s === '[data-page-content]' ? disciplineNode : null }, model, { page: 'Overview', c3Dim: 'discipline' });
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? disciplineNode : null }, model, { page: 'Breakdown', c3Dim: 'discipline' });
   assert.match(disciplineHtml, /Total Plan/, 'the discipline view keeps Total Plan');
 });
 
 test('T15.5 (Wave 4.2): the C3 summary table sits below the charts at full width', () => {
   let html = '';
   const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
-  renderDashboard({ querySelector: s => s === '[data-page-content]' ? rootNode : null }, model, { page: 'Overview' });
-  const boardPos = html.indexOf('class="c3-cards"');
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? rootNode : null }, model, { page: 'Breakdown' });
+  const boardPos = html.indexOf('class="chart c3-card"');
   const summaryPos = html.indexOf('class="c3-summary"');
   assert.ok(boardPos > -1 && summaryPos > -1, 'the panel has a chart board and a summary table');
   // T15.5 stacks them: the table renders after the chart board in DOM order and is the one full-set table.
@@ -793,26 +804,43 @@ test('T15.5 (Wave 4.2): the C3 summary table sits below the charts at full width
   assert.match(html, /class="ds-gut"/, 'the split header carries the scrollbar gutter');
 });
 
-test('Wave 4.2 (Option 2): C3 splits into two cards with a shared panel control cluster (no per-card month/dim)', () => {
+test('I133: the three Breakdown panels each own one control cluster (Month per panel, PNG/Copy per chart)', () => {
   let html = '';
   const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
-  renderDashboard({ querySelector: s => s === '[data-page-content]' ? rootNode : null }, model, { page: 'Overview' });
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? rootNode : null }, model, { page: 'Breakdown' });
   // Bar view: two bordered cards, one two-column grid.
   assert.equal((html.match(/class="chart c3-card"/g) || []).length, 2, 'two bordered cards render in the Bar view');
-  assert.match(html, /class="c3-cards"/, 'the cards share one two-column grid');
+  assert.match(html, /class="panel-grid breakdown-grid"/, 'the panels share the Breakdown page grid');
   assert.match(html, /Submissions/);
   assert.match(html, /Approval Status/);
-  // Controls are shared at the panel level (Month + Break-down-by), not duplicated per card: exactly one
-  // of each, in the .c3-controls cluster. PNG / Copy stay per card (two clusters).
-  assert.match(html, /class="c3-controls"/, 'a shared panel control cluster renders');
-  assert.equal((html.match(/data-c3month/g) || []).length, 1, 'exactly one shared month control (not one per card)');
-  assert.match(html, /data-c3dim="submitter"/, 'the shared Break-down-by toggle exposes the submitter option');
-  assert.equal((html.match(/class="c3-card-ctrls"/g) || []).length, 2, 'two per-card PNG/Copy clusters render');
-  // Each card is one aligned CSS grid: bars (g-bar), vertical axis labels (g-axis), attached table (g-label / g-val).
+  // I133 supersedes the shared cluster: each panel carries its OWN .c3-controls with its OWN Month.
+  assert.equal((html.match(/class="c3-controls"/g) || []).length, 3, 'one control cluster per panel (two charts + summary)');
+  assert.equal((html.match(/data-c3month/g) || []).length, 3, 'exactly one Month control per panel');
+  for (const panel of ['submissions', 'approval', 'summary'])
+    assert.match(html, new RegExp(`data-c3month data-c3panel="${panel}"`), `the ${panel} Month control writes only to its panel`);
+  assert.match(html, /data-c3dim="submitter"/, 'the chart panels expose the Break-down-by toggle');
+  assert.equal((html.match(/data-c3view=/g) || []).length, 4, 'only the chart panels carry the Bar/Pie toggle (two buttons each)');
+  assert.equal((html.match(/data-c3export/g) || []).length, 1, 'only the summary panel carries ⤓ Download');
+  // I134 — PNG / Copy render inside each chart card's ONE tool row (no separate head row).
+  assert.equal((html.match(/class="c3-card-ctrls"/g) || []).length, 0, 'no separate PNG/Copy head row on the chart cards');
+  assert.equal((html.match(/data-c3png/g) || []).length, 2, 'one ⤓ PNG per chart card');
+  assert.equal((html.match(/data-c3copy/g) || []).length, 2, 'one ⧉ Copy per chart card');
+  for (const card of html.split('<div class="chart c3-card"').slice(1)) {
+    const row = card.indexOf('class="c3-controls"');
+    const png = card.indexOf('data-c3png');
+    assert.ok(row > -1 && png > -1 && png > row, 'PNG / Copy sit in the card tool row');
+    const right = card.slice(card.indexOf('class="controls-right"'), png);
+    assert.doesNotMatch(right, /data-c3month|data-c3view|data-c3dim/, 'the right group of the tool row holds only PNG / Copy');
+  }
+  // Each card keeps one bar-plot grid (g-bar + Y ticks + grid lines) plus one native attached table.
+  // Dimension headers keep g-axis; metric rows keep g-label / g-val on th / td cells.
   // The breakdown lists every MDL discipline even when a month has zero submissions for it (Q1, Q2).
-  assert.match(html, /class="c3-grid"/, 'each card is one aligned grid (bars + labels + table)');
+  assert.match(html, /class="c3-grid"/, 'each card keeps one bar-plot grid');
+  assert.match(html, /<table class="c3-table"/, 'each card adds one native attached table');
   assert.match(html, /class="g-bar"/, 'bars render');
-  assert.match(html, /class="g-axis"/, 'axis labels render (vertical, aligned to bars)');
+  assert.match(html, /class="g-axis"/, 'dimension headers keep the vertical axis class');
+  assert.match(html, /class="g-label"/, 'metric labels keep the row class');
+  assert.match(html, /class="g-val"/, 'values keep the value class');
   // I060: C3 bars get a y-axis with grid lines + numbers, matching C1/C2.
   assert.match(html, /class="c3-gridlines"/, 'C3 bars get horizontal y-axis grid lines (I060)');
   assert.match(html, /class="g-yaxis"/, 'C3 bars get a y-axis number column (I060)');
@@ -822,17 +850,238 @@ test('Wave 4.2 (Option 2): C3 splits into two cards with a shared panel control 
   for (const d of plannedDiscs) assert.ok(html.includes(d), `discipline ${d} listed (full MDL set shown)`);
 });
 
+test('I130 / §4.2 rev 1.73 — each C3 Bar card carries one native attached table', () => {
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? rootNode : null }, model, { page: 'Breakdown' });
+  const tables = html.match(/<table class="c3-table"[\s\S]*?<\/table>/g) || [];
+  assert.equal(tables.length, 2, 'two C3 Bar cards each render one native table');
+  for (const t of tables) {
+    assert.match(t, /data-table-crosshair/, 'C3 table opts into §7.2.16');
+    assert.match(t, /<caption>/, 'C3 table carries a caption');
+    assert.match(t, /<colgroup>/, 'C3 table carries a colgroup');
+    assert.match(t, /<thead>/, 'C3 table carries a thead');
+    assert.match(t, /<tbody>/, 'C3 table carries a tbody');
+    assert.match(t, /scope="col"/, 'C3 table uses column headers');
+    assert.match(t, /scope="row"/, 'C3 table uses row headers');
+    assert.match(t, /data-col-id="0"/, 'C3 table shares the logical-column identifier');
+    assert.match(t, /<th class="g-axis"/, 'dimension headers keep the g-axis class');
+    assert.match(t, /<th class="g-label"/, 'metric labels keep the g-label class');
+    assert.match(t, /<td class="g-val"/, 'values keep the g-val class');
+  }
+  assert.match(html, /class="chart c3-card" role="group" aria-label="Submissions breakdown"/, 'Submissions card keeps the chart hover host');
+  assert.match(html, /class="chart c3-card" role="group" aria-label="Approval Status breakdown"/, 'Approval Status card keeps the chart hover host');
+  const css = fs.readFileSync(path.join(root, 'engine/dashboard.css'), 'utf8');
+  assert.match(css, /\.c3-table\{[^}]*table-layout:fixed/, 'C3 table uses fixed layout');
+  assert.match(css, /\.c3-table caption\{/, 'C3 caption is visually hidden');
+  assert.match(css, /@media print\{\.c3-card-body,\.c3-grid,\.c3-table\{overflow:visible/, 'print keeps the C3 table visible');
+  const js = fs.readFileSync(path.join(root, 'engine/dashboard.js'), 'utf8');
+  assert.match(js, /table\.querySelectorAll\('tr'\)/, 'PNG / Copy draw table rules');
+  assert.match(js, /withTransientTableHoverStripped\(table, addTableText\)/, 'PNG / Copy strip hover classes');
+  assert.match(js, /table\.classList\.contains\('c3-table'\)/, 'C3 table is an explicit crosshair scope');
+});
+
+test('I131 / §4.2 rev 1.74 — C3 Bar cards share ONE two-way chart ↔ attached-table column state', () => {
+  const src = fs.readFileSync(path.join(root, 'engine/render.js'), 'utf8');
+  const js = fs.readFileSync(path.join(root, 'engine/dashboard.js'), 'utf8');
+  const css = fs.readFileSync(path.join(root, 'engine/dashboard.css'), 'utf8');
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? rootNode : null }, model, { page: 'Breakdown' });
+
+  // Bars, dimension headers and value cells share the SAME logical-column identifier.
+  const cards = html.split('<div class="chart c3-card" role="group"');
+  assert.equal(cards.length - 1, 2, 'two C3 Bar cards render');
+  const bars = [...(cards[1] || '').matchAll(/<div class="g-bar"[^>]*data-col-id="(\d+)"/g)].map(m => m[1]);
+  assert.ok(bars.length >= 2, 'C3 bar columns carry data-col-id');
+  const table = html.match(/<table class="c3-table"[\s\S]*?<\/table>/)?.[0] || '';
+  const heads = [...table.matchAll(/<th class="g-axis"[^>]*data-col-id="(\d+)"/g)].map(m => m[1]);
+  assert.deepEqual(heads, bars, 'every bar column has one matching dimension header');
+  for (const id of bars) {
+    assert.ok(table.includes(`<td class="g-val" data-col-id="${id}">`), `column ${id} has a value cell`);
+  }
+  assert.ok(!html.includes('col-active'), 'the active column state is never hard-coded in markup');
+
+  // ONE opt-in binder path resolves the bar side and the table side into ONE state per card.
+  assert.ok(src.includes('c3AttachedTable = false'), 'the C3 sync is opt-in');
+  assert.ok(src.includes("e.target.closest('.c3-grid .g-bar[data-col-id]')"), 'bar hover resolves the logical column');
+  assert.ok(src.includes("e.target.closest('.c3-table [data-col-id]')"), 'table hover resolves the logical column');
+  assert.ok(src.includes("c3SetColumn((barCell || tableCell).getAttribute('data-col-id'))"), 'both directions use one resolver');
+  assert.ok(src.includes('.c3-grid .g-bar.col-active,.c3-table [data-col-id].col-active'), 'one state covers bar and table nodes');
+  assert.ok(src.includes('if (c3Table) c3ClearColumn()'), 'leave / blur / Escape clear the column');
+  assert.ok(src.includes('if (tableCell) { hideTip();'), 'the floating window stays closed over the attached table');
+  assert.ok(src.includes("c3AttachedTable: !!c.querySelector('table.c3-table[data-table-crosshair]')"), 'only Bar cards opt in');
+  assert.ok(src.includes('attachedTable: true, render: p => c1TipHtml(p, c1meta)'), 'C1 keeps its reference implementation');
+
+  // Scoped tokenised CSS; print removes the transient highlight from the bar plot too.
+  for (const rule of ['.c3-grid > .g-bar.col-active{', '.c3-table tr > [data-col-id].col-active{', '.c3-table thead tr > th[data-col-id].col-active{']) {
+    assert.ok(css.includes(rule), `${rule} paints the shared column`);
+  }
+  assert.ok(css.includes('@media print{.c3-col-band,.c3-col-snap{display:none!important}'), 'print hides the C1-style band and centre line');
+  const activeBarRule = css.match(/\.c3-grid > \.g-bar\.col-active\{[^}]*\}/)?.[0] || '';
+  assert.ok(activeBarRule && !/box-shadow|border|outline/.test(activeBarRule), 'an active bar paints NO border, outline or inset ring');
+
+  // The generic crosshair keeps row / intersection states but never adds a competing column state.
+  assert.ok(js.includes("table.classList.contains('c1-table') || table.classList.contains('c3-table')"), 'chart-linked tables keep .col-active');
+  assert.ok(js.includes('function clearC3ColumnSync()'), 'the transient C3 state has one cleaner');
+  assert.ok(js.includes("window.addEventListener('beforeprint', clearC3ColumnSync)"), 'print clears the C3 column');
+  assert.ok(/function paint\(\) \{[\s\S]{0,200}clearC3ColumnSync\(\)/.test(js), 'repaint clears the C3 column');
+  assert.ok(js.includes('withTransientTableHoverStripped(scope || document, () => c3CardToSvg(btn))'), 'PNG / Copy strip chart and table state together');
+});
+
+test('§4.2 rev 1.75 — C3 Bar column highlighting follows the C1 band / centre line / no-border design', () => {
+  const src = fs.readFileSync(path.join(root, 'engine/render.js'), 'utf8');
+  const js = fs.readFileSync(path.join(root, 'engine/dashboard.js'), 'utf8');
+  const css = fs.readFileSync(path.join(root, 'engine/dashboard.css'), 'utf8');
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? rootNode : null }, model, { page: 'Breakdown' });
+
+  // ONE hidden band and ONE hidden centre line per Bar card; no state classes in markup.
+  const cards = html.split('<div class="chart c3-card" role="group"').slice(1);
+  assert.equal(cards.length, 2, 'two C3 Bar cards render');
+  for (const card of cards) {
+    const gridStart = card.indexOf('<div class="c3-grid"');
+    const tableStart = card.indexOf('<table class="c3-table"');
+    assert.ok(gridStart >= 0 && tableStart > gridStart, 'the bar plot precedes the attached table');
+    const grid = card.slice(gridStart, tableStart);
+    assert.equal((grid.match(/class="c3-col-band"/g) || []).length, 1, 'ONE column band per card');
+    assert.equal((grid.match(/class="c3-col-snap"/g) || []).length, 1, 'ONE centre line per card');
+    assert.ok(grid.includes('aria-hidden="true" style="display:none"'), 'both elements are hidden in markup');
+    assert.ok(grid.indexOf('class="c3-col-band"') < grid.indexOf('class="g-bar"'), 'the band is emitted before the bars');
+    assert.ok(grid.lastIndexOf('class="g-bar"') < grid.indexOf('class="c3-col-snap"'), 'the centre line is emitted after the bars');
+  }
+  assert.ok(!html.includes('col-active'), 'the active column state is never hard-coded in markup');
+
+  // ONE resolver moves both elements from BOTH hover directions, scoped to the grid tracks.
+  assert.ok(src.includes("root.querySelector('.c3-grid .c3-col-band')"), 'the binder resolves ONE band');
+  assert.ok(src.includes("root.querySelector('.c3-grid .c3-col-snap')"), 'the binder resolves ONE centre line');
+  assert.ok(src.includes('c3SetColumnMarks(n)'), 'ONE helper moves the band and centre line');
+  assert.ok(src.includes('c3Band.style.gridColumn = track') && src.includes('c3Snap.style.gridColumn = track'), 'both follow the active grid track');
+  assert.ok(src.includes('c3HideColumnMarks()'), 'leave / blur / Escape hide both elements');
+  assert.ok(src.includes('c3Table ? root.querySelector') , 'only C3 Bar cards opt in');
+
+  // C1 visual contract: tokenised band, dashed centre line, NO active-column border.
+  assert.ok(css.includes('.c3-col-band{background:var(--table-col-hover);background:color-mix(in srgb,var(--blue) 8%,transparent)}'), 'the band uses ONE 8 % tokenised fill');
+  assert.ok(css.includes('.c3-col-snap::after{content:"";position:absolute;left:50%'), 'the centre line sits at the column centre');
+  assert.ok(css.includes('repeating-linear-gradient(to bottom,var(--text3) 0 3px,transparent 3px 6px)'), 'the centre line uses the C1 3 3 dash');
+  assert.ok(css.includes('.c3-col-band,.c3-col-snap{grid-column:2;grid-row:1;height:150px;pointer-events:none}'), 'both follow the grid tracks');
+  assert.ok(css.includes('.sc-hover-band{fill:var(--blue);fill-opacity:.08;'), 'C1 keeps its reference band');
+  assert.ok(/\.chart-snap\{stroke:var\(--text3\)/.test(css), 'C1 keeps its reference centre line');
+
+  // Export and print suppress the transient marks; C1 export is unchanged.
+  assert.ok(js.includes('function withC3ColumnMarksHidden(scope, fn)'), 'PNG / Copy have ONE band / line stripper');
+  assert.ok(js.includes('withC3ColumnMarksHidden(scope, () =>'), 'PNG / Copy hide the marks before reading styles');
+  assert.ok(js.includes(".c3-card .c3-grid .c3-col-band,.c3-card .c3-grid .c3-col-snap"), 'the cleaner hides both marks');
+  assert.ok(js.includes("window.addEventListener('beforeprint', clearC3ColumnSync)"), 'print calls the cleaner');
+});
+
+// I133 — C3 Breakdown moves to a new Breakdown page as three independent panels.
+test('I133 — Overview keeps KPI, C1 and C2 only; the Breakdown page holds the three C3 panels', () => {
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Overview' });
+  assert.match(html, /KPI OVERVIEW/);
+  assert.match(html, /C1 Schedule Performance/);
+  assert.match(html, /C2 Submission Flow/);
+  assert.doesNotMatch(html, /c3-card|data-c3month|breakdown-grid/, 'Overview renders no C3 panel');
+});
+
+test('I133 — the three Breakdown panels each own their own c3Month / c3Dim / c3View state', () => {
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, {
+    page: 'Breakdown',
+    c3Panels: { submissions: { c3View: 'pie' }, approval: { c3View: 'bar', c3Dim: 'submitter' }, summary: { c3Dim: 'submitter' } }
+  });
+  const subPanel = html.slice(html.indexOf('data-c3panel="submissions"'), html.indexOf('data-c3panel="approval"'));
+  const appPanel = html.slice(html.indexOf('data-c3panel="approval"'), html.indexOf('data-c3panel="summary"'));
+  const sumPanel = html.slice(html.indexOf('data-c3panel="summary"'));
+  assert.match(subPanel, /class="c3-svg"/, 'Submissions renders a donut from its own c3View');
+  assert.doesNotMatch(subPanel, /class="c3-grid"/, 'Submissions has no bar grid in its pie view');
+  assert.doesNotMatch(subPanel, /data-c3dim=/, 'the pie panel hides Break-down-by');
+  assert.match(appPanel, /class="c3-grid"/, 'Approval Status keeps its bar grid');
+  assert.match(appPanel, /data-c3dim="submitter" data-c3panel="approval" aria-pressed="true"/, 'Approval Status owns dim = submitter');
+  assert.match(appPanel, /data-c3dim="discipline" data-c3panel="approval" aria-pressed="false"/, 'Approval Status does not inherit another panel dim');
+  assert.match(sumPanel, /data-c3dim="submitter" data-c3panel="summary" aria-pressed="true"/, 'the summary panel owns dim = submitter');
+  assert.match(sumPanel, /data-c3export/, 'the summary panel keeps its ⤓ Download');
+});
+
+test('I133 — each C3 legend sits ABOVE its chart in the Bar and the Pie view', () => {
+  let bar = '', pie = '';
+  const barNode = { set innerHTML(value) { bar = value; }, get innerHTML() { return bar; } };
+  const pieNode = { set innerHTML(value) { pie = value; }, get innerHTML() { return pie; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? barNode : null }, model, { page: 'Breakdown' });
+  const barCards = bar.split('<div class="chart c3-card"').slice(1);
+  assert.equal(barCards.length, 2, 'two Bar cards render');
+  for (const card of barCards) {
+    const legend = card.indexOf('class="c3-legend"');
+    const chart = card.indexOf('class="c3-grid"');
+    assert.ok(legend > -1 && chart > -1 && legend < chart, 'the Bar legend is emitted before the bar grid');
+  }
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? pieNode : null }, model, { page: 'Breakdown', c3View: 'pie' });
+  const pieCards = pie.split('<div class="chart c3-card"').slice(1);
+  assert.equal(pieCards.length, 2, 'two donut cards render');
+  for (const card of pieCards) {
+    const legend = card.indexOf('class="c3-legend"');
+    const svg = card.indexOf('<svg');
+    assert.ok(legend > -1 && svg > -1 && legend < svg, 'the Pie legend is emitted before the donut svg');
+  }
+});
+
+test('I133 / V-29 — the orphan discipline is named Others, not Unknown', () => {
+  const view = deriveView(model);
+  const labels = [...new Set(view.c3.rows.map(row => row.discipline))];
+  assert.ok(!labels.includes('Unknown'), 'no C3 row carries the old Unknown label');
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Breakdown' });
+  assert.match(html, /Others/, 'the Breakdown lists Others');
+  assert.match(html, /class="panel-grid breakdown-grid"/, 'the Breakdown page renders its own grid');
+});
+
+test('I133 — the delivered HTML lists Breakdown directly under Overview in the sidebar', () => {
+  const html = fs.readFileSync(path.join(root, 'TWRP C3B2 - Document Submittal Dashboard.html'), 'utf8');
+  const overview = html.indexOf('data-page="Overview"');
+  const breakdown = html.indexOf('data-page="Breakdown"');
+  assert.ok(overview > -1, 'the Overview nav item exists');
+  assert.ok(breakdown > -1, 'the Breakdown nav item exists');
+  assert.doesNotMatch(html.slice(overview + 1, breakdown), /data-page="/, 'no nav item sits between Overview and Breakdown');
+});
+
+test('I134 — each chart panel shows ONE tool row with no visible Month text', () => {
+  let bar = '', pie = '';
+  const barNode = { set innerHTML(value) { bar = value; }, get innerHTML() { return bar; } };
+  const pieNode = { set innerHTML(value) { pie = value; }, get innerHTML() { return pie; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? barNode : null }, model, { page: 'Breakdown' });
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? pieNode : null }, model, { page: 'Breakdown', c3View: 'pie' });
+  for (const [html, view] of [[bar, 'Bar'], [pie, 'Pie']]) {
+    const cards = html.split('<div class="chart c3-card"').slice(1);
+    assert.equal(cards.length, 2, `two chart cards render in the ${view} view`);
+    for (const card of cards) {
+      assert.doesNotMatch(card, /class="c3-card-head"/, `no second head row in the ${view} card`);
+      assert.doesNotMatch(card, /c3-month-wrap">Month /, `no visible Month text in the ${view} card`);
+      assert.match(card, /c3-month-wrap"><select data-c3month/, `the Month select keeps its aria-label in the ${view} card`);
+      const left = card.indexOf('class="controls-left"');
+      const viewSeg = card.indexOf('data-c3view=');
+      const png = card.indexOf('data-c3png');
+      const right = card.indexOf('class="controls-right"');
+      assert.ok(left > -1 && left < viewSeg && viewSeg < right && right < png, `the ${view} tool row is controls first, PNG / Copy last`);
+    }
+  }
+});
+
 test('C3 Pie view renders two donut cards (Submissions, Approval Status); Break-down-by hidden', () => {
   let html = '';
   const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
-  renderDashboard({ querySelector: s => s === '[data-page-content]' ? rootNode : null }, model, { page: 'Overview', c3View: 'pie' });
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? rootNode : null }, model, { page: 'Breakdown', c3View: 'pie' });
   assert.equal((html.match(/class="chart c3-card"/g) || []).length, 2, 'two bordered cards render in the Pie view');
   assert.match(html, /Submissions/, 'left card is Submissions');
   assert.match(html, /Approval Status/, 'right card is Approval Status');
   assert.equal((html.match(/class="c3-svg"/g) || []).length, 2, 'each card shows its own donut');
-  assert.match(html, /class="c3-controls"/, 'the shared panel control cluster still renders');
-  assert.equal((html.match(/data-c3month/g) || []).length, 1, 'one shared month control');
-  assert.doesNotMatch(html, /data-c3dim=/, 'Break-down-by is hidden in Pie view');
+  assert.equal((html.match(/class="c3-controls"/g) || []).length, 3, 'one control cluster per panel');
+  assert.equal((html.match(/data-c3month/g) || []).length, 3, 'one Month control per panel');
+  assert.equal((html.match(/data-c3dim=/g) || []).length, 2, 'Break-down-by is hidden on the pie panels; the summary panel keeps its own');
   assert.match(html, /c3-new-arc/, 'Submissions donut draws First Submission');
   assert.match(html, /c3-[a-z]+-arc/, 'at least one approval donut arc is drawn');
 });
@@ -849,7 +1098,7 @@ test('C3 Total Plan (All months) is bounded to the as-of month and excludes unda
     // Expected = active planned rows for this discipline whose Planned 1st Issue Date is a real month ≤ as-of.
     const expected = model.planned.filter(r =>
       r.documentNo && !['Deleted', 'Void', 'Superseded'].includes(r.stage) &&
-      (r.discipline || 'Unknown') === dim &&
+      (r.discipline || 'Others') === dim &&
       (() => { const m = ym(r.fields['Planned 1st Issue Date']); return m && m <= asOf; })()
     ).length;
     assert.equal(all, expected, `${dim}: All-months Total Plan = planned 1st issues ≤ ${asOf} (undated excluded)`);
@@ -859,7 +1108,7 @@ test('C3 Total Plan (All months) is bounded to the as-of month and excludes unda
       const single = view.c3.planCount('discipline', dim, month);
       const singleExpected = model.planned.filter(r =>
         r.documentNo && !['Deleted', 'Void', 'Superseded'].includes(r.stage) &&
-        (r.discipline || 'Unknown') === dim && ym(r.fields['Planned 1st Issue Date']) === m
+        (r.discipline || 'Others') === dim && ym(r.fields['Planned 1st Issue Date']) === m
       ).length;
       assert.equal(single, singleExpected, `${dim} ${month}: a single month counts only its own planned 1st issue`);
       if (m <= asOf) assert.ok(all >= single, `${dim}: All-months includes ${month}`);
@@ -871,7 +1120,7 @@ test('T15.4 (Wave 4.2): Pie view shows two equal-total donuts (Submissions, Appr
   const months = deriveView(model).c3.months;
   let pieHtml = '';
   const pieNode = { set innerHTML(value) { pieHtml = value; }, get innerHTML() { return pieHtml; } };
-  renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? pieNode : null }, model, { page: 'Overview', c3View: 'pie' });
+  renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? pieNode : null }, model, { page: 'Breakdown', c3View: 'pie' });
   assert.equal((pieHtml.match(/class="c3-svg"/g) || []).length, 2, 'two donut cards render');
   assert.match(pieHtml, /class="c3-new-arc"/, 'Submissions donut draws First Submission');
   assert.match(pieHtml, /class="c3-resub-arc"/, 'Submissions donut draws Resubmission');
@@ -884,11 +1133,11 @@ test('T15.4 (Wave 4.2): Pie view shows two equal-total donuts (Submissions, Appr
   let month = null, monthHtml = '';
   const monthNode = { set innerHTML(value) { monthHtml = value; }, get innerHTML() { return monthHtml; } };
   for (const cand of months) {
-    renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? monthNode : null }, model, { page: 'Overview', c3View: 'pie', c3Month: cand });
+    renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? monthNode : null }, model, { page: 'Breakdown', c3View: 'pie', c3Month: cand });
     if (/class="c3-ur-arc"/.test(monthHtml)) { month = cand; break; }
   }
   assert.ok(month, 'at least one month shows Under Review in the pie');
-  renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? monthNode : null }, model, { page: 'Overview', c3View: 'pie', c3Month: month });
+  renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? monthNode : null }, model, { page: 'Breakdown', c3View: 'pie', c3Month: month });
   assert.match(monthHtml, /class="c3-new-arc"/, 'a single month donut still shows First Submission');
   assert.match(monthHtml, /class="c3-ur-arc"/, 'a single month donut shows Under Review as a third Submissions segment');
   assert.doesNotMatch(monthHtml, /\(\d+%\)/, 'a single month shows counts only (no percentages)');
@@ -900,12 +1149,12 @@ test('T15.4 (Wave 4.2): Pie view shows two equal-total donuts (Submissions, Appr
 test('I099 — the Approval donut gives every document a segment, including "No Outcome"', () => {
   let pieHtml = '';
   const pieNode = { set innerHTML(value) { pieHtml = value; }, get innerHTML() { return pieHtml; } };
-  renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? pieNode : null }, model, { page: 'Overview', c3View: 'pie' });
+  renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? pieNode : null }, model, { page: 'Breakdown', c3View: 'pie' });
   const totals = [...pieHtml.matchAll(/class="c3-total"[^>]*>(\d+)</g)].map(m => +m[1]);
   assert.equal(totals.length, 2, 'two donut totals render');
   assert.equal(totals[0], totals[1], 'All-months: both donuts total the same distinct-document count');
   // The donut counts a document once, for the disciplines the breakdown lists (c3Metrics + universe).
-  const universe = new Set([...model.planned.map(row => row.discipline).filter(Boolean), 'Unknown']);
+  const universe = new Set([...model.planned.map(row => row.discipline).filter(Boolean), 'Others']);
   const activeDocs = new Set(deriveView(model).active.filter(row => row.documentNo && universe.has(row.discipline)).map(row => String(row.documentNo).trim().toUpperCase()));
   assert.equal(totals[0], activeDocs.size, 'the total is the distinct-document count');
   const noOutcome = model.issues.filter(issue => issue.code === 'V-35').length;
@@ -1046,7 +1295,7 @@ test('I106 — C3 hover windows follow §4.6 (swatch · label · value rows + fo
     let html = '';
     const node = { set innerHTML(v) { html = v; }, get innerHTML() { return html; } };
     const doc = { querySelector: s => s === '[data-page-content]' ? node : null };
-    renderDashboard(doc, model, { page: 'Overview', c3View: view });
+    renderDashboard(doc, model, { page: 'Breakdown', c3View: view });
     return html;
   };
   for (const view of ['bar', 'pie']) {
@@ -1228,7 +1477,7 @@ test('I112 — Validation error-code filter narrows only the Issues table', () =
   const target = small[0];
   const expected = small[1];
   const countIssueRows = h => {
-    const sel = h.match(/<table class="ds-table" data-table-key="issue"[\s\S]*?<\/table>/);
+    const sel = h.match(/<table class="ds-table"[^>]*data-table-key="issue"[\s\S]*?<\/table>/);
     assert.ok(sel, 'the Issues table is present');
     return (sel[0].match(/<tr>/g) || []).length;
   };
@@ -1242,4 +1491,77 @@ test('I112 — Validation error-code filter narrows only the Issues table', () =
   const oneCount = countIssueRows(htmlOne);
   assert.strictEqual(oneCount, expected, `selecting code ${target} shows only its rows (${expected})`);
   assert.ok(oneCount < allCount, 'the filter reduces the visible row count');
+});
+
+test('§7.2.16 / I129 — one global table hover crosshair contract is in the production build', () => {
+  const css = fs.readFileSync(path.join(root, 'engine/dashboard.css'), 'utf8');
+  const cssRules = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const js = fs.readFileSync(path.join(root, 'engine/dashboard.js'), 'utf8');
+  const src = fs.readFileSync(path.join(root, 'engine/render.js'), 'utf8');
+
+  // Every table emitter opts into the SAME contract; every logical-column cell carries a shared id.
+  const tableTags = [...src.matchAll(/<table\b[^>]*>/g)].map(m => m[0]);
+  assert.equal(tableTags.length, 10, 'all ten table emitters are present');
+  assert.ok(tableTags.every(tag => /data-table-crosshair/.test(tag)), 'every table emitter carries data-table-crosshair');
+  assert.ok((src.match(/data-col-id="\$\{/g) || []).length >= 9, 'every cell generator emits a stable logical column id');
+  assert.ok(src.includes('<table class="c3-table" data-table-crosshair>'), 'C3 attached tables opt into the crosshair');
+  assert.ok(src.includes('data-col="${index}" data-col-id="${index}"'), 'rebuilt windowed rows keep the shared id');
+  assert.ok(src.includes('data-c1col="${i}" data-col-id="${i}"'), 'C1 month cells keep the chart hook AND gain the shared id');
+  assert.ok(!/\.cellIndex\b/.test(src), 'the renderer never resolves a column from cellIndex');
+
+  // Rendered pages: every table carries the hook, split headers / bodies are paired and C1 / C2 /
+  // C3 / hist / generic tables all expose logical column ids.
+  const pages = ['Overview', 'Breakdown', 'Submittals', 'Validation', 'Forward and Overdue', 'Analytical'];
+  for (const page of pages) {
+    let html = '';
+    const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+    renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page });
+    const tags = [...html.matchAll(/<table\b[^>]*>/g)].map(m => m[0]);
+    // The Analytical page is KPI / chart only, so the crosshair contract is vacuously satisfied.
+    if (!tags.length) { assert.ok(!html.includes('data-col-id="'), `${page}: no table means no stray column ids`); continue; }
+    assert.ok(tags.every(tag => /data-table-crosshair/.test(tag)), `${page}: every rendered table opts into the crosshair`);
+    assert.ok(html.includes('data-col-id="'), `${page}: logical column ids are rendered`);
+    const heads = (html.match(/<table class="ds-table vheadtab"[^>]*data-table-crosshair/g) || []).length;
+    const bodies = (html.match(/<table class="ds-table" data-table-crosshair/g) || []).length;
+    assert.equal(heads, bodies, `${page}: every split header has one paired body table`);
+  }
+
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Overview', c2View: 'funnel' });
+  const c1Table = html.match(/<table class="c1-table[^>]*>[\s\S]*?<\/table>/)?.[0] || '';
+  assert.ok(c1Table.includes('data-c1col="0"') && c1Table.includes('data-col-id="0"'), 'C1 keeps chart-linked and crosshair ids on the same month cells');
+  assert.equal((c1Table.match(/data-c1col="/g) || []).length, (c1Table.match(/data-col-id="/g) || []).length, 'C1 month ids are paired one-to-one');
+  assert.doesNotMatch(c1Table, /data-col="/, 'data-col stays reserved for .ds-table choosers and resize grips');
+  const c2Table = html.match(/<table class="c2-ftab[^>]*>[\s\S]*?<\/table>/)?.[0] || '';
+  assert.ok(c2Table.includes('data-col-id="0"') && c2Table.includes('data-col-id="5"'), 'C2 carries ids for all six logical columns');
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Breakdown' });
+  const c3Tables = html.match(/<table class="c3-table"[\s\S]*?<\/table>/g) || [];
+  assert.equal(c3Tables.length, 2, 'the Breakdown page renders two C3 native attached tables');
+  assert.ok(c3Tables.every(t => t.includes('data-table-crosshair') && t.includes('data-col-id="0"')), 'C3 attached tables carry the shared crosshair ids');
+
+  html = '';
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Submittals' });
+  const histTable = html.match(/<table class="ds-table hist-table[^>]*>[\s\S]*?<\/table>/)?.[0] || '';
+  assert.ok(histTable.includes('data-col-id="0"') && histTable.includes('data-col-id="5"'), 'nested history carries ids for all six logical columns');
+
+  // The CSS owns ONE tokenised crosshair contract, preserves column rules / positioning and suppresses print.
+  for (const token of ['--table-row-hover', '--table-col-hover', '--table-cell-hover', '--table-head-hover', '--table-crosshair-ring']) {
+    assert.ok(cssRules.includes(`${token}:`), `${token} is a semantic theme token`);
+  }
+  for (const rule of ['[data-table-crosshair] tr.row-hover > td{', '[data-table-crosshair] tr > td.col-hover{', '[data-table-crosshair] tr > td.cell-hover{', '.c1-table tr > [data-c1col].col-active{']) {
+    assert.ok(cssRules.includes(rule), `${rule} is in the CSS contract`);
+  }
+  assert.ok(cssRules.includes('.ds-table thead th::after{'), 'the column-rule pseudo-element is preserved');
+  assert.ok(cssRules.includes('position:relative'), 'cell positioning is preserved');
+  assert.ok(css.includes('@media print{[data-table-crosshair] .row-hover'), 'print neutralises transient hover classes');
+
+  // One delegated binder and one export-strip helper own the transient state.
+  assert.ok(js.includes('function bindTableCrosshair(root)'), 'one delegated table binder exists');
+  assert.ok(js.includes("cell.getAttribute('data-col-id')"), 'the binder resolves columns from the shared id');
+  assert.ok(!/\.cellIndex\b/.test(js), 'the client never resolves a column from cellIndex');
+  assert.ok(js.includes('withTransientTableHoverStripped'), 'PNG / Copy strip transient hover classes');
+  assert.ok(js.includes("const TABLE_HOVER_CLASSES = ['row-hover', 'col-hover', 'cell-hover', 'col-active']"), 'every transient class is export-stripped');
+  assert.ok(js.includes("window.addEventListener('beforeprint', clearTableCrosshair)"), 'print clears the crosshair');
+  assert.ok(js.includes('bindTableCrosshair(document)'), 'the binder is installed once at startup');
 });

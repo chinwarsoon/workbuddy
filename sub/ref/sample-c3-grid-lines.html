@@ -1,4 +1,11 @@
-<!doctype html><html><head><meta charset="utf-8"><title>C3 grid lines + numbers — review sample (v2, flush right)</title><style>:root{--color-new:#1f6fb2;--color-resub:#f4a259;--color-ur:#7c3aed;--color-app:#17a67a;--color-awc:#2b6cf6;--color-nap:#F9A825;--color-rej:#d23b3b;--color-inf:#64748B;--border:#D9E1E8;--text:#1F2A37;--text2:#526171;--surface:#fff;--bg:#eef2f8}
+<!doctype html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>C3 grid lines + numbers — native attached table sample (§4.2 rev 1.73 / 1.74 / 1.75; I130 / I131)</title>
+<!-- §4.1 / §4.2 / §3.4.1; revisions 1.33 / 1.34 / 1.73 / 1.74 / 1.75; I130 / I131 -->
+<style>
+:root{--active-col:#eaf3fb;--color-new:#1f6fb2;--color-resub:#f4a259;--color-ur:#7c3aed;--color-app:#17a67a;--color-awc:#2b6cf6;--color-nap:#F9A825;--color-rej:#d23b3b;--color-inf:#64748B;--border:#D9E1E8;--text:#1F2A37;--text2:#526171;--surface:#fff;--bg:#eef2f8}
 *{box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:18px}
 h1{font-size:16px}
@@ -10,26 +17,149 @@ h1{font-size:16px}
 .c3-card-ctrls{display:flex;gap:6px}
 .btn-secondary{border:1px solid var(--border);background:var(--surface);border-radius:6px;font-size:12px;padding:5px 10px;cursor:pointer;color:var(--text2)}
 .c3-card-body{overflow-x:auto;min-width:0}
-.c3-grid{display:grid;column-gap:6px;row-gap:0;margin-top:6px}
-/* y-axis numbers share the metric-label column (col 1), right-aligned and flush against the bars — no big gutter */
-.g-yaxis{grid-column:1;grid-row:1;height:150px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;text-align:right;padding-right:2px;font-size:10px;color:var(--text2);border-bottom:1px solid var(--border)}
-.g-bar{height:150px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;border-bottom:1px solid var(--border);background-image:repeating-linear-gradient(to top,transparent 0,transparent calc(25% - 1px),var(--border) calc(25% - 1px),var(--border) 25%)}
+/* ONE borderless grid for row 1; ONE native table for row 2. Shared geometry keeps columns aligned. */
+.c3-grid{--c3-gutter:104px;--c3-cols:8;display:grid;grid-template-columns:var(--c3-gutter) repeat(var(--c3-cols),minmax(0,1fr));column-gap:0;row-gap:0;margin-top:6px;width:100%;min-width:424px}
+.c3-gridlines{grid-column:2 / -1;grid-row:1;background-image:repeating-linear-gradient(to top,var(--border) 0,var(--border) 1px,transparent 1px,transparent 25%);background-color:transparent;pointer-events:none}
+.g-yaxis{grid-column:1;grid-row:1;height:150px;position:relative;pointer-events:none}
+.g-ytick{position:absolute;right:0;transform:translateY(-50%);font-size:10px;line-height:1;color:var(--text2);text-align:right;padding-right:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.c3-grid > .g-bar{height:150px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:0 3px;box-sizing:border-box}
 .seg-bar{width:60%;border-radius:2px 2px 0 0}
 .seg-bar.c3-new{background:var(--color-new)} .seg-bar.c3-resub{background:var(--color-resub)} .seg-bar.c3-ur{background:var(--color-ur)}
 .seg-bar.c3-app{background:var(--color-app)} .seg-bar.c3-awc{background:var(--color-awc)} .seg-bar.c3-nap{background:var(--color-nap)} .seg-bar.c3-rej{background:var(--color-rej)} .seg-bar.c3-inf{background:var(--color-inf)}
-.g-axis{writing-mode:vertical-rl;text-orientation:mixed;font-size:11px;font-weight:600;color:var(--text2);text-align:left;padding:2px 0;white-space:nowrap;overflow:hidden;grid-row:2}
-.g-label{display:flex;align-items:center;justify-content:flex-end;font-size:11px;color:var(--text2);padding-right:6px;text-align:right;border-top:1px solid var(--border);grid-column:1}
-.g-val{text-align:center;font-size:12px;padding:4px 2px;border-top:1px solid var(--border);color:var(--text)}
+.c3-table{grid-column:1 / -1;grid-row:2;width:100%;min-width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;background:transparent;font-size:12px;color:var(--text)}
+.c3-table caption{position:absolute;width:1px;height:1px;padding:0;margin:0;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0}
+.c3-table th,.c3-table td{position:relative;box-sizing:border-box;padding:4px 3px;border-top:1px solid var(--border);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+.c3-table thead th.g-corner{text-align:left;color:var(--text2);font-size:11px;font-weight:700;background:#f5f8fb}
+.c3-table thead th.g-axis{writing-mode:vertical-rl;text-orientation:mixed;text-align:left;color:var(--text2);font-size:11px;font-weight:600;height:56px;padding:2px 3px;overflow:hidden;white-space:nowrap;background:#f5f8fb}
+.c3-table tbody th.g-label{text-align:right;color:var(--text2);font-size:11px;font-weight:600;background:#f5f8fb;padding-right:8px}
+.c3-table tbody td.g-val{text-align:center;color:var(--text);font-size:12px;font-variant-numeric:tabular-nums}
+.c3-table tbody tr{background:var(--surface)}
+/* §4.2 rev 1.74 / 1.75 — ONE shared chart ↔ attached-table column state, drawn with the C1
+   visual contract: ONE hidden band behind the bars, ONE hidden dashed centre line above them,
+   and NO border, outline or inset ring on active column cells. */
+.c3-col-band,.c3-col-snap{grid-column:2;grid-row:1;height:150px;pointer-events:none}
+.c3-col-band{background:rgba(31,111,178,.08)}
+.c3-col-snap{position:relative}
+.c3-col-snap::after{content:"";position:absolute;left:50%;top:0;height:150px;width:1px;background:repeating-linear-gradient(to bottom,var(--text2) 0 3px,transparent 3px 6px)}
+.c3-table tr.row-hover > th,.c3-table tr.row-hover > td{background:var(--active-col)}
+.c3-grid > .g-bar.col-active{background:transparent}
+.c3-table tr > [data-col-id].col-active,.c3-table thead th.col-active{background:var(--active-col)}
+.c3-table tr > td.cell-hover{box-shadow:inset 0 0 0 2px var(--color-new)}
+@media print{.c3-col-band,.c3-col-snap{display:none!important}.c3-table .col-active,.c3-table .row-hover,.c3-table .cell-hover{background:transparent!important;box-shadow:none!important}}
 .c3-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:6px 0 0 104px}
 .c3-leg{display:inline-flex;align-items:center;font-size:11px;color:var(--text2)}
-.c3-swatch{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:5px}</style></head><body>
-<h1>C3 Breakdown — y-axis grid lines + numbers (study, v2)</h1>
-<p class="note">Refined per review: the y-axis tick numbers (20, 15, 10, 5, 0) now sit in the SAME column as the metric labels, right-aligned and flush against the bars, so there is no big gap between the number and the grid-line start (nice max = 20). The bars, grid lines and the table below all begin at the same left edge. Elec is zero (empty bar still shows the grid).</p>
-<div class="c3-cards"><div class="chart c3-card">
-    <div class="c3-card-head"><h3 class="c3-card-title">Submissions</h3><div class="c3-card-ctrls"><button class="btn-secondary">⤓ PNG</button><button class="btn-secondary">⧉ Copy</button></div></div>
-    <div class="c3-card-body"><div class="c3-grid" style="grid-template-columns:104px repeat(8,minmax(0,1fr))"><div class="g-yaxis" style="grid-column:1;grid-row:1"><span>20</span><span>15</span><span>10</span><span>5</span><span>0</span></div><div class="g-bar" style="grid-column:2;grid-row:1"><div class="seg-bar c3-new" style="height:60.0px"></div><div class="seg-bar c3-resub" style="height:15.0px"></div><div class="seg-bar c3-ur" style="height:7.5px"></div></div><div class="g-axis" style="grid-column:2;grid-row:2" title="Arch">Arch</div><div class="g-bar" style="grid-column:3;grid-row:1"><div class="seg-bar c3-new" style="height:37.5px"></div><div class="seg-bar c3-resub" style="height:7.5px"></div></div><div class="g-axis" style="grid-column:3;grid-row:2" title="Civil">Civil</div><div class="g-bar" style="grid-column:4;grid-row:1"></div><div class="g-axis" style="grid-column:4;grid-row:2" title="Elec">Elec</div><div class="g-bar" style="grid-column:5;grid-row:1"><div class="seg-bar c3-new" style="height:90.0px"></div><div class="seg-bar c3-resub" style="height:22.5px"></div><div class="seg-bar c3-ur" style="height:15.0px"></div></div><div class="g-axis" style="grid-column:5;grid-row:2" title="Mech">Mech</div><div class="g-bar" style="grid-column:6;grid-row:1"><div class="seg-bar c3-new" style="height:67.5px"></div><div class="seg-bar c3-resub" style="height:15.0px"></div><div class="seg-bar c3-ur" style="height:7.5px"></div></div><div class="g-axis" style="grid-column:6;grid-row:2" title="Piping">Piping</div><div class="g-bar" style="grid-column:7;grid-row:1"><div class="seg-bar c3-new" style="height:45.0px"></div><div class="seg-bar c3-resub" style="height:7.5px"></div></div><div class="g-axis" style="grid-column:7;grid-row:2" title="Struct">Struct</div><div class="g-bar" style="grid-column:8;grid-row:1"><div class="seg-bar c3-new" style="height:30.0px"></div></div><div class="g-axis" style="grid-column:8;grid-row:2" title="Process">Process</div><div class="g-bar" style="grid-column:9;grid-row:1"><div class="seg-bar c3-new" style="height:22.5px"></div><div class="seg-bar c3-resub" style="height:7.5px"></div></div><div class="g-axis" style="grid-column:9;grid-row:2" title="HVAC">HVAC</div><div class="g-label" style="grid-column:1;grid-row:3">Total Plan</div><div class="g-val" style="grid-column:2;grid-row:3">10</div><div class="g-val" style="grid-column:3;grid-row:3">7</div><div class="g-val" style="grid-column:4;grid-row:3">6</div><div class="g-val" style="grid-column:5;grid-row:3">14</div><div class="g-val" style="grid-column:6;grid-row:3">11</div><div class="g-val" style="grid-column:7;grid-row:3">9</div><div class="g-val" style="grid-column:8;grid-row:3">8</div><div class="g-val" style="grid-column:9;grid-row:3">5</div><div class="g-label" style="grid-column:1;grid-row:4">First Submission</div><div class="g-val" style="grid-column:2;grid-row:4">8</div><div class="g-val" style="grid-column:3;grid-row:4">5</div><div class="g-val" style="grid-column:4;grid-row:4">0</div><div class="g-val" style="grid-column:5;grid-row:4">12</div><div class="g-val" style="grid-column:6;grid-row:4">9</div><div class="g-val" style="grid-column:7;grid-row:4">6</div><div class="g-val" style="grid-column:8;grid-row:4">4</div><div class="g-val" style="grid-column:9;grid-row:4">3</div><div class="g-label" style="grid-column:1;grid-row:5">Resubmission</div><div class="g-val" style="grid-column:2;grid-row:5">2</div><div class="g-val" style="grid-column:3;grid-row:5">1</div><div class="g-val" style="grid-column:4;grid-row:5">0</div><div class="g-val" style="grid-column:5;grid-row:5">3</div><div class="g-val" style="grid-column:6;grid-row:5">2</div><div class="g-val" style="grid-column:7;grid-row:5">1</div><div class="g-val" style="grid-column:8;grid-row:5">0</div><div class="g-val" style="grid-column:9;grid-row:5">1</div><div class="g-label" style="grid-column:1;grid-row:6">Under Review</div><div class="g-val" style="grid-column:2;grid-row:6">1</div><div class="g-val" style="grid-column:3;grid-row:6">0</div><div class="g-val" style="grid-column:4;grid-row:6">0</div><div class="g-val" style="grid-column:5;grid-row:6">2</div><div class="g-val" style="grid-column:6;grid-row:6">1</div><div class="g-val" style="grid-column:7;grid-row:6">0</div><div class="g-val" style="grid-column:8;grid-row:6">0</div><div class="g-val" style="grid-column:9;grid-row:6">0</div></div><div class="c3-legend"><span class="c3-leg"><span class="c3-swatch c3-new"></span>First Submission</span><span class="c3-leg"><span class="c3-swatch c3-resub"></span>Resubmission</span><span class="c3-leg"><span class="c3-swatch c3-ur"></span>Under Review</span></div></div>
-  </div><div class="chart c3-card">
-    <div class="c3-card-head"><h3 class="c3-card-title">Approval Status</h3><div class="c3-card-ctrls"><button class="btn-secondary">⤓ PNG</button><button class="btn-secondary">⧉ Copy</button></div></div>
-    <div class="c3-card-body"><div class="c3-grid" style="grid-template-columns:104px repeat(8,minmax(0,1fr))"><div class="g-yaxis" style="grid-column:1;grid-row:1"><span>20</span><span>15</span><span>10</span><span>5</span><span>0</span></div><div class="g-bar" style="grid-column:2;grid-row:1"><div class="seg-bar c3-app" style="height:45.0px"></div><div class="seg-bar c3-awc" style="height:7.5px"></div><div class="seg-bar c3-inf" style="height:7.5px"></div><div class="seg-bar c3-ur" style="height:22.5px"></div></div><div class="g-axis" style="grid-column:2;grid-row:2" title="Arch">Arch</div><div class="g-bar" style="grid-column:3;grid-row:1"><div class="seg-bar c3-app" style="height:30.0px"></div><div class="seg-bar c3-awc" style="height:7.5px"></div><div class="seg-bar c3-ur" style="height:7.5px"></div></div><div class="g-axis" style="grid-column:3;grid-row:2" title="Civil">Civil</div><div class="g-bar" style="grid-column:4;grid-row:1"></div><div class="g-axis" style="grid-column:4;grid-row:2" title="Elec">Elec</div><div class="g-bar" style="grid-column:5;grid-row:1"><div class="seg-bar c3-app" style="height:75.0px"></div><div class="seg-bar c3-awc" style="height:7.5px"></div><div class="seg-bar c3-inf" style="height:7.5px"></div><div class="seg-bar c3-ur" style="height:37.5px"></div></div><div class="g-axis" style="grid-column:5;grid-row:2" title="Mech">Mech</div><div class="g-bar" style="grid-column:6;grid-row:1"><div class="seg-bar c3-app" style="height:52.5px"></div><div class="seg-bar c3-awc" style="height:7.5px"></div><div class="seg-bar c3-inf" style="height:7.5px"></div><div class="seg-bar c3-ur" style="height:22.5px"></div></div><div class="g-axis" style="grid-column:6;grid-row:2" title="Piping">Piping</div><div class="g-bar" style="grid-column:7;grid-row:1"><div class="seg-bar c3-app" style="height:37.5px"></div><div class="seg-bar c3-awc" style="height:7.5px"></div><div class="seg-bar c3-ur" style="height:7.5px"></div></div><div class="g-axis" style="grid-column:7;grid-row:2" title="Struct">Struct</div><div class="g-bar" style="grid-column:8;grid-row:1"><div class="seg-bar c3-app" style="height:22.5px"></div><div class="seg-bar c3-ur" style="height:7.5px"></div></div><div class="g-axis" style="grid-column:8;grid-row:2" title="Process">Process</div><div class="g-bar" style="grid-column:9;grid-row:1"><div class="seg-bar c3-app" style="height:15.0px"></div><div class="seg-bar c3-awc" style="height:7.5px"></div><div class="seg-bar c3-ur" style="height:7.5px"></div></div><div class="g-axis" style="grid-column:9;grid-row:2" title="HVAC">HVAC</div><div class="g-label" style="grid-column:1;grid-row:3">APP</div><div class="g-val" style="grid-column:2;grid-row:3">6</div><div class="g-val" style="grid-column:3;grid-row:3">4</div><div class="g-val" style="grid-column:4;grid-row:3">0</div><div class="g-val" style="grid-column:5;grid-row:3">10</div><div class="g-val" style="grid-column:6;grid-row:3">7</div><div class="g-val" style="grid-column:7;grid-row:3">5</div><div class="g-val" style="grid-column:8;grid-row:3">3</div><div class="g-val" style="grid-column:9;grid-row:3">2</div><div class="g-label" style="grid-column:1;grid-row:4">AWC</div><div class="g-val" style="grid-column:2;grid-row:4">1</div><div class="g-val" style="grid-column:3;grid-row:4">1</div><div class="g-val" style="grid-column:4;grid-row:4">0</div><div class="g-val" style="grid-column:5;grid-row:4">1</div><div class="g-val" style="grid-column:6;grid-row:4">1</div><div class="g-val" style="grid-column:7;grid-row:4">1</div><div class="g-val" style="grid-column:8;grid-row:4">0</div><div class="g-val" style="grid-column:9;grid-row:4">1</div><div class="g-label" style="grid-column:1;grid-row:5">NAP</div><div class="g-val" style="grid-column:2;grid-row:5">0</div><div class="g-val" style="grid-column:3;grid-row:5">0</div><div class="g-val" style="grid-column:4;grid-row:5">0</div><div class="g-val" style="grid-column:5;grid-row:5">0</div><div class="g-val" style="grid-column:6;grid-row:5">0</div><div class="g-val" style="grid-column:7;grid-row:5">0</div><div class="g-val" style="grid-column:8;grid-row:5">0</div><div class="g-val" style="grid-column:9;grid-row:5">0</div><div class="g-label" style="grid-column:1;grid-row:6">REJ</div><div class="g-val" style="grid-column:2;grid-row:6">0</div><div class="g-val" style="grid-column:3;grid-row:6">0</div><div class="g-val" style="grid-column:4;grid-row:6">0</div><div class="g-val" style="grid-column:5;grid-row:6">0</div><div class="g-val" style="grid-column:6;grid-row:6">0</div><div class="g-val" style="grid-column:7;grid-row:6">0</div><div class="g-val" style="grid-column:8;grid-row:6">0</div><div class="g-val" style="grid-column:9;grid-row:6">0</div><div class="g-label" style="grid-column:1;grid-row:7">INF</div><div class="g-val" style="grid-column:2;grid-row:7">1</div><div class="g-val" style="grid-column:3;grid-row:7">0</div><div class="g-val" style="grid-column:4;grid-row:7">0</div><div class="g-val" style="grid-column:5;grid-row:7">1</div><div class="g-val" style="grid-column:6;grid-row:7">1</div><div class="g-val" style="grid-column:7;grid-row:7">0</div><div class="g-val" style="grid-column:8;grid-row:7">0</div><div class="g-val" style="grid-column:9;grid-row:7">0</div><div class="g-label" style="grid-column:1;grid-row:8">SUR</div><div class="g-val" style="grid-column:2;grid-row:8">3</div><div class="g-val" style="grid-column:3;grid-row:8">1</div><div class="g-val" style="grid-column:4;grid-row:8">0</div><div class="g-val" style="grid-column:5;grid-row:8">5</div><div class="g-val" style="grid-column:6;grid-row:8">3</div><div class="g-val" style="grid-column:7;grid-row:8">1</div><div class="g-val" style="grid-column:8;grid-row:8">1</div><div class="g-val" style="grid-column:9;grid-row:8">1</div></div><div class="c3-legend"><span class="c3-leg"><span class="c3-swatch c3-app"></span>APP</span><span class="c3-leg"><span class="c3-swatch c3-awc"></span>AWC</span><span class="c3-leg"><span class="c3-swatch c3-nap"></span>NAP</span><span class="c3-leg"><span class="c3-swatch c3-rej"></span>REJ</span><span class="c3-leg"><span class="c3-swatch c3-inf"></span>INF</span><span class="c3-leg"><span class="c3-swatch c3-ur"></span>SUR</span></div></div>
-  </div></div>
-</body></html>
+.c3-swatch{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:5px}
+</style>
+</head>
+<body>
+<h1>C3 Breakdown — y-axis grid lines + numbers with native attached tables</h1>
+<p class='note'>§4.2 rev 1.73 / 1.74 / 1.75; I130 / I131. The Y-axis ticks (20, 15, 10, 5, 0) stay in the metric-label column, right-aligned and flush against the bars. Each card keeps ONE CSS grid for bars, ticks and grid lines in row 1. Each card adds ONE native HTML table in row 2 with caption, colgroup, thead, tbody, scope and shared data-col-id values. Every <code>.g-bar</code>, dimension header and value cell carries the SAME <code>data-col-id</code>, so hovering a bar OR a table cell highlights the SAME logical column in BOTH chart and table with ONE <code>.col-active</code> state per card (§8.2 assertion 23). <b>§4.2 rev 1.75:</b> ONE hidden <code>.c3-col-band</code> before the bars and ONE hidden <code>.c3-col-snap</code> dashed centre line after them follow the C1 visual contract. A bar hover OR a table hover moves BOTH to the same column. Active bar cells carry <code>.col-active</code> as state only and paint NO border, outline or inset ring. Both marks hide on pointer leave and print. Elec is zero and keeps its empty bar and grid lines.</p>
+<div class='c3-cards'>
+  <div class='chart c3-card' role='group' aria-label='Submissions breakdown'>
+    <div class='c3-card-head'><h3 class='c3-card-title'>Submissions</h3><div class='c3-card-ctrls'><button class='btn-secondary'>⤓ PNG</button><button class='btn-secondary'>⧉ Copy</button></div></div>
+    <div class='c3-card-body'>
+      <div class='c3-grid' style='--c3-gutter:104px;--c3-cols:8'>
+        <div class='c3-gridlines'></div>
+        <div class='c3-col-band' aria-hidden='true' style='display:none'></div>
+        <div class='g-yaxis'><span class='g-ytick' style='top:0%'>20</span><span class='g-ytick' style='top:25%'>15</span><span class='g-ytick' style='top:50%'>10</span><span class='g-ytick' style='top:75%'>5</span><span class='g-ytick' style='top:100%'>0</span></div>
+        <div class='g-bar' data-col-id='0' style='grid-column:2;grid-row:1'><div class='seg-bar c3-ur' style='height:7.5px'></div><div class='seg-bar c3-resub' style='height:15px'></div><div class='seg-bar c3-new' style='height:60px'></div></div>
+        <div class='g-bar' data-col-id='1' style='grid-column:3;grid-row:1'><div class='seg-bar c3-resub' style='height:7.5px'></div><div class='seg-bar c3-new' style='height:37.5px'></div></div>
+        <div class='g-bar' data-col-id='2' style='grid-column:4;grid-row:1'></div>
+        <div class='g-bar' data-col-id='3' style='grid-column:5;grid-row:1'><div class='seg-bar c3-ur' style='height:15px'></div><div class='seg-bar c3-resub' style='height:22.5px'></div><div class='seg-bar c3-new' style='height:90px'></div></div>
+        <div class='g-bar' data-col-id='4' style='grid-column:6;grid-row:1'><div class='seg-bar c3-ur' style='height:7.5px'></div><div class='seg-bar c3-resub' style='height:15px'></div><div class='seg-bar c3-new' style='height:67.5px'></div></div>
+        <div class='g-bar' data-col-id='5' style='grid-column:7;grid-row:1'><div class='seg-bar c3-resub' style='height:7.5px'></div><div class='seg-bar c3-new' style='height:45px'></div></div>
+        <div class='g-bar' data-col-id='6' style='grid-column:8;grid-row:1'><div class='seg-bar c3-new' style='height:30px'></div></div>
+        <div class='g-bar' data-col-id='7' style='grid-column:9;grid-row:1'><div class='seg-bar c3-resub' style='height:7.5px'></div><div class='seg-bar c3-new' style='height:22.5px'></div></div>
+        <div class='c3-col-snap' aria-hidden='true' style='display:none'></div>
+        <table class='c3-table' data-table-crosshair>
+          <caption>Submissions metrics by discipline</caption>
+          <colgroup><col class='c3-gut' style='width:var(--c3-gutter)'><col><col><col><col><col><col><col><col></colgroup>
+          <thead><tr><th class='g-corner' scope='col'>Breakdown</th><th class='g-axis' scope='col' data-col-id='0'>Arch</th><th class='g-axis' scope='col' data-col-id='1'>Civil</th><th class='g-axis' scope='col' data-col-id='2'>Elec</th><th class='g-axis' scope='col' data-col-id='3'>Mech</th><th class='g-axis' scope='col' data-col-id='4'>Piping</th><th class='g-axis' scope='col' data-col-id='5'>Struct</th><th class='g-axis' scope='col' data-col-id='6'>Process</th><th class='g-axis' scope='col' data-col-id='7'>HVAC</th></tr></thead>
+          <tbody>
+            <tr><th class='g-label' scope='row'>Total Plan</th><td class='g-val' data-col-id='0'>10</td><td class='g-val' data-col-id='1'>7</td><td class='g-val' data-col-id='2'>6</td><td class='g-val' data-col-id='3'>14</td><td class='g-val' data-col-id='4'>11</td><td class='g-val' data-col-id='5'>9</td><td class='g-val' data-col-id='6'>8</td><td class='g-val' data-col-id='7'>5</td></tr>
+            <tr><th class='g-label' scope='row'>First Submission</th><td class='g-val' data-col-id='0'>8</td><td class='g-val' data-col-id='1'>5</td><td class='g-val' data-col-id='2'>0</td><td class='g-val' data-col-id='3'>12</td><td class='g-val' data-col-id='4'>9</td><td class='g-val' data-col-id='5'>6</td><td class='g-val' data-col-id='6'>4</td><td class='g-val' data-col-id='7'>3</td></tr>
+            <tr><th class='g-label' scope='row'>Resubmission</th><td class='g-val' data-col-id='0'>2</td><td class='g-val' data-col-id='1'>1</td><td class='g-val' data-col-id='2'>0</td><td class='g-val' data-col-id='3'>3</td><td class='g-val' data-col-id='4'>2</td><td class='g-val' data-col-id='5'>1</td><td class='g-val' data-col-id='6'>0</td><td class='g-val' data-col-id='7'>1</td></tr>
+            <tr><th class='g-label' scope='row'>Under Review</th><td class='g-val' data-col-id='0'>1</td><td class='g-val' data-col-id='1'>0</td><td class='g-val' data-col-id='2'>0</td><td class='g-val' data-col-id='3'>2</td><td class='g-val' data-col-id='4'>1</td><td class='g-val' data-col-id='5'>0</td><td class='g-val' data-col-id='6'>0</td><td class='g-val' data-col-id='7'>0</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class='c3-legend'><span class='c3-leg'><span class='c3-swatch c3-new'></span>First Submission</span><span class='c3-leg'><span class='c3-swatch c3-resub'></span>Resubmission</span><span class='c3-leg'><span class='c3-swatch c3-ur'></span>Under Review</span></div>
+    </div>
+  </div>
+  <div class='chart c3-card' role='group' aria-label='Approval Status breakdown'>
+    <div class='c3-card-head'><h3 class='c3-card-title'>Approval Status</h3><div class='c3-card-ctrls'><button class='btn-secondary'>⤓ PNG</button><button class='btn-secondary'>⧉ Copy</button></div></div>
+    <div class='c3-card-body'>
+      <div class='c3-grid' style='--c3-gutter:104px;--c3-cols:8'>
+        <div class='c3-gridlines'></div>
+        <div class='c3-col-band' aria-hidden='true' style='display:none'></div>
+        <div class='g-yaxis'><span class='g-ytick' style='top:0%'>20</span><span class='g-ytick' style='top:25%'>15</span><span class='g-ytick' style='top:50%'>10</span><span class='g-ytick' style='top:75%'>5</span><span class='g-ytick' style='top:100%'>0</span></div>
+        <div class='g-bar' data-col-id='0' style='grid-column:2;grid-row:1'><div class='seg-bar c3-ur' style='height:22.5px'></div><div class='seg-bar c3-inf' style='height:7.5px'></div><div class='seg-bar c3-awc' style='height:7.5px'></div><div class='seg-bar c3-app' style='height:45px'></div></div>
+        <div class='g-bar' data-col-id='1' style='grid-column:3;grid-row:1'><div class='seg-bar c3-ur' style='height:7.5px'></div><div class='seg-bar c3-awc' style='height:7.5px'></div><div class='seg-bar c3-app' style='height:30px'></div></div>
+        <div class='g-bar' data-col-id='2' style='grid-column:4;grid-row:1'></div>
+        <div class='g-bar' data-col-id='3' style='grid-column:5;grid-row:1'><div class='seg-bar c3-ur' style='height:37.5px'></div><div class='seg-bar c3-inf' style='height:7.5px'></div><div class='seg-bar c3-awc' style='height:7.5px'></div><div class='seg-bar c3-app' style='height:75px'></div></div>
+        <div class='g-bar' data-col-id='4' style='grid-column:6;grid-row:1'><div class='seg-bar c3-ur' style='height:22.5px'></div><div class='seg-bar c3-inf' style='height:7.5px'></div><div class='seg-bar c3-awc' style='height:7.5px'></div><div class='seg-bar c3-app' style='height:52.5px'></div></div>
+        <div class='g-bar' data-col-id='5' style='grid-column:7;grid-row:1'><div class='seg-bar c3-ur' style='height:7.5px'></div><div class='seg-bar c3-awc' style='height:7.5px'></div><div class='seg-bar c3-app' style='height:37.5px'></div></div>
+        <div class='g-bar' data-col-id='6' style='grid-column:8;grid-row:1'><div class='seg-bar c3-ur' style='height:7.5px'></div><div class='seg-bar c3-app' style='height:22.5px'></div></div>
+        <div class='g-bar' data-col-id='7' style='grid-column:9;grid-row:1'><div class='seg-bar c3-ur' style='height:7.5px'></div><div class='seg-bar c3-awc' style='height:7.5px'></div><div class='seg-bar c3-app' style='height:15px'></div></div>
+        <div class='c3-col-snap' aria-hidden='true' style='display:none'></div>
+        <table class='c3-table' data-table-crosshair>
+          <caption>Approval Status metrics by discipline</caption>
+          <colgroup><col class='c3-gut' style='width:var(--c3-gutter)'><col><col><col><col><col><col><col><col></colgroup>
+          <thead><tr><th class='g-corner' scope='col'>Breakdown</th><th class='g-axis' scope='col' data-col-id='0'>Arch</th><th class='g-axis' scope='col' data-col-id='1'>Civil</th><th class='g-axis' scope='col' data-col-id='2'>Elec</th><th class='g-axis' scope='col' data-col-id='3'>Mech</th><th class='g-axis' scope='col' data-col-id='4'>Piping</th><th class='g-axis' scope='col' data-col-id='5'>Struct</th><th class='g-axis' scope='col' data-col-id='6'>Process</th><th class='g-axis' scope='col' data-col-id='7'>HVAC</th></tr></thead>
+          <tbody>
+            <tr><th class='g-label' scope='row'>APP</th><td class='g-val' data-col-id='0'>6</td><td class='g-val' data-col-id='1'>4</td><td class='g-val' data-col-id='2'>0</td><td class='g-val' data-col-id='3'>10</td><td class='g-val' data-col-id='4'>7</td><td class='g-val' data-col-id='5'>5</td><td class='g-val' data-col-id='6'>3</td><td class='g-val' data-col-id='7'>2</td></tr>
+            <tr><th class='g-label' scope='row'>AWC</th><td class='g-val' data-col-id='0'>1</td><td class='g-val' data-col-id='1'>1</td><td class='g-val' data-col-id='2'>0</td><td class='g-val' data-col-id='3'>1</td><td class='g-val' data-col-id='4'>1</td><td class='g-val' data-col-id='5'>1</td><td class='g-val' data-col-id='6'>0</td><td class='g-val' data-col-id='7'>1</td></tr>
+            <tr><th class='g-label' scope='row'>NAP</th><td class='g-val' data-col-id='0'>0</td><td class='g-val' data-col-id='1'>0</td><td class='g-val' data-col-id='2'>0</td><td class='g-val' data-col-id='3'>0</td><td class='g-val' data-col-id='4'>0</td><td class='g-val' data-col-id='5'>0</td><td class='g-val' data-col-id='6'>0</td><td class='g-val' data-col-id='7'>0</td></tr>
+            <tr><th class='g-label' scope='row'>REJ</th><td class='g-val' data-col-id='0'>0</td><td class='g-val' data-col-id='1'>0</td><td class='g-val' data-col-id='2'>0</td><td class='g-val' data-col-id='3'>0</td><td class='g-val' data-col-id='4'>0</td><td class='g-val' data-col-id='5'>0</td><td class='g-val' data-col-id='6'>0</td><td class='g-val' data-col-id='7'>0</td></tr>
+            <tr><th class='g-label' scope='row'>INF</th><td class='g-val' data-col-id='0'>1</td><td class='g-val' data-col-id='1'>0</td><td class='g-val' data-col-id='2'>0</td><td class='g-val' data-col-id='3'>1</td><td class='g-val' data-col-id='4'>1</td><td class='g-val' data-col-id='5'>0</td><td class='g-val' data-col-id='6'>0</td><td class='g-val' data-col-id='7'>0</td></tr>
+            <tr><th class='g-label' scope='row'>SUR</th><td class='g-val' data-col-id='0'>3</td><td class='g-val' data-col-id='1'>1</td><td class='g-val' data-col-id='2'>0</td><td class='g-val' data-col-id='3'>5</td><td class='g-val' data-col-id='4'>3</td><td class='g-val' data-col-id='5'>1</td><td class='g-val' data-col-id='6'>1</td><td class='g-val' data-col-id='7'>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class='c3-legend'><span class='c3-leg'><span class='c3-swatch c3-app'></span>APP</span><span class='c3-leg'><span class='c3-swatch c3-awc'></span>AWC</span><span class='c3-leg'><span class='c3-swatch c3-nap'></span>NAP</span><span class='c3-leg'><span class='c3-swatch c3-rej'></span>REJ</span><span class='c3-leg'><span class='c3-swatch c3-inf'></span>INF</span><span class='c3-leg'><span class='c3-swatch c3-ur'></span>SUR</span></div>
+    </div>
+  </div>
+</div>
+<script>
+/* §4.2 rev 1.74 / 1.75 — review-sample mirror of the ONE two-way chart ↔ attached-table
+   column sync and the C1 visual contract. Production: sub/engine/render.js. */
+document.querySelectorAll('.c3-card').forEach(card => {
+  if (!card.querySelector('table.c3-table[data-table-crosshair]')) return;
+  const grid = card.querySelector('.c3-grid');
+  const band = grid.querySelector('.c3-col-band');
+  const line = grid.querySelector('.c3-col-snap');
+  const active = () => card.querySelectorAll('.col-active');
+  const hideMarks = () => { band.style.display = 'none'; line.style.display = 'none'; };
+  const moveMarks = id => {
+    const track = String(Number(id) + 2);
+    band.style.gridColumn = track; line.style.gridColumn = track;
+    band.style.display = ''; line.style.display = '';
+  };
+  const clear = () => { active().forEach(el => el.classList.remove('col-active')); hideMarks(); };
+  const set = id => {
+    const current = [...active()];
+    if (current.length && current.every(el => el.getAttribute('data-col-id') === id)) { moveMarks(id); return; }
+    current.forEach(el => el.classList.remove('col-active'));
+    card.querySelectorAll('.c3-grid .g-bar[data-col-id="' + id + '"],.c3-table [data-col-id="' + id + '"]')
+      .forEach(el => el.classList.add('col-active'));
+    moveMarks(id);
+  };
+  const clearCrosshair = () => card.querySelectorAll('.row-hover,.cell-hover')
+    .forEach(el => el.classList.remove('row-hover', 'cell-hover'));
+  card.addEventListener('pointermove', e => {
+    const bar = e.target.closest('.c3-grid .g-bar[data-col-id]');
+    const cell = e.target.closest('.c3-table [data-col-id]');
+    if (bar || cell) set((bar || cell).getAttribute('data-col-id')); else clear();
+    clearCrosshair();
+    const td = e.target.closest('td,th');
+    if (td) {
+      if (td.parentElement.closest('tbody')) td.parentElement.classList.add('row-hover');
+      td.classList.add('cell-hover');
+    }
+  });
+  card.addEventListener('pointerleave', () => { clear(); clearCrosshair(); });
+  window.addEventListener('beforeprint', clear);
+});
+</script>
+</body>
+</html>

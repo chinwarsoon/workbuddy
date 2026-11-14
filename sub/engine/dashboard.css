@@ -1,3 +1,8 @@
+/* Revision 2.19 | 2026-11-14 | CodeBuddy (AI) | I133 — the C3 legend moves above the chart, and the new Breakdown page gets a page-scoped 2+1 panel grid with the §4.7 14 px gap. The Breakdown Summary panel gets compact row tokens and `max-height:none` on its `.tableScroll`, so no inner vertical scroll bar appears. The global `.panel-grid` gap and `body[data-layout]` rules stay unchanged. */
+/* Revision 2.18 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.75 — C3 Bar cards adopt the C1 column-highlight design. ONE hidden `.c3-col-band` paints behind the bars and ONE hidden `.c3-col-snap` dashed centre line paints on top; both are grid-row:1 children of `.c3-grid`. Active bar cells keep `.col-active` as state only and paint NO background, border, outline or inset ring. Print hides both elements. C1 rules stay unchanged. */
+/* Revision 2.17 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.74 / I131 — ONE shared chart ↔ attached-table column state per C3 Bar card. Scoped `.col-active` rules paint the active `.g-bar`, dimension header and value cells from the §7.2.16 theme tokens. C3 attached tables keep `.row-hover` / `.cell-hover` and receive no `.col-hover`. Print neutralises the bar highlight as well as the table cell highlight. C1 rules stay unchanged. */
+/* Revision 2.16 | 2026-11-13 | CodeBuddy (AI) | §4.2 rev 1.73 / I130 — C3 Bar attached data rows now use ONE native `.c3-table` per card. The `.c3-grid` keeps only row 1 (bars, Y ticks, grid lines) and uses shared `--c3-gutter` / `--c3-cols` with `column-gap:0`. The table spans row 2 with `table-layout:fixed`, `border-collapse:separate`, `border-spacing:0`, a visually hidden caption, scoped `.g-*` cell rules and `position:relative` cells for the §7.2.16 crosshair. Print keeps the grid and table visible. C1 rules stay scoped and unchanged. */
+/* Revision 2.15 | 2026-11-13 | CodeBuddy (AI) | §7.2.16 / I129 — ONE global table hover crosshair. Shared semantic `--table-*-hover` tokens resolve from each theme's existing row / surface / accent colours; `.row-hover`, `.col-hover` and `.cell-hover` are painted on cells without removing `position:relative`, column-rule pseudo-elements, pinned-cell backgrounds or split-header width pins. C1 keeps its chart-linked `.col-active` state; print neutralises every transient hover class. No data, ARIA, export or layout change. */
 /* Revision 2.14 | 2026-11-12 | CodeBuddy (AI) | §7.1 rev 1.71 / I128 — ONE text-button height. Every text-bearing button now resolves `min-height:var(--btn-h)` from the shared `--btn-h:32px` token: primary, secondary and text actions, filter triggers, segmented buttons, column-visibility controls, pagination buttons and the chooser reset. Icon-only buttons stay 26 px square through `--icon-btn-h`, and the drill cell keeps its 32 px width by moving to 3 px side padding. The approved C1 `compact` preset variant is retired; its chips use the standard 32 px height and 12 px / 600 text. No data, handler, ARIA or repaint path changes. */
 /* Revision 2.13 | 2026-11-12 | CodeBuddy (AI) | §4.2 rev 1.70 / I127 — the C1 chart board now uses the universal bordered chart composition. `.c1-grid` stays borderless; `.c1-yaxis`, `.c1-plot` and `.c1-table` each own a 1 px `--border` edge. Shared corners are square (`10px 0 0 0`, `0 10px 0 0`, `0 0 10px 10px`); non-shared outer corners keep the 10 px radius. The table switches to `border-collapse:separate` + `border-spacing:0` so the radius clips correctly, and its header row drops its top rule to avoid a doubled edge against the plot. No markup, data, hover, ARIA, export or repaint path changes. */
 /* Revision 2.12 | 2026-11-11 | CodeBuddy (AI) | §7.5 B2.1 rev 1.69 / I125 — ONE authoritative segmented-control standard for ALL seven generators. Shared CSS custom properties in `:root` own every size, typography and colour value; colour values reference theme tokens so all five themes resolve them at use time. `standard` is 32 px / 12 px, and the ONLY approved `compact` variant is the shared `.seg-compact` class for the C1 presets (11 px / `5px 8px` / `min-height:0`, ≈ 26 px). The active fill is `--navy` (resolving `I123`), the inactive hover is `--surface2`, pressed uses `--surface3`, and disabled, pressed, active-hover and focus states are all defined. The active-state focus ring is white because `--blue` on `--navy` is 2.89:1. The old panel-scoped `.c1-ts-chips .seg-btn` sizing rule is replaced by the shared variant class. A measured browser regression showed that the shared `line-height:1.2` shrank the compact chips from 25.94 px to 23.19 px, so the compact variant keeps its own `--seg-compact-lh:1.45` token to honour Q04. No `data-*` attribute, handler, state key or repaint path changes. */
@@ -38,6 +43,10 @@
   --seg-pressed-bg:var(--surface3);
   --seg-focus:var(--blue); --seg-focus-on-active:#fff;
   --seg-disabled-opacity:.5;
+  /* §7.2.16 / I129 — one semantic crosshair token set resolves from the active theme. */
+  --table-row-hover:var(--row-hover); --table-col-hover:var(--surface3);
+  --table-cell-hover:var(--soft); --table-head-hover:var(--th-hover);
+  --table-crosshair-ring:var(--accent);
 }
 [data-theme="dark"]{
   color-scheme:dark;
@@ -451,6 +460,8 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 @media print{.c1-grid,.c1-plot,.c1-table{overflow:visible;width:100%}}
 /* §4.2 rev 1.66 — print keeps the period text but hides the interactive track and chips. */
 @media print{.c1-ts-body,.c1-ts-chips.seg{display:none}}
+/* §7.2.16 / I129 — transient table hover state never reaches paper or PDF. */
+@media print{[data-table-crosshair] .row-hover,[data-table-crosshair] .col-hover,[data-table-crosshair] .cell-hover,[data-table-crosshair] .col-active{background:transparent!important;color:inherit!important;font-weight:inherit!important;box-shadow:none!important}}
 /* ===== C3 Breakdown (workplan D36) ===== */
 :root{
   /* Submission series (New vs Resubmission) and the five approval codes. New and Resubmission use
@@ -488,23 +499,50 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .c3-viewbar{display:flex;justify-content:flex-end;margin:6px 0 10px}
 .c3-label-inc{font-size:11px}
 @media(max-width:880px){.c3-cards{grid-template-columns:minmax(0,1fr)}}
-/* ===== C3 card: one aligned grid (bars + axis labels + attached table), 2026-10-27 study ===== */
+/* ===== C3 card: one bar-plot grid + one native attached table (§4.2 rev 1.73 / I130) ===== */
 .c3-card-body{overflow-x:auto;min-width:0}
-.c3-grid{display:grid;column-gap:6px;row-gap:0;margin-top:6px}
-.g-bar{height:150px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.c3-grid{--c3-gutter:104px;--c3-cols:1;display:grid;grid-template-columns:var(--c3-gutter) repeat(var(--c3-cols),minmax(0,1fr));column-gap:0;row-gap:0;margin-top:6px;width:100%}
+.c3-grid > .g-bar{height:150px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:0 3px;box-sizing:border-box}
 .seg-bar{width:60%;border-radius:2px 2px 0 0}
 .seg-bar.c3-new{background:var(--color-new)} .seg-bar.c3-resub{background:var(--color-resub)}
 .seg-bar.c3-ur{background:var(--color-ur)} .seg-bar.c3-app{background:var(--color-app)}
 .seg-bar.c3-awc{background:var(--color-awc)} .seg-bar.c3-nap{background:var(--color-nap)}
 .seg-bar.c3-rej{background:var(--color-rej)} .seg-bar.c3-inf{background:var(--color-inf)}
-.g-axis{writing-mode:vertical-rl;text-orientation:mixed;font-size:11px;font-weight:600;color:var(--text2);text-align:left;padding:2px 0;white-space:nowrap;overflow:hidden}
-.g-label{display:flex;align-items:center;justify-content:flex-end;font-size:11px;color:var(--text2);padding-right:6px;text-align:right;border-top:1px solid var(--border)}
-.g-val{text-align:center;font-size:12px;padding:4px 2px;border-top:1px solid var(--border);color:var(--text)}
+.c3-table{grid-column:1 / -1;grid-row:2;width:100%;min-width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;background:transparent;font-size:12px;color:var(--text)}
+.c3-table caption{position:absolute;width:1px;height:1px;padding:0;margin:0;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0}
+.c3-table th,.c3-table td{position:relative;box-sizing:border-box;padding:4px 3px;border-top:1px solid var(--border);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+.c3-table thead th.g-corner{text-align:left;color:var(--text2);font-size:11px;font-weight:700;background:var(--surface2)}
+.c3-table thead th.g-axis{writing-mode:vertical-rl;text-orientation:mixed;text-align:left;color:var(--text2);font-size:11px;font-weight:600;height:56px;padding:2px 3px;overflow:hidden;white-space:nowrap;background:var(--surface2)}
+.c3-table tbody th.g-label{text-align:right;color:var(--text2);font-size:11px;font-weight:600;background:var(--surface2);padding-right:8px}
+.c3-table tbody td.g-val{text-align:center;color:var(--text);font-size:12px;font-variant-numeric:tabular-nums}
+.c3-table tbody tr{background:var(--surface)}
+@media print{.c3-card-body,.c3-grid,.c3-table{overflow:visible;width:100%}}
+/* §4.2 rev 1.74 / I131 — ONE shared chart ↔ attached-table column state per C3 Bar card.
+   All colours come from the §7.2.16 theme tokens. C3 keeps .row-hover / .cell-hover and
+   never receives a competing .col-hover column state. */
+/* §4.2 rev 1.75 — C1 visual contract. ONE hidden column band and ONE hidden dashed centre line
+   are grid-row:1 children of `.c3-grid`, aligned to its `--c3-gutter` / `--c3-cols` tracks. The
+   band is emitted before the bars so its normal DOM-order paint stays behind every mark; the
+   snap line is emitted after the bars and is positioned so it paints on top. The 8 % tokenised
+   blue matches C1's `fill:var(--blue)` / `fill-opacity:.08`. The fallback uses the theme's own
+   column-hover tint, so no browser ever paints a solid blue band. */
+.c3-col-band,.c3-col-snap{grid-column:2;grid-row:1;height:150px;pointer-events:none}
+.c3-col-band{background:var(--table-col-hover);background:color-mix(in srgb,var(--blue) 8%,transparent)}
+.c3-col-snap{position:relative}
+.c3-col-snap::after{content:"";position:absolute;left:50%;top:0;height:150px;width:1px;background:repeating-linear-gradient(to bottom,var(--text3) 0 3px,transparent 3px 6px)}
+/* An active C3 bar keeps `.col-active` as STATE only. It MUST NOT paint a background, border,
+   outline or inset ring over the band (§4.2 rev 1.75). */
+.c3-grid > .g-bar.col-active{background:transparent}
+.c3-table tr > [data-col-id].col-active{background:var(--table-col-hover);color:var(--text);font-weight:600}
+.c3-table thead tr > th[data-col-id].col-active{background:var(--table-head-hover);color:var(--text)}
+.c3-table tr > [data-col-id].col-active.cell-hover{background:var(--table-cell-hover);font-weight:700;box-shadow:inset 0 0 0 1px var(--table-crosshair-ring)}
+@media print{.c3-col-band,.c3-col-snap{display:none!important}.c3-grid > .g-bar.col-active{background:transparent!important}}
 /* ===== C3 y-axis grid lines + numbers (I060), matching C1/C2 ===== */
 .c3-gridlines{background-image:repeating-linear-gradient(to top,var(--border) 0,var(--border) 1px,transparent 1px,transparent 25%);background-color:transparent;pointer-events:none}
 .g-yaxis{height:150px;position:relative;pointer-events:none}
 .g-ytick{position:absolute;right:0;transform:translateY(-50%);font-size:10px;line-height:1;color:var(--text2);text-align:right;padding-right:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
-.c3-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:6px 0 0 2px}
+/* I133 — the C3 legend sits ABOVE the chart in both Bar and Pie views. */
+.c3-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 6px 2px}
 .c3-leg{display:inline-flex;align-items:center;font-size:11px;color:var(--text2)}
 .c3-swatch{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:5px}
 .c3-swatch.c3-new{background:var(--color-new)}
@@ -544,6 +582,22 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .ds-table .empty{color:var(--text3);text-align:center}
 .ds-table tfoot td{background:var(--surface2);font-weight:700;border-top:1px solid var(--border)}
 .ds-table code{font:inherit}
+/* §7.2.16 / I129 — ONE global table hover crosshair. The state classes live on cells / rows and
+   only paint background, weight and an inset ring: position:relative, the ::after column rules,
+   pinned-cell backgrounds, table-layout:fixed and split-header width pins are untouched. */
+[data-table-crosshair] tr.row-hover > th,
+[data-table-crosshair] tr.row-hover > td{background:var(--table-row-hover)}
+[data-table-crosshair] tr > th.col-hover,
+[data-table-crosshair] tr > td.col-hover{background:var(--table-col-hover)}
+[data-table-crosshair] thead tr > th.col-hover,
+[data-table-crosshair] tr.hist-head > th.col-hover{background:var(--table-head-hover);color:var(--text)}
+[data-table-crosshair] tr > th.cell-hover,
+[data-table-crosshair] tr > td.cell-hover{background:var(--table-cell-hover);font-weight:600;box-shadow:inset 0 0 0 1px var(--table-crosshair-ring)}
+[data-table-crosshair] thead tr > th.cell-hover,
+[data-table-crosshair] tr.hist-head > th.cell-hover{background:var(--table-head-hover);color:var(--text);font-weight:700}
+/* C1's chart-linked month column stays owned by .col-active / data-c1col (§4.2 rev 1.63). */
+.c1-table tr > [data-c1col].col-active{background:var(--soft);color:var(--text);font-weight:600}
+.c1-table tr > [data-c1col].col-active.cell-hover{box-shadow:inset 0 0 0 1px var(--table-crosshair-ring);font-weight:700}
 /* §7.2.2 — a 1 px column rule on the right edge of every header cell; suppressed on grouped cells,
    the last data column and the gutter so no rule hangs past the table edge. */
 .ds-table thead th::after{content:"";position:absolute;top:6px;bottom:6px;right:0;width:var(--ds-rule-w);
@@ -674,3 +728,29 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .hist-table th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border);padding:4px 8px;white-space:nowrap}
 .hist-table td{padding:3px 8px;border-bottom:1px solid var(--border)}
 .hist-table tbody tr:last-child td{border-bottom:0}
+
+/* Revision 2.19 | 2026-11-14 | CodeBuddy (AI) | I133 — the Breakdown page owns THREE independent
+   panels. Row 1 holds the two chart panels, row 2 holds the full-width summary. The grid is
+   page-scoped, so the global `body[data-layout]` button keeps its behaviour on other pages.
+   §4.7 / §8.2 assertion 19 require 14 px between top-level panels. */
+body .panel-grid.breakdown-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+body .breakdown-grid > .panel{margin:0}
+body .breakdown-grid > .panel:nth-child(3){grid-column:1 / -1}
+@media(max-width:879px){
+  body .panel-grid.breakdown-grid{grid-template-columns:minmax(0,1fr)}
+  body .breakdown-grid > .panel:nth-child(3){grid-column:auto}
+}
+/* §4 — ONE outer `.panel` border and ONE inner card border. The table card keeps the `.ds-split`
+   border as its single visible edge (`.c-card:has(.ds-split){border:0}` above), with radius 10 px. */
+.breakdown-grid .c3-card{margin:0}
+.c3-summary-card{--ds-row-h:26px;--ds-head-h:28px;--ds-cell-lh:18px;--ds-cell-fs:11px;min-width:0}
+.c3-summary-card .ds-table th,.c3-summary-card .ds-table td{padding:0 8px}
+.c3-summary-card .ds-split{margin-top:0}
+/* N1 — remove the INNER vertical scroll bar. 16 submitter rows at 26 px fit about 470 px.
+   The page-level `.content-body` scroll stays, as §3.2 requires a scrollable body. */
+.c3-summary-card .tableScroll{max-height:none;overflow:visible}
+@media print{
+  .c3-summary-card .tableScroll{overflow:visible;max-height:none}
+  body .panel-grid.breakdown-grid{grid-template-columns:minmax(0,1fr)}
+  body .breakdown-grid > .panel:nth-child(3){grid-column:auto}
+}

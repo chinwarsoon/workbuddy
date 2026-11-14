@@ -1,3 +1,8 @@
+// Revision 0.22 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.75 — C3 Bar cards adopt the C1 column-highlight visual contract. Each `.c3-grid` gains ONE hidden `.c3-col-band` before the bars (so it paints behind every mark) and ONE hidden `.c3-col-snap` after the bars (so the dashed centre line paints on top). `c3SetColumn()` moves both to the active logical column in BOTH hover directions; `c3ClearColumn()` hides both. Active bar cells keep `.col-active` as state only and paint no background, border or ring. C1, C2, C4, KPI, C3 Pie and the generic `.col-hover` crosshair are unchanged.
+// Revision 0.24 | 2026-11-14 | CodeBuddy (AI) | I134 — each Breakdown chart panel renders ONE tool row: left = Month select (visible "Month" text removed, aria-label kept), Break-down-by and Bar/Pie; right = ⤓ PNG and ⧉ Copy. The separate `.c3-card-head` row is gone on chart cards (the legacy showTitle path keeps it with the `.c3-card-ctrls` wrapper). The summary panel keeps Month / Break-down-by / ⤓ Download. Handlers, state and export payloads are unchanged.\n// Revision 0.23 | 2026-11-14 | CodeBuddy (AI) | I133 — C3 Breakdown moves to a new `Breakdown` page and becomes THREE independent panels (Submissions, Approval Status, Breakdown Summary). `c3PanelControls()` gains a panel key and every control carries `data-c3panel`; `c3PanelState()` resolves one `c3Month` / `c3Dim` / `c3View` set per panel, with the legacy flat keys as the fallback for callers that pass one state. Bar / Pie now switches per panel. The C3 legend moves ABOVE the chart in both Bar and Pie views. `c3Table()` gains a bare mode so the summary panel keeps ONE border. The orphan discipline label becomes `Others`. `Overview` keeps KPI, C1 and C2. C1, C2, C4 and the generic crosshair are unchanged.
+// Revision 0.21 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.74 / I131 — C3 Bar cards join the general chart ↔ attached-table column sync. Every `.g-bar` now carries the shared `data-col-id`. `bindChartHover()` gains an opt-in `c3AttachedTable` mode that delegates `pointermove` to the card, resolves ONE logical column from a bar or a table cell, and applies ONE `.col-active` state to the matching bar, dimension header and value cells inside that card only. The two cards stay independent, the floating `.chart-tip` stays closed over the attached table, and the state clears on pointer leave / blur / Escape. C1, C2, C4, KPI, C3 Pie and the generic `.col-hover` crosshair are unchanged.
+// Revision 0.20 | 2026-11-13 | CodeBuddy (AI) | §4.2 rev 1.73 / I130 — C3 Bar attached data rows are now native HTML tables. Each card keeps ONE CSS grid for row 1 (bars, Y ticks and grid lines) and adds ONE native `c3-table` element in row 2. The table carries a visually hidden caption, a colgroup, a thead, a tbody, `scope` and shared `data-col-id` values. The card carries `role="group"`, so the chart hover host does not flatten the table in the accessibility tree. Shared `--c3-gutter` / `--c3-cols` keep bar and table columns aligned. The Pie view, the full-width `.c3-summary` table, `c3Metrics`, hover payloads, `niceCeil` and pipeline data are unchanged.
+// Revision 0.19 | 2026-11-13 | CodeBuddy (AI) | §7.2.16 / I129 — ONE global table hover crosshair contract. Every data table now carries `data-table-crosshair`, and every logical-column cell carries the shared `data-col-id` identifier. Split headers and bodies use the SAME identifier per column; C1 keeps `data-c1col` for its chart ↔ table sync and gains `data-col-id` on the same month cells, while `data-col` remains reserved for `.ds-table` choosers / resize grips. Row-label, gutter, spacer, empty and drill-detail cells intentionally carry no column id. Windowed rows emit the same identifier when rebuilt. No data, ARIA, export, chart state or event-handler change.
 // Revision 0.18 | 2026-11-12 | CodeBuddy (AI) | §7.1 rev 1.71 / I128 — ONE universal button-height standard. The C1 preset group now emits the standard `.seg` markup without the former `seg-compact` class, so all segmented groups use the shared 32 px height and 12 px / 600 typography from the new `--btn-h` token. Every `data-*` attribute, event handler, state key and repaint path is unchanged; no selection logic, chart, axis or export behaviour changes.
 // Revision 0.17 | 2026-11-11 | CodeBuddy (AI) | §7.5 B2.1 rev 1.69 / I125 — ALL seven `.seg-btn` generators now emit the common markup: a real `<button type="button">` with a dynamic `aria-pressed` that mirrors `.active`, inside a `.seg` group that carries `role="group"` and an accessible name. The C1 preset group gains the SHARED `seg-compact` class, so its compact dimensions come from ONE common CSS variant instead of a panel-scoped rule. Every `data-*` attribute, event handler, state key and repaint path is unchanged; no selection logic, chart, axis or export behaviour changes.
 // Revision 0.16 | 2026-11-09 | CodeBuddy (AI) | §4.2 rev 1.68 / I124 — the C1 grain group (Month / Quarter / Year) now emits `type="button"` and a dynamic `aria-pressed` that mirrors `.active`, so its markup matches the preset chips. Scope is grain ONLY: the five other `.seg-btn` generators (C2 / C3 / C4 / Validation) keep their markup. CSS hover and focus tokens are shared at the base `.seg-btn` level, so those groups gain the same visual states without a markup change. No state, axis, export or event-handler behaviour changes.
@@ -42,7 +47,8 @@ function addDaysISO(value, n) {
 }
 
 export function deriveView(model, state = {}) {
-  const disciplines = state.disciplines instanceof Set ? state.disciplines : new Set([...model.planned.map(row => row.discipline).filter(Boolean), 'Unknown']);
+  // I133 — `Others` is the discipline of a Submittal Log document with no MDL row (V-29 orphan).
+  const disciplines = state.disciplines instanceof Set ? state.disciplines : new Set([...model.planned.map(row => row.discipline).filter(Boolean), 'Others']);
   // A blank Stage is missing data, not an excluded stage. It stays in the default set so those
   // planned rows are counted, the same way MDL counts them (and flags them with V-02).
   const stages = state.stages instanceof Set ? state.stages : new Set(model.planned.map(row => row.stage ?? '').filter(value => !EXCLUDED_STAGES.has(value)));
@@ -170,9 +176,9 @@ export function deriveView(model, state = {}) {
       const awc = documentGroups.filter(g => firstApprovalCode(g) === 'AWC').length;
       const discMap = new Map();
       const bump = (k, fld) => { const e = discMap.get(k) || { planned: 0, submitted: 0, inReview: 0, awc: 0, approved: 0 }; e[fld]++; discMap.set(k, e); };
-      for (const p of activePlans) bump(p.discipline || 'Unknown', 'planned');
+      for (const p of activePlans) bump(p.discipline || 'Others', 'planned');
       for (const g of documentGroups) {
-        const d = g[0].discipline || 'Unknown';
+        const d = g[0].discipline || 'Others';
         bump(d, 'submitted');
         const latest = g[g.length - 1];
         if (latest.submissionStatus === 'SUR' && !latest.actualReturnDate) bump(d, 'inReview');
@@ -182,7 +188,7 @@ export function deriveView(model, state = {}) {
       }
       const byDisc = [...discMap.entries()]
         .map(([k, v]) => ({ discipline: k, ...v }))
-        .sort((a, b) => a.discipline === 'Unknown' ? 1 : b.discipline === 'Unknown' ? -1 : a.discipline.localeCompare(b.discipline));
+        .sort((a, b) => a.discipline === 'Others' ? 1 : b.discipline === 'Others' ? -1 : a.discipline.localeCompare(b.discipline));
       return { planned, submitted, inReview, awc, approved, byDisc };
     })()
   };
@@ -247,7 +253,7 @@ export function deriveView(model, state = {}) {
     const rows = [];
     const push = (row, doc, seq) => rows.push({
       doc, seq, isNew: seq === 0,
-      discipline: row.discipline || 'Unknown',
+      discipline: row.discipline || 'Others',
       submitter: String(row.fields['Submitted By'] || 'Unknown'),
       month: String(row.month || row.submissionDate || '').slice(0, 7),
       approvalStatus: row.approvalStatus,
@@ -296,7 +302,7 @@ export function deriveView(model, state = {}) {
     for (const plan of activePlans) {
       const date = plan.fields['Planned 1st Issue Date'];
       const planMonth = validPlanDate(date) ? date.slice(0, 7) : '';
-      bump('discipline', plan.discipline || 'Unknown', planMonth);
+      bump('discipline', plan.discipline || 'Others', planMonth);
       const linked = new Set((plan.submissions || []).map(item => String(item.fields['Submitted By'] || 'Unknown')));
       for (const submitter of linked) bump('submitter', submitter, planMonth);
     }
@@ -697,7 +703,7 @@ export function renderDashboard(doc, model, state = {}) {
       const classes = [];
       if (numeric.has(index)) classes.push('num');
       if (key && index < 2) classes.push('ds-pinned');
-      return `${key ? ` data-col="${index}"` : ''}${classes.length ? ` class="${classes.join(' ')}"` : ''}`;
+      return `${key ? ` data-col="${index}"` : ''} data-col-id="${index}"${classes.length ? ` class="${classes.join(' ')}"` : ''}`;
     };
     const renderRow = row => `<tr>${indexes.map(index => `<td${cellAttrs(index)}>${esc(row[index])}</td>`).join('')}</tr>`;
     const colgroup = indexes.map((index, pos) => { const w = widths && widths[index] != null ? widths[index] : (key && pos === 0 ? 150 : null); return `<col${key ? ` data-col="${index}"` : ''}${w != null ? ` style="width:${w}px"` : ''}>`; }).join('');
@@ -716,7 +722,7 @@ export function renderDashboard(doc, model, state = {}) {
     // the navy band runs the full card width and the body's scrollbar starts below it.
     // The fragment carries the same table key as its body, because the resize grips live here and
     // persist their widths under that key (§7.2.6 / D40).
-    const headFrag = `<div class="vheadwrap"><table class="ds-table vheadtab"${key ? ` data-table-key="${key}"` : ''}><colgroup>${colgroup}<col class="ds-gut"></colgroup><thead><tr>${heads}<th class="ds-gut" scope="col" aria-hidden="true"></th></tr></thead></table></div>`;
+    const headFrag = `<div class="vheadwrap"><table class="ds-table vheadtab" data-table-crosshair${key ? ` data-table-key="${key}"` : ''}><colgroup>${colgroup}<col class="ds-gut"></colgroup><thead><tr>${heads}<th class="ds-gut" scope="col" aria-hidden="true"></th></tr></thead></table></div>`;
     // I112 (sample design) — the page controls sit at the TOP, grouped left; the filter + CSV + Columns
     // sit right. A paginated table never renders the separate bottom pager.
     let pagerControls;
@@ -730,7 +736,7 @@ export function renderDashboard(doc, model, state = {}) {
     const subtitle = opts && opts.subtitle ? `<p class="note tt-note">${opts.subtitle}</p>` : '';
     const stackCls = (title && (subtitle || opts.filter)) ? ' table-head--stack' : '';
     const titleRow = title ? `<div class="table-head${stackCls}"><h3 class="tt">${esc(title)}</h3>${subtitle}${controls}</div>` : controls;
-    return `${titleRow}<div class="ds-split splitcard" style="--pin-first-col:${firstWidth}px">${headFrag}<div class="tableScroll"><table class="ds-table"${key ? ` data-table-key="${key}" data-column-count="${headers.length}"` : ''}${windowed ? ' data-windowed="true"' : ''}><colgroup>${colgroup}</colgroup><tbody>${body}</tbody>${foot}</table></div></div>`;
+    return `${titleRow}<div class="ds-split splitcard" style="--pin-first-col:${firstWidth}px">${headFrag}<div class="tableScroll"><table class="ds-table" data-table-crosshair${key ? ` data-table-key="${key}" data-column-count="${headers.length}"` : ''}${windowed ? ' data-windowed="true"' : ''}><colgroup>${colgroup}</colgroup><tbody>${body}</tbody>${foot}</table></div></div>`;
   };
   // §4 — `data-panel` is assigned after insertion, in document order, and only to top-level panels;
   // nested sub-panels inherit their parent's number and show no badge of their own.
@@ -918,14 +924,14 @@ export function renderDashboard(doc, model, state = {}) {
     // data-col, which the .ds-table column choosers and resize grips already use.
     const body = rowDefs.map(r => `<tr><th class="g-label" scope="row">${esc(r.label)}</th>${pts.map((p, i) => {
       const value = Number(r.get(p)) || 0;
-      return `<td class="g-val${r.neg && value < 0 ? ' neg' : ''}" data-c1col="${i}">${value}</td>`;
+      return `<td class="g-val${r.neg && value < 0 ? ' neg' : ''}" data-c1col="${i}" data-col-id="${i}">${value}</td>`;
     }).join('')}</tr>`).join('');
-    const monthHeads = pts.map((p, i) => `<th class="g-axis" scope="col" data-c1col="${i}"><span>${esc(p.label)}</span></th>`).join('');
+    const monthHeads = pts.map((p, i) => `<th class="g-axis" scope="col" data-c1col="${i}" data-col-id="${i}"><span>${esc(p.label)}</span></th>`).join('');
     // colgroup track 1 = --c1-gutter; the N bare cols split the rest equally, which is bandW = W/N.
     // That is the same X boundary the SVG uses, at every width, with or without scripts.
     const colgroup = `<colgroup><col class="c1-gut" style="width:var(--c1-gutter)">${'<col>'.repeat(nb)}</colgroup>`;
     const many = nb > 13 ? ' c1-many' : ' c1-few';
-    const table = `<table class="c1-table${many}"><caption>Schedule performance by reporting month</caption>${colgroup}<thead><tr><th class="g-corner" scope="col">Reporting Month</th>${monthHeads}</tr></thead><tbody>${body}</tbody></table>`;
+    const table = `<table class="c1-table${many}" data-table-crosshair><caption>Schedule performance by reporting month</caption>${colgroup}<thead><tr><th class="g-corner" scope="col">Reporting Month</th>${monthHeads}</tr></thead><tbody>${body}</tbody></table>`;
     const dp = JSON.stringify(pts).replace(/'/g, '&#39;');
     const dg = JSON.stringify({ W: plot.W, yTop: plot.yTop, yBot: plot.yBot }).replace(/'/g, '&#39;');
     const dm = JSON.stringify(meta).replace(/'/g, '&#39;');
@@ -950,7 +956,7 @@ export function renderDashboard(doc, model, state = {}) {
   // Full dimension universes (2026-10-27 study): the breakdown shows every MDL discipline and every
   // known submitter even when a month has zero of them (Q1, Q3). Categories no longer depend on the
   // selected month — a month with no submissions for a discipline still lists that discipline (empty bar).
-  const c3DisciplineUniverse = [...new Set(model.planned.map(r => r.discipline).filter(Boolean)), 'Unknown']
+  const c3DisciplineUniverse = [...new Set(model.planned.map(r => r.discipline).filter(Boolean)), 'Others']
     .sort((a, b) => String(a).localeCompare(String(b)));
   const c3SubmitterUniverse = [...new Set(model.submissions.map(r => String(r.fields['Submitted By'] || 'Unknown').trim()).filter(Boolean))]
     .sort((a, b) => String(a).localeCompare(String(b)));
@@ -1015,42 +1021,52 @@ export function renderDashboard(doc, model, state = {}) {
   // Wave 4.2 (Option 2) — the C3 Breakdown splits into two bordered cards (Submissions, Approval
   // Status). A shared panel control cluster (Month + Break-down-by, hidden in Pie view) sits above the
   // cards and drives both; Break-down-by is hidden in Pie view. Each card draws a STACKED bar chart inside
-  // one aligned CSS grid (bars + vertical axis labels + an attached data table, 2026-10-27 study) so every
-  // column lines up; the full MDL discipline / submitter list is shown even when a month is zero. The Pie
-  // view renders the same two cards (Submissions, Approval Status), each its own donut — the old
-  // consolidated two-ring card is gone.
+  // one borderless CSS grid (bars + Y ticks + grid lines in row 1) plus one native attached table in
+  // row 2 (§4.2 rev 1.73 / I130), following the C1 attached-table model. Shared --c3-gutter / --c3-cols
+  // keep every bar, header and value in the same column (Q2, Q7). The full MDL discipline / submitter
+  // list is shown even when a month is zero. The Pie view renders the same two cards (Submissions,
+  // Approval Status), each its own donut — the old consolidated two-ring card is gone.
   const c3MonthOptions = (c3, st) => {
     const month = st.c3Month || 'ALL';
     return [`<option value="ALL"${month === 'ALL' ? ' selected' : ''}>All months</option>`]
       .concat(c3.months.map(value => `<option value="${esc(value)}"${month === value ? ' selected' : ''}>${esc(fmtMonth(value))}</option>`)).join('');
   };
-  const c3DimSeg = st => {
+  const c3DimSeg = (st, panel) => {
     const dim = st.c3Dim === 'submitter' ? 'submitter' : 'discipline';
-    const seg = key => `<button type="button" class="seg-btn${dim === key ? ' active' : ''}" data-c3dim="${key}" aria-pressed="${dim === key}">${key === 'discipline' ? 'Discipline' : 'Submitter'}</button>`;
+    const seg = key => `<button type="button" class="seg-btn${dim === key ? ' active' : ''}" data-c3dim="${key}" data-c3panel="${panel}" aria-pressed="${dim === key}">${key === 'discipline' ? 'Discipline' : 'Submitter'}</button>`;
     return `<div class="seg" role="group" aria-label="Break down by">${seg('discipline')}${seg('submitter')}</div>`;
   };
-  const c3ViewSeg = st => {
+  const c3ViewSeg = (st, panel) => {
     const mode = st.c3View === 'pie' ? 'pie' : 'bar';
-    const seg = key => `<button type="button" class="seg-btn${mode === key ? ' active' : ''}" data-c3view="${key}" aria-pressed="${mode === key}">${key === 'bar' ? 'Bar' : 'Pie'}</button>`;
+    const seg = key => `<button type="button" class="seg-btn${mode === key ? ' active' : ''}" data-c3view="${key}" data-c3panel="${panel}" aria-pressed="${mode === key}">${key === 'bar' ? 'Bar' : 'Pie'}</button>`;
     return `<div class="seg" role="group" aria-label="Chart view">${seg('bar')}${seg('pie')}</div>`;
   };
-  // Per-card actions only (PNG / Copy). The Month and Break-down-by controls are shared at the panel
-  // level (c3PanelControls) so they are not duplicated per card — the old per-card controls looked
-  // independent but actually wrote the same global state (2026-10-27 study).
-  const c3CardActions = () => `<div class="c3-card-ctrls"><button class="btn-secondary" data-c3png>⤓ PNG</button><button class="btn-secondary" data-c3copy>⧉ Copy</button></div>`;
-  // Shared panel control cluster: Month select + Break-down-by (hidden in Pie view) on the left, the
-  // Bar/Pie view toggle on the right. One set drives both cards.
-  const c3PanelControls = (c3, st) => {
-    const month = `<label class="c3-month-wrap">Month <select data-c3month aria-label="C3 month">${c3MonthOptions(c3, st)}</select></label>`;
-    const dim = st.c3View === 'pie' ? '' : c3DimSeg(st);
-    return `<div class="c3-controls"><div class="controls-left">${month}${dim}</div><div class="controls-right">${c3ViewSeg(st)}</div></div>`;
+  // I134 — PNG / Copy buttons for the chart cards. They render in the ONE tool row's right group;
+  // the legacy per-card head (showTitle) keeps the .c3-card-ctrls wrapper.
+  const c3CardActions = () => `<button class="btn-secondary" data-c3png>⤓ PNG</button><button class="btn-secondary" data-c3copy>⧉ Copy</button>`;
+  // I133 — ONE control cluster per independent panel. Every control carries `data-c3panel`, so a
+  // change repaints only that panel's state. A chart panel carries the Bar / Pie toggle; the summary
+  // panel carries its own `⤓ Download` instead. The legacy flat state keys remain the fallback so
+  // callers that pass one state object still render all three panels.
+  const c3PanelControls = (c3, st, panel, withViewToggle = true, extraRight = '') => {
+    // I134 — the visible "Month" text is removed; the aria-label keeps the accessible name.
+    // One tool row: left = Month / Break-down-by / Bar-Pie, right = the panel's export actions.
+    const month = `<label class="c3-month-wrap"><select data-c3month data-c3panel="${panel}" aria-label="C3 month">${c3MonthOptions(c3, st)}</select></label>`;
+    const dim = withViewToggle && st.c3View === 'pie' ? '' : c3DimSeg(st, panel);
+    const view = withViewToggle ? c3ViewSeg(st, panel) : '';
+    const right = withViewToggle
+      ? extraRight
+      : `<button class="btn-secondary" data-c3export data-c3panel="${panel}" title="Download the breakdown table as CSV">⤓ Download</button>`;
+    return `<div class="c3-controls"><div class="controls-left">${month}${dim}${view}</div><div class="controls-right">${right}</div></div>`;
   };
-  // One aligned CSS grid per card (2026-10-27 study): column 1 = metric labels, columns 2..N+1 =
-  // dimensions; row 1 = bars, row 2 = vertical axis labels, rows 3+ = the attached data table. This keeps
-  // every bar, label and value in the same column (Q2, Q7). Each card shows its own rows (Q5): Submissions
-  // = Total Plan / First Submission / Resubmission / Under Review; Approval = the codes.
+  // One CSS grid per card plus one native attached table (2026-10-27 study, §4.2 rev 1.73 / I130):
+  // column 1 = Y ticks / metric labels, columns 2..N+1 = dimensions; row 1 = bars + grid lines,
+  // row 2 = the native table. The table carries dimension headers in <thead> and metric rows in
+  // <tbody>. Shared --c3-gutter / --c3-cols keep bar and table columns aligned (Q2, Q7). Each card
+  // shows its own rows (Q5): Submissions = Total Plan / First Submission / Resubmission / Under
+  // Review; Approval = the codes.
   const C3_BAR_H = 150;
-  const c3StackedCard = (c3, st, kind) => {
+  const c3StackedCard = (c3, st, kind, opts = {}) => {
     const month = st.c3Month || 'ALL';
     const all = month === 'ALL';
     const dimKey = st.c3Dim === 'submitter' ? 'submitter' : 'discipline';
@@ -1082,8 +1098,10 @@ export function renderDashboard(doc, model, state = {}) {
     let g = '';
     // y-axis: 5 horizontal grid lines + tick numbers, matching the C1 S-curve and C2 stacked-area panels (I060).
     // Grid lines span the bar area (cols 2..N+1, row 1); numbers sit right-aligned in the metric-label column
-    // (col 1) so they are flush with the bars and aligned with the table below. Bars are scaled to niceMax.
+    // (col 1) so they are flush with the bars and aligned with the native table below. Bars are scaled to niceMax.
     g += `<div class="c3-gridlines" style="grid-column:2 / -1;grid-row:1"></div>`;
+    // §4.2 rev 1.75 — ONE hidden column band, emitted before the bars so it paints behind them.
+    g += `<div class="c3-col-band" data-c3band="1" aria-hidden="true" style="display:none"></div>`;
     let ticks = '';
     for (let t = 0; t <= 4; t++) { const tv = Math.round(niceMax * (4 - t) / 4); ticks += `<span class="g-ytick" style="top:${(t * 25)}%">${tv}</span>`; }
     g += `<div class="g-yaxis" style="grid-column:1;grid-row:1">${ticks}</div>`;
@@ -1097,21 +1115,29 @@ export function renderDashboard(doc, model, state = {}) {
         const v = r.getBar(sr.key);
         if (v > 0) segs += `<div class="seg-bar ${sr.cls}" style="height:${((v / niceMax) * C3_BAR_H).toFixed(1)}px" data-tip="${attr(colTip)}"></div>`;
       });
-      g += `<div class="g-bar" style="grid-column:${i + 2};grid-row:1" data-tip="${attr(colTip)}">${segs}</div>`;
-      g += `<div class="g-axis" style="grid-column:${i + 2};grid-row:2">${esc(clipText(r.val, 22))}</div>`;
+      g += `<div class="g-bar" style="grid-column:${i + 2};grid-row:1" data-col-id="${i}" data-tip="${attr(colTip)}">${segs}</div>`;
     });
-    rows.forEach(([label, fn], j) => {
-      g += `<div class="g-label" style="grid-column:1;grid-row:${j + 3}">${esc(label)}</div>`;
-      recs.forEach((r, i) => { g += `<div class="g-val" style="grid-column:${i + 2};grid-row:${j + 3}">${fn(r)}</div>`; });
-    });
+    // §4.2 rev 1.73 / 1.74 / I130 / I131 — ONE native attached table per card. The header row keeps
+    // the vertical dimension labels; the body keeps the metric rows. Shared data-col-id values drive
+    // §7.2.16 and the general chart ↔ attached-table column sync.
+    const headCells = recs.map((r, i) => `<th class="g-axis" scope="col" data-col-id="${i}">${esc(clipText(r.val, 22))}</th>`).join('');
+    const bodyRows = rows.map(([label, fn]) => `<tr><th class="g-label" scope="row">${esc(label)}</th>${recs.map((r, i) => `<td class="g-val" data-col-id="${i}">${fn(r)}</td>`).join('')}</tr>`).join('');
+    // §4.2 rev 1.75 — ONE hidden dashed centre line, emitted after the bars so it paints on top.
+    g += `<div class="c3-col-snap" data-c3snap="1" aria-hidden="true" style="display:none"></div>`;
+    const colgroup = `<colgroup><col class="c3-gut" style="width:var(--c3-gutter)">${'<col>'.repeat(N)}</colgroup>`;
+    const table = `<table class="c3-table" data-table-crosshair><caption>${esc(title)} metrics by ${dimKey}</caption>${colgroup}<thead><tr><th class="g-corner" scope="col">Breakdown</th>${headCells}</tr></thead><tbody>${bodyRows}</tbody></table>`;
+    g += table;
     const legend = `<div class="c3-legend">${barSeries.map(s => `<span class="c3-leg"><span class="c3-swatch ${s.cls}"></span>${esc(s.key === 'ur' ? 'Under Review' : s.key)}</span>`).join('')}</div>`;
-    return `<div class="chart c3-card">
-      <div class="c3-card-head"><h3 class="c3-card-title">${title}</h3>${c3CardActions()}</div>
-      <div class="c3-card-body"><div class="c3-grid" style="grid-template-columns:104px repeat(${N},minmax(0,1fr))">${g}</div>${legend}</div>
+    // I133 — the legend sits ABOVE the chart, not below the chart or below the attached table.
+    return `<div class="chart c3-card" role="group" aria-label="${esc(title)} breakdown">
+      ${opts.showTitle === false ? '' : `<div class="c3-card-head"><h3 class="c3-card-title">${title}</h3><div class="c3-card-ctrls">${c3CardActions()}</div></div>`}
+      ${opts.controls || ''}
+      ${legend}
+      <div class="c3-card-body"><div class="c3-grid" style="--c3-gutter:104px;--c3-cols:${N};min-width:${104 + N * 40}px">${g}</div></div>
       <div class="chart-tip"></div>
     </div>`;
   };
-  const c3PieCard = (c3, st, kind) => {
+  const c3PieCard = (c3, st, kind, opts = {}) => {
     const month = st.c3Month || 'ALL';
     const all = month === 'ALL';
     const dimKey = 'discipline'; // each pie is a full-set split (T15.4 / I050); Break-down-by is hidden in Pie view
@@ -1137,9 +1163,12 @@ export function renderDashboard(doc, model, state = {}) {
     if (!total) return `<div class="chart c3-card"><p class="empty">No submissions match the current selection.</p></div>`;
     const svg = c3SingleDonut(segs, title, all ? 'DOCUMENTS' : 'SUBMITTED', total);
     const leg = `<div class="c3-legend">${segs.filter(s => s.value).map(s => `<span class="c3-leg"><span class="c3-swatch ${s.cls}"></span>${esc(s.label)}</span>`).join('')}</div>`;
-    return `<div class="chart c3-card">
-      <div class="c3-card-head"><h3 class="c3-card-title">${title}</h3>${c3CardActions()}</div>
-      ${svg}${leg}
+    // I133 — the legend sits ABOVE the donut, matching the Bar view.
+    return `<div class="chart c3-card" role="group" aria-label="${esc(title)} breakdown">
+      ${opts.showTitle === false ? '' : `<div class="c3-card-head"><h3 class="c3-card-title">${title}</h3><div class="c3-card-ctrls">${c3CardActions()}</div></div>`}
+      ${opts.controls || ''}
+      ${leg}
+      ${svg}
       <div class="chart-tip"></div>
     </div>`;
   };
@@ -1226,12 +1255,12 @@ export function renderDashboard(doc, model, state = {}) {
   // linked rows only and reads low, so the column is dropped there instead of showing a number that
   // cannot grow. It stays in the discipline view, where every plan row has a discipline.
   const C3_PLAN_NOTE = 'Total Plan is not shown for the submitter view: the Master Document List has no submitter column, so a plan row can be counted only through the submissions linked to it.';
-  const c3Table = (c3, st) => {
+  const c3Table = (c3, st, bare = false) => {
     const month = st.c3Month || 'ALL';
     const dimKey = st.c3Dim === 'submitter' ? 'submitter' : 'discipline';
     const showPlan = dimKey !== 'submitter';
     const values = c3ValuesFor(dimKey, month);
-    if (!values.length) return '<div class="c3-summary"><p class="empty">No rows match the current selection.</p></div>';
+    if (!values.length) return bare ? '<p class="empty">No rows match the current selection.</p>' : '<div class="c3-summary"><p class="empty">No rows match the current selection.</p></div>';
     const asOfM = String(view.c1.asOf || '').slice(0, 7);
     const rows = values.map(value => {
       const m = c3Metrics(dimKey, value, month);
@@ -1244,18 +1273,35 @@ export function renderDashboard(doc, model, state = {}) {
     const headers = [dimKey === 'submitter' ? 'Submitter' : 'Discipline', ...(showPlan ? C3_TABLE_HEADERS : C3_TABLE_HEADERS.slice(1))];
     for (let col = 1; col <= headers.length - 1; col++) footer.push(rows.reduce((sum, row) => sum + row[col], 0));
     const note = showPlan ? '' : `<p class="note">${esc(C3_PLAN_NOTE)}</p>`;
-    return `<div class="c3-summary"><div class="c-card"><div class="c3-summary-head"><h3 class="c3-summary-title">Breakdown Summary</h3><button class="btn-secondary" data-c3export title="Download the breakdown table as CSV">⤓ Download</button></div>${table(headers, rows, null, footer)}${note}</div></div>`;
+    const body = `${table(headers, rows, null, footer)}${note}`;
+    // I133 — the new Breakdown Summary panel owns its own controls and ONE border. Bare mode drops
+    // the nested `.c-card` and the duplicate title / Download button.
+    if (bare) return body;
+    return `<div class="c3-summary"><div class="c-card"><div class="c3-summary-head"><h3 class="c3-summary-title">Breakdown Summary</h3><button class="btn-secondary" data-c3export title="Download the breakdown table as CSV">⤓ Download</button></div>${body}</div></div>`;
   };
-  // §4.2 — the chart carries the shape and the table the exact numbers. T15.5 stacks them: the
-  // table sits below the chart cards at full panel width. Wave 4.2 (Option 2) splits the panel into two
-  // bordered cards (Submissions, Approval Status); a shared panel control cluster (Month + Break-down-by,
-  // hidden in Pie view) drives both; the Pie view renders the same two cards as donuts (no consolidated
-  // two-ring card). The Break-down-by toggle drives the Bar view (the pie is a full-set split).
-  const breakdown = (c3, st) => {
-    const cards = st.c3View === 'pie'
-      ? `<div class="c3-cards">${c3PieCard(c3, st, 'submissions')}${c3PieCard(c3, st, 'approval')}</div>`
-      : `<div class="c3-cards">${c3StackedCard(c3, st, 'submissions')}${c3StackedCard(c3, st, 'approval')}</div>`;
-    return `${c3PanelControls(c3, st)}<div class="c3-body">${cards}${c3Table(c3, st)}</div>`;
+  // I133 — the C3 Breakdown is now its OWN page with THREE independent top-level panels. Each panel
+  // owns its controls and its own `c3Month` / `c3Dim` / `c3View` values. Two chart panels sit side by
+  // side; the summary panel spans the second row. The legacy flat state keys remain the fallback for
+  // callers that pass one state object, so older render tests and the sample generator keep working.
+  const c3PanelState = (state, panel) => ({
+    c3Month: state.c3Panels?.[panel]?.c3Month ?? state.c3Month ?? 'ALL',
+    c3Dim: state.c3Panels?.[panel]?.c3Dim ?? state.c3Dim ?? 'discipline',
+    c3View: state.c3Panels?.[panel]?.c3View ?? state.c3View ?? 'bar'
+  });
+  const breakdown = state => {
+    const c3 = view.c3;
+    const chartPanel = (name, panel, kind) => {
+      const st = c3PanelState(state, panel);
+      const opts = { controls: c3PanelControls(c3, st, panel, true, c3CardActions()), showTitle: false };
+      const card = st.c3View === 'pie'
+        ? c3PieCard(c3, st, kind, opts)
+        : c3StackedCard(c3, st, kind, opts);
+      return activePanel(name, card, true);
+    };
+    const sum = c3PanelState(state, 'summary');
+    const summary = activePanel('Breakdown Summary',
+      `<div class="c-card c3-summary-card">${c3PanelControls(c3, sum, 'summary', false)}<div class="c3-summary">${c3Table(c3, sum, true)}</div></div>`, true);
+    return `<div class="panel-grid breakdown-grid">${chartPanel('Submissions', 'submissions', 'submissions')}${chartPanel('Approval Status', 'approval', 'approval')}${summary}</div>`;
   };
   // ===== C2 Submission Flow & Delay (workplan D6 / D9 / D40) =====
   // Three views: Stacked (time-river area) · Delay (monthly avg Review Delay Days) · Funnel (stage drop-off).
@@ -1390,8 +1436,8 @@ export function renderDashboard(doc, model, state = {}) {
       p += `<text class="c2-funnel-val" x="${gut - 4}" y="${mid + 13}" text-anchor="end">${v}</text>`;
     });
     p += '</svg>';
-    const rows = f.byDisc.map(r => `<tr><td>${esc(r.discipline)}</td><td>${r.planned}</td><td>${r.submitted}</td><td>${r.inReview}</td><td>${r.awc}</td><td>${r.approved}</td></tr>`).join('');
-    const table = `<table class="c2-ftab"><thead><tr><th>Discipline</th><th>Planned Deliverables</th><th>Submitted for Review</th><th>Under Review</th><th>AWC</th><th>Approved</th></tr></thead><tbody>${rows}<tr class="tot"><td>Total</td><td>${f.planned}</td><td>${f.submitted}</td><td>${f.inReview}</td><td>${f.awc}</td><td>${f.approved}</td></tr></tbody></table>`;
+    const rows = f.byDisc.map(r => `<tr>${[esc(r.discipline), r.planned, r.submitted, r.inReview, r.awc, r.approved].map((value, i) => `<td data-col-id="${i}">${value}</td>`).join('')}</tr>`).join('');
+    const table = `<table class="c2-ftab" data-table-crosshair><thead><tr>${['Discipline', 'Planned Deliverables', 'Submitted for Review', 'Under Review', 'AWC', 'Approved'].map((label, i) => `<th data-col-id="${i}">${label}</th>`).join('')}</tr></thead><tbody>${rows}<tr class="tot">${[ 'Total', f.planned, f.submitted, f.inReview, f.awc, f.approved].map((value, i) => `<td data-col-id="${i}">${value}</td>`).join('')}</tr></tbody></table>`;
     return `<div class="c2-stack"><div class="c2-funnel-row"><div class="c2-ftab-wrap">${table}</div><div class="c2-funnel-wrap">${p}</div></div><div class="chart-tip"></div></div>`;
   };
   const submissionFlow = (c2, st) => {
@@ -1403,7 +1449,7 @@ export function renderDashboard(doc, model, state = {}) {
     const k = view.kpis;
     const statusData = Object.entries(view.active.reduce((map, row) => { map[row.submissionStatus || 'Blank'] = (map[row.submissionStatus || 'Blank'] || 0) + 1; return map; }, {})).map(([status, count]) => ({ status, count }));
     return `${activePanel('KPI OVERVIEW', `<div class="kpi-grid">${card('Documents Logged', k.totalSubmissions)}<article class="kpi-card" data-tip="${attr(kpiTipHtml('Documents Submitted / In Plan'))}"><div class="v">${k.submitted} / <span data-kpi="totalPlanned">${k.totalPlanned}</span></div><div class="l">Documents Submitted / In Plan</div><div class="chart-tip" role="tooltip"></div></article>${card('Under Review (SUR)', k.underReview, 'amb')}${card('Approved (APP + AWC)', k.approved, 'ok')}${card('On-Time Return Rate', `${(k.onTimeRate * 100).toFixed(1)}%`, k.onTimeRate >= 1 ? 'ok' : 'amb')}${card('Average Review Delay', `${k.averageDelay.toFixed(1)} days`, k.averageDelay > 0 ? 'warn' : 'ok')}</div>`)}
-      <div class="panel-grid">${activePanel('C1 Schedule Performance', schedulePerformance(view.c1, state), true)}${activePanel('C2 Submission Flow & Delay', submissionFlow(view.c2, state), true)}${activePanel('C3 Breakdown', breakdown(view.c3, state))}</div>`;
+      <div class="panel-grid">${activePanel('C1 Schedule Performance', schedulePerformance(view.c1, state), true)}${activePanel('C2 Submission Flow & Delay', submissionFlow(view.c2, state), true)}</div>`;
   };
   // D41 — Submittals panel: one row per document (grouped by Document No.), with a toggleable,
   // consolidated submission history. Current status columns stay in the main row; the full per-submission
@@ -1414,7 +1460,7 @@ export function renderDashboard(doc, model, state = {}) {
     const plannedById = new Map(model.planned.map(p => [p.id, p]));
     const planOf = row => plannedById.get(row.linkedPlannedId);
     const titleFor = group => { const plan = planOf(group[0]); return plan?.title || group[0].fields['Document Title'] || '—'; };
-    const discFor = group => { const plan = planOf(group[0]); return plan?.discipline || group[0].discipline || 'Unknown'; };
+    const discFor = group => { const plan = planOf(group[0]); return plan?.discipline || group[0].discipline || 'Others'; };
     // I107/I111 — month filter spans project start → as-of (like C3 I106), so the as-of month is
     // selectable even with no submissions yet; it then keeps only documents with a submission in the
     // selected month (default "ALL" = every month). The expanded history is limited to that month.
@@ -1441,7 +1487,7 @@ export function renderDashboard(doc, model, state = {}) {
     const chosen = Array.isArray(state.columnSets?.subdoc) ? new Set(state.columnSets.subdoc) : new Set(headers.map((_, i) => i));
     const indexes = headers.map((_, i) => i).filter(i => chosen.has(i));
     const numeric = new Set([4]);
-    const cellAttrs = i => { const c = []; if (numeric.has(i)) c.push('num'); if (i < 2) c.push('ds-pinned'); if (i === 0) c.push('drill-cell'); return `${i ? ` data-col="${i}"` : ''}${c.length ? ` class="${c.join(' ')}"` : ''}`; };
+    const cellAttrs = i => { const c = []; if (numeric.has(i)) c.push('num'); if (i < 2) c.push('ds-pinned'); if (i === 0) c.push('drill-cell'); return `${i ? ` data-col="${i}"` : ''} data-col-id="${i}"${c.length ? ` class="${c.join(' ')}"` : ''}`; };
     const cellHtml = (group, i) => {
       const latest = group[group.length - 1];
       switch (i) {
@@ -1462,14 +1508,14 @@ export function renderDashboard(doc, model, state = {}) {
       const docNo = group[0].documentNo || '';
       const cells = indexes.map(i => `<td${cellAttrs(i)}>${cellHtml(group, i)}</td>`).join('');
       const hist = histFor(group);
-      const inner = hist.map((r, i) => `<tr><td>${i + 1}</td><td>${esc(r.fields['Prolog No.'] || '—')}</td><td>${esc(r.submissionDate || '—')}</td><td>${esc(r.actualReturnDate || '—')}</td><td>${esc(r.submissionStatus || '—')}</td><td>${esc(r.approvalStatus || '—')}</td></tr>`).join('');
-      const innerTable = `<table class="ds-table hist-table"><tbody><tr class="hist-head"><th>#</th><th>Prolog / Transmittal No.</th><th>Submission Date</th><th>Return Date</th><th>Submission Status</th><th>Approval Status</th></tr>${inner}</tbody></table>`;
+      const inner = hist.map((r, i) => `<tr>${[i + 1, esc(r.fields['Prolog No.'] || '—'), esc(r.submissionDate || '—'), esc(r.actualReturnDate || '—'), esc(r.submissionStatus || '—'), esc(r.approvalStatus || '—')].map((value, col) => `<td data-col-id="${col}">${value}</td>`).join('')}</tr>`).join('');
+      const innerTable = `<table class="ds-table hist-table" data-table-crosshair><tbody><tr class="hist-head">${['#', 'Prolog / Transmittal No.', 'Submission Date', 'Return Date', 'Submission Status', 'Approval Status'].map((label, i) => `<th data-col-id="${i}">${label}</th>`).join('')}</tr>${inner}</tbody></table>`;
       const detail = `<tr class="sub" id="subd-${esc(docNo)}" data-doc="${esc(docNo)}" hidden><td colspan="${indexes.length}"><div class="sub-inner">${innerTable}</div></td></tr>`;
       return `<tr class="expandable" data-doc="${esc(docNo)}" tabindex="0">${cells}</tr>${detail}`;
     }).join('');
     const colgroup = indexes.map((i, pos) => `<col${i ? ` data-col="${i}"` : ''}${i === 0 ? ' style="width:32px"' : ''}>`).join('');
     const heads = indexes.map(i => `<th scope="col"${cellAttrs(i)}><span class="th-wrap"><span class="lb">${esc(headers[i])}</span></span>${i ? `<span class="ds-resize" data-col="${i}" role="separator" aria-label="Resize ${esc(headers[i])}"></span>` : ''}</th>`).join('');
-    const headFrag = `<div class="vheadwrap"><table class="ds-table vheadtab" data-table-key="subdoc" data-column-count="${headers.length}"><colgroup>${colgroup}<col class="ds-gut"></colgroup><thead><tr>${heads}<th class="ds-gut" scope="col" aria-hidden="true"></th></tr></thead></table></div>`;
+    const headFrag = `<div class="vheadwrap"><table class="ds-table vheadtab" data-table-crosshair data-table-key="subdoc" data-column-count="${headers.length}"><colgroup>${colgroup}<col class="ds-gut"></colgroup><thead><tr>${heads}<th class="ds-gut" scope="col" aria-hidden="true"></th></tr></thead></table></div>`;
     const chooserOpen = state.openChooser === 'subdoc';
     const chooser = columnChooser('subdoc', headers, chosen, chooserOpen);
     // I107 — cumulative "total as-of month" summary: submissions from project start through the selected month.
@@ -1484,7 +1530,7 @@ export function renderDashboard(doc, model, state = {}) {
     const summary = `<div class="panel-summary"><span class="summary">${docs.length} documents</span><span class="summary">${cumLabel}</span></div>`;
     const controls = `<div class="table-tools">${monthSel}<button class="csv-btn btn-secondary" data-export="submittals">⤓ CSV</button><button class="cc-btn btn-secondary" id="ccBtn_subdoc" aria-controls="ccPanel_subdoc" aria-haspopup="true" aria-expanded="${chooserOpen}">Columns</button>${chooser}</div>`;
     const body = docs.length ? `<tbody>${bodyRows}</tbody>` : `<tbody><tr><td class="empty" colspan="${indexes.length}">No documents match the current selection.</td></tr></tbody>`;
-    const tableHtml = `<div class="c-card">${controls}<div class="ds-split splitcard">${headFrag}<div class="tableScroll"><table class="ds-table" data-table-key="subdoc" data-column-count="${headers.length}">${colgroup}${body}</table></div></div></div>`;
+    const tableHtml = `<div class="c-card">${controls}<div class="ds-split splitcard">${headFrag}<div class="tableScroll"><table class="ds-table" data-table-crosshair data-table-key="subdoc" data-column-count="${headers.length}">${colgroup}${body}</table></div></div></div>`;
     // I109 — subtitle sits in the panel body before the .c-card, aligned to the content edge (matches Forward/Overdue .note).
     return activePanel('Submittals', `${summary}${tableHtml}`, true);
   };
@@ -1555,7 +1601,7 @@ export function renderDashboard(doc, model, state = {}) {
     for (const p of view.activePlans) {
       if (!p.documentNo || p.isSubmitted) continue;
       const basis = p.fields['Planned 1st Issue Date'] || p.fields['Forecast 1st Issue Date'] || null;
-      rows.push({ docNo: p.documentNo, title: p.title || p.fields['Document Title'] || '—', discipline: p.discipline || 'Unknown', stage: p.stage || '—', category: 'first', status: 'NFS', basis, plan: p });
+      rows.push({ docNo: p.documentNo, title: p.title || p.fields['Document Title'] || '—', discipline: p.discipline || 'Others', stage: p.stage || '—', category: 'first', status: 'NFS', basis, plan: p });
     }
     for (const [docNo, subs] of byDoc) {
       const { category, latest } = classify(docNo);
@@ -1563,7 +1609,7 @@ export function renderDashboard(doc, model, state = {}) {
       const plan = planByDoc.get(docNo);
       const base = category === 'resubmit' ? (latest.actualReturnDate || latest.targetReturnDate) : latest.targetReturnDate;
       const basis = category === 'resubmit' && base ? addDaysISO(base, RESUBMIT_LEAD) : base;
-      rows.push({ docNo, title: (latest.fields && latest.fields['Document Title']) || (plan && plan.title) || '—', discipline: latest.discipline || (plan && plan.discipline) || 'Unknown', stage: (plan && plan.stage) || '—', category, status: latest.submissionStatus || '', basis, plan });
+      rows.push({ docNo, title: (latest.fields && latest.fields['Document Title']) || (plan && plan.title) || '—', discipline: latest.discipline || (plan && plan.discipline) || 'Others', stage: (plan && plan.stage) || '—', category, status: latest.submissionStatus || '', basis, plan });
     }
     const dated = rows.map(r => ({ ...r, delta: r.basis ? daysBetween(r.basis, asOf) : null })).filter(r => r.delta !== null);
     const laneMatch = r => lane === 'all' || (lane === 'first' && r.category === 'first') || (lane === 'resubmit' && r.category === 'resubmit') || (lane === 'return' && r.category === 'return');
@@ -1577,14 +1623,14 @@ export function renderDashboard(doc, model, state = {}) {
     const foTable = (headers, data, key, widths = null) => {
       const indexes = headers.map((_, i) => i);
       const numeric = new Set(indexes.filter(i => { const vals = data.map(r => String(r[i] ?? '').replace(/<[^>]*>/g, '').trim()).filter(Boolean); return vals.length && vals.every(v => /^-?[\d,]+(?:\.\d+)?$/.test(v)); }));
-      const attrs = i => { const c = []; if (numeric.has(i)) c.push('num'); if (i === 0) c.push('ds-pinned'); return (i ? ` data-col="${i}"` : '') + (c.length ? ` class="${c.join(' ')}"` : ''); };
+      const attrs = i => { const c = []; if (numeric.has(i)) c.push('num'); if (i === 0) c.push('ds-pinned'); return (i ? ` data-col="${i}"` : '') + ` data-col-id="${i}"` + (c.length ? ` class="${c.join(' ')}"` : ''); };
       const tr = r => `<tr>${indexes.map(i => `<td${attrs(i)}>${r[i]}</td>`).join('')}</tr>`;
       const colgroup = indexes.map((i, pos) => `<col${i ? ` data-col="${i}"` : ''}${widths && widths[i] != null ? ` style="width:${widths[i]}px"` : (i === 0 ? ' style="width:150px"' : '')}>`).join('');
       const heads = indexes.map(i => `<th scope="col"${attrs(i)}><span class="th-wrap"><span class="lb">${esc(headers[i])}</span></span>${i ? `<span class="ds-resize" data-col="${i}" role="separator" aria-label="Resize ${esc(headers[i])}"></span>` : ''}</th>`).join('');
       const body = data.length ? `<tbody>${data.map(tr).join('')}</tbody>` : `<tbody><tr><td class="empty" colspan="${indexes.length}">No rows match the current selection.</td></tr></tbody>`;
-      const frag = `<div class="vheadwrap"><table class="ds-table vheadtab" data-table-key="${key}"><colgroup>${colgroup}<col class="ds-gut"></colgroup><thead><tr>${heads}<th class="ds-gut" scope="col" aria-hidden="true"></th></tr></thead></table></div>`;
+      const frag = `<div class="vheadwrap"><table class="ds-table vheadtab" data-table-crosshair data-table-key="${key}"><colgroup>${colgroup}<col class="ds-gut"></colgroup><thead><tr>${heads}<th class="ds-gut" scope="col" aria-hidden="true"></th></tr></thead></table></div>`;
       tableRows.set(key, { headers, rows: data, indexes, windowed: false });
-      return `<div class="ds-split splitcard" style="--pin-first-col:150px">${frag}<div class="tableScroll"><table class="ds-table" data-table-key="${key}" data-column-count="${headers.length}"><colgroup>${colgroup}</colgroup>${body}</table></div></div>`;
+      return `<div class="ds-split splitcard" style="--pin-first-col:150px">${frag}<div class="tableScroll"><table class="ds-table" data-table-crosshair data-table-key="${key}" data-column-count="${headers.length}"><colgroup>${colgroup}</colgroup>${body}</table></div></div>`;
     };
     // §7.5 B2.1 rev 1.69 — common markup, dynamic `aria-pressed` and an accessible group name.
     const seg = (cur, items, attr, label) => `<div class="seg" role="group" aria-label="${label}">${items.map(([v, l]) => `<button type="button" class="seg-btn${cur === v ? ' active' : ''}" data-${attr}="${v}" aria-pressed="${cur === v}">${l}</button>`).join('')}</div>`;
@@ -1645,7 +1691,7 @@ export function renderDashboard(doc, model, state = {}) {
   };
   const help = (state) => { const copy = state.uiHelp?.pages || {}; const glossary = state.uiHelp?.statusGlossary || {}; return activePanel('Help', `<p>${esc(copy.Help || 'Load both workbooks and use the shared filters.')}</p><p>${esc(state.uiHelp?.filePanel?.instructions || '')}</p><p>Source files: ${esc(model.meta.mdlWorkbookName)} and ${esc(model.meta.logWorkbookName)}.</p><h3>Status glossary</h3>${Object.entries(glossary).flatMap(([group, items]) => Object.entries(items).map(([code, label]) => `<p><b>${esc(group)} · ${esc(code)}</b> — ${esc(label)}</p>`)).join('')}`); };
   const settings = (state) => activePanel('Settings', `<label>Theme <select data-setting="theme">${['dark','light','sky','ocean','presentation'].map(theme => `<option value="${theme}"${(state.theme || 'dark') === theme ? ' selected' : ''}>${theme}</option>`).join('')}</select></label><label><input type="checkbox" data-setting="showWarnings"${state.showWarnings === false ? '' : ' checked'}> Show warnings</label><label><input type="checkbox" data-setting="rememberNames"${state.rememberNames ? ' checked' : ''}> Remember workbook names</label>`);
-  const views = { Overview: overview, Submittals: submissions, Validation: validation, 'Forward and Overdue': forwardAndOverdue, Analytical: analytics, Help: help, Settings: settings };
+  const views = { Overview: overview, Breakdown: breakdown, Submittals: submissions, Validation: validation, 'Forward and Overdue': forwardAndOverdue, Analytical: analytics, Help: help, Settings: settings };
   root.innerHTML = (views[page] || overview)(state);
   // §4.6 — shared delegated hover binder (one function for every chart board + KPI card)
   // Modes: nearest (C1/C2 line/area, data-driven) or element (C3/C4/KPI, reads [data-tip] from the
@@ -1664,7 +1710,7 @@ export function renderDashboard(doc, model, state = {}) {
   }
   const bindChartHover = (root, opts = {}) => {
     if (!root || typeof root.querySelector !== 'function') return;
-    const { pointsAttr = 'data-points', geoAttr = 'data-geo', render, placement = 'cursor', snap = true, focusable = true, live = false, attachedTable = false } = opts;
+    const { pointsAttr = 'data-points', geoAttr = 'data-geo', render, placement = 'cursor', snap = true, focusable = true, live = false, attachedTable = false, c3AttachedTable = false } = opts;
     const svg = root.querySelector('svg');
     const tip = root.querySelector('.chart-tip');
     if (!tip) return;
@@ -1733,9 +1779,59 @@ export function renderDashboard(doc, model, state = {}) {
       const band = columnBand(); if (band) band.style.display = 'none';
       root.querySelectorAll('.c1-table [data-c1col].col-active').forEach(el => el.classList.remove('col-active'));
     };
+    // §4.2 rev 1.74 / I131 — ONE shared chart ↔ attached-table column state per C3 Bar card.
+    // The query is scoped to this root, so the two cards stay independent. The generic §7.2.16
+    // binder keeps .row-hover / .cell-hover and never adds a competing .col-hover here.
+    const c3Table = c3AttachedTable ? root.querySelector('table.c3-table[data-table-crosshair]') : null;
+    const C3_ACTIVE = '.c3-grid .g-bar.col-active,.c3-table [data-col-id].col-active';
+    // §4.2 rev 1.75 — ONE band and ONE centre line per C3 Bar card. Both follow the C1 hidden-element
+    // model: they are grid-row:1 children of `.c3-grid` and move with the active logical column.
+    const c3Band = c3Table ? root.querySelector('.c3-grid .c3-col-band') : null;
+    const c3Snap = c3Table ? root.querySelector('.c3-grid .c3-col-snap') : null;
+    const c3HideColumnMarks = () => {
+      if (c3Band) c3Band.style.display = 'none';
+      if (c3Snap) c3Snap.style.display = 'none';
+    };
+    const c3ClearColumn = () => {
+      root.querySelectorAll(C3_ACTIVE).forEach(el => el.classList.remove('col-active'));
+      c3HideColumnMarks();
+    };
+    const c3SetColumn = id => {
+      const n = String(id);
+      if (!/^\d+$/.test(n)) return;
+      const current = [...root.querySelectorAll(C3_ACTIVE)];
+      if (current.length && current.every(el => el.getAttribute('data-col-id') === n)) {
+        if (c3Band && c3Band.style.display === 'none') c3SetColumnMarks(n);
+        return;
+      }
+      current.forEach(el => el.classList.remove('col-active'));
+      root.querySelectorAll(`.c3-grid .g-bar[data-col-id="${n}"],.c3-table [data-col-id="${n}"]`).forEach(el => el.classList.add('col-active'));
+      c3SetColumnMarks(n);
+    };
+    function c3SetColumnMarks(n) {
+      const track = String(Number(n) + 2);
+      if (c3Band) { c3Band.style.gridColumn = track; c3Band.style.display = ''; }
+      if (c3Snap) { c3Snap.style.gridColumn = track; c3Snap.style.display = ''; }
+    }
     const show = html => { if (html == null) return hide(); showTipWindow(html); };
-    const hide = () => { hideTip(); active = -1; activeEl = null; if (snapEl) snapEl.style.display = 'none'; if (attachedTable) clearColumn(); };
+    const hide = () => { hideTip(); active = -1; activeEl = null; if (snapEl) snapEl.style.display = 'none'; if (attachedTable) clearColumn(); if (c3Table) c3ClearColumn(); };
     const onMove = e => {
+      // §4.2 rev 1.74 / I131 — C3 Bar: ONE two-way chart ↔ attached-table column sync. A bar
+      // hover or a table-cell hover resolves the SAME logical column from data-col-id.
+      if (c3Table) {
+        const barCell = e.target && e.target.closest ? e.target.closest('.c3-grid .g-bar[data-col-id]') : null;
+        const tableCell = !barCell && e.target && e.target.closest ? e.target.closest('.c3-table [data-col-id]') : null;
+        if (!barCell && !tableCell) { hide(); return; }
+        c3SetColumn((barCell || tableCell).getAttribute('data-col-id'));
+        // The floating window stays closed over the attached table; the column highlight stays
+        // active in both directions (§4.6).
+        if (tableCell) { hideTip(); active = -1; activeEl = null; return; }
+        const tipEl = e.target && e.target.closest ? e.target.closest('[data-tip]') : null;
+        if (!tipEl) { hideTip(); return; }
+        if (tipEl === activeEl) { place(e); return; }
+        activeEl = tipEl; show(tipEl.getAttribute('data-tip')); place(e);
+        return;
+      }
       // C1 controls now live inside the board. A click on them must not open the datum window.
       if (e.target && e.target.closest && e.target.closest('.c1-controls')) { hide(); return; }
       if (attachedTable && svg) {
@@ -1820,8 +1916,10 @@ export function renderDashboard(doc, model, state = {}) {
     pointsAttr: 'data-c2points', geoAttr: 'data-c2geo',
     render: p => `<b>${esc(p.label)}</b>` + p.series.map(s => `<div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch" style="background:${c2Color(s.code)}"></span>${esc(s.code)}</span><b>${s.value}</b></div>`).join('') + `<div class="chart-tip-foot">Total <b>${p.total}</b></div>`
   });
-  // C3 — hover floating window (element mode; per-segment data-tip)
-  if (typeof root.querySelectorAll === 'function') root.querySelectorAll('.c3-card').forEach(c => bindChartHover(c, { snap: false }));
+  // C3 — hover floating window (element mode; per-segment data-tip). §4.2 rev 1.74 / I131: only
+  // Bar cards carry the native attached table, so only they opt in to the two-way column sync.
+  // Pie cards keep the original element-mode binding.
+  if (typeof root.querySelectorAll === 'function') root.querySelectorAll('.c3-card').forEach(c => bindChartHover(c, { snap: false, c3AttachedTable: !!c.querySelector('table.c3-table[data-table-crosshair]') }));
   // C4 — hover floating window (element mode; per-point data-tip on the scatter)
   const c4Root = typeof root.querySelector === 'function' ? root.querySelector('.c4-chart') : null;
   if (c4Root) bindChartHover(c4Root, { snap: false });
@@ -1862,7 +1960,7 @@ export function renderDashboard(doc, model, state = {}) {
     scroll.addEventListener('scroll', () => {
       const first = Math.max(0, Math.floor(scroll.scrollTop / 40) - 3);
       const last = Math.min(tableData.rows.length, first + 120);
-      const rowHtml = tableData.rows.slice(first, last).map(row => `<tr>${tableData.indexes.map(index => `<td data-col="${index}"${index < 2 ? ' class="ds-pinned"' : ''}>${esc(row[index])}</td>`).join('')}</tr>`).join('');
+      const rowHtml = tableData.rows.slice(first, last).map(row => `<tr>${tableData.indexes.map(index => `<td data-col="${index}" data-col-id="${index}"${index < 2 ? ' class="ds-pinned"' : ''}>${esc(row[index])}</td>`).join('')}</tr>`).join('');
       tbody.innerHTML = `<tr class="win-pad"><td colspan="${tableData.indexes.length}" style="height:${first * 40}px;padding:0"></td></tr>${rowHtml}<tr class="win-pad"><td colspan="${tableData.indexes.length}" style="height:${Math.max(0, tableData.rows.length - last) * 40}px;padding:0"></td></tr>`;
       const count = root.querySelector('#vCnt, #dCnt');
       if (count) count.textContent = `${last - first} of ${tableData.rows.length}`;
@@ -1884,7 +1982,7 @@ export function buildSubmittalsCsv(model, view, subMonth = 'ALL') {
   const plannedById = new Map((model?.planned || []).map(p => [p.id, p]));
   const planOf = row => plannedById.get(row.linkedPlannedId);
   const titleFor = group => { const plan = planOf(group[0]); return plan?.title || group[0].fields['Document Title'] || ''; };
-  const discFor = group => { const plan = planOf(group[0]); return plan?.discipline || group[0].discipline || 'Unknown'; };
+  const discFor = group => { const plan = planOf(group[0]); return plan?.discipline || group[0].discipline || 'Others'; };
   const monthOf = r => String(r.submissionDate || '').slice(0, 7);
   const docs = view.documents || [];
   const inMonth = g => subMonth === 'ALL' ? g : g.filter(r => monthOf(r) === subMonth);

@@ -600,7 +600,8 @@ export function buildModel(mdlWorkbook, logWorkbook, options = {}) {
     const matches = record.documentNo ? plannedByDocument.get(linkKey(record.documentNo)) || [] : [];
     if (!matches.length) {
       record.linkStatus = 'orphan';
-      record.discipline = 'Unknown';
+      // I133 — `Others` names a Submittal Log document that is not registered in the MDL workbook.
+      record.discipline = 'Others';
       issues.push(codeIssue('V-29', record, allErrors, { source: record.source, field: 'Document No.', value: record.documentNo }));
     } else if (matches.length > 1) {
       record.linkStatus = 'ambiguous';

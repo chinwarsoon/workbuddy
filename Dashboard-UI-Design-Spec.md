@@ -2,6 +2,12 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.77 | 2026-11-14 | CodeBuddy (AI) | **§4.2 rev 1.77 / `I134` — ONE tool row per Breakdown chart panel.** Owner decision 2026-11-14: all tool controls of the `Submissions` and `Approval Status` chart panels MUST sit in ONE row — the Month select, the Break-down-by group and the Bar / Pie toggle on the LEFT, and `⤓ PNG` + `⧉ Copy` on the RIGHT — with no second head row above them. The visible `Month` text is removed from the Month select; the select keeps its accessible name through `aria-label`. The `Breakdown Summary` panel keeps Month, Break-down-by and `⤓ Download` and is unchanged. The legacy per-card head (title + PNG / Copy) stays available for sample pages that show a card title. §8.2 assertion 24 enforces the row order and the no-`Month`-text rule. Both byte-identical spec copies are updated. Historical rows 1.60–1.76 are preserved verbatim. |
+| 1.76 | 2026-11-14 | CodeBuddy (AI) | **I133 — the C3 Breakdown becomes a `Breakdown` page with THREE independent panels.** Owner decisions D1–D7 and 4 notes, 2026-11-14. The sidebar gains `Breakdown` directly below `Overview`; `Overview` keeps KPI, C1 and C2. §0 gains `Others` (a Document Submittal Log row whose `Document No.` is not registered in the MDL workbook, `V-29` orphan) and the `Breakdown page` definition. §3.2 fixes the new item's position and keeps `--sidebar-w:160px`; §3.3 still bars a content-toolbar heading. §4 retires the "panel holds two C3 cards" example; §4.1 replaces the ONE shared control cluster exception with THREE panel-owned clusters. Each panel owns `c3Month`, `c3Dim` and, for charts, `c3View`; the two chart panels switch to donuts independently; the summary panel owns Month, Break-down-by and `⤓ Download`. §4.2 makes the C3 HTML legend sit ABOVE the chart in BOTH Bar and Pie views (rev 1.62 stays C1-only and in-SVG) and makes the summary table its own full-width panel. §4.7 / §8.2 assertion 19 apply the 14 px gap to the new page; a page-scoped 2+1 grid keeps the global `body[data-layout]` behaviour unchanged. The summary table uses compact row tokens and `max-height:none` so it has NO inner vertical scroll bar. §8.2 assertions 21 / 22 / 23 cite the new page; assertion 24 enforces page order, panel independence, legend order, compact table and `Others`. Border rules of §4, §4.1, §4.2 rev 1.70 and §4.2 rev 1.73 are unchanged and MUST apply to all three panels. Both byte-identical spec copies are updated. Historical rows 1.60–1.75 are preserved verbatim. |
+| 1.75 | 2026-11-14 | CodeBuddy (AI) | **§4.2 rev 1.75 — chart ↔ attached-table column highlighting adopts the C1 visual design.** Owner decision 2026-11-14: the active-column border and the hidden centre line MUST follow the C1 panel style. §0 and the §4.2 general rule gain the normative visual contract: ONE hidden column band spanning the full plot height and one column width, ONE hidden dashed `.chart-snap` centre line, NO border or inset ring on active column cells, and both elements driven in BOTH hover directions and excluded from PNG / Copy / print. §4.1 cites rev 1.75 for C3; §4.2 marks the C1 reference implementation as the visual reference and replaces the C3 per-bar inset-ring model with the band + centre line model; §4.6 makes the snap line REQUIRED for charts with an X-aligned native attached table and keeps it optional elsewhere; §7.2.16 requirements 5 and 8 gain the band and centre line; §8.2 assertions 21 / 22 cite rev 1.75 and assertion 23 enforces the visual contract. C1 keeps `data-c1col` / `.sc-hover-band` / `.chart-snap` / `.col-active`. C3 Pie, `.c3-summary`, `breakdown-table.csv`, C2 Funnel, C4, MDL, KPI and bounded `.ds-table`s stay out of scope. The structural 1 px board border of §4.2 rev 1.70 is not affected. Both byte-identical spec copies are updated. Historical rows 1.60–1.74 are preserved verbatim. |
+| 1.74 | 2026-11-14 | CodeBuddy (AI) | **§4.2 rev 1.74 / `I131` — simultaneous chart ↔ attached-table column highlighting becomes a general rule.** Owner decision 2026-11-14: where a chart renders a native attached table in the same chart board whose columns share the chart's X positions, hovering a chart column MUST highlight the same logical column in BOTH chart and table, and hovering an attached-table column MUST highlight the same logical column in BOTH table and chart. The state is transient, scoped to the owning chart card, cleared on pointer leave / blur / Escape / repaint / print, and stripped from PNG / Copy / print. §0 gains the normative general rule; §4.1 cites it for C3; §4.2 replaces the former C1-only interaction scope with a general clause plus a C1 reference implementation and a C3 implementation contract; §4.6 generalises the attached-table touch / hover-window wording; §7.2.16 gains the C1 + C3 chart-linked `.col-active` carve-out; §8.2 assertions 21 / 22 cite rev 1.74 and assertion 23 enforces the general two-way sync. C1 keeps `data-c1col` / `.sc-hover-band` / snap line; C3 Bar cards use shared `data-col-id` and `.col-active` on `.g-bar`, dimension headers and value cells. C3 Pie, `.c3-summary`, `breakdown-table.csv`, C2 Funnel, C4, MDL, KPI and bounded `.ds-table`s stay out of scope. Both byte-identical spec copies are updated. Historical rows 1.60–1.73 are preserved verbatim. |
+| 1.73 | 2026-11-13 | CodeBuddy (AI) | **§4.2 rev 1.73 / `I130` — C3 Bar attached tables become native HTML tables (Option A).** The owner approved Option A to follow the current C1 panel design and the UI spec. §0 now states that an **Attached table** is a **Semantic table**. §4.1 replaces the C3 div-grid table with one bar-plot CSS grid plus one native attached table per card. §4.2 makes the C3 native attached-table model normative: one borderless `.c3-grid` with `--c3-gutter:104px`, `--c3-cols:N` and `column-gap:0`; one `<table class="c3-table" data-table-crosshair>` spanning row 2 with `<caption>`, `<colgroup>`, `<thead>`, `<tbody>`, `scope` and `data-col-id`; `table-layout:fixed`, `border-collapse:separate`, `border-spacing:0`, shared column geometry, scoped C3 cell rules, `role="group"` on `.c3-card`, and PNG / Copy that include table rules with transient hover classes stripped. §7.2.16 gains C3 attached-table compatibility; §8.2 assertions 21 and 22 cite rev 1.73. The Pie view, the full-width `.c3-summary` table and `breakdown-table.csv` stay unchanged. Both byte-identical spec copies are updated. Historical rows 1.60–1.72 are preserved verbatim. |
+| 1.72 | 2026-11-13 | CodeBuddy (AI) | **§7.2.16 gained a normative global Table Hover Crosshair Standard** (owner recommendation of 2026-11-13; `I129`). One shared `.ds-table` interaction contract now governs every tabular view: the hovered data row is highlighted, the hovered logical column is highlighted including its header, and the intersection cell receives stronger emphasis; split-header cells pair by rendered column position or an explicit column identifier, never raw `cellIndex`; the C1 attached table keeps its chart-linked `.col-active` / `data-c1col` behaviour; column rules and `position:relative` stay intact; and transient hover state is excluded from PNG, Copy and print. §8.2 gains assertion 22. Both byte-identical spec copies are updated. Engine, harness, tests, sample and standalone build stay unchanged; `I129` remains `APPROVED`, not implemented. Historical rows 1.60–1.71 are preserved verbatim. |
 | 1.71 | 2026-11-12 | CodeBuddy (AI) | **§7.1 gained a universal button-height standard** (owner decisions of 2026-11-12; `I128`). Every text-bearing button — primary, secondary and text actions, filter triggers, segmented buttons, column-visibility controls, pagination buttons and other visible text buttons — MUST share ONE `min-height:32px` token. Icon-only buttons, including the B4 drill control, stay 26 px square; the drill cell keeps its 32 px width by moving to 3 px side padding. §7.5 B2.1 now has ONE segmented variant; the former Sub C1 `compact` preset deviation is retired, and `--seg-h` derives from the universal `--btn-h` token. Historical rows 1.60–1.70 are preserved verbatim. |
 | 1.70 | 2026-11-12 | CodeBuddy (AI) | §4.2 gained a universal **bordered chart composition** clause. A chart board MAY be subdivided into axis, plot and attached-table zones. The alignment grid stays borderless. Adjacent zones share edges; shared corners use `border-radius:0`; non-shared corners use `border-radius:10px`. No additional wrapper surrounds the whole composition. Class names are implementation-specific. §8.2 assertion 21 and both byte-identical spec copies are updated. The sample page, engine, standalone dashboard, tests, harness, workplan and logs stay unchanged. Historical rows 1.60–1.69 are preserved verbatim. |
 | 1.69 | 2026-11-11 | CodeBuddy (AI) | **§7.5 B2.1 is now the authoritative segmented-control standard** (owner decisions Q01–Q10 of 2026-11-09 / 2026-11-11; `I123` resolved, `I125`). §7.5 B2.1 defines ONE common set of CSS custom-property tokens, two approved variants (`standard` 32 px / 12 px and the C1 `compact` exception at ≈ 26 px / 11 px with `padding:5px 8px`), six interaction states (default, active, hover, focus-visible, pressed, disabled), common HTML / ARIA (`type="button"`, a dynamic `aria-pressed`, `role="group"` and an accessible name on EVERY group), equal height within one group with centre alignment between groups, and a precedence rule: an explicitly approved panel-specific requirement overrides a common B2.1 default. B2 now mandates `--navy` as the active fill and `--surface2` as the inactive hover fill for every segmented control, so the former `--blue` hover / `.on` / `--navy` conflict between §7.5 B2 and §4.2 rev 1.68 is REMOVED. The active-state focus ring uses a high-contrast light colour, because `--blue` on `--navy` measures only 2.89:1, below the 3:1 non-text contrast target. No 44 × 44 px touch rule is added: the dashboards stay desktop-first at the 1280 px minimum and a separate `@media (pointer: coarse)` variant is deferred. ALL seven `.seg-btn` generators in the Sub dashboard now emit the common markup: the two C1 groups, the C2 / C3 / C4 groups and the three Forward and Overdue groups. Every `data-*` attribute, handler, state key and repaint path is unchanged. §4.2 rev 1.68's clause is reduced to the two C1-specific rules and points at §7.5 B2.1 for all common tokens. §8.2 assertion 21, both byte-identical spec copies, `SKILL.md`, `checks/sub.mjs`, `harness.mjs`, the render suite, the review sample, the workplan, `knowledge.json` and the three logs are updated. MDL / PPP hover and markup deviations are RECORDED, not changed, in the §7.5 B2.1 deviations list. A measured browser regression found that the shared `line-height:1.2` shrank the compact chips from 25.94 px to 23.19 px; a dedicated `--seg-compact-lh:1.45` token now restores the approved height. Historical rows 1.60–1.68 are preserved verbatim. |
@@ -119,7 +125,9 @@ These terms are used normatively throughout this spec.
 | **CSS grid tracks** | The columns and rows of a CSS grid. They are set by `grid-template-columns`, `minmax()` and `fr` (§3.4.1, §4.2, §4.7). |
 | **Flow container** | A one-dimensional flex container. It aligns toolbars, header rows and control clusters (§3.1, §4.1). |
 | **Gutter / Spacing scale** | The fixed whitespace between grid tracks and panels: 14 px between top-level panels, 16 px between chart cards (§4.1, §4.7). |
-| **Attached table** | A data table drawn inside the same chart board as its chart. Its columns share the chart's X positions (§4.1, §4.2). It is not a **Bounded data table**. |
+| **Attached table** | A data table drawn inside the same chart board as its chart. Its columns share the chart's X positions (§4.1, §4.2). It is a **Semantic table** and is not a **Bounded data table**. When such a table is present, hovering a chart column or an attached-table column MUST highlight the same logical column in BOTH the chart and the table at the same time (§4.2 rev 1.74). The shared chart-column state MUST include ONE hidden column band and ONE hidden dashed centre line, and MUST NOT draw a border or inset ring on active column cells (§4.2 rev 1.75). |
+| **Breakdown page (rev 1.76)** | A dashboard page reached from the `Breakdown` sidebar item, directly below `Overview`. It holds exactly THREE independent top-level panels: `Submissions`, `Approval Status` and `Breakdown Summary`. Each panel owns its own `c3Month`, `c3Dim` and control cluster; each chart panel also owns `c3View`. The two chart panels sit side by side in row 1 and the summary panel spans row 2 (§4.1, §4.7). |
+| **Others (rev 1.76)** | The discipline label of a Document Submittal Log row whose `Document No.` has no MDL plan row (`V-29` orphan). It is a normal dimension value: it appears in the Discipline filter, in the C3 Breakdown dimension list and in the Breakdown Summary table, and its rows count in every measure. It MUST NOT be read as a data-quality rule. A missing `Submitted By` value keeps the separate `Unknown` fallback. |
 | **Semantic table** | A native `<table>` with `<caption>`, `<colgroup>`, `<thead>`, `<tbody>` and `scope` on its header cells (§4.2). |
 | **Native vs ARIA structures** | Tabular data MUST use a native `<table>`. ARIA roles and attributes are allowed only on non-tabular graphics: `role="img"`, `aria-label`, `aria-describedby` (§4.2, §4.6, §7.2.4). ARIA table roles MUST NOT be used. |
 | **Scoping & hierarchy** | The `scope="col"` and `scope="row"` bindings that link a header cell to its column or row (§4.2). |
@@ -276,6 +284,12 @@ menu-bar filter group, warning area inside content).
   differ MUST derive its width the same way — widest title, plus the item's horizontal padding, plus
   the panel's padding — and MUST NOT let a menu title wrap or clip. Resizing MUST clamp at the width
   where the widest title still fits, which is 140 px here.
+- **Breakdown page position (normative, rev 1.76).** The `Breakdown` page link MUST sit directly
+  below `Overview` and before `Submittals`. It is a page link, so it MUST use `data-page` and it MUST
+  appear in the page whitelist and in the view map. `Overview` MUST keep KPI, C1 and C2 only. The
+  title bar shows the page name (§3.3); the content area MUST NOT add a second page heading. The
+  `Breakdown` title is shorter than `Forward and Overdue`, so `--sidebar-w:160px` and the resize
+  clamp stay unchanged.
 
 ### 3.3 Content area
 The content area owns a scrollable body and **has no toolbar**. Render panels (§4), dashboard metrics
@@ -572,7 +586,8 @@ a dashboard uses in its own workplan.
 - **Chart cards**: each individual graph (with its own control filters and buttons) sits in its own
   bordered surface — `.c-card` (`1px solid --border`; radius 10 px; `padding:12px`; `--surface`). This is
   a card **inside** the panel and visually separates multiple graphs. A panel may hold one or several
-  `.c-card`s (the C3 Breakdown panel holds two). C3 already uses its own `.c3-card`, which follows the
+  `.c-card`s. The C3 Breakdown content is now THREE independent single-content panels on its own page
+  (rev 1.76); each chart panel holds ONE `.c3-card`, which follows the
   same contract. A single-graph panel (e.g. C1) needs no inner card — the panel edge alone frames it
   (I068). The panel edge (above) is the **outer** border; the `.c-card` border is the **inner**
   border around a single graph.
@@ -680,13 +695,34 @@ Some panels hold several **chart cards** in a grid. The panel shell still carrie
   tables): **every card owns its controls; the panel owns only its own chrome.** Cluster order is
   fixed — period window → **Bars** → range text → `⤓ PNG` → `⧉ Copy` (§4.2). There is **no Reset**
   control (§7.9).
-- **C3 Breakdown panel exception.** The C3 Breakdown panel's two cards are fixed-dimension views
-  (Submissions, Approval Status) that always share the same period and the same secondary breakdown
-  (Discipline / Submitter). Month + Break-down-by therefore live in ONE shared cluster above the cards
-  (the panel owns them), and only `⤓ PNG` / `⧉ Copy` stay per card. This is the deliberate deviation from
-  "every card owns its controls": two per-card copies would be redundant and read as independent when
-  both cards use the identical secondary dimension. Each card also shows the full MDL discipline set (and all submitters) even at zero, and its bars share one CSS grid with the vertical axis labels and an attached per-card data table (Submissions = Total Plan / First Submission / Resubmission / Under Review; Approval Status = the codes). The Pie view renders the same two cards as their own
-  donuts (one Submissions donut, one Approval Status donut) — there is no consolidated two-ring card.
+- **C3 Breakdown page — three independent panels (normative, rev 1.76).** The former ONE shared
+  control cluster is retired. The `Breakdown` page holds exactly THREE independent top-level panels:
+  `Submissions`, `Approval Status` and `Breakdown Summary`. Each panel MUST own ONE control cluster
+  with its own Month select and Break-down-by group. Each chart panel MUST also own its Bar / Pie
+  toggle. The summary panel MUST own `⤓ Download` instead of a view toggle. Each panel MUST keep its
+  own `c3Month`, `c3Dim` and (for charts) `c3View` value. A control MUST change only its OWN panel;
+  the other two panels MUST keep their data and view. `data-c3panel` identifies the owner. Each chart
+  panel MUST switch to a donut independently. `⤓ PNG` / `⧉ Copy` stay per chart card. CSV export MUST
+  start from the summary panel, not from a global `.c3-summary` lookup.
+  Each chart card still shows the full MDL discipline set (and all submitters) even at zero. Its bars,
+  Y ticks and grid lines share ONE CSS grid. A native attached table below the bars carries the
+  dimension headers and metric rows and is subject to the general chart ↔ attached-table column sync
+  rule and its C1 visual contract (§4.2 rev 1.73 / 1.74 / 1.75). The C3 HTML legend MUST sit ABOVE the
+  chart in BOTH Bar and Pie views (§4.2 rev 1.76). There is no consolidated two-ring card.
+- **C3 chart panel ONE tool row (normative, rev 1.77).** Each chart panel of the `Breakdown` page
+  MUST show all tool controls in ONE row: the Month select, the Break-down-by group and the Bar /
+  Pie toggle on the LEFT, and `⤓ PNG` + `⧉ Copy` on the RIGHT. A second head row above the tool row
+  is FORBIDDEN. The Month select MUST NOT show a visible `Month` text label; its accessible name
+  comes from `aria-label`. The `Breakdown Summary` panel keeps Month, Break-down-by and `⤓ Download`
+  (rev 1.76) and is unchanged.
+- **C3 Breakdown page layout (normative, rev 1.76).** Row 1 holds the two chart panels side by side.
+  Row 2 holds the `Breakdown Summary` panel spanning both columns. The grid MUST be page-scoped and
+  MUST NOT change the `body[data-layout]` behaviour of other pages. Top-level panels MUST use the
+  §4.7 14 px gap. At the 879 px breakpoint the three panels MUST stack in one column.
+- **C3 Breakdown Summary compact table (normative, rev 1.76).** The summary table MUST use compact
+  row tokens and MUST NOT show an inner vertical scroll bar. `max-height:none` and `overflow:visible`
+  on that panel's `.tableScroll` are REQUIRED. The page-level content body stays scrollable (§3.2).
+  The table keeps its `.ds-split` border, radius 10 px and split-header alignment (§4, §7.2.15).
 - **C3 bar y-axis grid lines + numbers.** To match the C1 S-curve and C2 stacked-area panels, each C3 card
   draws a y-axis on the left of its bar plot. There are **5 horizontal grid lines** (light `.sc-grid`-style rules)
   at 0 / 25% / 50% / 75% / 100% of a **"nice" maximum** — the axis top is `niceCeil` of the largest category
@@ -814,9 +850,15 @@ a single shared time axis instead of two stacked charts:
       plotting area, inside the top of the SVG canvas. `yTop` MUST be sized for the legend rows,
       `yBot` MUST be the bottom edge of the SVG `viewBox`, and the plot's bottom edge MUST touch the
       `<thead>` with zero intermediate layout elements. C2, C3, C4 and the MDL dashboard are out of
-      scope for this branch.
+      scope for this SVG-legend-placement branch. This branch governs legend placement only; the
+      general chart ↔ attached-table column sync rule and its C1 visual contract apply separately (§4.2 rev 1.74 / 1.75).
     - **Without an attached table.** For every other §4.2 combined chart (C2 stacked and delay),
       the legend SHOULD stay at the bottom, beneath the plot area.
+    - **C3 HTML legend (normative, rev 1.76).** A C3 Bar card has no SVG, so the in-SVG branch does
+      not apply to it. The C3 `.c3-legend` HTML element MUST sit ABOVE the chart in BOTH Bar and Pie
+      views. It MUST be emitted before `.c3-grid` in Bar view and before the donut `<svg>` in Pie
+      view, inside `.c3-card`. It MUST NOT sit below the attached table. PNG / Copy MUST read its
+      measured position so the exported image keeps the legend at the top.
 - **Months are labelled with the `MMM YYYY` template (e.g. `Mar 2026`).** Every month shown in the
   S-curve — the x-axis ticks, the period-window range message, and the `<title>` tooltips — is
   formatted through the shared month-label helper. A raw `YYYY-MM` key, or any `slice()` of it
@@ -948,8 +990,8 @@ a single shared time axis instead of two stacked charts:
 
 - **S-curve attached table (normative, rev 2026-11-05).** This rule applies to **every** dashboard
   that draws an S-curve with an **Attached table** (§0). It is universal: the metric rows come from
-  the dashboard's own data and workplan (§1), and this clause names no row. The C3 Bar cards remain
-  the reference implementation (§4.1, revisions 1.33 / 1.34).
+  the dashboard's own data and workplan (§1), and this clause names no row. The C3 Bar cards now
+  follow the same native attached-table model (§4.2 rev 1.73, revisions 1.33 / 1.34).
   - **Page and panel structure.** The page panel container is a CSS grid (§3.4, §4.7). The
     **Panel** is the atomic page unit (§4), and `activePanel()` supplies the edge, title row and
     Panel N number. A single-graph C1 panel has **no inner `.c-card`** (§4.1, I068). One
@@ -1014,9 +1056,48 @@ a single shared time axis instead of two stacked charts:
     be used, and `display:contents` MUST NOT be applied to the table elements (§0,
     **Accessibility tree**). The     `<colgroup>` widths MUST match the `.c1-grid` tracks, so the SVG,
     the headers and the values share one horizontal boundary for every period column. Table cell fonts inherit `font-family: var(--font-ui)` from `.c1-grid` (normative, §6). Table column headers (`.c1-table th[scope="col"]`) typically render at 11–12 px weight 600 in var(--muted). Table row headers (`.c1-table th[scope="row"]`) at 12 px weight 600 left-aligned. Data cells (`.c1-table td`) at 12 px weight 400 with `font-variant-numeric: tabular-nums` right-aligned. These sizes support clean numerical scanning across 20+ month timelines.
-  - **Attached-table interaction (C1 only, rev 1.63).** Where a `.c1-grid` panel renders a native
-    `<table>` whose `<thead>` month cells are the shared X labels, the following MUST hold. C2, C3,
-    C4, KPI cards and the MDL dashboard are out of scope.
+  - **Attached-table column sync (general, rev 1.74 / 1.75).** Where a chart renders a native attached
+    table in the same chart board whose columns share the chart's X positions, hovering a chart
+    column MUST highlight the same logical column in BOTH the chart and the attached table, and
+    hovering a header or value cell MUST highlight the same logical column in BOTH the attached
+    table and the chart. The state MUST be transient, scoped to the owning chart card, cleared on
+    pointer leave / blur / Escape / repaint / print, and stripped from PNG / Copy / print. A
+    chart-linked attached table MUST use ONE shared chart-column state and MUST NOT also receive a
+    competing generic `.col-hover` column state; the generic crosshair MAY still add `.row-hover`
+    and `.cell-hover`. The floating `.chart-tip` window MUST stay closed while the cursor is in the
+    attached table, while the column highlight remains active (§4.6). This rule applies to C1 and
+    C3 Bar cards. C3 Pie, `.c3-summary`, `breakdown-table.csv`, C2 Funnel, C4, KPI cards, the MDL
+    dashboard and bounded `.ds-table`s are out of scope.
+
+    **Visual contract (normative, rev 1.75).** The shared chart-column state MUST use the C1
+    visual design in every qualifying chart:
+
+    - **Column band.** The chart MUST draw ONE hidden band behind all marks. The band MUST span
+      the full plot height and exactly one column width (`W / N`). It MUST use a tokenised fill at
+      `0.08` opacity, MUST carry `pointer-events:none`, and MUST stay hidden until the column is
+      active. C1 implements it as `<rect class="sc-hover-band">` with `fill:var(--blue)` and
+      `fill-opacity:.08`. A CSS-grid chart MUST implement it as ONE overlay element inside the
+      chart grid, aligned to the same tracks as the attached table.
+    - **Centre line.** The chart MUST draw ONE hidden centre line at the active column's centre.
+      It MUST render as a 1 px dashed line (`3 3`) in `var(--text3)`, MUST span only the plot
+      area, and MUST stay hidden until hover. C1 names it `.chart-snap` and uses the §4.6 stroke
+      tokens. A CSS-grid chart MAY render it as a DOM overlay with the same class and the same
+      visual values. §4.6 makes this line REQUIRED for charts with an X-aligned native attached
+      table.
+    - **No active-column border.** An active chart column or an active attached-table cell MUST
+      NOT receive a border, outline or inset ring. It MUST use a tokenised background and font
+      weight only. The intersection `.cell-hover` MAY keep its inset ring (§7.2.16). The
+      structural 1 px board border of §4.2 rev 1.70 is not affected.
+    - **Two-way and transient.** Hovering a chart column or a table column MUST move BOTH the
+      band and the centre line to the same logical column. Both elements MUST be hidden on
+      pointer leave / blur / Escape / repaint / print and MUST be stripped from PNG / Copy.
+      `@media print` MUST neutralise them.
+
+    The C1 reference implementation below is the visual reference. C3 Bar cards MUST follow it
+    without adding a second, panel-specific hover interaction (§7.2.16).
+  - **C1 reference implementation (rev 1.63; visual reference for rev 1.75).** C1 keeps all of
+    the following. The hidden `.sc-hover-band`, the `.chart-snap` centre line and the border-free
+    `.col-active` cells are the visual reference for the general rule above:
     - **Soft area gradients.** The SVG MUST define one `<linearGradient>` per visible series in
       `<defs>` and one `<path class="sc-area">` beneath each cumulative line, drawn behind the grid
       lines, bars and curves. Gradient stops MUST use the on-chart series **tokens** (`--color-*`),
@@ -1025,20 +1106,26 @@ a single shared time axis instead of two stacked charts:
     - **Month-column highlight band.** One `<rect class="sc-hover-band">` MUST be a direct child of
       the SVG, hidden until activation, spanning `yTop`..`yBot`, with `width = W / N` and
       `pointer-events:none`. It MUST be drawn behind all marks.
+    - **Band and centre line tokens.** `.sc-hover-band` MUST use `fill:var(--blue)` with
+      `fill-opacity:.08`. `.chart-snap` MUST use the §4.6 tokens. Neither element MAY add a
+      border, outline or inset ring to an active column cell (§4.2 rev 1.75).
     - **Two-way month-column sync.** Every month `<th scope="col">` and every value `<td>` MUST
       carry `data-c1col="${i}"`. `data-c1col` is distinct from `data-col`, which `.ds-table` column
       choosers and resize grips already use. Hovering a month column in the SVG MUST activate the
       band, the snap line and the `.col-active` class on that column's cells; hovering a header or
-      value cell MUST activate the same band and snap line. A `ResizeObserver` refit MUST rebuild
-      the band from the new `W / N`, and the binder MUST query the band fresh rather than cache the
-      node across `innerHTML` replacement.
+      value cell MUST activate the same band and snap line.
+    - **ResizeObserver refit.** A `ResizeObserver` refit MUST rebuild the band from the new
+      `W / N`, and the binder MUST query the band fresh rather than cache the node across
+      `innerHTML` replacement.
     - **Chart-only hover window.** The `.chart-tip` window MUST open **only** while the cursor is
       inside the SVG chart area. When the cursor is in the attached table the window MUST stay
       closed, while the band, snap line and `.col-active` highlight remain active (§4.6). This
-      gating is opt-in on the shared `bindChartHover()` binder and MUST NOT alter any other board.
+      gating is opt-in on the shared `bindChartHover()` binder and MUST NOT alter non-participating
+      boards.
     - **Export fidelity.** PNG/Copy MUST serialize the gradient `<defs>` and area paths with
-      resolved token colours, and MUST strip the hover band and `.col-active` classes so no
-      transient hover state is captured.
+      resolved token colours, and MUST strip the C1 hover band and `.col-active` classes so no
+      transient hover state is captured. C3 MUST strip its own chart-linked `.col-active` state
+      and MUST hide its column band and centre line (§4.2 rev 1.75).
   - **Labels and rules.** Use the `MMM YYYY` month template (§4.2). Put `Reporting Month` in the
     corner cell, left aligned above the X labels. Use 1 px light rules only. Keep the Start and
     Today reference lines. Omit the as-of subtitle.
@@ -1062,8 +1149,38 @@ a single shared time axis instead of two stacked charts:
   - **Exemptions and CSV.** The attached table is not a **Bounded data table** and not a
     `.ds-table`. §4.3 and §7.2.15 do not apply. The §4 CSV rule is scoped to `.ds-table`; each
     dashboard MUST record in its workplan whether its attached table also offers `⤓ CSV` (§1).
-  - **C3 traceability.** C3 Bar cards keep their div grid. C3 code and the review samples in
-    `sub/ref/` MUST cite §4.1, §4.2, §3.4.1 and revisions 1.33 / 1.34 in comments or notes.
+  - **C3 attached tables (normative, rev 1.73 / 1.74 / 1.75).** Each C3 Bar card MUST render one native
+    `<table class="c3-table" data-table-crosshair>` below its bar plot, inside the same card body.
+    The bar plot stays one borderless CSS grid with `--c3-gutter:104px`, `--c3-cols:N`,
+    `column-gap:0` and row 1 for bars, Y ticks and grid lines. The table spans all grid columns in
+    row 2 and MUST carry a visually hidden `<caption>`, a `<colgroup>` driven by the same geometry,
+    `<thead>` with one corner `<th scope="col">` and N dimension `<th scope="col" data-col-id="i">`
+    cells, and `<tbody>` with metric `<tr>` rows using `<th scope="row">` and `<td data-col-id="i">`.
+    Every `.g-bar` MUST carry the matching `data-col-id="${i}"`. Use `table-layout:fixed`,
+    `width:100%`, `border-collapse:separate` and `border-spacing:0`. Scope C3 cell rules under
+    `.c3-table` / `.c3-grid`. Set `role="group"` on `.c3-card` so the chart host does not flatten
+    the native table in the accessibility tree. Per the general §4.2 rev 1.74 rule, hovering a
+    `.g-bar` column or a table column MUST apply ONE shared `.col-active` state to every matching
+    `.g-bar`, dimension header and value cell inside that same `.c3-card`; the two cards MUST stay
+    independent. Per §4.2 rev 1.75, C3 MUST follow the C1 visual contract. The `.c3-grid` MUST
+    carry ONE hidden column band element and ONE hidden `.chart-snap` centre line element. Both
+    MUST be children of the grid, MUST use the same `--c3-gutter` / `--c3-cols` tracks as the
+    table, MUST sit behind the bars and MUST move with the active `data-col-id` in BOTH hover
+    directions. An active `.g-bar` or table cell MUST NOT receive a border, outline or inset ring;
+    it MUST use a tokenised background and font weight only. The C3 attached table uses
+    `.row-hover` / `.cell-hover` from §7.2.16 and MUST NOT also receive a competing `.col-hover`
+    column state. The `.chart-tip` window stays closed while the cursor is in the attached table,
+    while the `.col-active` column highlight, the band and the centre line remain active.
+    PNG / Copy MUST include bars, axis labels, table rules, values and legend, and MUST strip
+    transient chart / table hover classes and hide the band and centre line before they read
+    computed styles. Print MUST neutralise them. The Pie view and `breakdown-table.csv` stay
+    unchanged. Per §4.2 rev 1.76, the `.c3-summary` table is now the content of its OWN full-width
+    `Breakdown Summary` panel; "full-width" means the full width of that panel, not a section of a
+    shared C3 panel. It keeps the `.ds-split` border, radius 10 px, split-header alignment, compact
+    row tokens and NO inner vertical scroll bar (§4.1 rev 1.76). The Submissions table shows Total
+    Plan / First Submission / Resubmission / Under Review; the Approval Status table shows the codes.
+    C3 code and the review samples in `sub/ref/` MUST cite §4.1, §4.2, §3.4.1 and revisions 1.33 /
+    1.34 / 1.73 / 1.74 / 1.75 / 1.76 in comments or notes.
 
 ### 4.3 Long lists → bounded data table (never an open-ended list)
 Any panel whose content is a **list of records that can grow** (look-ahead, overdue packages,
@@ -1318,7 +1435,7 @@ A **hover floating window** is the single reusable component that shows per-poin
 
 **Scope (normative).** The standard applies to every chart board — C1 S-curve, C2 Submission Flow, C3 Breakdown, C4 Turnaround & Aging — and to the Bottleneck KPI cards. A chart that shows point detail MUST use this component; native SVG `<title>` tooltips are NOT an accepted substitute (issues I090 / I082).
 
-**Component & classes.** One window class `.chart-tip` and one optional snap-line class `.chart-snap`. These replace the divergent `.scurve-tip` (C1) and `.c2-tip` (C2).
+**Component & classes.** One window class `.chart-tip` and one snap-line class `.chart-snap`. The snap line is REQUIRED for charts with an X-aligned native attached table and optional elsewhere (§4.2 rev 1.75). These replace the divergent `.scurve-tip` (C1) and `.c2-tip` (C2).
 
 **Visual contract (tokenized, normative).** The window uses only design tokens — `background:var(--surface)`, `border:1px solid var(--border)`, `border-radius:8px`, `box-shadow:var(--shadow)`, `padding:8px 10px`, `font-size:11px`, `font-variant-numeric: tabular-nums`, `line-height:1.45`, `color:var(--text)`, `max-width:230px`, `z-index:30`, and `pointer-events:none`. It MUST follow the active theme (light/dark) automatically — no hard-coded surface or text colour (this removes the C2 dark `.c2-tip`, which is non-compliant).
 
@@ -1328,13 +1445,13 @@ A **hover floating window** is the single reusable component that shows per-poin
 
 **Hidden-window ARIA state (normative, rev 1.63).** When the window is hidden — on `mouseleave`, `blur`, `Escape`, an outside click, a period reflow, or a cursor move into an attached table — it MUST carry `aria-hidden="true"` **and** contain no text. Before it is shown again the attribute MUST be removed and the current datum's content written. The board's persistent `aria-describedby` link stays intact. An element **directly referenced** by `aria-describedby` can still be exposed by assistive technology despite `aria-hidden`, so clearing the text is REQUIRED: the ARIA attribute alone does not prevent a screen reader from announcing a stale month over an unrelated cell.
 
-**Attached-table touch variant (rev 1.63).** For a C1 panel with an attached table (§4.2), the §4.6 touch tap-to-show requirement applies to the **SVG chart area**. A tap on a table cell MUST still activate the snap line, column band and column highlight, but need not open the floating window: the cell value and its row / column `<th>` headers are already exposed by the native table accessibility tree, so point detail is not unreachable (I082). A dedicated table-cell tap affordance is a workplan follow-up, not a blocker for the pointer implementation.
+**Attached-table touch variant (rev 1.74 / 1.75).** For any chart with a native attached table whose columns share the chart's X positions (§4.2 rev 1.74 / 1.75), the §4.6 touch tap-to-show requirement applies to the **chart area**. A tap on a table cell MUST still activate the shared chart ↔ table column highlight, the column band and the centre line (§4.2 rev 1.75), but need not open the floating window: the cell value and its row / column `<th>` headers are already exposed by the native table accessibility tree, so point detail is not unreachable (I082). A dedicated table-cell tap affordance is a workplan follow-up, not a blocker for the pointer implementation.
 
 **Positioning & edge handling (normative).** For chart boards the window is **cursor-relative** at a `(+14, +14)` px offset and MUST clamp on **all four edges** — flip left when it would overflow the right edge, flip up when it would overflow the bottom edge, and clamp left/top to `≥4 px` — so it never escapes the chart host. For **KPI cards** the window is placed **below the card**, centred and left-clamped, so it never covers the card; placement MAY vary by host, but a card's own window MUST NOT obscure the card.
 
 **Affordance (normative).** An interactive chart board MUST signal hoverability with `cursor:crosshair` (or an equivalent hover affordance); KPI cards carry `cursor:help`. Without this, users cannot discover the window (I080).
 
-**Snap line (optional per chart).** When present, `.chart-snap` is `stroke:var(--text3)`, `stroke-width:1`, `stroke-dasharray:3 3`; it spans only the plot area, is hidden until hover, and snaps to the nearest datum (`min |cx − ux|`; 2-D nearest for radial charts). It is omitted on radial charts (e.g. the C3 pie) where a vertical line is meaningless.
+**Snap line (REQUIRED for attached-table charts, rev 1.75).** `.chart-snap` is `stroke:var(--text3)`, `stroke-width:1`, `stroke-dasharray:3 3`; it spans only the plot area, is hidden until hover, and snaps to the nearest datum (`min |cx − ux|`; 2-D nearest for radial charts). Every chart with a native attached table whose columns share the chart's X positions MUST carry ONE `.chart-snap` line and MUST place it at the active column's centre from BOTH hover directions (§4.2 rev 1.75). For every other chart the line stays optional. It is omitted on radial charts (e.g. the C3 pie) where a vertical line is meaningless.
 
 **Data plumbing.** The board carries `data-points` (each `{cx, optional cy, html}`) and `data-geo` (`{W, H}`). The per-point `html` is authored by the chart's workplan §; the binder only presents it. Geometry is required for positioning and nearest-datum selection.
 
@@ -1919,6 +2036,101 @@ for `.matrix`. This is enforced by harness **Tier 4g** `lintMatrixHeaderRules`, 
 non-gutter header cell lacks its painted `::after` rule (covering all header rows, not just the first
 data cell).
 
+#### 7.2.16 Table Hover Crosshair Standard — added 2026-11-13; general attached-table sync added 2026-11-14; C1 visual contract added 2026-11-14
+
+**One global interaction contract (normative).** Every tabular view MUST use ONE shared
+row/column crosshair. `.ds-table` is the canonical class; data tables that also carry a
+project-specific class — an S-curve attached table, a C3 attached table, a per-discipline table,
+a nested history table, a matrix or a compact numeric variant — MUST participate through the SAME
+state classes and the SAME delegated binder. A dashboard MUST NOT implement a second,
+panel-specific hover interaction for an individual table, except for the ONE normative
+chart ↔ attached-table column sync defined in §4.2 rev 1.74 / 1.75, which is a general rule for
+every qualifying attached table. The crosshair is a transient pointer state: it changes no data, column
+widths, sort, filter, pagination, ARIA or chart state.
+
+**State classes (normative).** These classes are added and removed by script and MUST NOT be
+hard-coded in markup:
+
+| Class | On | Meaning |
+|---|---|---|
+| `.row-hover` | the current `<tr>` | highlights the hovered data row |
+| `.col-hover` | every `<th>` / `<td>` in the current logical column | highlights the hovered column, including the split header |
+| `.cell-hover` | the hovered `<th>` / `<td>` | marks the intersection cell for stronger emphasis |
+
+For chart-linked attached tables — currently C1 and C3 Bar cards — `.col-active` is a distinct,
+chart-linked column state and MUST NOT be replaced by `.col-hover` (§4.2 rev 1.74 / 1.75). Where a
+generic crosshair is applied to such a table, `.col-active` remains the column state owned by the
+chart ↔ table sync; the generic crosshair MAY add `.row-hover` and `.cell-hover` only. C1 uses
+`data-c1col`; C3 uses shared `data-col-id` on `.g-bar`, dimension headers and value cells.
+
+**Requirements (normative).**
+
+1. **Row highlighting.** While the pointer is over a data row, that entire `<tr>` MUST carry
+   `.row-hover` and be visibly highlighted. Hovering a nested table resolves to the nested row;
+   it MUST NOT also highlight the enclosing parent row.
+2. **Column highlighting.** While the pointer is over a header, body or footer cell, every cell
+   in the corresponding logical column MUST be visibly highlighted, including the header
+   fragment. Generic tables carry `.col-hover`; C1 and C3 satisfy the same clause through their
+   existing / added `.col-active` chart ↔ table sync and MUST NOT be given a second, competing
+   `.col-hover` column state. The logical column MUST be resolved once per pointer move and
+   reused for the row and intersection state.
+3. **Intersection highlighting.** The hovered cell MUST also carry `.cell-hover` and receive a
+   stronger emphasis than the row or column alone (a stronger tokenised background, weight or
+   outline). The row, column and intersection states MUST be consistent with one another.
+4. **Split-header support.** Header and body cells MUST be paired by **rendered column position**
+   or by an explicit shared column identifier such as `data-col` / `data-c1col` / `data-col-id`.
+   Raw DOM index, `cellIndex` alone and `nth-child` selectors MUST NOT be used as the pairing
+   contract, because grouped headers with `rowspan` give the two fragments different child
+   indices (§7.2.15 / §8.2 assertion 12). `.ds-gut`, windowing spacer rows and empty-state cells
+   are not data columns and MUST be ignored.
+5. **Attached-table chart ↔ table compatibility.** The C1 S-curve attached table keeps
+   `data-c1col`, `.col-active`, `.sc-hover-band`, the snap line and the `.chart-tip` chart ↔ table
+   column sync defined in §4.2 rev 1.63. Each C3 Bar card keeps shared `data-col-id` and applies
+   `.col-active` to its matching chart column and table column. A chart-driven `.col-active`
+   change MUST continue to highlight the corresponding column from the chart side, and a
+   table-side column hover MUST continue to highlight the same chart column. The hidden column
+   band and the `.chart-snap` centre line are REQUIRED for both C1 and C3 Bar cards and MUST
+   follow the §4.2 rev 1.75 visual contract. Active column cells MUST NOT carry a border,
+   outline or inset ring; only `.cell-hover` MAY keep its ring. No generic binder may clear,
+   overwrite or duplicate that state.
+6. **Visual compatibility.** Highlights MUST be painted as a non-structural layer that preserves
+   the existing column-rule pseudo-elements and `position:relative` on header/body cells
+   (§7.2.2 / §7.2.15). They MUST NOT change `table-layout:fixed`, column widths, pinned-cell
+   elevation, resize grips, scroll geometry or the split-header width pin. All colours MUST come
+   from the theme's semantic tokens; no hard-coded hover colour is permitted.
+7. **Export and printing.** Hover state is transient. `.row-hover`, `.col-hover`, `.cell-hover`
+   and chart-linked `.col-active` MUST be stripped from or ignored by PNG and Copy serialization,
+   and MUST NOT appear in print output. Exporters MUST serialize the same table content without
+   the transient classes; `@media print` MUST remove or neutralise the highlight. A screen-only
+   class MUST NOT leak into a saved image, clipboard payload or PDF.
+8. **C3 attached-table compatibility.** Each C3 Bar card attached table MUST carry
+   `data-table-crosshair` and shared `data-col-id` values on every dimension header and value
+   cell; every `.g-bar` MUST carry the matching `data-col-id`. It MUST use `.row-hover` and
+   `.cell-hover` from the generic crosshair and the chart-linked `.col-active` state; it MUST NOT
+   also receive a competing `.col-hover` column state. The C3 bar plot keeps its hover window,
+   but that window MUST stay closed while the cursor is in the attached table; the card MUST
+   carry `role="group"` so the chart host does not flatten the native table in the accessibility
+   tree. Per §4.2 rev 1.75, the `.c3-grid` MUST carry ONE hidden column band element and ONE
+   hidden `.chart-snap` centre line element. Both MUST be children of that grid, MUST follow its
+   `--c3-gutter` / `--c3-cols` tracks and MUST move with the active `data-col-id` in BOTH hover
+   directions. Active C3 column cells MUST NOT carry a border, outline or inset ring. PNG / Copy
+   MUST strip transient classes from BOTH chart and table nodes and MUST hide the band and centre
+   line before they read computed styles.
+
+**Lifecycle (normative).** One delegated `pointermove` / `pointerleave` binder MUST own the state
+for all participating tables and chart-linked column states so re-renders do not leave stale
+classes. Moving to another cell or chart column MUST clear the previous row, column and
+intersection classes before applying the new ones; leaving the table / chart card, blurring the
+view or starting a print MUST clear every hover class. The highlight MUST NOT be persisted in
+markup, exported data or saved state.
+
+**Verification (normative).** §8.2 assertions 22 and 23 enforce this clause. A dashboard
+conformance record MUST show the shared binder, the three state classes, split-header column
+pairing, C1 `.col-active` preservation, C3 chart ↔ attached-table column sync, C3 native-table
+participation, the C1 column band and centre line, the C3 band / centre line and border-free
+active columns, unchanged column rules / `position:relative`, and export / print suppression
+(§4.2 rev 1.75).
+
 ---
 
 ## 8. Conformance & Testing
@@ -1965,9 +2177,12 @@ hard-coded into the generic check.
 | 16 | Every KPI card is 72 px high and at least 210 px wide, carries a 3 px top strip in a status token, contains exactly two children (`.v`, `.l`), and has no box shadow | §5 |
 | 17 | Filter selection semantics hold: every dimension opens fully ticked except documented exclusions, `(blank)` is selectable, an empty tick set filters every row out, a tick keeps the panel open, and an outside click or `Escape` closes it | §7.1 |
 | 18 | The warning area is pinned below the menu bar, above the filter strip and outside the scrolling body; scrolling the panels does not move it, and it spans the content width without covering a sidebar | §3.5 |
-| 19 | Stacked top-level panels are separated by 14 px (container gap or panel margin, never both); borders never touch; hidden panels add no gap | §4.7 |
+| 19 | Stacked top-level panels are separated by 14 px (container gap or panel margin, never both); borders never touch; hidden panels add no gap; the `Breakdown` page's own grid MUST use that 14 px gap and MUST NOT inherit a different value from `body[data-layout]` (§4.1 rev 1.76) | §4.7 |
 | 20 | The search panel is one row: attached column picker (All columns plus each searchable column), flexible input, affixed submit; the picker re-applies the query and does not clear it | §7.1 B5 / A5 |
-| 21 | An S-curve attached table uses one `.c1-grid` with explicit `--c1-gutter` / `--c1-cols` tracks and `column-gap:0`, one `<svg role="img">` whose host carries a `ResizeObserver`, one native `<table>` in one spanning grid item with `<caption>` / `<colgroup>` / `<thead>` / `<tbody>` / `scope`, static and rebuilt cells with the same structure, a bordered chart composition (axis / plot / table zones with shared right-angle corners and an unbordered alignment grid; rev 1.70), no third bordered wrapper, and PNG/Copy that include the table; the SVG draws one vertical `sc-yaxis-line` at the plot's left edge, grid column 1 carries at most eight dynamically generated Y ticks (§4.2 rev 1.64: max 7 intervals, min ~40 px spacing, nice-number steps, one `line.sc-grid` per label, all derived from the same `data-c1meta.yMax` / `yStep` / `yIntervals` payload) and a rotated unit caption; after a period change the Y-axis maximum MUST be recomputed from the selected period window with cumulative values unchanged (§4.2 rev 1.65), and chart / grid / labels / hover-refit metadata / PNG-Copy MUST share that one Y-axis scale; the C1 period control is ONE dual-handle month-snapped track with one tick per active reporting month and the `6M` / `12M` / `24M` / `YTD` / `All` preset chips (§4.2 rev 1.66: `step="1"`, `input` visual-only, `change` single repaint, `aria-valuetext` / `aria-pressed`, print hides the interactive controls), and those five chips are ONE joined `.seg` group of `.seg-btn` buttons with EXACTLY one `aria-pressed="true"` at a time, a stored preset name (default `All`), NO active chip after a manual handle `input` / `change`, and the tools below the panel title stay on ONE visual row at the 1280 px minimum desktop width with `flex-wrap:nowrap` on `.c1-ts` (§4.2 rev 1.67); every Sub `.seg-btn` follows the §7.5 B2.1 common standard — shared CSS custom-property tokens, `--navy` active fill, `--surface2` inactive hover, `--surface3` pressed, a disabled state, a 2 px `--blue` focus ring with `outline-offset:-2px` plus a high-contrast light ring on active buttons, `type="button"` and a dynamic `aria-pressed` on ALL seven generators, `role="group"` and an accessible name on every group, equal height within each group and centre alignment between groups, the `standard` 32 px / 12 px variant and the C1 `compact` exception at ≈ 25.94 px / 11 px / `line-height:1.45` / `padding:5px 8px` with `min-height:0` and no hover or focus rule of its own (§4.2 rev 1.69 / §7.5 B2.1); the in-SVG legend sits above the plot, the `<thead>` row is flush with the plot bottom (which is also the SVG bottom) with no separate SVG X labels, the whole curve fits the board with no horizontal scroll, and bar / dot / `data-points.cx` alignment holds after the period window changes; the SVG draws four tokenised `<linearGradient>` defs and `path.sc-area` fills plus one hidden `rect.sc-hover-band` behind all marks, every month `<th>` and value `<td>` carries `data-c1col`, hovering a month column in either direction activates the band / snap line / `.col-active` highlight, and the `.chart-tip` window opens only inside the SVG chart area and is `aria-hidden="true"` with empty text whenever hidden; `aria-describedby` points at `.chart-tip` only | §4.2, §4.6 |
+| 21 | An S-curve attached table uses one `.c1-grid` with explicit `--c1-gutter` / `--c1-cols` tracks and `column-gap:0`, one `<svg role="img">` whose host carries a `ResizeObserver`, one native `<table>` in one spanning grid item with `<caption>` / `<colgroup>` / `<thead>` / `<tbody>` / `scope`, static and rebuilt cells with the same structure, a bordered chart composition (axis / plot / table zones with shared right-angle corners and an unbordered alignment grid; rev 1.70), no third bordered wrapper, and PNG/Copy that include the table; the SVG draws one vertical `sc-yaxis-line` at the plot's left edge, grid column 1 carries at most eight dynamically generated Y ticks (§4.2 rev 1.64: max 7 intervals, min ~40 px spacing, nice-number steps, one `line.sc-grid` per label, all derived from the same `data-c1meta.yMax` / `yStep` / `yIntervals` payload) and a rotated unit caption; after a period change the Y-axis maximum MUST be recomputed from the selected period window with cumulative values unchanged (§4.2 rev 1.65), and chart / grid / labels / hover-refit metadata / PNG-Copy MUST share that one Y-axis scale; the C1 period control is ONE dual-handle month-snapped track with one tick per active reporting month and the `6M` / `12M` / `24M` / `YTD` / `All` preset chips (§4.2 rev 1.66: `step="1"`, `input` visual-only, `change` single repaint, `aria-valuetext` / `aria-pressed`, print hides the interactive controls), and those five chips are ONE joined `.seg` group of `.seg-btn` buttons with EXACTLY one `aria-pressed="true"` at a time, a stored preset name (default `All`), NO active chip after a manual handle `input` / `change`, and the tools below the panel title stay on ONE visual row at the 1280 px minimum desktop width with `flex-wrap:nowrap` on `.c1-ts` (§4.2 rev 1.67); every Sub `.seg-btn` follows the §7.5 B2.1 common standard — shared CSS custom-property tokens, `--navy` active fill, `--surface2` inactive hover, `--surface3` pressed, a disabled state, a 2 px `--blue` focus ring with `outline-offset:-2px` plus a high-contrast light ring on active buttons, `type="button"` and a dynamic `aria-pressed` on ALL seven generators, `role="group"` and an accessible name on every group, equal height within each group and centre alignment between groups, the `standard` 32 px / 12 px variant and the C1 `compact` exception at ≈ 25.94 px / 11 px / `line-height:1.45` / `padding:5px 8px` with `min-height:0` and no hover or focus rule of its own (§4.2 rev 1.69 / §7.5 B2.1); the in-SVG legend sits above the plot, the `<thead>` row is flush with the plot bottom (which is also the SVG bottom) with no separate SVG X labels, the whole curve fits the board with no horizontal scroll, and bar / dot / `data-points.cx` alignment holds after the period window changes; the SVG draws four tokenised `<linearGradient>` defs and `path.sc-area` fills plus one hidden `rect.sc-hover-band` behind all marks, every month `<th>` and value `<td>` carries `data-c1col`, hovering a month column in either direction activates the band / snap line / `.col-active` highlight, and the `.chart-tip` window opens only inside the SVG chart area and is `aria-hidden="true"` with empty text whenever hidden; `aria-describedby` points at `.chart-tip` only; C3 Bar cards use the same native attached-table model, the general chart ↔ attached-table column sync and the C1 band / centre line / border-free visual contract (§4.2 rev 1.73 / 1.74 / 1.75); on the `Breakdown` page each C3 HTML `.c3-legend` MUST sit ABOVE `.c3-grid` in Bar view and above the donut `<svg>` in Pie view, and the exported PNG / Copy MUST keep the legend at the top (§4.2 rev 1.76) | §4.2, §4.6 |
+| 22 | Every tabular view uses the ONE shared table hover crosshair: the hovered row, logical column including its split header, and intersection cell are highlighted; split-header cells pair by rendered column position or an explicit column identifier, never raw `cellIndex`; C1 and C3 `.col-active` / chart sync is preserved by the general attached-table column sync rule (§4.2 rev 1.74 / 1.75); the hidden column band and the `.chart-snap` centre line move with the active column in both directions, and active chart or table column cells carry no border, outline or inset ring (§4.2 rev 1.75); C3 attached tables participate through `data-table-crosshair` / `data-col-id` and `role="group"` on the card; on the `Breakdown` page (§4.1 rev 1.76) both chart panels and the summary panel's table follow the same crosshair rule inside their own panels, and no panel reads or writes another panel's hover state; column rules and `position:relative` are unchanged; and transient hover classes, the band and the centre line are absent from PNG, Copy and print | §7.2.16 |
+| 23 | A chart that renders a native attached table whose columns share the chart's X positions uses ONE transient two-way chart ↔ attached-table column sync: hovering a chart column or a table column highlights the SAME logical column in both, inside the owning chart card only; C1 keeps `data-c1col` / `.sc-hover-band` / snap line / `.col-active`, and C3 Bar keeps shared `data-col-id` on `.g-bar`, dimension headers and value cells plus ONE `.col-active` state per `.c3-card`; each C3 card is independent (on the `Breakdown` page, §4.1 rev 1.76, the `Submissions` and `Approval Status` chart panels each own their state and sync scope), no competing `.col-hover` column state is applied, `.row-hover` / `.cell-hover` may still apply, the `.chart-tip` window stays closed while the cursor is in the attached table, and the state clears on pointer leave / blur / Escape / repaint / print and is absent from PNG / Copy / print (§4.2 rev 1.74); C1 and C3 Bar each draw ONE hidden column band and ONE hidden dashed `.chart-snap` centre line, both MUST move with the active column in BOTH directions, and no active chart or table column cell MAY carry a border, outline or inset ring (§4.2 rev 1.75); the band and centre line stay hidden on leave / blur / Escape / repaint / print and absent from PNG / Copy / print (§4.2 rev 1.75) | §4.2, §4.6, §7.2.16 |
+| 24 | The sidebar lists `Breakdown` directly under `Overview` (§3.2 rev 1.76); the `Breakdown` page holds THREE fully independent panels — `Submissions`, `Approval Status` (charts, side by side, `Submissions` first) and `Breakdown Summary` (full width below) — each with its OWN `c3Month` / `c3Dim` / `c3View` state, so changing a control in one panel changes nothing in the others, and each chart switches between Bar and donut independently (§4.1 rev 1.76); the Overview page keeps KPI, C1 and C2 only; each C3 HTML `.c3-legend` sits ABOVE its chart (§4.2 rev 1.76); the summary panel owns Month, Break-down-by and the `⤓ Download` CSV control, its table uses the compact row tokens with no inner vertical scroll at 1280 px, and the orphan discipline (submittal rows not registered in MDL) is named `Others`, not `Unknown` (§4.1 rev 1.76); each chart panel shows ONE tool row — Month select, Break-down-by and Bar / Pie on the left, `⤓ PNG` + `⧉ Copy` on the right, no second head row — and the Month select carries no visible `Month` text (§4.2 rev 1.77) | §3.2, §4.1, §4.2 |
 
 ### 8.3 Pipeline testability
 

@@ -1,3 +1,4 @@
+// Revision 0.5 | 2026-11-14 | CodeBuddy (AI) | I133 — the V-29 orphan discipline label changed from `Unknown` to `Others` in `pipeline.js`; the T15.1 orphan assertion follows. No other assertion changed.
 // Revision 0.4 | 2026-11-02 | CodeBuddy (AI) | Owner instruction: no test may assert a number remembered from an earlier run. The five workbook row-total assertions now read the actual files (rawPlannedRows / rawSubmissionRows / rawOrphanCount) and compare the model against them; the `formulaComparisons` count became a behaviour assertion. Added W-CODE-MISSING tests.
 // Revision 0.3 | 2026-11-02 | CodeBuddy (AI) | Added regression tests for I026 (no MDL V-01), I027 / I028 (V-34 + W-MDL-LOG-MISMATCH), I029 (formula cells recorded and reported) and I030 (an approval code in Submission Status raises V-07).
 // Revision 0.2 | 2026-10-24 | CodeBuddy (AI) | Added workbook identification tests (Code sheet Dashboard Title) and title-bar metadata tests.
@@ -153,7 +154,7 @@ test('derives submission discipline from the MDL join, not the log section title
       assert.ok(plan, `matched submission row ${record.row} links to a plan`);
       assert.equal(record.discipline, plan.discipline, `submission row ${record.row} discipline matches its MDL plan, not the log section`);
     } else if (record.linkStatus === 'orphan') {
-      assert.equal(record.discipline, 'Unknown', `orphan submission row ${record.row} is Unknown`);
+      assert.equal(record.discipline, 'Others', `orphan submission row ${record.row} is Others (I133 / V-29)`);
     }
   }
   assert.ok(model.submissions.some(record => record.linkStatus === 'matched' && record.discipline !== ''));

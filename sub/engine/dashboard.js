@@ -1,3 +1,8 @@
+// Revision 2.12 | 2026-11-14 | CodeBuddy (AI) | I133 — `Breakdown` joins `NAV_PAGES`. `state.c3Panels` holds ONE `c3Month` / `c3Dim` / `c3View` set for each of the three independent panels, and `c3SetPanel()` writes only to the panel named by the control's `data-c3panel`. `exportC3TableCsv()` starts from the clicked button's own `.panel`. The global Discipline filter domain uses `Others`. C1, C2, C4 and the C3 PNG / Copy paths are unchanged.
+// Revision 2.11 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.75 — `withC3ColumnMarksHidden()` wraps C3 PNG / Copy so the ONE column band and ONE centre line are hidden before `c3CardToSvg()` reads computed styles, then restored exactly. `clearC3ColumnSync()` hides both elements on blur, Escape, repaint and print. `c3CardToSvg()` never emits either element. C1 export is unchanged.
+// Revision 2.10 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.74 / I131 — the general chart ↔ attached-table column sync now covers C3 Bar cards. `bindTableCrosshair()` treats `.c3-table` as chart-linked, so it adds `.row-hover` / `.cell-hover` but no competing `.col-hover`. `clearC3ColumnSync()` clears `.col-active` from bars and table cells on blur, Escape, repaint and print. C3 PNG / Copy strip the transient state from the whole card before they read computed styles. C1 export and the Pie view are unchanged.
+// Revision 2.9 | 2026-11-13 | CodeBuddy (AI) | §4.2 rev 1.73 / I130 — C3 Bar PNG / Copy now rebuild the native attached table. `c3CardToSvg()` draws one SVG rule per `<tr>`, keeps `.g-axis` / `.g-label` / `.g-val` text on `<th>` / `<td>` cells, and strips transient §7.2.16 hover classes before it reads computed text styles. `tableCrosshairScope()` recognises `.c3-table`. The Pie view, `.c3-summary`, CSV export and pipeline data are unchanged.
+// Revision 2.8 | 2026-11-13 | CodeBuddy (AI) | §7.2.16 / I129 — ONE delegated table hover crosshair binder. `data-table-crosshair` / `data-col-id` resolve the hovered row and logical column without raw cellIndex; split headers and bodies share one scope, C1 keeps its chart-linked `.col-active` state, and transient classes are cleared on pointer leave, blur, Escape, repaint and print. C1 PNG / Copy strip `.row-hover`, `.col-hover`, `.cell-hover` and `.col-active` before reading computed text styles. No data, ARIA, export payload, chart state or resize behaviour changes.
 // Revision 2.7 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.67 / I122 — `state.c1Preset` now holds the ONE active preset name, defaults to `All`, and is set on a chip click. A handle `input` or `change` sets it to `null`, so a manual custom range leaves NO chip active. `c1SyncTimeBar()` reads that stored value instead of comparing `[from, to]` with each preset range, so clipped ranges can no longer light two chips. It also toggles the `.active` class that the joined `.seg` group uses. `state.c1Period`, `c1PresetRange()`, `paint()`, hover, PNG/Copy and the rev 1.65 shared Y axis are unchanged.
 // Revision 2.6 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.66 / I121 — `c1SyncTimeBar()` keeps the single dual-handle track, its month ticks, period text, `aria-valuetext` and chip `aria-pressed` state in step while a handle moves. An `input` listener calls only that light visual sync; the existing `change` listener still performs the ONE full `paint()`. A new click branch resolves `data-c1preset` through `c1PresetRange()` and sets `state.c1Period`, so presets use the same repaint path as the handles. `c1Refit`, hover, PNG/Copy and the rev 1.65 window axis are unchanged.
 // Revision 2.5 | 2026-11-07 | CodeBuddy (AI) | §4.2 rev 1.64 / I118 — `c1Refit()` regenerates the HTML Y ticks from the same `data-c1meta.yMax` / `yStep` / `yIntervals` payload used by `c1PlotSvg`, instead of the fixed `[4,3,2,1,0]` loop. Tick count, values and positions follow the dynamic nice-number rule; PNG / Copy keep serialising the rendered `.c1-ytick` spans.
@@ -10,7 +15,12 @@ import { deriveView, renderDashboard, EXCLUDED_STAGES, buildSubmittalsCsv, build
 
 const $ = selector => document.querySelector(selector);
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
-const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c1Preset: 'All', c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', c2View: 'stacked', c2Nfs: true, foView: 'lookahead', foLane: 'all', foHorizon: 4, c4View: 'scatter', subMonth: 'ALL', issueCode: 'ALL', issuePage: 1, collapsedPanels: [] };
+const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c1Preset: 'All', c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', c3Panels: { submissions: { c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar' }, approval: { c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar' }, summary: { c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar' } }, c2View: 'stacked', c2Nfs: true, foView: 'lookahead', foLane: 'all', foHorizon: 4, c4View: 'scatter', subMonth: 'ALL', issueCode: 'ALL', issuePage: 1, collapsedPanels: [] };
+// I133 — ONE C3 control changes only the state of its OWN Breakdown panel.
+function c3SetPanel(panel, patch) {
+  const key = ['submissions', 'approval', 'summary'].includes(panel) ? panel : 'submissions';
+  state.c3Panels[key] = { ...(state.c3Panels[key] || {}), ...patch };
+}
 let contract;
 let uiHelp;
 let files = { mdl: null, log: null };
@@ -63,6 +73,34 @@ function chartSvgStyle() {
   // gradient stops receive the resolved token colours here. The area paths keep pointer-events:none.
   return `<style>.sc-stop-plan{stop-color:${plan}}.sc-stop-forecast{stop-color:${forecast}}.sc-stop-actual{stop-color:${actual}}.sc-stop-resub{stop-color:${resub}}.sc-area{pointer-events:none;stroke:none}.sc-bar-plan{fill:${plan}}.sc-bar-forecast{fill:${forecast}}.sc-bar-actual{fill:${actual}}.sc-bar-actualresub{fill:${resub}}.sc-line-plan{stroke:${plan};stroke-width:2.5;fill:none;stroke-dasharray:6 3}.sc-line-forecast{stroke:${forecast};stroke-width:2.5;fill:none;stroke-dasharray:2 2}.sc-line-actual{stroke:${actual};stroke-width:2.5;fill:none}.sc-line-actualresub{stroke:${resub};stroke-width:2.5;fill:none;stroke-dasharray:3 3;opacity:.85}.sc-dot{stroke:none}.sc-dot-plan{fill:${plan}}.sc-dot-forecast{fill:${forecast}}.sc-dot-actual{fill:${actual}}.sc-dot-actualresub{fill:${resub}}.sc-grid{stroke:${border};stroke-width:1}.sc-yaxis-line{stroke:${border};stroke-width:1}.sc-axis{fill:${text2};font-size:10px}.sc-axis-title{font-weight:700}.sc-x{font-size:10px}.sc-barval{fill:${text2};font-size:9px}.sc-leg-t{fill:${text};font-size:11px}.sc-ref-start{stroke:${danger};stroke-width:1.5;stroke-dasharray:5 3}.sc-ref-today{stroke:${slate};stroke-width:1.5;stroke-dasharray:2 2}.sc-ref-lbl{font-size:9px;font-weight:700}.sc-ref-lbl-start{fill:${danger}}.sc-ref-lbl-today{fill:${slate}}.chart-snap{stroke:${text3};stroke-width:1;stroke-dasharray:3 3}</style>`;
 }
+// §7.2.16 / I129 — remove every transient table-hover class before an exporter reads live styles.
+// §4.2 rev 1.74 / I131 — the scope may be a whole C3 card, so chart bars and table cells are
+// stripped together and restored together.
+const TABLE_HOVER_CLASSES = ['row-hover', 'col-hover', 'cell-hover', 'col-active'];
+function withTransientTableHoverStripped(scope, fn) {
+  const removed = new Map();
+  for (const cls of TABLE_HOVER_CLASSES) {
+    scope.querySelectorAll(`.${cls}`).forEach(el => {
+      if (!removed.has(el)) removed.set(el, []);
+      if (!removed.get(el).includes(cls)) removed.get(el).push(cls);
+      el.classList.remove(cls);
+    });
+  }
+  try { return fn(); }
+  finally {
+    for (const [el, classes] of removed) for (const cls of classes) el.classList.add(cls);
+  }
+}
+// §4.2 rev 1.75 — ONE hidden column band and ONE hidden centre line are transient chart state.
+// Hide both before an exporter reads live styles and restore their exact inline display values.
+function withC3ColumnMarksHidden(scope, fn) {
+  const marks = scope ? [...scope.querySelectorAll('.c3-grid .c3-col-band,.c3-grid .c3-col-snap')] : [];
+  const saved = marks.map(el => el.style.display);
+  marks.forEach(el => { el.style.display = 'none'; });
+  try { return fn(); }
+  finally { marks.forEach((el, i) => { el.style.display = saved[i]; }); }
+}
+
 // Rebuild the C1 board (curve + native attached table) as one self-contained native SVG.
 // A nested <svg> holds the curve; the table cells become 1 px <line> rules and <text>. No
 // <foreignObject>, so canvas rasterization stays taint-free and Copy receives the same SVG.
@@ -120,18 +158,15 @@ function c1BoardToSvg() {
   if (yCap) placeText(yCap, true);
   grid.querySelectorAll('.c1-yaxis .c1-ytick').forEach(el => placeText(el, false));
   const many = table.classList.contains('c1-many');
-  // §4.2 rev 1.63 — placeText() reads the live computed colour. Clear .col-active for the read so
-  // an active month column cannot be baked into the PNG / Copy text, then restore the hover state.
-  const activeCells = [...table.querySelectorAll('.col-active')];
-  activeCells.forEach(el => el.classList.remove('col-active'));
-  try {
+  // §4.2 rev 1.63 / §7.2.16 — placeText() reads the live computed colour. Strip every transient
+  // hover class, including C1 .col-active, so no hover state is baked into PNG / Copy text; restore
+  // the exact same classes afterwards so the on-screen crosshair is unchanged.
+  withTransientTableHoverStripped(table, () => {
     table.querySelectorAll('th, td').forEach(cell => {
       const span = cell.querySelector('span');
       placeText(span || cell, !!(many && span && cell.classList.contains('g-axis')), (span || cell).textContent);
     });
-  } finally {
-    activeCells.forEach(el => el.classList.add('col-active'));
-  }
+  });
   return out + '</svg>';
 }
 function serializeC1Svg() {
@@ -180,10 +215,11 @@ function chartC3SvgStyle() {
   const border = v('--border'), text = v('--text'), text2 = v('--text2');
   return `<style>.c3-new{fill:${cNew}}.c3-new-arc{stroke:${cNew}}.c3-resub{fill:${cResub}}.c3-resub-arc{stroke:${cResub}}.c3-app{fill:${app}}.c3-app-arc{stroke:${app}}.c3-awc{fill:${awc}}.c3-awc-arc{stroke:${awc}}.c3-nap{fill:${nap}}.c3-nap-arc{stroke:${nap}}.c3-rej{fill:${rej}}.c3-rej-arc{stroke:${rej}}.c3-inf{fill:${inf}}.c3-inf-arc{stroke:${inf}}.c3-ur{fill:${ur}}.c3-ur-arc{stroke:${ur}}.c3-track-bg{fill:${border};fill-opacity:.18}.c3-label{fill:${text};font-size:11px}.c3-cap{fill:${text2};font-size:9px}.c3-val{fill:${text};font-size:11px;font-weight:600}.c3-total{fill:${text}}.c3-sub{fill:${text2}}.c3-leg-t{fill:${text2};font-size:11px}</style>`;
 }
-// Reconstruct a C3 Bar card (the HTML grid: bars + vertical axis labels + attached table + legend) as a
-// self-contained native SVG (rects + text). Used for PNG/Copy because the Bar card has no <svg> of its own
-// (the I057 redesign draws it with a CSS grid). Native SVG (no <foreignObject>) keeps canvas rasterization
-// taint-free, so the existing PNG path works in every browser.
+// Reconstruct a C3 Bar card (bars + Y ticks + grid lines + native attached table + legend) as a
+// self-contained native SVG (rects + rules + text). Used for PNG/Copy because the Bar card has no
+// <svg> of its own (§4.2 rev 1.73 / I130 draws the plot with one CSS grid and the data rows with one
+// native table). Native SVG (no <foreignObject>) keeps canvas rasterization taint-free, so the
+// existing PNG path works in every browser.
 function c3CardToSvg(btn) {
   const card = btn && btn.closest ? btn.closest('.c3-card') : null;
   const body = card && card.querySelector('.c3-card-body');
@@ -198,10 +234,18 @@ function c3CardToSvg(btn) {
   const escSvg = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const rb = el => { const r = el.getBoundingClientRect(); return { x: r.left - root.left - X, y: r.top - root.top - Y, w: r.width, h: r.height }; };
   let out = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="100%" height="100%" fill="${surf}"/>`;
+  const table = body.querySelector('table.c3-table');
   body.querySelectorAll('.seg-bar').forEach(b => {
     const r = rb(b), fill = (getComputedStyle(b).backgroundColor || '#888').trim();
     out += `<rect x="${r.x.toFixed(1)}" y="${r.y.toFixed(1)}" width="${r.w.toFixed(1)}" height="${r.h.toFixed(1)}" fill="${fill}" rx="2"/>`;
   });
+  if (table) {
+    const rule = (getComputedStyle(document.documentElement).getPropertyValue('--border') || '#d0d5dd').trim();
+    table.querySelectorAll('tr').forEach(tr => {
+      const r = rb(tr);
+      out += `<line x1="${r.x.toFixed(1)}" y1="${r.y.toFixed(1)}" x2="${(r.x + r.w).toFixed(1)}" y2="${r.y.toFixed(1)}" stroke="${rule}" stroke-width="1"/>`;
+    });
+  }
   const placeText = (el, vertical) => {
     const r = rb(el), cs = getComputedStyle(el);
     const fill = (cs.color || '#222').trim();
@@ -221,8 +265,12 @@ function c3CardToSvg(btn) {
       out += `<text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="${anchor}" dominant-baseline="central" font-family="${fam}" font-size="${fs}"${fw} fill="${fill}">${escSvg(txt)}</text>`;
     }
   };
-  body.querySelectorAll('.g-axis').forEach(e => placeText(e, true));
-  body.querySelectorAll('.g-label, .g-val').forEach(e => placeText(e, false));
+  const addTableText = () => {
+    body.querySelectorAll('.g-axis').forEach(e => placeText(e, true));
+    body.querySelectorAll('.g-label, .g-val').forEach(e => placeText(e, false));
+  };
+  if (table) withTransientTableHoverStripped(table, addTableText);
+  else addTableText();
   body.querySelectorAll('.c3-leg').forEach(leg => {
     const sw = leg.querySelector('.c3-swatch'), sr = sw && sw.getBoundingClientRect();
     if (sr) out += `<rect x="${(sr.left - root.left - X).toFixed(1)}" y="${(sr.top - root.top - Y).toFixed(1)}" width="${sr.width.toFixed(1)}" height="${sr.height.toFixed(1)}" fill="${(getComputedStyle(sw).backgroundColor || '#888').trim()}" rx="2"/>`;
@@ -241,7 +289,10 @@ function serializeC3Svg(btn) {
     return new XMLSerializer().serializeToString(clone);
   }
   // Bar view card (no <svg>): rebuild it as a self-contained SVG so PNG/Copy still work.
-  return c3CardToSvg(btn);
+  // §4.2 rev 1.74 / 1.75 — strip the transient chart / table column state from BOTH nodes and
+  // hide the band / centre line before c3CardToSvg() reads any computed style, then restore.
+  return withC3ColumnMarksHidden(scope, () =>
+    withTransientTableHoverStripped(scope || document, () => c3CardToSvg(btn)));
 }
 function exportC3Png(btn) {
   const str = serializeC3Svg(btn);
@@ -302,10 +353,10 @@ function copyC2Svg() {
   const str = serializeC2Svg();
   if (str && navigator.clipboard) navigator.clipboard.writeText(str);
 }
-// Download the shared C3 summary table (below the two cards) as CSV. Reads the rendered rows straight
-// from the DOM so it stays decoupled from the render data helpers; the .ds-gut scrollbar spacer is skipped.
-function exportC3TableCsv() {
-  const wrap = document.querySelector('.c3-summary');
+// I133 — Download the Breakdown Summary table as CSV. The lookup starts from the clicked button's
+// OWN panel, so the summary stays independent. The .ds-gut scrollbar spacer is skipped.
+function exportC3TableCsv(btn) {
+  const wrap = btn?.closest('.panel')?.querySelector('.c3-summary') || document.querySelector('.c3-summary');
   if (!wrap) return;
   const rows = [...wrap.querySelectorAll('tr')].map(tr => [...tr.querySelectorAll('th:not(.ds-gut),td:not(.ds-gut)')].map(c => {
     const t = (c.textContent || '').replace(/\s+/g, ' ').trim();
@@ -357,7 +408,7 @@ function buildFilterDimensions() {
   // silently hide the rows that carry no value in that column.
   const domain = values => [...new Set(values.map(value => String(value ?? '')))].sort();
   return [
-    ['disciplines', 'Discipline', domain([...model.planned.map(row => row.discipline).filter(Boolean), 'Unknown'])],
+    ['disciplines', 'Discipline', domain([...model.planned.map(row => row.discipline).filter(Boolean), 'Others'])],
     ['stages', 'Stage', stageValues, new Set(stageValues.filter(value => !EXCLUDED_STAGES.has(value)))],
     ['statuses', 'Submission Status', domain(model.submissions.map(row => row.submissionStatus))],
     ['approvals', 'Approval Status', domain(model.submissions.map(row => row.approvalStatus))],
@@ -538,6 +589,91 @@ function wireSplitHeaders(root) {
     splitSyncers.push(syncWidth);
   }
 }
+// §7.2.16 / I129 — ONE delegated pointer binder owns the table hover crosshair for every tab.
+// Stable `data-col-id` values pair split headers / bodies and avoid raw cellIndex; the chart-linked
+// `.col-active` column state of C1 and C3 Bar is deliberately left to bindChartHover().
+let tableCrosshairBound = false;
+let tableCrosshair = { cell: null, scope: null, row: null, cells: [] };
+function clearTableCrosshair() {
+  const state = tableCrosshair;
+  if (!state.cell && !state.row && state.cells.length === 0) return;
+  for (const el of state.cells) el.classList.remove('col-hover');
+  if (state.row) state.row.classList.remove('row-hover');
+  if (state.cell) state.cell.classList.remove('cell-hover');
+  tableCrosshair = { cell: null, scope: null, row: null, cells: [] };
+}
+// §4.2 rev 1.74 / 1.75 / I131 — the C3 chart ↔ attached-table column state is transient. Print,
+// repaint, blur and Escape clear it from BOTH the bar plot and the attached table, in both cards.
+// §4.2 rev 1.75 also hides the C1-style column band and centre line with the same lifecycle.
+function clearC3ColumnSync() {
+  document.querySelectorAll('.c3-card .c3-grid .g-bar.col-active,.c3-card .c3-table [data-col-id].col-active')
+    .forEach(el => el.classList.remove('col-active'));
+  document.querySelectorAll('.c3-card .c3-grid .c3-col-band,.c3-card .c3-grid .c3-col-snap')
+    .forEach(el => { el.style.display = 'none'; });
+}
+function tableCrosshairScope(table) {
+  if (table.classList.contains('hist-table') || table.classList.contains('c1-table') || table.classList.contains('c2-ftab') || table.classList.contains('c3-table')) return table;
+  return table.closest('.ds-split') || table;
+}
+function tableCrosshairTables(scope, table) {
+  if (scope.classList && scope.classList.contains('ds-split')) {
+    return [...scope.querySelectorAll('table[data-table-crosshair]')]
+      .filter(t => t.classList.contains('vheadtab') || (t.classList.contains('ds-table') && !t.classList.contains('hist-table')));
+  }
+  return [scope === table ? table : table];
+}
+function bindTableCrosshair(root) {
+  if (tableCrosshairBound || !root || typeof root.addEventListener !== 'function') return;
+  tableCrosshairBound = true;
+  const onMove = e => {
+    if (e.target && e.target.closest && e.target.closest('.ds-resize')) { clearTableCrosshair(); return; }
+    const cell = e.target && e.target.closest ? e.target.closest('td,th') : null;
+    const table = cell && cell.closest ? cell.closest('table[data-table-crosshair]') : null;
+    if (!cell || !table) { clearTableCrosshair(); return; }
+    const row = cell.parentElement;
+    if (!row || cell.classList.contains('ds-gut') || cell.classList.contains('empty') ||
+        row.classList.contains('win-pad') || row.classList.contains('sub')) { clearTableCrosshair(); return; }
+    const scope = tableCrosshairScope(table);
+    if (tableCrosshair.cell === cell && tableCrosshair.scope === scope) return;
+    clearTableCrosshair();
+    const id = cell.getAttribute('data-col-id');
+    // §4.2 rev 1.74 / I131 — C1 and C3 Bar own their column state through .col-active. The
+    // generic binder may add .row-hover / .cell-hover but no competing .col-hover.
+    const chartLinked = table.classList.contains('c1-table') || table.classList.contains('c3-table');
+    const cells = [];
+    if (id != null && !chartLinked) {
+      for (const t of tableCrosshairTables(scope, table)) {
+        t.querySelectorAll(`[data-col-id="${String(id).replace(/"/g, '\\"')}"]`).forEach(el => {
+          // A body <td> can contain a nested history table. Only cells owned by THIS table
+          // fragment belong to the logical column; nested tables keep their own crosshair scope.
+          if (el.closest('table[data-table-crosshair]') !== t) return;
+          el.classList.add('col-hover'); cells.push(el);
+        });
+      }
+    }
+    const isHeader = !!row.closest('thead') || row.classList.contains('hist-head');
+    if (!isHeader) row.classList.add('row-hover');
+    cell.classList.add('cell-hover');
+    tableCrosshair = { cell, scope, row: isHeader ? null : row, cells };
+  };
+  const onOut = e => {
+    const from = e.target && e.target.closest ? e.target.closest('table[data-table-crosshair]') : null;
+    if (!from) return;
+    const to = e.relatedTarget && e.relatedTarget.closest ? e.relatedTarget.closest('table[data-table-crosshair]') : null;
+    if (to === from || (to && tableCrosshairScope(to) === tableCrosshairScope(from))) return;
+    clearTableCrosshair();
+  };
+  root.addEventListener('pointermove', onMove, { passive: true });
+  root.addEventListener('pointerout', onOut, { passive: true });
+  root.addEventListener('pointerleave', clearTableCrosshair, { passive: true });
+  const clearAll = () => { clearTableCrosshair(); clearC3ColumnSync(); };
+  document.addEventListener('visibilitychange', () => { if (document.hidden) clearAll(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') clearAll(); });
+  window.addEventListener('blur', clearAll);
+  window.addEventListener('beforeprint', clearTableCrosshair);
+  window.addEventListener('beforeprint', clearC3ColumnSync);
+}
+
 // ===== C1 attached table: re-render the curve at the measured panel width (spec §3.4.1) =====
 // The static HTML already shows the whole curve through its viewBox. This pass replaces nominal W
 // with the measured width of .c1-plot, so one SVG unit is one CSS pixel and no text is scaled down.
@@ -676,6 +812,8 @@ function c1SyncTimeBar() {
 }
 function paint() {
   if (!model) return;
+  clearTableCrosshair();
+  clearC3ColumnSync();
   $('[data-page-content]').hidden = false;
   const scrollEl = document.querySelector('.content-body');
   const scrollTop = scrollEl ? scrollEl.scrollTop : 0;
@@ -839,7 +977,8 @@ document.addEventListener('click', event => {
   if (!target.closest?.('.tf-panel') && !target.closest?.('.tf-btn') && !target.closest?.('.search-panel') && !target.closest?.('#search-button')) closeFilterPanels();
   if (state.openChooser && !target.closest?.('.column-chooser') && !target.closest?.('.cc-btn')) closeColumnChoosers();
 });
-const NAV_PAGES = new Set(['Overview', 'Submittals', 'Validation', 'Forward and Overdue', 'Analytical', 'Help', 'Settings']);
+// I133 — `Breakdown` sits directly below `Overview` in the sidebar and in this whitelist.
+const NAV_PAGES = new Set(['Overview', 'Breakdown', 'Submittals', 'Validation', 'Forward and Overdue', 'Analytical', 'Help', 'Settings']);
 document.addEventListener('click', async event => {
   const target = event.target.closest('button, tr.expandable');
   if (!target) return;
@@ -914,11 +1053,11 @@ document.addEventListener('click', async event => {
   }
   if (target.hasAttribute('data-c1png')) { exportC1Png(); }
   if (target.hasAttribute('data-c1copy')) { copyC1Svg(); }
-  if (target.dataset.c3dim) { state.c3Dim = target.dataset.c3dim; paint(); }
-  if (target.dataset.c3view) { state.c3View = target.dataset.c3view; paint(); }
+  if (target.dataset.c3dim) { c3SetPanel(target.dataset.c3panel, { c3Dim: target.dataset.c3dim }); paint(); }
+  if (target.dataset.c3view) { c3SetPanel(target.dataset.c3panel, { c3View: target.dataset.c3view }); paint(); }
   if (target.hasAttribute('data-c3png')) { exportC3Png(target); }
   if (target.hasAttribute('data-c3copy')) { copyC3Svg(target); }
-  if (target.hasAttribute('data-c3export')) { exportC3TableCsv(); }
+  if (target.hasAttribute('data-c3export')) { exportC3TableCsv(target); }
   if (target.hasAttribute('data-export-table')) {
     const key = target.getAttribute('data-export-table');
     if (key === 'issue') { const csv = buildIssueCsv(); if (csv) downloadCsv(csv, 'issue-table.csv'); }
@@ -1025,7 +1164,7 @@ document.addEventListener('change', async event => {
     paint();
     return;
   }
-  if (event.target.hasAttribute('data-c3month')) { state.c3Month = event.target.value; paint(); return; }
+  if (event.target.hasAttribute('data-c3month')) { c3SetPanel(event.target.dataset.c3panel, { c3Month: event.target.value }); paint(); return; }
   if (event.target.hasAttribute('data-submonth')) { state.subMonth = event.target.value; paint(); return; }
   if (setting === 'theme') { state.theme = event.target.value; paint(); }
   if (setting === 'showWarnings') { state.showWarnings = event.target.checked; showWarnings(); }
@@ -1116,3 +1255,4 @@ document.documentElement.dataset.theme = state.theme;
 const savedWidth = Number(localStorage.getItem('sub-dashboard-left-sidebar-width'));
 if (savedWidth) updateSidebarWidth(savedWidth);
 updateFiles();
+bindTableCrosshair(document);

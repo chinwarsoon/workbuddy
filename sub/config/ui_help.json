@@ -1,8 +1,14 @@
 {
-  "version": "0.2",
+  "version": "0.3",
   "title": "Submittal Dashboard UI help",
   "description": "Labels and user help for the project-local dashboard.",
   "revisionHistory": [
+    {
+      "revision": "0.3",
+      "date": "2026-11-14",
+      "author": "CodeBuddy (AI)",
+      "summary": "I133 — added the Breakdown page help entry and the Others dimension definition. Others means a Document Submittal Log row whose Document No. is not registered in the MDL workbook (V-29 orphan)."
+    },
     {
       "revision": "0.2",
       "date": "2026-10-24",
@@ -47,6 +53,7 @@
   },
   "pages": {
     "Overview": "Submission totals, plan coverage, status, approval, and delay measures.",
+    "Breakdown": "Three independent panels: Submissions, Approval Status and Breakdown Summary. Each panel owns its Month, Break-down-by and, for charts, Bar/Pie view. Others means a Document Submittal Log row whose Document No. is not registered in the MDL workbook.",
     "Submittals": "All submission rows and calculated turnaround and delay values.",
     "Validation": "All business-rule issues and the source workbook rule reference.",
     "Forward and Overdue": "Look-ahead (next 1–4 weeks), Overdue (past due), and Coverage (not-yet-submitted MDL rows).",

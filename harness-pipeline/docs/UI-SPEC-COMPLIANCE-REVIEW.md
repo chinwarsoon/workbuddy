@@ -99,13 +99,18 @@ english are non-dashboard (SPA/PWA) → N/A for the shell clauses.
 | **§4.2** solid dots `r=3` for cumulative nodes | ❓ | ❓ | ✅ (render.js L594/976) | ➖ | ➖ |
 | **§4.2** x-axis `MMM YYYY` template | ❓ | ❓ | ✅ (`fmtMonth`) | ➖ | ➖ |
 | **§4.2** `scurveAxisMode` auto-guardrail (shared default; `r=maxCum/maxBar`>10 → separate, <6 → shared, hysteresis) | ❓ | ❓ | ⚠️ **PARTIAL** — always-shared scale, **no auto-switch logic found** | ➖ | ➖ |
-| **§4.2** C3 grid lines + numbers (rev 1.34) | ❓ | ❓ | ✅ (render.js L573/940/973) | ➖ | ➖ |
+| **§4.2** C3 grid lines + numbers (rev 1.34) | ❓ | ❓ | ✅ (render.js `c3StackedCard`; dashboard.css `.c3-gridlines` / `.g-ytick`) | ➖ | ➖ |
+| **§4.2** C3 native attached tables (rev 1.73 / `I130`) | ❓ | ❓ | ✅ (render.js `c3StackedCard`; dashboard.css `.c3-table`) | ➖ | ➖ |
+| **§4.2 / §8.2 assertion 23** general chart ↔ attached-table column sync (rev 1.74 / `I131`) | ❓ | ❓ | ✅ (render.js `data-col-id` on `.g-bar` + `c3AttachedTable` path; dashboard.js `clearC3ColumnSync`; dashboard.css `.col-active`; Tier 5 `lintC3ColumnSync`) | ➖ | ➖ |
+| **§4.2 / §8.2 assertion 23** C1 visual contract for chart column highlighting (rev 1.75) | ❓ | ❓ | ✅ (render.js ONE `.c3-col-band` + ONE `.c3-col-snap` per card and `c3SetColumnMarks()`; dashboard.css tokenised band, 3 3 dashed centre line, border-free `.col-active`; dashboard.js `withC3ColumnMarksHidden()`; Tier 5 `lintC3ColumnSync`) | ➖ | ➖ |
+| **§3.2 / §4.1 / §8.2 assertion 24** Breakdown page: three independent C3 panels, legend above chart, `Others` orphan label (rev 1.76 / `I133`) | ❓ | ❓ | ✅ (render.js `views.Breakdown` + `breakdown()` three panels, `c3PanelState()` per-panel state, `.c3-legend` above `.c3-grid` / donut; dashboard.js `NAV_PAGES` + `state.c3Panels` + `c3SetPanel()`; dashboard.css `.breakdown-grid` 14 px gap, compact `.c3-summary-card`; pipeline.js `discipline='Others'`; sub render tests rev 0.18; Tier 5 navigates to `Breakdown`) | ➖ | ➖ |
 | **§4.2** C2 funnel (rev 1.35/1.36) | ❓ | ❓ | ✅ | ➖ | ➖ |
 | **§4.5** Validation panel: `.v-summary` + two `.c-card` tables + per-table CSV + widths | ❓ | ❓ | ✅ (rev 1.44, driven by SUB) | ➖ | ➖ |
 | **§4.6** hover floating window (§8 Tier 6) | ❓ | ❓ | ✅ (Tier 6 harness) | ➖ | ➖ |
 
 **Chart verdict:** sub is compliant on every §4.2 clause **except `scurveAxisMode` auto-guardrail** —
-it uses a single always-shared y-scale. PPP/MDL render is absent here → all ❓ (not non-compliant).
+it uses a single always-shared y-scale. C3 attached tables now use native `<table>` markup (rev 1.73) and share ONE two-way chart ↔ table `.col-active` column state with the bar plot (rev 1.74). C3 column highlighting now follows the C1 visual design: ONE hidden column band, ONE hidden dashed centre line and no active-column border (rev 1.75). C3 now lives on its own `Breakdown` page as three independent panels with the legend above each chart and the `Others` orphan label (rev 1.76 / `I133`).
+PPP/MDL render is absent here → all ❓ (not non-compliant).
 
 ---
 
