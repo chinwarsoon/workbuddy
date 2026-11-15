@@ -11,6 +11,17 @@
   <title>TWRP C3B2 · Document Submittal Dashboard</title>
   <!-- STANDALONE:BEGIN -->
   <style>
+/* Revision 2.20 | 2026-11-15 | CodeBuddy (AI) | §4.2 rev 1.80 / I137 — C3 Breakdown gaps become
+   named tokens. `:root` gains `--panel-gap` / `--panel-pad` / `--panel-title-gap` / `--c3-card-pad` /
+   `--c3-tool-pad` / `--c3-tool-gap` / `--c3-axis-label-h` and the derived
+   `--c3-plot-table-gap:calc(var(--c3-axis-label-h) / 3)`. `.c3-controls` carries `--c3-tool-pad` on
+   all four sides with `margin:0`; a scoped `.c3-card > .c3-controls` negative margin cancels the
+   chart card's `--c3-card-pad`, so the tool padding alone sets the border distance in the two chart
+   cards while the card border and the chart / table inset stay. `.c3-summary-card` drops its card
+   padding, so the base rule applies directly in the summary panel. `.c3-table` gains
+   `margin-top:var(--c3-plot-table-gap)` (6 px at the default 18 px label height) as the minimized
+   bar-plot → attached-table gap. `.breakdown-grid` uses `--panel-gap`. No markup, handler, state,
+   hover, print or export path changes. */
 /* Revision 2.19 | 2026-11-14 | CodeBuddy (AI) | I133 — the C3 legend moves above the chart, and the new Breakdown page gets a page-scoped 2+1 panel grid with the §4.7 14 px gap. The Breakdown Summary panel gets compact row tokens and `max-height:none` on its `.tableScroll`, so no inner vertical scroll bar appears. The global `.panel-grid` gap and `body[data-layout]` rules stay unchanged. */
 /* Revision 2.18 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.75 — C3 Bar cards adopt the C1 column-highlight design. ONE hidden `.c3-col-band` paints behind the bars and ONE hidden `.c3-col-snap` dashed centre line paints on top; both are grid-row:1 children of `.c3-grid`. Active bar cells keep `.col-active` as state only and paint NO background, border, outline or inset ring. Print hides both elements. C1 rules stay unchanged. */
 /* Revision 2.17 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.74 / I131 — ONE shared chart ↔ attached-table column state per C3 Bar card. Scoped `.col-active` rules paint the active `.g-bar`, dimension header and value cells from the §7.2.16 theme tokens. C3 attached tables keep `.row-hover` / `.cell-hover` and receive no `.col-hover`. Print neutralises the bar highlight as well as the table cell highlight. C1 rules stay unchanged. */
@@ -236,12 +247,12 @@ body.loaded .app{display:flex;flex-direction:column;height:100vh;min-height:0;ov
 /* ===== Panels / KPI ===== */
 /* §4 — panel surface: 10 px radius on a relative box, with 26 px of bottom padding so the corner
    number never overlaps the last line. The header (title + Help + toggle) sits INSIDE this edge. */
-.panel{margin:14px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);padding:14px 14px 26px;position:relative;min-width:0;min-height:0}
+.panel{margin:14px 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);padding:var(--panel-pad) var(--panel-pad) 26px;position:relative;min-width:0;min-height:0}
 /* §4 — content flow wrapper inside the panel; it carries no border (the panel edge already frames it).
    Individual graphs live in their own bordered `.c-card` below. */
 .panel-body{min-width:0}
 /* §4 — title row: title left, action cluster right. The 10 px gap belongs to the row, not the heading. */
-.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 10px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 var(--panel-title-gap)}
 .panel h2{margin:0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--navy);line-height:1.4;min-width:0}
 .panel-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
 /* §4 — the corner panel number, anchored bottom-right and never clickable. */
@@ -481,18 +492,34 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
      hues outside the approval set, because the two series are separate measures, not a split of one. */
   --color-new:#1f6fb2; --color-resub:#f4a259; --color-ur:#7c3aed;
   --color-app:#65a30d; --color-awc:#0891b2; --color-nap:#db2777; --color-rej:#d23b3b; --color-inf:#64748B;
+  /* §6 / §4.2 rev 1.80 — ONE named token per Breakdown gap (§8.2 assertion 25: no rule hard-codes
+     a gap value). Change one constant and all three Breakdown panels follow. */
+  --panel-gap:14px;        /* top-level panel-to-panel gap (§4.7) */
+  --panel-pad:14px;        /* panel border → content */
+  --panel-title-gap:10px;  /* panel title → card */
+  --c3-card-pad:12px;      /* card border → tool row / chart / table inset */
+  --c3-tool-pad:12px;      /* padding distance around the tool row, all four sides */
+  --c3-tool-gap:10px;      /* gap between the control groups inside the tool row */
+  --c3-axis-label-h:18px;  /* x-axis label height (§4.2 rev 1.79) */
+  --c3-plot-table-gap:calc(var(--c3-axis-label-h) / 3); /* plot→table gap = 6 px, scales with the label height */
 }
-.c3-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 10px}
-.c3-controls .controls-left{display:flex;align-items:center;gap:8px}
-.c3-controls .controls-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
-.c3-month-wrap{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)}
+/* §4.2 rev 1.80 — the tool row carries --c3-tool-pad on ALL FOUR sides and margin 0, identical in
+   the two chart cards and the summary card. In a chart card a scoped negative margin cancels the
+   outer --c3-card-pad, so --c3-tool-pad alone sets the distance to the card border; the card border
+   stays and the chart and table keep their --c3-card-pad inset. The summary card has no extra
+   padding, so the base rule applies directly there. */
+.c3-controls{display:flex;align-items:center;gap:var(--c3-tool-gap);flex-wrap:wrap;margin:0;padding:var(--c3-tool-pad)}
+.c3-card > .c3-controls{margin:calc(-1 * var(--c3-card-pad)) calc(-1 * var(--c3-card-pad)) 0}
+.c3-controls .controls-left{display:flex;align-items:center;gap:var(--c3-tool-gap)}
+.c3-controls .controls-right{display:flex;align-items:center;gap:var(--c3-tool-gap);margin-left:auto;flex-wrap:wrap}
+.c3-month-wrap{display:inline-flex;align-items:center;gap:var(--c3-tool-gap);font-size:11px;color:var(--text2)}
 .c3-month-wrap select{padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)}
 /* §4.2 — each C3 chart is its own bordered card (Option 2, Wave 4.2): every card owns its border
    and its controls, matching the MDL interactive-chart pattern. */
-.c3-card{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fff;display:flex;flex-direction:column}
-.c3-card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.c3-card{border:1px solid var(--border);border-radius:10px;padding:var(--c3-card-pad);background:#fff;display:flex;flex-direction:column}
+.c3-card-head{display:flex;justify-content:space-between;align-items:center;gap:var(--c3-tool-gap);flex-wrap:wrap;margin-bottom:8px}
 .c3-card-title{font-size:13px;font-weight:700;margin:0;color:var(--navy)}
-.c3-card-ctrls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.c3-card-ctrls{display:flex;align-items:center;gap:var(--c3-tool-gap);flex-wrap:wrap}
 .c3-svg{display:block}
 .c3-new{fill:var(--color-new)} .c3-new-arc{stroke:var(--color-new)}
 .c3-resub{fill:var(--color-resub)} .c3-resub-arc{stroke:var(--color-resub)}
@@ -521,7 +548,9 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .seg-bar.c3-ur{background:var(--color-ur)} .seg-bar.c3-app{background:var(--color-app)}
 .seg-bar.c3-awc{background:var(--color-awc)} .seg-bar.c3-nap{background:var(--color-nap)}
 .seg-bar.c3-rej{background:var(--color-rej)} .seg-bar.c3-inf{background:var(--color-inf)}
-.c3-table{grid-column:1 / -1;grid-row:2;width:100%;min-width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;background:transparent;font-size:12px;color:var(--text)}
+/* §4.2 rev 1.80 — the minimized bar-plot → attached-table gap is the derived token and scales
+   with the x-axis label height (6 px at the default 18 px label height; rev 1.79 superseded). */
+.c3-table{grid-column:1 / -1;grid-row:2;width:100%;min-width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;background:transparent;font-size:12px;color:var(--text);margin-top:var(--c3-plot-table-gap)}
 .c3-table caption{position:absolute;width:1px;height:1px;padding:0;margin:0;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0}
 .c3-table th,.c3-table td{position:relative;box-sizing:border-box;padding:4px 3px;border-top:1px solid var(--border);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
 .c3-table thead th.g-corner{text-align:left;color:var(--text2);font-size:11px;font-weight:700;background:var(--surface2)}
@@ -746,7 +775,7 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
    panels. Row 1 holds the two chart panels, row 2 holds the full-width summary. The grid is
    page-scoped, so the global `body[data-layout]` button keeps its behaviour on other pages.
    §4.7 / §8.2 assertion 19 require 14 px between top-level panels. */
-body .panel-grid.breakdown-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+body .panel-grid.breakdown-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--panel-gap);align-items:start}
 body .breakdown-grid > .panel{margin:0}
 body .breakdown-grid > .panel:nth-child(3){grid-column:1 / -1}
 @media(max-width:879px){
@@ -756,7 +785,9 @@ body .breakdown-grid > .panel:nth-child(3){grid-column:1 / -1}
 /* §4 — ONE outer `.panel` border and ONE inner card border. The table card keeps the `.ds-split`
    border as its single visible edge (`.c-card:has(.ds-split){border:0}` above), with radius 10 px. */
 .breakdown-grid .c3-card{margin:0}
-.c3-summary-card{--ds-row-h:26px;--ds-head-h:28px;--ds-cell-lh:18px;--ds-cell-fs:11px;min-width:0}
+/* §4.2 rev 1.80 — the summary card carries NO extra padding, so the base --c3-tool-pad rule
+   applies directly to its tool row (no negative margin here). */
+.c3-summary-card{--ds-row-h:26px;--ds-head-h:28px;--ds-cell-lh:18px;--ds-cell-fs:11px;min-width:0;padding:0}
 .c3-summary-card .ds-table th,.c3-summary-card .ds-table td{padding:0 8px}
 .c3-summary-card .ds-split{margin-top:0}
 /* N1 — remove the INNER vertical scroll bar. 16 submitter rows at 26 px fit about 470 px.

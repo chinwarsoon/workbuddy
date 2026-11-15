@@ -2,7 +2,7 @@
 // panel, rendered inside the real Option-B app shell (MDL two-row header + navy left
 // nav sidebar, light theme default) so the design can be reviewed against the UI spec
 // (workplan §3.1 / §3.3 / §4). Uses the real dashboard.css and the real derived data.
-// Output: sub/sample-c4.html. The engine is NOT modified.
+// Output: sub/ref/sample-c4.html. The engine is NOT modified.
 import fs from 'node:fs';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
@@ -173,7 +173,7 @@ const page = `<!doctype html>
 </body>
 </html>`;
 
-const TARGET = path.join(ROOT, 'sample-c4.html');
+const TARGET = path.join(ROOT, 'ref', 'sample-c4.html');
 fs.writeFileSync(TARGET, page);
 console.log(`Sample C4 page written: ${TARGET} (${page.length.toLocaleString()} bytes)`);
 console.log(`scatter points: ${pts.length} (overdue/open-past-target: ${overdueCount}); age buckets: <30=${buckets.lt30} 30-60=${buckets.b30_60} 60-90=${buckets.b60_90} >90=${buckets.gt90}; open SUR total=${openSur}`);

@@ -5,7 +5,7 @@
 // emits the three independent panels (Submissions, Approval Status, Breakdown Summary),
 // so borders, spacing, controls, legend order and the `Others` label are exactly what the
 // delivered dashboard renders. The engine is NOT modified.
-// Output: sub/sample-breakdown.html.
+// Output: sub/ref/sample-breakdown.html.
 import fs from 'node:fs';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
@@ -97,7 +97,7 @@ const page = `<!doctype html>
 </body>
 </html>`;
 
-const TARGET = path.join(ROOT, 'sample-breakdown.html');
+const TARGET = path.join(ROOT, 'ref', 'sample-breakdown.html');
 fs.writeFileSync(TARGET, page);
 const panels = (html.match(/<section class="panel/g) || []).length;
 console.log(`Sample Breakdown page written: ${TARGET} (${page.length.toLocaleString()} bytes)`);

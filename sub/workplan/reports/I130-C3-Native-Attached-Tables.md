@@ -26,7 +26,7 @@ and pipeline data are unchanged.
 - `harness-layout/SKILL.md` rev 1.17
 - `Dashboard-UI-Design-Spec.md` / `harness-layout/spec/Dashboard-UI-Design-Spec.md` rev 1.73
 - `sub/ref/sample-c3-discipline-table.html`, `sub/ref/sample-c3-grid-lines.html`,
-  `sub/sample-c4.html`
+  `sub/ref/sample-c4.html`
 - `sub/TWRP C3B2 - Document Submittal Dashboard.html` (generated)
 
 ## Results

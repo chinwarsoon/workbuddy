@@ -2,6 +2,9 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.80 | 2026-11-15 | CodeBuddy (AI) | **§0 / §4.2 / §6 / §8.2 — C3 Breakdown gaps become universal named-token requirements; tool-row placement and padding normalized; plot-to-table gap minimized.** Every gap in the three Breakdown panels MUST be a named token; no rule hard-codes a gap value. The Breakdown tool row (part 3) MUST sit inside its owning card — chart card 2 or summary table card 9 — with equal padding on all four sides from `--c3-tool-pad`, identical in all three panels; in chart cards a scoped negative margin equal to `--c3-card-pad` cancels the outer card padding so the token alone sets the distance to the border. The bar-plot-to-attached-table gap MUST be the derived token `--c3-plot-table-gap` = x-axis label height ÷ 3 (6 px at the default label height), minimized while keeping the plot baseline and the `0` tick label clear. This supersedes the rev 1.79 wording that required a gap of at least the x-axis label height. §6 gains the seven Breakdown gap tokens; §8.2 assertion 25 enforces them. Both byte-identical spec copies are updated. |
+| 1.79 | 2026-11-15 | CodeBuddy (AI) | **§4.2 C3 attached table — vertical gap mandated between bar plot and attached table.** The attached native table MUST be separated from the bar plot by a vertical gap. The gap MUST scale with the x-axis label height (for example a `margin-top` equal to the axis-label line-height) so the axis labels never touch the plot baseline. Both byte-identical spec copies are updated. |
+| 1.78 | 2026-11-15 | CodeBuddy (AI) | **§4.2 legend element type unified to in-SVG; §6 token inventory added; §3.9 governance note; Appendix A added (non-normative matrix register).** The chart legend is now ONE element type for every panel: an in-SVG `<g>` above the chart (C1 and C3). The C3 HTML `.c3-legend` element type (rev 1.76) is retired; C3 now renders its legend inside an SVG group above the chart. This is the single-option standard from the UI Comparison and Standardisation Matrix. §6 gains an explicit token inventory (`--btn-h`, `--seg-h`, `--panel-gap`, `--c1-gutter`, `--c3-gutter`, `--sidebar-w`, `--ds-grip-w`, `--ds-sbw`, and the full semantic colour set). §3.9 gains the governance note that the root spec and the `harness-layout/spec` copy are byte-identical and serve as mutual rollback. Appendix A carries the archived matrix as a non-normative register; the deviation from matrix rev 1.76 is recorded as a conformance item (§8.4). Both byte-identical spec copies are updated. |
 | 1.77 | 2026-11-14 | CodeBuddy (AI) | **§4.2 rev 1.77 / `I134` — ONE tool row per Breakdown chart panel.** Owner decision 2026-11-14: all tool controls of the `Submissions` and `Approval Status` chart panels MUST sit in ONE row — the Month select, the Break-down-by group and the Bar / Pie toggle on the LEFT, and `⤓ PNG` + `⧉ Copy` on the RIGHT — with no second head row above them. The visible `Month` text is removed from the Month select; the select keeps its accessible name through `aria-label`. The `Breakdown Summary` panel keeps Month, Break-down-by and `⤓ Download` and is unchanged. The legacy per-card head (title + PNG / Copy) stays available for sample pages that show a card title. §8.2 assertion 24 enforces the row order and the no-`Month`-text rule. Both byte-identical spec copies are updated. Historical rows 1.60–1.76 are preserved verbatim. |
 | 1.76 | 2026-11-14 | CodeBuddy (AI) | **I133 — the C3 Breakdown becomes a `Breakdown` page with THREE independent panels.** Owner decisions D1–D7 and 4 notes, 2026-11-14. The sidebar gains `Breakdown` directly below `Overview`; `Overview` keeps KPI, C1 and C2. §0 gains `Others` (a Document Submittal Log row whose `Document No.` is not registered in the MDL workbook, `V-29` orphan) and the `Breakdown page` definition. §3.2 fixes the new item's position and keeps `--sidebar-w:160px`; §3.3 still bars a content-toolbar heading. §4 retires the "panel holds two C3 cards" example; §4.1 replaces the ONE shared control cluster exception with THREE panel-owned clusters. Each panel owns `c3Month`, `c3Dim` and, for charts, `c3View`; the two chart panels switch to donuts independently; the summary panel owns Month, Break-down-by and `⤓ Download`. §4.2 makes the C3 HTML legend sit ABOVE the chart in BOTH Bar and Pie views (rev 1.62 stays C1-only and in-SVG) and makes the summary table its own full-width panel. §4.7 / §8.2 assertion 19 apply the 14 px gap to the new page; a page-scoped 2+1 grid keeps the global `body[data-layout]` behaviour unchanged. The summary table uses compact row tokens and `max-height:none` so it has NO inner vertical scroll bar. §8.2 assertions 21 / 22 / 23 cite the new page; assertion 24 enforces page order, panel independence, legend order, compact table and `Others`. Border rules of §4, §4.1, §4.2 rev 1.70 and §4.2 rev 1.73 are unchanged and MUST apply to all three panels. Both byte-identical spec copies are updated. Historical rows 1.60–1.75 are preserved verbatim. |
 | 1.75 | 2026-11-14 | CodeBuddy (AI) | **§4.2 rev 1.75 — chart ↔ attached-table column highlighting adopts the C1 visual design.** Owner decision 2026-11-14: the active-column border and the hidden centre line MUST follow the C1 panel style. §0 and the §4.2 general rule gain the normative visual contract: ONE hidden column band spanning the full plot height and one column width, ONE hidden dashed `.chart-snap` centre line, NO border or inset ring on active column cells, and both elements driven in BOTH hover directions and excluded from PNG / Copy / print. §4.1 cites rev 1.75 for C3; §4.2 marks the C1 reference implementation as the visual reference and replaces the C3 per-bar inset-ring model with the band + centre line model; §4.6 makes the snap line REQUIRED for charts with an X-aligned native attached table and keeps it optional elsewhere; §7.2.16 requirements 5 and 8 gain the band and centre line; §8.2 assertions 21 / 22 cite rev 1.75 and assertion 23 enforces the visual contract. C1 keeps `data-c1col` / `.sc-hover-band` / `.chart-snap` / `.col-active`. C3 Pie, `.c3-summary`, `breakdown-table.csv`, C2 Funnel, C4, MDL, KPI and bounded `.ds-table`s stay out of scope. The structural 1 px board border of §4.2 rev 1.70 is not affected. Both byte-identical spec copies are updated. Historical rows 1.60–1.74 are preserved verbatim. |
@@ -124,7 +127,7 @@ These terms are used normatively throughout this spec.
 | **App shell / Layout shell** | The root container of the application. It holds the title bar, menu bar, left sidebar, content zone and status bar (§3.1). |
 | **CSS grid tracks** | The columns and rows of a CSS grid. They are set by `grid-template-columns`, `minmax()` and `fr` (§3.4.1, §4.2, §4.7). |
 | **Flow container** | A one-dimensional flex container. It aligns toolbars, header rows and control clusters (§3.1, §4.1). |
-| **Gutter / Spacing scale** | The fixed whitespace between grid tracks and panels: 14 px between top-level panels, 16 px between chart cards (§4.1, §4.7). |
+| **Gutter / Spacing scale** | The fixed whitespace between grid tracks and panels: 14 px between top-level panels, 16 px between chart cards (§4.1, §4.7). Every gap is a named token from §6; no rule hard-codes a gap value (§6, §4.2 rev 1.80). On the `Breakdown` page these are `--panel-gap`, `--panel-pad`, `--panel-title-gap`, `--c3-card-pad`, `--c3-tool-pad`, `--c3-tool-gap` and the derived `--c3-plot-table-gap` (§4.2 rev 1.80). |
 | **Attached table** | A data table drawn inside the same chart board as its chart. Its columns share the chart's X positions (§4.1, §4.2). It is a **Semantic table** and is not a **Bounded data table**. When such a table is present, hovering a chart column or an attached-table column MUST highlight the same logical column in BOTH the chart and the table at the same time (§4.2 rev 1.74). The shared chart-column state MUST include ONE hidden column band and ONE hidden dashed centre line, and MUST NOT draw a border or inset ring on active column cells (§4.2 rev 1.75). |
 | **Breakdown page (rev 1.76)** | A dashboard page reached from the `Breakdown` sidebar item, directly below `Overview`. It holds exactly THREE independent top-level panels: `Submissions`, `Approval Status` and `Breakdown Summary`. Each panel owns its own `c3Month`, `c3Dim` and control cluster; each chart panel also owns `c3View`. The two chart panels sit side by side in row 1 and the summary panel spans row 2 (§4.1, §4.7). |
 | **Others (rev 1.76)** | The discipline label of a Document Submittal Log row whose `Document No.` has no MDL plan row (`V-29` orphan). It is a normal dimension value: it appears in the Discipline filter, in the C3 Breakdown dimension list and in the Breakdown Summary table, and its rows count in every measure. It MUST NOT be read as a data-quality rule. A missing `Submitted By` value keeps the separate `Unknown` fallback. |
@@ -560,6 +563,12 @@ network access at runtime.
   delivered HTML from those sources so the two cannot drift.
 - **Reference implementation.** MDL is the model: one HTML file, one inline script, no imports and
   no `fetch`.
+- **Spec copies stay in sync (governance).** The root spec (`Dashboard-UI-Design-Spec.md`) and the
+  bundled copy (`harness-layout/spec/Dashboard-UI-Design-Spec.md`) are byte-identical. Update both in
+  the same change. Each copy is the rollback for the other: if an edit to one is wrong, restore from
+  the other's pre-edit state. The single-option principle applies throughout — where C1 and C3 once
+  diverged, the spec states ONE standard (for example, the chart legend is one in-SVG element type for
+  every panel, §4.2).
 ---
 
 ## 4. Panel / Card Standard
@@ -707,14 +716,22 @@ Some panels hold several **chart cards** in a grid. The panel shell still carrie
   Each chart card still shows the full MDL discipline set (and all submitters) even at zero. Its bars,
   Y ticks and grid lines share ONE CSS grid. A native attached table below the bars carries the
   dimension headers and metric rows and is subject to the general chart ↔ attached-table column sync
-  rule and its C1 visual contract (§4.2 rev 1.73 / 1.74 / 1.75). The C3 HTML legend MUST sit ABOVE the
-  chart in BOTH Bar and Pie views (§4.2 rev 1.76). There is no consolidated two-ring card.
+  rule and its C1 visual contract (§4.2 rev 1.73 / 1.74 / 1.75). The C3 legend MUST sit ABOVE the
+  chart in BOTH Bar and Pie views and MUST be rendered in-SVG (§4.2 rev 1.78). There is no consolidated two-ring card.
 - **C3 chart panel ONE tool row (normative, rev 1.77).** Each chart panel of the `Breakdown` page
   MUST show all tool controls in ONE row: the Month select, the Break-down-by group and the Bar /
   Pie toggle on the LEFT, and `⤓ PNG` + `⧉ Copy` on the RIGHT. A second head row above the tool row
   is FORBIDDEN. The Month select MUST NOT show a visible `Month` text label; its accessible name
   comes from `aria-label`. The `Breakdown Summary` panel keeps Month, Break-down-by and `⤓ Download`
   (rev 1.76) and is unchanged.
+- **C3 Breakdown gaps and tool-row placement (normative, rev 1.80).** Every gap in the three Breakdown
+  panels MUST be a named token from §6; no rule hard-codes a gap value. The tool row (part 3) MUST sit
+  inside its owning card — the chart card (part 2) in the two chart panels, the summary table card
+  (part 9) in the Breakdown Summary panel — and MUST have equal padding on all four sides from
+  `--c3-tool-pad`. That padding MUST be identical in all three panels. In the two chart cards a scoped
+  negative margin equal to `--c3-card-pad` cancels the outer card padding, so `--c3-tool-pad` alone sets
+  the distance to the card border; the card border stays and the chart and table keep their
+  `--c3-card-pad` inset. The summary card has no extra padding, so the base rule applies directly.
 - **C3 Breakdown page layout (normative, rev 1.76).** Row 1 holds the two chart panels side by side.
   Row 2 holds the `Breakdown Summary` panel spanning both columns. The grid MUST be page-scoped and
   MUST NOT change the `body[data-layout]` behaviour of other pages. Top-level panels MUST use the
@@ -845,20 +862,22 @@ a single shared time axis instead of two stacked charts:
   (four series → eight entries). The entries wrap into rows of `floor(W / 132)` items at plot width
   `W`, and every row MUST stay inside the SVG `viewBox`, so a narrow panel neither clips the legend
   nor needs a horizontal scrollbar.
-    - **With an attached table (C1 only).** Where a `.c1-grid` panel renders a native `<table>`
-      whose `<thead>` month cells are the chart's shared X labels, the legend MUST sit **above** the
-      plotting area, inside the top of the SVG canvas. `yTop` MUST be sized for the legend rows,
-      `yBot` MUST be the bottom edge of the SVG `viewBox`, and the plot's bottom edge MUST touch the
-      `<thead>` with zero intermediate layout elements. C2, C3, C4 and the MDL dashboard are out of
-      scope for this SVG-legend-placement branch. This branch governs legend placement only; the
-      general chart ↔ attached-table column sync rule and its C1 visual contract apply separately (§4.2 rev 1.74 / 1.75).
+    - **With an attached table (C1 and C3).** Where a `.c1-grid` or `.c3-grid` panel renders a native
+      `<table>` whose `<thead>` month cells are the chart's shared X labels, the legend MUST sit
+      **above** the plotting area, inside the top of the SVG canvas. `yTop` MUST be sized for the
+      legend rows, `yBot` MUST be the bottom edge of the SVG `viewBox`, and the plot's bottom edge
+      MUST touch the `<thead>` with zero intermediate layout elements. C2, C4 and the MDL dashboard
+      are out of scope for this SVG-legend-placement branch. This branch governs legend placement only;
+      the general chart ↔ attached-table column sync rule and its visual contract apply separately
+      (§4.2 rev 1.74 / 1.75).
     - **Without an attached table.** For every other §4.2 combined chart (C2 stacked and delay),
       the legend SHOULD stay at the bottom, beneath the plot area.
-    - **C3 HTML legend (normative, rev 1.76).** A C3 Bar card has no SVG, so the in-SVG branch does
-      not apply to it. The C3 `.c3-legend` HTML element MUST sit ABOVE the chart in BOTH Bar and Pie
-      views. It MUST be emitted before `.c3-grid` in Bar view and before the donut `<svg>` in Pie
-      view, inside `.c3-card`. It MUST NOT sit below the attached table. PNG / Copy MUST read its
-      measured position so the exported image keeps the legend at the top.
+    - **C3 legend (normative).** The C3 legend uses the SAME element type as every other panel: it is
+      rendered INSIDE an SVG `<g>` ABOVE the chart (in-SVG), never as a separate HTML `.c3-legend`
+      element. A C3 Bar / Pie card emits an SVG legend group above `.c3-grid` (Bar) or above the donut
+      `<svg>` (Pie), inside `.c3-card`. PNG / Copy MUST serialize this in-SVG legend so the exported
+      image keeps it at the top. This retires the HTML `.c3-legend` element type from matrix rev 1.76;
+      record the deviation in the dashboard workplan (§8.4).
 - **Months are labelled with the `MMM YYYY` template (e.g. `Mar 2026`).** Every month shown in the
   S-curve — the x-axis ticks, the period-window range message, and the `<title>` tooltips — is
   formatted through the shared month-label helper. A raw `YYYY-MM` key, or any `slice()` of it
@@ -1150,7 +1169,12 @@ a single shared time axis instead of two stacked charts:
     `.ds-table`. §4.3 and §7.2.15 do not apply. The §4 CSV rule is scoped to `.ds-table`; each
     dashboard MUST record in its workplan whether its attached table also offers `⤓ CSV` (§1).
   - **C3 attached tables (normative, rev 1.73 / 1.74 / 1.75).** Each C3 Bar card MUST render one native
-    `<table class="c3-table" data-table-crosshair>` below its bar plot, inside the same card body.
+      `<table class="c3-table" data-table-crosshair>` below its bar plot, inside the same card body. The
+    vertical gap between the bar plot and the attached table MUST be the derived token
+    `--c3-plot-table-gap` = `--c3-axis-label-h / 3` (6 px at the default 18 px label height). The gap MUST
+    be minimized without the table overlapping the plot baseline or the `0` tick label, and MUST still
+    scale with the x-axis label height. This supersedes the rev 1.79 wording that required a gap of at
+    least the label height (§4.2 rev 1.80).
     The bar plot stays one borderless CSS grid with `--c3-gutter:104px`, `--c3-cols:N`,
     `column-gap:0` and row 1 for bars, Y ticks and grid lines. The table spans all grid columns in
     row 2 and MUST carry a visually hidden `<caption>`, a `<colgroup>` driven by the same geometry,
@@ -1600,6 +1624,45 @@ harness tier and dashboard test suite.
 ### Semantic & tint tokens
 Components MUST use the semantic tokens defined in the project-local UI stylesheet for status and tint surfaces. The stylesheet must define all tokens that component rules use. Every dashboard uses the five themes from `AGENTS.md` §18.4;
 a dashboard MUST NOT add a separate theme system or a local dark-theme override.
+
+### Token inventory (normative)
+The project-local UI stylesheet MUST define every token below. Components reference these names only; no rule hard-codes a value.
+
+| Token | Value | Use |
+|---|---|---|
+| `--btn-h` | `32px` | Min height of every text-bearing button (§7.1 rev 1.71) |
+| `--seg-h` | derives from `--btn-h` | Segmented-control height (§7.5 B2.1) |
+| `--panel-gap` | `14px` | Gap between top-level panels (§4.7) |
+| `--panel-pad` | `14px` | Panel border → content (§4.2 rev 1.80) |
+| `--panel-title-gap` | `10px` | Panel title → card (§4.2 rev 1.80) |
+| `--c3-card-pad` | `12px` | Chart / table inset inside the card border (§4.2 rev 1.80) |
+| `--c3-tool-pad` | `12px` | Equal padding on all four sides of the Breakdown tool row (§4.2 rev 1.80) |
+| `--c3-tool-gap` | `10px` | Gap between control groups inside the tool row (§4.2 rev 1.80) |
+| `--c3-axis-label-h` | `18px` | X-axis label height (§4.2 rev 1.79) |
+| `--c3-plot-table-gap` | `calc(var(--c3-axis-label-h) / 3)` = `6px` | Minimized bar-plot → attached-table gap; scales with label height and clears the `0` tick (§4.2 rev 1.80) |
+| `--c1-gutter` | `104px` | C1 attached-table gutter (§4.2) |
+| `--c3-gutter` | `104px` | C3 attached-table gutter (§4.2) |
+| `--sidebar-w` | `160px` | Left navigation sidebar width (§3.2) |
+| `--ds-grip-w` | (project value) | Table column-resize grip width (§7.2.13) |
+| `--ds-sbw` | (project value) | Table scrollbar width (§7.2.15) |
+| `--surface` | theme | App / panel background |
+| `--surface2` | theme | Hover / inactive surface |
+| `--surface3` | theme | Pressed surface |
+| `--navy` | theme | Panel title, segmented active fill, primary ink |
+| `--blue` | theme | Action colour, focus ring |
+| `--border` | theme | 1 px panel / card border |
+| `--line` | theme | Hairline dividers, icon-button border |
+| `--muted` | theme | Icon-button glyph, secondary text |
+| `--text` | theme | Body text |
+| `--text2` | theme | Secondary text |
+| `--text3` | theme | Tertiary / meta text |
+| `--accent` | theme | Search submit, accents |
+| `--green` / `--amber` / `--red` | theme | Status / severity tints |
+| `--slate` | theme | Neutral tint |
+| `--soft` | theme | Hover background for icon buttons |
+| `--ink` | theme | High-emphasis text |
+| `--white` | theme | Contrast text on filled buttons |
+| `--shadow` | theme | Subtle panel / tooltip shadow |
 
 ---
 
@@ -2179,10 +2242,11 @@ hard-coded into the generic check.
 | 18 | The warning area is pinned below the menu bar, above the filter strip and outside the scrolling body; scrolling the panels does not move it, and it spans the content width without covering a sidebar | §3.5 |
 | 19 | Stacked top-level panels are separated by 14 px (container gap or panel margin, never both); borders never touch; hidden panels add no gap; the `Breakdown` page's own grid MUST use that 14 px gap and MUST NOT inherit a different value from `body[data-layout]` (§4.1 rev 1.76) | §4.7 |
 | 20 | The search panel is one row: attached column picker (All columns plus each searchable column), flexible input, affixed submit; the picker re-applies the query and does not clear it | §7.1 B5 / A5 |
-| 21 | An S-curve attached table uses one `.c1-grid` with explicit `--c1-gutter` / `--c1-cols` tracks and `column-gap:0`, one `<svg role="img">` whose host carries a `ResizeObserver`, one native `<table>` in one spanning grid item with `<caption>` / `<colgroup>` / `<thead>` / `<tbody>` / `scope`, static and rebuilt cells with the same structure, a bordered chart composition (axis / plot / table zones with shared right-angle corners and an unbordered alignment grid; rev 1.70), no third bordered wrapper, and PNG/Copy that include the table; the SVG draws one vertical `sc-yaxis-line` at the plot's left edge, grid column 1 carries at most eight dynamically generated Y ticks (§4.2 rev 1.64: max 7 intervals, min ~40 px spacing, nice-number steps, one `line.sc-grid` per label, all derived from the same `data-c1meta.yMax` / `yStep` / `yIntervals` payload) and a rotated unit caption; after a period change the Y-axis maximum MUST be recomputed from the selected period window with cumulative values unchanged (§4.2 rev 1.65), and chart / grid / labels / hover-refit metadata / PNG-Copy MUST share that one Y-axis scale; the C1 period control is ONE dual-handle month-snapped track with one tick per active reporting month and the `6M` / `12M` / `24M` / `YTD` / `All` preset chips (§4.2 rev 1.66: `step="1"`, `input` visual-only, `change` single repaint, `aria-valuetext` / `aria-pressed`, print hides the interactive controls), and those five chips are ONE joined `.seg` group of `.seg-btn` buttons with EXACTLY one `aria-pressed="true"` at a time, a stored preset name (default `All`), NO active chip after a manual handle `input` / `change`, and the tools below the panel title stay on ONE visual row at the 1280 px minimum desktop width with `flex-wrap:nowrap` on `.c1-ts` (§4.2 rev 1.67); every Sub `.seg-btn` follows the §7.5 B2.1 common standard — shared CSS custom-property tokens, `--navy` active fill, `--surface2` inactive hover, `--surface3` pressed, a disabled state, a 2 px `--blue` focus ring with `outline-offset:-2px` plus a high-contrast light ring on active buttons, `type="button"` and a dynamic `aria-pressed` on ALL seven generators, `role="group"` and an accessible name on every group, equal height within each group and centre alignment between groups, the `standard` 32 px / 12 px variant and the C1 `compact` exception at ≈ 25.94 px / 11 px / `line-height:1.45` / `padding:5px 8px` with `min-height:0` and no hover or focus rule of its own (§4.2 rev 1.69 / §7.5 B2.1); the in-SVG legend sits above the plot, the `<thead>` row is flush with the plot bottom (which is also the SVG bottom) with no separate SVG X labels, the whole curve fits the board with no horizontal scroll, and bar / dot / `data-points.cx` alignment holds after the period window changes; the SVG draws four tokenised `<linearGradient>` defs and `path.sc-area` fills plus one hidden `rect.sc-hover-band` behind all marks, every month `<th>` and value `<td>` carries `data-c1col`, hovering a month column in either direction activates the band / snap line / `.col-active` highlight, and the `.chart-tip` window opens only inside the SVG chart area and is `aria-hidden="true"` with empty text whenever hidden; `aria-describedby` points at `.chart-tip` only; C3 Bar cards use the same native attached-table model, the general chart ↔ attached-table column sync and the C1 band / centre line / border-free visual contract (§4.2 rev 1.73 / 1.74 / 1.75); on the `Breakdown` page each C3 HTML `.c3-legend` MUST sit ABOVE `.c3-grid` in Bar view and above the donut `<svg>` in Pie view, and the exported PNG / Copy MUST keep the legend at the top (§4.2 rev 1.76) | §4.2, §4.6 |
+| 21 | An S-curve attached table uses one `.c1-grid` with explicit `--c1-gutter` / `--c1-cols` tracks and `column-gap:0`, one `<svg role="img">` whose host carries a `ResizeObserver`, one native `<table>` in one spanning grid item with `<caption>` / `<colgroup>` / `<thead>` / `<tbody>` / `scope`, static and rebuilt cells with the same structure, a bordered chart composition (axis / plot / table zones with shared right-angle corners and an unbordered alignment grid; rev 1.70), no third bordered wrapper, and PNG/Copy that include the table; the SVG draws one vertical `sc-yaxis-line` at the plot's left edge, grid column 1 carries at most eight dynamically generated Y ticks (§4.2 rev 1.64: max 7 intervals, min ~40 px spacing, nice-number steps, one `line.sc-grid` per label, all derived from the same `data-c1meta.yMax` / `yStep` / `yIntervals` payload) and a rotated unit caption; after a period change the Y-axis maximum MUST be recomputed from the selected period window with cumulative values unchanged (§4.2 rev 1.65), and chart / grid / labels / hover-refit metadata / PNG-Copy MUST share that one Y-axis scale; the C1 period control is ONE dual-handle month-snapped track with one tick per active reporting month and the `6M` / `12M` / `24M` / `YTD` / `All` preset chips (§4.2 rev 1.66: `step="1"`, `input` visual-only, `change` single repaint, `aria-valuetext` / `aria-pressed`, print hides the interactive controls), and those five chips are ONE joined `.seg` group of `.seg-btn` buttons with EXACTLY one `aria-pressed="true"` at a time, a stored preset name (default `All`), NO active chip after a manual handle `input` / `change`, and the tools below the panel title stay on ONE visual row at the 1280 px minimum desktop width with `flex-wrap:nowrap` on `.c1-ts` (§4.2 rev 1.67); every Sub `.seg-btn` follows the §7.5 B2.1 common standard — shared CSS custom-property tokens, `--navy` active fill, `--surface2` inactive hover, `--surface3` pressed, a disabled state, a 2 px `--blue` focus ring with `outline-offset:-2px` plus a high-contrast light ring on active buttons, `type="button"` and a dynamic `aria-pressed` on ALL seven generators, `role="group"` and an accessible name on every group, equal height within each group and centre alignment between groups, the `standard` 32 px / 12 px variant and the C1 `compact` exception at ≈ 25.94 px / 11 px / `line-height:1.45` / `padding:5px 8px` with `min-height:0` and no hover or focus rule of its own (§4.2 rev 1.69 / §7.5 B2.1); the in-SVG legend sits above the plot, the `<thead>` row is flush with the plot bottom (which is also the SVG bottom) with no separate SVG X labels, the whole curve fits the board with no horizontal scroll, and bar / dot / `data-points.cx` alignment holds after the period window changes; the SVG draws four tokenised `<linearGradient>` defs and `path.sc-area` fills plus one hidden `rect.sc-hover-band` behind all marks, every month `<th>` and value `<td>` carries `data-c1col`, hovering a month column in either direction activates the band / snap line / `.col-active` highlight, and the `.chart-tip` window opens only inside the SVG chart area and is `aria-hidden="true"` with empty text whenever hidden; `aria-describedby` points at `.chart-tip` only; C3 Bar cards use the same native attached-table model, the general chart ↔ attached-table column sync and the C1 band / centre line / border-free visual contract (§4.2 rev 1.73 / 1.74 / 1.75); on the `Breakdown` page each C3 legend MUST sit ABOVE `.c3-grid` in Bar view and above the donut `<svg>` in Pie view, MUST be rendered in-SVG, and the exported PNG / Copy MUST keep the legend at the top (§4.2 rev 1.78) | §4.2, §4.6 |
 | 22 | Every tabular view uses the ONE shared table hover crosshair: the hovered row, logical column including its split header, and intersection cell are highlighted; split-header cells pair by rendered column position or an explicit column identifier, never raw `cellIndex`; C1 and C3 `.col-active` / chart sync is preserved by the general attached-table column sync rule (§4.2 rev 1.74 / 1.75); the hidden column band and the `.chart-snap` centre line move with the active column in both directions, and active chart or table column cells carry no border, outline or inset ring (§4.2 rev 1.75); C3 attached tables participate through `data-table-crosshair` / `data-col-id` and `role="group"` on the card; on the `Breakdown` page (§4.1 rev 1.76) both chart panels and the summary panel's table follow the same crosshair rule inside their own panels, and no panel reads or writes another panel's hover state; column rules and `position:relative` are unchanged; and transient hover classes, the band and the centre line are absent from PNG, Copy and print | §7.2.16 |
 | 23 | A chart that renders a native attached table whose columns share the chart's X positions uses ONE transient two-way chart ↔ attached-table column sync: hovering a chart column or a table column highlights the SAME logical column in both, inside the owning chart card only; C1 keeps `data-c1col` / `.sc-hover-band` / snap line / `.col-active`, and C3 Bar keeps shared `data-col-id` on `.g-bar`, dimension headers and value cells plus ONE `.col-active` state per `.c3-card`; each C3 card is independent (on the `Breakdown` page, §4.1 rev 1.76, the `Submissions` and `Approval Status` chart panels each own their state and sync scope), no competing `.col-hover` column state is applied, `.row-hover` / `.cell-hover` may still apply, the `.chart-tip` window stays closed while the cursor is in the attached table, and the state clears on pointer leave / blur / Escape / repaint / print and is absent from PNG / Copy / print (§4.2 rev 1.74); C1 and C3 Bar each draw ONE hidden column band and ONE hidden dashed `.chart-snap` centre line, both MUST move with the active column in BOTH directions, and no active chart or table column cell MAY carry a border, outline or inset ring (§4.2 rev 1.75); the band and centre line stay hidden on leave / blur / Escape / repaint / print and absent from PNG / Copy / print (§4.2 rev 1.75) | §4.2, §4.6, §7.2.16 |
-| 24 | The sidebar lists `Breakdown` directly under `Overview` (§3.2 rev 1.76); the `Breakdown` page holds THREE fully independent panels — `Submissions`, `Approval Status` (charts, side by side, `Submissions` first) and `Breakdown Summary` (full width below) — each with its OWN `c3Month` / `c3Dim` / `c3View` state, so changing a control in one panel changes nothing in the others, and each chart switches between Bar and donut independently (§4.1 rev 1.76); the Overview page keeps KPI, C1 and C2 only; each C3 HTML `.c3-legend` sits ABOVE its chart (§4.2 rev 1.76); the summary panel owns Month, Break-down-by and the `⤓ Download` CSV control, its table uses the compact row tokens with no inner vertical scroll at 1280 px, and the orphan discipline (submittal rows not registered in MDL) is named `Others`, not `Unknown` (§4.1 rev 1.76); each chart panel shows ONE tool row — Month select, Break-down-by and Bar / Pie on the left, `⤓ PNG` + `⧉ Copy` on the right, no second head row — and the Month select carries no visible `Month` text (§4.2 rev 1.77) | §3.2, §4.1, §4.2 |
+| 24 | The sidebar lists `Breakdown` directly under `Overview` (§3.2 rev 1.76); the `Breakdown` page holds THREE fully independent panels — `Submissions`, `Approval Status` (charts, side by side, `Submissions` first) and `Breakdown Summary` (full width below) — each with its OWN `c3Month` / `c3Dim` / `c3View` state, so changing a control in one panel changes nothing in the others, and each chart switches between Bar and donut independently (§4.1 rev 1.76); the Overview page keeps KPI, C1 and C2 only; each C3 legend sits ABOVE its chart and is in-SVG (§4.2 rev 1.78); the summary panel owns Month, Break-down-by and the `⤓ Download` CSV control, its table uses the compact row tokens with no inner vertical scroll at 1280 px, and the orphan discipline (submittal rows not registered in MDL) is named `Others`, not `Unknown` (§4.1 rev 1.76); each chart panel shows ONE tool row — Month select, Break-down-by and Bar / Pie on the left, `⤓ PNG` + `⧉ Copy` on the right, no second head row — and the Month select carries no visible `Month` text (§4.2 rev 1.77) | §3.2, §4.1, §4.2 |
+| 25 | Every gap in the three Breakdown panels is a named token from the §6 inventory and no rule hard-codes a gap value (§0, §4.2 rev 1.80); the tool row (part 3) sits inside its owning card — chart card 2 in both chart panels, summary table card 9 in the Breakdown Summary panel — with equal `--c3-tool-pad` on all four sides and the same padding in all three panels, and only the two chart cards use a scoped negative margin equal to `--c3-card-pad` that cancels the outer card padding while the card border and the chart / table inset stay (§4.2 rev 1.80); the bar-plot-to-attached-table gap equals the derived token `--c3-plot-table-gap` = `--c3-axis-label-h / 3` (6 px at the default 18 px label height), is minimized without the table overlapping the plot baseline or the `0` tick label, and still scales with the label height (§4.2 rev 1.80) | §0, §4.2, §6 |
 
 ### 8.3 Pipeline testability
 
@@ -2220,3 +2284,107 @@ advisory-with-reason, (b) its own suite passes, and (c) its workplan carries the
    these choices in the dashboard workplan. The shell and navigation form are not choices.
 6. Wire the shared layout harness and add the dashboard's own check module and suite (§8.1).
 7. Complete the conformance record (§8.4) before first release (§8.5).
+
+---
+
+## Appendix A — UI Comparison & Standardisation Register (non-normative)
+
+This appendix is the **non-normative** register behind the normative clauses above. The full source
+is `archive/ui_comparison_and_standardisation_matrix.md`. Where this appendix and a normative section
+differ, the normative section wins. The single-option principle applies: where C1 and C3 once used
+different implementations, the spec above states ONE standard.
+
+### A.1 Target technology allocation
+
+| Technology | Responsibility | Policy |
+|---|---|---|
+| HTML5 | Shell, panels, cards, controls, semantic tables, tooltips, ARIA | Default |
+| CSS3 | Tokens, typography, borders, radii, print | Default |
+| CSS Grid | Page / panel grids, chart↔table tracks | Default |
+| CSS Flexbox | Title bars, toolbars, control clusters | Default |
+| SVG | Chart render, axes, gridlines, series, in-SVG legends, export | Default |
+| JavaScript | `S0`–`S6` pipeline, `STATE`, `ResizeObserver`, delegated binders | Default |
+| Canvas | High-volume render where SVG degrades | Conditional |
+| DOM-to-image | HTML rasterisation where SVG serialisation fails | Conditional |
+| Web Components | Reusable encapsulation | Optional |
+
+### A.2 Standardisation items 1–30
+
+| # | UI Element | Recommended standard (single option) |
+|---|---|---|
+| 1 | Outer panel border | `.panel`, `1px solid var(--border)`, `10px` radius, `--surface`, `padding:14px 14px 26px` (§4) |
+| 2 | Inner chart card | One graph = panel edge only; several graphs or graph+controls = one inner `.c-card`/`.c3-card` (`1px solid var(--border)`, `10px` radius, `padding:12px`) |
+| 3 | Panel heading | `<h2>` 13px/700 uppercase `var(--navy)`, Help `?` left of Collapse `−` |
+| 4 | Chart legend | **One in-SVG `<g>` above the plot** for every panel (C1 and C3); no HTML `.c3-legend` element (§4.2 rev 1.78) |
+| 5 | Y-axis | SVG `sc-yaxis-line` + dynamic nice-number ticks (`<= 7` intervals, `<= 8` labels, `~40px` spacing) from one `data-c1meta` (§4.2 rev 1.64) |
+| 6 | Time scope | Card-owned period control in the right-aligned cluster; widget fixed by data (dual-handle track + presets for timeline, native select for discrete month) |
+| 7 | Visible control label | Remove visible `Month` text on C3 selects; use `aria-label`; keep `<label>` where required |
+| 8 | Grain selector | §7.5 B2.1 `.seg` (`role="group"`, `aria-pressed`) |
+| 9 | Series / view controls | B1 `.tf-btn`, B2 `.seg`, B5 `.inter-sel` with panel-scoped ownership |
+| 10 | Chart toolbar | One tool row per chart card (`flex-wrap:nowrap` at `1280px`); no second head row |
+| 11 | Export controls | `.btn-secondary` (`min-height:32px`), PNG before Copy at far right |
+| 12 | Toolbar left-group flex | `margin-right:auto` left-aligns scope/filter/view; export right |
+| 13 | Attached table | One native semantic `<table>` (`<caption>`,`<colgroup>`,`<thead>`,`<tbody>`,`scope`) in chart board; C3 summary its own full-width panel |
+| 14 | Chart↔table sync | One shared `data-col-id`/`data-c1col`, ONE hidden band (`0.08` opacity), ONE hidden `.chart-snap`, border-free `.col-active` |
+| 15 | Chart hover | One delegated `bindChartHover()` binder on `data-points`/`data-geo`; native `<title>` retired |
+| 16 | Button height | One `--btn-h:32px` text-button token; `26px` square icon-only |
+| 17 | Table crosshair | `.row-hover`+`.cell-hover`+`.col-active`; `.col-hover` suppressed |
+| 18 | Panel spacing | `--panel-gap:14px`; `16px` chart cards; `12px` validation cards |
+| 19 | Typography | `--font-ui` stack; 13px body/h2/h3, 22px KPI, 12px controls, 11px tooltips/meta, `tabular-nums` |
+| 20 | Colour system | Centralised semantic tokens, zero hard-coded hex, 5 themes |
+| 21 | Spacing system | 8 pt scale `4·8·12·16·24·32·48`; gutters `--c1-gutter`/`--c3-gutter:104px`, `--sidebar-w:160px` |
+| 22 | Border and radius | Radii `10/8/6px`; single-border rule (`.c-card:has(.ds-split){border:0}`) |
+| 23 | Hover / focus | `:focus-visible` 2px `var(--blue)`, `outline-offset:-2px`; WCAG AA |
+| 24 | Responsive | `ResizeObserver` reflow, no h-scroll, `auto-fit`, flex-wrap below `1280px` |
+| 25 | Tooltip | `.chart-tip`: `pointer-events:none`, 4-edge clamp, `aria-hidden`+empty when hidden |
+| 26 | Keyboard / touch | `tabindex=0`, `aria-describedby`, Escape/blur, touch tap-to-show |
+| 27 | PNG / Copy | Native SVG serialisation, no `<foreignObject>`, top legend kept, transient stripped |
+| 28 | Print | `@media print` strips hover/bands/snap, hides sliders/chips, releases scroller |
+| 29 | Control alignment | `align-items:center`, `gap:8px`, title-case, fixed order |
+| 30 | UI validation | §8 two-layer suite; 24 normative assertions |
+
+### A.3 Architecture & governance items 31–44
+
+| # | Standard | Recommended implementation |
+|---|---|---|
+| 31 | Component naming | Normative class names (`.panel`,`.c-card`,`.ds-table`,`.btn-secondary`,`.seg`,`.inter-sel`,`.chart-tip`,`.chart-snap`,`.col-active`) |
+| 32 | Design tokens | All tokens in `:root` across 5 themes, project-local CSS (no `/common/`) |
+| 33 | Component ownership | Shell / Panel / Card own their chrome; C3 `Breakdown` = 3 independent `data-c3panel` panels |
+| 34 | State management | Single `STATE`, `S0`–`S6`, write-only S5 render, persisted collapse & preset names |
+| 35 | Loading | MDL welcome overlay (golden ratio), controls in drop zone, Code-sheet validation |
+| 36 | Empty | `.empty` caption, `.ok` chip at 0, `Nothing to export` toast |
+| 37 | Error | `#errBanner` `role=alert` below menu bar, above filter strip; row issues → Validation |
+| 38 | Data formatting | `MMM YYYY`/`Qn YYYY`/`YYYY`, local-time, `d` 1 decimal, `0` not blank |
+| 39 | Text overflow | `.ds-table` ellipsis, `.drill-cell` clip, full titles on Forward/Overdue |
+| 40 | Browser compat | `1280px` min, `ResizeObserver`, standalone `file://`, no fetch/import |
+| 41 | Performance | SVG `H=300` `ResizeObserver`, scroller `340px`, 200-row pagination, Canvas conditional |
+| 42 | Component testing | Two-layer `harness-layout` Tiers 1–5 + unit/integration |
+| 43 | Design exceptions | Mandatory Conformance Record in workplan (clause, reason, posture, end state) |
+| 44 | Version control | Root and harness copies byte-identical; preserve revision rows; regenerate standalone build |
+
+### A.4 Prioritised migration plan
+
+| # | Element | C1 change | C3 change | Priority |
+|---|---|---|---|---|
+| 1 | Y-axis | Retain SVG | Migrate HTML axis to SVG | P1 |
+| 2 | Chart/table sync | Retain | Adopt shared `data-col-id` + band/snap | P1 |
+| 3 | Table crosshair | Retain | Adopt `.row-hover`/`.cell-hover` | P1 |
+| 4 | Tooltip | Standardise `.chart-tip` | Standardise `.chart-tip` | P1 |
+| 5 | Chart hover | Retain nearest-mode | Retain element-mode | P1 |
+| 6 | Design tokens | `:root` tokens | `:root` tokens | P1 |
+| 7 | Control styling | `32px` `--btn-h` | `32px` `--btn-h`, no `Month` label | P1 |
+| 8 | Page structure | Keep single-panel C1 | Split into 3 panels | P1 |
+| 9 | Toolbar layout | Single-row `.c1-ts` | Single-row per chart panel | P2 |
+| 10 | Legend & export | Retain in-SVG top legend | **Retain in-SVG top legend (updated rev 1.78; was HTML `.c3-legend`)** | P2 |
+
+### A.5 Specification integration map
+
+| Section | Items | Scope |
+|---|---|---|
+| §0–§2 | 31, 32, 33, 43 | Vocabulary, project-local assets, ownership |
+| §3 | 18, 24, 33, 34, 35, 37, 40 | Shell, pipeline, standalone |
+| §4 | 1–15, 18, 22, 25, 27 | Panels, cards, charts, hover |
+| §5 | 18, 19, 22, 24 | KPI panel |
+| §6 | 19, 20, 21, 22, 32 | Project-local tokens |
+| §7 | 6–11, 16, 17, 23, 26, 29, 36, 39 | Component library, tables |
+| §8–§9 | 30, 41, 42, 43, 44 | Conformance, testing, adoption |

@@ -1,3 +1,4 @@
+// Revision 0.25 | 2026-11-15 | CodeBuddy (AI) | §4.2 rev 1.80 / I137 — a new test covers the universal named-token gap contract: the eight §6 tokens (including the derived `--c3-plot-table-gap`), the uniform four-side `--c3-tool-pad` tool row with `margin:0`, the scoped negative margin on the two chart cards only, the padding-free summary card, the derived `margin-top` on `.c3-table`, no hard-coded gap value in the governed rules, and three rendered tool rows with the summary tool row as its card's first child. No existing assertion was weakened.
 // Revision 0.24 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.75 — a new test covers the C1 visual contract on C3 Bar cards: ONE hidden `.c3-col-band` before the bars, ONE hidden `.c3-col-snap` after them, both moved by one resolver in both hover directions, no border / outline / inset ring on active column cells, and print / PNG / Copy suppression. The rev 1.74 print and export assertions now read the rev 1.75 rules. No existing assertion was weakened.
 // Revision 0.23 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.74 / I131 — a new test covers the general chart ↔ attached-table column sync on C3 Bar cards: shared `data-col-id` on `.g-bar` / headers / value cells, one opt-in two-way binder path, tooltip gating, clear-on-leave, no competing `.col-hover`, scoped tokenised CSS, print neutralisation, whole-card export stripping and unchanged C1 reference behaviour. No existing assertion was weakened.
 // Revision 0.22 | 2026-11-13 | CodeBuddy (AI) | §4.2 rev 1.73 / I130 — C3 Bar attached tables are now native HTML tables. The C3 markup tests assert two `.c3-table` elements with caption, colgroup, thead, tbody, scope, data-col-id and the kept `.g-axis` / `.g-label` / `.g-val` classes. The §7.2.16 contract grows from nine to ten table emitters, and rendered Overview gains two C3 crosshair tables. A new test checks `role="group"` on the cards, `table-layout:fixed` CSS, the PNG / Copy table-rule export and hover-strip call. No existing assertion was weakened.
@@ -1069,6 +1070,45 @@ test('I134 — each chart panel shows ONE tool row with no visible Month text', 
       assert.ok(left > -1 && left < viewSeg && viewSeg < right && right < png, `the ${view} tool row is controls first, PNG / Copy last`);
     }
   }
+});
+
+test('§4.2 rev 1.80 / I137 — Breakdown gaps are named tokens with a uniform four-side tool-row padding', () => {
+  const css = fs.readFileSync(path.join(root, 'engine/dashboard.css'), 'utf8');
+  const rules = css.replace(/\/\*[\s\S]*?\*\//g, '');
+
+  // §6 / assertion 25 — ONE named token per gap; the plot-to-table gap is derived from the label height.
+  for (const [token, name] of [
+    ['--panel-gap:14px', 'panel gap'],
+    ['--panel-pad:14px', 'panel pad'],
+    ['--panel-title-gap:10px', 'panel title gap'],
+    ['--c3-card-pad:12px', 'card pad'],
+    ['--c3-tool-pad:12px', 'tool pad'],
+    ['--c3-tool-gap:10px', 'tool gap'],
+    ['--c3-axis-label-h:18px', 'axis label height'],
+    ['--c3-plot-table-gap:calc(var(--c3-axis-label-h) / 3)', 'plot-to-table gap']
+  ]) assert.ok(rules.includes(token), `the ${name} is a named token`);
+
+  // Tool row: --c3-tool-pad on ALL FOUR sides with margin 0 — identical in all three panels.
+  assert.ok(rules.includes('.c3-controls{display:flex;align-items:center;gap:var(--c3-tool-gap);flex-wrap:wrap;margin:0;padding:var(--c3-tool-pad)}'),
+    'the tool row carries --c3-tool-pad on all four sides');
+  // ONLY the two chart cards cancel the card padding; the summary card keeps the base rule.
+  assert.ok(rules.includes('.c3-card > .c3-controls{margin:calc(-1 * var(--c3-card-pad)) calc(-1 * var(--c3-card-pad)) 0}'),
+    'the chart cards use the scoped negative margin');
+  assert.match(rules, /\.c3-summary-card\{[^}]*padding:0\}/, 'the summary card has no extra padding');
+  assert.doesNotMatch(rules, /\.c3-summary-card[^{]*\{[^}]*margin:calc/, 'the summary card never takes a negative margin');
+  // The minimized plot-to-table gap scales with the label height.
+  assert.ok(rules.includes('margin-top:var(--c3-plot-table-gap)'), 'the attached table uses the derived gap token');
+  // No hard-coded gap value in the governed Breakdown rules.
+  assert.doesNotMatch(rules, /\.c3-controls\{[^}]*gap:\d+px/, 'the tool-row gaps come from tokens');
+  assert.doesNotMatch(rules, /\.breakdown-grid[^{]*\{[^}]*gap:14px/, 'the Breakdown grid gap comes from --panel-gap');
+
+  // Rendered: three tool rows, and the summary tool row is its card's first child (base rule).
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Breakdown' });
+  assert.equal((html.match(/class="c3-controls"/g) || []).length, 3, 'three tool rows render, one per panel');
+  assert.match(html, /class="c-card c3-summary-card"><div class="c3-controls">/,
+    'the summary tool row is the summary card\'s first child and follows the base rule');
 });
 
 test('C3 Pie view renders two donut cards (Submissions, Approval Status); Break-down-by hidden', () => {

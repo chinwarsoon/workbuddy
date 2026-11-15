@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Breakdown — Spec review sample (I135)</title>
+<style>
+/* Review sample for I135. Demonstrates the UI-spec design: in-SVG legend (primary, exported with the
+   plot) and an SVG y-axis (§4.2 rev 1.78 / rev 1.64). Borders and parts are identified with dashed
+   outlines + numbered badges for review. */
+:root{
+  --navy:#15314f; --blue:#2b6cf6; --green:#17a67a; --amber:#F9A825; --red:#d23b3b; --slate:#64748B;
+  /* Gap constants (§0 spacing scale / §4.7 / §6 / §4.2 rev 1.79) — every gap is a named token,
+     never a hard-coded value. Change one constant and all three panels follow. */
+  --panel-gap:14px;       /* top-level panel-to-panel gap (§4.7, §6) */
+  --panel-pad:14px;       /* panel border → content */
+  --panel-title-gap:10px; /* panel title → card */
+  --c3-card-pad:12px;     /* card border → tool row / chart / table (adjacent borders) */
+  --c3-tool-pad:12px;     /* padding distance around the tool row, all four sides */
+  --c3-tool-gap:10px;     /* gap between the control groups inside the tool row */
+  --c3-axis-label-h:18px; /* x-axis label height (§4.2 rev 1.79) */
+  --c3-plot-table-gap:calc(var(--c3-axis-label-h) / 3); /* plot→table gap = 6 px, scales with label height (§4.2 rev 1.79) */
+  /* C1 border-standard owner colors (§4.2) — panel/board/yaxis/plot/table */
+  --bw:1px; --r:10px; --b-common:var(--border);
+  --b-panel:#64748b; --b-board:#2563eb; --b-yaxis:#059669; --b-plot:#d97706; --b-table:#db2777;
+  --bg:#eef2f8; --surface:#FFFFFF; --surface2:#F1F5F9; --surface3:#E8EDF3;
+  --border:#D9E1E8; --text:#1F2A37; --text2:#526171; --text3:#6b7785;
+  --radius:12px; --radius-sm:6px;
+  --btn-h:32px;
+  --color-new:#1f6fb2; --color-resub:#f4a259; --color-ur:#7c3aed;
+  --color-app:#65a30d; --color-awc:#0891b2; --color-nap:#db2777; --color-rej:#d23b3b; --color-inf:#64748B; --color-no:#64748B;
+  --font-ui:'Segoe UI',system-ui,-apple-system,'Inter',Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-ui);font-size:13px;line-height:1.5}
+header.topbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border)}
+header.topbar h1{font-size:16px;margin:0;color:var(--navy);font-weight:600}
+.topbar .note{color:var(--text2);font-size:12px}
+.topbar .ctrls{margin-left:auto;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.topbar label{font-size:12px;color:var(--text2);display:inline-flex;gap:6px;align-items:center}
+main{padding:20px;max-width:1280px;margin:0 auto}
+/* §4.7 / assertion 19 — gap between top-level panels = --panel-gap */
+.breakdown-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--panel-gap);align-items:start}
+.breakdown-grid > .panel:nth-child(3){grid-column:1 / -1}
+@media(max-width:879px){.breakdown-grid{grid-template-columns:minmax(0,1fr)}.breakdown-grid>.panel:nth-child(3){grid-column:auto}}
+/* §4 — ONE outer panel border (10 px radius); gap to adjacent borders = --panel-pad */
+.panel{background:var(--surface);--owner:var(--b-panel);border:var(--bw) solid var(--b-panel);border-radius:var(--r);padding:var(--panel-pad) var(--panel-pad) 26px;position:relative}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:var(--panel-title-gap);margin-bottom:var(--panel-title-gap)}
+.panel-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--navy);margin:0}
+/* §4.2 — each chart is its own bordered card */
+.c3-card{--owner:var(--b-board);border:var(--bw) solid var(--b-board);border-radius:var(--r);padding:var(--c3-card-pad);background:#fff;display:flex;flex-direction:column;position:relative}
+/* tool row: --c3-tool-pad on all four sides, uniform in all three panels.
+   In a chart card the outer --c3-card-pad is cancelled by a scoped negative margin,
+   so --c3-tool-pad alone sets the distance to the card border. In the summary card
+   (no padding) the base rule applies directly. */
+.c3-card-head{display:flex;justify-content:space-between;align-items:center;gap:var(--c3-tool-gap);flex-wrap:wrap;margin:0;padding:var(--c3-tool-pad)}
+.c3-card > .c3-card-head{margin:calc(-1 * var(--c3-card-pad)) calc(-1 * var(--c3-card-pad)) 0}
+.c3-controls{display:flex;align-items:center;gap:var(--c3-tool-gap);flex-wrap:wrap;margin:0}
+.c3-controls .controls-left{display:flex;align-items:center;gap:var(--c3-tool-gap);flex-wrap:wrap}
+.c3-controls .controls-right{display:flex;align-items:center;gap:var(--c3-tool-gap);margin-left:auto;flex-wrap:wrap}
+.c3-month-wrap{display:inline-flex;align-items:center;gap:var(--c3-tool-gap);font-size:11px;color:var(--text2)}
+.c3-month-wrap select{padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)}
+select, .seg{font-family:inherit}
+/* §7.1 A3 — export controls .btn-secondary, min-height 32 px, PNG before Copy */
+.btn-secondary{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 12px;min-height:var(--btn-h);font-size:12px;font-weight:600;cursor:pointer;line-height:1.2}
+.btn-secondary:hover{background:var(--surface2)}
+/* §7.5 B2.1 — segmented control */
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.seg-btn{border:0;background:var(--surface);color:var(--text);padding:6px 10px;min-height:var(--btn-h);font-size:12px;font-weight:600;cursor:pointer;line-height:1.2}
+.seg-btn.active{background:var(--navy);color:#fff}
+.seg-btn+ .seg-btn{border-left:1px solid var(--border)}
+.c3-svg{display:block;width:100%;height:auto}
+.c3-new{fill:var(--color-new)} .c3-new-arc{stroke:var(--color-new)}
+.c3-resub{fill:var(--color-resub)} .c3-resub-arc{stroke:var(--color-resub)}
+.c3-ur{fill:var(--color-ur)} .c3-ur-arc{stroke:var(--color-ur)}
+.c3-app{fill:var(--color-app)} .c3-app-arc{stroke:var(--color-app)}
+.c3-awc{fill:var(--color-awc)} .c3-awc-arc{stroke:var(--color-awc)}
+.c3-nap{fill:var(--color-nap)} .c3-nap-arc{stroke:var(--color-nap)}
+.c3-rej{fill:var(--color-rej)} .c3-rej-arc{stroke:var(--color-rej)}
+.c3-inf{fill:var(--color-inf)} .c3-inf-arc{stroke:var(--color-inf)}
+.c3-no{fill:var(--color-no)} .c3-no-arc{stroke:var(--color-no)}
+.c3-axis{stroke:var(--text3);stroke-width:1.2}
+.c3-gridline{stroke:var(--border);stroke-width:1;stroke-opacity:.6}
+.c3-ytext{fill:var(--text);font-size:10px;font-weight:600;font-family:var(--font-ui)}
+.c3-xtext{fill:var(--text2);font-size:10px;font-family:var(--font-ui)}
+.c3-axis-title{fill:var(--text2);font-size:10px;font-family:var(--font-ui)}
+/* attached table columns aligned to the chart (label col = chart left gutter; 6 data cols = plot) */
+.c3-attached{--owner:var(--b-table);margin-top:var(--c3-plot-table-gap);border:var(--bw) solid var(--b-table);border-radius:0 0 var(--r) var(--r);position:relative}
+.c3-attached[hidden]{display:none}
+/* Bar view only: the attached native table is the bar chart's shared x-axis.
+   The Pie view is the all-month summary and renders no attached table (workplan I130 / I131). */
+.c3-aligned{width:100%;table-layout:fixed;border-collapse:collapse;font-size:11px;background:var(--surface)}
+.c3-aligned col.c-label{width:12%}
+.c3-aligned col.c-data{width:14.6667%}
+.c3-aligned th,.c3-aligned td{border-bottom:1px solid var(--border);height:24px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;padding:0 2px}
+.c3-aligned thead th{background:var(--surface);color:var(--navy);font-weight:700;border-top:2px solid var(--border);line-height:var(--c3-axis-label-h)}
+.c3-aligned tbody th{text-align:left;color:var(--text2);font-weight:600;padding-left:6px}
+/* §4.2 rev 1.74 / 1.75 — ONE column band + ONE dashed centre line */
+.c3-col-band{fill:var(--blue);fill-opacity:.08}
+.c3-col-snap{stroke:var(--text3);stroke-width:1;stroke-dasharray:3 3}
+.c3-label{fill:var(--text);font-size:11px;font-family:var(--font-ui)}
+/* Summary table (§4.2 / I133 N1 — compact rows, no inner scroll) */
+.c3-summary-card{--ds-row-h:26px;--ds-head-h:28px;min-width:0}
+.ds-table{width:100%;border-collapse:collapse;font-size:12px;background:var(--surface);table-layout:fixed}
+.ds-table th,.ds-table td{border-bottom:1px solid var(--border);padding:0 10px;height:var(--ds-row-h);line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;vertical-align:middle}
+.ds-table thead th{background:var(--navy);color:#fff;font-weight:600;height:var(--ds-head-h)}
+.ds-table tbody tr:nth-child(even){background:var(--surface2)}
+
+/* ---- Review annotations: identified borders / parts ---- */
+.part{position:relative;outline:1.5px dashed var(--blue);outline-offset:3px;border-radius:6px}
+.part > .badge{position:absolute;top:-10px;left:-10px;width:20px;height:20px;border-radius:50%;background:var(--blue);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:5}
+body:not(.show-parts) .part{outline:none}
+body:not(.show-parts) .part > .badge{display:none}
+.legend-parts{margin:14px 0 0;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+.legend-parts h2{font-size:13px;margin:0 0 8px;color:var(--navy)}
+.legend-parts ol{margin:0;padding-left:20px;color:var(--text2);font-size:12px}
+.legend-parts li{margin:2px 0}
+.tag{display:inline-block;font-size:11px;color:var(--blue);border:1px solid var(--blue);border-radius:4px;padding:1px 6px;margin-left:6px}
+/* C1 border-standard owner markers (§4.2): panel/board/yaxis/plot/table */
+[data-owner]{position:relative}
+[data-owner]::before{content:attr(data-owner);position:absolute;top:-9px;left:14px;z-index:9;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--owner);color:#fff;font:700 10px var(--font-ui);box-shadow:0 0 0 2px var(--surface);pointer-events:none}
+.c3-owner rect{fill:none;stroke-width:1}
+.c3-owner-yaxis rect{stroke:var(--b-yaxis)}
+.c3-owner-plot rect{stroke:var(--b-plot)}
+.c3-owner circle{stroke:#fff;stroke-width:1}
+.c3-owner-yaxis circle{fill:var(--b-yaxis)}
+.c3-owner-plot circle{fill:var(--b-plot)}
+.c3-owner text{fill:#fff;font:700 10px var(--font-ui);text-anchor:middle;dominant-baseline:central}
+body.one-token-borders{--b-panel:var(--b-common);--b-board:var(--b-common);--b-yaxis:var(--b-common);--b-plot:var(--b-common);--b-table:var(--b-common)}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <h1>Breakdown — Spec review sample</h1>
+  <span class="note">I135 · in-SVG legend (exported with plot) · SVG y-axis</span>
+  <div class="ctrls">
+    <label><input type="checkbox" id="partsToggle" checked> Show part labels</label>
+    <label><input type="checkbox" id="oneToken"> One token borders</label>
+  </div>
+</header>
+
+<main>
+  <div class="breakdown-grid">
+
+    <!-- Panel 1: Submissions -->
+    <section class="panel" data-owner="1">
+      <div class="panel-head">
+        <h2 class="panel-title">Submissions</h2>
+      </div>
+      <div class="c3-card" data-owner="2">
+        <div class="c3-card-head part"><span class="badge">3</span>
+          <div class="c3-controls">
+            <div class="controls-left">
+              <label class="c3-month-wrap"><select aria-label="C3 month"><option>ALL</option><option>2026-11</option></select></label>
+              <select aria-label="Break-down-by" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-family:inherit">
+                <option>Discipline</option><option>Submitter</option></select>
+              <div class="seg" role="group" aria-label="View">
+                <button class="seg-btn active" data-view="bar">Bar</button>
+                <button class="seg-btn" data-view="pie">Pie</button>
+              </div>
+            </div>
+            <div class="controls-right part"><span class="badge">8</span>
+              <button class="btn-secondary" data-png>⤓ PNG</button>
+              <button class="btn-secondary" data-copy>⧉ Copy</button>
+            </div>
+          </div>
+        </div>
+        <!-- in-SVG legend + bar chart (with SVG y-axis) -->
+        <div id="chart-submissions"></div>
+        <!-- attached native table: columns aligned to chart columns, stuck to chart bottom -->
+        <div class="c3-attached" id="att-submissions" data-owner="7">
+          <table class="ds-table c3-aligned" data-table-crosshair id="tbl-submissions">
+            <caption style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Submissions by discipline — columns aligned with chart</caption>
+            <colgroup><col class="c-label"><col class="c-data"><col class="c-data"><col class="c-data"><col class="c-data"><col class="c-data"><col class="c-data"></colgroup>
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panel 2: Approval Status -->
+    <section class="panel" data-owner="1">
+      <div class="panel-head">
+        <h2 class="panel-title">Approval Status</h2>
+      </div>
+      <div class="c3-card" data-owner="2">
+        <div class="c3-card-head part"><span class="badge">3</span>
+          <div class="c3-controls">
+            <div class="controls-left">
+              <label class="c3-month-wrap"><select aria-label="C3 month"><option>ALL</option><option>2026-11</option></select></label>
+              <select aria-label="Break-down-by" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-family:inherit">
+                <option>Discipline</option><option>Submitter</option></select>
+              <div class="seg" role="group" aria-label="View">
+                <button class="seg-btn" data-view="bar">Bar</button>
+                <button class="seg-btn active" data-view="pie">Pie</button>
+              </div>
+            </div>
+            <div class="controls-right part"><span class="badge">8</span>
+              <button class="btn-secondary" data-png>⤓ PNG</button>
+              <button class="btn-secondary" data-copy>⧉ Copy</button>
+            </div>
+          </div>
+        </div>
+        <div class="c3-card-body">
+          <div id="chart-approval"></div>
+        </div>
+        <!-- attached native table: columns aligned to chart columns, stuck to chart bottom -->
+        <div class="c3-attached" id="att-approval" data-owner="7" hidden>
+          <table class="ds-table c3-aligned" data-table-crosshair id="tbl-approval">
+            <caption style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Approval status by outcome — columns aligned with chart</caption>
+            <colgroup><col class="c-label"><col class="c-data"><col class="c-data"><col class="c-data"><col class="c-data"><col class="c-data"><col class="c-data"><col class="c-data"></colgroup>
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panel 3: Breakdown Summary -->
+    <section class="panel" data-owner="1">
+      <div class="panel-head">
+        <h2 class="panel-title">Breakdown Summary</h2>
+      </div>
+      <div class="c3-summary-card part"><span class="badge">9</span>
+        <div class="c3-card-head part"><span class="badge">3</span>
+          <div class="c3-controls">
+          <div class="controls-left">
+            <label class="c3-month-wrap"><select aria-label="C3 month"><option>ALL</option><option>2026-11</option></select></label>
+            <select aria-label="Break-down-by" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-family:inherit">
+              <option>Discipline</option><option>Submitter</option></select>
+          </div>
+          <div class="controls-right">
+            <button class="btn-secondary" data-export>⤓ Download</button>
+          </div>
+        </div>
+        </div>
+        <table class="ds-table" data-table-crosshair>
+          <caption style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Breakdown summary</caption>
+          <thead><tr><th>Discipline</th><th>First</th><th>Resub</th><th>App</th><th>AWC</th><th>NAP</th><th>REJ</th><th>INF</th><th>SUR</th></tr></thead>
+          <tbody id="tbl-summary"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="legend-parts">
+    <h2>Identified parts (borders)</h2>
+    <p class="sub" style="margin:0 0 8px;color:var(--text2);font-size:12px">Border colors follow the <b>C1 border standard</b> (§4.2): panel = slate, board = blue, y-axis = green, plot = amber, table = pink. The <b>One token borders</b> toggle collapses them to one common token. Numbers match the badges on the page. The in-SVG legend sits inside the plot (amber) border — matching C1, where the legend is included within the plot area.</p>
+    <p class="sub" style="margin:0 0 8px;color:var(--text2);font-size:12px"><b>Gaps are named constants</b> (§6 "no rule hard-codes a value"; §0 spacing scale): <code>--panel-gap</code> (panel↔panel), <code>--panel-pad</code> / <code>--panel-title-gap</code> (card↔adjacent borders), <code>--c3-card-pad</code> (chart/table inset inside card border), <code>--c3-tool-pad</code> (padding around tool row, all four sides), <code>--c3-tool-gap</code> (between control groups inside the tool row), <code>--c3-axis-label-h</code> (x-axis label height, §4.2 rev 1.79), <code>--c3-plot-table-gap</code> (minimized plot→table gap = label height ÷ 3 = 6 px; still scales with the label, keeps the "0" tick clear). One constant change updates all three panels.</p>
+    <p class="sub" style="margin:0 0 8px;color:var(--text2);font-size:12px"><b>Tool-row padding matches across all three panels</b>: <code>--c3-tool-pad</code> = 12 px on all four sides. Tool row 3 sits inside chart card 2 and inside summary table card 9. In the two chart cards a scoped negative margin cancels the outer <code>--c3-card-pad</code>, so the tool padding alone sets the distance to the border; the chart and table keep their 12 px inset. The summary card has no extra padding, so the base rule applies directly.</p>
+    <ol>
+      <li><b>Panel border</b> — one outer <code>.panel</code> (10 px radius, 1 px border) per top-level panel <span class="tag">§4</span></li>
+      <li><b>Chart card</b> — one inner <code>.c3-card</code> (own border, 10 px radius) <span class="tag">§4.2</span></li>
+      <li><b>Tool row</b> — ONE row: left = Month (no visible text, <code>aria-label</code>) / Break-down-by / Bar-Pie; right = PNG + Copy <span class="tag">§4.2 rev 1.77</span></li>
+      <li><b>in-SVG legend</b> (primary) — a `<g>` inside the chart `<svg>`, above the plot; no HTML <code>.c3-legend</code> (retired, §4.2 rev 1.78) <span class="tag">§4.2 rev 1.78</span></li>
+      <li><b>SVG y-axis</b> (Bar chart) — `<g>` with dynamic nice-number ticks + gridlines + axis title, SHOWN on the Bar chart (Pie has none), scaled to the visible window <span class="tag">§4.2 rev 1.64</span> · <span class="tag">border green</span></li>
+      <li><b>Plot area / bars / donut</b> — SVG series; ONE column band + ONE dashed centre line <span class="tag">§4.2 rev 1.75</span> · <span class="tag">border amber</span></li>
+      <li><b>Attached native table</b> — <b>Bar view only</b> (the Pie view is the all-month summary and has no attached table); its header row IS the shared x-axis (discipline labels under each bar); columns aligned with the chart columns (label col = chart gutter, 6 data cols = plot), separated from the plot by a vertical gap that scales with the x-axis label height; shared <code>data-col-id</code> <span class="tag">§4.2 rev 1.79</span> · <span class="tag">border pink</span></li>
+      <li><b>Export controls</b> — <code>.btn-secondary</code>, 32 px, PNG before Copy; PNG / Copy serialize the in-SVG legend with the plot; the Summary panel's <code>⤓ Download</code> exports the summary table as CSV (rev 1.76) <span class="tag">§7.1 A3</span></li>
+      <li><b>Summary panel</b> — own full-width panel, compact rows, no inner scroll <span class="tag">I133 N1</span></li>
+    </ol>
+  </div>
+</main>
+
+<script>
+/* ---- Sample data (hard-coded for review) ---- */
+const DISC = ['Arch','Struct','MEP','Civil','Land','Other'];
+const SUB = [
+  {d:'Arch',   first:120, resub:18, app:70,  awc:40, nap:12, rej:8,  inf:5,  sur:3},
+  {d:'Struct', first:95,  resub:12, app:55,  awc:30, nap:8,  rej:5,  inf:3,  sur:6},
+  {d:'MEP',    first:140, resub:22, app:80,  awc:45, nap:15, rej:10, inf:6,  sur:6},
+  {d:'Civil',  first:60,  resub:8,  app:35,  awc:18, nap:5,  rej:2,  inf:2,  sur:6},
+  {d:'Land',   first:40,  resub:5,  app:22,  awc:12, nap:3,  rej:1,  inf:1,  sur:6},
+  {d:'Other',  first:30,  resub:4,  app:18,  awc:8,  nap:2,  rej:1,  inf:1,  sur:4},
+];
+const APPROVAL = [
+  {key:'APP', label:'APP', cls:'c3-app', v:280},
+  {key:'AWC', label:'AWC', cls:'c3-awc', v:153},
+  {key:'NAP', label:'NAP', cls:'c3-nap', v:45},
+  {key:'REJ', label:'REJ', cls:'c3-rej', v:27},
+  {key:'INF', label:'INF', cls:'c3-inf', v:18},
+  {key:'SUR', label:'SUR', cls:'c3-ur',  v:31},
+  {key:'NO',  label:'No Outcome', cls:'c3-no', v:24},
+];
+
+/* ---- helpers ---- */
+function niceCeil(v){
+  if(v<=0) return 1;
+  const exp = Math.floor(Math.log10(v));
+  const base = Math.pow(10,exp);
+  const f = v/base;
+  let nf;
+  if(f<=1) nf=1; else if(f<=2) nf=2; else if(f<=2.5) nf=2.5; else if(f<=5) nf=5; else nf=10;
+  return nf*base;
+}
+function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function polar(cx,cy,r,a){return [cx+r*Math.cos(a), cy+r*Math.sin(a)];}
+function donutArc(cx,cy,r,sw,a0,a1){
+  const oR=r+sw/2, iR=r-sw/2;
+  const [x1,y1]=polar(cx,cy,oR,a0), [x2,y2]=polar(cx,cy,oR,a1);
+  const [x3,y3]=polar(cx,cy,iR,a1), [x4,y4]=polar(cx,cy,iR,a0);
+  const large=(a1-a0)>Math.PI?1:0;
+  return `M${x1.toFixed(2)} ${y1.toFixed(2)} A${oR} ${oR} 0 ${large} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} L${x3.toFixed(2)} ${y3.toFixed(2)} A${iR} ${iR} 0 ${large} 0 ${x4.toFixed(2)} ${y4.toFixed(2)} Z`;
+}
+
+/* in-SVG legend group (primary). Items: [{cls,label}] */
+function legendGroup(items, x, y){
+  let g=`<g class="c3-legend-g" transform="translate(${x},${y})">`;
+  let cx=0;
+  items.forEach(it=>{
+    g+=`<g transform="translate(${cx},0)"><rect class="${it.cls}" width="10" height="10" rx="2"></rect><text x="14" y="9" class="c3-label">${esc(it.label)}</text></g>`;
+    cx += Math.max(60, it.label.length*6.5 + 24);
+  });
+  return g+`</g>`;
+}
+
+
+/* ---- Submissions bar chart (SVG) ---- */
+function renderBar(){
+  const W=600,H=336, left=72, right=600, yTop=52, yBot=330;
+  const plotH=yBot-yTop, plotW=right-left, N=DISC.length;
+  const maxTotal=Math.max(...SUB.map(r=>r.first+r.resub));
+  const yMax=niceCeil(maxTotal);
+  const colW=plotW/N, barW=colW*0.5;
+  const items=[{cls:'c3-new',label:'First Submission'},{cls:'c3-resub',label:'Resubmission'}];
+  let s=`<svg class="c3-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Submissions by discipline" data-legend='${JSON.stringify(items).replace(/'/g,"&#39;")}'>`;
+  s+=legendGroup(items, left, 14);
+  // y-axis + gridlines (SVG, rev 1.64)
+  s+=`<line class="c3-axis" x1="${left}" y1="${yTop}" x2="${left}" y2="${yBot}"></line>`;
+  const intervals=4;
+  for(let i=0;i<=intervals;i++){
+    const val=yMax*i/intervals, y=yBot-(val/yMax)*plotH;
+    s+=`<line class="c3-gridline" x1="${left}" y1="${y.toFixed(1)}" x2="${right}" y2="${y.toFixed(1)}"></line>`;
+    s+=`<text class="c3-ytext" x="${left-6}" y="${(y+3).toFixed(1)}" text-anchor="end">${val}</text>`;
+  }
+  s+=`<text class="c3-axis-title" transform="translate(16,191) rotate(-90)" text-anchor="middle">Documents</text>`;
+  // bars + ONE column band + ONE centre line (rev 1.75)
+  SUB.forEach((r,i)=>{
+    const cx=left+colW*i+colW/2;
+    const x=cx-barW/2;
+    const hNew=r.first/yMax*plotH, hRes=r.resub/yMax*plotH;
+    const yNew=yBot-hNew, yRes=yNew-hRes;
+    const colId=i;
+    s+=`<rect class="c3-col-band" data-col-id="${colId}" x="${x.toFixed(1)}" y="${yTop}" width="${barW.toFixed(1)}" height="${plotH}" style="display:none"></rect>`;
+    s+=`<rect class="c3-new" x="${x.toFixed(1)}" y="${yNew.toFixed(1)}" width="${barW.toFixed(1)}" height="${hNew.toFixed(1)}"></rect>`;
+    s+=`<rect class="c3-resub" x="${x.toFixed(1)}" y="${yRes.toFixed(1)}" width="${barW.toFixed(1)}" height="${hRes.toFixed(1)}"></rect>`;
+    s+=`<line class="c3-col-snap" x1="${cx}" y1="${yTop}" x2="${cx}" y2="${yBot}" style="display:none"></line>`;
+  });
+  // C1 border-standard overlays: y-axis zone (part 5, green) + plot zone (part 6, amber).
+  // The plot border starts at the legend top (y=14), so the in-SVG legend is inside the plot area like C1.
+  const ovTop=14, ovH=(yBot-ovTop).toFixed(1);
+  s+=`<g class="c3-owner c3-owner-yaxis"><rect x="0" y="${ovTop}" width="${left}" height="${ovH}"></rect><circle cx="${(left-11).toFixed(1)}" cy="25" r="9"></circle><text x="${(left-11).toFixed(1)}" y="25">5</text></g>`;
+  s+=`<g class="c3-owner c3-owner-plot"><rect x="${left}" y="${ovTop}" width="${right-left}" height="${ovH}"></rect><circle cx="${(right-11).toFixed(1)}" cy="25" r="9"></circle><text x="${(right-11).toFixed(1)}" y="25">6</text></g>`;
+  s+=`</svg>`;
+  document.getElementById('chart-submissions').innerHTML=s;
+  document.getElementById('att-submissions').hidden=false;
+  fillSubTable();
+}
+
+/* ---- Submissions donut (SVG) ---- */
+function renderSubPie(){
+  const items=[{cls:'c3-new',label:'First Submission'},{cls:'c3-resub',label:'Resubmission'}];
+  let s=`<svg class="c3-svg" viewBox="0 0 600 380" role="img" aria-label="Submissions split" data-legend='${JSON.stringify(items).replace(/'/g,"&#39;")}'>`;
+  s+=legendGroup(items, 72, 14);
+  const cx=300,cy=210,r=95,sw=32;
+  const total=SUB.reduce((a,r)=>a+r.first+r.resub,0);
+  const segs=[
+    {cls:'c3-new',v:SUB.reduce((a,r)=>a+r.first,0)},
+    {cls:'c3-resub',v:SUB.reduce((a,r)=>a+r.resub,0)},
+  ];
+  let a0=-Math.PI/2;
+  segs.forEach(seg=>{
+    const a1=a0+(seg.v/total)*Math.PI*2;
+    s+=`<path class="${seg.cls}-arc" fill="var(--${seg.cls.replace('c3-','color-')})" d="${donutArc(cx,cy,r,sw,a0,a1)}"></path>`;
+    a0=a1;
+  });
+  s+=`<text class="c3-label" x="${cx}" y="${cy-4}" text-anchor="middle" style="font-size:18px;font-weight:700">${total}</text>`;
+  s+=`<text class="c3-xtext" x="${cx}" y="${cy+14}" text-anchor="middle">SUBMITTED</text>`;
+  // C1 border-standard plot-zone overlay (part 6, amber) — Pie has no y-axis
+  s+=`<g class="c3-owner c3-owner-plot"><rect x="0" y="0" width="600" height="380"></rect><circle cx="589" cy="11" r="9"></circle><text x="589" y="11">6</text></g>`;
+  s+=`</svg>`;
+  document.getElementById('chart-submissions').innerHTML=s;
+  document.getElementById('att-submissions').hidden=true;
+}
+
+/* ---- Approval donut (SVG) ---- */
+function renderApproval(){
+  const items=APPROVAL.map(a=>({cls:a.cls,label:a.label}));
+  let s=`<svg class="c3-svg" viewBox="0 0 600 380" role="img" aria-label="Approval status" data-legend='${JSON.stringify(items).replace(/'/g,"&#39;")}'>`;
+  s+=legendGroup(items, 72, 14);
+  const cx=300,cy=210,r=95,sw=32;
+  const total=APPROVAL.reduce((a,x)=>a+x.v,0);
+  let a0=-Math.PI/2;
+  APPROVAL.forEach(a=>{
+    const a1=a0+(a.v/total)*Math.PI*2;
+    s+=`<path class="${a.cls}-arc" fill="var(--color-${a.cls.replace('c3-','')})" d="${donutArc(cx,cy,r,sw,a0,a1)}"></path>`;
+    a0=a1;
+  });
+  s+=`<text class="c3-label" x="${cx}" y="${cy-4}" text-anchor="middle" style="font-size:18px;font-weight:700">${total}</text>`;
+  s+=`<text class="c3-xtext" x="${cx}" y="${cy+14}" text-anchor="middle">DOCUMENTS</text>`;
+  s+=`<g class="c3-owner c3-owner-plot"><rect x="0" y="0" width="600" height="380"></rect><circle cx="589" cy="11" r="9"></circle><text x="589" y="11">6</text></g>`;
+  s+=`</svg>`;
+  document.getElementById('chart-approval').innerHTML=s;
+  document.getElementById('att-approval').hidden=true;
+  fillApprovalTable();
+}
+
+/* ---- Approval bar chart (SVG) ---- */
+function renderApprovalBar(){
+  const W=600,H=336, left=72, right=600, yTop=52, yBot=330;
+  const plotH=yBot-yTop, plotW=right-left, N=APPROVAL.length;
+  const yMax=niceCeil(Math.max(...APPROVAL.map(a=>a.v)));
+  const colW=plotW/N, barW=colW*0.5;
+  const items=APPROVAL.map(a=>({cls:a.cls,label:a.label}));
+  let s=`<svg class="c3-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Approval status by outcome" data-legend='${JSON.stringify(items).replace(/'/g,"&#39;")}'>`;
+  s+=legendGroup(items, left, 14);
+  s+=`<line class="c3-axis" x1="${left}" y1="${yTop}" x2="${left}" y2="${yBot}"></line>`;
+  const intervals=4;
+  for(let i=0;i<=intervals;i++){
+    const val=yMax*i/intervals, y=yBot-(val/yMax)*plotH;
+    s+=`<line class="c3-gridline" x1="${left}" y1="${y.toFixed(1)}" x2="${right}" y2="${y.toFixed(1)}"></line>`;
+    s+=`<text class="c3-ytext" x="${left-6}" y="${(y+3).toFixed(1)}" text-anchor="end">${val}</text>`;
+  }
+  s+=`<text class="c3-axis-title" transform="translate(16,191) rotate(-90)" text-anchor="middle">Documents</text>`;
+  APPROVAL.forEach((a,i)=>{
+    const cx=left+colW*i+colW/2;
+    const x=cx-barW/2;
+    const h=(a.v/yMax*plotH).toFixed(1);
+    const y=(yBot-(a.v/yMax*plotH)).toFixed(1);
+    s+=`<rect class="c3-col-band" data-col-id="${i}" x="${x.toFixed(1)}" y="${yTop}" width="${barW.toFixed(1)}" height="${plotH}" style="display:none"></rect>`;
+    s+=`<rect class="${a.cls}" x="${x.toFixed(1)}" y="${y}" width="${barW.toFixed(1)}" height="${h}"></rect>`;
+    s+=`<line class="c3-col-snap" x1="${cx}" y1="${yTop}" x2="${cx}" y2="${yBot}" style="display:none"></line>`;
+  });
+  const ovTop=14, ovH=(yBot-ovTop).toFixed(1);
+  s+=`<g class="c3-owner c3-owner-yaxis"><rect x="0" y="${ovTop}" width="${left}" height="${ovH}"></rect><circle cx="${(left-11).toFixed(1)}" cy="25" r="9"></circle><text x="${(left-11).toFixed(1)}" y="25">5</text></g>`;
+  s+=`<g class="c3-owner c3-owner-plot"><rect x="${left}" y="${ovTop}" width="${right-left}" height="${ovH}"></rect><circle cx="${(right-11).toFixed(1)}" cy="25" r="9"></circle><text x="${(right-11).toFixed(1)}" y="25">6</text></g>`;
+  s+=`</svg>`;
+  document.getElementById('chart-approval').innerHTML=s;
+  document.getElementById('att-approval').hidden=false;
+  fillApprovalTable();
+}
+
+/* ---- attached tables ---- */
+function fillSubTable(){
+  const head=document.querySelector('#tbl-submissions thead');
+  const tb=document.querySelector('#tbl-submissions tbody');
+  head.innerHTML=`<tr><th></th>${SUB.map(r=>`<th>${esc(r.d)}</th>`).join('')}</tr>`;
+  const rows=[['First',r=>r.first],['Resub',r=>r.resub],['Total',r=>r.first+r.resub]];
+  tb.innerHTML=rows.map(([name,fn])=>`<tr><th scope="row">${name}</th>${SUB.map((r,i)=>`<td data-col-id="${i}">${fn(r)}</td>`).join('')}</tr>`).join('');
+}
+function fillApprovalTable(){
+  const head=document.querySelector('#tbl-approval thead');
+  const tb=document.querySelector('#tbl-approval tbody');
+  head.innerHTML=`<tr><th></th>${APPROVAL.map(a=>`<th>${esc(a.label)}</th>`).join('')}</tr>`;
+  const rows=[['Count',a=>a.v]];
+  tb.innerHTML=rows.map(([name,fn])=>`<tr><th scope="row">${name}</th>${APPROVAL.map((a,i)=>`<td data-col-id="${i}">${fn(a)}</td>`).join('')}</tr>`).join('');
+}
+function fillSummary(){
+  document.getElementById('tbl-summary').innerHTML=SUB.map(r=>`<tr><th scope="row" style="text-align:left">${esc(r.d)}</th><td>${r.first}</td><td>${r.resub}</td><td>${r.app}</td><td>${r.awc}</td><td>${r.nap}</td><td>${r.rej}</td><td>${r.inf}</td><td>${r.sur}</td></tr>`).join('');
+}
+
+/* ---- export: legend MUST serialize with the plot ---- */
+function svgStyleBlock(){
+  return `<style>:root{} .c3-new{fill:var(--color-new)} .c3-resub{fill:var(--color-resub)} .c3-app{fill:var(--color-app)} .c3-awc{fill:var(--color-awc)} .c3-nap{fill:var(--color-nap)} .c3-rej{fill:var(--color-rej)} .c3-inf{fill:var(--color-inf)} .c3-no{fill:var(--color-no)} .c3-new-arc{fill:var(--color-new)} .c3-resub-arc{fill:var(--color-resub)} .c3-app-arc{fill:var(--color-app)} .c3-awc-arc{fill:var(--color-awc)} .c3-nap-arc{fill:var(--color-nap)} .c3-rej-arc{fill:var(--color-rej)} .c3-inf-arc{fill:var(--color-inf)} .c3-no-arc{fill:var(--color-no)} .c3-ur-arc{fill:var(--color-ur)} .c3-axis{stroke:#D9E1E8} .c3-gridline{stroke:#D9E1E8;stroke-opacity:.5} .c3-ytext,.c3-xtext,.c3-label{fill:#526171;font-family:var(--font-ui)}</style>`
+    .replace(/var\(--color-new\)/g,'#1f6fb2').replace(/var\(--color-resub\)/g,'#f4a259').replace(/var\(--color-app\)/g,'#65a30d')
+    .replace(/var\(--color-awc\)/g,'#0891b2').replace(/var\(--color-nap\)/g,'#db2777').replace(/var\(--color-rej\)/g,'#d23b3b')
+    .replace(/var\(--color-inf\)/g,'#64748B').replace(/var\(--color-no\)/g,'#64748B').replace(/var\(--color-ur\)/g,'#7c3aed');
+}
+function serialize(card){
+  const svg=card.querySelector('svg');
+  const clone=svg.cloneNode(true);
+  clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  clone.insertAdjacentHTML('afterbegin', svgStyleBlock());
+  return new XMLSerializer().serializeToString(clone);
+}
+function exportPng(card){
+  const str=serialize(card);
+  const blob=new Blob([str],{type:'image/svg+xml;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const img=new Image();
+  img.onload=()=>{
+    const scale=2, w=img.naturalWidth||600, h=img.naturalHeight||380;
+    const c=document.createElement('canvas'); c.width=w*scale; c.height=h*scale;
+    const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
+    ctx.drawImage(img,0,0,c.width,c.height);
+    c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='breakdown.png';a.click();URL.revokeObjectURL(a.href);});
+    URL.revokeObjectURL(url);
+  };
+  img.onerror=()=>URL.revokeObjectURL(url);
+  img.src=url;
+}
+function copySvg(card){
+  const str=serialize(card);
+  if(navigator.clipboard) navigator.clipboard.writeText(str);
+}
+/* ---- Summary CSV export (rev 1.76: CSV export starts from the summary panel) ---- */
+function csvCell(t){
+  t=String(t).trim();
+  return /[",\n\r]/.test(t) ? '"'+t.replace(/"/g,'""')+'"' : t;
+}
+function tableToCSV(table){
+  const rows=[...table.querySelectorAll('tr')];
+  return rows.map(r=>[...r.querySelectorAll('th,td')].map(c=>csvCell(c.textContent)).join(',')).join('\r\n');
+}
+function downloadCSV(csv,name){
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ---- wire up ---- */
+document.getElementById('partsToggle').addEventListener('change',e=>{
+  document.body.classList.toggle('show-parts', e.target.checked);
+});
+document.getElementById('oneToken').addEventListener('change',e=>{
+  document.body.classList.toggle('one-token-borders', e.target.checked);
+});
+// per-panel Bar/Pie toggle — each chart panel switches independently (rev 1.77)
+document.querySelectorAll('.seg[role="group"]').forEach(seg=>{
+  seg.addEventListener('click',e=>{
+    const btn=e.target.closest('.seg-btn'); if(!btn) return;
+    const view=btn.dataset.view; const card=btn.closest('.c3-card');
+    seg.querySelectorAll('.seg-btn').forEach(b=>b.classList.toggle('active',b===btn));
+    if(card.querySelector('#chart-submissions')){ view==='pie'?renderSubPie():renderBar(); }
+    else if(card.querySelector('#chart-approval')){ view==='pie'?renderApproval():renderApprovalBar(); }
+  });
+});
+
+document.querySelectorAll('[data-png]').forEach(b=>b.addEventListener('click',()=>exportPng(b.closest('.c3-card'))));
+document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',()=>copySvg(b.closest('.c3-card'))));
+document.querySelectorAll('[data-export]').forEach(b=>b.addEventListener('click',()=>{
+  const card=b.closest('.c3-summary-card')||b.closest('.panel');
+  const table=card&&card.querySelector('table');
+  if(table) downloadCSV(tableToCSV(table),'breakdown-summary.csv');
+}));
+
+/* initial render */
+renderBar(); renderApproval(); fillSummary();
+document.body.classList.add('show-parts');
+</script>
+</body>
+</html>

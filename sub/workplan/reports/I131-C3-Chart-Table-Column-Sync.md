@@ -32,7 +32,7 @@ stay out of scope.
 - `harness-layout/SKILL.md` rev 1.18
 - `harness-pipeline/docs/UI-SPEC-COMPLIANCE-REVIEW.md`
 - `sub/ref/sample-c3-discipline-table.html`, `sub/ref/sample-c3-grid-lines.html`,
-  `sub/sample-c1-table.html`, `sub/sample-c4.html`
+  `sub/ref/sample-c1-table.html`, `sub/ref/sample-c4.html`
 - `sub/TWRP C3B2 - Document Submittal Dashboard.html` (generated)
 
 ## Results

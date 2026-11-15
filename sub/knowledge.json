@@ -2,8 +2,8 @@
   "project_metadata": {
     "name": "TWRP C3B2 — Document Submittal Log Interactive Dashboard",
     "abbreviation": "SUB",
-    "version": "2.37.0",
-    "date": "2026-11-14",
+    "version": "2.38.0",
+    "date": "2026-11-15",
     "description": "Browser dashboard for planned documents and submission history.",
     "purpose": "Show document scope, submission status, review delay, approval outcomes, and coverage from the project MDL and Document Submittal Log workbooks."
   },
@@ -256,6 +256,12 @@
     }
   ],
   "revisionHistory": [
+    {
+      "revision": "2.38",
+      "date": "2026-11-15",
+      "author": "CodeBuddy (AI)",
+      "summary": "I137 is RESOLVED. The C3 Breakdown gaps are universal named tokens in the delivered engine. Owner instruction 2026-11-15: proceed updates per the workplan and issue log, perform tests and the harness layout check, then document updates; the owner approved installing the Node runtime and the full implementation and documentation scope. dashboard.css rev 2.20 only: :root declares the eight section 6 tokens (--panel-gap, --panel-pad, --panel-title-gap, --c3-card-pad, --c3-tool-pad, --c3-tool-gap, --c3-axis-label-h and the derived --c3-plot-table-gap:calc(var(--c3-axis-label-h) / 3)); .c3-controls carries --c3-tool-pad (12 px) on all four sides with margin:0; a scoped .c3-card > .c3-controls negative margin equal to --c3-card-pad cancels the outer card padding in the two chart cards only, so the tool padding alone sets the border distance while the card border and the chart / table inset stay; .c3-summary-card drops its card padding, so the base rule applies directly in the summary panel; .c3-table gains margin-top:var(--c3-plot-table-gap) (6 px at the default 18 px label height) as the minimized plot-to-table gap that still scales with the label height; .breakdown-grid uses --panel-gap; .panel and .panel-head use --panel-pad / --panel-title-gap at value-neutral 14 px / 10 px. render.js, dashboard.js and pipeline.js are unchanged: no markup, handler, state, hover, print or export path changed. render.test.mjs rev 0.25 adds the token contract test (eight tokens, four-side tool padding, chart-only negative margin, padding-free summary card, derived table gap, no hard-coded gap value in the governed rules, three rendered tool rows with the summary tool row as its card's first child). Standalone HTML rebuilt twice identically at 417,095 bytes, SHA256 49F8E55779F40684465CC67A4FDFFFD7C82148918CECD0A9948E563C437FE001. Measured on Node 22.12.0: node --check clean; full sub harness 2271/0/0/30 (no regression; the Tier 5 C3 native-table and column-sync checks all PASS); pipeline 24/1 and render 60/3 pre-existing data-dependent failures, all four asserting model values from the modified workbooks with no dashboard.css dependency; the new I137 test passes. Records: workplan 3.14 / gate row 23; issue log 1.38; update log 1.50 / U047; test log 1.45 / TEST-042. No report file, no git commit and no push."
+    },
     {
       "revision": "2.37",
       "date": "2026-11-14",
