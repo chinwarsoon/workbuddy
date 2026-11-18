@@ -177,10 +177,9 @@ body.loaded .app{display:flex;flex-direction:column;height:100vh;min-height:0;ov
 .resize-handle{position:absolute;top:0;right:0;width:5px;height:100%;cursor:col-resize}
 .resize-handle:hover{background:rgba(255,255,255,.25)}
 .content{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg)}
-/* §3.1 / §3.3 — there is no content toolbar. The active page is shown at the right of the title bar,
-   and the layout toggle is an icon control at the right end of the menu bar. */
+/* §3.1 / §3.3 — there is no content toolbar. The active page is shown at the right of the title bar.
+   §3.1 rev 1.86 — the layout control is a select in the Settings panel, not a menu-bar icon control. */
 .app-top .page-title{font-size:16px;font-weight:600;line-height:1.2;color:#fff;white-space:nowrap;flex-shrink:0}
-.app-menu #layout-button{padding:7px 8px;flex-shrink:0;margin-left:auto}
 .spacer{flex:1}
 .filter-area{padding:0 16px}
 /* Search popover — MDL design: .tf-panel.search-panel > .search-row > .search + Find / Reset */
@@ -265,7 +264,10 @@ body[data-layout="three"] .panel-grid{grid-template-columns:repeat(3,minmax(0,1f
 }
 /* §5 — KPI cards: 3 px status strip, 8 px radius, 10 px padding, 72 px high, no shadow.
    Value and label only. Do not set line-height: the inherited 1.45 makes the 72 px height. */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:18px}
+/* §5 rev 1.87 / I144 — six columns, three at ≤1100 px, two at ≤880 px. */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:18px}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:880px){.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .kpi-card{box-sizing:border-box;height:72px;padding:10px;border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;background:var(--surface);box-shadow:none}
 .kpi-card .v{font-size:22px;font-weight:700;color:var(--navy)}
 .kpi-card .l{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:2px}
@@ -312,7 +314,7 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .setting{display:flex;align-items:center;gap:8px;font-size:14px}
 .setting select{padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)}
 .setting input[type=checkbox]{width:16px;height:16px}
-/* §5 — the KPI grid needs no breakpoint: auto-fit with a 210 px floor drops columns by itself. */
+/* §5 rev 1.87 — the KPI grid breakpoints are declared at the .kpi-grid rule above. */
 @media(max-width:1099px){.panel-grid,body[data-layout="three"] .panel-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:879px){.panel-grid,body[data-layout="two"] .panel-grid,body[data-layout="three"] .panel-grid{grid-template-columns:1fr}}
 /* ===== C1 Schedule Performance S-Curve (workplan D35) ===== */

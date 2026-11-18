@@ -26,7 +26,9 @@ const escapeClosingScript = text => text.replace(/<\/script/gi, '<\\/script');
 const css = read('engine/dashboard.css');
 const contract = read('config/pipeline_contract.json');
 const uiHelp = read('config/ui_help.json');
-const bundle = ['engine/xlsx-reader.js', 'engine/pipeline.js', 'engine/render.js', 'engine/dashboard.js']
+// I145 — the zero-dependency XLSX writer is inlined after the reader so the top-menu
+// Export can build a multi-sheet workbook from file:// with no network asset.
+const bundle = ['engine/xlsx-reader.js', 'engine/xlsx-writer.js', 'engine/pipeline.js', 'engine/render.js', 'engine/dashboard.js']
   .map(file => `/* ===== ${file} ===== */\n${stripModuleSyntax(read(file)).trim()}`)
   .join('\n\n');
 

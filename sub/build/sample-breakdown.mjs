@@ -101,4 +101,4 @@ const TARGET = path.join(ROOT, 'ref', 'sample-breakdown.html');
 fs.writeFileSync(TARGET, page);
 const panels = (html.match(/<section class="panel/g) || []).length;
 console.log(`Sample Breakdown page written: ${TARGET} (${page.length.toLocaleString()} bytes)`);
-console.log(`panels rendered: ${panels} (expect 3); legend blocks: ${(html.match(/class="c3-legend"/g) || []).length} (expect 2); Others hits: ${(html.match(/Others/g) || []).length}`);
+console.log(`panels rendered: ${panels} (expect 3); in-SVG legend blocks: ${(html.match(/class="c3-legend-svg"/g) || []).length} (expect 2); Others hits: ${(html.match(/Others/g) || []).length}`);

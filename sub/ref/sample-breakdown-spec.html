@@ -84,8 +84,10 @@ select, .seg{font-family:inherit}
 .c3-ytext{fill:var(--text);font-size:10px;font-weight:600;font-family:var(--font-ui)}
 .c3-xtext{fill:var(--text2);font-size:10px;font-family:var(--font-ui)}
 .c3-axis-title{fill:var(--text2);font-size:10px;font-family:var(--font-ui)}
-/* attached table columns aligned to the chart (label col = chart left gutter; 6 data cols = plot) */
-.c3-attached{--owner:var(--b-table);margin-top:var(--c3-plot-table-gap);border:var(--bw) solid var(--b-table);border-radius:0 0 var(--r) var(--r);position:relative}
+/* attached table columns aligned to the chart (label col = chart left gutter; 6 data cols = plot).
+   §4.2 rev 1.81 — the table zone is separated from the plot by --c3-plot-table-gap, so the borders
+   do not overlap and the right-angle rule does not apply: all four corners keep the 10 px radius. */
+.c3-attached{--owner:var(--b-table);margin-top:var(--c3-plot-table-gap);border:var(--bw) solid var(--b-table);border-radius:var(--r);position:relative}
 .c3-attached[hidden]{display:none}
 /* Bar view only: the attached native table is the bar chart's shared x-axis.
    The Pie view is the all-month summary and renders no attached table (workplan I130 / I131). */
@@ -99,8 +101,10 @@ select, .seg{font-family:inherit}
 .c3-col-band{fill:var(--blue);fill-opacity:.08}
 .c3-col-snap{stroke:var(--text3);stroke-width:1;stroke-dasharray:3 3}
 .c3-label{fill:var(--text);font-size:11px;font-family:var(--font-ui)}
-/* Summary table (§4.2 / I133 N1 — compact rows, no inner scroll) */
+/* Summary table (§4.2 / I133 N1 — compact rows, no inner scroll).
+   §7.2 rev 1.81 — every data table carries exactly ONE outer border (1 px --border, 10 px radius). */
 .c3-summary-card{--ds-row-h:26px;--ds-head-h:28px;min-width:0}
+.ds-split{border:var(--bw) solid var(--border);border-radius:var(--r);overflow:hidden;margin-top:6px}
 .ds-table{width:100%;border-collapse:collapse;font-size:12px;background:var(--surface);table-layout:fixed}
 .ds-table th,.ds-table td{border-bottom:1px solid var(--border);padding:0 10px;height:var(--ds-row-h);line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;vertical-align:middle}
 .ds-table thead th{background:var(--navy);color:#fff;font-weight:600;height:var(--ds-head-h)}
@@ -235,11 +239,13 @@ body.one-token-borders{--b-panel:var(--b-common);--b-board:var(--b-common);--b-y
           </div>
         </div>
         </div>
+        <div class="ds-split">
         <table class="ds-table" data-table-crosshair>
           <caption style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Breakdown summary</caption>
           <thead><tr><th>Discipline</th><th>First</th><th>Resub</th><th>App</th><th>AWC</th><th>NAP</th><th>REJ</th><th>INF</th><th>SUR</th></tr></thead>
           <tbody id="tbl-summary"></tbody>
         </table>
+        </div>
       </div>
     </section>
 
@@ -247,7 +253,7 @@ body.one-token-borders{--b-panel:var(--b-common);--b-board:var(--b-common);--b-y
 
   <div class="legend-parts">
     <h2>Identified parts (borders)</h2>
-    <p class="sub" style="margin:0 0 8px;color:var(--text2);font-size:12px">Border colors follow the <b>C1 border standard</b> (§4.2): panel = slate, board = blue, y-axis = green, plot = amber, table = pink. The <b>One token borders</b> toggle collapses them to one common token. Numbers match the badges on the page. The in-SVG legend sits inside the plot (amber) border — matching C1, where the legend is included within the plot area.</p>
+    <p class="sub" style="margin:0 0 8px;color:var(--text2);font-size:12px">Border colors follow the <b>C1 border standard</b> (§4.2): panel = slate, board = blue, y-axis = green, plot = amber, table = pink. The legend rows start after a <b>12-unit left inset</b> from the plot-zone left edge — the edge shared with the y-axis zone — so the first swatch never touches the y-axis side (<b>§4.2 rev 1.84 / I140</b>; the inset matches the 12 px <code>--c3-card-pad</code> token). The <b>One token borders</b> toggle collapses them to one common token. Numbers match the badges on the page. The in-SVG legend sits INSIDE the plot (amber) border, above the plot content — matching C1, where the legend rows live within the plot area (<b>§4.2 rev 1.83</b>, superseding the rev 1.82 above-the-border wording; the production engine uses the same in-SVG legend and retires the HTML legend). <b>§4.2 rev 1.81:</b> the bordered composition is a universal MUST on every dashboard; the <b>Pie / donut view carries the bordered plot zone (6)</b>; right angles apply ONLY where borders overlap — the y-axis zone (5) and the plot zone (6) share an edge, so those corners are square, while the gap-separated attached table (7) keeps the 10 px radius. <b>§7.2 rev 1.81:</b> every data table shows ONE outer border — the summary table below is wrapped in a bordered zone.</p>
     <p class="sub" style="margin:0 0 8px;color:var(--text2);font-size:12px"><b>Gaps are named constants</b> (§6 "no rule hard-codes a value"; §0 spacing scale): <code>--panel-gap</code> (panel↔panel), <code>--panel-pad</code> / <code>--panel-title-gap</code> (card↔adjacent borders), <code>--c3-card-pad</code> (chart/table inset inside card border), <code>--c3-tool-pad</code> (padding around tool row, all four sides), <code>--c3-tool-gap</code> (between control groups inside the tool row), <code>--c3-axis-label-h</code> (x-axis label height, §4.2 rev 1.79), <code>--c3-plot-table-gap</code> (minimized plot→table gap = label height ÷ 3 = 6 px; still scales with the label, keeps the "0" tick clear). One constant change updates all three panels.</p>
     <p class="sub" style="margin:0 0 8px;color:var(--text2);font-size:12px"><b>Tool-row padding matches across all three panels</b>: <code>--c3-tool-pad</code> = 12 px on all four sides. Tool row 3 sits inside chart card 2 and inside summary table card 9. In the two chart cards a scoped negative margin cancels the outer <code>--c3-card-pad</code>, so the tool padding alone sets the distance to the border; the chart and table keep their 12 px inset. The summary card has no extra padding, so the base rule applies directly.</p>
     <ol>
@@ -256,8 +262,8 @@ body.one-token-borders{--b-panel:var(--b-common);--b-board:var(--b-common);--b-y
       <li><b>Tool row</b> — ONE row: left = Month (no visible text, <code>aria-label</code>) / Break-down-by / Bar-Pie; right = PNG + Copy <span class="tag">§4.2 rev 1.77</span></li>
       <li><b>in-SVG legend</b> (primary) — a `<g>` inside the chart `<svg>`, above the plot; no HTML <code>.c3-legend</code> (retired, §4.2 rev 1.78) <span class="tag">§4.2 rev 1.78</span></li>
       <li><b>SVG y-axis</b> (Bar chart) — `<g>` with dynamic nice-number ticks + gridlines + axis title, SHOWN on the Bar chart (Pie has none), scaled to the visible window <span class="tag">§4.2 rev 1.64</span> · <span class="tag">border green</span></li>
-      <li><b>Plot area / bars / donut</b> — SVG series; ONE column band + ONE dashed centre line <span class="tag">§4.2 rev 1.75</span> · <span class="tag">border amber</span></li>
-      <li><b>Attached native table</b> — <b>Bar view only</b> (the Pie view is the all-month summary and has no attached table); its header row IS the shared x-axis (discipline labels under each bar); columns aligned with the chart columns (label col = chart gutter, 6 data cols = plot), separated from the plot by a vertical gap that scales with the x-axis label height; shared <code>data-col-id</code> <span class="tag">§4.2 rev 1.79</span> · <span class="tag">border pink</span></li>
+      <li><b>Plot area / bars / donut</b> — SVG series; ONE column band + ONE dashed centre line; the Pie / donut view carries this bordered plot zone too <span class="tag">§4.2 rev 1.75 / 1.81</span> · <span class="tag">border amber</span></li>
+      <li><b>Attached native table</b> — <b>Bar view only</b> (the Pie view is the all-month summary and has no attached table); its header row IS the shared x-axis (discipline labels under each bar); columns aligned with the chart columns (label col = chart gutter, 6 data cols = plot), separated from the plot by a vertical gap that scales with the x-axis label height, so the borders do not overlap and all four corners keep the 10 px radius; shared <code>data-col-id</code> <span class="tag">§4.2 rev 1.79 / 1.81</span> · <span class="tag">border pink</span></li>
       <li><b>Export controls</b> — <code>.btn-secondary</code>, 32 px, PNG before Copy; PNG / Copy serialize the in-SVG legend with the plot; the Summary panel's <code>⤓ Download</code> exports the summary table as CSV (rev 1.76) <span class="tag">§7.1 A3</span></li>
       <li><b>Summary panel</b> — own full-width panel, compact rows, no inner scroll <span class="tag">I133 N1</span></li>
     </ol>
@@ -326,7 +332,7 @@ function renderBar(){
   const colW=plotW/N, barW=colW*0.5;
   const items=[{cls:'c3-new',label:'First Submission'},{cls:'c3-resub',label:'Resubmission'}];
   let s=`<svg class="c3-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Submissions by discipline" data-legend='${JSON.stringify(items).replace(/'/g,"&#39;")}'>`;
-  s+=legendGroup(items, left, 14);
+  s+=legendGroup(items, left+12, 14);
   // y-axis + gridlines (SVG, rev 1.64)
   s+=`<line class="c3-axis" x1="${left}" y1="${yTop}" x2="${left}" y2="${yBot}"></line>`;
   const intervals=4;
@@ -349,7 +355,8 @@ function renderBar(){
     s+=`<line class="c3-col-snap" x1="${cx}" y1="${yTop}" x2="${cx}" y2="${yBot}" style="display:none"></line>`;
   });
   // C1 border-standard overlays: y-axis zone (part 5, green) + plot zone (part 6, amber).
-  // The plot border starts at the legend top (y=14), so the in-SVG legend is inside the plot area like C1.
+  // §4.2 rev 1.83 — the zone borders start at the legend top (y=14), so the in-SVG legend sits
+  // INSIDE the plot area above the plot content, exactly the C1 model.
   const ovTop=14, ovH=(yBot-ovTop).toFixed(1);
   s+=`<g class="c3-owner c3-owner-yaxis"><rect x="0" y="${ovTop}" width="${left}" height="${ovH}"></rect><circle cx="${(left-11).toFixed(1)}" cy="25" r="9"></circle><text x="${(left-11).toFixed(1)}" y="25">5</text></g>`;
   s+=`<g class="c3-owner c3-owner-plot"><rect x="${left}" y="${ovTop}" width="${right-left}" height="${ovH}"></rect><circle cx="${(right-11).toFixed(1)}" cy="25" r="9"></circle><text x="${(right-11).toFixed(1)}" y="25">6</text></g>`;
@@ -415,7 +422,7 @@ function renderApprovalBar(){
   const colW=plotW/N, barW=colW*0.5;
   const items=APPROVAL.map(a=>({cls:a.cls,label:a.label}));
   let s=`<svg class="c3-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Approval status by outcome" data-legend='${JSON.stringify(items).replace(/'/g,"&#39;")}'>`;
-  s+=legendGroup(items, left, 14);
+  s+=legendGroup(items, left+12, 14);
   s+=`<line class="c3-axis" x1="${left}" y1="${yTop}" x2="${left}" y2="${yBot}"></line>`;
   const intervals=4;
   for(let i=0;i<=intervals;i++){

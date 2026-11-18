@@ -1,3 +1,8 @@
+// Revision 2.17 | 2026-11-17 | CodeBuddy (AI) | §4 rev 1.90 / I146 — `exportAllTablesXlsx()` harvests every table across all data pages through `collectExportTables()`, rendering each page into a detached scratch element so the visible page and its registry snapshot stay untouched. The workbook now carries one worksheet per table dashboard-wide. Handler paths and the standardized name are unchanged.
+// Revision 2.16 | 2026-11-17 | CodeBuddy (AI) | §4 rev 1.89 / I145 amendment — the hardcoded PROJECT_CODE = 'SUB' constant and the local file-name helpers are removed; CSV and XLSX downloads call `exportFileName(purpose, ext, model?.meta)` from render.js, so the name prefix comes from the MDL Code sheet Project Title with the Project Code fallback. Handler paths, registry and hide-empty logic are unchanged.
+// Revision 2.15 | 2026-11-16 | CodeBuddy (AI) | §4.2 rev 1.83 / I139 — with the legend rows INSIDE the bordered donut svg (C1 model), the Pie export returns to ONE clone of the plot svg (the legend travels with it) and the rev 2.14 wrapper-stacking path is removed; the clone now carries explicit width / height from the rendered box so the fixed `--c3-pie-h` height is preserved. The Bar export path is unchanged and adapts to the new grid rows through the live zone rects. No data, state, ARIA or handler path changes.
+// Revision 2.14 | 2026-11-16 | CodeBuddy (AI) | §4.2 rev 1.78 / rev 1.82 / I135 — `serializeC3Svg()` now selects the donut `svg.c3-svg` explicitly (the in-SVG legend `svg.c3-legend-svg` must never be mistaken for the plot) and, when a legend is present, exports ONE wrapper SVG that stacks the legend and the bordered donut, redrawing the plot-zone edge from the live `--border` token. `c3CardToSvg()` serializes the in-SVG legend items (swatch fill + label text from computed styles) and the rotated `.g-ycap` "Documents" caption, replacing the retired HTML `.c3-leg` path. No data, state, ARIA or handler path changes.
+// Revision 2.13 | 2026-11-16 | CodeBuddy (AI) | §4.2 rev 1.81 / §7.2 rev 1.81 / I138 — `c3CardToSvg()` keeps the bordered chart composition in the Bar-card export: one stroked path for the y-axis zone (top-left / bottom-left 10 px, shared right edge square), one for the plot zone (right corners 10 px, shared left edge square) and one stroked, 10 px-rounded rect for the attached table's single outer border. Edges resolve from the live `--border` token, so all five themes export correctly. The Pie export keeps cloning the donut `<svg>` unchanged. No data, state, ARIA or handler path changes.
 // Revision 2.12 | 2026-11-14 | CodeBuddy (AI) | I133 — `Breakdown` joins `NAV_PAGES`. `state.c3Panels` holds ONE `c3Month` / `c3Dim` / `c3View` set for each of the three independent panels, and `c3SetPanel()` writes only to the panel named by the control's `data-c3panel`. `exportC3TableCsv()` starts from the clicked button's own `.panel`. The global Discipline filter domain uses `Others`. C1, C2, C4 and the C3 PNG / Copy paths are unchanged.
 // Revision 2.11 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.75 — `withC3ColumnMarksHidden()` wraps C3 PNG / Copy so the ONE column band and ONE centre line are hidden before `c3CardToSvg()` reads computed styles, then restored exactly. `clearC3ColumnSync()` hides both elements on blur, Escape, repaint and print. `c3CardToSvg()` never emits either element. C1 export is unchanged.
 // Revision 2.10 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.74 / I131 — the general chart ↔ attached-table column sync now covers C3 Bar cards. `bindTableCrosshair()` treats `.c3-table` as chart-linked, so it adds `.row-hover` / `.cell-hover` but no competing `.col-hover`. `clearC3ColumnSync()` clears `.col-active` from bars and table cells on blur, Escape, repaint and print. C3 PNG / Copy strip the transient state from the whole card before they read computed styles. C1 export and the Pie view are unchanged.
@@ -10,12 +15,13 @@
 // Revision 2.3 | 2026-10-24 | CodeBuddy (AI) | D33: the Stage filter lists (blank) plus Deleted, Void and Superseded, and its badge is measured against the default ticked set.
 // Revision 2.2 | 2026-10-24 | CodeBuddy (AI) | Option B shell (MDL two-row header + left nav sidebar). Engine contract unchanged; UI handlers rewired to menu bar + modals.
 import { readXlsx } from './xlsx-reader.js';
+import { buildXlsx } from './xlsx-writer.js';
 import { buildModel, inspectWorkbook } from './pipeline.js';
-import { deriveView, renderDashboard, EXCLUDED_STAGES, buildSubmittalsCsv, buildIssueCsv, c1PlotSvg, c1PresetRange } from './render.js';
+import { deriveView, renderDashboard, EXCLUDED_STAGES, getExportTables, getExportTable, collectExportTables, exportFileName, buildSubmittalsCsv, buildIssueCsv, c1PlotSvg, c1PresetRange } from './render.js';
 
 const $ = selector => document.querySelector(selector);
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
-const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c1Preset: 'All', c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', c3Panels: { submissions: { c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar' }, approval: { c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar' }, summary: { c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar' } }, c2View: 'stacked', c2Nfs: true, foView: 'lookahead', foLane: 'all', foHorizon: 4, c4View: 'scatter', subMonth: 'ALL', issueCode: 'ALL', issuePage: 1, collapsedPanels: [] };
+const state = { page: 'Overview', theme: localStorage.getItem('sub-dashboard-theme') || 'light', layout: localStorage.getItem('sub-dashboard-layout') || 'one', search: '', searchCol: 'all', disciplines: new Set(), stages: new Set(), statuses: new Set(), approvals: new Set(), submitters: new Set(), showWarnings: localStorage.getItem('sub-dashboard-warnings') !== 'false', rememberNames: false, columnSets: {}, c1Grain: 'month', c1Bars: true, c1Series: new Set(['plan', 'forecast', 'actualFirst', 'actualResub']), c1Period: null, c1Preset: 'All', c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar', c3Panels: { submissions: { c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar' }, approval: { c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar' }, summary: { c3Month: 'ALL', c3Dim: 'discipline', c3View: 'bar' } }, c2View: 'stacked', c2Nfs: true, foView: 'lookahead', foLane: 'all', foHorizon: 4, c4View: 'scatter', subMonth: 'ALL', issueCode: 'ALL', issuePage: 1, collapsedPanels: [] };
 // I133 — ONE C3 control changes only the state of its OWN Breakdown panel.
 function c3SetPanel(panel, patch) {
   const key = ['submissions', 'approval', 'summary'].includes(panel) ? panel : 'submissions';
@@ -53,6 +59,14 @@ function updateSidebarWidth(width) {
   localStorage.setItem('sub-dashboard-left-sidebar-width', String(value));
 }
 function updateTheme() { document.documentElement.dataset.theme = state.theme; localStorage.setItem('sub-dashboard-theme', state.theme); $('select[data-setting="theme"]') && ($('select[data-setting="theme"]').value = state.theme); }
+// I142 — the layout value lives in state and is mirrored to the body and the Settings select.
+function updateLayout() {
+  const value = ['one', 'two', 'three'].includes(state.layout) ? state.layout : 'one';
+  state.layout = value;
+  document.body.dataset.layout = value;
+  localStorage.setItem('sub-dashboard-layout', value);
+  document.querySelectorAll('select[data-setting="layout"]').forEach(select => { select.value = value; });
+}
 function showWarnings() {
   const area = $('[data-shell="warnings"]');
   const items = model?.warnings || [];
@@ -234,6 +248,24 @@ function c3CardToSvg(btn) {
   const escSvg = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const rb = el => { const r = el.getBoundingClientRect(); return { x: r.left - root.left - X, y: r.top - root.top - Y, w: r.width, h: r.height }; };
   let out = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="100%" height="100%" fill="${surf}"/>`;
+  // §4.2 rev 1.81 — keep the bordered composition in the export: y-axis and plot zone edges with
+  // their shared right angles, and the attached table's single outer border.
+  const zoneEdge = (getComputedStyle(document.documentElement).getPropertyValue('--border') || '#d0d5dd').trim();
+  const zoneArc = (rad, ex, ey) => `A${rad} ${rad} 0 0 1 ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+  const zonePath = (r, tl, tr, br, bl) => {
+    const x = r.x, y = r.y, w = r.w, h = r.h;
+    return `M${(x + tl).toFixed(1)} ${y.toFixed(1)}H${(x + w - tr).toFixed(1)}`
+      + (tr ? zoneArc(tr, x + w, y + tr) : '')
+      + `V${(y + h - br).toFixed(1)}`
+      + (br ? zoneArc(br, x + w - br, y + h) : '')
+      + `H${(x + bl).toFixed(1)}`
+      + (bl ? zoneArc(bl, x, y + h - bl) : '')
+      + `V${(y + tl).toFixed(1)}`
+      + (tl ? zoneArc(tl, x + tl, y) : '') + 'Z';
+  };
+  const yZone = body.querySelector('.c3-yaxis-zone'), pZone = body.querySelector('.c3-plot-zone');
+  if (yZone) out += `<path d="${zonePath(rb(yZone), 10, 0, 0, 10)}" fill="none" stroke="${zoneEdge}" stroke-width="1"/>`;
+  if (pZone) out += `<path d="${zonePath(rb(pZone), 0, 10, 10, 0)}" fill="none" stroke="${zoneEdge}" stroke-width="1"/>`;
   const table = body.querySelector('table.c3-table');
   body.querySelectorAll('.seg-bar').forEach(b => {
     const r = rb(b), fill = (getComputedStyle(b).backgroundColor || '#888').trim();
@@ -245,6 +277,9 @@ function c3CardToSvg(btn) {
       const r = rb(tr);
       out += `<line x1="${r.x.toFixed(1)}" y1="${r.y.toFixed(1)}" x2="${(r.x + r.w).toFixed(1)}" y2="${r.y.toFixed(1)}" stroke="${rule}" stroke-width="1"/>`;
     });
+    // §7.2 rev 1.81 — the attached table's single outer border, 10 px rounded on all corners.
+    const tb = rb(table);
+    out += `<rect x="${tb.x.toFixed(1)}" y="${tb.y.toFixed(1)}" width="${tb.w.toFixed(1)}" height="${tb.h.toFixed(1)}" fill="none" stroke="${rule}" stroke-width="1" rx="10"/>`;
   }
   const placeText = (el, vertical) => {
     const r = rb(el), cs = getComputedStyle(el);
@@ -271,24 +306,40 @@ function c3CardToSvg(btn) {
   };
   if (table) withTransientTableHoverStripped(table, addTableText);
   else addTableText();
-  body.querySelectorAll('.c3-leg').forEach(leg => {
-    const sw = leg.querySelector('.c3-swatch'), sr = sw && sw.getBoundingClientRect();
-    if (sr) out += `<rect x="${(sr.left - root.left - X).toFixed(1)}" y="${(sr.top - root.top - Y).toFixed(1)}" width="${sr.width.toFixed(1)}" height="${sr.height.toFixed(1)}" fill="${(getComputedStyle(sw).backgroundColor || '#888').trim()}" rx="2"/>`;
-    const lr = rb(leg), cs = getComputedStyle(leg), lx = sr ? (sr.left - root.left - X + sr.width + 4) : lr.x;
-    out += `<text x="${lx.toFixed(1)}" y="${(lr.y + lr.h / 2).toFixed(1)}" text-anchor="start" dominant-baseline="central" font-family="${(cs.fontFamily || 'sans-serif').replace(/"/g, "'")}" font-size="${parseFloat(cs.fontSize) || 11}" fill="${(cs.color || '#222').trim()}">${escSvg(leg.textContent.trim())}</text>`;
+  // §4.2 rev 1.78 / rev 1.82 — the in-SVG legend above the plot area is serialized with the plot.
+  body.querySelectorAll('.c3-legend-svg .c3-legend-g > g').forEach(item => {
+    const sw = item.querySelector('rect'), tx = item.querySelector('text');
+    if (sw) {
+      const r = rb(sw);
+      out += `<rect x="${r.x.toFixed(1)}" y="${r.y.toFixed(1)}" width="${r.w.toFixed(1)}" height="${r.h.toFixed(1)}" fill="${(getComputedStyle(sw).fill || getComputedStyle(sw).backgroundColor || '#888').trim()}" rx="2"/>`;
+    }
+    if (tx) {
+      const r = rb(tx), cs = getComputedStyle(tx);
+      const fill = (cs.fill && cs.fill !== 'none' ? cs.fill : cs.color) || '#222';
+      out += `<text x="${r.x.toFixed(1)}" y="${(r.y + r.h / 2).toFixed(1)}" text-anchor="start" dominant-baseline="central" font-family="${(cs.fontFamily || 'sans-serif').replace(/"/g, "'")}" font-size="${parseFloat(cs.fontSize) || 11}" fill="${fill.trim()}">${escSvg(tx.textContent.trim())}</text>`;
+    }
   });
+  // §4.2 rev 1.82 — the rotated y-axis unit caption travels with the Bar export.
+  body.querySelectorAll('.g-ycap').forEach(e => placeText(e, true));
   return out + '</svg>';
 }
 function serializeC3Svg(btn) {
   const scope = btn && btn.closest ? btn.closest('.c3-card') : null;
-  const svg = (scope || document).querySelector('svg');
+  const svg = scope ? scope.querySelector('svg.c3-svg') : null;
   if (svg) {
+    // §4.2 rev 1.83 / I139 — the legend rows live INSIDE the bordered donut svg (C1 model), so the
+    // Pie export is ONE clone of the plot svg; the legend travels with it. Width / height come from
+    // the rendered box so the fixed --c3-pie-h height is preserved in the exported file.
     const clone = svg.cloneNode(true);
     clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    const r = svg.getBoundingClientRect();
+    clone.setAttribute('width', Math.max(1, r.width).toFixed(0));
+    clone.setAttribute('height', Math.max(1, r.height).toFixed(0));
+    clone.removeAttribute('style');
     clone.insertAdjacentHTML('afterbegin', chartC3SvgStyle());
     return new XMLSerializer().serializeToString(clone);
   }
-  // Bar view card (no <svg>): rebuild it as a self-contained SVG so PNG/Copy still work.
+  // Bar view card (no plot <svg>): rebuild it as a self-contained SVG so PNG/Copy still work.
   // §4.2 rev 1.74 / 1.75 — strip the transient chart / table column state from BOTH nodes and
   // hide the band / centre line before c3CardToSvg() reads any computed style, then restore.
   return withC3ColumnMarksHidden(scope, () =>
@@ -396,6 +447,46 @@ function downloadCsv(csv, name) {
   link.download = name;
   link.click();
   URL.revokeObjectURL(link.href);
+}
+
+// I145 amendment — file names come from render.js. The prefix is the slugified Project Title from
+// the MDL Code sheet, falling back to the Project Code from the same sheet (model.meta).
+function tableToCsv(table) {
+  if (!table || !table.rows.length) return '';
+  const q = v => { const s = String(v ?? ''); return /[",\n\r]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s; };
+  return '\uFEFF' + [table.headers, ...table.rows].map(row => row.map(q).join(',')).join('\r\n');
+}
+
+function exportTableCsv(key) {
+  const table = getExportTable(key);
+  if (!table || !table.rows.length) return;
+  downloadCsv(tableToCsv(table), exportFileName(table.title, 'csv', model?.meta));
+  setStatus(`${table.title}: ${table.rows.length.toLocaleString()} rows exported`);
+}
+
+function exportAllTablesXlsx() {
+  // I146 — harvest every table across all data pages. Each page renders into a detached scratch
+  // element, so the visible page and its registry snapshot stay untouched.
+  const scratch = document.createElement('div');
+  scratch.setAttribute('data-page-content', '');
+  const scratchDoc = { querySelector: selector => selector === '[data-page-content]' ? scratch : null };
+  const tables = collectExportTables(scratchDoc, model, state).filter(t => t.rows.length);
+  if (!tables.length) { setStatus('No tables to export'); return; }
+  const bytes = buildXlsx(tables.map(t => ({ name: t.title, headers: t.headers, rows: t.rows })));
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+  link.download = exportFileName('All-Tables', 'xlsx', model?.meta);
+  link.click();
+  URL.revokeObjectURL(link.href);
+  setStatus(`${tables.length} tables exported to Excel`);
+}
+
+// I145 — hide a CSV button when its table has no rows or no table renders in the current view.
+function syncExportButtons() {
+  document.querySelectorAll('[data-export-csv]').forEach(btn => {
+    const table = getExportTable(btn.getAttribute('data-export-csv'));
+    btn.hidden = !table || !table.rows.length;
+  });
 }
 
 let filterDimensions = [];
@@ -835,7 +926,9 @@ function paint() {
   $('#status-files').textContent = `MDL: ${files.mdl?.name || '—'} · Log: ${files.log?.name || '—'} · ${view.kpis.totalPlanned.toLocaleString()} planned rows`;
   showWarnings();
   syncColumnControls();
+  syncExportButtons();
   updateTheme();
+  updateLayout();
 }
 async function readAndBuild() {
   if (!files.mdl || !files.log) { setStatus('Select both workbooks.'); return; }
@@ -998,7 +1091,6 @@ document.addEventListener('click', async event => {
     if (index >= 0) state.collapsedPanels.splice(index, 1); else state.collapsedPanels.push(name);
     paint();
   }
-  if (target.id === 'layout-button') { const layouts = ['one', 'two', 'three']; const index = (layouts.indexOf(document.body.dataset.layout) + 1) % layouts.length; document.body.dataset.layout = layouts[index]; target.title = `${index + 1} column layout`; }
   if (target.id === 'search-button') { $('#searchPanel').classList.toggle('open'); target.setAttribute('aria-expanded', String($('#searchPanel').classList.contains('open'))); }
   if (target.classList?.contains('cc-btn')) {
     const key = target.id.replace('ccBtn_', '');
@@ -1057,12 +1149,6 @@ document.addEventListener('click', async event => {
   if (target.dataset.c3view) { c3SetPanel(target.dataset.c3panel, { c3View: target.dataset.c3view }); paint(); }
   if (target.hasAttribute('data-c3png')) { exportC3Png(target); }
   if (target.hasAttribute('data-c3copy')) { copyC3Svg(target); }
-  if (target.hasAttribute('data-c3export')) { exportC3TableCsv(target); }
-  if (target.hasAttribute('data-export-table')) {
-    const key = target.getAttribute('data-export-table');
-    if (key === 'issue') { const csv = buildIssueCsv(); if (csv) downloadCsv(csv, 'issue-table.csv'); }
-    else exportKeyedTableCsv(key);
-  }
   if (target.classList?.contains('pg-btn')) {
     const p = target.dataset.pg;
     if (p === 'prev') state.issuePage = Math.max(1, (state.issuePage || 1) - 1);
@@ -1077,13 +1163,10 @@ document.addEventListener('click', async event => {
   if (target.dataset.foLane) { state.foLane = target.dataset.foLane; paint(); }
   if (target.dataset.foHorizon) { state.foHorizon = target.dataset.foHorizon; paint(); }
   if (target.dataset.c4view) { state.c4View = target.dataset.c4view; paint(); }
-  if (target.dataset.export) {
-    const view = model ? deriveView(model, state) : null;
-    // I107 — dynamic per-submission columns; follows the Submittals month filter.
-    const { cols, rows } = buildSubmittalsCsv(model, view, state.subMonth || 'ALL');
-    const text = [cols, ...rows].map(row => row.map(value => `"${String(value ?? '').replaceAll('"', '""')}"`).join(',')).join('\r\n');
-    const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' })); link.download = 'submittals.csv'; link.click(); URL.revokeObjectURL(link.href);
-  }
+  // I145 — the top menu button writes one workbook with one worksheet per table.
+  if (target.hasAttribute('data-export')) exportAllTablesXlsx();
+  const csvKey = target.getAttribute('data-export-csv');
+  if (csvKey) exportTableCsv(csvKey);
 });
 document.addEventListener('click', event => { if (event.target.classList?.contains('modal')) closeModal(event.target.id); });
 function openC1SeriesPopup() {
@@ -1167,6 +1250,7 @@ document.addEventListener('change', async event => {
   if (event.target.hasAttribute('data-c3month')) { c3SetPanel(event.target.dataset.c3panel, { c3Month: event.target.value }); paint(); return; }
   if (event.target.hasAttribute('data-submonth')) { state.subMonth = event.target.value; paint(); return; }
   if (setting === 'theme') { state.theme = event.target.value; paint(); }
+  if (setting === 'layout') { state.layout = event.target.value; updateLayout(); }
   if (setting === 'showWarnings') { state.showWarnings = event.target.checked; showWarnings(); }
   if (setting === 'rememberNames') { state.rememberNames = event.target.checked; localStorage.setItem('sub-dashboard-remember-names', String(state.rememberNames)); }
   if (event.target.id === 'file-pair') {
@@ -1252,6 +1336,7 @@ catch (error) {
   if (welcomeErr) { welcomeErr.hidden = false; welcomeErr.textContent = `Startup failed: ${error.message}`; }
 }
 document.documentElement.dataset.theme = state.theme;
+updateLayout();
 const savedWidth = Number(localStorage.getItem('sub-dashboard-left-sidebar-width'));
 if (savedWidth) updateSidebarWidth(savedWidth);
 updateFiles();

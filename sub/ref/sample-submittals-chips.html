@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Submittals Panel — Panel Count Chips · Standardized Colour Pattern (Sample for Review)</title>
+<style>
+  /* Light-theme base tokens mirror dashboard.css :root; the chip families use DEDICATED chip tokens
+     (proposed) so the panel chip design is fully separate from the Validation severity chips. */
+  :root{
+    --surface:#ffffff; --surface2:#f6f8fa; --soft:#eef2f7; --border:#e2e5ea;
+    --navy:#0f1722; --text:#1c2530; --text2:#5b6573; --muted:#9aa3af;
+    --ds-cell-fs:12.5px; --ds-head-h:34px;
+    /* dedicated PANEL CHIP tokens (proposed) — case → family */
+    --pchip-blue-bg:#EAF2FB;  --pchip-blue-border:#CBDDEF;  --pchip-blue-ink:#2B6CF6;   /* submissions in window */
+    --pchip-violet-bg:#F1EEFB;--pchip-violet-border:#D9D0F2;--pchip-violet-ink:#6E52C9; /* documents in window */
+    --pchip-green-bg:#E4F5ED; --pchip-green-border:#BFE6D6; --pchip-green-ink:#17A67A;  /* accumulated documents */
+    --pchip-neutral-bg:#F6F8FA;--pchip-neutral-border:#E2E5EA;--pchip-neutral-ink:#0F1722; /* shown records */
+    /* reserved — NEVER used by panel chips */
+    --danger:#d23b3b; --danger-bg:#fde2e2; --warning:#F9A825; --warning-bg:#fff3cd; --warning-ink:#8a6d00;
+    --info:#2b6cf6; --tag-bg:#EAF2FB;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    background:#eef1f5;color:var(--text);font-size:13px;line-height:1.45}
+
+  /* ---- minimal MDL shell for context ---- */
+  .shell{display:flex;min-height:100vh}
+  .leftbar{width:170px;background:var(--navy);color:#cfd6df;padding:10px;flex-shrink:0}
+  .leftbar .nav{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+  .leftbar .nav button{display:block;width:100%;text-align:left;background:transparent;
+    border:0;color:#cfd6df;padding:8px 10px;border-radius:6px;font-size:14px;font-weight:400;cursor:pointer}
+  .leftbar .nav button.active{background:#22303f;color:#fff;font-weight:600}
+  .content{flex:1;padding:16px;min-width:0;max-width:1060px}
+  .topbar{height:46px;background:var(--navy);color:#fff;display:flex;align-items:center;
+    padding:0 20px;font-size:12px;font-weight:600;margin:-16px -16px 16px}
+
+  /* ---- panel (§4 panel contract) ---- */
+  .panel{margin:0 0 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    box-shadow:0 1px 2px rgba(15,23,34,.06);padding:14px 14px 26px;position:relative;min-width:0}
+  .panel h2{font-size:13px;margin:0;color:var(--navy);text-transform:uppercase;letter-spacing:.04em;line-height:1.4}
+  .panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;bottom:8px;
+    font-size:10px;letter-spacing:.04em;color:var(--muted);pointer-events:none}
+  .review-label{margin:0 0 4px;font-size:11px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.04em;color:var(--muted)}
+
+  /* ==== PANEL COUNT CHIPS — dedicated design, NOT shared with .vchip / severity chips ====
+     Size STANDARDIZED to the warning-chip metrics AND the height is COMPACT-EQUAL: the 1px family
+     border is compensated with 2px vertical padding, so the rendered height (≈21px) matches .vchip
+     exactly (11px × 1.4 line + 3px padding, no border). Kept deltas: the 1px border and the 13px/700
+     tabular count (line-height:1, so it never raises the height).
+     §4 subtitle standard still applies to the row: own line, before the .c-card, margin 6px 0,
+     left-aligned, counts only. The chip carries its title INSIDE (label + number), no external title. */
+  .pchip-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0}
+  .pchip{display:inline-flex;align-items:center;gap:7px;padding:2px 10px;border-radius:6px;
+    border:1px solid;font-size:11px;font-weight:700;line-height:1.4}
+  .pchip b{font-size:13px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+  .pchip.blue  {background:var(--pchip-blue-bg);  border-color:var(--pchip-blue-border);  color:var(--text2)}
+  .pchip.blue b{color:var(--pchip-blue-ink)}
+  .pchip.violet{background:var(--pchip-violet-bg);border-color:var(--pchip-violet-border);color:var(--text2)}
+  .pchip.violet b{color:var(--pchip-violet-ink)}
+  .pchip.green {background:var(--pchip-green-bg); border-color:var(--pchip-green-border); color:var(--text2)}
+  .pchip.green b{color:var(--pchip-green-ink)}
+  .pchip.neutral{background:var(--pchip-neutral-bg);border-color:var(--pchip-neutral-border);color:var(--text2)}
+  .pchip.neutral b{color:var(--pchip-neutral-ink)}
+
+  /* ---- warning chips, mirroring dashboard.css .summary-chips / .vchip verbatim (size reference only) ---- */
+  .summary-chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .vchip{font-size:11px;padding:3px 10px;border-radius:6px;font-weight:700;text-transform:capitalize;line-height:1.4}
+  .vchip.e{background:var(--danger-bg);color:var(--danger)}.vchip.w{background:var(--warning-bg);color:var(--warning-ink)}.vchip.i{background:var(--tag-bg);color:var(--info)}
+
+  /* ---- card, tool row and table mirror the live Submittals panel (I148 split) ---- */
+  .c-card{border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--surface);
+    position:relative;min-width:0;margin:0}
+  .table-tools{position:relative;display:flex;align-items:center;gap:10px;margin:0 0 8px;flex-wrap:wrap}
+  .table-tools .pg-left{display:flex;align-items:center;gap:8px}
+  .table-tools .pg-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .sub-month-lbl{font-size:11px;color:var(--text2)}
+  .sub-month{border:1px solid var(--border);border-radius:6px;padding:4px 6px;background:var(--surface);color:var(--text)}
+  .btn-secondary{font:inherit;font-size:12px;font-weight:600;padding:5px 10px;border:1px solid var(--border);
+    background:var(--surface);border-radius:6px;cursor:pointer;color:var(--text)}
+  .btn-secondary:hover{background:var(--soft)}
+  .ds-split{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .tableScroll{overflow:auto;max-width:100%}
+  .ds-table{width:100%;border-collapse:collapse;font-size:var(--ds-cell-fs);background:var(--surface);table-layout:fixed}
+  .ds-table th,.ds-table td{border-bottom:1px solid var(--border);padding:0 10px;text-align:left;
+    height:30px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ds-table thead th{background:var(--navy);color:#fff;font-weight:600;height:var(--ds-head-h)}
+  .ds-table tbody tr:nth-child(even){background:#F7F9FB}
+  .review-note{margin:6px 0 0;font-size:12px;color:var(--text2)}
+  .review-note b{color:var(--text)}
+
+  /* ---- token matrix ---- */
+  .tok{width:100%;border-collapse:collapse;font-size:12px;background:var(--surface);table-layout:fixed}
+  .tok th,.tok td{border:1px solid var(--border);padding:6px 10px;text-align:left;vertical-align:middle}
+  .tok thead th{background:var(--navy);color:#fff;font-weight:600}
+  .swatch{display:inline-block;width:34px;height:16px;border-radius:4px;border:1px solid;vertical-align:middle;margin-right:6px}
+  .dark{--surface:#121b27;--surface2:#1a2533;--border:#34507a;--navy:#e6edf5;--text:#e6edf5;--text2:#9fb2c8;--muted:#6f8299;
+    --pchip-blue-bg:#1D2A3B;--pchip-blue-border:#34507A;--pchip-blue-ink:#69B7FF;
+    --pchip-violet-bg:#252038;--pchip-violet-border:#4A3E73;--pchip-violet-ink:#B29EF0;
+    --pchip-green-bg:#16302A;--pchip-green-border:#2E5A44;--pchip-green-ink:#4FC58B;
+    --pchip-neutral-bg:#1A2533;--pchip-neutral-border:#34507A;--pchip-neutral-ink:#E6EDF5}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="leftbar">
+    <div style="font-weight:700;font-size:13px;color:#fff">SAMPLE</div>
+    <div class="nav">
+      <button>Overview</button><button>Breakdown</button>
+      <button class="active">Submittals</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="topbar">Panel Count Chips · standardized colour pattern · sample for review · 2026-11-18</div>
+
+    <!-- 1. The standardized colour pattern -->
+    <section class="panel">
+      <h2>Standardized colour pattern</h2>
+      <table class="tok">
+        <thead><tr><th style="width:24%">Case</th><th style="width:20%">Family</th><th style="width:26%">Tokens (proposed)</th><th>Meaning rule</th></tr></thead>
+        <tbody>
+          <tr><td><b>Submissions in window</b></td><td>Blue</td>
+            <td><span class="swatch" style="background:var(--pchip-blue-bg);border-color:var(--pchip-blue-border)"></span>
+                <span class="swatch" style="background:var(--pchip-blue-ink);border-color:var(--pchip-blue-ink)"></span>
+                <code>--pchip-blue-bg / -border / -ink</code></td>
+            <td>Globally filtered <b>submission records</b> inside the selected month</td></tr>
+          <tr><td><b>Documents in window</b></td><td>Violet</td>
+            <td><span class="swatch" style="background:var(--pchip-violet-bg);border-color:var(--pchip-violet-border)"></span>
+                <span class="swatch" style="background:var(--pchip-violet-ink);border-color:var(--pchip-violet-ink)"></span>
+                <code>--pchip-violet-bg / -border / -ink</code></td>
+            <td>Globally filtered <b>document groups</b> in the window; all documents under All months</td></tr>
+          <tr><td><b>Accumulated documents</b></td><td>Green</td>
+            <td><span class="swatch" style="background:var(--pchip-green-bg);border-color:var(--pchip-green-border)"></span>
+                <span class="swatch" style="background:var(--pchip-green-ink);border-color:var(--pchip-green-ink)"></span>
+                <code>--pchip-green-bg / -border / -ink</code></td>
+            <td>Distinct documents with a record <b>till the selected month</b>; project-to-date under All months</td></tr>
+          <tr><td><b>Shown records</b></td><td>Neutral</td>
+            <td><span class="swatch" style="background:var(--pchip-neutral-bg);border-color:var(--pchip-neutral-border)"></span>
+                <span class="swatch" style="background:var(--pchip-neutral-ink);border-color:var(--pchip-neutral-ink)"></span>
+                <code>--pchip-neutral-bg / -border / -ink</code></td>
+            <td>Documents <b>currently displayed</b> after all applicable filters</td></tr>
+        </tbody>
+      </table>
+      <p class="review-note"><b>Reserved — NOT part of the panel chip pattern.</b> The warning / severity colour
+        pattern (red <span class="swatch" style="background:var(--danger-bg);border-color:var(--danger)"></span>
+        and amber <span class="swatch" style="background:var(--warning-bg);border-color:var(--warning-ink)"></span>,
+        the Validation <code>.vchip</code> families) stays untouched and is never mixed with panel count chips:
+        panel chips use only the blue / violet / green / neutral families above, so colour can never read as
+        severity. The chip design is fully dedicated — new <code>.pchip</code> classes and new
+        <code>--pchip-*</code> tokens; no selector, value or class is shared with <code>.vchip</code>.</p>
+    </section>
+
+    <!-- 1b. Chip size standardization vs the warning chips -->
+    <section class="panel">
+      <h2>Chip size standardization</h2>
+      <div class="review-label">Result of aligning the panel chip metrics to the warning-chip standard</div>
+      <table class="tok">
+        <thead><tr><th style="width:26%">Metric</th><th style="width:24%">.vchip (warning chips)</th><th style="width:24%">.pchip (panel chips)</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Font size / line height</td><td>11px / 1.4</td><td>11px / 1.4</td><td>Identical</td></tr>
+          <tr><td>Padding</td><td><code>3px 10px</code></td><td><code>2px 10px</code> — vertical −1px to compensate the border</td><td>Height-equal</td></tr>
+          <tr><td>Border radius</td><td>6px</td><td>6px</td><td>Aligned</td></tr>
+          <tr><td>Label weight</td><td>700</td><td>700</td><td>Aligned</td></tr>
+          <tr><td>Row</td><td>flex, gap 8px, wrap</td><td>flex, gap 8px, wrap</td><td>Identical</td></tr>
+          <tr><td>Border</td><td>none</td><td>1px solid family border</td><td>Intentional (A05)</td></tr>
+          <tr><td>Count emphasis</td><td>none</td><td>13px / 700 tabular, <code>line-height:1</code></td><td>Intentional (A09)</td></tr>
+          <tr><td>Row margin</td><td><code>8px 0</code> (§8.3)</td><td><code>6px 0</code> (§4 subtitle standard)</td><td>Intentional</td></tr>
+        </tbody>
+      </table>
+      <div class="review-label" style="margin-top:12px">Side-by-side at 1:1 scale</div>
+      <div class="pchip-row">
+        <span class="pchip blue">Submissions in Aug 2026 <b>38</b></span>
+        <span class="pchip violet">Documents in Aug 2026 <b>202</b></span>
+        <span class="pchip green">Accumulated till Aug 2026 <b>100</b></span>
+        <span class="pchip neutral">Shown for Aug 2026 <b>45</b></span>
+      </div>
+      <div class="summary-chips" style="margin:6px 0">
+        <span class="vchip e">Error 3</span>
+        <span class="vchip w">Warning 27</span>
+        <span class="vchip i">Info 12</span>
+      </div>
+      <p class="review-note">The warning chips (red / amber / blue tag) are shown here only as the size
+        reference — their colours remain reserved and never appear on panel chips. The panel chip keeps
+        its 1px family border (so the neutral chip stays visible on the white panel) and compensates it
+        with 2px vertical padding, so both chips render at the <b>same compact height</b>. The script
+        below measures the real rendered heights.</p>
+      <p class="review-note" id="height-readout"></p>
+      <script>
+        requestAnimationFrame(function () {
+          var p = document.querySelector('.pchip'), v = document.querySelector('.vchip');
+          document.getElementById('height-readout').innerHTML =
+            '<b>Measured:</b> .pchip height ' + p.offsetHeight + 'px · .vchip height ' + v.offsetHeight + 'px · equal: ' + (p.offsetHeight === v.offsetHeight);
+        });
+      </script>
+    </section>
+
+    <!-- 2. The Submittals panel with the recommended chip row -->
+    <section class="panel" data-panel="4">
+      <h2>Submittals</h2>
+      <div class="review-label">Applied to the Submittals subtitle — title inside each chip, no external title</div>
+      <div class="pchip-row">
+        <span class="pchip blue">Submissions in Aug 2026 <b>38</b></span>
+        <span class="pchip violet">Documents in Aug 2026 <b>202</b></span>
+        <span class="pchip green">Accumulated till Aug 2026 <b>100</b></span>
+        <span class="pchip neutral">Shown for Aug 2026 <b>45</b></span>
+      </div>
+      <div class="c-card">
+        <div class="table-tools">
+          <div class="pg-left"><label class="sub-month-lbl">Month</label>
+            <select class="sub-month"><option>Oct 2026</option></select></div>
+          <div class="pg-right"><button class="btn-secondary">⤓ CSV</button><button class="btn-secondary">Columns</button></div>
+        </div>
+        <div class="ds-split"><div class="tableScroll">
+          <table class="ds-table">
+            <thead><tr><th style="width:40px"></th><th>Document No.</th><th>Document Title</th><th>Discipline</th><th>Submissions</th></tr></thead>
+            <tbody>
+              <tr><td>▾</td><td>C3B2-STR-001</td><td>Structural GA Drawings</td><td>Structure</td><td>3</td></tr>
+              <tr><td>▸</td><td>C3B2-ARC-014</td><td>Architectural Finishes</td><td>Architecture</td><td>2</td></tr>
+              <tr><td>▸</td><td>C3B2-MEP-052</td><td>MEP Schematics</td><td>ME&amp;P</td><td>4</td></tr>
+            </tbody>
+          </table>
+        </div></div>
+      </div>
+      <p class="review-note">Counts are placeholders. Only the cases that apply to the current state render —
+        e.g. with <b>All months</b> selected the blue / violet chips collapse into one neutral "all months"
+        row, and the row still keeps the §4 subtitle standard (own line, before the card, margin 6px 0,
+        left-aligned, counts only). The chip carries its title INSIDE: label first, then the number —
+        no chip title element outside the chip.</p>
+    </section>
+
+    <!-- 3. All-months state -->
+    <section class="panel" data-panel="4">
+      <h2>Submittals</h2>
+      <div class="review-label">State example — All months selected</div>
+      <div class="pchip-row">
+        <span class="pchip green">Accumulated to date <b>202</b></span>
+        <span class="pchip neutral">Shown records <b>202</b></span>
+      </div>
+      <p class="review-note">Monthly / total-month chips are hidden when no single month is selected —
+        a chip that cannot be computed never renders.</p>
+    </section>
+
+    <!-- 4. Dark theme proof -->
+    <section class="panel dark" data-panel="4D">
+      <h2>Submittals</h2>
+      <div class="review-label">Dark theme — same tokens, proposed dark values</div>
+      <div class="pchip-row">
+        <span class="pchip blue">Submissions in Aug 2026 <b>38</b></span>
+        <span class="pchip violet">Documents in Aug 2026 <b>202</b></span>
+        <span class="pchip green">Accumulated till Aug 2026 <b>100</b></span>
+        <span class="pchip neutral">Shown for Aug 2026 <b>45</b></span>
+      </div>
+      <p class="review-note">Chips reference only <code>--pchip-*</code> tokens, so each of the five themes
+        carries its own values (light and dark values shown here; the other themes get their own).</p>
+    </section>
+
+    <!-- 5. What the spec revision would say -->
+    <section class="panel">
+      <h2>Current spec rule (rev 1.93)</h2>
+      <p class="review-note">
+        <b>§4 subtitle rule:</b> when the summary line carries counts, each count MUST render as a panel count
+        chip: the chip carries its title INSIDE (label first, then the count in the chip ink, tabular numerals);
+        all four chips describe the same globally filtered dataset — blue submissions in the selected window,
+        violet document groups in that window, green distinct documents accumulated till the window end,
+        neutral records currently displayed. Labels state "in / for" vs "till" the month; blue hides under All
+        months. The single funnel mark appears only when the in-panel time filter or an actually-narrowing
+        global filter is active — selecting every available value is not a filter. Chip colours come only from
+        the standardized <code>--pchip-*</code> families; red / amber warning colours are reserved for severity
+        chips and MUST NOT be used by panel chips; a chip whose case does not apply MUST NOT render; a zero count
+        displays <code>0</code>; the row keeps the §4 subtitle layout (own line, before the .c-card,
+        <code>margin:6px 0</code>, left-aligned) and stays data only.</p>
+      <p class="review-note"><b>Implemented:</b> spec §4 and assertion 34 at rev 1.93; <code>dashboard.css</code>
+        carries the four <code>--pchip-*</code> families in all five themes and the <code>.pchip</code> classes;
+        <code>render.js</code> renders this chip row in the Submittals panel. See
+        <code>sample-pchip-filter-indication.html</code> for the full filter-state matrix. Other panels'
+        count subtitles migrate in follow-ups.</p>
+    </section>
+  </div>
+</div>
+</body>
+</html>

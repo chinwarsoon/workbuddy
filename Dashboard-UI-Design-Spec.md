@@ -2,6 +2,21 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.95 | 2026-11-18 | CodeBuddy (AI) | **§4.5 / §8.2 — Validation becomes two independent panels (`I151`).** Owner instruction: separate the rule table and the issue table into two panels, give each table a chip subtitle in its own panel, and keep code selection working. §4.5 now requires `Validation Rules` and `Validation Issues` as top-level panels in document order, one `.pchip-row` per panel before its `.c-card`, with `Loaded rules` / `Fired rules` in Panel 1 and `All issues` / `Shown issues` plus the three severity chips in one row in Panel 2. The `data-validation-count` hook moves to the `Shown issues` count. The former meta note, the card titles, the separate severity row and the Rules row-count label are removed. The error-code filter still narrows the Issues panel only. §8.2 gains assertion 36. Review sample: `sub/ref/sample-validation-two-panels.html`. Both byte-identical spec copies updated. |
+| 1.94 | 2026-11-18 | CodeBuddy (AI) | **§4.4 / §8.2 — drill column is conditional (`I150`).** Owner report: switching the Submittals panel to a month showed a white column before Document No. Browser measurement confirmed a 40px pinned `.drill-cell` (`background:rgb(255,255,255)`) with identical header / body widths in All months and month views; the cause is structural — the column is rendered unconditionally although 7 of 9 month views have no document with more than one submission. §4.4 now requires the drill column (with its `.expandable` row class, `.sub` detail rows, row shortcut and locked "Row" chooser item) to be omitted whenever no row in the current view is expandable; multi-record and All-months views keep the standardized drill-down. §8.2 gains assertion 35. Both byte-identical spec copies updated. |
+| 1.93 | 2026-11-18 | CodeBuddy (AI) | **§4 / §8.2 — panel chip semantics refined (`I149`).** Owner review of the four Submittals chips: all four MUST describe the same globally filtered dataset; violet uses month-filtered document groups (not the unfiltered aggregate), green counts distinct cumulative documents (not submission rows), and neutral is the displayed record count. Labels carry temporal scope ("in / for" the selected month vs "till" the month; all-months forms when no window is selected). The single funnel glyph marks every displayed chip when the in-panel time filter or an actually-narrowing global filter is active; selecting every available value or a blank search does not mark, and the funnel never distinguishes filter types. §4 gains the temporal-label bullet and rewrites the colour-family, visibility and filter-indication bullets; assertion 34 is updated. Tokens, anatomy, reserved colours and component isolation from rev 1.92 are unchanged. Both byte-identical spec copies updated. |
+| 1.92 | 2026-11-18 | CodeBuddy (AI) | **§4 / §6 / §8.2 — panel subtitle counts become colour chips (general requirement).** Owner instruction: update the UI spec as general requirements for panel subtitle chip design, replacing the current plain-text panel subtitle design, with the chip design optional per panel. §4 is rewritten: the summary row stays optional and data-only, but counts render as dedicated `.pchip` colour chips — title inside the chip, height-equal to the severity chip (11px/1.4 label, `2px 10px` padding compensating the 1px border, radius 6px, 13px/700 tabular count). §6 gains the four `--pchip-*` colour families (blue monthly · violet total-month · green accumulated · neutral filtered) in the normative token inventory for all five themes, plus two type-scale rows; red/amber severity colours stay reserved for `.vchip`; zero counts display `0`; filter-scoped chips carry the funnel glyph after the count (Style A, rule R1). Review samples: `sub/ref/sample-submittals-chips.html`, `sub/ref/sample-pchip-filter-indication.html`. §8.2 gains assertion 34. Per-panel migration starts with Submittals (follow-up implementation). Both byte-identical spec copies updated. |
+| 1.91 | 2026-11-18 | CodeBuddy (AI) | **§4 / §8.2 — tool rows split filters LEFT and actions RIGHT (`I148`).** Owner instruction: "study submittals panel, csv button should be aligned to the right, filters will be aligned to the left. this is UI spec requirements." §4 gains the universal normative rule (keyed tables, Submittals, Forward and Overdue); the FO lane / horizon segments move to the left group beside the view toggle, leaving only `⤓ CSV` right-aligned; §8.2 gains assertion 33. Both byte-identical spec copies updated. |
+| 1.90 | 2026-11-17 | CodeBuddy (AI) | **§4 / §8.2 — the top-menu workbook covers every table (`I146`).** Owner instruction: "export does not export all tables to different worksheet. log the issue and fix it." The export registry was cleared on every render and filled only by the active page, so the workbook held one page's tables; the three Forward and Overdue tables never registered at all. §4 now states the workbook carries one worksheet per table across all data pages, each page in its current view state. Assertion 31 wording updated. Both byte-identical spec copies updated. |
+| 1.89 | 2026-11-17 | CodeBuddy (AI) | **§4 / §8.2 — download-name source corrected (`I145` amendment).** Owner decisions: the name prefix uses the **Project Title** (not the Project Code); the fallback is the **Project Code**; the **MDL `Code` sheet** is authoritative. The §4 name rule now reads the metadata from the MDL workbook `Code` sheet (`Project Title` slugified, `Project Code` fallback); the earlier "project code from `knowledge.json`" wording is withdrawn — `knowledge.json` is a repository artifact the standalone dashboard cannot read at runtime. Assertion 32 wording updated. Both byte-identical spec copies updated. |
+| 1.88 | 2026-11-17 | CodeBuddy (AI) | **§4 / §8.2 — universal table export contract (`I145`).** Every on-screen table MUST have its own `⤓ CSV` control in the same tool row as the table, before image actions. The control MUST be hidden when the table has no rows or no table renders in the current view. Export MUST include all columns and all rows that match the applied filters; it MUST NOT limit output to the current page, viewport or column chooser. The top menu `Export` MUST download one `.xlsx` workbook with one worksheet per table. A bare boolean attribute MUST be detected with `hasAttribute`, because its `dataset` value is `""`. Download names MUST follow `PROJECT_purpose_YYYY-MM-DD.ext` with the current local date. §8.2 gains assertions 29 to 32. Both byte-identical spec copies updated. |
+| 1.87 | 2026-11-17 | CodeBuddy (AI) | **§3.1 / §5 / §8.2 — the KPI panel is always first and full width; KPI cards use a 6 / 3 / 2 responsive grid as a general requirement (`I143`).** Owner decision 2026-11-17: the Settings layout control changes the panel grid only; it does not change KPI card density. The KPI panel stays first on every dashboard and is outside the panel grid, so `one` / `two` / `three` leaves it full width. §5 replaces the `auto-fit` 6 / 5 / 4 / 3 / 2 / 1 behaviour with a normative 6 / 3 / 2 grid: 6 columns at wide widths, 3 at 1100 px or less, 2 at 880 px or less. A KPI density control, where offered, MUST use these three states only. §3.1 gains the separation clause; §8.2 gains assertion 28. Both byte-identical spec copies updated. |
+| 1.86 | 2026-11-17 | CodeBuddy (AI) | **§3.1 / §8.2 — a panel-layout control belongs in Settings, not in the menu bar; general requirement (`I142`).** A dashboard that offers a panel-column layout control MUST place it in the Settings panel as a labelled `<select data-setting="layout">`, with the values `one`, `two` and `three` and the visible labels `One`, `Two` and `Three`. The chosen value MUST be stored in `localStorage` and applied to `document.body.dataset.layout` on load and on every repaint. The menu bar MUST NOT contain a layout toggle, and the content area MUST NOT contain a layout control (§3.3). §8.2 assertion 27 enforces the rule. This supersedes the rev 1.24 menu-bar icon clause. Both byte-identical spec copies updated. |
+| 1.85 | 2026-11-16 | CodeBuddy (AI) | **§3.2 / §6 — left-menu state tokens (owner decision 2026-11-16, `I141`).** The left-panel page link now takes its three fills and its text colour from four semantic tokens — `--nav-bg`, `--nav-bg-hover`, `--nav-bg-active` and `--nav-fg` — so no component rule holds a literal colour (§6 inventory gains the four rows). The hover is one translucent white veil, `rgba(255,255,255,.1)`, painted over the default fill, so it follows `--navy` in every theme. The active fill is `#354F6E`, a lighter step of the navy family, and MUST NOT be `--blue`: the accent colour stays reserved for actions, and the selected item must not look like a primary button. Selection keeps `font-weight:600`, because the active fill sits only 1.22:1 above the hover fill. Both dashboards and the shell sample are updated; the Sub active text contrast rises from 4.6:1 to 7.1:1. Both byte-identical spec copies updated. |
+| 1.84 | 2026-11-16 | CodeBuddy (AI) | **§4.2 — C3 legend left inset (owner instruction 2026-11-16, `I140`).** Owner instruction: "leave more space before legend, it is too close to y axis. log the issue and fix it. also enhance spec." The legend rows MUST start after a LEFT INSET from the plot-zone left edge — the edge shared with the y-axis zone — so the first swatch never touches the y-axis side. The inset is `12` SVG user units in both views (the Bar legend strip and the Pie donut legend), matching the 12 px `--c3-card-pad` token; the legend wrap width shrinks by the same inset. Engine `render.js` rev 0.29; tests rev 0.29; both byte-identical spec copies updated. |
+| 1.83 | 2026-11-16 | CodeBuddy (AI) | **§4.1 / §4.2 — C3 legend INSIDE the plot border (C1 model), Breakdown panel heights and the Pie size (owner instruction 2026-11-16, `I139`).** Owner review: "legend is not above plot svg, refer to c1 panel for reference. keep submission and approval status panel same height. adjust pie size to avoid changing panel height." (1) The C3 in-SVG legend MUST sit INSIDE the bordered plot area, above the plot content — the bordered y-axis and plot zones span the legend band and the plot band so the border encloses the legend rows — exactly the C1 model; this supersedes the rev 1.82 above-the-border wording. (2) The two Breakdown chart panels MUST share one height in every view (grid stretch, not start alignment; the card fills its panel). (3) The Pie / donut height MUST come from the `--c3-pie-h` token so toggling views does not change the panel height. Engine `render.js` rev 0.28 / `dashboard.css` rev 2.23 / `dashboard.js` rev 2.15; both byte-identical spec copies updated. |
+| 1.82 | 2026-11-16 | CodeBuddy (AI) | **§4.1 / §4.2 — C3 legend above the plot area and the rotated y-axis unit caption (owner decisions 2026-11-16, `I135` review).** (1) The C3 in-SVG legend MUST sit ABOVE the plot area — inside the top of the SVG canvas with `yTop` sized for the legend rows, the plot-zone border starting BELOW the legend — never inside the bordered plot zone; this holds for the Bar and the Pie / donut view. The production engine now renders the legend as ONE `<svg class="c3-legend-svg">` holding the legend `<g>` (Bar: first child of `.c3-card-body`, before `.c3-grid`; Pie: directly above the bordered donut `<svg>`), and the HTML `.c3-legend` element type is retired from the production engine; PNG / Copy serialize the legend with the plot (the Pie export stacks the legend and the bordered donut in one wrapper SVG). (2) Every C3 Bar y-axis MUST carry the rotated side unit caption "Documents", exactly the C1 Y-axis contract (rev 1.60 / I117). The review sample's plot-zone border moved below the legend rows. Engine `render.js` rev 0.27 / `dashboard.css` rev 2.22 / `dashboard.js` rev 2.14; both byte-identical spec copies updated. |
+| 1.81 | 2026-11-16 | CodeBuddy (AI) | **§4.1 / §4.2 / §7.2 / §8.2 — bordered chart zones and the table outer border become universal MUSTs (owner decisions 2026-11-16, `I135` review).** (1) The §4.2 bordered chart composition (rev 1.70) is no longer conditional: EVERY chart board on EVERY dashboard MUST render bordered axis, plot and attached-table zones, each `1px solid var(--border)`; the Pie / donut view MUST carry the bordered plot zone (part 6) even though it renders no y-axis zone and no attached table. (2) Right-angle corners are required ONLY where bordered zones overlap — the y-axis zone (part 5) and the plot zone (part 6) share an edge, so their shared corners use `border-radius:0`; where a named-token gap separates two zones (the `--c3-plot-table-gap` between the bar plot and the attached table, rev 1.80), their borders do not overlap, the right-angle rule does not apply, and those corners keep the general §4 rounding. (3) Every data table MUST show exactly ONE visible outer border `1px solid var(--border)` with the §4 rounding, from its own `.ds-split` wrapper, its owning `.c-card`, or the table element itself; the single-border rule is unchanged. §4.1 gains the C3 bordered-zones clause; §7.2 gains the general table outer-border rule; §8.2 gains assertion 26. Both byte-identical spec copies are updated. Engine, sample, harness, tests and workplan are unchanged. |
 | 1.80 | 2026-11-15 | CodeBuddy (AI) | **§0 / §4.2 / §6 / §8.2 — C3 Breakdown gaps become universal named-token requirements; tool-row placement and padding normalized; plot-to-table gap minimized.** Every gap in the three Breakdown panels MUST be a named token; no rule hard-codes a gap value. The Breakdown tool row (part 3) MUST sit inside its owning card — chart card 2 or summary table card 9 — with equal padding on all four sides from `--c3-tool-pad`, identical in all three panels; in chart cards a scoped negative margin equal to `--c3-card-pad` cancels the outer card padding so the token alone sets the distance to the border. The bar-plot-to-attached-table gap MUST be the derived token `--c3-plot-table-gap` = x-axis label height ÷ 3 (6 px at the default label height), minimized while keeping the plot baseline and the `0` tick label clear. This supersedes the rev 1.79 wording that required a gap of at least the x-axis label height. §6 gains the seven Breakdown gap tokens; §8.2 assertion 25 enforces them. Both byte-identical spec copies are updated. |
 | 1.79 | 2026-11-15 | CodeBuddy (AI) | **§4.2 C3 attached table — vertical gap mandated between bar plot and attached table.** The attached native table MUST be separated from the bar plot by a vertical gap. The gap MUST scale with the x-axis label height (for example a `margin-top` equal to the axis-label line-height) so the axis labels never touch the plot baseline. Both byte-identical spec copies are updated. |
 | 1.78 | 2026-11-15 | CodeBuddy (AI) | **§4.2 legend element type unified to in-SVG; §6 token inventory added; §3.9 governance note; Appendix A added (non-normative matrix register).** The chart legend is now ONE element type for every panel: an in-SVG `<g>` above the chart (C1 and C3). The C3 HTML `.c3-legend` element type (rev 1.76) is retired; C3 now renders its legend inside an SVG group above the chart. This is the single-option standard from the UI Comparison and Standardisation Matrix. §6 gains an explicit token inventory (`--btn-h`, `--seg-h`, `--panel-gap`, `--c1-gutter`, `--c3-gutter`, `--sidebar-w`, `--ds-grip-w`, `--ds-sbw`, and the full semantic colour set). §3.9 gains the governance note that the root spec and the `harness-layout/spec` copy are byte-identical and serve as mutual rollback. Appendix A carries the archived matrix as a non-normative register; the deviation from matrix rev 1.76 is recorded as a conformance item (§8.4). Both byte-identical spec copies are updated. |
@@ -236,11 +251,11 @@ the sidebar itself (§3.2) — and its resizer MUST use `data-shell-resize="left
   announce the change with `aria-live="polite"`. Because the page name lives here, the content area
   MUST NOT repeat it as a heading (§3.3).
 The menu bar holds, **on a single row**: the actions group (the highlighted load primary plus
-Export), the global filter group (the filter triggers, Search with its popover, and the Warnings
-toggle), and the layout toggle at its right end. **Neither Settings nor Help is in the menu bar** —
-both are menus in the left side panel (§3.2). The active page name lives in the title bar, not in
-the content area (§3.3). Search opens a search panel; it is not an inline text field. Use the
-button, sidebar, layout, and help behavior defined by this spec.
+Export) and the global filter group (the filter triggers, Search with its popover, and the Warnings
+toggle). **Neither Settings nor Help is in the menu bar** — both are menus in the left side panel
+(§3.2). The active page name lives in the title bar, not in the content area (§3.3). Search opens a
+search panel; it is not an inline text field. Use the button, sidebar, layout, and help behavior
+defined by this spec.
 - **The menu bar is one row (normative).** The menu bar MUST NOT wrap to a second row.
 - **The filter group MUST NOT be a scroll container.** Setting `overflow` on it clips the floating
   filter panels that hang below the menu bar, which makes their toggles unreachable.
@@ -258,10 +273,18 @@ button, sidebar, layout, and help behavior defined by this spec.
 - **Menu-bar control metrics (normative).** A menu-bar button is 12 px / 600 at `line-height:1.2`
   with `min-height:32px` and `padding:7px 14px`. A filter trigger is 12 px / 600 at
   `line-height:normal` with `min-height:32px` and `padding:7px 12px`. Both render 32 px tall.
-- **The layout toggle lives in the menu bar (normative).** Where a dashboard offers a panel-layout
-  control, it MUST be an icon control at the **right end** of the menu bar, after the filter group,
-  and MUST NOT sit in the content area. Being an icon, it uses the compact 8 px horizontal padding
-  (§3.1) rather than the 14 px of a text control.
+- **The panel-layout control lives in Settings (normative).** Where a dashboard offers a
+  panel-column layout control, it MUST be a labelled `<select data-setting="layout">` in the
+  Settings panel, beside the Theme control. It MUST offer the values `one`, `two` and `three` with
+  the visible labels `One`, `Two` and `Three`. The chosen value MUST be saved in `localStorage` and
+  applied to `document.body.dataset.layout` on load and on every repaint. The menu bar MUST NOT hold
+  a layout toggle, and the content area MUST NOT hold a layout control (§3.3). This rule supersedes
+  rev 1.24, which placed an icon toggle at the right end of the menu bar.
+- **Panel layout does not control KPI density (normative).** The `one` / `two` / `three` value from
+  Settings changes the panel grid only. It MUST NOT change the KPI panel or the KPI card grid. The KPI
+  panel is always the first panel and stays full width at every layout value (§5 rev 1.87). A KPI
+  density control, where a dashboard offers one, is separate from the Settings panel-layout control
+  and MUST use the 6 / 3 / 2 states in §5.
 - **The sidebar toggle is compact (normative).** The left-panel toggle is a single glyph, so it MUST
   NOT carry the 14 px horizontal padding of a text control. It uses **8 px** horizontally, and the gap
   after it is **8 px**, not the menu bar's 12 px. It keeps the menu-bar control's 32 px height and its
@@ -287,6 +310,15 @@ menu-bar filter group, warning area inside content).
   differ MUST derive its width the same way — widest title, plus the item's horizontal padding, plus
   the panel's padding — and MUST NOT let a menu title wrap or clip. Resizing MUST clamp at the width
   where the widest title still fits, which is 140 px here.
+- **Left-menu item states (normative, rev 1.85).** A page link in the left panel MUST use four tokens:
+  `--nav-bg`, `--nav-bg-hover`, `--nav-bg-active` and `--nav-fg`. No component rule holds a literal
+  colour. `--nav-bg` resolves `var(--navy)` and paints the default fill. `--nav-bg-hover` is one
+  translucent white veil, `rgba(255,255,255,.1)`, painted over the default fill, so it follows
+  `--navy` in every theme. `--nav-bg-active` is the fixed value `#354F6E`, a lighter step of the navy
+  family. The active fill MUST NOT be `--blue`: the accent colour stays reserved for actions, so the
+  selected item does not look like a primary button. The active state MUST also carry
+  `font-weight:600`, because its fill sits only 1.22:1 above the hover fill. `--nav-fg` is `#E8EDF3`
+  and paints the item text in every state. Text contrast MUST stay at or above 4.5:1.
 - **Breakdown page position (normative, rev 1.76).** The `Breakdown` page link MUST sit directly
   below `Overview` and before `Submittals`. It is a page link, so it MUST use `data-page` and it MUST
   appear in the page whitelist and in the view map. `Overview` MUST keep KPI, C1 and C2 only. The
@@ -601,8 +633,11 @@ a dashboard uses in its own workplan.
   (I068). The panel edge (above) is the **outer** border; the `.c-card` border is the **inner**
   border around a single graph.
 - **Tables follow the same card contract (normative).** A data table (`.ds-table`, §7.2) and its own controls — view toggle, filters, lane / horizon selectors, export — sit together in one `.c-card`, exactly like a graph: the inner border wraps the table **plus its control cluster** (the owner rule for the Forward and Overdue page). A panel that shows several tables gives each its own `.c-card`.
+- **Table tool rows split filters LEFT and actions RIGHT (normative, rev 1.91).** In every table tool row — keyed tables, the Submittals panel and the Forward and Overdue controls — every **filter** (Month select, per-table filter selects, lane and horizon segments) sits in the **left** group, and every **action** (`⤓ CSV`, `Columns`, image actions) sits in the **right** group, right-aligned (`margin-left:auto`). Filters MUST NOT sit in the right group and actions MUST NOT sit in the left group.
 - **A table inside a `.c-card` carries its own border; the card must not double-border it (normative).** When a `.c-card` wraps a table, the table's `.ds-split` border is the **single** external border; the card's own border is removed (`.c-card:has(.ds-split){border:0}`) so exactly one visible border remains — on the table, not the card. This corrects the I077 regression where `.c-card .ds-split{border:0}` deleted the table's border and left only the (too-subtle) card border. Chart cards (no `.ds-split`) keep their card border.
-- **Every on-screen table offers CSV (normative).** A `⤓ CSV` button lives in the table's control cluster, right-aligned, and downloads **exactly the currently visible rows** (header + body, UTF-8 BOM), so any filtered or sorted view is exportable. This applies to every `.ds-table` in the dashboard, not just a few panels.
+- **Every on-screen table offers CSV (normative, rev 1.88).** Each table has its own `⤓ CSV` control in that table's tool row, before any image action. This applies to every table on every dashboard, including chart-attached tables and keyed tables. The control MUST be hidden when the table has no rows to export or when the current view renders no table. The export MUST contain all columns and all rows that match the applied filters. It MUST NOT be limited to the current page, the visible viewport or the column chooser selection. Use a UTF-8 BOM. This supersedes the earlier "currently visible rows" wording.
+- **The top menu exports one workbook (normative, rev 1.90).** The top menu `Export` control downloads a single `.xlsx` file with one worksheet per table **across all data pages** — not only the page on screen. Each harvested page renders in its current view state (global filters, per-page view toggles and month selections), so a table that is hidden or empty in that state contributes no worksheet. Each worksheet follows the same all-columns and full-filtered-set rule as the per-table CSV. A bare boolean attribute MUST be detected with `hasAttribute`: its `dataset` value is `""` and tests false.
+- **Download names are uniform (normative, rev 1.89).** Every download file name MUST follow `PROJECT_purpose_YYYY-MM-DD.ext`. `PROJECT` is the slugified **Project Title** metadata value from the MDL workbook's `Code` sheet (for example `TWRP C3B2` becomes `TWRP-C3B2`); when that title is blank it falls back to the **Project Code** metadata value from the same sheet. The MDL `Code` sheet is authoritative when the two workbooks disagree. `purpose` is a short slug of the table or `All-Tables` for the workbook, and the date is the current local date at download time. Use `.csv` for table exports and `.xlsx` for the workbook.
 - **Forward and Overdue tables name the document (normative).** Every Forward and Overdue table shows the **Document No.** and the **Document Title** in adjacent columns, and the column widths show the full Document No. and the full Title without truncation (the table scrolls horizontally when the viewport is narrow).
 - **Every view wraps its own output in `activePanel` (normative).** The page renderer inserts each view's returned markup verbatim and adds NO panel wrapper, so every view function MUST wrap its top-level output in `activePanel(name, content)`. That helper is the only source of the §4 edge border (`.panel`), the title row (Help `?` + Collapse `−`) and the corner `Panel N` number. A view that returns raw markup (for example a bare `.c-card`) silently loses the border and title — the recurring failure class of I019 / I066 / I067 (see issue I075).
 - **A table inside a `.c-card` keeps the §4 rounding (normative).** When a `.ds-split` table sits inside a `.c-card`, remove only its redundant outer border (the card already provides the edge) — never flatten its corners. The base `.ds-split` carries `border-radius:10px; overflow:hidden`; the card rule MUST NOT set `border-radius:0`. This prevents the square-corner regression (issue I076).
@@ -627,15 +662,58 @@ a dashboard uses in its own workplan.
   is used instead. A dashboard MUST give the row its own element.
 - **Corner panel number**: absolutely positioned bottom-right, `Panel N`, 10 px, muted,
   letter-spacing .04 em, `pointer-events:none`.
-- **Optional panel summary (subtitle)**: a panel MAY show a short, compact summary line directly
-  under the title (for example a document or row count, or a cumulative total). The summary is
-  data only — counts and totals, not prose. Long explanatory text stays in the **Help modal**
-  (§7.9) and MUST NOT be duplicated in the panel body. Layout (normative, matches the Forward and
-  Overdue panel): the summary sits on its own line in the panel body **before** the `.c-card`,
-  aligned to the panel content edge (no extra indent); it uses the `.note` style — `margin:6px 0`
-  below the 10 px title row (≈16 px visual gap to the title), left-aligned, `color:var(--text2)`,
-  `font-size:13px`, `line-height:1.5`. The control row (filters, CSV, Columns) stays inside the
-  `.c-card`, below the summary.
+- **Optional panel summary (subtitle) — panel count chips (normative, rev 1.93).** A panel MAY show
+  a short, compact summary row directly under the title. The summary is **data only** — counts and
+  totals, never prose; long explanatory text stays in the **Help modal** (§7.9) and MUST NOT be
+  duplicated in the panel body. This chip design **replaces** the earlier plain-text summary line:
+  when a panel shows a subtitle carrying counts, every count MUST render as a panel count chip
+  (`.pchip`) per the requirements below; whether the subtitle exists at all stays **optional per
+  panel** — a panel without a subtitle is compliant. (Review samples:
+  `sub/ref/sample-submittals-chips.html`, `sub/ref/sample-pchip-filter-indication.html`.)
+  - **Row layout (normative).** The chip row sits on its own line in the panel body **before** the
+    `.c-card`, aligned to the panel content edge (no extra indent), `display:flex`, `gap:8px`,
+    `flex-wrap:wrap`, `margin:6px 0` below the 10 px title row, left-aligned. The control row
+    (filters, CSV, Columns) stays inside the `.c-card`, below the summary.
+  - **Chip anatomy (normative).** Each chip is one element carrying its title **inside** — the label
+    first, then the count; there is no chip title element outside the chip. Size is height-equal to
+    the severity chip (`.vchip`): font-size 11px, `line-height:1.4`, `font-weight:700`,
+    `padding:2px 10px` (vertical 1px less than the severity chip, compensating the border),
+    `border-radius:6px`, a 1px solid family border, inline-flex with a 7px internal gap. The count
+    is 13px / 700, `font-variant-numeric:tabular-nums`, `line-height:1`, in the family ink. The
+    design is fully dedicated: `.pchip` classes and `--pchip-*` tokens only — no selector, value or
+    token is shared with the severity chip.
+  - **Standardized colour families (normative).** Chip colour carries meaning — one family per count
+    case, tokens `--pchip-{family}-{bg,border,ink}` defined in **all five themes** (§6): **blue** =
+    submissions within the selected time window; **violet** = document groups within that window;
+    **green** = distinct documents with a record in the cumulative window up to the window end;
+    **neutral** = records currently displayed after all filters. All four chips MUST describe the
+    **same globally filtered dataset** — global filters narrow every chip count; the unfiltered set
+    MUST NOT feed any chip count. Blue counts submission records; violet / green / neutral count
+    document groups, so a filter that removes one of several submissions of a document does not
+    change those three groups' counts.
+  - **Reserved colours (normative).** The red / amber severity families and every `.vchip` colour are
+    reserved for validation and severity indicators and MUST NOT be used by panel count chips, so
+    chip colour can never read as severity.
+  - **Temporal labels (normative).** Labels MUST state the time scope inside the chip: "in" / "for"
+    the selected month for window figures (for example `Submissions in Aug 2026`, `Documents in
+    Aug 2026`, `Shown for Aug 2026`) and "till" the selected month for cumulative figures (`Accumulated
+    till Aug 2026`). With no time window selected the labels use their all-months forms (`All-month
+    documents`, `Accumulated to date`, `Shown records`). The month selector is an in-panel **time**
+    filter, not a global dimension filter; its state MUST be readable from the labels.
+  - **Visibility and zero (normative).** A chip renders whenever its case applies in the current
+    state, regardless of its value — a zero count displays `0` and MUST NOT hide the chip. A chip
+    whose case does not apply MUST NOT render: the blue submission chip is hidden when no single
+    month is selected (e.g. under All months), while violet, green and neutral remain with their
+    all-months counts.
+  - **Filter indication (normative, Style A / rule R1).** The filter mark is ONE glyph — a small funnel
+    (inline SVG, 11px, `currentColor`) after the count in the family ink. Every displayed chip MUST
+    carry it when the in-panel time filter is active or when a global filter **actually narrows** the
+    dataset; no displayed chip carries it when neither is true. A global filter is active for this
+    rule only when it removes rows from the dataset — a selection containing every available value,
+    or a blank / whitespace-only search, MUST NOT trigger the mark. The funnel says only that the
+    displayed count is affected by filtering (it need not be smaller); it MUST NOT be used to
+    distinguish filter types — the temporal labels carry that meaning.
+  - **Data only (normative).** Chips MUST NOT carry prose — labels and counts only.
 - **Numbering rule**: *every* top-level panel is numbered sequentially in document order
   (`Panel 1`, `Panel 2`, …). The number is static — authored once per panel via the
   `.panel-no` span (or `.panel[data-panel]::after`). Dynamically generated sub-panels
@@ -732,10 +810,31 @@ Some panels hold several **chart cards** in a grid. The panel shell still carrie
   negative margin equal to `--c3-card-pad` cancels the outer card padding, so `--c3-tool-pad` alone sets
   the distance to the card border; the card border stays and the chart and table keep their
   `--c3-card-pad` inset. The summary card has no extra padding, so the base rule applies directly.
-- **C3 Breakdown page layout (normative, rev 1.76).** Row 1 holds the two chart panels side by side.
+- **C3 bordered chart zones (normative, rev 1.81).** Every C3 chart card MUST use the universal
+  bordered chart composition (§4.2 rev 1.81). The Bar view renders THREE bordered zones: the y-axis
+  zone (part 5), the plot zone (part 6) and the attached-table zone (part 7), each `1px solid
+  var(--border)`. The Pie / donut view renders the bordered plot zone (part 6) around the donut —
+  it renders no y-axis zone and no attached table, and the plot border is still REQUIRED. The
+  y-axis and plot zones overlap, so their shared corners are right angles (`border-radius:0`); the
+  attached-table zone is separated from the plot by the `--c3-plot-table-gap` (rev 1.80), so its
+  borders do not overlap the plot, no right angle is required there, and its corners carry the
+  general §4 rounding. The in-SVG legend sits INSIDE the plot-zone border, above the plot content —
+  the bordered zones span the legend band and the plot band, so the border encloses the legend rows —
+  exactly the C1 model (rev 1.83, superseding the rev 1.82 above-the-border wording). The legend rows
+  MUST start after a left inset of `12` SVG user units from the plot-zone left edge — the edge shared
+  with the y-axis zone — so the first swatch never touches the y-axis side; the inset matches the
+  12 px `--c3-card-pad` token and applies to the Bar legend strip and the Pie donut legend alike
+  (rev 1.84 / I140).
+- **C3 Breakdown page layout (normative, rev 1.76 / rev 1.83).** Row 1 holds the two chart panels side by side.
   Row 2 holds the `Breakdown Summary` panel spanning both columns. The grid MUST be page-scoped and
   MUST NOT change the `body[data-layout]` behaviour of other pages. Top-level panels MUST use the
-  §4.7 14 px gap. At the 879 px breakpoint the three panels MUST stack in one column.
+  §4.7 14 px gap. At the 879 px breakpoint the three panels MUST stack in one column. The two chart
+  panels MUST share one height in every view (default grid stretch, never start alignment; the card
+  fills its panel through a flex chain, rev 1.83 / I139).
+- **C3 Pie height token (normative, rev 1.83 / I139).** The donut `svg.c3-svg` height MUST come from
+  the `--c3-pie-h` token (measured against the Bar cards' geometry), so toggling between the Bar and
+  the Pie view does not change the panel height. The Pie legend `<g>` lives INSIDE the bordered donut
+  svg, above the ring, exactly the C1 model (rev 1.83).
 - **C3 Breakdown Summary compact table (normative, rev 1.76).** The summary table MUST use compact
   row tokens and MUST NOT show an inner vertical scroll bar. `max-height:none` and `overflow:visible`
   on that panel's `.tableScroll` are REQUIRED. The page-level content body stays scrollable (§3.2).
@@ -747,7 +846,9 @@ Some panels hold several **chart cards** in a grid. The panel shell still carrie
   the top grid line is a round number and the plot fills its height. The numeric **tick labels (the document
   count)** are right-aligned in the metric-label column and flush against the bars, so there is **no gap** between
   a tick label and the grid line it sits on, and the labels align with the attached data table below. A
-  zero-discipline category still renders its empty bar against the full grid. The Pie cards are exempt (they are
+  zero-discipline category still renders its empty bar against the full grid. The axis carries the rotated
+  side unit caption "Documents" along the left of the tick column, exactly the C1 Y-axis contract (rev 1.60
+  / I117; rev 1.82). The Pie cards are exempt (they are
   donuts, not bars). Decision recorded as I060; review sample `sub/ref/sample-c3-grid-lines.html`.
 - **C2 Submission Flow Funnel (per-Discipline table left, funnel right).** The C2 Funnel view draws a
   **vertical funnel to the right of a per-Discipline table**: the table (Discipline rows + a Total row) is on
@@ -1016,10 +1117,16 @@ a single shared time axis instead of two stacked charts:
     Panel N number. A single-graph C1 panel has **no inner `.c-card`** (§4.1, I068). One
     `.sc-board` carries the chart board border around the control cluster and the chart body.
     No additional wrapper surrounds the whole composition.
-  - **Bordered chart composition (universal, rev 1.70).** Where a chart board uses bordered chart zones,
-    the standard composition is one borderless alignment grid plus bordered axis, plot and
-    attached-table zones. Each zone uses `1px solid var(--border)`. Adjacent zones share edges.
-    Shared corners between touching zones use `border-radius:0`; non-shared outer corners keep
+  - **Bordered chart composition (universal MUST, rev 1.81; strengthens rev 1.70).** EVERY chart board
+    on EVERY dashboard MUST use the bordered composition: one borderless alignment grid plus bordered
+    axis, plot and attached-table zones. Each zone uses `1px solid var(--border)`. Every view of the
+    chart MUST carry the bordered plot zone — the Pie / donut view renders no y-axis zone and no
+    attached table, but its plot-zone border (part 6) is REQUIRED. Overlapping borders meet at right
+    angles: where two bordered zones share an edge or corner — for example the y-axis zone (part 5)
+    and the plot zone (part 6) — the shared corners use `border-radius:0`. Where a named-token gap
+    separates two zones — for example the `--c3-plot-table-gap` between the bar plot and the attached
+    table (rev 1.80) — their borders do not overlap, the right-angle rule does not apply, and those
+    corners keep the general §4 rounding (`border-radius:10px`). Non-shared outer corners always keep
     `border-radius:10px`. No additional wrapper surrounds the whole composition. Class names are
     implementation-specific; review colors are not part of the production standard.
   - **Grid contract.** One `.c1-grid` CSS grid is the alignment container. Define `--c1-gutter`
@@ -1313,6 +1420,13 @@ its own.
 - **Only one detail may be open at a time.** Opening a row closes any other open row before it opens.
   A stack of expanded details turns a bounded list back into an unbounded wall of nested content,
   which defeats §4.3.
+- **The drill column is conditional (normative, rev 1.94 / I150).** A table renders its `.drill-cell`
+  column only when at least one row in the current view is expandable (its detail holds more than one
+  record). When every row has a single record — for example a month view where each document has one
+  submission — the column, the `.expandable` row class and row shortcut, the `.sub` detail rows and
+  the locked "Row" item in the Columns chooser MUST be omitted, so the first visible column is the
+  primary data column. Otherwise a redundant pinned white column appears before it. All-months and
+  multi-record views keep the standardized drill-down unchanged.
 - **The control is a real `<button>`** (`.drill-btn`) — never a `<td>` or a `<div>` with
   `role="button"` (§7.1 B4). It carries `aria-expanded` and `aria-controls` pointing at the `.sub`
   detail.
@@ -1355,7 +1469,7 @@ ring. Do not hard-code colours (no `#fafbfc` / `#f3f7fc`).
 
 ---
 
-### 4.5 Validation panel (per-package data issues) — rev 2026-10-29
+### 4.5 Validation panels (per-package data issues) — rev 2026-11-18
 
 Shows the **row-level validation results produced by S3** (filter-independent, run once at
 load). It is **distinct from** the §3.5 system/config warning bar: that bar carries only
@@ -1363,56 +1477,47 @@ load). It is **distinct from** the §3.5 system/config warning bar: that bar car
 exception; the Validation panel carries the *per-package data* issues. Both can be present at
 once.
 
-**Components, in this order (one panel):**
+**Components, in this order (two independent top-level panels, rev 1.95 / I151):**
 
-1. **Title row** — panel title `Validation`; inline `?` (help `vcard`, **left**) and `−`
-   (collapse, **right**) in the right-aligned action cluster (§4.1). There is **no** panel-level
-   CSV button; the per-issue table carries its own `⤓ CSV` (item 5). The severity summary chips
-   move to the summary row (item 3).
-2. **Severity summary chips** (`.vchip`, in the summary row, item 3): totals for error / warning / info,
-   plus a hidden `.ok` **"no issues"** chip shown **only** when the issue count is 0. **Shape
-   (normative override)** — use the standard `.e / .w / .i / .ok` colour tiers but **override**
-   the generic 999 px pill radius to **6 px**, with **11 px / 700** and `text-transform:capitalize`.
-   The generic pill shape does **not** apply to these chips.
-3. **Summary row** (`.v-summary`, one flex row, no `<details>`): the bold issue **count** (e.g.
-   `16,562 issues`), the **severity chips** (item 2), and a **panel-level meta line** (loaded MDL
-   fields · log headers · rule count) shown as the `.note` directly under the page title, above the
-   severity chips. The content below shows **directly** — the sidebar already selects the panel
-   (§4 no-in-panel-disclosure rule), so no toggle hides it.
-4. **Rule reference card** (`.c-card`): a `Rules` title row above a small table — `severity
-   symbol · code · group · description · count`, **one row per fired rule code** (de-duplicated).
-   **Never individual per-rule cards.** Wording priority: the Error table on the Code sheet is the
-   source of truth; if a code is absent there, the dashboard supplies the description (flagged as
-   such). See *Layout rules* for the wide Description column.
-5. **Per-issue card** (`.c-card`): an `Issues` title row (left aligned), then the tool cluster at the
-   **top** — **page controls on the left** (`‹ Prev · Page n / total (jump) · Next › · N rows`) and the
-   **error-code panel-local filter + `⤓ CSV` + `Columns` on the right** (see *Layout rules*) — then the
-   issue list, an instance of `.tableScroll` / `.ds-table` (§4.3 & §7.2). The source note is a
-   **panel-level** `.note` under the Validation page title (item 0 / §4 subtitle standard), not a card
-   subtitle.
+1. **Panel 1 — `Validation Rules`.** One chip subtitle row, then the rule reference table. The panel
+   carries no meta note and no card title. The table shows `severity · code · group · description ·
+   count`, **one row per fired rule code** (de-duplicated). **Never individual per-rule cards.**
+   Wording priority: the Error table on the Code sheet is the source of truth; if a code is absent
+   there, the dashboard supplies the description (flagged as such). Its tool row carries `⤓ CSV` and
+   `Columns` only. No row count is shown in that tool row.
+2. **Panel 2 — `Validation Issues`.** One chip subtitle row, then the per-issue table. The panel
+   carries no meta note and no card title. The tool cluster sits at the **top** — **page controls on
+   the left** (`‹ Prev · Page n / total (jump) · Next › · N rows`) and the **error-code panel-local
+   filter + `⤓ CSV` + `Columns` on the right** — then the issue list, an instance of `.tableScroll` /
+   `.ds-table` (§4.3 & §7.2).
+
+**Chip subtitle (normative).** Each panel has exactly one `.pchip-row[data-panel-subtitle]`
+directly under its title and before its `.c-card`. The row holds counts only, in one line. Panel 1
+shows `Loaded rules` (violet) = the rule catalogue size and `Fired rules` (neutral) = the number of
+distinct fired codes. Panel 2 shows `All issues` (green) = the globally filtered issue count,
+`Shown issues` (neutral) = the count after the code filter, and the three severity chips
+(`.vchip.e / .w / .i`) **in the same row**. The `data-validation-count` hook sits on the
+`Shown issues` count and MUST be unique in the page. No funnel glyph applies to these chips. The
+`Shown issues` count follows the code filter; the severity chips and Panel 1 do not. The former
+plain-text meta line (loaded fields · log headers · rule text source · D33) is removed from the panel
+body and lives in Help (§7.9).
 
 **Layout rules (normative).**
-- **Card separation.** Each table sits in its own `.c-card` (bordered surface, §4 chart-card
-  rule). The inner `.ds-split` border is removed inside the card (`.c-card .ds-split{border:0}`)
-  so there is no double border; a 12 px gap separates the two cards.
-- **Title and tools stacked; page controls at the top.** Each card's title (`h3.tt`, left) sits on
-  its own line. The tool cluster sits **below the title** in its own `.table-tools` row. For the
-  per-issue card the cluster is split into two groups: **page controls on the left** (`‹ Prev · Page
-  n / total (jump) · Next ›` and the `N rows` total) and **Code filter · `⤓ CSV` · `Columns` on the
-  right** (`.pg-right` carries `margin-left:auto`); the page navigation sits at the **top** of the
-  card, never the bottom. For the rule card the title stands alone. The CSV button carries
-  `data-export-table="issue"`.
+- **Independent panels.** The two panels are top-level and stack in document order. The Settings
+  layout control does not change them. `data-panel` numbers them 1 and 2.
+- **One chip row per panel.** The chip row sits on its own line before the `.c-card`, aligned to the
+  panel content edge. The `.v-chip-row` modifier adds a 12 px bottom gap. All chips stay in one row;
+  no second summary row is rendered.
+- **No meta note and no card titles.** The former panel-level `.note` is removed. Neither table
+  renders an `h3.tt` card title. Long explanation stays in Help (§7.9).
+- **Tool rows.** Each keyed table keeps one `.table-tools` row with filters on the left and actions
+  on the right (§4 rev 1.91). The rule table omits its row-count label. The issue table keeps its
+  top pager, page-jump total and row total.
 - **Tool-cluster controls are local.** The page controls, error-code filter, `⤓ CSV` and `Columns`
   act **only** on the Issues table and MUST leave the active sidebar page unchanged. Selecting a code
-  MUST immediately repaint the table, the row count and the page-jump total, and reset to page 1.
-  `⤓ CSV` MUST download the full filtered set. These are the I114 / I115 invariants.
-- **Panel-level subtitle.** The source note (loaded MDL fields · log headers · rule count) is a
-  **panel-level** `.note` directly under the Validation page title (above the `.v-summary` row), per
-  the §4 subtitle standard — not a card subtitle.
-- **Count text.** When paginated the cluster shows `Page n / total`; when windowed `Showing X of Y
-  rows`; otherwise `Y rows` (full) — each with a thousands separator and the noun `rows`. It MUST
-  NOT show a bare `X of Y` pair without a noun.
-- **Wide detail columns.** Default column widths give the focus columns the most room: Rule
+  MUST immediately repaint the table, the `Shown issues` count and the page-jump total, and reset to
+  page 1. `⤓ CSV` MUST download the full filtered set. These are the I114 / I115 invariants.
+- **Wide detail columns.** Default column widths give the focus columns the most room: rule
   reference **Description** (≈420 px) and per-issue **Message** (≈360 px) and **Value** (≈130 px).
   Severity and Rule stay pinned on the left when the table scrolls.
 
@@ -1436,20 +1541,16 @@ allowable there.)
 
 **Pagination, not truncation.** The Issues table paginates at 200 rows per page (§4.3); page
 navigation buttons (**Previous / Next**, plus a page-jump selector) are required whenever there is
-more than one page. The full issue count is reported in the tool cluster. A panel-local **error-code
-filter** narrows the list further (it affects only the Issues table, never the Rule Reference, per
-§7.2.7 pt 6); CSV / export covers the **full filtered set**. Empty state: zero issues → `.empty`
-caption in the table and the `.ok` chip shown.
+more than one page. The full filtered count is reported in the tool cluster and in the
+`Shown issues` chip. A panel-local **error-code filter** narrows the list further (it affects only
+the Issues panel, never the Rule Reference panel, per §7.2.7 pt 6); CSV / export covers the **full
+filtered set**. Empty state: zero issues → `.empty` caption in the table.
 
-**Explanatory note placement.** The source note (*"rule text from the workbook Code sheet"*) lives
-in the summary row meta line and is always visible — never buried in a collapsed region (there is
-none; see §4 no-in-panel-disclosure rule).
+**Help.** The Help modal (§7.9) carries the longer explanation, including the rule text source and
+the D33 statement. The panel bodies keep counts only.
 
-**Help:** `vcard` in the Help modal (§7.9) carries the longer explanation; the panel body keeps
-only the short inline hint.
-
-*Cross-refs:* table base §7.2 · scroller §4.3 · severity symbols §3.5 · chip shape
-(overridden above, §4.5 item 2) · panel action cluster §4.1.
+*Cross-refs:* table base §7.2 · scroller §4.3 · severity symbols §3.5 · panel count chips §4 rev
+1.93 · panel action cluster §4.1.
 
 ---
 
@@ -1516,11 +1617,16 @@ between visible panels on each page (spec §8.2 assertion 19).
 
 ## 5. KPI Overview Panel
 
-- First panel on every dashboard. Title `KPI OVERVIEW`, inline `?` (help, **left**) and `−`
-  (collapse, **right**) buttons in the right-aligned action cluster, corner panel number.
-- **KPI cards** use `repeat(auto-fit, minmax(210px, 1fr))` with a 10 px gap (§18.10). At a
-  1310 px content width this gives six 210 px cards. No breakpoint media query is needed:
-  `auto-fit` drops to five, four, three, two or one column as the width falls.
+- First panel on every dashboard, outside the panel grid. Title `KPI OVERVIEW`, inline `?` (help,
+  **left**) and `−` (collapse, **right**) buttons in the right-aligned action cluster, corner panel
+  number. The KPI panel stays full width at every `Panel Columns` value; that control changes the
+  panel grid only (§3.1 rev 1.87).
+- **KPI cards use a 6 / 3 / 2 responsive grid (normative).** The grid holds six columns at wide
+  widths, three columns at 1100 px or less, and two columns at 880 px or less. Use
+  `grid-template-columns:repeat(6,minmax(0,1fr))` with a 10 px gap (§18.10) and two media queries at
+  `max-width:1100px` and `max-width:880px`. Do not use `auto-fit` here: it can yield five or four
+  columns, which the 6 / 3 / 2 contract forbids. A KPI density control, where offered, MUST have
+  these three states only and MUST NOT introduce other column counts.
 - The KPI panel carries **no subtitle** — the per-panel explanation lives in the Help modal
   (§7.9). Do not duplicate explanatory copy in the panel body.
 
@@ -1552,7 +1658,9 @@ between visible panels on each page (spec §8.2 assertion 19).
 
 ### KPI card CSS (normative example)
 ```css
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:880px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .kpi{box-sizing:border-box;height:72px;padding:10px;background:var(--surface);
   border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;
   box-shadow:none}
@@ -1612,6 +1720,8 @@ harness tier and dashboard test suite.
   | Title-bar meta line | 11 px | 400 |
   | Status / system banner | 12 px | 400 |
   | Severity chip `.vchip` | 11 px | 700 |
+  | Panel count chip label (`.pchip`) | 11 px | 700 |
+  | Panel count chip count (`.pchip b`) | 13 px | 700 |
 
 - **Reference.** MDL is the reference implementation of this scale. A dashboard that drifts from it
   renders the same content at a different size, which is the drift this clause prevents.
@@ -1643,6 +1753,10 @@ The project-local UI stylesheet MUST define every token below. Components refere
 | `--c1-gutter` | `104px` | C1 attached-table gutter (§4.2) |
 | `--c3-gutter` | `104px` | C3 attached-table gutter (§4.2) |
 | `--sidebar-w` | `160px` | Left navigation sidebar width (§3.2) |
+| `--nav-bg` | `var(--navy)` | Left-menu item default fill (§3.2 rev 1.85) |
+| `--nav-bg-hover` | `rgba(255,255,255,.1)` | Left-menu item hover fill — a white veil over `--nav-bg`, so it follows `--navy` (§3.2 rev 1.85) |
+| `--nav-bg-active` | `#354F6E` | Left-menu item active fill — a lighter step of the `--navy` family, never `--blue` (§3.2 rev 1.85) |
+| `--nav-fg` | `#E8EDF3` | Left-menu item text in every state (§3.2 rev 1.85) |
 | `--ds-grip-w` | (project value) | Table column-resize grip width (§7.2.13) |
 | `--ds-sbw` | (project value) | Table scrollbar width (§7.2.15) |
 | `--surface` | theme | App / panel background |
@@ -1663,6 +1777,10 @@ The project-local UI stylesheet MUST define every token below. Components refere
 | `--ink` | theme | High-emphasis text |
 | `--white` | theme | Contrast text on filled buttons |
 | `--shadow` | theme | Subtle panel / tooltip shadow |
+| `--pchip-blue-bg` / `-border` / `-ink` | theme | Panel count chip, monthly count family (§4 rev 1.92) |
+| `--pchip-violet-bg` / `-border` / `-ink` | theme | Panel count chip, total month count family (§4 rev 1.92) |
+| `--pchip-green-bg` / `-border` / `-ink` | theme | Panel count chip, accumulated count family (§4 rev 1.92) |
+| `--pchip-neutral-bg` / `-border` / `-ink` | theme | Panel count chip, filtered count family (§4 rev 1.92) |
 
 ---
 
@@ -1920,6 +2038,13 @@ panel MUST also agree with the rows the dashboard paints.
 One common table style for **every** tabular view. Data tables (benchmark, look-ahead,
 overdue) and issue tables (validation) all use `.ds-table`; issue tables add severity + optional
 row drill-down on top of the same base — never a second, divergent table style.
+
+**Every data table has ONE outer border (normative, rev 1.81).** Every `.ds-table` MUST show a
+visible outer border — `1px solid var(--border)` with the §4 rounding (`border-radius:10px`) — on
+every dashboard, in every panel. The border MAY come from the table's own `.ds-split` wrapper
+(§7.2.15), from its owning `.c-card` (§4), or from the table element itself; exactly ONE visible
+outer border remains, so the §4 single-border rule (a `.c-card:has(.ds-split)` drops its own
+border) still applies. A table MUST NOT render without an outer border.
 
 #### 7.2.0 Normative class names
 These class names are **normative** and MUST be used verbatim. A dashboard MAY add its own
@@ -2242,11 +2367,22 @@ hard-coded into the generic check.
 | 18 | The warning area is pinned below the menu bar, above the filter strip and outside the scrolling body; scrolling the panels does not move it, and it spans the content width without covering a sidebar | §3.5 |
 | 19 | Stacked top-level panels are separated by 14 px (container gap or panel margin, never both); borders never touch; hidden panels add no gap; the `Breakdown` page's own grid MUST use that 14 px gap and MUST NOT inherit a different value from `body[data-layout]` (§4.1 rev 1.76) | §4.7 |
 | 20 | The search panel is one row: attached column picker (All columns plus each searchable column), flexible input, affixed submit; the picker re-applies the query and does not clear it | §7.1 B5 / A5 |
-| 21 | An S-curve attached table uses one `.c1-grid` with explicit `--c1-gutter` / `--c1-cols` tracks and `column-gap:0`, one `<svg role="img">` whose host carries a `ResizeObserver`, one native `<table>` in one spanning grid item with `<caption>` / `<colgroup>` / `<thead>` / `<tbody>` / `scope`, static and rebuilt cells with the same structure, a bordered chart composition (axis / plot / table zones with shared right-angle corners and an unbordered alignment grid; rev 1.70), no third bordered wrapper, and PNG/Copy that include the table; the SVG draws one vertical `sc-yaxis-line` at the plot's left edge, grid column 1 carries at most eight dynamically generated Y ticks (§4.2 rev 1.64: max 7 intervals, min ~40 px spacing, nice-number steps, one `line.sc-grid` per label, all derived from the same `data-c1meta.yMax` / `yStep` / `yIntervals` payload) and a rotated unit caption; after a period change the Y-axis maximum MUST be recomputed from the selected period window with cumulative values unchanged (§4.2 rev 1.65), and chart / grid / labels / hover-refit metadata / PNG-Copy MUST share that one Y-axis scale; the C1 period control is ONE dual-handle month-snapped track with one tick per active reporting month and the `6M` / `12M` / `24M` / `YTD` / `All` preset chips (§4.2 rev 1.66: `step="1"`, `input` visual-only, `change` single repaint, `aria-valuetext` / `aria-pressed`, print hides the interactive controls), and those five chips are ONE joined `.seg` group of `.seg-btn` buttons with EXACTLY one `aria-pressed="true"` at a time, a stored preset name (default `All`), NO active chip after a manual handle `input` / `change`, and the tools below the panel title stay on ONE visual row at the 1280 px minimum desktop width with `flex-wrap:nowrap` on `.c1-ts` (§4.2 rev 1.67); every Sub `.seg-btn` follows the §7.5 B2.1 common standard — shared CSS custom-property tokens, `--navy` active fill, `--surface2` inactive hover, `--surface3` pressed, a disabled state, a 2 px `--blue` focus ring with `outline-offset:-2px` plus a high-contrast light ring on active buttons, `type="button"` and a dynamic `aria-pressed` on ALL seven generators, `role="group"` and an accessible name on every group, equal height within each group and centre alignment between groups, the `standard` 32 px / 12 px variant and the C1 `compact` exception at ≈ 25.94 px / 11 px / `line-height:1.45` / `padding:5px 8px` with `min-height:0` and no hover or focus rule of its own (§4.2 rev 1.69 / §7.5 B2.1); the in-SVG legend sits above the plot, the `<thead>` row is flush with the plot bottom (which is also the SVG bottom) with no separate SVG X labels, the whole curve fits the board with no horizontal scroll, and bar / dot / `data-points.cx` alignment holds after the period window changes; the SVG draws four tokenised `<linearGradient>` defs and `path.sc-area` fills plus one hidden `rect.sc-hover-band` behind all marks, every month `<th>` and value `<td>` carries `data-c1col`, hovering a month column in either direction activates the band / snap line / `.col-active` highlight, and the `.chart-tip` window opens only inside the SVG chart area and is `aria-hidden="true"` with empty text whenever hidden; `aria-describedby` points at `.chart-tip` only; C3 Bar cards use the same native attached-table model, the general chart ↔ attached-table column sync and the C1 band / centre line / border-free visual contract (§4.2 rev 1.73 / 1.74 / 1.75); on the `Breakdown` page each C3 legend MUST sit ABOVE `.c3-grid` in Bar view and above the donut `<svg>` in Pie view, MUST be rendered in-SVG, and the exported PNG / Copy MUST keep the legend at the top (§4.2 rev 1.78) | §4.2, §4.6 |
+| 21 | An S-curve attached table uses one `.c1-grid` with explicit `--c1-gutter` / `--c1-cols` tracks and `column-gap:0`, one `<svg role="img">` whose host carries a `ResizeObserver`, one native `<table>` in one spanning grid item with `<caption>` / `<colgroup>` / `<thead>` / `<tbody>` / `scope`, static and rebuilt cells with the same structure, a bordered chart composition (axis / plot / table zones with shared right-angle corners and an unbordered alignment grid; rev 1.70 / 1.81), no third bordered wrapper, and PNG/Copy that include the table; the SVG draws one vertical `sc-yaxis-line` at the plot's left edge, grid column 1 carries at most eight dynamically generated Y ticks (§4.2 rev 1.64: max 7 intervals, min ~40 px spacing, nice-number steps, one `line.sc-grid` per label, all derived from the same `data-c1meta.yMax` / `yStep` / `yIntervals` payload) and a rotated unit caption; after a period change the Y-axis maximum MUST be recomputed from the selected period window with cumulative values unchanged (§4.2 rev 1.65), and chart / grid / labels / hover-refit metadata / PNG-Copy MUST share that one Y-axis scale; the C1 period control is ONE dual-handle month-snapped track with one tick per active reporting month and the `6M` / `12M` / `24M` / `YTD` / `All` preset chips (§4.2 rev 1.66: `step="1"`, `input` visual-only, `change` single repaint, `aria-valuetext` / `aria-pressed`, print hides the interactive controls), and those five chips are ONE joined `.seg` group of `.seg-btn` buttons with EXACTLY one `aria-pressed="true"` at a time, a stored preset name (default `All`), NO active chip after a manual handle `input` / `change`, and the tools below the panel title stay on ONE visual row at the 1280 px minimum desktop width with `flex-wrap:nowrap` on `.c1-ts` (§4.2 rev 1.67); every Sub `.seg-btn` follows the §7.5 B2.1 common standard — shared CSS custom-property tokens, `--navy` active fill, `--surface2` inactive hover, `--surface3` pressed, a disabled state, a 2 px `--blue` focus ring with `outline-offset:-2px` plus a high-contrast light ring on active buttons, `type="button"` and a dynamic `aria-pressed` on ALL seven generators, `role="group"` and an accessible name on every group, equal height within each group and centre alignment between groups, the `standard` 32 px / 12 px variant and the C1 `compact` exception at ≈ 25.94 px / 11 px / `line-height:1.45` / `padding:5px 8px` with `min-height:0` and no hover or focus rule of its own (§4.2 rev 1.69 / §7.5 B2.1); the in-SVG legend sits above the plot, the `<thead>` row is flush with the plot bottom (which is also the SVG bottom) with no separate SVG X labels, the whole curve fits the board with no horizontal scroll, and bar / dot / `data-points.cx` alignment holds after the period window changes; the SVG draws four tokenised `<linearGradient>` defs and `path.sc-area` fills plus one hidden `rect.sc-hover-band` behind all marks, every month `<th>` and value `<td>` carries `data-c1col`, hovering a month column in either direction activates the band / snap line / `.col-active` highlight, and the `.chart-tip` window opens only inside the SVG chart area and is `aria-hidden="true"` with empty text whenever hidden; `aria-describedby` points at `.chart-tip` only; C3 Bar cards use the same native attached-table model, the general chart ↔ attached-table column sync and the C1 band / centre line / border-free visual contract (§4.2 rev 1.73 / 1.74 / 1.75); on the `Breakdown` page each C3 legend MUST sit ABOVE `.c3-grid` in Bar view and above the donut `<svg>` in Pie view, MUST be rendered in-SVG, and the exported PNG / Copy MUST keep the legend at the top (§4.2 rev 1.78) | §4.2, §4.6 |
 | 22 | Every tabular view uses the ONE shared table hover crosshair: the hovered row, logical column including its split header, and intersection cell are highlighted; split-header cells pair by rendered column position or an explicit column identifier, never raw `cellIndex`; C1 and C3 `.col-active` / chart sync is preserved by the general attached-table column sync rule (§4.2 rev 1.74 / 1.75); the hidden column band and the `.chart-snap` centre line move with the active column in both directions, and active chart or table column cells carry no border, outline or inset ring (§4.2 rev 1.75); C3 attached tables participate through `data-table-crosshair` / `data-col-id` and `role="group"` on the card; on the `Breakdown` page (§4.1 rev 1.76) both chart panels and the summary panel's table follow the same crosshair rule inside their own panels, and no panel reads or writes another panel's hover state; column rules and `position:relative` are unchanged; and transient hover classes, the band and the centre line are absent from PNG, Copy and print | §7.2.16 |
 | 23 | A chart that renders a native attached table whose columns share the chart's X positions uses ONE transient two-way chart ↔ attached-table column sync: hovering a chart column or a table column highlights the SAME logical column in both, inside the owning chart card only; C1 keeps `data-c1col` / `.sc-hover-band` / snap line / `.col-active`, and C3 Bar keeps shared `data-col-id` on `.g-bar`, dimension headers and value cells plus ONE `.col-active` state per `.c3-card`; each C3 card is independent (on the `Breakdown` page, §4.1 rev 1.76, the `Submissions` and `Approval Status` chart panels each own their state and sync scope), no competing `.col-hover` column state is applied, `.row-hover` / `.cell-hover` may still apply, the `.chart-tip` window stays closed while the cursor is in the attached table, and the state clears on pointer leave / blur / Escape / repaint / print and is absent from PNG / Copy / print (§4.2 rev 1.74); C1 and C3 Bar each draw ONE hidden column band and ONE hidden dashed `.chart-snap` centre line, both MUST move with the active column in BOTH directions, and no active chart or table column cell MAY carry a border, outline or inset ring (§4.2 rev 1.75); the band and centre line stay hidden on leave / blur / Escape / repaint / print and absent from PNG / Copy / print (§4.2 rev 1.75) | §4.2, §4.6, §7.2.16 |
 | 24 | The sidebar lists `Breakdown` directly under `Overview` (§3.2 rev 1.76); the `Breakdown` page holds THREE fully independent panels — `Submissions`, `Approval Status` (charts, side by side, `Submissions` first) and `Breakdown Summary` (full width below) — each with its OWN `c3Month` / `c3Dim` / `c3View` state, so changing a control in one panel changes nothing in the others, and each chart switches between Bar and donut independently (§4.1 rev 1.76); the Overview page keeps KPI, C1 and C2 only; each C3 legend sits ABOVE its chart and is in-SVG (§4.2 rev 1.78); the summary panel owns Month, Break-down-by and the `⤓ Download` CSV control, its table uses the compact row tokens with no inner vertical scroll at 1280 px, and the orphan discipline (submittal rows not registered in MDL) is named `Others`, not `Unknown` (§4.1 rev 1.76); each chart panel shows ONE tool row — Month select, Break-down-by and Bar / Pie on the left, `⤓ PNG` + `⧉ Copy` on the right, no second head row — and the Month select carries no visible `Month` text (§4.2 rev 1.77) | §3.2, §4.1, §4.2 |
 | 25 | Every gap in the three Breakdown panels is a named token from the §6 inventory and no rule hard-codes a gap value (§0, §4.2 rev 1.80); the tool row (part 3) sits inside its owning card — chart card 2 in both chart panels, summary table card 9 in the Breakdown Summary panel — with equal `--c3-tool-pad` on all four sides and the same padding in all three panels, and only the two chart cards use a scoped negative margin equal to `--c3-card-pad` that cancels the outer card padding while the card border and the chart / table inset stay (§4.2 rev 1.80); the bar-plot-to-attached-table gap equals the derived token `--c3-plot-table-gap` = `--c3-axis-label-h / 3` (6 px at the default 18 px label height), is minimized without the table overlapping the plot baseline or the `0` tick label, and still scales with the label height (§4.2 rev 1.80) | §0, §4.2, §6 |
+| 26 | Every chart board on every dashboard uses the universal bordered composition: bordered axis, plot and attached-table zones, each `1px solid var(--border)` (§4.2 rev 1.81); the Pie / donut view carries the bordered plot zone though it renders no y-axis or attached-table zone (§4.1 rev 1.81); overlapping bordered zones — the y-axis zone and the plot zone — meet at right angles with `border-radius:0` shared corners, while gap-separated zones (the bar plot and the attached table) carry the general `border-radius:10px` (§4.2 rev 1.81); and every data table shows exactly ONE outer border `1px solid var(--border)` with `border-radius:10px`, from its `.ds-split` wrapper, its owning `.c-card` or the table element itself (§7.2 rev 1.81) | §4.1, §4.2, §7.2 |
+| 27 | Where a dashboard offers a panel-column layout control, it is a labelled `<select data-setting="layout">` in the Settings panel, with the values `one`, `two` and `three` and the visible labels `One`, `Two` and `Three`; the chosen value is saved in `localStorage`, applied to `document.body.dataset.layout` on load and on every repaint, and the menu bar and content area hold no layout control (§3.1 rev 1.86) | §3.1, §3.3 |
+| 28 | The KPI panel is first and outside the panel grid and stays full width at every panel-layout value; KPI cards use six columns at wide widths, three at 1100 px or less and two at 880 px or less; a KPI density control, where offered, uses those three states only and never five or four columns (§3.1 / §5 rev 1.87) | §3.1, §5 |
+| 29 | Every on-screen table has one `⤓ CSV` control in its own tool row before any image action; the control is absent or hidden when the table has no rows or no table renders in the current view (§4 rev 1.88) | §4 |
+| 30 | Every CSV export contains all columns and all rows that match the applied filters, with a UTF-8 BOM, and ignores pagination, viewport and column chooser state (§4 rev 1.88) | §4 |
+| 31 | The top menu `Export` downloads one `.xlsx` workbook with one worksheet per table across all data pages, each page in its current view state; a bare boolean attribute is detected with `hasAttribute` (§4 rev 1.90) | §4 |
+| 32 | Every download file name follows `PROJECT_purpose_YYYY-MM-DD.ext` with the current local date and `.csv` or `.xlsx` as the extension; `PROJECT` is the slugified Project Title from the MDL `Code` sheet with the Project Code fallback (§4 rev 1.89) | §4 |
+| 33 | In every table tool row the filters (Month, per-table filter selects, lane and horizon segments) sit in the left group and the actions (`⤓ CSV`, `Columns`, image actions) sit in the right-aligned group (§4 rev 1.91) | §4 |
+| 34 | A panel MAY show a subtitle row; when present, every count renders as a `.pchip` colour chip (blue submissions-in-window · violet documents-in-window · green cumulative-documents-till-window-end · neutral shown-records) describing the same globally filtered dataset, with its title inside the chip, temporal "in / for" vs "till" wording, height-equal to the severity chip, a single funnel glyph only when the time filter or an actually-narrowing global filter is active (a full-value selection is not a filter), `0` displayed for zero counts, and warning/severity colours never used (§4 rev 1.93) | §4 |
+| 35 | A table renders the `.drill-cell` column only when at least one row in the current view is expandable; single-record views start at the primary data column and omit the detail rows, row shortcut and locked chooser item (§4.4 rev 1.94) | §4.4 |
+| 36 | The Validation page renders `Validation Rules` and `Validation Issues` as two independent top-level panels with one `.pchip-row` each before its card; Panel 1 shows `Loaded rules` and `Fired rules`, Panel 2 shows `All issues`, `Shown issues` and the severity chips in that one row, with one `data-validation-count` hook on `Shown issues`; no meta note, no card title and no separate severity row are rendered; the code filter narrows only the Issues panel (§4.5 rev 1.95) | §4.5 |
 
 ### 8.3 Pipeline testability
 

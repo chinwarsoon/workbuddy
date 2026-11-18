@@ -18,12 +18,12 @@ dashboard has adopted it yet.
 | Area | Sample content |
 |---|---|
 | Title bar | Logo chip, project title, meta line (project start · as-of date), active page label at the right |
-| Menu bar | Sidebar toggle, `Load Workbook` (primary), `Export`; right group: Discipline and Status filter triggers, `Search`, `Warnings` (count), layout toggle |
+| Menu bar | Sidebar toggle, `Load Workbook` (primary), `Export`; right group: Discipline and Status filter triggers, `Search`, `Warnings` (count). No layout button — §3.1 rev 1.86 |
 | Left sidebar | Three page links, then `Settings` and `Help` pinned to the bottom, drag handle at the right edge |
 | Content | Warning area (`V-26` warning + `INFO` line), then the body: KPI panel at full width and two panels below |
 | Status bar | Loaded-workbook summary at the left, version string at the right |
 | Themes | `light` (default), `dark`, `sky`, `ocean`, `presentation`; chosen in the Settings dialog |
-| Interaction | Page switch, sidebar collapse and resize (180–480 px), filter popovers, search popover, warnings hide/show, layout 1/2/3 cycle, Settings and Help dialogs |
+| Interaction | Page switch, sidebar collapse and resize (180–480 px), filter popovers, search popover, warnings hide/show, Panel Columns select in Settings (`one` / `two` / `three`), Settings and Help dialogs |
 
 ## 2. Measurements (1440 × 900, light theme)
 
@@ -55,14 +55,15 @@ dashboard has adopted it yet.
 ## 4. Conflicts between the spec and `AGENTS.md` §18
 
 The root spec is newer than `AGENTS.md` revision 1.15. These points disagree and need one decision
-each:
+each. Item 4 is now resolved: spec rev 1.86 and `AGENTS.md` §18.8 (rev 1.16) both place the layout
+control in Settings.
 
 | # | Topic | Spec | `AGENTS.md` |
 |---|---|---|---|
 | 1 | Settings / Help | Left sidebar, pinned bottom (§3.2) | Menu-bar buttons with modals (§18.2) |
 | 2 | File loading | `Load Workbook` in the menu bar (§3.2) | File-loading panel in the left sidebar (§18.7) |
 | 3 | Content toolbar | No toolbar; filter area then body (§3.3) | Toolbar strip inside the content area (§18.2) |
-| 4 | Layout toggle | Right end of the menu bar (§3.2) | Title bar (§18.8) |
+| 4 | ✅ RESOLVED — Layout control | Settings-panel labelled select, `one` / `two` / `three` (§3.1 rev 1.86) | Same rule (§18.8, rev 1.16) |
 | 5 | Theme picker | Not listed in the menu bar (§3.2) | Menu-bar dropdown (§18.4) |
 | 6 | Panel title weight | 700 (§4) | 600 (§6 type scale) |
 

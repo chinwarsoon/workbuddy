@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel Count Chips — Filter Indication Styles (Sample for Review)</title>
+<style>
+  /* Light-theme base tokens mirror dashboard.css :root; chip tokens use the --pchip-* namespace (A02). */
+  :root{
+    --surface:#ffffff; --surface2:#f6f8fa; --soft:#eef2f7; --border:#e2e5ea;
+    --navy:#0f1722; --text:#1c2530; --text2:#5b6573; --muted:#9aa3af;
+    --pchip-blue-bg:#EAF2FB;  --pchip-blue-border:#CBDDEF;  --pchip-blue-ink:#2B6CF6;
+    --pchip-violet-bg:#F1EEFB;--pchip-violet-border:#D9D0F2;--pchip-violet-ink:#6E52C9;
+    --pchip-green-bg:#E4F5ED; --pchip-green-border:#BFE6D6; --pchip-green-ink:#17A67A;
+    --pchip-neutral-bg:#F6F8FA;--pchip-neutral-border:#E2E5EA;--pchip-neutral-ink:#0F1722;
+    --danger:#d23b3b; --danger-bg:#fde2e2; --warning:#F9A825; --warning-bg:#fff3cd;
+    --ds-cell-fs:12.5px; --ds-head-h:34px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    background:#eef1f5;color:var(--text);font-size:13px;line-height:1.45}
+  .shell{display:flex;min-height:100vh}
+  .leftbar{width:170px;background:var(--navy);color:#cfd6df;padding:10px;flex-shrink:0}
+  .leftbar .nav{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+  .leftbar .nav button{display:block;width:100%;text-align:left;background:transparent;
+    border:0;color:#cfd6df;padding:8px 10px;border-radius:6px;font-size:14px;font-weight:400;cursor:pointer}
+  .leftbar .nav button.active{background:#22303f;color:#fff;font-weight:600}
+  .content{flex:1;padding:16px;min-width:0;max-width:1060px}
+  .topbar{height:46px;background:var(--navy);color:#fff;display:flex;align-items:center;
+    padding:0 20px;font-size:12px;font-weight:600;margin:-16px -16px 16px}
+  .panel{margin:0 0 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    box-shadow:0 1px 2px rgba(15,23,34,.06);padding:14px 14px 26px;position:relative;min-width:0}
+  .panel h2{font-size:13px;margin:0;color:var(--navy);text-transform:uppercase;letter-spacing:.04em;line-height:1.4}
+  .panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;bottom:8px;
+    font-size:10px;letter-spacing:.04em;color:var(--muted);pointer-events:none}
+  .review-label{margin:0 0 4px;font-size:11px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.04em;color:var(--muted)}
+  .review-note{margin:6px 0 0;font-size:12px;color:var(--text2)}
+  .review-note b{color:var(--text)}
+
+  /* ==== PANEL COUNT CHIPS (A04/A05, unchanged from the approved baseline) ==== */
+  .pchip-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0}
+  .pchip{display:inline-flex;align-items:center;gap:7px;padding:4px 11px;border-radius:7px;
+    border:1px solid;font-size:11px;font-weight:600;line-height:1.4}
+  .pchip b{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+  .pchip.blue  {background:var(--pchip-blue-bg);  border-color:var(--pchip-blue-border);  color:var(--text2)}
+  .pchip.blue b{color:var(--pchip-blue-ink)}
+  .pchip.violet{background:var(--pchip-violet-bg);border-color:var(--pchip-violet-border);color:var(--text2)}
+  .pchip.violet b{color:var(--pchip-violet-ink)}
+  .pchip.green {background:var(--pchip-green-bg); border-color:var(--pchip-green-border); color:var(--text2)}
+  .pchip.green b{color:var(--pchip-green-ink)}
+  .pchip.neutral{background:var(--pchip-neutral-bg);border-color:var(--pchip-neutral-border);color:var(--text2)}
+  .pchip.neutral b{color:var(--pchip-neutral-ink)}
+
+  /* ==== FILTER INDICATION — Style A: funnel glyph after the count ==== */
+  .pchip .fmark{display:inline-flex;align-items:center;gap:5px;margin-left:1px;color:inherit}
+  .pchip .fmark svg{display:block}
+  .pchip.blue .fmark{color:var(--pchip-blue-ink)}
+  .pchip.violet .fmark{color:var(--pchip-violet-ink)}
+  .pchip.green .fmark{color:var(--pchip-green-ink)}
+  .pchip.neutral .fmark{color:var(--pchip-neutral-ink)}
+
+  /* ==== FILTER INDICATION — Style B: dashed underline on the BOTTOM border ==== */
+  .pchip.f-b.blue  {border-bottom:2px dashed var(--pchip-blue-ink);border-radius:7px 7px 5px 5px}
+  .pchip.f-b.violet{border-bottom:2px dashed var(--pchip-violet-ink);border-radius:7px 7px 5px 5px}
+  .pchip.f-b.green {border-bottom:2px dashed var(--pchip-green-ink);border-radius:7px 7px 5px 5px}
+  .pchip.f-b.neutral{border-bottom:2px dashed var(--pchip-neutral-ink);border-radius:7px 7px 5px 5px}
+
+  /* ==== FILTER INDICATION — Style C: inverted chip (solid family ink) ==== */
+  .pchip.f-c.blue  {background:var(--pchip-blue-ink);border-color:var(--pchip-blue-ink);color:#ffffff}
+  .pchip.f-c.blue b{color:#ffffff}
+  .pchip.f-c.violet{background:var(--pchip-violet-ink);border-color:var(--pchip-violet-ink);color:#ffffff}
+  .pchip.f-c.violet b{color:#ffffff}
+  .pchip.f-c.green {background:var(--pchip-green-ink);border-color:var(--pchip-green-ink);color:#ffffff}
+  .pchip.f-c.green b{color:#ffffff}
+  .pchip.f-c.neutral{background:var(--pchip-neutral-ink);border-color:var(--pchip-neutral-ink);color:#ffffff}
+  .pchip.f-c.neutral b{color:#ffffff}
+
+  /* ---- card, tool row and table mirror the live Submittals panel ---- */
+  .c-card{border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--surface);margin:0}
+  .table-tools{display:flex;align-items:center;gap:10px;margin:0 0 8px;flex-wrap:wrap}
+  .table-tools .pg-left{display:flex;align-items:center;gap:8px}
+  .table-tools .pg-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .sub-month-lbl{font-size:11px;color:var(--text2)}
+  .sub-month{border:1px solid var(--border);border-radius:6px;padding:4px 6px;background:var(--surface);color:var(--text)}
+  .btn-secondary{font:inherit;font-size:12px;font-weight:600;padding:5px 10px;border:1px solid var(--border);
+    background:var(--surface);border-radius:6px;cursor:pointer;color:var(--text)}
+  .ds-split{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .tableScroll{overflow:auto;max-width:100%}
+  .ds-table{width:100%;border-collapse:collapse;font-size:var(--ds-cell-fs);background:var(--surface);table-layout:fixed}
+  .ds-table th,.ds-table td{border-bottom:1px solid var(--border);padding:0 10px;text-align:left;height:30px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ds-table thead th{background:var(--navy);color:#fff;font-weight:600;height:var(--ds-head-h)}
+  .ds-table tbody tr:nth-child(even){background:#F7F9FB}
+
+  .dark{--surface:#121b27;--surface2:#1a2533;--border:#34507a;--navy:#e6edf5;--text:#e6edf5;--text2:#9fb2c8;--muted:#6f8299;
+    --pchip-blue-bg:#1D2A3B;--pchip-blue-border:#34507A;--pchip-blue-ink:#69B7FF;
+    --pchip-violet-bg:#252038;--pchip-violet-border:#4A3E73;--pchip-violet-ink:#B29EF0;
+    --pchip-green-bg:#16302A;--pchip-green-border:#2E5A44;--pchip-green-ink:#4FC58B;
+    --pchip-neutral-bg:#1A2533;--pchip-neutral-border:#34507A;--pchip-neutral-ink:#E6EDF5}
+  .funnel-svg{width:11px;height:11px}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="leftbar">
+    <div style="font-weight:700;font-size:13px;color:#fff">SAMPLE</div>
+    <div class="nav">
+      <button>Overview</button><button>Breakdown</button>
+      <button class="active">Submittals</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="topbar">Panel Count Chips · filter indication styles · sample for review · 2026-11-18</div>
+
+    <!-- The funnel glyph used by Style A -->
+    <template id="funnel"><svg class="funnel-svg" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></template>
+
+    <!-- 0. Baseline: no filters applied -->
+    <section class="panel" data-panel="4">
+      <h2>Submittals</h2>
+      <div class="review-label">Baseline — All months, no filters: NO indication on any chip</div>
+      <div class="pchip-row" data-state="clean">
+        <span class="pchip green">Accumulated to date <b>202</b></span>
+        <span class="pchip neutral">Shown records <b>202</b></span>
+      </div>
+      <p class="review-note">With no active filter, every chip renders exactly as approved — no glyph,
+        no underline. The indication exists only when a filter is active.</p>
+    </section>
+
+    <!-- Style A -->
+    <section class="panel" data-panel="4A">
+      <h2>Submittals</h2>
+      <div class="review-label">Style A (recommended) — funnel glyph after the count, in the chip's ink colour</div>
+      <div class="pchip-row" data-state="month-selected">
+        <span class="pchip blue">Submissions in Aug 2026 <b>38</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+        <span class="pchip violet">Documents in Aug 2026 <b>202</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+        <span class="pchip green">Accumulated till Aug 2026 <b>1,942</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+        <span class="pchip neutral">Shown for Aug 2026 <b>86</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+      </div>
+      <p class="review-note"><b>Why recommended:</b> self-describing (the funnel says "filtered value"),
+        inherits the chip's ink colour through <code>currentColor</code>, scales with the chip, survives
+        PNG / Copy serialization, and needs no new tokens — the mark is the family ink.</p>
+    </section>
+
+    <!-- Style B -->
+    <section class="panel" data-panel="4B">
+      <h2>Submittals</h2>
+      <div class="review-label">Style B — dashed underline on the chip's bottom border (family ink)</div>
+      <div class="pchip-row" data-state="month-selected">
+        <span class="pchip f-b blue">Submissions in Aug 2026 <b>38</b></span>
+        <span class="pchip f-b violet">Documents in Aug 2026 <b>202</b></span>
+        <span class="pchip f-b green">Accumulated till Aug 2026 <b>1,942</b></span>
+        <span class="pchip f-b neutral">Shown for Aug 2026 <b>86</b></span>
+      </div>
+      <p class="review-note"><b>Trade-offs:</b> subtle and quiet, but easy to miss at 11 px chip height, and
+        the dashed style is close to how disabled / draft states often read. Works in all themes via the
+        family ink token.</p>
+    </section>
+
+    <!-- Style C -->
+    <section class="panel" data-panel="4C">
+      <h2>Submittals</h2>
+      <div class="review-label">Style C — inverted chip (solid family ink, white text)</div>
+      <div class="pchip-row" data-state="month-selected">
+        <span class="pchip f-c blue">Submissions in Aug 2026 <b>38</b></span>
+        <span class="pchip f-c violet">Documents in Aug 2026 <b>202</b></span>
+        <span class="pchip f-c green">Accumulated till Aug 2026 <b>1,942</b></span>
+        <span class="pchip f-c neutral">Shown for Aug 2026 <b>86</b></span>
+      </div>
+      <p class="review-note"><b>Trade-offs:</b> unmistakable, but the loudest option — four solid chips compete
+        with the card content, invert the family roles (bg becomes ink), and the neutral family turns near-black
+        in light theme. Not recommended as the default.</p>
+    </section>
+
+    <!-- Combination -->
+    <section class="panel" data-panel="4D">
+      <h2>Submittals</h2>
+      <div class="review-label">Alternative — A + B combined (glyph + dashed underline)</div>
+      <div class="pchip-row" data-state="month-selected">
+        <span class="pchip f-b blue">Submissions in Aug 2026 <b>38</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+        <span class="pchip f-b violet">Documents in Aug 2026 <b>202</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+        <span class="pchip f-b green">Accumulated till Aug 2026 <b>1,942</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+        <span class="pchip f-b neutral">Shown for Aug 2026 <b>86</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+      </div>
+      <p class="review-note">Maximum clarity, slightly busier. Choose this only if Style A alone reads too subtle
+        in your review.</p>
+    </section>
+
+    <!-- Dark theme proof of the recommended style -->
+    <section class="panel dark" data-panel="4E">
+      <h2>Submittals</h2>
+      <div class="review-label">Style A in the dark theme — same tokens</div>
+      <div class="pchip-row" data-state="month-selected">
+        <span class="pchip blue">Submissions in Aug 2026 <b>38</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+        <span class="pchip violet">Documents in Aug 2026 <b>202</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+        <span class="pchip green">Accumulated till Aug 2026 <b>1,942</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+        <span class="pchip neutral">Shown for Aug 2026 <b>86</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+      </div>
+    </section>
+
+    <!-- Confirmed filter indication rules (spec rev 1.93) -->
+    <section class="panel">
+      <h2>Filter states (spec rev 1.93)</h2>
+      <table class="tok">
+        <thead><tr><th style="width:30%">Condition</th><th style="width:12%">Blue</th><th style="width:14%">Violet</th><th style="width:14%">Green</th><th style="width:14%">Neutral</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>No filters · All months</td><td>hidden</td><td>no mark</td><td>no mark</td><td>no mark</td><td>Unfiltered counts; all-months labels</td></tr>
+          <tr><td>Global filter only</td><td>hidden</td><td>funnel</td><td>funnel</td><td>funnel</td><td>Only if it actually narrows the dataset</td></tr>
+          <tr><td>Month filter only</td><td>funnel</td><td>funnel</td><td>funnel</td><td>funnel</td><td>"in / for" vs "till" in the labels</td></tr>
+          <tr><td>Global + month filters</td><td>funnel</td><td>funnel</td><td>funnel</td><td>funnel</td><td>All counts reflect the filtered scope</td></tr>
+          <tr><td>All values selected</td><td>hidden</td><td>no mark</td><td>no mark</td><td>no mark</td><td>No narrowing → no funnel (T05)</td></tr>
+        </tbody>
+      </table>
+      <div class="review-label" style="margin-top:12px">Real-data examples — 2026-08 + a narrowing discipline filter</div>
+      <div class="pchip-row">
+        <span class="pchip green">Accumulated to date <b>202</b></span>
+        <span class="pchip neutral">Shown records <b>202</b></span>
+      </div>
+      <div class="pchip-row">
+        <span class="pchip green">Accumulated to date <b>7</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+        <span class="pchip neutral">Shown records <b>7</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+      </div>
+      <div class="pchip-row">
+        <span class="pchip blue">Submissions in Aug 2026 <b>45</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+        <span class="pchip violet">Documents in Aug 2026 <b>45</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+        <span class="pchip green">Accumulated till Aug 2026 <b>100</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+        <span class="pchip neutral">Shown for Aug 2026 <b>45</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+      </div>
+      <div class="pchip-row">
+        <span class="pchip blue">Submissions in Aug 2026 <b>4</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+        <span class="pchip violet">Documents in Aug 2026 <b>4</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+        <span class="pchip green">Accumulated till Aug 2026 <b>5</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+        <span class="pchip neutral">Shown for Aug 2026 <b>4</b><span class="fmark"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg></span></span>
+      </div>
+      <p class="review-note"><b>Confirmed rules:</b> the month selector is an in-panel time filter, not a global
+        dimension filter; global filters count as active only when they remove rows (selecting every
+        available value must not mark); the single funnel indicates that a count is affected by filtering,
+        not that it is smaller, and never distinguishes filter types — the labels carry "in / for" vs
+        "till" temporal scope. All four chips describe the same globally filtered dataset.</p>
+    </section>
+  </div>
+</div>
+</body>
+</html>

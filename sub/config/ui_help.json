@@ -1,8 +1,14 @@
 {
-  "version": "0.3",
+  "version": "0.4",
   "title": "Submittal Dashboard UI help",
   "description": "Labels and user help for the project-local dashboard.",
   "revisionHistory": [
+    {
+      "revision": "0.4",
+      "date": "2026-11-18",
+      "author": "CodeBuddy (AI)",
+      "summary": "I151 — Validation page help now describes two independent panels and the panel-local error-code filter."
+    },
     {
       "revision": "0.3",
       "date": "2026-11-14",
@@ -55,7 +61,7 @@
     "Overview": "Submission totals, plan coverage, status, approval, and delay measures.",
     "Breakdown": "Three independent panels: Submissions, Approval Status and Breakdown Summary. Each panel owns its Month, Break-down-by and, for charts, Bar/Pie view. Others means a Document Submittal Log row whose Document No. is not registered in the MDL workbook.",
     "Submittals": "All submission rows and calculated turnaround and delay values.",
-    "Validation": "All business-rule issues and the source workbook rule reference.",
+    "Validation": "Two independent panels: Validation Rules shows the loaded and fired rule counts with one row per fired code; Validation Issues shows the issue counts with severity totals and an error-code filter that narrows only the Issues panel.",
     "Forward and Overdue": "Look-ahead (next 1–4 weeks), Overdue (past due), and Coverage (not-yet-submitted MDL rows).",
     "Analytical": "Open overdue records, review aging, and the forward queue.",
     "Help": "Load both workbooks, use global filters, and select a page.",

@@ -1,3 +1,4 @@
+// Revision 0.5 | 2026-11-17 | CodeBuddy (AI) | I145 amendment — model.meta gains `projectCode` from the MDL Code sheet `Project Code` metadata row (label configurable via `metadataLabels.projectCode`). The MDL Code sheet is authoritative; the value is the download file-name fallback behind the slugified Project Title. No parsing or validation change.
 // Revision 0.4 | 2026-11-02 | CodeBuddy (AI) | Owner instruction (I099): a submission with no recorded outcome is a data-quality defect. New `V-35`, raised once per document on its latest submission row — the row the Approval donut reads — when the document carries no approval code and is not open under review (SUR with no return date). Outcome codes come from the Submittal Log Code sheet.
 // Revision 0.3 | 2026-11-02 | CodeBuddy (AI) | Owner instruction: `W-CODE-MISSING` reports every validation code the dashboard raises that the Code sheets do not define (or define with empty Rule text), naming each code so the owner can add it.
 // Revision 0.2 | 2026-11-02 | CodeBuddy (AI) | I026 — the MDL `V-01` (blank Document No.) is no longer raised; D33 gives it to MDL, and the Submittal Log keeps its own `V-01`. I027 / I028 — new `V-34` (data quality): a planned row carries an `Actual 1st Issue Date` while the Submittal Log holds no row for that document, plus the aggregated warning `W-MDL-LOG-MISMATCH`. I029 — the reader records formula cells, `codeIssue` marks a cached value, and `W-CACHED-VALUE` reports one warning per source.
@@ -732,6 +733,7 @@ export function buildModel(mdlWorkbook, logWorkbook, options = {}) {
   const metaLabels = config.metadataLabels || {};
   const dashboardTitleLabel = metaLabels.dashboardTitle || 'Dashboard Title';
   const projectTitleLabel = metaLabels.projectTitle || 'Project Title';
+  const projectCodeLabel = metaLabels.projectCode || 'Project Code';
   const projectStartLabel = metaLabels.projectStart || 'Project Start Date';
   const sourceTitles = [...new Set([
     String(cleanText(mdlContract.metadata.get(dashboardTitleLabel)) ?? '').trim(),
@@ -744,6 +746,7 @@ export function buildModel(mdlWorkbook, logWorkbook, options = {}) {
       mdlWorkbookName: options.mdlWorkbookName || '',
       logWorkbookName: options.logWorkbookName || '',
       projectTitle: String(cleanText(mdlContract.metadata.get(projectTitleLabel)) ?? '').trim(),
+      projectCode: String(cleanText(mdlContract.metadata.get(projectCodeLabel)) ?? '').trim(),
       dashboardTitle: sourceTitles.join(' · '),
       mdlDashboardTitle: String(cleanText(mdlContract.metadata.get(dashboardTitleLabel)) ?? '').trim(),
       logDashboardTitle: String(cleanText(logContract.metadata.get(dashboardTitleLabel)) ?? '').trim(),

@@ -1,12 +1,15 @@
 <!doctype html>
 <!--
+  Revision 1.2 | 2026-11-17 | CodeBuddy (AI) | §3.1 rev 1.86 / I142 — the panel-layout control moves
+  from the menu-bar button into the Settings dialog as a labelled Panel Columns select with one/two/
+  three values. No menu-bar layout button remains. The README layout rows follow the same rule.
   Revision 1.1 | 2026-10-30 | opencode (AI) | Raised chip text contrast to --text with a status
   dot, added --amber-ink for warning codes, and widened the sidebar to 190 px so the menu labels
   do not wrap.
   Revision 1.0 | 2026-10-30 | CodeBuddy (AI) | First shell review sample. Implements the
   Dashboard-UI-Design-Spec.md shell: three-row title bar with the active page label, one-row menu
-  bar (toggle, Load, Export left; filters, Search, Warnings right; layout toggle at the right end),
-  menu-only navy left sidebar with Settings and Help pinned to the bottom, warning surface inside
+  bar (toggle, Load, Export left; filters, Search, Warnings right), the panel-layout control in the
+  Settings dialog, menu-only navy left sidebar with Settings and Help pinned to the bottom, warning surface inside
   the content area, and the navy status bar. No welcome overlay and no data pipeline, because this
   page is a layout review artefact only. See README.md in this folder.
 -->
@@ -30,6 +33,9 @@
   --tag-bg:#EAF2FB; --tag-border:#CBDDEF; --row-stripe:#F7F9FB; --row-hover:#EAF2FB; --th-bg:#E8EDF3;
   --shadow:0 1px 2px rgba(16,32,64,.04),0 8px 24px rgba(16,32,64,.05);
   --titlebar-h:56px; --menubar-h:48px; --sidebar-w:190px; --statusbar-h:30px;
+  /* §3.2 rev 1.85 — left-menu state tokens, one semantic set shared with every dashboard. */
+  --nav-bg:var(--navy); --nav-bg-hover:rgba(255,255,255,.1); --nav-bg-active:#354F6E;
+  --nav-fg:#E8EDF3;
   --radius:12px; --radius-sm:6px; --radius-lg:14px;
   --line:#D9E1E8; --muted:#526171; --soft:#EAF2FB; --accent-ink:#2b6cf6;
   --font-ui:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;
@@ -116,7 +122,6 @@ button{cursor:pointer}
 .app-menu .warn-toggle{display:flex;align-items:center;gap:6px;margin-left:6px}
 .app-menu .warn-toggle .badge{background:var(--amber);color:#1b2a41;border-radius:10px;
   padding:1px 7px;font-weight:700;font-size:11px}
-.app-menu #layout-button{padding:7px 8px;flex-shrink:0}
 .tf-wrap{position:relative;flex-shrink:0}
 .tf-btn{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;
   color:var(--navy);padding:7px 12px;min-height:32px;font-size:12px;font-weight:600;
@@ -166,9 +171,9 @@ button{cursor:pointer}
 .sb-menu,.sb-bottom{display:flex;flex-direction:column}
 .sb-bottom{margin-top:auto}
 .page-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;
-  color:#dfe8f3;font-size:14px;font-weight:400;border:0;background:transparent;text-align:left}
-.page-link:hover{background:rgba(255,255,255,.1)}
-.page-link.active{background:var(--blue);color:#fff;font-weight:600}
+  color:var(--nav-fg);font-size:14px;font-weight:400;border:0;background:var(--nav-bg);text-align:left}
+.page-link:hover{background:var(--nav-bg-hover)}
+.page-link.active{background:var(--nav-bg-active);color:var(--nav-fg);font-weight:600}
 .resize-handle{position:absolute;top:0;right:0;width:5px;height:100%;cursor:col-resize}
 .resize-handle:hover,.resize-handle:active{background:rgba(255,255,255,.35)}
 .content{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg)}
@@ -188,9 +193,9 @@ button{cursor:pointer}
 /* ===== Panels — spec §4 ===== */
 .panel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:12px;
   align-items:start;margin-top:12px}
-body[data-layout="1"] .panel-grid{grid-template-columns:minmax(0,1fr)}
-body[data-layout="2"] .panel-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-body[data-layout="3"] .panel-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+body[data-layout="one"] .panel-grid{grid-template-columns:minmax(0,1fr)}
+body[data-layout="two"] .panel-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+body[data-layout="three"] .panel-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 .panel.wide{grid-column:1/-1}
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;
   box-shadow:var(--shadow);padding:14px 14px 26px;position:relative;min-width:0;margin:0}
@@ -271,7 +276,7 @@ body[data-layout="3"] .panel-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 .help-line code{font-family:var(--font-mono);font-size:12px;color:var(--text)}
 </style>
 </head>
-<body data-layout="2">
+<body data-layout="two">
 
 <div class="app">
   <header class="app-bar">
@@ -352,9 +357,6 @@ body[data-layout="3"] .panel-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
           <span class="badge" id="warning-count">2</span> <span>Warnings</span>
         </button>
       </div>
-
-      <button class="btn" id="layout-button" title="Change panel layout"
-        aria-label="Change panel layout">▦</button>
     </div>
   </header>
 
@@ -464,6 +466,13 @@ body[data-layout="3"] .panel-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
           <option value="sky">Sky</option>
           <option value="ocean">Ocean</option>
           <option value="presentation">Presentation</option>
+        </select>
+      </label>
+      <label class="setting"><span>Panel Columns</span>
+        <select id="layout-select" data-setting="layout">
+          <option value="one">One</option>
+          <option value="two">Two</option>
+          <option value="three">Three</option>
         </select>
       </label>
       <label class="setting"><span>Show warnings</span>
@@ -624,15 +633,19 @@ warnBtn.addEventListener('click', () => {
 });
 $('#show-warnings').addEventListener('change', e => setWarningsVisible(e.target.checked));
 
-/* Layout toggle -------------------------------------------------------- */
-const layouts = [1, 2, 3];
-let layoutIndex = 1;
-$('#layout-button').addEventListener('click', () => {
-  layoutIndex = (layoutIndex + 1) % layouts.length;
-  const n = layouts[layoutIndex];
-  document.body.dataset.layout = String(n);
-  setStatus(`${n}-column layout`);
-});
+/* Layout select (spec §3.1 rev 1.86) ----------------------------------- */
+const layoutKey = 'shellsample-layout';
+const LAYOUTS = ['one', 'two', 'three'];
+const LABELS = { one: 'One', two: 'Two', three: 'Three' };
+function applyLayout(value) {
+  const name = LAYOUTS.includes(value) ? value : 'one';
+  document.body.dataset.layout = name;
+  $('#layout-select').value = name;
+  store.set(layoutKey, name);
+  setStatus(`${LABELS[name]}-column layout`);
+}
+applyLayout(store.get(layoutKey, 'two'));
+$('#layout-select').addEventListener('change', e => applyLayout(e.target.value));
 
 /* Page switching ------------------------------------------------------- */
 const PAGES = {

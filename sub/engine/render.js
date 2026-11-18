@@ -1,3 +1,12 @@
+// Revision 0.36 | 2026-11-18 | CodeBuddy (AI) | §4.4 / I150 — the Submittals table renders the pinned 40px drill column only when at least one document has more than one submission in the current view. A month view where every document has a single submission now starts at Document No., with no redundant white expander column, no one-row detail rows, no row shortcut and no locked "Row" item in the Columns chooser. All-months and months with multi-submission documents keep the standardized drill-down unchanged; CSV export and all other panels are untouched.
+// Revision 0.35 | 2026-11-18 | CodeBuddy (AI) | §4 rev 1.93 / I149 — the Submittals chips now all describe the SAME globally filtered dataset: violet uses the month-filtered document groups (not the unfiltered aggregate), green counts distinct cumulative documents (not submission rows), and neutral is the displayed document count. Labels carry the temporal scope ("Submissions in"/"Documents in"/"Shown for" = for the month; "Accumulated till" = till the month; All months gets its own wording). `hasGlobalFilters` is derived from ACTUAL narrowing (allDocs / allSubs vs unfiltered counts), so a full-value selection or a whitespace-only search never triggers the funnel. One funnel glyph marks every displayed chip when the time filter or an actually-narrowing global filter is active; no filter → no marks. No change to deriveView or other panels.
+// Revision 0.34 | 2026-11-18 | CodeBuddy (AI) | §4 rev 1.92 — the Submittals panel subtitle migrates from the plain-text `.panel-summary` to standardized `.pchip` colour chips: blue monthly count (only when a month is selected), violet total month count (unfiltered window aggregate), green accumulated count, neutral filtered count. Each chip carries its title inside; Style A funnel glyph marks every chip whose count is filter-scoped (selected month or global filter), with zero counts still displayed. Subtitle placement (own line before the .c-card) and all data/export paths are unchanged.
+// Revision 0.31 | 2026-11-17 | CodeBuddy (AI) | §4 rev 1.90 / I146 — the top-menu export now covers every table: `EXPORT_PAGES` lists the data pages and `collectExportTables(doc, model, state, pages)` renders each page into the supplied scratch context, dedupes by key with the current page winning, and restores the current page's registry snapshot afterwards. `foTable` registers its three tables with tag- and entity-stripped cells under titles `Forward Look-Ahead` / `Forward Overdue` / `Forward Coverage` — they previously never reached the registry, so their CSV buttons stayed hidden. No rendering change.
+// Revision 0.30 | 2026-11-17 | CodeBuddy (AI) | §4 rev 1.89 / I145 amendment — the download file-name builder moves here from dashboard.js and exports `exportDate` / `exportSlug` / `exportProjectPrefix` / `exportFileName`. The prefix is the slugified MDL Code sheet Project Title, falling back to the same sheet's Project Code, then the literal PROJECT. `exportFileName(purpose, ext, meta, now)` takes model.meta; no rendering change.
+// Revision 0.28 | 2026-11-16 | CodeBuddy (AI) | §4.2 rev 1.83 / I139 — the C3 legend moves INSIDE the bordered plot area, exactly the C1 model (superseding the rev 1.82 above-the-border placement): the Bar card emits the legend `svg.c3-legend-svg` as a `.c3-grid` item spanning the plot columns in row 1, with the y-axis zone and plot zone spanning rows 1–2 so their edges enclose legend + plot; ticks, grid lines, bars and the caption move to row 2 and the attached table to row 3. The Pie card draws the legend `<g>` INSIDE the bordered donut `svg.c3-svg` (viewBox grows by the legend band, ring centre shifts down) and the separate legend strip is removed. Bar panel heights are equalised by structure; the Pie svg takes the `--c3-pie-h` height token so toggling views does not change the panel height. Data, state, hover, ARIA and export payloads are unchanged.
+// Revision 0.29 | 2026-11-16 | CodeBuddy (AI) | §4.2 rev 1.84 / I140 — the legend rows start after a LEFT INSET (`LEGEND_INSET = 12` user units, matching the 12 px `--c3-card-pad` token) from the plot-zone left edge — the edge shared with the y-axis zone — so the first swatch no longer touches the y-axis side; the wrap width shrinks by the same inset. Applies to the Bar legend `svg.c3-legend-svg` and to the Pie legend `<g>` inside the bordered donut svg. No data, state, hover, ARIA or export payload changes.
+// Revision 0.27 | 2026-11-16 | CodeBuddy (AI) | §4.2 rev 1.78 / rev 1.82 / I135 — the C3 legend becomes an in-SVG `<g>` ABOVE the plot area in BOTH views: ONE `<svg class="c3-legend-svg">` (first child of `.c3-card-body` before `.c3-grid` on Bar cards; directly above the bordered donut `<svg>` on Pie cards) replaces the retired HTML `.c3-legend` div, so PNG / Copy serialize the legend with the plot. Each C3 Bar card also gains the rotated side unit caption "Documents" (`.g-ycap`, exactly the C1 Y-axis contract) and the y-axis switches from the fixed 5-tick axis to the dynamic nice-number standard: `niceAxisTicks(max, 150, 40)` caps intervals at floor(150/40) = 3, grid lines and tick labels are emitted from the same tick list, and bars scale to the same `yMax`. Data, state, hover, ARIA and export payloads are unchanged.
+// Revision 0.25 | 2026-11-16 | CodeBuddy (AI) | §4.2 rev 1.81 / I138 — the C3 Bar card emits TWO overlay grid items for the universal bordered chart composition: `.c3-yaxis-zone` (column 1, row 1, part 5) and `.c3-plot-zone` (columns 2..-1, row 1, part 6). They carry no content and no handlers, so tick, bar, gridline, column-band and centre-line geometry is unchanged; the CSS owns the 1 px `--border` edges and the right-angle shared corners. The Pie / donut view needs no markup: the card already renders its donut `<svg>` as a direct child and the CSS borders it as the plot zone (part 6). Data, state, ARIA, hover and export payloads are unchanged.
 // Revision 0.22 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.75 — C3 Bar cards adopt the C1 column-highlight visual contract. Each `.c3-grid` gains ONE hidden `.c3-col-band` before the bars (so it paints behind every mark) and ONE hidden `.c3-col-snap` after the bars (so the dashed centre line paints on top). `c3SetColumn()` moves both to the active logical column in BOTH hover directions; `c3ClearColumn()` hides both. Active bar cells keep `.col-active` as state only and paint no background, border or ring. C1, C2, C4, KPI, C3 Pie and the generic `.col-hover` crosshair are unchanged.
 // Revision 0.24 | 2026-11-14 | CodeBuddy (AI) | I134 — each Breakdown chart panel renders ONE tool row: left = Month select (visible "Month" text removed, aria-label kept), Break-down-by and Bar/Pie; right = ⤓ PNG and ⧉ Copy. The separate `.c3-card-head` row is gone on chart cards (the legacy showTitle path keeps it with the `.c3-card-ctrls` wrapper). The summary panel keeps Month / Break-down-by / ⤓ Download. Handlers, state and export payloads are unchanged.\n// Revision 0.23 | 2026-11-14 | CodeBuddy (AI) | I133 — C3 Breakdown moves to a new `Breakdown` page and becomes THREE independent panels (Submissions, Approval Status, Breakdown Summary). `c3PanelControls()` gains a panel key and every control carries `data-c3panel`; `c3PanelState()` resolves one `c3Month` / `c3Dim` / `c3View` set per panel, with the legacy flat keys as the fallback for callers that pass one state. Bar / Pie now switches per panel. The C3 legend moves ABOVE the chart in both Bar and Pie views. `c3Table()` gains a bare mode so the summary panel keeps ONE border. The orphan discipline label becomes `Others`. `Overview` keeps KPI, C1 and C2. C1, C2, C4 and the generic crosshair are unchanged.
 // Revision 0.21 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.74 / I131 — C3 Bar cards join the general chart ↔ attached-table column sync. Every `.g-bar` now carries the shared `data-col-id`. `bindChartHover()` gains an opt-in `c3AttachedTable` mode that delegates `pointermove` to the card, resolves ONE logical column from a bar or a table cell, and applies ONE `.col-active` state to the matching bar, dimension header and value cells inside that card only. The two cards stay independent, the floating `.chart-tip` stays closed over the attached table, and the state clears on pointer leave / blur / Escape. C1, C2, C4, KPI, C3 Pie and the generic `.col-hover` crosshair are unchanged.
@@ -621,13 +630,64 @@ export function c2DelayTipHtml(p) {
 // I112 — module-level store of the last rendered Issues table (full FILTERED set) so buildIssueCsv()
 // can export every filtered row even though the table only materialises the current 200-row page.
 let lastIssueExport = null;
+
+// I145 — one export registry feeds both the per-table CSV buttons and the top-menu XLSX workbook.
+// Each entry holds the FULL filtered row set and ALL columns, independent of pagination, the column
+// chooser and the visible page. renderDashboard clears and refills the registry on every render.
+let exportRegistry = new Map();
+export function resetExportRegistry() { exportRegistry = new Map(); }
+export function registerExportTable(key, title, headers, rows) {
+  if (!key) return;
+  exportRegistry.set(key, { key, title: String(title || key), headers: (headers || []).map(v => String(v ?? '')), rows: (rows || []).map(r => (r || []).map(v => v == null ? '' : String(v))) });
+}
+export function getExportTables() { return [...exportRegistry.values()]; }
+export function getExportTable(key) { return exportRegistry.get(key) || null; }
+
+// I145 amendment — download names are PROJECT + purpose + CURRENT date, with the CURRENT date local.
+// PROJECT is the slugified Project Title from the MDL Code sheet metadata; when the title is blank
+// it falls back to the Project Code from the same sheet. Both live on model.meta.
+export function exportDate(now = new Date()) {
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+export function exportSlug(text) { return String(text || '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+export function exportProjectPrefix(meta = {}) {
+  return exportSlug(meta && meta.projectTitle) || exportSlug(meta && meta.projectCode) || 'PROJECT';
+}
+export function exportFileName(purpose, ext, meta = {}, now = new Date()) {
+  return `${exportProjectPrefix(meta)}_${exportSlug(purpose) || 'Table'}_${exportDate(now)}.${ext}`;
+}
+
+// I146 — data pages that can register export tables. Analytical, Help and Settings register none.
+export const EXPORT_PAGES = ['Overview', 'Breakdown', 'Submittals', 'Validation', 'Forward and Overdue'];
+
+// I146 — harvest every table across all data pages for the top-menu workbook. Rendering a page
+// clears and refills the registry, so the current page's snapshot is taken first and restored
+// afterwards — the per-table CSV buttons keep working. The current page wins key collisions, and
+// each page renders in its current view state (filters, view toggles, month selections).
+export function collectExportTables(doc, model, state = {}, pages = EXPORT_PAGES) {
+  const current = getExportTables();
+  const all = new Map();
+  for (const table of current) if (table.rows.length) all.set(table.key, table);
+  for (const page of pages) {
+    if (page === state.page) continue;
+    renderDashboard(doc, model, { ...state, page });
+    for (const table of getExportTables()) if (table.rows.length && !all.has(table.key)) all.set(table.key, table);
+  }
+  resetExportRegistry();
+  for (const table of current) registerExportTable(table.key, table.title, table.headers, table.rows);
+  return [...all.values()];
+}
+
 /** Render dashboard content from one derived view. @param {Document} doc @param {object} model @param {object} state @returns {object} */
 export function renderDashboard(doc, model, state = {}) {
+  resetExportRegistry();
   const view = deriveView(model, state);
   const root = doc.querySelector('[data-page-content]');
   if (!root) return view;
   const page = state.page || 'Overview';
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+  // I145 — one labelled CSV control per table. The handler hides it when the registry has no rows.
+  const csvButton = key => `<button class="btn-secondary" data-export-csv="${esc(key)}" title="Download all columns and filtered rows as CSV">⤓ CSV</button>`;
   // §5 — a card is exactly two lines: value and label. The status class colours the 3 px top strip.
   const attr = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const KPI_META = {
@@ -661,14 +721,15 @@ export function renderDashboard(doc, model, state = {}) {
   // normative floating-panel order (master → note → divider → item list → footer). The first two
   // pinned identity columns are listed, checked and disabled, because they can never be hidden
   // (§7.1 master scope). `open` comes from state so a tick does not close the panel.
-  const columnChooser = (key, headers, chosen, open) => {
+  const columnChooser = (key, headers, chosen, open, hiddenIndices = []) => {
     const pinned = index => index < 2;
     const items = headers.map((label, index) => {
+      if (hiddenIndices.includes(index)) return '';
       const locked = pinned(index);
       const on = locked || chosen.has(index);
       return `<label class="cc-item${locked ? ' cc-locked' : ''}"><input type="checkbox" data-column-choice="${key}" data-column-index="${index}"${on ? ' checked' : ''}${locked ? ' disabled' : ''}> <span>${esc(label || 'Row')}</span></label>`;
     }).join('');
-    const hidden = headers.filter((_, index) => !pinned(index) && !chosen.has(index)).length;
+    const hidden = headers.filter((_, index) => !hiddenIndices.includes(index) && !pinned(index) && !chosen.has(index)).length;
     return `<div class="column-chooser" id="ccPanel_${key}" role="group" aria-label="Show or hide columns"${open ? '' : ' hidden'}>`
       + `<label class="cc-all"><input type="checkbox" data-column-all="${key}"> <b>All columns</b></label>`
       + '<div class="cc-hint">Ticked columns show. A change applies at once.</div>'
@@ -683,6 +744,7 @@ export function renderDashboard(doc, model, state = {}) {
     const firstWidth = widths && widths[0] != null ? widths[0] : 150;
     const pageSize = opts && opts.pageSize ? opts.pageSize : 0;
     const page = opts && opts.page ? opts.page : 1;
+    const hideCount = Boolean(opts && opts.hideCount);
     const totalPages = pageSize ? Math.max(1, Math.ceil(rows.length / pageSize)) : 1;
     const chosen = key && Array.isArray(state.columnSets?.[key]) ? new Set(state.columnSets[key]) : new Set(headers.map((_, index) => index));
     const indexes = headers.map((_, index) => index).filter(index => chosen.has(index));
@@ -714,9 +776,9 @@ export function renderDashboard(doc, model, state = {}) {
           : pageRows.map(renderRow).join(''))
       : `<tr><td class="empty" colspan="${indexes.length}">No rows match the current selection.</td></tr>`;
     const chooserOpen = state.openChooser === key;
-    const countLabel = pageSize
+    const countLabel = hideCount ? '' : (pageSize
       ? `Page ${page} / ${totalPages}`
-      : (windowed ? `Showing ${shown.toLocaleString()} of ${rows.length.toLocaleString()} rows` : `${rows.length.toLocaleString()} rows`);
+      : (windowed ? `Showing ${shown.toLocaleString()} of ${rows.length.toLocaleString()} rows` : `${rows.length.toLocaleString()} rows`));
     const foot = footer ? `<tfoot><tr>${indexes.map(index => `<td${cellAttrs(index)}>${esc(footer[index])}</td>`).join('')}</tr></tfoot>` : '';
     // §7.2.15 — the header fragment carries one extra trailing column for the scrollbar (.ds-gut), so
     // the navy band runs the full card width and the body's scrollbar starts below it.
@@ -729,9 +791,11 @@ export function renderDashboard(doc, model, state = {}) {
     if (pageSize && totalPages > 1) {
       pagerControls = `<button class="pg-btn" data-pg="prev"${page <= 1 ? ' disabled' : ''}>‹ Prev</button><label class="pg-jump">Page <select class="v-page" data-pagejump="${key}">${[...Array(totalPages)].map((_, i) => `<option value="${i + 1}"${i + 1 === page ? ' selected' : ''}>${i + 1}</option>`).join('')}</select> / ${totalPages}</label><button class="pg-btn" data-pg="next"${page >= totalPages ? ' disabled' : ''}>Next ›</button><span class="pg-total" id="${countId}">${rows.length.toLocaleString()} rows</span>`;
     } else {
-      pagerControls = `<span class="pg-total" id="${countId}">${countLabel}</span>`;
+      pagerControls = hideCount ? '' : `<span class="pg-total" id="${countId}">${countLabel}</span>`;
     }
-    const controls = key ? `<div class="table-tools"><div class="pg-left">${pagerControls}</div><div class="pg-right">${opts.filter ? opts.filter : ''}<button class="csv-btn btn-secondary" data-export-table="${key}">⤓ CSV</button><button class="cc-btn btn-secondary" id="ccBtn_${key}" aria-controls="ccPanel_${key}" aria-haspopup="true" aria-expanded="${chooserOpen}">Columns</button>${columnChooser(key, headers, chosen, chooserOpen)}</div></div>` : '';
+    if (key) registerExportTable(key, opts.title || key, headers, rows);
+    // I148 — one tool row split: filters LEFT (filter select, pager), export and column actions RIGHT.
+    const controls = key ? `<div class="table-tools"><div class="pg-left">${pagerControls}${opts.filter ? opts.filter : ''}</div><div class="pg-right">${csvButton(key)}<button class="cc-btn btn-secondary" id="ccBtn_${key}" aria-controls="ccPanel_${key}" aria-haspopup="true" aria-expanded="${chooserOpen}">Columns</button>${columnChooser(key, headers, chosen, chooserOpen)}</div></div>` : '';
     // I112 — title on its own line; the tool cluster sits below it (right-aligned groups via CSS).
     const subtitle = opts && opts.subtitle ? `<p class="note tt-note">${opts.subtitle}</p>` : '';
     const stackCls = (title && (subtitle || opts.filter)) ? ' table-head--stack' : '';
@@ -843,6 +907,7 @@ export function renderDashboard(doc, model, state = {}) {
         <div class="seg" role="group" aria-label="Time grain">${seg('month')}${seg('quarter')}${seg('year')}</div>
         <button class="btn-secondary${bars ? ' on' : ''}" data-c1bars aria-pressed="${bars}">Bars</button>
         <div class="tf-wrap"><button class="tf-btn" id="tfBtn_c1series" aria-expanded="false" aria-haspopup="true" aria-controls="tfPanel_c1series">Series<span class="tf-cnt" id="tfCnt_c1series">${cnt}</span></button><div class="tf-panel" id="tfPanel_c1series" role="group" aria-label="Filter C1 series" hidden><label class="tf-all"><input type="checkbox" data-c1series-all${masterChecked}> <b>All Series</b></label><div class="tf-hint">Show or hide each series (bar + line together).</div><div class="tf-divider"></div><div class="tf-list">${sItems}</div></div></div>
+        ${csvButton('c1-schedule')}
         <button class="btn-secondary" data-c1png>⤓ PNG</button>
         <button class="btn-secondary" data-c1copy>⧉ Copy</button>
       </div>
@@ -931,6 +996,7 @@ export function renderDashboard(doc, model, state = {}) {
     // That is the same X boundary the SVG uses, at every width, with or without scripts.
     const colgroup = `<colgroup><col class="c1-gut" style="width:var(--c1-gutter)">${'<col>'.repeat(nb)}</colgroup>`;
     const many = nb > 13 ? ' c1-many' : ' c1-few';
+    registerExportTable('c1-schedule', 'C1 Schedule Performance', ['Reporting Month', ...pts.map(p => p.label)], rowDefs.map(r => [r.label, ...pts.map(p => r.get(p))]));
     const table = `<table class="c1-table${many}" data-table-crosshair><caption>Schedule performance by reporting month</caption>${colgroup}<thead><tr><th class="g-corner" scope="col">Reporting Month</th>${monthHeads}</tr></thead><tbody>${body}</tbody></table>`;
     const dp = JSON.stringify(pts).replace(/'/g, '&#39;');
     const dg = JSON.stringify({ W: plot.W, yTop: plot.yTop, yBot: plot.yBot }).replace(/'/g, '&#39;');
@@ -1043,7 +1109,7 @@ export function renderDashboard(doc, model, state = {}) {
   };
   // I134 — PNG / Copy buttons for the chart cards. They render in the ONE tool row's right group;
   // the legacy per-card head (showTitle) keeps the .c3-card-ctrls wrapper.
-  const c3CardActions = () => `<button class="btn-secondary" data-c3png>⤓ PNG</button><button class="btn-secondary" data-c3copy>⧉ Copy</button>`;
+  const c3CardActions = key => `${key ? csvButton(key) : ''}<button class="btn-secondary" data-c3png>⤓ PNG</button><button class="btn-secondary" data-c3copy>⧉ Copy</button>`;
   // I133 — ONE control cluster per independent panel. Every control carries `data-c3panel`, so a
   // change repaints only that panel's state. A chart panel carries the Bar / Pie toggle; the summary
   // panel carries its own `⤓ Download` instead. The legacy flat state keys remain the fallback so
@@ -1054,9 +1120,9 @@ export function renderDashboard(doc, model, state = {}) {
     const month = `<label class="c3-month-wrap"><select data-c3month data-c3panel="${panel}" aria-label="C3 month">${c3MonthOptions(c3, st)}</select></label>`;
     const dim = withViewToggle && st.c3View === 'pie' ? '' : c3DimSeg(st, panel);
     const view = withViewToggle ? c3ViewSeg(st, panel) : '';
-    const right = withViewToggle
-      ? extraRight
-      : `<button class="btn-secondary" data-c3export data-c3panel="${panel}" title="Download the breakdown table as CSV">⤓ Download</button>`;
+    // I147 — the right tool group renders in EVERY panel, with or without the view toggle. The
+    // summary panel passes its ⤓ CSV here, so it sits right-aligned in the one tool row.
+    const right = extraRight;
     return `<div class="c3-controls"><div class="controls-left">${month}${dim}${view}</div><div class="controls-right">${right}</div></div>`;
   };
   // One CSS grid per card plus one native attached table (2026-10-27 study, §4.2 rev 1.73 / I130):
@@ -1066,6 +1132,43 @@ export function renderDashboard(doc, model, state = {}) {
   // shows its own rows (Q5): Submissions = Total Plan / First Submission / Resubmission / Under
   // Review; Approval = the codes.
   const C3_BAR_H = 150;
+  // §4.2 rev 1.78 / rev 1.82 — the in-SVG legend. ONE `<svg class="c3-legend-svg">` holds the
+  // legend `<g>` ABOVE the plot area (Bar: first child of `.c3-card-body`, before `.c3-grid`;
+  // Pie: directly above the bordered donut `<svg>`), so the legend is never an HTML element and
+  // PNG / Copy serialize it with the plot. Items wrap into rows of ≈600 viewBox units.
+  // §4.2 rev 1.83 / I139 — the C1 legend model: the legend rows live INSIDE the chart's bordered
+  // plot area, above the plot content. `c3LegendRows` packs items into rows and returns the `<g>`;
+  // the Bar card wraps it in `svg.c3-legend-svg` as a grid item inside the plot-zone border, and the
+  // Pie card draws the same `<g>` directly inside the bordered donut `svg.c3-svg`.
+  // §4.2 rev 1.84 / I140 — the rows start after a LEFT INSET (LEGEND_INSET = 12 user units, matching
+  // the 12 px `--c3-card-pad` token) so the first swatch never touches the plot-zone left edge —
+  // the edge shared with the y-axis zone — and the wrap width shrinks by the same inset.
+  const LEGEND_INSET = 12;
+  const c3LegendRows = (items, ROWW, inset = LEGEND_INSET) => {
+    const rowH = 18;
+    const est = it => Math.max(56, it.label.length * 6.6 + 28);
+    const rows = [[]];
+    let w = inset;
+    items.forEach(it => {
+      const iw = est(it);
+      if (w + iw > ROWW - inset && rows[rows.length - 1].length) { rows.push([]); w = inset; }
+      rows[rows.length - 1].push([it, iw]);
+      w += iw;
+    });
+    let g = '';
+    rows.forEach((row, ri) => {
+      let cx = inset;
+      row.forEach(([it, iw]) => {
+        g += `<g transform="translate(${cx},${ri * rowH + 4})"><rect class="${it.cls}" width="10" height="10" rx="2"></rect><text class="c3-leg-t" x="15" y="9">${esc(it.label)}</text></g>`;
+        cx += iw;
+      });
+    });
+    return { g, h: rows.length * rowH + 4 };
+  };
+  const c3LegendSvg = (items, place = '') => {
+    const { g, h } = c3LegendRows(items, 600, LEGEND_INSET);
+    return `<svg class="c3-legend-svg" viewBox="0 0 600 ${h}" preserveAspectRatio="xMinYMin meet" style="width:100%;height:auto;${place}" aria-hidden="true"><g class="c3-legend-g">${g}</g></svg>`;
+  };
   const c3StackedCard = (c3, st, kind, opts = {}) => {
     const month = st.c3Month || 'ALL';
     const all = month === 'ALL';
@@ -1087,7 +1190,9 @@ export function renderDashboard(doc, model, state = {}) {
     });
     const N = recs.length;
     const maxVal = Math.max(1, ...recs.map(r => barSeries.reduce((s, sr) => s + Math.max(0, r.getBar(sr.key)), 0)));
-    const niceMax = niceCeil(maxVal); // C1/C2-style nice axis max so the top grid line is a round number (I060)
+    // §4.2 rev 1.64 — dynamic nice-number ticks: the interval count follows the plot height
+    // (min(7, floor(H / 40)); at C3_BAR_H = 150 that is 3), so the old fixed 5-grid-line axis is gone.
+    const { yMax: niceMax, intervals: yInt, ticks: yTicks } = niceAxisTicks(maxVal, C3_BAR_H, 40, 7);
     // I046 — Total Plan is a discipline-only metric (see C3_PLAN_NOTE).
     const rows = kind === 'submissions'
       ? (dimKey === 'submitter'
@@ -1095,16 +1200,27 @@ export function renderDashboard(doc, model, state = {}) {
           : [['Total Plan', r => r.plan], ['First Submission', r => r.m.newCount], ['Resubmission', r => r.m.resubCount], ['Under Review', r => all ? r.m.appr.SUR : r.ur]])
       : (all ? ['APP', 'AWC', 'NAP', 'REJ', 'INF', 'SUR'] : ['APP', 'AWC', 'NAP', 'REJ', 'INF'])
           .map(code => [code, r => code === 'SUR' ? r.m.appr.SUR : (r.m.appr[code] || 0)]);
+    if (opts.csvKey) registerExportTable(opts.csvKey, kind === 'submissions' ? 'C3 Submissions' : 'C3 Approval Status', ['Breakdown', ...recs.map(r => r.val)], rows.map(([label, fn]) => [label, ...recs.map(fn)]));
     let g = '';
-    // y-axis: 5 horizontal grid lines + tick numbers, matching the C1 S-curve and C2 stacked-area panels (I060).
-    // Grid lines span the bar area (cols 2..N+1, row 1); numbers sit right-aligned in the metric-label column
+    // §4.2 rev 1.83 / I139 — the legend rows sit INSIDE the plot-zone border, above the plot content,
+    // exactly the C1 model: the legend svg is a grid item of `.c3-grid` spanning the plot columns in
+    // row 1, and the two bordered zones span rows 1–2 so their edges enclose legend + plot.
+    g += c3LegendSvg(barSeries.map(s => ({ cls: s.cls, label: s.key === 'ur' ? 'Under Review' : s.key })), 'grid-column:2 / -1;grid-row:1;');
+    // y-axis: dynamic grid lines + tick numbers (rev 1.64), matching the C1 S-curve and C2 panels (I060).
+    // Grid lines span the bar area (cols 2..N+1, row 2); numbers sit right-aligned in the metric-label column
     // (col 1) so they are flush with the bars and aligned with the native table below. Bars are scaled to niceMax.
-    g += `<div class="c3-gridlines" style="grid-column:2 / -1;grid-row:1"></div>`;
+    g += `<div class="c3-gridlines" style="grid-column:2 / -1;grid-row:2">${yTicks.map((tv, i) => `<i class="g-gridline" style="top:${((1 - tv / niceMax) * 100).toFixed(2)}%"></i>`).join('')}</div>`;
+    // §4.2 rev 1.81 — universal bordered chart composition (parts 5 / 6). The y-axis and plot zones
+    // overlap on their shared vertical edge, so those corners are right angles; every other corner is
+    // an outer corner with the 10 px radius. Overlay items only: no layout, pointer or paint change.
+    g += `<div class="c3-yaxis-zone" aria-hidden="true" style="grid-column:1;grid-row:1 / 3"></div>`;
+    g += `<div class="c3-plot-zone" aria-hidden="true" style="grid-column:2 / -1;grid-row:1 / 3"></div>`;
     // §4.2 rev 1.75 — ONE hidden column band, emitted before the bars so it paints behind them.
     g += `<div class="c3-col-band" data-c3band="1" aria-hidden="true" style="display:none"></div>`;
+    // §4.2 rev 1.82 — the rotated side unit caption ("Documents"), exactly as the C1 Y-axis contract.
     let ticks = '';
-    for (let t = 0; t <= 4; t++) { const tv = Math.round(niceMax * (4 - t) / 4); ticks += `<span class="g-ytick" style="top:${(t * 25)}%">${tv}</span>`; }
-    g += `<div class="g-yaxis" style="grid-column:1;grid-row:1">${ticks}</div>`;
+    for (let i = yInt; i >= 0; i--) { const tv = yTicks[i]; ticks += `<span class="g-ytick" style="top:${(((yInt - i) / yInt) * 100).toFixed(2)}%">${tv}</span>`; }
+    g += `<div class="g-yaxis" style="grid-column:1;grid-row:2"><span class="g-ycap">Documents</span>${ticks}</div>`;
     recs.forEach((r, i) => {
       const colTotal = barSeries.reduce((s, sr) => s + Math.max(0, r.getBar(sr.key)), 0);
       // I106 — §4.6 hover window: header = the column (discipline/submitter), one swatch·label·value row
@@ -1115,7 +1231,7 @@ export function renderDashboard(doc, model, state = {}) {
         const v = r.getBar(sr.key);
         if (v > 0) segs += `<div class="seg-bar ${sr.cls}" style="height:${((v / niceMax) * C3_BAR_H).toFixed(1)}px" data-tip="${attr(colTip)}"></div>`;
       });
-      g += `<div class="g-bar" style="grid-column:${i + 2};grid-row:1" data-col-id="${i}" data-tip="${attr(colTip)}">${segs}</div>`;
+      g += `<div class="g-bar" style="grid-column:${i + 2};grid-row:2" data-col-id="${i}" data-tip="${attr(colTip)}">${segs}</div>`;
     });
     // §4.2 rev 1.73 / 1.74 / I130 / I131 — ONE native attached table per card. The header row keeps
     // the vertical dimension labels; the body keeps the metric rows. Shared data-col-id values drive
@@ -1127,12 +1243,10 @@ export function renderDashboard(doc, model, state = {}) {
     const colgroup = `<colgroup><col class="c3-gut" style="width:var(--c3-gutter)">${'<col>'.repeat(N)}</colgroup>`;
     const table = `<table class="c3-table" data-table-crosshair><caption>${esc(title)} metrics by ${dimKey}</caption>${colgroup}<thead><tr><th class="g-corner" scope="col">Breakdown</th>${headCells}</tr></thead><tbody>${bodyRows}</tbody></table>`;
     g += table;
-    const legend = `<div class="c3-legend">${barSeries.map(s => `<span class="c3-leg"><span class="c3-swatch ${s.cls}"></span>${esc(s.key === 'ur' ? 'Under Review' : s.key)}</span>`).join('')}</div>`;
-    // I133 — the legend sits ABOVE the chart, not below the chart or below the attached table.
+    // I133 — the legend sits ABOVE the chart (inside the plot-zone border), not below the attached table.
     return `<div class="chart c3-card" role="group" aria-label="${esc(title)} breakdown">
       ${opts.showTitle === false ? '' : `<div class="c3-card-head"><h3 class="c3-card-title">${title}</h3><div class="c3-card-ctrls">${c3CardActions()}</div></div>`}
       ${opts.controls || ''}
-      ${legend}
       <div class="c3-card-body"><div class="c3-grid" style="--c3-gutter:104px;--c3-cols:${N};min-width:${104 + N * 40}px">${g}</div></div>
       <div class="chart-tip"></div>
     </div>`;
@@ -1162,12 +1276,10 @@ export function renderDashboard(doc, model, state = {}) {
     const total = segs.reduce((s, x) => s + x.value, 0);
     if (!total) return `<div class="chart c3-card"><p class="empty">No submissions match the current selection.</p></div>`;
     const svg = c3SingleDonut(segs, title, all ? 'DOCUMENTS' : 'SUBMITTED', total);
-    const leg = `<div class="c3-legend">${segs.filter(s => s.value).map(s => `<span class="c3-leg"><span class="c3-swatch ${s.cls}"></span>${esc(s.label)}</span>`).join('')}</div>`;
-    // I133 — the legend sits ABOVE the donut, matching the Bar view.
+    // §4.2 rev 1.83 / I139 — the Pie legend rides INSIDE the bordered donut svg (C1 model).
     return `<div class="chart c3-card" role="group" aria-label="${esc(title)} breakdown">
       ${opts.showTitle === false ? '' : `<div class="c3-card-head"><h3 class="c3-card-title">${title}</h3><div class="c3-card-ctrls">${c3CardActions()}</div></div>`}
       ${opts.controls || ''}
-      ${leg}
       ${svg}
       <div class="chart-tip"></div>
     </div>`;
@@ -1190,9 +1302,14 @@ export function renderDashboard(doc, model, state = {}) {
   // One donut ring for a single C3 pie card (Submissions or Approval Status). The former consolidated
   // two-ring c3PieSVG is removed: each card now shows its own donut (2026-10-27 study).
   const c3SingleDonut = (segs, title, sub, total) => {
-    const W = 320, H = 300, cx = 160, cy = 150, r = 96, sw = 30;
+    // §4.2 rev 1.83 / I139 — the legend rows live INSIDE the bordered donut svg, above the ring,
+    // exactly the C1 model; the separate legend svg strip is gone and the viewBox grows by the
+    // legend band so the ring geometry is unchanged.
+    const { g: legG, h: legH } = c3LegendRows(segs.filter(s => s.value).map(s => ({ cls: s.cls, label: s.label })), 320, LEGEND_INSET);
+    const W = 320, H = 300 + legH, cx = 160, cy = 150 + legH, r = 96, sw = 30;
     const denom = Math.max(1, total);
     const P = [`<svg class="c3-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%" role="img" aria-label="${esc(title)}">`];
+    P.push(`<g class="c3-legend-g" aria-hidden="true">${legG}</g>`);
     P.push(`<circle class="c3-track-bg" cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke-width="${sw}"></circle>`);
     // I106 — §4.6 donut hover: every arc shows the full swatch·label·value breakdown plus a total
     // footer, mirroring the bar cards. Uses the on-chart series token for each swatch.
@@ -1274,10 +1391,10 @@ export function renderDashboard(doc, model, state = {}) {
     for (let col = 1; col <= headers.length - 1; col++) footer.push(rows.reduce((sum, row) => sum + row[col], 0));
     const note = showPlan ? '' : `<p class="note">${esc(C3_PLAN_NOTE)}</p>`;
     const body = `${table(headers, rows, null, footer)}${note}`;
-    // I133 — the new Breakdown Summary panel owns its own controls and ONE border. Bare mode drops
-    // the nested `.c-card` and the duplicate title / Download button.
+    // I145 — register the summary table in every mode; the panel controls carry its CSV button.
+    registerExportTable('c3-summary', 'Breakdown Summary', headers, rows);
     if (bare) return body;
-    return `<div class="c3-summary"><div class="c-card"><div class="c3-summary-head"><h3 class="c3-summary-title">Breakdown Summary</h3><button class="btn-secondary" data-c3export title="Download the breakdown table as CSV">⤓ Download</button></div>${body}</div></div>`;
+    return `<div class="c3-summary"><div class="c-card"><div class="c3-summary-head"><h3 class="c3-summary-title">Breakdown Summary</h3>${csvButton('c3-summary')}</div>${body}</div></div>`;
   };
   // I133 — the C3 Breakdown is now its OWN page with THREE independent top-level panels. Each panel
   // owns its controls and its own `c3Month` / `c3Dim` / `c3View` values. Two chart panels sit side by
@@ -1292,7 +1409,7 @@ export function renderDashboard(doc, model, state = {}) {
     const c3 = view.c3;
     const chartPanel = (name, panel, kind) => {
       const st = c3PanelState(state, panel);
-      const opts = { controls: c3PanelControls(c3, st, panel, true, c3CardActions()), showTitle: false };
+      const opts = { controls: c3PanelControls(c3, st, panel, true, c3CardActions(st.c3View === 'pie' ? '' : `c3-${panel}`)), showTitle: false, csvKey: st.c3View === 'pie' ? '' : `c3-${panel}` };
       const card = st.c3View === 'pie'
         ? c3PieCard(c3, st, kind, opts)
         : c3StackedCard(c3, st, kind, opts);
@@ -1300,7 +1417,7 @@ export function renderDashboard(doc, model, state = {}) {
     };
     const sum = c3PanelState(state, 'summary');
     const summary = activePanel('Breakdown Summary',
-      `<div class="c-card c3-summary-card">${c3PanelControls(c3, sum, 'summary', false)}<div class="c3-summary">${c3Table(c3, sum, true)}</div></div>`, true);
+      `<div class="c-card c3-summary-card">${c3PanelControls(c3, sum, 'summary', false, csvButton('c3-summary'))}<div class="c3-summary">${c3Table(c3, sum, true)}</div></div>`, true);
     return `<div class="panel-grid breakdown-grid">${chartPanel('Submissions', 'submissions', 'submissions')}${chartPanel('Approval Status', 'approval', 'approval')}${summary}</div>`;
   };
   // ===== C2 Submission Flow & Delay (workplan D6 / D9 / D40) =====
@@ -1321,7 +1438,7 @@ export function renderDashboard(doc, model, state = {}) {
     const view = st.c2View || 'stacked';
     const includeNfs = st.c2Nfs !== false;
     const seg = v => `<button type="button" class="seg-btn${view === v ? ' active' : ''}" data-c2view="${v}" aria-pressed="${view === v}">${v === 'stacked' ? 'Stacked' : v === 'delay' ? 'Delay' : 'Funnel'}</button>`;
-    return `<div class="c2-controls"><div class="controls-left"><div class="seg" role="group" aria-label="C2 view">${seg('stacked')}${seg('delay')}${seg('funnel')}</div><button class="btn-secondary${includeNfs ? ' on' : ''}" data-c2nfs aria-pressed="${includeNfs}">Include NFS</button></div><div class="controls-right"><button class="btn-secondary" data-c2png>⤓ PNG</button><button class="btn-secondary" data-c2copy>⧉ Copy</button></div></div>`;
+    return `<div class="c2-controls"><div class="controls-left"><div class="seg" role="group" aria-label="C2 view">${seg('stacked')}${seg('delay')}${seg('funnel')}</div><button class="btn-secondary${includeNfs ? ' on' : ''}" data-c2nfs aria-pressed="${includeNfs}">Include NFS</button></div><div class="controls-right">${csvButton('c2-funnel')}<button class="btn-secondary" data-c2png>⤓ PNG</button><button class="btn-secondary" data-c2copy>⧉ Copy</button></div></div>`;
   };
   const c2StackedSVG = (c2, st) => {
     const includeNfs = st.c2Nfs !== false;
@@ -1437,7 +1554,9 @@ export function renderDashboard(doc, model, state = {}) {
     });
     p += '</svg>';
     const rows = f.byDisc.map(r => `<tr>${[esc(r.discipline), r.planned, r.submitted, r.inReview, r.awc, r.approved].map((value, i) => `<td data-col-id="${i}">${value}</td>`).join('')}</tr>`).join('');
-    const table = `<table class="c2-ftab" data-table-crosshair><thead><tr>${['Discipline', 'Planned Deliverables', 'Submitted for Review', 'Under Review', 'AWC', 'Approved'].map((label, i) => `<th data-col-id="${i}">${label}</th>`).join('')}</tr></thead><tbody>${rows}<tr class="tot">${[ 'Total', f.planned, f.submitted, f.inReview, f.awc, f.approved].map((value, i) => `<td data-col-id="${i}">${value}</td>`).join('')}</tr></tbody></table>`;
+    const c2Headers = ['Discipline', 'Planned Deliverables', 'Submitted for Review', 'Under Review', 'AWC', 'Approved'];
+    registerExportTable('c2-funnel', 'C2 Submission Flow', c2Headers, [...f.byDisc.map(r => [r.discipline, r.planned, r.submitted, r.inReview, r.awc, r.approved]), ['Total', f.planned, f.submitted, f.inReview, f.awc, f.approved]]);
+    const table = `<table class="c2-ftab" data-table-crosshair><thead><tr>${c2Headers.map((label, i) => `<th data-col-id="${i}">${label}</th>`).join('')}</tr></thead><tbody>${rows}<tr class="tot">${[ 'Total', f.planned, f.submitted, f.inReview, f.awc, f.approved].map((value, i) => `<td data-col-id="${i}">${value}</td>`).join('')}</tr></tbody></table>`;
     return `<div class="c2-stack"><div class="c2-funnel-row"><div class="c2-ftab-wrap">${table}</div><div class="c2-funnel-wrap">${p}</div></div><div class="chart-tip"></div></div>`;
   };
   const submissionFlow = (c2, st) => {
@@ -1483,9 +1602,16 @@ export function renderDashboard(doc, model, state = {}) {
     }
     const docs = subMonth === 'ALL' ? allDocs : allDocs.filter(g => g.some(r => monthOf(r) === subMonth));
     const headers = ['', 'Document No.', 'Document Title', 'Discipline', 'Submissions', 'Current Submission Status', 'Current Approval Status'];
+    // I107 — when a month is selected, the expanded history shows only that month's submission(s), ordered by date.
+    const histFor = group => (subMonth === 'ALL' ? group : group.filter(r => monthOf(r) === subMonth))
+      .slice().sort((a, b) => (a.submissionDate || '').localeCompare(b.submissionDate || ''));
+    // §4.4 / I150 — the drill column renders only when at least one row in the current view is
+    // expandable. A month view where every document has one submission would otherwise show a
+    // redundant white 40px column before Document No. with a one-row detail behind it.
+    const hasDrillable = docs.some(group => histFor(group).length > 1);
     // Column-visibility control (spec §7.1 B7): own .cc-btn class, floating .column-chooser, no filter badge.
     const chosen = Array.isArray(state.columnSets?.subdoc) ? new Set(state.columnSets.subdoc) : new Set(headers.map((_, i) => i));
-    const indexes = headers.map((_, i) => i).filter(i => chosen.has(i));
+    const indexes = headers.map((_, i) => i).filter(i => chosen.has(i) && (i !== 0 || hasDrillable));
     const numeric = new Set([4]);
     const cellAttrs = i => { const c = []; if (numeric.has(i)) c.push('num'); if (i < 2) c.push('ds-pinned'); if (i === 0) c.push('drill-cell'); return `${i ? ` data-col="${i}"` : ''} data-col-id="${i}"${c.length ? ` class="${c.join(' ')}"` : ''}`; };
     const cellHtml = (group, i) => {
@@ -1501,9 +1627,6 @@ export function renderDashboard(doc, model, state = {}) {
         default: return '';
       }
     };
-    // I107 — when a month is selected, the expanded history shows only that month's submission(s), ordered by date.
-    const histFor = group => (subMonth === 'ALL' ? group : group.filter(r => monthOf(r) === subMonth))
-      .slice().sort((a, b) => (a.submissionDate || '').localeCompare(b.submissionDate || ''));
     const bodyRows = docs.map(group => {
       const docNo = group[0].documentNo || '';
       const cells = indexes.map(i => `<td${cellAttrs(i)}>${cellHtml(group, i)}</td>`).join('');
@@ -1511,27 +1634,56 @@ export function renderDashboard(doc, model, state = {}) {
       const inner = hist.map((r, i) => `<tr>${[i + 1, esc(r.fields['Prolog No.'] || '—'), esc(r.submissionDate || '—'), esc(r.actualReturnDate || '—'), esc(r.submissionStatus || '—'), esc(r.approvalStatus || '—')].map((value, col) => `<td data-col-id="${col}">${value}</td>`).join('')}</tr>`).join('');
       const innerTable = `<table class="ds-table hist-table" data-table-crosshair><tbody><tr class="hist-head">${['#', 'Prolog / Transmittal No.', 'Submission Date', 'Return Date', 'Submission Status', 'Approval Status'].map((label, i) => `<th data-col-id="${i}">${label}</th>`).join('')}</tr>${inner}</tbody></table>`;
       const detail = `<tr class="sub" id="subd-${esc(docNo)}" data-doc="${esc(docNo)}" hidden><td colspan="${indexes.length}"><div class="sub-inner">${innerTable}</div></td></tr>`;
-      return `<tr class="expandable" data-doc="${esc(docNo)}" tabindex="0">${cells}</tr>${detail}`;
+      // I150 — with no expandable row the detail and the row shortcut are omitted with the column.
+      return hasDrillable
+        ? `<tr class="expandable" data-doc="${esc(docNo)}" tabindex="0">${cells}</tr>${detail}`
+        : `<tr data-doc="${esc(docNo)}">${cells}</tr>`;
     }).join('');
     const colgroup = indexes.map((i, pos) => `<col${i ? ` data-col="${i}"` : ''}${i === 0 ? ' style="width:32px"' : ''}>`).join('');
     const heads = indexes.map(i => `<th scope="col"${cellAttrs(i)}><span class="th-wrap"><span class="lb">${esc(headers[i])}</span></span>${i ? `<span class="ds-resize" data-col="${i}" role="separator" aria-label="Resize ${esc(headers[i])}"></span>` : ''}</th>`).join('');
-    const headFrag = `<div class="vheadwrap"><table class="ds-table vheadtab" data-table-crosshair data-table-key="subdoc" data-column-count="${headers.length}"><colgroup>${colgroup}<col class="ds-gut"></colgroup><thead><tr>${heads}<th class="ds-gut" scope="col" aria-hidden="true"></th></tr></thead></table></div>`;
+    const headFrag = `<div class="vheadwrap"><table class="ds-table vheadtab" data-table-crosshair data-table-key="subdoc" data-column-count="${indexes.length}"><colgroup>${colgroup}<col class="ds-gut"></colgroup><thead><tr>${heads}<th class="ds-gut" scope="col" aria-hidden="true"></th></tr></thead></table></div>`;
     const chooserOpen = state.openChooser === 'subdoc';
-    const chooser = columnChooser('subdoc', headers, chosen, chooserOpen);
-    // I107 — cumulative "total as-of month" summary: submissions from project start through the selected month.
+    const chooser = columnChooser('subdoc', headers, chosen, chooserOpen, hasDrillable ? [] : [0]);
     const projYm = String(model.meta.projectStartDate || '').slice(0, 7);
     const allSubs = allDocs.flatMap(g => g);
-    const cum = subMonth === 'ALL'
-      ? allSubs.length
-      : allSubs.filter(r => { const ym = monthOf(r); return (!projYm || ym >= projYm) && ym <= subMonth; }).length;
     const monthSel = `<label class="sub-month-lbl">Month</label><select class="sub-month" data-submonth>${['ALL', ...months].map(m => `<option value="${esc(m)}"${m === subMonth ? ' selected' : ''}>${m === 'ALL' ? 'All months' : esc(fmtMonth(m))}</option>`).join('')}</select>`;
-    const cumLabel = `Total as-of ${subMonth === 'ALL' ? 'all months' : esc(fmtMonth(subMonth))}: ${cum}`;
-    // I108 — panel summary on its own line, above the control row (spec §4: subtitle optional).
-    const summary = `<div class="panel-summary"><span class="summary">${docs.length} documents</span><span class="summary">${cumLabel}</span></div>`;
-    const controls = `<div class="table-tools">${monthSel}<button class="csv-btn btn-secondary" data-export="submittals">⤓ CSV</button><button class="cc-btn btn-secondary" id="ccBtn_subdoc" aria-controls="ccPanel_subdoc" aria-haspopup="true" aria-expanded="${chooserOpen}">Columns</button>${chooser}</div>`;
+    // §4 rev 1.93 — all four chips describe the SAME globally filtered dataset. Blue counts submissions
+    // for the month, violet and neutral count document groups, and green counts distinct documents
+    // with a submission in the cumulative window (project start → selected month; all documents when
+    // All months). The unfiltered grouping exists only to detect REAL narrowing by global filters —
+    // selecting every available value must not mark a chip as filtered. The single funnel glyph marks
+    // every displayed chip when the time filter or an actually-narrowing global filter is active.
+    const unfilteredByDoc = new Map();
+    for (const row of model.submissions) {
+      const key = String(row.documentNo || '').trim().toUpperCase();
+      if (!key) continue;
+      const group = unfilteredByDoc.get(key) || [];
+      group.push(row);
+      unfilteredByDoc.set(key, group);
+    }
+    const countableSubs = model.submissions.filter(row => String(row.documentNo || '').trim());
+    const hasGlobalFilters = allDocs.length < unfilteredByDoc.size || allSubs.length < countableSubs.length;
+    const totalMonthDocs = docs.length;
+    const monthSubs = subMonth === 'ALL' ? 0 : allSubs.filter(row => monthOf(row) === subMonth).length;
+    const cumDocs = subMonth === 'ALL' ? allDocs.length
+      : allDocs.filter(group => group.some(row => { const ym = monthOf(row); return (!projYm || ym >= projYm) && ym <= subMonth; })).length;
+    const monthScoped = subMonth !== 'ALL';
+    const scoped = monthScoped || hasGlobalFilters;
+    const chipLabels = subMonth === 'ALL'
+      ? { violet: 'All-month documents', green: 'Accumulated to date', neutral: 'Shown records' }
+      : { blue: `Submissions in ${fmtMonth(subMonth)}`, violet: `Documents in ${fmtMonth(subMonth)}`, green: `Accumulated till ${fmtMonth(subMonth)}`, neutral: `Shown for ${fmtMonth(subMonth)}` };
+    const funnel = `<svg class="pchip-filter" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M1 1.5h10L7.6 6.2v3.6l-3.2 1.7V6.2z" fill="currentColor"/></svg>`;
+    const pchip = (family, label, count) => `<span class="pchip ${family}" data-pchip="${family}" data-pchip-count="${count}"${scoped ? ' data-pchip-filtered' : ''}>${esc(label)} <b>${count}</b>${scoped ? funnel : ''}</span>`;
+    const summary = `<div class="pchip-row" data-panel-subtitle>${monthScoped ? pchip('blue', chipLabels.blue, monthSubs) : ''}${pchip('violet', chipLabels.violet, totalMonthDocs)}${pchip('green', chipLabels.green, cumDocs)}${pchip('neutral', chipLabels.neutral, docs.length)}</div>`;
+    const subCsv = buildSubmittalsCsv(model, view, state.subMonth || 'ALL');
+    registerExportTable('submittals', 'Submittals', subCsv.cols, subCsv.rows);
+    // I148 — one tool row split: the Month filter LEFT, ⤓ CSV and Columns RIGHT. `.pg-right`
+    // carries `margin-left:auto`, so the actions right-align without a csv-btn-specific rule.
+    const controls = `<div class="table-tools"><div class="pg-left">${monthSel}</div><div class="pg-right">${csvButton('submittals')}<button class="cc-btn btn-secondary" id="ccBtn_subdoc" aria-controls="ccPanel_subdoc" aria-haspopup="true" aria-expanded="${chooserOpen}">Columns</button>${chooser}</div></div>`;
     const body = docs.length ? `<tbody>${bodyRows}</tbody>` : `<tbody><tr><td class="empty" colspan="${indexes.length}">No documents match the current selection.</td></tr></tbody>`;
-    const tableHtml = `<div class="c-card">${controls}<div class="ds-split splitcard">${headFrag}<div class="tableScroll"><table class="ds-table" data-table-crosshair data-table-key="subdoc" data-column-count="${headers.length}">${colgroup}${body}</table></div></div></div>`;
-    // I109 — subtitle sits in the panel body before the .c-card, aligned to the content edge (matches Forward/Overdue .note).
+    const tableHtml = `<div class="c-card"${hasDrillable ? '' : ' data-no-drill'}>${controls}<div class="ds-split splitcard">${headFrag}<div class="tableScroll"><table class="ds-table" data-table-crosshair data-table-key="subdoc" data-column-count="${indexes.length}">${colgroup}${body}</table></div></div></div>`;
+    // §4 rev 1.92 — the chip subtitle sits in the panel body before the .c-card, on its own line,
+    // aligned to the content edge; the tool row stays inside the card (I109 placement retained).
     return activePanel('Submittals', `${summary}${tableHtml}`, true);
   };
   const validation = () => {
@@ -1542,9 +1694,8 @@ export function renderDashboard(doc, model, state = {}) {
     const err = view.issues.filter(x => String(x.severity).toLowerCase() === 'error').length;
     const warn = view.issues.filter(x => String(x.severity).toLowerCase() === 'warning').length;
     const info = view.issues.filter(x => String(x.severity).toLowerCase() === 'info').length;
-    // I026 — a blank MDL Document No. is reported by MDL (decision D33), so the sub Validation page
-    // no longer raises V-01 for it. The line keeps the reason visible on the page.
-    const meta = `${model.contract.mdlFields.length.toLocaleString()} MDL fields · ${model.contract.logHeaders.length.toLocaleString()} log headers · ${model.contract.errorRules.length} rules loaded · rule text from workbook Code sheet · a blank MDL Document No. is reported by MDL (D33), not here`;
+    // I151 — one chip row per panel. Count chips use the dedicated .pchip design (§4 rev 1.93).
+    const pchip = (family, label, count, countAttrs = '') => `<span class="pchip ${family}" data-pchip="${family}" data-pchip-count="${count}">${esc(label)} <b${countAttrs}>${count.toLocaleString()}</b></span>`;
     // I112 — panel-local error-code filter (§7.2.7 pt 6 / §7.1 B6): narrows only the Issues table, never the Rules table.
     const code = state.issueCode || 'ALL';
     const codes = [...new Set(view.issues.map(i => i.code))].sort();
@@ -1554,25 +1705,9 @@ export function renderDashboard(doc, model, state = {}) {
     const page = state.issuePage || 1;
     // I112 — retain the full filtered set so CSV export covers every filtered row, not just the visible page.
     lastIssueExport = { headers: issueHeaders, rows: filteredIssueRows, columns: Array.isArray(state.columnSets?.issue) ? state.columnSets.issue : null };
-    // I112 (sample design) — the meta note is PANEL level, directly under the Validation page title,
-    // above the .v-summary row (§4 subtitle standard). It is no longer the Issues table subtitle.
-    return activePanel('Validation', `
-      <p class="note">${meta}</p>
-      <div class="v-summary">
-        <span class="v-count" data-validation-count>${filteredIssueRows.length.toLocaleString()} issues</span>
-        <div class="summary-chips">
-          <span class="vchip e">Error ${err}</span>
-          <span class="vchip w">Warning ${warn}</span>
-          <span class="vchip i">Info ${info}</span>
-        </div>
-      </div>
-      <div class="c-card v-section">
-        ${table(['Severity', 'Code', 'Group', 'Description', 'Count'], rules, null, null, { widths: [110, 90, 130, 420, 70], title: 'Rules' })}
-      </div>
-      <div class="c-card v-section">
-        ${table(issueHeaders, filteredIssueRows, 'issue', null, { widths: [90, 90, 120, 110, 130, 360, 100, 70], title: 'Issues', filter: codeSel, pageSize: 200, page })}
-      </div>
-    `, true);
+    const rulesSubtitle = `<div class="pchip-row v-chip-row" data-panel-subtitle>${pchip('violet', 'Loaded rules', model.contract.errorRules.length)}${pchip('neutral', 'Fired rules', rules.length)}</div>`;
+    const issuesSubtitle = `<div class="pchip-row v-chip-row" data-panel-subtitle>${pchip('green', 'All issues', view.issues.length)}${pchip('neutral', 'Shown issues', filteredIssueRows.length, ' data-validation-count')}<span class="vchip e">Error ${err}</span><span class="vchip w">Warning ${warn}</span><span class="vchip i">Info ${info}</span></div>`;
+    return `${activePanel('Validation Rules', `${rulesSubtitle}<div class="c-card v-section">${table(['Severity', 'Code', 'Group', 'Description', 'Count'], rules, 'rules', null, { widths: [110, 90, 130, 420, 70], hideCount: true })}</div>`, true)}${activePanel('Validation Issues', `${issuesSubtitle}<div class="c-card v-section">${table(issueHeaders, filteredIssueRows, 'issue', null, { widths: [90, 90, 120, 110, 130, 360, 100, 70], filter: codeSel, pageSize: 200, page })}</div>`, true)}`;
   };
   const forwardAndOverdue = (state) => {
     const asOf = model.meta.asOfDate;
@@ -1629,6 +1764,13 @@ export function renderDashboard(doc, model, state = {}) {
       const heads = indexes.map(i => `<th scope="col"${attrs(i)}><span class="th-wrap"><span class="lb">${esc(headers[i])}</span></span>${i ? `<span class="ds-resize" data-col="${i}" role="separator" aria-label="Resize ${esc(headers[i])}"></span>` : ''}</th>`).join('');
       const body = data.length ? `<tbody>${data.map(tr).join('')}</tbody>` : `<tbody><tr><td class="empty" colspan="${indexes.length}">No rows match the current selection.</td></tr></tbody>`;
       const frag = `<div class="vheadwrap"><table class="ds-table vheadtab" data-table-crosshair data-table-key="${key}"><colgroup>${colgroup}<col class="ds-gut"></colgroup><thead><tr>${heads}<th class="ds-gut" scope="col" aria-hidden="true"></th></tr></thead></table></div>`;
+      // I146 — the FO tables reach the export registry like every other table. Cells carry pill
+      // markup, so the registered copy strips tags and decodes entities; the DOM keeps its markup.
+      const foTitles = { 'fo-lookahead': 'Forward Look-Ahead', 'fo-overdue': 'Forward Overdue', 'fo-coverage': 'Forward Coverage' };
+      const clean = value => typeof value === 'string'
+        ? value.replace(/<[^>]*>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&')
+        : value;
+      registerExportTable(key, foTitles[key] || key, headers, data.map(row => row.map(clean)));
       tableRows.set(key, { headers, rows: data, indexes, windowed: false });
       return `<div class="ds-split splitcard" style="--pin-first-col:150px">${frag}<div class="tableScroll"><table class="ds-table" data-table-crosshair data-table-key="${key}" data-column-count="${headers.length}"><colgroup>${colgroup}</colgroup>${body}</table></div></div>`;
     };
@@ -1637,7 +1779,7 @@ export function renderDashboard(doc, model, state = {}) {
     const viewSeg = seg(viewKey, [['lookahead', 'Look-Ahead'], ['overdue', 'Overdue'], ['coverage', 'Coverage']], 'fo-view', 'Forward and Overdue view');
     const laneSeg = seg(lane, [['all', 'All'], ['first', 'First submit'], ['resubmit', 'Resubmit'], ['return', 'Return']], 'fo-lane', 'Submission lane filter');
     const horizonSeg = seg(String(horizon), [['1', '1 wk'], ['2', '2 wks'], ['3', '3 wks'], ['4', '4 wks']], 'fo-horizon', 'Look-ahead horizon in weeks');
-    const csvBtn = key => `<button class="csv-btn btn-secondary" data-export-table="${key}">⤓ CSV</button>`;
+    const csvBtn = key => csvButton(key);
     let summary, tableHtml, right;
     if (viewKey === 'lookahead') {
       const headers = ['Document No.', 'Title', 'Discipline', 'Stage', 'Action', 'Status', 'Basis Date', 'In (days)'];
@@ -1645,7 +1787,7 @@ export function renderDashboard(doc, model, state = {}) {
       const data = look.map(r => [r.docNo, r.title, r.discipline, r.stage, actionLabel[r.category], pill(r.status), r.basis, r.delta]);
       summary = `Next ${horizon} week${horizon > 1 ? 's' : ''} (+7 to +${upper} days): ${look.length} document${look.length === 1 ? '' : 's'} due. Overdue is in the Overdue view.`;
       tableHtml = foTable(headers, data, 'fo-lookahead', widths);
-      right = `${horizonSeg}${laneSeg}${csvBtn('fo-lookahead')}`;
+      right = csvBtn('fo-lookahead');
     } else if (viewKey === 'overdue') {
       const f = over.filter(r => r.category === 'first').length, r2 = over.filter(r => r.category === 'resubmit').length, u = over.filter(r => r.category === 'return').length;
       const headers = ['Document No.', 'Title', 'Discipline', 'Stage', 'Action', 'Status', 'Basis Date', 'Overdue (days)'];
@@ -1653,7 +1795,7 @@ export function renderDashboard(doc, model, state = {}) {
       const data = over.map(r => [r.docNo, r.title, r.discipline, r.stage, actionLabel[r.category], pill(r.status), r.basis, r.delta]);
       summary = `Backward-looking: ${over.length} overdue — ${f} to first submit · ${r2} to resubmit · ${u} to return.` + (lane !== 'all' ? ` Showing ${over.length}.` : '');
       tableHtml = foTable(headers, data, 'fo-overdue', widths);
-      right = `${laneSeg}${csvBtn('fo-overdue')}`;
+      right = csvBtn('fo-overdue');
     } else {
       const headers = ['Document No.', 'Title', 'Discipline', 'Stage', 'Planned 1st Issue Date', 'Forecast 1st Issue Date'];
       const widths = [150, 300, 90, 70, 150, 150];
@@ -1662,7 +1804,10 @@ export function renderDashboard(doc, model, state = {}) {
       tableHtml = foTable(headers, data, 'fo-coverage', widths);
       right = csvBtn('fo-coverage');
     }
-    const controls = `<div class="fo-controls">${viewSeg}<div class="table-tools fo-right">${right}</div></div>`;
+    // I148 — filters LEFT (view toggle, horizon, lane), ⤓ CSV RIGHT. The horizon shows only in the
+    // Look-Ahead view and the lane hides in Coverage, matching the previous per-view visibility.
+    const foLeft = `${viewSeg}${viewKey === 'lookahead' ? horizonSeg : ''}${viewKey === 'coverage' ? '' : laneSeg}`;
+    const controls = `<div class="fo-controls">${foLeft}<div class="table-tools fo-right">${right}</div></div>`;
     return activePanel('Forward and Overdue', `<p class="note">${summary}</p><div class="c-card">${controls}${tableHtml}</div>`);
   };
   // Long-due (aging SUR) — split into four age-bucket cards (workplan §4.9, I079).
@@ -1711,7 +1856,10 @@ export function renderDashboard(doc, model, state = {}) {
   const bindChartHover = (root, opts = {}) => {
     if (!root || typeof root.querySelector !== 'function') return;
     const { pointsAttr = 'data-points', geoAttr = 'data-geo', render, placement = 'cursor', snap = true, focusable = true, live = false, attachedTable = false, c3AttachedTable = false } = opts;
-    const svg = root.querySelector('svg');
+    // §4.2 rev 1.78 / rev 1.82 — the in-SVG legend is its own `svg.c3-legend-svg` inside the card.
+    // The hover host must be the PLOT svg (`svg.c3-svg`), never the legend strip: on C3 Bar cards,
+    // whose plot is a CSS grid, `svg` stays null so the binder keeps delegating to the card root.
+    const svg = root.querySelector('svg.c3-svg') || root.querySelector('svg:not(.c3-legend-svg)');
     const tip = root.querySelector('.chart-tip');
     if (!tip) return;
     // §4.6 rev 1.63 — the window starts hidden and aria-hidden. Every board keeps its persistent

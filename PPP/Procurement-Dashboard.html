@@ -37,6 +37,10 @@
     --shadow:0 1px 2px rgba(15,45,82,.04);
     --radius:10px;
     --on-navy:#FFFFFF; --on-navy-soft:#E8EDF3; --navy-dark:#0B2240;
+    /* §3.2 rev 1.85 — left-menu state tokens, one semantic set shared with every dashboard. The hover
+       is a translucent white veil over the default fill, so it follows --navy in every theme. */
+    --nav-bg:var(--navy); --nav-bg-hover:rgba(255,255,255,.1); --nav-bg-active:#354F6E;
+    --nav-fg:var(--on-navy-soft);
     --text2:#334155; --text3:var(--muted); --row-stripe:#F9FBFD; --err:#8E24AA;
     --font-ui:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif; --font:var(--font-ui);
     /* semantic status tokens (MDL palette) */
@@ -472,9 +476,9 @@
   .sidebar{position:relative;flex:none;width:160px;background:var(--navy);color:var(--on-navy-soft);display:flex;flex-direction:column;padding:10px;overflow:hidden;transition:width .18s,padding .18s}
   .sidebar.collapsed{width:0;padding:0}
   .sb-nav{display:flex;flex-direction:column;gap:2px;min-width:0}
-  .sb-item{display:block;width:100%;text-align:left;font:inherit;font-size:14px;font-weight:400;color:var(--on-navy-soft);background:none;border:0;border-radius:6px;padding:8px 12px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .sb-item:hover{background:#274263}
-  .sb-item.active{background:#354F6E;font-weight:600}
+  .sb-item{display:block;width:100%;text-align:left;font:inherit;font-size:14px;font-weight:400;color:var(--nav-fg);background:var(--nav-bg);border:0;border-radius:6px;padding:8px 12px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sb-item:hover{background:var(--nav-bg-hover)}
+  .sb-item.active{background:var(--nav-bg-active);font-weight:600}
   .sb-bottom{margin-top:auto;display:flex;flex-direction:column;gap:2px}
   .resizer{position:absolute;top:0;right:0;width:5px;height:100%;cursor:col-resize;z-index:6}
   .resizer:hover{background:var(--accent)}

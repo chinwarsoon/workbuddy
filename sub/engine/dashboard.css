@@ -1,3 +1,38 @@
+/* Revision 2.26 | 2026-11-18 | CodeBuddy (AI) | §4.5 rev 1.95 / I151 — the Validation page becomes two top-level panels. Each panel carries one chip row with `.v-chip-row` adding a 12 px bottom gap before its card. No token changed; all `.pchip` rules stay dedicated. */
+/* Revision 2.25 | 2026-11-18 | CodeBuddy (AI) | §4 rev 1.92 — panel count chips migrate the panel subtitle off the plain-text summary. Twelve `--pchip-{blue,violet,green,neutral}-{bg,border,ink}` tokens are defined in all five themes; `.pchip` / `.pchip-row` are dedicated classes (no selector or token shared with `.vchip`), height-equal to the severity chip (11px/1.4, 700, `2px 10px` + 1px border, radius 6px), with a 13px/700 tabular count and an 11px `currentColor` funnel glyph for filter-scoped counts. The retired `.panel-summary` rule is removed. No data, layout, handler or export path changes. */
+/* Revision 2.24 | 2026-11-16 | CodeBuddy (AI) | §3.2 rev 1.85 / I141 — the left-menu states become
+   four semantic tokens (`--nav-bg`, `--nav-bg-hover`, `--nav-bg-active`, `--nav-fg`), so no component
+   rule holds a literal colour. The hover is the same translucent white veil over `--navy`, and the
+   active fill moves from `--blue` to the navy-family `#354F6E`, so the accent colour stays reserved
+   for actions and the active text contrast rises from 4.6:1 to 7.1:1. Selection keeps
+   `font-weight:600` because the active step is only 1.22:1 above the hover. No data, layout, ARIA or
+   export path changes. */
+/* Revision 2.23 | 2026-11-16 | CodeBuddy (AI) | §4.2 rev 1.83 / I139 — the C3 legend moves INSIDE the
+   bordered plot area, exactly the C1 model (superseding the rev 2.22 above-the-border placement):
+   the two bordered zones span grid rows 1–2, so the border encloses the in-SVG legend band (row 1,
+   plot columns) above the plot content (row 2); the column band / centre line move to row 2 and the
+   attached table to row 3 (`--c3-plot-table-gap` keeps the minimized gap). The Pie donut `svg.c3-svg`
+   takes the new `--c3-pie-h` height token so toggling views does not change the panel height, and the
+   two Breakdown chart panels are equalised (default grid stretch replaces `align-items:start`, the
+   panel and body are a flex chain and the card fills it). No data, handler, state, hover or export
+   payload changes. */
+/* Revision 2.22 | 2026-11-16 | CodeBuddy (AI) | §4.2 rev 1.78 / rev 1.82 / I135 — the C3 legend is
+   now an in-SVG `<g>` ABOVE the plot area in both views (`.c3-legend-svg`, never an HTML element),
+   so PNG / Copy serialize the legend with the plot; the HTML `.c3-legend` / `.c3-leg` rules are
+   retired (the `.c3-swatch` tooltip rules stay). Each C3 Bar y-axis gains the rotated side unit
+   caption "Documents" (`.g-ycap`, the C1 contract) and the fixed 4-interval grid-line gradient is
+   replaced by per-tick `.g-gridline` rules that follow the dynamic nice-number tick list. No data,
+   handler, state, hover or export path changes. */
+/* Revision 2.21 | 2026-11-16 | CodeBuddy (AI) | §4.2 rev 1.81 / §7.2 rev 1.81 / I138 — the C3 chart
+   cards adopt the universal bordered chart composition. Two overlay grid items add the zone borders
+   without touching layout or paint order: `.c3-yaxis-zone` (column 1, row 1, parts 5) and
+   `.c3-plot-zone` (columns 2..-1, row 1, part 6), each `1px solid var(--border)`. The two zones
+   overlap on their shared vertical edge, so their shared corners are right angles (`10px 0 0 10px` /
+   `0 10px 10px 0`); every other corner keeps the 10 px radius. The Pie / donut view carries the same
+   bordered plot zone through a rule on the card's own `svg.c3-svg`. `.c3-table` (part 7) gains ONE
+   outer border with the 10 px radius — it is separated from the plot by `--c3-plot-table-gap`, so no
+   right angle applies — and its header row drops the top rule that would double the new edge. No
+   data, handler, state, hover, ARIA or export path changes. */
 /* Revision 2.20 | 2026-11-15 | CodeBuddy (AI) | §4.2 rev 1.80 / I137 — C3 Breakdown gaps become
    named tokens. `:root` gains `--panel-gap` / `--panel-pad` / `--panel-title-gap` / `--c3-card-pad` /
    `--c3-tool-pad` / `--c3-tool-gap` / `--c3-axis-label-h` and the derived
@@ -34,11 +69,20 @@
   --border:#D9E1E8; --text:#1F2A37; --text2:#526171; --text3:#6b7785;
   --accent:#2b6cf6; --accent-alt:#17a67a; --success:#17a67a; --warning:#F9A825; --danger:#d23b3b; --info:#2b6cf6; --danger-bg:#fde2e2; --warning-bg:#fff3cd; --warning-ink:#8a6d00;
   --tag-bg:#EAF2FB; --tag-border:#CBDDEF; --row-stripe:#F7F9FB; --row-hover:#EAF2FB; --th-bg:#E8EDF3; --th-hover:#DAE3ED;
+  /* §4 rev 1.92 — panel count chips: monthly / total-month / accumulated / filtered */
+  --pchip-blue-bg:#EAF2FB; --pchip-blue-border:#CBDDEF; --pchip-blue-ink:#2B6CF6;
+  --pchip-violet-bg:#F1EEFB; --pchip-violet-border:#D9D0F2; --pchip-violet-ink:#6E52C9;
+  --pchip-green-bg:#E4F5ED; --pchip-green-border:#BFE6D6; --pchip-green-ink:#17A67A;
+  --pchip-neutral-bg:#F6F8FA; --pchip-neutral-border:#E2E5EA; --pchip-neutral-ink:#0F1722;
   --shadow:0 1px 2px rgba(16,32,64,.04),0 8px 24px rgba(16,32,64,.05);
   /* §3.2 — the left panel is sized to its menu titles: the widest, "Forward and Overdue", is ≈135 px at
      14 px / 400, which with the button's 12 px horizontal padding and the panel's 10 px padding
      needs 135 px, and 25 px of slack is left on top. */
   --titlebar-h:56px; --menubar-h:48px; --sidebar-w:160px; --statusbar-h:30px;
+  /* §3.2 rev 1.85 — left-menu state tokens, one semantic set shared with every dashboard. The hover
+     is a translucent white veil over the default fill, so it follows `--navy` in every theme. */
+  --nav-bg:var(--navy); --nav-bg-hover:rgba(255,255,255,.1); --nav-bg-active:#354F6E;
+  --nav-fg:#E8EDF3;
   --radius:12px; --radius-sm:6px; --radius-lg:14px;
   --line:#D9E1E8; --muted:#526171; --soft:#EAF2FB; --accent-ink:#2b6cf6;
   --font-ui:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif; --font-mono:ui-monospace,SFMono-Regular,Consolas,monospace;
@@ -69,6 +113,10 @@
   --line:#2c3c52; --soft:#1d2a3b;
   --accent:#2b6cf6; --accent-alt:#17a67a; --success:#17a67a; --warning:#F9A825; --danger:#d23b3b; --info:#2b6cf6; --danger-bg:#3a1f24; --warning-bg:#3a3119; --warning-ink:#f0bd52;
   --tag-bg:#1d2a3b; --tag-border:#34507a; --row-stripe:#121b27; --row-hover:#1d2a3b; --th-bg:#1b2838; --th-hover:#243648;
+  --pchip-blue-bg:#1D2A3B; --pchip-blue-border:#34507A; --pchip-blue-ink:#69B7FF;
+  --pchip-violet-bg:#252038; --pchip-violet-border:#4A3E73; --pchip-violet-ink:#B29EF0;
+  --pchip-green-bg:#16302A; --pchip-green-border:#2E5A44; --pchip-green-ink:#4FC58B;
+  --pchip-neutral-bg:#1A2533; --pchip-neutral-border:#34507A; --pchip-neutral-ink:#E6EDF5;
   --shadow:0 1px 2px rgba(15,45,82,.18);
 }
 [data-theme="sky"]{
@@ -78,6 +126,10 @@
   --muted:#bfd0e2; --line:#2b4968; --soft:#172e4b;
   --accent:#69b7ff; --accent-alt:#74d2d0; --success:#4fc58b; --warning:#f0bd52; --danger:#ff8278; --info:#69b7ff; --danger-bg:#3a2228; --warning-bg:#3a3119; --warning-ink:#f0bd52;
   --tag-bg:#173858; --tag-border:#31597d; --row-stripe:#102037; --row-hover:#1b3858; --th-bg:#18324f; --th-hover:#244363;
+  --pchip-blue-bg:#173858; --pchip-blue-border:#31597D; --pchip-blue-ink:#69B7FF;
+  --pchip-violet-bg:#252038; --pchip-violet-border:#4A3E73; --pchip-violet-ink:#B29EF0;
+  --pchip-green-bg:#16302A; --pchip-green-border:#2E5A44; --pchip-green-ink:#4FC58B;
+  --pchip-neutral-bg:#172E4B; --pchip-neutral-border:#2B4968; --pchip-neutral-ink:#ECF5FF;
   --shadow:0 1px 4px #0004;
 }
 [data-theme="ocean"]{
@@ -87,6 +139,10 @@
   --muted:#b5cdd3; --line:#2b4b65; --soft:#17324a;
   --accent:#43c6c8; --accent-alt:#71a9f7; --success:#59c69b; --warning:#e4b958; --danger:#fb7e7e; --info:#43c6c8; --danger-bg:#3a2222; --warning-bg:#3a3320; --warning-ink:#e4b958;
   --tag-bg:#14394a; --tag-border:#2c5966; --row-stripe:#0f2234; --row-hover:#19384e; --th-bg:#173349; --th-hover:#24465d;
+  --pchip-blue-bg:#14394A; --pchip-blue-border:#2C5966; --pchip-blue-ink:#43C6C8;
+  --pchip-violet-bg:#242A4A; --pchip-violet-border:#404B7A; --pchip-violet-ink:#A99BF0;
+  --pchip-green-bg:#143A31; --pchip-green-border:#2B5A4A; --pchip-green-ink:#59C69B;
+  --pchip-neutral-bg:#17324A; --pchip-neutral-border:#2B4B65; --pchip-neutral-ink:#E8F6F8;
   --shadow:0 1px 4px #0004;
 }
 [data-theme="presentation"]{
@@ -96,6 +152,10 @@
   --muted:#d8d8d8; --line:#3a3a3a; --soft:#202020;
   --accent:#55aaff; --accent-alt:#c69bff; --success:#55d68b; --warning:#ffd166; --danger:#ff6b6b; --info:#55aaff; --danger-bg:#3a1f1f; --warning-bg:#3a3320; --warning-ink:#ffd166;
   --tag-bg:#202020; --tag-border:#505050; --row-stripe:#141414; --row-hover:#252525; --th-bg:#202020; --th-hover:#303030;
+  --pchip-blue-bg:#202020; --pchip-blue-border:#505050; --pchip-blue-ink:#55AAFF;
+  --pchip-violet-bg:#2A2233; --pchip-violet-border:#55486B; --pchip-violet-ink:#C69BFF;
+  --pchip-green-bg:#1F2E23; --pchip-green-border:#3D5A44; --pchip-green-ink:#55D68B;
+  --pchip-neutral-bg:#202020; --pchip-neutral-border:#3A3A3A; --pchip-neutral-ink:#FFFFFF;
   --shadow:0 1px 4px #0006;
 }
 *{box-sizing:border-box}html,body{height:100%;overflow:hidden;margin:0}body{display:flex;flex-direction:column;background:var(--bg);color:var(--text);font:13px/1.45 var(--font-ui);transition:background .25s,color .25s}button,input,select{font:inherit;color:inherit}button{cursor:pointer}
@@ -171,9 +231,9 @@ body.loaded .app{display:flex;flex-direction:column;height:100vh;min-height:0;ov
 .sb-menu{display:flex;flex-direction:column}
 .sb-bottom{display:flex;flex-direction:column;margin-top:auto}
 .page-links{display:flex;flex-direction:column}
-.page-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:#dfe8f3;font-size:14px;border:0;background:transparent;text-align:left}
-.page-link:hover{background:rgba(255,255,255,.1)}
-.page-link.active{background:var(--blue);color:#fff;font-weight:600}
+.page-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:var(--nav-fg);font-size:14px;border:0;background:var(--nav-bg);text-align:left}
+.page-link:hover{background:var(--nav-bg-hover)}
+.page-link.active{background:var(--nav-bg-active);color:var(--nav-fg);font-weight:600}
 .small-note{color:rgba(255,255,255,.6);font-size:12px;margin:2px 0}
 .file-item{display:flex;gap:8px;align-items:baseline;font-size:12px;color:rgba(255,255,255,.75)}
 .file-item span{color:#bfe0ff;font-weight:700;min-width:34px}
@@ -183,10 +243,9 @@ body.loaded .app{display:flex;flex-direction:column;height:100vh;min-height:0;ov
 .resize-handle{position:absolute;top:0;right:0;width:5px;height:100%;cursor:col-resize}
 .resize-handle:hover{background:rgba(255,255,255,.25)}
 .content{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg)}
-/* §3.1 / §3.3 — there is no content toolbar. The active page is shown at the right of the title bar,
-   and the layout toggle is an icon control at the right end of the menu bar. */
+/* §3.1 / §3.3 — there is no content toolbar. The active page is shown at the right of the title bar.
+   I142 — the layout control is a select in the Settings panel, not a menu-bar icon control. */
 .app-top .page-title{font-size:16px;font-weight:600;line-height:1.2;color:#fff;white-space:nowrap;flex-shrink:0}
-.app-menu #layout-button{padding:7px 8px;flex-shrink:0;margin-left:auto}
 .spacer{flex:1}
 .filter-area{padding:0 16px}
 /* Search popover — MDL design: .tf-panel.search-panel > .search-row > .search + Find / Reset */
@@ -271,7 +330,11 @@ body[data-layout="three"] .panel-grid{grid-template-columns:repeat(3,minmax(0,1f
 }
 /* §5 — KPI cards: 3 px status strip, 8 px radius, 10 px padding, 72 px high, no shadow.
    Value and label only. Do not set line-height: the inherited 1.45 makes the 72 px height. */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:18px}
+/* §5 rev 1.87 / I144 — six columns at wide widths, three at ≤1100 px, two at ≤880 px.
+   auto-fit is forbidden here because it can yield five or four columns. */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:18px}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:880px){.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .kpi-card{box-sizing:border-box;height:72px;padding:10px;border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;background:var(--surface);box-shadow:none}
 .kpi-card .v{font-size:22px;font-weight:700;color:var(--navy)}
 .kpi-card .l{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:2px}
@@ -306,6 +369,22 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .summary-chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
 .vchip{font-size:11px;padding:3px 10px;border-radius:6px;font-weight:700;text-transform:capitalize;line-height:1.4}
 .vchip.e{background:var(--danger-bg);color:var(--danger)}.vchip.w{background:var(--warning-bg);color:var(--warning-ink)}.vchip.i{background:var(--tag-bg);color:var(--info)}
+/* §4 rev 1.92 — panel count chips (dedicated; no selector or token shared with .vchip). Height is
+   equal to .vchip: 11px x 1.4 line + 2px x 2 padding + 1px x 2 border = 21.4px. */
+.pchip-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0}
+.v-chip-row{margin-bottom:12px}
+.pchip{display:inline-flex;align-items:center;gap:7px;padding:2px 10px;border-radius:6px;border:1px solid;
+  font-size:11px;font-weight:700;line-height:1.4;color:var(--text2)}
+.pchip b{font-size:13px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.pchip-filter{display:block;width:11px;height:11px}
+.pchip.blue{background:var(--pchip-blue-bg);border-color:var(--pchip-blue-border)}
+.pchip.blue b,.pchip.blue .pchip-filter{color:var(--pchip-blue-ink)}
+.pchip.violet{background:var(--pchip-violet-bg);border-color:var(--pchip-violet-border)}
+.pchip.violet b,.pchip.violet .pchip-filter{color:var(--pchip-violet-ink)}
+.pchip.green{background:var(--pchip-green-bg);border-color:var(--pchip-green-border)}
+.pchip.green b,.pchip.green .pchip-filter{color:var(--pchip-green-ink)}
+.pchip.neutral{background:var(--pchip-neutral-bg);border-color:var(--pchip-neutral-border)}
+.pchip.neutral b,.pchip.neutral .pchip-filter{color:var(--pchip-neutral-ink)}
 .status-bar{flex:none;display:flex;align-items:center;gap:8px;background:var(--navy);color:var(--surface3);font-size:12px;padding:6px 14px;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
 .status-bar #status-right{margin-left:auto;opacity:.85}
 /* ===== Modals ===== */
@@ -318,7 +397,7 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .setting{display:flex;align-items:center;gap:8px;font-size:14px}
 .setting select{padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)}
 .setting input[type=checkbox]{width:16px;height:16px}
-/* §5 — the KPI grid needs no breakpoint: auto-fit with a 210 px floor drops columns by itself. */
+/* §5 rev 1.87 — the KPI grid breakpoints are declared at the .kpi-grid rule above. */
 @media(max-width:1099px){.panel-grid,body[data-layout="three"] .panel-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:879px){.panel-grid,body[data-layout="two"] .panel-grid,body[data-layout="three"] .panel-grid{grid-template-columns:1fr}}
 /* ===== C1 Schedule Performance S-Curve (workplan D35) ===== */
@@ -489,6 +568,9 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
   --c3-tool-gap:10px;      /* gap between the control groups inside the tool row */
   --c3-axis-label-h:18px;  /* x-axis label height (§4.2 rev 1.79) */
   --c3-plot-table-gap:calc(var(--c3-axis-label-h) / 3); /* plot→table gap = 6 px, scales with the label height */
+  /* §4.2 rev 1.83 / I139 — fixed donut height so the Pie view keeps the Bar row height; the value
+     is measured against the Bar cards' geometry (head + controls + legend + plot + table). */
+  --c3-pie-h:374px;
 }
 /* §4.2 rev 1.80 — the tool row carries --c3-tool-pad on ALL FOUR sides and margin 0, identical in
    the two chart cards and the summary card. In a chart card a scoped negative margin cancels the
@@ -537,9 +619,15 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .seg-bar.c3-rej{background:var(--color-rej)} .seg-bar.c3-inf{background:var(--color-inf)}
 /* §4.2 rev 1.80 — the minimized bar-plot → attached-table gap is the derived token and scales
    with the x-axis label height (6 px at the default 18 px label height; rev 1.79 superseded). */
-.c3-table{grid-column:1 / -1;grid-row:2;width:100%;min-width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;background:transparent;font-size:12px;color:var(--text);margin-top:var(--c3-plot-table-gap)}
+/* §4.2 rev 1.81 — part 7 (attached table zone). One outer border with the general 10 px rounding:
+   the zone is separated from the plot by --c3-plot-table-gap, so the borders never overlap and no
+   right angle applies. overflow:hidden lets the radius clip the corner cells. */
+.c3-table{grid-column:1 / -1;grid-row:3;width:100%;min-width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;background:var(--surface);font-size:12px;color:var(--text);margin-top:var(--c3-plot-table-gap);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .c3-table caption{position:absolute;width:1px;height:1px;padding:0;margin:0;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0}
 .c3-table th,.c3-table td{position:relative;box-sizing:border-box;padding:4px 3px;border-top:1px solid var(--border);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+/* §7.2 rev 1.81 — the table's own outer border is the top edge, so the header row drops its rule
+   and no doubled 2 px line appears at the top of the zone. */
+.c3-table thead th{border-top:0}
 .c3-table thead th.g-corner{text-align:left;color:var(--text2);font-size:11px;font-weight:700;background:var(--surface2)}
 .c3-table thead th.g-axis{writing-mode:vertical-rl;text-orientation:mixed;text-align:left;color:var(--text2);font-size:11px;font-weight:600;height:56px;padding:2px 3px;overflow:hidden;white-space:nowrap;background:var(--surface2)}
 .c3-table tbody th.g-label{text-align:right;color:var(--text2);font-size:11px;font-weight:600;background:var(--surface2);padding-right:8px}
@@ -555,7 +643,7 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
    snap line is emitted after the bars and is positioned so it paints on top. The 8 % tokenised
    blue matches C1's `fill:var(--blue)` / `fill-opacity:.08`. The fallback uses the theme's own
    column-hover tint, so no browser ever paints a solid blue band. */
-.c3-col-band,.c3-col-snap{grid-column:2;grid-row:1;height:150px;pointer-events:none}
+.c3-col-band,.c3-col-snap{grid-column:2;grid-row:2;height:150px;pointer-events:none}
 .c3-col-band{background:var(--table-col-hover);background:color-mix(in srgb,var(--blue) 8%,transparent)}
 .c3-col-snap{position:relative}
 .c3-col-snap::after{content:"";position:absolute;left:50%;top:0;height:150px;width:1px;background:repeating-linear-gradient(to bottom,var(--text3) 0 3px,transparent 3px 6px)}
@@ -567,12 +655,32 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .c3-table tr > [data-col-id].col-active.cell-hover{background:var(--table-cell-hover);font-weight:700;box-shadow:inset 0 0 0 1px var(--table-crosshair-ring)}
 @media print{.c3-col-band,.c3-col-snap{display:none!important}.c3-grid > .g-bar.col-active{background:transparent!important}}
 /* ===== C3 y-axis grid lines + numbers (I060), matching C1/C2 ===== */
-.c3-gridlines{background-image:repeating-linear-gradient(to top,var(--border) 0,var(--border) 1px,transparent 1px,transparent 25%);background-color:transparent;pointer-events:none}
+/* §4.2 rev 1.64 / rev 1.82 — grid lines are per-tick rules that follow the dynamic nice-number
+   tick list (the fixed 4-interval gradient is gone), so an uneven interval count paints correctly. */
+.c3-gridlines{position:relative;background-color:transparent;pointer-events:none}
+.c3-gridlines .g-gridline{position:absolute;left:0;right:0;height:1px;background:var(--border)}
+/* §4.2 rev 1.81 — parts 5 / 6 (y-axis zone and plot zone). Overlay grid items with no content, so
+   the tick, bar and gridline geometry is unchanged. The two zones meet on the column-1 / column-2
+   edge, so their shared corners are right angles; the other corners keep the 10 px radius. */
+/* §4.2 rev 1.83 / I139 — the two bordered zones span the legend band (grid row 1) AND the plot
+   band (grid row 2), so the border encloses the in-SVG legend above the plot content — exactly the
+   C1 model. The zones still meet on the column-1 / column-2 edge, so their shared corners stay
+   right angles; the other corners keep the 10 px radius. */
+.c3-yaxis-zone,.c3-plot-zone{grid-row:1 / 3;box-sizing:border-box;border:1px solid var(--border);background:transparent;pointer-events:none}
+.c3-yaxis-zone{border-radius:10px 0 0 10px}
+.c3-plot-zone{border-radius:0 10px 10px 0}
+/* §4.2 rev 1.81 / rev 1.83 — the Pie / donut view carries the bordered plot zone as well, and the
+   donut height is the --c3-pie-h token so toggling views does not change the panel height (I139). */
+.c3-card > svg.c3-svg{border:1px solid var(--border);border-radius:10px;background:var(--surface);box-sizing:border-box;height:var(--c3-pie-h)}
 .g-yaxis{height:150px;position:relative;pointer-events:none}
 .g-ytick{position:absolute;right:0;transform:translateY(-50%);font-size:10px;line-height:1;color:var(--text2);text-align:right;padding-right:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
-/* I133 — the C3 legend sits ABOVE the chart in both Bar and Pie views. */
-.c3-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 6px 2px}
-.c3-leg{display:inline-flex;align-items:center;font-size:11px;color:var(--text2)}
+/* §4.2 rev 1.82 — the rotated side unit caption, exactly the C1 Y-axis contract. */
+.g-yaxis .g-ycap{position:absolute;left:8px;top:50%;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;text-orientation:mixed;font-size:10px;font-weight:700;letter-spacing:.02em;color:var(--text2);white-space:nowrap}
+/* §4.2 rev 1.83 / I139 — the in-SVG legend sits INSIDE the plot-zone border, above the plot content,
+   exactly the C1 model, so PNG / Copy serialize it with the plot. The HTML `.c3-legend` element
+   type is retired. On Bar cards the strip is a `.c3-grid` item (row 1, plot columns); on Pie cards
+   the legend `<g>` lives inside the donut svg and this strip rule does not apply. */
+.c3-legend-svg{display:block;width:100%;height:auto;margin:0}
 .c3-swatch{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:5px}
 .c3-swatch.c3-new{background:var(--color-new)}
 .c3-swatch.c3-resub{background:var(--color-resub)}
@@ -682,9 +790,9 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 .c2-funnel-val{fill:var(--text);font-size:12px}
 /* D41 — Submittals panel: one row per document, consolidated toggleable history */
 .table-tools{position:relative;display:flex;align-items:center;gap:8px;margin:0 0 8px;flex-wrap:wrap}
-/* D41/I108/I109 — Submittals panel: optional summary line above the control row (spec §4, matches Forward/Overdue .note) */
-.panel-summary{margin:6px 0;font-size:13px;line-height:1.5;color:var(--text2);display:flex;gap:12px;flex-wrap:wrap}
-.table-tools .csv-btn{margin-left:auto}
+/* §4 rev 1.92 — the Submittals summary is now a `.pchip-row` above the card; `.panel-summary` is retired. */
+/* I148 — tool rows split filters LEFT (`.pg-left`) from actions RIGHT (`.pg-right` / `.fo-right`,
+   both `margin-left:auto`); the retired csv-btn-specific auto-margin rule is gone. */
 /* I107 — Submittals month filter */
 .sub-month-lbl{font-size:11px;color:var(--text2);margin-left:4px}
 .sub-month{border:1px solid var(--border);border-radius:6px;padding:4px 6px;background:var(--surface);color:var(--text)}
@@ -761,9 +869,14 @@ table.ds td.empty,table.ds td .empty{color:var(--text3);text-align:center;paddin
 /* Revision 2.19 | 2026-11-14 | CodeBuddy (AI) | I133 — the Breakdown page owns THREE independent
    panels. Row 1 holds the two chart panels, row 2 holds the full-width summary. The grid is
    page-scoped, so the global `body[data-layout]` button keeps its behaviour on other pages.
-   §4.7 / §8.2 assertion 19 require 14 px between top-level panels. */
-body .panel-grid.breakdown-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--panel-gap);align-items:start}
-body .breakdown-grid > .panel{margin:0}
+   §4.7 / §8.2 assertion 19 require 14 px between top-level panels.
+   §4.2 rev 1.83 / I139 — the two chart panels MUST share one height: default grid stretch replaces
+   `align-items:start`, and the card fills its panel through a flex chain, so the shorter table
+   cannot pull its panel shorter. */
+body .panel-grid.breakdown-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--panel-gap)}
+body .breakdown-grid > .panel{margin:0;display:flex;flex-direction:column}
+body .breakdown-grid > .panel > .panel-body{display:flex;flex-direction:column;flex:1;min-height:0}
+body .breakdown-grid .c3-card,body .breakdown-grid .c-card{flex:1;min-height:0}
 body .breakdown-grid > .panel:nth-child(3){grid-column:1 / -1}
 @media(max-width:879px){
   body .panel-grid.breakdown-grid{grid-template-columns:minmax(0,1fr)}

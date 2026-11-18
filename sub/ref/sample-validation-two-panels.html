@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Validation — two panels with chip subtitles (review sample)</title>
+<style>
+  :root{
+    --navy:#15314f; --blue:#2b6cf6; --green:#17a67a; --amber:#F9A825; --red:#d23b3b;
+    --bg:#eef2f8; --surface:#FFFFFF; --surface2:#F1F5F9; --surface3:#E8EDF3;
+    --border:#D9E1E8; --text:#1F2A37; --text2:#526171; --text3:#6b7785;
+    --tag-bg:#EAF2FB; --th-bg:#E8EDF3; --row-stripe:#F7F9FB; --row-hover:#EAF2FB;
+    --danger-bg:#fdecec; --danger:#a11; --warning-bg:#fff3cd; --warning-ink:#8a6d00; --info:#555;
+    --pchip-violet-bg:#f3e8fd; --pchip-violet-border:#d9c2f0; --pchip-violet-ink:#6b2fa0;
+    --pchip-green-bg:#e6f6ef; --pchip-green-border:#b7e3cf; --pchip-green-ink:#146b4f;
+    --pchip-neutral-bg:#eef2f7; --pchip-neutral-border:#d3dce6; --pchip-neutral-ink:#475569;
+    --panel-pad:14px; --panel-title-gap:10px;
+    --font-ui:'Segoe UI',system-ui,-apple-system,'Inter',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 var(--font-ui)}
+  .shell{display:flex;min-height:100vh}
+  .leftbar{width:180px;background:var(--navy);color:#cfd6df;padding:10px;flex-shrink:0}
+  .leftbar .nav{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+  .leftbar .nav button{display:block;width:100%;text-align:left;background:transparent;border:0;
+    color:#cfd6df;padding:9px 12px;border-radius:6px;font-size:14px;cursor:pointer}
+  .leftbar .nav button.active{background:#354F6E;color:#E8EDF3;font-weight:600}
+  .content{flex:1;padding:16px;min-width:0}
+  .topbar{background:var(--navy);color:#fff;display:flex;align-items:center;min-height:46px;
+    padding:0 20px;font-size:12px;font-weight:600;margin:-16px -16px 16px}
+  .page-title{font-size:20px;font-weight:700;color:var(--navy);margin:0 0 14px}
+
+  /* Two stacked top-level panels. Numbers follow document order (spec §4). */
+  .panel{margin:0 0 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    padding:var(--panel-pad) var(--panel-pad) 26px;position:relative;min-width:0}
+  .panel:last-of-type{margin-bottom:0}
+  .panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 var(--panel-title-gap)}
+  .panel h2{margin:0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    color:var(--navy);line-height:1.4}
+  .panel-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+  .panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;bottom:8px;
+    font-size:10px;letter-spacing:.04em;color:var(--text3);pointer-events:none}
+  .icon-btn{width:28px;height:28px;border:1px solid var(--border);background:var(--surface);
+    border-radius:6px;cursor:pointer;font-size:14px;line-height:1;color:var(--navy)}
+  .panel-body{min-width:0}
+
+  /* One chip row in each panel. .pchip gives dataset counts; .vchip gives severity totals. */
+  .pchip-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 12px}
+  .pchip{display:inline-flex;align-items:center;gap:7px;padding:2px 10px;border-radius:6px;
+    border:1px solid;font-size:11px;font-weight:700;line-height:1.4}
+  .pchip b{font-size:13px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+  .pchip.violet{background:var(--pchip-violet-bg);border-color:var(--pchip-violet-border);color:var(--pchip-violet-ink)}
+  .pchip.violet b{color:var(--pchip-violet-ink)}
+  .pchip.green{background:var(--pchip-green-bg);border-color:var(--pchip-green-border);color:var(--pchip-green-ink)}
+  .pchip.green b{color:var(--pchip-green-ink)}
+  .pchip.neutral{background:var(--pchip-neutral-bg);border-color:var(--pchip-neutral-border);color:var(--pchip-neutral-ink)}
+  .pchip.neutral b{color:var(--pchip-neutral-ink)}
+  .vchip{font-size:11px;font-weight:700;line-height:1.4;padding:3px 10px;border-radius:6px;text-transform:capitalize}
+  .vchip.e{background:var(--danger-bg);color:var(--danger)}
+  .vchip.w{background:var(--warning-bg);color:var(--warning-ink)}
+  .vchip.i{background:var(--tag-bg);color:var(--info)}
+
+  /* Card and tables. */
+  .c-card{border:0;margin:0}
+  .table-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 8px}
+  .pg-left,.pg-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .pg-right{margin-left:auto}
+  .pg-btn,.btn-secondary,.v-code,.v-page{border:1px solid var(--border);border-radius:6px;
+    padding:4px 10px;background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:12px}
+  .pg-btn:disabled{opacity:.45;cursor:default}
+  .pg-jump{font-size:12px;color:var(--text2);display:inline-flex;align-items:center;gap:4px}
+  .pg-total{font-size:12px;color:var(--text2)}
+  .ds-split{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .vheadwrap{overflow:hidden;background:var(--th-bg)}
+  .tableScroll{overflow:auto;max-height:360px}
+  .ds-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+  .ds-table.vheadtab th{background:var(--th-bg);text-align:left;padding:8px 10px;
+    border-bottom:1px solid var(--border);font-weight:600;color:var(--text2)}
+  .ds-table td{padding:7px 10px;border-bottom:1px solid var(--surface3);white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis}
+  .ds-table tbody tr:nth-child(even){background:var(--row-stripe)}
+  .ds-table tbody tr:hover{background:var(--row-hover)}
+  .ds-table td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .ds-pinned{position:sticky;left:0;z-index:2;background:var(--surface)}
+  .ds-pinned.second{left:90px}
+  .sev{font-weight:700}
+  .sev.Error{color:var(--red)} .sev.Warning{color:var(--amber)} .sev.Info{color:var(--blue)}
+  .legend{margin:14px 0 0;font-size:11px;color:var(--text3)}
+  .column-chooser{border:1px solid var(--border);border-radius:8px;padding:10px;margin-top:6px;
+    background:var(--surface);max-width:360px}
+  .column-chooser[hidden]{display:none}
+  .cc-item{display:block;font-size:12px;margin:2px 0}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="leftbar">
+    <div style="font-weight:600;font-size:14px">TWRP C3B2</div>
+    <div class="nav">
+      <button>Overview</button>
+      <button>Breakdown</button>
+      <button>Submittals</button>
+      <button class="active">Validation</button>
+      <button>Forward and Overdue</button>
+      <button>Analytical</button>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="topbar">TWRP C3B2 · Document Submittal Dashboard</div>
+    <h1 class="page-title">Validation</h1>
+
+    <!-- Panel 1: rule reference. Chip subtitle + Rules table. The panel-level meta note stays here. -->
+    <section class="panel full" data-panel="1">
+      <header class="panel-head">
+        <h2>Validation Rules</h2>
+        <div class="panel-actions">
+          <button class="icon-btn" title="Help" aria-label="Help for Validation Rules">?</button>
+          <button class="icon-btn" title="Collapse" aria-label="Collapse Validation Rules">−</button>
+        </div>
+      </header>
+      <div class="panel-body">
+        <div class="pchip-row" data-panel-subtitle>
+          <span class="pchip violet" data-pchip="violet" data-pchip-count="48">Loaded rules <b>48</b></span>
+          <span class="pchip neutral" data-pchip="neutral" data-pchip-count="4">Fired rules <b>4</b></span>
+        </div>
+        <div class="c-card v-section">
+          <div class="table-tools">
+            <div class="pg-right">
+              <button class="btn-secondary">⤓ CSV</button>
+              <button class="btn-secondary">Columns</button>
+            </div>
+          </div>
+          <div class="ds-split splitcard">
+            <div class="vheadwrap">
+              <table class="ds-table vheadtab">
+                <colgroup><col style="width:110px"><col style="width:90px"><col style="width:130px"><col style="width:420px"><col style="width:70px"></colgroup>
+                <thead><tr><th scope="col">Severity</th><th scope="col">Code</th><th scope="col">Group</th><th scope="col">Description</th><th scope="col">Count</th></tr></thead>
+              </table>
+            </div>
+            <div class="tableScroll">
+              <table class="ds-table">
+                <colgroup><col style="width:110px"><col style="width:90px"><col style="width:130px"><col style="width:420px"><col style="width:70px"></colgroup>
+                <tbody>
+                  <tr><td><span class="sev Error">Error</span></td><td>W-FIELD</td><td>Business rule</td><td>Discipline value is missing on this Submittal Log row and is needed for grouping.</td><td class="num">142</td></tr>
+                  <tr><td><span class="sev Warning">Warning</span></td><td>W-DATE</td><td>Business rule</td><td>Planned 1st Issue Date is after the as-of month and delays the forward forecast.</td><td class="num">798</td></tr>
+                  <tr><td><span class="sev Info">Info</span></td><td>I-DUP</td><td>Data quality</td><td>Duplicate Document No. was found across two sheets and marked for review.</td><td class="num">72</td></tr>
+                  <tr><td><span class="sev Error">Error</span></td><td>W-FORMULA</td><td>Workbook</td><td>Spreadsheet formula error token was normalized and aggregated into one warning.</td><td class="num">12</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panel 2: issues. One chip row holds the count chips and the severity chips. -->
+    <section class="panel full" data-panel="2">
+      <header class="panel-head">
+        <h2>Validation Issues</h2>
+        <div class="panel-actions">
+          <button class="icon-btn" title="Help" aria-label="Help for Validation Issues">?</button>
+          <button class="icon-btn" title="Collapse" aria-label="Collapse Validation Issues">−</button>
+        </div>
+      </header>
+      <div class="panel-body">
+        <div class="pchip-row" data-panel-subtitle>
+          <span class="pchip green" data-pchip="green" data-pchip-count="1024">All issues <b id="allCount">1,024</b></span>
+          <span class="pchip neutral" data-pchip="neutral" data-pchip-count="1024">Shown issues <b id="shownCount" data-validation-count>1,024</b></span>
+          <span class="vchip e">Error 154</span>
+          <span class="vchip w">Warning 798</span>
+          <span class="vchip i">Info 72</span>
+        </div>
+        <div class="c-card v-section">
+          <div class="table-tools">
+            <div class="pg-left">
+              <button class="pg-btn" data-pg="prev" disabled>‹ Prev</button>
+              <label class="pg-jump">Page <select class="v-page" id="vPage"></select><span id="vTotal"> / 6</span></label>
+              <button class="pg-btn" data-pg="next">Next ›</button>
+              <span class="pg-total" id="totalRows">1,024 rows</span>
+              <select class="v-code" id="vcode" aria-label="Filter by error code">
+                <option value="ALL">All codes</option>
+                <option value="W-FIELD">W-FIELD</option>
+                <option value="W-DATE">W-DATE</option>
+                <option value="I-DUP">I-DUP</option>
+                <option value="W-FORMULA">W-FORMULA</option>
+              </select>
+            </div>
+            <div class="pg-right">
+              <button class="btn-secondary" id="csvBtn">⤓ CSV</button>
+              <button class="btn-secondary" id="ccBtn" aria-expanded="false">Columns</button>
+            </div>
+          </div>
+          <div class="ds-split splitcard">
+            <div class="vheadwrap">
+              <table class="ds-table vheadtab">
+                <colgroup><col style="width:90px"><col style="width:90px"><col style="width:120px"><col style="width:110px"><col style="width:130px"><col style="width:360px"><col style="width:100px"><col style="width:70px"></colgroup>
+                <thead><tr><th scope="col" class="ds-pinned">Severity</th><th scope="col" class="ds-pinned second">Rule</th><th scope="col">Doc No.</th><th scope="col">Field</th><th scope="col">Value</th><th scope="col">Message</th><th scope="col">Source Tab</th><th scope="col">Row</th></tr></thead>
+              </table>
+            </div>
+            <div class="tableScroll">
+              <table class="ds-table">
+                <colgroup><col style="width:90px"><col style="width:90px"><col style="width:120px"><col style="width:110px"><col style="width:130px"><col style="width:360px"><col style="width:100px"><col style="width:70px"></colgroup>
+                <tbody id="issueBody">
+                  <tr data-code="W-FIELD"><td class="ds-pinned"><span class="sev Error">Error</span></td><td class="ds-pinned second">W-FIELD</td><td>131236-WSW46-VI-I-0001</td><td>Discipline</td><td>(blank)</td><td>Discipline value is missing on this Submittal Log row.</td><td>SubmittalLog</td><td class="num">412</td></tr>
+                  <tr data-code="W-DATE"><td class="ds-pinned"><span class="sev Warning">Warning</span></td><td class="ds-pinned second">W-DATE</td><td>131236-WSW46-VI-I-0002</td><td>Planned 1st Issue Date</td><td>2027-03</td><td>Planned 1st Issue Date is after the as-of month.</td><td>MasterDocumentList</td><td class="num">88</td></tr>
+                  <tr data-code="I-DUP"><td class="ds-pinned"><span class="sev Info">Info</span></td><td class="ds-pinned second">I-DUP</td><td>131236-WSW46-VI-I-0003</td><td>Document No.</td><td>131236-WSW46</td><td>Duplicate Document No. was marked for review.</td><td>SubmittalLog</td><td class="num">77</td></tr>
+                  <tr data-code="W-FORMULA"><td class="ds-pinned"><span class="sev Error">Error</span></td><td class="ds-pinned second">W-FORMULA</td><td>131236-WSW46-VI-I-0004</td><td>Approval Status</td><td>#VALUE!</td><td>Formula error token was normalized to blank.</td><td>SubmittalLog</td><td class="num">310</td></tr>
+                  <tr data-code="W-FIELD"><td class="ds-pinned"><span class="sev Error">Error</span></td><td class="ds-pinned second">W-FIELD</td><td>131236-WSW46-VI-I-0005</td><td>Discipline</td><td>(blank)</td><td>Discipline value is missing on this Submittal Log row.</td><td>SubmittalLog</td><td class="num">419</td></tr>
+                  <tr data-code="W-DATE"><td class="ds-pinned"><span class="sev Warning">Warning</span></td><td class="ds-pinned second">W-DATE</td><td>131236-WSW46-VI-I-0006</td><td>Forecast 1st Issue Date</td><td>2027-01</td><td>Forecast date precedes the planned date.</td><td>MasterDocumentList</td><td class="num">140</td></tr>
+                  <tr data-code="I-DUP"><td class="ds-pinned"><span class="sev Info">Info</span></td><td class="ds-pinned second">I-DUP</td><td>131236-WSW46-VI-I-0007</td><td>Document No.</td><td>131236-WSW47</td><td>Duplicate Document No. was marked for review.</td><td>SubmittalLog</td><td class="num">55</td></tr>
+                  <tr data-code="W-FORMULA"><td class="ds-pinned"><span class="sev Error">Error</span></td><td class="ds-pinned second">W-FORMULA</td><td>131236-WSW46-VI-I-0008</td><td>Latest Approval Date</td><td>#VALUE!</td><td>Formula error token was normalized to blank.</td><td>SubmittalLog</td><td class="num">311</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <p class="legend">Review sample — two numbered panels, one chip row per panel, no card titles, and a code filter that changes the Issues panel only. The Rules panel and the severity chips do not change.</p>
+  </main>
+</div>
+
+<script>
+  const COUNTS = { 'W-FIELD':142, 'W-DATE':798, 'I-DUP':72, 'W-FORMULA':12 };
+  const ALL_COUNT = Object.values(COUNTS).reduce((sum, value) => sum + value, 0);
+  const PAGE_SIZE = 200;
+  const codeSel = document.getElementById('vcode');
+  const rows = Array.from(document.querySelectorAll('#issueBody tr'));
+  const shownCount = document.getElementById('shownCount');
+  const totalRows = document.getElementById('totalRows');
+  const vPage = document.getElementById('vPage');
+  const vTotal = document.getElementById('vTotal');
+  const prevBtn = document.querySelector('[data-pg="prev"]');
+  const nextBtn = document.querySelector('[data-pg="next"]');
+  let currentPage = 1;
+  let pages = 1;
+
+  function applyFilter(){
+    const code = codeSel.value;
+    for (const tr of rows) tr.hidden = code !== 'ALL' && tr.dataset.code !== code;
+    const filteredTotal = code === 'ALL' ? ALL_COUNT : (COUNTS[code] || 0);
+    pages = Math.max(1, Math.ceil(filteredTotal / PAGE_SIZE));
+    if (currentPage > pages) currentPage = pages;
+    vPage.innerHTML = Array.from({length: pages}, (_, i) =>
+      `<option value="${i + 1}"${i + 1 === currentPage ? ' selected' : ''}>${i + 1}</option>`).join('');
+    vTotal.textContent = ' / ' + pages;
+    totalRows.textContent = filteredTotal.toLocaleString() + ' rows';
+    shownCount.textContent = filteredTotal.toLocaleString();
+    shownCount.parentElement.dataset.pchipCount = String(filteredTotal);
+    prevBtn.disabled = currentPage <= 1;
+    nextBtn.disabled = currentPage >= pages;
+  }
+
+  function setPage(page){
+    currentPage = Math.min(Math.max(1, page), pages);
+    applyFilter();
+  }
+
+  vPage.addEventListener('change', () => setPage(Number(vPage.value)));
+  prevBtn.addEventListener('click', () => setPage(currentPage - 1));
+  nextBtn.addEventListener('click', () => setPage(currentPage + 1));
+  codeSel.addEventListener('change', () => { currentPage = 1; applyFilter(); });
+  applyFilter();
+
+  document.getElementById('csvBtn').addEventListener('click', () => {
+    const body = document.getElementById('issueBody');
+    const visible = Array.from(body.querySelectorAll('tr')).filter(tr => !tr.hidden);
+    const csvRows = [
+      ['Severity','Rule','Doc No.','Field','Value','Message','Source Tab','Row'],
+      ...visible.map(tr => Array.from(tr.querySelectorAll('td')).map(td => td.textContent.trim()))
+    ];
+    const csv = '\uFEFF' + csvRows.map(row => row.join(',')).join('\r\n');
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+    link.download = 'validation-issues-filtered.csv';
+    link.click();
+    URL.revokeObjectURL(link.href);
+  });
+
+  document.getElementById('ccBtn').addEventListener('click', function(){
+    let panel = document.getElementById('ccPanel');
+    if (!panel){
+      panel = document.createElement('div');
+      panel.id = 'ccPanel';
+      panel.className = 'column-chooser';
+      panel.innerHTML = '<label class="cc-item"><input type="checkbox" checked disabled> Severity</label>'
+        + '<label class="cc-item"><input type="checkbox" checked disabled> Rule</label>'
+        + '<label class="cc-item"><input type="checkbox" checked> Doc No.</label>'
+        + '<label class="cc-item"><input type="checkbox" checked> Field</label>'
+        + '<label class="cc-item"><input type="checkbox" checked> Value</label>'
+        + '<label class="cc-item"><input type="checkbox" checked> Message</label>'
+        + '<label class="cc-item"><input type="checkbox" checked> Source Tab</label>'
+        + '<label class="cc-item"><input type="checkbox" checked> Row</label>';
+      this.parentElement.appendChild(panel);
+    } else {
+      panel.hidden = !panel.hidden;
+    }
+    this.setAttribute('aria-expanded', String(!panel.hidden));
+  });
+</script>
+</body>
+</html>

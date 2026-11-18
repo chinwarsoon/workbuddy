@@ -1,3 +1,17 @@
+// Revision 0.39 | 2026-11-18 | CodeBuddy (AI) | §4.4 rev 1.94 / I150 — one test verifies the conditional drill column: All months and a multi-submission month keep the drill cell, expandable rows and locked Row chooser item; a single-submission month omits all of them and starts the six-column table at Document No. The spec copies are checked for rev 1.94. No existing assertion was weakened.
+// Revision 0.38 | 2026-11-18 | CodeBuddy (AI) | §4 rev 1.93 / I149 — the chip test is expanded to ten filter-state cases (T01–T10): no filters, global-only, month-only, combined, full-value selection, zero month, All-months hiding, month change, global-filter change and clearing filters; counts are checked against deriveView-derived truth and labels/funnel marks against the approved matrix. The I107 cumulative-total assertion follows the "Accumulated till" wording; no coverage was removed.
+// Revision 0.37 | 2026-11-18 | CodeBuddy (AI) | §4 rev 1.92 — one test proves the Submittals subtitle uses the standardized panel count chips: four families in order under a selected month with rule R1 funnels on all scoped chips, monthly chip hidden and no marks under All months, zero counts still rendered with the mark, all 12 --pchip-* tokens in all five themes, compact-equal chip metrics, .pchip/.vchip isolation, and the tokens present in the built standalone. The I108/I109 placement tests and the I107 cumulative-total assertion follow the chip markup; no coverage was removed.
+// Revision 0.36 | 2026-11-18 | CodeBuddy (AI) | §4 rev 1.91 / I148 — one placement test proves the tool-row split on all three surfaces: the Submittals row keeps the Month filter in `.pg-left` and opens `.pg-right` with the ⤓ CSV; the keyed Issues table renders its filter select inside `.pg-left` (with the pager) and `.pg-right` still opens with the ⤓ CSV; Forward and Overdue renders the view, horizon and lane segments before `.table-tools.fo-right`, which opens with the ⤓ CSV. No existing assertion was weakened.
+// Revision 0.35 | 2026-11-17 | CodeBuddy (AI) | §4.2 I147 — one placement test proves the Breakdown Summary ⤓ CSV renders INSIDE the panel's `.c3-controls` right tool group (right-aligned, like the chart panels' PNG / Copy actions) instead of on its own line above the summary table, with exactly one button on the page and no bare-path prepend. No existing assertion was weakened.
+// Revision 0.34 | 2026-11-17 | CodeBuddy (AI) | §4 rev 1.90 / I146 — one test proves the top-menu export covers every table: `collectExportTables()` harvests all data pages from an Overview start (C1, the three C3 tables, Submittals, Rules, Issues and the FO Look-Ahead table), the FO table carries clean cells with no markup, and the current page's registry is restored afterwards. No existing assertion was weakened.
+// Revision 0.33 | 2026-11-17 | CodeBuddy (AI) | §4 rev 1.89 / I145 amendment — one test covers the download file name: the prefix is the slugified MDL Code sheet Project Title (TWRP-C3B2), falling back to the same sheet's Project Code (C3B2) when the title is blank, with the current local date. model.meta.projectTitle / projectCode are asserted from the real workbooks. The I145 registry workbook-name assertion follows the model?.meta call form; no coverage was removed.
+// Revision 0.32 | 2026-11-17 | CodeBuddy (AI) | §4 rev 1.88 / I145 — export contract: every rendered table registers full filtered rows and all columns in one export registry, each visible table carries one ⤓ CSV before its image actions, the top menu uses hasAttribute for the bare data-export, and a zero-dependency XLSX writer produces one worksheet per table. Stale ⤓ Download / data-export-table assertions are updated to the new label and attribute; no coverage was removed.
+// Revision 0.31 | 2026-11-17 | CodeBuddy (AI) | §5 rev 1.87 / I144 — one test covers the KPI grid contract: six / three / two columns, two named breakpoints, no auto-fit in the KPI rule, and the same grid in the standalone build and all three approved reference samples. The follow-up adds sample-hover.html with its own 12 px card gap. No existing assertion was weakened.
+// Revision 0.30 | 2026-11-17 | CodeBuddy (AI) | §3.1 rev 1.86 / I142 — one test covers the Settings layout select: the menu-bar layout button and its click handler are gone, the Settings modal carries a labelled select with One / Two / Three, and state, localStorage, startup and repaint share one updateLayout() resolver. No existing assertion was weakened.
+// Revision 0.29 | 2026-11-16 | CodeBuddy (AI) | §4.2 rev 1.84 / I140 — the legend tests gain the left-inset contract: the first legend swatch in BOTH the Bar legend strip and the Pie donut legend starts at `translate(12,4)`, never on the plot-zone left edge shared with the y-axis. No existing assertion was weakened.
+// Revision 0.28 | 2026-11-16 | CodeBuddy (AI) | §4.2 rev 1.83 / I139 — the legend assertions move to the C1 inside-the-border model: the I133 test asserts the Bar legend svg as a `.c3-grid` item spanning the plot columns in row 1 with no separate strip in the Pie view (the legend `<g>` lives inside the donut `svg.c3-svg`); the rev 1.82 contract test is retitled to rev 1.83 and gains the zone row-span, table row 3, `--c3-pie-h` token and equal-height flex-chain asserts, the Pie clone export and the retired wrapper path (checked inside `serializeC3Svg` only); the I138 border test and the I131 band test follow the new grid rows. No assertion was weakened; the pre-existing data-dependent failures are unchanged.
+// Revision 0.27 | 2026-11-16 | CodeBuddy (AI) | §4.2 rev 1.78 / rev 1.82 / I135 — the C3 legend contract moves to the in-SVG standard: the I133 test now asserts ONE `svg.c3-legend-svg` holding the legend `<g>` ABOVE the chart in Bar and Pie views with no retired HTML element, and a new test covers the whole rev 1.82 contract — the retired `.c3-legend` / `.c3-leg` CSS rules are gone, the rotated "Documents" `.g-ycap` caption on every Bar card (and none in the Pie view), per-tick `.g-gridline` rules replacing the fixed gradient, dynamic tick-label counts within the rev 1.64 cap, and the PNG / Copy source contract that serializes the legend and caption with the plot. No existing assertion was weakened.
+// Revision 0.26 | 2026-11-16 | CodeBuddy (AI) | §4.2 rev 1.81 / §7.2 rev 1.81 / I138 — a new test covers the universal bordered chart composition on C3: the `.c3-yaxis-zone` / `.c3-plot-zone` overlay edges (1 px `--border`, right angles on the shared edge, 10 px outer corners), the Pie plot-zone border on the card's own `svg.c3-svg`, the `.c3-table` single outer border with the general rounding and the removed header rule, two overlay zones per Bar card in grid order, and no overlay zone in the Pie view. No existing assertion was weakened.
 // Revision 0.25 | 2026-11-15 | CodeBuddy (AI) | §4.2 rev 1.80 / I137 — a new test covers the universal named-token gap contract: the eight §6 tokens (including the derived `--c3-plot-table-gap`), the uniform four-side `--c3-tool-pad` tool row with `margin:0`, the scoped negative margin on the two chart cards only, the padding-free summary card, the derived `margin-top` on `.c3-table`, no hard-coded gap value in the governed rules, and three rendered tool rows with the summary tool row as its card's first child. No existing assertion was weakened.
 // Revision 0.24 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.75 — a new test covers the C1 visual contract on C3 Bar cards: ONE hidden `.c3-col-band` before the bars, ONE hidden `.c3-col-snap` after them, both moved by one resolver in both hover directions, no border / outline / inset ring on active column cells, and print / PNG / Copy suppression. The rev 1.74 print and export assertions now read the rev 1.75 rules. No existing assertion was weakened.
 // Revision 0.23 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.74 / I131 — a new test covers the general chart ↔ attached-table column sync on C3 Bar cards: shared `data-col-id` on `.g-bar` / headers / value cells, one opt-in two-way binder path, tooltip gating, clear-on-leave, no competing `.col-hover`, scoped tokenised CSS, print neutralisation, whole-card export stripping and unchanged C1 reference behaviour. No existing assertion was weakened.
@@ -33,8 +47,9 @@ import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { readXlsx } from '../engine/xlsx-reader.js';
+import { buildXlsx } from '../engine/xlsx-writer.js';
 import { buildModel } from '../engine/pipeline.js';
-import { c1TipHtml, c2DelayTipHtml, c1PlotSvg, niceAxisTicks, deriveView, renderDashboard, buildSubmittalsCsv, c1PresetRange, C1_PRESETS } from '../engine/render.js';
+import { c1TipHtml, c2DelayTipHtml, c1PlotSvg, niceAxisTicks, deriveView, renderDashboard, buildSubmittalsCsv, getExportTables, collectExportTables, exportFileName, c1PresetRange, C1_PRESETS } from '../engine/render.js';
 
 // The hover-window bindings in render.js bind to `window` and `document` (revision 0.62 series).
 // The harness supplies a fake `document` to renderDashboard but no `window`, so every rendering test
@@ -712,7 +727,7 @@ test('renders the Breakdown page with three independent panels (I133)', () => {
   assert.match(html, /data-c3panel="submissions"/, 'the Submissions panel owns its controls');
   assert.match(html, /data-c3panel="approval"/, 'the Approval Status panel owns its controls');
   assert.match(html, /data-c3panel="summary"/, 'the summary panel owns its controls');
-  assert.match(html, /data-c3export/, 'the summary panel carries the ⤓ Download control');
+  assert.match(html, /data-export-csv="c3-summary"/, 'the summary panel carries the ⤓ CSV control');
   assert.match(html, /class="c3-grid"/, 'each card keeps one bar-plot grid');
   assert.match(html, /<table class="c3-table"/, 'each card adds one native attached table');
   assert.match(html, /seg-bar c3-new/, 'First Submission bar drawn');
@@ -760,7 +775,7 @@ test('renders the C3 Breakdown summary table below the chart', () => {
   const fakeDocument = { querySelector(selector) { return selector === '[data-page-content]' ? rootNode : null; } };
   renderDashboard(fakeDocument, model, { page: 'Breakdown' });
   assert.match(html, /class="c3-summary"/);
-  assert.match(html, /data-c3export/, 'the summary table has a Download (CSV) button');
+  assert.match(html, /data-export-csv="c3-summary"/, 'the summary table has a ⤓ CSV button');
   assert.match(html, /class="ds-table"/, 'the summary uses the shared table style (§7.2)');
   for (const head of ['Total Plan', 'New Submissions', 'Resubmissions', 'Total Submitted', 'Total Approved', 'Total AWC', 'Total Under Review'])
     assert.match(html, new RegExp(head), `column ${head} is present`);
@@ -821,7 +836,7 @@ test('I133: the three Breakdown panels each own one control cluster (Month per p
     assert.match(html, new RegExp(`data-c3month data-c3panel="${panel}"`), `the ${panel} Month control writes only to its panel`);
   assert.match(html, /data-c3dim="submitter"/, 'the chart panels expose the Break-down-by toggle');
   assert.equal((html.match(/data-c3view=/g) || []).length, 4, 'only the chart panels carry the Bar/Pie toggle (two buttons each)');
-  assert.equal((html.match(/data-c3export/g) || []).length, 1, 'only the summary panel carries ⤓ Download');
+  assert.equal((html.match(/data-export-csv="c3-summary"/g) || []).length, 1, 'the summary panel carries one ⤓ CSV button');
   // I134 — PNG / Copy render inside each chart card's ONE tool row (no separate head row).
   assert.equal((html.match(/class="c3-card-ctrls"/g) || []).length, 0, 'no separate PNG/Copy head row on the chart cards');
   assert.equal((html.match(/data-c3png/g) || []).length, 2, 'one ⤓ PNG per chart card');
@@ -843,10 +858,16 @@ test('I133: the three Breakdown panels each own one control cluster (Month per p
   assert.match(html, /class="g-label"/, 'metric labels keep the row class');
   assert.match(html, /class="g-val"/, 'values keep the value class');
   // I060: C3 bars get a y-axis with grid lines + numbers, matching C1/C2.
+  // §4.2 rev 1.64 / rev 1.82 — the tick list is dynamic (intervals = min(7, floor(150/40)) = 3) and
+  // each card carries the rotated "Documents" unit caption.
   assert.match(html, /class="c3-gridlines"/, 'C3 bars get horizontal y-axis grid lines (I060)');
   assert.match(html, /class="g-yaxis"/, 'C3 bars get a y-axis number column (I060)');
-  assert.equal((html.match(/class="g-ytick"/g) || []).length, 10, 'five right-aligned tick numbers per card (2 cards)');
-  assert.match(html, /class="g-ytick"[^>]*>0</, 'the bottom tick is 0 (nice-max axis)');
+  assert.equal((html.match(/class="g-ycap"/g) || []).length, 2, 'each Bar card carries the rotated "Documents" unit caption (rev 1.82)');
+  const tickCounts = html.split('class="g-yaxis"').slice(1).map(seg => (seg.match(/class="g-ytick"/g) || []).length);
+  assert.equal(tickCounts.length, 2, 'one y-axis per Bar card');
+  for (const n of tickCounts) assert.ok(n >= 2 && n <= 4, `dynamic tick labels per card, at most four for the 150 px plot (got ${n})`);
+  assert.match(html, /class="g-ytick"[^>]*>0</, 'the bottom tick is 0 (nice axis)');
+  assert.equal((html.match(/class="g-gridline"/g) || []).length, tickCounts[0] + tickCounts[1], 'one grid line per tick (rev 1.64)');
   const plannedDiscs = [...new Set(model.planned.map(r => r.discipline).filter(Boolean))];
   for (const d of plannedDiscs) assert.ok(html.includes(d), `discipline ${d} listed (full MDL set shown)`);
 });
@@ -966,7 +987,7 @@ test('§4.2 rev 1.75 — C3 Bar column highlighting follows the C1 band / centre
   assert.ok(css.includes('.c3-col-band{background:var(--table-col-hover);background:color-mix(in srgb,var(--blue) 8%,transparent)}'), 'the band uses ONE 8 % tokenised fill');
   assert.ok(css.includes('.c3-col-snap::after{content:"";position:absolute;left:50%'), 'the centre line sits at the column centre');
   assert.ok(css.includes('repeating-linear-gradient(to bottom,var(--text3) 0 3px,transparent 3px 6px)'), 'the centre line uses the C1 3 3 dash');
-  assert.ok(css.includes('.c3-col-band,.c3-col-snap{grid-column:2;grid-row:1;height:150px;pointer-events:none}'), 'both follow the grid tracks');
+  assert.ok(css.includes('.c3-col-band,.c3-col-snap{grid-column:2;grid-row:2;height:150px;pointer-events:none}'), 'both follow the grid tracks');
   assert.ok(css.includes('.sc-hover-band{fill:var(--blue);fill-opacity:.08;'), 'C1 keeps its reference band');
   assert.ok(/\.chart-snap\{stroke:var\(--text3\)/.test(css), 'C1 keeps its reference centre line');
 
@@ -1005,10 +1026,10 @@ test('I133 — the three Breakdown panels each own their own c3Month / c3Dim / c
   assert.match(appPanel, /data-c3dim="submitter" data-c3panel="approval" aria-pressed="true"/, 'Approval Status owns dim = submitter');
   assert.match(appPanel, /data-c3dim="discipline" data-c3panel="approval" aria-pressed="false"/, 'Approval Status does not inherit another panel dim');
   assert.match(sumPanel, /data-c3dim="submitter" data-c3panel="summary" aria-pressed="true"/, 'the summary panel owns dim = submitter');
-  assert.match(sumPanel, /data-c3export/, 'the summary panel keeps its ⤓ Download');
+  assert.match(sumPanel, /data-export-csv="c3-summary"/, 'the summary panel keeps its ⤓ CSV');
 });
 
-test('I133 — each C3 legend sits ABOVE its chart in the Bar and the Pie view', () => {
+test('I133 / §4.2 rev 1.83 — each C3 legend is an in-SVG <g> INSIDE the bordered plot area, above its chart', () => {
   let bar = '', pie = '';
   const barNode = { set innerHTML(value) { bar = value; }, get innerHTML() { return bar; } };
   const pieNode = { set innerHTML(value) { pie = value; }, get innerHTML() { return pie; } };
@@ -1016,18 +1037,82 @@ test('I133 — each C3 legend sits ABOVE its chart in the Bar and the Pie view',
   const barCards = bar.split('<div class="chart c3-card"').slice(1);
   assert.equal(barCards.length, 2, 'two Bar cards render');
   for (const card of barCards) {
-    const legend = card.indexOf('class="c3-legend"');
-    const chart = card.indexOf('class="c3-grid"');
-    assert.ok(legend > -1 && chart > -1 && legend < chart, 'the Bar legend is emitted before the bar grid');
+    const grid = card.indexOf('class="c3-grid"');
+    const legend = card.indexOf('class="c3-legend-svg"');
+    const plot = card.indexOf('class="c3-gridlines"');
+    assert.ok(grid > -1 && legend > grid && legend < plot, 'the Bar legend svg is a grid item inside the grid, above the plot rows');
+    assert.match(card, /class="c3-legend-svg"[^>]*style="width:100%;height:auto;grid-column:2 \/ -1;grid-row:1;"/,
+      'the Bar legend spans the plot columns in the legend band (row 1)');
+    assert.match(card, /class="c3-legend-g"/, 'the Bar legend is one SVG <g>');
+    assert.match(card, /<g transform="translate\(12,4\)"><rect/, 'the first legend swatch starts after the 12-unit left inset (rev 1.84 / I140)');
+    assert.doesNotMatch(card, /class="c3-legend"/, 'no retired HTML .c3-legend element renders');
   }
   renderDashboard({ querySelector: s => s === '[data-page-content]' ? pieNode : null }, model, { page: 'Breakdown', c3View: 'pie' });
   const pieCards = pie.split('<div class="chart c3-card"').slice(1);
   assert.equal(pieCards.length, 2, 'two donut cards render');
+  assert.equal((pie.match(/class="c3-legend-svg"/g) || []).length, 0, 'no separate legend strip in the Pie view');
   for (const card of pieCards) {
-    const legend = card.indexOf('class="c3-legend"');
-    const svg = card.indexOf('<svg');
-    assert.ok(legend > -1 && svg > -1 && legend < svg, 'the Pie legend is emitted before the donut svg');
+    const svg = card.indexOf('<svg class="c3-svg"');
+    const legend = card.indexOf('class="c3-legend-g"');
+    assert.ok(svg > -1 && legend > svg, 'the Pie legend <g> lives INSIDE the bordered donut svg');
+    assert.match(card, /<g transform="translate\(12,4\)"><rect/, 'the first Pie legend swatch starts after the 12-unit left inset (rev 1.84 / I140)');
   }
+});
+
+test('§4.2 rev 1.83 / I135 / I139 — C3 legend inside the plot border, the "Documents" caption, equal panels and the pie height token', () => {
+  const css = fs.readFileSync(path.join(root, 'engine/dashboard.css'), 'utf8');
+  const rules = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  // The HTML legend element type is retired from the production CSS; the in-SVG legend is styled.
+  assert.doesNotMatch(rules, /\.c3-legend\{/, 'the retired HTML .c3-legend rule is gone');
+  assert.doesNotMatch(rules, /\.c3-leg\{/, 'the retired HTML .c3-leg rule is gone');
+  assert.ok(rules.includes('.c3-legend-svg{display:block;width:100%;height:auto;margin:0}'),
+    'the in-SVG legend strip is styled');
+  assert.ok(rules.includes('.g-yaxis .g-ycap{'), 'the rotated side unit caption is styled like C1');
+  assert.doesNotMatch(rules, /\.c3-gridlines\{[^}]*repeating-linear-gradient/, 'the fixed 4-interval grid gradient is gone');
+  assert.ok(rules.includes('.c3-gridlines .g-gridline{position:absolute;left:0;right:0;height:1px;background:var(--border)}'),
+    'the grid lines are per-tick rules (rev 1.64)');
+  // §4.2 rev 1.83 / I139 — the C1 model: bordered zones span the legend band + plot band; the table
+  // follows on row 3; the pie height token and the equal-height panel chain are in place.
+  assert.ok(rules.includes('.c3-yaxis-zone,.c3-plot-zone{grid-row:1 / 3;box-sizing:border-box;border:1px solid var(--border);background:transparent;pointer-events:none}'),
+    'the bordered zones span the legend band and the plot band (C1 model)');
+  assert.ok(rules.includes('.c3-table{grid-column:1 / -1;grid-row:3;'), 'the attached table follows the legend and plot rows');
+  assert.ok(rules.includes('height:var(--c3-pie-h)') && rules.includes('--c3-pie-h:374px'),
+    'the Pie donut takes the fixed --c3-pie-h height token');
+  assert.doesNotMatch(rules, /breakdown-grid\{[^}]*align-items:start/, 'the Breakdown grid no longer collapses to start alignment');
+  assert.ok(rules.includes('body .breakdown-grid > .panel{margin:0;display:flex;flex-direction:column}')
+    && rules.includes('body .breakdown-grid .c3-card,body .breakdown-grid .c-card{flex:1;min-height:0}'),
+    'the two chart panels share one height through the flex chain');
+
+  // Rendered Bar view: the caption and the in-SVG legend, with no HTML legend anywhere.
+  let bar = '';
+  const barNode = { set innerHTML(value) { bar = value; }, get innerHTML() { return bar; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? barNode : null }, model, { page: 'Breakdown' });
+  assert.equal((bar.match(/<span class="g-ycap">Documents<\/span>/g) || []).length, 2,
+    'each Bar y-axis carries the rotated "Documents" unit caption');
+  assert.equal((bar.match(/class="c3-legend-svg"/g) || []).length, 2, 'one in-SVG legend per Bar card');
+  assert.match(bar, /<rect class="c3-new" width="10" height="10" rx="2"><\/rect><text class="c3-leg-t" x="15" y="9">new<\/text>/,
+    'legend items are swatch + label pairs inside the SVG');
+  assert.doesNotMatch(bar, /class="c3-legend"/, 'no retired HTML legend element renders');
+
+  // Rendered Pie view: the legend rides INSIDE the bordered donut svg; donuts carry no y-axis caption.
+  let pie = '';
+  const pieNode = { set innerHTML(value) { pie = value; }, get innerHTML() { return pie; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? pieNode : null }, model, { page: 'Breakdown', c3View: 'pie' });
+  assert.equal((pie.match(/class="c3-legend-svg"/g) || []).length, 0, 'no separate legend strip in the Pie view');
+  assert.equal((pie.match(/class="c3-legend-g"/g) || []).length, 2, 'one in-SVG legend <g> per Pie card');
+  assert.equal((pie.match(/class="g-ycap"/g) || []).length, 0, 'the Pie view has no y-axis caption (donuts are exempt)');
+  for (const card of pie.split('<div class="chart c3-card"').slice(1)) {
+    assert.ok(card.indexOf('<svg class="c3-svg"') < card.indexOf('class="c3-legend-g"'), 'the Pie legend <g> lives inside the donut svg');
+  }
+
+  // Export contract (source level): the legend and the caption travel with PNG / Copy.
+  const js = fs.readFileSync(path.join(root, 'engine/dashboard.js'), 'utf8');
+  assert.match(js, /scope\.querySelector\('svg\.c3-svg'\)/, 'the export picks the plot svg, never the legend svg');
+  assert.match(js, /clone\.setAttribute\('width'/, 'the Pie export is ONE clone of the donut svg (legend rides inside), sized from the rendered box');
+  const ser = js.slice(js.indexOf('function serializeC3Svg'), js.indexOf('\nfunction ', js.indexOf('function serializeC3Svg')));
+  assert.doesNotMatch(ser, /c3-legend-svg/, 'the wrapper-stacking export path is retired');
+  assert.match(js, /\.c3-legend-svg \.c3-legend-g > g/, 'the Bar export serializes the in-SVG legend items');
+  assert.match(js, /\.g-ycap/, 'the Bar export serializes the rotated unit caption');
 });
 
 test('I133 / V-29 — the orphan discipline is named Others, not Unknown', () => {
@@ -1109,6 +1194,49 @@ test('§4.2 rev 1.80 / I137 — Breakdown gaps are named tokens with a uniform f
   assert.equal((html.match(/class="c3-controls"/g) || []).length, 3, 'three tool rows render, one per panel');
   assert.match(html, /class="c-card c3-summary-card"><div class="c3-controls">/,
     'the summary tool row is the summary card\'s first child and follows the base rule');
+});
+
+test('§4.2 / §7.2 rev 1.81 / I138 — C3 bordered zones (5 / 6 / 7), the Pie plot border and ONE table outer border', () => {
+  const css = fs.readFileSync(path.join(root, 'engine/dashboard.css'), 'utf8');
+  const rules = css.replace(/\/\*[\s\S]*?\*\//g, '');
+
+  // Parts 5 / 6 — the two overlay zones own a 1 px --border edge and never capture the pointer;
+  // rev 1.83 spans the legend band (row 1) and the plot band (row 2) so the border encloses the legend.
+  assert.ok(rules.includes('.c3-yaxis-zone,.c3-plot-zone{grid-row:1 / 3;box-sizing:border-box;border:1px solid var(--border);background:transparent;pointer-events:none}'),
+    'the y-axis and plot zones own a 1 px --border edge spanning legend + plot');
+  // Overlapping borders meet at right angles; the other corners keep the 10 px radius.
+  assert.ok(rules.includes('.c3-yaxis-zone{border-radius:10px 0 0 10px}'),
+    'the y-axis zone keeps right angles on the shared edge');
+  assert.ok(rules.includes('.c3-plot-zone{border-radius:0 10px 10px 0}'),
+    'the plot zone keeps right angles on the shared edge');
+  // Part 6 — the Pie / donut view carries the bordered plot zone as well.
+  assert.match(rules, /\.c3-card > svg\.c3-svg\{border:1px solid var\(--border\);border-radius:10px/,
+    'the Pie plot zone is bordered');
+  // Part 7 / §7.2 rev 1.81 — exactly ONE outer border with the general rounding, no doubled header edge.
+  assert.match(rules, /\.c3-table\{[^}]*border:1px solid var\(--border\)[^}]*border-radius:10px/,
+    'the attached table has ONE outer border with the general 10 px rounding');
+  assert.ok(rules.includes('.c3-table thead th{border-top:0}'),
+    'the header row cannot double the table edge');
+
+  // Rendered Bar view: two overlay zones per chart card, emitted before the table in the one grid.
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? node : null }, model, { page: 'Breakdown', c3View: 'bar' });
+  assert.equal((html.match(/class="c3-yaxis-zone"/g) || []).length, 2, 'one bordered y-axis zone per chart card');
+  assert.equal((html.match(/class="c3-plot-zone"/g) || []).length, 2, 'one bordered plot zone per chart card');
+  const gridAt = html.indexOf('class="c3-gridlines"');
+  const yAt = html.indexOf('class="c3-yaxis-zone"');
+  const plotAt = html.indexOf('class="c3-plot-zone"');
+  const tableAt = html.indexOf('class="c3-table"');
+  assert.ok(gridAt > -1 && gridAt < yAt && yAt < plotAt && plotAt < tableAt,
+    'the zones are emitted inside the alignment grid, before the attached table');
+
+  // Pie view: the donut itself is the bordered plot zone, so no overlay zone is emitted.
+  let pie = '';
+  const pieNode = { set innerHTML(value) { pie = value; }, get innerHTML() { return pie; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? pieNode : null }, model, { page: 'Breakdown', c3View: 'pie' });
+  assert.equal((pie.match(/c3-plot-zone/g) || []).length, 0, 'the Pie view needs no overlay zone');
+  assert.equal((pie.match(/class="c3-svg"/g) || []).length, 2, 'each Pie card renders its own bordered donut');
 });
 
 test('C3 Pie view renders two donut cards (Submissions, Approval Status); Break-down-by hidden', () => {
@@ -1370,7 +1498,7 @@ test('D41: Submittals panel groups one row per document with a toggleable consol
   // Two summary lines now: documents count and the cumulative "total as-of" total (I107).
   assert.equal((html.match(/class="summary"/g) || []).length, 2, 'documents count + cumulative total summary lines');
   // CSV is right-aligned via its own class; column visibility uses the B7 .cc-btn class.
-  assert.match(html, /class="csv-btn/);
+  assert.match(html, /data-export-csv="issue"/);
   assert.match(html, /class="cc-btn/);
   assert.doesNotMatch(html, /submission records/, 'no old per-record summary text');
 });
@@ -1384,7 +1512,7 @@ test('I107 — Submittals month filter limits the dashboard table to that month 
   renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? rootNode : null }, model, { page: 'Submittals', subMonth: someMonth });
   assert.match(html, /data-submonth/, 'the month filter control is present');
   assert.match(html, new RegExp(`<option value="${someMonth}" selected>`), 'the selected month is marked');
-  assert.match(html, /Total as-of/, 'the cumulative total summary is shown');
+  assert.match(html, /class="pchip green"[^>]*>Accumulated till [^<]*<b>\d+<\/b>/, 'the cumulative total chip is shown');
   const shown = [...html.matchAll(/data-doc="([^"]+)"/g)].map(m => m[1]);
   const expected = new Set(view.documents.filter(g => g.some(r => String(r.submissionDate || '').slice(0, 7) === someMonth)).map(g => g[0].documentNo));
   assert.deepStrictEqual(new Set(shown), expected, 'only documents with a submission in the month are listed');
@@ -1417,42 +1545,54 @@ test('I107 — Submittals CSV follows the month filter (only that month, dynamic
   }
 });
 
-// I108 — panel summary sits below the title and above the control row (spec §4: subtitle optional).
-test('I108 — Submittals panel summary renders above the control row', () => {
-  const view = deriveView(model);
+// I108 — panel summary sits below the title and above the control row (spec §4 rev 1.92: chip subtitle).
+test('I108 — Submittals panel chip subtitle renders above the control row', () => {
   let html = '';
   const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
   renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? rootNode : null }, model, { page: 'Submittals', subMonth: 'ALL' });
-  assert.match(html, /class="panel-summary"/, 'the summary block is present');
-  const sumIdx = html.indexOf('class="panel-summary"');
+  assert.match(html, /class="pchip-row" data-panel-subtitle/, 'the chip subtitle row is present');
+  const sumIdx = html.indexOf('class="pchip-row" data-panel-subtitle');
   const toolIdx = html.indexOf('class="table-tools"');
-  assert.ok(sumIdx > -1 && toolIdx > sumIdx, 'summary appears before the control row');
-  assert.doesNotMatch(html, /class="table-tools"><span class="summary"/, 'summary is not inline inside the control row');
+  assert.ok(sumIdx > -1 && toolIdx > sumIdx, 'chip subtitle appears before the control row');
+  assert.doesNotMatch(html, /class="table-tools"><span class="pchip"/, 'chips are not inline inside the control row');
+  assert.doesNotMatch(html, /class="panel-summary"/, 'the retired plain-text summary is gone');
 });
 
-// I109 — Submittals subtitle aligns with the Forward/Overdue panel (gap + edge alignment, spec §4).
-test('I109 — Submittals subtitle sits before the card at the content edge (matches .note)', () => {
-  const view = deriveView(model);
+// I109 — Submittals subtitle sits at the content edge before the card (spec §4 rev 1.92).
+test('I109 — Submittals chip subtitle sits before the card at the content edge', () => {
   let html = '';
   const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
   renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? rootNode : null }, model, { page: 'Submittals', subMonth: 'ALL' });
-  const sumIdx = html.indexOf('class="panel-summary"');
+  const sumIdx = html.indexOf('class="pchip-row" data-panel-subtitle');
   const cardIdx = html.indexOf('<div class="c-card">');
-  assert.ok(sumIdx > -1 && cardIdx > sumIdx, 'summary appears before the .c-card (aligned to the content edge)');
+  assert.ok(sumIdx > -1 && cardIdx > sumIdx, 'chip row appears before the .c-card (aligned to the content edge)');
 });
 
-// I110 — Validation meta line is a panel-level .note under the page title, above the v-summary row.
-test('I110 — Validation meta line is a panel-level .note above the v-summary row', () => {
-  const view = deriveView(model);
+// I151 — Validation becomes two panels with one chip row each; the meta note and card titles are gone.
+test('I151 — Validation renders two panels with one chip row per panel', () => {
   let html = '';
   const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
   renderDashboard({ querySelector: selector => selector === '[data-page-content]' ? rootNode : null }, model, { page: 'Validation' });
-  const noteIdx = html.indexOf('class="note"');
-  const sumIdx = html.indexOf('class="v-summary"');
-  const issuesTitleIdx = html.indexOf('<h3 class="tt">Issues</h3>');
-  assert.ok(noteIdx > -1 && sumIdx > noteIdx, 'the meta .note appears before the .v-summary row');
-  assert.ok(issuesTitleIdx === -1 || sumIdx < issuesTitleIdx, 'the meta sits above the Issues card (panel level)');
-  assert.ok(html.indexOf('tt-note') === -1, 'the Issues table has no subtitle (meta is panel-level)');
+  const panels = html.split(/<section class="panel/).slice(1);
+  assert.strictEqual(panels.length, 2, 'the Validation page has two top-level panels');
+  assert.ok(panels[0].includes('<h2>Validation Rules</h2>'), 'panel 1 is Validation Rules');
+  assert.ok(panels[1].includes('<h2>Validation Issues</h2>'), 'panel 2 is Validation Issues');
+  for (const [index, panel] of panels.entries()) {
+    const chipIdx = panel.indexOf('class="pchip-row v-chip-row" data-panel-subtitle');
+    const cardIdx = panel.indexOf('<div class="c-card v-section">');
+    assert.ok(chipIdx > -1 && cardIdx > chipIdx, `panel ${index + 1} has one chip row before its card`);
+  }
+  assert.ok(panels[0].includes('>Loaded rules <b>'), 'the Rules panel states the loaded-rule count');
+  assert.ok(panels[0].includes('>Fired rules <b>'), 'the Rules panel states the fired-rule count');
+  assert.ok(panels[1].includes('>All issues <b>'), 'the Issues panel states the all-issue count');
+  assert.ok(panels[1].includes('>Shown issues <b data-validation-count>'), 'the count hook sits on the shown chip');
+  assert.ok(panels[1].includes('<span class="vchip e">') && panels[1].includes('<span class="vchip w">') && panels[1].includes('<span class="vchip i">'), 'severity chips share the one chip row');
+  assert.strictEqual((html.match(/data-validation-count/g) || []).length, 1, 'exactly one validation count hook');
+  assert.ok(!html.includes('class="note"'), 'the meta note is removed');
+  assert.ok(!html.includes('class="v-summary"'), 'the separate severity row is removed');
+  assert.ok(!html.includes('<h3 class="tt">'), 'the card titles are removed');
+  assert.ok(!html.includes('class="pg-total" id=""'), 'the Rules table has no row-count label');
+  assert.ok(html.includes('id="vCnt"'), 'the Issues table keeps its row total');
 });
 
 // I111 — Submittals month filter spans project start → as-of (matches C3 I106), so the as-of month is selectable.
@@ -1482,26 +1622,23 @@ test('I111 — Submittals month filter spans project start → as-of (matches C3
   assert.ok(opts.includes(asOfYm), `the as-of month ${asOfYm} is selectable even with no submission in it`);
 });
 
-// I112 — Validation Issues table: title left, top tool cluster (page controls + code filter + CSV/Columns), no subtitle.
-test('I112 — Validation Issues table: top tool cluster with page controls + code filter + CSV/Columns, no subtitle', () => {
-  const view = deriveView(model);
+// I112 — Validation Issues table: top tool cluster (page controls + code filter + CSV/Columns).
+test('I112 — Validation Issues table: top tool cluster with page controls + code filter + CSV/Columns', () => {
   let html = '';
   const rootNode = { set innerHTML(v) { html = v; }, get innerHTML() { return html; } };
   renderDashboard({ querySelector: s => s === '[data-page-content]' ? rootNode : null }, model, { page: 'Validation' });
-  const headIdx = html.indexOf('<h3 class="tt">Issues</h3>');
-  assert.ok(headIdx > -1, 'the Issues table has its own title');
-  assert.ok(html.indexOf('tt-note') === -1, 'the Issues table has no subtitle (meta moved to panel level)');
-  const toolsIdx = html.indexOf('class="table-tools"', headIdx);
-  assert.ok(toolsIdx > headIdx, 'the tool cluster sits below the title');
-  // page controls at the top
-  assert.ok(html.includes('data-pg="prev"') && html.includes('data-pg="next"'), 'the page navigation buttons are present at the top');
-  assert.ok(!html.includes('data-page="prev"') && !html.includes('data-page="next"'), 'pager buttons must NOT use data-page (it collides with sidebar navigation)');
-  assert.ok(html.includes('data-pagejump="issue"'), 'the page-jump selector is present');
-  assert.ok(html.includes('class="pg-total"'), 'the row total is shown');
-  // filter + export on the right
-  assert.ok(html.includes('class="v-code" data-vcode'), 'the error-code filter is present');
-  assert.ok(html.includes('data-export-table="issue"'), 'the Issues table keeps its CSV button');
-  assert.ok(html.includes('id="ccBtn_issue"'), 'the Issues table keeps its Columns button');
+  const panel = html.split(/<section class="panel/)[2];
+  assert.ok(panel, 'the Issues panel is present');
+  const chipIdx = panel.indexOf('data-panel-subtitle');
+  const toolsIdx = panel.indexOf('class="table-tools"');
+  assert.ok(chipIdx > -1 && toolsIdx > chipIdx, 'the tool cluster sits below the chip row');
+  assert.ok(panel.includes('data-pg="prev"') && panel.includes('data-pg="next"'), 'the page navigation buttons are present at the top');
+  assert.ok(!panel.includes('data-page="prev"') && !panel.includes('data-page="next"'), 'pager buttons must NOT use data-page (it collides with sidebar navigation)');
+  assert.ok(panel.includes('data-pagejump="issue"'), 'the page-jump selector is present');
+  assert.ok(panel.includes('id="vCnt"'), 'the row total is shown');
+  assert.ok(panel.includes('class="v-code" data-vcode'), 'the error-code filter is present');
+  assert.ok(panel.includes('data-export-csv="issue"'), 'the Issues table keeps its CSV button');
+  assert.ok(panel.includes('id="ccBtn_issue"'), 'the Issues table keeps its Columns button');
 });
 
 // I112 — the error-code filter narrows only the Issues table.
@@ -1531,6 +1668,18 @@ test('I112 — Validation error-code filter narrows only the Issues table', () =
   const oneCount = countIssueRows(htmlOne);
   assert.strictEqual(oneCount, expected, `selecting code ${target} shows only its rows (${expected})`);
   assert.ok(oneCount < allCount, 'the filter reduces the visible row count');
+  const countRules = h => {
+    const sel = h.match(/<table class="ds-table"[^>]*data-table-key="rules"[\s\S]*?<\/table>/);
+    assert.ok(sel, 'the Rules table is present');
+    return (sel[0].match(/<tr>/g) || []).length;
+  };
+  assert.strictEqual(countRules(htmlOne), countRules(htmlAll), 'the code filter does not narrow the Rules panel');
+  const shown = h => {
+    const match = h.match(/<b data-validation-count>([\d,]+)<\/b>/);
+    assert.ok(match, 'the shown-issue count chip is present');
+    return Number(match[1].replace(/,/g, ''));
+  };
+  assert.strictEqual(shown(htmlOne), expected, 'the Shown issues chip follows the code filter');
 });
 
 test('§7.2.16 / I129 — one global table hover crosshair contract is in the production build', () => {
@@ -1604,4 +1753,317 @@ test('§7.2.16 / I129 — one global table hover crosshair contract is in the pr
   assert.ok(js.includes("const TABLE_HOVER_CLASSES = ['row-hover', 'col-hover', 'cell-hover', 'col-active']"), 'every transient class is export-stripped');
   assert.ok(js.includes("window.addEventListener('beforeprint', clearTableCrosshair)"), 'print clears the crosshair');
   assert.ok(js.includes('bindTableCrosshair(document)'), 'the binder is installed once at startup');
+});
+
+test('§3.1 rev 1.86 / I142 — the layout control lives in Settings, not in the menu bar', () => {
+  const shell = fs.readFileSync(path.join(root, 'TWRP C3B2 - Document Submittal Dashboard.html'), 'utf8');
+  const css = fs.readFileSync(path.join(root, 'engine/dashboard.css'), 'utf8');
+  const js = fs.readFileSync(path.join(root, 'engine/dashboard.js'), 'utf8');
+
+  // The button and its CSS are retired.
+  assert.doesNotMatch(shell, /id="layout-button"/, 'the menu bar has no layout button');
+  assert.doesNotMatch(css, /\.app-menu #layout-button/, 'the menu-bar layout-button rule is gone');
+  assert.doesNotMatch(js, /target\.id === 'layout-button'/, 'the layout-button click handler is gone');
+
+  // The Settings modal carries one labelled select with the three approved options.
+  const select = shell.match(/<label class="setting"><span>Panel Columns<\/span><select data-setting="layout">([\s\S]*?)<\/select><\/label>/);
+  assert.ok(select, 'the Settings modal holds the labelled Panel Columns select');
+  for (const [value, label] of [['one', 'One'], ['two', 'Two'], ['three', 'Three']]) {
+    assert.ok(select[1].includes(`<option value="${value}">${label}</option>`), `the ${label} option is present`);
+  }
+
+  // One state field and one resolver write the body attribute and localStorage.
+  assert.ok(js.includes("layout: localStorage.getItem('sub-dashboard-layout') || 'one'"), 'layout state is restored from localStorage');
+  assert.ok(js.includes('function updateLayout()'), 'one layout resolver exists');
+  assert.ok(js.includes("localStorage.setItem('sub-dashboard-layout', value)"), 'the resolver saves the chosen value');
+  assert.ok(js.includes('document.body.dataset.layout = value'), 'the resolver writes the body attribute');
+  assert.ok(js.includes("querySelectorAll('select[data-setting=\"layout\"]')"), 'the resolver syncs every layout select');
+  assert.ok(js.includes("if (setting === 'layout') { state.layout = event.target.value; updateLayout(); }"), 'the shared change handler saves the layout');
+  assert.equal((js.match(/updateLayout\(\);/g) || []).length >= 3, true, 'layout is applied at startup and on every repaint');
+  assert.ok(js.indexOf('updateLayout();') < js.indexOf("const savedWidth = Number(localStorage.getItem('sub-dashboard-left-sidebar-width'))"), 'startup applies the saved layout before sidebar restore');
+});
+
+test('§5 rev 1.87 / I144 — the KPI grid is 6 / 3 / 2 with no auto-fit', () => {
+  const css = fs.readFileSync(path.join(root, 'engine/dashboard.css'), 'utf8');
+  const shell = fs.readFileSync(path.join(root, 'TWRP C3B2 - Document Submittal Dashboard.html'), 'utf8');
+  const c4 = fs.readFileSync(path.join(root, 'ref/sample-c4.html'), 'utf8');
+  const breakdown = fs.readFileSync(path.join(root, 'ref/sample-breakdown.html'), 'utf8');
+  const hover = fs.readFileSync(path.join(root, 'ref/sample-hover.html'), 'utf8');
+
+  for (const [name, source] of [['engine CSS', css], ['standalone', shell], ['C4 sample', c4], ['Breakdown sample', breakdown]]) {
+    assert.match(source, /\.kpi-grid\{display:grid;grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/, `${name} uses six columns`);
+    assert.match(source, /@media\(max-width:1100px\)\{\.kpi-grid\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)\}\}/, `${name} drops to three columns at 1100 px`);
+    assert.match(source, /@media\(max-width:880px\)\{\.kpi-grid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}\}/, `${name} drops to two columns at 880 px`);
+  }
+  assert.match(hover, /\.kpi-grid\{display:grid;grid-template-columns:repeat\(6,minmax\(0,1fr\)\);gap:12px\}/, 'Hover sample uses six columns with its own 12 px gap');
+  assert.match(hover, /@media\(max-width:1100px\)\{\.kpi-grid\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)\}\}/, 'Hover sample drops to three columns at 1100 px');
+  assert.match(hover, /@media\(max-width:880px\)\{\.kpi-grid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}\}/, 'Hover sample drops to two columns at 880 px');
+  assert.doesNotMatch(hover, /\.kpi-grid\{[^}]*auto-fit/, 'Hover sample KPI rule has no auto-fit');
+  assert.doesNotMatch(css, /\.kpi-grid\{[^}]*auto-fit/, 'the engine KPI rule has no auto-fit');
+  assert.doesNotMatch(css, /KPI grid needs no breakpoint/, 'the stale auto-fit comment is gone');
+  assert.doesNotMatch(c4, /KPI grid needs no breakpoint/, 'the C4 sample stale comment is gone');
+});
+
+test('§4 rev 1.88 / I145 — every rendered table registers full data and carries one ⤓ CSV', () => {
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  const fakeDocument = { querySelector(selector) { return selector === '[data-page-content]' ? rootNode : null; } };
+  renderDashboard(fakeDocument, model, { page: 'Overview', uiHelp: false, c1Preset: 'ALL' });
+  const overview = getExportTables();
+  assert.ok(overview.some(t => t.key === 'c1-schedule' && t.rows.length && t.headers.includes('Reporting Month')), 'C1 registers full rows');
+  renderDashboard(fakeDocument, model, { page: 'Overview', uiHelp: false, c2View: 'funnel' });
+  assert.ok(getExportTables().some(t => t.key === 'c2-funnel' && t.rows.length && t.headers[0] === 'Discipline'), 'C2 registers full rows in funnel view');
+
+  renderDashboard(fakeDocument, model, { page: 'Validation', uiHelp: false });
+  const validation = getExportTables();
+  const issues = validation.find(t => t.key === 'issue');
+  assert.ok(issues && issues.rows.length > 200 && issues.headers.length > 1, 'Issues registry holds the full filtered set, not the visible page');
+  assert.ok(validation.some(t => t.key === 'rules' && t.rows.length && t.headers.length > 1), 'Rules registers all columns');
+
+  renderDashboard(fakeDocument, model, { page: 'Submittals', uiHelp: false });
+  const submittals = getExportTables().find(t => t.key === 'submittals');
+  assert.ok(submittals && submittals.rows.length && submittals.headers.length > 2, 'Submittals registers full dynamic columns');
+
+  renderDashboard(fakeDocument, model, { page: 'Breakdown', uiHelp: false });
+  const breakdown = getExportTables();
+  for (const key of ['c3-submissions', 'c3-approval', 'c3-summary']) {
+    const table = breakdown.find(t => t.key === key);
+    assert.ok(table && table.rows.length && table.headers.length > 1, `${key} registers full rows`);
+  }
+  renderDashboard(fakeDocument, model, { page: 'Breakdown', uiHelp: false, c3Panels: { submissions: { c3View: 'pie' }, approval: { c3View: 'pie' } } });
+  assert.ok(!getExportTables().some(t => t.key === 'c3-submissions'), 'Pie view registers no C3 attached table');
+
+  const shell = fs.readFileSync(path.join(root, 'TWRP C3B2 - Document Submittal Dashboard.html'), 'utf8');
+  const js = fs.readFileSync(path.join(root, 'engine/dashboard.js'), 'utf8');
+  assert.match(shell, /<button class="btn" data-export>Export<\/button>/, 'top menu keeps the bare data-export button');
+  assert.ok(js.includes("target.hasAttribute('data-export')"), 'top export uses hasAttribute, not the falsy dataset value');
+  assert.ok(js.includes('data-export-csv') && js.includes('getExportTable'), 'one registry feeds the CSV handler');
+  assert.ok(js.includes("exportFileName('All-Tables', 'xlsx', model?.meta)"), 'top export builds the workbook name from model.meta');
+  assert.doesNotMatch(js, /data-export-table|data-c3export/, 'the old export handlers are retired');
+});
+
+test('§4 rev 1.89 / I145 amendment — download names start with the MDL Code sheet Project Title', () => {
+  const meta = { projectTitle: model.meta.projectTitle, projectCode: model.meta.projectCode };
+  assert.equal(meta.projectTitle, 'TWRP C3B2', 'the MDL Code sheet carries the Project Title');
+  assert.equal(meta.projectCode, 'C3B2', 'the MDL Code sheet carries the Project Code');
+  const fixed = new Date(2026, 10, 17); // local 2026-11-17
+  assert.equal(exportFileName('C1 Schedule Performance', 'csv', meta, fixed), 'TWRP-C3B2_C1-Schedule-Performance_2026-11-17.csv');
+  assert.equal(exportFileName('All-Tables', 'xlsx', meta, fixed), 'TWRP-C3B2_All-Tables_2026-11-17.xlsx');
+  assert.equal(exportFileName('C1 Schedule Performance', 'csv', { projectCode: 'C3B2' }, fixed), 'C3B2_C1-Schedule-Performance_2026-11-17.csv', 'a blank Project Title falls back to the Project Code');
+});
+
+test('§4 rev 1.90 / I146 — the top-menu export harvests every table across all data pages', () => {
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  const fakeDocument = { querySelector(selector) { return selector === '[data-page-content]' ? rootNode : null; } };
+  renderDashboard(fakeDocument, model, { page: 'Overview' });
+  const tables = collectExportTables(fakeDocument, model, { page: 'Overview' });
+  const keys = tables.map(t => t.key);
+  for (const key of ['c1-schedule', 'c3-summary', 'c3-submissions', 'c3-approval', 'submittals', 'rules', 'issue', 'fo-lookahead']) {
+    assert.ok(keys.includes(key), `the harvest includes ${key}`);
+  }
+  assert.ok(tables.length >= 8, `the workbook carries every table (${tables.length})`);
+  const fo = tables.find(t => t.key === 'fo-lookahead');
+  assert.equal(fo.title, 'Forward Look-Ahead', 'the FO table registers under its page title');
+  assert.equal(fo.headers.length, 8, 'the FO table carries all columns');
+  assert.ok(fo.rows.length > 0, 'the FO table carries full rows');
+  assert.ok(!fo.rows.some(row => row.some(cell => /<[^>]*>|&[a-z]+;|&#\d+;/.test(String(cell)))), 'FO export cells carry no markup or entities');
+  assert.deepEqual(getExportTables().map(t => t.key), ['c1-schedule'], 'the current page registry is restored after the harvest');
+});
+
+test('§4.2 I147 — the Breakdown Summary ⤓ CSV sits in the tool row, right-aligned', () => {
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  renderDashboard({ querySelector: s => s === '[data-page-content]' ? rootNode : null }, model, { page: 'Breakdown' });
+  const card = html.slice(html.indexOf('c3-summary-card'), html.indexOf('class="c3-summary"'));
+  assert.match(card, /class="c3-controls">/, 'the summary card opens its tool row');
+  assert.match(card, /<div class="controls-right"><button[^>]*data-export-csv="c3-summary"/, 'the ⤓ CSV is the right tool group of the panel controls');
+  assert.doesNotMatch(html, /class="c3-summary"><button[^>]*data-export-csv="c3-summary"/, 'no button is prepended inside the summary body wrapper');
+  assert.equal((html.match(/data-export-csv="c3-summary"/g) || []).length, 1, 'exactly one ⤓ CSV renders on the page');
+});
+
+test('§4 rev 1.91 / I148 — tool rows split filters LEFT and actions RIGHT', () => {
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  const fake = () => ({ querySelector: s => s === '[data-page-content]' ? rootNode : null });
+  renderDashboard(fake(), model, { page: 'Submittals' });
+  const subTools = html.slice(html.indexOf('class="table-tools"'), html.indexOf('data-table-key="subdoc"'));
+  assert.match(subTools, /class="table-tools"><div class="pg-left"><label class="sub-month-lbl">Month<\/label><select class="sub-month" data-submonth>/, 'the Submittals Month filter sits LEFT');
+  assert.match(subTools, /class="pg-right"><button class="btn-secondary" data-export-csv="submittals"/, 'the Submittals ⤓ CSV opens the RIGHT action group');
+  assert.doesNotMatch(subTools, /data-submonth><\/select><button class="btn-secondary" data-export-csv="submittals"/, 'no CSV sits directly after the Month filter');
+  renderDashboard(fake(), model, { page: 'Validation' });
+  const issueTools = html.slice(html.indexOf('class="table-tools"'), html.indexOf('data-table-key="issue"'));
+  assert.match(issueTools, /class="pg-left">[\s\S]*?<select[\s\S]*?<\/select>/, 'the keyed-table filter select sits in the LEFT group');
+  assert.match(issueTools, /class="pg-right"><button class="btn-secondary" data-export-csv="issue"/, 'the Issues ⤓ CSV opens the RIGHT action group');
+  renderDashboard(fake(), model, { page: 'Forward and Overdue' });
+  const foTools = html.slice(html.indexOf('class="fo-controls"'), html.indexOf('data-table-key="fo-lookahead"'));
+  assert.match(foTools, /class="fo-controls">[\s\S]*?data-fo-view="lookahead"[\s\S]*?data-fo-horizon="1"[\s\S]*?data-fo-lane="all"[\s\S]*?<div class="table-tools fo-right"><button class="btn-secondary" data-export-csv="fo-lookahead"/, 'the FO view, horizon and lane segments sit LEFT and only the ⤓ CSV sits RIGHT');
+});
+
+test('§4 rev 1.93 / I149 — Submittals chips: filter states T01–T10', () => {
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  const fake = () => ({ querySelector: s => s === '[data-page-content]' ? rootNode : null });
+  const render = state => renderDashboard(fake(), model, { page: 'Submittals', ...state });
+  const chips = () => {
+    const row = html.slice(html.indexOf('class="pchip-row"'), html.indexOf('<div class="c-card">'));
+    return [...row.matchAll(/data-pchip="([^"]+)" data-pchip-count="(\d+)"( data-pchip-filtered)?>([^<]+)/g)]
+      .map(m => ({ family: m[1], count: Number(m[2]), marked: Boolean(m[3]), label: m[4].trim() }));
+  };
+  const ym = r => String(r.submissionDate || '').slice(0, 7);
+  const projYm = String(model.meta.projectStartDate || '').slice(0, 7);
+  const truth = (state, win = 'ALL') => {
+    const groups = deriveView(model, state).documents;
+    const subs = groups.flatMap(g => g);
+    const inWindow = g => win === 'ALL' || g.some(r => ym(r) === win);
+    return {
+      blue: win === 'ALL' ? 0 : subs.filter(r => ym(r) === win).length,
+      violet: groups.filter(inWindow).length,
+      green: groups.filter(g => win === 'ALL' || g.some(r => { const m = ym(r); return (!projYm || m >= projYm) && m <= win; })).length,
+      neutral: groups.filter(inWindow).length
+    };
+  };
+  const counts = (list, keys) => keys.map(k => list[k]);
+  const allMonths = [...new Set(deriveView(model).documents.flatMap(g => g.map(ym).filter(Boolean)))].sort();
+  const monthA = allMonths[0], monthB = allMonths[allMonths.length - 1];
+  const disciplines = [...new Set(model.submissions.map(r => r.discipline).filter(Boolean))];
+  const one = new Set([disciplines[0]]);
+  const other = new Set([...new Set([...model.planned.map(p => p.discipline).filter(Boolean), 'Others']), ...disciplines].filter(d => d !== disciplines[0]));
+  const allValues = new Set([...new Set([...model.planned.map(p => p.discipline).filter(Boolean), 'Others']), ...disciplines]);
+  const unfiltered = truth({});
+  const allKeys = ['violet', 'green', 'neutral'];
+  const monthKeys = ['blue', 'violet', 'green', 'neutral'];
+
+  // T01 / T07 — no filters and All months: no marks, All-months labels, blue hidden, unfiltered counts.
+  render({ subMonth: 'ALL' });
+  let c = chips();
+  assert.deepEqual(c.map(x => x.family), allKeys, 'T07 the monthly chip is hidden under All months');
+  assert.ok(c.every(x => !x.marked), 'T01 no funnel mark without filters');
+  assert.deepEqual(c.map(x => x.label), ['All-month documents', 'Accumulated to date', 'Shown records'], 'T01/T07 all-months labels');
+  assert.deepEqual(c.map(x => x.count), counts(unfiltered, allKeys), 'T01 unfiltered counts');
+  assert.doesNotMatch(html, /class="panel-summary"|class="summary"/, 'the plain-text summary is retired');
+
+  // T02 — global discipline filter: every chip count responds and all are marked.
+  const expOne = truth({ disciplines: one });
+  render({ subMonth: 'ALL', disciplines: one });
+  c = chips();
+  assert.ok(c.every(x => x.marked), 'T02 global filter marks every displayed chip');
+  assert.deepEqual(c.map(x => x.count), counts(expOne, allKeys), 'T02 counts come from the globally filtered dataset');
+  assert.ok(expOne.violet < unfiltered.violet, 'T02 the discipline filter actually narrows the data');
+
+  // T03 — month filter only: four chips, four marks, temporal labels, month-scoped counts.
+  const expMonthA = truth({}, monthA);
+  render({ subMonth: monthA });
+  c = chips();
+  assert.deepEqual(c.map(x => x.family), monthKeys, 'T03 all four chips render for a selected month');
+  assert.ok(c.every(x => x.marked), 'T03 month filter marks all four chips');
+  assert.deepEqual(c.map(x => x.count), counts(expMonthA, monthKeys), 'T03 counts follow the month-scoped dataset');
+  const monthText = c[0].label.replace('Submissions in ', '');
+  assert.ok(monthText && c[0].label.startsWith('Submissions in '), 'T03 blue uses "Submissions in <month>"');
+  assert.deepEqual(c.map(x => x.label), [`Submissions in ${monthText}`, `Documents in ${monthText}`, `Accumulated till ${monthText}`, `Shown for ${monthText}`], 'T03 labels distinguish in-window from till-window');
+
+  // T04 — month + global filter: every count reflects both scopes and every chip is marked.
+  const expBoth = truth({ disciplines: one }, monthA);
+  render({ subMonth: monthA, disciplines: one });
+  c = chips();
+  assert.ok(c.every(x => x.marked), 'T04 combined filters mark all four chips');
+  assert.deepEqual(c.map(x => x.count), counts(expBoth, monthKeys), 'T04 all counts reflect the combined filtered scope');
+
+  // T05 — selecting every available value is not a real filter: no marks, unfiltered counts.
+  render({ subMonth: 'ALL', disciplines: allValues });
+  c = chips();
+  assert.ok(c.every(x => !x.marked), 'T05 a full-value selection must not trigger a funnel');
+  assert.deepEqual(c.map(x => x.count), counts(unfiltered, allKeys), 'T05 a full-value selection leaves counts unchanged');
+
+  // T06 — a month with zero records: applicable chips display 0 with their marks.
+  render({ subMonth: '1999-01' });
+  c = chips();
+  assert.deepEqual(c.map(x => x.family), monthKeys, 'T06 a zero month still renders the applicable chips');
+  assert.ok(c.every(x => x.count === 0 && x.marked), 'T06 zero counts are displayed with a funnel mark');
+  assert.ok(c.every(x => x.label.includes('Jan 1999')), 'T06 labels follow the selected month');
+
+  // T08 — changing the month updates labels and counts together.
+  render({ subMonth: monthA });
+  const a = chips();
+  render({ subMonth: monthB });
+  const b = chips();
+  assert.notEqual(a[0].label, b[0].label, 'T08 month change updates the label');
+  assert.deepEqual(b.map(x => x.count), counts(truth({}, monthB), monthKeys), 'T08 month change updates counts without stale values');
+  assert.notDeepEqual(a.map(x => x.count), b.map(x => x.count), 'T08 different months produce different count sets');
+
+  // T09 / T10 — changing global filters updates counts, and clearing all filters restores the baseline.
+  render({ subMonth: 'ALL', disciplines: one });
+  const narrowed = chips().map(x => x.count);
+  render({ subMonth: 'ALL', disciplines: other });
+  const changed = chips();
+  assert.notDeepEqual(narrowed, changed.map(x => x.count), 'T09 changing global filters updates every chip count');
+  assert.deepEqual(changed.map(x => x.count), counts(truth({ disciplines: other }), allKeys), 'T09 no stale values after a global filter change');
+  render({ subMonth: 'ALL' });
+  const cleared = chips();
+  assert.deepEqual(cleared.map(x => x.count), counts(unfiltered, allKeys), 'T10 clearing filters restores unfiltered counts');
+  assert.ok(cleared.every(x => !x.marked), 'T10 clearing filters removes every funnel mark');
+
+  const css = fs.readFileSync(path.join(root, 'engine/dashboard.css'), 'utf8');
+  for (const theme of [':root{', '[data-theme="dark"]{', '[data-theme="sky"]{', '[data-theme="ocean"]{', '[data-theme="presentation"]{']) {
+    const start = css.indexOf(theme);
+    assert.ok(start >= 0, `${theme} theme block exists`);
+    const block = css.slice(start, css.indexOf('\n}', start));
+    for (const family of ['blue', 'violet', 'green', 'neutral']) {
+      for (const part of ['bg', 'border', 'ink']) {
+        assert.match(block, new RegExp(`--pchip-${family}-${part}:`), `${theme} defines --pchip-${family}-${part}`);
+      }
+    }
+  }
+  assert.match(css, /\.pchip\{[^}]*padding:2px 10px[^}]*font-size:11px;font-weight:700;line-height:1\.4/, 'chip size uses the standardized metrics');
+  assert.doesNotMatch(css, /\.panel-summary\{/, 'the retired plain-text summary rule is gone');
+  const chipBlock = css.slice(css.indexOf('.pchip{'), css.indexOf('.pchip b'));
+  assert.doesNotMatch(chipBlock, /vchip|danger|warning|tag-bg/, 'the chip component shares no selector or token with severity chips');
+  const built = fs.readFileSync(path.join(root, 'TWRP C3B2 - Document Submittal Dashboard.html'), 'utf8');
+  assert.match(built, /--pchip-blue-bg:#EAF2FB/, 'the built standalone carries the chip tokens');
+  assert.match(fs.readFileSync(path.join(root, '../Dashboard-UI-Design-Spec.md'), 'utf8'), /\| 1\.93 \|/, 'the root spec copy carries rev 1.93');
+  assert.match(fs.readFileSync(path.join(root, '../harness-layout/spec/Dashboard-UI-Design-Spec.md'), 'utf8'), /\| 1\.93 \|/, 'the harness spec copy carries rev 1.93');
+});
+
+test('§4.4 rev 1.94 / I150 — drill column is omitted when no row is expandable', () => {
+  let html = '';
+  const rootNode = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  const render = subMonth => renderDashboard({ querySelector: s => s === '[data-page-content]' ? rootNode : null }, model, { page: 'Submittals', subMonth });
+  const headerOf = () => html.slice(html.indexOf('<div class="vheadwrap">'), html.indexOf('</thead>'));
+
+  render('ALL');
+  assert.match(html, /class="ds-pinned drill-cell"/, 'All months keeps the standardized drill column');
+  assert.match(html, /<tr class="expandable"/, 'All months keeps expandable rows');
+  assert.doesNotMatch(html, /data-no-drill/, 'All months is not marked no-drill');
+  assert.match(html, /data-column-index="0"[^>]*disabled[^>]*> <span>Row<\/span>/, 'the locked Row chooser item is present with the drill column');
+
+  // Nov 2026: 35 documents / 35 submissions — no multi-submission document, so the expander is redundant.
+  render('2026-11');
+  assert.match(html, /data-no-drill/, 'a single-record month is marked no-drill');
+  assert.doesNotMatch(html, /drill-cell|class="expandable"|<tr class="sub"/, 'drill cell, row shortcut and detail rows are all omitted');
+  const head = headerOf();
+  assert.match(head, /data-column-count="6"/, 'the split header has six data columns');
+  assert.equal((head.match(/<th scope="col"/g) || []).length, 6, 'the first visible column is Document No.');
+  assert.match(head, /<span class="lb">Document No\.<\/span>/, 'Document No. leads the header');
+  assert.doesNotMatch(html, /data-column-index="0"/, 'the locked Row chooser item is omitted with the column');
+
+  // May 2026 has two multi-submission documents, so the drill column must stay.
+  render('2026-05');
+  assert.match(html, /drill-cell/, 'a month with multi-submission documents keeps the drill column');
+  assert.match(html, /<tr class="expandable"/, 'and keeps its expandable rows');
+
+  assert.match(fs.readFileSync(path.join(root, '../Dashboard-UI-Design-Spec.md'), 'utf8'), /\| 1\.94 \|/, 'the root spec carries rev 1.94');
+  assert.match(fs.readFileSync(path.join(root, '../harness-layout/spec/Dashboard-UI-Design-Spec.md'), 'utf8'), /\| 1\.94 \|/, 'the harness spec carries rev 1.94');
+});
+
+test('§4 rev 1.88 / I145 — XLSX writer produces one worksheet per table', async () => {
+  const sheets = [
+    { name: 'Issues', headers: ['Code', 'Message'], rows: [['E-1', 'bad, value'], ['W-2', 'say "hi & bye"']] },
+    { name: 'Rules', headers: ['A'], rows: [[1]] }
+  ];
+  const bytesOut = buildXlsx(sheets, new Date('2026-11-17T10:20:30'));
+  const book = await readXlsx(bytesOut.buffer.slice(bytesOut.byteOffset, bytesOut.byteOffset + bytesOut.byteLength));
+  assert.deepEqual(Object.keys(book.sheets).sort(), ['Issues', 'Rules']);
+  assert.equal(book.sheets.Issues.rows[1].A, 'Code');
+  assert.equal(book.sheets.Issues.rows[3].B, 'say "hi & bye"');
+  assert.equal(book.sheets.Rules.rows[2].A, 1);
 });

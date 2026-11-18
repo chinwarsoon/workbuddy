@@ -48,7 +48,10 @@
   .ct-tot{margin-top:6px;padding-top:5px;border-top:1px solid var(--border)}
 
   /* ===== KPI cards (also use the standardized floating window) ===== */
-  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  /* §5 rev 1.87 / I144 — six columns, three at ≤1100 px, two at ≤880 px. */
+  .kpi-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+  @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media(max-width:880px){.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
   .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;cursor:help}
   .kpi-card .kpi-label{font-size:11px;color:var(--text2)}
   .kpi-card .kpi-value{font-size:20px;font-weight:700;margin-top:4px}

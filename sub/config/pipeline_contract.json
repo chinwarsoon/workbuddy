@@ -1,8 +1,14 @@
 {
-  "version": "0.3.0",
+  "version": "0.4.0",
   "title": "Sub Dashboard Pipeline Contract",
   "description": "Required source fields and source sheet names for the Sub dashboard pipeline.",
   "revisionHistory": [
+    {
+      "revision": "0.4.0",
+      "date": "2026-11-17",
+      "author": "CodeBuddy (AI)",
+      "summary": "Added metadataLabels.projectCode (I145 amendment). The MDL Code sheet Project Code feeds model.meta.projectCode as the download file-name fallback; the MDL Code sheet is authoritative."
+    },
     {
       "revision": "0.3.0",
       "date": "2026-11-02",
@@ -25,6 +31,7 @@
   "placeholderTokens": ["xxxx"],
   "metadataLabels": {
     "projectTitle": "Project Title",
+    "projectCode": "Project Code",
     "dashboardTitle": "Dashboard Title",
     "projectStart": "Project Start Date"
   },
