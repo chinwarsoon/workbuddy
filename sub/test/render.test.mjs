@@ -1,3 +1,5 @@
+// Revision 0.41 | 2026-11-19 | CodeBuddy (AI) | §4.6 rev 1.96 / I153 — one test proves that the C4 Scatter window has exactly one tokenized swatch beside the document number, that body rows have no swatch, and that the Age-bucket window keeps its row swatches. Both spec copies carry rev 1.96. No existing assertion was weakened.
+// Revision 0.40 | 2026-11-19 | CodeBuddy (AI) | §4.9 / §4.11 / I152 — one test covers the enriched C4 hover content: deriveView supplies document detail on every scatter point and bucket document list, `c4TipHtml()` and `c4BucketTipHtml()` render the approved fields with approval labels, and both Analytical views emit the new `data-tip` payloads. No existing assertion was weakened.
 // Revision 0.39 | 2026-11-18 | CodeBuddy (AI) | §4.4 rev 1.94 / I150 — one test verifies the conditional drill column: All months and a multi-submission month keep the drill cell, expandable rows and locked Row chooser item; a single-submission month omits all of them and starts the six-column table at Document No. The spec copies are checked for rev 1.94. No existing assertion was weakened.
 // Revision 0.38 | 2026-11-18 | CodeBuddy (AI) | §4 rev 1.93 / I149 — the chip test is expanded to ten filter-state cases (T01–T10): no filters, global-only, month-only, combined, full-value selection, zero month, All-months hiding, month change, global-filter change and clearing filters; counts are checked against deriveView-derived truth and labels/funnel marks against the approved matrix. The I107 cumulative-total assertion follows the "Accumulated till" wording; no coverage was removed.
 // Revision 0.37 | 2026-11-18 | CodeBuddy (AI) | §4 rev 1.92 — one test proves the Submittals subtitle uses the standardized panel count chips: four families in order under a selected month with rule R1 funnels on all scoped chips, monthly chip hidden and no marks under All months, zero counts still rendered with the mark, all 12 --pchip-* tokens in all five themes, compact-equal chip metrics, .pchip/.vchip isolation, and the tokens present in the built standalone. The I108/I109 placement tests and the I107 cumulative-total assertion follow the chip markup; no coverage was removed.
@@ -49,7 +51,7 @@ import { fileURLToPath } from 'node:url';
 import { readXlsx } from '../engine/xlsx-reader.js';
 import { buildXlsx } from '../engine/xlsx-writer.js';
 import { buildModel } from '../engine/pipeline.js';
-import { c1TipHtml, c2DelayTipHtml, c1PlotSvg, niceAxisTicks, deriveView, renderDashboard, buildSubmittalsCsv, getExportTables, collectExportTables, exportFileName, c1PresetRange, C1_PRESETS } from '../engine/render.js';
+import { c1TipHtml, c2DelayTipHtml, c4TipHtml, c4BucketTipHtml, c1PlotSvg, niceAxisTicks, deriveView, renderDashboard, buildSubmittalsCsv, getExportTables, collectExportTables, exportFileName, c1PresetRange, C1_PRESETS } from '../engine/render.js';
 
 // The hover-window bindings in render.js bind to `window` and `document` (revision 0.62 series).
 // The harness supplies a fake `document` to renderDashboard but no `window`, so every rendering test
@@ -64,6 +66,7 @@ globalThis.document = { addEventListener() {}, removeEventListener() {} };
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const config = JSON.parse(fs.readFileSync(path.join(root, 'config/pipeline_contract.json'), 'utf8'));
+const uiHelp = JSON.parse(fs.readFileSync(path.join(root, 'config/ui_help.json'), 'utf8'));
 const bytes = name => { const value = fs.readFileSync(path.join(root, name)); return value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength); };
 const model = buildModel(await readXlsx(bytes('TWRP C3B2 - Master Document List.xlsx')), await readXlsx(bytes('TWRP C3B2 - Document Submittal Log.xlsx')), { contract: config, today: '2026-10-24' });
 // A blank Stage is counted (the MDL rule), and a row without a Document No. is not a planned
@@ -1416,6 +1419,85 @@ test('I103 — C2 Delay is nearest-datum; Funnel and C4 buckets carry hover wind
   const c4 = html.slice(html.indexOf('c4-chart'));
   assert.ok(/bar-row[^>]*data-tip="/.test(c4), 'bucket rows carry data-tip');
   assert.ok(c4.includes('Share of overdue'), 'the bucket tip carries the % footer');
+});
+
+// I152 — the C4 hover window identifies the document behind a scatter point or age bucket. The
+// aggregate counts stay in deriveView's existing KPI object; only the hover payload gains detail.
+test('I152 — C4 scatter and age buckets show document detail in hover windows', () => {
+  const view = deriveView(model);
+  const detailKeys = ['doc', 'title', 'submitter', 'submissionDate', 'latestApproval', 'targetReturnDate', 'turnaroundDays', 'delayDays', 'overdueState', 'overdueDays'];
+  assert.ok(view.c4Scatter.length > 0, 'the scatter payload is not empty');
+  for (const point of view.c4Scatter) {
+    for (const key of detailKeys) assert.ok(key in point, `scatter point carries ${key}`);
+  }
+  const labels = uiHelp.statusGlossary.approval;
+  const pointTip = c4TipHtml({ ...view.c4Scatter[0], latestApproval: 'APP' }, { APP: 'Approved' });
+  for (const label of ['Title', 'Submitter', 'Submission date', 'Latest approval', 'Target return', 'Turnaround', 'Review delay', 'Overdue']) {
+    assert.ok(pointTip.includes(label), `scatter tip carries ${label}`);
+  }
+  assert.match(pointTip, /APP — Approved/, 'approval code carries the glossary label');
+
+  const bucketKey = Object.keys(view.c4AgingDocs).find(key => view.c4AgingDocs[key].length > 0);
+  assert.ok(bucketKey, 'at least one age bucket has documents');
+  const docs = view.c4AgingDocs[bucketKey];
+  const sorted = [...docs].sort((a, b) => (Number(b.overdueDays) || 0) - (Number(a.overdueDays) || 0) || String(a.doc).localeCompare(String(b.doc)));
+  assert.deepEqual(docs.slice(0, 3), sorted.slice(0, 3), 'bucket documents are sorted by days past target');
+  const bucketTip = c4BucketTipHtml({ label: 'Bucket', value: docs.length, count: docs.length, pct: 100, docs }, labels);
+  const shown = (bucketTip.match(/class="c4-tip-doc"/g) || []).length;
+  assert.ok(shown > 0 && shown <= 3, 'the bucket tip lists at most three documents');
+  for (const label of ['Title', 'Submitter', 'Submission date', 'Latest approval', 'Target return', 'Days past target', 'Sorted by days past target']) {
+    assert.ok(bucketTip.includes(label), `bucket tip carries ${label}`);
+  }
+
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  const doc = { querySelector: s => s === '[data-page-content]' ? node : null };
+  renderDashboard(doc, model, { page: 'Analytical', c4View: 'scatter', uiHelp });
+  const scatterHtml = html.slice(html.indexOf('c4-chart'));
+  assert.ok(/circle[^>]*data-tip="/.test(scatterHtml), 'scatter points still use data-tip');
+  assert.ok(scatterHtml.includes('Latest approval') && scatterHtml.includes('Submission date'), 'scatter data-tip carries the detailed fields');
+  renderDashboard(doc, model, { page: 'Analytical', c4View: 'buckets', uiHelp });
+  const bucketHtml = html.slice(html.indexOf('c4-chart'));
+  assert.ok(/bar-row[^>]*data-tip="/.test(bucketHtml), 'bucket rows still use data-tip');
+  assert.ok(bucketHtml.includes('Days past target') && bucketHtml.includes('Sorted by days past target'), 'bucket data-tip carries the document list');
+});
+
+// I153 — the C4 Scatter swatch identifies the plotted point, so it belongs on the document-number
+// line only. Age buckets stay multi-record windows and keep their row swatches.
+test('I153 — C4 Scatter shows one point swatch beside the document number', () => {
+  const point = {
+    doc: 'DOC-1', title: 'Piping plan', submitter: 'User A', submissionDate: '2026-10-01',
+    latestApproval: 'APP', targetReturnDate: '2026-10-20', turnaroundDays: 12, delayDays: 4,
+    overdueState: 'open', overdueDays: 4
+  };
+  const tip = c4TipHtml(point, { APP: 'Approved' });
+  assert.equal((tip.match(/chart-swatch/g) || []).length, 1, 'the scatter tip has exactly one swatch');
+  assert.ok(tip.startsWith('<div class="c4-tip-head"><span class="chart-swatch c4-overdue"></span><b>DOC-1</b></div>'), 'the red swatch sits beside the document number');
+  const body = tip.slice(tip.indexOf('</div>') + 6);
+  assert.ok(!body.includes('chart-swatch'), 'no body row repeats the swatch');
+  const onTimeTip = c4TipHtml({ ...point, overdueState: 'ontime' }, { APP: 'Approved' });
+  assert.ok(onTimeTip.includes('<span class="chart-swatch c4-bucket"></span>'), 'on-time points use the blue token');
+  assert.equal((onTimeTip.match(/chart-swatch/g) || []).length, 1, 'on-time points also carry one swatch');
+  const bucketTip = c4BucketTipHtml({ label: 'Bucket', count: 1, pct: 100, docs: [{ ...point, title: 'Piping plan' }] });
+  assert.ok(bucketTip.includes('chart-swatch c4-bucket'), 'age buckets keep their row swatches');
+
+  const css = fs.readFileSync(path.join(root, 'engine/dashboard.css'), 'utf8');
+  assert.match(css, /\.c4-tip-head\{display:flex;align-items:center;gap:6px\}/, 'the header rule exists');
+  const repoRoot = path.dirname(root);
+  for (const rel of ['Dashboard-UI-Design-Spec.md', 'harness-layout/spec/Dashboard-UI-Design-Spec.md']) {
+    const spec = fs.readFileSync(path.join(repoRoot, rel), 'utf8');
+    assert.match(spec, /1\.96/, `${rel} carries rev 1.96`);
+    assert.match(spec, /One-datum swatch placement/, `${rel} carries the single-swatch rule`);
+  }
+
+  let html = '';
+  const node = { set innerHTML(value) { html = value; }, get innerHTML() { return html; } };
+  const doc = { querySelector: s => s === '[data-page-content]' ? node : null };
+  renderDashboard(doc, model, { page: 'Analytical', c4View: 'scatter', uiHelp });
+  const scatterHtml = html.slice(html.indexOf('c4-chart'));
+  const circles = [...scatterHtml.matchAll(/<circle[^>]*data-tip="([^"]*)"/g)];
+  assert.ok(circles.length > 0, 'scatter points render');
+  for (const [, tipAttr] of circles) assert.equal((tipAttr.match(/chart-swatch/g) || []).length, 1, 'each rendered point payload has one swatch');
 });
 
 // I105 — the C2 Stacked and Delay charts label their Start and Today reference lines. The lines

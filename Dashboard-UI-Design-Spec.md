@@ -2,6 +2,10 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.99 | 2026-11-21 | CodeBuddy (AI) | **§4 / §4.2 / §6 — tool-row gaps become universal (owner instruction).** Every panel tool row MUST sit inside its owning card with equal padding on all four sides from `--tool-pad`. Gaps between control groups MUST use `--tool-gap`. C3 keeps `--c3-tool-pad` and `--c3-tool-gap` as aliases. Both byte-identical spec copies updated. |
+| 1.98 | 2026-11-21 | CodeBuddy (AI) | **§4.6 — general value alignment in hover windows (I130).** Owner decision: numeric values stay right-aligned; text values start after a fixed label column and align left. §4.6 replaces the space-between row rule with a two-column rule for body rows and footers. Both byte-identical spec copies updated. |
+| 1.97 | 2026-11-20 | CodeBuddy (AI) | **§6 / §7.2.16 / §4.2 / §8.2 / Appendix A.2 — general crosshair colour standard.** Owner instruction: make the crosshair design general. §6 adds five normative crosshair tokens (`--crosshair-track`, `--crosshair-intersection`, `--crosshair-ring`, `--header-crosshair-overlay`, `--header-crosshair-accent`) for all five themes. §7.2.16 defines translucent row and column tracks, a stronger intersection cell, non-destructive header and sticky-axis overlays, `@media (hover: hover) and (pointer: fine)` scope and keyboard focus parity. §4.2 reconciles the header overlay with C1 and C3 attached tables while active column body cells stay border-free. §8.2 assertion 22 and Appendix A.2 items 17 and 20 are aligned. Both byte-identical spec copies updated. |
+| 1.96 | 2026-11-19 | CodeBuddy (AI) | **§4.6 — one header swatch for one-datum hover windows (`I153`).** Owner instruction: remove the repeated point color dot from C4 Scatter body rows and show one dot beside the document number. §4.6 now permits one header swatch instead of body-row swatches when every body row describes one datum with one series color. The token rule and footer rule stay unchanged. C4 Age buckets, C1, C2, C3 and KPI windows stay unchanged. |
 | 1.95 | 2026-11-18 | CodeBuddy (AI) | **§4.5 / §8.2 — Validation becomes two independent panels (`I151`).** Owner instruction: separate the rule table and the issue table into two panels, give each table a chip subtitle in its own panel, and keep code selection working. §4.5 now requires `Validation Rules` and `Validation Issues` as top-level panels in document order, one `.pchip-row` per panel before its `.c-card`, with `Loaded rules` / `Fired rules` in Panel 1 and `All issues` / `Shown issues` plus the three severity chips in one row in Panel 2. The `data-validation-count` hook moves to the `Shown issues` count. The former meta note, the card titles, the separate severity row and the Rules row-count label are removed. The error-code filter still narrows the Issues panel only. §8.2 gains assertion 36. Review sample: `sub/ref/sample-validation-two-panels.html`. Both byte-identical spec copies updated. |
 | 1.94 | 2026-11-18 | CodeBuddy (AI) | **§4.4 / §8.2 — drill column is conditional (`I150`).** Owner report: switching the Submittals panel to a month showed a white column before Document No. Browser measurement confirmed a 40px pinned `.drill-cell` (`background:rgb(255,255,255)`) with identical header / body widths in All months and month views; the cause is structural — the column is rendered unconditionally although 7 of 9 month views have no document with more than one submission. §4.4 now requires the drill column (with its `.expandable` row class, `.sub` detail rows, row shortcut and locked "Row" chooser item) to be omitted whenever no row in the current view is expandable; multi-record and All-months views keep the standardized drill-down. §8.2 gains assertion 35. Both byte-identical spec copies updated. |
 | 1.93 | 2026-11-18 | CodeBuddy (AI) | **§4 / §8.2 — panel chip semantics refined (`I149`).** Owner review of the four Submittals chips: all four MUST describe the same globally filtered dataset; violet uses month-filtered document groups (not the unfiltered aggregate), green counts distinct cumulative documents (not submission rows), and neutral is the displayed record count. Labels carry temporal scope ("in / for" the selected month vs "till" the month; all-months forms when no window is selected). The single funnel glyph marks every displayed chip when the in-panel time filter or an actually-narrowing global filter is active; selecting every available value or a blank search does not mark, and the funnel never distinguishes filter types. §4 gains the temporal-label bullet and rewrites the colour-family, visibility and filter-indication bullets; assertion 34 is updated. Tokens, anatomy, reserved colours and component isolation from rev 1.92 are unchanged. Both byte-identical spec copies updated. |
@@ -634,6 +638,7 @@ a dashboard uses in its own workplan.
   border around a single graph.
 - **Tables follow the same card contract (normative).** A data table (`.ds-table`, §7.2) and its own controls — view toggle, filters, lane / horizon selectors, export — sit together in one `.c-card`, exactly like a graph: the inner border wraps the table **plus its control cluster** (the owner rule for the Forward and Overdue page). A panel that shows several tables gives each its own `.c-card`.
 - **Table tool rows split filters LEFT and actions RIGHT (normative, rev 1.91).** In every table tool row — keyed tables, the Submittals panel and the Forward and Overdue controls — every **filter** (Month select, per-table filter selects, lane and horizon segments) sits in the **left** group, and every **action** (`⤓ CSV`, `Columns`, image actions) sits in the **right** group, right-aligned (`margin-left:auto`). Filters MUST NOT sit in the right group and actions MUST NOT sit in the left group.
+- **Tool-row gaps are universal (normative, rev 1.99).** Every panel tool row MUST sit inside its owning card with equal padding on all four sides from `--tool-pad`. Gaps between control groups MUST use `--tool-gap`. No rule hard-codes these gaps. `--c3-tool-pad` and `--c3-tool-gap` stay as C3 aliases of these tokens.
 - **A table inside a `.c-card` carries its own border; the card must not double-border it (normative).** When a `.c-card` wraps a table, the table's `.ds-split` border is the **single** external border; the card's own border is removed (`.c-card:has(.ds-split){border:0}`) so exactly one visible border remains — on the table, not the card. This corrects the I077 regression where `.c-card .ds-split{border:0}` deleted the table's border and left only the (too-subtle) card border. Chart cards (no `.ds-split`) keep their card border.
 - **Every on-screen table offers CSV (normative, rev 1.88).** Each table has its own `⤓ CSV` control in that table's tool row, before any image action. This applies to every table on every dashboard, including chart-attached tables and keyed tables. The control MUST be hidden when the table has no rows to export or when the current view renders no table. The export MUST contain all columns and all rows that match the applied filters. It MUST NOT be limited to the current page, the visible viewport or the column chooser selection. Use a UTF-8 BOM. This supersedes the earlier "currently visible rows" wording.
 - **The top menu exports one workbook (normative, rev 1.90).** The top menu `Export` control downloads a single `.xlsx` file with one worksheet per table **across all data pages** — not only the page on screen. Each harvested page renders in its current view state (global filters, per-page view toggles and month selections), so a table that is hidden or empty in that state contributes no worksheet. Each worksheet follows the same all-columns and full-filtered-set rule as the per-table CSV. A bare boolean attribute MUST be detected with `hasAttribute`: its `dataset` value is `""` and tests false.
@@ -803,7 +808,7 @@ Some panels hold several **chart cards** in a grid. The panel shell still carrie
   comes from `aria-label`. The `Breakdown Summary` panel keeps Month, Break-down-by and `⤓ Download`
   (rev 1.76) and is unchanged.
 - **C3 Breakdown gaps and tool-row placement (normative, rev 1.80).** Every gap in the three Breakdown
-  panels MUST be a named token from §6; no rule hard-codes a gap value. The tool row (part 3) MUST sit
+  panels MUST be a named token from §6; no rule hard-codes a gap value. This is the C3 case of the universal tool-row gap rule in §4 (rev 1.99). The tool row (part 3) MUST sit
   inside its owning card — the chart card (part 2) in the two chart panels, the summary table card
   (part 9) in the Breakdown Summary panel — and MUST have equal padding on all four sides from
   `--c3-tool-pad`. That padding MUST be identical in all three panels. In the two chart cards a scoped
@@ -1214,6 +1219,12 @@ a single shared time axis instead of two stacked charts:
       NOT receive a border, outline or inset ring. It MUST use a tokenised background and font
       weight only. The intersection `.cell-hover` MAY keep its inset ring (§7.2.16). The
       structural 1 px board border of §4.2 rev 1.70 is not affected.
+    - **Header overlay.** An active attached-table `<th>` header, including a sticky row header,
+      MUST use the non-destructive `--header-crosshair-overlay` and `--header-crosshair-accent`
+      treatment from §7.2.16 rev 1.97. The overlay MUST be a `background-image` over the existing
+      header fill. It MUST NOT overwrite `background-color`, change header height, create a
+      stacking context or break split-header width pinning or sticky positioning. Active body
+      `<td>` cells stay border-free under the preceding rule.
     - **Two-way and transient.** Hovering a chart column or a table column MUST move BOTH the
       band and the centre line to the same logical column. Both elements MUST be hidden on
       pointer leave / blur / Escape / repaint / print and MUST be stripped from PNG / Copy.
@@ -1564,7 +1575,9 @@ A **hover floating window** is the single reusable component that shows per-poin
 
 **Visual contract (tokenized, normative).** The window uses only design tokens — `background:var(--surface)`, `border:1px solid var(--border)`, `border-radius:8px`, `box-shadow:var(--shadow)`, `padding:8px 10px`, `font-size:11px`, `font-variant-numeric: tabular-nums`, `line-height:1.45`, `color:var(--text)`, `max-width:230px`, `z-index:30`, and `pointer-events:none`. It MUST follow the active theme (light/dark) automatically — no hard-coded surface or text colour (this removes the C2 dark `.c2-tip`, which is non-compliant).
 
-**Content layout.** Three zones: (1) a bold **header** carrying the hovered identity (month, dimension value, or KPI name); (2) **body rows**, each `swatch · label · value` in a space-between flex row; (3) a **footer** separated by a single top border, carrying any totals / percentages. One unified footer style MUST be used across every chart (no per-chart bold/normal divergence — I084). The series swatch MUST use the on-chart series **token**, never a hard-coded hex. **Series colour tokens MUST be unique per semantic** — two distinct series MUST NOT share a hue (e.g. Actual and AWC, or Forecast and Resubmission, MUST NOT be the same colour — I083). Units are explicit: durations show `d` (one decimal), counts are plain integers (label "docs" only if ambiguous), and zero is shown as `0`, never blank.
+**Content layout.** Three zones: (1) a bold **header** carrying the hovered identity (month, dimension value, or KPI name); (2) **body rows**, each `swatch · label · value` in a two-column row with a fixed label column; (3) a **footer** separated by a single top border, carrying any totals / percentages. **Value alignment (normative, rev 1.98).** A text value MUST align left in the value column, immediately after its label. A numeric value MUST align right in the value column. This rule applies to body rows and footers in every hover window. One unified footer style MUST be used across every chart (no per-chart bold/normal divergence — I084). The series swatch MUST use the on-chart series **token**, never a hard-coded hex. **Series colour tokens MUST be unique per semantic** — two distinct series MUST NOT share a hue (e.g. Actual and AWC, or Forecast and Resubmission, MUST NOT be the same colour — I083). Units are explicit: durations show `d` (one decimal), counts are plain integers (label "docs" only if ambiguous), and zero is shown as `0`, never blank.
+
+**One-datum swatch placement (rev 1.96 / I153).** When all body rows describe one datum with one series color, the window MAY show that series swatch once in the header instead of on each body row. This exception applies only when the header swatch uses the same on-chart series token. The body rows then use `label · value` with the same two-column value alignment. Multi-series windows and aggregate windows keep one swatch on each body row.
 
 **Trigger & dismissal (normative).** `pointermove` / `mousemove` opens the window; `mouseleave` (and `blur`) closes it. Hovering empty chart area MUST snap to the nearest datum (no dead zone). A **touch / no-hover variant is REQUIRED**: on touch devices the window shows on tap (tap-to-show, tap-away to dismiss); the dashboard MUST NOT silently leave point detail unreachable on touch (I082).
 
@@ -1746,8 +1759,10 @@ The project-local UI stylesheet MUST define every token below. Components refere
 | `--panel-pad` | `14px` | Panel border → content (§4.2 rev 1.80) |
 | `--panel-title-gap` | `10px` | Panel title → card (§4.2 rev 1.80) |
 | `--c3-card-pad` | `12px` | Chart / table inset inside the card border (§4.2 rev 1.80) |
-| `--c3-tool-pad` | `12px` | Equal padding on all four sides of the Breakdown tool row (§4.2 rev 1.80) |
-| `--c3-tool-gap` | `10px` | Gap between control groups inside the tool row (§4.2 rev 1.80) |
+| `--tool-pad` | `12px` | Equal padding on all four sides of every panel tool row (§4 rev 1.99) |
+| `--tool-gap` | `10px` | Gap between control groups in every panel tool row (§4 rev 1.99) |
+| `--c3-tool-pad` | `var(--tool-pad)` | C3 alias of the universal tool-row padding (§4 rev 1.99) |
+| `--c3-tool-gap` | `var(--tool-gap)` | C3 alias of the universal tool-row group gap (§4 rev 1.99) |
 | `--c3-axis-label-h` | `18px` | X-axis label height (§4.2 rev 1.79) |
 | `--c3-plot-table-gap` | `calc(var(--c3-axis-label-h) / 3)` = `6px` | Minimized bar-plot → attached-table gap; scales with label height and clears the `0` tick (§4.2 rev 1.80) |
 | `--c1-gutter` | `104px` | C1 attached-table gutter (§4.2) |
@@ -1777,10 +1792,19 @@ The project-local UI stylesheet MUST define every token below. Components refere
 | `--ink` | theme | High-emphasis text |
 | `--white` | theme | Contrast text on filled buttons |
 | `--shadow` | theme | Subtle panel / tooltip shadow |
+| `--crosshair-track` | theme | Translucent row / column track tint for `.row-hover` and `.col-hover` (§7.2.16 rev 1.97) |
+| `--crosshair-intersection` | theme | Stronger translucent tint for `.cell-hover` (§7.2.16 rev 1.97) |
+| `--crosshair-ring` | theme | Inset emphasis ring for `.cell-hover` (§7.2.16 rev 1.97) |
+| `--header-crosshair-overlay` | theme | Luminance-adapted translucent overlay for active `<th>` headers, including sticky row headers (§7.2.16 rev 1.97) |
+| `--header-crosshair-accent` | theme | Edge indicator accent for active column and sticky row headers (§7.2.16 rev 1.97) |
 | `--pchip-blue-bg` / `-border` / `-ink` | theme | Panel count chip, monthly count family (§4 rev 1.92) |
 | `--pchip-violet-bg` / `-border` / `-ink` | theme | Panel count chip, total month count family (§4 rev 1.92) |
 | `--pchip-green-bg` / `-border` / `-ink` | theme | Panel count chip, accumulated count family (§4 rev 1.92) |
 | `--pchip-neutral-bg` / `-border` / `-ink` | theme | Panel count chip, filtered count family (§4 rev 1.92) |
+
+The five crosshair tokens MUST have a value in each of the five themes. Each translucent token MUST
+keep the underlying zebra fill visible. No component rule MAY replace these tokens with a literal
+colour or a CSS `filter`.
 
 ---
 
@@ -2224,7 +2248,7 @@ for `.matrix`. This is enforced by harness **Tier 4g** `lintMatrixHeaderRules`, 
 non-gutter header cell lacks its painted `::after` rule (covering all header rows, not just the first
 data cell).
 
-#### 7.2.16 Table Hover Crosshair Standard — added 2026-11-13; general attached-table sync added 2026-11-14; C1 visual contract added 2026-11-14
+#### 7.2.16 Table Hover Crosshair Standard — added 2026-11-13; general attached-table sync added 2026-11-14; C1 visual contract added 2026-11-14; crosshair colour standard added 2026-11-20
 
 **One global interaction contract (normative).** Every tabular view MUST use ONE shared
 row/column crosshair. `.ds-table` is the canonical class; data tables that also carry a
@@ -2254,17 +2278,31 @@ chart ↔ table sync; the generic crosshair MAY add `.row-hover` and `.cell-hove
 **Requirements (normative).**
 
 1. **Row highlighting.** While the pointer is over a data row, that entire `<tr>` MUST carry
-   `.row-hover` and be visibly highlighted. Hovering a nested table resolves to the nested row;
-   it MUST NOT also highlight the enclosing parent row.
+   `.row-hover` and be visibly highlighted. The row track MUST use `--crosshair-track` as a
+   translucent fill layered over the existing row colour. The layer MUST use `background-color`
+   or a layered `linear-gradient`. It MUST NOT replace a zebra row with an opaque colour and MUST
+   NOT use CSS `filter`, which creates a stacking context and can break sticky descendants.
+   Hovering a nested table resolves to the nested row; it MUST NOT also highlight the enclosing
+   parent row.
 2. **Column highlighting.** While the pointer is over a header, body or footer cell, every cell
    in the corresponding logical column MUST be visibly highlighted, including the header
-   fragment. Generic tables carry `.col-hover`; C1 and C3 satisfy the same clause through their
-   existing / added `.col-active` chart ↔ table sync and MUST NOT be given a second, competing
-   `.col-hover` column state. The logical column MUST be resolved once per pointer move and
-   reused for the row and intersection state.
-3. **Intersection highlighting.** The hovered cell MUST also carry `.cell-hover` and receive a
-   stronger emphasis than the row or column alone (a stronger tokenised background, weight or
-   outline). The row, column and intersection states MUST be consistent with one another.
+   fragment. The column track MUST use `--crosshair-track` as the same translucent layer as the
+   row track, so the two tracks stay visually consistent. Generic tables carry `.col-hover`; C1
+   and C3 satisfy the same clause through their existing / added `.col-active` chart ↔ table sync
+   and MUST NOT be given a second, competing `.col-hover` column state. The logical column MUST be
+   resolved once per pointer move and reused for the row and intersection state.
+
+   **Header and sticky-axis highlighting.** An active `<th>` column header and a sticky row header
+   MUST keep its existing `background-color`. It MUST receive a non-destructive
+   `background-image: linear-gradient(var(--header-crosshair-overlay), var(--header-crosshair-overlay))`
+   and an inset edge indicator in `var(--header-crosshair-accent)`. The overlay MUST be
+   luminance-adapted for every theme so dark, navy and saturated header surfaces keep text
+   contrast. The edge indicator applies to headers only. Active body `<td>` cells stay
+   border-free under requirement 5.
+3. **Intersection highlighting.** The hovered cell MUST also carry `.cell-hover`. It MUST use
+   `--crosshair-intersection` as a stronger translucent background and an inset ring in
+   `var(--crosshair-ring)`. The intersection MUST remain distinct from either track alone without
+   an opaque fill. The row, column and intersection states MUST be consistent with one another.
 4. **Split-header support.** Header and body cells MUST be paired by **rendered column position**
    or by an explicit shared column identifier such as `data-col` / `data-c1col` / `data-col-id`.
    Raw DOM index, `cellIndex` alone and `nth-child` selectors MUST NOT be used as the pairing
@@ -2281,11 +2319,18 @@ chart ↔ table sync; the generic crosshair MAY add `.row-hover` and `.cell-hove
    follow the §4.2 rev 1.75 visual contract. Active column cells MUST NOT carry a border,
    outline or inset ring; only `.cell-hover` MAY keep its ring. No generic binder may clear,
    overwrite or duplicate that state.
-6. **Visual compatibility.** Highlights MUST be painted as a non-structural layer that preserves
-   the existing column-rule pseudo-elements and `position:relative` on header/body cells
-   (§7.2.2 / §7.2.15). They MUST NOT change `table-layout:fixed`, column widths, pinned-cell
-   elevation, resize grips, scroll geometry or the split-header width pin. All colours MUST come
-   from the theme's semantic tokens; no hard-coded hover colour is permitted.
+6. **Visual compatibility and input parity.** Highlights MUST be painted as a non-structural
+   layer that preserves the existing column-rule pseudo-elements and `position:relative` on
+   header/body cells (§7.2.2 / §7.2.15). They MUST NOT change `table-layout:fixed`, column widths,
+   pinned-cell elevation, resize grips, scroll geometry or the split-header width pin. Translucent
+   fills MUST use `background-color` or `linear-gradient` only. Highlights MUST NOT use CSS
+   `filter`, `backdrop-filter`, cell opacity or any other property that creates a stacking
+   context. All hover colours MUST come from `--crosshair-track`, `--crosshair-intersection`,
+   `--crosshair-ring`, `--header-crosshair-overlay` and `--header-crosshair-accent` (§6). No rule
+   MAY hard-code a hover colour. Pointer hover styling MUST be scoped to
+   `@media (hover: hover) and (pointer: fine)`. Keyboard focus MUST produce the same row, column
+   and intersection state through `:focus-visible` on a focusable cell or row, outside that media
+   query. Touch-only views MAY use a transient tap state but MUST NOT persist it.
 7. **Export and printing.** Hover state is transient. `.row-hover`, `.col-hover`, `.cell-hover`
    and chart-linked `.col-active` MUST be stripped from or ignored by PNG and Copy serialization,
    and MUST NOT appear in print output. Exporters MUST serialize the same table content without
@@ -2368,7 +2413,7 @@ hard-coded into the generic check.
 | 19 | Stacked top-level panels are separated by 14 px (container gap or panel margin, never both); borders never touch; hidden panels add no gap; the `Breakdown` page's own grid MUST use that 14 px gap and MUST NOT inherit a different value from `body[data-layout]` (§4.1 rev 1.76) | §4.7 |
 | 20 | The search panel is one row: attached column picker (All columns plus each searchable column), flexible input, affixed submit; the picker re-applies the query and does not clear it | §7.1 B5 / A5 |
 | 21 | An S-curve attached table uses one `.c1-grid` with explicit `--c1-gutter` / `--c1-cols` tracks and `column-gap:0`, one `<svg role="img">` whose host carries a `ResizeObserver`, one native `<table>` in one spanning grid item with `<caption>` / `<colgroup>` / `<thead>` / `<tbody>` / `scope`, static and rebuilt cells with the same structure, a bordered chart composition (axis / plot / table zones with shared right-angle corners and an unbordered alignment grid; rev 1.70 / 1.81), no third bordered wrapper, and PNG/Copy that include the table; the SVG draws one vertical `sc-yaxis-line` at the plot's left edge, grid column 1 carries at most eight dynamically generated Y ticks (§4.2 rev 1.64: max 7 intervals, min ~40 px spacing, nice-number steps, one `line.sc-grid` per label, all derived from the same `data-c1meta.yMax` / `yStep` / `yIntervals` payload) and a rotated unit caption; after a period change the Y-axis maximum MUST be recomputed from the selected period window with cumulative values unchanged (§4.2 rev 1.65), and chart / grid / labels / hover-refit metadata / PNG-Copy MUST share that one Y-axis scale; the C1 period control is ONE dual-handle month-snapped track with one tick per active reporting month and the `6M` / `12M` / `24M` / `YTD` / `All` preset chips (§4.2 rev 1.66: `step="1"`, `input` visual-only, `change` single repaint, `aria-valuetext` / `aria-pressed`, print hides the interactive controls), and those five chips are ONE joined `.seg` group of `.seg-btn` buttons with EXACTLY one `aria-pressed="true"` at a time, a stored preset name (default `All`), NO active chip after a manual handle `input` / `change`, and the tools below the panel title stay on ONE visual row at the 1280 px minimum desktop width with `flex-wrap:nowrap` on `.c1-ts` (§4.2 rev 1.67); every Sub `.seg-btn` follows the §7.5 B2.1 common standard — shared CSS custom-property tokens, `--navy` active fill, `--surface2` inactive hover, `--surface3` pressed, a disabled state, a 2 px `--blue` focus ring with `outline-offset:-2px` plus a high-contrast light ring on active buttons, `type="button"` and a dynamic `aria-pressed` on ALL seven generators, `role="group"` and an accessible name on every group, equal height within each group and centre alignment between groups, the `standard` 32 px / 12 px variant and the C1 `compact` exception at ≈ 25.94 px / 11 px / `line-height:1.45` / `padding:5px 8px` with `min-height:0` and no hover or focus rule of its own (§4.2 rev 1.69 / §7.5 B2.1); the in-SVG legend sits above the plot, the `<thead>` row is flush with the plot bottom (which is also the SVG bottom) with no separate SVG X labels, the whole curve fits the board with no horizontal scroll, and bar / dot / `data-points.cx` alignment holds after the period window changes; the SVG draws four tokenised `<linearGradient>` defs and `path.sc-area` fills plus one hidden `rect.sc-hover-band` behind all marks, every month `<th>` and value `<td>` carries `data-c1col`, hovering a month column in either direction activates the band / snap line / `.col-active` highlight, and the `.chart-tip` window opens only inside the SVG chart area and is `aria-hidden="true"` with empty text whenever hidden; `aria-describedby` points at `.chart-tip` only; C3 Bar cards use the same native attached-table model, the general chart ↔ attached-table column sync and the C1 band / centre line / border-free visual contract (§4.2 rev 1.73 / 1.74 / 1.75); on the `Breakdown` page each C3 legend MUST sit ABOVE `.c3-grid` in Bar view and above the donut `<svg>` in Pie view, MUST be rendered in-SVG, and the exported PNG / Copy MUST keep the legend at the top (§4.2 rev 1.78) | §4.2, §4.6 |
-| 22 | Every tabular view uses the ONE shared table hover crosshair: the hovered row, logical column including its split header, and intersection cell are highlighted; split-header cells pair by rendered column position or an explicit column identifier, never raw `cellIndex`; C1 and C3 `.col-active` / chart sync is preserved by the general attached-table column sync rule (§4.2 rev 1.74 / 1.75); the hidden column band and the `.chart-snap` centre line move with the active column in both directions, and active chart or table column cells carry no border, outline or inset ring (§4.2 rev 1.75); C3 attached tables participate through `data-table-crosshair` / `data-col-id` and `role="group"` on the card; on the `Breakdown` page (§4.1 rev 1.76) both chart panels and the summary panel's table follow the same crosshair rule inside their own panels, and no panel reads or writes another panel's hover state; column rules and `position:relative` are unchanged; and transient hover classes, the band and the centre line are absent from PNG, Copy and print | §7.2.16 |
+| 22 | Every tabular view uses the ONE shared table hover crosshair: the hovered row, logical column including its split header, and intersection cell are highlighted; split-header cells pair by rendered column position or an explicit column identifier, never raw `cellIndex`; C1 and C3 `.col-active` / chart sync is preserved by the general attached-table column sync rule (§4.2 rev 1.74 / 1.75); the hidden column band and the `.chart-snap` centre line move with the active column in both directions, and active chart or table column cells carry no border, outline or inset ring (§4.2 rev 1.75); C3 attached tables participate through `data-table-crosshair` / `data-col-id` and `role="group"` on the card; on the `Breakdown` page (§4.1 rev 1.76) both chart panels and the summary panel's table follow the same crosshair rule inside their own panels, and no panel reads or writes another panel's hover state; column rules and `position:relative` are unchanged; row and column tracks use the tokenised translucent `--crosshair-track`, the intersection uses `--crosshair-intersection` plus the inset `--crosshair-ring`, and active `<th>` headers and sticky row headers use `--header-crosshair-overlay` / `--header-crosshair-accent` as non-destructive overlays that keep theme header contrast, split-header geometry and sticky positioning; pointer hover styling is scoped to `@media (hover: hover) and (pointer: fine)` with `:focus-visible` keyboard parity; and transient hover classes, the band and the centre line are absent from PNG, Copy and print | §6, §7.2.16 |
 | 23 | A chart that renders a native attached table whose columns share the chart's X positions uses ONE transient two-way chart ↔ attached-table column sync: hovering a chart column or a table column highlights the SAME logical column in both, inside the owning chart card only; C1 keeps `data-c1col` / `.sc-hover-band` / snap line / `.col-active`, and C3 Bar keeps shared `data-col-id` on `.g-bar`, dimension headers and value cells plus ONE `.col-active` state per `.c3-card`; each C3 card is independent (on the `Breakdown` page, §4.1 rev 1.76, the `Submissions` and `Approval Status` chart panels each own their state and sync scope), no competing `.col-hover` column state is applied, `.row-hover` / `.cell-hover` may still apply, the `.chart-tip` window stays closed while the cursor is in the attached table, and the state clears on pointer leave / blur / Escape / repaint / print and is absent from PNG / Copy / print (§4.2 rev 1.74); C1 and C3 Bar each draw ONE hidden column band and ONE hidden dashed `.chart-snap` centre line, both MUST move with the active column in BOTH directions, and no active chart or table column cell MAY carry a border, outline or inset ring (§4.2 rev 1.75); the band and centre line stay hidden on leave / blur / Escape / repaint / print and absent from PNG / Copy / print (§4.2 rev 1.75) | §4.2, §4.6, §7.2.16 |
 | 24 | The sidebar lists `Breakdown` directly under `Overview` (§3.2 rev 1.76); the `Breakdown` page holds THREE fully independent panels — `Submissions`, `Approval Status` (charts, side by side, `Submissions` first) and `Breakdown Summary` (full width below) — each with its OWN `c3Month` / `c3Dim` / `c3View` state, so changing a control in one panel changes nothing in the others, and each chart switches between Bar and donut independently (§4.1 rev 1.76); the Overview page keeps KPI, C1 and C2 only; each C3 legend sits ABOVE its chart and is in-SVG (§4.2 rev 1.78); the summary panel owns Month, Break-down-by and the `⤓ Download` CSV control, its table uses the compact row tokens with no inner vertical scroll at 1280 px, and the orphan discipline (submittal rows not registered in MDL) is named `Others`, not `Unknown` (§4.1 rev 1.76); each chart panel shows ONE tool row — Month select, Break-down-by and Bar / Pie on the left, `⤓ PNG` + `⧉ Copy` on the right, no second head row — and the Month select carries no visible `Month` text (§4.2 rev 1.77) | §3.2, §4.1, §4.2 |
 | 25 | Every gap in the three Breakdown panels is a named token from the §6 inventory and no rule hard-codes a gap value (§0, §4.2 rev 1.80); the tool row (part 3) sits inside its owning card — chart card 2 in both chart panels, summary table card 9 in the Breakdown Summary panel — with equal `--c3-tool-pad` on all four sides and the same padding in all three panels, and only the two chart cards use a scoped negative margin equal to `--c3-card-pad` that cancels the outer card padding while the card border and the chart / table inset stay (§4.2 rev 1.80); the bar-plot-to-attached-table gap equals the derived token `--c3-plot-table-gap` = `--c3-axis-label-h / 3` (6 px at the default 18 px label height), is minimized without the table overlapping the plot baseline or the `0` tick label, and still scales with the label height (§4.2 rev 1.80) | §0, §4.2, §6 |
@@ -2464,10 +2509,10 @@ different implementations, the spec above states ONE standard.
 | 14 | Chart↔table sync | One shared `data-col-id`/`data-c1col`, ONE hidden band (`0.08` opacity), ONE hidden `.chart-snap`, border-free `.col-active` |
 | 15 | Chart hover | One delegated `bindChartHover()` binder on `data-points`/`data-geo`; native `<title>` retired |
 | 16 | Button height | One `--btn-h:32px` text-button token; `26px` square icon-only |
-| 17 | Table crosshair | `.row-hover`+`.cell-hover`+`.col-active`; `.col-hover` suppressed |
+| 17 | Table crosshair | Generic `.row-hover`+`.col-hover`+`.cell-hover`; `.col-active` reserved for chart sync; translucent `--crosshair-track` and `--crosshair-intersection`, inset `--crosshair-ring`, and non-destructive header overlay / accent tokens |
 | 18 | Panel spacing | `--panel-gap:14px`; `16px` chart cards; `12px` validation cards |
 | 19 | Typography | `--font-ui` stack; 13px body/h2/h3, 22px KPI, 12px controls, 11px tooltips/meta, `tabular-nums` |
-| 20 | Colour system | Centralised semantic tokens, zero hard-coded hex, 5 themes |
+| 20 | Colour system | Centralised semantic tokens, zero hard-coded hex, 5 themes; the five crosshair tokens have a value in every theme |
 | 21 | Spacing system | 8 pt scale `4·8·12·16·24·32·48`; gutters `--c1-gutter`/`--c3-gutter:104px`, `--sidebar-w:160px` |
 | 22 | Border and radius | Radii `10/8/6px`; single-border rule (`.c-card:has(.ds-split){border:0}`) |
 | 23 | Hover / focus | `:focus-visible` 2px `var(--blue)`, `outline-offset:-2px`; WCAG AA |

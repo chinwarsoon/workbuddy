@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MDL Shell Sample — Spec Rev 1.96</title>
+<style>
+:root{
+  --font-ui:"Segoe UI",system-ui,-apple-system,"Source Sans Pro",Roboto,Helvetica,Arial,sans-serif;
+  --navy:#123A5A; --nav-bg:#123A5A; --nav-bg-hover:rgba(255,255,255,.1); --nav-bg-active:#354F6E; --nav-fg:#E8EDF3;
+  --blue:#1E88E5; --blue-hover:#1565C0; --surface:#FFFFFF; --surface2:#F4F7FA; --surface3:#E9EFF5;
+  --bg:#EEF2F6; --text:#1E2933; --text2:#536372; --text3:#7A8A98; --border:#D9E1E8; --line:#E7ECF1; --soft:#F7F9FB;
+  --green:#2E7D52; --amber:#B26A00; --red:#C62828; --shadow:0 1px 3px rgba(18,58,90,.08);
+  --btn-h:32px; --seg-h:32px; --panel-gap:14px; --sidebar-w:160px; --ds-sbw:10px;
+  --pchip-blue-bg:#E8F2FC; --pchip-blue-border:#A9D2F5; --pchip-blue-ink:#155E9B;
+  --pchip-violet-bg:#F2ECFB; --pchip-violet-border:#CBB4EC; --pchip-violet-ink:#6A3FA0;
+  --pchip-green-bg:#E9F6EE; --pchip-green-border:#A9D9BE; --pchip-green-ink:#226B45;
+  --pchip-neutral-bg:#F1F4F7; --pchip-neutral-border:#CBD5DF; --pchip-neutral-ink:#465767;
+}
+body[data-theme="dark"]{
+  --navy:#0D2940; --nav-bg:#0D2940; --nav-bg-active:#274A68; --nav-fg:#EAF1F7;
+  --surface:#17232E; --surface2:#20303D; --surface3:#293B4B; --bg:#0F1821; --text:#E6EDF3; --text2:#BAC8D4;
+  --text3:#8EA1B2; --border:#33465A; --line:#273A4B; --soft:#1B2A37; --shadow:0 1px 3px rgba(0,0,0,.35);
+  --pchip-blue-bg:#173A56; --pchip-blue-border:#2E6D9E; --pchip-blue-ink:#BFE0FA;
+  --pchip-violet-bg:#33254C; --pchip-violet-border:#6E56A3; --pchip-violet-ink:#DCCBFF;
+  --pchip-green-bg:#1B3A2B; --pchip-green-border:#3F7A58; --pchip-green-ink:#C2EAD2;
+  --pchip-neutral-bg:#24323E; --pchip-neutral-border:#465C6E; --pchip-neutral-ink:#D5E0E9;
+}
+body[data-theme="navy"]{
+  --navy:#0B2A47; --nav-bg:#0B2A47; --nav-bg-active:#2D4F6E; --nav-fg:#EEF4F9;
+  --blue:#63B3ED; --blue-hover:#90CDF4; --surface:#FFFFFF; --surface2:#EFF4F8; --surface3:#E2EBF2;
+  --bg:#E4ECF3; --text:#18334A; --text2:#4D6578; --text3:#71889B; --border:#C3D2DF; --soft:#F4F8FB;
+}
+body[data-theme="contrast"]{
+  --navy:#001A2E; --nav-bg:#001A2E; --nav-bg-active:#004A7C; --nav-fg:#FFFFFF;
+  --blue:#005FCC; --blue-hover:#00459B; --surface:#FFFFFF; --surface2:#F0F0F0; --surface3:#E0E0E0;
+  --bg:#FFFFFF; --text:#000000; --text2:#1A1A1A; --text3:#333333; --border:#000000; --line:#555555; --soft:#F7F7F7;
+}
+body[data-theme="sepia"]{
+  --navy:#44392F; --nav-bg:#44392F; --nav-bg-active:#6B5948; --nav-fg:#F7F0E6;
+  --blue:#9A5B22; --blue-hover:#7D4819; --surface:#FFFDF8; --surface2:#F7F0E6; --surface3:#EFE3D2;
+  --bg:#F2EADA; --text:#3B2F24; --text2:#6B5B49; --text3:#8A7865; --border:#D6C6B0; --line:#E5D8C5; --soft:#FCF8F0;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+body{font-family:var(--font-ui);font-size:13px;line-height:1.45;color:var(--text);background:var(--bg)}
+button,select,input{font-family:inherit}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+.app{height:100vh;display:grid;grid-template-rows:78px 44px minmax(0,1fr) 28px}
+[data-shell="titlebar"]{background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;gap:16px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{height:36px;width:36px;flex-shrink:0}
+.ttl-stack{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ttl{font-size:17px;font-weight:600;line-height:1.2;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub{font-size:12px;font-weight:500;line-height:1.45;color:rgba(255,255,255,.86);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{font-size:11px;font-weight:400;line-height:1.45;color:rgba(255,255,255,.72);white-space:nowrap}
+.page-label{font-size:16px;font-weight:600;line-height:1.2;color:#fff;background:none;padding:0;border:0;border-radius:0;white-space:nowrap;flex-shrink:0}
+[data-shell="menubar"]{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 20px;min-height:44px;position:relative;z-index:20}
+.menu-group{display:flex;align-items:center;gap:8px;min-width:0}
+.menu-group.filters{margin-left:auto;gap:8px}
+.btn,.tf-btn{min-height:var(--btn-h);border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text);font-size:12px;font-weight:600;line-height:1.2;padding:7px 14px;cursor:pointer;white-space:nowrap}
+.btn:hover,.tf-btn:hover{background:var(--surface3)}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-hover);border-color:var(--blue-hover)}
+.btn-quiet{background:transparent;border-color:transparent}
+.btn-quiet:hover{background:var(--surface2)}
+.shell-toggle{padding:7px 8px;font-size:12px;font-weight:600;min-height:var(--btn-h)}
+.warn-toggle{margin-left:6px}
+.tf-btn{padding:7px 12px;line-height:normal;border-color:transparent;background:transparent}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:5px;border-radius:9px;background:var(--surface3);color:var(--text);font-size:10px;font-weight:700;line-height:1}
+.btn-primary .badge{background:rgba(255,255,255,.22);color:#fff}
+.shell-main{display:grid;grid-template-columns:var(--sidebar-w) minmax(0,1fr);min-height:0;transition:grid-template-columns .12s ease}
+body.sidebar-collapsed .shell-main{grid-template-columns:0 minmax(0,1fr)}
+body.sidebar-collapsed [data-shell="left-sidebar"]{display:none}
+[data-shell="left-sidebar"]{background:var(--nav-bg);color:var(--nav-fg);display:flex;flex-direction:column;min-height:0;position:relative}
+.nav-list,.nav-bottom{display:flex;flex-direction:column;gap:2px;padding:10px}
+.nav-bottom{margin-top:auto}
+.nav-item{min-height:36px;border:0;border-radius:6px;background:var(--nav-bg);color:var(--nav-fg);text-align:left;padding:8px 12px;font-size:14px;font-weight:400;line-height:1.2;cursor:pointer;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-item:hover{background:var(--nav-bg-hover)}
+.nav-item.active{background:var(--nav-bg-active);font-weight:600}
+.sidebar-resizer{position:absolute;right:-3px;top:0;width:6px;height:100%;cursor:col-resize;z-index:5}
+.sidebar-resizer:hover{background:rgba(255,255,255,.18)}
+[data-shell="content"]{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--bg)}
+[data-shell="warnings"]{position:sticky;top:0;z-index:9;background:var(--surface2);border-bottom:1px solid var(--border);color:var(--text);padding:8px 20px;display:flex;align-items:center;gap:10px}
+[data-shell="warnings"][hidden]{display:none}
+.warn-tag{font-size:10px;font-weight:700;letter-spacing:.04em;color:var(--amber);border:1px solid var(--amber);border-radius:4px;padding:1px 5px}
+[data-shell="filter-area"]{flex:0 0 auto;min-height:38px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 20px;background:var(--surface);border-bottom:1px solid var(--border)}
+.filter-summary{display:flex;align-items:center;gap:8px;color:var(--text2);font-size:12px}
+.filter-summary strong{color:var(--text)}
+.pill{border:1px solid var(--border);border-radius:999px;padding:2px 8px;background:var(--surface2);font-size:11px;font-weight:600}
+[data-shell="body"]{flex:1 1 auto;min-height:0;overflow:auto;padding:14px 20px 24px}
+[data-shell="statusbar"]{background:var(--navy);color:rgba(255,255,255,.86);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 20px;font-size:11px}
+.status-right{display:flex;align-items:center;gap:14px}
+.kpi-panel{margin-bottom:var(--panel-gap)}
+.kpi-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:880px){.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{height:72px;border:1px solid var(--border);border-radius:8px;background:var(--surface);padding:10px 10px 8px;position:relative;overflow:hidden;min-width:0}
+.kpi::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:var(--kpi-color,var(--blue))}
+.kpi .v{font-size:22px;font-weight:700;line-height:1.1;margin-top:8px;color:var(--text)}
+.kpi .l{font-size:10px;font-weight:700;line-height:1.2;letter-spacing:.04em;text-transform:uppercase;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.panel-grid{display:grid;gap:var(--panel-gap);grid-template-columns:repeat(var(--cols,2),minmax(0,1fr));align-items:start}
+body[data-layout="one"]{--cols:1}
+body[data-layout="two"]{--cols:2}
+body[data-layout="three"]{--cols:3}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);padding:14px 14px 26px;position:relative;min-width:0}
+.panel::after{content:"Panel " attr(data-panel);position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:.04em;color:var(--text3);pointer-events:none}
+.panel[data-wide="true"]{grid-column:1/-1}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 10px}
+.panel h2{margin:0;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--navy)}
+.panel-actions{display:flex;align-items:center;gap:6px}
+.icon-btn{width:26px;height:26px;min-height:26px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.panel-body.collapsed{display:none}
+.c-card{border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:12px;min-width:0}
+.c-card h3{margin:0 0 8px;font-size:13px;font-weight:700;color:var(--text)}
+.table-tools{display:flex;align-items:center;gap:8px;margin-bottom:8px;min-width:0}
+.tools-right{margin-left:auto;display:flex;align-items:center;gap:6px}
+.inter-sel{min-height:28px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;padding:3px 8px}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;table-layout:fixed}
+.tbl caption{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.tbl th,.tbl td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tbl thead th{background:var(--surface2);font-size:11px;font-weight:700;color:var(--text2);border-bottom:1px solid var(--border)}
+.tbl td.num,.tbl th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tbl tbody tr:hover{background:var(--soft)}
+.chart-placeholder{height:150px;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;gap:6px;padding:8px 4px 0}
+.bar{flex:1;background:var(--blue);opacity:.78;border-radius:3px 3px 0 0;min-height:6px}
+.bar.amber{background:var(--amber)}
+.bar.green{background:var(--green)}
+.chart-caption{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);padding-top:5px}
+.pchip-row,.v-chip-row{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px;align-items:center}
+.v-chip-row{margin-bottom:12px}
+.pchip,.vchip{display:inline-flex;align-items:center;gap:7px;border-radius:6px;padding:2px 10px;font-size:11px;font-weight:700;line-height:1.4;border:1px solid transparent;white-space:nowrap}
+.pchip b{font-size:13px;line-height:1;font-variant-numeric:tabular-nums}
+.pchip.blue{background:var(--pchip-blue-bg);border-color:var(--pchip-blue-border);color:var(--pchip-blue-ink)}
+.pchip.violet{background:var(--pchip-violet-bg);border-color:var(--pchip-violet-border);color:var(--pchip-violet-ink)}
+.pchip.green{background:var(--pchip-green-bg);border-color:var(--pchip-green-border);color:var(--pchip-green-ink)}
+.pchip.neutral{background:var(--pchip-neutral-bg);border-color:var(--pchip-neutral-border);color:var(--pchip-neutral-ink)}
+.vchip.e{background:#FDECEA;border-color:#F0B7B2;color:#9E1B1B}
+.vchip.w{background:#FFF4E0;border-color:#F0CE96;color:#8A5200}
+.vchip.i{background:#E8F2FC;border-color:#A9D2F5;color:#155E9B}
+.note{font-size:11px;color:var(--text2);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px}
+.popover{position:absolute;top:42px;right:20px;width:min(92vw,640px);background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 28px rgba(18,58,90,.18);padding:10px;z-index:30}
+.popover[hidden],.filter-pop[hidden]{display:none}
+.search-row{display:flex;align-items:center;gap:8px}
+.search-row select,.search-row input{min-height:32px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;padding:6px 9px}
+.search-row input{flex:1 1 auto;min-width:180px}
+.filter-pop{position:absolute;top:42px;left:20px;width:260px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 28px rgba(18,58,90,.16);padding:8px;z-index:31}
+.filter-pop h3{margin:4px 6px 8px;font-size:12px;font-weight:700;color:var(--text)}
+.filter-master{display:flex;align-items:center;gap:8px;padding:6px;border-bottom:1px solid var(--line);font-size:12px;font-weight:600}
+.filter-hint{font-size:11px;color:var(--text3);padding:6px;margin:0}
+.filter-items{display:flex;flex-direction:column;gap:2px;padding:4px 0}
+.filter-items label{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:5px;font-size:12px}
+.filter-items label:hover{background:var(--surface2)}
+dialog{border:1px solid var(--border);border-radius:12px;padding:0;background:var(--surface);color:var(--text);box-shadow:0 24px 60px rgba(0,0,0,.28);width:min(92vw,520px)}
+dialog::backdrop{background:rgba(8,22,34,.42)}
+.dialog-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
+.dialog-head h2{margin:0;font-size:15px;font-weight:700}
+.dialog-body{padding:16px;display:flex;flex-direction:column;gap:14px}
+.field-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.field-row label{font-size:12px;font-weight:600}
+.field-row select{min-width:180px;min-height:32px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);padding:5px 9px;font-size:12px}
+.dialog-foot{display:flex;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--border)}
+.toast{position:fixed;right:20px;bottom:44px;z-index:60;background:var(--navy);color:#fff;border-radius:8px;padding:9px 12px;font-size:12px;box-shadow:0 8px 20px rgba(0,0,0,.22);opacity:0;transform:translateY(6px);transition:opacity .15s ease,transform .15s ease;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+@media(max-width:880px){.menu-group.filters .tf-btn span.tf-label{display:none}.page-label{font-size:14px}[data-shell="body"]{padding:12px}}
+</style>
+</head>
+<body data-theme="light" data-layout="two">
+<div class="app">
+  <header data-shell="titlebar">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="8" fill="#fff" opacity=".14"/><path d="M9 26V10h4l5 8 5-8h4v16h-4V17l-5 7-5-7v9z" fill="#fff"/></svg>
+      <div class="ttl-stack">
+        <h1 class="ttl">TWRP C3B2</h1>
+        <div class="sub">Master Document List</div>
+        <div class="meta">Project start 15 Jan 2024 · as of 20 Nov 2026</div>
+      </div>
+    </div>
+    <div class="page-label" id="activePage" aria-live="polite">Overview</div>
+  </header>
+
+  <nav data-shell="menubar" aria-label="Menu bar">
+    <div class="menu-group actions">
+      <button id="sidebarToggle" class="btn shell-toggle" type="button" data-shell-toggle="left-sidebar" aria-label="Collapse left sidebar" title="Toggle left sidebar">☰</button>
+      <button id="loadBtn" class="btn btn-primary" type="button">Load Workbook</button>
+      <button id="exportBtn" class="btn" type="button">Export</button>
+    </div>
+    <div class="menu-group filters">
+      <button class="tf-btn" type="button" data-pop="discPop" aria-haspopup="true" aria-expanded="false">Discipline<span class="badge">2</span></button>
+      <button class="tf-btn" type="button" data-pop="stgPop" aria-haspopup="true" aria-expanded="false">Stage<span class="badge">1</span></button>
+      <button id="searchToggle" class="tf-btn" type="button" aria-haspopup="dialog" aria-controls="searchPanel" aria-expanded="false"><span class="tf-label">Search</span></button>
+      <button id="warnBtn" class="btn warn-toggle" type="button" aria-pressed="false" aria-label="Warnings: 1. Toggle warning visibility."><span class="badge">1</span><span class="tf-label">Warnings</span></button>
+
+      <div id="searchPanel" class="popover" role="dialog" aria-label="Search documents" hidden>
+        <div class="search-row">
+          <select id="fCol" aria-label="Search column">
+            <option value="">All columns</option>
+            <option value="doc">Document No.</option>
+            <option value="title">Title</option>
+            <option value="disc">Discipline</option>
+            <option value="stage">Stage</option>
+          </select>
+          <input id="fSearch" type="search" value="A-10" aria-label="Search value" placeholder="Search documents…">
+          <button id="fGo" class="btn btn-primary" type="button">Find</button>
+        </div>
+      </div>
+
+      <div id="discPop" class="filter-pop" hidden>
+        <h3>Discipline</h3>
+        <label class="filter-master"><input type="checkbox" checked> All Discipline</label>
+        <p class="filter-hint">Changes apply when this list is closed.</p>
+        <div class="filter-items">
+          <label><input type="checkbox" checked> Civil</label>
+          <label><input type="checkbox" checked> Mechanical</label>
+          <label><input type="checkbox" checked> Electrical</label>
+        </div>
+      </div>
+      <div id="stgPop" class="filter-pop" hidden>
+        <h3>Stage</h3>
+        <label class="filter-master"><input type="checkbox"> All Stage</label>
+        <p class="filter-hint">Deleted, Void and Superseded are listed.</p>
+        <div class="filter-items">
+          <label><input type="checkbox" checked> Issued</label>
+          <label><input type="checkbox" checked> In Review</label>
+          <label><input type="checkbox"> Superseded</label>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="shell-main">
+    <aside data-shell="left-sidebar" aria-label="Primary navigation">
+      <div class="nav-list" role="group" aria-label="Pages">
+        <button class="nav-item active" type="button" data-page="Overview" aria-current="page">Overview</button>
+        <button class="nav-item" type="button" data-page="Progress">Progress</button>
+        <button class="nav-item" type="button" data-page="Overdue">Overdue</button>
+        <button class="nav-item" type="button" data-page="Validation">Validation</button>
+        <button class="nav-item" type="button" data-page="Documents">Documents</button>
+      </div>
+      <div class="nav-bottom" role="group" aria-label="Dashboard tools">
+        <button id="settingsBtn" class="nav-item" type="button">Settings</button>
+        <button id="helpBtn" class="nav-item" type="button">Help</button>
+      </div>
+      <div class="sidebar-resizer" data-shell-resize="left-sidebar" role="separator" aria-orientation="vertical" aria-label="Resize left sidebar"></div>
+    </aside>
+
+    <main data-shell="content">
+      <div data-shell="warnings" id="errBanner" role="alert" aria-live="assertive">
+        <span class="warn-tag">CONFIG</span>
+        <span>Sample notice: one Code-sheet lookup is empty. Production dashboards show the resolved warning set here.</span>
+      </div>
+      <div data-shell="filter-area">
+        <div class="filter-summary"><strong>Global filters:</strong><span class="pill">Discipline: 2 of 3</span><span class="pill">Stage: 2 of 3</span></div>
+        <div class="filter-summary" id="searchSummary">Search: A-10</div>
+      </div>
+      <div data-shell="body" id="viewRoot"></div>
+    </main>
+  </div>
+
+  <footer data-shell="statusbar">
+    <span>Standalone sample · no local files</span>
+    <span class="status-right"><span>Spec rev 1.96</span><span id="layoutStatus">Layout: Two</span></span>
+  </footer>
+</div>
+
+<dialog id="settingsDialog" aria-labelledby="settingsTitle">
+  <div class="dialog-head"><h2 id="settingsTitle">Settings</h2><button class="icon-btn" type="button" data-close="settingsDialog" aria-label="Close Settings">✕</button></div>
+  <div class="dialog-body">
+    <div class="field-row">
+      <label for="themeSel">Theme</label>
+      <select id="themeSel">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="navy">Navy</option>
+        <option value="contrast">Contrast</option>
+        <option value="sepia">Sepia</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <label for="layoutSel">Layout</label>
+      <select id="layoutSel" data-setting="layout">
+        <option value="one">One</option>
+        <option value="two">Two</option>
+        <option value="three">Three</option>
+      </select>
+    </div>
+    <div class="note">The layout control changes the panel grid only. The KPI panel stays first and full width.</div>
+  </div>
+  <div class="dialog-foot"><button class="btn btn-primary" type="button" data-close="settingsDialog">Done</button></div>
+</dialog>
+
+<dialog id="helpDialog" aria-labelledby="helpTitle">
+  <div class="dialog-head"><h2 id="helpTitle">Help</h2><button class="icon-btn" type="button" data-close="helpDialog" aria-label="Close Help">✕</button></div>
+  <div class="dialog-body">
+    <p style="margin:0;color:var(--text2)">This sample shows the agreed shell. It uses the spec left sidebar, the spec menu bar, two Validation panels, and no Breakdown page.</p>
+    <div class="note">The Export button is visual only. The production dashboard will download one XLSX workbook with one worksheet per table.</div>
+  </div>
+  <div class="dialog-foot"><button class="btn btn-primary" type="button" data-close="helpDialog">Close</button></div>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  const KEY={theme:'mdl_sample_theme',layout:'mdl_sample_layout',hideWarnings:'mdl_sample_hideWarnings'};
+  const read=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+  const write=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+  const root=document.getElementById('viewRoot');
+  const activePage=document.getElementById('activePage');
+  const toastEl=document.getElementById('toast');
+  const collapsed=new Set();
+  let currentPage='Overview';
+  let toastTimer=0;
+
+  function toast(msg){
+    toastEl.textContent=msg;toastEl.classList.add('show');
+    clearTimeout(toastTimer);toastTimer=setTimeout(()=>toastEl.classList.remove('show'),2200);
+  }
+  function panel(name,title,body,wide){
+    const isCollapsed=collapsed.has(name);
+    return '<section class="panel"'+(wide?' data-wide="true"':'')+' data-name="'+name+'">'
+      +'<div class="panel-head"><h2>'+title+'</h2><div class="panel-actions">'
+      +'<button class="icon-btn help-trigger" type="button" aria-label="Help for '+title+'">?</button>'
+      +'<button class="icon-btn collapse-trigger" type="button" aria-expanded="'+(!isCollapsed)+'" aria-label="Collapse '+title+'">'+(isCollapsed?'+':'−')+'</button>'
+      +'</div></div><div class="panel-body'+(isCollapsed?' collapsed':'')+'">'+body+'</div></section>';
+  }
+  function kpiPanel(){
+    const cards=[
+      ['7384','Total documents','#1E88E5'],['6120','Approved','#2E7D52'],['311','Open actions','#B26A00'],['28','Overdue','#C62828'],
+      ['94%','On schedule','#1E88E5'],['17','New this month','#6A3FA0']
+    ].map(([v,l,c])=>'<div class="kpi" style="--kpi-color:'+c+'"><div class="v">'+v+'</div><div class="l">'+l+'</div></div>').join('');
+    return panel('kpi','Key indicators','<div class="kpi-grid">'+cards+'</div>',true);
+  }
+  function matrixPanel(){
+    const rows=[['CR','Civil','412','386','26'],['ME','Mechanical','298','284','14'],['EL','Electrical','221','205','16'],['TOTAL','All disciplines','931','875','56']];
+    return panel('matrix','Discipline summary','<div class="c-card"><div class="tbl-wrap"><table class="tbl"><caption>Discipline summary</caption><colgroup><col style="width:70px"><col><col style="width:90px"><col style="width:90px"><col style="width:90px"></colgroup><thead><tr><th>Code</th><th>Discipline</th><th class="num">Total</th><th class="num">Closed</th><th class="num">Open</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td class="num">'+r[2]+'</td><td class="num">'+r[3]+'</td><td class="num">'+r[4]+'</td></tr>').join('')+'</tbody></table></div></div>');
+  }
+  function progressPanel(){
+    const bars=[70,58,44,36,28,18,10].map((h,i)=>'<div class="bar'+(i>4?' green':(i>2?' amber':''))+'" style="height:'+h+'%"></div>').join('');
+    return panel('progress','Issue progress','<div class="c-card"><div class="chart-placeholder">'+bars+'</div><div class="chart-caption"><span>Apr 2026</span><span>Nov 2026</span></div></div>');
+  }
+  function overduePanel(){
+    const rows=[['MDL-CR-1042','Pump foundation drawing','Civil','18 d','Warning'],['MDL-ME-0887','Valve schedule','Mechanical','11 d','Info'],['MDL-EL-0319','Cable tray layout','Electrical','6 d','Error']];
+    return panel('overdue','Overdue list','<div class="c-card"><div class="table-tools"><select class="inter-sel" aria-label="Overdue type"><option>All overdue types</option><option>First submission</option><option>Resubmission</option></select><div class="tools-right"><button class="btn" type="button">⤓ CSV</button></div></div><table class="tbl"><caption>Overdue documents</caption><thead><tr><th>Document No.</th><th>Title</th><th>Discipline</th><th class="num">Delay</th><th>Status</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td class="num">'+r[3]+'</td><td>'+r[4]+'</td></tr>').join('')+'</tbody></table></div>');
+  }
+  function validationPanels(){
+    const ruleRows=[['Error','V-01','Required field missing','18'],['Warning','V-12','Approval date after issue date','7'],['Info','V-23','Superseded revision kept','3']];
+    const issueRows=[['Error','V-01','MDL-CR-1042','Rev','blank','Revision is required','Code sheet','1042'],['Warning','V-12','MDL-ME-0887','Approval Date','2026-11-02','Approval before latest issue','Master list','887']];
+    const rules='<div class="pchip-row" data-panel-subtitle><span class="pchip violet">Loaded rules <b>27</b></span><span class="pchip neutral">Fired rules <b>3</b></span></div>'
+      +'<div class="c-card"><div class="table-tools"><div class="tools-right"><button class="btn" type="button">⤓ CSV</button><button class="btn" type="button">Columns</button></div></div><table class="tbl"><caption>Fired validation rules</caption><thead><tr><th>Sev</th><th>Code</th><th>Description</th><th class="num">Count</th></tr></thead><tbody>'+ruleRows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td class="num">'+r[3]+'</td></tr>').join('')+'</tbody></table></div>';
+    const issues='<div class="pchip-row v-chip-row" data-panel-subtitle><span class="pchip green">All issues <b>28</b></span><span class="pchip neutral">Shown issues <b data-validation-count>28</b></span><span class="vchip e">Error 9</span><span class="vchip w">Warning 16</span><span class="vchip i">Info 3</span></div>'
+      +'<div class="c-card"><div class="table-tools"><select class="inter-sel" aria-label="Filter issues by rule code"><option>All rules</option><option>V-01</option><option>V-12</option></select><div class="tools-right"><button class="btn" type="button">⤓ CSV</button><button class="btn" type="button">Columns</button></div></div><table class="tbl"><caption>Validation issues</caption><thead><tr><th>Sev</th><th>Rule</th><th>Doc No</th><th>Field</th><th>Value</th><th>Message</th></tr></thead><tbody>'+issueRows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>'+r[4]+'</td><td>'+r[5]+'</td></tr>').join('')+'</tbody></table></div>';
+    return panel('vrules','Validation rules',rules,false)+panel('vissues','Validation issues',issues,true);
+  }
+  function documentsPanel(){
+    const rows=[['MDL-CR-1042','Pump foundation drawing','Civil','Issued','A','2026-11-18'],['MDL-ME-0887','Valve schedule','Mechanical','In Review','B','2026-11-16'],['MDL-EL-0319','Cable tray layout','Electrical','Issued','C','2026-11-14']];
+    return panel('documents','Document detail','<div class="c-card"><div class="table-tools"><input class="inter-sel" type="search" placeholder="Search detail" aria-label="Search detail"><div class="tools-right"><button class="btn" type="button">⤓ CSV</button></div></div><table class="tbl"><caption>Document detail</caption><thead><tr><th>Document No.</th><th>Title</th><th>Discipline</th><th>Stage</th><th>Rev</th><th>Issued</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>'+r[4]+'</td><td>'+r[5]+'</td></tr>').join('')+'</tbody></table></div>',true);
+  }
+  const views={
+    Overview:()=>matrixPanel()+progressPanel(),
+    Progress:()=>progressPanel()+matrixPanel(),
+    Overdue:()=>overduePanel(),
+    Validation:()=>validationPanels(),
+    Documents:()=>documentsPanel()
+  };
+  function numberPanels(){[...root.querySelectorAll('.panel')].forEach((p,i)=>p.dataset.panel=String(i+1));}
+  function render(){
+    root.innerHTML=kpiPanel()+'<div class="panel-grid">'+(views[currentPage]||views.Overview)()+'</div>';
+    numberPanels();
+    applyLayout(read(KEY.layout)||document.body.dataset.layout||'two',false);
+    activePage.textContent=currentPage;
+    document.querySelectorAll('.nav-item[data-page]').forEach(b=>{
+      const on=b.dataset.page===currentPage;
+      b.classList.toggle('active',on);
+      if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
+    });
+  }
+  function applyLayout(v,persist){
+    if(!['one','two','three'].includes(v))v='two';
+    document.body.dataset.layout=v;
+    document.getElementById('layoutSel').value=v;
+    document.getElementById('layoutStatus').textContent='Layout: '+v[0].toUpperCase()+v.slice(1);
+    if(persist)write(KEY.layout,v);
+  }
+  function applyTheme(v,persist){
+    const ok=['light','dark','navy','contrast','sepia'];
+    if(!ok.includes(v))v='light';
+    document.body.dataset.theme=v;
+    document.getElementById('themeSel').value=v;
+    if(persist)write(KEY.theme,v);
+  }
+  function applyWarnings(){
+    const hidden=read(KEY.hideWarnings)==='true';
+    document.getElementById('errBanner').hidden=hidden;
+    const btn=document.getElementById('warnBtn');
+    btn.setAttribute('aria-pressed',String(hidden));
+    btn.setAttribute('aria-label',hidden?'Warnings: 1. Warnings are hidden. Show warnings.':'Warnings: 1. Warnings are shown. Hide warnings.');
+  }
+  function setPage(p){currentPage=p;render();}
+  function closePops(except){
+    document.querySelectorAll('.popover,.filter-pop').forEach(el=>{if(el.id!==except)el.hidden=true;});
+    document.querySelectorAll('[data-pop]').forEach(b=>b.setAttribute('aria-expanded','false'));
+    document.getElementById('searchToggle').setAttribute('aria-expanded','false');
+  }
+
+  document.querySelectorAll('.nav-item[data-page]').forEach(b=>b.addEventListener('click',()=>setPage(b.dataset.page)));
+  document.getElementById('sidebarToggle').addEventListener('click',e=>{
+    const off=document.body.classList.toggle('sidebar-collapsed');
+    e.currentTarget.setAttribute('aria-label',off?'Expand left sidebar':'Collapse left sidebar');
+  });
+  document.getElementById('loadBtn').addEventListener('click',()=>toast('Sample only. Load Workbook is visual in this page.'));
+  document.getElementById('exportBtn').addEventListener('click',()=>toast('Sample only. Production Export creates one XLSX workbook.'));
+  document.getElementById('settingsBtn').addEventListener('click',()=>document.getElementById('settingsDialog').showModal());
+  document.getElementById('helpBtn').addEventListener('click',()=>document.getElementById('helpDialog').showModal());
+  document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>document.getElementById(b.dataset.close).close()));
+  document.getElementById('themeSel').addEventListener('change',e=>applyTheme(e.target.value,true));
+  document.getElementById('layoutSel').addEventListener('change',e=>{applyLayout(e.target.value,true);render();});
+
+  document.getElementById('warnBtn').addEventListener('click',()=>{
+    const v=read(KEY.hideWarnings)==='true';write(KEY.hideWarnings,String(!v));applyWarnings();
+  });
+
+  const searchToggle=document.getElementById('searchToggle'),searchPanel=document.getElementById('searchPanel');
+  searchToggle.addEventListener('click',e=>{
+    e.stopPropagation();const show=searchPanel.hidden;closePops(show?'searchPanel':'');searchPanel.hidden=!show;searchToggle.setAttribute('aria-expanded',String(show));
+  });
+  document.getElementById('fCol').addEventListener('change',()=>{
+    const v=document.getElementById('fSearch').value.trim();
+    document.getElementById('searchSummary').textContent='Search: '+(v||'none')+' · column: '+(document.getElementById('fCol').value||'All columns');
+  });
+  document.getElementById('fGo').addEventListener('click',()=>{
+    const v=document.getElementById('fSearch').value.trim();
+    document.getElementById('searchSummary').textContent='Search: '+(v||'none')+' · column: '+(document.getElementById('fCol').value||'All columns');
+    searchPanel.hidden=true;searchToggle.setAttribute('aria-expanded','false');toast(v?'Search applied to the sample filter summary.':'Search cleared.');
+  });
+  document.getElementById('fSearch').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('fGo').click();});
+
+  document.querySelectorAll('[data-pop]').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();const p=document.getElementById(b.dataset.pop);const show=p.hidden;closePops(show?b.dataset.pop:'');p.hidden=!show;b.setAttribute('aria-expanded',String(show));
+  }));
+  document.addEventListener('click',e=>{if(!e.target.closest('.popover,.filter-pop,[data-pop],#searchToggle'))closePops('');});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePops('');document.getElementById('searchPanel').hidden=true;}});
+
+  root.addEventListener('click',e=>{
+    const c=e.target.closest('.collapse-trigger');
+    if(c){
+      const p=c.closest('.panel'),name=p.dataset.name,bodyEl=p.querySelector('.panel-body');
+      const nowHidden=!bodyEl.classList.contains('collapsed');
+      bodyEl.classList.toggle('collapsed',nowHidden);c.textContent=nowHidden?'+':'−';c.setAttribute('aria-expanded',String(!nowHidden));
+      if(nowHidden)collapsed.add(name);else collapsed.delete(name);
+      return;
+    }
+    if(e.target.closest('.help-trigger'))document.getElementById('helpDialog').showModal();
+  });
+
+  const rz=document.querySelector('[data-shell-resize]');
+  rz.addEventListener('pointerdown',e=>{
+    e.preventDefault();rz.setPointerCapture(e.pointerId);
+    const move=ev=>{const w=Math.max(140,Math.min(280,ev.clientX));document.body.style.setProperty('--sidebar-w',w+'px');};
+    const up=()=>{rz.removeEventListener('pointermove',move);rz.removeEventListener('pointerup',up);};
+    rz.addEventListener('pointermove',move);rz.addEventListener('pointerup',up);
+  });
+
+  applyTheme(read(KEY.theme)||'light',false);
+  applyLayout(read(KEY.layout)||'two',false);
+  applyWarnings();
+  render();
+})();
+</script>
+</body>
+</html>

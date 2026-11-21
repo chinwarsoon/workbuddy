@@ -17,6 +17,9 @@ export default {
   renderPath:     resolve(mdlRoot, 'src/render.mjs'),
   defaultWorkbook: resolve(mdlRoot, 'TWRP C3B2 - Master Document List.xlsx'),
 
+  // Tier 3 — exercise the left sidebar toggle and verify the content still fills the row.
+  sidebarToggle: true,
+
   // Tier 3 — DOM selectors for KPI values.
   // The MDL dashboard renders KPI cards in document order; selectors use data-kpi
   // attributes if present, otherwise positional .kpi .v fallbacks.
@@ -53,5 +56,31 @@ export default {
     colMinWidth:   60,                // hard floor for every column (spec §18: replace with per-type minima)
     scrollProbe:   240,               // px scrolled to prove the header sticks
     tolerance:     2,                 // px
+  },
+
+  // Tier 2 — spec §3.1 / §3.5: every page must keep its warning and filter strips
+  // outside the scrolling body, and the body must scroll when content exceeds one screen.
+  contentScroll: {
+    zoneSelector:  '[data-shell="content"]',
+    bodySelector:  '[data-shell="body"]',
+    probeHeight:   2000, // px; forces overflow without depending on workbook row count
+    probeScroll:   80,   // px; proves the container moves
+    tolerance:     1,    // px
+  },
+
+  // Tier 5 — spec §7.2.16: one shared row / column / intersection crosshair.
+  tableCrosshair: {
+    tableSelector: 'table[data-table-crosshair]',
+    cellSelector:  'table[data-table-crosshair] tbody td[data-col-id]:visible',
+    hoverWaitMs:   80,
+    outside:       { x: 5, y: 5 },
+    pages:         ['Overview', 'Progress', 'Overdue', 'Validation', 'Documents'],
+  },
+
+  // Tier 6 — spec §4.6: KPI cards carry one shared hover window.
+  hover: {
+    ariaHidden: true,
+    boards: [],
+    kpi: { name: 'KPI card', selector: '.kpi-card', snap: false, cursor: 'help' },
   },
 };

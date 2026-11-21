@@ -8,13 +8,71 @@ const PALETTE = ['#1E88E5','#2E7D32','#F9A825','#C62828','#64748B','#7E57C2','#2
 const F = 'font-family="\'Segoe UI\', system-ui, -apple-system, \'Inter\', \'Source Sans Pro\', Roboto, Helvetica, Arial, sans-serif"';
 const esc = s => (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const LOGO_DATA = '__LOGO_DATA__'; // replaced with an embedded base64 data-URI at build time
+const APP_VERSION = '0.1';
+const KPI_TIP_META = {
+  'Total Planned': ['Active documents in the planned register.', 'Document No. (M), Stage (B)', 'Count documents with a Document No. and an active Stage.'],
+  'Submitted': ['Documents with an authoritative first issue date.', 'Actual 1st Issue Date (U)', 'Count active documents where U is not blank. A date formula error also counts as submitted.'],
+  'Approved (APP)': ['Documents approved without comments.', 'Latest Approval Status (Y), U', 'Count active submitted documents whose approval category is APP.'],
+  'Approved w/ Comments': ['Documents approved with comments.', 'Latest Approval Status (Y), U', 'Count active submitted documents whose approval category is AWC.'],
+  'Rejected (REJ)': ['Documents rejected at review.', 'Latest Approval Status (Y), U', 'Count active submitted documents whose approval category is REJ.'],
+  'Not Approved (NAP)': ['Documents marked not approved.', 'Latest Approval Status (Y), U', 'Count active submitted documents whose approval category is NAP.'],
+  'Pending Review': ['Submitted documents awaiting an approval outcome.', 'Actual 1st Issue Date (U), Y', 'Count active documents in the Submitted – Pending Review category.'],
+  'Not Submitted': ['Active documents with no first issue date.', 'Actual 1st Issue Date (U)', 'Count active documents with blank U and no approval category.'],
+  'Record Error': ['Active documents with inconsistent submission or approval data.', 'U, Y, approval classifier', 'Count active documents in the Record Error category.'],
+  'Overdue – 1st Sub': ['First submission past its due date.', 'Forecast (T), Planned (S), Actual (U)', 'Count active documents with due ≤ today and blank U. T falls back to S.'],
+  'Overdue – Resub': ['Resubmission past the allowed working days.', 'Y, Latest Approval Date (X), U', 'Count REJ/RTR documents more than 14 working days after X.'],
+  'Overdue – Client': ['Client review return past the allowed working days.', 'Submission Status (W), U', 'Count SUR documents more than 20 working days after U.'],
+  'As-Built Required (YES)': ['Documents that require as-built submission.', 'As-Built (P)', 'Count active documents where P equals YES.'],
+  'Vendor Data (YES)': ['Documents to be produced by the vendor.', 'Vendor Data (R)', 'Count active documents where R equals YES.'],
+  'Data Completeness': ['Data-quality health of the active register.', 'Validation issues V-17…V-27', 'Percentage of active documents with no issue in the completeness group.'],
+  'Active Disciplines': ['Distinct UESH disciplines in the active register.', 'UESH Discipline (C)', 'Count distinct non-blank C values among active documents.'],
+};
+function kpiTipHtml(label, asof, token){
+  const m = KPI_TIP_META[label] || ['KPI detail.', '—', 'No definition is recorded.'];
+  const t = token || 'var(--blue)';
+  return '<b><span class="kpi-tip-swatch" style="--tip-swatch:' + t + '"></span>' + esc(label) + '</b>'
+    + '<div class="chart-tip-row"><span class="k">Purpose</span><span>' + esc(m[0]) + '</span></div>'
+    + '<div class="chart-tip-row"><span class="k">Source</span><span>' + esc(m[1]) + '</span></div>'
+    + '<div class="chart-tip-row"><span class="k">Calculation</span><span>' + esc(m[2]) + '</span></div>'
+    + '<div class="chart-tip-foot"><span>Active scope</span><span>' + esc(asof || 'current selection') + '</span></div>';
+}
+const kpiSwatch = c => ({ok:'var(--green)',amb:'var(--amber)',warn:'var(--red)',muted:'var(--slate)',err:'var(--error-fg)'})[c] || 'var(--blue)';
 const isoStrToDate = iso => { if(!iso) return null; const d = new Date(iso + 'T00:00:00Z'); return isNaN(d) ? null : d; };
 function wdBetween(d1, d2){ if(!d1||!d2) return null; let s=1; if(d2<d1){[d1,d2]=[d2,d1];s=-1;} let c=0,cur=new Date(d1.getTime()); while(cur<=d2){ const day=cur.getUTCDay(); if(day!==0&&day!==6)c++; cur.setUTCDate(cur.getUTCDate()+1);} return s*c; }
 
 const CSS = `
-:root{--navy:#0F2D52;--blue:#1E88E5;--green:#2E7D32;--amber:#F9A825;--red:#C62828;--slate:#64748B;--bg:#F6F8FA;--surface:#FFFFFF;--border:#D9E1E8;--text:#1F2A37;--muted:#64748B;--card:#FFFFFF;--line:#D9E1E8;--ink:#0F2D52;--accent:#1E88E5;--accent2:#2E7D32;--warn:#F9A825;--bad:#C62828;--soft:#E8F1FD;--shadow:0 1px 2px rgba(15,45,82,.04);--radius:10px;--font:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;--warn-bg:#FFF4D6;--warn-border:#F0D38A;--warn-fg:#9a6b00;--warn-fg-strong:#9a6b00;--error-bg:#FDE8E8;--error-fg:#C62828;--ok-bg:#E6F4EA;--ok-fg:#2E7D32;--accent-soft-border:#BFD8F2;--accent-ink:#1E88E5;--grid:#EDF1F5}
+:root{--navy:#0F2D52;--blue:#1E88E5;--green:#2E7D32;--amber:#F9A825;--red:#C62828;--slate:#64748B;--bg:#F6F8FA;--surface:#FFFFFF;--border:#D9E1E8;--text:#1F2A37;--muted:#64748B;--card:#FFFFFF;--line:#D9E1E8;--ink:#0F2D52;--accent:#1E88E5;--accent2:#2E7D32;--warn:#F9A825;--bad:#C62828;--soft:#E8F1FD;--shadow:0 1px 2px rgba(15,45,82,.04);--radius:10px;--font:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;--warn-bg:#FFF4D6;--warn-border:#F0D38A;--warn-fg:#9a6b00;--warn-fg-strong:#9a6b00;--error-bg:#FDE8E8;--error-fg:#C62828;--ok-bg:#E6F4EA;--ok-fg:#2E7D32;--accent-soft-border:#BFD8F2;--accent-ink:#1E88E5;--grid:#EDF1F5;--sidebar-w:160px;--nav-bg:#0F2D52;--nav-bg-hover:rgba(255,255,255,.10);--nav-bg-active:#354F6E;--nav-fg:#E8EDF3;--panel-gap:14px;--btn-h:32px;--seg-h:32px;--crosshair-track:rgba(30,136,229,.14);--crosshair-intersection:rgba(30,136,229,.28);--crosshair-ring:#1E88E5;--header-crosshair-overlay:rgba(30,136,229,.20);--header-crosshair-accent:#1E88E5;--tool-pad:12px;--tool-gap:10px}
+body[data-theme="dark"]{--navy:#0B2036;--bg:#101820;--surface:#17232F;--card:#17232F;--border:#35485B;--text:#E6EDF3;--muted:#A8B7C5;--line:#35485B;--ink:#E6EDF3;--accent:#5AA9F5;--accent-ink:#8CC4FA;--soft:#20354A;--grid:#223244;--nav-bg:#0B2036;--nav-bg-active:#2B4B6A;--crosshair-track:rgba(90,169,245,.16);--crosshair-intersection:rgba(90,169,245,.30);--crosshair-ring:#8CC4FA;--header-crosshair-overlay:rgba(90,169,245,.22);--header-crosshair-accent:#8CC4FA}
+body[data-theme="navy"]{--bg:#E7EEF5;--surface:#FFFFFF;--navy:#0B2A47;--nav-bg:#0B2A47;--nav-bg-active:#2D4F6E;--accent:#2563A6;--accent-ink:#1D4E86;--soft:#EAF2FA;--crosshair-track:rgba(37,99,166,.14);--crosshair-intersection:rgba(37,99,166,.26);--crosshair-ring:#2563A6;--header-crosshair-overlay:rgba(37,99,166,.20);--header-crosshair-accent:#2563A6}
+body[data-theme="contrast"]{--bg:#FFFFFF;--surface:#FFFFFF;--navy:#001526;--text:#000000;--muted:#253746;--border:#000000;--line:#555555;--accent:#005FCC;--accent-ink:#003D85;--soft:#EAF1F8;--nav-bg:#001526;--nav-bg-active:#004275;--crosshair-track:rgba(0,95,204,.22);--crosshair-intersection:rgba(0,95,204,.36);--crosshair-ring:#005FCC;--header-crosshair-overlay:rgba(0,95,204,.30);--header-crosshair-accent:#005FCC}
+body[data-theme="sepia"]{--bg:#F4EEE3;--surface:#FFFDF8;--navy:#463A2E;--text:#33291F;--muted:#6F6253;--border:#D2C3AD;--line:#D2C3AD;--accent:#9A5B22;--accent-ink:#7A461A;--soft:#F6ECDA;--nav-bg:#463A2E;--nav-bg-active:#6B5948;--crosshair-track:rgba(154,91,34,.16);--crosshair-intersection:rgba(154,91,34,.30);--crosshair-ring:#9A5B22;--header-crosshair-overlay:rgba(154,91,34,.22);--header-crosshair-accent:#9A5B22}
 *{box-sizing:border-box}
-body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased}
+.shell-main{display:grid;grid-template-columns:var(--sidebar-w) minmax(0,1fr);flex:1 1 auto;min-height:0;transition:grid-template-columns .12s ease}
+body.sidebar-collapsed .shell-main{grid-template-columns:minmax(0,1fr)}
+body.sidebar-collapsed [data-shell="left-sidebar"]{display:none}
+[data-shell="left-sidebar"]{position:relative;display:flex;flex-direction:column;background:var(--nav-bg);color:var(--nav-fg);min-height:0}
+.nav-list,.nav-tools{display:flex;flex-direction:column;gap:2px;padding:10px}
+.nav-tools{margin-top:auto;border-top:1px solid rgba(255,255,255,.14)}
+.nav-item{min-height:36px;padding:8px 12px;border:0;border-radius:6px;background:var(--nav-bg);color:var(--nav-fg);font-size:14px;font-weight:400;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-item:hover{background:var(--nav-bg-hover)}
+.nav-item.active,.nav-item[aria-current="page"]{background:var(--nav-bg-active);font-weight:600}
+.sidebar-resizer{position:absolute;right:-3px;top:0;width:6px;height:100%;cursor:col-resize;z-index:5}
+.sidebar-resizer:hover{background:rgba(255,255,255,.18)}
+.page-label{font-size:16px;font-weight:600;line-height:1.2;color:#fff;white-space:nowrap;flex:0 0 auto}
+.filter-strip{display:flex;align-items:center;gap:8px;min-height:34px;padding:6px 16px;background:var(--surface);border-bottom:1px solid var(--border);font-size:12px;color:var(--muted)}
+.content-body{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+.panel-area{display:grid;gap:var(--panel-gap);grid-template-columns:repeat(var(--panel-cols,2),minmax(0,1fr));align-items:start}
+body[data-layout="one"]{--panel-cols:1}
+body[data-layout="two"]{--panel-cols:2}
+body[data-layout="three"]{--panel-cols:3}
+.panel-area > #kpiPanel{grid-column:1 / -1}
+.panel-area > #matrixPanel{grid-column:1 / -1}
+.panel[data-page]{display:none}
+.panel[data-page].page-active{display:block}
+.wrap[data-shell="content"]{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden;max-width:none;margin:0;padding:14px 20px 52px}
+html{height:100%;overflow:hidden}
+#app{height:100vh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden}
+body{height:100%;margin:0;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden}
 header.app{display:flex;flex-direction:column;position:sticky;top:0;z-index:31;padding:0}
 header.app .app-top{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;background:var(--navy);color:#fff;padding:10px 20px}
 header.app .app-menu{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;background:#fff;color:var(--text);padding:8px 20px}
@@ -70,17 +128,16 @@ header.app .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .sys-banner-item.fatal{background:var(--red);color:#fff}
 .sys-banner-item.info{background:#e8eef5;color:#33526b}
 .sys-banner-item b{font-weight:700;margin-right:4px}
-/* fixed top warning bar (PPP standard, spec §3.5) — unified with load failures */
-#errBanner{display:block;position:fixed;left:0;right:0;z-index:30;font-size:12px;line-height:1.4;box-shadow:0 2px 10px rgba(0,0,0,.18)}#errBanner[hidden]{display:none}
-body.banner-open .wrap{padding-top:calc(16px + var(--banner-h,0px))}
+/* in-flow warning bar (spec §3.5) — unified with load failures */
+#errBanner{display:block;flex:0 0 auto;font-size:12px;line-height:1.4;box-shadow:0 2px 10px rgba(0,0,0,.18)}#errBanner[hidden]{display:none}
 .wrap{max-width:1320px;margin:0 auto;padding:16px;padding-bottom:52px}
-.status-bar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;gap:8px;padding:6px 14px;background:var(--navy);color:#E8EDF3;font-size:12px;user-select:none;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
-.status-bar .sb-panel{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.20);border-radius:6px;white-space:nowrap}
-.status-bar .sb-panel b{font-weight:700;opacity:.92}
+.status-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 14px;background:var(--navy);color:#E8EDF3;font-size:12px;user-select:none;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
+.status-bar .sb-left,.status-bar .sb-right{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.status-bar .sb-right{color:rgba(232,237,243,.82)}
+.status-bar b{font-weight:700;opacity:.92}
 .status-bar .sb-dot{width:8px;height:8px;border-radius:50%;background:#37d67a;flex:none}
-.status-bar .sb-file{max-width:240px;overflow:hidden;text-overflow:ellipsis}
-.status-bar .sb-bar{width:54px;height:6px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden;flex:none}
-.status-bar .sb-bar i{display:block;height:100%;background:#37d67a}
+.status-bar .sb-file{max-width:320px;overflow:hidden;text-overflow:ellipsis}
+.status-bar .sb-err{color:#FFCDD2}
 @media print{.status-bar{display:none}}
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 14px 26px;margin:14px 0;box-shadow:0 1px 2px rgba(15,45,82,.04);position:relative}
 .panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:.04em;color:var(--muted);pointer-events:none}
@@ -95,7 +152,24 @@ body.banner-open .wrap{padding-top:calc(16px + var(--banner-h,0px))}
 .subkpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
 .subkpi{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
 .subkpi .v{font-size:16px;font-weight:700;color:var(--navy)} .subkpi .l{font-size:10px;color:var(--muted)}
-.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.kpi-card{cursor:help}
+.kpi-card:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.chart-tip{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:8px 10px;font-size:11px;font-variant-numeric:tabular-nums;line-height:1.45;color:var(--text);max-width:230px;z-index:30;pointer-events:none;opacity:0;visibility:hidden;transition:opacity 100ms ease}
+.chart-tip.show{opacity:1;visibility:visible}
+.chart-tip[aria-hidden="true"]{visibility:hidden}
+.chart-tip b{font-weight:700}
+.chart-tip .chart-tip-row{display:grid;grid-template-columns:76px minmax(0,1fr);gap:8px;margin-top:4px;align-items:start}
+.chart-tip .chart-tip-row .k{color:var(--muted)}
+.chart-tip .chart-tip-row > :last-child{text-align:left;overflow-wrap:anywhere}
+.chart-tip .chart-tip-row > .tip-num{text-align:right}
+.chart-tip .kpi-tip-swatch{width:8px;height:8px;border-radius:50%;background:var(--tip-swatch,var(--blue));display:inline-block;margin-right:6px}
+.chart-tip-foot{border-top:1px solid var(--border);margin-top:6px;padding-top:6px;display:grid;grid-template-columns:76px minmax(0,1fr);gap:8px;color:var(--muted)}
+.chart-tip-foot > :last-child{text-align:left;overflow-wrap:anywhere}
+.chart-tip-foot > .tip-num{text-align:right}
+.toolbar{display:flex;gap:var(--tool-gap);align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.toolbar .tool-filters{display:flex;gap:var(--tool-gap);align-items:center;flex-wrap:wrap}
+.toolbar .tool-actions{margin-left:auto;display:flex;gap:var(--tool-gap);align-items:center;flex-wrap:wrap}
+.toolbar.matrix-tools{padding:var(--tool-pad);margin-bottom:0}
 .panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
 .panel-head h2{margin:0}
 .panel-head h3{margin:0;font-size:13px;font-weight:700;color:var(--navy)}
@@ -354,10 +428,8 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
    gutter column stay Rule-Reference-only. */
 .sev-svg{width:14px;height:14px;flex:0 0 14px;display:block}
 .note{background:#FFF8E1;border:1px solid var(--amber);color:#7a5b00;padding:8px 12px;border-radius:8px;font-size:12px;margin:10px 0}
-.disclaimer{margin-top:18px;padding-top:10px;border-top:1px solid var(--border);text-align:center;font-size:11.5px;color:var(--muted)}
 .panel-error{background:var(--error-bg);border:1px solid var(--error-fg);color:var(--error-fg);padding:12px 14px;border-radius:8px;font-size:12px;margin:8px 0;line-height:1.5}
 .pe-detail{display:block;margin-top:6px;font-size:11px;opacity:.85}
-.sb-dot-err{background:var(--red)}
 .sb-err{border-color:var(--error-fg)}
 .expand{cursor:pointer;color:var(--blue);font-size:10px;white-space:nowrap;user-select:none;border:0;background:transparent;padding:0;font-family:inherit}
 .expand.open{color:var(--navy);font-weight:600}
@@ -391,6 +463,14 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
    Discipline is the one column that reads left, with its data. */
 .matrix thead th .sort-lbl{flex:1 1 auto;text-align:center}
 .matrix thead tr.group th:first-child .sort-lbl{text-align:left}
+#matrixPanel .matrixcard{overflow:hidden}
+#matrixPanel .tableScroll{max-height:none}
+.ds-table[data-table-crosshair] th:not(.ds-pinned),.ds-table[data-table-crosshair] td:not(.ds-pinned){position:relative}
+.ds-table[data-table-crosshair] tbody tr.row-hover > td,.ds-table[data-table-crosshair] td.col-hover{background-image:linear-gradient(var(--crosshair-track),var(--crosshair-track))}
+.ds-table[data-table-crosshair] td.cell-hover{background-image:linear-gradient(var(--crosshair-intersection),var(--crosshair-intersection));box-shadow:inset 0 0 0 1px var(--crosshair-ring)}
+.ds-table[data-table-crosshair] th.col-hover{background-image:linear-gradient(var(--header-crosshair-overlay),var(--header-crosshair-overlay));box-shadow:inset 0 -2px 0 var(--header-crosshair-accent)}
+.ds-table[data-table-crosshair] th.cell-hover{background-image:linear-gradient(var(--header-crosshair-overlay),var(--header-crosshair-overlay));box-shadow:inset 0 0 0 1px var(--crosshair-ring),inset 0 -2px 0 var(--header-crosshair-accent)}
+.ds-table[data-table-crosshair] :focus-visible{outline:2px solid var(--crosshair-ring);outline-offset:-2px}
 
 .tableScroll thead th{position:sticky;top:0;z-index:2;box-shadow:0 1px 0 var(--border)}
 /* === L3 grid (I-95, spec §7.2.13 / §7.2.14) — pinned columns ===
@@ -445,7 +525,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 
 .hidden{display:none}
 /* §7.2.11 — a bounded scroller capped at 340 px would print every long table as a clipping */
-@media print{body{background:#fff}.tableScroll{max-height:none!important;overflow:visible!important}.panel{break-inside:avoid;box-shadow:none}.filters,.toolbar{display:none}header.app{position:static}header.app .app-menu{display:none!important}#errBanner{display:none!important}body.banner-open .wrap{padding-top:16px}.panel.collapsed .panel-body{display:block}}
+@media print{body{background:#fff}.tableScroll{max-height:none!important;overflow:visible!important}.panel{break-inside:avoid;box-shadow:none}.filters,.toolbar{display:none}header.app{position:static}header.app .app-menu{display:none!important}#errBanner{display:none!important}.panel.collapsed .panel-body{display:block}.ds-table .row-hover,.ds-table .col-hover,.ds-table .cell-hover{background:none!important;background-image:none!important;box-shadow:none!important;color:inherit!important}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 `;
 
@@ -848,8 +928,227 @@ function monthOptions(records, asof, projectStart){
 let statusBarEl = null;
 let tfDocBound = false;
 let renderIssues = [];
+let crosshairBound = false;
+let crosshairState = null;
+let crosshairObserver = null;
+let kpiTipBound = false;
+let kpiTipHost = null;
 function getPref(key, def){ try{ const v=localStorage.getItem('mdl_'+key); if(v==null) return def; if(typeof def === 'boolean') return v === 'true'; if(typeof def === 'number') return Number(v); return v; }catch(e){ return def; } }
 function setPref(key, val){ try{ localStorage.setItem('mdl_'+key, val); }catch(e){} }
+const SHELL_PAGES = ['Overview','Progress','Overdue','Validation','Documents'];
+let currentPage = 'Overview';
+function slugify(s){ return String(s==null?'':s).trim().replace(/\.(xlsx|xlsm)$/i,'').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'MDL'; }
+function localDateISO(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function applyShellPrefs(){
+  const theme=['light','dark','navy','contrast','sepia'].includes(getPref('theme','light')) ? getPref('theme','light') : 'light';
+  const layout=['one','two','three'].includes(getPref('layout','two')) ? getPref('layout','two') : 'two';
+  document.body.dataset.theme = theme;
+  document.body.dataset.layout = layout;
+  const t=document.getElementById('themeSel'); if(t) t.value=theme;
+  const l=document.getElementById('layoutSel'); if(l) l.value=layout;
+}
+function setPage(page){
+  if(!SHELL_PAGES.includes(page)) page='Overview';
+  currentPage=page;
+  document.body.dataset.page = page.toLowerCase();
+  document.querySelectorAll('[data-shell="left-sidebar"] .nav-item[data-page]').forEach(b=>{
+    const on=b.dataset.page===page;
+    b.classList.toggle('active',on);
+    if(on) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
+  });
+  document.querySelectorAll('.panel[data-page]').forEach(p=>p.classList.toggle('page-active',p.dataset.page===page));
+  const label=document.getElementById('activePageLabel'); if(label) label.textContent=page;
+}
+function assignCrosshairIds(){
+  document.querySelectorAll('.panel-area table.ds-table').forEach(t=>{
+    t.setAttribute('data-table-crosshair','');
+    t.querySelectorAll('.ds-gut').forEach(c=>c.removeAttribute('data-col-id'));
+    const thead=t.querySelector('thead');
+    if(thead && !thead.querySelector('[data-col-id]')){
+      const rows=[...thead.querySelectorAll('tr')], leaf=rows[rows.length-1];
+      if(leaf) [...leaf.children].forEach((c,i)=>{ if(!c.classList.contains('ds-gut')) c.dataset.colId='c'+i; });
+    }
+    t.querySelectorAll('tbody tr,tfoot tr').forEach(tr=>{
+      [...tr.children].forEach((c,i)=>{
+        if(c.classList.contains('ds-gut')) return;
+        if(!c.dataset.colId) c.dataset.colId='c'+i;
+      });
+    });
+  });
+  if(!crosshairObserver && typeof MutationObserver === 'function'){
+    const area=document.querySelector('.panel-area');
+    if(area){ crosshairObserver=new MutationObserver(()=>assignCrosshairIds()); crosshairObserver.observe(area,{childList:true,subtree:true}); }
+  }
+}
+function clearCrosshair(){
+  if(!crosshairState) return;
+  crosshairState.cell.classList.remove('cell-hover');
+  if(crosshairState.row) crosshairState.row.classList.remove('row-hover');
+  crosshairState.cols.forEach(c=>c.classList.remove('col-hover'));
+  crosshairState=null;
+}
+function applyCrosshair(cell){
+  const table=cell && cell.closest ? cell.closest('table[data-table-crosshair]') : null;
+  const id=cell && cell.dataset ? cell.dataset.colId : null;
+  if(!table || !table.closest('.panel-area') || !id){ clearCrosshair(); return; }
+  if(crosshairState && crosshairState.cell===cell) return;
+  clearCrosshair();
+  const scope=table.closest('.ds-split') || table.closest('.matrixcard') || table.closest('.splitcard') || table;
+  const cols=[...scope.querySelectorAll('[data-col-id]')].filter(c=>c.dataset.colId===id);
+  const row=cell.closest('tr');
+  if(row && row.closest('tbody')) row.classList.add('row-hover');
+  cols.forEach(c=>c.classList.add('col-hover'));
+  cell.classList.add('cell-hover');
+  crosshairState={cell,row,cols};
+}
+function bindTableCrosshair(){
+  if(crosshairBound) return;
+  crosshairBound=true;
+  const finePointer=typeof window.matchMedia !== 'function' || window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  document.addEventListener('pointermove', e=>{
+    if(!finePointer) return;
+    const cell=e.target && e.target.closest ? e.target.closest('[data-col-id]') : null;
+    applyCrosshair(cell);
+  });
+  document.addEventListener('focusin', e=>{
+    const target=e.target;
+    const cell=target && target.closest ? (target.closest('[data-col-id]') || (target.matches && target.matches('tr') ? target.querySelector('td[data-col-id]') : null)) : null;
+    applyCrosshair(cell);
+  });
+  document.addEventListener('focusout', clearCrosshair);
+  document.addEventListener('pointerleave', clearCrosshair, true);
+  window.addEventListener('blur', clearCrosshair);
+  window.addEventListener('beforeprint', clearCrosshair);
+}
+function hideKpiTip(){
+  const tip=document.getElementById('kpiTip'); if(!tip) return;
+  tip.classList.remove('show'); tip.setAttribute('aria-hidden','true'); tip.textContent=''; kpiTipHost=null;
+}
+function showKpiTip(host){
+  const tip=document.getElementById('kpiTip'); if(!tip) return;
+  if(kpiTipHost!==host){ tip.innerHTML=host.getAttribute('data-tip')||''; kpiTipHost=host; }
+  tip.removeAttribute('aria-hidden'); tip.classList.add('show');
+  const r=host.getBoundingClientRect();
+  const vw=window.innerWidth||document.documentElement.clientWidth||0;
+  const vh=window.innerHeight||document.documentElement.clientHeight||0;
+  const tw=tip.offsetWidth||230, th=tip.offsetHeight||100;
+  let left=r.left+r.width/2-tw/2, top=r.bottom+6;
+  if(top+th>vh-4) top=Math.max(4,r.top-th-6);
+  left=Math.max(4,Math.min(left,Math.max(4,vw-tw-4)));
+  tip.style.left=left+'px'; tip.style.top=top+'px';
+}
+function bindKpiHover(){
+  if(kpiTipBound) return;
+  kpiTipBound=true;
+  document.addEventListener('pointermove', e=>{
+    const host=e.target && e.target.closest ? e.target.closest('.kpi-card[data-tip]') : null;
+    if(host) showKpiTip(host); else hideKpiTip();
+  });
+  document.addEventListener('pointerdown', e=>{
+    const host=e.target && e.target.closest ? e.target.closest('.kpi-card[data-tip]') : null;
+    if(host && e.pointerType!=='mouse') showKpiTip(host);
+  });
+  document.addEventListener('focusin', e=>{
+    const host=e.target && e.target.closest ? e.target.closest('.kpi-card[data-tip]') : null;
+    if(host) showKpiTip(host); else hideKpiTip();
+  });
+  document.addEventListener('focusout', hideKpiTip);
+  document.addEventListener('pointerleave', hideKpiTip, true);
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') hideKpiTip(); });
+  document.addEventListener('click', e=>{
+    if(!(e.target && e.target.closest && e.target.closest('.kpi-card[data-tip]'))) hideKpiTip();
+  });
+  window.addEventListener('blur', hideKpiTip);
+  window.addEventListener('beforeprint', hideKpiTip);
+}
+let settingsModalEl=null;
+function ensureSettingsModal(){
+  if(settingsModalEl) return settingsModalEl;
+  const m=document.createElement('div'); m.className='help-modal'; m.hidden=true;
+  m.innerHTML=`<div class="box" role="dialog" aria-modal="true" aria-labelledby="settingsTitle"><header><h3 id="settingsTitle">Settings</h3><button class="close icon-btn" title="Close settings" aria-label="Close settings">✕</button></header><div class="body"><p><label for="themeSel"><strong>Theme</strong></label> <select id="themeSel" class="inter-sel" aria-label="Theme"><option value="light">Light</option><option value="dark">Dark</option><option value="navy">Navy</option><option value="contrast">Contrast</option><option value="sepia">Sepia</option></select></p><p><label for="layoutSel"><strong>Layout</strong></label> <select id="layoutSel" class="inter-sel" data-setting="layout" aria-label="Panel layout"><option value="one">One</option><option value="two">Two</option><option value="three">Three</option></select></p><div class="note">Layout changes the panel grid. KPI density stays controlled separately.</div></div></div>`;
+  m.addEventListener('click', e=>{ if(e.target===m) m.hidden=true; });
+  m.querySelector('.close').onclick=()=>{ m.hidden=true; };
+  m.querySelector('#themeSel').addEventListener('change', e=>{ setPref('theme',e.target.value); applyShellPrefs(); });
+  m.querySelector('#layoutSel').addEventListener('change', e=>{ setPref('layout',e.target.value); applyShellPrefs(); });
+  (document.body||document.documentElement).appendChild(m);
+  settingsModalEl=m; return m;
+}
+function openSettings(){ const m=ensureSettingsModal(); applyShellPrefs(); m.hidden=false; }
+function openDashboardHelp(){
+  const m=ensureHelpModal();
+  m.querySelector('#helpTitle').textContent='MDL Dashboard — shell and navigation';
+  m.querySelector('#helpBody').innerHTML='<p>Use the left sidebar to open Overview, Progress, Overdue, Validation and Documents. Settings holds Theme and Layout. The top menu Search and discipline / stage filters apply to every panel.</p><p class="note">Export downloads one XLSX workbook with one worksheet per rendered table. Breakdown is not enabled for MDL.</p>';
+  m.hidden=false;
+}
+const CRC32_TABLE = (()=>{ const t=new Uint32Array(256); for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1); t[n]=c>>>0; } return t; })();
+function crc32(u8){ let c=0xFFFFFFFF; for(let i=0;i<u8.length;i++) c=CRC32_TABLE[(c^u8[i])&0xFF]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
+function utf8Bytes(s){
+  if(typeof TextEncoder === 'function') return new TextEncoder().encode(s);
+  const out=[]; for(let i=0;i<s.length;i++){ let c=s.charCodeAt(i); if(c<0x80) out.push(c); else if(c<0x800){ out.push(0xC0|(c>>6),0x80|(c&63)); } else { out.push(0xE0|(c>>12),0x80|((c>>6)&63),0x80|(c&63)); } }
+  return new Uint8Array(out);
+}
+function zipFiles(files){
+  const chunks=[], central=[]; let offset=0; const dosTime=0, dosDate=0x21;
+  for(const f of files){
+    const name=utf8Bytes(f.name), data=utf8Bytes(f.data), crc=crc32(data);
+    const lh=new Uint8Array(30); const lv=new DataView(lh.buffer);
+    lv.setUint32(0,0x04034b50,true); lv.setUint16(4,20,true); lv.setUint16(6,0x0800,true); lv.setUint16(8,0,true);
+    lv.setUint16(10,dosTime,true); lv.setUint16(12,dosDate,true); lv.setUint32(14,crc,true);
+    lv.setUint32(18,data.length,true); lv.setUint32(22,data.length,true); lv.setUint16(26,name.length,true); lv.setUint16(28,0,true);
+    chunks.push(lh,name,data);
+    const ch=new Uint8Array(46); const cv=new DataView(ch.buffer);
+    cv.setUint32(0,0x02014b50,true); cv.setUint16(4,20,true); cv.setUint16(6,20,true); cv.setUint16(8,0x0800,true);
+    cv.setUint16(10,0,true); cv.setUint16(12,dosTime,true); cv.setUint16(14,dosDate,true); cv.setUint32(16,crc,true);
+    cv.setUint32(20,data.length,true); cv.setUint32(24,data.length,true); cv.setUint16(28,name.length,true);
+    cv.setUint32(42,offset,true); central.push(ch,name);
+    offset += lh.length + name.length + data.length;
+  }
+  const cdSize=central.reduce((n,p)=>n+p.length,0); const end=new Uint8Array(22); const ev=new DataView(end.buffer);
+  ev.setUint32(0,0x06054b50,true); ev.setUint16(8,files.length,true); ev.setUint16(10,files.length,true);
+  ev.setUint32(12,cdSize,true); ev.setUint32(16,offset,true);
+  return new Blob([...chunks,...central,end],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+function xmlEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;'); }
+function colRef(n){ let s=''; n++; while(n>0){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=Math.floor((n-1)/26); } return s; }
+function sheetXml(t){
+  const head=(t.headers&&t.headers.length?[t.headers]:[]);
+  const rows=head.concat(t.rows||[]);
+  const body=rows.map((r,ri)=>'<row r="'+(ri+1)+'">'+r.map((v,ci)=>'<c r="'+colRef(ci)+(ri+1)+'" t="inlineStr"><is><t xml:space="preserve">'+xmlEsc(v)+'</t></is></c>').join('')+'</row>').join('');
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'+body+'</sheetData></worksheet>';
+}
+function workbookTables(){
+  const out=[];
+  document.querySelectorAll('.panel').forEach(panel=>{
+    panel.querySelectorAll('table').forEach(tbl=>{
+      if(tbl.classList.contains('vheadtab')) return;
+      const rows=[...tbl.tBodies].flatMap(tb=>[...tb.rows]).filter(r=>!r.classList.contains('win-pad')).map(r=>[...r.cells].filter(c=>!c.classList.contains('ds-gut')).map(c=>c.textContent.trim()));
+      if(!rows.length) return;
+      const htab=tbl.closest('.splitcard') && tbl.closest('.splitcard').querySelector('.vheadtab');
+      const hr=tbl.tHead && tbl.tHead.rows[tbl.tHead.rows.length-1] || htab && htab.tHead && htab.tHead.rows[htab.tHead.rows.length-1];
+      const headers=hr?[...hr.cells].filter(c=>!c.classList.contains('ds-gut')).map(c=>c.textContent.trim()):[];
+      out.push({name:panel.dataset.label||panel.id||'Table',headers,rows});
+    });
+  });
+  return out;
+}
+function buildWorkbook(tables){
+  const files=[], used=new Set();
+  const sheets=tables.map((t,i)=>{ let n=String(t.name||('Sheet '+(i+1))).replace(/[\\/?*\[\]:]/g,'_').slice(0,31)||('Sheet '+(i+1)); if(used.has(n)) n=(n.slice(0,27)+'_'+(i+1)).slice(0,31); used.add(n); return {n,r:'rId'+(i+1)}; });
+  files.push({name:'[Content_Types].xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+sheets.map((s,i)=>'<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join('')+'</Types>'});
+  files.push({name:'_rels/.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'});
+  files.push({name:'xl/workbook.xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'+sheets.map((s,i)=>'<sheet name="'+xmlEsc(s.n)+'" sheetId="'+(i+1)+'" r:id="'+s.r+'"/>').join('')+'</sheets></workbook>'});
+  files.push({name:'xl/_rels/workbook.xml.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+sheets.map((s,i)=>'<Relationship Id="'+s.r+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>').join('')+'<Relationship Id="rIdS" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'});
+  files.push({name:'xl/styles.xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs></styleSheet>'});
+  tables.forEach((t,i)=>files.push({name:'xl/worksheets/sheet'+(i+1)+'.xml',data:sheetXml(t)}));
+  return zipFiles(files);
+}
+function exportWorkbook(){
+  const tables=workbookTables();
+  if(!tables.length){ toast('No tables to export.'); return; }
+  const blob=buildWorkbook(tables), url=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=url; a.download=xp('all-tables')+'.xlsx'; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),2000); toast('Workbook exported: '+tables.length+' worksheets.');
+}
 function getFilterDefs(model){
   // Two filters only: Discipline + Stage.
   // IMPORTANT (population rule): data options come from the VALUES ACTUALLY PRESENT in the
@@ -883,25 +1182,17 @@ function bannerItemsHTML(warnings){
     return `<div class="sys-banner-item ${cls}">${ic} <b>${esc(w.code || 'SYSTEM')}</b>${esc(w.message || '')}</div>`;
   }).join('');
 }
-// --- fixed top warning bar (#errBanner, PPP design, spec §3.5) ---
+// --- in-flow warning bar (#errBanner, spec §3.5) ---
 // Visibility is driven by ONE resolver, applyBannerState(), so the user's persisted collapse
 // preference is always respected — including notices appended *after* the user collapsed the bar.
 function expandBanner(b, ctx){
   b.hidden = false;
-  const h = b.offsetHeight;
-  if(h){ document.documentElement.style.setProperty('--banner-h', h + 'px'); document.body.classList.add('banner-open'); }
-  if(ctx === 'welcome'){ document.body.classList.add('banner-welcome'); b.style.top = '0px'; }
-  else { const hdr = document.querySelector('header.app'); b.style.top = (hdr ? hdr.offsetHeight : 0) + 'px'; }
 }
 function collapseBanner(b){
   b.hidden = true;
-  document.body.classList.remove('banner-open', 'banner-welcome');
-  document.documentElement.style.removeProperty('--banner-h');
 }
 function closeBanner(b){            // teardown: no notices left
-  b.hidden = true; b.innerHTML = ''; b.removeAttribute('style');
-  document.body.classList.remove('banner-open', 'banner-welcome');
-  document.documentElement.style.removeProperty('--banner-h');
+  b.hidden = true; b.innerHTML = '';
 }
 function applyBannerState(b, ctx){
   ctx = ctx || (document.querySelector('header.app') ? 'dash' : 'welcome');
@@ -938,7 +1229,7 @@ function showError(msg){
 }
 // Append a single notice strip to the unified bar (spec §3.5). Used for notices that are only
 // known after the initial render (render failures, discovered config) so they never fall back to
-// in-flow cards — the fixed bar stays the only warning surface.
+// in-flow cards — the bar stays the only warning surface.
 function addBannerNotice(level, code, message, tag){
   const b = document.getElementById('errBanner');   if(!b) return;
 const cls = level === 'fatal' ? 'fatal' : (level === 'info' ? 'info' : 'warn');
@@ -957,29 +1248,37 @@ function removeBannerNotices(tag){
 }
 function renderDashboard(root, model){
   MODEL = model; WRAP = null; collapsed.clear(); scurveWin = null; matrixMonthSel = ''; toastActive.length = 0; toastQueue.length = 0;   // full reset on a fresh load
+  currentPage = 'Overview';
   const defs = getFilterDefs(model);
   const initSet = d => new Set(baseOpts(d));
   STATE = { disciplines:initSet(defs[0]), stages:initSet(defs[1]), search:'', searchCol:'Document No.', rule:null, sort:{col:null,dir:1} };
   root.innerHTML = `<style>${CSS}</style>`;
+  bindTableCrosshair();
+  bindKpiHover();
   const header = document.createElement('header'); header.className='app';
   const titleText = model.meta.projectTitle || (model.meta.workbookName ? model.meta.workbookName.replace(/\.(xlsx|xlsm)$/i,'') : 'Dashboard');
-  // I-94 (part 2b) — the control states the scope it acts on: the menu-bar filters are GLOBAL, so the
-// tooltip and the panel's accessible name both say so, which is what distinguishes them from the
-// panel-local controls (Overdue Type / Rule) that carry the opposite wording.
-const filterBtn = d => `<div class="tf-wrap"><button id="tfBtn_${d.key}" class="tf-btn" title="Applies to all panels — filters the whole dashboard" aria-expanded="false" aria-haspopup="true" aria-controls="tfPanel_${d.key}">${esc(d.label)}<span class="tf-cnt" id="tfCnt_${d.key}"></span></button><div class="tf-panel" id="tfPanel_${d.key}" role="group" aria-label="Filter every panel by ${esc(d.label.toLowerCase())}" hidden></div></div>`;
+  const filterBtn = d => `<div class="tf-wrap"><button id="tfBtn_${d.key}" class="tf-btn" title="Applies to all panels — filters the whole dashboard" aria-expanded="false" aria-haspopup="true" aria-controls="tfPanel_${d.key}">${esc(d.label)}<span class="tf-cnt" id="tfCnt_${d.key}"></span></button><div class="tf-panel" id="tfPanel_${d.key}" role="group" aria-label="Filter every panel by ${esc(d.label.toLowerCase())}" hidden></div></div>`;
   const colOpts = model.contract.fieldOrder.map(f => `<option value="${esc(f)}"${f==='Document No.'?' selected':''}>${esc(f)}</option>`).join('');
-  // Bug-fix: .sub rendered conditionally — only when dashboardTitle is set (fixes "dashboard
-  // title not hard-coded when absent" test failure; previously always rendered with '|| Dashboard').
   const subLine = model.meta.dashboardTitle ? `<div class="sub">${esc(model.meta.dashboardTitle)}</div>` : '';
-  // Bug-fix: filter chips (.tf-wrap) moved into .actions so the test selector
-  // `header.app .actions .tf-wrap` finds them (and .actions button count reaches ≥3).
-  // Row 1 (title bar): logo + title block only — no action buttons here (spec §3.1).
-  // Row 2 (menu bar): left actions cluster + right filter group; borderless, text-only, hover-highlight.
-  header.innerHTML = `<div class="app-top"><div class="brand"><img class="logo" src="${LOGO_DATA}" alt="logo"><div class="ttl-stack"><h1 class="ttl">${esc(titleText)}</h1>${subLine}<div class="meta">Project start ${esc(model.meta.projectStartDate || '—')} · as of ${esc(model.meta.today)}</div></div></div></div>
-<div class="app-menu"><div class="actions"><button id="reload" class="btn btn-primary">Load Workbook</button><button id="aPrint" class="btn">Print / Save PDF</button></div><div class="filter-group">${defs.map(filterBtn).join('')}<div class="tf-wrap"><button id="searchToggle" class="btn" type="button" title="Applies to all panels — filters the whole dashboard" aria-haspopup="dialog" aria-controls="searchPanel">Search</button><div class="tf-panel search-panel" id="searchPanel" role="dialog" aria-label="Search documents — filters every panel"><div class="search-row"><div class="search" style="flex:1 1 auto;width:auto;min-width:240px;max-width:none"><select id="fCol" class="inter-sel is-attached" aria-label="Search column">${colOpts}</select><input id="fSearch" class="search-input" type="search" value="${esc(STATE.search)}" placeholder="Search Document No.…" aria-label="Search value"></div><button id="fGo" class="btn btn-primary" type="button">Find</button><button id="fReset" class="btn" type="button">Reset</button></div></div></div><button id="warnBtn" class="btn warn-toggle" aria-pressed="false" aria-label="Data-quality warnings (0)" hidden><span class="badge">0</span> <span id="warnLabel">Warnings</span></button></div></div>`;
+  header.innerHTML = `<div class="app-top" data-shell="titlebar"><div class="brand"><img class="logo" src="${LOGO_DATA}" alt="logo"><div class="ttl-stack"><h1 class="ttl">${esc(titleText)}</h1>${subLine}<div class="meta">Project start ${esc(model.meta.projectStartDate || '—')} · as of ${esc(model.meta.today)}</div></div></div><span class="page-label" id="activePageLabel" aria-live="polite">Overview</span></div>
+<div class="app-menu" data-shell="menubar"><div class="actions"><button id="sidebarToggle" class="btn" type="button" data-shell-toggle="left-sidebar" aria-label="Collapse left sidebar" title="Toggle left sidebar">☰</button><button id="reload" class="btn btn-primary">Load Workbook</button><button id="exportWorkbook" class="btn" type="button" title="Download all data tables as one XLSX workbook">Export</button></div><div class="filter-group">${defs.map(filterBtn).join('')}<div class="tf-wrap"><button id="searchToggle" class="btn" type="button" title="Applies to all panels — filters the whole dashboard" aria-haspopup="dialog" aria-controls="searchPanel">Search</button><div class="tf-panel search-panel" id="searchPanel" role="dialog" aria-label="Search documents — filters every panel"><div class="search-row"><div class="search" style="flex:1 1 auto;width:auto;min-width:240px;max-width:none"><select id="fCol" class="inter-sel is-attached" aria-label="Search column">${colOpts}</select><input id="fSearch" class="search-input" type="search" value="${esc(STATE.search)}" placeholder="Search Document No.…" aria-label="Search value"></div><button id="fGo" class="btn btn-primary" type="button">Find</button><button id="fReset" class="btn" type="button">Reset</button></div></div></div><button id="warnBtn" class="btn warn-toggle" aria-pressed="false" aria-label="Data-quality warnings (0)" hidden><span class="badge">0</span> <span id="warnLabel">Warnings</span></button></div></div>`;
   root.appendChild(header);
-  // Wire the header search control: single column, commit on Enter (or button); Esc clears.
-  // The control lives in a collapsible Search panel (spec §4.7 / §5.1) — the "Search" button toggles it.
+
+  const shell = document.createElement('div'); shell.className='shell-main'; root.appendChild(shell);
+  const sidebar = document.createElement('aside'); sidebar.dataset.shell='left-sidebar'; sidebar.setAttribute('aria-label','Primary navigation');
+  sidebar.innerHTML = `<div class="nav-list" role="group" aria-label="Pages">${SHELL_PAGES.map(p=>`<button class="nav-item${p==='Overview'?' active':''}" type="button" data-page="${esc(p)}"${p==='Overview'?' aria-current="page"':''}>${esc(p)}</button>`).join('')}</div><div class="nav-tools" role="group" aria-label="Dashboard tools"><button id="settingsBtn" class="nav-item" type="button">Settings</button><button id="helpBtn" class="nav-item" type="button">Help</button></div><div class="sidebar-resizer" data-shell-resize="left-sidebar" role="separator" aria-orientation="vertical" aria-label="Resize left sidebar"></div>`;
+  shell.appendChild(sidebar);
+  const wrap = document.createElement('div'); wrap.className='wrap'; wrap.dataset.shell='content'; shell.appendChild(wrap); WRAP = wrap;
+
+  const eb = document.createElement('div'); eb.id='errBanner'; eb.dataset.shell='warnings'; eb.setAttribute('role','alert'); eb.setAttribute('aria-live','assertive'); wrap.appendChild(eb);
+  showBanner(model.warnings);
+  const filterArea = document.createElement('div'); filterArea.className='filter-strip'; filterArea.dataset.shell='filter-area'; filterArea.id='filterArea'; wrap.appendChild(filterArea);
+  const contentBody = document.createElement('div'); contentBody.className='content-body'; contentBody.dataset.shell='body'; wrap.appendChild(contentBody);
+  const panelArea = document.createElement('div'); panelArea.className='panel-area'; contentBody.appendChild(panelArea);
+
+  statusBarEl = document.createElement('div'); statusBarEl.id='statusBar'; statusBarEl.dataset.shell='statusbar'; statusBarEl.className='status-bar'; statusBarEl.innerHTML='<span class="sb-loading">Loading dashboard…</span>'; root.appendChild(statusBarEl);
+  if(!document.getElementById('toast')){ const th=document.createElement('div'); th.id='toast'; root.appendChild(th); }
+
   const fSearch = header.querySelector('#fSearch'), fCol = header.querySelector('#fCol');
   const searchPanel = header.querySelector('#searchPanel'), searchToggle = header.querySelector('#searchToggle');
   const runSearch = () => { STATE.search = fSearch.value; STATE.searchCol = fCol.value; renderAll(wrap); };
@@ -987,70 +1286,57 @@ const filterBtn = d => `<div class="tf-wrap"><button id="tfBtn_${d.key}" class="
   fSearch.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); runSearch(); closeSearch(); } else if(e.key === 'Escape'){ fSearch.value=''; STATE.search=''; renderAll(wrap); closeSearch(); } });
   header.querySelector('#fGo').addEventListener('click', () => { runSearch(); closeSearch(); });
   header.querySelector('#fReset').addEventListener('click', () => { fSearch.value=''; runSearch(); closeSearch(); });
-  fCol.addEventListener('change', () => { fSearch.placeholder = 'Search ' + fCol.value + '…'; });
+  fCol.addEventListener('change', () => { fSearch.placeholder = 'Search ' + fCol.value + '…'; if(STATE.search) runSearch(); });
   if(searchToggle && searchPanel){
     searchToggle.addEventListener('click', e => { e.stopPropagation(); searchPanel.classList.toggle('open'); });
     document.addEventListener('click', e => { if(searchPanel && !searchPanel.contains(e.target) && !searchToggle.contains(e.target)) closeSearch(); });
   }
-  // Dismissible warning bar (spec §3.5): toggle collapse; persisted in localStorage.
   const warnBtn = header.querySelector('#warnBtn');
   if(warnBtn) warnBtn.addEventListener('click', () => {
     setPref('hideWarnings', !getPref('hideWarnings', false));
     applyBannerState(document.getElementById('errBanner'));
   });
+  header.querySelector('#sidebarToggle').addEventListener('click', e => {
+    const collapsedNow = document.body.classList.toggle('sidebar-collapsed');
+    e.currentTarget.setAttribute('aria-label', collapsedNow ? 'Expand left sidebar' : 'Collapse left sidebar');
+    setTimeout(()=>applyBannerState(document.getElementById('errBanner')),0);
+  });
+  const resizer = sidebar.querySelector('[data-shell-resize]');
+  resizer.addEventListener('pointerdown', e => {
+    e.preventDefault(); resizer.setPointerCapture(e.pointerId);
+    const move = ev => document.body.style.setProperty('--sidebar-w', Math.max(140, Math.min(280, ev.clientX)) + 'px');
+    const up = () => { resizer.removeEventListener('pointermove',move); resizer.removeEventListener('pointerup',up); };
+    resizer.addEventListener('pointermove',move); resizer.addEventListener('pointerup',up);
+  });
+  sidebar.querySelectorAll('.nav-item[data-page]').forEach(b => b.addEventListener('click', () => setPage(b.dataset.page)));
+  document.getElementById('settingsBtn').addEventListener('click', openSettings);
+  document.getElementById('helpBtn').addEventListener('click', () => openDashboardHelp());
+  header.querySelector('#exportWorkbook').addEventListener('click', exportWorkbook);
 
-  // --- Unified top warning bar (#errBanner, PPP design, spec §3.5): system/config
-  // notices + load failures in one fixed bar below the app bar. ---
-  if(!document.getElementById('errBanner')){
-    const eb = document.createElement('div'); eb.id='errBanner';
-    eb.setAttribute('role','alert'); eb.setAttribute('aria-live','assertive');
-    root.appendChild(eb);
-  }
-  showBanner(model.warnings);
-
-  const wrap = document.createElement('div'); wrap.className='wrap'; root.appendChild(wrap); WRAP = wrap;
-  statusBarEl = document.createElement('div'); statusBarEl.id='statusBar'; statusBarEl.className='status-bar'; statusBarEl.innerHTML='<span class="sb-loading">Loading dashboard…</span>'; root.appendChild(statusBarEl);
-  if(!document.getElementById('toast')){ const th=document.createElement('div'); th.id='toast'; root.appendChild(th); }
-
-  // no-list-yet disciplines — a config notice, routed to the unified #errBanner (spec §3.5)
   if(model.contract.noListYetDisciplines.length){
     addBannerNotice('info', 'CONFIG', `UESH disciplines with no document list yet (auto-discovered, shown for structure only): ${model.contract.noListYetDisciplines.join(', ')}.`);
   }
 
-  // KPI panel
-  const kp = document.createElement('div'); kp.className='panel'; kp.id='kpiPanel'; kp.dataset.panel='1';
-  wrap.appendChild(kp);
-  // (Filters & Utilities panel removed — Search + Reset moved into the sticky header; spec §4.7 / I-62)
-  // Matrix — Bug-fix: was data-panel='3', skipping '2' (caused "all 8 panels numbered" failure)
-  const mp = document.createElement('div'); mp.className='panel'; mp.id='matrixPanel'; mp.dataset.panel='2';
-  wrap.appendChild(mp);
-  // Charts (Documents / Issues breakdowns, side by side)
-  const chartsPanel = document.createElement('div'); chartsPanel.className='panel'; chartsPanel.id='chartsPanel'; chartsPanel.dataset.panel='3';
-  chartsPanel.innerHTML='<h2>Interactive Chart</h2>';
+  const addPanel = (id, label, page) => { const p=document.createElement('div'); p.className='panel'; p.id=id; p.dataset.panel=''; p.dataset.label=label; if(page){p.dataset.page=page; if(page==='Overview')p.classList.add('page-active');} panelArea.appendChild(p); return p; };
+  addPanel('kpiPanel','KPI Overview','Overview');
+  const mp=addPanel('matrixPanel','Discipline Summary Matrix','Overview');
+  const chartsPanel=addPanel('chartsPanel','Interactive Chart','Progress'); chartsPanel.innerHTML='<h2>Interactive Chart</h2>';
   const grid=document.createElement('div'); grid.className='charts'; chartsPanel.appendChild(grid);
-  wrap.appendChild(chartsPanel);
-  // Issue Progress (S-Curve & Monthly), below charts
-  const curvePanel = document.createElement('div'); curvePanel.className='panel'; curvePanel.id='curvePanel'; curvePanel.dataset.panel='4';
+  const curvePanel=addPanel('curvePanel','Issue Progress','Progress');
   curvePanel.innerHTML='<div class="panel-head"><h2>Issue Progress</h2><div class="head-actions" id="curveActions"></div></div>';
   const cbody=document.createElement('div'); cbody.className='curve-body'; curvePanel.appendChild(cbody);
-  wrap.appendChild(curvePanel);
-  // Overdue
-  const op=document.createElement('div'); op.className='panel'; op.id='overduePanel'; op.dataset.panel='5'; wrap.appendChild(op);
-  // Validation
-  const vp=document.createElement('div'); vp.className='panel'; vp.id='validationPanel'; vp.dataset.panel='6'; wrap.appendChild(vp);
-  // Detail
-  const dp=document.createElement('div'); dp.className='panel'; dp.id='detailPanel'; dp.dataset.panel='7'; wrap.appendChild(dp);
-  // Disclaimer footer (spec §3.3 — role=contentinfo, last child of .wrap)
-  const footer=document.createElement('footer'); footer.className='disclaimer'; footer.setAttribute('role','contentinfo');
-  footer.textContent='Standalone Dashboard. Updated on '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+'. Copyright UESH 2026.';
-  wrap.appendChild(footer);
+  addPanel('overduePanel','Overdue List','Overdue');
+  addPanel('validationPanel','Validation Issues','Validation');
+  addPanel('detailPanel','Document Detail Table','Documents');
 
+  applyShellPrefs();
+  setPage('Overview');
   document.getElementById('reload').onclick = ()=> boot(root);
-  document.getElementById('aPrint').onclick = ()=> window.print();
   requestAnimationFrame(()=>renderAll(wrap));
 }
 function renderAll(wrap){
   WRAP = wrap;
+  applyShellPrefs();
   const v = deriveView(MODEL, STATE);
   try { wireFilterChips(MODEL, STATE, ()=>renderAll(wrap), refreshData); }
   catch(e){ console.error('[wireFilterChips]', e); }
@@ -1059,6 +1345,8 @@ function renderAll(wrap){
 function refreshData(){ renderData(WRAP, deriveView(MODEL, STATE)); }
 function renderData(wrap, v){
   v = v || deriveView(MODEL, STATE);
+  applyShellPrefs();
+  setPage(currentPage);
   renderIssues = [];
   const safe = (label, id, fn) => { const p = document.getElementById(id); try { fn(p); } catch(e){ reportPanelError(label, p, e); } };
   safe('KPI Overview', 'kpiPanel', p => renderKPIs(p, v.kpis, MODEL));
@@ -1069,6 +1357,8 @@ function renderData(wrap, v){
   safe('Validation Issues', 'validationPanel', p => renderValidation(p, v.issues, MODEL));
   safe('Document Detail Table', 'detailPanel', p => renderDetail(p, v.recs, MODEL, STATE, ()=>renderAll(wrap)));
   ['kpiPanel','matrixPanel','chartsPanel','curvePanel','overduePanel','validationPanel','detailPanel'].forEach(id => { try { ensureCollapse(document.getElementById(id)); } catch(e){ console.error('[collapse] '+id, e); } });
+  [...wrap.querySelectorAll('.panel')].forEach((p,i)=>{ p.dataset.panel = String(i+1); });
+  assignCrosshairIds();
   renderStatusBar(v);
   showRenderIssues();
 }
@@ -1086,30 +1376,18 @@ function filterSummary(){
 }
 function renderStatusBar(v){
   if(!statusBarEl || !MODEL) return;
-  const m=MODEL.meta, k=v.kpis||{};
-  const q = s => esc(s);
-  const total = MODEL.records ? MODEL.records.length : 0;
-  const planned = k.totalPlanned||0, submitted = k.submitted||0;
-  const pct = planned ? Math.round(submitted/planned*100) : 0;
-  const valid = v.active ? v.active.length : 0;
-  const asof = m.today||'';
+  const m=MODEL.meta, q=s=>esc(s);
   const gen = m.generatedAt ? m.generatedAt.slice(0,19).replace('T',' ') : '';
-  const fsum = filterSummary();
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const parts=(m.generatedAt||'').slice(0,10).split('-');
+  const updated=parts.length===3 && months[Number(parts[1])-1] ? Number(parts[2])+' '+months[Number(parts[1])-1]+' '+parts[0] : '';
+  const fa = document.getElementById('filterArea'); if(fa) fa.textContent = 'Global filters — ' + filterSummary();
   const fileTitle = q(m.workbookName||'') + (gen? ' · Generated '+q(gen) : '');
-  statusBarEl.innerHTML =
-    '<span class="sb-panel"><span class="sb-dot" title="Workbook loaded"></span><span class="sb-file" title="'+fileTitle+'"><b>File:</b> '+esc(m.workbookName||'—')+'</span></span>'+
-    '<span class="sb-panel" title="Total planned active documents"><b>Planned:</b> '+planned+'</span>'+
-    '<span class="sb-panel" title="Documents with an Actual 1st Issue Date"><b>Submitted:</b> '+submitted+'</span>'+
-    '<span class="sb-panel" title="1st-submission progress = Submitted / Planned"><b>1st-sub:</b> '+pct+'% <span class="sb-bar"><i style="width:'+pct+'%"></i></span></span>'+
-    '<span class="sb-panel" title="Active documents (excluded stages removed) of '+total+' total rows"><b>Valid:</b> '+valid+'/'+total+'</span>'+
-    '<span class="sb-panel" title="Overdue 1st-submission count"><b>Overdue:</b> '+(k.overdueFirst||0)+'</span>'+
-    '<span class="sb-panel" title="Data completeness % (passing rules V-17…V-27)"><b>Completeness:</b> '+(k.completeness==null?'N/A':k.completeness+'%')+'</span>'+
-    '<span class="sb-panel" title="Distinct UESH disciplines among active documents"><b>Disciplines:</b> '+(k.activeDisciplines||0)+'</span>'+
-    '<span class="sb-panel" title="Reporting / as-of date used for overdue calculation"><b>As-of:</b> '+q(asof)+'</span>'+
-    '<span class="sb-panel sb-filter" title="'+q(fsum)+'"><b>Filter:</b> '+esc(fsum)+'</span>';
-  if(renderIssues && renderIssues.length){
-    statusBarEl.innerHTML += '<span class="sb-panel sb-err"><span class="sb-dot sb-dot-err"></span><b>Render issues:</b> '+renderIssues.length+'</span>';
-  }
+  const issueText = renderIssues && renderIssues.length ? '<span class="sb-err"><b>Render issues:</b> '+renderIssues.length+'</span>' : '';
+  const right='MDL Dashboard v'+APP_VERSION+(updated?' · Updated '+updated:'')+' · © UESH 2026';
+  statusBarEl.innerHTML = '<span class="sb-left"><span class="sb-dot" title="Workbook loaded"></span>'
+    + '<span class="sb-file" title="'+fileTitle+'"><b>File:</b> '+q(m.workbookName||'—')+'</span>' + issueText + '</span>'
+    + '<span class="sb-right">'+q(right)+'</span>';
 }
 function reportPanelError(label, panel, e){
   console.error('[render] '+label, e);
@@ -1214,7 +1492,7 @@ const HELP = {
 <li>One row per discipline, ordered by number of planned documents (largest first). A bold <strong>TOTAL</strong> row at the bottom sums every column across all disciplines.</li>
 <li>The columns are grouped under header bands — <strong>Total Submission</strong>, <strong>Submission — (month) (selected month)</strong>, <strong>Approval</strong>, and <strong>Overdue</strong>. The three "this month" submission columns are shaded light yellow to show they react to the Month selector.</li>
 <li>Columns: <strong>Total Planned</strong> (all active documents in the discipline), <strong>Total Submitted</strong> shown as "count (percent)" — e.g. "95 (31%)" — where the percent is that discipline's submitted documents as a share of the project's <strong>Total Planned</strong> (all disciplines); and three "this month" submission counts — <strong>Plan (month)</strong> (documents whose <em>Planned 1st Issue Date</em> is in the chosen month), <strong>Forecast (month)</strong> (whose <em>Forecast 1st Issue Date</em>, or <em>Planned</em> if forecast is blank, is in the chosen month), and <strong>Actual (month)</strong> (whose <em>Actual 1st Issue Date</em> is in the chosen month) — then Approved (APP), Approved w/ Comments (AWC), Rejected (REJ), Not Approved (NAP), and three overdue counts (1st-sub, Resubmission, Client-review). All numbers are centre-aligned.</li>
-<li><strong>Month selector</strong> (top of the panel, left of the toolbar): chooses which month the three shaded "Plan / Forecast / Actual" columns count. It defaults to the as-of month (marked "(as-of)" in the list). The list is a <em>continuous</em> range from the <strong>earlier of the project start date (Code!B6) and the earliest planned/forecast/actual first-issue date in the data</strong> — so months before the declared project start are also reachable — through the as-of month, extended to the latest data month if it lies beyond as-of. Every month in the project's life is listed, including months with no submissions. Changing it only re-counts those three shaded columns — Total Planned, Total Submitted, the approval split, and the three overdue counts are all-time / as-of-today totals and do not change.</li>
+<li><strong>Month selector</strong> (matrix tool row, left group inside the table card): chooses which month the three shaded "Plan / Forecast / Actual" columns count. It defaults to the as-of month (marked "(as-of)" in the list). The list is a <em>continuous</em> range from the <strong>earlier of the project start date (Code!B6) and the earliest planned/forecast/actual first-issue date in the data</strong> — so months before the declared project start are also reachable — through the as-of month, extended to the latest data month if it lies beyond as-of. Every month in the project's life is listed, including months with no submissions. Changing it only re-counts those three shaded columns — Total Planned, Total Submitted, the approval split, and the three overdue counts are all-time / as-of-today totals and do not change.</li>
 <li>Click <strong>▸ stages</strong> to reveal that discipline's per-<em>Stage</em> (col B) breakdown with the same columns.</li>
 <li><strong>▾ Expand all / ▸ Collapse all</strong> open or close every discipline's stages.</li>
 <li><strong>⤓ PNG (full) / ⧉ Copy</strong> save or copy a picture of the fully expanded table for the current selection.</li>
@@ -1315,20 +1593,23 @@ function openHelp(id){
   m.hidden=false;
 }
 function renderKPIs(panel, k, model){
+  const asof = (model && model.meta && model.meta.today) || '';
   const cards = [
-    {l:'Total Planned',v:k.totalPlanned,c:''},{l:'Submitted',v:k.submitted,c:'ok'},
-    {l:'Approved (APP)',v:k.approvedAPP,c:'ok'},{l:'Approved w/ Comments',v:k.approvedAWC,c:'amb'},
-    {l:'Rejected (REJ)',v:k.rejected,c:'warn'},{l:'Not Approved (NAP)',v:k.notApproved,c:''},
-    {l:'Pending Review',v:k.pendingReview,c:''},{l:'Not Submitted',v:k.notSubmitted,c:'muted'},
-    {l:'Record Error',v:k.recordError,c:'err'},
-    {l:'Overdue – 1st Sub',v:k.overdueFirst,c:'warn'},{l:'Overdue – Resub',v:k.overdueResubmission,c:'warn'},
-    {l:'Overdue – Client',v:k.overdueClientReview,c:'warn'}];
+    {id:'totalPlanned',l:'Total Planned',v:k.totalPlanned,c:''},{id:'submitted',l:'Submitted',v:k.submitted,c:'ok'},
+    {id:'approvedAPP',l:'Approved (APP)',v:k.approvedAPP,c:'ok'},{id:'approvedAWC',l:'Approved w/ Comments',v:k.approvedAWC,c:'amb'},
+    {id:'rejected',l:'Rejected (REJ)',v:k.rejected,c:'warn'},{id:'notApproved',l:'Not Approved (NAP)',v:k.notApproved,c:''},
+    {id:'pendingReview',l:'Pending Review',v:k.pendingReview,c:''},{id:'notSubmitted',l:'Not Submitted',v:k.notSubmitted,c:'muted'},
+    {id:'recordError',l:'Record Error',v:k.recordError,c:'err'},
+    {id:'overdueFirst',l:'Overdue – 1st Sub',v:k.overdueFirst,c:'warn'},{id:'overdueResubmission',l:'Overdue – Resub',v:k.overdueResubmission,c:'warn'},
+    {id:'overdueClientReview',l:'Overdue – Client',v:k.overdueClientReview,c:'warn'}];
   const sub = [
-    {l:'As-Built Required (YES)',v:k.asBuiltYes},{l:'Vendor Data (YES)',v:k.vendorYes},
-    {l:'Data Completeness',v:(k.completeness==null?'N/A':k.completeness+'%')},{l:'Active Disciplines',v:k.activeDisciplines+' / '+(k.disciplineTotal||0)}];
+    {id:'asBuiltYes',l:'As-Built Required (YES)',v:k.asBuiltYes},{id:'vendorYes',l:'Vendor Data (YES)',v:k.vendorYes},
+    {id:'completeness',l:'Data Completeness',v:(k.completeness==null?'N/A':k.completeness+'%')},{id:'activeDisciplines',l:'Active Disciplines',v:k.activeDisciplines+' / '+(k.disciplineTotal||0)}];
+  const card = (base,item) => `<div class="${base} kpi-card ${item.c||''}" data-kpi="${item.id}" data-tip="${esc(kpiTipHtml(item.l,asof,kpiSwatch(item.c)))}" tabindex="0" aria-describedby="kpiTip"><div class="v">${item.v}</div><div class="l">${esc(item.l)}</div></div>`;
   panel.innerHTML = `<div class="panel-head"><h2>KPI Overview</h2><div class="head-actions"><button class="collapse icon-btn" title="Collapse panel" aria-label="Collapse panel">−</button></div></div>
-    <div class="panel-body"><div class="kpis">${cards.map(c=>`<div class="kpi ${c.c}"><div class="v">${c.v}</div><div class="l">${esc(c.l)}</div></div>`).join('')}</div>
-    <div class="subkpis">${sub.map(s=>`<div class="subkpi"><div class="v">${esc(s.v)}</div><div class="l">${esc(s.l)}</div></div>`).join('')}</div></div>`;
+    <div class="panel-body"><div class="kpis">${cards.map(c=>card('kpi',c)).join('')}</div>
+    <div class="subkpis">${sub.map(s=>card('subkpi',s)).join('')}</div>
+    <div id="kpiTip" class="chart-tip kpi-tip" role="tooltip" aria-hidden="true"></div></div>`;
   wireCollapse(panel);
 }
 
@@ -2000,19 +2281,21 @@ function renderMatrix(panel, matrix, months, curMonth){
   // pinned last (in <tfoot>). The displayed rows, drill rows and CSV/PNG export all read
   // `mrows` — a single source with no sort state to maintain.
   let mrows = matrix.slice();
+  const MATRIX_IDS = ['discipline','planned','submitted','plan','fcast','actual','app','awc','rej','nap','ov1','ov2','ov3','stages'];
+  const mId = i => ' data-col-id="' + MATRIX_IDS[i] + '"';
   const matrixThead = ()=>{
     // Static headers (sorting removed 2026-10-19, MDL I-110): no sort buttons / aria-sort /
     // sort indicators. §18 centres a summary cross-tab's data columns, and the header carries
     // exactly what the body carries (a plain <td>), so header and data cannot diverge.
-    const disc = `<th rowspan="2" scope="row">Discipline</th>`;
-    const L = k => `<th scope="col">${esc(k)}</th>`;
+    const disc = `<th rowspan="2" scope="row"${mId(0)} tabindex="0">Discipline</th>`;
+    const L = (k,i) => `<th scope="col"${mId(i+1)} tabindex="0">${esc(k)}</th>`;
     const COLS = ['Total Planned','Total Submitted','Plan','Forecast','Actual','APP','AWC','REJ','NAP','1st','Resub','Client'];
     return `<tr class="group">${disc}`
       + `<th colspan="2" scope="colgroup">Total Submission</th>`
       + `<th colspan="3" scope="colgroup">Submission — ${ml} (selected month)</th>`
       + `<th colspan="4" scope="colgroup">Approval</th>`
       + `<th colspan="3" scope="colgroup">Overdue</th>`
-      + `<th rowspan="2" aria-label="Expand stages"></th>`
+      + `<th rowspan="2" aria-label="Expand stages"${mId(13)} tabindex="0"></th>`
       // trailing gutter cell matching the reserved --ds-sbw column, so the header spans every column
       + `<th class="ds-gut" rowspan="2" aria-hidden="true"></th>`
       + `</tr>`
@@ -2032,27 +2315,28 @@ function renderMatrix(panel, matrix, months, curMonth){
   const headBody = `<colgroup>${colsHTML}</colgroup>`;
   const headFrag = `<colgroup>${colsHTML}<col class="ds-gut" style="width:var(--ds-sbw,0px)"></colgroup>`;
   const matrixRows = arr => arr.map(m=>{
-    const exp = m.stages.length ? `<td><button class="expand" type="button" data-d="${esc(m.discipline)}" aria-expanded="false" title="Expand stages">▸ stages</button></td>` : `<td class="noexp">—</td>`;
-    return `<tr><td>${esc(m.discipline)}</td><td>${m.Planned}</td><td>${subFmt(m.Submitted)}</td>`
-      + `<td${tint}>${m.PlanMo}</td><td${tint}>${m.FcastMo}</td><td${tint}>${m.ActualMo}</td>`
-      + `<td>${m.Approved}</td><td>${m.AWC}</td><td>${m.REJ}</td><td>${m.NAP}</td>`
-      + `<td>${m.ov1}</td><td>${m.ov2}</td><td>${m.ov3}</td>${exp}</tr>`;
+    const exp = m.stages.length ? `<td${mId(13)}><button class="expand" type="button" data-d="${esc(m.discipline)}" aria-expanded="false" title="Expand stages">▸ stages</button></td>` : `<td class="noexp"${mId(13)}>—</td>`;
+    return `<tr tabindex="0"><td${mId(0)}>${esc(m.discipline)}</td><td${mId(1)}>${m.Planned}</td><td${mId(2)}>${subFmt(m.Submitted)}</td>`
+      + `<td${tint}${mId(3)}>${m.PlanMo}</td><td${tint}${mId(4)}>${m.FcastMo}</td><td${tint}${mId(5)}>${m.ActualMo}</td>`
+      + `<td${mId(6)}>${m.Approved}</td><td${mId(7)}>${m.AWC}</td><td${mId(8)}>${m.REJ}</td><td${mId(9)}>${m.NAP}</td>`
+      + `<td${mId(10)}>${m.ov1}</td><td${mId(11)}>${m.ov2}</td><td${mId(12)}>${m.ov3}</td>${exp}</tr>`;
   }).join('');
   const rows = matrixRows(mrows);
   const tot = matrix.reduce((a,m)=>{ a.Planned+=m.Planned; a.Submitted+=m.Submitted; a.PlanMo+=m.PlanMo; a.FcastMo+=m.FcastMo; a.ActualMo+=m.ActualMo; a.Approved+=m.Approved; a.AWC+=m.AWC; a.REJ+=m.REJ; a.NAP+=m.NAP; a.ov1+=m.ov1; a.ov2+=m.ov2; a.ov3+=m.ov3; return a; }, {Planned:0,Submitted:0,PlanMo:0,FcastMo:0,ActualMo:0,Approved:0,AWC:0,REJ:0,NAP:0,ov1:0,ov2:0,ov3:0});
-  const tfoot = `<tfoot><tr><td>TOTAL</td><td>${tot.Planned}</td><td>${subFmt(tot.Submitted)}</td>`
-    + `<td${tint}>${tot.PlanMo}</td><td${tint}>${tot.FcastMo}</td><td${tint}>${tot.ActualMo}</td>`
-    + `<td>${tot.Approved}</td><td>${tot.AWC}</td><td>${tot.REJ}</td><td>${tot.NAP}</td>`
-    + `<td>${tot.ov1}</td><td>${tot.ov2}</td><td>${tot.ov3}</td><td></td></tr></tfoot>`;
+  const tfoot = `<tfoot><tr><td${mId(0)}>TOTAL</td><td${mId(1)}>${tot.Planned}</td><td${mId(2)}>${subFmt(tot.Submitted)}</td>`
+    + `<td${tint}${mId(3)}>${tot.PlanMo}</td><td${tint}${mId(4)}>${tot.FcastMo}</td><td${tint}${mId(5)}>${tot.ActualMo}</td>`
+    + `<td${mId(6)}>${tot.Approved}</td><td${mId(7)}>${tot.AWC}</td><td${mId(8)}>${tot.REJ}</td><td${mId(9)}>${tot.NAP}</td>`
+    + `<td${mId(10)}>${tot.ov1}</td><td${mId(11)}>${tot.ov2}</td><td${mId(12)}>${tot.ov3}</td><td${mId(13)}></td></tr></tfoot>`;
   panel.innerHTML = `<div class="panel-head"><h2>Discipline Summary Matrix</h2><div class="head-actions"></div></div>`
     + `<div class="panel-body">`
     // §18 split-header contract (1): header + body share ONE bordered, rounded container, so the pair
     // reads as a single table with continuous corners instead of a square header over a rounded box.
+    + `<div class="toolbar matrix-tools"><div class="tool-filters"></div><div class="tool-actions"><button class="ea btn btn-secondary" title="Expand every discipline">▾ Expand all</button><button class="ca btn btn-secondary" title="Collapse all disciplines">▸ Collapse all</button><button class="dl btn btn-secondary" title="Export fully-expanded report as PNG">⤓ PNG (full)</button><button class="cp btn btn-secondary" title="Copy fully-expanded report image">⧉ Copy</button><button class="csv btn btn-secondary" title="Download discipline summary matrix (disciplines + stages) as CSV">⤓ CSV</button></div></div>`
     + `<div class="matrixcard splitcard">`
     + `<div class="vheadwrap"><table class="matrix ds-table vheadtab" id="matrixHead"><caption class="sr-only">Discipline Summary Matrix — column headers.</caption>${headFrag}<thead>${matrixThead()}</thead></table></div>`
     + `<div class="tableScroll"><table class="matrix ds-table" id="matrixBody"><caption class="sr-only">Discipline Summary Matrix — a cross-tab of document counts by discipline per month, with a TOTAL row that is always last.</caption>${headBody}<tbody>${rows}</tbody>${tfoot}</table></div>`
     + `</div></div>`;
-  const subRowsHTML = m => (m?m.stages:[]).map(s=>`<tr class="sub"><td class="subname">${esc(s.stage)}</td><td>${s.Planned}</td><td>${s.Submitted}</td><td${tint}>${s.PlanMo}</td><td${tint}>${s.FcastMo}</td><td${tint}>${s.ActualMo}</td><td>${s.Approved}</td><td>${s.AWC}</td><td>${s.REJ}</td><td>${s.NAP}</td><td>${s.ov1}</td><td>${s.ov2}</td><td>${s.ov3}</td><td></td></tr>`).join('');
+  const subRowsHTML = m => (m?m.stages:[]).map(s=>`<tr class="sub" tabindex="0"><td class="subname"${mId(0)}>${esc(s.stage)}</td><td${mId(1)}>${s.Planned}</td><td${mId(2)}>${s.Submitted}</td><td${tint}${mId(3)}>${s.PlanMo}</td><td${tint}${mId(4)}>${s.FcastMo}</td><td${tint}${mId(5)}>${s.ActualMo}</td><td${mId(6)}>${s.Approved}</td><td${mId(7)}>${s.AWC}</td><td${mId(8)}>${s.REJ}</td><td${mId(9)}>${s.NAP}</td><td${mId(10)}>${s.ov1}</td><td${mId(11)}>${s.ov2}</td><td${mId(12)}>${s.ov3}</td><td${mId(13)}></td></tr>`).join('');
   const collapseAll = () => { panel.querySelectorAll('tr.sub').forEach(r=>r.remove());
     panel.querySelectorAll('.expand').forEach(e=>{ e.classList.remove('open'); e.textContent='▸ stages'; e.setAttribute('aria-expanded','false'); e.title='Expand stages'; }); };
   // I-96b: the drill rows come from the display sequence (mrows), never from a stale
@@ -2070,24 +2354,52 @@ function renderMatrix(panel, matrix, months, curMonth){
   // §18 split-header contract (3, 5): width pin + gutter + horizontal lock-step, via the shared helper
   // (the same one the Rule Reference uses) so the matrix cannot drift from the contract again.
   wireSplitHeader(panel, '#matrixHead', '.tableScroll');
-  const toolbar = document.createElement('div'); toolbar.className='toolbar';
-  toolbar.innerHTML = `<button class="ea btn btn-secondary" title="Expand every discipline">▾ Expand all</button><button class="ca btn btn-secondary" title="Collapse all disciplines">▸ Collapse all</button><button class="dl btn btn-secondary" title="Export fully-expanded report as PNG">⤓ PNG (full)</button><button class="cp btn btn-secondary" title="Copy fully-expanded report image">⧉ Copy</button><button class="csv btn btn-secondary" title="Download discipline summary matrix (disciplines + stages) as CSV">⤓ CSV</button>`;
-  const headActions = panel.querySelector('.head-actions');
+  const fitMatrix = () => {
+    const sc = panel.querySelector('.tableScroll'); if(!sc) return false;
+    const avail = sc.clientWidth; if(!(avail > 0)) return false;
+    const minW = 60, sum = () => matrixColW.reduce((a,w)=>a+w,0);
+    if(sum() <= avail) return false;
+    const floor = matrixColW.reduce((a,w)=>a+Math.min(w,minW),0);
+    if(floor >= avail) return false;
+    const over = sum() - avail;
+    const slack = matrixColW.reduce((a,w)=>a+Math.max(0,w-minW),0);
+    if(!slack) return false;
+    const next = matrixColW.map(w=>Math.max(minW, Math.round(w - over*(Math.max(0,w-minW)/slack))));
+    let diff = next.reduce((a,w)=>a+w,0) - avail;
+    while(diff > 0){
+      let idx = -1, max = minW;
+      next.forEach((w,i)=>{ if(w > max){ max = w; idx = i; } });
+      if(idx < 0) break;
+      next[idx]--; diff--;
+    }
+    matrixColW.splice(0, matrixColW.length, ...next);
+    const cols = matrixColW.map(w=>`<col style="width:${w}px">`).join('');
+    const bodyCG = panel.querySelector('#matrixBody colgroup');
+    const headCG = panel.querySelector('#matrixHead colgroup');
+    if(!bodyCG || !headCG) return false;
+    bodyCG.innerHTML = cols;
+    headCG.innerHTML = cols + '<col class="ds-gut" style="width:var(--ds-sbw,0px)"></col>';
+    return true;
+  };
+  const runFit = () => { fitMatrix(); };
+  runFit();
+  requestAnimationFrame(runFit);
+  if(typeof ResizeObserver === 'function') new ResizeObserver(runFit).observe(panel.querySelector('.tableScroll'));
+  else window.addEventListener('resize', runFit);
+  const toolRow = panel.querySelector('.matrix-tools');
   const msel=document.createElement('label'); msel.className='lbl month-sel';
   msel.innerHTML='<span>Month:</span>';
   const sel=document.createElement('select'); sel.className='inter-sel';
   (months||[]).forEach(o=>{ const op=document.createElement('option'); op.value=o.value; op.textContent=o.label; if(o.value===curMonth) op.selected=true; sel.appendChild(op); });
   sel.title='Choose the month for the Plan / Forecast / Actual columns';
   msel.appendChild(sel);
-  headActions.insertBefore(msel, headActions.firstChild);
+  toolRow.querySelector('.tool-filters').appendChild(msel);
   sel.onchange=()=>{ matrixMonthSel=sel.value; renderAll(WRAP); };
-  headActions.appendChild(toolbar);
-  const cb=document.createElement('button'); cb.className='collapse icon-btn'; cb.textContent='−'; cb.title='Collapse panel'; cb.setAttribute('aria-label','Collapse panel'); headActions.appendChild(cb);
   wireCollapse(panel);
-  toolbar.querySelector('.ea').onclick = ()=>{ collapseAll(); panel.querySelectorAll('.expand').forEach(openOne); };
-  toolbar.querySelector('.ca').onclick = ()=> collapseAll();
-  attachExport(toolbar, ()=> matrixSVG(mrows), xp('Discipline_Matrix'));
-  toolbar.querySelector('.csv').onclick = ()=>{ downloadCSV(xp('Discipline_Matrix_'+(curMonth||'all'))+'.csv', matrixCSV(mrows, curMonth)); toast('CSV downloaded','success'); };
+  toolRow.querySelector('.ea').onclick = ()=>{ collapseAll(); panel.querySelectorAll('.expand').forEach(openOne); };
+  toolRow.querySelector('.ca').onclick = ()=> collapseAll();
+  attachExport(toolRow, ()=> matrixSVG(mrows), xp('Discipline_Matrix'));
+  toolRow.querySelector('.csv').onclick = ()=>{ downloadCSV(xp('Discipline_Matrix_'+(curMonth||'all'))+'.csv', matrixCSV(mrows, curMonth)); toast('CSV downloaded','success'); };
 }
 
 function renderInteractive(host, charts, groupKey){
@@ -2593,8 +2905,8 @@ function issuesCSV(model, issues){ const head=['Error Code','Severity','Doc No',
 function docsCSV(model, recs){ const cols=model.contract.fieldOrder; const head=['Source Tab','Active',...cols];
   const lines=[head.join(',')]; recs.forEach(r=>lines.push([r.sourceTab,r.isActive?1:0,...cols.map(c=>r.fields[c])].map(csvCell).join(','))); return lines.join('\n'); }
 function downloadCSV(name, text){ const b=new Blob(['\uFEFF'+text],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
-const projPrefix = () => { const n=(MODEL&&MODEL.meta&&MODEL.meta.workbookName)||'MDL'; return n.replace(/\.(xlsx|xlsm)$/i,''); };
-const xp = b => projPrefix() + '-' + b;
+const projPrefix = () => { const m=MODEL&&MODEL.meta; const t=(m&&m.projectTitle)||((MODEL&&MODEL.contract&&MODEL.contract.lookups&&MODEL.contract.lookups.projectCode&&MODEL.contract.lookups.projectCode.codes[0])||'MDL'); return slugify(t); };
+const xp = b => projPrefix() + '_' + slugify(b) + '_' + localDateISO();
 
 // ---------- boot / welcome ----------
 export function boot(root){

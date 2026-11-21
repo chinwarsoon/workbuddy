@@ -5,7 +5,7 @@
 > **Date**: 2026-09-29
 > **Status**: Proposal — **NO CODE WRITTEN YET**. Mirrors the PPP Dashboard architecture
 > (`PPP/PPP-Dashboard-Workplan.md` + `PPP/arch/PPP_Dashboard.html`).
-> **Last revised**: 2026-10-22 — **Shared spec generalised (v1.2 → v1.3): the MDL-specific content moved here.** `Dashboard-UI-Design-Spec.md` is now project-neutral; it gained §0 **Definitions**, §8 **Conformance & Testing** (two-layer check model, 14 required assertions, enforcement posture, conformance record, definition of done) and §9 **Adopting this spec**. Everything belonging to MDL alone now lives in **§11 Shared-Spec Conformance Record**: the two-row menu-bar instantiation (§11.2), the Search popover layout + hard Tier 4f posture (§11.3), MDL's dashboard-specific choices (§11.1), its migration state (§11.4) and its regression history (§11.5). Citations corrected: the B-family of selection controls lives in spec **§7.1**, not §7.10. Prior (2026-10-20) — I-115 **aligned**: the shared floating-panel ordering contract (master → note → divider → item list → footer; master scoped to the non-pinned set and tri-state) is now normative in `Dashboard-UI-Design-Spec.md` §7.1 (B. Selection controls) and recorded here as §4.0.1 item 7 + acceptance. **Citation correction:** references to "§7.10" in this document and in `mdl-issues.md` are dangling — no §7.10 exists; the B-family (B1/B3/B5/B6/B7) lives in §7.1. PPP was deliberately NOT updated. I-114 **implemented (RESOLVED)**: (a) the Overdue Type dropdown now reads its labels from the **`Code!AN:AO`** block (workbook source of truth, in-code list kept only as a fallback) and shows the canonical §4A.6 wording; (b) the **column chooser got its own class** (`.cc-wrap` / `.cc-btn` / `.cc-panel`) per shared spec §7.1 **B7** — no count badge, no active-filter emphasis — so the `.tf-btn` filter look now belongs exclusively to the global Discipline/Stage chips; (c) the Validation / Issues panel gained the **panel-local rule-code filter** (spec §7.1 **B6** + §7.2.7 pt 6) — a single-select inside the panel, resolved in **S5**, affecting only that panel's tables (`N of M issues`; severity chips, note and Rule Reference still describe the whole run; CSV exports the same filtered rows). `test_render.mjs` += 12 assertions; rebuilt `MDL-Dashboard.html`; full run **159/165** (the 6 failures are the pre-existing top-bar chip/Stage tests). Prior (2026-10-20) — Filter vocabulary + panel-local filters **logged (I-114)**: shared spec §7.10's selection-control table now separates **multi-select** (B1 filter trigger + B3 chips) from **single-select** (B5 native select), and adds **B6 panel-local filter** plus **B7 column-visibility control**; shared spec §7.2.7 gains point 6 (a panel-local filter resolves in S5 and MUST NOT touch KPIs, charts, the matrix or any other panel). Workplan §4A.6 records the Overdue Type flavours as workbook source of truth in **`Code!AN:AO`** (the in-code list stays only as a fallback), and §4.0.1 gains the chooser-chrome rule plus the Validation / Issues **rule-code filter** specification (control inside the panel, local to it, S5-only, tables only). No dashboard code changed yet. Prior (2026-10-19) — Overdue List filter de-duplication **implemented (I-113)**, then the three panel-owned per-column filters were also removed (user direction 2026-10-19): the Overdue panel now keeps only the **Overdue Type dropdown** as its sole in-panel filter — no bundled popover and no per-column buttons (Delay / Source Tab / Planned date all removed). On 2026-10-20 the in-panel column filters were also removed from the **Validation Issues** and **Document Detail** panels, and the entire filter machinery (`attachColFilters`, `cfColRow`, `applyFilters`, `facetCounts`, `highlightText`, `debounce`, `restoreFlt`) deleted (only `cfToggle`/`cfBindDoc` remain, reused by the column chooser). `test_render.mjs` updated and now passes 147/153 (the 6 failures are pre-existing top-bar Stage-chip tests). Prior (2026-10-19): Filter de-duplication requirement documented (MDL-specific): per shared spec §7.2.7 (no duplicate filter dimensions), the Overdue List panel's bundled 'Filters' popover is to be removed — its UESH Discipline duplicates the global Discipline chip and Overdue Type is duplicated by the panel's own dropdown; keep the Overdue Type dropdown + per-column Delay/Source Tab/Planned-date filters. Document Detail popover to drop UESH Discipline + Stage (global duplicates). Validation panel clean. Added workplan §4.0.1. Prior (2026-10-19): Overdue List blank "Overdue Type" / "Delay (days)" columns fixed (I-112): the I-111
+> **Last revised**: 2026-11-21 — **I-135 fixed: collapsed sidebar keeps the content usable.** See §11.20. `body.sidebar-collapsed .shell-main` now uses `grid-template-columns:minmax(0,1fr)`. The harness Tier 2 sidebar check clicks the toggle and verifies the sidebar hides, content width, panel widths, and toggle label. Bundled at 275,103 B; shell suite 60/60 passed; Tier 2: 52 passed / 0 failed; Tier 6: 27 passed / 0 failed. Prior — **I-134 fixed: matrix table has its own rounded border.** See §11.19. The tool row now sits before the table card. `.matrixcard` has `1px solid var(--border)` and `border-radius:10px`. Panel border stays. Bundled at 275,105 B; shell suite 59/59 passed; Tier 4 border and corner checks pass. Prior — **I-133 corrected: panel border kept, matrix card border removed.** See §11.18. Spec rev 1.99 stays universal. MDL keeps `--tool-pad` and `--tool-gap`, uses 12 px / 10 px token gaps, pads the matrix tool row, and keeps the panel edge as the only visible border. Bundled at 275,082 B; shell suite 59/59 passed; browser probe confirms panel `1px solid`, matrix card `0px none`; Tier 6: 27/0. Prior — **I-132 fixed: matrix tool row aligned to §4.** See §11.17. The tool row now sits inside the table card. Month is in the left filter group. Actions are in the right group. `MDL-Dashboard.html` rebuilt; shell suite 54/54 passed; Tier 6: 27/0. Prior — **I-131 fixed: fixed tooltip label column.** See §11.16. Both tooltip grids now use a 76 px label column. `MDL-Dashboard.html` rebuilt; shell suite 50/50 passed; Tier 6: 27 passed / 0 failed. Prior — **I-130 fixed: general hover-window value alignment added.** See §11.15. Both spec copies updated to rev 1.98. MDL tooltip rows now use a fixed label column. Text aligns left and numbers align right. `MDL-Dashboard.html` rebuilt; shell suite 50/50 passed. Prior — **I-129 fixed: KPI hover windows added.** See §11.14. All 16 KPI hosts bind one shared `.chart-tip`. `MDL-Dashboard.html` rebuilt; shell suite 47/47 passed. Full harness before the Tier 6 selector fix: 160 passed / 10 failed / 2 advisory / 24 skipped; Tier 6 was skipped because it waited for `.page-link`. The harness selector is now generic. Harness revisions 1.35 and 1.36 added load progress and removed the body state marker from Tier 6 page discovery. Standalone Tier 6 now completes: 27 passed / 0 failed / 0 advisory / 0 skipped. Prior — **I-128 fixed: footer metadata moved into the status bar.** See §11.13. Status bar now shows `MDL Dashboard v0.1 · Updated 20 Nov 2026 · © UESH 2026` on the right. The page footer is removed. `MDL-Dashboard.html` rebuilt; shell suite 41/41 passed; full harness: 159 passed / 11 failed / 2 advisory / 24 skipped. Prior — **I-127 fixed: bottom status bar aligned with the UI spec.** See §11.12. Named fields at that step: left `File: <workbook name>` plus optional render-issue count; right `MDL Dashboard v1.0`. I-128 superseded the version and right-side metadata. `MDL-Dashboard.html` rebuilt; shell suite 40/40 passed; full harness: 159 passed / 11 failed / 2 advisory / 24 skipped. Prior — **I-126 fixed: crosshair colours aligned with spec rev 1.97.** See §11.11. `MDL-Dashboard.html` rebuilt; shell suite 37/37 passed; full harness: 158 passed / 12 failed / 2 advisory / 24 skipped. The 12 failures included the old status-bar total check. Prior — **I-124 and I-125 fixed: matrix fit, table border, and shared crosshair.** See §11.10. `MDL-Dashboard.html` rebuilt; shell suite 33/33 passed; full harness: 158 passed / 12 failed / 2 advisory / 24 skipped. The 12 failures are the pre-existing shell, KPI, filter, status, and I-95 sample-check failures. Prior — **I-123 fixed: matrix panel full width and no inner scrollbars.** See §11.9. `MDL-Dashboard.html` rebuilt; shell suite 31/31 passed; Tier 2: 53 passed / 0 failed. Prior — **I-122 fixed: content body vertical scrolling.** See §11.8. Spec §3.1 requires a scrollable content area; §3.5 keeps notices outside the scrolling body. MDL source rebuilt; shell suite 23/23 passed; harness added 25 page-scroll checks, all passed. Three Tier 2 geometry checks failed during I-122 verification. U003 fixed them. Final shell suite: 28 passed / 0 failed. Tier 2: 53 passed / 0 failed. Prior — **Rev 1.96 shell increment implemented.** See §11.7. Owner approved the spec left nav, removal of Print / Save PDF, the XLSX Export control, and the MDL Breakdown hold. `src/render.mjs` rebuilt; `MDL-Dashboard.html` rebuilt; `test/test_shell.mjs` added and passes 20/20; pipeline and grid results unchanged; logs created in `MDL/log/`. Prior (2026-10-22) — **Shared spec generalised (v1.2 → v1.3): the MDL-specific content moved here.** `Dashboard-UI-Design-Spec.md` is now project-neutral; it gained §0 **Definitions**, §8 **Conformance & Testing** (two-layer check model, 14 required assertions, enforcement posture, conformance record, definition of done) and §9 **Adopting this spec**. Everything belonging to MDL alone now lives in **§11 Shared-Spec Conformance Record**: the two-row menu-bar instantiation (§11.2), the Search popover layout + hard Tier 4f posture (§11.3), MDL's dashboard-specific choices (§11.1), its migration state (§11.4) and its regression history (§11.5). Citations corrected: the B-family of selection controls lives in spec **§7.1**, not §7.10. Prior (2026-10-20) — I-115 **aligned**: the shared floating-panel ordering contract (master → note → divider → item list → footer; master scoped to the non-pinned set and tri-state) is now normative in `Dashboard-UI-Design-Spec.md` §7.1 (B. Selection controls) and recorded here as §4.0.1 item 7 + acceptance. **Citation correction:** references to "§7.10" in this document and in `mdl-issues.md` are dangling — no §7.10 exists; the B-family (B1/B3/B5/B6/B7) lives in §7.1. PPP was deliberately NOT updated. I-114 **implemented (RESOLVED)**: (a) the Overdue Type dropdown now reads its labels from the **`Code!AN:AO`** block (workbook source of truth, in-code list kept only as a fallback) and shows the canonical §4A.6 wording; (b) the **column chooser got its own class** (`.cc-wrap` / `.cc-btn` / `.cc-panel`) per shared spec §7.1 **B7** — no count badge, no active-filter emphasis — so the `.tf-btn` filter look now belongs exclusively to the global Discipline/Stage chips; (c) the Validation / Issues panel gained the **panel-local rule-code filter** (spec §7.1 **B6** + §7.2.7 pt 6) — a single-select inside the panel, resolved in **S5**, affecting only that panel's tables (`N of M issues`; severity chips, note and Rule Reference still describe the whole run; CSV exports the same filtered rows). `test_render.mjs` += 12 assertions; rebuilt `MDL-Dashboard.html`; full run **159/165** (the 6 failures are the pre-existing top-bar chip/Stage tests). Prior (2026-10-20) — Filter vocabulary + panel-local filters **logged (I-114)**: shared spec §7.10's selection-control table now separates **multi-select** (B1 filter trigger + B3 chips) from **single-select** (B5 native select), and adds **B6 panel-local filter** plus **B7 column-visibility control**; shared spec §7.2.7 gains point 6 (a panel-local filter resolves in S5 and MUST NOT touch KPIs, charts, the matrix or any other panel). Workplan §4A.6 records the Overdue Type flavours as workbook source of truth in **`Code!AN:AO`** (the in-code list stays only as a fallback), and §4.0.1 gains the chooser-chrome rule plus the Validation / Issues **rule-code filter** specification (control inside the panel, local to it, S5-only, tables only). No dashboard code changed yet. Prior (2026-10-19) — Overdue List filter de-duplication **implemented (I-113)**, then the three panel-owned per-column filters were also removed (user direction 2026-10-19): the Overdue panel now keeps only the **Overdue Type dropdown** as its sole in-panel filter — no bundled popover and no per-column buttons (Delay / Source Tab / Planned date all removed). On 2026-10-20 the in-panel column filters were also removed from the **Validation Issues** and **Document Detail** panels, and the entire filter machinery (`attachColFilters`, `cfColRow`, `applyFilters`, `facetCounts`, `highlightText`, `debounce`, `restoreFlt`) deleted (only `cfToggle`/`cfBindDoc` remain, reused by the column chooser). `test_render.mjs` updated and now passes 147/153 (the 6 failures are pre-existing top-bar Stage-chip tests). Prior (2026-10-19): Filter de-duplication requirement documented (MDL-specific): per shared spec §7.2.7 (no duplicate filter dimensions), the Overdue List panel's bundled 'Filters' popover is to be removed — its UESH Discipline duplicates the global Discipline chip and Overdue Type is duplicated by the panel's own dropdown; keep the Overdue Type dropdown + per-column Delay/Source Tab/Planned-date filters. Document Detail popover to drop UESH Discipline + Stage (global duplicates). Validation panel clean. Added workplan §4.0.1. Prior (2026-10-19): Overdue List blank "Overdue Type" / "Delay (days)" columns fixed (I-112): the I-111
 > port onto the L3 grid kit dropped the header label `h` from the grid column objects, so `colVal`/`textQ` no longer
 > matched the two label-special-cased columns and both rendered blank (the S4 Derive values were always correct;
 > CSV export was unaffected). Fix: added `h: c.h` to the `overdueCols` map in `render.mjs` `renderOverdue`;
@@ -838,9 +838,9 @@ Grouped: **A. Domain/format** (single-field) · **B. Cross-field consistency** �
 | 19 | Dashboard shall provide action-oriented lists for overdue/due-soon submissions, resubmissions and client reviews |
 | 20 | Historical review-cycle calculations shall only be performed where the source contains sufficient lifecycle information; missing history must not be inferred |
 | 21 | Code-sheet structure confirmed: column map at **rows 12–36** (rows 9–11 = Review Duration block `Code!A9:C11`); Error block is **4-col `Code!AI:AL`** (Code/Group/Rule/Severity), **all 27 §5 rules present & verified** (7×Error, 18×Warning, 1×Info; V-27 confirmed `Warning`) |
-| 22 | **UI layout = PPP first** (reviewer 1): follow the PPP dashboard single-page layout (welcome/file-load → KPIs → charts → validation → detail); the UI Design Spec's 18-item left-nav panel is **deferred to future development** |
+| 22 | **UI layout = PPP first** (reviewer 1): follow the PPP dashboard single-page layout (welcome/file-load → KPIs → charts → validation → detail); the UI Design Spec's 18-item left-nav panel is **deferred to future development**. **Superseded for the shell 2026-11-20 — see §11.7 and Decision 34.** |
 | 23 | **No Originator/Reviewer** (reviewer 2): excluded from the dashboard; the spec's "Review Code" column maps to **Approval Status (col Y / Code!AF)** |
-| 24 | **Export = CSV + PDF (print)** (reviewer 3): charts→PNG via Copy/Download; PDF via browser print (landscape/B&W); Excel export dropped to honour zero-dependency |
+| 24 | **Export = CSV + PDF (print)** (reviewer 3): charts→PNG via Copy/Download; PDF via browser print (landscape/B&W); Excel export dropped to honour zero-dependency. **Changed 2026-11-20 — add spec XLSX export with an inlined writer; remove the Print / Save PDF menu button. See §11.7.** |
 | 25 | **Disciplines from Code!H** (reviewer 4): all discipline names & the universe read from the UESH list (Code!H), never the spec's sample names |
 | 26 | **No Contractor Reviews** (reviewer 5a): client-review only (Submission Status W / Approval Status Y); contractor-review page dropped |
 | 27 | **No server; single load** (reviewer 5b): the `.xlsx` is loaded once at start via the welcome-screen file input; no backend, no live refresh; preferences via `localStorage` only |
@@ -850,7 +850,7 @@ Grouped: **A. Domain/format** (single-field) · **B. Cross-field consistency** �
 | 31 | **Tokens = PPP first; aging/buckets follow PPP** (reviewer 5f/5g): UI Design Spec §15 palette deferred |
 | 32 | **Global search** (reviewer 5h) over the §3.8 consolidated table only (Document No. / Title / Discipline substring) |
 | 33 | **Adopt `Dashboard-UI-Design-Spec.md` v1.1 as governing UI standard** (2026-10-15): the spec (v1.1, 2026-10-15) is now the **single source of truth** for layout / tokens / components across all internal dashboards incl. MDL. It **supersedes** the older "UI Design Spec §15" referenced in Decisions 22 & 31. MDL is audited at ~55–60% aligned (spec §13.2.9); the gap program is tracked by I-31…I-46 (Wave 5). |
-| 34 | **Re-review Decision 22 (left-nav deferred)** (2026-10-08): spec v1.0 §3.2 names the **left sidebar** (OVERVIEW / REVIEWS / DOCUMENTS / QUALITY / SETTINGS) as the MDL navigation pattern — directly conflicting with the 2026-09-29 deferral. Resolution (2026-10-08, second review): user chose to **HOLD** the left-nav for a future phase; Decision 22 deferral stands and the spec v1.0 §3.2 mandate is **NOT adopted** for MDL at this time. I-35 moved to Deferred. |
+| 34 | **Re-review Decision 22 (left-nav deferred)** (2026-10-08): spec v1.0 §3.2 names the **left sidebar** (OVERVIEW / REVIEWS / DOCUMENTS / QUALITY / SETTINGS) as the MDL navigation pattern — directly conflicting with the 2026-09-29 deferral. Resolution (2026-10-08, second review): user chose to **HOLD** the left-nav for a future phase; Decision 22 deferral stands and the spec v1.0 §3.2 mandate is **NOT adopted** for MDL at this time. I-35 moved to Deferred. **Reversed for the shell 2026-11-20; owner approved the rev 1.96 sidebar and I-35 is resolved. See §11.7.** |
 | 35 | **Re-review Decision 31 (tokens deferred)** (2026-10-08): spec v1.0 §6 mandates the full ~33-token `:root` copied verbatim (MDL currently ships only 11, rest hard-coded). Conflicts with the 2026-09-29 deferral of the §15 palette. **Proposed resolution: adopt the full token set** (override Decision 31). Accepted 2026-10-08 — overrides decision 31 per spec v1.0. |
 
 
@@ -858,7 +858,7 @@ Grouped: **A. Domain/format** (single-field) · **B. Cross-field consistency** �
 
 ## 9. Open Questions / Assumptions
 
-- **All open questions (Q1–Q8) are RESOLVED — see §8 rows 1–35.** The workplan is ready for approval (code-writing still pending approval per decision 4). Two items were intentionally **deferred (non-blocking)**: the left-nav panel (decision 22) and the full SLA / unified "Current Status" pipeline (decision 28) — both parked in §10. **Note (2026-10-08):** decision 22 (left-nav) is under re-review (Decision 34 / I-35) because `Dashboard-UI-Design-Spec.md` v1.0 §3.2 now **mandates** the left sidebar for MDL, conflicting with the 2026-09-29 deferral; decision 31 (tokens) is likewise under re-review (Decision 35 / I-31).
+- **All open questions (Q1–Q8) are RESOLVED — see §8 rows 1–35.** The left-nav deferral ended on 2026-11-20 (§11.7); I-35 is RESOLVED. The full SLA / unified "Current Status" pipeline stays deferred per Decision 28 and is parked in §10. Decision 31 (tokens) was resolved by Decision 35; the full rev 1.96 token inventory remains open under I-121.
 - **Assumption:** `BQ` and `Notes` are not document lists and are excluded; `Dashboard` tab is left as-is.
 - **Assumption:** "Superseded" spelled as in Code!E (`Superseded`); exclusion list uses that exact spelling.
 - **Assumption:** `Total Planned` = all active documents (denominator of the funnel); not restricted to rows with a `Planned 1st Issue Date` (S) set (Q4 only fixed *Submitted*).
@@ -868,11 +868,11 @@ Grouped: **A. Domain/format** (single-field) · **B. Cross-field consistency** �
 
 ## 10. Future Enhancements (Backlog)
 
-- **Left-navigation panel** (UI Design Spec §3/§4, 18-item nav) — **Deferred (2026-10-08, second review):** user chose to HOLD the left sidebar for a future phase. Decision 22 stands (deferred); Decision 34 override NOT adopted; I-35 moved to Deferred. Previously: deferred per decision 22; could be added as in-page section switching later.
-- **Design-Standard Alignment (spec v1.0 §13)** — compliance program tracked by I-31…I-46 (Wave 5): tokens, status-bar `[hidden]`, `.ds-table`, `.seg`/`.tf-btn`, left-nav, footer, responsive cascade, panel numbering, Issue-Progress one-axis, glyph semantics, banner, app-bar, font/icon/focus, scroller/accordion, export filenames/help a11y, and spec-doc governance. **Implemented (2026-10-08/09):** Phases 1–3 delivered — I-31…I-50 (full token set, `.ds-table`, `.seg`/`.tf-btn`, panel numbering, footer, responsive cascade, combined Issue-Progress chart, glyph semantics, banner `.note`, app-bar, font/icon/focus, scroller/accordion, export filenames, help a11y) plus spec-doc governance (I-46). Only **I-35 (left-nav) remains deferred** per Decision 34; see §12.
+- **Left-navigation panel** — **Implemented 2026-11-20** under §11.7. I-35 RESOLVED. The MDL page set is Overview / Progress / Overdue / Validation / Documents. Breakdown stays held by owner direction.
+- **Design-Standard Alignment (spec v1.0 §13 and rev 1.96)** — compliance program tracked by I-31…I-46 and I-121. **Implemented (2026-10-08/09):** Phases 1–3 delivered — I-31…I-50. **Implemented (2026-11-20):** rev 1.96 shell increment in §11.7. **Remaining under I-121:** two-panel Validation, pagination above 200 rows, chart hover windows, table crosshair hover states, and the full token inventory.
 - **Full Schedule & Review / SLA engine** — unified "Current Status" pipeline + SLA statuses (Due Soon / Due Today / Resubmit) deferred per decision 28; revisit when generating SLA charts. Only **Overdue** (3 flavours) is in scope now.
 - **Contractor Reviews** page — dropped per decision 26 (no contractor-review data in the workbook).
-- **Excel (.xlsx) export** — dropped per decision 24 to honour zero-dependency; reconsider only if a bundled writer is accepted.
+- **Excel (.xlsx) export** — **Implemented 2026-11-20** with an inlined writer under §11.7. No package dependency added.
 - **KPI content contract (spec §5)** — §5 defines KPI panel/card styling only, not the metric set, so MDL (document approval/overdue/completeness/disciplines) and PPP (package progress/PO/delivery/lead-time/engineer) expose entirely different KPI sets with no canonical contract. Add a KPI content spec (cross-dashboard common metrics vs domain-specific) — proposal from the 2026-10-10 KPI review (see also PPP §10).
 - **Data-processing pipeline standard (spec §3)** — **DONE**. Spec §3.8 defines the layered workflow (S0 Acquire → S1 Parse → S2 Ingest/Normalize → S3 Validate → S4 Derive/deferred → S5 Render → S6 React-to-filter). MDL `buildModel` refactored to S2+S3 only (`kpis`/`charts`/`overdueLists` removed; `deriveView` is the sole S4 source) — closes **I-67**/**I-63**. PPP conforms — used as the reference.
 - Drill-down: click a discipline bar → filtered detail table.
@@ -961,3 +961,288 @@ Kept here, not in the spec, so the standard stays project-neutral.
 - MDL suite: `MDL/test/test_render.mjs`, `MDL/test/test_grid.mjs`.
 - Shared harness: `harness-layout` with MDL's check module; MDL runs `chrome.controlContrast` **hard**.
 - Per-clause evidence pointers are recorded in `MDL/mdl-issues.md`.
+
+### 11.7 Rev 1.96 shell alignment — owner decisions (2026-11-20)
+
+Owner instruction: follow the spec for the left nav panel design. Do not add the Breakdown menu item
+to MDL. Drop the Print / Save PDF menu button because the spec does not require it. Keep the spec
+Export control and use the `.xlsx` workbook contract. The approved review sample is
+`MDL/Arch/MDL-Shell-Sample.html`.
+
+| Decision | Effect on MDL |
+|---|---|
+| Reverse Decision 22 and Decision 34 for the shell only. Reopen I-35. | Add a left sidebar with Overview, Progress, Overdue, Validation and Documents. Add Settings and Help pinned to the bottom. |
+| Spec §3.1 / §3.2 shell markers. | Add `data-shell` markers, `data-shell-toggle`, `data-shell-resize`, warning area inside content, active page label in title bar. |
+| Spec §3.1 rev 1.86 layout control. | Put Theme and Layout selects in Settings. Persist `layout`. Apply `body.dataset.layout` on load and repaint. KPI card density stays outside this control. |
+| Drop Print / Save PDF menu control. | Remove the menu button. Keep browser print and print styles. |
+| Spec §4 rev 1.90 workbook export. | Add top-menu `Export`. Use an inlined XLSX writer. One worksheet per table across all rendered pages. |
+| Hold Breakdown for MDL. | Do not add the Breakdown page link or the C3 Breakdown panels. Record the gap in the conformance table. |
+
+**Implementation scope for this increment:** shell, navigation, title bar, menu bar, Settings,
+theme/layout state, workbook export, focused tests, build, and logs. Other rev 1.96 gaps remain
+open: two-panel Validation, pagination above 200 rows, chart hover windows, table crosshair,
+panel count chips, and the full token inventory.
+
+**Rollback:** rebuild from the previous `src/render.mjs`; restore this workplan from revision history.
+No shared harness or shared spec file is changed by this increment.
+
+### 11.8 I-122 — content body vertical scrolling (2026-11-20)
+
+Spec §3.1 requires a scrollable content area. Spec §3.5 requires the warning area to stay outside
+the scrolling body. The shell increment set `#app` to `height:100vh` with `overflow:hidden`, but it
+did not give `[data-shell="body"]` a vertical scroll rule. A page taller than one screen therefore
+clipped its lower panels.
+
+Owner-approved fix:
+
+- Make `.shell-main` fill the remaining viewport height.
+- Make `[data-shell="content"]` a flex column with `min-height:0`.
+- Make `[data-shell="body"]` use `overflow-y:auto` with `min-height:0`.
+- Keep warning and filter strips outside the scrolling body.
+- Add a shared `harness-layout` check that probes every page with a temporary tall element and
+  verifies that the content body scrolls.
+- Enable the check for MDL through `checks/mdl.mjs`.
+
+No spec change is needed. The spec already states the requirement. I-122 records the defect and its
+fix.
+
+### 11.9 I-123 — matrix full width and no inner scrollbars (2026-11-20)
+
+The Discipline Summary Matrix sat in one grid column and its body used a 340 px maximum height.
+The panel therefore showed horizontal or vertical scrollbars even when the content area had space.
+The user requested a full-screen matrix with no inner scrollbars.
+
+Owner-approved fix:
+
+- Make `#matrixPanel` span all panel columns for `one`, `two`, and `three` layouts.
+- Remove only the height cap with `#matrixPanel .tableScroll{max-height:none}`.
+- Keep `#matrixPanel .matrixcard{overflow:hidden}` for the rounded container.
+- Keep the split header, drill rows, and table actions unchanged.
+- Keep the content body as the page scroll surface.
+
+I-123 opened. I-124 corrected the matrix fit and border details. §11.10 records the final state.
+
+### 11.10 I-124 and I-125 — matrix fit, outer border, and shared crosshair (2026-11-20)
+
+A harness-layout review found three table issues:
+
+- The matrix columns still overflowed the display area by 66 px.
+- I-123 had set the matrix card to `overflow:visible`. This broke spec §7.2.15 invariant 1.
+- MDL had no `data-table-crosshair`, so spec §7.2.16 was not met.
+
+Owner-approved fix:
+
+- Restore `overflow:hidden` on the matrix card and keep only `max-height:none` on its scroller.
+- Add a resize-aware fit pass for matrix columns with a 60 px minimum.
+- Add stable `data-col-id` values to matrix cells and other live table cells.
+- Add one delegated crosshair binder for `.row-hover`, `.col-hover`, and `.cell-hover`.
+- Suppress crosshair classes in print output.
+- Enable the shared crosshair check in `harness-layout/checks/mdl.mjs`.
+
+I-124 records the matrix fit and border defect. I-125 records the missing crosshair. No spec change is needed.
+
+### 11.11 I-126 — crosshair colours aligned with spec rev 1.97 (2026-11-20)
+
+Spec rev 1.97 added five normative crosshair tokens. It required translucent row and column tracks,
+a stronger intersection cell, and non-destructive header highlighting. MDL still used `--warn-bg`
+and `--accent-soft-border` with opaque fills.
+
+Owner-approved fix:
+
+- Add `--crosshair-track`, `--crosshair-intersection`, `--crosshair-ring`,
+  `--header-crosshair-overlay`, and `--header-crosshair-accent` to all five themes.
+- Paint row and column tracks with layered `background-image` gradients. Keep zebra and tint fills.
+- Paint `.cell-hover` with `--crosshair-intersection` and inset `--crosshair-ring`.
+- Paint active `<th>` cells with `--header-crosshair-overlay` and `--header-crosshair-accent`.
+- Guard pointer hover with `(hover: hover) and (pointer: fine)`. Add `focusin` and `focusout` parity.
+- Make matrix rows and matrix header cells keyboard focusable.
+- Remove the new overlay images from print output.
+
+I-126 records the defect and its fix. The shared spec was updated in rev 1.97 before this work.
+
+### 11.12 I-127 — bottom status bar aligned with the UI spec (2026-11-20)
+
+`Dashboard-UI-Design-Spec.md` §3.1 and §3.6 require one full-width navy status bar. §3.6 says
+the dashboard must name its left and right values in this workplan. `AGENTS.md` §18.2 gives the
+shared fields: current state or selected file on the left, version string on the right.
+
+The MDL status bar had ten `.sb-panel` chips. Most values duplicated KPI cards, matrix totals,
+the title-bar `as-of` text, or global filter chips. The chip chrome was not requested by the spec.
+
+Owner-approved status-bar fields:
+
+- Left: state dot and `File: <workbook name>`.
+- Left, only when needed: `Render issues: <count>`.
+- Right: `MDL Dashboard v1.0`.
+- No domain counts in the status bar. KPI, matrix, validation, and filter surfaces stay the single
+  source for their values.
+- The status bar keeps the full-width navy strip in normal layout flow.
+
+I-127 records the defect and its fix. Harness Tier 3 now checks the selected file and version string
+instead of a domain total. No shared spec file changed. I-128 later supersedes the right-side text
+with the workplan version and the moved footer metadata.
+
+### 11.13 I-128 — footer metadata moved into the status bar (2026-11-21)
+
+The page still showed this footer inside the scrolling content body:
+
+> Standalone Dashboard. Updated on 20 Nov 2026. Copyright UESH 2026.
+
+The status bar showed `MDL Dashboard v1.0`, but this workplan declares version `0.1`.
+
+Owner-approved fix:
+
+- Remove the `<footer class="disclaimer">` element and its CSS.
+- Set `APP_VERSION` to `0.1`.
+- Show `MDL Dashboard v0.1 · Updated <generated date> · © UESH 2026` on the right.
+- Format the update date from `MODEL.meta.generatedAt`.
+- Remove the unused `.sb-dot-err` rule.
+
+I-128 records the defect and its fix. The status-bar fields in §11.12 stay valid, with the right-side
+text updated by this section. No shared spec or harness file changed.
+
+### 11.14 I-129 — KPI hover windows (2026-11-21)
+
+Spec §4.6 requires one shared hover window for chart boards and KPI cards. MDL had no `.kpi-card`
+host, no `aria-describedby`, no `.chart-tip`, and no hover config in the harness.
+
+Owner-approved fix:
+
+- Add `kpi-card`, `data-kpi`, `data-tip`, `tabindex="0"`, and `aria-describedby="kpiTip"` to all
+  12 primary KPI cards and 4 secondary tiles.
+- Add one shared `#kpiTip` node with `role="tooltip"` and `aria-hidden="true"`.
+- Build tooltip content from the KPI definitions in §3.8. Each window has a header, Purpose,
+  Source, Calculation rows, and an Active scope footer.
+- Add one delegated binder for pointer hover, touch tap, keyboard focus, Escape, click-away,
+  and print. Hidden windows carry `aria-hidden="true"` and no text.
+- Place the window below the card, centred and clamped. Use an opacity-only 100 ms transition.
+- Add MDL Tier 6 hover config. Change the harness wait selector from `.page-link` to `[data-page]`
+  so Tier 6 works for both MDL and Sub.
+
+I-129 records the defect and its fix. No shared spec file changed. Harness revisions 1.35 and 1.36
+add load progress and exclude the body state marker from Tier 6 page discovery. Standalone Tier 6
+now completes: 27 passed / 0 failed / 0 advisory / 0 skipped.
+
+### 11.15 I-130 — General hover-window value alignment (2026-11-21)
+
+Spec §4.6 rev 1.97 used one space-between flex row for every body row. The value sat at the right
+edge. That rule suits numbers. Long text then started at different x positions and wrapped in a
+narrow area.
+
+Owner decision 2026-11-21: numbers stay right-aligned; text starts after its label and aligns left.
+Both byte-identical spec copies now carry rev 1.98 with a general two-column rule. It applies to
+body rows and footers in every hover window.
+
+MDL fix:
+
+- Use `display:grid` with `grid-template-columns:76px minmax(0,1fr)` for `.chart-tip-row` and
+  `.chart-tip-foot`.
+- Align the value column left by default. Add `.tip-num` for numeric values and align it right.
+- Rebuild `MDL-Dashboard.html`. Add three shell assertions for the grid rule, the text alignment,
+  and the numeric class.
+
+I-130 records the defect and its fix. `node test/test_shell.mjs` reports 50 passed / 0 failed. Both
+spec copies have the same SHA-256 hash. Harness revision 1.38 skips repeat checks of one shared tip.
+Standalone Tier 6 now reports 27 passed / 0 failed / 0 advisory / 0 skipped.
+
+### 11.16 I-131 — Fixed tooltip label column (2026-11-21)
+
+I-130 set `text-align:left` on each value, but it used `grid-template-columns:auto minmax(0,1fr)` on
+each row. Each row sized its own label column. The value column started at a different x for
+`Purpose`, `Source`, and `Calculation`. This did not meet the §4.6 rev 1.98 fixed-label-column rule.
+
+Owner-approved fix: use `grid-template-columns:76px minmax(0,1fr)` for both `.chart-tip-row` and
+`.chart-tip-foot`. Rebuild `MDL-Dashboard.html`. Update the three shell assertions to expect the
+fixed column. No spec file changed.
+
+I-131 records the defect and its fix. Chromium measurement gives a 76 px label and a value start at
+x=92 for all four labels. `node test/test_shell.mjs` reports 50 passed / 0 failed. Standalone Tier 6
+reports 27 passed / 0 failed / 0 advisory / 0 skipped.
+
+### 11.17 I-132 — Matrix tool row alignment (2026-11-21)
+
+Spec §4 requires the panel title row to hold only the title, Help, and Collapse. Table controls sit
+with the table in one card. The tool row splits filters left and actions right with `margin-left:auto`.
+Rev 1.91 states that the Month select is a filter.
+
+MDL matrix put Month, Expand all, Collapse all, PNG, Copy, and CSV in `.panel-head`. The card held
+only the table. This merged the tool row into the title row and failed §4.
+
+Owner-approved fix:
+
+- Add `.toolbar.matrix-tools` inside `.matrixcard`, before the split header.
+- Put the Month select in `.tool-filters`. Put the five action buttons in `.tool-actions` with
+  `margin-left:auto`.
+- Leave only Help and Collapse in `.head-actions`. Update the help text.
+- Add four shell assertions for card placement, right alignment, filter grouping, and title-row
+  exclusion.
+
+I-132 records the defect and its fix. `MDL-Dashboard.html` is 275,012 B. `node test/test_shell.mjs`
+reports 54 passed / 0 failed. Standalone Tier 6 reports 27 passed / 0 failed / 0 advisory / 0 skipped.
+
+### 11.18 I-133 — Tool-row gaps and matrix double border (2026-11-21)
+
+Owner instruction: make the tool-row gap rule general for all panels. Both byte-identical spec copies
+now carry rev 1.99. §4 requires every tool row to use `--tool-pad` for equal padding on four sides and
+`--tool-gap` between control groups. §6 adds both tokens. The C3 tokens are now aliases.
+
+Owner also reported a second border around the matrix tool row and table. Visual check confirms two
+nested edges: the `.panel` border and the `.matrixcard` border.
+
+Owner-approved fix: add `--tool-pad:12px` and `--tool-gap:10px` to `:root`. Change `.toolbar` and both
+control groups to use `var(--tool-gap)`. Give `.matrixcard>.toolbar` `padding:var(--tool-pad)`.
+
+First attempt was wrong. It added `panel-flat` to `renderMatrix()`, which removed the panel border and
+kept the matrix card border. Owner rejected that result. Corrected fix: remove the `panel-flat` call
+and set `.matrixcard` to `border:0`. The panel edge stays; the matrix card and scroller add no second
+border. Shell assertions now check the panel border, the border-free card, token gaps, and tool padding.
+
+I-133 records the defect and its fix. `MDL-Dashboard.html` is 275,082 B. `node test/test_shell.mjs`
+reports 59 passed / 0 failed. A Chromium probe reports `#matrixPanel` `1px solid` and `.matrixcard`
+`0px none`. Standalone Tier 6 reports 27 passed / 0 failed / 0 advisory / 0 skipped. Harness rev 1.39
+now adds Tier 4c assertions for one visible table outer border and rounded outer corners; MDL Tier 4
+fails the new border assertion, which confirms the earlier harness gap is closed.
+
+### 11.19 I-134 — Matrix table outer border and corners (2026-11-21)
+
+Harness rev 1.39 exposed two defects that I-133 missed. The matrix table had no own outer border.
+The tool row occupied the clipped top of `.matrixcard`, so the table header top corners looked square.
+Spec §7.2 requires one visible `1px solid var(--border)` outer border with `border-radius:10px`.
+Rev 1.81 permits right-angle corners only where bordered zones overlap. No such overlap exists here.
+
+Owner-approved fix:
+
+- Move the tool row before `.matrixcard` in the panel body.
+- Restore `.matrixcard{border:1px solid var(--border);border-radius:10px;overflow:hidden}`.
+- Change the tool-row padding selector to `.toolbar.matrix-tools`.
+- Update four shell assertions for row order, card border, panel border, and token padding.
+
+I-134 records the defect and its fix. `MDL-Dashboard.html` is 275,105 B. `node test/test_shell.mjs`
+reports 59 passed / 0 failed. MDL Tier 4 reports 71 passed / 6 failed; the six failures are the
+pre-existing I-95 resize-grip checks. Both new Tier 4c border and corner assertions pass.
+
+### 11.20 I-135 — Sidebar toggle page layout (2026-11-21)
+
+Owner reported that hiding the left sidebar did not show the page properly. A Chromium probe confirmed
+the defect: content width fell from 1120 px to 40 px and panels fell from 1080 px to 30 px. The cause
+was `body.sidebar-collapsed .shell-main{grid-template-columns:0 minmax(0,1fr)}` combined with
+`display:none` on the sidebar. The hidden sidebar left the grid, so the content moved into the first
+zero-width column.
+
+Harness gap: Tier 2 checked only that the toggle and resize handle existed. It did not click the
+toggle or measure the page after collapse.
+
+Owner-approved fix:
+
+- Change `body.sidebar-collapsed .shell-main` to `grid-template-columns:minmax(0,1fr)`.
+- Add `sidebarToggle: true` to the MDL harness config.
+- Add a Tier 2 behavior check that clicks the toggle, measures sidebar display, content width,
+  visible panel widths, and toggle label, then restores the sidebar.
+- Add a shell assertion for the corrected collapsed grid.
+
+I-135 records the defect and its fix. Chromium probe results are: before `160px 1120px`, after
+`1280px`, restored `160px 1120px`; toggle labels are `Collapse left sidebar` and
+`Expand left sidebar`. `MDL-Dashboard.html` is 275,103 B. `node test/test_shell.mjs` reports
+60 passed / 0 failed. MDL Tier 2 reports 52 passed / 0 failed. Standalone Tier 6 reports
+27 passed / 0 failed / 0 advisory / 0 skipped. Tier 3 still reports the pre-existing I-95
+sample-check failures.

@@ -18,7 +18,7 @@ const html = fs.readFileSync(HTML, 'utf8');
 const scriptMatch = html.match(/<script type="module">([\s\S]*?)<\/script>/);
 if (!scriptMatch) { console.error('FAIL: no module script found in bundle'); process.exit(1); }
 // Expose the internals the test needs (the bundle strips exports during build).
-let code = scriptMatch[1] + '\nglobalThis.__rd=renderDashboard; globalThis.__rx=readXlsx; globalThis.__bm=buildModel; globalThis.__gf=getFilterDefs; globalThis.__cmp=dsCmp;';
+let code = scriptMatch[1] + '\nglobalThis.__rd=renderDashboard; globalThis.__rx=readXlsx; globalThis.__bm=buildModel; globalThis.__gf=getFilterDefs; globalThis.__cmp=dsCmp; globalThis.__bw=buildWorkbook; globalThis.__wt=workbookTables; globalThis.__xp=xp;';
 
 const dom = new JSDOM('<!doctype html><html><body><div id="app"></div></body></html>',
   { url: 'http://localhost/', pretendToBeVisual: true });
@@ -29,7 +29,7 @@ const ctx = {
   Blob: window.Blob, URL: window.URL, console,
   requestAnimationFrame: cb => setTimeout(() => cb(Date.now()), 0),
   cancelAnimationFrame: id => clearTimeout(id),
-  setTimeout, clearTimeout, TextDecoder, Response: globalThis.Response,
+  setTimeout, clearTimeout, TextDecoder, TextEncoder, URL: globalThis.URL, Response: globalThis.Response,
   WritableStream: globalThis.WritableStream, ReadableStream: globalThis.ReadableStream,
 };
 ctx.DecompressionStream = class {
@@ -66,6 +66,26 @@ ok('status bar shows no render issues', status && !status.textContent.includes('
 // --- 8 numbered panels ---
 ok('all 7 panels numbered', D.querySelectorAll('.panel[data-panel]').length === 7,
    `count=${D.querySelectorAll('.panel[data-panel]').length}`);
+
+// --- Rev 1.96 shell increment ---
+ok('shell markers present', ['titlebar','menubar','left-sidebar','content','statusbar','warnings','filter-area','body'].every(z => !!D.querySelector(`[data-shell="${z}"]`)));
+ok('warning area is inside content', !!D.querySelector('[data-shell="content"] #errBanner'));
+ok('sidebar toggle and resizer present', !!D.querySelector('[data-shell-toggle="left-sidebar"]') && !!D.querySelector('[data-shell-resize="left-sidebar"]'));
+ok('left sidebar has the five MDL pages', ['Overview','Progress','Overdue','Validation','Documents'].every(p => !!D.querySelector(`[data-shell="left-sidebar"] [data-page="${p}"]`)));
+ok('Breakdown is not in MDL sidebar', !D.querySelector('[data-shell="left-sidebar"] [data-page="Breakdown"]'));
+ok('active page label shown in title bar', D.getElementById('activePageLabel')?.textContent.trim() === 'Overview');
+ok('Print / Save PDF control removed', !html.includes('Print / Save PDF') && !D.getElementById('aPrint'));
+ok('top menu Export present', !!D.getElementById('exportWorkbook'));
+ok('per-page panel membership present', D.querySelectorAll('.panel[data-page]').length === 7);
+const settingsBtn = D.getElementById('settingsBtn');
+if(settingsBtn) settingsBtn.click();
+const layoutSel = D.querySelector('[data-setting="layout"]');
+ok('Settings layout select has one/two/three', !!layoutSel && [...layoutSel.options].map(o=>o.value).join(',') === 'one,two,three');
+if(D.querySelector('.help-modal .close')) D.querySelector('.help-modal .close').click();
+ok('download name uses PROJECT_purpose_date', /^[A-Za-z0-9]+_[a-z0-9-]+_\d{4}-\d{2}-\d{2}$/.test(ctx.__xp('all-tables')));
+const xlsxBlob = ctx.__bw([{name:'Test',headers:['A','B'],rows:[['1','2']]}]);
+ok('workbook writer returns XLSX blob', !!xlsxBlob && xlsxBlob.size > 500 && xlsxBlob.type.includes('spreadsheetml'), `size=${xlsxBlob && xlsxBlob.size}`);
+ok('workbook collector finds rendered tables', ctx.__wt().length > 0, `tables=${ctx.__wt().length}`);
 
 // --- I-43: focus-visible + icon-btn square (spec §7.1) ---
 ok('global :focus-visible rule present', html.includes(':focus-visible{outline'));
@@ -104,7 +124,7 @@ ok('welcome privacy shield is sized (PPP parity)', html.includes('.welcome .priv
 // --- I-58: top-bar filters = two individual dropdowns (Discipline, Stage) ---
 const pDisc = D.getElementById('tfPanel_disciplines'), pStg = D.getElementById('tfPanel_stages');
 const cntDisc = D.getElementById('tfCnt_disciplines'), cntStg = D.getElementById('tfCnt_stages');
-ok('two individual filter buttons in top bar', D.querySelectorAll('header.app .actions .tf-wrap').length === 2, `count=${D.querySelectorAll('header.app .actions .tf-wrap').length}`);
+ok('two individual filter buttons in top bar', D.querySelectorAll('header.app .filter-group .tf-wrap button[id^="tfBtn_"]').length === 2, `count=${D.querySelectorAll('header.app .filter-group .tf-wrap button[id^="tfBtn_"]').length}`);
 ok('Discipline + Stage triggers exist', !!D.getElementById('tfBtn_disciplines') && !!D.getElementById('tfBtn_stages'));
 ok('no single combined Filters button', !html.includes('>Filters ▾<'));
 ok('each trigger owns an anchored panel', !!pDisc && !!pStg);

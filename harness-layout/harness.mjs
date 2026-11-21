@@ -1,3 +1,11 @@
+// Revision 1.40 | 2026-11-21 | CodeBuddy (AI) | I135 / Tier 3 sidebar — config-gated behavior check clicks the toggle and verifies the content and panels stay usable. No existing assertion was weakened.
+// Revision 1.39 | 2026-11-21 | CodeBuddy (AI) | I133 / Tier 4c split header — assert one visible table outer border and rounded outer corners. No existing assertion was weakened.
+// Revision 1.38 | 2026-11-21 | CodeBuddy (AI) | I130 / Tier 6 host loop — skip hosts that use an already checked shared tip before the page.evaluate. No assertion or selector changed.
+// Revision 1.37 | 2026-11-21 | CodeBuddy (AI) | I130 / Tier 6 diagnostics — add progress lines around switch collection, switch clicks, and host gathering. No assertion or selector changed.
+// Revision 1.36 | 2026-11-21 | CodeBuddy (AI) | I129 / Tier 6 discovery — skip the body state marker and collect only button or anchor navigation items. No existing assertion was weakened.
+// Revision 1.35 | 2026-11-21 | CodeBuddy (AI) | I129 / Tier 6 responsiveness — reuse an already loaded dashboard and print progress during the standalone workbook load. No existing assertion was weakened.
+// Revision 1.34 | 2026-11-21 | CodeBuddy (AI) | I129 / spec §4.6 — Tier 6 now waits for any `[data-page]` navigation item. MDL uses `.nav-item[data-page]`, while Sub uses `.page-link`. The generic selector keeps Tier 6 dashboard-neutral. No existing assertion was weakened.
+// Revision 1.33 | 2026-11-20 | CodeBuddy (AI) | I127 / spec §3.6 — Tier 3 no longer requires a domain total in the status bar. It now checks the selected file and the right-side version string, matching the shared status-bar contract. No existing assertion was weakened.
 // Revision 1.32 | 2026-11-14 | CodeBuddy (AI) | I133 / spec rev 1.76 — `lintC3NativeTable()` and `lintC3ColumnSync()` now visit the new `Breakdown` page (C3 left Overview) and restore Overview at the end. The three per-panel independence assertions stay in the render tests; the stale `lintC3()` `.c3-board` selector defect is unchanged and still skips when no board is found. No existing assertion was weakened.
 // Revision 1.31 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.75 — Tier 5 `lintC3ColumnSync()` gains the C1 visual contract: ONE hidden band and ONE hidden centre line per C3 Bar card, DOM order behind / above the bars, hidden until hover, one shared active grid track, measured band alignment and centre position, no computed border / outline / inset ring on the active bar, table-side movement and hide-on-leave. `c3.columnSync` gains `gridSelector`, `bandSelector` and `centreLineSelector`. No existing assertion was weakened.
 // Revision 1.30 | 2026-11-14 | CodeBuddy (AI) | §4.2 rev 1.74 / I131 — Tier 5 gains `lintC3ColumnSync()`, a config-gated live-browser check for the general chart ↔ attached-table column sync. It measures bar → table, table → bar, ONE shared `.col-active` id per card, card independence, tooltip gating, no competing `.col-hover` and clear-on-leave. `lintC3NativeTable()` now measures `.col-active` instead of `.col-hover` on C3 tables, and `lintTableCrosshair()` treats C3 as chart-linked. No existing assertion was weakened.
@@ -292,6 +300,78 @@ async function runTier2(page, cfg, workbookPath) {
   ok('sidebar collapse controls are present', toggles >= 1, `found ${toggles}`);
   const resizeHandles = await page.locator('[data-shell-resize="left-sidebar"]').count();
   ok('sidebar resize handles are present', resizeHandles >= 1, `found ${resizeHandles}`);
+  if (cfg.sidebarToggle && reveal.loaded) {
+    const measure = () => page.evaluate(() => {
+      const rect = s => { const e = document.querySelector(s); if (!e) return null; const r = e.getBoundingClientRect(); return { w: Math.round(r.width), x: Math.round(r.x) }; };
+      const panels = [...document.querySelectorAll('.panel')].filter(e => e.offsetHeight).map(e => Math.round(e.getBoundingClientRect().width));
+      const side = document.querySelector('[data-shell="left-sidebar"]');
+      return { side: rect('[data-shell="left-sidebar"]'), sideDisplay: side ? getComputedStyle(side).display : null,
+               content: rect('[data-shell="content"]'), panels, vw: innerWidth };
+    });
+    const before = await measure();
+    const toggle = page.locator('[data-shell-toggle="left-sidebar"]').first();
+    await toggle.click();
+    await page.waitForTimeout(200);
+    const after = await measure();
+    ok('sidebar toggle hides the sidebar', after.sideDisplay === 'none', `display=${after.sideDisplay}`);
+    ok('collapsed sidebar keeps the content full width',
+      !!after.content && after.content.w >= after.vw * 0.8 && after.content.w > before.content.w,
+      JSON.stringify({ before: before.content, after: after.content, vw: after.vw }));
+    ok('collapsed sidebar keeps panels visible', after.panels.length > 0 && after.panels.every(w => w > 0),
+      JSON.stringify(after.panels));
+    ok('collapsed sidebar updates the toggle label', await toggle.getAttribute('aria-label') === 'Expand left sidebar',
+      `label=${await toggle.getAttribute('aria-label')}`);
+    await toggle.click();
+    await page.waitForTimeout(200);
+  } else skipped('sidebar toggle behavior — not enabled for this dashboard or shell is hidden');
+  if (cfg.contentScroll) await lintContentScroll(page, cfg, reveal.loaded);
+}
+
+// ── Tier 2: per-page content vertical scroll (spec §3.1 / §3.5) ─────────────
+// A page may hide lower panels when #app locks page scroll. This probes every
+// [data-page] view with a temporary tall element. The probe is removed after measurement.
+async function lintContentScroll(page, cfg, shellLoaded) {
+  const c = cfg.contentScroll;
+  if (!shellLoaded) { skipped('content vertical scroll (shell not visible)'); return; }
+  const pages = await discoverPages(page);
+  if (!pages.length) { skipped('content vertical scroll (no pages discovered)'); return; }
+  console.log('\n── Tier 2: content vertical scroll ────────────────────────────');
+  for (const p of pages) {
+    await visitPage(page, p.name);
+    const probe = await page.evaluate(({zoneSelector,bodySelector,probeHeight,probeScroll,tolerance}) => {
+      const zone = document.querySelector(zoneSelector);
+      const body = zone && zone.querySelector(bodySelector);
+      if (!zone || !body) return { error: 'content zone or body missing' };
+      const warning = zone.querySelector('[data-shell="warnings"]');
+      const filterArea = zone.querySelector('[data-shell="filter-area"]');
+      const outside = el => !el || !body.contains(el);
+      const before = body.scrollTop;
+      const node = document.createElement('div');
+      node.dataset.harnessScrollProbe = '1';
+      node.style.height = probeHeight + 'px';
+      node.style.width = '1px';
+      node.style.flex = 'none';
+      body.appendChild(node);
+      const cs = getComputedStyle(body);
+      const overflowY = cs.overflowY;
+      const overflowAllows = /auto|scroll/.test(overflowY);
+      const scrollable = body.scrollHeight > body.clientHeight + tolerance;
+      body.scrollTop = probeScroll;
+      const moved = body.scrollTop > 0;
+      body.scrollTop = before;
+      node.remove();
+      const zoneRect = zone.getBoundingClientRect(), bodyRect = body.getBoundingClientRect();
+      const insideWidth = bodyRect.left >= zoneRect.left - tolerance && bodyRect.right <= zoneRect.right + tolerance;
+      return { overflowY, overflowAllows, scrollable, moved, outsideWarning:outside(warning), outsideFilter:outside(filterArea), insideWidth,
+        scrollHeight:body.scrollHeight, clientHeight:body.clientHeight, scrollTop:body.scrollTop };
+    }, c);
+    const label = `content vertical scroll — ${p.text}`;
+    ok(`${label}: body overflow-y allows scrolling`, !probe.error && probe.overflowAllows, JSON.stringify(probe));
+    ok(`${label}: tall probe makes body scrollable`, !probe.error && probe.scrollable, JSON.stringify(probe));
+    ok(`${label}: scrollTop probe moves`, !probe.error && probe.moved, JSON.stringify(probe));
+    ok(`${label}: warning and filter strips stay outside body`, !probe.error && probe.outsideWarning && probe.outsideFilter, JSON.stringify(probe));
+    ok(`${label}: body stays inside content width`, !probe.error && probe.insideWidth, JSON.stringify(probe));
+  }
 }
 
 // ── Tier 3: data + filter verification ───────────────────────────────────────
@@ -523,7 +603,8 @@ async function runTier3(page, cfg, workbookPath) {
 
   // ── Status bar content ──
   const sbText = await page.locator('.status-bar').textContent().catch(() => '');
-  ok('status bar shows total count', sbText.replaceAll(',', '').includes(String(gt.totalPlanned)));
+  const sbFile = workbookPath.split(/[\\/]/).pop();
+  ok('status bar shows selected file and version', sbText.includes(sbFile) && /MDL Dashboard v\d/.test(sbText), `text=${sbText}`);
 }
 
 // ── Tier 4: layout geometry — I-90 grid foundation / I-89 executable sample ───
@@ -808,6 +889,14 @@ async function lintTableChrome(page, cfg) {
           gap: +(R(sc).top - R(frag).bottom).toFixed(2),
           scrollerMarginTop: cs(sc).marginTop,
           cardRadius: card ? cs(card).borderTopLeftRadius : null,
+          cardRadiusTR: card ? cs(card).borderTopRightRadius : null,
+          cardOverflow: card ? cs(card).overflow : null,
+          cardBorderW: card ? cs(card).borderTopWidth : null,
+          cardBorderStyle: card ? cs(card).borderTopStyle : null,
+          cardBorderColor: card ? cs(card).borderTopColor : null,
+          bodyBorderW: body ? cs(body).borderTopWidth : null,
+          bodyBorderStyle: body ? cs(body).borderTopStyle : null,
+          bodyBorderColor: body ? cs(body).borderTopColor : null,
           scrollerRadius: cs(sc).borderTopLeftRadius,
           scrollerBorderW: cs(sc).borderTopWidth,
           fragW: +R(frag).width.toFixed(1), scW: +R(sc).width.toFixed(1), bodyW: +R(body).width.toFixed(1),
@@ -826,6 +915,14 @@ async function lintTableChrome(page, cfg) {
       ok(`split-header #${p.i} [${p.label}]: one rounded container — card has radius, inner scroller none`,
         p.cardRadius !== '0px' && p.scrollerRadius === '0px' && p.scrollerMarginTop === '0px' && p.scrollerBorderW === '0px',
         `card=${p.cardRadius} scroller=${p.scrollerRadius}/${p.scrollerBorderW}/${p.scrollerMarginTop}`);
+      const cardBorder = parseFloat(p.cardBorderW) >= 1 && p.cardBorderStyle !== 'none' && p.cardBorderColor !== 'transparent';
+      const bodyBorder = parseFloat(p.bodyBorderW) >= 1 && p.bodyBorderStyle !== 'none' && p.bodyBorderColor !== 'transparent';
+      ok(`split-header #${p.i} [${p.label}]: one visible outer border on the table wrapper`,
+        cardBorder !== bodyBorder,
+        `card=${p.cardBorderW}/${p.cardBorderStyle}/${p.cardBorderColor} body=${p.bodyBorderW}/${p.bodyBorderStyle}/${p.bodyBorderColor}`);
+      ok(`split-header #${p.i} [${p.label}]: outer corners are rounded, not right-angled`,
+        parseFloat(p.cardRadius) >= 10 && parseFloat(p.cardRadiusTR) >= 10 && p.cardOverflow === 'hidden' && p.scrollerRadius === '0px',
+        `card=${p.cardRadius}/${p.cardRadiusTR}/${p.cardOverflow} scroller=${p.scrollerRadius}`);
       // The rule only PAINTS IN THE RIGHT PLACE while the cell is a containing block. The ::after keeps
       // its own `position:absolute` even when the cell goes static, so testing the pseudo alone can
       // never fail — the cell's own position must be checked too.
@@ -2051,7 +2148,7 @@ async function lintButtonHeights(page, cfg) {
 // stable logical ids, split-header pairing, row / column / intersection classes, C1 chart
 // compatibility, column-rule / position:relative preservation and clear-on-leave.
 async function lintTableCrosshair(page, cfg) {
-  const s = cfg.c1 && cfg.c1.tableCrosshair;
+  const s = cfg.tableCrosshair || (cfg.c1 && cfg.c1.tableCrosshair);
   if (!s) return;
   console.log('\n── Tier 5: §7.2.16 table hover crosshair (I129) ──');
   let hovered = 0;
@@ -2100,7 +2197,7 @@ async function lintTableCrosshair(page, cfg) {
       if (!cell) return { missing: true };
       const table = cell.closest('table[data-table-crosshair]');
       const scope = (table.classList.contains('hist-table') || table.classList.contains('c1-table') || table.classList.contains('c2-ftab') || table.classList.contains('c3-table'))
-        ? table : (table.closest('.ds-split') || table);
+        ? table : (table.closest('.ds-split') || table.closest('.matrixcard') || table.closest('.splitbox') || table.closest('.vrefcard') || table);
       const colHover = [...scope.querySelectorAll('.col-hover')];
       const header = scope.querySelector('thead th') || table.querySelector('thead th');
       const after = header ? getComputedStyle(header, '::after') : null;
@@ -2633,8 +2730,6 @@ async function lintC1(page, cfg) {
   await lintC1TimeBar(page, cfg);
   // §7.1 rev 1.71 — the universal height check runs before the segmented pass restores Overview.
   await lintButtonHeights(page, cfg);
-  // §7.2.16 rev 1.72 — the global table crosshair visits every page and restores Overview.
-  await lintTableCrosshair(page, cfg);
   // §7.5 B2.1 rev 1.69 — visits the other pages and restores Overview at the end.
   await lintSegmentedControls(page, cfg);
 }
@@ -2891,9 +2986,19 @@ async function lintC3ColumnSync(page, cfg) {
 async function ensureLoadedForTier6(page, cfg, workbookPath) {
   if (!workbookPath || !existsSync(workbookPath)) return false;
   try {
-    await page.goto(dashboardUrl(cfg));
-    await injectWorkbook(page, workbookPath, cfg);
-    await page.waitForSelector('.page-link', { timeout: 20000 });
+    const loaded = await page.evaluate(() => {
+      const bar = document.querySelector('.status-bar');
+      const visible = !!bar && !bar.hidden && getComputedStyle(bar).display !== 'none';
+      return visible && !!document.querySelector('.kpi-card[data-tip]');
+    }).catch(() => false);
+    if (loaded) console.log('  Tier 6: workbook already loaded; reuse current dashboard state.');
+    else {
+      console.log('  Tier 6: loading workbook for hover checks…');
+      await page.goto(dashboardUrl(cfg));
+      await injectWorkbook(page, workbookPath, cfg);
+      console.log('  Tier 6: workbook loaded; start hover sweep.');
+    }
+    await page.waitForSelector('[data-page]', { timeout: 20000 });
     return true;
   } catch (error) {
     console.log(`  INFO: Tier 6 could not load the workbook — ${error.message.split('\n')[0]}`);
@@ -2912,6 +3017,8 @@ async function discoverPages(page) {
   return page.evaluate(() => {
     const seen = new Set(); const out = [];
     for (const b of document.querySelectorAll('[data-page]')) {
+      if (b === document.body || b.tagName === 'BODY') continue;
+      if (!b.matches('button, a')) continue;
       const name = b.dataset.page; if (!name || seen.has(name)) continue;
       seen.add(name);
       out.push({ name, text: (b.textContent || '').trim() || name });
@@ -3133,22 +3240,37 @@ async function lintHoverWindow(page, cfg) {
     return out;
   }, switchSelector);
 
+  const checkHosts = async (list) => {
+    for (const ho of list) {
+      if (checkedTips.has(ho.tipId)) continue;
+      await checkHost(ho);
+    }
+  };
+
   for (const p of pages) {
     console.log(`\n  Side-bar page: ${p.text || p.name}`);
     await visitPage(page, p.name);
     await checkCoverage(p.name);
     const hosts = await gatherHosts(p.name);
-    for (const ho of hosts) await checkHost(ho);
+    console.log(`  DEBUG ${p.name}: ${hosts.length} host(s) gathered`);
+    await checkHosts(hosts);
     const switches = await collectSwitches();
+    console.log(`  DEBUG ${p.name}: ${switches.length} switch(es) collected`);
     for (const sw of switches) {
-      await page.click(sw.css, { timeout: 2000 }).catch(() => {});
-      await sleep(180);
       const label = `${p.name} · ${sw.label}`;
+      console.log(`  DEBUG click switch: ${label}`);
+      await page.click(sw.css, { timeout: 2000 }).catch(() => {});
+      console.log(`  DEBUG switch clicked: ${label}`);
+      await sleep(180);
       await checkCoverage(label);
+      console.log(`  DEBUG coverage done: ${label}`);
       const swHosts = await gatherHosts(label, sw.label);
-      for (const ho of swHosts) await checkHost(ho);
+      console.log(`  DEBUG hosts gathered: ${label} (${swHosts.length})`);
+      await checkHosts(swHosts);
+      console.log(`  DEBUG hosts checked: ${label}`);
       await page.click(sw.restore, { timeout: 2000 }).catch(() => {});
       await sleep(120);
+      console.log(`  DEBUG switch restored: ${label}`);
     }
   }
   // A configured board that appears on no view would otherwise be silently unverifiable, exactly like
@@ -3222,6 +3344,8 @@ for (const name of dashboards) {
       if (cfg.c3) await lintC3(page, cfg); else skipped('Tier 5 C3 chart (no c3 config)');
       await lintC3NativeTable(page, cfg);
       await lintC3ColumnSync(page, cfg);
+      // §7.2.16 — the shared crosshair is independent of the C1 and C3 chart configs.
+      await lintTableCrosshair(page, cfg);
     }
   }
   if (!targetTier || targetTier === 6) {

@@ -1,3 +1,5 @@
+// Revision 0.38 | 2026-11-19 | CodeBuddy (AI) | §4.6 rev 1.96 / I153 — the C4 Scatter hover window shows one tokenized swatch beside the document number in the header. The seven body rows use `label · value` with no repeated swatch. `c4BucketTipHtml()` stays unchanged. Data, state, filters, counts and exports are unchanged.
+// Revision 0.37 | 2026-11-19 | CodeBuddy (AI) | §4.9 / §4.11 / I152 — the C4 scatter and age-bucket hover windows now carry document detail. Each scatter point shows document number, title, submitter, submission date, latest approval status, target return date, turnaround, review delay and overdue state. Each age-bucket row shows a list of up to three documents, sorted by days past target, with the same detail fields. `deriveView()` adds `c4Scatter` detail fields and `c4AgingDocs`; `c4TipHtml()` / `c4BucketTipHtml()` own the markup; CSS is scoped to `.c4-chart`. KPI counts, filters, exports and other charts are unchanged.
 // Revision 0.36 | 2026-11-18 | CodeBuddy (AI) | §4.4 / I150 — the Submittals table renders the pinned 40px drill column only when at least one document has more than one submission in the current view. A month view where every document has a single submission now starts at Document No., with no redundant white expander column, no one-row detail rows, no row shortcut and no locked "Row" item in the Columns chooser. All-months and months with multi-submission documents keep the standardized drill-down unchanged; CSV export and all other panels are untouched.
 // Revision 0.35 | 2026-11-18 | CodeBuddy (AI) | §4 rev 1.93 / I149 — the Submittals chips now all describe the SAME globally filtered dataset: violet uses the month-filtered document groups (not the unfiltered aggregate), green counts distinct cumulative documents (not submission rows), and neutral is the displayed document count. Labels carry the temporal scope ("Submissions in"/"Documents in"/"Shown for" = for the month; "Accumulated till" = till the month; All months gets its own wording). `hasGlobalFilters` is derived from ACTUAL narrowing (allDocs / allSubs vs unfiltered counts), so a full-value selection or a whitespace-only search never triggers the funnel. One funnel glyph marks every displayed chip when the time filter or an actually-narrowing global filter is active; no filter → no marks. No change to deriveView or other panels.
 // Revision 0.34 | 2026-11-18 | CodeBuddy (AI) | §4 rev 1.92 — the Submittals panel subtitle migrates from the plain-text `.panel-summary` to standardized `.pchip` colour chips: blue monthly count (only when a month is selected), violet total month count (unfiltered window aggregate), green accumulated count, neutral filtered count. Each chip carries its title inside; Style A funnel glyph marks every chip whose count is filter-scoped (selected month or global filter), with zero counts still displayed. Subtitle placement (own line before the .c-card) and all data/export paths are unchanged.
@@ -331,19 +333,48 @@ export function deriveView(model, state = {}) {
   // All five cards source from the active Submission Log against asOf. The Master
   // Document List is not used by these cards.
   const asOfDate = model.meta && model.meta.asOfDate;
+  // I152 — one detail builder serves both C4 views. Title follows D41: MDL planned title first,
+  // then the Prolog subject. Latest approval follows the Submittals table: latest document row.
+  const docKey = value => String(value ?? '').trim().toUpperCase();
+  const plannedById = new Map(model.planned.map(plan => [plan.id, plan]));
+  const latestByDoc = new Map(documentGroups.map(group => [docKey(group[0].documentNo), group[group.length - 1]]));
+  const c4Detail = row => {
+    const plan = row.linkedPlannedId ? plannedById.get(row.linkedPlannedId) : null;
+    const latest = latestByDoc.get(docKey(row.documentNo));
+    const openPast = row.submissionStatus === 'SUR' && !row.actualReturnDate && row.targetReturnDate
+      && (daysBetween(asOfDate, row.targetReturnDate) || 0) > 0;
+    const lateReturn = Boolean(row.actualReturnDate && Number.isFinite(row.delayDays) && row.delayDays > 0);
+    const overdueDays = openPast ? daysBetween(asOfDate, row.targetReturnDate) : lateReturn ? row.delayDays : null;
+    return {
+      doc: row.documentNo || '—',
+      title: plan?.title || row.fields['Document Title'] || '—',
+      submitter: row.fields['Submitted By'] || '—',
+      submissionDate: row.submissionDate || '—',
+      latestApproval: latest?.approvalStatus || row.approvalStatus || '—',
+      targetReturnDate: row.targetReturnDate || '—',
+      actualReturnDate: row.actualReturnDate || '—',
+      turnaroundDays: row.turnaroundDays,
+      delayDays: row.delayDays,
+      overdueState: openPast ? 'open' : lateReturn ? 'late' : 'ontime',
+      overdueDays
+    };
+  };
   // Long-due (aging SUR): open SUR rows past each record's Target Return Date.
   // Days past target = asOf - targetReturnDate. Records without a target are excluded.
   const longDue = { lt30: 0, b30_60: 0, b60_90: 0, gt90: 0, total: 0 };
+  const c4AgingDocs = { lt30: [], b30_60: [], b60_90: [], gt90: [] };
   for (const row of activeSubmissions) {
     if (row.submissionStatus !== 'SUR' || row.actualReturnDate) continue;
     if (!row.targetReturnDate) continue;
     const past = daysBetween(asOfDate, row.targetReturnDate); // asOf - targetReturnDate
     if (past == null || past < 0) continue; // future or unparseable target
-    if (past < 30) longDue.lt30++;
-    else if (past < 60) longDue.b30_60++;
-    else if (past < 90) longDue.b60_90++;
-    else longDue.gt90++;
+    const bucket = past < 30 ? 'lt30' : past < 60 ? 'b30_60' : past < 90 ? 'b60_90' : 'gt90';
+    longDue[bucket]++;
+    c4AgingDocs[bucket].push(c4Detail(row));
     longDue.total++;
+  }
+  for (const docs of Object.values(c4AgingDocs)) {
+    docs.sort((a, b) => (Number(b.overdueDays) || 0) - (Number(a.overdueDays) || 0) || String(a.doc).localeCompare(String(b.doc)));
   }
   // Rework Rate = resubmitted records / total submission records (%).
   const reworkRate = activeSubmissions.length
@@ -377,7 +408,7 @@ export function deriveView(model, state = {}) {
   const c4Scatter = activeSubmissions
     .filter(r => Number.isFinite(r.turnaroundDays) && Number.isFinite(r.delayDays))
     .map(r => ({
-      doc: r.documentNo,
+      ...c4Detail(r),
       x: r.turnaroundDays,
       y: r.delayDays,
       overdue: r.submissionStatus === 'SUR' && !r.actualReturnDate && r.targetReturnDate && (daysBetween(asOfDate, r.targetReturnDate) || 0) > 0
@@ -392,6 +423,7 @@ export function deriveView(model, state = {}) {
     c1,
     c3,
     c4Scatter,
+    c4AgingDocs,
     kpis: {
       totalPlanned: activePlans.length,
       // D32 — a repeated Document No. is the same document, so the card counts distinct documents.
@@ -627,6 +659,57 @@ export function c2DelayTipHtml(p) {
     + `<div class="chart-tip-foot"><span>Docs in mean</span><b>${p.n || 0}</b></div>`;
 }
 
+// I152 — C4 hover-window content. The shell stays the shared §4.6 window. These functions own
+// only the per-chart fields, which §4.6 places in the workplan rather than the UI spec.
+const c4Escape = value => String(value ?? '').replace(/[&<>]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[char]);
+const c4ApprovalText = (code, labels = {}) => {
+  if (!code) return '—';
+  return labels[code] ? `${code} — ${labels[code]}` : String(code);
+};
+const c4Number = (value, fallback) => Number.isFinite(value) ? value : (Number.isFinite(fallback) ? fallback : null);
+const c4Days = value => Number.isFinite(value) ? `${value.toFixed(1)} d` : '—';
+const c4Row = (label, value, swatch = 'c4-bucket') => `<div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch ${swatch}"></span>${c4Escape(label)}</span><b>${c4Escape(value)}</b></div>`;
+const c4PlainRow = (label, value) => `<div class="chart-tip-row"><span>${c4Escape(label)}</span><b>${c4Escape(value)}</b></div>`;
+const c4OverdueFooter = p => {
+  const state = p.overdueState || (p.overdue ? 'open' : (p.delayDays > 0 ? 'late' : 'ontime'));
+  if (state === 'open') return `<div class="chart-tip-foot"><span>Overdue</span><b>${c4Escape(p.overdueDays)} d past target</b></div>`;
+  if (state === 'late') return `<div class="chart-tip-foot"><span>Overdue</span><b>${c4Escape(p.overdueDays)} d late</b></div>`;
+  return '<div class="chart-tip-foot"><span>Overdue</span><b>No</b></div>';
+};
+
+export function c4TipHtml(p, approvalLabels = {}) {
+  const turnaround = c4Number(p.turnaroundDays, p.x);
+  const delay = c4Number(p.delayDays, p.y);
+  const swatch = (p.overdueState || (p.overdue ? 'open' : (delay > 0 ? 'late' : 'ontime'))) === 'open' ? 'c4-overdue' : 'c4-bucket';
+  return `<div class="c4-tip-head"><span class="chart-swatch ${swatch}"></span><b>${c4Escape(p.doc || '—')}</b></div>`
+    + c4PlainRow('Title', p.title || '—')
+    + c4PlainRow('Submitter', p.submitter || '—')
+    + c4PlainRow('Submission date', p.submissionDate || '—')
+    + c4PlainRow('Latest approval', c4ApprovalText(p.latestApproval, approvalLabels))
+    + c4PlainRow('Target return', p.targetReturnDate || '—')
+    + c4PlainRow('Turnaround', c4Days(turnaround))
+    + c4PlainRow('Review delay', c4Days(delay))
+    + c4OverdueFooter(p);
+}
+
+export function c4BucketTipHtml(bucket, approvalLabels = {}) {
+  const info = bucket || {};
+  const docs = Array.isArray(info.docs) ? info.docs.slice(0, 3) : [];
+  const count = Number.isFinite(info.count) ? info.count : 0;
+  const list = docs.map((doc, index) => `<div class="c4-tip-doc"><b>${index + 1}. ${c4Escape(doc.doc || '—')}</b>`
+    + `<div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c4-bucket"></span>Title</span><b class="c4-tip-title">${c4Escape(doc.title || '—')}</b></div>`
+    + c4Row('Submitter', doc.submitter || '—')
+    + c4Row('Submission date', doc.submissionDate || '—')
+    + c4Row('Latest approval', c4ApprovalText(doc.latestApproval, approvalLabels))
+    + c4Row('Target return', doc.targetReturnDate || '—')
+    + `<div class="chart-tip-foot"><span>Days past target</span><b>${c4Escape(doc.overdueDays)} d</b></div></div>`).join('');
+  return `<b>${c4Escape(info.label || '—')}</b>`
+    + c4Row('Open SUR past target', String(count), 'c4-overdue')
+    + `<div class="chart-tip-foot"><span>Share of overdue</span><b>${Number.isFinite(info.pct) ? info.pct : 0}%</b></div>`
+    + (list || '<p class="c4-tip-empty">No matching documents.</p>')
+    + `<div class="chart-tip-foot"><span>Showing ${docs.length} of ${count}</span><b>Sorted by days past target</b></div>`;
+}
+
 // I112 — module-level store of the last rendered Issues table (full FILTERED set) so buildIssueCsv()
 // can export every filtered row even though the table only materialises the current 200-row page.
 let lastIssueExport = null;
@@ -819,7 +902,7 @@ export function renderDashboard(doc, model, state = {}) {
   };
   // C4 — SVG scatter: x = turnaround days, y = review-delay days, one point per submission.
   // Overdue points (open SUR past target) render red, the rest blue.
-  const c4ScatterSvg = points => {
+  const c4ScatterSvg = (points, approvalLabels = {}) => {
     const W = 820, H = 440, L = 58, R = 18, T = 18, B = 46;
     const plotW = W - L - R, plotH = H - T - B;
     const xs = points.map(p => p.x), ys = points.map(p => p.y);
@@ -847,7 +930,7 @@ export function renderDashboard(doc, model, state = {}) {
     s += `<text x="14" y="${T + plotH / 2}" text-anchor="middle" font-size="11" fill="var(--text2)" transform="rotate(-90 14 ${T + plotH / 2})">Review delay (days) — late vs target</text>`;
     for (const p of points) {
       const fill = p.overdue ? 'var(--red)' : 'var(--blue)';
-      s += `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="3.4" fill="${fill}" fill-opacity="0.75" data-tip="${attr(`<b>${esc(p.doc)}</b><br>turnaround ${p.x.toFixed(1)} d, delay ${p.y.toFixed(1)} d${p.overdue ? ' (overdue, open)' : ''}`)}"></circle>`;
+      s += `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="3.4" fill="${fill}" fill-opacity="0.75" data-tip="${attr(c4TipHtml(p, approvalLabels))}"></circle>`;
     }
     return s + '</svg>';
   };
@@ -1819,16 +1902,17 @@ export function renderDashboard(doc, model, state = {}) {
       return `<div class="seg" role="group" aria-label="C4 view">${seg('scatter')}${seg('buckets')}</div>`;
     };
     const ld = view.kpis.longDue;
+    const approvalLabels = state.uiHelp?.statusGlossary?.approval || {};
     const openSur = view.active.filter(r => r.submissionStatus === 'SUR' && !r.actualReturnDate).length;
-    const bk = [['<30 d', ld.lt30], ['30–60 d', ld.b30_60], ['60–90 d', ld.b60_90], ['>90 d', ld.gt90]];
-    // I103 follow-up — the buckets bars carried no hover detail at all (the fixed Tier 6 switch
-    // sweep surfaced it as an advisory). Each row gets a §4.6 window: header = bucket, body row =
-    // swatch · count, footer = share of overdue.
+    const bk = [['<30 d', 'lt30', ld.lt30], ['30–60 d', 'b30_60', ld.b30_60], ['60–90 d', 'b60_90', ld.b60_90], ['>90 d', 'gt90', ld.gt90]];
+    // I152 — the §4.6 shell is unchanged. The bucket window now lists up to three documents,
+    // sorted by days past target. The aggregate count and share keep their existing calculation.
     const overdue = ld.total || 0;
-    const c4BucketsHtml = barChart(bk.map(([label, value]) => ({ label, value, pct: overdue ? Math.round(100 * value / overdue) : 0 })), 'label', 'value',
-      item => `<b>${esc(item.label)}</b><div class="chart-tip-row"><span class="ct-l"><span class="chart-swatch c4-bucket"></span>Open SUR past target</span><b>${item.value}</b></div><div class="chart-tip-foot"><span>Share of overdue</span><b>${item.pct}%</b></div>`)
+    const c4BucketsHtml = barChart(bk.map(([label, key, value]) => ({
+      label, value, count: value, pct: overdue ? Math.round(100 * value / overdue) : 0, docs: view.c4AgingDocs?.[key] || []
+    })), 'label', 'value', item => c4BucketTipHtml(item, approvalLabels))
       + `<p class="note">Open SUR (submitted, not yet returned) split by days past each record's Target Return Date. Total open SUR = ${openSur}; of those, ${ld.total} are past target (overdue).</p>`;
-    const c4ScatterHtml = c4ScatterSvg(view.c4Scatter)
+    const c4ScatterHtml = c4ScatterSvg(view.c4Scatter, approvalLabels)
       + '<div class="legend"><span><i style="background:var(--blue)"></i>Returned / on-time submission</span><span><i style="background:var(--red)"></i>Open &amp; past target (overdue)</span></div>';
     const c4Content = `<div class="c-card c4-chart">${state.c4View === 'buckets' ? c4BucketsHtml : c4ScatterHtml}<div class="chart-tip"></div></div>`;
     const c4 = activePanel('C4 Turnaround & Aging', c4Content, false, c4ViewSeg(state));

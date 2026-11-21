@@ -1,3 +1,5 @@
+// Revision 0.4 | 2026-11-19 | CodeBuddy (AI) | I153 — the sample inherits the single header swatch from `c4TipHtml()`. Age buckets stay unchanged. No builder logic change.
+// Revision 0.3 | 2026-11-19 | CodeBuddy (AI) | I152 — the C4 sample now uses the real derived C4 payloads and the exported hover renderers. Scatter points and age buckets carry document detail windows. The engine is NOT modified.
 // Revision 0.2 | 2026-10-31 | CodeBuddy (AI) | Sample page for the C4 Turnaround & Aging
 // panel, rendered inside the real Option-B app shell (MDL two-row header + navy left
 // nav sidebar, light theme default) so the design can be reviewed against the UI spec
@@ -8,29 +10,21 @@ import path from 'path';
 import { fileURLToPath } from 'node:url';
 import { readXlsx } from '../engine/xlsx-reader.js';
 import { buildModel } from '../engine/pipeline.js';
-import { deriveView } from '../engine/render.js';
+import { c4BucketTipHtml, c4TipHtml, deriveView } from '../engine/render.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = rel => fs.readFileSync(path.join(ROOT, rel), 'utf8');
+const attr = value => String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 // --- real data -------------------------------------------------------------
 const config = JSON.parse(read('config/pipeline_contract.json'));
+const uiHelp = JSON.parse(read('config/ui_help.json'));
+const approvalLabels = uiHelp.statusGlossary?.approval || {};
 const bytes = n => { const v = fs.readFileSync(path.join(ROOT, n)); return v.buffer.slice(v.byteOffset, v.byteOffset + v.byteLength); };
 const model = buildModel(await readXlsx(bytes('TWRP C3B2 - Master Document List.xlsx')), await readXlsx(bytes('TWRP C3B2 - Document Submittal Log.xlsx')), { contract: config, today: '2026-10-24' });
 const view = deriveView(model);
 const asOf = model.meta.asOfDate;
-
-const toMs = v => { if (v == null || v === '') return null; if (typeof v === 'number') return new Date(Date.UTC(1899, 11, 30) + v * 86400000).getTime(); const t = Date.parse(v); return Number.isNaN(t) ? null : t; };
-const diff = (a, b) => { const da = toMs(a), db = toMs(b); return da != null && db != null ? Math.round((da - db) / 86400000) : null; };
-
-const pts = view.active
-  .filter(r => Number.isFinite(r.turnaroundDays) && Number.isFinite(r.delayDays))
-  .map(r => ({
-    doc: r.documentNo,
-    x: r.turnaroundDays,
-    y: r.delayDays,
-    overdue: r.submissionStatus === 'SUR' && !r.actualReturnDate && r.targetReturnDate && (diff(asOf, r.targetReturnDate) || 0) > 0
-  }));
+const pts = view.c4Scatter;
 const buckets = view.kpis.longDue; // { lt30, b30_60, b60_90, gt90, total }
 const openSur = view.active.filter(r => r.submissionStatus === 'SUR' && !r.actualReturnDate).length;
 const overdueCount = pts.filter(p => p.overdue).length;
@@ -64,14 +58,15 @@ svg += `<text x="${L + plotW / 2}" y="${H - 6}" text-anchor="middle" font-size="
 svg += `<text x="14" y="${T + plotH / 2}" text-anchor="middle" font-size="11" fill="var(--text2)" transform="rotate(-90 14 ${T + plotH / 2})">Review delay (days) — late vs target</text>`;
 for (const p of pts) {
   const fill = p.overdue ? 'var(--red)' : 'var(--blue)';
-  svg += `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="3.4" fill="${fill}" fill-opacity="0.75"><title>${p.doc}: turnaround ${p.x.toFixed(1)} d, delay ${p.y.toFixed(1)} d${p.overdue ? ' (overdue, open)' : ''}</title></circle>`;
+  svg += `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="3.4" fill="${fill}" fill-opacity="0.75" data-tip="${attr(c4TipHtml(p, approvalLabels))}"></circle>`;
 }
 svg += `</svg>`;
 
 // --- age buckets HTML (dashboard .bar-chart, inside the .c-card board) ------
-const bk = [['<30 d', buckets.lt30], ['30–60 d', buckets.b30_60], ['60–90 d', buckets.b60_90], ['>90 d', buckets.gt90]];
-const bMax = Math.max(1, ...bk.map(b => b[1]));
-const bucketsHtml = `<div class="bar-chart">${bk.map(([label, v]) => `<div class="bar-row"><span>${label}</span><div class="bar-track"><i style="width:${(v / bMax * 100).toFixed(1)}%"></i></div><b>${v}</b></div>`).join('')}</div><p class="note">Open SUR (submitted, not yet returned) split by days past each record's Target Return Date. Total open SUR = ${openSur}; of those, ${buckets.total} are past target (overdue).</p>`;
+const bk = [['<30 d', 'lt30', buckets.lt30], ['30–60 d', 'b30_60', buckets.b30_60], ['60–90 d', 'b60_90', buckets.b60_90], ['>90 d', 'gt90', buckets.gt90]];
+const bMax = Math.max(1, ...bk.map(b => b[2]));
+const bucketItems = bk.map(([label, key, value]) => ({ label, value, count: value, pct: buckets.total ? Math.round(100 * value / buckets.total) : 0, docs: view.c4AgingDocs?.[key] || [] }));
+const bucketsHtml = `<div class="bar-chart">${bucketItems.map(item => `<div class="bar-row" data-tip="${attr(c4BucketTipHtml(item, approvalLabels))}"><span>${item.label}</span><div class="bar-track"><i style="width:${(item.value / bMax * 100).toFixed(1)}%"></i></div><b>${item.value}</b></div>`).join('')}</div><p class="note">Open SUR (submitted, not yet returned) split by days past each record's Target Return Date. Total open SUR = ${openSur}; of those, ${buckets.total} are past target (overdue).</p>`;
 
 // --- assemble page inside the real Option-B shell ---------------------------
 const css = read('engine/dashboard.css');
@@ -143,11 +138,12 @@ const page = `<!doctype html>
               </header>
               <div class="panel-body">
                 <p class="sample-meta">Sample for UI-spec review — real data (as of ${asOf}). ${pts.length} submissions plotted; ${overdueCount} points are open &amp; past target (red).</p>
-                <div class="c-card">
+                <div class="c-card c4-chart">
                   <div id="c4-scatter">${svg}
                     <div class="legend"><span><i style="background:var(--blue)"></i>Returned / on-time submission</span><span><i style="background:var(--red)"></i>Open &amp; past target (overdue)</span></div>
                   </div>
                   <div id="c4-buckets" hidden>${bucketsHtml}</div>
+                  <div class="chart-tip" role="tooltip" aria-hidden="true"></div>
                 </div>
               </div>
             </section>
@@ -159,10 +155,40 @@ const page = `<!doctype html>
 <script>
   const btns = document.querySelectorAll('[data-c4view]');
   const views = { scatter: document.getElementById('c4-scatter'), buckets: document.getElementById('c4-buckets') };
+  const card = document.querySelector('.c4-chart');
+  const tip = card.querySelector('.chart-tip');
+  let activeTip = null;
+  const hideTip = () => {
+    tip.classList.remove('show');
+    tip.textContent = '';
+    tip.setAttribute('aria-hidden', 'true');
+    activeTip = null;
+  };
   btns.forEach(b => b.addEventListener('click', () => {
     btns.forEach(x => x.classList.toggle('active', x === b));
     Object.entries(views).forEach(([k, el]) => { el.hidden = k !== b.dataset.c4view; });
+    hideTip();
   }));
+  card.addEventListener('pointermove', e => {
+    const target = e.target.closest && e.target.closest('[data-tip]');
+    const view = Object.values(views).find(el => !el.hidden);
+    if (!target || !view.contains(target)) { hideTip(); return; }
+    if (target !== activeTip) {
+      activeTip = target;
+      tip.innerHTML = target.getAttribute('data-tip');
+      tip.removeAttribute('aria-hidden');
+      tip.classList.add('show');
+    }
+    const r = card.getBoundingClientRect();
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    let x = e.clientX - r.left + 14, y = e.clientY - r.top + 14;
+    if (x + tw > r.width - 4) x = e.clientX - r.left - tw - 14;
+    if (y + th > r.height - 4) y = e.clientY - r.top - th - 14;
+    tip.style.left = Math.max(4, x) + 'px';
+    tip.style.top = Math.max(4, y) + 'px';
+  });
+  card.addEventListener('pointerleave', hideTip);
+  card.addEventListener('keydown', e => { if (e.key === 'Escape') hideTip(); });
   document.querySelector('[data-panel-toggle]').addEventListener('click', e => {
     const panel = e.currentTarget.closest('.panel');
     const collapsed = panel.classList.toggle('collapsed');
