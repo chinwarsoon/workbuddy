@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sample — Issue Progress with attached table (review)</title>
+<style>
+  :root{
+    --font-ui:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;
+    --btn-h:32px; --seg-h:var(--btn-h); --panel-gap:14px; --panel-pad:14px;
+    --panel-title-gap:10px; --c3-card-pad:12px; --tool-pad:12px; --tool-gap:10px;
+    --c1-gutter:104px; --c1-right-w:52px; --c3-gutter:104px; --sidebar-w:160px;
+    --nav-bg:var(--navy); --nav-bg-hover:rgba(255,255,255,.1); --nav-bg-active:#354F6E;
+    --nav-fg:#E8EDF3; --ds-grip-w:6px; --ds-sbw:12px;
+    --surface:#fff; --surface2:#f4f7fb; --surface3:#e6edf5; --navy:#1f3a5f;
+    --blue:#2f6fb0; --border:#d8e0ea; --line:#e3e9f0; --muted:#6b7785;
+    --text:#2b3440; --text2:#536172; --text3:#6b7785; --accent:#2f6fb0;
+    --green:#2e8b57; --amber:#e0a106; --red:#d1495b; --slate:#78909c;
+    --soft:#eef2f7; --ink:#2b3440; --white:#fff; --shadow:0 1px 3px rgba(31,58,95,.12);
+    --crosshair-track:rgba(47,111,176,.10); --crosshair-intersection:rgba(47,111,176,.20);
+    --crosshair-ring:rgba(47,111,176,.55); --header-crosshair-overlay:rgba(31,58,95,.10);
+    --header-crosshair-accent:#2f6fb0;
+  }
+  [data-theme="dark"]{
+    --surface:#162230; --surface2:#1f2d3d; --surface3:#2b3b4d; --navy:#e8edf3;
+    --blue:#7db4e8; --border:#3d4d60; --line:#344457; --muted:#a9b8c8;
+    --text:#e8edf3; --text2:#c3d0dd; --text3:#9dabb9; --ink:#f2f6fa; --white:#0e1620;
+    --crosshair-track:rgba(125,180,232,.16); --crosshair-intersection:rgba(125,180,232,.28);
+    --crosshair-ring:rgba(125,180,232,.65); --header-crosshair-overlay:rgba(232,237,243,.12);
+    --header-crosshair-accent:#7db4e8;
+  }
+  *{box-sizing:border-box}
+  html,body{height:auto}
+  body{margin:0;background:var(--surface2);color:var(--text);font:400 13px/1.45 var(--font-ui);overflow:auto}
+  .wrap{width:100%;max-width:none;margin:0;padding:0}
+  h1{font-size:17px;font-weight:600;line-height:1.2;margin:0;color:var(--navy)}
+  .note{font-size:11px;color:var(--muted);margin:0;line-height:1.35}
+  .review-intro{margin:0 0 var(--panel-title-gap)}
+  .grid{display:flex;flex-direction:column;gap:0}
+  @media(max-width:900px){.panel{padding:10px}}
+  .panel{width:100%;height:100vh;background:var(--surface);border:0;border-bottom:1px solid var(--border);
+    border-radius:0;box-shadow:none;padding:var(--panel-pad);display:flex;flex-direction:column;
+    min-height:0;position:relative}
+  .panel:last-child{border-bottom:0}
+  .panel-head{display:flex;justify-content:space-between;align-items:center;gap:var(--tool-gap);
+    margin:0 0 var(--panel-title-gap)}
+  .panel h2{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;line-height:1.4;
+    color:var(--navy);margin:0}
+  .tag{font-size:10px;font-weight:600;border:1px solid var(--border);border-radius:20px;
+    padding:2px 10px;color:var(--muted);background:var(--surface2)}
+  .sc-board{border:1px solid var(--border);border-radius:10px;padding:var(--tool-pad);
+    display:flex;flex-direction:column;gap:var(--tool-gap);flex:1;min-height:0;position:relative;overflow:hidden}
+  .sc-board.wide{overflow-x:auto}
+  .sc-board.wide .c1-grid{min-width:calc(var(--c1-gutter) + var(--c1-cols) * 64px)}
+  .controls{display:flex;flex-wrap:wrap;gap:var(--tool-gap);align-items:center;justify-content:flex-end}
+  .c1-ts-body{flex:1 1 190px;min-width:120px;display:flex;align-items:center;gap:var(--tool-gap)}
+  .c1-ts-label,.status{font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap;flex-shrink:0}
+  .c1-timebar{position:relative;flex:1 1 190px;min-width:120px;height:var(--btn-h)}
+  .c1-track{position:absolute;left:0;right:0;top:13px;height:6px;border-radius:3px;background:var(--surface3)}
+  .c1-fill{position:absolute;top:0;bottom:0;left:var(--from-pct,0%);right:var(--to-pct,0%);background:var(--blue);border-radius:3px}
+  .c1-ticks{position:absolute;left:0;right:0;top:21px;height:8px;pointer-events:none}
+  .c1-tick{position:absolute;top:0;width:1px;height:4px;background:var(--border)}
+  .c1-tick.near,.c1-tick.active{height:7px;background:var(--blue)}
+  .c1-timebar input[type=range]{position:absolute;left:0;top:7px;width:100%;height:18px;margin:0;background:transparent;
+    pointer-events:none;-webkit-appearance:none;appearance:none}
+  .c1-timebar input[type=range]::-webkit-slider-runnable-track{height:6px;background:transparent}
+  .c1-timebar input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;
+    border-radius:50%;background:var(--surface);border:2px solid var(--blue);margin-top:-4px;pointer-events:auto;cursor:ew-resize}
+  .c1-timebar input[type=range]::-moz-range-track{height:6px;background:transparent}
+  .c1-timebar input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--surface);
+    border:2px solid var(--blue);pointer-events:auto;cursor:ew-resize}
+  .c1-timebar input[type=range]:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:6px}
+  .seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0}
+  .seg-btn{min-height:var(--seg-h);padding:5px 8px;font:600 12px/1.45 var(--font-ui);border:0;
+    border-right:1px solid var(--border);background:var(--surface);color:var(--navy);cursor:pointer}
+  .seg-btn:last-child{border-right:0}
+  .seg-btn:hover:not(.active){background:var(--surface2);color:var(--blue)}
+  .seg-btn.active{background:var(--navy);color:var(--white)}
+  .seg-btn:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+  .btn{min-height:var(--btn-h);padding:7px 12px;font:600 12px/1.2 var(--font-ui);border:1px solid var(--border);
+    border-radius:6px;background:var(--surface2);color:var(--navy);cursor:pointer;white-space:nowrap;flex-shrink:0}
+  .btn:hover{background:var(--soft)}
+  .btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  .btn[aria-pressed="false"]{opacity:.55;background:var(--surface3)}
+  .status{font-size:11px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;flex-shrink:0}
+  .mode-dual{color:var(--amber)}
+  .c1-grid{display:grid;grid-template-columns:var(--c1-gutter) repeat(var(--c1-cols),minmax(0,1fr));
+    column-gap:0;align-items:stretch;min-width:0;width:100%}
+  .c1-gutter{grid-column:1;grid-row:1;position:relative;display:grid;grid-template-rows:var(--legend-h) 300px;
+    min-width:0;border:1px solid var(--border);border-right:0;border-radius:10px 0 0 0}
+  .c1-yticks{grid-row:2;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;
+    padding-right:6px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .c1-ycap{position:absolute;left:2px;bottom:6px;writing-mode:vertical-rl;transform:rotate(180deg);
+    font-size:11px;color:var(--muted)}
+  .c1-plot{grid-column:2/-1;grid-row:1;position:relative;min-width:0;cursor:crosshair;
+    border:1px solid var(--border);border-radius:0 10px 0 0;overflow:visible}
+  .c1-plot:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+  .c1-plot svg{display:block;width:100%;height:auto}
+  .c1-table{grid-column:1/-1;grid-row:2;width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;
+    border:1px solid var(--border);border-top:0;border-radius:0 0 10px 10px;margin:0}
+  .c1-table caption{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .c1-table th,.c1-table td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+    padding:4px 6px;text-align:right;font-size:11px;font-variant-numeric:tabular-nums;color:var(--text);background:var(--surface)}
+  .c1-table tr>*:last-child{border-right:0}
+  .c1-table tbody tr:last-child>*{border-bottom:0}
+  .c1-table thead th{background:var(--surface2)}
+  .c1-table th.corner{text-align:left;color:var(--navy);font-size:10px;font-weight:700;background:var(--surface2)}
+  .c1-table th.g-axis{font-size:11px;font-weight:600;color:var(--text2);white-space:nowrap}
+  .c1-table th.g-label{text-align:left;font-size:11px;font-weight:600;color:var(--text2);white-space:nowrap;background:var(--surface2)}
+  .c1-table [data-c1col]:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+  .row-hover td,.row-hover th[scope=row]{background-image:linear-gradient(var(--crosshair-track),var(--crosshair-track))}
+  .c1-table td.col-active,.c1-table th[scope=row].col-active{background-color:var(--crosshair-track);font-weight:600}
+  .c1-table td.cell-hover,.c1-table th[scope=row].cell-hover{background-color:var(--crosshair-intersection);
+    box-shadow:inset 0 0 0 1px var(--crosshair-ring)}
+  .c1-table th[data-c1col].col-active,.c1-table th[data-c1col].cell-hover{
+    background-image:linear-gradient(var(--header-crosshair-overlay),var(--header-crosshair-overlay)),
+      linear-gradient(var(--header-crosshair-accent),var(--header-crosshair-accent));
+    background-size:auto,100% 2px;background-position:center,center bottom;background-repeat:no-repeat}
+  .c1-table th[data-c1col].cell-hover{background-color:var(--crosshair-intersection)}
+  .sc-hover-band{fill:var(--blue);fill-opacity:.08;pointer-events:none;display:none}
+  .chart-snap{stroke:var(--text3);stroke-width:1;stroke-dasharray:3 3;pointer-events:none;display:none}
+  .c1-plot.col-on .sc-hover-band,.c1-plot.col-on .chart-snap{display:inline}
+  .chart-tip{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:8px;
+    box-shadow:var(--shadow);padding:8px 10px;font-size:11px;font-variant-numeric:tabular-nums;
+    line-height:1.45;color:var(--text);max-width:230px;z-index:30;pointer-events:none;
+    opacity:0;visibility:hidden;transition:opacity 100ms ease}
+  .chart-tip.show{opacity:1;visibility:visible}
+  .chart-tip[aria-hidden="true"]{visibility:hidden}
+  .chart-tip-row{display:grid;grid-template-columns:76px minmax(0,1fr);gap:8px;margin-top:4px;align-items:start}
+  .chart-tip-row>span:first-child{color:var(--muted)}
+  .chart-tip-row>.tip-num{text-align:right}
+  .chart-tip-foot{border-top:1px solid var(--border);margin-top:6px;padding-top:6px;
+    display:grid;grid-template-columns:76px minmax(0,1fr);gap:8px;color:var(--muted)}
+  .chart-tip-foot>.tip-num{text-align:right}
+  .kpi-tip-swatch{width:8px;height:8px;border-radius:50%;background:var(--tip-swatch,var(--blue));
+    display:inline-block;margin-right:6px}
+  .chartnote{font-size:10px;color:var(--muted);margin:0;min-height:14px}
+  .find{margin-top:0;font-size:10.5px;color:var(--muted)}
+  .find summary{cursor:pointer;font-weight:600;color:var(--navy)}
+  ul.findings{font-size:10.5px;color:var(--ink);margin:4px 0 0;padding-left:16px}
+  ul.findings li{margin:2px 0}
+  .ok{color:var(--green);font-weight:700}.fix{color:var(--amber);font-weight:700}.bad{color:var(--red);font-weight:700}
+  @media print{.chart-tip{display:none}.sc-hover-band,.chart-snap,
+    .c1-plot.col-on .sc-hover-band,.c1-plot.col-on .chart-snap{display:none}
+    .col-active,.row-hover td,.row-hover th[scope=row],.cell-hover{background-image:none;background-color:transparent;box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="grid">
+    <section class="panel" data-card="base">
+      <div class="review-intro">
+        <h1>Issue Progress — attached table review</h1>
+        <p class="note">Mock data (seeded). Top = current chart choices; bottom = proposed fixes. Each panel fills
+           one viewport. Both panels own one C1-style attached table and time bar. The <b>All</b> preset may scroll
+           and is review only, outside the C1 no-scroll rule. Not wired to the workbook.</p>
+      </div>
+      <div class="panel-head"><h2>Current MDL behaviour</h2><span class="tag">baseline</span></div>
+      <div class="sc-board" id="board-base">
+        <div class="controls" role="group" aria-label="Issue Progress controls — baseline">
+          <div class="c1-ts-body">
+            <span class="c1-ts-label">Period</span>
+            <div class="c1-timebar" id="tb-base" data-c1period='{"from":17,"to":22}'>
+              <div class="c1-track"><div class="c1-fill"></div></div>
+              <div class="c1-ticks" id="ticks-base"></div>
+              <input type="range" id="wf-base" min="0" step="1" value="17" data-c1period="from"
+                aria-label="Period start month — baseline">
+              <input type="range" id="wt-base" min="0" step="1" value="22" data-c1period="to"
+                aria-label="Period end month — baseline">
+            </div>
+            <div class="seg" role="group" aria-label="Period presets — baseline">
+              <button type="button" class="seg-btn active" data-preset="6M" aria-pressed="true">6M</button>
+              <button type="button" class="seg-btn" data-preset="12M" aria-pressed="false">12M</button>
+              <button type="button" class="seg-btn" data-preset="24M" aria-pressed="false">24M</button>
+              <button type="button" class="seg-btn" data-preset="YTD" aria-pressed="false">YTD</button>
+              <button type="button" class="seg-btn" data-preset="All" aria-pressed="false"
+                title="All preset may scroll; review only, outside the C1 no-scroll rule">All</button>
+            </div>
+          </div>
+          <button type="button" class="btn bars" id="bars-base" aria-pressed="true"
+            aria-label="Show or hide monthly bars — baseline">Bars</button>
+          <span class="status range" id="range-base"></span>
+          <span class="status mode" id="mode-base"></span>
+          <button type="button" class="btn dl" id="dl-base" aria-label="Download chart and table as PNG — baseline">⤓ PNG</button>
+          <button type="button" class="btn cp" id="cp-base" aria-label="Copy chart and table image — baseline">⧉ Copy</button>
+        </div>
+        <div class="c1-grid" id="grid-base" style="--c1-cols:6;--legend-h:26px">
+          <div class="c1-gutter"><div class="c1-yticks" id="yt-base"></div><span class="c1-ycap">Documents</span></div>
+          <div class="c1-plot" id="plot-base" tabindex="0" role="group" aria-describedby="tip-base" aria-label="Issue Progress chart — baseline"></div>
+          <table class="c1-table" id="table-base" data-table-crosshair>
+            <caption>Issue progress by reporting month — baseline. Static fallback shows the default six months.</caption>
+            <colgroup><col style="width:var(--c1-gutter)"><col span="6"><col style="width:var(--c1-right-w)"></colgroup>
+            <thead><tr><th scope="col" class="corner">Reporting Month</th><th scope="col" class="g-axis" data-c1col="0" tabindex="0">Nov 2025</th><th scope="col" class="g-axis" data-c1col="1" tabindex="0">Dec 2025</th><th scope="col" class="g-axis" data-c1col="2" tabindex="0">Jan 2026</th><th scope="col" class="g-axis" data-c1col="3" tabindex="0">Feb 2026</th><th scope="col" class="g-axis" data-c1col="4" tabindex="0">Mar 2026</th><th scope="col" class="g-axis" data-c1col="5" tabindex="0">Apr 2026</th><th aria-hidden="true"></th></tr></thead>
+            <tbody>
+              <tr><th scope="row" class="g-label">Planned</th><td data-c1col="0" tabindex="0">21</td><td data-c1col="1" tabindex="0">12</td><td data-c1col="2" tabindex="0">15</td><td data-c1col="3" tabindex="0">15</td><td data-c1col="4" tabindex="0">15</td><td data-c1col="5" tabindex="0">12</td><td aria-hidden="true"></td></tr>
+              <tr><th scope="row" class="g-label">Forecast</th><td data-c1col="0" tabindex="0">26</td><td data-c1col="1" tabindex="0">18</td><td data-c1col="2" tabindex="0">14</td><td data-c1col="3" tabindex="0">14</td><td data-c1col="4" tabindex="0">12</td><td data-c1col="5" tabindex="0">10</td><td aria-hidden="true"></td></tr>
+              <tr><th scope="row" class="g-label">Actual</th><td data-c1col="0" tabindex="0">12</td><td data-c1col="1" tabindex="0">11</td><td data-c1col="2" tabindex="0">7</td><td data-c1col="3" tabindex="0">7</td><td data-c1col="4" tabindex="0">8</td><td data-c1col="5" tabindex="0">7</td><td aria-hidden="true"></td></tr>
+              <tr><th scope="row" class="g-label">Cum. Plan</th><td data-c1col="0" tabindex="0">269</td><td data-c1col="1" tabindex="0">281</td><td data-c1col="2" tabindex="0">296</td><td data-c1col="3" tabindex="0">311</td><td data-c1col="4" tabindex="0">326</td><td data-c1col="5" tabindex="0">338</td><td aria-hidden="true"></td></tr>
+              <tr><th scope="row" class="g-label">Cum. Forecast</th><td data-c1col="0" tabindex="0">260</td><td data-c1col="1" tabindex="0">278</td><td data-c1col="2" tabindex="0">292</td><td data-c1col="3" tabindex="0">306</td><td data-c1col="4" tabindex="0">318</td><td data-c1col="5" tabindex="0">328</td><td aria-hidden="true"></td></tr>
+              <tr><th scope="row" class="g-label">Cum. Actual</th><td data-c1col="0" tabindex="0">136</td><td data-c1col="1" tabindex="0">147</td><td data-c1col="2" tabindex="0">154</td><td data-c1col="3" tabindex="0">161</td><td data-c1col="4" tabindex="0">169</td><td data-c1col="5" tabindex="0">176</td><td aria-hidden="true"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-tip" id="tip-base" role="tooltip" aria-hidden="true"></div>
+        <div class="chartnote" id="note-base"></div>
+        <details class="find"><summary>Review notes — baseline differences</summary>
+          <ul class="findings">
+            <li><span class="bad">1</span> — 5 fixed ticks with <code>Math.round</code>; no nice step.</li>
+            <li><span class="bad">2</span> — legend is one unwrapped row; a short window clips it.</li>
+            <li><span class="bad">3</span> — right axis is grey; caption stays <code>Docs</code>.</li>
+            <li><span class="bad">4</span> — bar labels stop when bar width is below 9 px.</li>
+            <li><span class="bad">5</span> — <code>maxY</code> keeps bar values when Bars is off.</li>
+          </ul>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel" data-card="prop">
+      <div class="panel-head"><h2>Proposed (spec-compliant)</h2><span class="tag">candidate</span></div>
+      <div class="sc-board" id="board-prop">
+        <div class="controls" role="group" aria-label="Issue Progress controls — proposed">
+          <div class="c1-ts-body">
+            <span class="c1-ts-label">Period</span>
+            <div class="c1-timebar" id="tb-prop" data-c1period='{"from":17,"to":22}'>
+              <div class="c1-track"><div class="c1-fill"></div></div>
+              <div class="c1-ticks" id="ticks-prop"></div>
+              <input type="range" id="wf-prop" min="0" step="1" value="17" data-c1period="from"
+                aria-label="Period start month — proposed">
+              <input type="range" id="wt-prop" min="0" step="1" value="22" data-c1period="to"
+                aria-label="Period end month — proposed">
+            </div>
+            <div class="seg" role="group" aria-label="Period presets — proposed">
+              <button type="button" class="seg-btn active" data-preset="6M" aria-pressed="true">6M</button>
+              <button type="button" class="seg-btn" data-preset="12M" aria-pressed="false">12M</button>
+              <button type="button" class="seg-btn" data-preset="24M" aria-pressed="false">24M</button>
+              <button type="button" class="seg-btn" data-preset="YTD" aria-pressed="false">YTD</button>
+              <button type="button" class="seg-btn" data-preset="All" aria-pressed="false"
+                title="All preset may scroll; review only, outside the C1 no-scroll rule">All</button>
+            </div>
+          </div>
+          <button type="button" class="btn bars" id="bars-prop" aria-pressed="true"
+            aria-label="Show or hide monthly bars — proposed">Bars</button>
+          <span class="status range" id="range-prop"></span>
+          <span class="status mode" id="mode-prop"></span>
+          <button type="button" class="btn dl" id="dl-prop" aria-label="Download chart and table as PNG — proposed">⤓ PNG</button>
+          <button type="button" class="btn cp" id="cp-prop" aria-label="Copy chart and table image — proposed">⧉ Copy</button>
+        </div>
+        <div class="c1-grid" id="grid-prop" style="--c1-cols:6;--legend-h:43px">
+          <div class="c1-gutter"><div class="c1-yticks" id="yt-prop"></div><span class="c1-ycap">Documents</span></div>
+          <div class="c1-plot" id="plot-prop" tabindex="0" role="group" aria-describedby="tip-prop" aria-label="Issue Progress chart — proposed"></div>
+          <table class="c1-table" id="table-prop" data-table-crosshair>
+            <caption>Issue progress by reporting month — proposed. Static fallback shows the default six months.</caption>
+            <colgroup><col style="width:var(--c1-gutter)"><col span="6"><col style="width:var(--c1-right-w)"></colgroup>
+            <thead><tr><th scope="col" class="corner">Reporting Month</th><th scope="col" class="g-axis" data-c1col="0" tabindex="0">Nov 2025</th><th scope="col" class="g-axis" data-c1col="1" tabindex="0">Dec 2025</th><th scope="col" class="g-axis" data-c1col="2" tabindex="0">Jan 2026</th><th scope="col" class="g-axis" data-c1col="3" tabindex="0">Feb 2026</th><th scope="col" class="g-axis" data-c1col="4" tabindex="0">Mar 2026</th><th scope="col" class="g-axis" data-c1col="5" tabindex="0">Apr 2026</th><th aria-hidden="true"></th></tr></thead>
+            <tbody>
+              <tr><th scope="row" class="g-label">Planned</th><td data-c1col="0" tabindex="0">21</td><td data-c1col="1" tabindex="0">12</td><td data-c1col="2" tabindex="0">15</td><td data-c1col="3" tabindex="0">15</td><td data-c1col="4" tabindex="0">15</td><td data-c1col="5" tabindex="0">12</td><td aria-hidden="true"></td></tr>
+              <tr><th scope="row" class="g-label">Forecast</th><td data-c1col="0" tabindex="0">26</td><td data-c1col="1" tabindex="0">18</td><td data-c1col="2" tabindex="0">14</td><td data-c1col="3" tabindex="0">14</td><td data-c1col="4" tabindex="0">12</td><td data-c1col="5" tabindex="0">10</td><td aria-hidden="true"></td></tr>
+              <tr><th scope="row" class="g-label">Actual</th><td data-c1col="0" tabindex="0">12</td><td data-c1col="1" tabindex="0">11</td><td data-c1col="2" tabindex="0">7</td><td data-c1col="3" tabindex="0">7</td><td data-c1col="4" tabindex="0">8</td><td data-c1col="5" tabindex="0">7</td><td aria-hidden="true"></td></tr>
+              <tr><th scope="row" class="g-label">Cum. Plan</th><td data-c1col="0" tabindex="0">269</td><td data-c1col="1" tabindex="0">281</td><td data-c1col="2" tabindex="0">296</td><td data-c1col="3" tabindex="0">311</td><td data-c1col="4" tabindex="0">326</td><td data-c1col="5" tabindex="0">338</td><td aria-hidden="true"></td></tr>
+              <tr><th scope="row" class="g-label">Cum. Forecast</th><td data-c1col="0" tabindex="0">260</td><td data-c1col="1" tabindex="0">278</td><td data-c1col="2" tabindex="0">292</td><td data-c1col="3" tabindex="0">306</td><td data-c1col="4" tabindex="0">318</td><td data-c1col="5" tabindex="0">328</td><td aria-hidden="true"></td></tr>
+              <tr><th scope="row" class="g-label">Cum. Actual</th><td data-c1col="0" tabindex="0">136</td><td data-c1col="1" tabindex="0">147</td><td data-c1col="2" tabindex="0">154</td><td data-c1col="3" tabindex="0">161</td><td data-c1col="4" tabindex="0">169</td><td data-c1col="5" tabindex="0">176</td><td aria-hidden="true"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-tip" id="tip-prop" role="tooltip" aria-hidden="true"></div>
+        <div class="chartnote" id="note-prop"></div>
+        <details class="find"><summary>Review notes — fixes and open decision</summary>
+          <ul class="findings">
+            <li><span class="ok">Fix 1</span> — dynamic ticks: nice step, round top tick, at most 7 intervals.</li>
+            <li><span class="ok">Fix 2</span> — legend rows use <code>floor(W/132)</code> and stay inside the SVG.</li>
+            <li><span class="ok">Fix 3</span> — dual scales: right axis in the bar-family colour; legend names both axes.</li>
+            <li><span class="ok">Fix 4</span> — every non-zero bar shows its value; Y maximum drops bars when hidden.</li>
+            <li><span class="fix">Open decision</span> — three bar colours exist. The sample uses Planned blue for the right axis.</li>
+          </ul>
+        </details>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+'use strict';
+// ---------- deterministic mock data ----------
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const rnd=mulberry32(42);
+const ri=(a,b)=>a+Math.floor(rnd()*(b-a+1));
+const START='2024-06-01',PROJECT_START='2024-08-01',TODAY='2026-04-01';
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function addMonths(s,n){const d=new Date(s+'T00:00:00');d.setMonth(d.getMonth()+n);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+const ym=s=>s.slice(0,7);
+function monthLabel(k){const p=k.split('-').map(Number);return MON[p[1]-1]+' '+p[0]}
+
+const docs=[];
+for(let i=0;i<420;i++){
+  const planned=addMonths(START,ri(2,27));
+  const forecast=rnd()>0.15?addMonths(planned,ri(-1,2)):'';
+  const actual=rnd()<0.55?addMonths(forecast||planned,ri(-1,1)):'';
+  docs.push({planned,forecast,actual});
+}
+
+// Timeline: earliest data through the last data month plus one buffer month.
+const months=[];
+{ let maxD=TODAY;
+  docs.forEach(d=>[d.planned,d.forecast,d.actual].forEach(x=>{if(x&&x>maxD)maxD=x}));
+  maxD=addMonths(maxD,1);
+  if(PROJECT_START.slice(0,7)>ym(maxD))maxD=PROJECT_START;
+  let c=ym(START),e=ym(maxD);
+  while(c<=e){months.push(c);
+    const d=new Date(c+'-01T00:00:00');d.setMonth(d.getMonth()+1);
+    c=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+}
+const projStartIdx=months.indexOf(ym(PROJECT_START));
+const asofIdx=months.indexOf(ym(TODAY));
+const N=months.length;
+const DEFAULT_TO=asofIdx>=0?asofIdx:N-1;
+const DEFAULT_FROM=Math.max(0,DEFAULT_TO-5);
+
+// Six series arrays. Forecast falls back to Plan per document.
+const S={pNew:[],fNew:[],aNew:[],pCum:[],fCum:[],aCum:[]};
+for(const k in S)S[k]=new Array(N).fill(0);
+docs.forEach(d=>{
+  const pi=months.indexOf(ym(d.planned));if(pi>=0){S.pNew[pi]++;S.pCum[pi]++}
+  const f=d.forecast||d.planned;
+  const fi=months.indexOf(ym(f));if(fi>=0){S.fNew[fi]++;S.fCum[fi]++}
+  if(d.actual){const ai=months.indexOf(ym(d.actual));if(ai>=0){S.aNew[ai]++;S.aCum[ai]++}}
+});
+for(let i=1;i<N;i++){S.pCum[i]+=S.pCum[i-1];S.fCum[i]+=S.fCum[i-1];S.aCum[i]+=S.aCum[i-1]}
+const CUT={pNew:-1,fNew:-1,aNew:-1,pCum:-1,fCum:-1,aCum:-1};
+['pNew','fNew','aNew'].forEach(k=>{for(let i=0;i<N;i++)if(S[k][i]>0)CUT[k]=i});
+['pCum','fCum','aCum'].forEach(k=>{for(let i=1;i<N;i++)if(S[k][i]!==S[k][i-1])CUT[k]=i});
+CUT.aCum=Math.max(CUT.aCum,asofIdx);
+
+const COLORS={blue:'#2f6fb0',amber:'#e0a106',green:'#2e8b57'};
+const TOKENS={blue:'var(--blue)',amber:'var(--amber)',green:'var(--green)'};
+const FF='font-family="var(--font-ui)"';
+const SERIES={
+  bars:[['pNew',COLORS.blue,'blue','Planned'],['fNew',COLORS.amber,'amber','Forecast'],['aNew',COLORS.green,'green','Actual']],
+  lines:[['pCum',COLORS.blue,'blue','6,3','Cum. Plan'],['fCum',COLORS.amber,'amber','2,2','Cum. Forecast'],['aCum',COLORS.green,'green','','Cum. Actual']]
+};
+
+// ---------- axis helpers ----------
+function axisMode(current,maxCum,maxBar,barsVisible){
+  if(!barsVisible||maxBar<=0||maxCum<=0)return'shared';
+  const r=maxCum/maxBar;
+  if(current==='dual')return r<6?'shared':'dual';
+  return r>10?'dual':'shared';
+}
+function niceTicks(M){
+  const cap=Math.min(7,Math.floor(300/40));
+  let s=Math.pow(10,7),intervals=cap;
+  outer:for(let e=-1;e<=7;e++)for(const base of[1,2,2.5,5]){
+    const t=base*Math.pow(10,e);
+    if(Math.ceil(M/t)<=cap){s=t;intervals=Math.ceil(M/t);break outer}
+  }
+  const vals=[];for(let i=0;i<=intervals;i++)vals.push(i*s);
+  return{s,yMax:intervals*s,intervals,vals};
+}
+const fmtTick=v=>v>=1000?String(v/1000).replace(/\.0$/,'')+'k':String(Math.round(v*10)/10);
+
+// C1 presets. The sample anchors short presets on the as-of month.
+function presetRange(name){
+  if(name==='All')return[0,N-1];
+  if(name==='YTD'){const f=months.indexOf(TODAY.slice(0,4)+'-01');
+    return[f>=0?f:Math.max(0,asofIdx-3),asofIdx>=0?asofIdx:N-1]}
+  const size=Number(name.replace('M',''))||6;
+  return[Math.max(0,DEFAULT_TO-size+1),DEFAULT_TO];
+}
+function loadPreset(id){try{return localStorage.getItem('mdl-ip-preset-'+id)||'6M'}catch(e){return'6M'}}
+function storePreset(id,name){try{localStorage.setItem('mdl-ip-preset-'+id,name)}catch(e){}}
+function updateTimebar(st){
+  const max=N-1;
+  st.wf.max=String(max);st.wt.max=String(max);
+  st.wf.value=String(st.from);st.wt.value=String(st.to);
+  st.wf.setAttribute('aria-valuetext',monthLabel(months[st.from]));
+  st.wt.setAttribute('aria-valuetext',monthLabel(months[st.to]));
+  st.tb.dataset.c1period=JSON.stringify({from:st.from,to:st.to});
+  st.tb.style.setProperty('--from-pct',(st.from/max*100).toFixed(2)+'%');
+  st.tb.style.setProperty('--to-pct',((max-st.to)/max*100).toFixed(2)+'%');
+  st.ticks.innerHTML=months.map((m,i)=>{
+    const cls=(i===st.from||i===st.to)?'active':(Math.abs(i-st.from)<=1||Math.abs(i-st.to)<=1)?'near':'';
+    return `<i class="c1-tick ${cls}" data-c1month="${months[i]}" style="left:${(i/max*100).toFixed(2)}%"></i>`}).join('');
+  st.segBtns.forEach(b=>{const on=b.dataset.preset===st.preset;
+    b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});
+  st.board.classList.toggle('wide',st.preset==='All');
+}
+
+// ---------- per-card state ----------
+const CARDS=['base','prop'];
+const card={};
+CARDS.forEach(id=>{
+  const initial=loadPreset(id),range=presetRange(initial);
+  card[id]={
+    id,variant:id,from:range[0],to:range[1],barsVisible:true,mode:'shared',preset:initial,
+    board:document.getElementById('board-'+id),grid:document.getElementById('grid-'+id),
+    plot:document.getElementById('plot-'+id),table:document.getElementById('table-'+id),
+    tip:document.getElementById('tip-'+id),yt:document.getElementById('yt-'+id),
+    note:document.getElementById('note-'+id),range:document.getElementById('range-'+id),
+    modeEl:document.getElementById('mode-'+id),wf:document.getElementById('wf-'+id),
+    wt:document.getElementById('wt-'+id),tb:document.getElementById('tb-'+id),
+    ticks:document.getElementById('ticks-'+id),
+    segBtns:document.getElementById('board-'+id).querySelectorAll('.seg-btn'),
+    barsBtn:document.getElementById('bars-'+id),dl:document.getElementById('dl-'+id),
+    cp:document.getElementById('cp-'+id),points:[],lastW:0,active:-1
+  };
+});
+
+function visible(st){
+  const idx=[];for(let i=st.from;i<=st.to;i++)idx.push(i);
+  const vis=k=>idx.filter(i=>i>=0&&i<=CUT[k]);
+  let maxCum=1,maxBar=0;
+  ['pCum','fCum','aCum'].forEach(k=>vis(k).forEach(i=>{const v=S[k][i]||0;if(v>maxCum)maxCum=v}));
+  ['pNew','fNew','aNew'].forEach(k=>vis(k).forEach(i=>{const v=S[k][i]||0;if(v>maxBar)maxBar=v}));
+  return{idx,vis,maxCum,maxBar};
+}
+
+function legendEntries(barsVisible,dual,variant){
+  const e=[];
+  if(barsVisible)SERIES.bars.forEach(([k,c,t,lab])=>e.push({type:'bar',lab:variant==='prop'&&dual?lab+' · right':lab,c,t}));
+  SERIES.lines.forEach(([k,c,t,dash,lab])=>e.push({type:'line',lab:variant==='prop'&&dual?lab+' · left':lab,c,t,dash}));
+  return e;
+}
+function legendAdv(e){return e.type==='bar'?15+e.lab.length*7+20:24+e.lab.length*7+20}
+
+function drawChart(st,W,forExport){
+  const{idx,vis,maxCum,maxBar}=visible(st);
+  const prop=st.variant==='prop';
+  const mode=forExport?st.mode:axisMode(st.mode,maxCum,maxBar,st.barsVisible);
+  if(!forExport)st.mode=mode;
+  const dual=mode==='dual';
+  const padR=52;
+  const pw=W-padR,gw=pw/Math.max(1,idx.length);
+  const entries=legendEntries(st.barsVisible,dual,st.variant);
+  const perRow=prop?Math.max(1,Math.floor(W/132)):entries.length;
+  const rows=Math.max(1,Math.ceil(entries.length/perRow));
+  const legendH=8+rows*17,T=legendH,PH=300,H=T+PH;
+  const maxY=prop&&!st.barsVisible?maxCum:dual?maxCum:Math.max(1,maxCum,maxBar);
+  const maxBarY=Math.max(1,maxBar);
+  const Y=v=>T+PH-(v/maxY)*PH,Yb=v=>T+PH-(v/maxBarY)*PH;
+  const Xc=k=>gw*(idx.indexOf(k)+0.5);
+  const tickCol=prop&&dual?TOKENS.blue:'var(--muted)';
+  let g='';
+
+  // In-SVG legend above the plot.
+  entries.forEach((e,i)=>{
+    const row=Math.floor(i/perRow),dy=row*17;
+    let lx=0;for(let j=Math.floor(i/perRow)*perRow;j<i;j++)lx+=legendAdv(entries[j]);
+    if(e.type==='bar')g+=`<rect x="${lx}" y="${T-13-dy}" width="10" height="10" rx="2" fill="${e.c}" opacity=".55"/><text x="${lx+15}" y="${T-4-dy}" ${FF} font-size="12" fill="var(--text)">${e.lab}</text>`;
+    else g+=`<line x1="${lx}" y1="${T-8-dy}" x2="${lx+18}" y2="${T-8-dy}" stroke="${e.c}" stroke-width="2.5"${e.dash?` stroke-dasharray="${e.dash}"`:''}/><text x="${lx+24}" y="${T-4-dy}" ${FF} font-size="12" fill="var(--text)">${e.lab}</text>`;
+  });
+
+  // Dynamic or fixed Y ticks. Tick text lives in HTML gutter; grid lines stay in SVG.
+  let ticks;
+  if(prop)ticks=niceTicks(maxY);
+  else ticks={vals:[0,1,2,3,4].map(i=>Math.round(maxY*i/4)),yMax:maxY,intervals:4,s:maxY/4};
+  ticks.vals.forEach(v=>{const y=Y(v);
+    g+=`<line x1="0" y1="${y.toFixed(1)}" x2="${pw}" y2="${y.toFixed(1)}" stroke="var(--line)"/>`});
+  if(dual){
+    const rTicks=prop?niceTicks(maxBarY).vals:[0,1,2,3,4].map(i=>Math.round(maxBarY*i/4));
+    const rCol=prop?TOKENS.blue:'var(--muted)';
+    rTicks.forEach(v=>{const y=Yb(v);
+      g+=`<text x="${pw+6}" y="${(y+4).toFixed(1)}" text-anchor="start" ${FF} font-size="11" fill="${rCol}">${fmtTick(v)}</text>`});
+    g+=`<text x="${pw+6}" y="${T-4}" text-anchor="start" ${FF} font-size="11" fill="${rCol}">per mo</text>`;
+    g+=`<line x1="${pw}" y1="${T}" x2="${pw}" y2="${T+PH}" stroke="${prop?TOKENS.blue:'#C9D4E0'}"/>`;
+  }
+  g+=`<line class="sc-yaxis-line" x1="0" y1="${T}" x2="0" y2="${T+PH}" stroke="var(--border)"/>`;
+  g+=`<line x1="0" y1="${T+PH}" x2="${pw}" y2="${T+PH}" stroke="var(--border)"/>`;
+
+  // Hover band and snap line, hidden until active. Not exported.
+  if(!forExport){
+    g+=`<rect class="sc-hover-band" x="0" y="${T}" width="${gw.toFixed(1)}" height="${PH}"/>`;
+    g+=`<line class="chart-snap" x1="0" y1="${T}" x2="0" y2="${T+PH}"/>`;
+  }
+
+  // Bars. Values print for every non-zero bar in the proposed card.
+  if(st.barsVisible)idx.forEach(i=>{const xc=Xc(i);
+    const bw=Math.min(18,(gw*0.62)/3);
+    SERIES.bars.forEach(([k,c,t,lab],bi)=>{
+      if(i>CUT[k])return;const v=S[k][i]||0;if(v<=0)return;
+      const yTop=dual?Yb(v):Y(v),h=T+PH-yTop,x=xc-bw*1.5+bi*bw;
+      g+=`<rect x="${x.toFixed(1)}" y="${yTop.toFixed(1)}" width="${Math.max(1,bw-1.5).toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${c}" opacity=".55"/>`;
+      if(prop||bw>=9){const tx=(x+(bw-1.5)/2+4).toFixed(1),ty=(yTop-3).toFixed(1);
+        g+=`<text x="${tx}" y="${ty}" text-anchor="start" transform="rotate(-90 ${tx} ${ty})" ${FF} font-size="11" fill="var(--text)">${v}</text>`}
+    })});
+
+  // Cumulative lines: solid dots, dash pattern, no flat tail.
+  SERIES.lines.forEach(([k,c,t,dash,lab])=>{
+    const pts=vis(k);if(!pts.length)return;
+    g+=`<polyline fill="none" stroke="${c}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"${dash?` stroke-dasharray="${dash}"`:''} points="${pts.map(i=>`${Xc(i).toFixed(1)},${Y(S[k][i]||0).toFixed(1)}`).join(' ')}"/>`;
+    pts.forEach(i=>{const v=S[k][i]||0;
+      g+=`<circle cx="${Xc(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="3" fill="${c}"/>`});
+  });
+
+  // Reference lines.
+  if(projStartIdx>=st.from&&projStartIdx<=st.to){const x=Xc(projStartIdx);
+    g+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${T+PH}" stroke="#C62828" stroke-width="1.5" stroke-dasharray="5,3"/><text x="${x.toFixed(1)}" y="${T-2}" text-anchor="middle" ${FF} font-size="11" fill="#C62828">Start</text>`}
+  if(asofIdx>=st.from&&asofIdx<=st.to){const x=Xc(asofIdx);
+    g+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${T+PH}" stroke="#B8C2CC" stroke-width="1.5" stroke-dasharray="2,2"/><text x="${x.toFixed(1)}" y="${T-2}" text-anchor="middle" ${FF} font-size="11" fill="var(--muted)">Today</text>`}
+
+  const points=idx.map((i,j)=>({i,cx:(j+0.5)*gw,month:monthLabel(months[i]),
+    p:S.pNew[i]||0,f:S.fNew[i]||0,a:S.aNew[i]||0,pc:S.pCum[i]||0,fc:S.fCum[i]||0,ac:S.aCum[i]||0}));
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Issue Progress chart with monthly bars and cumulative lines, ${mode} scales">${g}</svg>`;
+  return{svg,W,H,pw,PH,T,gw,mode,dual,points,ticks,legendH,legendRows:rows};
+}
+
+function tableMarkup(st,geo){
+  const idx=[];for(let i=st.from;i<=st.to;i++)idx.push(i);
+  const caption=`<caption>Issue progress by reporting month — ${st.variant==='prop'?'proposed':'baseline'}.</caption>`;
+  const col=`<colgroup><col style="width:var(--c1-gutter)"><col span="${idx.length}"><col style="width:var(--c1-right-w)"></colgroup>`;
+  const head='<thead><tr><th scope="col" class="corner">Reporting Month</th>'+
+    idx.map((i,j)=>`<th scope="col" class="g-axis" data-c1col="${j}" tabindex="0">${monthLabel(months[i])}</th>`).join('')+
+    '<th aria-hidden="true"></th></tr></thead>';
+  const rows=[['Planned','pNew'],['Forecast','fNew'],['Actual','aNew'],
+              ['Cum. Plan','pCum'],['Cum. Forecast','fCum'],['Cum. Actual','aCum']];
+  const body='<tbody>'+rows.map(([lab,k])=>'<tr><th scope="row" class="g-label">'+lab+'</th>'+
+    idx.map((i,j)=>`<td data-c1col="${j}" tabindex="0">${S[k][i]||0}</td>`).join('')+
+    '<td aria-hidden="true"></td></tr>').join('')+'</tbody>';
+  return caption+col+head+body;
+}
+
+function tipHTML(st,pt){
+  const swatch=(t,lab,v)=>`<div class="chart-tip-row"><span><i class="kpi-tip-swatch" style="--tip-swatch:${TOKENS[t]}"></i>${lab}</span><span class="tip-num">${v}</span></div>`;
+  return `<b>${pt.month}</b>`+
+    swatch('blue','Planned',pt.p)+swatch('amber','Forecast',pt.f)+swatch('green','Actual',pt.a)+
+    `<div class="chart-tip-foot"><span>Cum. Plan</span><span class="tip-num">${pt.pc}</span></div>`+
+    `<div class="chart-tip-foot"><span>Cum. Forecast</span><span class="tip-num">${pt.fc}</span></div>`+
+    `<div class="chart-tip-foot"><span>Cum. Actual</span><span class="tip-num">${pt.ac}</span></div>`;
+}
+
+function renderCard(id){
+  const st=card[id];
+  hideTip(id);
+  const W=Math.max(240,Math.round(st.plot.clientWidth||st.plot.getBoundingClientRect().width||480));
+  const g=drawChart(st,W,false);
+  st.grid.style.setProperty('--c1-cols',String(st.to-st.from+1));
+  st.grid.style.setProperty('--legend-h',g.legendH+'px');
+  st.plot.innerHTML=g.svg;
+  st.plot.dataset.geo=JSON.stringify({W:g.W,H:g.H});
+  st.plot.dataset.points=JSON.stringify(g.points.map(p=>({cx:p.cx,html:tipHTML(st,p)})));
+  st.points=g.points;
+  st.gw=g.gw;
+  st.yt.innerHTML=g.ticks.vals.map(v=>`<span>${fmtTick(v)}</span>`).join('');
+  st.table.innerHTML=tableMarkup(st,g);
+  st.range.textContent=`${monthLabel(months[st.from])} → ${monthLabel(months[st.to])}  (${st.to-st.from+1}/${N})`;
+  st.modeEl.textContent=g.mode+(g.dual?' · separate scales':'');
+  st.modeEl.className='status mode'+(g.dual?' mode-dual':'');
+  updateTimebar(st);
+  st.barsBtn.setAttribute('aria-pressed',String(st.barsVisible));
+  const t=g.ticks;
+  st.note.textContent=(g.dual?'Monthly bars use the right-hand scale; Cum. lines use the left cumulative scale.  ·  ':'')+
+    (id==='prop'?`step=${fmtTick(t.s)}  yMax=${fmtTick(t.yMax)}  intervals=${t.intervals}`:'baseline geometry retained');
+  syncColumn(id,-1);
+}
+
+function clearTableCrosshair(st){
+  st.table.querySelectorAll('.row-hover,.cell-hover').forEach(el=>{
+    el.classList.remove('row-hover');el.classList.remove('cell-hover')});
+}
+function setTableCrosshair(st,cell){
+  clearTableCrosshair(st);
+  if(!cell)return;
+  const col=Number(cell.dataset.c1col),row=cell.parentElement;
+  syncColumn(st.id,col);
+  if(row)row.classList.add('row-hover');
+  cell.classList.add('cell-hover');
+}
+function syncColumn(id,index){
+  const st=card[id];
+  clearTableCrosshair(st);
+  st.plot.classList.toggle('col-on',index>=0);
+  const band=st.plot.querySelector('.sc-hover-band'),snap=st.plot.querySelector('.chart-snap');
+  if(band&&index>=0)band.setAttribute('x',(index*(st.gw||0)).toFixed(1));
+  if(snap&&index>=0){const x=(st.points[index]?.cx||0).toFixed(1);snap.setAttribute('x1',x);snap.setAttribute('x2',x)}
+  st.table.querySelectorAll('[data-c1col]').forEach(el=>{
+    el.classList.toggle('col-active',Number(el.dataset.c1col)===index)});
+  st.active=index;
+}
+
+function tipAt(id,index,clientX,clientY){
+  const st=card[id],tip=st.tip,pt=st.points[index];
+  if(!pt)return;
+  tip.removeAttribute('aria-hidden');tip.innerHTML=tipHTML(st,pt);tip.classList.add('show');
+  const rect=st.plot.getBoundingClientRect();
+  const scale=rect.width/(st.plot.dataset.geo?JSON.parse(st.plot.dataset.geo).W:1);
+  let x=clientX==null?rect.left+pt.cx*scale:clientX;
+  let y=clientY==null?rect.top+8:clientY;
+  const tw=tip.offsetWidth||220,th=tip.offsetHeight||120;
+  if(x+14+tw>window.innerWidth-4)x=Math.max(4,x-14-tw);else x+=14;
+  if(y+14+th>window.innerHeight-4)y=Math.max(4,y-14-th);else y+=14;
+  tip.style.left=Math.max(4,x)+'px';tip.style.top=Math.max(4,y)+'px';
+  syncColumn(id,index);
+}
+function hideTip(id){
+  const st=card[id];
+  st.tip.classList.remove('show');st.tip.setAttribute('aria-hidden','true');st.tip.textContent='';st.tip.innerHTML='';
+  syncColumn(id,-1);
+}
+
+function nearestPoint(st,clientX,clientY){
+  const rect=st.plot.getBoundingClientRect();
+  const geo=JSON.parse(st.plot.dataset.geo||'{"W":1}');
+  const scale=rect.width/(geo.W||1);
+  const ux=(clientX-rect.left)/scale,uy=clientY-rect.top;
+  let best=0,bd=Infinity;
+  st.points.forEach((p,i)=>{const dx=p.cx-ux,dy=uy-(geo.H||300)/2,d=dx*dx+dy*dy;if(d<bd){bd=d;best=i}});
+  return best;
+}
+
+function bindCard(id){
+  const st=card[id];
+  const handleInput=which=>{
+    const other=which==='from'?st.wt:st.wf;
+    const source=which==='from'?st.wf:st.wt;
+    const v=Math.max(0,Math.min(N-1,+source.value));
+    if(which==='from'&&v>st.to){st.to=v;other.value=String(v)}
+    if(which==='to'&&v<st.from){st.from=v;other.value=String(v)}
+    st[which]=v;st.preset=null;updateTimebar(st);
+  };
+  const handleChange=()=>renderCard(id);
+  st.wf.oninput=()=>handleInput('from');st.wf.onchange=handleChange;
+  st.wt.oninput=()=>handleInput('to');st.wt.onchange=handleChange;
+  st.segBtns.forEach(b=>b.onclick=()=>{
+    st.preset=b.dataset.preset;const r=presetRange(st.preset);
+    st.from=r[0];st.to=r[1];storePreset(id,st.preset);renderCard(id)
+  });
+  st.barsBtn.onclick=()=>{st.barsVisible=!st.barsVisible;renderCard(id)};
+  st.dl.onclick=()=>downloadPNG(id);
+  st.cp.onclick=()=>copyPNG(id);
+
+  // One delegated binder per plot host. The host is not rebuilt on repaint.
+  st.plot.addEventListener('pointermove',e=>{
+    if(e.pointerType==='touch')return;
+    tipAt(id,nearestPoint(st,e.clientX,e.clientY),e.clientX,e.clientY)
+  });
+  st.plot.addEventListener('pointerleave',()=>hideTip(id));
+  st.plot.addEventListener('focus',()=>tipAt(id,0,null,null));
+  st.plot.addEventListener('blur',()=>hideTip(id));
+  st.plot.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){hideTip(id);return}
+    if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
+      e.preventDefault();
+      const next=Math.max(0,Math.min(st.points.length-1,st.active+(e.key==='ArrowRight'?1:-1)));
+      tipAt(id,next,null,null)
+    }
+  });
+  st.plot.addEventListener('pointerdown',e=>{
+    if(e.pointerType!=='touch')return;
+    if(st.tip.getAttribute('aria-hidden')==='false'){hideTip(id);return}
+    tipAt(id,nearestPoint(st,e.clientX,e.clientY),e.clientX,e.clientY)
+  });
+
+  const cellFromEvent=e=>e.target.closest&&e.target.closest('[data-c1col]');
+  st.table.addEventListener('pointerover',e=>{
+    if(e.pointerType&&e.pointerType!=='mouse'&&e.pointerType!=='pen')return;
+    const cell=cellFromEvent(e);
+    if(cell){hideTip(id);setTableCrosshair(st,cell)}
+  });
+  st.table.addEventListener('pointerleave',()=>syncColumn(id,-1));
+  st.table.addEventListener('focusin',e=>{
+    const cell=cellFromEvent(e);
+    if(cell){hideTip(id);setTableCrosshair(st,cell)}
+  });
+  st.table.addEventListener('focusout',e=>{
+    if(!st.table.contains(e.relatedTarget))syncColumn(id,-1)
+  });
+  st.table.addEventListener('pointerdown',e=>{
+    if(e.pointerType!=='touch')return;
+    const cell=cellFromEvent(e);
+    if(cell){hideTip(id);setTableCrosshair(st,cell);
+      setTimeout(()=>syncColumn(id,-1),400)}
+  });
+  document.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='touch'&&!st.board.contains(e.target))hideTip(id)
+  });
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')hideTip(id)});
+}
+
+function exportSVG(id){
+  const st=card[id],W=Math.max(240,Math.round(st.plot.clientWidth||480));
+  const g=drawChart(st,W,true);
+  const chart=g.svg.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
+  const gutter=104,right=52,rowH=20,headH=24,tableH=headH+6*rowH;
+  const H=g.H+tableH;
+  let t=`<rect x="0" y="${g.H}" width="${W}" height="${tableH}" fill="#fff"/>`;
+  const cw=(W-gutter-right)/Math.max(1,st.to-st.from+1);
+  const cols=[];for(let i=st.from;i<=st.to;i++)cols.push(i);
+  const sx=gutter+cols.length*cw;
+  const drawCell=(x,y,w,h,text,align)=>{
+    t+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#d8e0ea" stroke-width="1"/>`;
+    t+=`<text x="${align==='right'?x+w-5:x+5}" y="${y+h-5}" text-anchor="${align==='right'?'end':'start'}" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#2b3440">${text}</text>`;
+  };
+  drawCell(0,g.H,gutter,headH,'Reporting Month','left');
+  cols.forEach((i,j)=>drawCell(gutter+j*cw,g.H,cw,headH,monthLabel(months[i]),'right'));
+  drawCell(sx,g.H,right,headH,'','left');
+  const rows=[['Planned','pNew'],['Forecast','fNew'],['Actual','aNew'],
+              ['Cum. Plan','pCum'],['Cum. Forecast','fCum'],['Cum. Actual','aCum']];
+  rows.forEach(([lab,k],r)=>{
+    const y=g.H+headH+r*rowH;
+    drawCell(0,y,gutter,rowH,lab,'left');
+    cols.forEach((i,j)=>drawCell(gutter+j*cw,y,cw,rowH,String(S[k][i]||0),'right'));
+    drawCell(sx,y,right,rowH,'','left');
+  });
+  const style='<style>:root{--font-ui:Segoe UI,Arial,sans-serif;--line:#e3e9f0;--border:#d8e0ea;--text:#2b3440;--muted:#6b7785;--blue:#2f6fb0}</style>';
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${style}<rect width="${W}" height="${H}" fill="#fff"/>${chart}${t}</svg>`;
+}
+function svgToBlob(markup,cb){
+  const url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(markup);
+  const img=new Image();
+  img.onload=()=>{const c=document.createElement('canvas'),scale=2;c.width=img.width*scale;c.height=img.height*scale;
+    const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);ctx.scale(scale,scale);ctx.drawImage(img,0,0);
+    c.toBlob(b=>cb(b),'image/png')};
+  img.onerror=()=>cb(null);img.src=url;
+}
+function fname(id){return'TWRP-C3B2_Issue-Progress_'+(id==='base'?'Baseline':'Proposed')+'_'+new Date().toISOString().slice(0,10)+'.png'}
+function downloadPNG(id){
+  svgToBlob(exportSVG(id),b=>{if(!b)return;
+    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fname(id);
+    document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
+}
+function copyPNG(id){
+  if(!navigator.clipboard||!window.ClipboardItem)return;
+  svgToBlob(exportSVG(id),async b=>{if(!b)return;
+    try{await navigator.clipboard.write([new ClipboardItem({'image/png':b})])}
+    catch(e){downloadPNG(id)}});
+}
+
+CARDS.forEach(id=>{bindCard(id);renderCard(id)});
+if(typeof ResizeObserver!=='undefined'){
+  CARDS.forEach(id=>{const st=card[id];let last=st.lastW;
+    new ResizeObserver(()=>{const w=Math.round(st.plot.clientWidth||0);if(w&&w!==last){last=w;renderCard(id)}}).observe(st.plot)});
+}
+</script>
+</body>
+</html>

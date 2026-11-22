@@ -2,6 +2,7 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.18 | 2026-11-22 | CodeBuddy | **U019 — I-136 Issue Progress panel conformance.** MDL source, built HTML, workplan, issue ledger, and logs updated. |
 | 1.17 | 2026-11-21 | CodeBuddy | **U018 — I-135 sidebar toggle page layout.** MDL source, built HTML, tests, shared harness config, workplan, issue ledger, and logs updated. |
 | 1.16 | 2026-11-21 | CodeBuddy | **U017 — I-134 matrix table border and corners.** MDL source, built HTML, tests, workplan, issue ledger, and logs updated. |
 | 1.15 | 2026-11-21 | CodeBuddy | **U016 — harness rev 1.39 adds table border and corner checks.** Shared harness and MDL logs updated. No MDL code changed. |
@@ -20,6 +21,20 @@
 | 1.2 | 2026-11-20 | CodeBuddy | **U003 — shell geometry and warning bar fix.** Corrected the three Tier 2 failures found during I-122 verification. |
 | 1.1 | 2026-11-20 | CodeBuddy | **U002 — I-122 vertical-scroll fix.** MDL source, built HTML, tests, workplan, logs, report, and harness-layout check updated. |
 | 1.0 | 2026-11-20 | CodeBuddy | Initial canonical update log. Records U001 for the rev 1.96 shell increment. |
+
+## U019 — Issue Progress panel conformance
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-22 |
+| Issue | I-136 in `MDL/log/issue_log.md` |
+| Work item | T11.21.1–T11.21.11 in `MDL/workplan/MDL-I136-Issue-Progress-Workplan.md` |
+| Status | DONE |
+| Files changed | `MDL/src/render.mjs`, `MDL/MDL-Dashboard.html`, `MDL/workplan/MDL-I136-Issue-Progress-Workplan.md`, `MDL/mdl-issues.md`, `MDL/log/issue_log.md`, `MDL/log/update_log.md`, `MDL/log/test_log.md`, `MDL/workplan/reports/MDL-I136-Issue-Progress-Report-2026-11-22.md` |
+| Change | Rebuilt the Issue Progress panel from the approved sample. Replaced fixed ticks and the single legend row. Added a fixed right reserve, dual-scale styling, bar labels for every non-zero bar, a C1 dual-handle time bar with five presets, a native attached table, chart and table crosshair sync, and hidden band and snap line. Export and print remove transient hover state. |
+| Validation | Syntax PASS. Lint PASS. Build wrote `MDL-Dashboard.html` at 296,804 B. Pipeline 96 passed / 7 failed. Full harness 201 passed / 10 failed / 2 advisory / 22 skipped. Tier 5 36 passed / 0 failed / 0 advisory / 3 skipped. Chromium at 1366 × 768 and 1920 × 1080 reports no console errors. TL021 records all commands. |
+| Rollback | Restore the listed files from Git and rebuild `MDL-Dashboard.html`. |
+| Note | P5 fixed a shared-crosshair defect found by the harness. P6 removed an invalid mode-element write found by the browser probe. No shared spec or harness file changed. |
 
 ## U018 — Sidebar toggle page layout
 

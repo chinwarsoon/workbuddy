@@ -2,6 +2,7 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.18 | 2026-11-22 | CodeBuddy | **TL021** added for I-136 Issue Progress conformance verification. |
 | 1.17 | 2026-11-21 | CodeBuddy | **TL020** added for I-135 sidebar toggle behavior verification. |
 | 1.16 | 2026-11-21 | CodeBuddy | **TL019** added for I-134 matrix table border and corner verification. |
 | 1.15 | 2026-11-21 | CodeBuddy | **TL018** added for harness revision 1.39 table border and corner checks. |
@@ -63,6 +64,17 @@
 | Result | Syntax PASS. Build PASS (261,484 B). Shell suite 28 passed / 0 failed. Harness Tier 2: 53 passed / 0 failed. |
 | New checks | Five new shell assertions cover the grid rows, hidden page scroll, in-flow status bar, in-flow warning bar, and removed padding workaround. |
 | Finding | The three geometry failures from TL004 no longer occur. The content body stays the only scroll area. |
+
+## TL021 — I-136 Issue Progress conformance verification
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-22 |
+| Commands | `node --check src/render.mjs`; lint check on `MDL/src/render.mjs`; `node build.mjs`; `node test/test_pipeline.mjs`; `node test/test_shell.mjs`; `node test/test_grid.mjs`; cached-Playwright harness run for MDL, full and Tier 5; Chromium probe at 1366 × 768 and 1920 × 1080 |
+| Result | Syntax PASS. Lint PASS. Build PASS at 296,804 B. Pipeline 96 passed / 7 failed. Full harness 201 passed / 10 failed / 2 advisory / 22 skipped. Tier 5 36 passed / 0 failed / 0 advisory / 3 skipped. Chromium probe: no console errors at either viewport. |
+| New checks | The browser probe checks initial preset, band width against one table column, band and snap line computed display before and after table hover and chart hover, print suppression, and the `All` and `6M` preset ranges. The harness Progress-page crosshair check now passes. |
+| Finding | The band width equals one table column at both viewports. Hover shows the active column in chart and table. Print hides band and snap line. `All` reports 31/31 months and `6M` reports 6/31 months. The shell and grid suites cannot start because `jsdom` is missing. I did not install it. |
+| Issues | I-136 closed. P5 fixed the new shared-crosshair defect. P6 removed the new runtime error. The remaining harness failures are outside this change. |
 
 ## TL020 — I-135 sidebar toggle behavior
 

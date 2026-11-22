@@ -2,6 +2,7 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.17 | 2026-11-22 | CodeBuddy | **I-136 raised and fixed.** Issue Progress panel now matches the approved sample contract. U019, TL021 and the phase report record the work. |
 | 1.16 | 2026-11-21 | CodeBuddy | **I-135 raised and fixed.** Collapsed sidebar keeps the content usable. Tier 2 now checks toggle behavior. |
 | 1.15 | 2026-11-21 | CodeBuddy | **I-134 raised and fixed.** Matrix table has its own rounded border. The tool row sits before the table card. |
 | 1.14 | 2026-11-21 | CodeBuddy | **I-133 corrected.** Panel border kept. Matrix card border removed. Tool-row tokens retained. |
@@ -19,6 +20,21 @@
 | 1.2 | 2026-11-20 | CodeBuddy | **U003 fixed three Tier 2 geometry checks found during I-122 verification.** The earlier record had no baseline proof. |
 | 1.1 | 2026-11-20 | CodeBuddy | **I-122 raised and fixed.** Content body had no vertical scrollbar when panels exceeded one screen. Added harness coverage for every page. |
 | 1.0 | 2026-11-20 | CodeBuddy | Initial canonical issue log at `MDL/log/issue_log.md`. Records the shell increment decisions. The full historical register stays in `MDL/mdl-issues.md` and remains the active detailed ledger. |
+
+## I-136 — Issue Progress panel conformance
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ |
+| Raised | 2026-11-22 |
+| Closed | 2026-11-22 |
+| Issue | I-136 in `MDL/mdl-issues.md` revision 1.61 |
+| Work item | T11.21.1–T11.21.11 in `MDL/workplan/MDL-I136-Issue-Progress-Workplan.md` |
+| Update | U019 in `MDL/log/update_log.md` |
+| Defect | The production Issue Progress panel used five fixed ticks, an unwrapped legend, gated bar labels, a Y-max filter that kept bars when Bars was off, an incomplete dual-scale note, no C1 time bar, no attached table, and no chart hover window. |
+| Fix | The panel now uses dynamic nice ticks, a wrapped in-SVG legend, fixed right reserve, dual-scale captions, labels for every non-zero bar, a C1 dual-handle time bar with five presets, a native attached table, and chart and table crosshair sync. Hover state is absent from PNG, Copy and print output. |
+| Test | TL021. Syntax and lint PASS. Build PASS at 296,804 B. Pipeline 96 passed / 7 failed. Full harness 201 passed / 10 failed / 2 advisory / 22 skipped. Tier 5 36 passed / 0 failed. Chromium at 1366 × 768 and 1920 × 1080 gives no console errors and correct band, hover, print and preset behavior. |
+| Note | P5 fixed a shared-crosshair defect found by the harness. P6 removed an invalid mode-element write found by the browser probe. Approval: 2026-11-22 by chinwarsoon. Full report: `MDL/workplan/reports/MDL-I136-Issue-Progress-Report-2026-11-22.md`. |
 
 ## I-35 — Left-sidebar navigation
 
