@@ -120,7 +120,7 @@ detail only and never enters the data layer (I-96 invariant, D39).
 | `MDL/test/test_grid.mjs` | **new** — 21 unit checks for the L3 kit and windowing |
 | `harness-layout/harness.mjs` | Tier 4b (`lintL3`), spacer-row aware measurement, `padRows` reporting |
 | `harness-layout/SKILL.md`, `README.md` | Tier 4b documented |
-| `MDL/mdl-issues.md` | evidence + status notes for I-95 / I-96 (revision 1.4) |
+| `MDL/log/issue_log.md` | evidence + status notes for I-95 / I-96 (revision 1.4) |
 
 ---
 

@@ -68,6 +68,27 @@ export default {
     tolerance:     1,    // px
   },
 
+  // Tier 5 — spec §4.2 rev 1.103: attached-table gap, board fit, header rotation
+  // and themed header fill. Config-gated; independent of cfg.c1 (MDL has none).
+  boardTable: {
+    pages:                 ['Progress'],
+    gridSelector:          '.curve-card .curve-c1-grid',
+    plotSelector:          '.curve-card .curve-c1-plot',
+    tableSelector:         '.curve-card .curve-c1-table',
+    headerCellSelector:    '.curve-card .curve-c1-table thead th.g-axis',
+    headerSpanSelector:    '.curve-card .curve-c1-table thead th.g-axis span',
+    gapVar:                '--c1-plot-table-gap',
+    expectedGap:           10,
+    manyClass:             'c1-many',
+    csvSelector:           '.curve-card .chart-actions .csv',
+    pngSelector:           '.curve-card .chart-actions .dl',
+    headerFillVar:         '--navy',
+    headerTextColor:       'rgb(255, 255, 255)',
+    centerBandSelector:    '.curve-card .curve-c1-plot .sc-hover-band',
+    centerTolerance:       2,
+    tolerance:             0.5,
+  },
+
   // Tier 5 — spec §7.2.16: one shared row / column / intersection crosshair.
   tableCrosshair: {
     tableSelector: 'table[data-table-crosshair]',
@@ -75,6 +96,9 @@ export default {
     hoverWaitMs:   80,
     outside:       { x: 5, y: 5 },
     pages:         ['Overview', 'Progress', 'Overdue', 'Validation', 'Documents'],
+    // §7.2.16 chart-linked tables keep .col-active and add NO competing .col-hover.
+    // MDL's Issue Progress C1 table carries this class instead of sub's .c1-table.
+    chartLinkedClass: 'curve-c1-table',
   },
 
   // Tier 6 — spec §4.6: KPI cards carry one shared hover window.

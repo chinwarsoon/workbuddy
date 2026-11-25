@@ -5,7 +5,7 @@
 > **Date**: 2026-09-29
 > **Status**: Proposal — **NO CODE WRITTEN YET**. Mirrors the PPP Dashboard architecture
 > (`PPP/PPP-Dashboard-Workplan.md` + `PPP/arch/PPP_Dashboard.html`).
-> **Last revised**: 2026-11-21 — **I-135 fixed: collapsed sidebar keeps the content usable.** See §11.20. `body.sidebar-collapsed .shell-main` now uses `grid-template-columns:minmax(0,1fr)`. The harness Tier 2 sidebar check clicks the toggle and verifies the sidebar hides, content width, panel widths, and toggle label. Bundled at 275,103 B; shell suite 60/60 passed; Tier 2: 52 passed / 0 failed; Tier 6: 27 passed / 0 failed. Prior — **I-134 fixed: matrix table has its own rounded border.** See §11.19. The tool row now sits before the table card. `.matrixcard` has `1px solid var(--border)` and `border-radius:10px`. Panel border stays. Bundled at 275,105 B; shell suite 59/59 passed; Tier 4 border and corner checks pass. Prior — **I-133 corrected: panel border kept, matrix card border removed.** See §11.18. Spec rev 1.99 stays universal. MDL keeps `--tool-pad` and `--tool-gap`, uses 12 px / 10 px token gaps, pads the matrix tool row, and keeps the panel edge as the only visible border. Bundled at 275,082 B; shell suite 59/59 passed; browser probe confirms panel `1px solid`, matrix card `0px none`; Tier 6: 27/0. Prior — **I-132 fixed: matrix tool row aligned to §4.** See §11.17. The tool row now sits inside the table card. Month is in the left filter group. Actions are in the right group. `MDL-Dashboard.html` rebuilt; shell suite 54/54 passed; Tier 6: 27/0. Prior — **I-131 fixed: fixed tooltip label column.** See §11.16. Both tooltip grids now use a 76 px label column. `MDL-Dashboard.html` rebuilt; shell suite 50/50 passed; Tier 6: 27 passed / 0 failed. Prior — **I-130 fixed: general hover-window value alignment added.** See §11.15. Both spec copies updated to rev 1.98. MDL tooltip rows now use a fixed label column. Text aligns left and numbers align right. `MDL-Dashboard.html` rebuilt; shell suite 50/50 passed. Prior — **I-129 fixed: KPI hover windows added.** See §11.14. All 16 KPI hosts bind one shared `.chart-tip`. `MDL-Dashboard.html` rebuilt; shell suite 47/47 passed. Full harness before the Tier 6 selector fix: 160 passed / 10 failed / 2 advisory / 24 skipped; Tier 6 was skipped because it waited for `.page-link`. The harness selector is now generic. Harness revisions 1.35 and 1.36 added load progress and removed the body state marker from Tier 6 page discovery. Standalone Tier 6 now completes: 27 passed / 0 failed / 0 advisory / 0 skipped. Prior — **I-128 fixed: footer metadata moved into the status bar.** See §11.13. Status bar now shows `MDL Dashboard v0.1 · Updated 20 Nov 2026 · © UESH 2026` on the right. The page footer is removed. `MDL-Dashboard.html` rebuilt; shell suite 41/41 passed; full harness: 159 passed / 11 failed / 2 advisory / 24 skipped. Prior — **I-127 fixed: bottom status bar aligned with the UI spec.** See §11.12. Named fields at that step: left `File: <workbook name>` plus optional render-issue count; right `MDL Dashboard v1.0`. I-128 superseded the version and right-side metadata. `MDL-Dashboard.html` rebuilt; shell suite 40/40 passed; full harness: 159 passed / 11 failed / 2 advisory / 24 skipped. Prior — **I-126 fixed: crosshair colours aligned with spec rev 1.97.** See §11.11. `MDL-Dashboard.html` rebuilt; shell suite 37/37 passed; full harness: 158 passed / 12 failed / 2 advisory / 24 skipped. The 12 failures included the old status-bar total check. Prior — **I-124 and I-125 fixed: matrix fit, table border, and shared crosshair.** See §11.10. `MDL-Dashboard.html` rebuilt; shell suite 33/33 passed; full harness: 158 passed / 12 failed / 2 advisory / 24 skipped. The 12 failures are the pre-existing shell, KPI, filter, status, and I-95 sample-check failures. Prior — **I-123 fixed: matrix panel full width and no inner scrollbars.** See §11.9. `MDL-Dashboard.html` rebuilt; shell suite 31/31 passed; Tier 2: 53 passed / 0 failed. Prior — **I-122 fixed: content body vertical scrolling.** See §11.8. Spec §3.1 requires a scrollable content area; §3.5 keeps notices outside the scrolling body. MDL source rebuilt; shell suite 23/23 passed; harness added 25 page-scroll checks, all passed. Three Tier 2 geometry checks failed during I-122 verification. U003 fixed them. Final shell suite: 28 passed / 0 failed. Tier 2: 53 passed / 0 failed. Prior — **Rev 1.96 shell increment implemented.** See §11.7. Owner approved the spec left nav, removal of Print / Save PDF, the XLSX Export control, and the MDL Breakdown hold. `src/render.mjs` rebuilt; `MDL-Dashboard.html` rebuilt; `test/test_shell.mjs` added and passes 20/20; pipeline and grid results unchanged; logs created in `MDL/log/`. Prior (2026-10-22) — **Shared spec generalised (v1.2 → v1.3): the MDL-specific content moved here.** `Dashboard-UI-Design-Spec.md` is now project-neutral; it gained §0 **Definitions**, §8 **Conformance & Testing** (two-layer check model, 14 required assertions, enforcement posture, conformance record, definition of done) and §9 **Adopting this spec**. Everything belonging to MDL alone now lives in **§11 Shared-Spec Conformance Record**: the two-row menu-bar instantiation (§11.2), the Search popover layout + hard Tier 4f posture (§11.3), MDL's dashboard-specific choices (§11.1), its migration state (§11.4) and its regression history (§11.5). Citations corrected: the B-family of selection controls lives in spec **§7.1**, not §7.10. Prior (2026-10-20) — I-115 **aligned**: the shared floating-panel ordering contract (master → note → divider → item list → footer; master scoped to the non-pinned set and tri-state) is now normative in `Dashboard-UI-Design-Spec.md` §7.1 (B. Selection controls) and recorded here as §4.0.1 item 7 + acceptance. **Citation correction:** references to "§7.10" in this document and in `mdl-issues.md` are dangling — no §7.10 exists; the B-family (B1/B3/B5/B6/B7) lives in §7.1. PPP was deliberately NOT updated. I-114 **implemented (RESOLVED)**: (a) the Overdue Type dropdown now reads its labels from the **`Code!AN:AO`** block (workbook source of truth, in-code list kept only as a fallback) and shows the canonical §4A.6 wording; (b) the **column chooser got its own class** (`.cc-wrap` / `.cc-btn` / `.cc-panel`) per shared spec §7.1 **B7** — no count badge, no active-filter emphasis — so the `.tf-btn` filter look now belongs exclusively to the global Discipline/Stage chips; (c) the Validation / Issues panel gained the **panel-local rule-code filter** (spec §7.1 **B6** + §7.2.7 pt 6) — a single-select inside the panel, resolved in **S5**, affecting only that panel's tables (`N of M issues`; severity chips, note and Rule Reference still describe the whole run; CSV exports the same filtered rows). `test_render.mjs` += 12 assertions; rebuilt `MDL-Dashboard.html`; full run **159/165** (the 6 failures are the pre-existing top-bar chip/Stage tests). Prior (2026-10-20) — Filter vocabulary + panel-local filters **logged (I-114)**: shared spec §7.10's selection-control table now separates **multi-select** (B1 filter trigger + B3 chips) from **single-select** (B5 native select), and adds **B6 panel-local filter** plus **B7 column-visibility control**; shared spec §7.2.7 gains point 6 (a panel-local filter resolves in S5 and MUST NOT touch KPIs, charts, the matrix or any other panel). Workplan §4A.6 records the Overdue Type flavours as workbook source of truth in **`Code!AN:AO`** (the in-code list stays only as a fallback), and §4.0.1 gains the chooser-chrome rule plus the Validation / Issues **rule-code filter** specification (control inside the panel, local to it, S5-only, tables only). No dashboard code changed yet. Prior (2026-10-19) — Overdue List filter de-duplication **implemented (I-113)**, then the three panel-owned per-column filters were also removed (user direction 2026-10-19): the Overdue panel now keeps only the **Overdue Type dropdown** as its sole in-panel filter — no bundled popover and no per-column buttons (Delay / Source Tab / Planned date all removed). On 2026-10-20 the in-panel column filters were also removed from the **Validation Issues** and **Document Detail** panels, and the entire filter machinery (`attachColFilters`, `cfColRow`, `applyFilters`, `facetCounts`, `highlightText`, `debounce`, `restoreFlt`) deleted (only `cfToggle`/`cfBindDoc` remain, reused by the column chooser). `test_render.mjs` updated and now passes 147/153 (the 6 failures are pre-existing top-bar Stage-chip tests). Prior (2026-10-19): Filter de-duplication requirement documented (MDL-specific): per shared spec §7.2.7 (no duplicate filter dimensions), the Overdue List panel's bundled 'Filters' popover is to be removed — its UESH Discipline duplicates the global Discipline chip and Overdue Type is duplicated by the panel's own dropdown; keep the Overdue Type dropdown + per-column Delay/Source Tab/Planned-date filters. Document Detail popover to drop UESH Discipline + Stage (global duplicates). Validation panel clean. Added workplan §4.0.1. Prior (2026-10-19): Overdue List blank "Overdue Type" / "Delay (days)" columns fixed (I-112): the I-111
+> **Last revised**: 2026-11-25 — **Chart column centers match attached-table column centers per spec rev 1.106 (I-150).** See §11.29. `curveDraw()` and PNG / Copy export now use the real plot width, so the SVG scale is 1 and every chart column center is within 2 px of its table header. Harness board-contract center check passes; shell suite 111 passed / 0 failed. Prior — **ONE table-header design for every table type per spec rev 1.105 (I-149).** See §11.28. Chart-attached tables now use the independent-table `--navy` header with white text in both render and PNG/Copy export. Harness board-contract header check passes; shell suite 110 passed / 0 failed. Prior — **Attached-table CSV and Y-axis caption typography per spec rev 1.104 (I-148).** See §11.27. The curve tool row now has `⤓ CSV` before PNG with a full-window, BOM-prefixed download; "Documents" is centred near the axis, reads bottom-to-top, and caption and ticks are bold in `--text2`. Shell suite 110 passed / 0 failed. Prior — **Attached-table gap, board fit and themed header fill per spec rev 1.103 (I-147).** See §11.26. A 10 px named gap separates plot and table, the board no longer scrolls, wide month headers rotate to an 88 px vertical band and the header fill follows `--surface2`. Harness board-contract tier added (6 new checks); shell suite 106 passed / 0 failed. Prior — **General two-row chart head per spec rev 1.102 (I-146).** See §11.25. The tool row sits above the full-width time bar row, right-aligned with 10 px / 2 px gaps; the date range text follows the chips and the project-start caption is gone. Spec rule is general for all dashboards, not a deviation. Shell suite 101 passed / 0 failed. Prior — **Time-bar fill aligned with the thumbs (I-145).** See §11.24. The fill was nested inside the 4 px track element; it is now a zone sibling and live-browser measurement confirms sub-pixel alignment with both thumbs. Shell suite 95 passed / 0 failed. Prior — **Time bar aligned with the Sub reference design per spec rev 1.101.** See §11.23. The segmented control uses the shared tokens, the full B2.1 state set and the navy active fill; the time bar uses the pinned Sub geometry, window tick semantics, January year labels, thumb-compensated positioning and the current-`to` preset anchor. `MDL-Dashboard.html` rebuilt at 300,479 B; shell suite 94 passed / 0 failed. Prior — **I-137 … I-143 fixed: Issue Progress S-curve aligned with spec rev 1.100.** See §11.22. The panel uses a reserved reference-label band, named legend insets, gutter Y ticks, one unit caption, the table thead X axis, the full time-bar contract, the shared binder, tokenised area fills and chart tap-to-show. `MDL-Dashboard.html` rebuilt at 298,581 B; shell suite 84 passed / 0 failed. Prior — **design review logged.** Shared spec rev 1.100 is in force in both byte-identical copies. The seven findings were mapped in §11.22.**I-135 fixed: collapsed sidebar keeps the content usable.** See §11.20. `body.sidebar-collapsed .shell-main` now uses `grid-template-columns:minmax(0,1fr)`. The harness Tier 2 sidebar check clicks the toggle and verifies the sidebar hides, content width, panel widths, and toggle label. Bundled at 275,103 B; shell suite 60/60 passed; Tier 2: 52 passed / 0 failed; Tier 6: 27 passed / 0 failed. Prior — **I-134 fixed: matrix table has its own rounded border.** See §11.19. The tool row now sits before the table card. `.matrixcard` has `1px solid var(--border)` and `border-radius:10px`. Panel border stays. Bundled at 275,105 B; shell suite 59/59 passed; Tier 4 border and corner checks pass. Prior — **I-133 corrected: panel border kept, matrix card border removed.** See §11.18. Spec rev 1.99 stays universal. MDL keeps `--tool-pad` and `--tool-gap`, uses 12 px / 10 px token gaps, pads the matrix tool row, and keeps the panel edge as the only visible border. Bundled at 275,082 B; shell suite 59/59 passed; browser probe confirms panel `1px solid`, matrix card `0px none`; Tier 6: 27/0. Prior — **I-132 fixed: matrix tool row aligned to §4.** See §11.17. The tool row now sits inside the table card. Month is in the left filter group. Actions are in the right group. `MDL-Dashboard.html` rebuilt; shell suite 54/54 passed; Tier 6: 27/0. Prior — **I-131 fixed: fixed tooltip label column.** See §11.16. Both tooltip grids now use a 76 px label column. `MDL-Dashboard.html` rebuilt; shell suite 50/50 passed; Tier 6: 27 passed / 0 failed. Prior — **I-130 fixed: general hover-window value alignment added.** See §11.15. Both spec copies updated to rev 1.98. MDL tooltip rows now use a fixed label column. Text aligns left and numbers align right. `MDL-Dashboard.html` rebuilt; shell suite 50/50 passed. Prior — **I-129 fixed: KPI hover windows added.** See §11.14. All 16 KPI hosts bind one shared `.chart-tip`. `MDL-Dashboard.html` rebuilt; shell suite 47/47 passed. Full harness before the Tier 6 selector fix: 160 passed / 10 failed / 2 advisory / 24 skipped; Tier 6 was skipped because it waited for `.page-link`. The harness selector is now generic. Harness revisions 1.35 and 1.36 added load progress and removed the body state marker from Tier 6 page discovery. Standalone Tier 6 now completes: 27 passed / 0 failed / 0 advisory / 0 skipped. Prior — **I-128 fixed: footer metadata moved into the status bar.** See §11.13. Status bar now shows `MDL Dashboard v0.1 · Updated 20 Nov 2026 · © UESH 2026` on the right. The page footer is removed. `MDL-Dashboard.html` rebuilt; shell suite 41/41 passed; full harness: 159 passed / 11 failed / 2 advisory / 24 skipped. Prior — **I-127 fixed: bottom status bar aligned with the UI spec.** See §11.12. Named fields at that step: left `File: <workbook name>` plus optional render-issue count; right `MDL Dashboard v1.0`. I-128 superseded the version and right-side metadata. `MDL-Dashboard.html` rebuilt; shell suite 40/40 passed; full harness: 159 passed / 11 failed / 2 advisory / 24 skipped. Prior — **I-126 fixed: crosshair colours aligned with spec rev 1.97.** See §11.11. `MDL-Dashboard.html` rebuilt; shell suite 37/37 passed; full harness: 158 passed / 12 failed / 2 advisory / 24 skipped. The 12 failures included the old status-bar total check. Prior — **I-124 and I-125 fixed: matrix fit, table border, and shared crosshair.** See §11.10. `MDL-Dashboard.html` rebuilt; shell suite 33/33 passed; full harness: 158 passed / 12 failed / 2 advisory / 24 skipped. The 12 failures are the pre-existing shell, KPI, filter, status, and I-95 sample-check failures. Prior — **I-123 fixed: matrix panel full width and no inner scrollbars.** See §11.9. `MDL-Dashboard.html` rebuilt; shell suite 31/31 passed; Tier 2: 53 passed / 0 failed. Prior — **I-122 fixed: content body vertical scrolling.** See §11.8. Spec §3.1 requires a scrollable content area; §3.5 keeps notices outside the scrolling body. MDL source rebuilt; shell suite 23/23 passed; harness added 25 page-scroll checks, all passed. Three Tier 2 geometry checks failed during I-122 verification. U003 fixed them. Final shell suite: 28 passed / 0 failed. Tier 2: 53 passed / 0 failed. Prior — **Rev 1.96 shell increment implemented.** See §11.7. Owner approved the spec left nav, removal of Print / Save PDF, the XLSX Export control, and the MDL Breakdown hold. `src/render.mjs` rebuilt; `MDL-Dashboard.html` rebuilt; `test/test_shell.mjs` added and passes 20/20; pipeline and grid results unchanged; logs created in `MDL/log/`. Prior (2026-10-22) — **Shared spec generalised (v1.2 → v1.3): the MDL-specific content moved here.** `Dashboard-UI-Design-Spec.md` is now project-neutral; it gained §0 **Definitions**, §8 **Conformance & Testing** (two-layer check model, 14 required assertions, enforcement posture, conformance record, definition of done) and §9 **Adopting this spec**. Everything belonging to MDL alone now lives in **§11 Shared-Spec Conformance Record**: the two-row menu-bar instantiation (§11.2), the Search popover layout + hard Tier 4f posture (§11.3), MDL's dashboard-specific choices (§11.1), its migration state (§11.4) and its regression history (§11.5). Citations corrected: the B-family of selection controls lives in spec **§7.1**, not §7.10. Prior (2026-10-20) — I-115 **aligned**: the shared floating-panel ordering contract (master → note → divider → item list → footer; master scoped to the non-pinned set and tri-state) is now normative in `Dashboard-UI-Design-Spec.md` §7.1 (B. Selection controls) and recorded here as §4.0.1 item 7 + acceptance. **Citation correction:** references to "§7.10" in this document and in `issue_log.md` are dangling — no §7.10 exists; the B-family (B1/B3/B5/B6/B7) lives in §7.1. PPP was deliberately NOT updated. I-114 **implemented (RESOLVED)**: (a) the Overdue Type dropdown now reads its labels from the **`Code!AN:AO`** block (workbook source of truth, in-code list kept only as a fallback) and shows the canonical §4A.6 wording; (b) the **column chooser got its own class** (`.cc-wrap` / `.cc-btn` / `.cc-panel`) per shared spec §7.1 **B7** — no count badge, no active-filter emphasis — so the `.tf-btn` filter look now belongs exclusively to the global Discipline/Stage chips; (c) the Validation / Issues panel gained the **panel-local rule-code filter** (spec §7.1 **B6** + §7.2.7 pt 6) — a single-select inside the panel, resolved in **S5**, affecting only that panel's tables (`N of M issues`; severity chips, note and Rule Reference still describe the whole run; CSV exports the same filtered rows). `test_render.mjs` += 12 assertions; rebuilt `MDL-Dashboard.html`; full run **159/165** (the 6 failures are the pre-existing top-bar chip/Stage tests). Prior (2026-10-20) — Filter vocabulary + panel-local filters **logged (I-114)**: shared spec §7.10's selection-control table now separates **multi-select** (B1 filter trigger + B3 chips) from **single-select** (B5 native select), and adds **B6 panel-local filter** plus **B7 column-visibility control**; shared spec §7.2.7 gains point 6 (a panel-local filter resolves in S5 and MUST NOT touch KPIs, charts, the matrix or any other panel). Workplan §4A.6 records the Overdue Type flavours as workbook source of truth in **`Code!AN:AO`** (the in-code list stays only as a fallback), and §4.0.1 gains the chooser-chrome rule plus the Validation / Issues **rule-code filter** specification (control inside the panel, local to it, S5-only, tables only). No dashboard code changed yet. Prior (2026-10-19) — Overdue List filter de-duplication **implemented (I-113)**, then the three panel-owned per-column filters were also removed (user direction 2026-10-19): the Overdue panel now keeps only the **Overdue Type dropdown** as its sole in-panel filter — no bundled popover and no per-column buttons (Delay / Source Tab / Planned date all removed). On 2026-10-20 the in-panel column filters were also removed from the **Validation Issues** and **Document Detail** panels, and the entire filter machinery (`attachColFilters`, `cfColRow`, `applyFilters`, `facetCounts`, `highlightText`, `debounce`, `restoreFlt`) deleted (only `cfToggle`/`cfBindDoc` remain, reused by the column chooser). `test_render.mjs` updated and now passes 147/153 (the 6 failures are pre-existing top-bar Stage-chip tests). Prior (2026-10-19): Filter de-duplication requirement documented (MDL-specific): per shared spec §7.2.7 (no duplicate filter dimensions), the Overdue List panel's bundled 'Filters' popover is to be removed — its UESH Discipline duplicates the global Discipline chip and Overdue Type is duplicated by the panel's own dropdown; keep the Overdue Type dropdown + per-column Delay/Source Tab/Planned-date filters. Document Detail popover to drop UESH Discipline + Stage (global duplicates). Validation panel clean. Added workplan §4.0.1. Prior (2026-10-19): Overdue List blank "Overdue Type" / "Delay (days)" columns fixed (I-112): the I-111
 > port onto the L3 grid kit dropped the header label `h` from the grid column objects, so `colVal`/`textQ` no longer
 > matched the two label-special-cased columns and both rendered blank (the S4 Derive values were always correct;
 > CSV export was unaffected). Fix: added `h: c.h` to the `overdueCols` map in `render.mjs` `renderOverdue`;
@@ -960,7 +960,7 @@ Kept here, not in the spec, so the standard stays project-neutral.
 
 - MDL suite: `MDL/test/test_render.mjs`, `MDL/test/test_grid.mjs`.
 - Shared harness: `harness-layout` with MDL's check module; MDL runs `chrome.controlContrast` **hard**.
-- Per-clause evidence pointers are recorded in `MDL/mdl-issues.md`.
+- Per-clause evidence pointers are recorded in `MDL/log/issue_log.md`.
 
 ### 11.7 Rev 1.96 shell alignment — owner decisions (2026-11-20)
 
@@ -1246,3 +1246,227 @@ I-135 records the defect and its fix. Chromium probe results are: before `160px 
 60 passed / 0 failed. MDL Tier 2 reports 52 passed / 0 failed. Standalone Tier 6 reports
 27 passed / 0 failed / 0 advisory / 0 skipped. Tier 3 still reports the pre-existing I-95
 sample-check failures.
+
+### 11.22 Issue Progress S-curve design review — spec rev 1.100 and I-137…I-143 (2026-11-23)
+
+Owner reviewed the Issue Progress S-curve panel and reported seven design findings. The review
+covered the reference-line labels, the legend band, the Y caption, the X labels, the period time
+bar, the attached-table background and the chart crosshair. Findings are recorded as seven
+separate issues, one per finding. Spec rev 1.100 was approved by chinwarsoon on 2026-11-23 and
+applied to both byte-identical spec copies. No dashboard source code changed in this step.
+
+**Spec decisions now in force**
+
+| Rule | Spec clause | Check |
+|---|---|---|
+| Reference-line labels do not share the legend band and stay in the plot | §4.2 rev 1.100 | §8.2 assertion 37 |
+| Legend band uses named insets, top pad and row pitch | §4.2 rev 1.100 | §8.2 assertion 37 |
+| One unit caption per axis, no in-SVG caption when the gutter carries it | §4.2 rev 1.100 | §8.2 assertion 37 |
+| No SVG X labels when the attached table provides them | §4.2 rev 1.100 | §8.2 assertion 37 |
+| Time handles carry `data-c1period`; print keeps the range text | §4.2 revs 1.66, 1.67, 1.100 | §8.2 assertion 37 |
+| Tokenised area fill per visible cumulative series | §4.2 rev 1.100 | §8.2 assertion 38 |
+| Chart-area tap-to-show and `aria-describedby` link | §4.6 rev 1.100 | §8.2 assertion 38 |
+
+**Issue map**
+
+| Issue | Finding | Target rule |
+|---|---|---|
+| I-137 | Start and Today labels overlap the legend | §4.2 rev 1.100 reference labels |
+| I-138 | Legend band gaps are not designed | §4.2 rev 1.100 band padding |
+| I-139 | Y axis repeats `Docs` and `Documents` | §4.2 rev 1.100 one caption |
+| I-140 | SVG X labels overlap the table head | §4.2 rev 1.100 no SVG X labels |
+| I-141 | Time bar contract deviations | §4.2 revs 1.66, 1.67, 1.100 |
+| I-142 | Table background and crosshair scope | §4.2 rev 1.81, §7.2.16 |
+| I-143 | Chart crosshair and hover gaps | §4.2 rev 1.100, §4.6 rev 1.100 |
+
+**Fix phases. Applied 2026-11-23.** Owner approved P1, P2 and P3 in one decision on 2026-11-23.
+
+| Task | Issue | Phase | Status | Tests | Work |
+|---|---|---|---|---|---|
+| T11.22.1 | I-137 | P2 | DONE | TL022 / TL023 | Reference labels moved into an 18-unit band; lines span the band and labels clamp. |
+| T11.22.2 | I-138 | P2 | DONE | TL022 / TL023 | Legend insets and row pitch applied; Y ticks render in the gutter. |
+| T11.22.3 | I-139 | P1 | DONE | TL022 / TL023 | In-SVG `Docs` caption removed; the right-axis `per mo` caption stays in dual mode; gutter `Documents` is the single left caption. |
+| T11.22.4 | I-140 | P1 | DONE | TL022 / TL023 | Bottom SVG month labels removed; the table thead owns the X axis. |
+| T11.22.5 | I-141 | P3 | DONE | TL022 / TL023 | Preset default `All`, handle attributes, index ticks, blue active chip, wide nowrap and scoped print rule. |
+| T11.22.6 | I-142 | P3 | DONE | TL022 / TL023 | Plot zone uses `--surface`; table moved onto the shared binder with chart-linked `col-active` state. |
+| T11.22.7 | I-143 | P3 | DONE | TL022 / TL023 | Plot tap-to-show and tap-away, `aria-describedby`, tokenised gradients and `.sc-area` paths. |
+
+**Decisions applied.** The preset default is `All` per spec rev 1.67. The attached table now uses
+the one delegated binder under §7.2.16, with chart-linked state kept on `col-active`; no C1
+reference exception is recorded. The active preset chip was set to `--blue` on 2026-11-23; that
+decision is SUPERSEDED by spec rev 1.101, which pins the navy active fill of §7.5 B2.1 for every
+dashboard and retires the MDL / PPP deviation row. See §11.23.
+
+**Evidence.** Spec revision row 1.100 in both copies. Issue entries I-137…I-143 in
+`MDL/log/issue_log.md` revision 1.20. `node build.mjs` rebuilt `MDL-Dashboard.html` at 298,581 bytes.
+`test_shell.mjs` 84 passed / 0 failed, including the panel runtime smoke test and a generic-table
+crosshair regression check. `test_pipeline.mjs` 96 passed / 7 failed and `test_grid.mjs` 42 passed /
+1 failed, both unchanged from baseline. The full `harness-layout` run confirms the fixes: HEAD-build
+baseline 201 passed / 10 failed / 2 advisory / 22 skipped (matches TL021); the new build reaches
+211 passed / 10 failed after a config-gated harness fix that teaches `lintTableCrosshair()` the
+chart-linked `curve-c1-table` class per §7.2.16 (harness `I006` / `U008`); the 10 remaining
+failures are byte-for-byte the baseline set. See `U021`, `U022`, `TL022` and `TL023`.
+
+### 11.23 — Time bar aligned with the Sub reference design (spec rev 1.101, I-144)
+
+**Owner instruction (2026-11-23).** MDL and every future dashboard MUST produce the same design
+result as the Sub dashboard, and the details MUST be general requirements in the UI spec. Spec
+rev 1.101 makes Sub the normative reference implementation and pins the C1 time bar geometry in
+§4.2 and the segmented standard in §7.5 B2.1; the former MDL / PPP deviation row is retired and
+the 2026-11-23 `--blue` chip decision is superseded by the navy active fill.
+
+| Task | Issue | Status | Tests | Work |
+|---|---|---|---|---|
+| T11.23.1 | I-144 | DONE | TL024 | Shared `--seg-*` tokens with the full B2.1 state set and the navy active fill; 4 px `--border` track; solid blue thumbs with ring, grab cursor and active scale; window-interior tick semantics with January year labels; thumb-compensated fill and tick positioning; explicit `step="1"`; presets anchored at the current `to` index; Sub cluster composition; `Month – Month` period text; dead `wide` toggle removed; missing `--surface2` / `--surface3` / `--text2` tokens defined. |
+
+**Evidence.** Spec revision row 1.101 in both byte-identical copies (SHA-256
+`85F43B63AE83CF504EDCA6E40EEB45D197CE7099E6B7F42B4CCC4FDFB59EFF16`). Issue `I-144` in
+`MDL/log/issue_log.md` revision 1.21. `node build.mjs` rebuilt `MDL-Dashboard.html` at
+300,479 bytes. `test_shell.mjs` **94 passed / 0 failed**, including ten new rev 1.101
+alignment checks. `test_pipeline.mjs` 96 passed / 7 failed and `test_grid.mjs` 42 passed /
+1 failed, both at baseline. The full MDL harness: 211 passed / 10 failed / 2 advisory /
+22 skipped, failure set identical to the HEAD-build baseline. See `U023` and `TL024`.
+
+### 11.24 — Time-bar fill aligned with the thumbs (I-145)
+
+**Owner report (2026-11-23).** The highlighted period rendered below the track instead of in line
+with the two thumbs. Confirmed non-compliant with §4.2 rev 1.101, which pins the thumb-compensated
+fill positioning. No spec change was needed; the I-144 markup had nested the fill inside the 4 px
+track element.
+
+| Task | Issue | Status | Tests | Work |
+|---|---|---|---|---|
+| T11.24.1 | I-145 | DONE | TL025 | Moved `.c1-fill` out of `.c1-track` to a zone sibling inside the 26 px time bar, matching the Sub reference DOM. Added a sibling-order regression check to `test_shell.mjs`. |
+
+**Evidence.** Live-browser Playwright measurement of the built dashboard with the real workbook:
+`All` window — fill top 302.5 px equals track top, height 4 px, computed left 7 px / width 206 px
+per the pinned formula; `12M` window (19..30 of 31) — fill left 1023.42 px vs expected 1023.44 px,
+right edge 1098.95 px vs 1098.97 px. Screenshots `harness-layout/run-mdl-i145-fix.png` and
+`harness-layout/run-mdl-i145-fix-12m.png`. Shell suite 95 passed / 0 failed; pipeline 96 / 7 and
+grid 42 / 1 at baseline. Issue `I-145` in `MDL/log/issue_log.md` revision 1.22. See `U024` and
+`TL025`.
+
+### 11.25 — General two-row chart head (spec rev 1.102, I-146)
+
+**Owner instruction (2026-11-24).** Make the reviewed chart-head changes GENERAL requirements for
+every dashboard in the UI spec, not deviations; update the workplan and issue log for the work to
+be done; then implement, test and log the details. Spec rev 1.102 supersedes rev 1.67's one-row
+cluster rule and rev 1.101's chip-before-text order. Sub's time-bar geometry, tokens and states
+stay the visual reference; its one-row composition is superseded.
+
+| Task | Issue | Status | Tests | Work |
+|---|---|---|---|---|
+| T11.25.1 | I-146 | DONE | TL026 | Spec rev 1.102 in both byte-identical copies: general two-row chart head, chip-before-text order, no explanatory caption, print rules. |
+| T11.25.2 | I-146 | DONE | TL026 | MDL markup and CSS: tool row above (right-aligned, `--tool-gap`), time bar row below at full card width, 10 px / 2 px row gaps, print hides the tool row. |
+| T11.25.3 | I-146 | DONE | TL026 | Move the date range text after the preset chips; remove the project-start explanation note; align the Help text with the rendered reference lines. |
+| T11.25.4 | I-146 | DONE | TL026 | Extend `test_shell.mjs`, rebuild, run shell / pipeline / grid / full MDL harness, and complete the logs. |
+
+**Evidence.** Spec revision row 1.102 in both byte-identical copies (SHA-256
+`4F924B04BEC922B190D90CEF1EB12027C840526054C42B0502BE07ACF82008E5`). Issue `I-146` in
+`MDL/log/issue_log.md` revision 1.23. `node build.mjs` rebuilt `MDL-Dashboard.html` at
+300,395 bytes. Live browser: tool row above and right-aligned, 10 px to the time bar row,
+2 px to the chart top border, text after the chips, no project-start caption, print hides the
+tool row and keeps the period text. Screenshot `harness-layout/run-mdl-i146-two-row.png`.
+`test_shell.mjs` 101 passed / 0 failed with six new I-146 checks; `test_pipeline.mjs` 96 / 7 and
+`test_grid.mjs` 42 / 1 at baseline; full harness 211 passed / 10 failed / 2 advisory / 22 skipped,
+failure set identical to the HEAD baseline. See `U025` and `TL026`.
+
+### 11.26 — Attached-table gap, board fit and themed header fill (spec rev 1.103, I-147)
+
+**Owner review (2026-11-24).** Keep a visible chart-to-table gap as a general requirement; allow
+vertical month headers so the board does not scroll when the table fits; pin the header fill to
+the theme; make the harness check all three. Historical state: gap 0 px, board scrollWidth 2140 px
+against clientWidth 477 px at 1280 px, horizontal headers, `--surface2` header fill.
+
+| Task | Issue | Status | Tests | Work |
+|---|---|---|---|---|
+| T11.26.1 | I-147 | DONE | TL027 | Spec rev 1.103 in both copies: `--c1-plot-table-gap:10px`, board fit / vertical headers, themed header fill, assertions 39 / 40. |
+| T11.26.2 | I-147 | DONE | TL027 | MDL: gap token and rounded non-shared corners, `min-width:0` grid, >13-column vertical headers, themed header fill in render and export. |
+| T11.26.3 | I-147 | DONE | TL027 | Config-gated harness checks for the gap, board fit, header rotation and header fill. |
+| T11.26.4 | I-147 | DONE | TL027 | Extend shell checks, rebuild, run suites / harness, live verification and records. |
+
+**Evidence.** Spec revision row 1.103 in both byte-identical copies (SHA-256
+`8EF6A9CE7BE04E74F657437F6FD59436769A38497C69B4FE21B42D326A27926F`) with general gap, fit,
+header-fill rules and assertions 39 / 40. Issue `I-147` in `MDL/log/issue_log.md` revision 1.24.
+`node build.mjs` rebuilt `MDL-Dashboard.html` at 301,109 B. Live at 1280 px: gap 10 px, host
+`clientWidth = scrollWidth = 477 px`, grid `min-width:0`, `c1-many` with 88 px vertical month
+headers, header fill `rgb(241,245,249)` = `--surface2`. Screenshots `harness-layout/run-mdl-i147-board.png`
+and `run-mdl-i147-header-zoom.png`. `test_shell.mjs` 106 passed / 0 failed; pipeline 96 / 7 and
+grid 42 / 1 at baseline; harness 217 passed / 10 failed / 2 advisory / 22 skipped with the 10
+failures identical to the HEAD baseline and all six new board-contract checks passing. See `U026`
+and `TL027`.
+
+### 11.27 — Attached-table CSV and Y-axis caption typography (spec rev 1.104, I-148)
+
+**Owner review (2026-11-24).** Add the spec-required `⤓ CSV` action to the chart tool row, and
+centre the "Documents" caption near the axis with bold caption and tick typography. Historical
+state: no CSV action on the curve panel; caption 11.5 px above gutter centre, regular 11 px
+`--muted`, reading downward; Sub centres rotates and bolds both caption and ticks.
+
+| Task | Issue | Status | Tests | Work |
+|---|---|---|---|---|
+| T11.27.1 | I-148 | DONE | TL028 | Spec rev 1.104 in both copies with centred near-axis caption, bottom-to-top reading, bold `--text2` caption and ticks, assertion 41. |
+| T11.27.2 | I-148 | DONE | TL028 | MDL: `⤓ CSV` in the right action group before PNG, full-window six-row serializer with BOM and compliant filename; hidden when no table rows. |
+| T11.27.3 | I-148 | DONE | TL028 | MDL: centre and rotate the caption, switch caption + ticks to bold `--text2`. |
+| T11.27.4 | I-148 | DONE | TL028 | Harness and shell checks, rebuild, suites, live verification and records. |
+
+**Evidence.** Spec revision row 1.104 in both byte-identical copies (SHA-256
+`10B2618DA63ABC43F4B763E657F6B88731DA176895B14F0E6E9C261B2F0E5945`) with centred near-axis
+caption, bottom-to-top reading, bold `--text2` caption and ticks, assertion 41. Issue `I-148` in
+`MDL/log/issue_log.md` revision 1.25. `node build.mjs` rebuilt `MDL-Dashboard.html` at 302,241 B.
+Live: caption offset 0 px from gutter centre, 3 px inset, `font-weight:700` caption and ticks,
+180° rotation; downloaded `TWRP-C3B2_Issue-Progress-Table_2026-11-24.csv` with BOM and 7 lines.
+Screenshot `harness-layout/run-mdl-i148-ycap.png`. `test_shell.mjs` 110 passed / 0 failed;
+pipeline 96 / 7 and grid 42 / 1 at baseline; harness 218 passed / 10 failed / 2 advisory / 22
+skipped with the 10 failures identical to HEAD baseline and the new CSV-order check passing.
+See `U027` and `TL028`.
+
+### 11.28 — ONE table-header design for every table type (spec rev 1.105, I-149)
+
+**Owner review (2026-11-24).** Chart-attached tables must follow the independent table design.
+The header is now `--navy` with white text for every table type. Chart-specific alignment, the
+10 px plot-to-table gap, board fit, vertical month headers, column sync and per-table CSV are
+unchanged. Historical state: attached header `rgb(241,245,249)` / `--text2` vs independent
+`rgb(15,45,82)` / white.
+
+| Task | Issue | Status | Tests | Work |
+|---|---|---|---|---|
+| T11.28.1 | I-149 | DONE | TL029 | Spec rev 1.105: shared header design for all table types, rev 1.103 light variant superseded, assertion 40 rewritten. |
+| T11.28.2 | I-149 | DONE | TL029 | MDL scoped header CSS and PNG/Copy export use resolved navy fill with white text. |
+| T11.28.3 | I-149 | DONE | TL029 | Harness boardTable expected fill / text and shell checks updated. |
+| T11.28.4 | I-149 | DONE | TL029 | Rebuild, suites, live verification and records complete. |
+
+**Evidence.** Spec revision row 1.105 in both byte-identical copies (SHA-256
+`FBBEF9EE5FB513EB12CC5B70FDF77DF7A235B2264E394AF3891FC2AC4BD16646`). Issue `I-149` in
+`MDL/log/issue_log.md` is RESOLVED. Scoped CSS sets `--navy` fill and white text on
+`.curve-c1-table thead th`; PNG / Copy export resolves the same token and writes white header text.
+Harness `boardTable` config expects `--navy` and `rgb(255, 255, 255)`.
+Build: 302,295 B. Syntax PASS. Shell 110 passed / 0 failed; pipeline 96 / 7 and grid 42 / 1 at
+baseline. Harness 218 passed / 10 failed / 2 advisory / 22 skipped; the 10 failures are identical
+to the I-148 baseline. All seven attached-table board checks pass. Live browser measurement:
+attached `rgb(15, 45, 82)` / white; independent `rgb(15, 45, 82)` / white; token `--navy` resolves
+to `rgb(15, 45, 82)`. Recorded in `U028` and `TL029`.
+
+### 11.29 — Chart column centers match attached-table column centers (spec rev 1.106, I-150)
+
+**Owner review (2026-11-25).** Enhance the spec and harness check, log the issue and fix it.
+An attached-table chart column MUST be centered on the matching table header. The tolerance is
+2 px. MDL is in scope for geometry; rev 1.74 still excludes MDL from two-way sync state.
+
+| Task | Issue | Status | Tests | Work |
+|---|---|---|---|---|
+| T11.29.1 | I-150 | DONE | TL030 | Spec rev 1.106 in both copies: general center rule, MDL geometry clarification, assertion 42. |
+| T11.29.2 | I-150 | DONE | TL030 | MDL render and export use the real plot width so the SVG does not scale below the table tracks. |
+| T11.29.3 | I-150 | DONE | TL030 | Harness `boardTable` center check and config; shell checks updated. |
+| T11.29.4 | I-150 | DONE | TL030 | Rebuild, suites, live verification and records complete. |
+
+**Evidence.** Spec revision row 1.106 in both byte-identical copies (SHA-256
+`48DE0BE7D04E5DFCD88AADB9EFE270E3407964C4F6057EEB4417423080B9ECDB`). Issue `I-150` in
+`MDL/log/issue_log.md` is RESOLVED. `curveChart()` uses the supplied width; `curvePlotWidth()`
+passes `st.plot.clientWidth` in both `curveDraw()` and `curveExportMarkup()`. Board config adds
+`centerBandSelector` and `centerTolerance:2`. Build: 302,450 B. Syntax PASS. Shell 111 passed /
+0 failed; pipeline 96 / 7 and grid 42 / 1 at baseline. Harness 219 passed / 10 failed / 2 advisory
+/ 22 skipped; the 10 failures match the baseline. All eight board-contract checks pass.
+Live at 1440 px, 31 months: `viewBox` 451, SVG width 451, scale 1; center deltas `+0.02`, `+0.23`,
+`+0.16 px` at columns 0, 15 and 30. PNG download `TWRP-C3B2_Issue-Progress_2026-11-25.png`.
+Recorded in `U029` and `TL030`.

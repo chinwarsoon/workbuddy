@@ -743,8 +743,8 @@ const isoStrToDate = iso => { if(!iso) return null; const d = new Date(iso + 'T0
 function wdBetween(d1, d2){ if(!d1||!d2) return null; let s=1; if(d2<d1){[d1,d2]=[d2,d1];s=-1;} let c=0,cur=new Date(d1.getTime()); while(cur<=d2){ const day=cur.getUTCDay(); if(day!==0&&day!==6)c++; cur.setUTCDate(cur.getUTCDate()+1);} return s*c; }
 
 const CSS = `
-:root{--navy:#0F2D52;--blue:#1E88E5;--green:#2E7D32;--amber:#F9A825;--red:#C62828;--slate:#64748B;--bg:#F6F8FA;--surface:#FFFFFF;--border:#D9E1E8;--text:#1F2A37;--muted:#64748B;--card:#FFFFFF;--line:#D9E1E8;--ink:#0F2D52;--accent:#1E88E5;--accent2:#2E7D32;--warn:#F9A825;--bad:#C62828;--soft:#E8F1FD;--shadow:0 1px 2px rgba(15,45,82,.04);--radius:10px;--font:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;--warn-bg:#FFF4D6;--warn-border:#F0D38A;--warn-fg:#9a6b00;--warn-fg-strong:#9a6b00;--error-bg:#FDE8E8;--error-fg:#C62828;--ok-bg:#E6F4EA;--ok-fg:#2E7D32;--accent-soft-border:#BFD8F2;--accent-ink:#1E88E5;--grid:#EDF1F5;--sidebar-w:160px;--nav-bg:#0F2D52;--nav-bg-hover:rgba(255,255,255,.10);--nav-bg-active:#354F6E;--nav-fg:#E8EDF3;--panel-gap:14px;--btn-h:32px;--seg-h:32px;--crosshair-track:rgba(30,136,229,.14);--crosshair-intersection:rgba(30,136,229,.28);--crosshair-ring:#1E88E5;--header-crosshair-overlay:rgba(30,136,229,.20);--header-crosshair-accent:#1E88E5;--tool-pad:12px;--tool-gap:10px}
-body[data-theme="dark"]{--navy:#0B2036;--bg:#101820;--surface:#17232F;--card:#17232F;--border:#35485B;--text:#E6EDF3;--muted:#A8B7C5;--line:#35485B;--ink:#E6EDF3;--accent:#5AA9F5;--accent-ink:#8CC4FA;--soft:#20354A;--grid:#223244;--nav-bg:#0B2036;--nav-bg-active:#2B4B6A;--crosshair-track:rgba(90,169,245,.16);--crosshair-intersection:rgba(90,169,245,.30);--crosshair-ring:#8CC4FA;--header-crosshair-overlay:rgba(90,169,245,.22);--header-crosshair-accent:#8CC4FA}
+:root{--navy:#0F2D52;--blue:#1E88E5;--green:#2E7D32;--amber:#F9A825;--red:#C62828;--slate:#64748B;--bg:#F6F8FA;--surface:#FFFFFF;--border:#D9E1E8;--text:#1F2A37;--muted:#64748B;--card:#FFFFFF;--line:#D9E1E8;--ink:#0F2D52;--accent:#1E88E5;--accent2:#2E7D32;--warn:#F9A825;--bad:#C62828;--soft:#E8F1FD;--shadow:0 1px 2px rgba(15,45,82,.04);--radius:10px;--font:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;--warn-bg:#FFF4D6;--warn-border:#F0D38A;--warn-fg:#9a6b00;--warn-fg-strong:#9a6b00;--error-bg:#FDE8E8;--error-fg:#C62828;--ok-bg:#E6F4EA;--ok-fg:#2E7D32;--accent-soft-border:#BFD8F2;--accent-ink:#1E88E5;--grid:#EDF1F5;--sidebar-w:160px;--nav-bg:#0F2D52;--nav-bg-hover:rgba(255,255,255,.10);--nav-bg-active:#354F6E;--nav-fg:#E8EDF3;--panel-gap:14px;--btn-h:32px;--seg-h:32px;--crosshair-track:rgba(30,136,229,.14);--crosshair-intersection:rgba(30,136,229,.28);--crosshair-ring:#1E88E5;--header-crosshair-overlay:rgba(30,136,229,.20);--header-crosshair-accent:#1E88E5;--tool-pad:12px;--tool-gap:10px;--c1-plot-table-gap:10px;--seg-pad-y:6px;--seg-pad-x:10px;--seg-fs:12px;--seg-fw:600;--seg-lh:1.2;--seg-active-bg:var(--navy);--seg-active-fg:#fff;--seg-hover-bg:var(--surface2);--seg-hover-fg:var(--blue);--seg-pressed-bg:var(--surface3);--seg-focus:var(--blue);--seg-focus-on-active:#fff;--seg-disabled-opacity:.5;--surface2:#F1F5F9;--surface3:#E2E8F0;--text2:#475569}
+body[data-theme="dark"]{--navy:#0B2036;--bg:#101820;--surface:#17232F;--card:#17232F;--border:#35485B;--text:#E6EDF3;--muted:#A8B7C5;--line:#35485B;--ink:#E6EDF3;--accent:#5AA9F5;--accent-ink:#8CC4FA;--soft:#20354A;--grid:#223244;--nav-bg:#0B2036;--nav-bg-active:#2B4B6A;--crosshair-track:rgba(90,169,245,.16);--crosshair-intersection:rgba(90,169,245,.30);--crosshair-ring:#8CC4FA;--header-crosshair-overlay:rgba(90,169,245,.22);--header-crosshair-accent:#8CC4FA;--surface2:#1D2B3A;--surface3:#243647;--text2:#B7C4D1}
 body[data-theme="navy"]{--bg:#E7EEF5;--surface:#FFFFFF;--navy:#0B2A47;--nav-bg:#0B2A47;--nav-bg-active:#2D4F6E;--accent:#2563A6;--accent-ink:#1D4E86;--soft:#EAF2FA;--crosshair-track:rgba(37,99,166,.14);--crosshair-intersection:rgba(37,99,166,.26);--crosshair-ring:#2563A6;--header-crosshair-overlay:rgba(37,99,166,.20);--header-crosshair-accent:#2563A6}
 body[data-theme="contrast"]{--bg:#FFFFFF;--surface:#FFFFFF;--navy:#001526;--text:#000000;--muted:#253746;--border:#000000;--line:#555555;--accent:#005FCC;--accent-ink:#003D85;--soft:#EAF1F8;--nav-bg:#001526;--nav-bg-active:#004275;--crosshair-track:rgba(0,95,204,.22);--crosshair-intersection:rgba(0,95,204,.36);--crosshair-ring:#005FCC;--header-crosshair-overlay:rgba(0,95,204,.30);--header-crosshair-accent:#005FCC}
 body[data-theme="sepia"]{--bg:#F4EEE3;--surface:#FFFDF8;--navy:#463A2E;--text:#33291F;--muted:#6F6253;--border:#D2C3AD;--line:#D2C3AD;--accent:#9A5B22;--accent-ink:#7A461A;--soft:#F6ECDA;--nav-bg:#463A2E;--nav-bg-active:#6B5948;--crosshair-track:rgba(154,91,34,.16);--crosshair-intersection:rgba(154,91,34,.30);--crosshair-ring:#9A5B22;--header-crosshair-overlay:rgba(154,91,34,.22);--header-crosshair-accent:#9A5B22}
@@ -1227,57 +1227,74 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 
 .hidden{display:none}
 /* I-136 — Issue Progress C1 attached table. All selectors stay inside .curve-card. */
-.curve-card{gap:8px}
-.curve-card .sc-win{flex:1 1 auto;justify-content:flex-start;min-width:260px}
-.curve-card .c1-ts-body{display:flex;flex:1 1 240px;min-width:180px;align-items:center;gap:10px}
-.curve-card .c1-timebar{position:relative;flex:1 1 190px;min-width:120px;height:32px}
-.curve-card .c1-track{position:absolute;left:0;right:0;top:13px;height:6px;border-radius:3px;background:var(--surface3)}
-.curve-card .c1-fill{position:absolute;top:0;bottom:0;left:var(--from-pct,0%);right:var(--to-pct,0%);background:var(--blue);border-radius:3px}
-.curve-card .c1-ticks{position:absolute;left:0;right:0;top:21px;height:8px;pointer-events:none}
-.curve-card .c1-tick{position:absolute;top:0;width:1px;height:4px;background:var(--border)}
-.curve-card .c1-tick.near,.curve-card .c1-tick.active{height:7px;background:var(--blue)}
-.curve-card .c1-timebar input[type=range]{position:absolute;left:0;top:7px;width:100%;height:18px;margin:0;background:transparent;pointer-events:none;-webkit-appearance:none;appearance:none}
-.curve-card .c1-timebar input[type=range]::-webkit-slider-runnable-track{height:6px;background:transparent}
-.curve-card .c1-timebar input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:var(--surface);border:2px solid var(--blue);margin-top:-4px;pointer-events:auto;cursor:ew-resize}
-.curve-card .c1-timebar input[type=range]::-moz-range-track{height:6px;background:transparent}
-.curve-card .c1-timebar input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--surface);border:2px solid var(--blue);pointer-events:auto;cursor:ew-resize}
-.curve-card .c1-timebar input[type=range]:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:6px}
+.curve-card{gap:2px}
+.curve-card .chart-actions{gap:var(--tool-gap);margin-bottom:8px}
+.curve-card .sc-win{flex:0 0 auto;justify-content:flex-start;width:100%;min-width:0;margin-bottom:0}
+.curve-card .sc-win .msg{margin-left:0;flex-shrink:0}
+.curve-card .c1-ts-body{position:relative;display:flex;flex:1 1 190px;min-width:120px;max-width:440px;height:26px;align-items:center}
+.curve-card .c1-timebar{--c1-thumb:14px;position:relative;flex:1;height:26px}
+.curve-card .c1-track{position:absolute;left:calc(var(--c1-thumb)/2);right:calc(var(--c1-thumb)/2);top:12px;height:4px;border-radius:2px;background:var(--border)}
+.curve-card .c1-fill{position:absolute;top:12px;height:4px;border-radius:2px;background:var(--blue);pointer-events:none;left:var(--c1-fill-left,calc(var(--c1-thumb)/2));width:var(--c1-fill-width,0px)}
+.curve-card .c1-ticks{position:absolute;inset:0;pointer-events:none}
+.curve-card .c1-tick{position:absolute;top:9px;width:1px;height:6px;background:var(--border)}
+.curve-card .c1-tick.is-year{top:7px;height:10px;background:var(--text2)}
+.curve-card .c1-tick.is-active{background:var(--blue)}
+.curve-card .c1-tick.is-near{top:6px;height:12px;background:var(--blue)}
+.curve-card .c1-year{position:absolute;top:-12px;left:0;transform:translateX(-50%);font-size:9px;color:var(--text2);white-space:nowrap}
+.curve-card .c1-timebar input[type=range]{position:absolute;left:0;top:0;width:100%;height:26px;margin:0;background:transparent;pointer-events:none;-webkit-appearance:none;appearance:none}
+.curve-card .c1-timebar input[type=range]::-webkit-slider-runnable-track{height:26px;background:transparent;border:0}
+.curve-card .c1-timebar input[type=range]::-moz-range-track{height:26px;background:transparent;border:0}
+.curve-card .c1-timebar input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:var(--c1-thumb);height:var(--c1-thumb);margin-top:6px;border-radius:50%;background:var(--blue);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--blue);cursor:grab;pointer-events:auto;transition:transform .12s ease}
+.curve-card .c1-timebar input[type=range]::-moz-range-thumb{width:var(--c1-thumb);height:var(--c1-thumb);border-radius:50%;background:var(--blue);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--blue);cursor:grab;pointer-events:auto;transition:transform .12s ease}
+.curve-card .c1-timebar input[type=range]:active::-webkit-slider-thumb,.curve-card .c1-timebar input[type=range]:active::-moz-range-thumb{transform:scale(1.15);cursor:grabbing}
+.curve-card .c1-timebar input[type=range]:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.curve-card .c1-timebar input.wf{z-index:3}
+.curve-card .c1-timebar input.wt{z-index:4}
 .curve-card .seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0}
-.curve-card .seg-btn{min-height:32px;padding:5px 8px;font:600 12px/1.45 var(--font-ui);border:0;border-right:1px solid var(--border);background:var(--surface);color:var(--navy);cursor:pointer}
+.curve-card .seg-btn{min-height:var(--seg-h);padding:var(--seg-pad-y) var(--seg-pad-x);font:var(--seg-fw) var(--seg-fs)/var(--seg-lh) var(--font-ui);border:0;border-right:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer}
 .curve-card .seg-btn:last-child{border-right:0}
-.curve-card .seg-btn:hover:not(.active){background:var(--surface2);color:var(--blue)}
-.curve-card .seg-btn.active{background:var(--navy);color:#fff}
-.curve-card .seg-btn:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
-.curve-card .curve-host{width:100%;overflow-x:auto}
-.curve-card .curve-c1-grid{--c1-gutter:104px;--c1-right-w:52px;display:grid;grid-template-columns:var(--c1-gutter) repeat(var(--c1-cols),minmax(0,1fr));align-items:stretch;min-width:calc(var(--c1-gutter) + var(--c1-cols) * 64px + var(--c1-right-w));width:100%}
-.curve-card .curve-c1-gutter{grid-column:1;grid-row:1;position:relative;border:1px solid var(--border);border-right:0;border-radius:10px 0 0 0;background:var(--surface)}
-.curve-card .curve-c1-ycap{position:absolute;left:2px;bottom:6px;writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;color:var(--muted)}
-.curve-card .curve-c1-plot{grid-column:2/-1;grid-row:1;position:relative;min-width:0;cursor:crosshair;border:1px solid var(--border);border-radius:0 10px 0 0;overflow:visible}
+.curve-card .seg-btn.active{background:var(--seg-active-bg);color:var(--seg-active-fg)}
+.curve-card .seg-btn.active:hover{background:var(--seg-active-bg);color:var(--seg-active-fg)}
+.curve-card .seg-btn:not(.active):not(:disabled):hover{background:var(--seg-hover-bg);color:var(--seg-hover-fg)}
+.curve-card .seg-btn:not(:disabled):active:not(.active){background:var(--seg-pressed-bg);color:var(--text)}
+.curve-card .seg-btn:focus-visible{outline:2px solid var(--seg-focus);outline-offset:-2px}
+.curve-card .seg-btn.active:focus-visible{outline-color:var(--seg-focus-on-active)}
+.curve-card .curve-host{width:100%;overflow-x:visible}
+.curve-card .curve-c1-grid{--c1-gutter:104px;--c1-right-w:52px;display:grid;grid-template-columns:var(--c1-gutter) repeat(var(--c1-cols),minmax(0,1fr));column-gap:0;row-gap:var(--c1-plot-table-gap);align-items:stretch;min-width:0;width:100%}
+.curve-card .curve-c1-gutter{grid-column:1;grid-row:1;position:relative;border:1px solid var(--border);border-right:0;border-radius:10px 0 0 10px;background:var(--surface)}
+.curve-card .curve-c1-yticks{position:absolute;inset:0;pointer-events:none}
+.curve-card .curve-c1-ytick{position:absolute;right:6px;transform:translateY(-50%);font-family:var(--font-ui);font-size:13px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;color:var(--text2);white-space:nowrap}
+.curve-card .curve-c1-ycap{position:absolute;left:2px;top:50%;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;text-orientation:mixed;font-family:var(--font-ui);font-size:11px;font-weight:700;line-height:1;color:var(--text2);white-space:nowrap}
+.curve-card .curve-c1-plot{grid-column:2/-1;grid-row:1;position:relative;min-width:0;cursor:crosshair;border:1px solid var(--border);border-radius:0 10px 10px 0;background:var(--surface);overflow:visible}
 .curve-card .curve-c1-plot:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
 .curve-card .curve-c1-plot svg{display:block;width:100%;height:auto;overflow:visible}
-.curve-card .curve-c1-table{grid-column:1/-1;grid-row:2;width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid var(--border);border-top:0;border-radius:0 0 10px 10px;margin:0}
+.curve-card .curve-c1-table{grid-column:1/-1;grid-row:2;width:100%;min-width:0;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid var(--border);border-radius:10px;margin:0}
 .curve-card .curve-c1-table caption{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .curve-card .curve-c1-table th,.curve-card .curve-c1-table td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px 6px;text-align:right;font-size:11px;font-variant-numeric:tabular-nums;color:var(--text);background:var(--surface)}
 .curve-card .curve-c1-table tr>*:last-child{border-right:0}
 .curve-card .curve-c1-table tbody tr:last-child>*{border-bottom:0}
-.curve-card .curve-c1-table thead th{background:var(--surface2)}
-.curve-card .curve-c1-table th.corner{text-align:left;color:var(--navy);font-size:10px;font-weight:700;background:var(--surface2)}
-.curve-card .curve-c1-table th.g-axis,.curve-card .curve-c1-table th.g-label{font-size:11px;font-weight:600;color:var(--text2);white-space:nowrap}
-.curve-card .curve-c1-table th.g-label{text-align:left;background:var(--surface2)}
+.curve-card .curve-c1-table thead th{background:var(--navy);color:#fff}
+.curve-card .curve-c1-table thead th.corner{text-align:left;color:#fff;font-size:10px;font-weight:700}
+.curve-card .curve-c1-table thead th.g-axis,.curve-card .curve-c1-table thead th.g-label{font-size:11px;font-weight:600;color:#fff;white-space:nowrap}
+.curve-card .curve-c1-table tbody th.g-label{text-align:left;background:var(--surface2);color:var(--text2);font-size:11px;font-weight:600}
+.curve-card .curve-c1-table thead th.g-axis span{display:inline-block;writing-mode:horizontal-tb;white-space:nowrap}
+.curve-card .curve-c1-table.c1-many thead th.g-axis{height:88px;padding:2px}
+.curve-card .curve-c1-table.c1-many thead th.g-axis span{writing-mode:vertical-rl;text-orientation:mixed}
 .curve-card .curve-c1-table [data-c1col]:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
-.curve-card .row-hover td,.curve-card .row-hover th[scope=row]{background-image:linear-gradient(var(--crosshair-track),var(--crosshair-track))}
 .curve-card .curve-c1-table td.col-active,.curve-card .curve-c1-table th[scope=row].col-active{background-color:var(--crosshair-track);font-weight:600}
+.curve-card .curve-c1-table th[data-c1col].col-active{background-image:linear-gradient(var(--header-crosshair-overlay),var(--header-crosshair-overlay)),linear-gradient(var(--header-crosshair-accent),var(--header-crosshair-accent));background-size:auto,100% 2px;background-position:center,center bottom;background-repeat:no-repeat}
+@media (hover:hover) and (pointer:fine){
 .curve-card .curve-c1-table td.cell-hover,.curve-card .curve-c1-table th[scope=row].cell-hover{background-color:var(--crosshair-intersection);box-shadow:inset 0 0 0 1px var(--crosshair-ring)}
-.curve-card .curve-c1-table th[data-c1col].col-active,.curve-card .curve-c1-table th[data-c1col].cell-hover{background-image:linear-gradient(var(--header-crosshair-overlay),var(--header-crosshair-overlay)),linear-gradient(var(--header-crosshair-accent),var(--header-crosshair-accent));background-size:auto,100% 2px;background-position:center,center bottom;background-repeat:no-repeat}
-.curve-card .curve-c1-table th[data-c1col].cell-hover{background-color:var(--crosshair-intersection)}
-.curve-card .curve-c1-table td.col-hover,.curve-card .curve-c1-table th[data-c1col].col-hover{background-color:var(--crosshair-track)}
-.curve-card .curve-c1-table th[data-c1col].col-hover{background-image:linear-gradient(var(--header-crosshair-overlay),var(--header-crosshair-overlay)),linear-gradient(var(--header-crosshair-accent),var(--header-crosshair-accent));background-size:auto,100% 2px;background-position:center,center bottom;background-repeat:no-repeat}
+.curve-card .curve-c1-table th[data-c1col].cell-hover{background-color:var(--crosshair-intersection);background-image:linear-gradient(var(--header-crosshair-overlay),var(--header-crosshair-overlay)),linear-gradient(var(--header-crosshair-accent),var(--header-crosshair-accent));background-size:auto,100% 2px;background-position:center,center bottom;background-repeat:no-repeat}
+}
 .curve-card .sc-hover-band{fill:var(--blue);fill-opacity:.08;pointer-events:none;display:none}
 .curve-card .chart-snap{stroke:var(--text3);stroke-width:1;stroke-dasharray:3 3;pointer-events:none;display:none}
 .curve-card .curve-c1-plot.col-on .sc-hover-band,.curve-card .curve-c1-plot.col-on .chart-snap{display:inline}
 .curve-card .curve-mode-dual{color:var(--amber)}
 /* §7.2.11 — a bounded scroller capped at 340 px would print every long table as a clipping */
 @media print{body{background:#fff}.tableScroll{max-height:none!important;overflow:visible!important}.panel{break-inside:avoid;box-shadow:none}.filters,.toolbar{display:none}header.app{position:static}header.app .app-menu{display:none!important}#errBanner{display:none!important}.panel.collapsed .panel-body{display:block}.ds-table .row-hover,.ds-table .col-hover,.ds-table .cell-hover{background:none!important;background-image:none!important;box-shadow:none!important;color:inherit!important}.curve-card .chart-tip{display:none!important}.curve-card .sc-hover-band,.curve-card .chart-snap,.curve-card .curve-c1-plot.col-on .sc-hover-band,.curve-card .curve-c1-plot.col-on .chart-snap{display:none!important}.curve-card .col-active,.curve-card .row-hover td,.curve-card .row-hover th[scope=row],.curve-card .cell-hover{background-image:none!important;background-color:transparent!important;box-shadow:none!important;color:inherit!important}}
+@media (min-width:1280px){.curve-card .sc-win{flex-wrap:nowrap;min-width:0}.curve-card .sc-win .lbl,.curve-card .sc-win .c1-ts-body,.curve-card .sc-win .msg{white-space:nowrap}.curve-card .sc-win .c1-ts-body{flex:0 1 auto;min-width:220px}}
+@media print{.curve-card .chart-actions{display:none!important}.curve-card .sc-win{display:flex!important}.curve-card .c1-ts-body,.curve-card .seg{display:none!important}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 `;
 
@@ -1322,6 +1339,12 @@ function scurveAxisMode({maxCum,maxBar,barsVisible,current}){
   return r>10 ? 'dual' : 'single';                       // engage above 10
 }
 const CURVE_GUTTER_W=104, CURVE_RIGHT_W=52, CURVE_PLOT_H=300;
+const CURVE_LEG_PAD_L=12, CURVE_LEG_PAD_T=10, CURVE_LEG_ROW_H=18, CURVE_REF_BAND_H=18;
+function curveFallbackWidth(cols){ return Math.max(440, cols*64+CURVE_RIGHT_W); }
+function curvePlotWidth(st, cols){
+  const w=Math.round(st.plot && st.plot.clientWidth ? st.plot.clientWidth : 0);
+  return w>0 ? w : curveFallbackWidth(cols);
+}
 const CURVE_FF='font-family="\'Segoe UI\', system-ui, -apple-system, \'Inter\', \'Source Sans Pro\', Roboto, Helvetica, Arial, sans-serif"';
 function curveNiceTicks(M){
   const cap=7;
@@ -1359,11 +1382,14 @@ function curveChart(p, from, to, forExport, plotW){
   const mode=forExport?curveLastScaleMode:scurveAxisMode({maxCum,maxBar,barsVisible,current:curveLastScaleMode});
   if(!forExport) curveLastScaleMode=mode;
   const dual=mode==='dual';
-  const W=Math.max(440, m*64+CURVE_RIGHT_W, Number(plotW)||0), pw=W-CURVE_RIGHT_W, gw=pw/m;
+  const W=Math.max(1, Number(plotW)||curveFallbackWidth(m)), pw=W-CURVE_RIGHT_W, gw=pw/m;
   const entries=curveLegendEntries(barsVisible,dual);
-  const perRow=Math.max(1,Math.floor(W/132));
+  const padL=CURVE_LEG_PAD_L, padR=dual?CURVE_RIGHT_W:12;
+  const budget=Math.max(120,W-padL-padR);
+  const perRow=Math.max(1,Math.floor(budget/132));
   const legendRows=Math.max(1,Math.ceil(entries.length/perRow));
-  const T=8+legendRows*17, PH=CURVE_PLOT_H, H=T+PH;
+  const legendBottom=CURVE_LEG_PAD_T+legendRows*CURVE_LEG_ROW_H;
+  const T=legendBottom+CURVE_REF_BAND_H, PH=CURVE_PLOT_H, H=T+PH;
   const maxY=!barsVisible?maxCum:dual?maxCum:Math.max(1,maxCum,maxBar);
   const maxBarY=Math.max(1,maxBar);
   const ticks=curveNiceTicks(maxY);
@@ -1371,21 +1397,26 @@ function curveChart(p, from, to, forExport, plotW){
   const Y=v=>T+PH-(v/ticks.yMax)*PH;
   const Yb=v=>T+PH-((dual?v/maxBarY:v/ticks.yMax))*PH;
   const bw=Math.min(18,(gw*0.62)/3);
+  const defs=`<defs>${[['blue','Blue'],['amber','Amber'],['green','Green']].map(([tok,n])=>`<linearGradient id="scg${n}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--${tok})" stop-opacity=".28"/><stop offset="100%" stop-color="var(--${tok})" stop-opacity="0"/></linearGradient>`).join('')}</defs>`;
   let g='';
+  [['pCum','scgBlue'],['fCum','scgAmber'],['aCum','scgGreen']].forEach(([k,id])=>{
+    const pts=vis(k); if(!pts.length) return;
+    const d=`M${Xc(pts[0]).toFixed(1)},${(T+PH).toFixed(1)} `+pts.map(i=>`L${Xc(i).toFixed(1)},${Y(p[k][i]||0).toFixed(1)}`).join(' ')+` L${Xc(pts[pts.length-1]).toFixed(1)},${(T+PH).toFixed(1)} Z`;
+    g+=`<path class="sc-area" d="${d}" fill="url(#${id})" stroke="none" pointer-events="none"/>`;
+  });
   entries.forEach((e,i)=>{
-    const row=Math.floor(i/perRow), dy=row*17;
-    let lx=0; for(let j=row*perRow;j<i;j++) lx+=curveLegendAdv(entries[j]);
-    if(e.type==='bar') g+=`<rect x="${lx}" y="${T-13-dy}" width="10" height="10" rx="2" fill="${e.c}" opacity="0.55"/><text x="${lx+15}" y="${T-4-dy}" ${CURVE_FF} font-size="12" fill="#2b3440">${e.lab}</text>`;
-    else g+=`<line x1="${lx}" y1="${T-8-dy}" x2="${lx+18}" y2="${T-8-dy}" stroke="${e.c}" stroke-width="2.5"${e.dash?` stroke-dasharray="${e.dash}"`:''}/><text x="${lx+24}" y="${T-4-dy}" ${CURVE_FF} font-size="12" fill="#2b3440">${e.lab}</text>`;
+    const row=Math.floor(i/perRow), dy=row*CURVE_LEG_ROW_H;
+    let lx=padL; for(let j=row*perRow;j<i;j++) lx+=curveLegendAdv(entries[j]);
+    if(e.type==='bar') g+=`<rect x="${lx}" y="${legendBottom-13-dy}" width="10" height="10" rx="2" fill="${e.c}" opacity="0.55"/><text x="${lx+15}" y="${legendBottom-4-dy}" ${CURVE_FF} font-size="12" fill="#2b3440">${e.lab}</text>`;
+    else g+=`<line x1="${lx}" y1="${legendBottom-8-dy}" x2="${lx+18}" y2="${legendBottom-8-dy}" stroke="${e.c}" stroke-width="2.5"${e.dash?` stroke-dasharray="${e.dash}"`:''}/><text x="${lx+24}" y="${legendBottom-4-dy}" ${CURVE_FF} font-size="12" fill="#2b3440">${e.lab}</text>`;
   });
   ticks.vals.forEach(v=>{ const y=Y(v);
-    g+=`<line x1="0" y1="${y.toFixed(1)}" x2="${pw.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#EAEFF5" stroke-width="1"/><text x="-6" y="${(y+4).toFixed(1)}" text-anchor="end" ${CURVE_FF} font-size="13" fill="#6b7785">${curveTickText(v)}</text>`; });
-  g+=`<text x="-6" y="${T-4}" text-anchor="end" ${CURVE_FF} font-size="13" fill="#6b7785">Docs</text>`;
+    g+=`<line x1="0" y1="${y.toFixed(1)}" x2="${pw.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#EAEFF5" stroke-width="1"/>`; });
   if(dual){
     const rTicks=curveNiceTicks(maxBarY);
     rTicks.vals.forEach(v=>{ const y=Yb(v);
       g+=`<text x="${(pw+6).toFixed(1)}" y="${(y+4).toFixed(1)}" text-anchor="start" ${CURVE_FF} font-size="13" fill="${COLORS.blue}">${curveTickText(v)}</text>`; });
-    g+=`<text x="${(pw+6).toFixed(1)}" y="${T-4}" text-anchor="start" ${CURVE_FF} font-size="13" fill="${COLORS.blue}">per mo</text>`;
+    g+=`<text x="${(pw+6).toFixed(1)}" y="${legendBottom-4}" text-anchor="start" ${CURVE_FF} font-size="13" fill="${COLORS.blue}">per mo</text>`;
     g+=`<line x1="${pw.toFixed(1)}" y1="${T}" x2="${pw.toFixed(1)}" y2="${T+PH}" stroke="${COLORS.blue}" stroke-width="1"/>`;
   }
   if(!forExport){
@@ -1406,14 +1437,13 @@ function curveChart(p, from, to, forExport, plotW){
     pts.forEach(i=>{ const v=p[k][i]||0; g+=`<circle cx="${Xc(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="3" fill="${c}"><title>${lab} ${monthLabel(p.months[i])}: ${v}</title></circle>`; });
   });
   g+=`<line x1="0" y1="${T+PH}" x2="${pw.toFixed(1)}" y2="${T+PH}" stroke="#C9D4E0" stroke-width="1"/><line x1="0" y1="${T}" x2="0" y2="${T+PH}" stroke="#C9D4E0" stroke-width="1"/>`;
-  idx.forEach(i=>{ g+=`<text x="${Xc(i).toFixed(1)}" y="${T+PH+16}" text-anchor="middle" ${CURVE_FF} font-size="13" fill="#6b7785">${monthLabel(p.months[i])}</text>`; });
-  if(typeof p.projStartIdx==='number' && p.projStartIdx>=from && p.projStartIdx<=to){ const x=Xc(p.projStartIdx);
-    g+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${T+PH}" stroke="#C62828" stroke-width="1.5" stroke-dasharray="5,3"/><text x="${x.toFixed(1)}" y="${T-4}" text-anchor="middle" ${CURVE_FF} font-size="13" fill="#C62828">Start</text>`; }
-  if(typeof p.asofIdx==='number' && p.asofIdx>=from && p.asofIdx<=to){ const x=Xc(p.asofIdx);
-    g+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${T+PH}" stroke="#B8C2CC" stroke-width="1.5" stroke-dasharray="2,2"/><text x="${x.toFixed(1)}" y="${T-4}" text-anchor="middle" ${CURVE_FF} font-size="13" fill="#68727d">Today</text>`; }
+  if(typeof p.projStartIdx==='number' && p.projStartIdx>=from && p.projStartIdx<=to){ const x=Xc(p.projStartIdx), lx=Math.max(28,Math.min(pw-28,x));
+    g+=`<line x1="${x.toFixed(1)}" y1="${T-CURVE_REF_BAND_H}" x2="${x.toFixed(1)}" y2="${T+PH}" stroke="#C62828" stroke-width="1.5" stroke-dasharray="5,3"/><text x="${lx.toFixed(1)}" y="${T-5}" text-anchor="middle" ${CURVE_FF} font-size="12" fill="#C62828">Start</text>`; }
+  if(typeof p.asofIdx==='number' && p.asofIdx>=from && p.asofIdx<=to){ const x=Xc(p.asofIdx), lx=Math.max(28,Math.min(pw-28,x));
+    g+=`<line x1="${x.toFixed(1)}" y1="${T-CURVE_REF_BAND_H}" x2="${x.toFixed(1)}" y2="${T+PH}" stroke="#B8C2CC" stroke-width="1.5" stroke-dasharray="2,2"/><text x="${lx.toFixed(1)}" y="${T-5}" text-anchor="middle" ${CURVE_FF} font-size="12" fill="#68727d">Today</text>`; }
   const points=idx.map(i=>({cx:Xc(i),month:monthLabel(p.months[i]),p:p.pNew[i]||0,f:p.fNew[i]||0,a:p.aNew[i]||0,pc:p.pCum[i]||0,fc:p.fCum[i]||0,ac:p.aCum[i]||0}));
-  const svg=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Issue Progress chart, ${mode} scale">${g}</svg>`;
-  return {svg,W,H,pw,PH,T,gw,mode,dual,ticks,points,legendRows};
+  const svg=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Issue Progress chart, ${mode} scale">${defs}${g}</svg>`;
+  return {svg,W,H,pw,PH,T,gw,mode,dual,ticks,points,legendRows,yticks:ticks.vals.map(v=>({v,y:Y(v)})),refBand:CURVE_REF_BAND_H};
 }
 function combinedProgressSVG(p, from, to){ return curveChart(p,from,to,false,0).svg; }
 function svgToBlob(svgEl, cb){
@@ -1763,7 +1793,8 @@ function clearCrosshair(){
   if(!crosshairState) return;
   crosshairState.cell.classList.remove('cell-hover');
   if(crosshairState.row) crosshairState.row.classList.remove('row-hover');
-  crosshairState.cols.forEach(c=>c.classList.remove('col-hover'));
+  crosshairState.cols.forEach(c=>c.classList.remove(crosshairState.linked?'col-active':'col-hover'));
+  if(crosshairState.linked && curveState) curveSyncColumn(curveState,-1);
   crosshairState=null;
 }
 function applyCrosshair(cell){
@@ -1776,9 +1807,11 @@ function applyCrosshair(cell){
   const cols=[...scope.querySelectorAll('[data-col-id]')].filter(c=>c.dataset.colId===id);
   const row=cell.closest('tr');
   if(row && row.closest('tbody')) row.classList.add('row-hover');
-  cols.forEach(c=>c.classList.add('col-hover'));
+  const linked=table.classList.contains('curve-c1-table');
+  if(linked){ if(curveState && curveState.table===table) curveSyncColumn(curveState,Number(cell.dataset.c1col)); }
+  else cols.forEach(c=>c.classList.add('col-hover'));
   cell.classList.add('cell-hover');
-  crosshairState={cell,row,cols};
+  crosshairState={cell,row,cols,linked};
 }
 function bindTableCrosshair(){
   if(crosshairBound) return;
@@ -1788,6 +1821,11 @@ function bindTableCrosshair(){
     if(!finePointer) return;
     const cell=e.target && e.target.closest ? e.target.closest('[data-col-id]') : null;
     applyCrosshair(cell);
+  });
+  document.addEventListener('pointerdown', e=>{
+    if(e.pointerType!=='touch') return;
+    const cell=e.target && e.target.closest ? e.target.closest('[data-col-id]') : null;
+    if(cell){ applyCrosshair(cell); setTimeout(clearCrosshair,400); }
   });
   document.addEventListener('focusin', e=>{
     const target=e.target;
@@ -2303,8 +2341,8 @@ const HELP = {
 <ul>
 <li><strong>S-Curve</strong> — for each month, a running total of documents with a Planned, Forecast (or Planned if forecast blank), or Actual date in that month or earlier.</li>
 <li><strong>Monthly bar</strong> — the same three series counted only in the month they occur (not running totals).</li>
-<li>The <strong>window slider</strong> (Reporting period) selects which months are shown and <strong>scopes the S-curve data</strong>: the cumulative lines show progress <strong>within the selected window</strong> (anchored at the window start), while the monthly bars show per-month new counts. The red-dashed <strong>Start</strong> and navy <strong>Today</strong> reference lines stay fixed. A caption under the chart shows <strong>Reporting period: … · As-of: {system date} · cumulative within period</strong> so the window is never confused with the current-date calculations (which stay anchored to the as-of date).</li>
-<li>A red dashed <strong>vertical line</strong> marks <strong>Start</strong> (project start date, <strong>Code!B6</strong>); a solid navy line marks <strong>Today</strong> (the as-of system date). The project-start month is always included in the range, and the panel prints both as a caption.</li>
+<li>The <strong>window slider</strong> (Period) selects which months are shown and <strong>scopes the S-curve data</strong>: the cumulative lines show progress <strong>within the selected window</strong> (anchored at the window start), while the monthly bars show per-month new counts. The red-dashed <strong>Start</strong> and grey-dashed <strong>Today</strong> reference lines stay fixed. The selected range appears at the end of the time bar row and the as-of date appears in the title bar, so the window is never confused with the current-date calculations (which stay anchored to the as-of date).</li>
+<li>A red dashed <strong>vertical line</strong> marks <strong>Start</strong> (project start date, <strong>Code!B6</strong>); a grey dashed vertical line marks <strong>Today</strong> (the as-of system date). The project-start month is always included in the range. Both lines carry in-chart labels; no explanatory caption is printed under the chart.</li>
 </ul>
 <div class="def"><strong>Forecast fallback</strong> — when <em>Forecast 1st Issue Date</em> (T) is blank, <em>Planned 1st Issue Date</em> (S) is used in its place.</div>
 <div class="def"><strong>Pre-project-start dates</strong> — a document whose Planned/Forecast/Actual date is earlier than Code!B6 is flagged as <strong>V-28</strong> in the Validation panel (Panel 6); it still appears on the curve to the left of the PS marker.</div>
@@ -3234,43 +3272,45 @@ function renderCharts(grid, charts){
   grid.appendChild(docCard); grid.appendChild(issCard);
 }
 
-function curveLoadPreset(){ try{ return localStorage.getItem('mdl-ip-preset')||'6M'; }catch(e){ return '6M'; } }
+function curveLoadPreset(){ try{ return localStorage.getItem('mdl-ip-preset')||'All'; }catch(e){ return 'All'; } }
 function curveStorePreset(name){ try{ localStorage.setItem('mdl-ip-preset',name); }catch(e){} }
-function curvePresetRange(name, p){
+function curvePresetRange(name, p, toIdx){
   const n=p.months.length, last=n-1;
-  const anchor=(typeof p.asofIdx==='number' && p.asofIdx>=0 && p.asofIdx<=last)?p.asofIdx:last;
+  const to=(typeof toIdx==='number'&&toIdx>=0&&toIdx<=last)?toIdx:((typeof p.asofIdx==='number'&&p.asofIdx>=0&&p.asofIdx<=last)?p.asofIdx:last);
   if(name==='All') return [0,last];
   if(name==='YTD'){
-    const year=(p.months[anchor]||'').slice(0,4);
+    const asof=(typeof p.asofIdx==='number'&&p.asofIdx>=0&&p.asofIdx<=last)?p.asofIdx:last;
+    const year=(p.months[asof]||'').slice(0,4);
     let first=p.months.findIndex(m=>m.slice(0,4)===year);
-    if(first<0) first=Math.max(0,anchor-3);
-    return [Math.min(first,anchor),anchor];
+    if(first<0) first=Math.max(0,asof-3);
+    return [Math.min(first,asof),asof];
   }
   const size=Number(name.replace('M',''))||6;
-  return [Math.max(0,anchor-size+1),anchor];
+  return [Math.max(0,to-size+1),to];
 }
 function curveUpdateTimebar(st){
-  const max=Math.max(0,st.progress.months.length-1), pct=v=>max>0?(v/max*100).toFixed(2)+'%':'0%';
+  const max=Math.max(0,st.progress.months.length-1), denom=Math.max(1,max);
+  const pos=i=>`calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * ${(i/denom).toFixed(6)})`;
   st.wf.max=st.wt.max=String(max);
   st.wf.value=String(scurveWin.from); st.wt.value=String(scurveWin.to);
   st.wf.setAttribute('aria-valuetext',monthLabel(st.progress.months[scurveWin.from]));
   st.wt.setAttribute('aria-valuetext',monthLabel(st.progress.months[scurveWin.to]));
   st.tb.dataset.c1period=JSON.stringify({from:scurveWin.from,to:scurveWin.to});
-  st.tb.style.setProperty('--from-pct',pct(scurveWin.from));
-  st.tb.style.setProperty('--to-pct',pct(max-scurveWin.to));
+  st.tb.style.setProperty('--c1-fill-left',pos(scurveWin.from));
+  st.tb.style.setProperty('--c1-fill-width',`calc((100% - var(--c1-thumb)) * ${((scurveWin.to-scurveWin.from)/denom).toFixed(6)})`);
   st.ticks.innerHTML=st.progress.months.map((m,i)=>{
-    const cls=(i===scurveWin.from||i===scurveWin.to)?'active':(Math.abs(i-scurveWin.from)<=1||Math.abs(i-scurveWin.to)<=1)?'near':'';
-    return `<i class="c1-tick ${cls}" data-c1month="${m}" style="left:${pct(i)}"></i>`;
+    const isYear=(m||'').slice(5,7)==='01';
+    const cls=`c1-tick${isYear?' is-year':''}${i>=scurveWin.from&&i<=scurveWin.to?' is-active':''}${(i===scurveWin.from||i===scurveWin.to)?' is-near':''}`;
+    return `<i class="${cls}" data-c1month="${i}" style="left:${pos(i)}">${isYear?`<span class="c1-year">${(m||'').slice(0,4)}</span>`:''}</i>`;
   }).join('');
   st.segBtns.forEach(b=>{ const on=b.dataset.preset===curvePreset; b.classList.toggle('active',on); b.setAttribute('aria-pressed',String(on)); });
-  st.card.classList.toggle('wide',curvePreset==='All');
 }
 function curveTableMarkup(p, from, to){
   const idx=[]; for(let i=from;i<=to;i++) idx.push(i);
   const caption='<caption>Issue progress by reporting month, with the chart column for each month.</caption>';
   const col=`<colgroup><col style="width:var(--c1-gutter)"><col span="${idx.length}"><col style="width:var(--c1-right-w)"></colgroup>`;
   const head='<thead><tr><th scope="col" class="corner">Reporting Month</th>'+
-    idx.map((i,j)=>`<th scope="col" class="g-axis" data-c1col="${j}" data-col-id="c${j}" tabindex="0">${monthLabel(p.months[i])}</th>`).join('')+
+    idx.map((i,j)=>`<th scope="col" class="g-axis" data-c1col="${j}" data-col-id="c${j}" tabindex="0"><span>${monthLabel(p.months[i])}</span></th>`).join('')+
     '<th aria-hidden="true"></th></tr></thead>';
   const rows=[['Planned','pNew'],['Forecast','fNew'],['Actual','aNew'],['Cum. Plan','pCum'],['Cum. Forecast','fCum'],['Cum. Actual','aCum']];
   const body='<tbody>'+rows.map(([lab,k])=>'<tr><th scope="row" class="g-label">'+lab+'</th>'+
@@ -3286,7 +3326,7 @@ function curveTipHTML(pt){
     `<div class="chart-tip-foot"><span>Cum. Actual</span><span class="tip-num">${pt.ac}</span></div>`;
 }
 function curveClearCrosshair(st){
-  st.table.querySelectorAll('.row-hover,.col-active,.col-hover,.cell-hover').forEach(el=>el.classList.remove('row-hover','col-active','col-hover','cell-hover'));
+  st.table.querySelectorAll('.col-active').forEach(el=>el.classList.remove('col-active'));
 }
 function curveSyncColumn(st,index){
   curveClearCrosshair(st);
@@ -3296,11 +3336,6 @@ function curveSyncColumn(st,index){
   if(snap && index>=0){ const x=((index+0.5)*(st.gw||0)).toFixed(1); snap.setAttribute('x1',x); snap.setAttribute('x2',x); }
   if(index>=0) st.table.querySelectorAll('[data-c1col]').forEach(el=>{ if(Number(el.dataset.c1col)===index) el.classList.add('col-active'); });
   st.active=index;
-}
-function curveSetTableCrosshair(st,cell){
-  curveSyncColumn(st,Number(cell.dataset.c1col));
-  const row=cell.parentElement; if(row) row.classList.add('row-hover');
-  cell.classList.add('cell-hover');
 }
 function curveHideTip(st){
   st.tip.classList.remove('show'); st.tip.setAttribute('aria-hidden','true'); st.tip.textContent=''; st.tip.innerHTML='';
@@ -3328,26 +3363,36 @@ function curveNearest(st,clientX,clientY){
 }
 function curveExportMarkup(st){
   const p=st.progress, cols=[]; for(let i=scurveWin.from;i<=scurveWin.to;i++) cols.push(i);
-  const W=Math.max(440,cols.length*64+CURVE_RIGHT_W,Math.round(st.plot.clientWidth)||0);
+  const W=curvePlotWidth(st, cols.length);
   const g=curveChart(p,scurveWin.from,scurveWin.to,true,W);
-  const chart=g.svg.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
-  const rowH=20, headH=24, tableH=headH+6*rowH, H=g.H+tableH;
+  let chart=g.svg.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
+  try{ const cs=getComputedStyle(document.body);
+    ['blue','amber','green'].forEach(n=>{ const v=cs.getPropertyValue('--'+n).trim()||COLORS[n]; chart=chart.split(`var(--${n})`).join(v); });
+  }catch(e){ ['blue','amber','green'].forEach(n=>{ chart=chart.split(`var(--${n})`).join(COLORS[n]); }); }
+  const yTicks=g.yticks.map(t=>`<text x="-8" y="${(t.y+4).toFixed(1)}" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b7785">${curveTickText(t.v)}</text>`).join('');
+  const rowH=20, headH=24, tableH=headH+6*rowH;
+  let tableGap=10, headFill='#0F2D52';
+  try{ const cs=getComputedStyle(document.body);
+    tableGap=parseFloat(cs.getPropertyValue('--c1-plot-table-gap'))||tableGap;
+    headFill=cs.getPropertyValue('--navy').trim()||headFill;
+  }catch(e){}
+  const tableY=g.H+tableGap, H=tableY+tableH;
   const gutter=CURVE_GUTTER_W, right=CURVE_RIGHT_W, cw=g.pw/Math.max(1,cols.length), sx=gutter+cols.length*cw;
-  let t=`<rect x="0" y="${g.H}" width="${W}" height="${tableH}" fill="#fff"/>`;
+  let t=`<rect x="0" y="${tableY}" width="${W}" height="${tableH}" fill="#fff"/>`;
   const cell=(x,y,w,h,text,align,header)=>{
-    t+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h}" fill="${header?'#F4F7FB':'#fff'}" stroke="#D8E0EA" stroke-width="1"/>`;
-    t+=`<text x="${(align==='right'?x+w-5:x+5).toFixed(1)}" y="${y+h-5}" text-anchor="${align==='right'?'end':'start'}" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#2B3440">${text}</text>`;
+    t+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h}" fill="${header?headFill:'#fff'}" stroke="#D8E0EA" stroke-width="1"/>`;
+    t+=`<text x="${(align==='right'?x+w-5:x+5).toFixed(1)}" y="${y+h-5}" text-anchor="${align==='right'?'end':'start'}" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="${header?'#fff':'#2B3440'}">${text}</text>`;
   };
-  cell(0,g.H,gutter,headH,'Reporting Month','left',true);
-  cols.forEach((i,j)=>cell(gutter+j*cw,g.H,cw,headH,monthLabel(p.months[i]),'right',true));
-  cell(sx,g.H,right,headH,'','left',true);
+  cell(0,tableY,gutter,headH,'Reporting Month','left',true);
+  cols.forEach((i,j)=>cell(gutter+j*cw,tableY,cw,headH,monthLabel(p.months[i]),'right',true));
+  cell(sx,tableY,right,headH,'','left',true);
   [['Planned','pNew'],['Forecast','fNew'],['Actual','aNew'],['Cum. Plan','pCum'],['Cum. Forecast','fCum'],['Cum. Actual','aCum']].forEach(([lab,k],r)=>{
-    const y=g.H+headH+r*rowH;
+    const y=tableY+headH+r*rowH;
     cell(0,y,gutter,rowH,lab,'left',false);
     cols.forEach((i,j)=>cell(gutter+j*cw,y,cw,rowH,String(p[k][i]||0),'right',false));
     cell(sx,y,right,rowH,'','left',false);
   });
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-60 0 ${W+60} ${H}" width="${W+60}" height="${H}"><rect x="-60" y="0" width="${W+60}" height="${H}" fill="#fff"/>${chart}${t}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-60 0 ${W+60} ${H}" width="${W+60}" height="${H}"><rect x="-60" y="0" width="${W+60}" height="${H}" fill="#fff"/>${chart}${yTicks}${t}</svg>`;
 }
 function curveSVGToBlob(markup, cb){
   const url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(markup);
@@ -3366,16 +3411,30 @@ function curveAttachExport(st){
     run(async b=>{ if(!b){toast('Export failed','error');return;} try{ await navigator.clipboard.write([new ClipboardItem({'image/png':b})]); toast('Copied to clipboard','success'); }
       catch(e){ toast('Clipboard blocked — PNG downloaded','warning'); } }); };
 }
+function curveTableCSV(st){
+  const p=st.progress, idx=[]; for(let i=scurveWin.from;i<=scurveWin.to;i++) idx.push(i);
+  if(!idx.length){ toast('Nothing to export','info'); return; }
+  const lines=[[ 'Reporting Month',...idx.map(i=>monthLabel(p.months[i])) ].map(csvCell).join(',')];
+  [['Planned','pNew'],['Forecast','fNew'],['Actual','aNew'],['Cum. Plan','pCum'],['Cum. Forecast','fCum'],['Cum. Actual','aCum']].forEach(([label,key])=>{
+    lines.push([label,...idx.map(i=>p[key][i]||0)].map(csvCell).join(','));
+  });
+  downloadCSV(xp('Issue_Progress_Table')+'.csv',lines.join('\n'));
+  toast('CSV downloaded','success');
+}
 function curveDraw(st){
   const a=scurveWin.from, b=scurveWin.to, cols=b-a+1;
-  const W=Math.max(440,cols*64+CURVE_RIGHT_W,Math.round(st.plot.clientWidth)||0);
+  const W=curvePlotWidth(st, cols);
   const g=curveChart(st.progress,a,b,false,W);
   st.grid.style.setProperty('--c1-cols',String(cols));
   st.plot.innerHTML=g.svg;
   st.plot.dataset.geo=JSON.stringify({W:g.W,H:g.H,pw:g.pw,gw:g.gw});
+  const yt=st.gutter.querySelector('.curve-c1-yticks');
+  if(yt) yt.innerHTML=g.yticks.map(t=>`<span class="curve-c1-ytick" style="top:${(t.y/g.H*100).toFixed(2)}%">${curveTickText(t.v)}</span>`).join('');
   st.points=g.points; st.gw=g.gw;
+  st.table.classList.toggle('c1-many',cols>13); st.table.classList.toggle('c1-few',cols<=13);
+  if(st.csv) st.csv.hidden=!(cols>0);
   st.table.innerHTML=curveTableMarkup(st.progress,a,b);
-  st.msg.textContent=`${monthLabel(st.progress.months[a])} → ${monthLabel(st.progress.months[b])}  (${cols}/${st.progress.months.length} months)`;
+  st.msg.textContent=`${monthLabel(st.progress.months[a])} – ${monthLabel(st.progress.months[b])}`;
   st.dualNote.textContent=g.dual?'Monthly bars use the right-hand scale; Cum. lines use the left cumulative scale.':'';
   curveUpdateTimebar(st);
   curveSyncColumn(st,-1);
@@ -3392,7 +3451,7 @@ function curveBind(st){
   st.wf.onchange=()=>curveDraw(st); st.wt.onchange=()=>curveDraw(st);
   st.segBtns.forEach(btn=>btn.onclick=()=>{
     curvePreset=btn.dataset.preset; curveStorePreset(curvePreset);
-    const r=curvePresetRange(curvePreset,st.progress); scurveWin={from:r[0],to:r[1]}; curveUpdateTimebar(st); curveDraw(st);
+    const r=curvePresetRange(curvePreset,st.progress,scurveWin.to); scurveWin={from:r[0],to:r[1]}; curveUpdateTimebar(st); curveDraw(st);
   });
   st.barsBtn.onclick=()=>{ curveShowBars=!(curveShowBars!==false);
     st.barsBtn.setAttribute('aria-pressed',String(curveShowBars)); st.barsBtn.style.opacity=curveShowBars?'1':'0.55'; curveDraw(st); };
@@ -3406,14 +3465,9 @@ function curveBind(st){
     if(e.key==='ArrowRight'||e.key==='ArrowLeft'){ e.preventDefault();
       const next=Math.max(0,Math.min(st.points.length-1,st.active+(e.key==='ArrowRight'?1:-1))); curveTipAt(st,next,null,null); }
   });
-  const cellFrom=e=>e.target.closest&&e.target.closest('[data-c1col]');
-  st.table.addEventListener('pointerover',e=>{ if(e.pointerType&&e.pointerType!=='mouse'&&e.pointerType!=='pen')return;
-    const cell=cellFrom(e); if(cell){ curveHideTip(st); curveSetTableCrosshair(st,cell); } });
-  st.table.addEventListener('pointerleave',()=>curveSyncColumn(st,-1));
-  st.table.addEventListener('focusin',e=>{ const cell=cellFrom(e); if(cell){ curveHideTip(st); curveSetTableCrosshair(st,cell); } });
-  st.table.addEventListener('focusout',e=>{ if(!st.table.contains(e.relatedTarget)) curveSyncColumn(st,-1); });
-  st.table.addEventListener('pointerdown',e=>{ if(e.pointerType!=='touch')return;
-    const cell=cellFrom(e); if(cell){ curveHideTip(st); curveSetTableCrosshair(st,cell); setTimeout(()=>curveSyncColumn(st,-1),400); } });
+  st.plot.addEventListener('pointerdown',e=>{ if(e.pointerType!=='touch') return;
+    curveTipAt(st,curveNearest(st,e.clientX,e.clientY),e.clientX,e.clientY); });
+  document.addEventListener('pointerdown',e=>{ if(curveState===st && !st.card.contains(e.target)) curveHideTip(st); });
   document.addEventListener('keydown',e=>{ if(curveState===st && e.key==='Escape') curveHideTip(st); });
 }
 function renderCurvePanel(body, progress){
@@ -3429,29 +3483,30 @@ function renderCurvePanel(body, progress){
   const card=document.createElement('div'); card.className='chart curve-card'; body.appendChild(card);
   const cluster=document.createElement('div'); cluster.className='head-actions chart-actions'; card.appendChild(cluster);
   const win=document.createElement('div'); win.className='toolbar sc-win';
-  win.innerHTML='<span class="lbl">Period window</span><div class="c1-ts-body">'+
-    '<div class="c1-timebar"><div class="c1-track"><div class="c1-fill"></div></div><div class="c1-ticks"></div>'+
-    '<input type="range" class="wf" min="0" aria-label="Period start month"><input type="range" class="wt" min="0" aria-label="Period end month"></div>'+
+  win.innerHTML='<span class="lbl">Period</span><div class="c1-ts-body">'+
+    '<div class="c1-timebar"><div class="c1-track"></div><div class="c1-fill"></div><div class="c1-ticks"></div>'+
+    '<input type="range" class="wf" data-c1period="from" min="0" step="1" aria-label="Period start month"><input type="range" class="wt" data-c1period="to" min="0" step="1" aria-label="Period end month"></div>'+
+    '</div>'+
     '<div class="seg" role="group" aria-label="Period presets">'+
-    ['6M','12M','24M','YTD','All'].map(name=>`<button type="button" class="btn seg-btn" data-preset="${name}" aria-pressed="false" title="${name==='All'?'All months may scroll':'Show the last '+name+' months'}">${name}</button>`).join('')+
-    '</div></div><span class="msg"></span>';
-  cluster.appendChild(win);
+    ['6M','12M','24M','YTD','All'].map(name=>`<button type="button" class="seg-btn" data-preset="${name}" aria-pressed="false">${name}</button>`).join('')+
+    '</div><span class="msg"></span>';
+  card.appendChild(win);
   const barsBtn=document.createElement('button'); barsBtn.className='ctl-bars btn btn-secondary'; barsBtn.textContent='Bars'; barsBtn.title='Show / hide the monthly bars'; barsBtn.setAttribute('aria-pressed', String(curveShowBars!==false)); barsBtn.style.opacity=curveShowBars?'1':'0.55';
   cluster.appendChild(barsBtn);
+  const csv=document.createElement('button'); csv.className='csv btn btn-secondary'; csv.textContent='⤓ CSV'; csv.title='Download the attached table as CSV'; csv.hidden=!progress.months.length;
+  cluster.appendChild(csv);
   const dl=document.createElement('button'); dl.className='dl btn btn-secondary'; dl.textContent='⤓ PNG'; dl.title='Export chart as PNG';
   const cp=document.createElement('button'); cp.className='cp btn btn-secondary'; cp.textContent='⧉ Copy'; cp.title='Copy chart image';
   cluster.appendChild(dl); cluster.appendChild(cp);
-  const note=document.createElement('div'); note.className='curve-note';
-  if(progress.projStartLabel) note.innerHTML=`Project start: <b>${esc(progress.projStartLabel)}</b> · red dashed line = project start, grey line = today`;
-  card.appendChild(note);
   const host=document.createElement('div'); host.className='curve-host'; card.appendChild(host);
   const grid=document.createElement('div'); grid.className='curve-c1-grid'; host.appendChild(grid);
-  const gutter=document.createElement('div'); gutter.className='curve-c1-gutter'; gutter.innerHTML='<span class="curve-c1-ycap">Documents</span>'; grid.appendChild(gutter);
-  const plot=document.createElement('div'); plot.className='curve-c1-plot'; plot.tabIndex=0; plot.setAttribute('role','group'); plot.setAttribute('aria-label','Issue Progress chart and hover columns'); grid.appendChild(plot);
-  const table=document.createElement('table'); table.className='curve-c1-table'; table.setAttribute('data-table-crosshair',''); grid.appendChild(table);
-  const tip=document.createElement('div'); tip.className='chart-tip'; tip.setAttribute('role','tooltip'); tip.setAttribute('aria-hidden','true'); card.appendChild(tip);
+  const gutter=document.createElement('div'); gutter.className='curve-c1-gutter'; gutter.innerHTML='<div class="curve-c1-yticks"></div><span class="curve-c1-ycap">Documents</span>'; grid.appendChild(gutter);
+  const plot=document.createElement('div'); plot.className='curve-c1-plot'; plot.tabIndex=0; plot.setAttribute('role','group'); plot.setAttribute('aria-label','Issue Progress chart and hover columns'); plot.setAttribute('aria-describedby','curveChartTip'); grid.appendChild(plot);
+  const table=document.createElement('table'); table.className='ds-table curve-c1-table'; table.setAttribute('data-table-crosshair',''); grid.appendChild(table);
+  const tip=document.createElement('div'); tip.className='chart-tip'; tip.id='curveChartTip'; tip.setAttribute('role','tooltip'); tip.setAttribute('aria-hidden','true'); card.appendChild(tip);
   const dualNote=document.createElement('div'); dualNote.className='curve-note'; card.appendChild(dualNote);
-  const st={card,win,plot,table,tip,dualNote,msg:win.querySelector('.msg'),wf:win.querySelector('.wf'),wt:win.querySelector('.wt'),tb:win.querySelector('.c1-timebar'),ticks:win.querySelector('.c1-ticks'),segBtns:[...win.querySelectorAll('.seg-btn')],barsBtn,dl,cp,gutter,host,grid,progress,points:[],gw:0,active:-1,lastW:0,ro:null};
+  const st={card,win,plot,table,tip,dualNote,msg:win.querySelector('.msg'),wf:win.querySelector('.wf'),wt:win.querySelector('.wt'),tb:win.querySelector('.c1-timebar'),ticks:win.querySelector('.c1-ticks'),segBtns:[...win.querySelectorAll('.seg-btn')],barsBtn,csv,dl,cp,gutter,host,grid,progress,points:[],gw:0,active:-1,lastW:0,ro:null};
+  csv.onclick=()=>curveTableCSV(st);
   curveState=st; curveBind(st); curveDraw(st);
   if(typeof ResizeObserver!=='undefined'){
     st.ro=new ResizeObserver(()=>{ const w=Math.round(st.plot.clientWidth||0); if(w && w!==st.lastW){ st.lastW=w; curveDraw(st); } });

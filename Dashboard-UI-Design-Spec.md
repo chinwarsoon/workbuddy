@@ -2,6 +2,13 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.106 | 2026-11-25 | CodeBuddy (AI) | **§4.2 / §8.2 — chart column centers MUST match attached-table column centers (owner decision 2026-11-25).** For every chart with an X-aligned native attached table, each rendered chart column center MUST match the matching table header center within 2 px. The chart and table MUST use the same rendered column width. MDL is in scope for this GEOMETRY rule even though rev 1.74 keeps it out of scope for two-way sync state. §8.2 gains assertion 42, and the harness `boardTable` tier MUST check the centers. MDL implementation is issue `I-150` (workplan §11.29). Both byte-identical spec copies updated. |
+| 1.105 | 2026-11-24 | CodeBuddy (AI) | **§4.2 / §8.2 — ONE table-header design for every table type (owner decision 2026-11-24).** Chart-attached tables follow the independent / bounded table design: the header row uses `--navy` with white text at 11–12 px / 600, and no light `--surface2` variant exists. This SUPERSEDES rev 1.103's attached-table header-fill rule. Structural chart-grid alignment, the `--c1-plot-table-gap`, board fit, vertical month headers, column sync and the per-table `⤓ CSV` obligation are unchanged. PNG / Copy export serializes the same navy / white header, and the harness verifies it. MDL implementation is issue `I-149` (workplan §11.28). Both byte-identical spec copies updated. |
+| 1.104 | 2026-11-24 | CodeBuddy (AI) | **§4.2 / §8.2 — Y-axis caption placement and bold axis typography become general requirements (owner decision 2026-11-24).** The unit caption MUST be vertically centred on the axis zone, sit close to the axis (≤4 px inset), and read bottom-to-top. The caption and every Y tick label MUST use bold type (`font-weight:700`) and the theme `--text2` token. This pins the visual difference between MDL's former top-aligned, regular-weight caption and the Sub reference. The attached-table `⤓ CSV` obligation already stands at §4 rev 1.88 and is now enforced by harness; MDL implementation is issue `I-148` (workplan §11.27). Both byte-identical spec copies updated. |
+| 1.103 | 2026-11-24 | CodeBuddy (AI) | **§4.2 / §6 / §8.2 — attached-table chart gap, fit and themed header fill become general requirements (owner decisions 2026-11-24).** (1) An attached table MUST be separated from its plot by the named token `--c1-plot-table-gap:10px`; this supersedes rev 1.62's zero-touch plot / `<thead>` rule for attached tables. Both zones own a full 1 px border and keep rounded corners because the gap means they no longer share edges. (2) The chart board MUST NOT gain a horizontal scrollbar: the grid uses `min-width:0` and `minmax(0,1fr)` columns; when the table has more than 13 period columns its month headers MAY (and the reference implementation DOES) rotate to `writing-mode:vertical-rl` with a taller header band so the whole table fits. (3) Attached-table header fill MUST come from the theme `--surface2` token with `--text2` / `--navy` text, not the bounded-table navy default; this applies to static render and PNG / Copy export. Harness gains config-gated checks for the gap, board fit, header rotation and themed fill; MDL implementation is issue `I-147` (workplan §11.26). Both byte-identical spec copies updated. |
+| 1.102 | 2026-11-24 | CodeBuddy (AI) | **§4.2 / §7.5 B2.1 — general two-row chart head for EVERY dashboard (owner instruction 2026-11-24).** The chart head inside the chart card now has two rows: a tool row above, right-aligned with `--tool-gap` gaps and hidden in print, then the time bar row below at full card width, with the period text at the END of the row after the preset chips. The row gaps are pinned at 10 px (tool → time bar) and 2 px (time bar → chart top border). This SUPERSEDES rev 1.67's one-row cluster rule and rev 1.101's chip-before-text order as general requirements — no deviation is recorded. Sub's time-bar geometry, tokens and segmented states remain the reference, but its one-row composition is superseded. An explanatory project-start caption under the chart is NOT required and MUST NOT be rendered; Start and Today are identified by the in-chart reference labels (rev 1.100) and the title-bar metadata (§3.1). MDL implementation is issue `I-146` (workplan §11.25). Both byte-identical spec copies updated. |
+| 1.101 | 2026-11-23 | CodeBuddy (AI) | **§4.2 / §7.5 B2.1 — the Sub dashboard is the reference implementation; MDL and every future dashboard MUST reproduce its rendered design (owner instruction of 2026-11-23).** §7.5 B2.1 gains the general reference-implementation rule: Sub's rendered segmented control and C1 time bar are the visual standard, and a generator that matches the written rules but not Sub's rendered result is non-conformant. §4.2's C1 time bar clause now pins the concrete geometry: 14 px `--c1-thumb`, a 4 px `--border` track with a 4 px `--blue` fill, solid `--blue` thumbs with a 2 px `--surface` border and 1 px `--blue` ring, `grab` / `grabbing` cursors and an active scale of 1.15, thumb-compensated positioning (`calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * i/(N-1))`) for fill and ticks, ticks inside the track zone with January year labels, `is-active` for months inside the window and `is-near` for the two handle months, explicit `step="1"`, preset chips anchored to the current `to` index and placed after the period text, `c1-ts-body` at basis 190 px / min 120 px / max 440 px in a 26 px zone, and the period text as `Month – Month` muted body copy. The C1 preset active fill is `--navy` per B2.1; the rev 1.67 `--blue` wording is superseded. The MDL / PPP segmented deviation row is retired. MDL alignment is issue `I-144` (MDL log rev 1.21). Both byte-identical spec copies updated. |
+| 1.100 | 2026-11-23 | CodeBuddy (AI) | **§4.2 / §4.6 / §8.2 — S-curve reference labels, legend band, caption count, X labels, time-bar contract, touch and area fills (MDL review; MDL I-137…I-143).** Owner-approved enhancement of rules that were missing or only implied. §4.2 adds a reference-label rule, named legend-band padding, a single-caption rule, an explicit ban on SVG X labels when the attached table owns them, the `data-c1period` handle contract, the print period-text note, and a normative tokenised area fill per visible cumulative series. §4.6 adds chart-area tap-to-show and the `aria-describedby` link as explicit requirements. §8.2 gains assertions 37 and 38. No dashboard code changed. Both byte-identical spec copies updated. |
 | 1.99 | 2026-11-21 | CodeBuddy (AI) | **§4 / §4.2 / §6 — tool-row gaps become universal (owner instruction).** Every panel tool row MUST sit inside its owning card with equal padding on all four sides from `--tool-pad`. Gaps between control groups MUST use `--tool-gap`. C3 keeps `--c3-tool-pad` and `--c3-tool-gap` as aliases. Both byte-identical spec copies updated. |
 | 1.98 | 2026-11-21 | CodeBuddy (AI) | **§4.6 — general value alignment in hover windows (I130).** Owner decision: numeric values stay right-aligned; text values start after a fixed label column and align left. §4.6 replaces the space-between row rule with a two-column rule for body rows and footers. Both byte-identical spec copies updated. |
 | 1.97 | 2026-11-20 | CodeBuddy (AI) | **§6 / §7.2.16 / §4.2 / §8.2 / Appendix A.2 — general crosshair colour standard.** Owner instruction: make the crosshair design general. §6 adds five normative crosshair tokens (`--crosshair-track`, `--crosshair-intersection`, `--crosshair-ring`, `--header-crosshair-overlay`, `--header-crosshair-accent`) for all five themes. §7.2.16 defines translucent row and column tracks, a stronger intersection cell, non-destructive header and sticky-axis overlays, `@media (hover: hover) and (pointer: fine)` scope and keyboard focus parity. §4.2 reconciles the header overlay with C1 and C3 attached tables while active column body cells stay border-free. §8.2 assertion 22 and Appendix A.2 items 17 and 20 are aligned. Both byte-identical spec copies updated. |
@@ -968,6 +975,10 @@ a single shared time axis instead of two stacked charts:
   (four series → eight entries). The entries wrap into rows of `floor(W / 132)` items at plot width
   `W`, and every row MUST stay inside the SVG `viewBox`, so a narrow panel neither clips the legend
   nor needs a horizontal scrollbar.
+    - **Band padding (rev 1.100).** The legend band MUST reserve a left inset of 12 SVG units from
+      the plot-zone left edge, a right inset of at least the right-axis reserve when a right axis is
+      present, a top pad of at least 10 units, and a row pitch of 18 units. The wrap budget MUST be
+      `W − leftInset − rightInset`, never `W` alone, so no entry can run into the right-axis area.
     - **With an attached table (C1 and C3).** Where a `.c1-grid` or `.c3-grid` panel renders a native
       `<table>` whose `<thead>` month cells are the chart's shared X labels, the legend MUST sit
       **above** the plotting area, inside the top of the SVG canvas. `yTop` MUST be sized for the
@@ -1027,6 +1038,11 @@ a single shared time axis instead of two stacked charts:
   bars are skipped so the plot stays readable.
 - The time range extends **exactly one extra month** beyond the last data month (not three or
   four) so the last bar is not flush against the plot edge.
+- **Reference-marker labels (rev 1.100).** A label for a reference line, such as `Start` or `Today`,
+  MUST NOT share the legend band or any legend row. The label MUST sit on its own line inside the
+  plot area, rotated 90°, reading bottom-to-top, in the line colour. When the label would cross a
+  plot edge, clamp it inside the plot. A reserved band above the plot MAY hold the labels instead,
+  but the lines MUST then span that band.
 - A **Bars** toggle hides the per-period bars so the cumulative curve can be read alone. It lives in
   the **chart card's** control cluster (§4.1 ownership) — **not** in the chart, and **not** in the
   panel area. Bars are **visible by default**. The button is a state toggle, not a momentary action:
@@ -1049,14 +1065,33 @@ a single shared time axis instead of two stacked charts:
   reporting month, so the curve, the attached `<thead>` columns and the windowed
   `data-points` payload always come from the same `N`. Two separate From / To inputs MUST NOT
   be used for C1.
+  - **Handle attributes (rev 1.100).** The handle contract is `data-c1period="from"` and
+    `data-c1period="to"` on the two inputs. A container-level JSON state attribute MAY exist, but it
+    MUST NOT replace these two attributes.
   - **Month ticks.** Draw exactly one subtle tick per active reporting month, with
-    `data-c1month` equal to that month's index and `pointer-events:none`. January ticks MAY
-    carry the year label. The active and near states MUST follow the selected window. Ticks
-    MUST NOT take pointer events or change `N`.
+    `data-c1month` equal to that month's index and `pointer-events:none`. January ticks
+    carry the year label. Ticks MUST NOT take pointer events or change `N`.
+    - **Tick design (rev 1.101, pinned to the Sub reference).** Ticks sit INSIDE the track
+      zone, not below it. A default tick is 1 × 6 px `--border`; a January tick is 1 × 10 px
+      `--text2` with its 9 px year label centred above the track. Tick state semantics are
+      normative: a tick whose month is INSIDE the selected window carries the active state,
+      and the two handle months carry the near state. Both states use `--blue`.
+  - **Reference geometry (rev 1.101; normative for every dashboard).** The time bar MUST
+    reproduce Sub's rendered design. Track: one shared track 4 px tall, `--border`, radius
+    2 px, inset by half the thumb on each side. Fill: 4 px `--blue`, positioned
+    `left: calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * from/(N-1))` and
+    `width: calc((100% - var(--c1-thumb)) * (to-from)/(N-1))`. Thumbs: `--c1-thumb: 14px`
+    circles, solid `--blue` with a 2 px `--surface` border and a 1 px `--blue` ring, cursor
+    `grab` (`grabbing` while active), an active scale of 1.15, and the to-handle stacked
+    above the from-handle. Fill and ticks MUST use the same thumb-compensated positioning,
+    so ticks, handles and attached-table columns align at every index. Both inputs MUST set
+    `step="1"` explicitly. The track zone is 26 px tall.
   - **Preset chips (rev 1.67; single-select, normative).** The five presets `6M`, `12M`,
-    `24M`, `YTD`, `All` MUST form ONE joined `.seg` group of `.seg-btn` buttons beside the
-    track, with `aria-label` on the group and `aria-pressed` on each button. Use the existing
-    Sub `.seg-btn.active` / `--blue` token. `6M`, `12M` and `24M` select 6, 12 and 24 whole
+    `24M`, `YTD`, `All` MUST form ONE joined `.seg` group of `.seg-btn` buttons placed BEFORE
+    the period text, at the END of the time bar row (rev 1.102 supersedes the rev 1.101
+    chip-after-text order), with `aria-label` on the group and `aria-pressed` on each button.
+    The active chip fill follows §7.5 B2.1: `--navy` with white text (rev 1.101 supersedes the
+    former `--blue` wording of this bullet). `6M`, `12M` and `24M` select 6, 12 and 24 whole
     months ending at the current `to` index and clamp at the first month. `YTD` runs from
     January of the as-of year through the as-of month; when the as-of month is absent from the
     data, use the last month at or before it. `All` selects `[0, N-1]`. A preset MUST write the
@@ -1068,13 +1103,36 @@ a single shared time axis instead of two stacked charts:
       NO active chip. Any preset name gives exactly that ONE active chip. A handle `input`
       or `change` MUST set the selection to `null`. The visual sync MUST read the stored
       value and MUST also toggle the `.active` class of that ONE button.
-  - **One-row control cluster (rev 1.67; normative).** The tools below the panel title MUST
-    form ONE visual row at the 1280 px minimum desktop viewport width. `.c1-ts` MUST use
-    `flex-wrap:nowrap` at that width and above. Set `flex-shrink:0` on the period label,
-    the period text and the segmented chip group. Let only `.c1-ts-body` shrink, with a
-    190 px flex basis and a 120 px minimum width. Below 1280 px the §3.4.1 minimum-width
-    rule re-enables `flex-wrap:wrap` so every control stays reachable. Print MUST hide
-    `.c1-ts-body` and `.c1-ts-chips.seg` and MUST keep the period text.
+  - **Two-row chart head (rev 1.102; normative for EVERY dashboard).** The chart head inside
+    the chart card has TWO rows, in this order: (1) a TOOL ROW holding the panel's toggle and
+    action buttons, right-aligned (`justify-content:flex-end`) with gaps from `--tool-gap`;
+    (2) the TIME BAR ROW below it, spanning the full card width, with the period label,
+    `.c1-ts-body`, the segmented chip group and the period text in that order. This
+    SUPERSEDES rev 1.67's one-visual-row cluster rule. The gap from the tool row to the time
+    bar row MUST be 10 px; the gap from the time bar row to the chart top border MUST be
+    2 px. `.c1-ts` MUST use `flex-wrap:nowrap` at the 1280 px minimum desktop viewport width
+    and above. Set `flex-shrink:0` on the period label, the chip group and the period text.
+    Let only `.c1-ts-body` shrink, with a 190 px flex basis, a 120 px minimum width and a
+    440 px maximum width (rev 1.101). Below 1280 px the §3.4.1 minimum-width rule re-enables
+    `flex-wrap:wrap` so every control stays reachable. Print MUST hide the tool row,
+    `.c1-ts-body` and the chip group, and MUST keep the period text; where a dashboard hides
+    toolbars globally in print, a panel-scoped rule MUST keep the time bar row visible.
+    - **Period text (rev 1.101, pinned to the Sub reference; order revised 1.102).** The text
+      reads `Month – Month` (formatted month labels, en-dash separator), as muted body copy at
+      §8 sizes, at the END of the time bar row after the chips. A month count suffix is a
+      panel addition and MUST NOT replace this format.
+    - **No explanatory caption (rev 1.102; general requirement).** A caption under the chart
+      such as `Project start: … · red dashed line = project start, grey line = today` MUST NOT
+      be rendered. The Start and Today lines are identified by the in-chart reference labels
+      (rev 1.100) and the project-start / as-of dates are already mandatory in the title bar
+      (§3.1 rev 1.14).
+    - **Reference implementation rule (rev 1.101; composition superseded 1.102).** Sub's
+      rendered time-bar geometry, tokens and segmented states remain the visual standard for
+      every dashboard. Its one-row cluster composition is superseded by the general two-row
+      chart head of rev 1.102. A generator that matches the written contract but renders a
+      visibly different track, thumb, tick or chip result is non-conformant even where the
+      contract leaves the pixel value open; it MUST adopt the Sub reference value or record
+      an approved deviation in §7.5 B2.1.
   - **Drag and repaint.** An `input` event MUST update only the track visuals: the fill, the
     tick states, the period text, both `aria-valuetext` values and the chip `aria-pressed`
     states. The `change` event MUST perform the ONE full repaint. Do not rebuild the curve,
@@ -1083,6 +1141,8 @@ a single shared time axis instead of two stacked charts:
   - **Accessibility and print.** Both inputs MUST keep an `aria-label`, an `aria-valuetext`
     with the formatted month, a visible `:focus-visible` outline and a one-month keyboard
     step. Print MUST hide the interactive track and the chips and MUST keep the period text.
+    Where a dashboard hides toolbars globally in print, rev 1.100 requires a panel-scoped print
+    rule that re-shows the period text and hides only the track and the chips.
   - **Unchanged.** `state.c1Period`, the windowed `pts`, absolute cumulative values, the
     attached table, `niceAxisTicks()`, the rev 1.65 shared Y axis, hover / refit metadata,
     PNG/Copy, the grain toggle, Bars and series multi-select are unchanged. No second Y-axis
@@ -1092,11 +1152,12 @@ a single shared time axis instead of two stacked charts:
   segmented-control standard for tokens, states, markup and accessibility. Only two
   C1-specific rules remain here. (1) The five preset chips use the ONE standard variant: the
   shared **32 px** text-button height and **12 px / 600** typography from §7.1 rev 1.71. The
-  former `compact` variant is retired and MUST NOT be used. (2) The stored single selection, the
-  dual-handle track, the one-row `flex-wrap:nowrap` cluster and the print rules from revs 1.66
-  and 1.67 are unchanged. An explicitly approved panel-specific requirement overrides a common
-  B2.1 default for that panel only; each such override MUST be recorded in the §7.5 B2.1
-  deviations list. This clause supersedes the token and markup-scope text of rev 1.68, whose
+  former `compact` variant is retired and MUST NOT be used. (2) The stored single selection,
+  the dual-handle track, the `flex-wrap:nowrap` behaviour and the print rules from revs 1.66
+  and 1.67 are unchanged; the cluster composition is now the general TWO-ROW chart head of
+  rev 1.102 (superseding the one-row rule). An explicitly approved panel-specific requirement
+  overrides a common B2.1 default for that panel only; each such override MUST be recorded in
+  the §7.5 B2.1 deviations list. This clause supersedes the token and markup-scope text of rev 1.68, whose
   historical row is preserved verbatim. Rev 1.68's grain-only markup scope is RETIRED: all seven
   generators now use the common markup.
 - These panels stay **full width** (`.card.full`) — one wide chart, not a 2-column grid.
@@ -1141,7 +1202,8 @@ a single shared time axis instead of two stacked charts:
     2..N+1 hold one period each. Row 1 holds the curve. Row 2 holds the X labels, which are also
     the table column headers. Rows 3+ hold the metric rows. The SVG `viewBox` bottom MUST equal the
     plot bottom, so the `<thead>` row touches the curve's X axis with no intervening legend band
-    (§4.2 legend rule).
+    (§4.2 legend rule). Rev 1.100: the SVG MUST NOT draw X-axis month labels when an attached table
+    provides them.
   - **SVG contract.** One `<svg>` with `role="img"` and an `aria-label` draws the curve inside
     `.c1-plot`, which spans columns 2..-1 of row 1. Use `xc(i) = (i + 0.5) * W / N`, where `W` is
     the measured width of that spanning cell. A **`ResizeObserver` on `.c1-plot` MUST** recompute
@@ -1153,7 +1215,16 @@ a single shared time axis instead of two stacked charts:
     flush with the plot's left edge, plus the unit caption (`Documents` or the equivalent measure
     name) rotated to read along the side of the axis — `writing-mode:vertical-rl` or an
     equivalent rotate transform. A horizontal unit caption above the axis does not satisfy this
-    rule. All text elements within this panel — SVG annotations, Y-axis tick labels, and attached table cells — inherit `font-family: var(--font-ui)` from `.c1-grid` (normative, §6). Do not override with per-element font-family declarations unless a domain-specific requirement exists — such overrides must be documented in the dashboard workplan.
+    rule. Rev 1.100: the unit caption MUST appear exactly once per axis. In a panel that uses the
+    attached-table grid, an in-SVG unit caption MUST NOT be drawn when the gutter carries it.
+    - **Caption placement and typography (rev 1.104; general requirement).** The unit caption MUST
+      be vertically CENTRED on the axis zone and sit close to the axis: no more than 4 px from the
+      gutter / axis-zone inner edge. It MUST read bottom-to-top (`rotate(180deg)` with
+      `writing-mode:vertical-rl`, or an equivalent transform). The caption and every Y tick label
+      MUST use bold type (`font-weight:700`) and the theme `--text2` token; the caption keeps the
+      small-caption size and the ticks keep the axis-label size. No per-dashboard override is
+      recorded.
+    All text elements within this panel — SVG annotations, Y-axis tick labels, and attached table cells — inherit `font-family: var(--font-ui)` from `.c1-grid` (normative, §6). Do not override with per-element font-family declarations unless a domain-specific requirement exists — such overrides must be documented in the dashboard workplan.
   - **Dynamic Y tick standard (rev 1.64; supersedes the fixed-five-tick count of rev 1.60).**
     All measurements are in SVG units for the C1 plot of height `H = 300`. (a) Major ticks MUST
     be at least ~40 units apart; therefore `intervals <= min(7, floor(H / 40)) = 7` and the
@@ -1186,7 +1257,27 @@ a single shared time axis instead of two stacked charts:
     `<tbody>` with `<th scope="row">` labels and one `<td>` per month. ARIA table roles MUST NOT
     be used, and `display:contents` MUST NOT be applied to the table elements (§0,
     **Accessibility tree**). The     `<colgroup>` widths MUST match the `.c1-grid` tracks, so the SVG,
-    the headers and the values share one horizontal boundary for every period column. Table cell fonts inherit `font-family: var(--font-ui)` from `.c1-grid` (normative, §6). Table column headers (`.c1-table th[scope="col"]`) typically render at 11–12 px weight 600 in var(--muted). Table row headers (`.c1-table th[scope="row"]`) at 12 px weight 600 left-aligned. Data cells (`.c1-table td`) at 12 px weight 400 with `font-variant-numeric: tabular-nums` right-aligned. These sizes support clean numerical scanning across 20+ month timelines.
+    the headers and the values share one horizontal boundary for every period column. Table cell fonts inherit `font-family: var(--font-ui)` from `.c1-grid` (normative, §6). Table column headers (`.c1-table th[scope="col"]`) use the shared table-header design of rev 1.105 — `--navy` fill, white text, 11–12 px weight 600 — exactly like bounded and keyed tables. Table row headers (`.c1-table th[scope="row"]`) at 12 px weight 600 left-aligned. Data cells (`.c1-table td`) at 12 px weight 400 with `font-variant-numeric: tabular-nums` right-aligned. These sizes support clean numerical scanning across 20+ month timelines.
+  - **Plot-to-table gap (rev 1.103; general requirement).** The attached table MUST be separated
+    from the plot by exactly `--c1-plot-table-gap` (10 px at the default scale). This SUPERSEDES
+    rev 1.62's zero-touch plot / `<thead>` rule for attached tables. Each zone carries its own
+    `1px solid var(--border)` edge; because the gap means the borders no longer overlap, the
+    plot's bottom corners and the table's top corners keep the general §4 rounding instead of
+    the square shared-corner treatment (§4.2 rev 1.81). The gap is a visible separation, not a
+    margin used to hide a clipping or export defect.
+  - **Board fit and header direction (rev 1.103; general requirement).** The chart board MUST NOT
+    gain a horizontal scrollbar. The alignment grid uses `min-width:0` and `minmax(0,1fr)`
+    columns so it re-fits to the panel width. When the table renders more than 13 period columns,
+    month header text MAY rotate to `writing-mode:vertical-rl` with `text-orientation:mixed` and a
+    taller header band; the reference implementation uses an 88 px band. Rotation MUST keep every
+    header readable and MUST NOT change the logical column order or the `data-c1col` mapping.
+  - **ONE table-header design (rev 1.105; general requirement, supersedes rev 1.103).** Every table
+    on every dashboard — bounded, keyed, semantic and chart-attached — uses ONE header design:
+    `--navy` fill with white text at 11–12 px / 600. Corner, month, row-header and empty header
+    cells all follow it; only transient crosshair / focus states may tint it. No light
+    `--surface2` header variant exists. The same resolved colours MUST be serialized in PNG /
+    Copy exports. Chart-specific alignment, the plot-to-table gap, board fit, header rotation and
+    column sync are structural requirements and are unchanged.
   - **Attached-table column sync (general, rev 1.74 / 1.75).** Where a chart renders a native attached
     table in the same chart board whose columns share the chart's X positions, hovering a chart
     column MUST highlight the same logical column in BOTH the chart and the attached table, and
@@ -1229,6 +1320,19 @@ a single shared time axis instead of two stacked charts:
       band and the centre line to the same logical column. Both elements MUST be hidden on
       pointer leave / blur / Escape / repaint / print and MUST be stripped from PNG / Copy.
       `@media print` MUST neutralise them.
+    - **Area fills (rev 1.100, normative).** Every attached-table S-curve MUST draw one tokenised
+      `<linearGradient>` in `<defs>` and one `<path class="sc-area">` beneath each visible
+      cumulative line. Gradient stops MUST use the on-chart series tokens, never hard-coded hex.
+      Area paths MUST carry `pointer-events:none`. PNG / Copy MUST serialize the gradients with
+      resolved token colours.
+
+  - **Column center alignment (rev 1.106; general requirement).** For every chart with an
+    X-aligned native attached table, the rendered center of each chart column MUST match the
+    center of the matching table header cell within 2 px. The chart and the table MUST use the
+    same rendered column width. An SVG `viewBox` scale MUST NOT change the chart column width
+    relative to the table column width. This GEOMETRY rule applies to every dashboard, including
+    MDL. The rev 1.74 exclusion of the MDL dashboard applies only to two-way sync state, not to
+    geometry. The harness `boardTable` tier MUST check these centers.
 
     The C1 reference implementation below is the visual reference. C3 Bar cards MUST follow it
     without adding a second, panel-specific hover interaction (§7.2.16).
@@ -1597,6 +1701,8 @@ A **hover floating window** is the single reusable component that shows per-poin
 
 **Accessibility (normative).** The window carries `role="tooltip"`. The chart board MUST be focusable (`tabindex="0"`) and the window MUST also show on `focus` (keyboard / screen-reader parity); link it with `aria-describedby`. Secondary text contrast MUST be ≥4.5:1. Colour is never the sole series cue — every series row carries a textual label.
 
+**Chart-area touch and ARIA link (rev 1.100, normative).** Tap on the plot area MUST show the window and the band. Tap-away MUST clear both. A `pointermove`-based binder alone does not satisfy this requirement on touch. The chart board MUST carry `aria-describedby` that points at the `.chart-tip` window.
+
 **Containers (normative).** The chart host and its ancestors MUST be `overflow:visible` so the window (and any flipped / below-card placement) is never clipped (I088).
 
 **Lifecycle (normative).** The behaviour is delivered by **one delegated binder** attached to the chart host — not re-bound on every render and not duplicated per chart.
@@ -1765,6 +1871,7 @@ The project-local UI stylesheet MUST define every token below. Components refere
 | `--c3-tool-gap` | `var(--tool-gap)` | C3 alias of the universal tool-row group gap (§4 rev 1.99) |
 | `--c3-axis-label-h` | `18px` | X-axis label height (§4.2 rev 1.79) |
 | `--c3-plot-table-gap` | `calc(var(--c3-axis-label-h) / 3)` = `6px` | Minimized bar-plot → attached-table gap; scales with label height and clears the `0` tick (§4.2 rev 1.80) |
+| `--c1-plot-table-gap` | `10px` | Attached-table plot → table separation; supersedes the former zero-touch edge (§4.2 rev 1.103) |
 | `--c1-gutter` | `104px` | C1 attached-table gutter (§4.2) |
 | `--c3-gutter` | `104px` | C3 attached-table gutter (§4.2) |
 | `--sidebar-w` | `160px` | Left navigation sidebar width (§3.2) |
@@ -1887,6 +1994,16 @@ override a value here only when the owner explicitly approves the override and r
 deviations list at the end of this subsection. There is **no `compact` variant** at rev 1.71; the
 former Sub C1 preset exception was retired by the owner in favour of the universal §7.1 height.
 
+**Reference implementation (rev 1.101; composition superseded rev 1.102).** The Sub
+dashboard's rendered segmented controls and C1 time bar are the visual reference for EVERY
+dashboard, including MDL and all future dashboards, for tokens, states and time-bar geometry.
+A generator MUST reproduce Sub's rendered result, not merely satisfy the written token list.
+Where this subsection leaves a pixel value open, the Sub reference value is the standard, and
+the C1 time bar geometry is pinned in §4.2 rev 1.101. Matching the contract while rendering a
+different design is non-conformant. Rev 1.102 makes the TWO-ROW chart head, the chip-before-text
+order and the no-explanatory-caption rule general requirements for every dashboard; Sub's
+one-row composition is superseded, and no deviation is recorded for the MDL chart head.
+
 **Shared tokens (normative).** Define each size, typography and colour value ONCE as a CSS custom
 property in `:root`. Every colour value MUST reference a theme token, so all five themes resolve
 it at use time. Do not put a hard-coded hex value in a `.seg` rule. Required token groups:
@@ -1934,8 +2051,8 @@ with its panel, requirement, owner decision and revision. Recorded deviations at
 
 | Panel / dashboard | Deviation | Status |
 |---|---|---|
-| Sub C1 control row | ONE visual row at 1280 px (`flex-wrap:nowrap`) | Approved, §4.2 rev 1.67 |
-| MDL / PPP | Inactive hover `--blue` / `--accent`; no `type="button"` or `aria-pressed` | Recorded, NOT changed in rev 1.69. A cross-dashboard migration is a SEPARATE task. |
+| Sub C1 control row | ONE visual row at 1280 px (`flex-wrap:nowrap`) | Superseded at rev 1.102 by the general two-row chart head requirement; no deviation stands. |
+| MDL / PPP | Inactive hover `--blue` / `--accent`; no `type="button"` or `aria-pressed` | Recorded, NOT changed in rev 1.69. Retired at rev 1.101 by the owner's reference-implementation instruction: MDL MUST reproduce Sub's design (MDL `I-144`). |
 
 The former Sub C1 `compact` preset deviation is **retired** at rev 1.71. Its chips use the shared
 32 px height and 12 px / 600 typography; the `seg-compact` class and `--seg-compact-*` tokens are
@@ -2428,6 +2545,12 @@ hard-coded into the generic check.
 | 34 | A panel MAY show a subtitle row; when present, every count renders as a `.pchip` colour chip (blue submissions-in-window · violet documents-in-window · green cumulative-documents-till-window-end · neutral shown-records) describing the same globally filtered dataset, with its title inside the chip, temporal "in / for" vs "till" wording, height-equal to the severity chip, a single funnel glyph only when the time filter or an actually-narrowing global filter is active (a full-value selection is not a filter), `0` displayed for zero counts, and warning/severity colours never used (§4 rev 1.93) | §4 |
 | 35 | A table renders the `.drill-cell` column only when at least one row in the current view is expandable; single-record views start at the primary data column and omit the detail rows, row shortcut and locked chooser item (§4.4 rev 1.94) | §4.4 |
 | 36 | The Validation page renders `Validation Rules` and `Validation Issues` as two independent top-level panels with one `.pchip-row` each before its card; Panel 1 shows `Loaded rules` and `Fired rules`, Panel 2 shows `All issues`, `Shown issues` and the severity chips in that one row, with one `data-validation-count` hook on `Shown issues`; no meta note, no card title and no separate severity row are rendered; the code filter narrows only the Issues panel (§4.5 rev 1.95) | §4.5 |
+| 37 | An S-curve reference-line label such as `Start` or `Today` never shares the legend band or a legend row, sits on its own line inside the plot with edge clamping when needed (§4.2 rev 1.100); the in-SVG legend band uses a 12-unit left inset, a right inset of at least the right-axis reserve, a top pad of at least 10 units, an 18-unit row pitch, and a wrap budget of `W − leftInset − rightInset` (rev 1.100); the unit caption appears once per axis and an attached-table grid never draws an in-SVG unit caption when the gutter carries it (rev 1.100); the SVG draws no X-axis month labels when the attached table provides them (rev 1.100); the two time-bar inputs carry `data-c1period="from"` and `data-c1period="to"` even when a container-level state attribute exists (rev 1.100); and print keeps the period text through a panel-scoped rule when toolbars are hidden globally (rev 1.100) | §4.2 |
+| 38 | Every attached-table S-curve draws one tokenised `<linearGradient>` and one `<path class="sc-area">` per visible cumulative series beneath the lines, with `pointer-events:none` on the area paths and gradients serialized in PNG / Copy (§4.2 rev 1.100); a tap on the plot area shows the hover window and the band and tap-away clears both, with `aria-describedby` pointing from the chart board to the `.chart-tip` window (§4.6 rev 1.100) | §4.2, §4.6 |
+| 39 | The plot and attached table are separated by exactly `--c1-plot-table-gap` (10 px), each zone has its own full 1 px border and the non-shared corners stay rounded; the chart board has no horizontal scrollbar, its grid uses `min-width:0` with flexible columns, and month headers rotate to a taller vertical band when the table has more than 13 period columns (§4.2 rev 1.103) | §4.2 |
+| 40 | EVERY table type — bounded, keyed, semantic and chart-attached — uses the same header design: `--navy` fill with white 11–12 px / 600 text, including corner and month cells, with the same colours serialized in PNG / Copy (§4.2 rev 1.105, superseding rev 1.103) | §4.2 |
+| 41 | The S-curve Y-axis caption is vertically centred near the axis and reads bottom-to-top, and both the caption and all Y tick labels are bold in the theme `--text2` token (§4.2 rev 1.104); every on-screen table, including the chart-attached table, offers its own `⤓ CSV` before image actions (§4 rev 1.88 / 1.91) | §4.2, §4 |
+| 42 | For every chart with an X-aligned native attached table, each rendered chart column center matches the center of the matching table header cell within 2 px, and the chart and table use the same rendered column width; an SVG `viewBox` scale does not change that relation. This GEOMETRY rule applies to every dashboard, including MDL, even where two-way sync state is out of scope (§4.2 rev 1.106) | §4.2 |
 
 ### 8.3 Pipeline testability
 

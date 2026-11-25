@@ -2,9 +2,9 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
-| 1.0 | 2026-10-17 | chinwarsoon | Initial plan. Decisions D36–D40 recorded in `../mdl-issues.md` §6.1. **DRAFT — pending approval.** |
+| 1.0 | 2026-10-17 | chinwarsoon | Initial plan. Decisions D36–D40 recorded in `../log/issue_log.md` §6.1. **DRAFT — pending approval.** |
 | 1.1 | 2026-10-17 | chinwarsoon | Phases rewritten in plain English with worked examples (code references kept as "Code it touches"). |
-| 1.2 | 2026-10-17 | chinwarsoon | Approved and executed (phases 1–6). Implementation + verification report at `reports/MDL-I95-I96-L3-Grid-Report-2026-10-17.md`; I-95 / I-96 closed in `../mdl-issues.md`. |
+| 1.2 | 2026-10-17 | chinwarsoon | Approved and executed (phases 1–6). Implementation + verification report at `reports/MDL-I95-I96-L3-Grid-Report-2026-10-17.md`; I-95 / I-96 closed in `../log/issue_log.md`. |
 
 ---
 
@@ -25,10 +25,10 @@ which closed on 2026-10-17.
 | Field | Value |
 |---|---|
 | Document ID | `MDL/workplan/MDL-I95-I96-L3-Grid-Workplan.md` |
-| Status | **COMPLETE — approved 2026-10-17, phases 1–6 executed and verified.** Report: `../workplan/reports/MDL-I95-I96-L3-Grid-Report-2026-10-17.md`; I-95 / I-96 closed in `../mdl-issues.md` (revision 1.5). |
+| Status | **COMPLETE — approved 2026-10-17, phases 1–6 executed and verified.** Report: `../workplan/reports/MDL-I95-I96-L3-Grid-Report-2026-10-17.md`; I-95 / I-96 closed in `../log/issue_log.md` (revision 1.5). |
 | Version history | 1.0 — 2026-10-17 — initial plan · 1.1 — 2026-10-17 — phases rewritten in plain English with examples |
 | Issues covered | MDL I-95 (`OPEN 🔴`), I-96 (`OPEN_PARTIAL 🟠`) |
-| Decisions | D36–D40 in `../mdl-issues.md` §6.1 |
+| Decisions | D36–D40 in `../log/issue_log.md` §6.1 |
 | Phase reports | `MDL/workplan/reports/` (one per phase, §15) |
 
 ## 3. Object
@@ -95,13 +95,13 @@ The dashboard already ships every primitive this plan needs, so no new architect
 | Matrix `<tfoot>` TOTAL pinned, `openOne` accordion | `src/render.mjs:1342`, `:1322`, `:1320-1327` | I-96b residuals |
 
 Alignment checks performed: `AGENTS.md` §5.15 (concept spanning ≥3 sources) — the column set, the
-column keys and the persisted keys must agree across `render.mjs`, `mdl-issues.md` (D36–D40) and
+column keys and the persisted keys must agree across `render.mjs`, `issue_log.md` (D36–D40) and
 `Dashboard-UI-Design-Spec.md` §7.2; a mismatch is a blocking defect and is re-checked in Phase 6.
 
 ## 8. Implementation phases
 
 Six phases, one work session each. Every phase ends with a report in `MDL/workplan/reports/` and a
-short update of `mdl-issues.md`.
+short update of `issue_log.md`.
 
 **What you will have when all six are done:** the Document Detail table and the Validation Issue
 list table scroll fast even with ~22 000 rows, the first two columns (Source Tab, Document No.) stay
@@ -168,7 +168,7 @@ its drill-down rows attached to the right discipline after sorting.
 
 | | |
 |---|---|
-| **What we do** | 1) Extend the layout harness (Tier 4) with checks for the three new capabilities: sticky first columns, the chooser actually hiding columns, resize writing widths, and windowing keeping the full count and scroll height. 2) Run the pipeline and render unit tests — they must stay green, because the data layer does not change. 3) Run the full harness (tiers 1–4) against the real workbook. 4) A manual pass over both tables, reload persistence and print output. 5) Record tasks, resolution and your approval in `mdl-issues.md`. |
+| **What we do** | 1) Extend the layout harness (Tier 4) with checks for the three new capabilities: sticky first columns, the chooser actually hiding columns, resize writing widths, and windowing keeping the full count and scroll height. 2) Run the pipeline and render unit tests — they must stay green, because the data layer does not change. 3) Run the full harness (tiers 1–4) against the real workbook. 4) A manual pass over both tables, reload persistence and print output. 5) Record tasks, resolution and your approval in `issue_log.md`. |
 | **Done when** | Harness and tests are green, the manual pass is signed off, and `Approved:` is recorded — I-95 and I-96 then move to `RESOLVED`. `ALIGNED` still waits for I-97 (workplan alignment). |
 
 ## 9. Risks and mitigation
@@ -189,7 +189,7 @@ its drill-down rows attached to the right discipline after sorting.
 - Column groups (identity / planned / actual / approval / metadata) reusing the matrix grouped-header pattern
   (recorded in the I-95 Updates) — not in this scope.
 - `ALIGNED` transition for I-95 / I-96 is blocked by I-97 (workplan alignment) and must be closed separately.
-- Candidate issues still queued in `mdl-issues.md` §7 (I-97 … I-100).
+- Candidate issues still queued in `issue_log.md` §7 (I-97 … I-100).
 
 ## 11. Success criteria (closure)
 
@@ -207,7 +207,7 @@ Both then move `RESOLVED → ALIGNED` once I-97 aligns the workplan.
 
 | Reference | Use |
 |---|---|
-| `MDL/mdl-issues.md` §4 (I-95, I-96 rows), §6.1 (D36–D40), §7 (candidate issues) | issue text, decisions, gaps |
+| `MDL/log/issue_log.md` §4 (I-95, I-96 rows), §6.1 (D36–D40), §7 (candidate issues) | issue text, decisions, gaps |
 | `Dashboard-UI-Design-Spec.md` §7.2.1 / §7.2.5 / §7.2.8 / §7.2.9 / §7.2.13 / §7.2.14 | L3 requirements |
 | `MDL/src/render.mjs:760-761, 119-126, 1322, 1328, 1342, 1659, 1984, 2021-2056, 2057-2130` | integration points |
 | `harness-layout/SKILL.md`, `harness.mjs` (Tier 4) | verification harness |

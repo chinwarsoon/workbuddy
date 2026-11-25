@@ -2203,7 +2203,7 @@ async function lintTableCrosshair(page, cfg) {
       const after = header ? getComputedStyle(header, '::after') : null;
       const isDsTable = !!table.closest('.ds-table') || !!scope.querySelector('.vheadtab');
       return {
-        c1: table.classList.contains('c1-table'),
+        c1: table.classList.contains('c1-table') || !!(cfg.chartLinkedClass && table.classList.contains(cfg.chartLinkedClass)),
         c3: table.classList.contains('c3-table'),
         hoveredId: cell.dataset.colId,
         rows: scope.querySelectorAll('.row-hover').length,
@@ -2732,6 +2732,101 @@ async function lintC1(page, cfg) {
   await lintButtonHeights(page, cfg);
   // §7.5 B2.1 rev 1.69 — visits the other pages and restores Overview at the end.
   await lintSegmentedControls(page, cfg);
+}
+
+// ── Tier 5: §4.2 rev 1.103 — attached-table board contract ────────────────────
+// Config-gated via cfg.boardTable. Independent of cfg.c1 so dashboards whose chart
+// classes differ from Sub's can still be checked against the general requirements.
+async function lintBoardTableContract(page, cfg) {
+  const s = cfg.boardTable;
+  if (!s) return;
+  console.log('\n── Tier 5: attached-table board contract (§4.2 rev 1.103) ──');
+  const tol = s.tolerance ?? 0.5;
+  for (const name of s.pages) {
+    await visitPage(page, name);
+    await page.waitForTimeout(150);
+    const m = await page.evaluate(c => {
+      const q = sel => document.querySelector(sel);
+      const grid = q(c.gridSelector), plot = q(c.plotSelector), table = q(c.tableSelector);
+      if (!grid || !plot || !table) return { missing: true };
+      const hcell = q(c.headerCellSelector) || table.querySelector('thead th[scope=col]');
+      const hspan = c.headerSpanSelector ? q(c.headerSpanSelector) : (hcell && hcell.querySelector('span'));
+      const csvEl = c.csvSelector ? q(c.csvSelector) : null;
+      const pngEl = c.pngSelector ? q(c.pngSelector) : null;
+      const r = el => el.getBoundingClientRect();
+      const probe = document.createElement('div');
+      probe.style.backgroundColor = `var(${c.headerFillVar})`;
+      document.body.appendChild(probe);
+      const themedFill = getComputedStyle(probe).backgroundColor;
+      probe.remove();
+      const center = { maxDelta: 0, samples: [] };
+      if (c.centerTolerance && c.centerBandSelector) {
+        const svg = plot.querySelector('svg');
+        const band = q(c.centerBandSelector) || plot.querySelector('.sc-hover-band');
+        const heads = c.headerCellSelector ? [...document.querySelectorAll(c.headerCellSelector)] : [];
+        if (svg && band && heads.length) {
+          for (const head of heads) {
+            const hb = r(head), hc = hb.left + hb.width / 2;
+            head.dispatchEvent(new PointerEvent('pointermove', {
+              bubbles: true, cancelable: true, clientX: hc, clientY: hb.top + hb.height / 2,
+              pointerId: 1, isPrimary: true
+            }));
+            const bx = parseFloat(band.getAttribute('x')) || 0;
+            const bw = parseFloat(band.getAttribute('width')) || 0;
+            const pt = svg.createSVGPoint(); pt.x = bx + bw / 2; pt.y = 0;
+            const cx = pt.matrixTransform(svg.getScreenCTM()).x;
+            center.samples.push(+(cx - hc).toFixed(2));
+          }
+          center.maxDelta = Math.max(...center.samples.map(v => Math.abs(v)));
+          plot.dispatchEvent(new PointerEvent('pointerleave', {
+            bubbles: true, cancelable: true, pointerId: 1, isPrimary: true
+          }));
+        }
+      }
+      return {
+        centerMaxDelta: center.maxDelta,
+        centerSamples: center.samples,
+        rowGap: parseFloat(getComputedStyle(grid).rowGap) || 0,
+        measuredGap: +(r(table).top - r(plot).bottom).toFixed(2),
+        boardScroll: grid.scrollWidth - grid.clientWidth,
+        hostScroll: grid.parentElement ? grid.parentElement.scrollWidth - grid.parentElement.clientWidth : 0,
+        minWidth: getComputedStyle(grid).minWidth,
+        many: table.classList.contains(c.manyClass),
+        writing: hspan ? getComputedStyle(hspan).writingMode : '',
+        headerH: hcell ? +r(hcell).height.toFixed(1) : 0,
+        headerFill: hcell ? getComputedStyle(hcell).backgroundColor : '',
+        headerText: hcell ? getComputedStyle(hcell).color : '',
+        themedFill,
+        plotRadius: getComputedStyle(plot).borderBottomRightRadius,
+        tableRadius: getComputedStyle(table).borderTopLeftRadius,
+        csv: !!csvEl,
+        csvVisible: !!(csvEl && r(csvEl).width > 0 && r(csvEl).height > 0),
+        csvBeforePng: !!(csvEl && pngEl && (csvEl.compareDocumentPosition(pngEl) & Node.DOCUMENT_POSITION_FOLLOWING)),
+      };
+    }, s);
+    if (m.missing) { skipped(`${name}: board table contract (board not rendered)`); continue; }
+    ok(`${name}: plot-table gap equals --c1-plot-table-gap (${s.expectedGap}px)`,
+      Math.abs(m.rowGap - s.expectedGap) <= tol && Math.abs(m.measuredGap - s.expectedGap) <= tol,
+      `computed=${m.rowGap} measured=${m.measuredGap}`);
+    ok(`${name}: chart board has no horizontal scrollbar`,
+      m.boardScroll <= 1 && m.hostScroll <= 1, `grid=${m.boardScroll} host=${m.hostScroll}`);
+    ok(`${name}: alignment grid re-fits with min-width:0`, m.minWidth === '0px', `min-width=${m.minWidth}`);
+    ok(`${name}: wide month headers rotate to a taller vertical band`,
+      !m.many || (m.writing === 'vertical-rl' && m.headerH >= 80),
+      `many=${m.many} writing=${m.writing} headerH=${m.headerH}`);
+    ok(`${name}: attached-table header uses the shared navy / white design`,
+      m.headerFill === m.themedFill && (!s.headerTextColor || m.headerText === s.headerTextColor),
+      `header=${m.headerFill} theme=${m.themedFill} text=${m.headerText}`);
+    if (s.centerTolerance) ok(`${name}: chart column centers match table header centers (<=${s.centerTolerance}px)`,
+      m.centerSamples.length > 0 && m.centerMaxDelta <= s.centerTolerance,
+      `maxDelta=${m.centerMaxDelta}px deltas=${JSON.stringify(m.centerSamples)}`);
+    ok(`${name}: separated plot and table keep rounded non-shared corners`,
+      m.plotRadius !== '0px' && m.tableRadius !== '0px',
+      `plot=${m.plotRadius} table=${m.tableRadius}`);
+    if (s.csvSelector) ok(`${name}: attached table offers CSV before image actions`,
+      m.csv && m.csvVisible && m.csvBeforePng,
+      `present=${m.csv} visible=${m.csvVisible} beforePNG=${m.csvBeforePng}`);
+  }
 }
 
 // ── Tier 5: C3 Breakdown (workplan D36) ───────────────────────────────────────
@@ -3346,6 +3441,9 @@ for (const name of dashboards) {
       await lintC3ColumnSync(page, cfg);
       // §7.2.16 — the shared crosshair is independent of the C1 and C3 chart configs.
       await lintTableCrosshair(page, cfg);
+      // §4.2 rev 1.103 — the attached-table board contract is likewise config-gated
+      // independently of cfg.c1, so MDL's differently-named board is still checked.
+      await lintBoardTableContract(page, cfg);
     }
   }
   if (!targetTier || targetTier === 6) {

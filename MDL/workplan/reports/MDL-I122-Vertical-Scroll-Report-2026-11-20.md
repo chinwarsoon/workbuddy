@@ -11,7 +11,7 @@ After the rev 1.96 shell increment, `#app` used `height:100vh` with `overflow:hi
 zone and content body had no scroll rule. A page with panels below the viewport clipped them, so the
 user could not reach lower content.
 
-I-122 is recorded in `MDL/mdl-issues.md` revision 1.44 and `MDL/log/issue_log.md`.
+I-122 is recorded in `MDL/log/issue_log.md` revision 1.44 and `MDL/log/issue_log.md`.
 
 ## 2. Spec requirement
 

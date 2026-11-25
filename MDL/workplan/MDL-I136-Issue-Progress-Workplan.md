@@ -13,7 +13,7 @@ Bring the MDL Issue Progress panel into line with `Dashboard-UI-Design-Spec.md` 
 | Date | 2026-11-22 |
 | Author | CodeBuddy (AI) |
 | Status | COMPLETE — implemented and verified 2026-11-22 |
-| Issue | I-136 in `MDL/mdl-issues.md` |
+| Issue | I-136 in `MDL/log/issue_log.md` |
 | Severity | Medium |
 | Related work | I-121 (remaining dashboard gaps) remains open |
 
@@ -56,7 +56,7 @@ Out of scope:
 
 ## 5. Index of content with links
 
-- `MDL/mdl-issues.md` — issue I-136.
+- `MDL/log/issue_log.md` — issue I-136.
 - `MDL/Arch/issue-progress-spec-review.html` — approved visual sample.
 - `MDL/src/render.mjs` — current panel implementation.
 - `MDL/build.mjs` — bundle builder.
@@ -211,7 +211,7 @@ Milestones and deliverables:
 What will be updated or created:
 
 - `MDL/MDL-Dashboard.html`.
-- `MDL/mdl-issues.md`.
+- `MDL/log/issue_log.md`.
 - `MDL/log/update_log.md`.
 - `MDL/log/test_log.md`.
 - One phase report under `MDL/workplan/reports/`.
@@ -255,4 +255,4 @@ No source file may be changed until this workplan is approved. The next proposal
 | Phase 4 | COMPLETE — T11.21.10 and T11.21.11. Build and validation passed. Issue closure and logs updated. |
 | Validation | TL021. Syntax and lint PASS. Build 296,804 B. Pipeline 96 passed / 7 failed. Full harness 201 passed / 10 failed / 2 advisory / 22 skipped. Tier 5 36 passed / 0 failed. Chromium at 1366 × 768 and 1920 × 1080 has no console errors. |
 | Report | `MDL/workplan/reports/MDL-I136-Issue-Progress-Report-2026-11-22.md` |
-| Closure | I-136 set to RESOLVED in `MDL/mdl-issues.md` revision 1.61 and `MDL/log/issue_log.md` revision 1.17. |
+| Closure | I-136 set to RESOLVED in `MDL/log/issue_log.md` revision 1.61 and `MDL/log/issue_log.md` revision 1.17. |

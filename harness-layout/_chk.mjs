@@ -1,5 +1,5 @@
 const fs=require('fs');
-const t=fs.readFileSync('MDL/mdl-issues.md','utf8').split('\n');
+const t=fs.readFileSync('MDL/log/issue_log.md','utf8').split('\n');
 const rows=t.filter(l=>l.startsWith('| **I-')).map(l=>l.split('|').slice(1,-1).map(s=>s.trim()));
 const codes=['OPEN','IN_PROGRESS','DEFERRED','DEFERRED_STUDY','DEFERRED_REVIEW','WONT_IMPLEMENT','OPEN_PARTIAL','APPROVED','RESOLVED','ALIGNED'];
 const cnt={};codes.forEach(c=>cnt[c]=0);

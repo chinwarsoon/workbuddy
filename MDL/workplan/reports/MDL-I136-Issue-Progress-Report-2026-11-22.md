@@ -11,7 +11,7 @@ panel used fixed Y gridlines, an unwrapped legend, gated bar labels and a Y-max 
 values when Bars was off. It had no C1 dual-handle time bar, no attached table and no chart hover
 window. The dual-scale note, zone borders, header colours and crosshair styling were incomplete.
 
-The issue is recorded in `MDL/mdl-issues.md` revision 1.59 and `MDL/log/issue_log.md` revision 1.17.
+The issue is recorded in `MDL/log/issue_log.md` revision 1.59 and `MDL/log/issue_log.md` revision 1.17.
 
 ## 2. Basis
 
@@ -116,4 +116,4 @@ Restore `MDL/src/render.mjs`, `MDL/MDL-Dashboard.html`, the workplan and the log
 ## 8. Closure
 
 I-136 is RESOLVED. The implementation, approved fixes, test evidence and log references are recorded in
-`MDL/mdl-issues.md`, `MDL/log/issue_log.md`, `MDL/log/update_log.md` and `MDL/log/test_log.md`.
+`MDL/log/issue_log.md`, `MDL/log/issue_log.md`, `MDL/log/update_log.md` and `MDL/log/test_log.md`.

@@ -1,0 +1,642 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<title>MDL Issue Progress — chart head review sample (2026-11-23)</title>
+<style>
+:root{--navy:#0F2D52;--blue:#1E88E5;--green:#2E7D32;--amber:#F9A825;--red:#C62828;--slate:#64748B;--bg:#F6F8FA;--surface:#FFFFFF;--border:#D9E1E8;--text:#1F2A37;--muted:#64748B;--card:#FFFFFF;--line:#D9E1E8;--ink:#0F2D52;--accent:#1E88E5;--accent2:#2E7D32;--warn:#F9A825;--bad:#C62828;--soft:#E8F1FD;--shadow:0 1px 2px rgba(15,45,82,.04);--radius:10px;--font:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;--warn-bg:#FFF4D6;--warn-border:#F0D38A;--warn-fg:#9a6b00;--warn-fg-strong:#9a6b00;--error-bg:#FDE8E8;--error-fg:#C62828;--ok-bg:#E6F4EA;--ok-fg:#2E7D32;--accent-soft-border:#BFD8F2;--accent-ink:#1E88E5;--grid:#EDF1F5;--sidebar-w:160px;--nav-bg:#0F2D52;--nav-bg-hover:rgba(255,255,255,.10);--nav-bg-active:#354F6E;--nav-fg:#E8EDF3;--panel-gap:14px;--btn-h:32px;--seg-h:32px;--crosshair-track:rgba(30,136,229,.14);--crosshair-intersection:rgba(30,136,229,.28);--crosshair-ring:#1E88E5;--header-crosshair-overlay:rgba(30,136,229,.20);--header-crosshair-accent:#1E88E5;--tool-pad:12px;--tool-gap:10px;--seg-pad-y:6px;--seg-pad-x:10px;--seg-fs:12px;--seg-fw:600;--seg-lh:1.2;--seg-active-bg:var(--navy);--seg-active-fg:#fff;--seg-hover-bg:var(--surface2);--seg-hover-fg:var(--blue);--seg-pressed-bg:var(--surface3);--seg-focus:var(--blue);--seg-focus-on-active:#fff;--seg-disabled-opacity:.5;--surface2:#F1F5F9;--surface3:#E2E8F0;--text2:#475569}
+body[data-theme="dark"]{--navy:#0B2036;--bg:#101820;--surface:#17232F;--card:#17232F;--border:#35485B;--text:#E6EDF3;--muted:#A8B7C5;--line:#35485B;--ink:#E6EDF3;--accent:#5AA9F5;--accent-ink:#8CC4FA;--soft:#20354A;--grid:#223244;--nav-bg:#0B2036;--nav-bg-active:#2B4B6A;--crosshair-track:rgba(90,169,245,.16);--crosshair-intersection:rgba(90,169,245,.30);--crosshair-ring:#8CC4FA;--header-crosshair-overlay:rgba(90,169,245,.22);--header-crosshair-accent:#8CC4FA;--surface2:#1D2B3A;--surface3:#243647;--text2:#B7C4D1}
+body[data-theme="navy"]{--bg:#E7EEF5;--surface:#FFFFFF;--navy:#0B2A47;--nav-bg:#0B2A47;--nav-bg-active:#2D4F6E;--accent:#2563A6;--accent-ink:#1D4E86;--soft:#EAF2FA;--crosshair-track:rgba(37,99,166,.14);--crosshair-intersection:rgba(37,99,166,.26);--crosshair-ring:#2563A6;--header-crosshair-overlay:rgba(37,99,166,.20);--header-crosshair-accent:#2563A6}
+body[data-theme="contrast"]{--bg:#FFFFFF;--surface:#FFFFFF;--navy:#001526;--text:#000000;--muted:#253746;--border:#000000;--line:#555555;--accent:#005FCC;--accent-ink:#003D85;--soft:#EAF1F8;--nav-bg:#001526;--nav-bg-active:#004275;--crosshair-track:rgba(0,95,204,.22);--crosshair-intersection:rgba(0,95,204,.36);--crosshair-ring:#005FCC;--header-crosshair-overlay:rgba(0,95,204,.30);--header-crosshair-accent:#005FCC}
+body[data-theme="sepia"]{--bg:#F4EEE3;--surface:#FFFDF8;--navy:#463A2E;--text:#33291F;--muted:#6F6253;--border:#D2C3AD;--line:#D2C3AD;--accent:#9A5B22;--accent-ink:#7A461A;--soft:#F6ECDA;--nav-bg:#463A2E;--nav-bg-active:#6B5948;--crosshair-track:rgba(154,91,34,.16);--crosshair-intersection:rgba(154,91,34,.30);--crosshair-ring:#9A5B22;--header-crosshair-overlay:rgba(154,91,34,.22);--header-crosshair-accent:#9A5B22}
+*{box-sizing:border-box}
+.shell-main{display:grid;grid-template-columns:var(--sidebar-w) minmax(0,1fr);flex:1 1 auto;min-height:0;transition:grid-template-columns .12s ease}
+body.sidebar-collapsed .shell-main{grid-template-columns:minmax(0,1fr)}
+body.sidebar-collapsed [data-shell="left-sidebar"]{display:none}
+[data-shell="left-sidebar"]{position:relative;display:flex;flex-direction:column;background:var(--nav-bg);color:var(--nav-fg);min-height:0}
+.nav-list,.nav-tools{display:flex;flex-direction:column;gap:2px;padding:10px}
+.nav-tools{margin-top:auto;border-top:1px solid rgba(255,255,255,.14)}
+.nav-item{min-height:36px;padding:8px 12px;border:0;border-radius:6px;background:var(--nav-bg);color:var(--nav-fg);font-size:14px;font-weight:400;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-item:hover{background:var(--nav-bg-hover)}
+.nav-item.active,.nav-item[aria-current="page"]{background:var(--nav-bg-active);font-weight:600}
+.sidebar-resizer{position:absolute;right:-3px;top:0;width:6px;height:100%;cursor:col-resize;z-index:5}
+.sidebar-resizer:hover{background:rgba(255,255,255,.18)}
+.page-label{font-size:16px;font-weight:600;line-height:1.2;color:#fff;white-space:nowrap;flex:0 0 auto}
+.filter-strip{display:flex;align-items:center;gap:8px;min-height:34px;padding:6px 16px;background:var(--surface);border-bottom:1px solid var(--border);font-size:12px;color:var(--muted)}
+.content-body{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+.panel-area{display:grid;gap:var(--panel-gap);grid-template-columns:repeat(var(--panel-cols,2),minmax(0,1fr));align-items:start}
+body[data-layout="one"]{--panel-cols:1}
+body[data-layout="two"]{--panel-cols:2}
+body[data-layout="three"]{--panel-cols:3}
+.panel-area > #kpiPanel{grid-column:1 / -1}
+.panel-area > #matrixPanel{grid-column:1 / -1}
+.panel[data-page]{display:none}
+.panel[data-page].page-active{display:block}
+.wrap[data-shell="content"]{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden;max-width:none;margin:0;padding:14px 20px 52px}
+html{height:100%;overflow:hidden}
+#app{height:100vh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden}
+body{height:100%;margin:0;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden}
+header.app{display:flex;flex-direction:column;position:sticky;top:0;z-index:31;padding:0}
+header.app .app-top{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;background:var(--navy);color:#fff;padding:10px 20px}
+header.app .app-menu{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;background:#fff;color:var(--text);padding:8px 20px}
+header.app .app-menu .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+header.app .app-menu .filter-group{display:flex;align-items:center;gap:8px;flex-shrink:0}
+/* menu controls are borderless (spec §3.1 / §7.1): highlight on hover only, no icons */
+header.app .app-menu .btn{border:0;background:transparent}
+header.app .app-menu .btn:hover{background:var(--soft)}
+/* Primary CTA must keep its solid fill despite the borderless rule above (spec §3.1 / §7.1).
+   Without this, background:transparent out-specifies .btn-primary, leaving white text on white. */
+header.app .app-menu .btn-primary{background:var(--blue);color:#fff}
+header.app .app-menu .btn-primary:hover{background:#0f56a8}
+/* Pressed/toggle state (e.g. the Warnings button when the bar is collapsed) must keep its fill.
+   Without this, the .app-menu .btn background:transparent rule overrides .btn[aria-pressed=true], leaving
+   white text on the white menu bar — the same white-on-white regression as the primary CTA (I-105/I-106). */
+header.app .app-menu .btn[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+header.app .app-menu .tf-btn{border:0;background:transparent;color:var(--navy)}
+header.app .app-menu .tf-btn:hover{background:var(--soft)}
+header.app .app-menu .tf-btn[aria-expanded="true"]{border:0;background:var(--soft)}
+header.app .app-menu .tf-btn .tf-cnt{border:0;background:transparent;padding:0 0 0 4px;color:var(--accent-ink);font-weight:700}
+header.app .app-menu .tf-btn.is-filtered .tf-cnt{background:transparent;border:0}
+/* the Search panel reuses .tf-panel but is shown via .open, not the [hidden] attribute */
+header.app .app-menu .tf-panel.search-panel{display:none;width:min(92vw,640px);max-width:min(92vw,640px)}
+header.app .app-menu .tf-panel.search-panel.open{display:block}
+/* Search popover: column selector + elongated search field + Find/Reset all on ONE row (spec §3.1). */
+header.app .app-menu .search-panel .search-row{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+header.app .brand{display:flex;align-items:center;gap:12px;min-width:0}
+header.app .logo{height:36px;width:auto;border-radius:6px;background:#fff;padding:3px;box-shadow:0 1px 3px rgba(0,0,0,.2);flex-shrink:0}
+header.app .ttl-stack{display:flex;flex-direction:column;gap:2px;min-width:0}
+header.app h1.ttl{font-size:17px;margin:0;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header.app .ttl-stack .sub{font-size:12px;font-weight:500;color:rgba(255,255,255,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header.app .meta{font-size:11px;opacity:.85}
+header.app .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.welcome-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.welcome{max-width:480px;width:100%;margin:0;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:48px 48px;line-height:1.45}
+.welcome .wlogo{height:52px;width:auto;margin:0 auto 18px;display:block}
+.welcome h1{margin:0 0 8px;font-size:25px;font-weight:700;letter-spacing:-.02em}
+.welcome .sub{color:var(--muted);font-size:14px;margin:0 0 26px}
+.welcome .expect{background:var(--soft);border:1px solid var(--accent-soft-border);border-radius:12px;padding:12px 16px;font-size:12px;color:var(--accent-ink);margin:0 0 20px;text-align:left}
+.welcome .expect b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--blue);margin-bottom:3px}
+.welcome .drop{border:1.5px dashed var(--line);border-radius:16px;padding:24px 16px;margin-bottom:22px;cursor:pointer;transition:.2s;text-align:center}
+.welcome .drop.hover{border-color:var(--accent);background:var(--soft)}
+.welcome .drop .d-title{font-weight:600;font-size:14px;color:var(--text);margin-bottom:4px}
+.welcome .drop .d-sub{font-size:12px;color:var(--muted);margin-bottom:0}
+.welcome .drop .err{color:var(--red);font-size:12px;margin-top:10px}
+.welcome .privacy{font-size:11.5px;color:var(--muted);margin-top:18px;display:flex;gap:6px;align-items:center;justify-content:center}
+.welcome .privacy svg{width:13px;height:13px;fill:var(--muted)}
+.welcome .btn{font-size:14px;padding:12px 22px;min-height:0;line-height:1.45}
+.welcome .copyright{font-size:11.5px;color:var(--muted);margin-top:6px}
+.sys-banner-item{padding:9px 20px;border-bottom:1px solid rgba(0,0,0,.10);font-size:12px;line-height:1.4}
+.sys-banner-item:last-child{border-bottom:none}
+.sys-banner-item.warn{background:var(--amber);color:#5a3d00}
+.sys-banner-item.fatal{background:var(--red);color:#fff}
+.sys-banner-item.info{background:#e8eef5;color:#33526b}
+.sys-banner-item b{font-weight:700;margin-right:4px}
+/* in-flow warning bar (spec §3.5) — unified with load failures */
+#errBanner{display:block;flex:0 0 auto;font-size:12px;line-height:1.4;box-shadow:0 2px 10px rgba(0,0,0,.18)}#errBanner[hidden]{display:none}
+.wrap{max-width:1320px;margin:0 auto;padding:16px;padding-bottom:52px}
+.status-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 14px;background:var(--navy);color:#E8EDF3;font-size:12px;user-select:none;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
+.status-bar .sb-left,.status-bar .sb-right{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.status-bar .sb-right{color:rgba(232,237,243,.82)}
+.status-bar b{font-weight:700;opacity:.92}
+.status-bar .sb-dot{width:8px;height:8px;border-radius:50%;background:#37d67a;flex:none}
+.status-bar .sb-file{max-width:320px;overflow:hidden;text-overflow:ellipsis}
+.status-bar .sb-err{color:#FFCDD2}
+@media print{.status-bar{display:none}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 14px 26px;margin:14px 0;box-shadow:0 1px 2px rgba(15,45,82,.04);position:relative}
+.panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:.04em;color:var(--muted);pointer-events:none}
+.panel.panel-flat{border:0;background:transparent;box-shadow:none}
+.panel h2{font-size:13px;margin:0 0 10px;color:var(--navy);text-transform:uppercase;letter-spacing:.04em;display:flex;justify-content:space-between}
+
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;padding:10px}
+.kpi .v{font-size:22px;font-weight:700;color:var(--navy)} .kpi .l{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.kpi.warn{border-top-color:var(--red)} .kpi.ok{border-top-color:var(--green)} .kpi.amb{border-top-color:var(--amber)}
+.kpi.muted{border-top-color:var(--slate)} .kpi.err{border-top-color:#8E24AA}
+.subkpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+.subkpi{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+.subkpi .v{font-size:16px;font-weight:700;color:var(--navy)} .subkpi .l{font-size:10px;color:var(--muted)}
+.kpi-card{cursor:help}
+.kpi-card:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.chart-tip{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:8px 10px;font-size:11px;font-variant-numeric:tabular-nums;line-height:1.45;color:var(--text);max-width:230px;z-index:30;pointer-events:none;opacity:0;visibility:hidden;transition:opacity 100ms ease}
+.chart-tip.show{opacity:1;visibility:visible}
+.chart-tip[aria-hidden="true"]{visibility:hidden}
+.chart-tip b{font-weight:700}
+.chart-tip .chart-tip-row{display:grid;grid-template-columns:76px minmax(0,1fr);gap:8px;margin-top:4px;align-items:start}
+.chart-tip .chart-tip-row .k{color:var(--muted)}
+.chart-tip .chart-tip-row > :last-child{text-align:left;overflow-wrap:anywhere}
+.chart-tip .chart-tip-row > .tip-num{text-align:right}
+.chart-tip .kpi-tip-swatch{width:8px;height:8px;border-radius:50%;background:var(--tip-swatch,var(--blue));display:inline-block;margin-right:6px}
+.chart-tip-foot{border-top:1px solid var(--border);margin-top:6px;padding-top:6px;display:grid;grid-template-columns:76px minmax(0,1fr);gap:8px;color:var(--muted)}
+.chart-tip-foot > :last-child{text-align:left;overflow-wrap:anywhere}
+.chart-tip-foot > .tip-num{text-align:right}
+.toolbar{display:flex;gap:var(--tool-gap);align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.toolbar .tool-filters{display:flex;gap:var(--tool-gap);align-items:center;flex-wrap:wrap}
+.toolbar .tool-actions{margin-left:auto;display:flex;gap:var(--tool-gap);align-items:center;flex-wrap:wrap}
+.toolbar.matrix-tools{padding:var(--tool-pad);margin-bottom:0}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.panel-head h2{margin:0}
+.panel-head h3{margin:0;font-size:13px;font-weight:700;color:var(--navy)}
+.panel-head .toolbar{margin-bottom:0}
+.curve-note{font-size:12px;color:var(--muted);margin:2px 0 8px}
+.head-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.chart-actions{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:6px}
+.head-actions .lbl{display:inline-flex;align-items:center;gap:6px;margin:0;font-weight:600;font-size:12px;color:var(--navy)}
+.panel-body{display:block}
+.panel.collapsed .panel-body{display:none}
+.help-modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:24px}
+.help-modal[hidden]{display:none}
+.help-modal .box{background:#fff;border:1px solid var(--border);border-radius:12px;max-width:680px;width:100%;max-height:84vh;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.help-modal .box header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border)}
+.help-modal .box header h3{margin:0;font-size:15px;color:var(--navy)}
+/* A4: the modal close is a plain .icon-btn — 26 px square, no size/padding override (spec §7.1). */
+.help-modal .box .body{overflow:auto;padding:16px 18px;font-size:13px;line-height:1.55;color:#22303f}
+.help-modal .body h4{margin:16px 0 6px;font-size:13px;color:var(--navy)}
+.help-modal .body h4:first-child{margin-top:0}
+.help-modal .body p{margin:6px 0}
+.help-modal .body ul{margin:6px 0;padding-left:20px}
+.help-modal .body li{margin:3px 0}
+.help-modal .body code{background:var(--bg);padding:1px 5px;border-radius:4px;font-size:12px}
+.help-modal .body .def{background:var(--bg);border-left:3px solid var(--navy);padding:8px 12px;border-radius:0 6px 6px 0;margin:8px 0}
+.help{font-weight:700}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:32px;padding:7px 14px;font-size:12px;font-weight:600;line-height:1.2;border:1px solid transparent;border-radius:6px;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.btn:hover{filter:brightness(.97)}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-primary:hover{background:#1565c0;border-color:#1565c0}
+.btn-secondary{background:#fff;color:var(--navy);border-color:var(--border)}
+.btn-secondary:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn-active:hover{background:#0b2240;border-color:#0b2240}
+.btn .badge{background:#e0533d;color:#fff;border-radius:999px;padding:0 6px;font-size:11px;font-weight:700;min-width:16px;text-align:center;line-height:1.5}
+.btn[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.app-menu .warn-toggle{margin-left:6px}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:#fff;color:var(--navy);padding:7px 14px;min-height:32px;font-size:12px;font-weight:600;cursor:pointer;border-right:1px solid var(--border);text-transform:none;letter-spacing:0}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--navy);color:#fff}
+.seg button:hover:not(.on){background:var(--blue);color:#fff}
+.tf-wrap{position:relative;flex-shrink:0}
+.tf-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--navy);padding:7px 12px;min-height:32px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.tf-btn:hover{background:var(--soft)}
+.tf-btn[aria-expanded="true"]{border-color:var(--accent);background:var(--soft)}
+.tf-btn.is-filtered{border-color:var(--accent);color:var(--accent);background:#fff}
+.tf-btn .tf-cnt{font-size:10px;background:var(--bg);border:1px solid var(--border);color:var(--muted);padding:1px 6px;border-radius:10px;font-weight:600}
+.tf-btn.is-filtered .tf-cnt{background:var(--soft);border-color:var(--accent-soft-border);color:var(--accent-ink)}
+.tf-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:40;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);min-width:220px;max-width:min(340px,90vw);max-height:320px;overflow:auto;padding:10px;color:var(--text)}
+.tf-panel[hidden]{display:none}
+.search{display:flex;align-items:center;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:6px;min-height:28px;padding:0;flex:0 0 auto;width:320px;max-width:42vw}
+.search:focus-within{border-color:var(--accent);box-shadow:0 0 0 2px var(--soft)}
+select.inter-sel.is-attached{border:0;border-right:1px solid var(--border);background:var(--bg);color:var(--ink);font:inherit;font-weight:600;font-size:12px;border-radius:6px 0 0 6px;height:26px;padding:0 8px;cursor:pointer}
+.search-input{border:0;background:transparent;color:var(--text);font:inherit;font-size:12px;flex:1 1 220px;min-width:0;height:26px;outline:none}
+.search-input::placeholder{color:var(--muted)}
+.search-btn{background:var(--accent);color:#fff;border:0;border-radius:0 6px 6px 0;min-height:28px;padding:0 12px;cursor:pointer;font-size:13px;line-height:1}
+.search-btn:hover{filter:brightness(.97)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);border:0}
+.tf-panel .tf-all{display:flex;align-items:center;gap:8px;padding:2px;font-size:12px;cursor:pointer}
+.tf-panel .tf-all input{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0}
+.tf-panel .tf-all b{font-weight:700}
+.tf-panel .tf-divider{height:1px;background:var(--border);margin:2px 0 6px}
+/* I-115 — the note sits directly under the master, above the divider. Both panels are capped
+   scrollers, so a trailing note was unreachable until the item list was scrolled to the end;
+   grouping it with the master keeps the control's rule next to the control it describes. */
+.tf-panel .tf-hint{margin:2px 2px 6px;font-size:10px;color:var(--muted);line-height:1.35}
+.tf-panel .tf-item{display:flex;align-items:center;gap:8px;padding:5px 2px;font-size:12px;cursor:pointer;border-radius:4px}
+.tf-panel .tf-item:hover{background:var(--soft)}
+.tf-panel .tf-item input{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0}
+.tf-panel .tf-item .nc{margin-left:auto;font-size:10px;font-weight:600;color:var(--muted);white-space:nowrap}
+.tf-panel .tf-item.tf-nc>span:first-of-type{color:var(--muted)}
+/* mark a column header that currently has an active filter */
+.ds-table thead th.cf-on{background:var(--soft);color:var(--accent-ink)}
+.ds-table thead th.cf-on .sort-lbl{color:var(--accent-ink)}
+.sb-loading{opacity:.85;font-weight:600}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;min-height:26px;padding:0;font:inherit;font-size:13px;font-weight:600;line-height:1;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--muted);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.icon-btn:hover{background:var(--soft);color:var(--navy);border-color:var(--line)}
+.sc-win .msg{font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap}
+/* Toast (spec §7.10) — fixed, centred, above the status bar (z-index 45) */
+#toast{position:fixed;left:50%;bottom:52px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;align-items:center;z-index:45;pointer-events:none;max-width:min(92vw,440px)}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:8px;min-width:180px;max-width:440px;padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.3;color:#fff;background:var(--navy);box-shadow:0 6px 20px rgba(15,45,82,.28);opacity:0;transform:translateY(12px);transition:opacity .2s ease,transform .2s ease;cursor:pointer}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast .ti{flex:none;font-size:14px;line-height:1;font-weight:700}
+.toast .tt{overflow:hidden;text-overflow:ellipsis}
+.toast-success{background:var(--green)}
+.toast-info{background:var(--blue)}
+.toast-warning{background:var(--amber);color:#3a2a00}
+.toast-error{background:var(--red)}
+@media (prefers-reduced-motion: reduce){ .toast{transition:opacity .2s ease;transform:none} .toast.show{transform:none} }
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch}
+.curve-body{display:flex;flex-direction:column;gap:12px}
+.curve-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.curve-host{width:100%;overflow-x:auto}
+.legend{display:flex;gap:14px;font-size:12px;margin-top:8px;flex-wrap:wrap;color:var(--navy)}
+.legend .sw{width:12px;height:12px;border-radius:3px;display:inline-block;margin-right:4px;vertical-align:-1px}
+.sc-win .lbl{margin-right:6px;font-size:12px;font-weight:600;color:var(--muted)}
+.sc-win .rng{font-size:11px;font-weight:400;color:var(--muted);display:inline-flex;align-items:center;gap:4px}
+select.inter-sel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--ink);cursor:pointer;max-width:260px}
+select.inter-sel:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}.subkpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:880px){.kpis{grid-template-columns:repeat(2,1fr)}.subkpis{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}.curve-grid{grid-template-columns:1fr}}
+.chart{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;flex-direction:column}
+.chart h3{font-size:13px;font-weight:700;margin:0 0 8px;color:var(--navy)}
+.chart .chart-host{flex:1 1 auto;display:flex;align-items:center;justify-content:center;min-height:300px}
+.chart .chart-host svg{max-width:100%}
+.chart svg{display:block;height:auto;max-width:100%}
+.filters{display:block}
+.filters .grp{border:1px solid var(--border);border-radius:8px;padding:6px 10px;background:#fff}
+.filters .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:4px}
+
+.chips{display:flex;flex-wrap:wrap;gap:4px;max-width:420px;max-height:130px;overflow:auto;padding-right:4px}
+.chips label{font-size:11px;display:inline-flex;align-items:center;gap:3px;background:var(--bg);border:1px solid var(--border);padding:2px 6px;border-radius:12px;cursor:pointer}
+.filters .grp-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.filters .grp-head .lbl{margin-bottom:0}
+.filters .grp-actions{display:inline-flex;align-items:center;gap:6px}
+.filters .badge{font-size:10px;background:var(--bg);border:1px solid var(--border);color:var(--muted);padding:1px 6px;border-radius:10px;font-weight:600}
+.filters-help{font-size:11px;color:#7A8A99;margin:0 0 8px}
+.zone-label{font-size:10px;font-weight:700;color:#9AA7B4;letter-spacing:1px;text-transform:uppercase;margin:6px 0 6px}
+.filters-cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:12px}
+.filters-utils{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.filters-utils .grp.util:first-child{flex:1 1 420px;max-width:none}
+.filters-utils .grp.util.actions{margin-left:auto}
+.filters-utils .grp.util{border:none;background:transparent;padding:0}
+.filters #fSearch{width:100%;max-width:560px;margin-top:4px}
+.filters .grp.active{border-color:#E0A100;box-shadow:inset 4px 0 0 #E0A100}
+.filters .grp.active .badge{background:#FFF4D6;border-color:#E0A100;color:#9a6b00}
+.filtered-note{font-size:9px;color:#9A6B00;margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{border-bottom:1px solid var(--border);padding:9px 10px;text-align:left}
+th{background:var(--navy);color:#fff;font-weight:600;position:sticky;top:0;cursor:pointer;user-select:none}
+tbody tr:nth-child(even){background:var(--bg)}
+tbody tr:hover{background:var(--soft)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.ds-table .over{background:var(--warn-bg)}
+.pill{padding:1px 7px;border-radius:999px;font-size:10px;font-weight:600}
+.p-app{background:var(--ok-bg);color:var(--ok-fg)} .p-awc{background:var(--warn-bg);color:var(--warn-fg)}
+.p-rej{background:var(--error-bg);color:var(--error-fg)} .p-nap{background:var(--grid);color:var(--slate)}
+.p-sur{background:var(--soft);color:var(--accent-ink)} .p-rtr{background:#FFF0E0;color:#b5651d}
+.p-nts{background:var(--ok-bg);color:var(--ok-fg)}
+.p-pend{background:#E3F2FD;color:#0D47A1} .p-unav{background:#ECEFF1;color:#546E7A}
+.p-nsub{background:#E8EEF1;color:#37474F} .p-rerr{background:#F3E5F5;color:#6A1B9A}
+/* §7.2.4 — a severity is a FIXED-SIZE inline SVG on an inner <span>, never a class on the
+   <td> (a non-table-cell display value takes the cell out of table formatting, RC-1) and
+   never an emoji (per-glyph font metrics make the Sev row taller than its neighbours, RC-4).
+   The chip inherits the cell font; only the glyph is sized in px (see .sev-svg). */
+.ds-table .sev-error,.ds-table .sev-warning,.ds-table .sev-info{
+  display:inline-flex;align-items:center;vertical-align:middle;white-space:nowrap;
+  font-size:inherit;line-height:inherit}
+.act{color:var(--ok-fg);font-weight:700} .ina{color:var(--slate)}
+/* Validation-panel severity summary chips — PPP shape (spec §4.5 overrides §7.10's 999px pill) */
+.vchips{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
+.vchip{display:inline-flex;align-items:center;gap:4px;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;text-transform:capitalize;line-height:1.4;white-space:nowrap}
+.vchip.e{background:var(--error-bg);color:var(--error-fg)}
+.vchip.w{background:var(--warn-bg);color:var(--warn-fg)}
+.vchip.i{background:var(--soft);color:var(--accent-ink)}
+.vchip.ok{background:var(--ok-bg);color:var(--ok-fg)}
+/* Validation detail: collapsible <details> (starts collapsed) holding #vmap, #vref, the per-issue table */
+.vdetails{border-top:1px solid var(--line);margin-top:8px}
+.vdetails>summary{cursor:pointer;padding:8px 2px;font-weight:600;color:var(--accent-ink)}
+.vdetails>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.vdetails .vbody{padding:4px 0 8px}
+.vnote{border:1px solid var(--line);border-radius:8px;background:var(--soft);padding:8px 10px;font-size:12px;color:var(--text);margin:6px 0}
+.vrefcard{border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:6px 0}
+/* §7.2.15 — the card title band is part of the header: SAME navy, SAME white 12px/600
+   as the thead cells. A light band above a navy header reads as two different components. */
+.vrefhead{padding:6px 10px;font-size:12px;font-weight:600;color:#fff;background:var(--navy);border-bottom:1px solid var(--ds-head-rule)}
+/* §18 split-header contract (1) — ONE container: header + body read as a single rounded table, so the
+   inner scroller's own border, radius and top margin are neutralised. Shared by every split-header
+   table; a table must not hand-roll a partial copy of this. */
+.splitcard .tableScroll{border:0;border-radius:0;margin-top:0}
+/* the matrix shell — same job as .vrefcard for the Rule Reference */
+.matrixcard{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:6px 0}
+/* §7.2.15 (1) — ONE bordered, rounded container for a split-header pair. The two shells above keep
+   their own radii for the panels that already ship them; this is the generic shell for a
+   split-header table that arrives with none of its own (MDL I-116). */
+.splitbox{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:6px 0}
+/* MDL I-116 (option i) — the header fragment sits in a CLIPPED scrollport that script scrolls in
+   lock-step with the body scroller. Chosen over translating the fragment because it lets a pinned
+   header cell stay put with position:sticky, exactly as the pinned body cell below it does — one
+   mechanism in both halves, so header and body cannot disagree. */
+.splitcard .vheadwrap{overflow:hidden}
+/* MDL I-116 — a pinned header cell must use the SAME mechanism as the pinned body cell below it:
+   sticky, not relative. §7.2.15 invariant 2 keeps a fragment cell position:relative so it stays a
+   containing block for the ::after column rule, but the grid emits a left offset on every pinned
+   cell, and "left" means a sticky offset for sticky and a VISUAL DISPLACEMENT for relative — which
+   slid the pinned "Doc No" header 70 px clear of its own column. Sticky is also a positioned value,
+   so the column rule still paints. */
+.splitcard .vheadtab thead th.ds-pinned{position:sticky;z-index:4}
+/* §7.2.15 — SPLIT HEADER. The thead element lives OUTSIDE the scroller, so the vertical
+   scrollbar starts BELOW the header row instead of running alongside it. The two
+   fragments must share one column grid: both are table-layout:fixed carrying the SAME
+   <colgroup>, and script gives the header table the scroller's clientWidth — which
+   already excludes the vertical scrollbar — so the columns line up exactly. */
+.splitcard .vheadtab{margin:0;width:100%}
+/* the fragment has no scrolling ancestor, so its cells must not be sticky (the bare
+   th rule at the top of the sheet would otherwise stick them to the viewport) — but
+   they MUST still be the containing block for the column rule below */
+.splitcard .vheadtab thead th{position:relative;border-bottom:1px solid var(--border)}
+/* §7.2.2 — column rules are now global (see the rollout block below); the
+   Rule-Reference-only copy that lived here has been removed. */
+/* the gutter column covers the scrollbar area so the navy is continuous across the
+   full card width; it is not a data column and is hidden from assistive tech */
+.ds-table .ds-gut{padding:0;border-bottom:0}
+.tableScroll{overflow:auto;max-height:340px;margin-top:8px;border:1px solid var(--border);border-radius:10px}
+.tableScroll table th{cursor:default}
+/* === .ds-table base (spec §7.2) === */
+.ds-table{width:100%;border-collapse:collapse;font-size:12px;background:#fff;table-layout:fixed}
+.ds-table th,.ds-table td{border-bottom:1px solid var(--border);padding:9px 10px;text-align:left;vertical-align:top}
+.ds-table thead th{background:var(--navy);color:#fff;font-size:12px;font-weight:600}
+.ds-table th[scope="row"]{font-weight:400}
+.ds-table .num{text-align:right;font-variant-numeric:tabular-nums}
+.ds-table tbody tr:nth-child(even){background:#F9FBFD}
+.ds-table tbody tr:hover{background:var(--soft)}
+.ds-table .over{background:var(--warn-bg)}
+.ds-table .empty{color:var(--muted);text-align:center}
+/* === §7.2.3 / §7.2.5 grid discipline — ROLLED OUT GLOBALLY (I-90, from the Rule
+   Reference pilot). Row height is ENFORCED by the token rather than left to content
+   (RC-8); cells are nowrap + ellipsis so a long value never grows a row (RC-5); and
+   <code> inherits the cell font (RC-5). Column widths come from each table's <colgroup>. */
+.ds-table th,.ds-table td{
+  height:var(--ds-row-h);line-height:var(--ds-cell-lh);font-size:var(--ds-cell-fs);
+  vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ds-table code{font:inherit}
+/* §7.2.2 — column edges: a 1 px rule on the right edge of every header cell. Constant
+   width; colour only on hover. Suppressed on grouped-header cells (colspan) and on the
+   last data column / gutter so no rule hangs past the table's edge (§7.2.2 (b)). */
+.ds-table thead th::after{content:"";position:absolute;top:8px;bottom:8px;right:0;
+  width:var(--ds-rule-w);background:var(--ds-head-rule);pointer-events:none}
+.ds-table thead th:hover::after{background:var(--ds-head-rule-hi)}
+.ds-table thead th[colspan]::after{display:none}
+.ds-table thead th:last-child:not(.ds-gut)::after{display:none}
+.ds-table thead th.ds-gut::after{display:none}
+/* §7.2.2 — the Discipline Summary Matrix paints a column rule on EVERY header cell, including the
+   grouped (first) row and the final data column, so no header group reads as one continuous block.
+   The gutter stays exempt. Enforced by harness Tier 4g. (Regression: MDL I-108.) */
+.matrix thead th[colspan]::after{display:block}
+.matrix thead th:last-child:not(.ds-gut)::after{display:block}
+/* §7.2.6 — L2 sortable header. The button inherits the navy/white header; the label
+   truncates but the indicator (flex:0 0 auto) stays visible at the cell's right edge. */
+.ds-table thead th .sort-btn{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;
+  cursor:pointer;display:flex;align-items:center;gap:4px;width:100%;text-align:left}
+.ds-table thead th .sort-btn:focus-visible{outline:2px solid #2b6cb0;outline-offset:1px;border-radius:2px}
+.ds-table thead th .sort-lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.ds-table thead th .sort-ind{flex:0 0 auto;font-size:9px;line-height:1;opacity:.6;margin-left:auto}
+.ds-table thead th[aria-sort="none"] .sort-ind{opacity:.3}
+/* numeric (right-aligned) headers: the label + glyph group reads right-aligned as a unit (I-102) */
+.ds-table thead th.num .sort-btn{justify-content:flex-end}
+.ds-table thead th[aria-sort="ascending"] .sort-ind,.ds-table thead th[aria-sort="descending"] .sort-ind{opacity:1}
+/* === §7.2.3 row typography tokens — one size, one line-height, one row height === */
+:root{--ds-row-h:40px;--ds-head-h:40px;--ds-cell-fs:12px;--ds-cell-lh:20px;--ds-rule-w:1px;--ds-head-rule:rgba(255,255,255,.38);--ds-head-rule-hi:rgba(255,255,255,.7)}
+/* === §7.2.3 / §7.2.5 grid discipline — ROLLED OUT GLOBALLY (I-90) ===
+   The width/row-height/ellipsis/column-rule behaviour above is now on .ds-table itself.
+   The severity chip went global in I-91 (it is now on an inner <span> in every table, not
+   bound to <td>), so only the split-header (.vheadtab), the title band (.vrefhead) and the
+   gutter column stay Rule-Reference-only. */
+.sev-svg{width:14px;height:14px;flex:0 0 14px;display:block}
+.note{background:#FFF8E1;border:1px solid var(--amber);color:#7a5b00;padding:8px 12px;border-radius:8px;font-size:12px;margin:10px 0}
+.panel-error{background:var(--error-bg);border:1px solid var(--error-fg);color:var(--error-fg);padding:12px 14px;border-radius:8px;font-size:12px;margin:8px 0;line-height:1.5}
+.pe-detail{display:block;margin-top:6px;font-size:11px;opacity:.85}
+.sb-err{border-color:var(--error-fg)}
+.expand{cursor:pointer;color:var(--blue);font-size:10px;white-space:nowrap;user-select:none;border:0;background:transparent;padding:0;font-family:inherit}
+.expand.open{color:var(--navy);font-weight:600}
+
+.matrix{width:100%;border-collapse:collapse;font-size:12px;background:#fff}
+.matrix th,.matrix td{border-bottom:1px solid var(--border);padding:4px 8px;text-align:center;white-space:nowrap}
+.matrix th:first-child,.matrix td:first-child{text-align:left}
+.matrix thead tr.group th{background:var(--navy);color:#fff;font-weight:700}
+.matrix thead tr.group th.tint{background:#FFF9C4;color:#7a5b12}
+.matrix th.tint{background:#FFF9C4;color:#7a5b12}
+.matrix td.col-tint{background:#FFF9C4}
+.matrix tfoot td{background:var(--bg);font-weight:700;border-top:2px solid var(--navy)}
+.matrix tbody tr:nth-child(even){background:#fafcff}
+.matrix tbody tr.sub{background:#F2F6FB}
+.matrix tbody tr.sub td.subname{text-align:left;padding-left:22px;color:var(--muted);font-style:italic}
+.matrix td.noexp{color:#c2ccd6;text-align:center}
+/* matrix split-header fragment (I-101): the header lives outside the scroller, always visible,
+   never sticky — the scrollbar sits under it, not beside it */
+/* The matrix fragment inherits the shared .splitcard contract (margin, width, position:relative and
+   bottom rule) — position MUST stay relative: it is the containing block for the ::after column rule.
+   Alignment needs NO positional rule: §18 centres every data column of a summary cross-tab and keeps the
+   leading label column left, which the existing .matrix cell rule and its :first-child override already do
+   — and because it comes from the column, header and body cannot drift apart. */
+.matrix td{font-variant-numeric:tabular-nums}
+/* §18: a summary cross-tab centres every data column. The type class (.num, right) and the
+   :first-child override (left) are positional/type rules that can grab the WRONG cell here — the leaf
+   row has no Discipline cell (it is rowspanned on the group row), so its first child is a data column
+   and centres like the rest, and no leaf cell may be pulled right by .num. */
+.matrix thead tr.detail th{text-align:center}
+/* centred header: the label centres in the space left of the sort glyph, which stays pinned right.
+   Discipline is the one column that reads left, with its data. */
+.matrix thead th .sort-lbl{flex:1 1 auto;text-align:center}
+.matrix thead tr.group th:first-child .sort-lbl{text-align:left}
+#matrixPanel .matrixcard{overflow:hidden}
+#matrixPanel .tableScroll{max-height:none}
+.ds-table[data-table-crosshair] th:not(.ds-pinned),.ds-table[data-table-crosshair] td:not(.ds-pinned){position:relative}
+.ds-table[data-table-crosshair] tbody tr.row-hover > td,.ds-table[data-table-crosshair] td.col-hover{background-image:linear-gradient(var(--crosshair-track),var(--crosshair-track))}
+.ds-table[data-table-crosshair] td.cell-hover{background-image:linear-gradient(var(--crosshair-intersection),var(--crosshair-intersection));box-shadow:inset 0 0 0 1px var(--crosshair-ring)}
+.ds-table[data-table-crosshair] th.col-hover{background-image:linear-gradient(var(--header-crosshair-overlay),var(--header-crosshair-overlay));box-shadow:inset 0 -2px 0 var(--header-crosshair-accent)}
+.ds-table[data-table-crosshair] th.cell-hover{background-image:linear-gradient(var(--header-crosshair-overlay),var(--header-crosshair-overlay));box-shadow:inset 0 0 0 1px var(--crosshair-ring),inset 0 -2px 0 var(--header-crosshair-accent)}
+.ds-table[data-table-crosshair] :focus-visible{outline:2px solid var(--crosshair-ring);outline-offset:-2px}
+
+.tableScroll thead th{position:sticky;top:0;z-index:2;box-shadow:0 1px 0 var(--border)}
+/* === L3 grid (I-95, spec §7.2.13 / §7.2.14) — pinned columns ===
+   z-index ladder (§7.2.13): plain td (auto) < pinned td (1) < sticky header th (2) <
+   pinned header th (4) < resize grip (5). The pinned cell carries an OPAQUE background
+   and re-declares the zebra / hover colours, otherwise scrolled content shows through. */
+.ds-table td.ds-pinned{position:sticky;background:#fff}
+/* Pinned HEADER cells must keep the navy header fill, not a white one — otherwise the
+   inherited white header text (th{color:#fff}) becomes white-on-white (MDL I-105). */
+.ds-table th.ds-pinned{position:sticky;background:var(--navy)}
+.ds-table td.ds-pinned{z-index:1}
+.ds-table thead th.ds-pinned{z-index:4}
+.ds-table td.ds-pinned{box-shadow:1px 0 0 var(--border)}
+.ds-table td.ds-pinned-edge{box-shadow:1px 0 0 var(--border),4px 0 10px -4px rgba(15,30,50,.28)}
+.ds-table tbody tr:nth-child(even) td.ds-pinned{background:#F9FBFD}
+.ds-table tbody tr:hover td.ds-pinned{background:var(--soft)}
+/* column resize grip (I-95, §7.2.13): 6 px wide, ≥24 px hit area via the padded edge */
+.ds-resize{position:absolute;top:0;right:-4px;width:9px;height:100%;cursor:col-resize;touch-action:none;z-index:5;border:0;background:transparent;padding:0}
+.ds-resize::after{content:"";position:absolute;top:8px;bottom:8px;right:3px;width:2px;background:transparent;border-radius:1px}
+.ds-resize:hover::after,.ds-resize.active::after{background:var(--accent)}
+/* windowed rendering (I-96, §7.2.8): spacer rows keep the scrollbar length identical */
+.ds-table tr.win-pad td{padding:0;border:0;background:transparent;overflow:hidden}
+/* §7.10 B7 — COLUMN-VISIBILITY CHOOSER (I-114). This is a LAYOUT control, not a filter: it changes
+   which columns are painted and never which rows are returned. It therefore gets its OWN classes
+   (.cc-wrap / .cc-btn / .cc-panel) instead of borrowing the filter-trigger look (.tf-*), so it can
+   never be mistaken for a row filter. It deliberately carries no count badge and no [aria-expanded]
+   active-filter emphasis — the two cues that say "this narrows your rows". */
+.cc-wrap{position:relative;flex-shrink:0}
+.cc-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--navy);padding:7px 12px;min-height:32px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.cc-btn:hover{background:var(--soft)}
+.cc-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:40;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);min-width:260px;max-width:min(420px,92vw);max-height:380px;overflow:auto;padding:10px}
+.cc-panel[hidden]{display:none}
+.cc-panel .cc-row{display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:12px}
+.cc-panel .cc-row input{flex:0 0 auto}
+.cc-panel .cc-row .cc-lbl{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cc-panel .cc-row .cc-pin{font-size:10px;color:var(--muted);flex:0 0 auto}
+.cc-panel .cc-row input:disabled+ .cc-lbl{color:var(--muted)}
+/* I-115 — the chooser adopts the SAME internal ordering as .tf-panel: master "All columns"
+   → note → divider → items → footer. Only the class names differ (§7.10 B7): a layout control
+   still gets no count badge and no active-filter emphasis, so it cannot be read as a filter. */
+.cc-panel .cc-all{display:flex;align-items:center;gap:8px;padding:2px;font-size:12px;cursor:pointer}
+.cc-panel .cc-all input{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0}
+.cc-panel .cc-all .cc-lbl{flex:1 1 auto;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cc-panel .cc-note{margin:2px 2px 6px;font-size:10px;color:var(--muted);line-height:1.35}
+.cc-panel .cc-divider{height:1px;background:var(--border);margin:0 0 6px}
+.cc-panel .cf-foot{display:flex;align-items:center;gap:8px;padding:8px 2px 2px;margin-top:6px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
+.cc-panel .cf-foot .cf-cnt{margin-left:auto}
+.cc-panel .cf-foot button{font:inherit;font-size:11px;color:var(--accent);background:transparent;border:0;padding:0;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+.cc-panel .cf-foot button:hover{text-decoration:underline}
+.cnt{margin-left:auto;font-size:11px;color:var(--muted);white-space:nowrap}
+
+
+.hidden{display:none}
+/* I-136 — Issue Progress C1 attached table. All selectors stay inside .curve-card. */
+.curve-card{gap:8px}
+.curve-card .sc-win{flex:1 1 auto;justify-content:flex-start;min-width:260px}
+.curve-card .sc-win .msg{margin-left:0;flex-shrink:0}
+.curve-card .c1-ts-body{position:relative;display:flex;flex:1 1 190px;min-width:120px;max-width:440px;height:26px;align-items:center}
+.curve-card .c1-timebar{--c1-thumb:14px;position:relative;flex:1;height:26px}
+.curve-card .c1-track{position:absolute;left:calc(var(--c1-thumb)/2);right:calc(var(--c1-thumb)/2);top:12px;height:4px;border-radius:2px;background:var(--border)}
+.curve-card .c1-fill{position:absolute;top:12px;height:4px;border-radius:2px;background:var(--blue);pointer-events:none;left:var(--c1-fill-left,calc(var(--c1-thumb)/2));width:var(--c1-fill-width,0px)}
+.curve-card .c1-ticks{position:absolute;inset:0;pointer-events:none}
+.curve-card .c1-tick{position:absolute;top:9px;width:1px;height:6px;background:var(--border)}
+.curve-card .c1-tick.is-year{top:7px;height:10px;background:var(--text2)}
+.curve-card .c1-tick.is-active{background:var(--blue)}
+.curve-card .c1-tick.is-near{top:6px;height:12px;background:var(--blue)}
+.curve-card .c1-year{position:absolute;top:-12px;left:0;transform:translateX(-50%);font-size:9px;color:var(--text2);white-space:nowrap}
+.curve-card .c1-timebar input[type=range]{position:absolute;left:0;top:0;width:100%;height:26px;margin:0;background:transparent;pointer-events:none;-webkit-appearance:none;appearance:none}
+.curve-card .c1-timebar input[type=range]::-webkit-slider-runnable-track{height:26px;background:transparent;border:0}
+.curve-card .c1-timebar input[type=range]::-moz-range-track{height:26px;background:transparent;border:0}
+.curve-card .c1-timebar input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:var(--c1-thumb);height:var(--c1-thumb);margin-top:6px;border-radius:50%;background:var(--blue);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--blue);cursor:grab;pointer-events:auto;transition:transform .12s ease}
+.curve-card .c1-timebar input[type=range]::-moz-range-thumb{width:var(--c1-thumb);height:var(--c1-thumb);border-radius:50%;background:var(--blue);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--blue);cursor:grab;pointer-events:auto;transition:transform .12s ease}
+.curve-card .c1-timebar input[type=range]:active::-webkit-slider-thumb,.curve-card .c1-timebar input[type=range]:active::-moz-range-thumb{transform:scale(1.15);cursor:grabbing}
+.curve-card .c1-timebar input[type=range]:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.curve-card .c1-timebar input.wf{z-index:3}
+.curve-card .c1-timebar input.wt{z-index:4}
+.curve-card .seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0}
+.curve-card .seg-btn{min-height:var(--seg-h);padding:var(--seg-pad-y) var(--seg-pad-x);font:var(--seg-fw) var(--seg-fs)/var(--seg-lh) var(--font-ui);border:0;border-right:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer}
+.curve-card .seg-btn:last-child{border-right:0}
+.curve-card .seg-btn.active{background:var(--seg-active-bg);color:var(--seg-active-fg)}
+.curve-card .seg-btn.active:hover{background:var(--seg-active-bg);color:var(--seg-active-fg)}
+.curve-card .seg-btn:not(.active):not(:disabled):hover{background:var(--seg-hover-bg);color:var(--seg-hover-fg)}
+.curve-card .seg-btn:not(:disabled):active:not(.active){background:var(--seg-pressed-bg);color:var(--text)}
+.curve-card .seg-btn:focus-visible{outline:2px solid var(--seg-focus);outline-offset:-2px}
+.curve-card .seg-btn.active:focus-visible{outline-color:var(--seg-focus-on-active)}
+.curve-card .curve-host{width:100%;overflow-x:auto}
+.curve-card .curve-c1-grid{--c1-gutter:104px;--c1-right-w:52px;display:grid;grid-template-columns:var(--c1-gutter) repeat(var(--c1-cols),minmax(0,1fr));align-items:stretch;min-width:calc(var(--c1-gutter) + var(--c1-cols) * 64px + var(--c1-right-w));width:100%}
+.curve-card .curve-c1-gutter{grid-column:1;grid-row:1;position:relative;border:1px solid var(--border);border-right:0;border-radius:10px 0 0 0;background:var(--surface)}
+.curve-card .curve-c1-yticks{position:absolute;inset:0;pointer-events:none}
+.curve-card .curve-c1-ytick{position:absolute;right:6px;transform:translateY(-50%);font:13px/1 var(--font-ui);font-variant-numeric:tabular-nums;color:#6b7785;white-space:nowrap}
+.curve-card .curve-c1-ycap{position:absolute;left:2px;top:6px;writing-mode:vertical-rl;font-size:11px;color:var(--muted)}
+.curve-card .curve-c1-plot{grid-column:2/-1;grid-row:1;position:relative;min-width:0;cursor:crosshair;border:1px solid var(--border);border-radius:0 10px 0 0;background:var(--surface);overflow:visible}
+.curve-card .curve-c1-plot:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+.curve-card .curve-c1-plot svg{display:block;width:100%;height:auto;overflow:visible}
+.curve-card .curve-c1-table{grid-column:1/-1;grid-row:2;width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid var(--border);border-top:0;border-radius:0 0 10px 10px;margin:0}
+.curve-card .curve-c1-table caption{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.curve-card .curve-c1-table th,.curve-card .curve-c1-table td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px 6px;text-align:right;font-size:11px;font-variant-numeric:tabular-nums;color:var(--text);background:var(--surface)}
+.curve-card .curve-c1-table tr>*:last-child{border-right:0}
+.curve-card .curve-c1-table tbody tr:last-child>*{border-bottom:0}
+.curve-card .curve-c1-table thead th{background:var(--surface2)}
+.curve-card .curve-c1-table th.corner{text-align:left;color:var(--navy);font-size:10px;font-weight:700;background:var(--surface2)}
+.curve-card .curve-c1-table th.g-axis,.curve-card .curve-c1-table th.g-label{font-size:11px;font-weight:600;color:var(--text2);white-space:nowrap}
+.curve-card .curve-c1-table th.g-label{text-align:left;background:var(--surface2)}
+.curve-card .curve-c1-table [data-c1col]:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+.curve-card .curve-c1-table td.col-active,.curve-card .curve-c1-table th[scope=row].col-active{background-color:var(--crosshair-track);font-weight:600}
+.curve-card .curve-c1-table th[data-c1col].col-active{background-image:linear-gradient(var(--header-crosshair-overlay),var(--header-crosshair-overlay)),linear-gradient(var(--header-crosshair-accent),var(--header-crosshair-accent));background-size:auto,100% 2px;background-position:center,center bottom;background-repeat:no-repeat}
+@media (hover:hover) and (pointer:fine){
+.curve-card .curve-c1-table td.cell-hover,.curve-card .curve-c1-table th[scope=row].cell-hover{background-color:var(--crosshair-intersection);box-shadow:inset 0 0 0 1px var(--crosshair-ring)}
+.curve-card .curve-c1-table th[data-c1col].cell-hover{background-color:var(--crosshair-intersection);background-image:linear-gradient(var(--header-crosshair-overlay),var(--header-crosshair-overlay)),linear-gradient(var(--header-crosshair-accent),var(--header-crosshair-accent));background-size:auto,100% 2px;background-position:center,center bottom;background-repeat:no-repeat}
+}
+.curve-card .sc-hover-band{fill:var(--blue);fill-opacity:.08;pointer-events:none;display:none}
+.curve-card .chart-snap{stroke:var(--text3);stroke-width:1;stroke-dasharray:3 3;pointer-events:none;display:none}
+.curve-card .curve-c1-plot.col-on .sc-hover-band,.curve-card .curve-c1-plot.col-on .chart-snap{display:inline}
+.curve-card .curve-mode-dual{color:var(--amber)}
+/* §7.2.11 — a bounded scroller capped at 340 px would print every long table as a clipping */
+@media print{body{background:#fff}.tableScroll{max-height:none!important;overflow:visible!important}.panel{break-inside:avoid;box-shadow:none}.filters,.toolbar{display:none}header.app{position:static}header.app .app-menu{display:none!important}#errBanner{display:none!important}.panel.collapsed .panel-body{display:block}.ds-table .row-hover,.ds-table .col-hover,.ds-table .cell-hover{background:none!important;background-image:none!important;box-shadow:none!important;color:inherit!important}.curve-card .chart-tip{display:none!important}.curve-card .sc-hover-band,.curve-card .chart-snap,.curve-card .curve-c1-plot.col-on .sc-hover-band,.curve-card .curve-c1-plot.col-on .chart-snap{display:none!important}.curve-card .col-active,.curve-card .row-hover td,.curve-card .row-hover th[scope=row],.curve-card .cell-hover{background-image:none!important;background-color:transparent!important;box-shadow:none!important;color:inherit!important}}
+@media (min-width:1280px){.curve-card .sc-win{flex-wrap:nowrap;min-width:0}.curve-card .sc-win .lbl,.curve-card .sc-win .c1-ts-body,.curve-card .sc-win .msg{white-space:nowrap}.curve-card .sc-win .c1-ts-body{flex:0 1 auto;min-width:220px}}
+@media print{.curve-card .sc-win{display:flex!important}.curve-card .c1-ts-body,.curve-card .seg{display:none!important}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ---- sample-only chrome ---- */
+body{background:var(--bg);padding:24px;font-family:var(--font)}
+.sample-wrap{max-width:1280px;margin:0 auto}
+.sample-head{margin:0 0 18px}
+.sample-head h1{font-size:18px;margin:0 0 6px;color:var(--navy)}
+.sample-head p{font-size:12px;color:var(--muted);margin:4px 0}
+.sample-tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;margin-right:6px}
+.tag-current{background:var(--warn-bg);color:var(--warn-fg-strong)}
+.tag-proposed{background:var(--ok-bg);color:var(--ok-fg)}
+.sample-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:22px;box-shadow:var(--shadow)}
+.panel-head{margin-bottom:10px}
+.chart-stub{height:170px;border:1px dashed var(--border);border-radius:6px;background:repeating-linear-gradient(45deg,transparent,transparent 8px,var(--grid) 8px,var(--grid) 9px);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px}
+.sample-notes{font-size:12px;color:var(--muted);max-width:1280px;margin:0 auto}
+.sample-notes h2{font-size:14px;color:var(--navy);margin:14px 0 6px}
+.sample-notes li{margin:3px 0}
+/* ---- PROPOSED additions for the two-row chart head (variant B) ---- */
+.sample-two .curve-card{gap:2px}
+.sample-two .chart-actions{gap:var(--tool-gap);margin-bottom:8px}
+.sample-two .sc-win{margin-bottom:0}
+@media print{.sample-two .chart-actions{display:none!important}}
+</style></head><body><div class="sample-wrap">
+<div class="sample-head">
+<h1>MDL Issue Progress — chart head layout review</h1>
+<p>Owner review sample · 2026-11-23 · built from <code>MDL/src/render.mjs</code> rev 1.101 CSS (real tokens, real time bar). Interactive: drag the handles.</p>
+<p>Decisions shown for review: <b>tool row hidden in print</b>, <b>project-start explanation note removed</b> (not required by spec, Sub has none), <b>time bar pulled tight to the chart top border</b>, <b>date range text moved after the preset chips</b>. Spec impact if approved: deviations from §4.2 rev 1.67 one-row rule AND the rev 1.101 pinned chip-before-text order, recorded in §7.5 B2.1 (spec rev 1.102).</p>
+</div>
+
+<div class="sample-panel">
+<p><span class="sample-tag tag-current">A — CURRENT</span> one row: time bar and tools share one flex row; the track is squeezed beside Bars / PNG / Copy.</p>
+<div class="chart curve-card">
+  <div class="head-actions chart-actions">
+    <div class="toolbar sc-win"><span class="lbl">Period</span><div class="c1-ts-body">
+  <div class="c1-timebar" style="--c1-fill-left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.633333);--c1-fill-width:calc((100% - var(--c1-thumb)) * 0.366667)"><div class="c1-track"></div><div class="c1-fill"></div><div class="c1-ticks"><i class="c1-tick is-year" data-c1month="0" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.000000)"><span class="c1-year">2026</span></i><i class="c1-tick" data-c1month="1" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.033333)"></i><i class="c1-tick" data-c1month="2" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.066667)"></i><i class="c1-tick" data-c1month="3" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.100000)"></i><i class="c1-tick" data-c1month="4" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.133333)"></i><i class="c1-tick" data-c1month="5" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.166667)"></i><i class="c1-tick" data-c1month="6" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.200000)"></i><i class="c1-tick" data-c1month="7" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.233333)"></i><i class="c1-tick" data-c1month="8" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.266667)"></i><i class="c1-tick" data-c1month="9" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.300000)"></i><i class="c1-tick" data-c1month="10" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.333333)"></i><i class="c1-tick" data-c1month="11" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.366667)"></i><i class="c1-tick is-year" data-c1month="12" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.400000)"><span class="c1-year">2027</span></i><i class="c1-tick" data-c1month="13" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.433333)"></i><i class="c1-tick" data-c1month="14" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.466667)"></i><i class="c1-tick" data-c1month="15" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.500000)"></i><i class="c1-tick" data-c1month="16" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.533333)"></i><i class="c1-tick" data-c1month="17" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.566667)"></i><i class="c1-tick" data-c1month="18" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.600000)"></i><i class="c1-tick is-active is-near" data-c1month="19" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.633333)"></i><i class="c1-tick is-active" data-c1month="20" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.666667)"></i><i class="c1-tick is-active" data-c1month="21" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.700000)"></i><i class="c1-tick is-active" data-c1month="22" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.733333)"></i><i class="c1-tick is-active" data-c1month="23" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.766667)"></i><i class="c1-tick is-year is-active" data-c1month="24" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.800000)"><span class="c1-year">2028</span></i><i class="c1-tick is-active" data-c1month="25" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.833333)"></i><i class="c1-tick is-active" data-c1month="26" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.866667)"></i><i class="c1-tick is-active" data-c1month="27" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.900000)"></i><i class="c1-tick is-active" data-c1month="28" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.933333)"></i><i class="c1-tick is-active" data-c1month="29" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.966667)"></i><i class="c1-tick is-active is-near" data-c1month="30" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 1.000000)"></i></div>
+  <input type="range" class="wf" min="0" max="30" step="1" value="19" aria-label="Period start month">
+  <input type="range" class="wt" min="0" max="30" step="1" value="30" aria-label="Period end month"></div></div>
+  <div class="seg" role="group" aria-label="Period presets"><button type="button" class="seg-btn" aria-pressed="false">6M</button><button type="button" class="seg-btn active" aria-pressed="true">12M</button><button type="button" class="seg-btn" aria-pressed="false">24M</button><button type="button" class="seg-btn" aria-pressed="false">YTD</button><button type="button" class="seg-btn" aria-pressed="false">All</button></div>
+  <span class="msg">Jun 2027 – May 2028</span></div>
+    <button type="button" class="ctl-bars btn btn-secondary" aria-pressed="true">Bars</button>
+  <button type="button" class="dl btn btn-secondary">⤓ PNG</button>
+  <button type="button" class="cp btn btn-secondary">⧉ Copy</button>
+  </div>
+
+  <div class="curve-host"><div class="chart-stub">chart + attached table placeholder</div></div>
+</div>
+</div>
+
+<div class="sample-panel sample-two">
+<p><span class="sample-tag tag-proposed">B — PROPOSED</span> two rows: tool row above, right-aligned (<code>justify-content:flex-end</code>, gaps <code>--tool-gap</code>); time bar row below with the full card width, on top of the chart. Print hides the tool row.</p>
+<div class="chart curve-card">
+  <div class="head-actions chart-actions"><button type="button" class="ctl-bars btn btn-secondary" aria-pressed="true">Bars</button>
+  <button type="button" class="dl btn btn-secondary">⤓ PNG</button>
+  <button type="button" class="cp btn btn-secondary">⧉ Copy</button></div>
+  <div class="toolbar sc-win"><span class="lbl">Period</span><div class="c1-ts-body">
+  <div class="c1-timebar" style="--c1-fill-left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.633333);--c1-fill-width:calc((100% - var(--c1-thumb)) * 0.366667)"><div class="c1-track"></div><div class="c1-fill"></div><div class="c1-ticks"><i class="c1-tick is-year" data-c1month="0" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.000000)"><span class="c1-year">2026</span></i><i class="c1-tick" data-c1month="1" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.033333)"></i><i class="c1-tick" data-c1month="2" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.066667)"></i><i class="c1-tick" data-c1month="3" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.100000)"></i><i class="c1-tick" data-c1month="4" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.133333)"></i><i class="c1-tick" data-c1month="5" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.166667)"></i><i class="c1-tick" data-c1month="6" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.200000)"></i><i class="c1-tick" data-c1month="7" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.233333)"></i><i class="c1-tick" data-c1month="8" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.266667)"></i><i class="c1-tick" data-c1month="9" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.300000)"></i><i class="c1-tick" data-c1month="10" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.333333)"></i><i class="c1-tick" data-c1month="11" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.366667)"></i><i class="c1-tick is-year" data-c1month="12" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.400000)"><span class="c1-year">2027</span></i><i class="c1-tick" data-c1month="13" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.433333)"></i><i class="c1-tick" data-c1month="14" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.466667)"></i><i class="c1-tick" data-c1month="15" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.500000)"></i><i class="c1-tick" data-c1month="16" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.533333)"></i><i class="c1-tick" data-c1month="17" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.566667)"></i><i class="c1-tick" data-c1month="18" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.600000)"></i><i class="c1-tick is-active is-near" data-c1month="19" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.633333)"></i><i class="c1-tick is-active" data-c1month="20" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.666667)"></i><i class="c1-tick is-active" data-c1month="21" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.700000)"></i><i class="c1-tick is-active" data-c1month="22" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.733333)"></i><i class="c1-tick is-active" data-c1month="23" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.766667)"></i><i class="c1-tick is-year is-active" data-c1month="24" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.800000)"><span class="c1-year">2028</span></i><i class="c1-tick is-active" data-c1month="25" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.833333)"></i><i class="c1-tick is-active" data-c1month="26" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.866667)"></i><i class="c1-tick is-active" data-c1month="27" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.900000)"></i><i class="c1-tick is-active" data-c1month="28" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.933333)"></i><i class="c1-tick is-active" data-c1month="29" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 0.966667)"></i><i class="c1-tick is-active is-near" data-c1month="30" style="left:calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * 1.000000)"></i></div>
+  <input type="range" class="wf" min="0" max="30" step="1" value="19" aria-label="Period start month">
+  <input type="range" class="wt" min="0" max="30" step="1" value="30" aria-label="Period end month"></div></div>
+  <div class="seg" role="group" aria-label="Period presets"><button type="button" class="seg-btn" aria-pressed="false">6M</button><button type="button" class="seg-btn active" aria-pressed="true">12M</button><button type="button" class="seg-btn" aria-pressed="false">24M</button><button type="button" class="seg-btn" aria-pressed="false">YTD</button><button type="button" class="seg-btn" aria-pressed="false">All</button></div>
+  <span class="msg">Jun 2027 – May 2028</span></div>
+
+  <div class="curve-host"><div class="chart-stub">chart + attached table placeholder</div></div>
+</div>
+</div>
+
+<div class="sample-notes">
+<h2>What to check</h2>
+<ul>
+<li>Row order and alignment: tools sit ABOVE the time bar, flush right; the time bar row spans the card and sits 2 px above the chart top border — the old "Project start: … red dashed line = …" note is gone (not spec-required; the in-chart Start / Today labels and the title bar already carry that information).</li>
+<li>Pinned reference geometry unchanged: 14 px thumbs, 4 px <code>--border</code> track, fill in line with the thumbs, January year labels, navy active chip, <code>Month – Month</code> period text. The only cluster-order change is the date range text AFTER the chips (rev 1.101 pins the opposite order — record as a deviation if implemented).</li>
+<li>Drag the handles — the fill, ticks and period text stay in line; crossing handles push each other.</li>
+<li>Print preview (Ctrl+P or the button below): variant B hides the tool row, keeps the period text, chart and table.</li>
+</ul>
+<p><button type="button" class="btn btn-secondary" onclick="window.print()">Print preview</button></p>
+</div>
+</div>
+<script>
+function bindTB(tb){
+  const wf=tb.querySelector('.wf'),wt=tb.querySelector('.wt'),fill=tb.querySelector('.c1-fill');
+  const pos=i=>'calc(var(--c1-thumb)/2 + (100% - var(--c1-thumb)) * '+(i/30).toFixed(6)+')';
+  const upd=w=>{let f=+wf.value,t=+wt.value;
+    if(w==='from'&&f>t){t=f;wt.value=String(t)}
+    if(w==='to'&&t<f){f=t;wf.value=String(f)}
+    fill.style.setProperty('--c1-fill-left',pos(f));
+    fill.style.setProperty('--c1-fill-width','calc((100% - var(--c1-thumb)) * '+((t-f)/30).toFixed(6)+')');
+    tb.querySelectorAll('.c1-tick').forEach(k=>{const i=+k.dataset.c1month;
+      k.classList.toggle('is-active',i>=f&&i<=t);k.classList.toggle('is-near',i===f||i===t)});};
+  wf.addEventListener('input',()=>upd('from'));wt.addEventListener('input',()=>upd('to'));
+}
+document.querySelectorAll('.c1-timebar').forEach(bindTB);
+</script></body></html>
