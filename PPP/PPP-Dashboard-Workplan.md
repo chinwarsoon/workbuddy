@@ -2,8 +2,8 @@
 
 > **Project**: Procurement Package Plan (PPP) Interactive Dashboard
 > **Document ID**: PPP-WP-001
-> **Version**: 1.59
-> **Date**: 2026-11-16
+> **Version**: 1.61
+> **Date**: 2026-11-26
 > **Owner**: PPP developer (dashboard) / Procurement (data)
 > **Status**: Maintenance. P8-P8.6 complete: chart and KPI detail, four-page routing, full validation list, snap line, notice area below the menu bar, 14 px panel separation, responsive reflow, spec-compliant filter and search controls with a column picker, hard contrast. 292 assertions; harness Tiers 1-4 pass.
 > **Supersedes**: `archive/PPP-Dashboard-Workplan_v1.48_2026-11-01.md` (verbatim copy of Rev 1.48).
@@ -120,6 +120,8 @@ The PPP Dashboard is a **standalone, offline-first, browser-based interactive da
 | **1.37** | **2026-10-30** | docs | **D9 and UI scope confirmed — no code change.** D9: the complete test must **cover all panels** — a fifth layer (T8.8.15) compares Panels 1–7 and every filter with `deriveView` ground truth, including the CSV export; harness moves to T8.8.16. UI: the root `Dashboard-UI-Design-Spec.md` is **authoritative for every dashboard**. D1–D7 therefore resolve to the spec (§8.6): 160 px sidebar, Settings/Help at the sidebar bottom, Load in the menu bar, no content toolbar, layout toggle at the menu-bar right end, theme in Settings, panel title 600 (§4's 700 noted as a spec typo). New **P6** (T8.8.18–T8.8.21) brings the shell (§3.1–§3.7), panels (§4), KPI strip (§5), tokens (§6) and components (§7) to the spec; the `AGENTS.md` §18 reconciliation is a separate documentation change. I-76 now carries tasks T8.8.1–T8.8.21. **No PPP dashboard code changed.** |
 | **1.36** | **2026-10-30** | docs | **Owner decisions D8–D11 recorded — no code change.** D8: the page is standalone (no HTTP server, no external reference); `build.mjs` is a dev-time packager only. D9: the test must be complete — four layers in T8.8.12–T8.8.15 (unit, integration, built artifact from `file://`, harness Tiers 1–3). D10: the duplicate aggregation engine is removed; every count is computed once in S4, and the old per-panel paths are deleted. D11: an error token is never text — it is absent data, excluded from every count, and reported by `W-FORMULA` in `#errBanner` without blocking the load. A **UI design constraint** note is added: the refactor changes no visual element, and shell adoption (D1–D7) stays separate. **I-76 moves to APPROVED** with tasks T8.8.1–T8.8.16. **No PPP dashboard code changed.** |
 | **1.35** | **2026-10-30** | docs | **Pipeline decision rationale added — no code change.** §8.8 gained a "Reasoning" subsection for D8–D11: the exact clause conflict and the consequence of each option. D8 explains §3.8.0 versus §3.9 (module imports versus one inlined file) and why a stdlib-only `build.mjs` is not the bundler the clause forbids; D9 explains why the regex/VM test must be replaced instead of kept; D10 explains why a thin adapter still fails the single-aggregation rule; D11 explains why an error token is a fatal banner, not a validation warning, and that it must not hide the dashboard. **No PPP dashboard code changed.** |
+| **1.61** | **2026-11-26** | AWS Quick (AI) | **P9 is now the full PPP welcome plan; the shared plan moved to `common/workplan/Welcome-Page-Workplan.md`** (I-103, OPEN). Tasks P9-07–P9-10 added. Docs only. |
+| **1.60** | **2026-11-26** | AWS Quick (AI) | **P9 planned — welcome page to UI spec rev 1.107 §3.7 (I-103, OPEN).** New §8.16 and decision D27. Main plan WP-WELCOME-001 phase W4, after MDL. Docs only. |
 
 ---
 ## 3. Functions & Workflow Chart
@@ -1280,6 +1282,33 @@ Tier 3 and Tier 4 pass. Screenshot `p8_6_search_column.png`.
 ---
 
 
+### 8.16 Phase P9 - welcome page to spec §3.7 rev 1.107 (OPEN, not started)
+
+> **Target updated 2026-11-27:** common welcome **1.2.0**, spec §3.7 **rev 1.111** (two-column card: top bar with Help, guide panel, task panel; fixed height; file list below the drop box; ignored-file summary; success hold). The PPP load handler returns an opener for the success hold. Full task update at the start of W4.
+
+**Why.** UI spec rev 1.107 (2026-11-26) rewrites §3.7 as one configuration-driven welcome page for every
+dashboard. Logged as I-103. Shared design plan: `common/workplan/Welcome-Page-Workplan.md` (WP-WELCOME-001),
+phase W4. This section is the PPP implementation plan. Sequence: spec → MDL → PPP → Sub; P9 starts after MDL closes and reuses the MDL pattern.
+Mode: `auto` — one file (Procurement Package Plan), the load starts after the Code-sheet check, no
+Load button (owner decision D8).
+
+| Task | Detail | Status |
+|---|---|---|
+| P9-01 | Read the PPP welcome code; report the gaps against §3.7 rev 1.107 (read only) | PLANNED |
+| P9-02 | Welcome configuration in `ui_help.json` (`files[1]`, mode `auto`, phases, help) | PLANNED |
+| P9-03 | Layout: heading, instruction, one slot, drop area with `Choose file`, page footer, help link | PLANNED |
+| P9-04 | Code-sheet check first, then automatic load; load phases on the welcome card | PLANNED |
+| P9-05 | Tokens only; `.welcome-screen` fixed with `overflow:auto`; `--btn-h` | PLANNED |
+| P9-06 | Tests; enable the harness welcome check (assertions 43–50) for PPP; rebuild | PLANNED |
+| P9-07 | `build.mjs`: call `inlineCommon({ modules: ['welcome'] })` inside the IIFE bundle; write `<meta name="common-version">`; the welcome calls `CommonWelcome.render()` | PLANNED |
+| P9-08 | Archive, then remove, the old PPP welcome CSS and markup (AGENTS.md §6) | PLANNED |
+| P9-09 | Add the `welcome` block to `harness-layout/checks/ppp.mjs` (`mode: 'auto'`, `files: 1`); record the common version in `knowledge.json` | PLANNED |
+| P9-10 | Close-out: PPP issue and update logs, test report, this section, status row in the shared plan | PLANNED |
+
+**Success.** Tier 7 assertions 43–50 and check 51 pass for PPP; no new test failures. Baseline at W2 (2026-11-26): two FAIL lines not related to the welcome — Tier 3 "status bar shows selected file and version" and Tier 4c "I-161 … --ds-zebra"; to be confirmed as pre-existing in P9-01.
+
+---
+
 ## 9. Scope summary
 
 | ID | Area | Details | Category | Status | Related phase |
@@ -1353,6 +1382,7 @@ Tier 3 and Tier 4 pass. Screenshot `p8_6_search_column.png`.
 | D24 | Chart percentage base is the chart total (confirmed 2026-11-01) | §8.9 |
 | D25 | The last page is remembered on reload (confirmed 2026-11-01) | §8.9 |
 | D26 | Frozen validation columns are not adopted; reopen only if sideways scrolling is added (confirmed 2026-11-01) | §8.9 |
+| D27 | Welcome page follows spec §3.7 rev 1.107: `auto` mode, one file, one step (confirmed 2026-11-26) | §8.16; issue log I-103 |
 
 ---
 

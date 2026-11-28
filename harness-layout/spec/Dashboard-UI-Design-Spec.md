@@ -2,6 +2,16 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.116 | 2026-11-28 | CodeBuddy (AI) | **§7.2.16 / §8.2 — arrow-key navigation added to the crosshair input contract.** Requirement 2 now requires `ArrowLeft`, `ArrowRight`, `ArrowUp` and `ArrowDown` to move the active data cell and apply the same row, column and intersection state. Assertion 22 checks the handler. Both byte-identical spec copies updated. |
+| 1.115 | 2026-11-28 | AWS Quick (AI) | **§6 / §7.2.16 / §8.2 — crosshair corrected to a genuinely translucent, 3-tier, light/dark-differentiated design (owner's 20-point contract, 2026-11-28; common `C-08` reopened).** The rev 1.97 design named 5 tokens but an implementation regression (not a spec error) aliased three of them to an opaque fill, hiding zebra/status colour and reading as an undampened colour. §6 replaces `--crosshair-track` / `-intersection` / `--header-crosshair-overlay` with `--crosshair-faint` / `-medium` / `-strong` — a true `color-mix(..., transparent)` 3-tier ladder, percentages differentiated by theme family. §7.2.16 requirements 1, 2, 3 and 6 now PROHIBIT an opaque `color-mix` or `linear-gradient` fill, require `background-color`, widen the intersection outline 1px to 2px, add bold text + a 2px edge to BOTH the column header AND a new sticky row-header rule (`.rowhead-hover`, right edge — previously undefined), and state the 80ms response ceiling and the AA text-contrast floor explicitly. §8.2 assertion 22 rewritten to match. Both byte-identical spec copies updated. |
+| 1.114 | 2026-11-28 | AWS Quick (AI) | **§6 / §8.2 — chrome-family theme tokens; six themes; welcome theme switcher (owner decision 2026-11-28; common `C-08`).** §6 gains `--chrome-bg/fg/border`, `--thead-bg/fg`, `--nav-fg-active` (new; `--nav-bg-active` already existed), `--btn-bg` / `--on-fill`, `--link`, `--chart-1`…`--chart-6`, and the four `--welcome-*` guide-panel tokens, each a per-theme value instead of a hard-coded dark fill shared by every chrome surface. `AGENTS.md` §18.4 rev 1.25 adds `contrast` as a sixth theme, requires each theme to use its own distinct accent / chart family, and requires a welcome-page theme picker. §8.2 gains assertion 54 (AA contrast per theme; welcome top-bar picker present). Both byte-identical spec copies updated. |
+| 1.113 | 2026-11-27 | CodeBuddy (AI) | **§3.7 / §8.2 — done-step dwell.** After the success hold ends, the welcome paints step 3 as complete and shows `Step 3 complete — opening…`. It waits `doneDwellMs` (0–10000 ms, default 0) before the shell opens. This lets the user see that step 3 is over. §3.7.2, §3.7.7 and assertion 53 updated. Both byte-identical spec copies updated. |
+| 1.112 | 2026-11-27 | CodeBuddy (AI) | **§3.7 / §8.2 — success hold limit 10000 ms.** The per-dashboard `successHoldMs` may now hold the ready welcome for up to 10 seconds, so a dashboard can keep the welcome page on screen before the shell opens. In auto mode step 2 stays current until the load starts, and the done step paints before the dashboard opener runs. §3.7.2 and §8.2 assertion 53 updated. Both byte-identical spec copies updated. |
+| 1.111 | 2026-11-27 | AWS Quick (AI) | **§3.7 / §6 / §8.2 — two-column welcome card (owner decision 2026-11-27, reference picture; common `C-06`).** The welcome card has a top bar (logo, optional brand text, Help) above two columns split 1 : 1.618: a navy **guide panel** (title, description, three progress steps, `What the check looks for`) and a **task panel** (heading, instruction, drop box, file list, action row, footer). The column row has a fixed height, so the card height does not change between welcome states. The file list sits below the drop box. `Choose file(s)` is the primary button until every required file is ready; then `Open dashboard` (confirm mode) becomes primary. The three steps show in both modes; the confirm-mode step indicator is withdrawn. The columns stack below 900 px wide; below 700 px high the row height follows the content and the welcome screen scrolls. Rules kept from rev 1.110: 1–6 files, the own-type slot rule, the ignored-file summary, the set error in the drop box, the success hold. §6 replaces the welcome tokens; §8.2 updates assertions 44, 45, 47, 52 and 53. Both byte-identical spec copies updated. |
+| 1.110 | 2026-11-27 | AWS Quick (AI) | **§3.7 / §6 / §8.2 — fixed-height welcome, file list at the bottom of the drop area, extra-file rule, 1–6 files, gap tokens, success hold (owner decisions 2026-11-26 / 27; common `C-04`, `C-05`).** The drop area and the load stage are ONE fixed-ratio box, so the card height does not change between the welcome states of one dashboard. The action group is centred in the upper zone of the drop area and the file slots are pinned to its bottom. `files[]` holds 1–6 entries with unique `Dashboard Title` values: 1–3 render as one-line slots, 4–6 as two-column compact slots. A file goes only to the slot of its own type; unrequired, untyped or extra files are listed in one ignored-file summary and never change a slot. The set error and the summary use the upper zone. After a successful load, a success hold (default 1.5 s, 0–3 s) shows `Dashboard ready` with `Open now`. Gap tokens: 32 px above the drop area, 12 px below, 20 px card bottom padding. §6 updates the logo token to 44 px and adds three tokens. §8.2 updates assertions 45, 47, 48 and 49 and adds 52 (height) and 53 (file limits). Both byte-identical spec copies updated. |
+| 1.109 | 2026-11-26 | CodeBuddy (AI) | **§3.7 / §8.2 — shared welcome drop area revised (common C-03, owner decision 2026-11-26).** The drop area is a named `role="group"` and is not focusable. The native `Choose file(s)` button is the only keyboard path to the picker. Assertion 45 updated. Both byte-identical spec copies updated. |
+| 1.108 | 2026-11-26 | AWS Quick (AI) | **§3.9 / §8.2 — shared design sources from `common/` are inlined at build time (owner decisions C1–C3, 2026-11-26; `AGENTS.md` rev 1.18).** §3.9 gains the shared-sources bullet: code from the repository `common/` folder MUST be inlined by the project build; the delivered HTML records the common version in `<meta name="common-version">` and holds no reference to `common/`, so it still runs alone from `file://`. §8.2 gains assertion 51 (the delivered `common-version` equals `common/manifest.json`, unless the dashboard workplan records a pin). First module: `welcome` (§3.7). Both byte-identical spec copies updated. |
+| 1.107 | 2026-11-26 | AWS Quick (AI) | **§3.7 / §6 / §8.2 — one configuration-driven welcome page for every dashboard (owner decisions D1–D10, 2026-11-25 / 26).** §3.7 is rewritten as §3.7.1–§3.7.9. A per-dashboard welcome configuration declares the required files, the load mode (`auto` for one file, `confirm` for two or more) and the load phases. The welcome shows one heading, one instruction and one file slot per required file; each slot has four states (needed, checking, accepted, rejected); a file error shows on its slot and a set error shows once above the slots in a `role="alert"` element. One primary action only; `Choose file(s)` is secondary and sits in the drop area. A multi-file dashboard shows a two-step indicator and a `Load dashboard (n of N)` button; a one-file dashboard loads after the file check with no Load button. The load phases (Reading → Checking → Building) MUST render on the welcome card, because the shell status bar is hidden before load. Drop on the full page with an overlay. A page footer holds privacy, version and year; a help link opens Help. Every load path, including test hooks, classifies workbooks by `Dashboard Title`. The card-ratio SHOULD is withdrawn: the card stays fluid and only the drop area keeps 1 : 1.618. The welcome screen MUST scroll inside itself (`overflow:auto`) on a short viewport. Standalone delivery shows no default-path load button (§3.9). §6 gains five welcome tokens. §8.2 gains assertions 43–50. MDL (`I-165`), PPP (`I-103`) and Sub (`I155`, `I154`) are open conformance items until their welcome phases close (WP-WELCOME-001). Both byte-identical spec copies updated. |
 | 1.106 | 2026-11-25 | CodeBuddy (AI) | **§4.2 / §8.2 — chart column centers MUST match attached-table column centers (owner decision 2026-11-25).** For every chart with an X-aligned native attached table, each rendered chart column center MUST match the matching table header center within 2 px. The chart and table MUST use the same rendered column width. MDL is in scope for this GEOMETRY rule even though rev 1.74 keeps it out of scope for two-way sync state. §8.2 gains assertion 42, and the harness `boardTable` tier MUST check the centers. MDL implementation is issue `I-150` (workplan §11.29). Both byte-identical spec copies updated. |
 | 1.105 | 2026-11-24 | CodeBuddy (AI) | **§4.2 / §8.2 — ONE table-header design for every table type (owner decision 2026-11-24).** Chart-attached tables follow the independent / bounded table design: the header row uses `--navy` with white text at 11–12 px / 600, and no light `--surface2` variant exists. This SUPERSEDES rev 1.103's attached-table header-fill rule. Structural chart-grid alignment, the `--c1-plot-table-gap`, board fit, vertical month headers, column sync and the per-table `⤓ CSV` obligation are unchanged. PNG / Copy export serializes the same navy / white header, and the harness verifies it. MDL implementation is issue `I-149` (workplan §11.28). Both byte-identical spec copies updated. |
 | 1.104 | 2026-11-24 | CodeBuddy (AI) | **§4.2 / §8.2 — Y-axis caption placement and bold axis typography become general requirements (owner decision 2026-11-24).** The unit caption MUST be vertically centred on the axis zone, sit close to the axis (≤4 px inset), and read bottom-to-top. The caption and every Y tick label MUST use bold type (`font-weight:700`) and the theme `--text2` token. This pins the visual difference between MDL's former top-aligned, regular-weight caption and the Sub reference. The attached-table `⤓ CSV` obligation already stands at §4 rev 1.88 and is now enforced by harness; MDL implementation is issue `I-148` (workplan §11.27). Both byte-identical spec copies updated. |
@@ -418,42 +428,169 @@ dashboard-specific and MUST be named in the workplan. Do not prescribe package c
 started, or other domain metrics here. The shared status bar owns its height and position. Keep
 scrollable content clear of it through the shell layout; do not add a second fixed bar.
 
-### 3.7 Initial and file-loading state (MDL welcome pattern)
-A dashboard shows a welcome / first-run screen before the workbooks load. Follow the MDL pattern:
+### 3.7 Initial and file-loading state (welcome page) — rev 1.109
+A dashboard shows a welcome page before its workbooks load. Every dashboard uses the same welcome
+layout. A **welcome configuration** declares the differences between dashboards.
 
-- **Welcome overlay.** The welcome is a full-screen, centred overlay. It MAY hide the dashboard
-  chrome (header, menu bar, sidebars, status bar) until the first successful load — MDL builds the
-  shell only after load. Do not show dashboard panels or navigation before load. (This supersedes the
-  older "keep the shell visible" guidance; the MDL welcome is the reference behaviour.)
-- **Ratio.** The welcome fills the viewport (the MDL ratio: width and height are 100% of the
-  viewport, fluid, no fixed aspect ratio, no page scroll) per `AGENTS.md` §18.2. Fixed-proportion
-  surfaces on the welcome — the file drop area and the welcome card — SHOULD use the golden ratio
-  (1 : 1.618) for their width : height.
-- **Load controls live inside the drop area.** The file-drop zone MUST contain its action buttons
-  (Choose / Load). The drop zone is both the click target and the drag-and-drop target.
-- **The instruction card has no label prefix.** The welcome instruction card MUST NOT carry a lead-in
-  label such as `What this does —`. Show only the instruction text; bold the file names inside it.
-- **Workbooks are identified by content, not by file name.** A dashboard MUST decide which workbook
-  is the Master Document List and which is the Submittal Log by reading the `Dashboard Title` entry
-  in that workbook's Code sheet and matching it against the expected values in the source contract
-  (§3.8.3). File names vary between projects and MUST NOT be used to classify a workbook.
-- **A selection is validated before it is applied.** When workbooks are chosen or dropped, the
-  dashboard MUST inspect all of them first and commit the new selection only when every check
-  passes. It MUST reject the whole selection and change nothing when: a file is not a readable
-  workbook; a file has no Code sheet; the Code sheet carries no `Dashboard Title`; the title matches
-  no expected value; two files resolve to the same workbook type; or the two `Project Title` values
-  differ. A rejection MUST show the reason on the welcome and MUST leave the previous selection
-  intact. No partial update is permitted.
-- **Inspection reads only what it needs.** The selection check SHOULD read the Code sheet only, not
-  the whole workbook, so checking does not pay the cost of a full parse.
-- **No hardcoded project title.** The welcome MUST NOT display a project-specific title, because the
-  project title is unknown until the workbooks load. Show at most a generic application label. Render
-  the real project / dashboard title from the loaded model in the shell title bar after load, never from
-  static HTML.
-- **File-loading behaviour.** Use the file-loading panel in `AGENTS.md` §18.7: default-path load where
-  the project has a default file, local file picker, drag-and-drop, loaded-file list, and active-file
-  status. A dashboard may require related files; its workplan must list each required file, selection
-  order, and validation behaviour. Put project-specific instructions in the file panel or `ui_help.json`.
+#### 3.7.1 Welcome overlay and size
+
+- The welcome is a full-screen, centred overlay. It MUST hide the dashboard chrome (title bar, menu
+  bar, sidebars, status bar) until the first successful load. Do not show dashboard panels or
+  navigation before load.
+- The welcome screen fills the viewport (`position:fixed; inset:0`). The page MUST NOT scroll
+  (`AGENTS.md` §18.2). When the viewport is shorter than the card, the welcome screen MUST scroll
+  inside itself (`overflow:auto`), so no part of the card is cut off.
+- The welcome card is a **two-column card** (rev 1.111). Its width MUST come from `--welcome-card-w`
+  (`clamp(880px, 72vw, 1040px)`). Below the top bar, the column row has the fixed height
+  `--welcome-card-h` (600 px; the card is about 710 px high and fits a 1280 × 720 viewport), so the card
+  height MUST NOT change between the welcome states of one dashboard (empty, checking, accepted,
+  rejected, set error, ignored files, loading, success hold). The card MUST NOT have an `aspect-ratio`.
+- The two columns MUST split the card width 1 : 1.618 (guide panel : task panel).
+- The drop box and the load stage MUST be ONE box in one grid row of fixed height (`--welcome-drop-h`,
+  228 px) that hides overflow. The file list row takes the remaining height and scrolls inside itself
+  only when its rows do not fit.
+- **Small-viewport exception.** Below 900 px wide, the columns stack (guide panel above the task panel).
+  Below 700 px high, the column row height follows the content. In both cases the welcome screen
+  scrolls (`overflow:auto`).
+
+#### 3.7.2 Welcome configuration
+
+Each dashboard MUST declare one welcome configuration. Labels and text come from `ui_help.json`
+(`AGENTS.md` §18.1); file types come from the source contract (§3.8.3). The configuration holds:
+
+| Key | Meaning |
+|---|---|
+| `title` | Generic application label (see §3.7.3) |
+| `instruction` | One instruction sentence |
+| `files[]` | One entry per required workbook, **1 to 6 entries**: display name and expected `Dashboard Title`. Each `Dashboard Title` MUST be unique (rev 1.110). |
+| `mode` | `auto` when `files[]` has one entry; `confirm` when it has two or more |
+| `phases[]` | Load phase labels, in order (default: Reading, Checking, Building) |
+| `help` | Help button text (top bar) |
+| `description` | One or two sentences under the title in the guide panel (rev 1.111) |
+| `checks[]` | 0–5 lines for `What the check looks for`. Each line MUST name a check that the dashboard really runs (rev 1.111). |
+| `brand` | Optional `{ name, tagline }` text beside the logo in the top bar (rev 1.111) |
+| `successHoldMs` | Success hold after a successful load, 0–10000 ms (default 1500). 0 skips the hold (tests). (rev 1.112) |
+| `doneDwellMs` | Dwell after the done step paints, before the dashboard opener runs, 0–10000 ms (default 0). 0 keeps the two-frame behavior (rev 1.113). |
+
+The welcome MUST render from this configuration. It MUST NOT hardcode a file count, file name or
+load mode in markup.
+
+#### 3.7.3 Content and hierarchy
+
+- The card MUST show, in this order (rev 1.111):
+  1. **Top bar:** logo (and optional brand text) on the left, the **Help** button on the right.
+  2. **Guide panel** (left, `--welcome-left-bg`, default `--navy`): one heading (`title`), the
+     `description`, three progress steps, and (when `checks[]` is not empty) `What the check looks for`
+     at the bottom.
+  3. **Task panel** (right): a task heading and one instruction; the drop box; the file list with its
+     header (`Your files`, `n of N ready`); one action row; the footer.
+- The three steps are: ① choose the workbook(s) ② automatic check ③ open the dashboard. The current
+  step is marked with `aria-current="step"`; a finished step shows ✓. The steps MUST NOT be interactive.
+  The guide panel text does not change while the user works, except the step marks.
+- The heading MUST be a generic application label: the dashboard type name, with no project code
+  and no project title. The project title is unknown before load; render it in the shell title
+  bar from the loaded model, never from static HTML.
+- The card MUST NOT repeat the instruction (no subtitle plus a separate instruction card).
+- The instruction text MUST NOT carry a lead-in label such as `What this does —`.
+- Required file names are shown in bold in the file slots.
+- The privacy note, the version string and the copyright year MUST sit in the footer of the task panel
+  (rev 1.111). The year MUST come from code, not from static text.
+- The welcome MUST offer a Help button in the top bar that opens the Help dialog. Help explains the required files,
+  the Code sheet and the `Dashboard Title` rule.
+
+#### 3.7.4 Drop area and file slots
+
+- The drop area MUST contain the `Choose file(s)` control. The drop area is both a click target and
+  a drag-and-drop target. It is a named `role="group"` and is not focusable. The native
+  `Choose file(s)` button is the only keyboard path to the picker (rev 1.109).
+- The drop box holds, centred (rev 1.111): a count chip (`n of N files`, top right), an icon, the drop
+  instruction, `or`, the `Choose file(s)` button, a check-progress bar (`n / N`) and the accepted file
+  types. A set error replaces the drop instruction (§3.7.5).
+- The **file list sits below the drop box**, under a header `Your files` with `n of N ready` and, when
+  needed, the ignored-file summary chip. It shows one **file slot** per entry in `files[]`, in
+  configuration order, all rendered from the start. A pick changes slot states only; it MUST NOT add or
+  remove rows.
+- **Slot layout.** 1–3 files: one-line slots (number · name · status, the status cut off at the end).
+  4–6 files: two columns of compact slots (number · name · status icon). The full status text MUST be
+  in the slot's `title` and readable by assistive technology.
+- `Choose file(s)` MUST be visibly styled as a button by the welcome itself (border and accent
+  colour), not by the project's `.btn` base.
+- Each slot MUST show one of four states:
+
+| State | Shows |
+|---|---|
+| Needed | slot number · file display name · `Still needed` |
+| Checking | `Checking the Code sheet…` |
+| Accepted | ✓ · file name · detected `Dashboard Title` · remove control |
+| Rejected | ! · the reason, on this slot · remove control |
+
+- The slot list MUST be an `aria-live="polite"` region.
+- The page body MUST accept a file drop anywhere (`AGENTS.md` §18.7). While files are dragged over
+  the page, a full-screen overlay MUST show the drop instruction.
+
+#### 3.7.5 Workbook identification and selection checks
+
+- A dashboard MUST classify each workbook by the `Dashboard Title` entry in its Code sheet, matched
+  against the expected values in the source contract (§3.8.3). File names vary between projects and
+  MUST NOT be used to classify a workbook. This applies to every load path, including test hooks.
+- The dashboard MUST check every chosen or dropped file before it applies the selection. The check
+  SHOULD read the Code sheet only, so checking does not pay the cost of a full parse.
+- A **file error** applies to one file. Reasons: not a readable workbook; no Code sheet; no
+  `Dashboard Title`; the title matches no expected value. A file goes ONLY to the slot of its own type
+  (its `Dashboard Title`). A failed file marks a slot as rejected only when its type is known and that
+  slot is not already accepted (in `auto` mode: the one slot). Other accepted files MUST stay accepted.
+- **Ignored files (rev 1.110).** Every other failed or unrequired file, including files beyond the
+  required count, is **ignored**: it MUST NOT change any slot, and it MUST be listed in one
+  **ignored-file summary** in the file-list header (`n of m files used · k ignored`), with a Details control
+  that lists each file and its reason.
+- A **set error** applies to the selection as a whole. Reasons: two files resolve to the same
+  workbook type; the `Project Title` values differ. The reason MUST show once, in the drop box in
+  place of the drop instruction, in an element with `role="alert"` (rev 1.110). The previous selection MUST stay intact. No partial update is permitted.
+
+#### 3.7.6 Load modes and actions
+
+- The welcome MUST have at most one primary button at a time (rev 1.111). `Choose file(s)` is the
+  primary button while any required file is not ready. When every file is ready, it becomes secondary.
+- **`auto` mode (one file).** No Open button. When the file passes the check, the load starts at once.
+  The action row shows a one-line explanation.
+- **`confirm` mode (two or more files).** The action row holds `Open dashboard (n of N)`, disabled until
+  every file is accepted and no set error exists; it then becomes the primary button. The load starts
+  only on this click.
+
+#### 3.7.7 Load progress
+
+- During the load, the welcome card MUST show the load phases from `phases[]` in place of the drop
+  area. Each phase shows a state: waiting, running, done (✓) or failed.
+- The phase list MUST be an `aria-live="polite"` region with `aria-busy="true"` while the load runs.
+- All welcome buttons MUST be disabled while the load runs.
+- A running indicator MUST stop moving under `prefers-reduced-motion: reduce`.
+- The load progress MUST NOT be shown only in the shell status bar, because the shell is hidden
+  before load.
+- When the load completes, the same box shows a **success hold** (rev 1.110): all phases done,
+  `Dashboard ready — Opening in N s` in a `role="status"` element, a countdown bar, and an `Open now`
+  button that receives focus. `Open now`, Enter or Escape end the hold at once. When the hold ends,
+  step 3 becomes complete and shows `Step 3 complete — opening…` (rev 1.113). The welcome waits
+  `doneDwellMs` (default 0 ms, maximum 10000 ms) before it closes and the shell opens. The hold length
+  is `successHoldMs` (default 1500 ms, maximum 10000 ms; 0 skips it). The countdown bar MUST NOT animate
+  under `prefers-reduced-motion: reduce`. The dashboard model MUST be built before the hold starts.
+- When a phase fails, mark it as failed, then return to the slots with the reason in the set-error
+  alert. In `confirm` mode the files MUST stay selected and the button reads `Load again`. In `auto`
+  mode a new drop or choice restarts the check and the load.
+
+#### 3.7.8 File-loading behaviour
+
+- Use the file-loading panel of `AGENTS.md` §18.7: local file picker, drag-and-drop, loaded-file
+  list and active-file status. The workplan of each dashboard MUST list each required file, its
+  selection order and its validation behaviour. Put project-specific instructions in `ui_help.json`.
+- **Standalone delivery (§3.9).** The default-path `fetch()` load of §18.7 MUST NOT be shown, because
+  the `file:` origin blocks `fetch`.
+
+#### 3.7.9 Design tokens and controls
+
+- Welcome size and shape MUST come from the §6 welcome tokens. No welcome rule may hold a literal
+  colour; error and success fills use the §6 semantic tint tokens.
+- Welcome buttons MUST use the universal `--btn-h` height (§7.1). No welcome rule may override
+  `min-height`.
 
 ### 3.8 Data-Processing Pipeline (mandatory)
 
@@ -604,6 +741,10 @@ network access at runtime.
 - **Sources stay modular.** Inlining applies to the delivered file only. The engine SHOULD remain
   importable modules for the Node test harness (§3.8.5), and a build script SHOULD regenerate the
   delivered HTML from those sources so the two cannot drift.
+- **Shared sources (rev 1.108).** Shared design code from the repository `common/` folder
+  (`AGENTS.md` §3) MUST be inlined at build time. The delivered HTML records the common version in
+  `<meta name="common-version" content="x.y.z">` and holds no `href`, `src`, `import` or `fetch` to
+  `common/`.
 - **Reference implementation.** MDL is the model: one HTML file, one inline script, no imports and
   no `fetch`.
 - **Spec copies stay in sync (governance).** The root spec (`Dashboard-UI-Design-Spec.md`) and the
@@ -1899,15 +2040,32 @@ The project-local UI stylesheet MUST define every token below. Components refere
 | `--ink` | theme | High-emphasis text |
 | `--white` | theme | Contrast text on filled buttons |
 | `--shadow` | theme | Subtle panel / tooltip shadow |
-| `--crosshair-track` | theme | Translucent row / column track tint for `.row-hover` and `.col-hover` (§7.2.16 rev 1.97) |
-| `--crosshair-intersection` | theme | Stronger translucent tint for `.cell-hover` (§7.2.16 rev 1.97) |
-| `--crosshair-ring` | theme | Inset emphasis ring for `.cell-hover` (§7.2.16 rev 1.97) |
-| `--header-crosshair-overlay` | theme | Luminance-adapted translucent overlay for active `<th>` headers, including sticky row headers (§7.2.16 rev 1.97) |
-| `--header-crosshair-accent` | theme | Edge indicator accent for active column and sticky row headers (§7.2.16 rev 1.97) |
+| `--crosshair-faint` | theme | Faint translucent tint for `.row-hover` and `.col-hover` — `color-mix(in srgb, var(--accent) N%, transparent)`, N = 6-8% (light-family themes) or 10-14% (dark-family themes) (§7.2.16 rev 1.98) |
+| `--crosshair-medium` | theme | Medium translucent tint for active column/row headers — same `color-mix(..., transparent)` form, N = 12-14% (light-family) or 18-22% (dark-family) (§7.2.16 rev 1.98) |
+| `--crosshair-strong` | theme | Strong translucent tint for `.cell-hover`, the active intersection — same form and N range as `--crosshair-medium` (§7.2.16 rev 1.98) |
+| `--crosshair-ring` | theme | Inset 2px emphasis ring for `.cell-hover` (§7.2.16 rev 1.97, width corrected rev 1.98) |
+| `--header-crosshair-accent` | theme | 2px edge indicator accent for active column headers (bottom edge) and sticky row headers (right edge) (§7.2.16 rev 1.97) |
 | `--pchip-blue-bg` / `-border` / `-ink` | theme | Panel count chip, monthly count family (§4 rev 1.92) |
 | `--pchip-violet-bg` / `-border` / `-ink` | theme | Panel count chip, total month count family (§4 rev 1.92) |
 | `--pchip-green-bg` / `-border` / `-ink` | theme | Panel count chip, accumulated count family (§4 rev 1.92) |
 | `--pchip-neutral-bg` / `-border` / `-ink` | theme | Panel count chip, filtered count family (§4 rev 1.92) |
+| `--chrome-bg` / `--chrome-fg` / `--chrome-border` | theme | Title bar and status bar fill, text and border (§18.4 rev 2026-11-28) |
+| `--thead-bg` / `--thead-fg` | theme | Table header fill and text, independent of `--navy` (§18.4 rev 2026-11-28) |
+| `--nav-fg-active` | theme | Selected nav-rail item text; pairs with the existing `--nav-bg-active` (§18.4 rev 2026-11-28) |
+| `--accent` | theme | Theme accent — KPI top-border, focus ring, chart line 1; a theme's own identity colour, not a reuse of `--navy` or `--blue` for this role |
+| `--btn-bg` / `--on-fill` | theme | Primary-button fill and its text colour, chosen to pass AA independently of `--blue` |
+| `--link` | theme | Text-safe accent for inline links (`--blue` / `--accent` may fail AA as text in some themes) |
+| `--chart-1` … `--chart-6` | theme | Theme-specific chart palette, read by chart code instead of a fixed JS colour array |
+| `--welcome-left-bg` / `--welcome-left-fg` / `--welcome-left-border` / `--welcome-accent` | theme | Welcome guide-panel fill, text, border and accent heading colour |
+| `--welcome-card-w` | `clamp(880px, 72vw, 1040px)` | Welcome card width (§3.7 rev 1.111) |
+| `--welcome-card-h` | `600px` | Column row height — fixed card height (§3.7 rev 1.111) |
+| `--welcome-card-radius` | `16px` | Welcome card corner radius (§3.7 rev 1.111) |
+| `--welcome-logo-h` | `36px` | Top-bar logo height (§3.7 rev 1.111) |
+| `--welcome-drop-h` | `228px` | Drop box / load stage height (§3.7 rev 1.111) |
+| `--welcome-gap` | `12px` | File list → action row (§3.7 rev 1.111) |
+| `--welcome-slot-h` | `36px` | File slot row height (§3.7 rev 1.111) |
+| `--welcome-left-bg` | `var(--navy)` | Guide panel fill (§3.7 rev 1.111) |
+| `--welcome-left-fg` | `var(--surface)` | Guide panel text (§3.7 rev 1.111) |
 
 The five crosshair tokens MUST have a value in each of the five themes. Each translucent token MUST
 keep the underlying zebra fill visible. No component rule MAY replace these tokens with a literal
@@ -2395,31 +2553,44 @@ chart ↔ table sync; the generic crosshair MAY add `.row-hover` and `.cell-hove
 **Requirements (normative).**
 
 1. **Row highlighting.** While the pointer is over a data row, that entire `<tr>` MUST carry
-   `.row-hover` and be visibly highlighted. The row track MUST use `--crosshair-track` as a
-   translucent fill layered over the existing row colour. The layer MUST use `background-color`
-   or a layered `linear-gradient`. It MUST NOT replace a zebra row with an opaque colour and MUST
-   NOT use CSS `filter`, which creates a stacking context and can break sticky descendants.
-   Hovering a nested table resolves to the nested row; it MUST NOT also highlight the enclosing
-   parent row.
+   `.row-hover` and be visibly highlighted. The row track MUST use `--crosshair-faint` as a
+   GENUINELY translucent fill — `color-mix(in srgb, var(--accent) N%, transparent)`, never a
+   `color-mix` toward an opaque base token such as `--surface` or `--soft`, which still produces a
+   flat opaque colour and paints OVER the row instead of blending with it. The layer MUST be
+   applied via `background-color` on the cell, not `background-image: linear-gradient(opaque,
+   opaque)`. It MUST NOT replace a zebra row, a selected row or a status colour with an opaque
+   fill — all three MUST remain visible through the tint (rev 1.98) — and MUST NOT use CSS
+   `filter`, which creates a stacking context and can break sticky descendants. Response MUST be
+   instant; any transition on the tint MUST NOT exceed 80ms. Hovering a nested table resolves to
+   the nested row; it MUST NOT also highlight the enclosing parent row.
 2. **Column highlighting.** While the pointer is over a header, body or footer cell, every cell
    in the corresponding logical column MUST be visibly highlighted, including the header
-   fragment. The column track MUST use `--crosshair-track` as the same translucent layer as the
-   row track, so the two tracks stay visually consistent. Generic tables carry `.col-hover`; C1
-   and C3 satisfy the same clause through their existing / added `.col-active` chart ↔ table sync
-   and MUST NOT be given a second, competing `.col-hover` column state. The logical column MUST be
-   resolved once per pointer move and reused for the row and intersection state.
+   fragment. The column track MUST use `--crosshair-faint` as the same genuinely translucent
+   layer as the row track (rev 1.98), so the two tracks stay visually consistent. Generic tables
+   carry `.col-hover`; C1 and C3 satisfy the same clause through their existing / added
+   `.col-active` chart ↔ table sync and MUST NOT be given a second, competing `.col-hover` column
+   state. The logical column MUST be resolved once per pointer move and reused for the row and
+   intersection state. `ArrowLeft`, `ArrowRight`, `ArrowUp` and `ArrowDown` MUST move the active
+   cell to the next focusable data cell in that direction and apply the same crosshair state.
 
-   **Header and sticky-axis highlighting.** An active `<th>` column header and a sticky row header
-   MUST keep its existing `background-color`. It MUST receive a non-destructive
-   `background-image: linear-gradient(var(--header-crosshair-overlay), var(--header-crosshair-overlay))`
-   and an inset edge indicator in `var(--header-crosshair-accent)`. The overlay MUST be
-   luminance-adapted for every theme so dark, navy and saturated header surfaces keep text
-   contrast. The edge indicator applies to headers only. Active body `<td>` cells stay
-   border-free under requirement 5.
+   **Header and sticky-axis highlighting (rev 1.98).** An active `<th>` column header AND the
+   sticky row header (the leading `th[scope="row"]` of the active row) MUST both receive the
+   `--crosshair-medium` tint via `background-color` (never `background-image`), bold text
+   (`font-weight: 700`), and a 2px inset edge indicator in `--header-crosshair-accent` — on the
+   BOTTOM edge for the column header, on the RIGHT edge for the row header. Both header classes
+   (`.col-hover` and the new `.rowhead-hover`) MUST keep their existing `background-color` base
+   underneath the tint, not replace it. The tint, bold weight and edge indicator together MUST
+   NOT rely on colour alone — this satisfies low-vision, colour-blind and high-contrast-mode
+   legibility. Active body `<td>` cells stay border-free under requirement 5.
 3. **Intersection highlighting.** The hovered cell MUST also carry `.cell-hover`. It MUST use
-   `--crosshair-intersection` as a stronger translucent background and an inset ring in
-   `var(--crosshair-ring)`. The intersection MUST remain distinct from either track alone without
-   an opaque fill. The row, column and intersection states MUST be consistent with one another.
+   `--crosshair-strong` as a genuinely translucent background (rev 1.98; the strongest of exactly
+   three tiers — faint, medium, strong; no fourth, independently-chosen opacity MAY be introduced)
+   and a 2px inset ring in `var(--crosshair-ring)` (rev 1.98: width corrected from 1px). The
+   intersection MUST remain distinct from either track alone without an opaque fill. The row,
+   column and intersection states MUST be consistent with one another. Text colour in the row,
+   column and intersection MUST NOT change — only the background tint changes, and it MUST stay
+   faint enough to keep body text at WCAG AA (>= 4.5:1) against both the plain surface and a
+   zebra row in every theme.
 4. **Split-header support.** Header and body cells MUST be paired by **rendered column position**
    or by an explicit shared column identifier such as `data-col` / `data-c1col` / `data-col-id`.
    Raw DOM index, `cellIndex` alone and `nth-child` selectors MUST NOT be used as the pairing
@@ -2440,14 +2611,26 @@ chart ↔ table sync; the generic crosshair MAY add `.row-hover` and `.cell-hove
    layer that preserves the existing column-rule pseudo-elements and `position:relative` on
    header/body cells (§7.2.2 / §7.2.15). They MUST NOT change `table-layout:fixed`, column widths,
    pinned-cell elevation, resize grips, scroll geometry or the split-header width pin. Translucent
-   fills MUST use `background-color` or `linear-gradient` only. Highlights MUST NOT use CSS
-   `filter`, `backdrop-filter`, cell opacity or any other property that creates a stacking
-   context. All hover colours MUST come from `--crosshair-track`, `--crosshair-intersection`,
-   `--crosshair-ring`, `--header-crosshair-overlay` and `--header-crosshair-accent` (§6). No rule
-   MAY hard-code a hover colour. Pointer hover styling MUST be scoped to
-   `@media (hover: hover) and (pointer: fine)`. Keyboard focus MUST produce the same row, column
-   and intersection state through `:focus-visible` on a focusable cell or row, outside that media
-   query. Touch-only views MAY use a transient tap state but MUST NOT persist it.
+   fills MUST use `background-color` with a genuinely transparent `color-mix(..., transparent)`
+   token (rev 1.98) — `background-image: linear-gradient(opaque, opaque)` and `color-mix(...,
+   var(--surface))`-style opaque mixes are PROHIBITED, because both paint a flat, opaque layer
+   that hides zebra striping, row selection and status colour instead of blending with them.
+   Highlights MUST NOT use CSS `filter`, `backdrop-filter`, cell opacity or any other property
+   that creates a stacking context. All hover colours MUST come from exactly THREE tiers —
+   `--crosshair-faint` (row/column), `--crosshair-medium` (headers) and `--crosshair-strong`
+   (the active cell) — plus `--crosshair-ring` and `--header-crosshair-accent` for the non-colour
+   edge/outline indicators (§6). No rule MAY hard-code a hover colour, and no rule MAY introduce a
+   fourth, independently-chosen opacity. Each theme's three tiers MUST be derived from that
+   theme's own `--accent` via `color-mix(in srgb, var(--accent) N%, transparent)`; light-family
+   themes use roughly 6-8% (faint) / 12-14% (medium, strong); dark-family themes use roughly
+   10-14% (faint) / 18-22% (medium, strong) — a dark theme needs a higher percentage to read at
+   the same visual strength. Pointer hover styling MUST be scoped to `@media (hover: hover) and
+   (pointer: fine)`. The SAME crosshair MUST activate on tap and on keyboard focus, and MUST
+   produce the same row, column and intersection state through `:focus-visible` on a focusable
+   cell or row, outside that media query, clearing on blur or pointer-leave. A sticky header or
+   sticky row header that is scrolled under the active column/row MUST keep its highlight; the
+   highlight is a class-driven state, not a scroll-position-dependent one. Touch-only views MAY
+   use a transient tap state but MUST NOT persist it.
 7. **Export and printing.** Hover state is transient. `.row-hover`, `.col-hover`, `.cell-hover`
    and chart-linked `.col-active` MUST be stripped from or ignored by PNG and Copy serialization,
    and MUST NOT appear in print output. Exporters MUST serialize the same table content without
@@ -2530,7 +2713,7 @@ hard-coded into the generic check.
 | 19 | Stacked top-level panels are separated by 14 px (container gap or panel margin, never both); borders never touch; hidden panels add no gap; the `Breakdown` page's own grid MUST use that 14 px gap and MUST NOT inherit a different value from `body[data-layout]` (§4.1 rev 1.76) | §4.7 |
 | 20 | The search panel is one row: attached column picker (All columns plus each searchable column), flexible input, affixed submit; the picker re-applies the query and does not clear it | §7.1 B5 / A5 |
 | 21 | An S-curve attached table uses one `.c1-grid` with explicit `--c1-gutter` / `--c1-cols` tracks and `column-gap:0`, one `<svg role="img">` whose host carries a `ResizeObserver`, one native `<table>` in one spanning grid item with `<caption>` / `<colgroup>` / `<thead>` / `<tbody>` / `scope`, static and rebuilt cells with the same structure, a bordered chart composition (axis / plot / table zones with shared right-angle corners and an unbordered alignment grid; rev 1.70 / 1.81), no third bordered wrapper, and PNG/Copy that include the table; the SVG draws one vertical `sc-yaxis-line` at the plot's left edge, grid column 1 carries at most eight dynamically generated Y ticks (§4.2 rev 1.64: max 7 intervals, min ~40 px spacing, nice-number steps, one `line.sc-grid` per label, all derived from the same `data-c1meta.yMax` / `yStep` / `yIntervals` payload) and a rotated unit caption; after a period change the Y-axis maximum MUST be recomputed from the selected period window with cumulative values unchanged (§4.2 rev 1.65), and chart / grid / labels / hover-refit metadata / PNG-Copy MUST share that one Y-axis scale; the C1 period control is ONE dual-handle month-snapped track with one tick per active reporting month and the `6M` / `12M` / `24M` / `YTD` / `All` preset chips (§4.2 rev 1.66: `step="1"`, `input` visual-only, `change` single repaint, `aria-valuetext` / `aria-pressed`, print hides the interactive controls), and those five chips are ONE joined `.seg` group of `.seg-btn` buttons with EXACTLY one `aria-pressed="true"` at a time, a stored preset name (default `All`), NO active chip after a manual handle `input` / `change`, and the tools below the panel title stay on ONE visual row at the 1280 px minimum desktop width with `flex-wrap:nowrap` on `.c1-ts` (§4.2 rev 1.67); every Sub `.seg-btn` follows the §7.5 B2.1 common standard — shared CSS custom-property tokens, `--navy` active fill, `--surface2` inactive hover, `--surface3` pressed, a disabled state, a 2 px `--blue` focus ring with `outline-offset:-2px` plus a high-contrast light ring on active buttons, `type="button"` and a dynamic `aria-pressed` on ALL seven generators, `role="group"` and an accessible name on every group, equal height within each group and centre alignment between groups, the `standard` 32 px / 12 px variant and the C1 `compact` exception at ≈ 25.94 px / 11 px / `line-height:1.45` / `padding:5px 8px` with `min-height:0` and no hover or focus rule of its own (§4.2 rev 1.69 / §7.5 B2.1); the in-SVG legend sits above the plot, the `<thead>` row is flush with the plot bottom (which is also the SVG bottom) with no separate SVG X labels, the whole curve fits the board with no horizontal scroll, and bar / dot / `data-points.cx` alignment holds after the period window changes; the SVG draws four tokenised `<linearGradient>` defs and `path.sc-area` fills plus one hidden `rect.sc-hover-band` behind all marks, every month `<th>` and value `<td>` carries `data-c1col`, hovering a month column in either direction activates the band / snap line / `.col-active` highlight, and the `.chart-tip` window opens only inside the SVG chart area and is `aria-hidden="true"` with empty text whenever hidden; `aria-describedby` points at `.chart-tip` only; C3 Bar cards use the same native attached-table model, the general chart ↔ attached-table column sync and the C1 band / centre line / border-free visual contract (§4.2 rev 1.73 / 1.74 / 1.75); on the `Breakdown` page each C3 legend MUST sit ABOVE `.c3-grid` in Bar view and above the donut `<svg>` in Pie view, MUST be rendered in-SVG, and the exported PNG / Copy MUST keep the legend at the top (§4.2 rev 1.78) | §4.2, §4.6 |
-| 22 | Every tabular view uses the ONE shared table hover crosshair: the hovered row, logical column including its split header, and intersection cell are highlighted; split-header cells pair by rendered column position or an explicit column identifier, never raw `cellIndex`; C1 and C3 `.col-active` / chart sync is preserved by the general attached-table column sync rule (§4.2 rev 1.74 / 1.75); the hidden column band and the `.chart-snap` centre line move with the active column in both directions, and active chart or table column cells carry no border, outline or inset ring (§4.2 rev 1.75); C3 attached tables participate through `data-table-crosshair` / `data-col-id` and `role="group"` on the card; on the `Breakdown` page (§4.1 rev 1.76) both chart panels and the summary panel's table follow the same crosshair rule inside their own panels, and no panel reads or writes another panel's hover state; column rules and `position:relative` are unchanged; row and column tracks use the tokenised translucent `--crosshair-track`, the intersection uses `--crosshair-intersection` plus the inset `--crosshair-ring`, and active `<th>` headers and sticky row headers use `--header-crosshair-overlay` / `--header-crosshair-accent` as non-destructive overlays that keep theme header contrast, split-header geometry and sticky positioning; pointer hover styling is scoped to `@media (hover: hover) and (pointer: fine)` with `:focus-visible` keyboard parity; and transient hover classes, the band and the centre line are absent from PNG, Copy and print | §6, §7.2.16 |
+| 22 | Every tabular view uses the ONE shared table hover crosshair: the hovered row, logical column including its split header, and intersection cell are highlighted; split-header cells pair by rendered column position or an explicit column identifier, never raw `cellIndex`; C1 and C3 `.col-active` / chart sync is preserved by the general attached-table column sync rule (§4.2 rev 1.74 / 1.75); the hidden column band and the `.chart-snap` centre line move with the active column in both directions, and active chart or table column cells carry no border, outline or inset ring (§4.2 rev 1.75); C3 attached tables participate through `data-table-crosshair` / `data-col-id` and `role="group"` on the card; on the `Breakdown` page (§4.1 rev 1.76) both chart panels and the summary panel's table follow the same crosshair rule inside their own panels, and no panel reads or writes another panel's hover state; column rules and `position:relative` are unchanged; EXACTLY three genuinely translucent tiers apply via `background-color` (never `background-image`/opaque `color-mix`) — `--crosshair-faint` for row/column, `--crosshair-medium` for the active column header AND the active row header, `--crosshair-strong` for the intersection cell — each `color-mix(in srgb, var(--accent) N%, transparent)` with N differentiated by theme family (rev 1.98); the intersection carries a 2px inset `--crosshair-ring`; the active column header carries bold text and a 2px bottom edge in `--header-crosshair-accent`, and the active row header carries the same bold weight and tier with the edge on its RIGHT side (rev 1.98); zebra striping, row selection and status colour remain visible through every tier; body text colour is unchanged and stays >= 4.5:1 AA against both the plain surface and a zebra row in every theme; pointer hover styling is scoped to `@media (hover: hover) and (pointer: fine)` with `:focus-visible` keyboard parity, `ArrowLeft` / `ArrowRight` / `ArrowUp` / `ArrowDown` cell movement, activation on tap, and any transition does not exceed 80ms; a sticky header or sticky row header keeps its highlight while scrolled; and transient hover classes, the band and the centre line are absent from PNG, Copy and print | §6, §7.2.16 |
 | 23 | A chart that renders a native attached table whose columns share the chart's X positions uses ONE transient two-way chart ↔ attached-table column sync: hovering a chart column or a table column highlights the SAME logical column in both, inside the owning chart card only; C1 keeps `data-c1col` / `.sc-hover-band` / snap line / `.col-active`, and C3 Bar keeps shared `data-col-id` on `.g-bar`, dimension headers and value cells plus ONE `.col-active` state per `.c3-card`; each C3 card is independent (on the `Breakdown` page, §4.1 rev 1.76, the `Submissions` and `Approval Status` chart panels each own their state and sync scope), no competing `.col-hover` column state is applied, `.row-hover` / `.cell-hover` may still apply, the `.chart-tip` window stays closed while the cursor is in the attached table, and the state clears on pointer leave / blur / Escape / repaint / print and is absent from PNG / Copy / print (§4.2 rev 1.74); C1 and C3 Bar each draw ONE hidden column band and ONE hidden dashed `.chart-snap` centre line, both MUST move with the active column in BOTH directions, and no active chart or table column cell MAY carry a border, outline or inset ring (§4.2 rev 1.75); the band and centre line stay hidden on leave / blur / Escape / repaint / print and absent from PNG / Copy / print (§4.2 rev 1.75) | §4.2, §4.6, §7.2.16 |
 | 24 | The sidebar lists `Breakdown` directly under `Overview` (§3.2 rev 1.76); the `Breakdown` page holds THREE fully independent panels — `Submissions`, `Approval Status` (charts, side by side, `Submissions` first) and `Breakdown Summary` (full width below) — each with its OWN `c3Month` / `c3Dim` / `c3View` state, so changing a control in one panel changes nothing in the others, and each chart switches between Bar and donut independently (§4.1 rev 1.76); the Overview page keeps KPI, C1 and C2 only; each C3 legend sits ABOVE its chart and is in-SVG (§4.2 rev 1.78); the summary panel owns Month, Break-down-by and the `⤓ Download` CSV control, its table uses the compact row tokens with no inner vertical scroll at 1280 px, and the orphan discipline (submittal rows not registered in MDL) is named `Others`, not `Unknown` (§4.1 rev 1.76); each chart panel shows ONE tool row — Month select, Break-down-by and Bar / Pie on the left, `⤓ PNG` + `⧉ Copy` on the right, no second head row — and the Month select carries no visible `Month` text (§4.2 rev 1.77) | §3.2, §4.1, §4.2 |
 | 25 | Every gap in the three Breakdown panels is a named token from the §6 inventory and no rule hard-codes a gap value (§0, §4.2 rev 1.80); the tool row (part 3) sits inside its owning card — chart card 2 in both chart panels, summary table card 9 in the Breakdown Summary panel — with equal `--c3-tool-pad` on all four sides and the same padding in all three panels, and only the two chart cards use a scoped negative margin equal to `--c3-card-pad` that cancels the outer card padding while the card border and the chart / table inset stay (§4.2 rev 1.80); the bar-plot-to-attached-table gap equals the derived token `--c3-plot-table-gap` = `--c3-axis-label-h / 3` (6 px at the default 18 px label height), is minimized without the table overlapping the plot baseline or the `0` tick label, and still scales with the label height (§4.2 rev 1.80) | §0, §4.2, §6 |
@@ -2551,6 +2734,18 @@ hard-coded into the generic check.
 | 40 | EVERY table type — bounded, keyed, semantic and chart-attached — uses the same header design: `--navy` fill with white 11–12 px / 600 text, including corner and month cells, with the same colours serialized in PNG / Copy (§4.2 rev 1.105, superseding rev 1.103) | §4.2 |
 | 41 | The S-curve Y-axis caption is vertically centred near the axis and reads bottom-to-top, and both the caption and all Y tick labels are bold in the theme `--text2` token (§4.2 rev 1.104); every on-screen table, including the chart-attached table, offers its own `⤓ CSV` before image actions (§4 rev 1.88 / 1.91) | §4.2, §4 |
 | 42 | For every chart with an X-aligned native attached table, each rendered chart column center matches the center of the matching table header cell within 2 px, and the chart and table use the same rendered column width; an SVG `viewBox` scale does not change that relation. This GEOMETRY rule applies to every dashboard, including MDL, even where two-way sync state is out of scope (§4.2 rev 1.106) | §4.2 |
+| 43 | The welcome renders one file slot per `files[]` entry of its welcome configuration; the welcome markup holds no hardcoded file count, file name, load mode or project title (§3.7 rev 1.111) | §3.7.2, §3.7.3 |
+| 44 | The top bar holds the logo and a Help button; the guide panel holds one heading, the description, three steps (the current one `aria-current="step"`) and, when configured, the check list; the task panel holds one heading and one instruction with no lead-in label; the footer with the code-derived year is inside the task panel (§3.7 rev 1.111) | §3.7.3 |
+| 45 | The drop box contains the native `Choose file(s)` button with its own visible border, is a named `role="group"` and is not focusable; the drop box and the load stage share one fixed-height row with hidden overflow; the card has no `aspect-ratio`; the columns split 1 : 1.618 (±2 %) (§3.7 rev 1.111) | §3.7.1, §3.7.4 |
+| 46 | `.welcome-screen` is `position:fixed` with `overflow:auto`; `html, body` do not scroll; a drop anywhere on the page is accepted and a drag shows the full-screen overlay (§3.7 rev 1.111) | §3.7.1, §3.7.4 |
+| 47 | `auto` mode renders no Open button; `confirm` mode renders one `Open dashboard` button with an `n of N` count, disabled until all slots are accepted; exactly one primary button exists in every state; `Choose file(s)` is primary while a file is not ready (§3.7 rev 1.111) | §3.7.6 |
+| 48 | A failed file marks only the slot of its own type and never an accepted slot; unrequired, untyped or extra files change no slot and are listed in one ignored-file summary; a set error renders once in a `role="alert"` element in the upper zone and leaves the previous selection intact; the slot list is `aria-live` (§3.7 rev 1.111) | §3.7.4, §3.7.5 |
+| 49 | During load, the phase list renders on the welcome card with `aria-busy="true"`, every welcome button is disabled, and the running indicator respects `prefers-reduced-motion`; the success hold shows a `role="status"` ready message and an enabled, focused `Open now` button (§3.7 rev 1.111) | §3.7.7 |
+| 50 | Every load path, including test hooks, classifies workbooks by `Dashboard Title`, not by file name; welcome rules use tokens only, with no literal colour and no `min-height` override (§3.7 rev 1.111) | §3.7.5, §3.7.9 |
+| 51 | The delivered HTML carries `<meta name="common-version">` equal to the repository `common/manifest.json` version, unless the dashboard workplan records a pin; it holds no reference to `common/` (§3.9 rev 1.108) | §3.9 |
+| 52 | The welcome card height is the same (±1 px) in every welcome state of one dashboard at a desktop viewport (≥ 900 × 700 px), including loading and the success hold; a pick does not add or remove slot rows (§3.7.1, §3.7.4 rev 1.111) | §3.7.1, §3.7.4 |
+| 53 | `files[]` holds 1–6 entries with unique `Dashboard Title` values; 4–6 files render in two columns; `successHoldMs` and `doneDwellMs` are 0–10000; `checks[]` holds 0–5 entries (§3.7.2 rev 1.113) | §3.7.2 |
+| 54 | Every theme passes WCAG AA (4.5 : 1 text, 3 : 1 large text / UI) for: body text, secondary text, link, chrome text, nav text (default and active), table-header text, OK / warning / error chip text, welcome guide text; the welcome top bar exposes a theme picker that writes the same `<project>-theme` key as Settings (§18.4 rev 2026-11-28) | §18.4, §6 |
 
 ### 8.3 Pipeline testability
 
@@ -2632,7 +2827,7 @@ different implementations, the spec above states ONE standard.
 | 14 | Chart↔table sync | One shared `data-col-id`/`data-c1col`, ONE hidden band (`0.08` opacity), ONE hidden `.chart-snap`, border-free `.col-active` |
 | 15 | Chart hover | One delegated `bindChartHover()` binder on `data-points`/`data-geo`; native `<title>` retired |
 | 16 | Button height | One `--btn-h:32px` text-button token; `26px` square icon-only |
-| 17 | Table crosshair | Generic `.row-hover`+`.col-hover`+`.cell-hover`; `.col-active` reserved for chart sync; translucent `--crosshair-track` and `--crosshair-intersection`, inset `--crosshair-ring`, and non-destructive header overlay / accent tokens |
+| 17 | Table crosshair | Generic `.row-hover`+`.col-hover`+`.cell-hover`+new `.rowhead-hover`; `.col-active` reserved for chart sync; exactly 3 genuinely translucent tiers (`--crosshair-faint`/`-medium`/`-strong`, `color-mix(..., transparent)`, light/dark-differentiated %), 2px inset `--crosshair-ring`, bold header text, and a 2px edge accent (column bottom / row right) |
 | 18 | Panel spacing | `--panel-gap:14px`; `16px` chart cards; `12px` validation cards |
 | 19 | Typography | `--font-ui` stack; 13px body/h2/h3, 22px KPI, 12px controls, 11px tooltips/meta, `tabular-nums` |
 | 20 | Colour system | Centralised semantic tokens, zero hard-coded hex, 5 themes; the five crosshair tokens have a value in every theme |

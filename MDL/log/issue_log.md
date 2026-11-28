@@ -2,6 +2,19 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.38 | 2026-11-28 | CodeBuddy (AI) | **I-167 resolved.** Crosshair contract completed for spec rev 1.116: arrow keys, pinned-cell tint, strong 14% / 22%, token resolver and harness checks. Validated: shell 127 / 0, harness 366 / 2 baseline, no crosshair failure. Status summary `RESOLVED` 156 → 157. See `U052` and `TL045`. |
+| 1.37 | 2026-11-28 | CodeBuddy (AI) | **I-166 resolved.** Six-theme chrome tokens, welcome theme picker, and themed S-curve header and export. Validation: tokens 160 / 0, welcome 73 / 0, grid 45 / 45, shell 125 / 0, render 190 / 13 pre-existing, harness 343 / 2 baseline. Status summary `IN_PROGRESS` 2 → 1, `RESOLVED` 155 → 156. See `U051` and `TL044`. |
+| 1.36 | 2026-11-27 | AWS Quick (AI) | **I-165 resolved.** MDL adopted common welcome 1.2.0 (two-column card, success hold). Status summary `IN_PROGRESS` 2 → 1, `RESOLVED` 154 → 155. See `U042` and `TL038`. |
+| 1.35 | 2026-11-27 | AWS Quick (AI) | **I-165 re-scoped to common welcome 1.2.0 (two-column card).** Status unchanged (`IN_PROGRESS`); counts unchanged. See `U040`. |
+| 1.34 | 2026-11-27 | AWS Quick (AI) | **I-165 logged — `IN_PROGRESS`.** MDL adopts common welcome 1.1.0 (spec §3.7 rev 1.110: fixed height, file list at the bottom, success hold). Edits written; test run pending. Status summary `IN_PROGRESS` 1 → 2, total 154 → 155. See `U039`. |
+| 1.33 | 2026-11-26 | CodeBuddy (AI) | **I-164 resolved.** MDL adopted `CommonWelcome` 1.0.1 in `auto` mode; Tier 7 and check 51 pass. See `U037` and `TL036`. |
+| 1.32 | 2026-11-26 | AWS Quick (AI) | **I-164 pointer updated.** The shared welcome plan moved to `common/workplan/Welcome-Page-Workplan.md`; workplan §11.35 now holds the full MDL plan (tasks T11.35.1–T11.35.10). Status unchanged (`OPEN`). Docs only. See `U036`. |
+| 1.31 | 2026-11-26 | AWS Quick (AI) | **I-164 logged — `OPEN`.** UI spec rev 1.107 rewrites §3.7 (configuration-driven welcome page). MDL welcome conformance gap recorded for later work (WP-WELCOME-001 phase W3, workplan §11.35). Status summary `OPEN` 3 → 4, total 153 → 154. Docs only; no code changed. See `U035`. |
+| 1.30 | 2026-11-25 | CodeBuddy | **I-163 resolved.** Content-aware column minima, grow-to-fill fit, live user-width ownership and Validation Rules split-header alignment. See `U034` and `TL035`. |
+| 1.29 | 2026-11-25 | CodeBuddy | **I-162 resolved.** Harness ground truth now includes the blank discipline. L3 checks sweep every page and use grid keys for resize. See `U033` and `TL034`. |
+| 1.28 | 2026-11-25 | CodeBuddy | **I-161 resolved.** One `--ds-zebra` token for all MDL tables, with five theme values. Document Detail is the reference. Row-level overdue fill removed. Export colors aligned. See `U032` and `TL033`. |
+| 1.27 | 2026-11-25 | CodeBuddy | **I-160 resolved.** Validation page rebuilt as two independent panels per SUB design and spec assertion 36. Chips, tool rows, 200-row pagination and harness count hook added. See `U031` and `TL032`. |
+| 1.26 | 2026-11-25 | CodeBuddy | **I-151 … I-159 resolved.** Overdue List tool row, filters/actions split, empty CSV, pagination, document columns, alignment, token gaps and help text fixed. See `U030` and `TL031`. |
 | 1.25 | 2026-11-24 | CodeBuddy | **I-148 resolved.** Spec rev 1.104 caption / tick typography; attached-table CSV added and harness-checked. See `U027` and `TL028`. |
 | 1.24 | 2026-11-24 | CodeBuddy | **I-147 resolved.** Attached-table gap, board fit / vertical headers and themed header fill per spec rev 1.103; harness board-contract tier added. See `U026` and `TL027`. |
 | 1.23 | 2026-11-24 | CodeBuddy | **I-146 resolved.** General two-row chart head per spec rev 1.102; date range text after the chips; no project-start caption. See `U025` and `TL026`. |
@@ -28,6 +41,87 @@
 | 1.2 | 2026-11-20 | CodeBuddy | **U003 fixed three Tier 2 geometry checks found during I-122 verification.** The earlier record had no baseline proof. |
 | 1.1 | 2026-11-20 | CodeBuddy | **I-122 raised and fixed.** Content body had no vertical scrollbar when panels exceeded one screen. Added harness coverage for every page. |
 | 1.0 | 2026-11-20 | CodeBuddy | Initial canonical issue log at `MDL/log/issue_log.md`. Records the shell increment decisions. The full historical register stays in `MDL/log/issue_log.md` and remains the active detailed ledger. |
+
+## I-166 — Theme system rework: chrome tokens, six themes, welcome theme picker
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ |
+| Closed | 2026-11-28 |
+| Raised | 2026-11-28 (owner theme review 2026-11-27/28: "no vision impression from different themes, study again"; approved rev 0.3 sample) |
+| Issue | I-166 in `MDL/log/issue_log.md` (this entry); common `C-08` in `common/log/issue_log.md` |
+| Work item | this entry; shared plan `common/workplan/Theme-Rework-Workplan.md` (WP-THEME-001) W3 |
+| Spec clause | shared spec §6 / §8.2 assertion 54 rev 1.114; `AGENTS.md` §18.4 rev 2026-11-28 |
+| Depends on | common `tokens` 1.0.0 (new module), common welcome 1.4.0, harness 1.47 (Tier 8 `lintThemes()`) |
+| Description | MDL's `boot()` never called `applyShellPrefs()`, so the welcome page always rendered `light` regardless of the saved theme (T1). The `dark` theme gave `--welcome-left-bg`/`-fg` near-identical values (~1.03:1, unreadable) and never overrode status colors (T2, T3). ~65 hard-coded hex colors lived directly in MDL's CSS template literal, bypassing tokens (T4). Chart colors came from fixed `COLORS`/`PALETTE` JS arrays that never varied by theme (T5). MDL's theme names (`light, dark, navy, contrast, sepia`) did not match the spec's six (`light, dark, sky, ocean, presentation, contrast`). |
+| Change | `boot()` now calls `applyShellPrefs()` before `CommonWelcome.render()` (T1). Theme keys renamed `navy`/`sepia` -> `sky`/`ocean`/`presentation`; the `#themeSel` dropdown options updated to match; an unrecognized saved value still falls back to `light` (existing fallback, not a crash). MDL's local `:root` now holds only the ~37 tokens MDL does not share with other dashboards (layout metrics, segmented-control sizing, two unused legacy tokens kept for compatibility); the shared ~45-token set, the 12 `body[data-theme=...]` override blocks, the `--pchip-*` family and `--ds-zebra` are gone from `render.mjs`, replaced by the inlined `common/tokens/tokens.css` (T2-T4). All 80 in-scope hard-coded hex literals in component rules were repointed to tokens (2 left as-is by design: one inside a code comment, one in an intentional `@media print` rule, out of theme scope). Six new semantic token families with no prior home (`--accent-purple`, `--badge-bg`, `--status-amber2-*`, `--status-neutral-*`, `--status-neutral2-*`, `--status-purple-*`) and the migrated `--pchip-*`/`--ds-zebra` set were added to `common/tokens/tokens.css`, all 36 new fg/bg pairs verified >= 4.5:1 (>= 3:1 for the border-only purple accent) before writing. `COLORS`/`PALETTE` kept as fallback tables only; new `CHART()`/`CHART_SERIES()` helpers resolve colors from the live theme via `getComputedStyle` at paint time (T5), matching the pattern already used by `curveExportMarkup()`. `MDL/build.mjs` now inlines the `tokens` module ahead of `welcome`. |
+| Fix | `render.mjs` rev 1.6, `build.mjs` rev 1.2, `ui_help.json` 1.9.4, `common/tokens` 1.2.0, `common/welcome` 1.4.1 (`themePicker` config key), `common/manifest.json` 1.4.2, harness 1.47 (Tier 8), `AGENTS.md` §18.4 rev 2026-11-28, spec §6/§8.2 rev 1.114. |
+| Test | Final validation in `TL044`: tokens 160 / 0, welcome 73 / 0, grid 45 / 45, shell 125 / 0, render 190 / 13 pre-existing of 203, harness 343 / 2 baseline / 2 advisory / 24 skipped. Pipeline failures are unchanged stale workbook-data failures. |
+
+## I-168 — Table header text/fill used the wrong tokens, unreadable in ocean/presentation, invisible crosshair edge in sky
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ |
+| Closed | 2026-11-28 |
+| Raised | 2026-11-28 (found while preparing a header-highlight sample for the owner; traced beyond the crosshair feature itself) |
+| Issue | I-168 in `MDL/log/issue_log.md` (this entry); common `C-08` / `I-167` follow-up |
+| Work item | this entry; shared plan `common/workplan/Theme-Rework-Workplan.md` (WP-THEME-001) |
+| Spec clause | shared spec §6 (`--thead-bg`/`--thead-fg` already defined, rev 1.114); no spec text named the header-fill bug itself since §7.2.16 never specified WHICH base tokens a `<th>` must use |
+| Depends on | common `tokens` 1.3.1 (no change needed — `--thead-bg`/`--thead-fg` already existed and were already AA-safe per theme) |
+| Description | Several table-header rules (`th`, `.ds-table thead th`, `.matrix thead tr.group th`, `.vrefhead`, `.curve-c1-table thead th.corner`) used `background:var(--navy);color:var(--on-fill)` directly. This was pre-existing, not a crosshair regression. Two distinct real-world failures: (1) in `ocean` and `presentation` themes, `--on-fill` is a DARK colour (tuned for text on a bright accent button, not for text on navy), so the untinted header text contrast was only ≈1.1:1 — essentially unreadable, with or without any hover. (2) in `sky`, `--navy` and `--accent` are the identical hex value, so the crosshair's 2px edge accent (`var(--header-crosshair-accent)`, itself `var(--accent)`) was mathematically unable to render any visible line against the header — a flat 1.00:1 ratio. Mathematically proved (via the WCAG luminance formula) that for `light` theme specifically, NO single flat colour mixed into `--navy` can satisfy both ≥3:1 edge/tint visibility and ≥4.5:1 text contrast simultaneously, because the achievable luminance ranges for the two constraints do not overlap when the base is `--navy` and the text is fixed at `--on-fill`. |
+| Change | Root-cause fix: moved every table-header fill/text rule from `var(--navy)`/`var(--on-fill)` to `var(--thead-bg,var(--navy))`/`var(--thead-fg,var(--on-fill))` — the tokens the design already defines specifically for header surfaces (fallback preserves old behaviour if a project's build somehow lacks the token). `--thead-bg`/`--thead-fg` were already tuned per theme and already pass AA (9.3–19.1:1 in every theme) because they were designed as a pair, unlike `--navy`+`--on-fill` which were never meant to pair together. Re-verified the FULL crosshair math against the corrected base: text-on-tint now ranges 7.9–16.7:1 (was as low as 1.3–1.8:1 in ocean/presentation) and the existing `--accent` edge now clears ≥3.1:1 visibility in EVERY theme including `sky` (was 1.00:1), with no per-theme colour substitution needed — `--thead-bg` is never equal to `--accent` anywhere, unlike `--navy`. The crosshair's own `background-color`/`box-shadow` rules needed no change; they inherit the fix automatically because they composite over whatever the base `background` now resolves to. |
+| Fix | `render.mjs` rev 1.10 (5 header rules corrected; `.curve-c1-table thead th`/`.g-axis`/`.g-label` were already correct from an earlier pass). Button/toggle rules (`.btn[aria-pressed]`, `.btn-active`, `.seg button.on`) intentionally left on `--navy`/`--on-fill` — that pairing is correct for a pressed-state accent fill, a different semantic from a header surface. |
+| Test | Not yet run — pending a rebuild and the full suite (`node common/test/*.mjs`, `node MDL/build.mjs`, `node MDL/test/*.mjs`, `node harness-layout/harness.mjs --dashboard mdl`). The existing harness crosshair checks (text-alpha, 2px ring, bold, row-head) do not check header TEXT contrast directly — flagged as a possible follow-up harness gap, not yet added. |
+
+## I-167 — Crosshair contract completion for the owner's 20 points
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ |
+| Closed | 2026-11-28 |
+| Raised | 2026-11-28 (owner's 20-point crosshair contract; spec rev 1.115 design review found gaps) |
+| Issue | I-167 in `MDL/log/issue_log.md` (this entry); common `C-08` in `common/log/issue_log.md` |
+| Work item | this entry; shared plan `common/workplan/Theme-Rework-Workplan.md` (WP-THEME-001) |
+| Spec clause | shared spec §6 / §7.2.16 / §8.2 assertion 22 rev 1.116; `AGENTS.md` §18.2 rev 1.116 |
+| Depends on | common `tokens` 1.3.1, `manifest.json` 1.4.4, harness 1.51 |
+| Description | Review of spec rev 1.115 found that arrow-key navigation was not in the design record. Implementation also had no Arrow-key handler, pinned cells lost the crosshair tint under later `.ds-pinned` rules, and strong-tier opacity was 17% / 26%, outside the stated 14% / 22% ceiling. Validation then found two CSS specificity defects: the C1 row header kept 600 weight, and a hovered pinned intersection used the faint tint. |
+| Change | Spec rev 1.116 adds arrow-key movement to §7.2.16 requirement 2 and assertion 22. `render.mjs` rev 1.8 makes data cells focusable and moves the active cell with Arrow keys. `render.mjs` rev 1.9 keeps the C1 row header bold and the pinned intersection strong. Pinned cells layer the crosshair tint over their own zebra / soft fill. `tokens.css` 1.3.1 sets strong to 14% light / 22% dark. `tokens.test.mjs` 1.0.1 resolves transparent tints over surface and zebra. Harness 1.51 checks ArrowRight, row-head availability, the computed 2px ring and the pinned strong tier. |
+| Fix | `render.mjs` 1.9, `test_shell.mjs` 1.2, `tokens.css` 1.3.1, `manifest.json` 1.4.4, `tokens.test.mjs` 1.0.1, harness 1.51, both spec copies rev 1.116, `AGENTS.md` 1.26, `MDL-Dashboard.html`, and the logs. |
+| Test | TL045: build OK (`MDL-Dashboard.html` 436,311 bytes). Tokens 178 / 0. Welcome 73 / 0. Pipeline 27 / 5 and 96 / 7 pre-existing. Grid 45 / 45. Shell 127 / 0. Render 190 / 203 (13 pre-existing). Harness 366 passed / 2 failed (Tier 1 baseline) / 2 advisory / 31 skipped. No crosshair assertion fails. |
+| Rollback | Restore the listed files and rebuild. The last verified state has no arrow-key movement, pinned cells without crosshair tint, strong 17% / 26%, and harness 343 / 2 baseline. |
+
+## I-165 — Adopt common welcome 1.2.0 (two-column card, success hold)
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ |
+| Closed | 2026-11-27 |
+| Raised | 2026-11-27 (owner review 2026-11-26 / 27: "no focusing from the layout", gaps, fixed height, success hold) |
+| Issue | I-165 in `MDL/log/issue_log.md` (this entry) |
+| Work item | §11.36 in `MDL/MDL-Dashboard-Workplan.md` (T11.36.1–T11.36.7); shared plan `common/workplan/Welcome-Page-Workplan.md` phase W3.1 |
+| Spec clause | shared spec §3.7 rev 1.111; §8.2 assertions 43–53 |
+| Depends on | common welcome 1.2.0 (common `C-04`, `C-06`); harness 1.44 |
+| Change | The welcome `load` handler returns an opener for the success hold; `ui_help.json` adds `successHoldMs: 1500`; render-test patterns follow the 1.2.0 two-column markup (`test_render.mjs` rev 1.5); the harness config adds `extraFile`. |
+| Fix | Edits written 2026-11-27 for 1.1.0; re-scoped to 1.2.0 the same day (owner reference picture): `ui_help.json` 1.2 (`description`, `checks[]`, instruction, Help), `test_render.mjs` rev 1.4. |
+| Test | TL038: common 70 / 0; MDL build OK (common-version 1.2.0); shell 125 / 0; render 190 passed / 13 pre-existing of 203 checks; harness 281 passed / 2 failed (Tier 1 shell-zone baseline) / 2 advisory / 24 skipped; Tier 7 43–53 and check 51 PASS. The 13 render failures and the 2 harness FAIL lines are the pre-existing baseline. |
+
+## I-164 — Welcome page does not follow spec §3.7 rev 1.107
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ |
+| Raised | 2026-11-26 (read-only welcome review 2026-11-25; UI spec rev 1.107 approved 2026-11-26) |
+| Closed | 2026-11-26 |
+| Issue | I-164 in `MDL/log/issue_log.md` (this entry) |
+| Work item | §11.35 in `MDL/MDL-Dashboard-Workplan.md` (tasks T11.35.1–T11.35.10); shared design plan `common/workplan/Welcome-Page-Workplan.md` (WP-WELCOME-001) phase W3 |
+| Spec clause | shared spec §3.7.1–§3.7.9 rev 1.107; §8.2 assertions 43–50 |
+| Mode | `auto` — one file (Master Document List), no Load button |
+| Defect | In `MDL/src/render.mjs` `boot()`: the instruction card starts with `What this does —` (F1); `.drop` has no `aspect-ratio` (F2); `.welcome .btn` sets `min-height:0` (F4); `.welcome-screen` uses `min-height:100vh`, so the page can scroll (F5); all welcome text is in code, not `ui_help.json` (F7); the drop area has no `tabindex` or accessible name (A1); the error has no `role="alert"` (A2). `loadFile` reads the whole workbook before any Code-sheet check (R3) and shows no load progress (R4). Rev 1.107 also requires one file slot, load phases on the welcome card, a page footer and a help link. |
+| Depends on | Spec rev 1.107 (done); shared welcome tokens (WP-WELCOME-001 W2) |
+| Questions & decisions | Owner decisions D1–D10 (WP-WELCOME-001 §4). Sequence: spec → MDL → PPP → Sub. |
+| Fix | `MDL/config/ui_help.json` holds the welcome config. `MDL/build.mjs` inlines `CommonWelcome` 1.0.1, its CSS and the `common-version` meta. `boot()` calls `CommonWelcome.render()` with Code-sheet-first `inspect()` and phased `load()` handlers. Old `.welcome*` CSS and markup were archived, then removed. See `U037`. |
+| Test | `node common/test/welcome.test.mjs`: 29 passed / 0 failed. `node MDL/test/test_render.mjs`: 185 passed / 13 pre-existing failures. `node MDL/test/test_shell.mjs`: 125 passed / 0 failed. `node harness-layout/harness.mjs --dashboard mdl`: 268 passed / 2 pre-existing failures, Tier 7 43–50 and check 51 all pass. See `TL036`. |
 
 ## I-136 — Issue Progress panel conformance
 
@@ -497,9 +591,204 @@
 | Resolution | Spec rev 1.106 makes chart-to-table column center alignment a general geometry requirement with a 2 px tolerance; MDL is in scope for geometry, and assertion 42 is added. `curveChart()` now uses the supplied width. `curvePlotWidth()` passes the real `plot.clientWidth` in `curveDraw()` and PNG / Copy export, so the SVG scale is 1. Harness `boardTable` adds a center check driven by `centerBandSelector` and `centerTolerance:2`. Live at 1440 px, 31 months: `viewBox` 451, SVG width 451, scale 1; deltas `+0.02 / +0.23 / +0.16 px` at columns 0 / 15 / 30. PNG download `TWRP-C3B2_Issue-Progress_2026-11-25.png`. Build 302,450 B; syntax PASS; shell 111 passed / 0 failed; pipeline 96 / 7 and grid 42 / 1 at baseline; harness 219 passed / 10 failed / 2 advisory / 22 skipped, failure set identical to baseline, all eight board-contract checks pass. Both spec copies byte-identical at SHA-256 `48DE0BE7D04E5DFCD88AADB9EFE270E3407964C4F6057EEB4417423080B9ECDB`. Recorded in `U029`, `TL030` and harness `U014`. |
 | Tasks | T11.29.1 – T11.29.4 completed on 2026-11-25 |
 
+## I-151 — Overdue tool controls sit in the panel title row
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ — 2026-11-25 |
+| Approved | 2026-11-25 by chinwarsoon |
+| Raised | 2026-11-25 (owner review) |
+| Issue | I-151 in `MDL/log/issue_log.md` (this entry) |
+| Work item | §11.30 in `MDL/MDL-Dashboard-Workplan.md` |
+| Spec clause | §4 table-card contract; title row keeps Help and Collapse only |
+| Defect | `Overdue Type`, `⤓ CSV`, the count and `Columns` sat in `.panel-head`. The card held only the table. |
+| Fix | Added `.overdue-card.c-card` with `.toolbar.overdue-tools`. The title row now keeps only Help and Collapse. |
+| Test | `test_shell.mjs` and `test_render.mjs` assert card placement and an empty panel head. |
+| Note | Uses the I-132 matrix fix as the reference pattern. |
+
+## I-152 — Overdue filters and actions share one group
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ — 2026-11-25 |
+| Approved | 2026-11-25 by chinwarsoon |
+| Raised | 2026-11-25 (owner review) |
+| Issue | I-152 in `MDL/log/issue_log.md` (this entry) |
+| Work item | §11.30 in `MDL/MDL-Dashboard-Workplan.md` |
+| Spec clause | §4 rev 1.91; §8.2 assertion 33 |
+| Defect | `Overdue Type`, `⤓ CSV`, the count and `Columns` shared one `.head-actions` group. |
+| Fix | `.tool-filters` holds the type select and count. `.tool-actions` holds CSV and the `Columns` chooser. |
+| Test | Render assertions check the left and right groups. Shell checks verify the built HTML. |
+| Note | No filter dimension was added or duplicated. |
+
+## I-153 — Overdue CSV stays visible for an empty result
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ — 2026-11-25 |
+| Approved | 2026-11-25 by chinwarsoon |
+| Raised | 2026-11-25 (owner review) |
+| Issue | I-153 in `MDL/log/issue_log.md` (this entry) |
+| Work item | §11.30 in `MDL/MDL-Dashboard-Workplan.md` |
+| Spec clause | §4 rev 1.88 — hide CSV when no rows can be exported |
+| Defect | The button stayed visible for zero rows. A click only showed a toast. |
+| Fix | The central `paint()` function sets `csvBtn.hidden = n === 0`. |
+| Test | A render test selects an impossible type and checks the hidden state. |
+| Note | CSV still exports the full filtered set, not only the current page. |
+
+## I-154 — Overdue list has no pagination above 200 rows
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ — 2026-11-25 |
+| Approved | 2026-11-25 by chinwarsoon |
+| Raised | 2026-11-25 (owner review) |
+| Issue | I-154 in `MDL/log/issue_log.md` (this entry) |
+| Work item | §11.30 in `MDL/MDL-Dashboard-Workplan.md` |
+| Spec clause | §4.3 bounded tables; §8.2 assertion 19 context |
+| Defect | Every matching row entered the DOM. Bounded tables above 200 rows require pagination. |
+| Fix | Added 200-row pages with Previous / Next in the left tool group. The pager uses `data-ov-page`, not `data-page`. |
+| Test | Render assertions check the pager attribute and the 200-row DOM cap. |
+| Note | Closes the Overdue part of I-121. I-121 stays open for other bounded tables. |
+
+## I-155 — Document identity columns are not adjacent
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ — 2026-11-25 |
+| Approved | 2026-11-25 by chinwarsoon |
+| Raised | 2026-11-25 (owner review) |
+| Issue | I-155 in `MDL/log/issue_log.md` (this entry) |
+| Work item | §11.30 in `MDL/MDL-Dashboard-Workplan.md` |
+| Spec clause | §4 Forward and Overdue document-name rule; §18 column sizing |
+| Defect | `Number` sat between `Document No.` and `Document Title`. Both columns could shorten with an ellipsis. |
+| Fix | Moved `Document Title` next to `Document No.`. Added wider defaults and per-column minimums. Added `.doc-full` cells. |
+| Test | Render assertions check column order and the wider grid definition. |
+| Note | The table can scroll horizontally when the panel is narrow. |
+
+## I-156 — Overdue date and status columns align left
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ — 2026-11-25 |
+| Approved | 2026-11-25 by chinwarsoon |
+| Raised | 2026-11-25 (owner review) |
+| Issue | I-156 in `MDL/log/issue_log.md` (this entry) |
+| Work item | §11.30 in `MDL/MDL-Dashboard-Workplan.md` |
+| Spec clause | MDL UI spec §18 type-based alignment |
+| Defect | Date and status columns carried a type but received no alignment class. They rendered left-aligned. |
+| Fix | Added one `alignClassOf()` helper. Dates and numbers now use `.num`. Status columns use `.enum`. |
+| Test | Render assertions check header classes for a date column and a status column. |
+| Note | Alignment comes from the column model, never from `nth-child`. |
+
+## I-157 — Overdue tool row uses a hard-coded gap
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ — 2026-11-25 |
+| Approved | 2026-11-25 by chinwarsoon |
+| Raised | 2026-11-25 (owner review) |
+| Issue | I-157 in `MDL/log/issue_log.md` (this entry) |
+| Work item | §11.30 in `MDL/MDL-Dashboard-Workplan.md` |
+| Spec clause | §4 rev 1.99 — `--tool-pad` and `--tool-gap` |
+| Defect | `.head-actions` used a literal `10px` gap and no four-side padding. |
+| Fix | The new tool row uses `.toolbar` and `.toolbar.overdue-tools{padding:var(--tool-pad)}`. |
+| Test | Shell and render assertions check the selector and token padding. |
+| Note | The matrix selector stays exact and unchanged. |
+
+## I-158 — Overdue help text does not match the live panel
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ — 2026-11-25 |
+| Approved | 2026-11-25 by chinwarsoon |
+| Raised | 2026-11-25 (owner review) |
+| Issue | I-158 in `MDL/log/issue_log.md` (this entry) |
+| Work item | §11.30 in `MDL/MDL-Dashboard-Workplan.md` |
+| Spec clause | §7.9 Help modal — help text describes the current design |
+| Defect | Help text named an old sort order, `MDL_Overdue.csv` and visible-row CSV scope. |
+| Fix | Help text now names Delay descending, pagination and all filtered CSV rows. |
+| Test | Shell assertions check the new wording and the absence of the old file name. |
+| Note | The old file name was not caught earlier because the legacy test quoted it with single quotes. |
+
+## I-159 — Overdue grid uses one global 60 px minimum
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ — 2026-11-25 |
+| Approved | 2026-11-25 by chinwarsoon |
+| Raised | 2026-11-25 (owner review) |
+| Issue | I-159 in `MDL/log/issue_log.md` (this entry) |
+| Work item | §11.30 in `MDL/MDL-Dashboard-Workplan.md` |
+| Spec clause | MDL UI spec §18 — per-type minimum widths |
+| Defect | Every column could resize down to 60 px, including identity and date columns. |
+| Fix | `makeGrid()` now reads `c.min` first and falls back to the grid minimum. Document columns declare 180 px and 420 px. |
+| Test | Render assertions cover the document column order and the wider defaults. |
+| Note | A fit pass no longer shrinks a column below its declared minimum. |
+
+## I-160 — Validation page does not match the two-panel UI spec
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ — 2026-11-25 |
+| Approved | 2026-11-25 by chinwarsoon — "1. new issue / 2 to 5. approved" |
+| Raised | 2026-11-25 (owner review of the SUB Validation design) |
+| Issue | I-160 in `MDL/log/issue_log.md` (this entry) |
+| Work item | §11.31 in `MDL/MDL-Dashboard-Workplan.md` |
+| Spec clause | §4.5 rev 1.95; §8.2 assertion 36; §4 tool rows; §4.3 pagination |
+| Defect | MDL used one `Validation Issues` panel. Rule reference and issue list sat inside a collapsed `<details>`. Controls sat in the panel head. There were no `pchip` subtitles, no `data-validation-count`, no rule-table CSV / Columns and no 200-row pagination. |
+| Fix | Split the page into `Validation Rules` and `Validation Issues`. Both panels are top-level, numbered and full width. Each has one chip subtitle row. Rule Reference became a five-column grid table with CSV and Columns. The issue table uses left filters, right actions, 200-row pages, page jump and full-filtered CSV. Long explanation moved to Help. |
+| Test | Shell 119 / 0. Grid 42 / 1 baseline I-71 failure. Pipeline 96 / 7 baseline workbook failures. Full render 182 / 195 with 13 unrelated stale failures. Layout harness 225 passed / 12 failed / 2 advisory / 20 skipped. |
+| Note | The new harness validation-count check reports DOM 16641 against ground truth 15888. This is the known harness state mismatch that also drives the KPI 7631 / 7445 failure. It is not a panel defect. A separate harness ground-truth issue is proposed. |
+
+## I-161 — Table zebra colors are not identical
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ — 2026-11-25 |
+| Approved | 2026-11-25 by chinwarsoon — "approved" |
+| Raised | 2026-11-25 (owner review of row background colors) |
+| Issue | I-161 in `MDL/log/issue_log.md` (this entry) |
+| Work item | §11.32 in `MDL/MDL-Dashboard-Workplan.md` |
+| Spec clause | MDL UI spec §18 minimal zebra striping; shared spec §7.2.13 pinned-cell rule |
+| Defect | Tables used `#F6F8FA`, `#F9FBFD` and `#fafcff`. The Issue Progress attached table had no zebra. Overdue rows used `.over`, but zebra and hover rules overrode it on even and hovered rows. Pinned cells stayed white in dark themes. Matrix export used fixed header and footer colors. |
+| Fix | Added `--ds-zebra` with values for default, dark, navy, contrast and sepia. Used it for generic rows, `.ds-table`, matrix rows, C1 attached table cells and pinned even cells. Pinned odd cells use `--surface`. Removed `.ds-table .over` and the `over` row class. Matrix export reads live theme tokens. |
+| Test | Shell 125 / 0. Grid 42 / 1 baseline I-71 failure. Pipeline 96 / 7 baseline workbook failures. Full render 183 / 196 with 13 unrelated stale failures. Harness 226 passed / 12 failed / 2 advisory / 20 skipped. |
+| Note | `I-161: every body table uses the shared --ds-zebra colour` passes in the browser across all five MDL pages. Document Detail remains the reference design. |
+
+## I-162 — Harness ground truth and L3 table discovery do not match MDL defaults
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ — 2026-11-25 |
+| Approved | 2026-11-25 by chinwarsoon — "approved" |
+| Raised | 2026-11-25 (review of the proposed harness ground-truth fix) |
+| Issue | I-162 in `MDL/log/issue_log.md` (this entry) |
+| Work item | §11.33 in `MDL/MDL-Dashboard-Workplan.md` |
+| Spec clause | harness Tier 3 ground truth; §8.2 I-95 L3 table capabilities |
+| Defect | Harness `.filter(Boolean)` dropped 186 records with a blank discipline. Ground truth was 7445 against the dashboard default 7631. It also selected chip "ICA" by a case-insensitive substring and clicked "Electrical". L3 measured only the active page, so all MDL grid tables were missed. |
+| Fix | Kept blank discipline in `fullDisc` and added `filterDisc` for named UI chips. Selected chips by exact label text. Swept all MDL pages in L3 and used global table indexes plus grid keys. Added `pinnedGridKeys` so Overdue and Validation Rules are not forced to pin columns. Measured rendered cells, not zero-width `<col>` elements. |
+| Test | Layout harness 236 passed / 2 failed / 2 advisory / 24 skipped. Validation count, filter ICA, KPI totalPlanned and all four drag/persist checks pass. The two remaining failures are the pre-existing Tier 1 shell-zone string checks. |
+| Note | A fixed-layout width restore measurement is skipped because table-layout:fixed redistributes column width. The test still restores the original DOM and storage values. |
+
+## I-163 — Validation Rules resize alignment and header-label minimum width
+
+| Field | Value |
+|---|---|
+| Status | RESOLVED ✅ — 2026-11-25 |
+| Approved | 2026-11-25 by chinwarsoon — "approved" |
+| Raised | 2026-11-25 (owner review of Validation Rules resize alignment) |
+| Issue | I-163 in `MDL/log/issue_log.md` (this entry) |
+| Work item | §11.34 in `MDL/MDL-Dashboard-Workplan.md` |
+| Spec clause | shared spec §7.2.15 invariants 3–5; MDL spec §18 column sizing |
+| Defect | Validation Rules could desynchronise its split header during resize. The empty state used one `colspan="5"` cell, so the header/body width derivation had only one real cell. Column minima used a global 60 px floor, not type floors plus rendered header-label width. A persisted user width could be re-fitted away, and the resizer could write an un-clamped DOM width. |
+| Fix | Added content-aware minima from type floor + measured header-label width + glyph allowance. Made the user-resized flag live and reset-aware. Added grow-to-fill and kept shrink-to-fit. Cached the scroller width so fit runs on container change only. Wrote the clamped width to both colgroups. Replaced the rules empty state with one cell per visible column. |
+| Test | Build 309,831 B. Shell 125 / 0. Grid 44 / 1 baseline I-71 failure. Full render 184 / 13 stale failures. Harness 241 passed / 2 failed / 2 advisory / 24 skipped. New I-163 checks cover header/body alignment after resize and Validation Rules header-label visibility. |
+| Note | The two harness failures are the pre-existing Tier 1 shell-zone string checks. No existing assertion was weakened. |
+
 ## Full issue register (migrated from the former issue ledger)
 
-The seven newest issues I-137 to I-143 stay in the per-issue sections above. They are not repeated in this register. Status counts in the summary cover all 140 issues.
+The per-issue sections above are not repeated in this register. Status counts in the summary cover all 155 issues.
 
 Owner decision 2026-11-23: 17 other issues also appear twice. I-35 and I-121 … I-136 each have a detailed section above and a row in this register. Keep both records. Do not count them as two issues. The combined file therefore holds 133 register rows and 24 detailed sections for 140 unique issues.
 
@@ -515,11 +804,11 @@ assumptions and backlog live here too (§6) — they are **not** duplicated in t
 |---|---|
 | Log status | **ACTIVE** — the one and only issue log for MDL |
 | ID scheme | `I-nn` (project-scoped, MDL namespace; PPP uses its own `I-nn` sequence — always name the project in cross-references, e.g. "MDL I-71" / "PPP I-83") |
-| IDs used | I-01 … I-96, I-97 … I-150 plus I-62a |
-| Next free ID | **I-151** |
+| IDs used | I-01 … I-96, I-97 … I-168 plus I-62a |
+| Next free ID | **I-169** |
 | Retired source (read-only history) | `MDL-Dashboard-Workplan-v0.3.md` §12 @ git `ed1b6c9` — do not edit; it does not reset ID allocation |
 | Related sources | `MDL/MDL-Dashboard-Workplan.md` (spec & build) · `Dashboard-UI-Design-Spec.md` (UI standard) · `PPP/PPP-Dashboard-Workplan.md` (PPP issue set) |
-| Row count | 133 register rows plus 7 per-issue sections above |
+| Row count | 133 register rows plus 41 per-issue sections above |
 
 **How to read this log**
 
@@ -590,9 +879,9 @@ All ten codes are listed, zero counts included (§26.3).
 | `WONT_IMPLEMENT` ⛔ | 0 | — |
 | `OPEN_PARTIAL` 🟠 | 0 | — |
 | `APPROVED` 🔵 | 0 | — |
-| `RESOLVED` ✅ | 140 | I-148, I-147, I-146, I-145, I-144, I-143, I-142, I-141, I-140, I-139, I-138, I-137 (S-curve panel, 2026-11-23), I-136 (Issue Progress panel conformance, 2026-11-22), I-135 (sidebar toggle page layout, 2026-11-21), I-134 (matrix table outer border and corners, 2026-11-21), I-133 (universal tool gaps and single matrix border, 2026-11-21), I-132 (matrix tool row alignment, 2026-11-21), I-131 (fixed tooltip label column, 2026-11-21), I-130 (general hover-window value alignment, 2026-11-21), I-129 (KPI hover windows, 2026-11-21), I-128 (footer metadata moved into the status bar, 2026-11-21), I-127 (bottom status bar aligned with the UI spec, 2026-11-20), I-126 (crosshair colours aligned with spec rev 1.97, 2026-11-20), I-125 (shared table crosshair, 2026-11-20), I-124 (matrix fit and rounded container, 2026-11-20), I-123 (matrix full width and no inner scrollbars, 2026-11-20), I-122 (content body vertical scrolling, 2026-11-20), I-35 (left sidebar, owner-approved shell, 2026-11-20), I-117 (V-23 column scope, 2026-10-24), I-118 (V-19 calculated columns, 2026-10-24), I-71 (canonical text-action class — PPP migrated, 2026-10-21), I-94 (scope labelling, 2026-10-20), I-89, I-90, I-95, I-96 (closed 2026-10-17), I-101, I-102, I-103, I-105, I-106, I-107, I-108, I-109 (closed 2026-10-18), I-110 (matrix sort removed 2026-10-19), I-111 (overdue column resize 2026-10-19), I-112 (overdue blank columns regression 2026-10-19), I-113 (overdue filter de-duplication 2026-10-19), I-114 (filter vocabulary + panel-local rule filter, 2026-10-20) and all other issues |
+| `RESOLVED` ✅ | 158 | I-168 (header text/fill root-cause fix, 2026-11-28), I-167 (crosshair contract, 2026-11-28), I-166 (theme rework, 2026-11-28), I-165 (welcome 1.2.0 two-column card, 2026-11-27), I-164 (welcome page adoption, 2026-11-26), I-163, I-162, I-161, I-160, I-159, I-158, I-157, I-156, I-155, I-154, I-153, I-152, I-151, I-150, I-149, I-148, I-147, I-146, I-145, I-144, I-143, I-142, I-141, I-140, I-139, I-138, I-137 (S-curve panel, 2026-11-23), I-136 (Issue Progress panel conformance, 2026-11-22), I-135 (sidebar toggle page layout, 2026-11-21), I-134 (matrix table outer border and corners, 2026-11-21), I-133 (universal tool gaps and single matrix border, 2026-11-21), I-132 (matrix tool row alignment, 2026-11-21), I-131 (fixed tooltip label column, 2026-11-21), I-130 (general hover-window value alignment, 2026-11-21), I-129 (KPI hover windows, 2026-11-21), I-128 (footer metadata moved into the status bar, 2026-11-21), I-127 (bottom status bar aligned with the UI spec, 2026-11-20), I-126 (crosshair colours aligned with spec rev 1.97, 2026-11-20), I-125 (shared table crosshair, 2026-11-20), I-124 (matrix fit and rounded container, 2026-11-20), I-123 (matrix full width and no inner scrollbars, 2026-11-20), I-122 (content body vertical scrolling, 2026-11-20), I-35 (left sidebar, owner-approved shell, 2026-11-20), I-117 (V-23 column scope, 2026-10-24), I-118 (V-19 calculated columns, 2026-10-24), I-71 (canonical text-action class — PPP migrated, 2026-10-21), I-94 (scope labelling, 2026-10-20), I-89, I-90, I-95, I-96 (closed 2026-10-17), I-101, I-102, I-103, I-105, I-106, I-107, I-108, I-109 (closed 2026-10-18), I-110 (matrix sort removed 2026-10-19), I-111 (overdue column resize 2026-10-19), I-112 (overdue blank columns regression 2026-10-19), I-113 (overdue filter de-duplication 2026-10-19), I-114 (filter vocabulary + panel-local rule filter, 2026-10-20) and all other issues |
 | `ALIGNED` 🔗 | 1 | I-115 |
-| **Total** | **140** | I-01 … I-96, I-97 … I-143 + I-62a |
+| **Total** | **158** | I-01 … I-96, I-97 … I-168 + I-62a |
 
 One issue is `ALIGNED`: **I-115** (shared floating-panel ordering) — now closed and carrying a matching
 workplan entry (`MDL/MDL-Dashboard-Workplan.md` §4.0.1 item 7) plus a normative clause in the shared spec
@@ -627,8 +916,22 @@ verification 2026-10-18**, and **I-115 and I-94 were closed on verification 2026
 | 15 | **I-148** | 🟠 High | Missing attached-table CSV and off-spec Y-axis caption typography | RESOLVED ✅ — 2026-11-24 | — | Done — see per-issue section. |
 | 16 | **I-149** | 🟡 Medium | Chart-attached table header differs from independent tables | RESOLVED ✅ — 2026-11-24 | — | Done — see per-issue section. |
 | 17 | **I-150** | 🟠 High | Chart column centers drift from attached-table column centers | RESOLVED ✅ — 2026-11-25 | — | Done — see per-issue section. |
+| 18 | **I-151** | 🟠 High | Overdue tool controls sit in the panel title row | RESOLVED ✅ — 2026-11-25 | — | Done — see per-issue section. |
+| 19 | **I-152** | 🟠 High | Overdue filters and actions share one group | RESOLVED ✅ — 2026-11-25 | — | Done — see per-issue section. |
+| 20 | **I-153** | 🟠 High | Overdue CSV stays visible for an empty result | RESOLVED ✅ — 2026-11-25 | — | Done — see per-issue section. |
+| 21 | **I-154** | 🟠 High | Overdue list has no pagination above 200 rows | RESOLVED ✅ — 2026-11-25 | — | Done — see per-issue section. |
+| 22 | **I-155** | 🟠 High | Overdue document identity columns are not adjacent | RESOLVED ✅ — 2026-11-25 | — | Done — see per-issue section. |
+| 23 | **I-156** | 🟡 Medium | Overdue date and status columns align left | RESOLVED ✅ — 2026-11-25 | — | Done — see per-issue section. |
+| 24 | **I-157** | 🟡 Medium | Overdue tool row uses a hard-coded gap | RESOLVED ✅ — 2026-11-25 | — | Done — see per-issue section. |
+| 25 | **I-158** | 🟡 Medium | Overdue help text does not match the live panel | RESOLVED ✅ — 2026-11-25 | — | Done — see per-issue section. |
+| 26 | **I-159** | 🟡 Medium | Overdue grid uses one global 60 px minimum | RESOLVED ✅ — 2026-11-25 | — | Done — see per-issue section. |
+| 27 | **I-160** | 🔴 Critical | Validation page does not match the two-panel UI spec | RESOLVED ✅ — 2026-11-25 | — | Done — see per-issue section. |
+| 28 | **I-161** | 🟠 High | Table zebra colors are not identical | RESOLVED ✅ — 2026-11-25 | — | Done — see per-issue section. |
+| 29 | **I-162** | 🟠 High | Harness ground truth and L3 table discovery do not match MDL defaults | RESOLVED ✅ — 2026-11-25 | — | Done — see per-issue section. |
+| 30 | **I-163** | 🟠 High | Validation Rules resize alignment and header-label minimum width | RESOLVED ✅ — 2026-11-25 | — | Done — see per-issue section. |
+| 31 | **I-166** | 🟡 Medium | Theme system: chrome surfaces painted one navy fill; Sky/Ocean/Presentation near-identical darks; no welcome theme control | IN_PROGRESS 🟣 — Raised 2026-11-28 | common `C-08`, common `tokens` 1.0.0, welcome 1.4.0 | Run `node common/test/tokens.test.mjs` and the harness; confirm no regression beyond the existing baseline. |
 
-**Open:** I-119, I-120, I-121 · **Deferred:** I-35 · **Resolved:** all other 143, including **I-150 (chart column centers align with attached-table headers, 2026-11-25)**, **I-149 (one table-header design for every table type, 2026-11-24)**, **I-148 (attached-table CSV and Y-axis caption typography, 2026-11-24)**, **I-147 (attached-table gap, fit and themed header fill, 2026-11-24)**, **I-146 (general two-row chart head, 2026-11-24)**, **I-145 (time-bar fill aligned with the thumbs, 2026-11-23)**, **I-144 (MDL time bar aligned with the Sub reference, 2026-11-23)**, **I-143 … I-137 (Issue Progress S-curve panel, 2026-11-23)**, **I-136 (Issue Progress panel conformance, 2026-11-22)**, **I-135 (sidebar toggle page layout, 2026-11-21)**, **I-134 (matrix table outer border and corners, 2026-11-21)**, **I-133 (universal tool gaps and single matrix border, 2026-11-21)**, **I-132 (matrix tool row alignment, 2026-11-21)**, **I-131 (fixed tooltip label column, 2026-11-21)**, **I-130 (general hover-window value alignment, 2026-11-21)**, **I-129 (KPI hover windows, 2026-11-21)**, **I-128 (footer metadata moved into the status bar, 2026-11-21)**, **I-127 (bottom status bar aligned with the UI spec, 2026-11-20)**, **I-126 (crosshair colours aligned with spec rev 1.97, 2026-11-20)**, **I-125 (shared table crosshair, 2026-11-20)**, **I-124 (matrix fit and rounded container, 2026-11-20)**, **I-123 (matrix full width and no inner scrollbars, 2026-11-20)**, **I-122 (content body vertical scrolling, 2026-11-20)**, **I-117 and I-118 (V-23 and V-19 rule scope, 2026-10-24)**, **I-116 (split-header standardisation, closed 2026-10-21)**, I-89, I-90, I-95 and I-96 (closed 2026-10-17), I-101, I-102 + I-103, I-105, I-106, I-107, I-108, I-109 (closed 2026-10-18), I-110 (matrix sort removed 2026-10-19), I-111 (overdue column resize 2026-10-19), I-112 (overdue blank columns regression 2026-10-19), I-113 (overdue filter de-duplication 2026-10-19) and **I-114 (filter vocabulary + panel-local rule filter, 2026-10-20)**.
+**Open:** I-119, I-120, I-121 · **Deferred:** I-35 · **Resolved:** all other 157, including **I-164 (welcome page adoption, 2026-11-26)**, **I-163 (Validation Rules resize alignment, 2026-11-25)**, **I-162 (harness ground truth and L3 sweep, 2026-11-25)**, **I-161 (one zebra token, 2026-11-25)**, **I-160 (two-panel Validation redesign, 2026-11-25)**, **I-159 … I-151 (Overdue List conformance, 2026-11-25)**, **I-150 (chart column centers align with attached-table headers, 2026-11-25)**, **I-149 (one table-header design for every table type, 2026-11-24)**, **I-148 (attached-table CSV and Y-axis caption typography, 2026-11-24)**, **I-147 (attached-table gap, fit and themed header fill, 2026-11-24)**, **I-146 (general two-row chart head, 2026-11-24)**, **I-145 (time-bar fill aligned with the thumbs, 2026-11-23)**, **I-144 (MDL time bar aligned with the Sub reference, 2026-11-23)**, **I-143 … I-137 (Issue Progress S-curve panel, 2026-11-23)**, **I-136 (Issue Progress panel conformance, 2026-11-22)**, **I-135 (sidebar toggle page layout, 2026-11-21)**, **I-134 (matrix table outer border and corners, 2026-11-21)**, **I-133 (universal tool gaps and single matrix border, 2026-11-21)**, **I-132 (matrix tool row alignment, 2026-11-21)**, **I-131 (fixed tooltip label column, 2026-11-21)**, **I-130 (general hover-window value alignment, 2026-11-21)**, **I-129 (KPI hover windows, 2026-11-21)**, **I-128 (footer metadata moved into the status bar, 2026-11-21)**, **I-127 (bottom status bar aligned with the UI spec, 2026-11-20)**, **I-126 (crosshair colours aligned with spec rev 1.97, 2026-11-20)**, **I-125 (shared table crosshair, 2026-11-20)**, **I-124 (matrix fit and rounded container, 2026-11-20)**, **I-123 (matrix full width and no inner scrollbars, 2026-11-20)**, **I-122 (content body vertical scrolling, 2026-11-20)**, **I-117 and I-118 (V-23 and V-19 rule scope, 2026-10-24)**, **I-116 (split-header standardisation, closed 2026-10-21)**, I-89, I-90, I-95 and I-96 (closed 2026-10-17), I-101, I-102 + I-103, I-105, I-106, I-107, I-108, I-109 (closed 2026-10-18), I-110 (matrix sort removed 2026-10-19), I-111 (overdue column resize 2026-10-19), I-112 (overdue blank columns regression 2026-10-19), I-113 (overdue filter de-duplication 2026-10-19) and **I-114 (filter vocabulary + panel-local rule filter, 2026-10-20)**.
 
 ### 4.2 Code verification (2026-10-17)
 

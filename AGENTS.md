@@ -16,6 +16,16 @@
 | 1.12 | 2026-10-22 | CodeBuddy (AI) | §5 restructure, **step 4 of 5 — §5 is now an index.** Each of the 19 rules is one sentence ending with a pointer to the section that holds its detail. **Rule numbers and order are unchanged.** Removed from §5, each already reproduced in its named destination: sub-items **17a–g** (→ §26.2, §26.7, §26.11–§26.14), **18a–g** (→ `.codebuddy/rules/approval-gate.md`) and **19a–f** (→ `.codebuddy/rules/asd-ste100-reply-style.md`); the long text of **rules 10–16** (→ §2, §23, §24, §28, §29, §30); and the broken **"see §5.6"** in rule 10, which had no target. §5 shrank from 76 to 25 lines. **No rule was lost** — every clause was checked against its destination in the pre-step-4 review (revisions 1.9–1.11), which added the missing detail to §2, §15, §23.2 and §24, aligned the audit threshold to 3+, corrected two typos, and updated eight stale §5 references in `MDL/log/issue_log.md`. |
 | 1.13 | 2026-10-22 | CodeBuddy (AI) | §5 restructure, **step 5 of 5 — final verification. The restructure is complete.** Audited the whole document: all **28** internal § references resolve; all **19** rules are present and in order, each with a working pointer (**16** to a section, **2** to a rule file, **1** to Rule 18); all **12** destination sections carry their rule's substance; **no** dangling reference remains in `approval-gate.md`, `asd-ste100-reply-style.md`, `MDL/log/issue_log.md` or the STE README; **no** malformed table; section numbers 1–30 ascending. §5 is **26 lines**, down from 77. **No clause was lost** — every clause of every removed rule was checked against its destination before step 4 ran, and the gaps found in that review were closed first (revisions 1.9–1.11). |
 | 1.14 | 2026-10-22 | CodeBuddy (AI) | §1 Projects split into three subsections. **§1.1 Projects in this repository** adds the five project folders of `workbuddy` (remote `https://github.com/chinwarsoon/workbuddy`): `action-log/`, `english-learning/`, `MDL/`, `PPP/`, `sub/`. **§1.2 Shared folders in this repository** adds `docs/` and `harness-layout/`, which are not projects. **§1.3 Projects in another repository** keeps the four original rows — `code_tracer/`, `eks/`, `dcc/`, `releases/` — and records that they are **not in this repository**; they were confirmed present in `chinwarsoon/Engineering-and-Design`. Their purposes and Python versions are unchanged. The project naming convention text after the tables is unchanged. |
+| 1.22 | 2026-11-27 | AWS Quick (AI) | **§18.2 welcome reference updated to spec rev 1.111** (§13): two-column welcome card — top bar with Help, navy guide panel, task panel; columns 1 : 1.618; fixed card height. |
+| 1.23 | 2026-11-27 | CodeBuddy (AI) | **§18.2 welcome reference updated to spec rev 1.112** (§13 cross-reference rule): `successHoldMs` may hold the ready welcome for up to 10 seconds. Dashboard version is unchanged. |
+| 1.25 | 2026-11-28 | AWS Quick (AI) | **§18.4 rewritten — six themes, chrome-family tokens, welcome theme switcher (owner decision 2026-11-28; common `C-08`).** Added `contrast` as a sixth theme and required each theme to use a distinct accent / chart-colour family, not a hue-shifted copy of another dark theme. Added the chrome-token rule: the title bar, status bar, table header and nav rail read `--chrome-*` / `--thead-*` / `--nav-*` tokens instead of a single hard-coded dark fill, so `light` actually reads as light. Required a welcome-page theme picker (same pattern and `localStorage` key as Settings), since no Settings dialog exists before the first load. Spec §6 gains the matching token rows and §8.2 assertion 54 (AA contrast per theme + the welcome picker). |
+| 1.24 | 2026-11-27 | CodeBuddy (AI) | **§18.2 welcome reference updated to spec rev 1.113** (§13 cross-reference rule): `doneDwellMs` holds the painted done step before the shell opens. Dashboard version is unchanged. |
+| 1.26 | 2026-11-28 | CodeBuddy (AI) | **§18.2 welcome reference updated to spec rev 1.116** (§13 cross-reference rule): the shared crosshair contract now includes arrow-key cell movement. Dashboard version is unchanged. |
+| 1.21 | 2026-11-27 | AWS Quick (AI) | **§18.2 welcome reference updated to spec rev 1.110** (§13 cross-reference rule): one fixed-ratio box for the drop area and the load stage keeps one card height in every welcome state; file list at the bottom of the drop area; 1–6 files; success hold. |
+| 1.20 | 2026-11-26 | AWS Quick (AI) | **§18.2 welcome cross-reference updated to spec rev 1.109** (§13 cross-reference rule). Spec rev 1.109 (common `C-03`) makes the drop area a named `role="group"` that is not focusable, with the native `Choose file(s)` button as the keyboard path. The §18.2 bullet text is unchanged; only the revision reference changed. |
+| 1.19 | 2026-11-26 | AWS Quick (AI) | **§3 — `common/workplan/` added.** A workplan for a design that several dashboards share lives in `common/workplan/`. Each dashboard keeps its own main workplan, which holds that dashboard's implementation plan and points to the shared plan. First shared plan: `common/workplan/Welcome-Page-Workplan.md` (WP-WELCOME-001). |
+| 1.18 | 2026-11-26 | AWS Quick (AI) | **`common/` established as build-time shared design source (owner decisions C1–C3, 2026-11-26).** §1.2 lists `common/` as a shared folder. §3 is rewritten: `common/` holds one folder per module, a `manifest.json`, one inline helper, tests and logs; every project build inlines the modules it uses, so each delivered HTML stays standalone (spec §3.9 rev 1.108). Only the `welcome` module is established now; other shared design moves in one module at a time by approved workplan. §6.1 exempts `common/test/`. §18.1 replaces the runtime `<link>` / `<script src>` rule, which conflicted with spec §3.9. §18.15 and §18.16 (`comUI`, `common/universal_ui_design.*`) are marked superseded; those files do not exist in this repository. |
+| 1.17 | 2026-11-26 | AWS Quick (AI) | **§18.2 welcome bullet aligned with UI spec rev 1.107.** The welcome is now one configuration-driven design for every dashboard (spec §3.7.1–§3.7.9). The card is fluid; only the drop area keeps the golden ratio (the card-ratio SHOULD is withdrawn). The welcome scrolls inside itself on a short viewport, and load progress renders on the welcome. |
 | 1.16 | 2026-11-17 | CodeBuddy (AI) | **§18.8 layout switching aligned with the UI spec general rule (`I142`).** A dashboard that offers a panel-column layout control MUST place it in the Settings panel as a labelled select with `one` / `two` / `three` values and `One` / `Two` / `Three` labels (spec §3.1 rev 1.86, §8.2 assertion 27). This supersedes the earlier title-bar or menu-bar layout toggle button. Layout state MUST be saved in `localStorage` and applied on load and on every repaint. |
 | 1.15 | 2026-10-24 | CodeBuddy (AI) | **§18.2 shell rewritten to the MDL model.** The dashboard shell is now a two-row header (navy title bar + white menu bar) above a navy left navigation sidebar and a full-width navy status bar. Removed the 48 px icon bar and the right sidebar; navigation lives in the left sidebar, Settings/Help/Detail move to menu-bar buttons and modal dialogs; global filters live in the menu-bar filter group. **§18.3** dimension tokens updated (dropped `--icon-bar-w`/`--right-sidebar-w`, added `--menubar-h`). **§18.4** default theme is now `light` and the theme picker moved to the menu bar. |
 
@@ -43,6 +53,7 @@ These folders are not projects. Every project in §1.1 may use them.
 |--------|---------|
 | `docs/` | Shared standards. Holds `ASD-STE100-Issue-9/`. See §5 Rule 19. |
 | `harness-layout/` | Shared layout harness and the STE prose lint. See §5 Rule 19. |
+| `common/` | Shared design source code for the dashboards (build-time only). One folder per module; each project build inlines the modules it uses, so every delivered HTML stays standalone. See §3. |
 | `harness-pipeline/` | Shared pipeline harness — Tier-1 regression for every sub-project's data pipeline + UI-spec design-compliance (the pipeline counterpart to `harness-layout/`, which is layout/visual only). See §6.1 carve-out. |
 
 ### 1.3 Projects in another repository
@@ -105,18 +116,46 @@ These folders are **not in this repository**. They belong to
 - Automomous Testing Execution (ATE)
 - Change Impact Traveability (CIT)
 
-## 3. Shared Configuration
+## 3. Shared Configuration and Common Design Code
 
-A shared `config/` folder exists at the repository root for cross-project schemas and configuration. A shared `common/` folder exists for cross-project UI design system files:
+A shared `config/` folder at the repository root holds cross-project schemas (for example
+`config/schemas/knowledge_base_schema.json`).
+
+A shared `common/` folder holds **design source code** that more than one dashboard uses. It is
+**build-time only**: each project build inlines the modules it needs into its single delivered
+HTML, and the delivered HTML MUST NOT reference `common/` (spec §3.9). A delivered HTML can
+therefore be copied and run alone.
 
 ```
-config/
-  schemas/           # Shared schema definitions (e.g., knowledge_base_schema.json)
 common/
-  universal_ui_design.css  # Shared CSS design system (5 themes, shell layout, components)
-  universal_ui_design.js   # Shared JS library (theme/sidebar/layout/toast/modal/file/table/utils)
-  universal_ui_design.md   # Documentation covering both CSS and JS
+  README.md                 # module list, contract, build use, change procedure
+  manifest.json             # common-set version and one entry per module
+  <module>/                 # one folder per module (now: welcome/)
+  build/inline-common.mjs   # the one inline helper every project build uses
+  test/                     # Node tests for the common modules (§6.1 exemption)
+  workplan/                 # workplans of shared designs (§15)
+  log/                      # issue_log.md and update_log.md (§26, §27)
 ```
+
+- **Shared-design workplans:** a workplan for a design that several dashboards share lives in
+  `common/workplan/`. It holds the shared decisions, the common module work and the adoption
+  sequence. Each dashboard keeps its own main workplan (in its project folder), which holds that
+  dashboard's implementation tasks and points to the shared plan.
+
+- **Module contract:** one `Common<Name>` namespace export per module; no imports from projects
+  (only from modules listed in its `dependsOn`); no project data (all project values are passed in);
+  tokens only, no literal colour; module-prefixed class names; revision headers (§13); a Node test
+  in `common/test/`.
+- **CSS layer order:** project theme tokens → common module CSS (manifest order) → project overrides.
+  A project file MUST NOT redeclare a token that a common module defines.
+- **Versioning:** semantic version in `manifest.json` (MAJOR breaking, MINOR new module or option,
+  PATCH fix). Every build writes it to `<meta name="common-version">` and to the project
+  `knowledge.json`.
+- **Change rule:** a change to a common module MUST be followed, in the same edit cycle, by a rebuild,
+  test and harness run of every dashboard that uses it (§24, §29), or by a pin recorded in that
+  dashboard's workplan.
+- **Current modules:** `welcome` (spec §3.7). Other shared design (tokens, shell, XLSX reader,
+  controls, tables, charts) moves in only by an approved workplan, one module at a time.
 
 ## 4. Key Commands
 
@@ -197,6 +236,7 @@ until it has been archived, and preserve its revision history when you move it (
 - Test runtime artifacts (generated files, output directories, temp databases) must be placed in `<project>/test_output/` or use `tempfile.TemporaryDirectory` for automatic cleanup. They must never leak to the repository root.
 - At each phase completion, verify zero test files exist outside `<project>/test/`.
 - **Shared harness folders are exempt.** `harness-layout/` and `harness-pipeline/` are shared harnesses, not product projects; their auto-discovered `checks/*.mjs` (not `<project>/test/`) are the sanctioned location for cross-project harness checks, because a single check may assert across multiple projects and cannot live in one project's `test/`. Their runtime artifacts go to `<harness>/test_output/` and must be git-ignored.
+- **`common/` is exempt too.** `common/test/` is the sanctioned location for tests of the common modules, because a common module serves several projects and cannot live in one project's `test/`. Runtime artifacts go to `common/test_output/` and must be git-ignored.
 
 ## 7. Files and Context
 
@@ -399,7 +439,7 @@ All HTML files must follow these rules:
 ### 18.1 Dependencies and Stack
 
 - Interactive standalone webpage — no build step, no bundler.
-- All UIs must use the shared design system from `common/` as their primary CSS and JS dependency. Use `<link rel="stylesheet" href="/common/universal_ui_design.css">` and `<script src="/common/universal_ui_design.js">` as the base. Individual pages add only page-specific overrides via an inline `<style>` block. Project-specific CSS files (e.g. `eks.css`, `dcc-design-system.css`) must only contain overrides and extensions — they must never re-declare design tokens or duplicate shell layout classes already defined in the universal system.
+- Shared design code lives in `common/` (§3) and is inlined by each project build. The delivered HTML MUST NOT link or import `common/` files (spec §3.9). Project CSS adds only overrides and extensions; it MUST NOT redeclare a token or duplicate a rule that a common module defines.
 - Schema-driven: all labels, help text, stage definitions, output file names, and default values are stored in `ui_help.json` and loaded at runtime via `fetch()`.
 - Zero npm runtime dependencies in the HTML layer. **No external CDN fonts** — use `font-family: system-ui, -apple-system, 'Segoe UI', sans-serif` as the primary font stack so pages render correctly on corporate networks that block `fonts.googleapis.com`. CDN fonts may be used only as an `@import` with a `font-display: swap` fallback that degrades gracefully when blocked.
 - Always set `Cache-Control: no-cache` meta tags so reloads always reflect the latest server output.
@@ -432,7 +472,7 @@ The shell fills the viewport exactly with no page scroll:
 - **No right sidebar.** Settings, Help, and Detail move to menu-bar buttons and modal dialogs.
 - **Content area** — flex: 1; owns a toolbar strip (page title, spacer, action buttons) and a scrollable body. The shared global filter area, when present, lives in the menu-bar filter group (not a separate content strip); the warning area stays inside the content body per the dashboard UI spec §3.5.
 - **Status bar** — fixed strip at the bottom, navy, ~30 px; left side shows current state / selected file; right side shows the version string.
-- **Welcome (pre-load)** — follows `Dashboard-UI-Design-Spec.md` §3.7: a full-screen centred overlay that hides this chrome (header, menu bar, sidebars, status bar) until the first successful load. The welcome fills the viewport (MDL ratio, fluid, no fixed aspect ratio, no page scroll); its fixed-proportion surfaces (file drop area, welcome card) SHOULD use the golden ratio (1 : 1.618); the load buttons MUST live inside the file drop area; and the welcome MUST NOT hardcode a project title (the project/dashboard title renders from the loaded model after load).
+- **Welcome (pre-load)** — follows `Dashboard-UI-Design-Spec.md` §3.7 (rev 1.116): one configuration-driven welcome for every dashboard — a two-column card (guide panel and task panel) with one card height in every welcome state. A full-screen centred overlay hides this chrome (header, menu bar, sidebars, status bar) until the first successful load. It fills the viewport with no page scroll and scrolls inside itself (`overflow:auto`) on a short viewport. The two columns split 1 : 1.618 (golden ratio). The load controls MUST live inside the file drop area; load progress MUST render on the welcome; and the welcome MUST NOT hardcode a project title (the project/dashboard title renders from the loaded model after load).
 - **Standalone delivery** — follows `Dashboard-UI-Design-Spec.md` §3.9: the dashboard is delivered as one self-contained HTML that MUST run from `file://` with no web server. It MUST NOT use `fetch` for local files or a cross-file ES-module `import` (the `file:` origin blocks both); the stylesheet, config, engine and images MUST be inlined, and the delivered HTML MUST contain no `href` / `src` pointing at a local file. Engine sources stay as importable modules for the Node tests.
 - `html, body` must be `height: 100%; overflow: hidden` so the shell fills the viewport exactly without page scroll.
 - Custom scrollbar: 6 px width, transparent track, border-colored thumb.
@@ -458,10 +498,21 @@ All design tokens are defined once in `common/universal_ui_design.css` under `:r
 
 ### 18.4 Theme System
 
-- Five themes: `light` (default), `dark`, `sky`, `ocean`, `presentation`.
+- **Six themes:** `light` (default), `dark`, `sky`, `ocean`, `presentation`, `contrast`. `sky` is a light
+  daytime theme; `dark`, `ocean` and `presentation` are dark; `contrast` is maximum-legibility
+  black-on-white. Each theme MUST use its own distinct accent and chart-colour family — a dark theme MUST
+  NOT be a hue-shifted copy of another dark theme (rev 2026-11-28).
 - Applied by setting `data-theme` attribute on `<html>` (or `<body>`).
 - Theme selection persisted to `localStorage` key `<project>-theme` and restored on load.
-- Theme picker: a button in the menu bar opens a dropdown menu; each option shows a color dot + label. Active option is marked with `.active` class.
+- **Chrome tokens, not one navy fill (rev 2026-11-28).** The title bar, status bar, table header and nav
+  rail each read their own `--chrome-*` / `--thead-*` / `--nav-*` tokens (spec §6 token inventory). In the
+  `light` theme these MUST be light-neutral, not the navy ink colour — "light" MUST look light. A project
+  MUST NOT point more than one chrome surface at a single hard-coded dark fill.
+- Theme picker: a button in the menu bar opens a dropdown menu; each option shows a color dot + label.
+  Active option is marked with `.active` class.
+- **Welcome-page theme switcher (rev 2026-11-28).** Before the first load there is no Settings dialog, so
+  the welcome top bar MUST offer the same picker (colour dot + label dropdown), beside the Help button. It
+  reads and writes the same `<project>-theme` key, so a choice made before load persists into the shell.
 - Theme transition: `transition: background 0.25s, color 0.25s` on `body` for smooth switching.
 
 ### 18.5 Sidebar Accordion
@@ -638,7 +689,9 @@ Standard icon assignments across all project UIs:
 | Success / pass | ✓ |
 | Failure / error | ✗ |
 
-### 18.15 Shared JS Library (`comUI`)
+### 18.15 Shared JS Library (`comUI`) — superseded
+
+> **Superseded (rev 1.18).** The `comUI` library and `common/universal_ui_design.*` do not exist in this repository; do not create them. Shared code follows the §3 module contract. The text below is kept as history.
 
 All UIs must use `common/universal_ui_design.js` for reusable interactive logic. The library exposes a `window.comUI` namespace with these modules:
 
@@ -659,7 +712,9 @@ All UIs must use `common/universal_ui_design.js` for reusable interactive logic.
 - Storage keys should follow the `<project>-<feature>` convention (e.g. `eks-theme`, `dcc-layout`, `code-tracer-sidebar-w`).
 - The library has zero external dependencies — it is vanilla JS (ES5-compatible) with no npm imports.
 
-### 18.16 Icon Bar and File Loading (from universal JS)
+### 18.16 Icon Bar and File Loading (from universal JS) — superseded
+
+> **Superseded (rev 1.18).** The `comUI` library and `common/universal_ui_design.*` do not exist in this repository; do not create them. Shared code follows the §3 module contract. The text below is kept as history.
 
 The `comUI.file.setupDropZone()` function implements the drag-and-drop requirements of §18.7. The `comUI.layout.toggle()` function implements the layout switching requirements of §18.8. Theme picker dropdown HTML structure must match:
 

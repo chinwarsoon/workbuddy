@@ -6,6 +6,7 @@
 | 1.2 | 2026-10-30 | opencode (AI) | Added the `samples/` review sample, its measurements and spec conflicts, and the `_shellreview` config. |
 | 1.3 | 2026-10-30 | opencode (AI) | Tier 3 can take a per-dashboard `groundTruth` adapter for a model shape that differs from MDL (used by PPP); the default path is unchanged. |
 | 1.4 | 2026-11-01 | opencode (AI) | Tier 1 accepts a declared inline classic script; Tier 4c scopes sticky to `.tableScroll`, exempts a split body from the header-height rule, and checks fragment width against body + scrollbar. |
+| 1.5 | 2026-11-26 | CodeBuddy (AI) | C-03 — assertion 45 now checks a named `role="group"` drop area and a native `Choose file(s)` keyboard path (spec §3.7 rev 1.109). |
 
 Universal, spec-driven layout evaluation harness — reusable for any future project.
 
@@ -58,6 +59,7 @@ is optional: supply it with a `filterRoundTrip.apply` callback to drive the proj
 | 4b | L3 capabilities: pinned columns, column chooser, column resize (I-95) and windowing invariants (I-96), driven through the UI | Yes | Yes |
 | 4c | **Compulsory**: table-title colour consistency; sticky table headers (single-row anchored, grouped headers *stacked* — scroll proof on every band); header-band colour uniformity; scrollbar gutter for grouped headers; and (when `chrome.layout`) header vertical-align, header/body alignment match, sort-glyph trailing edge, column minimum, cell truncation and fit policy; plus (when `chrome.splitHeader`) split-header pairing — gap, one rounded container, column rule in place, header/data alignment, column boundaries, width equality, fit and horizontal lock-step | Yes | Best-effort |
 | 6 | **§4.6 hover window** (spec §4.6): per chart board (C1–C4) and KPI card — focusable host + `aria-describedby` → `role="tooltip"` window, `cursor:crosshair` (charts) / `cursor:help` (KPI) affordance, nearest charts expose `.chart-snap`, hover/tap reveals the window (hides on pointer-leave), and the C2 series-row `.ct-l` swatch+label group is guarded | Yes | Best-effort |
+| 7 | **§3.7 welcome page** (spec §3.7 rev 1.109, assertions 43–50; Tier 1 adds the §3.9 rev 1.108 `common-version` check, 51): pre-load welcome — one slot per file, no project text, one heading / instruction, footer and help, named `role="group"` drop area with the native `Choose file` keyboard path and 1.618 ratio, fixed screen with no page scroll, full-page drag overlay, `auto` / `confirm` Load rules, ARIA, optional load phases, token-only inlined welcome CSS. Config-gated by a `welcome` block. | Yes | Yes |
 
 ```bash
 # I-89 / I-90 layout verification only
@@ -72,6 +74,16 @@ in-page button switches (segmented controls, tabs, toggles) and re-scans. Run it
 
 ```bash
 node harness.mjs --dashboard sub --tier 6
+```
+
+Tier 7 (§3.7 welcome page) — added 2026-11-26. It requires a `welcome` block in the dashboard
+config: `{ mode: 'auto' | 'confirm', files: N, forbiddenText: [...], loadCheck: true, pin: null, extraFile: '<optional path to a non-required .xlsx>' }`. Rev 1.43 checks spec §3.7 rev 1.110 (assertions 43–53).
+Assertion 45 expects a named `role="group"` drop area with no `tabindex`; the native `Choose file(s)`
+button is the keyboard path (spec §3.7 rev 1.109).
+Without it, Tier 7 and the Tier 1 version check (51) are skipped. Run it with:
+
+```bash
+node harness.mjs --dashboard mdl --tier 7
 ```
 
 ## Dashboard configs (auto-discovered)

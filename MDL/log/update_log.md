@@ -2,6 +2,31 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.52 | 2026-11-28 | CodeBuddy (AI) | **U052 validated.** CSS specificity fixes and harness probe closure. Full suite rerun; crosshair assertions pass. See `TL045`. |
+| 1.53 | 2026-11-28 | AWS Quick (AI) | **U053 — I-168 header text/fill root-cause fix.** `render.mjs` rev 1.10: 5 table-header rules moved from `var(--navy)`/`var(--on-fill)` to `var(--thead-bg,var(--navy))`/`var(--thead-fg,var(--on-fill))`. Fixes unreadable header text in ocean/presentation (was ~1.1:1, now 9.0–13.6:1) and an invisible crosshair edge in sky (--navy == --accent there, was 1.00:1, now 3.88:1 via the same existing --accent, no substitution needed). Not yet tested. |
+| 1.51 | 2026-11-28 | CodeBuddy (AI) | **U052 — I-167 crosshair contract complete.** Arrow-key navigation, pinned-cell tint, strong-tier ranges, token test resolver, and harness checks. Spec rev 1.116. See `TL045`. |
+| 1.50 | 2026-11-28 | CodeBuddy (AI) | **U051 — I-166 theme close.** Themed `--thead-*` header and export, welcome `themePicker`, and current-theme sync. See `TL044`. |
+| 1.48 | 2026-11-27 | CodeBuddy (AI) | **U049 — welcome 1.3.1 done-step dwell 3000 ms.** Step 3 paints complete before the dashboard opens. See `TL043`. |
+| 1.49 | 2026-11-28 | AWS Quick (AI) | **U050 — theme rework (I-166).** `render.mjs` rev 1.5: `boot()` calls `applyShellPrefs()` (T1); theme keys renamed navy/sepia -> sky/ocean/presentation; local `:root` reduced to MDL-only tokens; shared theme set now comes from inlined `common/tokens/tokens.css`; all 80 in-scope hex literals repointed to tokens; `COLORS`/`PALETTE` kept as fallback, new `CHART()`/`CHART_SERIES()` resolve colors live (T5). `build.mjs` rev 1.2 inlines the `tokens` module. Not yet tested — Node unavailable this session. |
+| 1.47 | 2026-11-27 | CodeBuddy (AI) | **U048 — welcome Help is `What file do I need?` and opens welcome-specific help.** Dashboard Help is unchanged. See `TL042`. |
+| 1.46 | 2026-11-27 | CodeBuddy (AI) | **U047 — welcome 1.3.0 hold 10000 ms; footer `Rev 1.9 · © 2026 UESH`.** Dashboard version stays 1.9. See `TL041`. |
+| 1.45 | 2026-11-27 | CodeBuddy (AI) | **U046 — dashboard version 1.9.** Welcome footer, `APP_VERSION` and status bar follow the MDL workplan. See `TL040`. |
+| 1.44 | 2026-11-27 | CodeBuddy (AI) | **U045 — `knowledge.json` now uses the standard `revisionHistory` field.** Docs only. |
+| 1.43 | 2026-11-27 | CodeBuddy (AI) | **U044 — MDL workplan revision history established (1.0–1.9).** Docs only. |
+| 1.42 | 2026-11-27 | CodeBuddy (AI) | **U043 — rebuilt with common welcome 1.2.1 (C-07).** One instruction below the task heading. See `TL039`. |
+| 1.41 | 2026-11-27 | AWS Quick (AI) | **U042 — I-165 closed; rebuilt with common welcome 1.2.0.** See `TL038`. |
+| 1.40 | 2026-11-27 | AWS Quick (AI) | **U041 — I-165 render-test fix.** Top-bar Help test reads the `<header>` element. Test only. |
+| 1.39 | 2026-11-27 | AWS Quick (AI) | **U040 — I-165 re-scoped to welcome 1.2.0.** `ui_help.json` 1.2, `test_render.mjs` rev 1.4. Rebuild pending. |
+| 1.38 | 2026-11-27 | AWS Quick (AI) | **U039 — I-165 welcome 1.1.0 adoption edits.** Opener handler, `ui_help.json` 1.1, test patterns, harness `extraFile`. Rebuild pending. |
+| 1.37 | 2026-11-26 | CodeBuddy (AI) | **U038 — rebuilt MDL with common welcome 1.0.2.** C-03 drop-area design adopted. See `TL037`. |
+| 1.36 | 2026-11-26 | CodeBuddy (AI) | **U037 — I-164 MDL welcome page adopted from `common/`.** Shared welcome 1.0.1 inlined; old welcome archived and removed. See `TL036`. |
+| 1.35 | 2026-11-26 | AWS Quick (AI) | **U036 — welcome plan moved to `common/workplan/`; §11.35 extended.** Docs only. |
+| 1.34 | 2026-11-26 | AWS Quick (AI) | **U035 — I-164 logged; workplan §11.35 added.** UI spec rev 1.107 (§3.7 welcome page). Files: `log/issue_log.md` 1.31, `MDL-Dashboard-Workplan.md` §11.35. Docs only; no code, test or build changed. |
+| 1.33 | 2026-11-25 | CodeBuddy | **U034 — I-163 Validation Rules resize alignment.** Content-aware minima, grow-to-fill fit, live user-width ownership and one-cell-per-column empty state. See `TL035`. |
+| 1.32 | 2026-11-25 | CodeBuddy | **U033 — I-162 harness ground truth and L3 discovery.** Blank discipline included, exact chip selection, page sweep, grid keys and configured pin policy. See `TL034`. |
+| 1.31 | 2026-11-25 | CodeBuddy | **U032 — I-161 one zebra token.** Added per-theme `--ds-zebra`, applied it to all table bodies and pinned cells, removed the overdue row fill and aligned matrix export colors. See `TL033`. |
+| 1.30 | 2026-11-25 | CodeBuddy | **U031 — I-160 two-panel Validation redesign.** SUB design and spec assertion 36 implemented in MDL. Chips, tool rows, rule CSV / Columns, 200-row pagination and harness count hook added. See `TL032`. |
+| 1.29 | 2026-11-25 | CodeBuddy | **U030 — I-151 … I-159 Overdue List conformance.** Tool row, filters/actions split, empty CSV, pagination, document columns, alignment, token gaps and help text fixed. See `TL031`. |
 | 1.28 | 2026-11-25 | CodeBuddy | **U029 — I-150 chart column centers match attached-table column centers (spec rev 1.106).** Spec, MDL render and export, harness center check, shell checks, workplan §11.29 and logs updated. Shell suite 111 passed / 0 failed. |
 | 1.27 | 2026-11-24 | CodeBuddy | **U028 — I-149 one table-header design for every table type (spec rev 1.105).** Source, built HTML, tests, workplan §11.28, logs and harness header check updated. Shell suite 110 passed / 0 failed. |
 | 1.26 | 2026-11-24 | CodeBuddy | **U027 — I-148 attached-table CSV and Y-axis caption typography (spec rev 1.104).** Source, built HTML, tests, workplan §11.27, logs and harness CSV check updated. Shell suite 110 passed / 0 failed. |
@@ -31,6 +56,295 @@
 | 1.2 | 2026-11-20 | CodeBuddy | **U003 — shell geometry and warning bar fix.** Corrected the three Tier 2 failures found during I-122 verification. |
 | 1.1 | 2026-11-20 | CodeBuddy | **U002 — I-122 vertical-scroll fix.** MDL source, built HTML, tests, workplan, logs, report, and harness-layout check updated. |
 | 1.0 | 2026-11-20 | CodeBuddy | Initial canonical update log. Records U001 for the rev 1.96 shell increment. |
+
+## U052 — Crosshair contract complete (I-167)
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-28 |
+| Issue | I-167 (`MDL/log/issue_log.md`), common C-08 |
+| Work item | `MDL/MDL-Dashboard-Workplan.md` revision 1.11 |
+| Status | DONE |
+| Files changed | `Dashboard-UI-Design-Spec.md` and harness copy rev 1.116, `AGENTS.md` 1.26, `MDL/src/render.mjs` 1.9, `common/tokens/tokens.css` 1.3.1, `common/manifest.json` 1.4.4, `common/test/tokens.test.mjs` 1.0.1, `MDL/test/test_shell.mjs` 1.2, `harness-layout/harness.mjs` 1.51, `common/README.md` 1.0.11, `MDL/MDL-Dashboard.html`, and the logs |
+| Change | The shared crosshair binder moves the active cell with Arrow keys and makes data cells focusable. Pinned cells layer the crosshair tint over their own zebra / soft fill. Strong tier is 14% for light-family themes and 22% for dark-family themes. CSS specificity keeps the C1 row header bold and the pinned intersection strong. The token test resolves `color-mix(..., transparent)` over surface and zebra before AA measurement. Harness Tier 5 checks ArrowRight, row-head availability, the computed 2px ring and the pinned strong tier. Tier 8 cycles the theme on both `<html>` and `<body>`. |
+| Validation | Build OK (`MDL-Dashboard.html` 436,311 bytes). Tokens 178 / 0. Welcome 73 / 0. Pipeline 27 / 5 and 96 / 7 pre-existing. Grid 45 / 45. Shell 127 / 0. Render 190 / 203 (13 pre-existing). Harness 366 passed / 2 failed (Tier 1 baseline) / 2 advisory / 31 skipped. See `TL045`. |
+| Rollback | Restore the listed files and rebuild. The last verified state has no arrow-key navigation, pinned cells without crosshair tint, strong 17% / 26%, and harness 343 / 2 baseline. |
+
+## U051 — Theme close (I-166)
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-28 |
+| Issue | I-166 (`MDL/log/issue_log.md`), common C-08 |
+| Work item | `MDL/MDL-Dashboard-Workplan.md` revision 1.10; WP-THEME-001 W4–W5 |
+| Status | DONE |
+| Files changed | `MDL/src/render.mjs` 1.6, `MDL/config/ui_help.json` 1.9.4, `MDL/test/test_shell.mjs` 1.1, `MDL/test/test_grid.mjs` 1.1, `common/test/welcome.test.mjs` 1.4.1, `MDL/MDL-Dashboard.html`, and the logs |
+| Change | The S-curve table header and PNG/Copy export read `--thead-bg` / `--thead-fg` with `--navy` / `--on-fill` fallback. The welcome config exposes a six-theme picker. `boot()` sets the current picker entry from the saved theme, and `onThemeChange` persists and applies the selected theme. Stale test expectations for six themes, header tokens, the A3 spec wording, and the CSS header version were corrected. |
+| Validation | Tokens 160 / 0. Welcome 73 / 0. Grid 45 / 45. Shell 125 / 0. Render 190 / 13 pre-existing of 203. Harness 343 / 2 (Tier 1 baseline) / 2 advisory / 24 skipped. Pipeline 27 / 5 and 96 / 7 are unchanged stale workbook-data failures. See `TL044`. |
+| Rollback | Restore the listed files and rebuild. The last verified state had harness 342 / 3 / 2 advisory / 24 skipped, render 190 / 13, shell 122 / 3, and grid 44 / 45. |
+
+## U049 — Welcome done-step dwell 3000 ms
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-27 |
+| Issue | — (owner decision 2026-11-27) |
+| Work item | `MDL/MDL-Dashboard-Workplan.md` revision 1.9; WP-WELCOME-001 revision 1.3.1 |
+| Status | DONE |
+| Files changed | `common/welcome/welcome.mjs` 1.3.1, `common/welcome/welcome.schema.json` 1.3.1, `common/test/welcome.test.mjs` 1.3.1, `common/manifest.json` 1.3.1, `common/workplan/Welcome-Page-Workplan.md` 1.3.1, `common/log/update_log.md` U014, `common/README.md` 1.0.9, both spec copies rev 1.113, `harness-layout/harness.mjs` 1.46, `harness-layout/checks/mdl.mjs` 1.3, `AGENTS.md` 1.24, `MDL/config/ui_help.json` 1.9.3, `MDL/MDL-Dashboard-Workplan.md`, `MDL/MDL-Dashboard.html`, and the MDL logs |
+| Change | New `doneDwellMs` config (0–10000 ms, default 0). `finish()` paints `done`, shows `Step 3 complete — opening…`, then waits the configured time before the opener. MDL sets 3000 ms after the 10000 ms success hold. Dashboard version stays 1.9. |
+| Validation | Common 73 / 0. Build OK, `common-version` 1.3.1. Shell 125 / 0. Render 190 / 13 pre-existing of 203. Harness 282 / 2 (Tier 1 baseline) / 2 advisory / 24 skipped; Tier 7 43–53 and check 51 PASS. See `TL043`. |
+| Rollback | Restore the listed files and rebuild. The last verified state has no done-step dwell and uses the two-frame opener. |
+
+## U048 — Welcome-specific Help
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-27 |
+| Issue | — (owner decision 2026-11-27) |
+| Work item | `MDL/MDL-Dashboard-Workplan.md` revision 1.9 |
+| Status | DONE |
+| Files changed | `MDL/config/ui_help.json` 1.9.2, `MDL/src/render.mjs` 1.4, `MDL/MDL-Dashboard-Workplan.md`, `MDL/MDL-Dashboard.html`, and the MDL logs |
+| Change | The welcome Help button label is `What file do I need?`. It opens a new `HELP.welcome` dialog about the required workbook, the Code sheet and the `Dashboard Title` rule. The dashboard menu Help keeps its shell and navigation content. |
+| Validation | Build OK (`common-version` 1.3.0 unchanged). Shell 125 / 0. Render 190 / 13 pre-existing of 203. Harness 281 / 2 (Tier 1 baseline) / 2 advisory / 24 skipped; Tier 7 43–53 and check 51 PASS. See `TL042`. |
+| Rollback | Restore `ui_help.json` and `render.mjs`, then rebuild. The last verified state is welcome label `Help` with dashboard help content. |
+
+## U047 — Welcome hold 10000 ms and Rev 1.9 footer
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-27 |
+| Issue | — (owner decision 2026-11-27) |
+| Work item | `MDL/MDL-Dashboard-Workplan.md` revision 1.9; WP-WELCOME-001 revision 1.3.0 |
+| Status | DONE |
+| Files changed | `common/welcome/welcome.mjs` 1.3.0, `common/welcome/welcome.schema.json` 1.3.0, `common/test/welcome.test.mjs` 1.3.0, `common/manifest.json` 1.3.0, `common/workplan/Welcome-Page-Workplan.md` 1.3.0, `common/log/update_log.md` U013, both spec copies rev 1.112, `harness-layout/harness.mjs` 1.45, `AGENTS.md` 1.23, `MDL/config/ui_help.json` 1.9.1, `MDL/knowledge.json` 1.0.3, `MDL/MDL-Dashboard-Workplan.md`, `MDL/MDL-Dashboard.html`, and the MDL logs |
+| Change | The welcome ready state holds 10000 ms before the dashboard opens. In auto mode step 2 stays current until the load starts, and the done step paints before the opener runs. The footer shows `Rev 1.9 · © 2026 UESH`. `APP_VERSION` and the status bar stay at 1.9. |
+| Validation | Common 70 / 0. Build OK, `common-version` 1.3.0. Shell 125 / 0. Render 190 / 13 pre-existing of 203. Harness 281 / 2 (Tier 1 baseline) / 2 advisory / 24 skipped; Tier 7 43–53 and check 51 PASS. See `TL041`. |
+| Rollback | Restore the listed files and rebuild `MDL-Dashboard.html`. The last verified state is common 1.2.1, spec rev 1.111, hold 1500 ms, footer `1.9 · © 2026 UESH`. |
+
+## U046 — Dashboard version 1.9
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-27 |
+| Issue | — (owner decision 2026-11-27) |
+| Work item | `MDL/MDL-Dashboard-Workplan.md` revision 1.9 |
+| Status | DONE |
+| Files changed | `MDL/config/ui_help.json` 1.9, `MDL/src/render.mjs` 1.3, `MDL/test/test_shell.mjs` 1.0, `MDL/knowledge.json` 1.0.2, `MDL/MDL-Dashboard-Workplan.md`, `MDL/MDL-Dashboard.html`, and the MDL logs |
+| Change | Set the MDL dashboard version to 1.9 in the welcome footer and `APP_VERSION`. The status bar now shows `MDL Dashboard v1.9`. The `common-version` meta stays 1.2.1 as build traceability. |
+| Validation | Shell 125 passed / 0 failed. Render 190 passed / 13 pre-existing of 203 checks. Harness 281 passed / 2 failed / 2 advisory / 24 skipped. Tier 7 43–53 and check 51 PASS. See `TL040`. |
+| Rollback | Restore `APP_VERSION` and `footer.version` to 0.1, restore the test expectation, and rebuild. |
+
+## U045 — MDL knowledge revision field aligned
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-27 |
+| Issue | — (AGENTS.md §13 revision control) |
+| Work item | `MDL/knowledge.json` |
+| Status | DONE |
+| Files changed | `MDL/knowledge.json`, `MDL/log/update_log.md` |
+| Change | Renamed `revision_history` to `revisionHistory`. Existing revision entries and the file version are unchanged. |
+| Validation | JSON parses. The standard field name is present. |
+| Rollback | Rename the field back to `revision_history` and remove this update entry. |
+
+## U044 — MDL workplan revision history established
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-27 |
+| Issue | — (AGENTS.md §13 revision control) |
+| Work item | `MDL/MDL-Dashboard-Workplan.md` |
+| Status | DONE |
+| Files changed | `MDL/MDL-Dashboard-Workplan.md`, `MDL/log/update_log.md` |
+| Change | Added a top-of-file revision table with revisions 1.0 to 1.9. Rows 1.0–1.7 come from the 7 Git commits touching the workplan. Rows 1.8 and 1.9 record the uncommitted welcome work from 2026-11-26 and 2026-11-27. The `Version: 0.1` field is unchanged; it is the dashboard version shown in the footer. |
+| Validation | Revision table checked against `git log --follow` for the workplan. No version or cross-reference changed. |
+| Rollback | Delete the inserted revision table and remove this update entry. |
+
+## U043 — MDL rebuilt with common welcome 1.2.1
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-27 |
+| Issue | Common C-07 |
+| Work item | WP-WELCOME-001 shared design; MDL welcome close-out follow-up |
+| Status | RESOLVED |
+| Files changed | `MDL/config/ui_help.json` 1.2.1, `MDL/knowledge.json`, `MDL/MDL-Dashboard.html`, and the common and MDL logs |
+| Change | The shared module no longer prints the duplicate auto-mode action text. The MDL config keeps `Add the workbook; the dashboard opens once it passes the check.` as the `instruction` below the task heading. The build writes `common-version` 1.2.1. |
+| Validation | `node common/test/welcome.test.mjs`: 70 passed / 0 failed. `node MDL/build.mjs`: `common-version` 1.2.1. `node MDL/test/test_shell.mjs`: 125 passed / 0 failed. `node MDL/test/test_render.mjs`: 190 passed / 13 pre-existing of 203 checks. `node harness-layout/harness.mjs --dashboard mdl`: 281 passed / 2 failed / 2 advisory / 24 skipped. Tier 7 43–53 and check 51 PASS. See `TL039`. |
+| Rollback | Restore `ui_help.json` 1.2, restore common 1.2.0, and rebuild `MDL-Dashboard.html`. |
+
+## U042 — I-165 closed; MDL rebuilt with common welcome 1.2.0
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-27 |
+| Issue | I-165 in `MDL/log/issue_log.md` (RESOLVED) |
+| Work item | §11.36 in `MDL/MDL-Dashboard-Workplan.md` (DONE) |
+| Files changed | `MDL/MDL-Dashboard.html` (rebuilt by the owner, `common-version` 1.2.0), `MDL/knowledge.json` (common 1.2.0), `MDL/log/issue_log.md` (1.36), `MDL/log/test_log.md` (TL038), `MDL/MDL-Dashboard-Workplan.md` (§11.36) |
+| Change | Two-column welcome card from common 1.2.0 inlined; success hold before the dashboard paints. |
+| Validation | TL038. |
+| Rollback | Restore `common/` 1.0.2 files and the MDL files from `git`, then rebuild. |
+
+## U041 — I-165 render-test fix (top-bar Help)
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-27 |
+| Issue | I-165 in `MDL/log/issue_log.md` |
+| Files changed | `MDL/test/test_render.mjs` (rev 1.5) |
+| Change | The "Help button is in the top bar" test used a 900-character window after `<header class="cw-topbar">`. In the build, the top bar holds the logo as a base64 data URI, so the window ended before `cw-help`. The test now reads the whole `<header>` element. Found by the owner's run; harness assertion 44 already passed through the DOM. |
+| Validation | Re-run pending (expected render 191 / 13). |
+| Rollback | Restore the test line from `git`. |
+
+## U040 — I-165 re-scoped to welcome 1.2.0 (two-column card)
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-27 |
+| Issue | I-165 in `MDL/log/issue_log.md` |
+| Work item | §11.36 in `MDL/MDL-Dashboard-Workplan.md` (T11.36.6, T11.36.7) |
+| Status | IN PROGRESS — rebuild and test run pending |
+| Files changed | `MDL/config/ui_help.json` (1.2), `MDL/test/test_render.mjs` (rev 1.4), `MDL/MDL-Dashboard-Workplan.md` (§11.36), `MDL/log/issue_log.md` (1.35) |
+| Change | Guide-panel `description` and `checks[]` (only the two checks the inspect handler runs), task-panel instruction, Help text. Render tests follow the two-column markup. `src/render.mjs` unchanged (opener handler from U039 stays). |
+| Validation | Not yet run. `MDL-Dashboard.html` still carries common 1.1.0 until the rebuild. |
+| Rollback | Restore the two files from `git` and rebuild. |
+
+## U039 — I-165 welcome 1.1.0 adoption edits
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-27 |
+| Issue | I-165 in `MDL/log/issue_log.md` |
+| Work item | §11.36 in `MDL/MDL-Dashboard-Workplan.md` |
+| Status | IN PROGRESS — rebuild and test run pending |
+| Files changed | `MDL/src/render.mjs` (rev 1.2), `MDL/config/ui_help.json` (1.1), `MDL/test/test_render.mjs` (rev 1.3), `harness-layout/checks/mdl.mjs`, `MDL/MDL-Dashboard-Workplan.md` (§11.36), `MDL/log/issue_log.md` (1.34) |
+| Change | The welcome `load` handler returns `() => renderDashboard(root, model)`, so common welcome 1.1.0 shows the success hold before the paint. `successHoldMs: 1500`; instruction and help text aligned. Render-test patterns now match `class="cw-box cw-drop…"` and a slot-list modifier. Harness config gains `extraFile` for assertions 48 / 52. |
+| Validation | Not yet run. `MDL-Dashboard.html` is not rebuilt yet; until it is, the delivered file still carries common 1.0.2. |
+| Rollback | Restore the four files from `git` and rebuild. |
+
+## U038 — MDL rebuilt with common welcome 1.0.2
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-26 |
+| Issue | Common C-03 |
+| Work item | WP-WELCOME-001 shared design; MDL §11.35 close-out follow-up |
+| Status | RESOLVED |
+| Files changed | `MDL/MDL-Dashboard.html`, `MDL/test/test_render.mjs` (1.2), `MDL/knowledge.json`, and the MDL, common and harness logs |
+| Change | Common welcome 1.0.2 drops the focusable `.cw-drop` and uses a named `role="group"` with the native `Choose file` button as the keyboard path. The MDL build inlines the new module and writes `common-version` 1.0.2. |
+| Validation | `node common/test/welcome.test.mjs`: 32 passed / 0 failed. `node harness-layout/harness.mjs --dashboard mdl`: 269 passed / 2 failed / 2 advisory / 24 skipped. `node MDL/test/test_render.mjs`: 186 passed / 13 pre-existing failures. See `TL037`. |
+| Rollback | Restore welcome 1.0.1 in `common/`, restore the MDL test and rebuild `MDL-Dashboard.html`. |
+
+## U037 — I-164 MDL welcome page adopted from common
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-26 |
+| Issue | I-164 in `MDL/log/issue_log.md` |
+| Work item | §11.35 in `MDL/MDL-Dashboard-Workplan.md`; WP-WELCOME-001 W3 |
+| Status | RESOLVED |
+| Files changed | `MDL/config/ui_help.json` (new), `MDL/knowledge.json` (new), `MDL/build.mjs` (1.1), `MDL/src/render.mjs` (1.1), `MDL/test/test_render.mjs` (1.1), `harness-layout/checks/mdl.mjs` (1.2), `MDL/MDL-Dashboard.html`, `MDL/archive/I-164-welcome-snippets-2026-11-26.txt` (new), and the MDL and common logs |
+| Change | `CommonWelcome` 1.0.1 is inlined at build time with its CSS and the `common-version` meta. `boot()` renders from `ui_help.json` in `auto` mode with a Code-sheet check before the full read and three load phases. The old `.welcome*` CSS and `boot()` markup were archived, then removed. The MDL harness config enables Tier 7 and check 51. |
+| Validation | `node common/test/welcome.test.mjs`: 29 passed / 0 failed. `node MDL/test/test_shell.mjs`: 125 passed / 0 failed. `node MDL/test/test_render.mjs`: 185 passed / 13 pre-existing failures. `node harness-layout/harness.mjs --dashboard mdl`: 268 passed / 2 pre-existing failures. See `TL036`. |
+| Rollback | Restore the listed source files and rebuild `MDL-Dashboard.html`. The archived welcome snippets are in `MDL/archive/`. |
+
+## U036 — Welcome plan moved to common/workplan; §11.35 extended
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-26 |
+| Issue | I-164 in `MDL/log/issue_log.md` |
+| Work item | §11.35 in `MDL/MDL-Dashboard-Workplan.md` |
+| Status | PLANNED — not started |
+| Files changed | `MDL/MDL-Dashboard-Workplan.md`, `MDL/log/issue_log.md` (1.32) |
+| Change | The shared plan WP-WELCOME-001 moved from `sub/workplan/` to `common/workplan/Welcome-Page-Workplan.md` (owner instruction). §11.35 gains T11.35.7–T11.35.10 (build inline, archive old welcome, harness config, close-out) and now is the full MDL plan. The I-164 pointer was updated. |
+| Validation | None — documentation only. |
+| Rollback | Restore §11.35 and the I-164 work-item line from `git`. |
+
+## U035 — I-164 welcome-page gap logged
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-26 |
+| Issue | I-164 in `MDL/log/issue_log.md` |
+| Work item | §11.35 in `MDL/MDL-Dashboard-Workplan.md` |
+| Status | PLANNED — not started |
+| Files changed | `MDL/log/issue_log.md`, `MDL/MDL-Dashboard-Workplan.md` |
+| Change | Recorded the MDL welcome-page gap against shared spec §3.7 rev 1.107 / assertions 43–50. Added tasks T11.35.1–T11.35.6 and linked `sub/workplan/Welcome-Page-Workplan.md` phase W3. |
+| Validation | None — documentation only. No code, test, build or harness file changed by this entry. |
+| Rollback | Remove I-164 and §11.35, then restore the issue-log revision and counts. |
+| Note | This entry was added outside the I-163 resize-alignment work. No implementation has started. |
+
+## U034 — Validation Rules resize alignment
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-25 |
+| Issue | I-163 in `MDL/log/issue_log.md` |
+| Work item | §11.34 in `MDL/MDL-Dashboard-Workplan.md` |
+| Status | DONE |
+| Files changed | `MDL/src/render.mjs`, `MDL/MDL-Dashboard.html`, `MDL/test/test_grid.mjs`, `MDL/test/test_render.mjs`, `harness-layout/harness.mjs`, `MDL/MDL-Dashboard-Workplan.md`, MDL logs |
+| Change | Added content-aware column minima from type floor + header-label width. Added grow-to-fill and kept shrink-to-fit. Made the persisted-width flag live. Cached scroller width so fit runs on container change only. Wrote the clamped width to both colgroups. Replaced the Validation Rules empty state with one cell per visible column. Added harness alignment and label-visibility checks. |
+| Validation | Build 309,831 B. Shell 125 / 0. Grid 44 / 1 baseline I-71 failure. Full render 184 / 13 stale failures. Harness 241 passed / 2 failed / 2 advisory / 24 skipped. The two harness failures are the pre-existing Tier 1 shell-zone string checks. |
+| Rollback | Restore `MDL/src/render.mjs`, rebuild `MDL/MDL-Dashboard.html`, and restore the tests and harness. No pipeline, spec or schema file changed. |
+| Note | The header/body alignment check runs after a real grip drag. The label-visibility check is scoped to `validation_rules` to avoid false failures on intentionally wrapped long headers elsewhere. |
+
+## U033 — Harness ground truth and L3 table discovery
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-25 |
+| Issue | I-162 in `MDL/log/issue_log.md` |
+| Work item | §11.33 in `MDL/MDL-Dashboard-Workplan.md` |
+| Status | DONE |
+| Files changed | `harness-layout/harness.mjs`, `harness-layout/checks/mdl.mjs`, `MDL/MDL-Dashboard-Workplan.md`, MDL logs |
+| Change | Included blank discipline in harness ground truth. Added `filterDisc` for named chips. Selected chips by exact label. Swept all MDL pages before L3 checks. Used global table indexes and grid keys. Added `pinnedGridKeys` for MDL. Measured rendered cells during resize tests. |
+| Validation | Layout harness 236 passed / 2 failed / 2 advisory / 24 skipped. Validation count, KPI total, filter ICA and all four drag / persist checks pass. The two remaining failures are pre-existing Tier 1 shell-zone string checks. |
+| Rollback | Restore the two harness files. No dashboard, pipeline, spec or schema file changed. |
+| Note | Fixed-layout width restore measurement is skipped. The test still restores the original DOM and storage values. |
+
+## U032 — One zebra token for every table
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-25 |
+| Issue | I-161 in `MDL/log/issue_log.md` |
+| Work item | §11.32 in `MDL/MDL-Dashboard-Workplan.md` |
+| Status | DONE |
+| Files changed | `MDL/src/render.mjs`, `MDL/MDL-Dashboard.html`, `MDL/test/test_shell.mjs`, `MDL/test/test_render.mjs`, `harness-layout/harness.mjs`, `MDL/MDL-Dashboard-Workplan.md`, MDL logs |
+| Change | Added `--ds-zebra` for default, dark, navy, contrast and sepia. Applied it to generic rows, `.ds-table`, matrix rows, C1 attached table cells and pinned even cells. Pinned odd cells now use `--surface`. Removed `.ds-table .over` and the `over` row class. Matrix export reads live theme tokens. |
+| Validation | Build 306,700 B. Shell 125 / 0. Grid 42 / 1 baseline I-71 failure. Pipeline 96 / 7 baseline workbook failures. Full render 183 / 196 with 13 unrelated stale failures. Harness 226 passed / 12 failed / 2 advisory / 20 skipped. |
+| Rollback | Restore the listed files from Git and run `node build.mjs`. No spec, schema or pipeline file changed. |
+| Note | Document Detail remains the reference design. Semantic matrix subrows, TOTAL and current-month tint are unchanged. |
+
+## U031 — Two-panel Validation redesign
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-25 |
+| Issue | I-160 in `MDL/log/issue_log.md` |
+| Work item | §11.31 in `MDL/MDL-Dashboard-Workplan.md` |
+| Status | DONE |
+| Files changed | `MDL/src/render.mjs`, `MDL/MDL-Dashboard.html`, `MDL/test/test_render.mjs`, `MDL/test/test_shell.mjs`, `MDL/test/test_grid.mjs`, `harness-layout/checks/mdl.mjs`, `harness-layout/SKILL.md`, `MDL/MDL-Dashboard-Workplan.md`, MDL logs |
+| Change | Added `validationRulesPanel` and `validationIssuesPanel`. Both are top-level, numbered and full width. Added pchip tokens for five themes, one chip row per panel, rule CSV / Columns, issue pager with page jump, 200-row pages, full-filtered CSV and updated Help. Pinned Severity and Rule in the issue grid. |
+| Validation | Build 306,026 B. Shell 119 / 0. Grid 42 / 1 baseline I-71 failure. Pipeline 96 / 7 baseline workbook failures. Full render 182 / 195 after pagination; 13 failures are stale or outside I-160. Harness 225 passed / 12 failed / 2 advisory / 20 skipped. |
+| Rollback | Restore the listed files from Git and run `node build.mjs`. No schema, pipeline or spec file changed. |
+| Note | The harness validation-count check exposes the known ground-truth state mismatch that also drives the KPI 7631 / 7445 failure. A separate harness ground-truth issue is proposed. |
+
+## U030 — Overdue List conformance
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-25 |
+| Issue | I-151 … I-159 in `MDL/log/issue_log.md` |
+| Work item | §11.30 in `MDL/MDL-Dashboard-Workplan.md` |
+| Status | DONE |
+| Files changed | `MDL/src/render.mjs`, `MDL/MDL-Dashboard.html`, `MDL/test/test_render.mjs`, `MDL/test/test_shell.mjs`, `MDL/MDL-Dashboard-Workplan.md`, MDL logs |
+| Change | Moved Overdue controls into one card tool row. Filters sit left and actions sit right. Added 200-row pagination with panel-local page buttons. Hid CSV for an empty result. Moved `Document Title` next to `Document No.` and set wider defaults and per-column minimums. Added type-based alignment helpers. Replaced the hard-coded control gap with tool tokens. Updated help text. |
+| Validation | Build 302,980 B. Shell 117 passed / 0 failed. Grid 42 passed / 1 pre-existing I-71 spec-text failure. Pipeline 96 passed / 7 pre-existing workbook-data failures. Layout harness 219 passed / 10 failed / 2 advisory / 22 skipped, with the same 10 failures as the stored baseline. The full jsdom render suite hit the known Node heap limit at 4 GB and 8 GB and produced no result. |
+| Rollback | Restore the listed files from Git and run `node build.mjs`. No schema, pipeline or spec file changed. |
+| Note | The Overdue part of I-121 is closed. I-121 stays open for other bounded tables. |
 
 ## U029 — Chart column centers match attached-table column centers
 

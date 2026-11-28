@@ -1,3 +1,8 @@
+// Revision 1.6 | 2026-11-28 | CodeBuddy (AI) | Table-header assertion follows the themed --thead-bg / --thead-fg contract instead of the retired navy literal.
+// Revision 1.5 | 2026-11-27 | AWS Quick (AI) | I-165 — top-bar Help test reads the header element; the logo data URI made the fixed 900-character window too short.
+// Revision 1.4 | 2026-11-27 | AWS Quick (AI) | I-165 — welcome 1.2.0 two-column markup: Choose may carry btn-primary; footer inside the task panel; Help in the top bar; guide panel with three steps.
+// Revision 1.3 | 2026-11-27 | AWS Quick (AI) | I-165 — welcome 1.1.0 markup: drop area class is `cw-box cw-drop`, slot list class may carry a layout modifier.
+// Revision 1.2 | 2026-11-26 | CodeBuddy (AI) | C-03 — assert the named group drop area and the current common version.
 // Runtime regression test for the built MDL dashboard.
 // Loads MDL-Dashboard.html, executes its <script type="module"> bundle under a jsdom
 // + node-vm context, renders the real workbook, and asserts key DOM/Spec facts.
@@ -15,6 +20,7 @@ const HTML = path.join(ROOT, 'MDL-Dashboard.html');
 const XLSX = path.join(ROOT, 'TWRP C3B2 - Master Document List.xlsx');
 
 const html = fs.readFileSync(HTML, 'utf8');
+const commonVersion = JSON.parse(fs.readFileSync(new URL('../../common/manifest.json', import.meta.url), 'utf8')).version;
 const scriptMatch = html.match(/<script type="module">([\s\S]*?)<\/script>/);
 if (!scriptMatch) { console.error('FAIL: no module script found in bundle'); process.exit(1); }
 // Expose the internals the test needs (the bundle strips exports during build).
@@ -41,6 +47,8 @@ ctx.DecompressionStream = class {
 ctx.globalThis = ctx;
 vm.createContext(ctx);
 vm.runInContext(code, ctx, { filename: 'bundle.js' });
+// boot() rendered the welcome before the test replaces #app with dashboard markup.
+const welcomeHtml = window.document.getElementById('app').innerHTML;
 
 const buf = fs.readFileSync(XLSX);
 const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
@@ -64,7 +72,7 @@ const status = D.getElementById('statusBar');
 ok('status bar shows no render issues', status && !status.textContent.includes('Render issues'));
 
 // --- 8 numbered panels ---
-ok('all 7 panels numbered', D.querySelectorAll('.panel[data-panel]').length === 7,
+ok('all 8 panels numbered', D.querySelectorAll('.panel[data-panel]').length === 8,
    `count=${D.querySelectorAll('.panel[data-panel]').length}`);
 
 // --- Rev 1.96 shell increment ---
@@ -76,7 +84,8 @@ ok('Breakdown is not in MDL sidebar', !D.querySelector('[data-shell="left-sideba
 ok('active page label shown in title bar', D.getElementById('activePageLabel')?.textContent.trim() === 'Overview');
 ok('Print / Save PDF control removed', !html.includes('Print / Save PDF') && !D.getElementById('aPrint'));
 ok('top menu Export present', !!D.getElementById('exportWorkbook'));
-ok('per-page panel membership present', D.querySelectorAll('.panel[data-page]').length === 7);
+ok('per-page panel membership present', D.querySelectorAll('.panel[data-page]').length === 8,
+   `count=${D.querySelectorAll('.panel[data-page]').length}`);
 const settingsBtn = D.getElementById('settingsBtn');
 if(settingsBtn) settingsBtn.click();
 const layoutSel = D.querySelector('[data-setting="layout"]');
@@ -108,18 +117,24 @@ ok('meta line sits in left brand block (.ttl-stack)', !!appHeader && !!appHeader
 ok('action buttons grouped in right .actions', !!appHeader && appHeader.querySelectorAll('.actions button').length >= 3, `btns=${appHeader && appHeader.querySelectorAll('.actions button').length}`);
 ok('dashboard title not hard-coded when absent', (!model.meta.dashboardTitle) ? !appHeader.querySelector('.sub') : !!appHeader.querySelector('.sub'));
 
-// --- I-51: spec-compliant onboarding (§3.7) — dashed dropzone + .expect + Primary CTA ---
-ok('welcome dropzone is dashed', html.includes('.welcome .drop{border:1.5px dashed'));
-ok('welcome dropzone has drag-over highlight', html.includes('.welcome .drop.hover{border-color:var(--accent)'));
-ok('welcome shows .expect callout', html.includes('class="expect"'));
-ok('welcome CTA is standard Primary button', html.includes('class="btn btn-primary">Choose Workbook'));
-ok('welcome headline is 25/700', html.includes('.welcome h1{margin:0 0 8px;font-size:25px;font-weight:700;letter-spacing:-.02em}'));
-ok('welcome hero radius is 24 (spec)', html.includes('.welcome{max-width:480px;width:100%;margin:0;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:24px'));
-ok('no stale legacy .welcome override (560/80px)', !html.includes('.welcome{max-width:560px'));
-ok('welcome sub-text is standardized', html.includes('Interactive dashboard. Load the workbook to validate data, explore status and details.'));
-ok('welcome .expect body standardized', html.includes('<b>What this does</b> — Select your Code-sheet workbook (.xlsx)… Drop it below or click to browse.'));
-ok('welcome has privacy claim', html.includes('Works fully offline — your data never leaves this browser'));
-ok('welcome privacy shield is sized (PPP parity)', html.includes('.welcome .privacy svg{width:13px;height:13px;fill:var(--muted)}'));
+// --- I-164: spec-compliant onboarding (§3.7) — shared CommonWelcome module ---
+ok('welcome uses the shared .cw-screen', welcomeHtml.includes('class="cw-screen"'));
+ok('welcome has one file slot', (welcomeHtml.match(/<li class="cw-slot\b/g) || []).length === 1);
+ok('welcome has one heading and one instruction', welcomeHtml.includes('class="cw-title"') && welcomeHtml.includes('class="cw-instr"'));
+ok('welcome has no lead-in label', !welcomeHtml.includes('What this does'));
+ok('Choose control is inside the drop area', /class="cw-box cw-drop[^"]*"[\s\S]{0,900}class="btn cw-choose[^"]*"/.test(welcomeHtml));
+ok('drop area is a named group, not focusable', /class="cw-box cw-drop[^"]*"[^>]*role="group"[^>]*aria-label="[^"]+"/.test(welcomeHtml) && !/class="cw-box cw-drop[^"]*"[^>]*tabindex/.test(welcomeHtml));
+ok('Choose control is a native button', /<button[^>]*class="btn cw-choose[^"]*"/.test(welcomeHtml));
+ok('slot list is aria-live', /class="cw-slots[^"]*" aria-live="polite"/.test(welcomeHtml));
+ok('set-error area uses role=alert', welcomeHtml.includes('class="cw-alert" role="alert"'));
+ok('footer is inside the task panel', welcomeHtml.indexOf('class="cw-foot"') > welcomeHtml.indexOf('class="cw-right"') && welcomeHtml.indexOf('class="cw-foot"') < welcomeHtml.indexOf('</section>'));
+ok('Help button is in the top bar', ((welcomeHtml.match(/<header class="cw-topbar">[\s\S]*?<\/header>/) || [''])[0]).includes('class="cw-help"'));
+ok('guide panel shows three steps, one current', (welcomeHtml.match(/<li class="cw-step\b/g) || []).length === 3 && (welcomeHtml.match(/aria-current="step"/g) || []).length === 1);
+ok('guide panel shows the check list', /class="cw-checks"[\s\S]{0,200}<li>/.test(welcomeHtml));
+ok('Choose is primary before any file is ready', /class="btn cw-choose btn-primary"/.test(welcomeHtml));
+ok('footer has the current year', welcomeHtml.includes(String(new Date().getFullYear())));
+ok('common welcome CSS inlined before MDL code', html.indexOf('common/welcome/welcome.css') < html.indexOf('/* ===== render.mjs ===== */'));
+ok('old local .welcome CSS removed', !/\.welcome-screen\{min-height:100vh/.test(html));
 
 // --- I-58: top-bar filters = two individual dropdowns (Discipline, Stage) ---
 const pDisc = D.getElementById('tfPanel_disciplines'), pStg = D.getElementById('tfPanel_stages');
@@ -205,36 +220,59 @@ const untickedPlanned = kpiVal('Total Planned');
 ok('ticking an excluded stage adds its documents', !exclBox || tickedPlanned > basePlanned, `base=${basePlanned} ticked=${tickedPlanned}`);
 ok('Stage badge switches to "N of M selected" once an excluded stage is ticked', !exclBox || /^\d+ of \d+ selected$/.test(badgeTicked || ''), `badge=${badgeTicked}`);
 ok('unticking it restores the baseline count', !exclBox || untickedPlanned === basePlanned, `restored=${untickedPlanned} base=${basePlanned}`);
-ok('welcome has copyright', html.includes('© ${year} UESH'));
-ok('welcome has no app bar (hero only)', !html.includes('<div class="meta">Welcome — choose a workbook to begin</div>'));
+ok('welcome config is inlined from ui_help.json', html.includes('"dashboardTitle":"Master Document List"'));
+ok('common version meta matches manifest', html.includes(`<meta name="common-version" content="${commonVersion}">`));
 
 // --- .ds-table adoption (§7.2) ---
 const tables = [...D.querySelectorAll('table')];
 ok('every on-screen table uses .ds-table', tables.length > 0 && tables.every(t => t.classList.contains('ds-table')), `tables=${tables.length}`);
 ok('.ds-table base rule present', html.includes('.ds-table{'));
-ok('.ds-table navy sticky header', html.includes('.ds-table thead th{background:var(--navy)'));
+ok('.ds-table themed sticky header', html.includes('.ds-table thead th{background:var(--thead-bg,var(--navy));color:var(--thead-fg,var(--on-fill))'));
 ok('.ds-table single bottom rule', html.includes('.ds-table th,.ds-table td{border-bottom'));
 const sevCells = [...D.querySelectorAll('span[class^="sev-"]')];
 ok('severity chips use spec .sev-error/.sev-warning/.sev-info and a fixed-size SVG glyph', sevCells.length>0 && sevCells.every(c => /^sev-(error|warning|info)$/.test(c.className) && c.querySelector('svg.sev-svg[role="img"]')), `sev cells=${sevCells.length}`);
 ok('no legacy .sev-err/.sev-warn in bundle', !/(sev-err(?!or)|sev-warn(?!ing)|sev-ERR)/.test(html));
 
-// --- Validation panel §4.5 (spec rev 2026-10-14) ---
-const vPanel = D.getElementById('validationPanel');
-ok('validation panel present', !!vPanel);
-if(vPanel){
-  const chips = [...vPanel.querySelectorAll('.vchip')];
-  ok('severity summary chips present (error/warning/info or ok)', chips.length >= 1, `chips=${chips.length}`);
-  const det = vPanel.querySelector('.vdetails');
-  ok('validation detail is a collapsed <details> by default', !!det && det.tagName === 'DETAILS' && !det.hasAttribute('open'));
-  ok('code-sheet summary (.vnote/#vmap) + rule reference (.vrefcard/#vref) present', !!vPanel.querySelector('.vnote') && !!vPanel.querySelector('.vrefcard'));
-  // I-92: headers are now sortable buttons (label + indicator), so read the label span
-  const vth = [...vPanel.querySelectorAll('.vtableWrap thead th')].map(t => (t.querySelector('.sort-lbl') || t).textContent.trim());
-  ok('per-issue table exposes Field & Value columns', vth.includes('Field') && vth.includes('Value'), vth.join('|'));
-  const sevSpans = [...vPanel.querySelectorAll('.vtableWrap tbody td span[class^="sev-"]')];
-  ok('per-issue severity cells carry a fixed-size SVG glyph (not emoji), no row cap', sevSpans.length > 0 && sevSpans.every(c => c.querySelector('svg.sev-svg[role="img"]')), `rows=${sevSpans.length}`);
-  ok('every issue row rendered (no truncation)', vPanel.querySelectorAll('.vtableWrap tbody tr').length === sevSpans.length, `tr=${vPanel.querySelectorAll('.vtableWrap tbody tr').length}`);
-  const hi = vPanel.innerHTML;
-  ok('explanatory note sits ABOVE the validation-detail toggle', hi.indexOf('class="note"') > -1 && hi.indexOf('class="note"') < hi.indexOf('class="vdetails"'));
+// --- I-160: two Validation panels (spec §4.5 / assertion 36) ---
+const vRules = D.getElementById('validationRulesPanel');
+const vIssues = D.getElementById('validationIssuesPanel');
+ok('two independent Validation panels present', !!vRules && !!vIssues,
+   `rules=${!!vRules} issues=${!!vIssues}`);
+if(vRules){
+  const sub = vRules.querySelector('[data-panel-subtitle]');
+  ok('rules panel has one chip subtitle row', !!sub && /Loaded rules/.test(sub.textContent) && /Fired rules/.test(sub.textContent),
+     sub ? sub.textContent.trim() : 'missing');
+  ok('rules panel has no meta note and no card title', !vRules.querySelector('.note') && !vRules.querySelector('h3.tt'));
+  ok('rules empty state uses one cell per visible column so header/body widths stay paired',
+     !html.includes('class="empty" colspan="5"'), 'no colspan empty row in the rules table');
+  const rth = [...vRules.querySelectorAll('#vrHead thead th[data-col], #vrHead thead th:not(.ds-gut)')]
+    .map(t => (t.querySelector('.sort-lbl') || t).textContent.trim()).filter(Boolean);
+  ok('rules table shows five columns in spec order', rth.join('|') === 'Severity|Code|Group|Description|Count', rth.join('|'));
+  const rCsv = vRules.querySelector('#vrCsv');
+  ok('rules tool row has CSV and Columns in the right group',
+     !!rCsv && !!rCsv.closest('.tool-actions') && !!vRules.querySelector('.tool-actions .cc-btn'));
+  const rSev = [...vRules.querySelectorAll('.validation-rules-card td span[class^="sev-"]')];
+  ok('rule severity cells carry fixed-size SVG glyphs', rSev.length > 0 && rSev.every(c => c.querySelector('svg.sev-svg[role="img"]')), `rules=${rSev.length}`);
+}
+if(vIssues){
+  const sub = vIssues.querySelector('[data-panel-subtitle]');
+  ok('issues panel has one chip row with all count chips and severities',
+     !!sub && /All issues/.test(sub.textContent) && /Shown issues/.test(sub.textContent) && /Error/.test(sub.textContent) && /Warning/.test(sub.textContent) && /Info/.test(sub.textContent),
+     sub ? sub.textContent.trim() : 'missing');
+  ok('data-validation-count hook is unique', D.querySelectorAll('[data-validation-count]').length === 1,
+     `hooks=${D.querySelectorAll('[data-validation-count]').length}`);
+  ok('issues panel has no details drawer and no meta note', !vIssues.querySelector('.vdetails') && !vIssues.querySelector('.note'));
+  const vth = [...vIssues.querySelectorAll('#vHead thead th')].map(t => (t.querySelector('.sort-lbl') || t).textContent.trim());
+  ok('issue columns start Severity, Rule, Doc No', vth.slice(0,3).join('|') === 'Severity|Rule|Doc No', vth.join('|'));
+  ok('issue tool row splits filters left and actions right',
+     !!vIssues.querySelector('.tool-filters #vRule') && !!vIssues.querySelector('.tool-actions #vCsv') && !!vIssues.querySelector('.tool-actions .cc-btn'));
+  const vp = [...vIssues.querySelectorAll('[data-vpage]')];
+  ok('issue pager uses panel-local data-vpage and page jump', vp.length === 2 && !!vIssues.querySelector('#vPage') && vp.every(b=>!b.hasAttribute('data-page')),
+     `pager=${vp.length}`);
+  ok('issue DOM materializes at most 200 rows', vIssues.querySelectorAll('#vBody tr').length <= 200,
+     `rows=${vIssues.querySelectorAll('#vBody tr').length}`);
+  const sevSpans = [...vIssues.querySelectorAll('#vBody td span[class^="sev-"]')];
+  ok('per-issue severity cells carry fixed-size SVG glyphs', sevSpans.length > 0 && sevSpans.every(c => c.querySelector('svg.sev-svg[role="img"]')), `rows=${sevSpans.length}`);
 }
 
 // --- I-44: drill accordion a11y + row counts ---
@@ -402,6 +440,32 @@ ok('Overdue list defaults to Delay (days) descending', !!ovDelayTh && ovDelayTh.
 const ovTbl = ovDelayTh && ovDelayTh.closest('table');
 const delays = ovTbl ? [...ovTbl.querySelectorAll('tbody tr')].slice(0, 6).map(r => +r.children[12].textContent.trim()) : [];
 ok('Overdue rows are genuinely in descending delay order', delays.length > 0 && delays.every((v, i) => i === 0 || delays[i - 1] >= v), delays.join(','));
+// I-151…I-159 — Overdue List panel layout and table contract
+const ovCard = D.querySelector('#overduePanel .overdue-card');
+const ovTools = ovCard && ovCard.querySelector('.toolbar.overdue-tools');
+const ovFilters = ovTools && ovTools.querySelector('.tool-filters');
+const ovActions = ovTools && ovTools.querySelector('.tool-actions');
+ok('Overdue table and controls share one card', !!ovTools && !!ovTools.nextElementSibling && ovTools.nextElementSibling.classList.contains('splitbox'),
+   ovTools ? 'card tool row found' : 'tool row missing');
+ok('Overdue Type and count sit in the left filter group', !!ovFilters && ovFilters.contains(D.querySelector('#ovType')) && !!ovFilters.querySelector('#ovCnt'));
+ok('CSV and Columns sit in the right action group', !!ovActions && ovActions.contains(D.querySelector('#ovCsv')) && !!ovActions.querySelector('.cc-btn'));
+const ovPanelHead = D.querySelector('#overduePanel > .panel-head');
+const ovHeadControls = ovPanelHead ? [...ovPanelHead.querySelectorAll('select,input,button')].filter(b => !b.classList.contains('help') && !b.classList.contains('collapse')) : [];
+ok('Overdue panel head keeps only Help and Collapse', ovHeadControls.length === 0, `controls=${ovHeadControls.length}`);
+ok('Overdue tool row uses token padding', /\.toolbar\.overdue-tools\{padding:var\(--tool-pad\)/.test(styleText));
+const ovPagerBtns = [...D.querySelectorAll('#overduePanel [data-ov-page]')];
+ok('Overdue pager uses a panel-local page attribute', ovPagerBtns.length === 2 && ovPagerBtns.every(b => !b.hasAttribute('data-page')),
+   `pager=${ovPagerBtns.length}`);
+ok('Overdue list materializes at most one 200-row page', D.querySelectorAll('#ovBody > tr').length <= 200,
+   `rows=${D.querySelectorAll('#ovBody > tr').length}`);
+const ovHeaderFragment = D.querySelector('#ovHead');
+const ovHeadCols = ovHeaderFragment ? [...ovHeaderFragment.querySelectorAll('thead th[data-col]')].map(th => th.dataset.col) : [];
+const ovDocIdx = ovHeadCols.indexOf('Document No.'), ovTitleIdx = ovHeadCols.indexOf('Document Title');
+ok('Document No. and Document Title are adjacent', ovTitleIdx === ovDocIdx + 1, `doc=${ovDocIdx} title=${ovTitleIdx}`);
+const ovDateH = ovHeaderFragment && ovHeaderFragment.querySelector('th[data-col="Planned 1st Issue Date"]');
+const ovStatusH = ovHeaderFragment && ovHeaderFragment.querySelector('th[data-col="Latest Approval Status"]');
+ok('Overdue date and status headers use type alignment', !!ovDateH && ovDateH.classList.contains('num') && !!ovStatusH && ovStatusH.classList.contains('enum'),
+   `date=${ovDateH && ovDateH.className} status=${ovStatusH && ovStatusH.className}`);
 // matrix: sorting removed (2026-10-19, MDL I-110) — headers are static labels, no sort affordance
 const mxTbl = D.querySelector('#matrixBody');   // I-110 split-header: the body table (#matrixBody) holds tbody+tfoot; #matrixHead is headers only
 const matrixSortBtns = mxTbl ? [...mxTbl.querySelectorAll('thead .sort-btn')] : [];
@@ -410,18 +474,19 @@ const matrixSortableTh = mxTbl ? [...mxTbl.querySelectorAll('thead th[aria-sort]
 ok('Matrix headers carry no aria-sort', matrixSortableTh.length === 0, `th=${matrixSortableTh.length}`);
 ok('Matrix Discipline header is a static label (no sort button)', mxTbl && !mxTbl.querySelector('thead .sort-btn[data-col="discipline"]'));
 ok('Matrix TOTAL row stays pinned last', mxTbl && mxTbl.querySelector('tfoot tr td').textContent.trim() === 'TOTAL');
-// issue list: severity sorts by tier
-const issTbl = D.querySelector('.vtableWrap table');
-const sevBtn = issTbl && issTbl.querySelector('thead .sort-btn[data-col="severity"]');
+// issue list: severity sorts by tier. The sort button lives in the header fragment.
+const issHead = D.querySelector('#vHead');
+const issBody = D.querySelector('.vtableWrap table');
+const sevBtn = issHead && issHead.querySelector('thead .sort-btn[data-col="severity"]');
 ok('Issue-list Severity is sortable', !!sevBtn);
 if (sevBtn) {
   sevBtn.click();
-  const firstSev = [...issTbl.querySelectorAll('tbody tr')].slice(0, 3).map(r => r.querySelector('span[class^="sev-"]').className);
+  const firstSev = [...issBody.querySelectorAll('#vBody tr')].slice(0, 3).map(r => r.querySelector('span[class^="sev-"]').className);
   ok('ascending Severity puts Error first (tier order, not alphabetical)', firstSev.every(c => c === 'sev-error'), firstSev.join(','));
 }
-// detail: Source Tab is not sorted, Active is
-const dtTbl = [...D.querySelectorAll('.ds-table')].pop();
-const dtTh = [...dtTbl.querySelectorAll('thead th')];
+// detail: Source Tab is not sorted, Active is. Read the header fragment.
+const dtTbl = D.querySelector('#dHead');
+const dtTh = dtTbl ? [...dtTbl.querySelectorAll('thead th:not(.ds-gut)')] : [];
 ok('Detail: Source Tab is not sortable, Active is',
    dtTh.length > 2 && !dtTh[0].querySelector('.sort-btn') && !!dtTh[1].querySelector('.sort-btn'),
    `cols=${dtTh.length}`);
@@ -457,6 +522,15 @@ if (ovTypeOpts.length) {
   ovTypeSel.value = ''; ovTypeSel.dispatchEvent(new window.Event('change'));
   ok('clearing Overdue Type restores the full list', ovT3.querySelectorAll('tbody tr').length === ovBeforeAll, `${ovT3.querySelectorAll('tbody tr').length} vs ${ovBeforeAll}`);
 }
+ok('Overdue rows use the shared zebra design, not a row-level fill class', D.querySelectorAll('#overduePanel tr.over').length === 0,
+   `over=${D.querySelectorAll('#overduePanel tr.over').length}`);
+const ovCsvBtn = D.querySelector('#ovCsv');
+const ovNoneOpt = D.createElement('option');
+ovNoneOpt.value = '__none__'; ovNoneOpt.textContent = '__none__';
+ovTypeSel.appendChild(ovNoneOpt);
+ovTypeSel.value = '__none__'; ovTypeSel.dispatchEvent(new window.Event('change'));
+ok('Overdue CSV is hidden when no rows match', !!ovCsvBtn && ovCsvBtn.hidden, `hidden=${ovCsvBtn && ovCsvBtn.hidden}`);
+ovNoneOpt.remove(); ovTypeSel.value = ''; ovTypeSel.dispatchEvent(new window.Event('change'));
 
 // --- I-114 (a): Overdue Type labels are WORKBOOK DATA (Code!AN -> Code!AO), not hard-coded. ---
 ok('Overdue Type options come from the Code sheet block (no hard-coded "1st-submission")',
@@ -484,25 +558,27 @@ ok('column chooser panel uses .cc-panel, no longer .tf-panel / .cf-panel',
 
 // --- I-114 (c): panel-local rule-code filter (shared spec §7.10 B6 + §7.2.7 pt 6). ---
 const vRule = D.querySelector('#vRule');
-ok('Validation Issues panel offers a Rule select inside the panel', !!vRule && !!vRule.closest('#validationPanel .head-actions'),
-   vRule ? 'rule select in head-actions' : '#vRule missing');
+ok('Validation Issues panel offers a Rule select in the left tool group', !!vRule && !!vRule.closest('#validationIssuesPanel .tool-filters'),
+   vRule ? 'rule select in tool-filters' : '#vRule missing');
 if (vRule) {
-  const vBodyWrap = D.querySelector('#vBody') && D.querySelector('#vBody').closest('table');
+  const vHeadTbl = D.querySelector('#vHead');
   const ruleOpts = [...vRule.options].map(o => o.value).filter(Boolean);
   ok('Rule options are the codes that actually fired, with counts',
      ruleOpts.length > 0 && /^V-\d+/.test(ruleOpts[0]), ruleOpts.slice(0, 4).join(' | '));
-  const beforeRows = vBodyWrap ? vBodyWrap.querySelectorAll('#vBody tr').length : 0;
+  const beforeRows = D.querySelectorAll('#vBody tr').length;
   const beforeTxt = D.querySelector('#vCnt') ? D.querySelector('#vCnt').textContent.trim() : '';
+  const beforeShown = D.querySelector('[data-validation-count]') ? D.querySelector('[data-validation-count]').textContent.trim() : '';
   vRule.value = ruleOpts[0]; vRule.dispatchEvent(new window.Event('change'));
-  const afterRows = vBodyWrap ? vBodyWrap.querySelectorAll('#vBody tr').length : 0;
+  const afterRows = D.querySelectorAll('#vBody tr').length;
   const afterTxt = D.querySelector('#vCnt') ? D.querySelector('#vCnt').textContent.trim() : '';
-  // every remaining row must carry that exact rule code
-  const codeColIdx = vBodyWrap ? [...vBodyWrap.querySelectorAll('thead th')].findIndex(th => th.textContent.trim() === 'Rule') : -1;
-  const bad = codeColIdx >= 0 && [...vBodyWrap.querySelectorAll('#vBody tr')]
+  const afterShown = D.querySelector('[data-validation-count]') ? D.querySelector('[data-validation-count]').textContent.trim() : '';
+  const codeColIdx = vHeadTbl ? [...vHeadTbl.querySelectorAll('thead th')].findIndex(th => (th.textContent||'').trim() === 'Rule') : -1;
+  const bad = codeColIdx >= 0 && [...D.querySelectorAll('#vBody tr')]
     .some(tr => tr.children[codeColIdx] && tr.children[codeColIdx].textContent.trim() !== ruleOpts[0]);
   ok('rule filter narrows the issue table to that code only', afterRows > 0 && !bad,
      `${beforeRows} -> ${afterRows}, code=${ruleOpts[0]}`);
   ok('issue count switches to "N of M issues"', /of \d+ issues/.test(afterTxt), `${beforeTxt} -> ${afterTxt}`);
+  ok('Shown issues hook follows the local Rule filter', beforeShown !== afterShown, `${beforeShown} -> ${afterShown}`);
   // locality: a panel-local filter must NOT touch the severity summary chips or any other panel
   ok('severity summary chips still describe the whole run (unchanged)',
      !!(D.querySelector('#vChips') && D.querySelector('#vChips').textContent.length > 0) &&
@@ -512,8 +588,8 @@ if (vRule) {
      D.querySelector('#detailPanel #dCnt') && /docs/.test(D.querySelector('#detailPanel #dCnt').textContent),
      D.querySelector('#detailPanel #dCnt') ? D.querySelector('#detailPanel #dCnt').textContent.trim() : 'n/a');
   vRule.value = ''; vRule.dispatchEvent(new window.Event('change'));
-  ok('clearing the rule filter restores every issue', vBodyWrap.querySelectorAll('#vBody tr').length === beforeRows,
-     `${vBodyWrap.querySelectorAll('#vBody tr').length} vs ${beforeRows}`);
+  ok('clearing the rule filter restores every issue', D.querySelectorAll('#vBody tr').length === beforeRows,
+     `${D.querySelectorAll('#vBody tr').length} vs ${beforeRows}`);
 }
 
 let pass = 0;

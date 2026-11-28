@@ -5,7 +5,7 @@
 | Project | TWRP C3B2 Procurement Package Plan Interactive Dashboard (PPP) |
 | Log scope | Canonical log for every PPP issue. The active queue is the nine-field table from I-80 onward. Records I-01 to I-81 were migrated verbatim from workplan §7 on 2026-11-01 (I-80 and I-81 remain in the canonical table above and are not repeated in the migrated block). |
 | ID scheme | `I-nn`, project-wide sequence. Continues the workplan sequence. |
-| Revision | 2.10 (2026-11-17) |
+| Revision | 2.12 (2026-11-26) — I-103 pointer updated: shared plan moved to `common/workplan/`; tasks P9-01–P9-10 |
 
 ## Legend
 
@@ -28,7 +28,7 @@ Severity: 🔴 Critical · 🟠 High · 🟡 Medium · 🟢 Low · 🔷 Deferred
 
 | `OPEN` | `IN_PROGRESS` | `DEFERRED` | `DEFERRED_STUDY` | `DEFERRED_REVIEW` | `WONT_IMPLEMENT` | `OPEN_PARTIAL` | `APPROVED` | `RESOLVED` | `ALIGNED` | Total |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| 1 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 2 | 19 | 23 |
+| 2 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 2 | 19 | 24 |
 
 Legacy rows are excluded from these counts: the original format has no severity field and its statuses are embedded in prose. They are preserved verbatim below so no record is lost.
 
@@ -39,12 +39,15 @@ Legacy rows are excluded from these counts: the original format has no severity 
 3. I-102 is open from spec rev 1.87: the PPP KPI density control and grid do not match the general
    6 / 3 / 2 rule. The owner logged it on 2026-11-17 and approved implementation for Sub only in this
    step. No PPP code changed.
-4. Data entry remains: fill column M for the 19 packages that V-26 lists.
+4. I-103 is open from spec rev 1.107: the PPP welcome page does not follow the configuration-driven
+   welcome of §3.7. Planned as workplan phase P9 (WP-WELCOME-001 W4), after MDL. No PPP code changed.
+5. Data entry remains: fill column M for the 19 packages that V-26 lists.
 
 ## Issues
 
 | ID | Date | Phase | Severity | Title | Description | Status | Tasks | Resolution |
 |---|---|---|---|---|---|---|---|---|
+| I-103 | 2026-11-26 | P9 | 🟡 Medium | Welcome page does not follow spec §3.7 rev 1.107 | UI spec rev 1.107 (2026-11-26) rewrites §3.7: one configuration-driven welcome; one file slot in `auto` mode; Code-sheet check before load; load phases on the welcome card; page footer and help link; tokens only; §8.2 assertions 43–50. Owner decision D8: PPP loads one file in one step. The PPP welcome code was not inspected in the 2026-11-25 review; task P9-01 reads it and reports the gaps before any edit. Shared design plan: `common/workplan/Welcome-Page-Workplan.md` (WP-WELCOME-001) phase W4; PPP plan: workplan §8.16. | `OPEN` | P9-01–P9-10 | — |
 | I-102 | 2026-11-17 | Spec rev 1.87 | 🟡 Medium | KPI density control and grid do not match the general 6 / 3 / 2 rule | Owner instruction 2026-11-17: the Settings layout control changes panel layout only; the KPI panel stays on top; KPI cards follow 6 / 3 / 2 as a general requirement. Spec rev 1.87 is approved in both UI spec copies. In `Procurement-Dashboard.html`, `#layoutBtn` sits in the menu bar (line 588) and cycles KPI density with numeric `1 / 2 / 3` states (lines 3090–3097); `.content-body[data-layout="2"] .kpis` and `[data-layout="3"] .kpis` set 3 and 2 columns (lines 491–492). These states are not the named `one / two / three` values and the control is not in Settings. No PPP code change was approved in this step: the owner said "log the issue for ppp and sub. only update sub now." | `OPEN` | — | — |
 | I-80 | 2026-10-30 | Rev 1.28 | 🟠 High | `MR-M-0021` has invalid FAT and ROS plan dates | `PPP!AD22` held `1900-01-15` (serial 15: the value `15` was typed into a date cell). `PPP!AA22` held the formula `=AD22-30`, which gave `1899-12-15` (serial -15). `toDate()` accepts only serials 40000-70000, so both became `null`, `V-02` fired twice, and the report held 2 error-severity issues. Four harness assertions that require `errors === 0` then failed (`64 passed, 4 failed`, TL001). Evidence: `node test/test_pipeline.mjs`; package `MR-M-0021`, fields `fatPlan` and `rosPlan`. | `RESOLVED` | — | Updates: U006 — Tests: TL002 — Close: `AD22` = 2027-01-15, `AA22` = 2026-12-16; harness 68 passed, 0 failed, errors=0. No code change. — Workplan: PPP-Dashboard-Workplan.md v1.28->v1.29 — Approved: 2026-10-30 by data owner (workbook edit) |
 | I-81 | 2026-10-30 | Rev 1.31 | 🟡 Medium | `PO Number` is registered but had no consumer | The workbook maps `PO Number` to `Column-M` (Text), and `CODE_SHEET_KEYS` names it `poNo`, so `model.packages[].poNo` is populated. No view, export or KPI used it, and the workbook column is empty while 19 packages have a PO Actual date. Owner rule: a PO Actual date is the only evidence of a PO issued, and an issued package must carry a PO Number. PO Number has no meaning in the look-ahead or overdue tables. | `ALIGNED` | V-26; Code sheet row `Q27:V27` | Updates: U013 — Tests: TL003 — Close: V-26 (warning) is live; current workbook gives 19 warnings, 0 errors; harness 71 passed, 0 failed. No table, CSV or KPI change. — Workplan: PPP-Dashboard-Workplan.md v1.30->v1.31 — Approved: 2026-10-30 by owner (V-26 as warning) |

@@ -1,0 +1,278 @@
+{
+  "$schema": "https://github.com/chinwarsoon/workbuddy/schemas/knowledge_base_schema/1.0.0",
+  "$id": "https://github.com/chinwarsoon/workbuddy/MDL/knowledge/1.0.0",
+  "version": "1.0.7",
+  "title": "TWRP C3B2 Master Document List Dashboard — Knowledge Base",
+  "description": "Machine-readable blueprint of the MDL dashboard: a standalone offline HTML file that reads the Master Document List workbook through the Code sheet contract and renders the register, validation and Issue Progress views.",
+  "project_metadata": {
+    "name": "TWRP C3B2 — Master Document List Interactive Dashboard",
+    "abbreviation": "MDL",
+    "version": "1.9",
+    "date": "2026-11-26",
+    "description": "Single-file, offline dashboard generated from ES modules in src/ and shared source in common/.",
+    "purpose": "Show the active document register, submission and approval status, overdue work, validation findings and Issue Progress from one Master Document List workbook.",
+    "status": "Maintenance",
+    "last_updated": "2026-11-28"
+  },
+  "architecture_overview": {
+    "status": "Modular pipeline with a configuration-driven welcome page. build.mjs inlines xlsx-reader.mjs, pipeline.mjs, render.mjs and CommonWelcome 1.4.1 into MDL-Dashboard.html. No delivered file references common/. The welcome renders from config/ui_help.json in auto mode, checks the Code sheet before the full read, and reports three load phases. Issue I-164 (W3) is resolved; harness Tier 7 and check 51 pass for MDL.",
+    "modules": [
+      {
+        "name": "Dashboard page",
+        "path": "MDL-Dashboard.html",
+        "status": "Generated deliverable; standalone HTML, runnable from file://."
+      },
+      {
+        "name": "Shared welcome module",
+        "path": "../common/welcome/welcome.mjs; ../common/welcome/welcome.css",
+        "status": "Common 1.4.1 (theme picker, common `tokens` 1.3.1). Inlined at build time. Namespace CommonWelcome. Source in common/; no reference remains in the delivered HTML."
+      },
+      {
+        "name": "Workbook reader",
+        "path": "src/xlsx-reader.mjs",
+        "status": "Complete; ZIP and sheet-XML reader. readXlsx returns sheet grids and shared strings."
+      },
+      {
+        "name": "Code sheet contract parser",
+        "path": "src/pipeline.mjs",
+        "status": "Complete; parseCodeSheet reads metadata by label and discovers field and lookup columns."
+      },
+      {
+        "name": "Model builder",
+        "path": "src/pipeline.mjs",
+        "status": "Complete; buildModel produces records, issues, lookups, charts and the W-FORMULA warnings."
+      },
+      {
+        "name": "Render layer",
+        "path": "src/render.mjs",
+        "status": "Complete; boot renders CommonWelcome, then renderDashboard paints the derived view. Filters, export and panel logic live here."
+      },
+      {
+        "name": "UI help and welcome config",
+        "path": "config/ui_help.json",
+        "status": "Complete; supplies the §3.7 welcome title, instruction, file list, mode, phases, help text and footer text."
+      },
+      {
+        "name": "Build script",
+        "path": "build.mjs",
+        "status": "Complete; calls inlineCommon with the welcome module, writes common-version meta, inlines CSS before MDL CSS and JS before xlsx-reader.mjs."
+      },
+      {
+        "name": "Tests",
+        "path": "test/test_pipeline.mjs; test/test_render.mjs; test/test_shell.mjs; test/test_grid.mjs",
+        "status": "Complete; jsdom runtime tests plus pipeline and grid assertions."
+      },
+      {
+        "name": "Harness config",
+        "path": "../harness-layout/checks/mdl.mjs",
+        "status": "Complete; Tier 3 ground truth, Tier 6 hover and Tier 7 welcome enabled with mode auto and one file."
+      }
+    ],
+    "integration_points": [
+      "TWRP C3B2 - Master Document List.xlsx",
+      "common/build/inline-common.mjs and common/welcome",
+      "harness-layout/checks/mdl.mjs",
+      "Dashboard-UI-Design-Spec.md and AGENTS.md",
+      "Browser localStorage for theme, layout and filter preferences"
+    ]
+  },
+  "domain_concepts": {
+    "core_entities": [
+      "Planned document — one active row in the Master Document List register.",
+      "Code sheet — the workbook sheet that defines metadata, field columns, lookups and validation rules.",
+      "Validation issue — one finding with a rule code, severity, message and optional document reference.",
+      "Submission status — the actual first issue and review status of a document.",
+      "Approval status — the approval outcome code, which is a separate dimension from submission status.",
+      "Welcome slot — the one file entry that the MDL welcome accepts in auto mode."
+    ],
+    "relationships": [
+      "One Code sheet defines the contract for the whole workbook.",
+      "Each planned document belongs to one discipline and one stage.",
+      "The Code-sheet Dashboard Title identifies the required workbook; the file name is not used.",
+      "Validation issues cite a document and a field, or describe an aggregate condition.",
+      "The welcome inspect step checks the Code sheet before buildModel reads the full workbook."
+    ],
+    "terminology": [
+      "MDL — Master Document List.",
+      "Code sheet — the contract sheet inside the workbook.",
+      "Dashboard Title — the Code-sheet value that identifies the workbook type.",
+      "W-FORMULA — one fatal warning for each column with spreadsheet formula errors.",
+      "auto mode — one required file; load starts after the Code-sheet check."
+    ]
+  },
+  "key_schemas": [
+    {
+      "name": "Welcome configuration",
+      "path": "config/ui_help.json",
+      "version": "1.0",
+      "status": "Active",
+      "description": "Source of all welcome text and the one-file auto configuration."
+    },
+    {
+      "name": "Welcome configuration schema",
+      "path": "../common/welcome/welcome.schema.json",
+      "version": "1.0.0",
+      "status": "Active",
+      "description": "JSON Schema for the shared §3.7 welcome configuration."
+    },
+    {
+      "name": "Knowledge base schema",
+      "path": "../config/schemas/knowledge_base_schema.json",
+      "version": "1.0.0",
+      "status": "Active",
+      "description": "Shared schema for project knowledge files."
+    }
+  ],
+  "total_schema_files": 3,
+  "workflows": [
+    {
+      "name": "Build the standalone dashboard",
+      "entry_point": "node build.mjs",
+      "description": "Inline common welcome CSS and JS, the MDL modules and the UI help config into MDL-Dashboard.html.",
+      "status": "Active",
+      "steps": [
+        "Read common/manifest.json and config/ui_help.json.",
+        "Inline CommonWelcome 1.4.1 and write the common-version meta tag.",
+        "Concatenate xlsx-reader.mjs, pipeline.mjs and render.mjs.",
+        "Parse the bundle and write MDL-Dashboard.html."
+      ]
+    },
+    {
+      "name": "Load a workbook",
+      "entry_point": "boot(root) in src/render.mjs",
+      "description": "Render the welcome, check the Code sheet, report load phases and paint the dashboard.",
+      "status": "Active",
+      "steps": [
+        "Call CommonWelcome.render with the config and handlers.",
+        "Read the Code sheet and match the expected Dashboard Title.",
+        "Report Reading, Checking and Building phases.",
+        "Build the model and call renderDashboard on the next task."
+      ]
+    },
+    {
+      "name": "Verify layout conformance",
+      "entry_point": "node harness-layout/harness.mjs --dashboard mdl",
+      "description": "Run the shared harness tiers for MDL, including Tier 7 welcome and check 51.",
+      "status": "Active",
+      "steps": [
+        "Run Tier 1 structural checks and the common-version check.",
+        "Load the workbook for Tier 3 data checks.",
+        "Run Tier 7 welcome assertions 43-50.",
+        "Compare FAIL lines with the W2 baseline."
+      ]
+    }
+  ],
+  "functions": [
+    "readXlsx(buffer)",
+    "parseCodeSheet(codeSheet)",
+    "buildModel(workbook, options)",
+    "deriveView(model, state)",
+    "renderDashboard(root, model)",
+    "boot(root)",
+    "CommonWelcome.render(root, config, handlers)",
+    "inlineCommon({ modules })"
+  ],
+  "data_flows": [
+    "Workbook file -> CommonWelcome.inspect -> readXlsx -> parseCodeSheet -> Dashboard Title check",
+    "Checked workbook -> buildModel -> model with records, issues, lookups and charts",
+    "model and filter state -> deriveView -> panels, KPIs, tables and exports",
+    "config/ui_help.json -> build.mjs -> WELCOME_CONFIG in the standalone HTML",
+    "common/welcome -> build.mjs -> inlined CSS and JS in the standalone HTML"
+  ],
+  "data_quality_checks": [
+    "V-01 … V-28 validation rules from the Code sheet",
+    "One fatal W-FORMULA warning per column with spreadsheet formula errors",
+    "Blank and formula-error tokens normalized to undefined",
+    "Code-sheet Dashboard Title check before the full workbook read"
+  ],
+  "dependencies": {
+    "libraries": [
+      "jsdom for runtime tests"
+    ],
+    "infrastructure": [
+      "Node.js 20 for build and tests",
+      "Playwright Chromium for harness-layout browser tiers"
+    ]
+  },
+  "known_issues": [
+    {
+      "id": "I-119",
+      "title": "Formula cells are read from the cache only",
+      "status": "OPEN",
+      "severity": "Medium",
+      "details": "src/xlsx-reader.mjs parses cached values and ignores formulas. 136 Submission Status cells have an empty cache. Owner decision is needed: evaluate formulas or keep the cache and warn."
+    },
+    {
+      "id": "I-120",
+      "title": "Submission Status and Approval Status are independent dimensions",
+      "status": "OPEN",
+      "severity": "Medium",
+      "details": "approvalCategory unifies SUR and approval codes. Owner confirmation is needed before the classifier changes."
+    },
+    {
+      "id": "I-121",
+      "title": "Remaining rev 1.96 dashboard gaps",
+      "status": "OPEN",
+      "severity": "Medium",
+      "details": "Two-panel Validation, pagination above 200 rows, chart hover windows, table crosshair states and a full token inventory. See MDL/log/issue_log.md."
+    },
+    {
+      "id": "C-03",
+      "title": "Drop-area role and duplicate tab stop",
+      "status": "DEFERRED_REVIEW",
+      "severity": "Medium",
+      "details": "The shared welcome drop area is a focusable div with no role. Review the ARIA name and the duplicate keyboard stop before PPP W4. A change needs spec §3.7 and harness assertion 45."
+    }
+  ],
+  "total_issues_resolved": 154,
+  "total_issues_deferred": 1,
+  "revisionHistory": [
+    {
+      "revision": "1.0.7",
+      "date": "2026-11-28",
+      "author": "CodeBuddy (AI)",
+      "summary": "I-167 / common C-08 validated — crosshair contract complete for spec rev 1.116: CSS specificity fixes, test-probe closure, rebuild at 436311 bytes, tokens 178 / 0, shell 127 / 0, harness 366 / 2 baseline, no crosshair failure. Dashboard version stays 1.9."
+    },
+    {
+      "revision": "1.0.6",
+      "date": "2026-11-28",
+      "author": "CodeBuddy (AI)",
+      "summary": "I-167 / common C-08 — crosshair contract completed for spec rev 1.116: arrow-key navigation, pinned-cell tint, strong 14% / 22%, token test resolver and harness checks. CommonWelcome 1.4.1, tokens 1.3.1. Dashboard version stays 1.9."
+    },
+    {
+      "revision": "1.0.5",
+      "date": "2026-11-28",
+      "summary": "I-166 / common C-08 — theme rework: applyShellPrefs() in boot() (T1); theme keys renamed navy/sepia -> sky/ocean/presentation; local CSS reduced to MDL-only tokens, shared theme set now from inlined common/tokens/tokens.css (T2-T4); COLORS/PALETTE kept as fallback, CHART()/CHART_SERIES() resolve colors live (T5). CommonWelcome -> 1.4.0 (themePicker). Not yet tested this session."
+    },
+    {
+      "revision": "1.0.4",
+      "date": "2026-11-27",
+      "author": "CodeBuddy (AI)",
+      "summary": "CommonWelcome 1.4.0; done-step dwell 3000 ms after the 10-second hold. Dashboard version stays 1.9."
+    },
+    {
+      "revision": "1.0.3",
+      "date": "2026-11-27",
+      "author": "CodeBuddy (AI)",
+      "summary": "CommonWelcome 1.3.0; welcome hold 10000 ms and footer `Rev 1.9`. Dashboard version stays 1.9."
+    },
+    {
+      "revision": "1.0.2",
+      "date": "2026-11-27",
+      "author": "CodeBuddy (AI)",
+      "summary": "Dashboard version 1.9 — welcome footer and status bar follow the MDL workplan."
+    },
+    {
+      "revision": "1.0.1",
+      "date": "2026-11-27",
+      "author": "AWS Quick (AI)",
+      "summary": "I-165 — records common welcome 1.2.1 (two-column card) in place of 1.0.2. See MDL U042 / TL038."
+    },
+    {
+      "revision": "1.0.0",
+      "date": "2026-11-26",
+      "author": "CodeBuddy (AI)",
+      "summary": "Created at MDL W3 close-out. Records CommonWelcome 1.0.2, the config-driven welcome and the resolved I-164."
+    }
+  ]
+}

@@ -1,14 +1,66 @@
+// Revision 1.10 | 2026-11-28 | AWS Quick (AI) | Header text/fill root-cause fix: several table-header rules used
+// var(--navy)/var(--on-fill) directly — in ocean and presentation themes these two tokens are BOTH dark
+// (on-fill is tuned for text on a bright accent button, not navy), so the untinted header text contrast
+// was only ~1.1:1, and in sky, --navy equals --accent, making the crosshair edge invisible on headers.
+// All header fill/text rules now use var(--thead-bg,var(--navy)) / var(--thead-fg,var(--on-fill)) — the
+// tokens actually designed for header surfaces, already AA-safe in every theme and never equal to
+// --accent. The crosshair's existing background-color/box-shadow layers inherit the fix automatically
+// since they composite over whatever the base background now is.
+// Revision 1.9 | 2026-11-28 | CodeBuddy (AI) | Crosshair specificity closure — the C1 row header keeps 700 weight under the curve table rule. A pinned active cell keeps the strong 14%/22% tint when its row is also hovered.
+// Revision 1.8 | 2026-11-28 | CodeBuddy (AI) | Spec rev 1.116 — the shared crosshair binder adds ArrowLeft / ArrowRight / ArrowUp / ArrowDown cell movement and makes data cells focusable. Pinned cells layer the tint over their own zebra/soft fill.
+// Revision 1.7 | 2026-11-28 | AWS Quick (AI) | Crosshair redesigned to the user's 20-point contract: background-color
+// true-alpha tiers (--crosshair-faint/-medium/-strong, moved to common/tokens so each theme sets its own
+// AA-verified opacity) replace the opaque linear-gradient fill, so zebra/status colours underneath show
+// through. Exactly 3 tiers (was 4 independent opacities). Active-cell outline 1px -> 2px. Column AND row
+// headers now get the medium tier, bold text, and a 2px accent edge (bottom / right respectively) — row
+// headers previously had no crosshair rule at all. Same fix applied to the Issue Progress C1 table.
+// Revision 1.6 | 2026-11-28 | AWS Quick (AI) | User-reported regression: the crosshair overlay/track tokens had been
+// aliased to var(--soft), an OPAQUE fill, which hid cell text under dark/ocean/presentation themes and
+// made --crosshair-ring/--header-crosshair-accent read as a strong, undampened accent color. Fixed by
+// using color-mix(in srgb, var(--accent) N%, var(--surface)) for the three overlay/wash tokens, restoring
+// the original rgba(blue,.14/.22/.16)-style translucent wash, now correctly theme-aware. The ring/accent
+// (1px/2px border-like, never a fill) stay solid var(--accent) — that part was already correct.
+// Revision 1.5 | 2026-11-28 | AWS Quick (AI) | I-166 / common C-08 — theme rework (T1-T5). boot() now calls applyShellPrefs()
+// before CommonWelcome.render() so the welcome page honours the saved theme (T1). Theme keys renamed
+// navy/sepia -> sky/ocean/presentation to match the spec's six names (old saved values fall back to
+// light, the existing fallback). Local :root now holds only MDL-only tokens; the ~45 shared theme-
+// definition values and the 12 body[data-theme=...] override blocks are gone, replaced by the inlined
+// common/tokens/tokens.css (T2-T4; all 80 in-scope hard-coded hex literals in component rules repointed
+// to tokens, 2 left as-is: one inside a code comment, one in an intentional @media print rule). COLORS/
+// PALETTE kept as fallback tables only; a new CHART()/CHART_SERIES() helper resolves colors from the live
+// theme via getComputedStyle at paint time (T5), same pattern already used by curveExportMarkup().
+// Revision 1.3 | 2026-11-27 | CodeBuddy (AI) | Dashboard version 1.9 — APP_VERSION follows the MDL workplan.
+// Revision 1.2 | 2026-11-27 | AWS Quick (AI) | I-165 — common welcome 1.1.0: the load handler returns an opener, so CommonWelcome shows the success hold before the dashboard paints (spec §3.7.7 rev 1.110).
+// Revision 1.1 | 2026-11-26 | CodeBuddy (AI) | I-164 W3 — replace the local welcome with CommonWelcome.render() and Code-sheet-first handlers.
 // render.mjs — DOM rendering + filters + export for the MDL dashboard (browser).
 // Uses pipeline.buildModel + xlsx-reader.readXlsx. No external dependencies.
 import { readXlsx } from './xlsx-reader.mjs';
-import { buildModel, EXCLUDE_STAGES, approvalCategory } from './pipeline.mjs';
+import { buildModel, parseCodeSheet, EXCLUDE_STAGES, approvalCategory } from './pipeline.mjs';
 
 const COLORS = { blue:'#1E88E5', green:'#2E7D32', amber:'#F9A825', red:'#C62828', slate:'#64748B', navy:'#0F2D52', grey:'#B8C2CC', blueGrey:'#78909C', purple:'#8E24AA' };
 const PALETTE = ['#1E88E5','#2E7D32','#F9A825','#C62828','#64748B','#7E57C2','#26A69A','#EC407A','#8D6E63','#42A5F5','#9CCC65','#FF7043'];
+// I-166 / common C-08 (T5) — COLORS/PALETTE below are now fallback tables only. CHART() resolves the
+// live theme's --chart-1..6 / semantic tokens at paint time via getComputedStyle, same pattern already
+// used by curveExportMarkup() for var(--blue) resolution. Charts built while off-DOM or before first
+// paint (rare) fall back to the literal tables so nothing renders unstyled.
+const CHART_KEY_TO_VAR = { blue:'blue', green:'green', amber:'amber', red:'red', navy:'navy', slate:'slate',
+  grey:'status-neutral-fg', blueGrey:'status-neutral2-fg', purple:'status-purple-fg' };
+function CHART(key){
+  try{
+    const v = getComputedStyle(document.body).getPropertyValue('--'+(CHART_KEY_TO_VAR[key]||key)).trim();
+    return v || COLORS[key];
+  }catch(e){ return COLORS[key]; }
+}
+function CHART_SERIES(i){
+  try{
+    const v = getComputedStyle(document.body).getPropertyValue('--chart-'+(1+(i%6))).trim();
+    return v || PALETTE[i%PALETTE.length];
+  }catch(e){ return PALETTE[i%PALETTE.length]; }
+}
 const F = 'font-family="\'Segoe UI\', system-ui, -apple-system, \'Inter\', \'Source Sans Pro\', Roboto, Helvetica, Arial, sans-serif"';
 const esc = s => (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const LOGO_DATA = '__LOGO_DATA__'; // replaced with an embedded base64 data-URI at build time
-const APP_VERSION = '0.1';
+const APP_VERSION = '1.9';
 const KPI_TIP_META = {
   'Total Planned': ['Active documents in the planned register.', 'Document No. (M), Stage (B)', 'Count documents with a Document No. and an active Stage.'],
   'Submitted': ['Documents with an authoritative first issue date.', 'Actual 1st Issue Date (U)', 'Count active documents where U is not blank. A date formula error also counts as submitted.'],
@@ -41,11 +93,14 @@ const isoStrToDate = iso => { if(!iso) return null; const d = new Date(iso + 'T0
 function wdBetween(d1, d2){ if(!d1||!d2) return null; let s=1; if(d2<d1){[d1,d2]=[d2,d1];s=-1;} let c=0,cur=new Date(d1.getTime()); while(cur<=d2){ const day=cur.getUTCDay(); if(day!==0&&day!==6)c++; cur.setUTCDate(cur.getUTCDate()+1);} return s*c; }
 
 const CSS = `
-:root{--navy:#0F2D52;--blue:#1E88E5;--green:#2E7D32;--amber:#F9A825;--red:#C62828;--slate:#64748B;--bg:#F6F8FA;--surface:#FFFFFF;--border:#D9E1E8;--text:#1F2A37;--muted:#64748B;--card:#FFFFFF;--line:#D9E1E8;--ink:#0F2D52;--accent:#1E88E5;--accent2:#2E7D32;--warn:#F9A825;--bad:#C62828;--soft:#E8F1FD;--shadow:0 1px 2px rgba(15,45,82,.04);--radius:10px;--font:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;--warn-bg:#FFF4D6;--warn-border:#F0D38A;--warn-fg:#9a6b00;--warn-fg-strong:#9a6b00;--error-bg:#FDE8E8;--error-fg:#C62828;--ok-bg:#E6F4EA;--ok-fg:#2E7D32;--accent-soft-border:#BFD8F2;--accent-ink:#1E88E5;--grid:#EDF1F5;--sidebar-w:160px;--nav-bg:#0F2D52;--nav-bg-hover:rgba(255,255,255,.10);--nav-bg-active:#354F6E;--nav-fg:#E8EDF3;--panel-gap:14px;--btn-h:32px;--seg-h:32px;--crosshair-track:rgba(30,136,229,.14);--crosshair-intersection:rgba(30,136,229,.28);--crosshair-ring:#1E88E5;--header-crosshair-overlay:rgba(30,136,229,.20);--header-crosshair-accent:#1E88E5;--tool-pad:12px;--tool-gap:10px;--c1-plot-table-gap:10px;--seg-pad-y:6px;--seg-pad-x:10px;--seg-fs:12px;--seg-fw:600;--seg-lh:1.2;--seg-active-bg:var(--navy);--seg-active-fg:#fff;--seg-hover-bg:var(--surface2);--seg-hover-fg:var(--blue);--seg-pressed-bg:var(--surface3);--seg-focus:var(--blue);--seg-focus-on-active:#fff;--seg-disabled-opacity:.5;--surface2:#F1F5F9;--surface3:#E2E8F0;--text2:#475569}
-body[data-theme="dark"]{--navy:#0B2036;--bg:#101820;--surface:#17232F;--card:#17232F;--border:#35485B;--text:#E6EDF3;--muted:#A8B7C5;--line:#35485B;--ink:#E6EDF3;--accent:#5AA9F5;--accent-ink:#8CC4FA;--soft:#20354A;--grid:#223244;--nav-bg:#0B2036;--nav-bg-active:#2B4B6A;--crosshair-track:rgba(90,169,245,.16);--crosshair-intersection:rgba(90,169,245,.30);--crosshair-ring:#8CC4FA;--header-crosshair-overlay:rgba(90,169,245,.22);--header-crosshair-accent:#8CC4FA;--surface2:#1D2B3A;--surface3:#243647;--text2:#B7C4D1}
-body[data-theme="navy"]{--bg:#E7EEF5;--surface:#FFFFFF;--navy:#0B2A47;--nav-bg:#0B2A47;--nav-bg-active:#2D4F6E;--accent:#2563A6;--accent-ink:#1D4E86;--soft:#EAF2FA;--crosshair-track:rgba(37,99,166,.14);--crosshair-intersection:rgba(37,99,166,.26);--crosshair-ring:#2563A6;--header-crosshair-overlay:rgba(37,99,166,.20);--header-crosshair-accent:#2563A6}
-body[data-theme="contrast"]{--bg:#FFFFFF;--surface:#FFFFFF;--navy:#001526;--text:#000000;--muted:#253746;--border:#000000;--line:#555555;--accent:#005FCC;--accent-ink:#003D85;--soft:#EAF1F8;--nav-bg:#001526;--nav-bg-active:#004275;--crosshair-track:rgba(0,95,204,.22);--crosshair-intersection:rgba(0,95,204,.36);--crosshair-ring:#005FCC;--header-crosshair-overlay:rgba(0,95,204,.30);--header-crosshair-accent:#005FCC}
-body[data-theme="sepia"]{--bg:#F4EEE3;--surface:#FFFDF8;--navy:#463A2E;--text:#33291F;--muted:#6F6253;--border:#D2C3AD;--line:#D2C3AD;--accent:#9A5B22;--accent-ink:#7A461A;--soft:#F6ECDA;--nav-bg:#463A2E;--nav-bg-active:#6B5948;--crosshair-track:rgba(154,91,34,.16);--crosshair-intersection:rgba(154,91,34,.30);--crosshair-ring:#9A5B22;--header-crosshair-overlay:rgba(154,91,34,.22);--header-crosshair-accent:#9A5B22}
+/* Theme tokens (bg/surface/text/chrome/nav/accent/status/chart/pchip/ds-zebra, all 6 themes) now come
+ * from the inlined common/tokens/tokens.css, placed immediately before this block by build.mjs's
+ * inlineCommon({modules:['tokens','welcome']}) call (common C-08 / AGENTS.md §18.4 rev 2026-11-28).
+ * This :root only holds the tokens MDL does not share with other dashboards (layout metrics,
+ * segmented-control sizing, crosshair accents, and two still-unused legacy tokens --warn/--bad
+ * kept for compatibility). --crosshair-* and --header-crosshair-accent now reference var(--accent)/
+ * var(--soft) instead of a frozen light-blue literal, so the crosshair correctly follows theme. */
+:root{--slate:#64748B;--card:#FFFFFF;--accent2:#2E7D32;--warn:#F9A825;--bad:#C62828;--radius:10px;--font:'Segoe UI',system-ui,-apple-system,'Inter','Source Sans Pro',Roboto,Helvetica,Arial,sans-serif;--warn-border:#F0D38A;--warn-fg-strong:#9a6b00;--accent-soft-border:#BFD8F2;--accent-ink:#1E88E5;--grid:#EDF1F5;--sidebar-w:160px;--nav-bg-hover:rgba(255,255,255,.10);--panel-gap:14px;--btn-h:32px;--seg-h:32px;--crosshair-ring:var(--accent);--header-crosshair-accent:var(--accent);--tool-pad:12px;--tool-gap:10px;--c1-plot-table-gap:10px;--seg-pad-y:6px;--seg-pad-x:10px;--seg-fs:12px;--seg-fw:600;--seg-lh:1.2;--seg-active-bg:var(--navy);--seg-active-fg:var(--on-fill);--seg-hover-bg:var(--surface2);--seg-hover-fg:var(--blue);--seg-pressed-bg:var(--surface3);--seg-focus:var(--blue);--seg-focus-on-active:var(--on-fill);--seg-disabled-opacity:.5}
 *{box-sizing:border-box}
 .shell-main{display:grid;grid-template-columns:var(--sidebar-w) minmax(0,1fr);flex:1 1 auto;min-height:0;transition:grid-template-columns .12s ease}
 body.sidebar-collapsed .shell-main{grid-template-columns:minmax(0,1fr)}
@@ -58,7 +113,7 @@ body.sidebar-collapsed [data-shell="left-sidebar"]{display:none}
 .nav-item.active,.nav-item[aria-current="page"]{background:var(--nav-bg-active);font-weight:600}
 .sidebar-resizer{position:absolute;right:-3px;top:0;width:6px;height:100%;cursor:col-resize;z-index:5}
 .sidebar-resizer:hover{background:rgba(255,255,255,.18)}
-.page-label{font-size:16px;font-weight:600;line-height:1.2;color:#fff;white-space:nowrap;flex:0 0 auto}
+.page-label{font-size:16px;font-weight:600;line-height:1.2;color:var(--chrome-fg);white-space:nowrap;flex:0 0 auto}
 .filter-strip{display:flex;align-items:center;gap:8px;min-height:34px;padding:6px 16px;background:var(--surface);border-bottom:1px solid var(--border);font-size:12px;color:var(--muted)}
 .content-body{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
 .panel-area{display:grid;gap:var(--panel-gap);grid-template-columns:repeat(var(--panel-cols,2),minmax(0,1fr));align-items:start}
@@ -67,6 +122,7 @@ body[data-layout="two"]{--panel-cols:2}
 body[data-layout="three"]{--panel-cols:3}
 .panel-area > #kpiPanel{grid-column:1 / -1}
 .panel-area > #matrixPanel{grid-column:1 / -1}
+.panel-area > .panel[data-page="Validation"]{grid-column:1 / -1}
 .panel[data-page]{display:none}
 .panel[data-page].page-active{display:block}
 .wrap[data-shell="content"]{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden;max-width:none;margin:0;padding:14px 20px 52px}
@@ -74,8 +130,8 @@ html{height:100%;overflow:hidden}
 #app{height:100vh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden}
 body{height:100%;margin:0;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden}
 header.app{display:flex;flex-direction:column;position:sticky;top:0;z-index:31;padding:0}
-header.app .app-top{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;background:var(--navy);color:#fff;padding:10px 20px}
-header.app .app-menu{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;background:#fff;color:var(--text);padding:8px 20px}
+header.app .app-top{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;background:var(--chrome-bg);color:var(--chrome-fg);padding:10px 20px}
+header.app .app-menu{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;background:var(--surface);color:var(--text);padding:8px 20px}
 header.app .app-menu .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 header.app .app-menu .filter-group{display:flex;align-items:center;gap:8px;flex-shrink:0}
 /* menu controls are borderless (spec §3.1 / §7.1): highlight on hover only, no icons */
@@ -83,12 +139,12 @@ header.app .app-menu .btn{border:0;background:transparent}
 header.app .app-menu .btn:hover{background:var(--soft)}
 /* Primary CTA must keep its solid fill despite the borderless rule above (spec §3.1 / §7.1).
    Without this, background:transparent out-specifies .btn-primary, leaving white text on white. */
-header.app .app-menu .btn-primary{background:var(--blue);color:#fff}
-header.app .app-menu .btn-primary:hover{background:#0f56a8}
+header.app .app-menu .btn-primary{background:var(--blue);color:var(--on-fill)}
+header.app .app-menu .btn-primary:hover{background:color-mix(in srgb, var(--blue) 85%, black)}
 /* Pressed/toggle state (e.g. the Warnings button when the bar is collapsed) must keep its fill.
    Without this, the .app-menu .btn background:transparent rule overrides .btn[aria-pressed=true], leaving
    white text on the white menu bar — the same white-on-white regression as the primary CTA (I-105/I-106). */
-header.app .app-menu .btn[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+header.app .app-menu .btn[aria-pressed="true"]{background:var(--navy);color:var(--on-fill);border-color:var(--navy)}
 header.app .app-menu .tf-btn{border:0;background:transparent;color:var(--navy)}
 header.app .app-menu .tf-btn:hover{background:var(--soft)}
 header.app .app-menu .tf-btn[aria-expanded="true"]{border:0;background:var(--soft)}
@@ -100,44 +156,28 @@ header.app .app-menu .tf-panel.search-panel.open{display:block}
 /* Search popover: column selector + elongated search field + Find/Reset all on ONE row (spec §3.1). */
 header.app .app-menu .search-panel .search-row{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
 header.app .brand{display:flex;align-items:center;gap:12px;min-width:0}
-header.app .logo{height:36px;width:auto;border-radius:6px;background:#fff;padding:3px;box-shadow:0 1px 3px rgba(0,0,0,.2);flex-shrink:0}
+header.app .logo{height:36px;width:auto;border-radius:6px;background:var(--surface);padding:3px;box-shadow:0 1px 3px rgba(0,0,0,.2);flex-shrink:0}
 header.app .ttl-stack{display:flex;flex-direction:column;gap:2px;min-width:0}
 header.app h1.ttl{font-size:17px;margin:0;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 header.app .ttl-stack .sub{font-size:12px;font-weight:500;color:rgba(255,255,255,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 header.app .meta{font-size:11px;opacity:.85}
 header.app .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.welcome-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.welcome{max-width:480px;width:100%;margin:0;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:48px 48px;line-height:1.45}
-.welcome .wlogo{height:52px;width:auto;margin:0 auto 18px;display:block}
-.welcome h1{margin:0 0 8px;font-size:25px;font-weight:700;letter-spacing:-.02em}
-.welcome .sub{color:var(--muted);font-size:14px;margin:0 0 26px}
-.welcome .expect{background:var(--soft);border:1px solid var(--accent-soft-border);border-radius:12px;padding:12px 16px;font-size:12px;color:var(--accent-ink);margin:0 0 20px;text-align:left}
-.welcome .expect b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--blue);margin-bottom:3px}
-.welcome .drop{border:1.5px dashed var(--line);border-radius:16px;padding:24px 16px;margin-bottom:22px;cursor:pointer;transition:.2s;text-align:center}
-.welcome .drop.hover{border-color:var(--accent);background:var(--soft)}
-.welcome .drop .d-title{font-weight:600;font-size:14px;color:var(--text);margin-bottom:4px}
-.welcome .drop .d-sub{font-size:12px;color:var(--muted);margin-bottom:0}
-.welcome .drop .err{color:var(--red);font-size:12px;margin-top:10px}
-.welcome .privacy{font-size:11.5px;color:var(--muted);margin-top:18px;display:flex;gap:6px;align-items:center;justify-content:center}
-.welcome .privacy svg{width:13px;height:13px;fill:var(--muted)}
-.welcome .btn{font-size:14px;padding:12px 22px;min-height:0;line-height:1.45}
-.welcome .copyright{font-size:11.5px;color:var(--muted);margin-top:6px}
 .sys-banner-item{padding:9px 20px;border-bottom:1px solid rgba(0,0,0,.10);font-size:12px;line-height:1.4}
 .sys-banner-item:last-child{border-bottom:none}
-.sys-banner-item.warn{background:var(--amber);color:#5a3d00}
-.sys-banner-item.fatal{background:var(--red);color:#fff}
-.sys-banner-item.info{background:#e8eef5;color:#33526b}
+.sys-banner-item.warn{background:var(--amber);color:var(--warn-fg)}
+.sys-banner-item.fatal{background:var(--red);color:var(--on-fill)}
+.sys-banner-item.info{background:var(--soft);color:var(--text2)}
 .sys-banner-item b{font-weight:700;margin-right:4px}
 /* in-flow warning bar (spec §3.5) — unified with load failures */
 #errBanner{display:block;flex:0 0 auto;font-size:12px;line-height:1.4;box-shadow:0 2px 10px rgba(0,0,0,.18)}#errBanner[hidden]{display:none}
 .wrap{max-width:1320px;margin:0 auto;padding:16px;padding-bottom:52px}
-.status-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 14px;background:var(--navy);color:#E8EDF3;font-size:12px;user-select:none;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
+.status-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 14px;background:var(--chrome-bg);color:var(--chrome-fg);font-size:12px;user-select:none;overflow:hidden;border-top:1px solid rgba(255,255,255,.14)}
 .status-bar .sb-left,.status-bar .sb-right{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
 .status-bar .sb-right{color:rgba(232,237,243,.82)}
 .status-bar b{font-weight:700;opacity:.92}
-.status-bar .sb-dot{width:8px;height:8px;border-radius:50%;background:#37d67a;flex:none}
+.status-bar .sb-dot{width:8px;height:8px;border-radius:50%;background:var(--ok-fg);flex:none}
 .status-bar .sb-file{max-width:320px;overflow:hidden;text-overflow:ellipsis}
-.status-bar .sb-err{color:#FFCDD2}
+.status-bar .sb-err{color:var(--error-bg)}
 @media print{.status-bar{display:none}}
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 14px 26px;margin:14px 0;box-shadow:0 1px 2px rgba(15,45,82,.04);position:relative}
 .panel[data-panel]::after{content:"Panel " attr(data-panel);position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:.04em;color:var(--muted);pointer-events:none}
@@ -148,7 +188,7 @@ header.app .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .kpi{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;padding:10px}
 .kpi .v{font-size:22px;font-weight:700;color:var(--navy)} .kpi .l{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:2px}
 .kpi.warn{border-top-color:var(--red)} .kpi.ok{border-top-color:var(--green)} .kpi.amb{border-top-color:var(--amber)}
-.kpi.muted{border-top-color:var(--slate)} .kpi.err{border-top-color:#8E24AA}
+.kpi.muted{border-top-color:var(--slate)} .kpi.err{border-top-color:var(--accent-purple)}
 .subkpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
 .subkpi{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
 .subkpi .v{font-size:16px;font-weight:700;color:var(--navy)} .subkpi .l{font-size:10px;color:var(--muted)}
@@ -170,6 +210,9 @@ header.app .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .toolbar .tool-filters{display:flex;gap:var(--tool-gap);align-items:center;flex-wrap:wrap}
 .toolbar .tool-actions{margin-left:auto;display:flex;gap:var(--tool-gap);align-items:center;flex-wrap:wrap}
 .toolbar.matrix-tools{padding:var(--tool-pad);margin-bottom:0}
+.toolbar.overdue-tools{padding:var(--tool-pad);margin-bottom:0}
+.overdue-tools .cnt{margin-left:0}
+.overdue-card.c-card{border:0;padding:0}
 .panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
 .panel-head h2{margin:0}
 .panel-head h3{margin:0;font-size:13px;font-weight:700;color:var(--navy)}
@@ -182,11 +225,11 @@ header.app .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .panel.collapsed .panel-body{display:none}
 .help-modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:24px}
 .help-modal[hidden]{display:none}
-.help-modal .box{background:#fff;border:1px solid var(--border);border-radius:12px;max-width:680px;width:100%;max-height:84vh;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.help-modal .box{background:var(--surface);border:1px solid var(--border);border-radius:12px;max-width:680px;width:100%;max-height:84vh;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.25)}
 .help-modal .box header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border)}
 .help-modal .box header h3{margin:0;font-size:15px;color:var(--navy)}
 /* A4: the modal close is a plain .icon-btn — 26 px square, no size/padding override (spec §7.1). */
-.help-modal .box .body{overflow:auto;padding:16px 18px;font-size:13px;line-height:1.55;color:#22303f}
+.help-modal .box .body{overflow:auto;padding:16px 18px;font-size:13px;line-height:1.55;color:var(--text)}
 .help-modal .body h4{margin:16px 0 6px;font-size:13px;color:var(--navy)}
 .help-modal .body h4:first-child{margin-top:0}
 .help-modal .body p{margin:6px 0}
@@ -198,35 +241,35 @@ header.app .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:32px;padding:7px 14px;font-size:12px;font-weight:600;line-height:1.2;border:1px solid transparent;border-radius:6px;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
 .btn:hover{filter:brightness(.97)}
 :focus-visible{outline:2px solid var(--blue);outline-offset:2px}
-.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
-.btn-primary:hover{background:#1565c0;border-color:#1565c0}
-.btn-secondary{background:#fff;color:var(--navy);border-color:var(--border)}
-.btn-secondary:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
-.btn-active{background:var(--navy);color:#fff;border-color:var(--navy)}
-.btn-active:hover{background:#0b2240;border-color:#0b2240}
-.btn .badge{background:#e0533d;color:#fff;border-radius:999px;padding:0 6px;font-size:11px;font-weight:700;min-width:16px;text-align:center;line-height:1.5}
-.btn[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn-primary{background:var(--blue);color:var(--on-fill);border-color:var(--blue)}
+.btn-primary:hover{background:color-mix(in srgb, var(--blue) 85%, black);border-color:color-mix(in srgb, var(--blue) 85%, black)}
+.btn-secondary{background:var(--surface);color:var(--navy);border-color:var(--border)}
+.btn-secondary:hover{background:var(--blue);color:var(--on-fill);border-color:var(--blue)}
+.btn-active{background:var(--navy);color:var(--on-fill);border-color:var(--navy)}
+.btn-active:hover{background:color-mix(in srgb, var(--chrome-bg) 85%, black);border-color:color-mix(in srgb, var(--chrome-bg) 85%, black)}
+.btn .badge{background:var(--badge-bg);color:var(--on-fill);border-radius:999px;padding:0 6px;font-size:11px;font-weight:700;min-width:16px;text-align:center;line-height:1.5}
+.btn[aria-pressed="true"]{background:var(--navy);color:var(--on-fill);border-color:var(--navy)}
 .app-menu .warn-toggle{margin-left:6px}
 .seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
-.seg button{border:0;background:#fff;color:var(--navy);padding:7px 14px;min-height:32px;font-size:12px;font-weight:600;cursor:pointer;border-right:1px solid var(--border);text-transform:none;letter-spacing:0}
+.seg button{border:0;background:var(--surface);color:var(--navy);padding:7px 14px;min-height:32px;font-size:12px;font-weight:600;cursor:pointer;border-right:1px solid var(--border);text-transform:none;letter-spacing:0}
 .seg button:last-child{border-right:0}
-.seg button.on{background:var(--navy);color:#fff}
-.seg button:hover:not(.on){background:var(--blue);color:#fff}
+.seg button.on{background:var(--navy);color:var(--on-fill)}
+.seg button:hover:not(.on){background:var(--blue);color:var(--on-fill)}
 .tf-wrap{position:relative;flex-shrink:0}
-.tf-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--navy);padding:7px 12px;min-height:32px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.tf-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--navy);padding:7px 12px;min-height:32px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
 .tf-btn:hover{background:var(--soft)}
 .tf-btn[aria-expanded="true"]{border-color:var(--accent);background:var(--soft)}
-.tf-btn.is-filtered{border-color:var(--accent);color:var(--accent);background:#fff}
+.tf-btn.is-filtered{border-color:var(--accent);color:var(--accent);background:var(--surface)}
 .tf-btn .tf-cnt{font-size:10px;background:var(--bg);border:1px solid var(--border);color:var(--muted);padding:1px 6px;border-radius:10px;font-weight:600}
 .tf-btn.is-filtered .tf-cnt{background:var(--soft);border-color:var(--accent-soft-border);color:var(--accent-ink)}
-.tf-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:40;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);min-width:220px;max-width:min(340px,90vw);max-height:320px;overflow:auto;padding:10px;color:var(--text)}
+.tf-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:40;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);min-width:220px;max-width:min(340px,90vw);max-height:320px;overflow:auto;padding:10px;color:var(--text)}
 .tf-panel[hidden]{display:none}
 .search{display:flex;align-items:center;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:6px;min-height:28px;padding:0;flex:0 0 auto;width:320px;max-width:42vw}
 .search:focus-within{border-color:var(--accent);box-shadow:0 0 0 2px var(--soft)}
 select.inter-sel.is-attached{border:0;border-right:1px solid var(--border);background:var(--bg);color:var(--ink);font:inherit;font-weight:600;font-size:12px;border-radius:6px 0 0 6px;height:26px;padding:0 8px;cursor:pointer}
 .search-input{border:0;background:transparent;color:var(--text);font:inherit;font-size:12px;flex:1 1 220px;min-width:0;height:26px;outline:none}
 .search-input::placeholder{color:var(--muted)}
-.search-btn{background:var(--accent);color:#fff;border:0;border-radius:0 6px 6px 0;min-height:28px;padding:0 12px;cursor:pointer;font-size:13px;line-height:1}
+.search-btn{background:var(--accent);color:var(--on-fill);border:0;border-radius:0 6px 6px 0;min-height:28px;padding:0 12px;cursor:pointer;font-size:13px;line-height:1}
 .search-btn:hover{filter:brightness(.97)}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);border:0}
 .tf-panel .tf-all{display:flex;align-items:center;gap:8px;padding:2px;font-size:12px;cursor:pointer}
@@ -246,18 +289,18 @@ select.inter-sel.is-attached{border:0;border-right:1px solid var(--border);backg
 .ds-table thead th.cf-on{background:var(--soft);color:var(--accent-ink)}
 .ds-table thead th.cf-on .sort-lbl{color:var(--accent-ink)}
 .sb-loading{opacity:.85;font-weight:600}
-.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;min-height:26px;padding:0;font:inherit;font-size:13px;font-weight:600;line-height:1;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--muted);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;min-height:26px;padding:0;font:inherit;font-size:13px;font-weight:600;line-height:1;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--muted);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
 .icon-btn:hover{background:var(--soft);color:var(--navy);border-color:var(--line)}
 .sc-win .msg{font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap}
 /* Toast (spec §7.10) — fixed, centred, above the status bar (z-index 45) */
 #toast{position:fixed;left:50%;bottom:52px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;align-items:center;z-index:45;pointer-events:none;max-width:min(92vw,440px)}
-.toast{pointer-events:auto;display:flex;align-items:center;gap:8px;min-width:180px;max-width:440px;padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.3;color:#fff;background:var(--navy);box-shadow:0 6px 20px rgba(15,45,82,.28);opacity:0;transform:translateY(12px);transition:opacity .2s ease,transform .2s ease;cursor:pointer}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:8px;min-width:180px;max-width:440px;padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.3;color:var(--on-fill);background:var(--navy);box-shadow:0 6px 20px rgba(15,45,82,.28);opacity:0;transform:translateY(12px);transition:opacity .2s ease,transform .2s ease;cursor:pointer}
 .toast.show{opacity:1;transform:translateY(0)}
 .toast .ti{flex:none;font-size:14px;line-height:1;font-weight:700}
 .toast .tt{overflow:hidden;text-overflow:ellipsis}
 .toast-success{background:var(--green)}
 .toast-info{background:var(--blue)}
-.toast-warning{background:var(--amber);color:#3a2a00}
+.toast-warning{background:var(--amber);color:var(--warn-fg)}
 .toast-error{background:var(--red)}
 @media (prefers-reduced-motion: reduce){ .toast{transition:opacity .2s ease;transform:none} .toast.show{transform:none} }
 .charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch}
@@ -278,7 +321,7 @@ select.inter-sel:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .chart .chart-host svg{max-width:100%}
 .chart svg{display:block;height:auto;max-width:100%}
 .filters{display:block}
-.filters .grp{border:1px solid var(--border);border-radius:8px;padding:6px 10px;background:#fff}
+.filters .grp{border:1px solid var(--border);border-radius:8px;padding:6px 10px;background:var(--surface)}
 .filters .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:4px}
 
 .chips{display:flex;flex-wrap:wrap;gap:4px;max-width:420px;max-height:130px;overflow:auto;padding-right:4px}
@@ -287,31 +330,30 @@ select.inter-sel:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .filters .grp-head .lbl{margin-bottom:0}
 .filters .grp-actions{display:inline-flex;align-items:center;gap:6px}
 .filters .badge{font-size:10px;background:var(--bg);border:1px solid var(--border);color:var(--muted);padding:1px 6px;border-radius:10px;font-weight:600}
-.filters-help{font-size:11px;color:#7A8A99;margin:0 0 8px}
-.zone-label{font-size:10px;font-weight:700;color:#9AA7B4;letter-spacing:1px;text-transform:uppercase;margin:6px 0 6px}
+.filters-help{font-size:11px;color:var(--muted);margin:0 0 8px}
+.zone-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin:6px 0 6px}
 .filters-cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:12px}
 .filters-utils{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
 .filters-utils .grp.util:first-child{flex:1 1 420px;max-width:none}
 .filters-utils .grp.util.actions{margin-left:auto}
 .filters-utils .grp.util{border:none;background:transparent;padding:0}
 .filters #fSearch{width:100%;max-width:560px;margin-top:4px}
-.filters .grp.active{border-color:#E0A100;box-shadow:inset 4px 0 0 #E0A100}
-.filters .grp.active .badge{background:#FFF4D6;border-color:#E0A100;color:#9a6b00}
-.filtered-note{font-size:9px;color:#9A6B00;margin-top:6px}
+.filters .grp.active{border-color:var(--amber);box-shadow:inset 4px 0 0 var(--amber)}
+.filters .grp.active .badge{background:var(--warn-bg);border-color:var(--amber);color:var(--warn-fg)}
+.filtered-note{font-size:9px;color:var(--warn-fg);margin-top:6px}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th,td{border-bottom:1px solid var(--border);padding:9px 10px;text-align:left}
-th{background:var(--navy);color:#fff;font-weight:600;position:sticky;top:0;cursor:pointer;user-select:none}
-tbody tr:nth-child(even){background:var(--bg)}
+th{background:var(--thead-bg,var(--navy));color:var(--thead-fg,var(--on-fill));font-weight:600;position:sticky;top:0;cursor:pointer;user-select:none}
+tbody tr:nth-child(even){background:var(--ds-zebra)}
 tbody tr:hover{background:var(--soft)}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
-.ds-table .over{background:var(--warn-bg)}
 .pill{padding:1px 7px;border-radius:999px;font-size:10px;font-weight:600}
 .p-app{background:var(--ok-bg);color:var(--ok-fg)} .p-awc{background:var(--warn-bg);color:var(--warn-fg)}
 .p-rej{background:var(--error-bg);color:var(--error-fg)} .p-nap{background:var(--grid);color:var(--slate)}
-.p-sur{background:var(--soft);color:var(--accent-ink)} .p-rtr{background:#FFF0E0;color:#b5651d}
+.p-sur{background:var(--soft);color:var(--accent-ink)} .p-rtr{background:var(--status-amber2-bg);color:var(--status-amber2-fg)}
 .p-nts{background:var(--ok-bg);color:var(--ok-fg)}
-.p-pend{background:#E3F2FD;color:#0D47A1} .p-unav{background:#ECEFF1;color:#546E7A}
-.p-nsub{background:#E8EEF1;color:#37474F} .p-rerr{background:#F3E5F5;color:#6A1B9A}
+.p-pend{background:var(--soft);color:var(--accent-ink)} .p-unav{background:var(--status-neutral-bg);color:var(--status-neutral-fg)}
+.p-nsub{background:var(--status-neutral2-bg);color:var(--status-neutral2-fg)} .p-rerr{background:var(--status-purple-bg);color:var(--status-purple-fg)}
 /* §7.2.4 — a severity is a FIXED-SIZE inline SVG on an inner <span>, never a class on the
    <td> (a non-table-cell display value takes the cell out of table formatting, RC-1) and
    never an emoji (per-glyph font metrics make the Sev row taller than its neighbours, RC-4).
@@ -320,7 +362,16 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
   display:inline-flex;align-items:center;vertical-align:middle;white-space:nowrap;
   font-size:inherit;line-height:inherit}
 .act{color:var(--ok-fg);font-weight:700} .ina{color:var(--slate)}
-/* Validation-panel severity summary chips — PPP shape (spec §4.5 overrides §7.10's 999px pill) */
+/* Panel subtitle count chips (spec §4 rev 1.93 / §4.5) */
+.pchip-row{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;margin:0 0 10px}
+.pchip-row.v-chip-row{margin-bottom:12px}
+.pchip{display:inline-flex;align-items:center;gap:5px;height:22px;padding:2px 8px;border:1px solid;border-radius:6px;font-size:11px;font-weight:700;line-height:1.4;white-space:nowrap}
+.pchip b{font-weight:700}
+.pchip.blue{background:var(--pchip-blue-bg);border-color:var(--pchip-blue-border);color:var(--pchip-blue-ink)}
+.pchip.violet{background:var(--pchip-violet-bg);border-color:var(--pchip-violet-border);color:var(--pchip-violet-ink)}
+.pchip.green{background:var(--pchip-green-bg);border-color:var(--pchip-green-border);color:var(--pchip-green-ink)}
+.pchip.neutral{background:var(--pchip-neutral-bg);border-color:var(--pchip-neutral-border);color:var(--pchip-neutral-ink)}
+/* Validation severity chips — one row with the count chips; no emoji in the table cells */
 .vchips{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
 .vchip{display:inline-flex;align-items:center;gap:4px;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;text-transform:capitalize;line-height:1.4;white-space:nowrap}
 .vchip.e{background:var(--error-bg);color:var(--error-fg)}
@@ -336,7 +387,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .vrefcard{border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:6px 0}
 /* §7.2.15 — the card title band is part of the header: SAME navy, SAME white 12px/600
    as the thead cells. A light band above a navy header reads as two different components. */
-.vrefhead{padding:6px 10px;font-size:12px;font-weight:600;color:#fff;background:var(--navy);border-bottom:1px solid var(--ds-head-rule)}
+.vrefhead{padding:6px 10px;font-size:12px;font-weight:600;color:var(--thead-fg,var(--on-fill));background:var(--thead-bg,var(--navy));border-bottom:1px solid var(--ds-head-rule)}
 /* §18 split-header contract (1) — ONE container: header + body read as a single rounded table, so the
    inner scroller's own border, radius and top margin are neutralised. Shared by every split-header
    table; a table must not hand-roll a partial copy of this. */
@@ -377,14 +428,15 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .tableScroll{overflow:auto;max-height:340px;margin-top:8px;border:1px solid var(--border);border-radius:10px}
 .tableScroll table th{cursor:default}
 /* === .ds-table base (spec §7.2) === */
-.ds-table{width:100%;border-collapse:collapse;font-size:12px;background:#fff;table-layout:fixed}
+.ds-table{width:100%;border-collapse:collapse;font-size:12px;background:var(--surface);table-layout:fixed}
 .ds-table th,.ds-table td{border-bottom:1px solid var(--border);padding:9px 10px;text-align:left;vertical-align:top}
-.ds-table thead th{background:var(--navy);color:#fff;font-size:12px;font-weight:600}
+.ds-table thead th{background:var(--thead-bg,var(--navy));color:var(--thead-fg,var(--on-fill));font-size:12px;font-weight:600}
 .ds-table th[scope="row"]{font-weight:400}
 .ds-table .num{text-align:right;font-variant-numeric:tabular-nums}
-.ds-table tbody tr:nth-child(even){background:#F9FBFD}
+.ds-table .enum{text-align:center}
+.ds-table .doc-full{white-space:nowrap;overflow:visible;text-overflow:clip}
+.ds-table tbody tr:nth-child(even){background:var(--ds-zebra)}
 .ds-table tbody tr:hover{background:var(--soft)}
-.ds-table .over{background:var(--warn-bg)}
 .ds-table .empty{color:var(--muted);text-align:center}
 /* === §7.2.3 / §7.2.5 grid discipline — ROLLED OUT GLOBALLY (I-90, from the Rule
    Reference pilot). Row height is ENFORCED by the token rather than left to content
@@ -412,7 +464,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
    truncates but the indicator (flex:0 0 auto) stays visible at the cell's right edge. */
 .ds-table thead th .sort-btn{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;
   cursor:pointer;display:flex;align-items:center;gap:4px;width:100%;text-align:left}
-.ds-table thead th .sort-btn:focus-visible{outline:2px solid #2b6cb0;outline-offset:1px;border-radius:2px}
+.ds-table thead th .sort-btn:focus-visible{outline:2px solid var(--blue);outline-offset:1px;border-radius:2px}
 .ds-table thead th .sort-lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .ds-table thead th .sort-ind{flex:0 0 auto;font-size:9px;line-height:1;opacity:.6;margin-left:auto}
 .ds-table thead th[aria-sort="none"] .sort-ind{opacity:.3}
@@ -427,25 +479,25 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
    bound to <td>), so only the split-header (.vheadtab), the title band (.vrefhead) and the
    gutter column stay Rule-Reference-only. */
 .sev-svg{width:14px;height:14px;flex:0 0 14px;display:block}
-.note{background:#FFF8E1;border:1px solid var(--amber);color:#7a5b00;padding:8px 12px;border-radius:8px;font-size:12px;margin:10px 0}
+.note{background:var(--warn-bg);border:1px solid var(--amber);color:var(--warn-fg);padding:8px 12px;border-radius:8px;font-size:12px;margin:10px 0}
 .panel-error{background:var(--error-bg);border:1px solid var(--error-fg);color:var(--error-fg);padding:12px 14px;border-radius:8px;font-size:12px;margin:8px 0;line-height:1.5}
 .pe-detail{display:block;margin-top:6px;font-size:11px;opacity:.85}
 .sb-err{border-color:var(--error-fg)}
 .expand{cursor:pointer;color:var(--blue);font-size:10px;white-space:nowrap;user-select:none;border:0;background:transparent;padding:0;font-family:inherit}
 .expand.open{color:var(--navy);font-weight:600}
 
-.matrix{width:100%;border-collapse:collapse;font-size:12px;background:#fff}
+.matrix{width:100%;border-collapse:collapse;font-size:12px;background:var(--surface)}
 .matrix th,.matrix td{border-bottom:1px solid var(--border);padding:4px 8px;text-align:center;white-space:nowrap}
 .matrix th:first-child,.matrix td:first-child{text-align:left}
-.matrix thead tr.group th{background:var(--navy);color:#fff;font-weight:700}
-.matrix thead tr.group th.tint{background:#FFF9C4;color:#7a5b12}
-.matrix th.tint{background:#FFF9C4;color:#7a5b12}
-.matrix td.col-tint{background:#FFF9C4}
+.matrix thead tr.group th{background:var(--thead-bg,var(--navy));color:var(--thead-fg,var(--on-fill));font-weight:700}
+.matrix thead tr.group th.tint{background:var(--warn-bg);color:var(--warn-fg)}
+.matrix th.tint{background:var(--warn-bg);color:var(--warn-fg)}
+.matrix td.col-tint{background:var(--warn-bg)}
 .matrix tfoot td{background:var(--bg);font-weight:700;border-top:2px solid var(--navy)}
-.matrix tbody tr:nth-child(even){background:#fafcff}
-.matrix tbody tr.sub{background:#F2F6FB}
+.matrix tbody tr:nth-child(even){background:var(--ds-zebra)}
+.matrix tbody tr.sub{background:var(--soft)}
 .matrix tbody tr.sub td.subname{text-align:left;padding-left:22px;color:var(--muted);font-style:italic}
-.matrix td.noexp{color:#c2ccd6;text-align:center}
+.matrix td.noexp{color:var(--muted);text-align:center}
 /* matrix split-header fragment (I-101): the header lives outside the scroller, always visible,
    never sticky — the scrollbar sits under it, not beside it */
 /* The matrix fragment inherits the shared .splitcard contract (margin, width, position:relative and
@@ -466,10 +518,18 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 #matrixPanel .matrixcard{overflow:hidden}
 #matrixPanel .tableScroll{max-height:none}
 .ds-table[data-table-crosshair] th:not(.ds-pinned),.ds-table[data-table-crosshair] td:not(.ds-pinned){position:relative}
-.ds-table[data-table-crosshair] tbody tr.row-hover > td,.ds-table[data-table-crosshair] td.col-hover{background-image:linear-gradient(var(--crosshair-track),var(--crosshair-track))}
-.ds-table[data-table-crosshair] td.cell-hover{background-image:linear-gradient(var(--crosshair-intersection),var(--crosshair-intersection));box-shadow:inset 0 0 0 1px var(--crosshair-ring)}
-.ds-table[data-table-crosshair] th.col-hover{background-image:linear-gradient(var(--header-crosshair-overlay),var(--header-crosshair-overlay));box-shadow:inset 0 -2px 0 var(--header-crosshair-accent)}
-.ds-table[data-table-crosshair] th.cell-hover{background-image:linear-gradient(var(--header-crosshair-overlay),var(--header-crosshair-overlay));box-shadow:inset 0 0 0 1px var(--crosshair-ring),inset 0 -2px 0 var(--header-crosshair-accent)}
+/* Crosshair v2 (user-specified 20-point contract, 2026-11-28): background-color (true alpha, NOT
+   background-image) so the tint blends with whatever the row already painted (zebra, selection,
+   status colour) instead of replacing it. Exactly 3 tiers: faint (row/col) < medium (headers) <
+   strong (active cell), each color-mix(in srgb, var(--accent) N%, transparent) so it is always
+   theme's own accent at a theme-appropriate opacity (--crosshair-faint/-medium/-strong, defined
+   per theme in common/tokens/tokens.css). No transition — response must be instant (<=80ms rule). */
+.ds-table[data-table-crosshair] tbody tr.row-hover > td,.ds-table[data-table-crosshair] td.col-hover{background-color:var(--crosshair-faint)}
+.ds-table[data-table-crosshair] td.cell-hover{background-color:var(--crosshair-strong);box-shadow:inset 0 0 0 2px var(--crosshair-ring)}
+.ds-table[data-table-crosshair] th.col-hover{background-color:var(--crosshair-medium);font-weight:700;box-shadow:inset 0 -2px 0 var(--header-crosshair-accent)}
+.ds-table[data-table-crosshair] th.cell-hover{background-color:var(--crosshair-medium);font-weight:700;box-shadow:inset 0 0 0 2px var(--crosshair-ring),inset 0 -2px 0 var(--header-crosshair-accent)}
+.ds-table[data-table-crosshair] th.rowhead-hover{background-color:var(--crosshair-medium);font-weight:700;box-shadow:inset -2px 0 0 var(--header-crosshair-accent)}
+.curve-card .curve-c1-table tbody th.g-label.rowhead-hover{background-color:var(--crosshair-medium);font-weight:700;box-shadow:inset -2px 0 0 var(--header-crosshair-accent)}
 .ds-table[data-table-crosshair] :focus-visible{outline:2px solid var(--crosshair-ring);outline-offset:-2px}
 
 .tableScroll thead th{position:sticky;top:0;z-index:2;box-shadow:0 1px 0 var(--border)}
@@ -477,7 +537,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
    z-index ladder (§7.2.13): plain td (auto) < pinned td (1) < sticky header th (2) <
    pinned header th (4) < resize grip (5). The pinned cell carries an OPAQUE background
    and re-declares the zebra / hover colours, otherwise scrolled content shows through. */
-.ds-table td.ds-pinned{position:sticky;background:#fff}
+.ds-table td.ds-pinned{position:sticky;background:var(--surface)}
 /* Pinned HEADER cells must keep the navy header fill, not a white one — otherwise the
    inherited white header text (th{color:#fff}) becomes white-on-white (MDL I-105). */
 .ds-table th.ds-pinned{position:sticky;background:var(--navy)}
@@ -485,8 +545,11 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .ds-table thead th.ds-pinned{z-index:4}
 .ds-table td.ds-pinned{box-shadow:1px 0 0 var(--border)}
 .ds-table td.ds-pinned-edge{box-shadow:1px 0 0 var(--border),4px 0 10px -4px rgba(15,30,50,.28)}
-.ds-table tbody tr:nth-child(even) td.ds-pinned{background:#F9FBFD}
+.ds-table tbody tr:nth-child(even) td.ds-pinned{background:var(--ds-zebra)}
 .ds-table tbody tr:hover td.ds-pinned{background:var(--soft)}
+.ds-table[data-table-crosshair] tbody tr.row-hover > td.ds-pinned,.ds-table[data-table-crosshair] td.ds-pinned.col-hover{background-image:linear-gradient(var(--crosshair-faint),var(--crosshair-faint))}
+.ds-table[data-table-crosshair] td.ds-pinned.cell-hover{background-image:linear-gradient(var(--crosshair-strong),var(--crosshair-strong));box-shadow:1px 0 0 var(--border),inset 0 0 0 2px var(--crosshair-ring)}
+.ds-table[data-table-crosshair] tbody tr.row-hover > td.ds-pinned.cell-hover{background-image:linear-gradient(var(--crosshair-strong),var(--crosshair-strong));box-shadow:1px 0 0 var(--border),inset 0 0 0 2px var(--crosshair-ring)}
 /* column resize grip (I-95, §7.2.13): 6 px wide, ≥24 px hit area via the padded edge */
 .ds-resize{position:absolute;top:0;right:-4px;width:9px;height:100%;cursor:col-resize;touch-action:none;z-index:5;border:0;background:transparent;padding:0}
 .ds-resize::after{content:"";position:absolute;top:8px;bottom:8px;right:3px;width:2px;background:transparent;border-radius:1px}
@@ -499,9 +562,9 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
    never be mistaken for a row filter. It deliberately carries no count badge and no [aria-expanded]
    active-filter emphasis — the two cues that say "this narrows your rows". */
 .cc-wrap{position:relative;flex-shrink:0}
-.cc-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--navy);padding:7px 12px;min-height:32px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.cc-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--navy);padding:7px 12px;min-height:32px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
 .cc-btn:hover{background:var(--soft)}
-.cc-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:40;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);min-width:260px;max-width:min(420px,92vw);max-height:380px;overflow:auto;padding:10px}
+.cc-panel{position:absolute;top:calc(100% + 6px);right:0;z-index:40;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);min-width:260px;max-width:min(420px,92vw);max-height:380px;overflow:auto;padding:10px}
 .cc-panel[hidden]{display:none}
 .cc-panel .cc-row{display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:12px}
 .cc-panel .cc-row input{flex:0 0 auto}
@@ -569,28 +632,29 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .curve-card .curve-c1-table{grid-column:1/-1;grid-row:2;width:100%;min-width:0;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid var(--border);border-radius:10px;margin:0}
 .curve-card .curve-c1-table caption{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .curve-card .curve-c1-table th,.curve-card .curve-c1-table td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px 6px;text-align:right;font-size:11px;font-variant-numeric:tabular-nums;color:var(--text);background:var(--surface)}
+.curve-card .curve-c1-table tbody tr:nth-child(even) td{background:var(--ds-zebra)}
 .curve-card .curve-c1-table tr>*:last-child{border-right:0}
 .curve-card .curve-c1-table tbody tr:last-child>*{border-bottom:0}
-.curve-card .curve-c1-table thead th{background:var(--navy);color:#fff}
-.curve-card .curve-c1-table thead th.corner{text-align:left;color:#fff;font-size:10px;font-weight:700}
-.curve-card .curve-c1-table thead th.g-axis,.curve-card .curve-c1-table thead th.g-label{font-size:11px;font-weight:600;color:#fff;white-space:nowrap}
+.curve-card .curve-c1-table thead th{background:var(--thead-bg,var(--navy));color:var(--thead-fg,var(--on-fill))}
+.curve-card .curve-c1-table thead th.corner{text-align:left;color:var(--thead-fg,var(--on-fill));font-size:10px;font-weight:700}
+.curve-card .curve-c1-table thead th.g-axis,.curve-card .curve-c1-table thead th.g-label{font-size:11px;font-weight:600;color:var(--thead-fg,var(--on-fill));white-space:nowrap}
 .curve-card .curve-c1-table tbody th.g-label{text-align:left;background:var(--surface2);color:var(--text2);font-size:11px;font-weight:600}
 .curve-card .curve-c1-table thead th.g-axis span{display:inline-block;writing-mode:horizontal-tb;white-space:nowrap}
 .curve-card .curve-c1-table.c1-many thead th.g-axis{height:88px;padding:2px}
 .curve-card .curve-c1-table.c1-many thead th.g-axis span{writing-mode:vertical-rl;text-orientation:mixed}
 .curve-card .curve-c1-table [data-c1col]:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
-.curve-card .curve-c1-table td.col-active,.curve-card .curve-c1-table th[scope=row].col-active{background-color:var(--crosshair-track);font-weight:600}
-.curve-card .curve-c1-table th[data-c1col].col-active{background-image:linear-gradient(var(--header-crosshair-overlay),var(--header-crosshair-overlay)),linear-gradient(var(--header-crosshair-accent),var(--header-crosshair-accent));background-size:auto,100% 2px;background-position:center,center bottom;background-repeat:no-repeat}
+.curve-card .curve-c1-table td.col-active,.curve-card .curve-c1-table th[scope=row].col-active{background-color:var(--crosshair-faint);font-weight:700}
+.curve-card .curve-c1-table th[data-c1col].col-active{background-color:var(--crosshair-medium);font-weight:700;box-shadow:inset 0 -2px 0 var(--header-crosshair-accent)}
 @media (hover:hover) and (pointer:fine){
-.curve-card .curve-c1-table td.cell-hover,.curve-card .curve-c1-table th[scope=row].cell-hover{background-color:var(--crosshair-intersection);box-shadow:inset 0 0 0 1px var(--crosshair-ring)}
-.curve-card .curve-c1-table th[data-c1col].cell-hover{background-color:var(--crosshair-intersection);background-image:linear-gradient(var(--header-crosshair-overlay),var(--header-crosshair-overlay)),linear-gradient(var(--header-crosshair-accent),var(--header-crosshair-accent));background-size:auto,100% 2px;background-position:center,center bottom;background-repeat:no-repeat}
+.curve-card .curve-c1-table td.cell-hover,.curve-card .curve-c1-table th[scope=row].cell-hover{background-color:var(--crosshair-strong);box-shadow:inset 0 0 0 2px var(--crosshair-ring)}
+.curve-card .curve-c1-table th[data-c1col].cell-hover{background-color:var(--crosshair-medium);font-weight:700;box-shadow:inset 0 0 0 2px var(--crosshair-ring),inset 0 -2px 0 var(--header-crosshair-accent)}
 }
 .curve-card .sc-hover-band{fill:var(--blue);fill-opacity:.08;pointer-events:none;display:none}
 .curve-card .chart-snap{stroke:var(--text3);stroke-width:1;stroke-dasharray:3 3;pointer-events:none;display:none}
 .curve-card .curve-c1-plot.col-on .sc-hover-band,.curve-card .curve-c1-plot.col-on .chart-snap{display:inline}
 .curve-card .curve-mode-dual{color:var(--amber)}
 /* §7.2.11 — a bounded scroller capped at 340 px would print every long table as a clipping */
-@media print{body{background:#fff}.tableScroll{max-height:none!important;overflow:visible!important}.panel{break-inside:avoid;box-shadow:none}.filters,.toolbar{display:none}header.app{position:static}header.app .app-menu{display:none!important}#errBanner{display:none!important}.panel.collapsed .panel-body{display:block}.ds-table .row-hover,.ds-table .col-hover,.ds-table .cell-hover{background:none!important;background-image:none!important;box-shadow:none!important;color:inherit!important}.curve-card .chart-tip{display:none!important}.curve-card .sc-hover-band,.curve-card .chart-snap,.curve-card .curve-c1-plot.col-on .sc-hover-band,.curve-card .curve-c1-plot.col-on .chart-snap{display:none!important}.curve-card .col-active,.curve-card .row-hover td,.curve-card .row-hover th[scope=row],.curve-card .cell-hover{background-image:none!important;background-color:transparent!important;box-shadow:none!important;color:inherit!important}}
+@media print{body{background:#fff}.tableScroll{max-height:none!important;overflow:visible!important}.panel{break-inside:avoid;box-shadow:none}.filters,.toolbar{display:none}header.app{position:static}header.app .app-menu{display:none!important}#errBanner{display:none!important}.panel.collapsed .panel-body{display:block}.ds-table .row-hover,.ds-table .col-hover,.ds-table .cell-hover,.ds-table .rowhead-hover{background:none!important;background-image:none!important;box-shadow:none!important;color:inherit!important;font-weight:inherit!important}.curve-card .chart-tip{display:none!important}.curve-card .sc-hover-band,.curve-card .chart-snap,.curve-card .curve-c1-plot.col-on .sc-hover-band,.curve-card .curve-c1-plot.col-on .chart-snap{display:none!important}.curve-card .col-active,.curve-card .row-hover td,.curve-card .row-hover th[scope=row],.curve-card .cell-hover{background-image:none!important;background-color:transparent!important;box-shadow:none!important;color:inherit!important}}
 @media (min-width:1280px){.curve-card .sc-win{flex-wrap:nowrap;min-width:0}.curve-card .sc-win .lbl,.curve-card .sc-win .c1-ts-body,.curve-card .sc-win .msg{white-space:nowrap}.curve-card .sc-win .c1-ts-body{flex:0 1 auto;min-width:220px}}
 @media print{.curve-card .chart-actions{display:none!important}.curve-card .sc-win{display:flex!important}.curve-card .c1-ts-body,.curve-card .seg{display:none!important}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -606,12 +670,12 @@ function barSVG(title, data){
   const top=padTop+Math.max(0,(targetH-padTop-padBot-blockH)/2);        // centre a short block in the 300px area
   const bh=13;
   let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
-  s+=`<text x="0" y="16" ${F} font-size="12" font-weight="bold" fill="${COLORS.navy}">${esc(title)}</text>`;
-  data.forEach((d,i)=>{ const y=top+i*rowH, by=y+(rowH-bh)/2, c=d.color||COLORS.blue;
-    s+=`<text x="0" y="${(by+10).toFixed(1)}" ${F} font-size="11" fill="${COLORS.slate}">${esc(d.name)}</text>`;
+  s+=`<text x="0" y="16" ${F} font-size="12" font-weight="bold" fill="${CHART('navy')}">${esc(title)}</text>`;
+  data.forEach((d,i)=>{ const y=top+i*rowH, by=y+(rowH-bh)/2, c=d.color||CHART('blue');
+    s+=`<text x="0" y="${(by+10).toFixed(1)}" ${F} font-size="11" fill="${CHART('slate')}">${esc(d.name)}</text>`;
     s+=`<rect x="${trackX}" y="${by.toFixed(1)}" width="${trackW}" height="${bh}" rx="2" fill="#F6F8FA"/>`;
     s+=`<rect x="${trackX}" y="${by.toFixed(1)}" width="${(d.value/max)*trackW}" height="${bh}" rx="2" fill="${c}"/>`;
-    s+=`<text x="${W-2}" y="${(by+10).toFixed(1)}" text-anchor="end" ${F} font-size="11" font-weight="bold" fill="${COLORS.navy}">${d.value}</text>`;
+    s+=`<text x="${W-2}" y="${(by+10).toFixed(1)}" text-anchor="end" ${F} font-size="11" font-weight="bold" fill="${CHART('navy')}">${d.value}</text>`;
   });
   s+=`</svg>`; return s;
 }
@@ -619,12 +683,12 @@ function pieSVG(title, data){
   const total = Math.max(1, data.reduce((a,b)=>a+b.value,0));
   const cx=150, cy=172, r=112, W=560, H=300;                 // H=300 matches the bar chart's common plot height
   let a0=-Math.PI/2; let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
-  s+=`<text x="0" y="16" ${F} font-size="12" font-weight="bold" fill="${COLORS.navy}">${esc(title)}</text>`;
-  data.forEach(d=>{ const a1=a0+(d.value/total)*2*Math.PI, c=d.color||COLORS.blue;
+  s+=`<text x="0" y="16" ${F} font-size="12" font-weight="bold" fill="${CHART('navy')}">${esc(title)}</text>`;
+  data.forEach(d=>{ const a1=a0+(d.value/total)*2*Math.PI, c=d.color||CHART('blue');
     const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1),lg=(a1-a0)>Math.PI?1:0;
     s+=`<path d="M${cx},${cy} L${x0.toFixed(2)},${y0.toFixed(2)} A${r},${r} 0 ${lg} 1 ${x1.toFixed(2)},${y1.toFixed(2)} Z" fill="${c}"/>`; a0=a1; });
-  let ly=60; data.forEach(d=>{ s+=`<rect x="330" y="${ly-9}" width="10" height="10" rx="2" fill="${d.color||COLORS.blue}"/>`;
-    s+=`<text x="346" y="${ly}" ${F} font-size="11" fill="${COLORS.slate}">${esc(d.name)} ${d.value}</text>`; ly+=20; });
+  let ly=60; data.forEach(d=>{ s+=`<rect x="330" y="${ly-9}" width="10" height="10" rx="2" fill="${d.color||CHART('blue')}"/>`;
+    s+=`<text x="346" y="${ly}" ${F} font-size="11" fill="${CHART('slate')}">${esc(d.name)} ${d.value}</text>`; ly+=20; });
   s+=`</svg>`; return s;
 }
 // I-87: shared single y-scale is the DEFAULT; a separate bar scale engages automatically (and only)
@@ -657,9 +721,9 @@ function curveNiceTicks(M){
 function curveTickText(v){ return v>=1000?String(v/1000).replace(/\.0$/,'')+'k':String(Math.round(v*10)/10); }
 function curveLegendEntries(barsVisible, dual){
   const e=[];
-  if(barsVisible) [['Planned',COLORS.blue,'bar'],['Forecast',COLORS.amber,'bar'],['Actual',COLORS.green,'bar']]
+  if(barsVisible) [['Planned',CHART('blue'),'bar'],['Forecast',CHART('amber'),'bar'],['Actual',CHART('green'),'bar']]
     .forEach(([lab,c,type])=>e.push({type,lab:dual?lab+' · right':lab,c}));
-  [['Cum. Plan',COLORS.blue,'6,3'],['Cum. Forecast',COLORS.amber,'2,2'],['Cum. Actual',COLORS.green,'']]
+  [['Cum. Plan',CHART('blue'),'6,3'],['Cum. Forecast',CHART('amber'),'2,2'],['Cum. Actual',CHART('green'),'']]
     .forEach(([lab,c,dash])=>e.push({type:'line',lab:dual?lab+' · left':lab,c,dash}));
   return e;
 }
@@ -713,23 +777,23 @@ function curveChart(p, from, to, forExport, plotW){
   if(dual){
     const rTicks=curveNiceTicks(maxBarY);
     rTicks.vals.forEach(v=>{ const y=Yb(v);
-      g+=`<text x="${(pw+6).toFixed(1)}" y="${(y+4).toFixed(1)}" text-anchor="start" ${CURVE_FF} font-size="13" fill="${COLORS.blue}">${curveTickText(v)}</text>`; });
-    g+=`<text x="${(pw+6).toFixed(1)}" y="${legendBottom-4}" text-anchor="start" ${CURVE_FF} font-size="13" fill="${COLORS.blue}">per mo</text>`;
-    g+=`<line x1="${pw.toFixed(1)}" y1="${T}" x2="${pw.toFixed(1)}" y2="${T+PH}" stroke="${COLORS.blue}" stroke-width="1"/>`;
+      g+=`<text x="${(pw+6).toFixed(1)}" y="${(y+4).toFixed(1)}" text-anchor="start" ${CURVE_FF} font-size="13" fill="${CHART('blue')}">${curveTickText(v)}</text>`; });
+    g+=`<text x="${(pw+6).toFixed(1)}" y="${legendBottom-4}" text-anchor="start" ${CURVE_FF} font-size="13" fill="${CHART('blue')}">per mo</text>`;
+    g+=`<line x1="${pw.toFixed(1)}" y1="${T}" x2="${pw.toFixed(1)}" y2="${T+PH}" stroke="${CHART('blue')}" stroke-width="1"/>`;
   }
   if(!forExport){
     g+=`<rect class="sc-hover-band" x="0" y="${T}" width="${gw.toFixed(1)}" height="${PH}"/>`;
     g+=`<line class="chart-snap" x1="0" y1="${T}" x2="0" y2="${T+PH}"/>`;
   }
   if(barsVisible) idx.forEach(i=>{ const xc=Xc(i);
-    [['pNew',COLORS.blue,'Planned'],['fNew',COLORS.amber,'Forecast'],['aNew',COLORS.green,'Actual']].forEach(([k,c,lab],bi)=>{
+    [['pNew',CHART('blue'),'Planned'],['fNew',CHART('amber'),'Forecast'],['aNew',CHART('green'),'Actual']].forEach(([k,c,lab],bi)=>{
       if(i>cut[k]) return; const v=p[k][i]||0; if(v<=0) return;
       const x=xc-bw*1.5+bi*bw, y=Yb(v), h=T+PH-y;
       g+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${Math.max(1,bw-1.5).toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${c}" opacity="0.55"><title>${lab} ${monthLabel(p.months[i])}: ${v}</title></rect>`;
       const tx=(x+(bw-1.5)/2+4).toFixed(1), ty=(y-3).toFixed(1);
       g+=`<text x="${tx}" y="${ty}" text-anchor="start" transform="rotate(-90 ${tx} ${ty})" ${CURVE_FF} font-size="12" fill="#2b3440">${v}</text>`;
     }); });
-  [['pCum',COLORS.blue,'6,3','Cum. Plan'],['fCum',COLORS.amber,'2,2','Cum. Forecast'],['aCum',COLORS.green,'','Cum. Actual']].forEach(([k,c,dash,lab])=>{
+  [['pCum',CHART('blue'),'6,3','Cum. Plan'],['fCum',CHART('amber'),'2,2','Cum. Forecast'],['aCum',CHART('green'),'','Cum. Actual']].forEach(([k,c,dash,lab])=>{
     const pts=vis(k); if(!pts.length) return;
     g+=`<polyline fill="none" stroke="${c}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"${dash?` stroke-dasharray="${dash}"`:''} points="${pts.map(i=>`${Xc(i).toFixed(1)},${Y(p[k][i]||0).toFixed(1)}`).join(' ')}"/>`;
     pts.forEach(i=>{ const v=p[k][i]||0; g+=`<circle cx="${Xc(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="3" fill="${c}"><title>${lab} ${monthLabel(p.months[i])}: ${v}</title></circle>`; });
@@ -824,12 +888,12 @@ if (typeof document !== 'undefined' && !toastKeydownBound) {
 }
 
 function statusColor(name){
-  return ({APP:COLORS.green,AWC:COLORS.amber,REJ:COLORS.red,NAP:COLORS.slate,'Not Available':COLORS.grey,
-           'Submitted – Pending Review':COLORS.blue,'Submitted – Status Unavailable':COLORS.grey,
-           'Not Submitted':COLORS.blueGrey,'Record Error':COLORS.purple,
-           YES:COLORS.green,NO:COLORS.slate,
-           'On track':COLORS.green,'At risk':COLORS.amber,
-           'Overdue – 1st':COLORS.red,'Overdue – Resub':COLORS.red,'Overdue – Client':COLORS.red})[name] || COLORS.blue;
+  return ({APP:CHART('green'),AWC:CHART('amber'),REJ:CHART('red'),NAP:CHART('slate'),'Not Available':CHART('grey'),
+           'Submitted – Pending Review':CHART('blue'),'Submitted – Status Unavailable':CHART('grey'),
+           'Not Submitted':CHART('blueGrey'),'Record Error':CHART('purple'),
+           YES:CHART('green'),NO:CHART('slate'),
+           'On track':CHART('green'),'At risk':CHART('amber'),
+           'Overdue – 1st':CHART('red'),'Overdue – Resub':CHART('red'),'Overdue – Client':CHART('red')})[name] || CHART('blue');
 }
 
 // ---------- derived view from filtered records ----------
@@ -1047,7 +1111,7 @@ let currentPage = 'Overview';
 function slugify(s){ return String(s==null?'':s).trim().replace(/\.(xlsx|xlsm)$/i,'').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'MDL'; }
 function localDateISO(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
 function applyShellPrefs(){
-  const theme=['light','dark','navy','contrast','sepia'].includes(getPref('theme','light')) ? getPref('theme','light') : 'light';
+  const theme=['light','dark','sky','ocean','presentation','contrast'].includes(getPref('theme','light')) ? getPref('theme','light') : 'light';
   const layout=['one','two','three'].includes(getPref('layout','two')) ? getPref('layout','two') : 'two';
   document.body.dataset.theme = theme;
   document.body.dataset.layout = layout;
@@ -1073,12 +1137,13 @@ function assignCrosshairIds(){
     const thead=t.querySelector('thead');
     if(thead && !thead.querySelector('[data-col-id]')){
       const rows=[...thead.querySelectorAll('tr')], leaf=rows[rows.length-1];
-      if(leaf) [...leaf.children].forEach((c,i)=>{ if(!c.classList.contains('ds-gut')) c.dataset.colId='c'+i; });
+      if(leaf) [...leaf.children].forEach((c,i)=>{ if(!c.classList.contains('ds-gut')){ c.dataset.colId='c'+i; c.tabIndex=0; } });
     }
     t.querySelectorAll('tbody tr,tfoot tr').forEach(tr=>{
       [...tr.children].forEach((c,i)=>{
         if(c.classList.contains('ds-gut')) return;
         if(!c.dataset.colId) c.dataset.colId='c'+i;
+        c.tabIndex=0;
       });
     });
   });
@@ -1091,6 +1156,7 @@ function clearCrosshair(){
   if(!crosshairState) return;
   crosshairState.cell.classList.remove('cell-hover');
   if(crosshairState.row) crosshairState.row.classList.remove('row-hover');
+  if(crosshairState.rowHead) crosshairState.rowHead.classList.remove('rowhead-hover');
   crosshairState.cols.forEach(c=>c.classList.remove(crosshairState.linked?'col-active':'col-hover'));
   if(crosshairState.linked && curveState) curveSyncColumn(curveState,-1);
   crosshairState=null;
@@ -1105,11 +1171,14 @@ function applyCrosshair(cell){
   const cols=[...scope.querySelectorAll('[data-col-id]')].filter(c=>c.dataset.colId===id);
   const row=cell.closest('tr');
   if(row && row.closest('tbody')) row.classList.add('row-hover');
+  // Row header: the leading th[scope=row] in this same row (req 7 — right-edge accent, header tier).
+  const rowHead=row ? row.querySelector('th[scope="row"]') : null;
+  if(rowHead && rowHead!==cell) rowHead.classList.add('rowhead-hover');
   const linked=table.classList.contains('curve-c1-table');
   if(linked){ if(curveState && curveState.table===table) curveSyncColumn(curveState,Number(cell.dataset.c1col)); }
   else cols.forEach(c=>c.classList.add('col-hover'));
   cell.classList.add('cell-hover');
-  crosshairState={cell,row,cols,linked};
+  crosshairState={cell,row,rowHead,cols,linked};
 }
 function bindTableCrosshair(){
   if(crosshairBound) return;
@@ -1124,6 +1193,25 @@ function bindTableCrosshair(){
     if(e.pointerType!=='touch') return;
     const cell=e.target && e.target.closest ? e.target.closest('[data-col-id]') : null;
     if(cell){ applyCrosshair(cell); setTimeout(clearCrosshair,400); }
+  });
+  document.addEventListener('keydown', e=>{
+    if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) return;
+    const cell=e.target && e.target.closest ? e.target.closest('[data-col-id]') : null;
+    if(!cell || cell.classList.contains('ds-gut')) return;
+    const table=cell.closest('table[data-table-crosshair]');
+    if(!table) return;
+    const cells=[...table.querySelectorAll('[data-col-id]')];
+    let target=null;
+    if(e.key==='ArrowLeft' || e.key==='ArrowRight'){
+      const rowCells=cells.filter(c=>c.parentElement===cell.parentElement);
+      const i=rowCells.indexOf(cell);
+      if(i>=0) target=rowCells[i+(e.key==='ArrowRight'?1:-1)];
+    } else {
+      const colCells=cells.filter(c=>c.dataset.colId===cell.dataset.colId);
+      const i=colCells.indexOf(cell);
+      if(i>=0) target=colCells[i+(e.key==='ArrowDown'?1:-1)];
+    }
+    if(target){ e.preventDefault(); target.focus(); applyCrosshair(target); }
   });
   document.addEventListener('focusin', e=>{
     const target=e.target;
@@ -1180,7 +1268,7 @@ let settingsModalEl=null;
 function ensureSettingsModal(){
   if(settingsModalEl) return settingsModalEl;
   const m=document.createElement('div'); m.className='help-modal'; m.hidden=true;
-  m.innerHTML=`<div class="box" role="dialog" aria-modal="true" aria-labelledby="settingsTitle"><header><h3 id="settingsTitle">Settings</h3><button class="close icon-btn" title="Close settings" aria-label="Close settings">✕</button></header><div class="body"><p><label for="themeSel"><strong>Theme</strong></label> <select id="themeSel" class="inter-sel" aria-label="Theme"><option value="light">Light</option><option value="dark">Dark</option><option value="navy">Navy</option><option value="contrast">Contrast</option><option value="sepia">Sepia</option></select></p><p><label for="layoutSel"><strong>Layout</strong></label> <select id="layoutSel" class="inter-sel" data-setting="layout" aria-label="Panel layout"><option value="one">One</option><option value="two">Two</option><option value="three">Three</option></select></p><div class="note">Layout changes the panel grid. KPI density stays controlled separately.</div></div></div>`;
+  m.innerHTML=`<div class="box" role="dialog" aria-modal="true" aria-labelledby="settingsTitle"><header><h3 id="settingsTitle">Settings</h3><button class="close icon-btn" title="Close settings" aria-label="Close settings">✕</button></header><div class="body"><p><label for="themeSel"><strong>Theme</strong></label> <select id="themeSel" class="inter-sel" aria-label="Theme"><option value="light">Light</option><option value="dark">Dark</option><option value="sky">Sky</option><option value="ocean">Ocean</option><option value="presentation">Presentation</option><option value="contrast">Contrast</option></select></p><p><label for="layoutSel"><strong>Layout</strong></label> <select id="layoutSel" class="inter-sel" data-setting="layout" aria-label="Panel layout"><option value="one">One</option><option value="two">Two</option><option value="three">Three</option></select></p><div class="note">Layout changes the panel grid. KPI density stays controlled separately.</div></div></div>`;
   m.addEventListener('click', e=>{ if(e.target===m) m.hidden=true; });
   m.querySelector('.close').onclick=()=>{ m.hidden=true; };
   m.querySelector('#themeSel').addEventListener('change', e=>{ setPref('theme',e.target.value); applyShellPrefs(); });
@@ -1441,7 +1529,8 @@ function renderDashboard(root, model){
   curvePanel.innerHTML='<div class="panel-head"><h2>Issue Progress</h2><div class="head-actions" id="curveActions"></div></div>';
   const cbody=document.createElement('div'); cbody.className='curve-body'; curvePanel.appendChild(cbody);
   addPanel('overduePanel','Overdue List','Overdue');
-  addPanel('validationPanel','Validation Issues','Validation');
+  addPanel('validationRulesPanel','Validation Rules','Validation');
+  addPanel('validationIssuesPanel','Validation Issues','Validation');
   addPanel('detailPanel','Document Detail Table','Documents');
 
   applyShellPrefs();
@@ -1469,9 +1558,10 @@ function renderData(wrap, v){
   safe('Charts', 'chartsPanel', p => renderCharts(p.querySelector('.charts'), v.charts));
   safe('Issue Progress', 'curvePanel', p => renderCurvePanel(p.querySelector('.curve-body'), v.monthlyProgress));
   safe('Overdue List', 'overduePanel', p => renderOverdue(p, {first:v.firstOverdue,sub:v.subOverdue,cli:v.cliOverdue}, MODEL));
-  safe('Validation Issues', 'validationPanel', p => renderValidation(p, v.issues, MODEL));
+  safe('Validation Rules', 'validationRulesPanel', p => renderValidationRules(p, v.issues, MODEL));
+  safe('Validation Issues', 'validationIssuesPanel', p => renderValidationIssues(p, v.issues, MODEL));
   safe('Document Detail Table', 'detailPanel', p => renderDetail(p, v.recs, MODEL, STATE, ()=>renderAll(wrap)));
-  ['kpiPanel','matrixPanel','chartsPanel','curvePanel','overduePanel','validationPanel','detailPanel'].forEach(id => { try { ensureCollapse(document.getElementById(id)); } catch(e){ console.error('[collapse] '+id, e); } });
+  ['kpiPanel','matrixPanel','chartsPanel','curvePanel','overduePanel','validationRulesPanel','validationIssuesPanel','detailPanel'].forEach(id => { try { ensureCollapse(document.getElementById(id)); } catch(e){ console.error('[collapse] '+id, e); } });
   [...wrap.querySelectorAll('.panel')].forEach((p,i)=>{ p.dataset.panel = String(i+1); });
   assignCrosshairIds();
   renderStatusBar(v);
@@ -1566,6 +1656,13 @@ function ensureCollapse(panel){
   wireCollapse(panel);
 }
 const HELP = {
+  welcome:{title:'MDL welcome — required workbook',body:`
+<h4>What you need</h4>
+<p>Choose one Master Document List workbook. Use a readable <code>.xlsx</code> or <code>.xlsm</code> file.</p>
+<h4>How the file is checked</h4>
+<p>The Code sheet must set <strong>Dashboard Title</strong> to <code>Master Document List</code>. The file name is not used for this check.</p>
+<p class="note">After the check passes, the dashboard opens automatically. Use <strong>Open now</strong> to open it sooner.</p>
+`},
   kpiPanel:{title:'KPI Overview — Panel 1',body:`
 <h4>What it shows</h4>
 <p>Headline counts for the documents currently in view.</p>
@@ -1618,7 +1715,7 @@ const HELP = {
 <h4>What it shows</h4>
 <p>Interactive bar / pie charts counting documents (or data-quality issues) by a category you choose.</p>
 <h4>Source data</h4>
-<p>Documents charts use the active documents and columns <em>UESH Discipline</em> (C), <em>Stage</em> (B), <em>Authority</em> (Q), <em>Latest Approval Status</em> (Y), <em>Doc Type</em> (I). Issues charts use the validation issues (Panel 6) and their discipline.</p>
+<p>Documents charts use the active documents and columns <em>UESH Discipline</em> (C), <em>Stage</em> (B), <em>Authority</em> (Q), <em>Latest Approval Status</em> (Y), <em>Doc Type</em> (I). Issues charts use the validation issues (Panel 7) and their discipline.</p>
 <h4>How it is worked out</h4>
 <ul>
 <li>Pick a category from the dropdown (Discipline, Stage, Authority, Approval, Doc Type, or a data-quality breakdown) — the chart shows how many documents fall in each value.</li>
@@ -1659,10 +1756,16 @@ const HELP = {
 <h4>Delay (days)</h4>
 <p>1st-submission = calendar days from today back to the forecast/planned date; Resubmission = working days since latest approval date minus the resubmission window; Client-review = working days since actual first issue date minus the first client review window.</p>
 <h4>How it is grouped</h4>
-<p>Rows sorted by <em>UESH Discipline</em> (C), then Overdue Type, then Document Number; discipline shown on every row. The <strong>Overdue Type</strong> dropdown filters to one type. The top-bar <strong>Discipline</strong> / <strong>Stage</strong> filters narrow the whole list. <strong>⤓ CSV</strong> downloads the visible rows as <code>MDL_Overdue.csv</code> with the same columns.</p>
+<p>Rows are sorted by <em>Delay (days)</em> descending. The <strong>Overdue Type</strong> dropdown filters to one type. The top-bar <strong>Discipline</strong> / <strong>Stage</strong> filters narrow the whole list. Lists over 200 rows use Previous and Next. <strong>⤓ CSV</strong> downloads all filtered rows, not only the current page, with the same columns.</p>
 <div class="def"><strong>Working days</strong> — Monday to Friday; Saturday and Sunday are not counted.</div>
 `},
-  validationPanel:{title:'Validation Issues — Panel 6',body:`
+  validationRulesPanel:{title:'Validation Rules — Panel 6',body:`
+<h4>What it shows</h4>
+<p>One row for each fired validation rule. The row shows severity, code, group, the rule text and the number of issues.</p>
+<h4>Source data</h4>
+<p>Code-sheet Error block <code>Code!AI2:AL</code>: Error Code AI, Group AJ, Rule AK, Severity AL. The code sheet is the source of truth.</p>
+`},
+  validationIssuesPanel:{title:'Validation Issues — Panel 7',body:`
 <h4>What it shows</h4>
 <p>Data-quality problems found in the document list, with severity and the affected document.</p>
 <h4>Source data</h4>
@@ -1672,11 +1775,13 @@ const HELP = {
 <ul>
 <li>Every data-quality issue for a document in the current global selection (top-bar Discipline / Stage) is shown.</li>
 <li>Each row shows severity, rule code, the message, <em>Document No.</em> (M), <em>UESH Discipline</em> (C), and the source tab/row.</li>
-<li><strong>⤓ CSV</strong> downloads the issues as a CSV named after the project (<code>&lt;project&gt;-issue_list.csv</code>).</li>
+<li>Lists over 200 rows use Previous, Next and a page jump. The <strong>Rule</strong> select filters this panel only.</li>
+<li><strong>⤓ CSV</strong> downloads all filtered rows, not only the current page. The file name uses <code>&lt;project&gt;_issue_list_YYYY-MM-DD.csv</code>.</li>
 </ul>
 <div class="def"><strong>Severity</strong> — Error, Warning, or Info, taken from the Code sheet Error Code block.</div>
+<div class="def"><strong>Decision D33</strong> — MDL owns blank-field validation. A blank MDL <em>Document No.</em> on a populated row is an MDL issue.</div>
 `},
-  detailPanel:{title:'Document Detail Table — Panel 7',body:`
+  detailPanel:{title:'Document Detail Table — Panel 8',body:`
 <h4>What it shows</h4>
 <p>The full document list for the current selection, one row per document, exactly as recorded.</p>
 <h4>Source data</h4>
@@ -1843,18 +1948,21 @@ function matrixReportHTML(matrix){
   }).join('');
   const tot = matrix.reduce((a,m)=>{ a.Planned+=m.Planned; a.Submitted+=m.Submitted; a.PlanMo+=m.PlanMo; a.FcastMo+=m.FcastMo; a.ActualMo+=m.ActualMo; a.Approved+=m.Approved; a.AWC+=m.AWC; a.REJ+=m.REJ; a.NAP+=m.NAP; a.ov1+=m.ov1; a.ov2+=m.ov2; a.ov3+=m.ov3; return a; }, {Planned:0,Submitted:0,PlanMo:0,FcastMo:0,ActualMo:0,Approved:0,AWC:0,REJ:0,NAP:0,ov1:0,ov2:0,ov3:0});
   const tfoot = `<tfoot><tr><td>TOTAL</td><td>${tot.Planned}</td><td>${subFmt(tot.Submitted)}</td><td${tint}>${tot.PlanMo}</td><td${tint}>${tot.FcastMo}</td><td${tint}>${tot.ActualMo}</td><td>${tot.Approved}</td><td>${tot.AWC}</td><td>${tot.REJ}</td><td>${tot.NAP}</td><td>${tot.ov1}</td><td>${tot.ov2}</td><td>${tot.ov3}</td><td></td></tr></tfoot>`;
-  const css = `.matrix{width:100%;border-collapse:collapse;font-size:12px;background:#fff}
-    .matrix th,.matrix td{border-bottom:1px solid #d8e0ea;padding:4px 8px;text-align:center;white-space:nowrap}
-    .ds-table thead th{background:#1f3a5f;color:#fff;font-weight:600}
+  const tvar = (name, fallback) => { try { return getComputedStyle(document.body).getPropertyValue(name).trim() || fallback; } catch { return fallback; } };
+  const cSurface = tvar('--surface','#fff'), cNavy = tvar('--navy','#0F2D52'), cLine = tvar('--line','#d8e0ea');
+  const cZebra = tvar('--ds-zebra','#F9FBFD'), cBg = tvar('--bg','#F6F8FA'), cSub = tvar('--ds-sub-bg','#F2F6FB'), cMuted = tvar('--muted','#6b7785');
+  const css = `.matrix{width:100%;border-collapse:collapse;font-size:12px;background:${cSurface}}
+    .matrix th,.matrix td{border-bottom:1px solid ${cLine};padding:4px 8px;text-align:center;white-space:nowrap}
+    .ds-table thead th{background:${cNavy};color:#fff;font-weight:600}
     .matrix th:first-child,.matrix td:first-child{text-align:left}
-    .matrix thead tr.group th{background:#1f3a5f;color:#fff;font-weight:700}
+    .matrix thead tr.group th{background:${cNavy};color:#fff;font-weight:700}
     .matrix thead tr.group th.tint{background:#FFF9C4;color:#7a5b12}
     .matrix th.tint{background:#FFF9C4;color:#7a5b12}
     .matrix td.col-tint{background:#FFF9C4}
-    .matrix tfoot td{background:#eef2f7;font-weight:700;border-top:2px solid #1f3a5f}
-    .matrix tbody tr:nth-child(even){background:#fafcff}
-    .matrix tbody tr.sub{background:#f2f6fb}
-    .matrix tbody tr.sub td.subname{text-align:left;padding-left:22px;color:#6b7785;font-style:italic}`;
+    .matrix tfoot td{background:${cBg};font-weight:700;border-top:2px solid ${cNavy}}
+    .matrix tbody tr:nth-child(even){background:${cZebra}}
+    .matrix tbody tr.sub{background:${cSub}}
+    .matrix tbody tr.sub td.subname{text-align:left;padding-left:22px;color:${cMuted};font-style:italic}`;
   return `<div xmlns="http://www.w3.org/1999/xhtml"><style>${css}</style><table class="matrix ds-table"><caption class="sr-only">Discipline Summary Matrix — document counts by discipline per month, with a TOTAL row.</caption><colgroup><col style="width:150px"><col style="width:96px"><col style="width:116px"><col style="width:140px"><col style="width:140px"><col style="width:140px"><col style="width:64px"><col style="width:64px"><col style="width:64px"><col style="width:64px"><col style="width:64px"><col style="width:64px"><col style="width:70px"><col style="width:60px"></colgroup>${head}<tbody>${body}</tbody>${tfoot}</table></div>`;
 }
 function matrixSVG(matrix){
@@ -1912,12 +2020,15 @@ function dsSorted(rows, cols, active, get){
   });
   return base.map(o=>o.r);
 }
+// alignment follows the column type in the model, not the DOM position (spec §18)
+const alignClassOf = c => (c.type === 'num' || c.type === 'date') ? 'num' : (c.type === 'enum' ? 'enum' : '');
+const cellClasses = (c, extra) => [...new Set([c.cls, alignClassOf(c), extra].filter(Boolean))].join(' ');
 // build <thead> cells from cols + active sort state (button + aria-sort + indicator)
 function sortHeadCells(cols, active){
   return cols.map(c=>{
-    // carry the column's alignment class (num ⇒ right) onto the header, so the header aligns with
-    // the body cells of the same column (§18: alignment follows the data type).
-    const clsName = [c.cls, c.type === 'num' ? 'num' : ''].filter(Boolean).join(' ');
+    // carry the column's alignment class onto the header, so the header aligns with
+    // the body cells of the same column.
+    const clsName = cellClasses(c);
     const cls = clsName ? ` class="${clsName}"` : '';
     if(!c.sortable) return `<th scope="col"${cls}>${esc(c.label)}</th>`;
     const dir = (active && active.col===c.key) ? active.dir : 0;
@@ -2035,23 +2146,29 @@ const GRID_DEF = {
     core:   ['__src', 'Document No.', '__active', 'UESH Discipline', 'Stage',
              'Planned 1st Issue Date', 'Submission Status', 'Latest Approval Status'],
     widths: { '__src':120, '__active':70, 'Document No.':150 },
-    min: 60, max: 640
+    max: 640
+  },
+  validation_rules: {
+    pinned: [],
+    core:   ['severity', 'code', 'group', 'description', 'count'],
+    widths: { severity:110, code:90, group:130, description:420, count:70 },
+    max: 640
   },
   issue: {
-    pinned: ['severity', 'docNo'],
-    core:   ['severity', 'docNo', 'code', 'field', 'value', 'message', 'sourceTab', 'rownum'],
-    widths: { severity:70, docNo:110, code:90, field:120, value:130, message:300, sourceTab:110, rownum:60 },
-    min: 60, max: 640
+    pinned: ['severity', 'code'],
+    core:   ['severity', 'code', 'docNo', 'field', 'value', 'message', 'sourceTab', 'rownum'],
+    widths: { severity:70, code:90, docNo:110, field:120, value:130, message:360, sourceTab:110, rownum:60 },
+    max: 640
   },
   overdue: {
     pinned: [],   // no pinned columns — keeps the current left-to-right order
-    core:   ['Prolog Number','Document No.','Number','Document Title','UESH Discipline','Overdue Type',
+    core:   ['Prolog Number','Document No.','Document Title','Number','UESH Discipline','Overdue Type',
              'Planned 1st Issue Date','Forecast 1st Issue Date','Actual 1st Issue Date',
              'Latest Approval Date','Latest Approval Status','Submission Status','Delay (days)'],
-    widths: { 'Prolog Number':110, 'Document No.':120, 'Number':70, 'Document Title':200, 'UESH Discipline':130,
+    widths: { 'Prolog Number':110, 'Document No.':180, 'Document Title':420, 'Number':70, 'UESH Discipline':130,
               'Overdue Type':90, 'Planned 1st Issue Date':140, 'Forecast 1st Issue Date':140, 'Actual 1st Issue Date':140,
               'Latest Approval Date':140, 'Latest Approval Status':150, 'Submission Status':140, 'Delay (days)':80 },
-    min: 60, max: 640
+    max: 640
   }
 };
 function makeGrid(key, cols){
@@ -2065,11 +2182,54 @@ function makeGrid(key, cols){
   Object.keys(widths).forEach(k => { if(!known.has(k)) delete widths[k]; });
   // true once the user has resized anything: a deliberate width choice is respected and never
   // auto-shrunk (see grid.fit below — the fit pass is for the shipped defaults, not the user's).
-  const custom = Object.keys(widths).length > 0;
+  // I-163: this is live state, not a one-shot snapshot, so a drag that persists a width is honoured.
+  let custom = Object.keys(widths).length > 0;
   let others = [];
   const raw = getPref(key + '_cols', '');
   others = raw ? raw.split(',').filter(k => known.has(k) && !pinned.includes(k)) : core.filter(k => !pinned.includes(k));
   const widthOf = k => (widths[k] != null ? widths[k] : (defW[k] != null ? defW[k] : 130));
+  // I-163 — the minimum width is content-aware: the rendered header label must stay visible, and the
+  // resize handle may never go below the column's type floor. Explicit per-column `min` still wins
+  // when the owner wants a wider floor (Overdue uses 180/420 for long document values).
+  const typeFloorOf = c => {
+    switch (c && c.type) {
+      case 'enum': case 'boolean': case 'severity': return 64;
+      case 'date': return 110;
+      case 'identifier': return 120;
+      case 'checkbox': return 28;
+      case 'text': return 90;
+      default: return 64;
+    }
+  };
+  const labelMinCache = new Map();
+  const measureLabelWidth = text => {
+    if (labelMinCache.has(text)) return labelMinCache.get(text);
+    let w = 0;
+    try {
+      const span = document.createElement('span');
+      span.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;white-space:nowrap;font-size:12px;font-weight:600;line-height:1.2';
+      span.textContent = text || '';
+      document.body.appendChild(span);
+      w = span.getBoundingClientRect().width;
+      span.remove();
+    } catch(e) { w = 0; }
+    if (!(w > 0)) {
+      try {
+        const ctx = document.createElement('canvas').getContext('2d');
+        if (ctx) { ctx.font = '600 12px system-ui, sans-serif'; w = ctx.measureText(text || '').width; }
+      } catch(e) { w = 0; }
+    }
+    if (!(w > 0)) w = (text || '').length * 6.8;   // jsdom / no-layout fallback
+    labelMinCache.set(text, w);
+    return w;
+  };
+  const minOf = k => {
+    const c = cols.find(x => x.key === k);
+    if (!c) return 60;
+    // 20px cell padding + a small gutter allowance; sortable headers also reserve the glyph.
+    const glyph = c.sortable ? 18 : 0;
+    return Math.max(c.min || 0, typeFloorOf(c), Math.ceil(measureLabelWidth(c.label) + 22 + glyph));
+  };
   const visible = () => pinned.map(k => cols.find(c => c.key === k))
     .concat(cols.filter(c => others.includes(c.key)));
   // sticky offset = the summed width of every preceding visible column, so the pinned
@@ -2096,7 +2256,7 @@ function makeGrid(key, cols){
       const pin = pinned.includes(c.key) ? 'ds-pinned' : '';
       const edge = (pinned.length && pinned[pinned.length - 1] === c.key) ? 'ds-pinned-edge' : '';
       const off = pin ? ` style="left:${leftOf(c.key)}px"` : '';
-      const cls = [c.cls, c.type === 'num' ? 'num' : ''].filter(Boolean).join(' ');
+      const cls = cellClasses(c);
       const inner = c.sortable ? sortHeadCells([c], active)
         : `<th scope="col"${cls ? ` class="${cls}"` : ''}>${esc(c.label)}</th>`;
       // splice data-col on, then MERGE the pinned/edge classes into the CELL's own class. Never emit a
@@ -2120,11 +2280,14 @@ function makeGrid(key, cols){
       const pin = pinned.includes(c.key) ? ' ds-pinned' : '';
       const edge = (pinned.length && pinned[pinned.length - 1] === c.key) ? ' ds-pinned-edge' : '';
       const off = pin ? ` style="left:${leftOf(c.key)}px"` : '';
-      return `<td data-col="${esc(c.key)}" class="${pin}${edge}${extra ? ' ' + extra : ''}"${off}>${inner}</td>`;
+      const cls = cellClasses(c, [pin.trim(), edge.trim(), extra].filter(Boolean).join(' '));
+      return `<td data-col="${esc(c.key)}"${cls ? ` class="${cls}"` : ''}${off}>${inner}</td>`;
     },
     setWidth(k, px, persist) {
-      widths[k] = Math.max(def.min || 60, Math.min(def.max || 640, Math.round(px)));
-      if(persist) setPref(key + '_widths', JSON.stringify(widths));
+      widths[k] = Math.max(minOf(k), Math.min(def.max || 640, Math.round(px)));
+      // I-163 — a persisted user width is a deliberate choice. The next container-change fit pass
+      // must not shrink it back to the shipped defaults.
+      if(persist){ custom = true; setPref(key + '_widths', JSON.stringify(widths)); }
     },
     // §7.2.15 invariant 5 (clarified 2026-10-21, MDL I-116) — the table MUST fit the display area
     // whenever fitting is achievable, because a default wider than the display area is a
@@ -2137,16 +2300,33 @@ function makeGrid(key, cols){
     fit(available) {
       const cols = visible();
       if(!cols.length || !(available > 0) || custom) return false;
-      const min = def.min || 60, max = def.max || 640;
+      const max = def.max || 640;
       const total = cols.reduce((a, c) => a + widthOf(c.key), 0);
-      if(total <= available) return false;                                  // already fits
-      const floor = cols.reduce((a, c) => a + Math.min(widthOf(c.key), min), 0);
+      if(total === available) return false;                                 // already exact
+      if(total < available) {
+        // I-163 — scale up to fill the display area. The table must not leave an unused white band
+        // when fitting is achievable; this is the MDL §18 grow-to-fill branch.
+        let sum = 0;
+        cols.forEach(c => {
+          const w = Math.min(max, Math.max(minOf(c.key),
+            Math.floor(widthOf(c.key) * available / total)));
+          widths[c.key] = w; sum += w;
+        });
+        // absorb rounding loss on the widest column that still has room, then on any column below max
+        let left = available - sum;
+        for (let i = 0; left > 0 && i < cols.length * 2; i++) {
+          const c = cols[i % cols.length];
+          if (widths[c.key] < max) { widths[c.key]++; left--; }
+        }
+        return true;
+      }
+      const floor = cols.reduce((a, c) => a + Math.min(widthOf(c.key), minOf(c.key)), 0);
       if(floor >= available) return false;                                  // unavoidable — scrollbar
       const over = total - available;
-      const slack = cols.reduce((a, c) => a + Math.max(0, widthOf(c.key) - min), 0);
+      const slack = cols.reduce((a, c) => a + Math.max(0, widthOf(c.key) - minOf(c.key)), 0);
       if(!slack) return false;
       cols.forEach(c => {
-        const w = widthOf(c.key);
+        const w = widthOf(c.key), min = minOf(c.key);
         widths[c.key] = Math.min(max, Math.max(min,
           Math.round(w - over * (Math.max(0, w - min) / slack))));
       });
@@ -2154,6 +2334,7 @@ function makeGrid(key, cols){
     },
     resetWidths() {
       widths = {};
+      custom = false;
       setPref(key + '_widths', '{}');
     },
     hiddenCount: () => cols.length - visible().length,
@@ -2275,12 +2456,12 @@ function makeGrid(key, cols){
       const move = ev => {
         const w = startW + (ev.clientX - startX);
         grid.setWidth(k, w, false);
-        setWidth(k, w);
+        setWidth(k, grid.widthOf(k));
       };
       const up = ev => {
         const w = startW + (ev.clientX - startX);
         grid.setWidth(k, w, true);
-        setWidth(k, w);
+        setWidth(k, grid.widthOf(k));
         g.classList.remove('active');
         document.removeEventListener('pointermove', move);
         document.removeEventListener('pointerup', up);
@@ -2296,7 +2477,7 @@ function makeGrid(key, cols){
       // auto-fit measures the widest real cell: body values AND the header label, in both halves
       const cells = halves.reduce((a, t) => a.concat(
         [...t.querySelectorAll(`tbody td[data-col="${k}"],thead th[data-col="${k}"]`)]), []);
-      const w = Math.max((def.min || 60), Math.min((def.max || 640),
+      const w = Math.max(minOf(k), Math.min((def.max || 640),
         ...cells.map(c => Math.ceil(c.scrollWidth) + 20)));
       grid.setWidth(k, w, true);
       setWidth(k, w);
@@ -2376,7 +2557,15 @@ function wireSplitHeader(panel, headSel, bodySel){
 // grid's fit pass does nothing, so this cannot loop.
 function fitToScroller(grid, sc, repaint){
   if(!sc) return;
-  const run = () => { if(grid.fit(sc.clientWidth)) repaint(); };
+  // I-163 — fit on a CONTAINER change only, never because a column changed the scrollport box.
+  // Caching clientWidth is what separates a sidebar toggle from a scrollbar appearing.
+  let lastW = -1;
+  const run = () => {
+    const w = sc.clientWidth;
+    if(w === lastW) return;
+    lastW = w;
+    if(grid.fit(w)) repaint();
+  };
   run();
   requestAnimationFrame(run);
   if(typeof ResizeObserver === 'function') new ResizeObserver(run).observe(sc);
@@ -2547,7 +2736,7 @@ function renderInteractive(host, charts, groupKey){
   const chartHost=document.createElement('div'); chartHost.className='chart-host';
   const draw=()=>{
     const it=findItem(view.base); const data=charts[it.key]||[];
-    const colored=data.map((d,i)=>({...d, color: it.mode==='status'? statusColor(d.name) : (d.color||PALETTE[i%PALETTE.length])}));
+    const colored=data.map((d,i)=>({...d, color: it.mode==='status'? statusColor(d.name) : (d.color||CHART_SERIES(i))}));
     const tooMany=data.length>12; const type=(tooMany&&view.type==='pie')?'bar':view.type;
     h.textContent=groupLabel+(tooMany&&view.type==='pie'?' — pie hidden (too many categories)':'');
     chartHost.innerHTML=type==='pie'? pieSVG(it.label, colored) : barSVG(it.label, colored);
@@ -2669,17 +2858,18 @@ function curveExportMarkup(st){
   }catch(e){ ['blue','amber','green'].forEach(n=>{ chart=chart.split(`var(--${n})`).join(COLORS[n]); }); }
   const yTicks=g.yticks.map(t=>`<text x="-8" y="${(t.y+4).toFixed(1)}" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#6b7785">${curveTickText(t.v)}</text>`).join('');
   const rowH=20, headH=24, tableH=headH+6*rowH;
-  let tableGap=10, headFill='#0F2D52';
+  let tableGap=10, headFill='#0F2D52', headFg='#fff';
   try{ const cs=getComputedStyle(document.body);
     tableGap=parseFloat(cs.getPropertyValue('--c1-plot-table-gap'))||tableGap;
-    headFill=cs.getPropertyValue('--navy').trim()||headFill;
+    headFill=cs.getPropertyValue('--thead-bg').trim()||cs.getPropertyValue('--navy').trim()||headFill;
+    headFg=cs.getPropertyValue('--thead-fg').trim()||headFg;
   }catch(e){}
   const tableY=g.H+tableGap, H=tableY+tableH;
   const gutter=CURVE_GUTTER_W, right=CURVE_RIGHT_W, cw=g.pw/Math.max(1,cols.length), sx=gutter+cols.length*cw;
   let t=`<rect x="0" y="${tableY}" width="${W}" height="${tableH}" fill="#fff"/>`;
   const cell=(x,y,w,h,text,align,header)=>{
     t+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h}" fill="${header?headFill:'#fff'}" stroke="#D8E0EA" stroke-width="1"/>`;
-    t+=`<text x="${(align==='right'?x+w-5:x+5).toFixed(1)}" y="${y+h-5}" text-anchor="${align==='right'?'end':'start'}" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="${header?'#fff':'#2B3440'}">${text}</text>`;
+    t+=`<text x="${(align==='right'?x+w-5:x+5).toFixed(1)}" y="${y+h-5}" text-anchor="${align==='right'?'end':'start'}" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="${header?headFg:'#2B3440'}">${text}</text>`;
   };
   cell(0,tableY,gutter,headH,'Reporting Month','left',true);
   cols.forEach((i,j)=>cell(gutter+j*cw,tableY,cw,headH,monthLabel(p.months[i]),'right',true));
@@ -2813,9 +3003,9 @@ function renderCurvePanel(body, progress){
 }
 const OVERDUE_COLS=[
   {h:'Prolog Number', f:'Prolog Number'},
-  {h:'Document No.', f:'Document No.'},
+  {h:'Document No.', f:'Document No.', cls:'doc-full', min:180},
+  {h:'Document Title', f:'Document Title', cls:'doc-full', min:420},
   {h:'Number', f:'Number'},
-  {h:'Document Title', f:'Document Title'},
   {h:'UESH Discipline', f:'UESH Discipline'},
   {h:'Overdue Type', f:null},
   {h:'Planned 1st Issue Date', f:'Planned 1st Issue Date'},
@@ -2847,25 +3037,22 @@ function overdueTypesOf(model){
 }
 function renderOverdue(panel, o, model){
   const OVERDUE_TYPES = overdueTypesOf(model);
+  const PAGE_SIZE = 200;
   // L2 column model (I-92): every column sortable; dates sort as dates, statuses as enums,
   // Delay as a number; empty cells sort last. The L3 grid (I-95) owns column order / widths /
   // the show-hide chooser / the resize grips, so the renderer only produces cell contents.
   const overdueCols = OVERDUE_COLS.map(c=>({
-    key: c.h, label: c.h, h: c.h, sortable:true, f: c.f, num: c.num,
-    type: c.num ? 'num' : (/Date$/.test(c.h) ? 'date' : (c.h==='Latest Approval Status' ? 'enum' : c.h==='Submission Status' ? 'enum' : 'text')),
+    key: c.h, label: c.h, h: c.h, sortable:true, f: c.f, num: c.num, cls: c.cls, min: c.min,
+    type: c.num ? 'num' : (/Date$/.test(c.h) ? 'date' : (c.h==='Latest Approval Status' || c.h==='Submission Status' ? 'enum' : 'text')),
     order: c.h==='Latest Approval Status' ? ['APP','AWC','REJ','NAP'] : c.h==='Submission Status' ? ['SUR','RTR','NTS'] : undefined,
     get: x => c.f===null ? (c.h==='Overdue Type' ? x.type : (c.h==='Delay (days)' ? (x.r.delay==null?'':x.r.delay) : '')) : (x.r.fields[c.f]||'')
   }));
   const oget = (x,key)=>{ const c=overdueCols.find(k=>k.key===key); return c ? c.get(x) : ''; };
   const recs=[];
   OVERDUE_TYPES.forEach(t=> (o[t.key]||[]).forEach(r=> recs.push({r, type:t.label})));
-  // L2 column filtering (I-93): per the workplan §4.0.1 reversal, the Overdue List panel offers NO
-  // in-panel column filters. The global Discipline/Stage chips (top bar) own the cross-panel scope and
-  // the Overdue Type dropdown (rendered below) owns its own dimension, so there is no per-column filter
-  // state here. Rows therefore start as the full overdue set and are narrowed only by the Overdue Type
-  // dropdown.
+  // The global Discipline/Stage chips own cross-panel scope. Overdue Type is the only
+  // panel-local row filter. It narrows the rows already derived in S4.
   let rows = recs;
-  // default sort: Delay (days) descending (§7.2.6 point 5 — see the most overdue first)
   const osort = {col:'Delay (days)', dir:-1};
   const sp = getPref('overdue_sort','');
   if(/^(-?1)\|/.test(sp)){ const [d,c]=sp.split('|'); if(overdueCols.some(x=>x.key===c)){ osort.col=c; osort.dir=Number(d); } }
@@ -2875,77 +3062,86 @@ function renderOverdue(panel, o, model){
     return x.r.fields[c.f]||'';
   };
 
-  // L3 grid (I-95): widths / chooser / resize. The grid decides column order & widths; the
-  // renderer only fills cells. (No columns pinned, so the current left-to-right order is kept.)
   const grid = makeGrid('overdue', overdueCols);
-  // §7.2.15 — the header row carries the gutter CELL as well as the gutter column, so the fragment's
-  // column count matches its <colgroup> and the navy runs the full card width (the matrix and the
-  // Rule Reference do the same). It is aria-hidden: it is not a column, it reserves the scrollbar.
+  // §7.2.15 — one header fragment outside the scroller, with a gutter for the scrollbar.
   const ovHeadRow = ()=>grid.headRow(osort).replace('</tr>', '<th class="ds-gut" aria-hidden="true"></th></tr>');
-  // §7.2.15 (4) — ONE column grid: the header fragment carries the body's columns plus the trailing
-  // .ds-gut gutter that reserves the scrollbar width, so the navy runs the full card width.
   const ovFragCols = ()=>grid.colgroupHTML().replace('</colgroup>', '<col class="ds-gut" style="width:var(--ds-sbw,0px)"></colgroup>');
-  const ovRow = x=>`<tr class="over">${grid.visible().map(c=>grid.td(c, esc(colVal(c,x)), c.num?'num':'')).join('')}</tr>`;
-  // an empty result must say WHY: filtered-out rows are a different story from "no overdue data"
-  const ovEmpty = tf=>`<tr><td class="empty" colspan="${grid.visible().length}">${(rows.length<recs.length||tf)?'No overdue documents match the current filter.':'No overdue documents'}</td></tr>`;
-  const tbody=tf=>{ const rs=rows.filter(x=>!tf||x.type===tf);
-    return rs.length?rs.map(ovRow).join(''):ovEmpty(tf); };
-  const filtered = rows.length < recs.length;
-  const cntText = filtered ? `${rows.length} of ${recs.length} docs` : `${rows.length} docs`;
-  panel.innerHTML=`<div class="panel-head">
-      <h2>Overdue List</h2>
-      <div class="head-actions">
-        <label class="lbl">Overdue Type:
-          <select class="inter-sel" id="ovType" title="Filters this table only — the Overdue List" aria-label="Filter the Overdue List by type — this table only">
-            <option value="">All</option>
-            ${OVERDUE_TYPES.map(t=>`<option value="${t.label}">${t.label}</option>`).join('')}
-          </select>
-        </label>
-        <button class="csv btn btn-secondary" id="ovCsv" title="Download consolidated overdue list as CSV">⤓ CSV</button>
-        <span class="cnt" id="ovCnt">${cntText}</span>
+  let ovPage = 1;
+  let sel = null;
+  const visibleRows = ()=> rows.filter(x=>!sel || !sel.value || x.type===sel.value);
+  const pageCount = ()=> Math.max(1, Math.ceil(visibleRows().length/PAGE_SIZE));
+  const ovRow = x=>`<tr>${grid.visible().map(c=>grid.td(c, esc(colVal(c,x)))).join('')}</tr>`;
+  const ovEmpty = ()=>`<tr><td class="empty" colspan="${grid.visible().length}">${((sel && sel.value) || rows.length<recs.length)?'No overdue documents match the current filter.':'No overdue documents'}</td></tr>`;
+  const tbody = ()=>{
+    const rs = visibleRows().slice((ovPage-1)*PAGE_SIZE, ovPage*PAGE_SIZE);
+    return rs.length ? rs.map(ovRow).join('') : ovEmpty();
+  };
+  const countText = ()=>{
+    const n = visibleRows().length, pc = pageCount();
+    const base = (sel && sel.value && rows.length<recs.length) ? `${n} of ${recs.length} docs` : `${n} docs`;
+    return pc>1 ? `${base} · Page ${ovPage} / ${pc}` : base;
+  };
+  panel.innerHTML=`<div class="panel-head"><h2>Overdue List</h2><div class="head-actions"></div></div>
+    <div class="panel-body"><div class="c-card overdue-card">
+      <div class="toolbar overdue-tools">
+        <div class="tool-filters">
+          <label class="lbl">Overdue Type:
+            <select class="inter-sel" id="ovType" title="Filters this table only — the Overdue List" aria-label="Filter the Overdue List by type — this table only">
+              <option value="">All</option>
+              ${OVERDUE_TYPES.map(t=>`<option value="${t.label}">${t.label}</option>`).join('')}
+            </select>
+          </label>
+          <span class="cnt" id="ovCnt">${countText()}</span>
+          <button type="button" class="pg btn btn-secondary" data-ov-page="prev" title="Previous page" aria-label="Previous page">Previous</button>
+          <button type="button" class="pg btn btn-secondary" data-ov-page="next" title="Next page" aria-label="Next page">Next</button>
+        </div>
+        <div class="tool-actions">
+          <button class="csv btn btn-secondary" id="ovCsv" title="Download consolidated overdue list as CSV">⤓ CSV</button>
+        </div>
       </div>
-    </div>
-    <div class="splitbox splitcard">`
-    + `<div class="vheadwrap"><table class="ds-table vheadtab" id="ovHead"><caption class="sr-only">Overdue List — column headers.</caption>${ovFragCols()}<thead>${ovHeadRow()}</thead></table></div>`
-    + `<div class="tableScroll"><table class="ds-table"><caption class="sr-only">Overdue List — documents past their planned or forecast issue date, with the delay in days.</caption>${grid.colgroupHTML()}<tbody id="ovBody">${tbody('')}</tbody></table></div>`
-    + `</div>`;
+      <div class="splitbox splitcard">
+        <div class="vheadwrap"><table class="ds-table vheadtab" id="ovHead"><caption class="sr-only">Overdue List — column headers.</caption>${ovFragCols()}<thead>${ovHeadRow()}</thead></table></div>
+        <div class="tableScroll"><table class="ds-table"><caption class="sr-only">Overdue List — documents past their planned or forecast issue date, with the delay in days.</caption>${grid.colgroupHTML()}<tbody id="ovBody">${tbody()}</tbody></table></div>
+      </div>
+    </div></div>`;
   const tbl = panel.querySelector('.tableScroll table');
   const ovHead = panel.querySelector('#ovHead');
   const sc = panel.querySelector('.tableScroll');
-  const sel=panel.querySelector('#ovType');
-  const headActions = panel.querySelector('.head-actions');
-  // Per workplan §4.0.1 reversal, there is no per-column filter popover/button here — only the
-  // Overdue Type dropdown (below) narrows the list; the global Discipline/Stage chips own the rest.
-  sel.onchange=()=>{
-    rows = dsSorted(recs.filter(x=>!sel.value||x.type===sel.value), overdueCols, osort, oget);
-    panel.querySelector('#ovBody').innerHTML = tbody(sel.value);
-    const c = panel.querySelector('#ovCnt');
-    if(c) c.textContent = (rows.length<recs.length) ? `${rows.length} of ${recs.length} docs` : `${rows.length} docs`;
+  sel = panel.querySelector('#ovType');
+  const toolActions = panel.querySelector('.tool-actions');
+  const csvBtn = panel.querySelector('#ovCsv');
+  const prevBtn = panel.querySelector('[data-ov-page="prev"]');
+  const nextBtn = panel.querySelector('[data-ov-page="next"]');
+  const paint = ()=>{
+    const pc = pageCount();
+    if(ovPage > pc) ovPage = pc;
+    panel.querySelector('#ovBody').innerHTML = tbody();
+    panel.querySelector('#ovCnt').textContent = countText();
+    const n = visibleRows().length;
+    csvBtn.hidden = n === 0;
+    prevBtn.hidden = nextBtn.hidden = pc <= 1;
+    prevBtn.disabled = ovPage <= 1;
+    nextBtn.disabled = ovPage >= pc;
   };
-  // -- L3 grid (I-95): chooser + resize. The header is rebuilt on every sort, so the grips are
-  //    re-attached in the sort callback and whenever the grid refreshes (chooser). --
-  // I-116 — the header now lives in its own table, so the resizer is given BOTH halves: grips are
-  // attached in the fragment, and every width is written to both colgroups.
+  sel.onchange=()=>{ ovPage=1; paint(); };
+  prevBtn.onclick=()=>{ ovPage=Math.max(1, ovPage-1); paint(); };
+  nextBtn.onclick=()=>{ ovPage=Math.min(pageCount(), ovPage+1); paint(); };
+  // L3 grid: chooser + resize. The chooser is a layout control, so it sits in tool-actions.
   const oResize = grid.resizer(tbl, ovHead);
-  grid.chooser(headActions);
+  grid.chooser(toolActions);
   grid.refresh = () => {
     const cg = tbl.querySelector('colgroup'); if(cg) cg.innerHTML = grid.colgroupHTML().replace(/^<colgroup>|<\/colgroup>$/g, '');
     const hcg = ovHead.querySelector('colgroup'); if(hcg) hcg.innerHTML = ovFragCols().replace(/^<colgroup>|<\/colgroup>$/g, '');
     const th = ovHead.querySelector('thead'); if(th) th.innerHTML = ovHeadRow();
     oResize.addGrips();
-    panel.querySelector('#ovBody').innerHTML = tbody(sel.value);
+    paint();
   };
-  // §7.2.15 invariant 5 — the pair MUST fit the display area whenever it can (13 columns at a 60 px
-  // floor need 780 px, so a 1216 px panel is achievable). Re-derived on resize because the fit
-  // belongs to the viewport, not to the render.
   fitToScroller(grid, sc, () => grid.refresh());
-  // §18 split-header contract (3, 5) — width pin + gutter + horizontal lock-step, shared helper.
   wireSplitHeader(panel, '#ovHead', '.tableScroll');
-  // L2 sorting (I-92) via the shared handler. The sort buttons now live in the HEADER FRAGMENT, so
-  // that — not the scroller — is what the handler binds to; grips are re-attached after the rebuild.
-  wireSort(ovHead, overdueCols, osort, ()=>{ rows = dsSorted(rows, overdueCols, osort, oget); panel.querySelector('#ovBody').innerHTML=tbody(sel.value); oResize.addGrips(); }, 'overdue_sort', ovHeadRow);
-  panel.querySelector('#ovCsv').onclick=()=>{
-    const tf=sel.value; const rs=rows.filter(x=>!tf||x.type===tf);
+  wireSort(ovHead, overdueCols, osort, ()=>{ rows=dsSorted(rows, overdueCols, osort, oget); ovPage=1; paint(); oResize.addGrips(); }, 'overdue_sort', ovHeadRow);
+  paint();
+  csvBtn.onclick=()=>{
+    const rs = visibleRows();
     if(!rs.length){ toast('Nothing to export','info'); return; }
     const header=OVERDUE_COLS.map(c=>c.h);
     const lines=[header.join(',')].concat(rs.map(x=>OVERDUE_COLS.map(c=>colVal(c,x)).map(csvCell).join(',')));
@@ -2953,50 +3149,95 @@ function renderOverdue(panel, o, model){
     toast('CSV downloaded','success');
   };
 }
-function renderValidation(panel, issues, model){
-  const SEV = { Error:'⛔', Warning:'⚠️', Info:'ℹ️' };
-  /* §7.2.4 — in a table a severity MUST be a FIXED-SIZE inline SVG, never an emoji.
-     A colour emoji (⛔ ⚠️ ℹ️) resolves to the system emoji font, whose ascent and
-     descent are larger than the text font's AND differ per glyph. That is what made
-     the Sev row taller than every other column and made one row differ from the next
-     (RC-4). An SVG sized in px has identical metrics for all three states. */
+/* Shared validation facts. One source for both top-level panels. */
+function validationInfo(issues, model){
+  /* §7.2.4 — a table severity is a fixed-size inline SVG, never an emoji. */
   const SEV_SVG = {
     Error:'<svg class="sev-svg" viewBox="0 0 14 14" width="14" height="14" role="img" aria-label="Error"><circle cx="7" cy="7" r="6" fill="var(--red)"/><path d="M4.7 4.7l4.6 4.6M9.3 4.7l-4.6 4.6" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>',
     Warning:'<svg class="sev-svg" viewBox="0 0 14 14" width="14" height="14" role="img" aria-label="Warning"><path d="M7 1.3l5.7 10.4H1.3z" fill="var(--amber)"/><path d="M7 5.1v3.1" stroke="#543a00" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="10.3" r=".85" fill="#543a00"/></svg>',
     Info:'<svg class="sev-svg" viewBox="0 0 14 14" width="14" height="14" role="img" aria-label="Info"><circle cx="7" cy="7" r="6" fill="var(--blue)"/><path d="M7 6.3v3.9" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="4" r=".85" fill="#fff"/></svg>'
   };
   const sevKey = s => s==='Error'?'error':(s==='Warning'?'warning':'info');
-  const cnt = { error:0, warning:0, info:0 };
+  const cnt = {error:0, warning:0, info:0};
   const msgByCode = {};
   issues.forEach(i => { cnt[sevKey(i.severity)]++; if(!(i.code in msgByCode)) msgByCode[i.code] = i.message; });
-  const total = issues.length;
-  const chips = total
-    ? `<span class="vchip e">${SEV.Error} ${cnt.error} Error${cnt.error===1?'':'s'}</span>`
-      + `<span class="vchip w">${SEV.Warning} ${cnt.warning} Warning${cnt.warning===1?'':'s'}</span>`
-      + `<span class="vchip i">${SEV.Info} ${cnt.info} Info${cnt.info===1?'':'s'}</span>`
-    : `<span class="vchip ok">✓ No issues</span>`;
-  // (b) Rule reference — ONE card, ONE row per fired code (never individual cards); count per code added
-  const eb = (model && model.contract && model.contract.errorBlock) || { map:{}, order:[] };
+  const eb = (model && model.contract && model.contract.errorBlock) || {map:{}, order:[]};
   const fired = [...new Set(issues.map(i=>i.code))].sort();
-  const cntByCode = {}; issues.forEach(i => { cntByCode[i.code] = (cntByCode[i.code] || 0) + 1; });
-  const vref = fired.map(code => { const r = eb.map[code] || {}; const sym = SEV_SVG[r.severity] || SEV_SVG.Warning;
-    const desc = r.rule || msgByCode[code] || ''; const grp = r.group || '—';
-    // §7.2.4 — the severity class sits on an inner <span>, NEVER on the <td>: a
-    // display value other than table-cell takes a cell out of the table formatting
-    // context, so it stops being a cell and sizes itself independently (RC-1).
-    // §7.2.3 — cells are nowrap + ellipsis, so the full text goes in title.
-    return `<tr><td><span class="sev-${sevKey(r.severity || 'Warning')}">${sym}</span></td><td><code>${esc(code)}</code></td><td title="${esc(grp)}">${esc(grp)}</td><td title="${esc(desc)}">${esc(desc)}</td><td class="num">${cntByCode[code] || 0}</td></tr>`; }).join('');
-  // (a) Code-sheet validation summary — rendered as a NOTE CARD (spec §4.5)
-  const cm = (model && model.contract) || {};
-  const mapped = cm.columnMap ? Object.keys(cm.columnMap).length : 0;
-  const rulesLoaded = (eb.order||[]).length;
-  const lookups = cm.lookups || {};
-  const lkEmpty = Object.entries(lookups).filter(([k,b]) => !(b.items||[]).length).map(([k]) => k);
-  const lkCount = Object.keys(lookups).length;
-  const lkText = lkCount ? (lkEmpty.length ? `${lkCount} lookup tables (${lkEmpty.length} empty: ${lkEmpty.join(', ')})` : `${lkCount} lookup tables (all populated)`) : 'no lookup tables';
-  const vmap = `Code-sheet validation: <b>${mapped}</b> columns mapped · <b>${rulesLoaded}</b> error rules loaded · ${lkText}.`;
-  // L2 sorting for the per-issue list (I-92). Severity is an enum (Error→Warning→Info),
-  // Row is numeric, the rest text. Empty values sort last via dsCmp.
+  const cntByCode = {};
+  issues.forEach(i => { cntByCode[i.code] = (cntByCode[i.code]||0)+1; });
+  const ruleRows = fired.map(code => {
+    const r = eb.map[code] || {};
+    return {severity:r.severity||'Warning', code, group:r.group||'—',
+            description:r.rule||msgByCode[code]||'', count:cntByCode[code]||0};
+  });
+  return {SEV_SVG, sevKey, cnt, total:issues.length, eb, fired, cntByCode, msgByCode,
+          rulesLoaded:(eb.order||[]).length, ruleRows};
+}
+const pchipHtml = (family,label,count,countAttrs='') =>
+  `<span class="pchip ${family}" data-pchip="${family}" data-pchip-count="${count}">${esc(label)} <b${countAttrs}>${Number(count).toLocaleString()}</b></span>`;
+
+/* Panel 1 — fired rule reference. No meta note, no card title, no row-count label. */
+function renderValidationRules(panel, issues, model){
+  const info = validationInfo(issues, model);
+  const rules = info.ruleRows;
+  const ruleCols = [
+    {key:'severity', label:'Severity', sortable:false, type:'enum', order:['Error','Warning','Info']},
+    {key:'code', label:'Code', sortable:false, type:'text'},
+    {key:'group', label:'Group', sortable:false, type:'text'},
+    {key:'description', label:'Description', sortable:false, type:'text'},
+    {key:'count', label:'Count', sortable:false, type:'num'}
+  ];
+  const grid = makeGrid('validation_rules', ruleCols);
+  const ruleRowHTML = r => `<tr>${grid.visible().map(c=>{
+    const inner = c.key==='severity'
+      ? `<span class="sev-${info.sevKey(r.severity)}">${info.SEV_SVG[r.severity]||info.SEV_SVG.Warning}</span>`
+      : c.key==='code' ? `<code>${esc(r.code)}</code>`
+      : esc(r[c.key]==null?'—':r[c.key]);
+    return grid.td(c, inner);
+  }).join('')}</tr>`;
+  const ruleHead = ()=>grid.headRow({col:'',dir:1}).replace('</tr>', '<th class="ds-gut" aria-hidden="true"></th></tr>');
+  const ruleColsHTML = ()=>grid.colgroupHTML().replace('</colgroup>', '<col class="ds-gut" style="width:var(--ds-sbw,0px)"></colgroup>');
+  panel.innerHTML=`<div class="panel-head"><h2>Validation Rules</h2><div class="head-actions"></div></div>
+    <div class="panel-body">
+      <div class="pchip-row v-chip-row" data-panel-subtitle>${pchipHtml('violet','Loaded rules',info.rulesLoaded)}${pchipHtml('neutral','Fired rules',rules.length)}</div>
+      <div class="c-card validation-rules-card" id="vref">
+        <div class="toolbar validation-rules-tools"><div class="tool-filters"></div><div class="tool-actions"><button id="vrCsv" class="csv btn btn-secondary" title="Download fired validation rules as CSV">⤓ CSV</button></div></div>
+        <div class="splitbox splitcard">
+          <div class="vheadwrap"><table class="ds-table vheadtab" id="vrHead"><caption class="sr-only">Fired validation rules — column headers.</caption>${ruleColsHTML()}<thead>${ruleHead()}</thead></table></div>
+          <div class="tableScroll"><table class="ds-table"><caption class="sr-only">Fired validation rules — one row per rule code with its occurrence count.</caption>${grid.colgroupHTML()}<tbody>${rules.length?rules.map(ruleRowHTML).join(''):`<tr>${grid.visible().map(()=>'<td class="empty"></td>').join('')}</tr>`}</tbody></table></div>
+        </div>
+      </div>
+    </div>`;
+  const sc = panel.querySelector('.validation-rules-card .tableScroll');
+  const tbl = sc && sc.querySelector('table');
+  const head = panel.querySelector('#vrHead');
+  const csvBtn = panel.querySelector('#vrCsv');
+  csvBtn.hidden = rules.length === 0;
+  csvBtn.onclick=()=>{
+    if(!rules.length){ toast('Nothing to export','info'); return; }
+    const head=['Severity','Code','Group','Description','Count'];
+    const lines=[head.join(',')].concat(rules.map(r=>[r.severity,r.code,r.group,r.description,r.count].map(csvCell).join(',')));
+    downloadCSV(xp('validation_rules')+'.csv', lines.join('\n'));
+    toast('CSV downloaded','success');
+  };
+  const resize = (tbl && head) ? grid.resizer(tbl, head) : null;
+  grid.chooser(panel.querySelector('.tool-actions'));
+  grid.refresh = ()=>{
+    if(tbl){ const cg=tbl.querySelector('colgroup'); if(cg) cg.innerHTML=grid.colgroupHTML().replace(/^<colgroup>|<\/colgroup>$/g,''); }
+    if(head){
+      const hcg=head.querySelector('colgroup'); if(hcg) hcg.innerHTML=ruleColsHTML().replace(/^<colgroup>|<\/colgroup>$/g,'');
+      const th=head.querySelector('thead'); if(th) th.innerHTML=ruleHead();
+    }
+    if(resize) resize.addGrips();
+  };
+  if(sc) fitToScroller(grid, sc, ()=>grid.refresh());
+  wireSplitHeader(panel, '#vrHead', '.validation-rules-card .tableScroll');
+}
+
+/* Panel 2 — per-issue table with local Rule filter and 200-row pagination. */
+function renderValidationIssues(panel, issues, model){
+  const info = validationInfo(issues, model);
+  const PAGE_SIZE = 200;
   const issueCols = [
     {key:'severity', label:'Severity', sortable:true, type:'enum', order:['Error','Warning','Info']},
     {key:'code', label:'Rule', sortable:true, type:'text'},
@@ -3007,119 +3248,103 @@ function renderValidation(panel, issues, model){
     {key:'sourceTab', label:'Source Tab', sortable:true, type:'text'},
     {key:'rownum', label:'Row', sortable:true, type:'num'}
   ];
-  const issueGet = (i,key)=> i[key];
-  /* I-114 — PANEL-LOCAL RULE-CODE FILTER (shared spec §7.10 B6 + §7.2.7 pt 6).
-     No in-panel column filters here (removed 2026-10-20); this single-select is the panel's only
-     filter. It is resolved HERE in S5 on the rows already handed to the panel and must NEVER feed
-     back into S4 Derive, so KPIs, charts, the matrix and every other panel stay untouched. The
-     severity summary chips, the note below and the Rule Reference keep describing the WHOLE run —
-     only the issue table and its count reflect the selection (`N of M issues`). */
-  const ruleDescOf = code => { const r = eb.map[code] || {}; return r.rule || msgByCode[code] || ''; };
-  let ruleSel = '';
-  const ruleOpts = `<option value="">All rules</option>` + fired.map(code =>
-    `<option value="${esc(code)}">${esc(code)} — ${esc(ruleDescOf(code))} (${cntByCode[code]})</option>`).join('');
-  const issueListFor = () => ruleSel ? issues.filter(i => i.code === ruleSel) : issues;
-  const issueCntText = n => (n < total)
-    ? `${n} of ${total} issues`
-    : `${total} issue${total===1?'':'s'}`;
+  const issueGet = (i,key)=>i[key];
+  const grid = makeGrid('issue', issueCols);
+  const sevChips = info.total
+    ? `<span class="vchip e">Error ${info.cnt.error}</span><span class="vchip w">Warning ${info.cnt.warning}</span><span class="vchip i">Info ${info.cnt.info}</span>`
+    : `<span class="vchip ok">No issues</span>`;
+  const ruleDescOf = code => { const r=info.eb.map[code]||{}; return r.rule||info.msgByCode[code]||''; };
+  const ruleOpts = `<option value="">All rules</option>` + info.fired.map(code=>
+    `<option value="${esc(code)}">${esc(code)} — ${esc(ruleDescOf(code))} (${info.cntByCode[code]})</option>`).join('');
   const isort = {col:'', dir:1};
   const isp = getPref('issue_sort','');
   if(/^(-?1)\|/.test(isp)){ const [d,c]=isp.split('|'); if(issueCols.some(x=>x.key===c)){ isort.col=c; isort.dir=Number(d); } }
-  let issueView = dsSorted(issueListFor(), issueCols, isort, issueGet);
-  // `win` / `paintBody` are declared below; this closure resolves them when called (always
-  // after initialisation, since only the select's change handler triggers it).
-  const refreshIssueBody = () => { if(win && win.enabled) win.redraw(); else paintBody(); };
-  const onRuleChange = () => {
-    ruleSel = ruleSelEl.value;
-    issueView = dsSorted(issueListFor(), issueCols, isort, issueGet);
-    refreshIssueBody();
-    const c = panel.querySelector('#vCnt'); if(c) c.textContent = issueCntText(issueView.length);
+  let ruleSel = '', page = 1;
+  const filtered = ()=> ruleSel ? issues.filter(i=>i.code===ruleSel) : issues;
+  const sortedView = ()=> dsSorted(filtered(), issueCols, isort, issueGet);
+  const pageCount = ()=> Math.max(1, Math.ceil(sortedView().length/PAGE_SIZE));
+  const countText = ()=>{
+    const n = sortedView().length, pc = pageCount();
+    const base = (ruleSel && n<info.total) ? `${n} of ${info.total} issues` : `${info.total} issue${info.total===1?'':'s'}`;
+    return pc>1 ? `${base} · Page ${page} / ${pc}` : base;
   };
-  // L3 grid (I-95): visible columns (Severity + Doc No pinned), widths, chooser, resize
-  const grid = makeGrid('issue', issueCols);
-  const issueRowHTML = i => `<tr>${grid.visible().map(c => {
-      const inner = c.key === 'severity' ? `<span class="sev-${sevKey(i.severity)}">${SEV_SVG[i.severity]||SEV_SVG.Warning}</span>`
-        : c.key === 'docNo' ? esc(i.docNo)
-        : c.key === 'rownum' ? `<span class="num">${esc(i.rownum)}</span>`
-        : esc(i[c.key]==null?'—':i[c.key]);
-      return grid.td(c, inner, c.key === 'rownum' ? 'num' : '');
-    }).join('')}</tr>`;
-  const issueRows = list => list.map(issueRowHTML).join('');
-  const issueEmpty = () => `<tr><td class="empty" colspan="${grid.visible().length}">No issues to display.</td></tr>`;
-  // §7.2.15 — the header row carries the gutter CELL as well as the gutter column, so the fragment's
-  // column count matches its <colgroup> and the navy runs the full card width. aria-hidden: it
-  // reserves the scrollbar, it is not a column.
+  const issueRowHTML = i => `<tr>${grid.visible().map(c=>{
+    const inner = c.key==='severity'
+      ? `<span class="sev-${info.sevKey(i.severity)}">${info.SEV_SVG[i.severity]||info.SEV_SVG.Warning}</span>`
+      : esc(i[c.key]==null?'—':i[c.key]);
+    return grid.td(c, inner);
+  }).join('')}</tr>`;
+  const issueEmpty = ()=>`<tr><td class="empty" colspan="${grid.visible().length}">No issues to display.</td></tr>`;
+  const pageRows = ()=> sortedView().slice((page-1)*PAGE_SIZE, page*PAGE_SIZE);
   const issueHeadRow = ()=> grid.headRow(isort).replace('</tr>', '<th class="ds-gut" aria-hidden="true"></th></tr>');
-  // §7.2.15 (4) — ONE column grid: the fragment carries the body's columns plus the .ds-gut gutter.
-  const issueFragCols = ()=>grid.colgroupHTML().replace('</colgroup>', '<col class="ds-gut" style="width:var(--ds-sbw,0px)"></colgroup>');
-  panel.innerHTML=`<div class="panel-head"><h2>Validation Issues</h2>
-      <div class="head-actions"><span class="vchips" id="vChips">${chips}</span><label class="lbl">Rule:<select class="inter-sel" id="vRule" title="Filters this table only — the Validation / Issues tables" aria-label="Filter issues by rule code — this panel only">${ruleOpts}</select></label><button id="vCsv" class="csv btn btn-secondary" title="Download validation issue list as CSV">⤓ CSV</button><span class="cnt" id="vCnt">${issueCntText(issueView.length)}</span></div></div>
-    <div class="note">${total} issue${total===1?'':'s'} across ${fired.length} rule${fired.length===1?'':'s'}. All wording &amp; severity sourced from the Code sheet Error block (Code!AI:AL) — none hard-coded.</div>
-    <details class="vdetails"><summary>Validation detail — code-sheet check, rule reference, full issue list</summary>
-      <div class="vbody">
-        <div class="vnote" id="vmap">${vmap}</div>
-        <div class="vrefcard splitcard" id="vref"><div class="vrefhead">Rule Reference (fired)</div><div class="vheadwrap"><table class="ds-table vheadtab"><caption class="sr-only">Rule Reference — the data-quality rules that fired in this run, with severity, code, group, description and the number of occurrences.</caption><colgroup><col style="width:56px"><col style="width:110px"><col style="width:140px"><col><col style="width:70px"><col style="width:var(--ds-sbw,0px)"></colgroup><thead><tr><th scope="col">Sev</th><th scope="col">Code</th><th scope="col">Group</th><th scope="col">Description</th><th scope="col" class="num">Count</th><th class="ds-gut" aria-hidden="true"></th></tr></thead></table></div><div class="tableScroll"><table class="ds-table" aria-label="Rule Reference data rows"><colgroup><col style="width:56px"><col style="width:110px"><col style="width:140px"><col><col style="width:70px"></colgroup><tbody>${vref||'<tr><td class="empty" colspan="5">No rules fired.</td></tr>'}</tbody></table></div></div>
-        <div class="splitbox splitcard">`
-        + `<div class="vheadwrap"><table class="ds-table vheadtab" id="vHead"><caption class="sr-only">Validation issue list — column headers.</caption>${issueFragCols()}<thead>${issueHeadRow()}</thead></table></div>`
-        + `<div class="tableScroll vtableWrap"><table class="ds-table"><caption class="sr-only">Validation issue list — every individual issue found, with severity, rule, document number, field, value, message, source tab and row number.</caption>${grid.colgroupHTML()}<tbody id="vBody">${issueView.length?issueRows(issueView):issueEmpty()}</tbody></table></div>`
-        + `</div>
+  const issueFragCols = ()=> grid.colgroupHTML().replace('</colgroup>', '<col class="ds-gut" style="width:var(--ds-sbw,0px)"></colgroup>');
+  panel.innerHTML=`<div class="panel-head"><h2>Validation Issues</h2><div class="head-actions"></div></div>
+    <div class="panel-body">
+      <div class="pchip-row v-chip-row" data-panel-subtitle>${pchipHtml('green','All issues',info.total)}${pchipHtml('neutral','Shown issues',info.total,' data-validation-count')}<span class="vchips" id="vChips">${sevChips}</span></div>
+      <div class="c-card validation-issues-card">
+        <div class="toolbar validation-tools">
+          <div class="tool-filters">
+            <label class="lbl">Rule:<select class="inter-sel" id="vRule" title="Filters this table only — the Validation Issues panel" aria-label="Filter issues by rule code — this panel only">${ruleOpts}</select></label>
+            <button type="button" class="pg btn btn-secondary" data-vpage="prev" title="Previous page" aria-label="Previous issue page">Previous</button>
+            <label class="lbl">Page:<select class="inter-sel" id="vPage" title="Jump to an issue page" aria-label="Jump to an issue page"></select></label>
+            <button type="button" class="pg btn btn-secondary" data-vpage="next" title="Next page" aria-label="Next issue page">Next</button>
+            <span class="cnt" id="vCnt">${countText()}</span>
+          </div>
+          <div class="tool-actions"><button id="vCsv" class="csv btn btn-secondary" title="Download all filtered validation issues as CSV">⤓ CSV</button></div>
+        </div>
+        <div class="splitbox splitcard">
+          <div class="vheadwrap"><table class="ds-table vheadtab" id="vHead"><caption class="sr-only">Validation issue list — column headers.</caption>${issueFragCols()}<thead>${issueHeadRow()}</thead></table></div>
+          <div class="tableScroll vtableWrap"><table class="ds-table"><caption class="sr-only">Validation issue list — every individual issue found, with severity, rule, document number, field, value, message, source tab and row number.</caption>${grid.colgroupHTML()}<tbody id="vBody">${pageRows().length?pageRows().map(issueRowHTML).join(''):issueEmpty()}</tbody></table></div>
+        </div>
       </div>
-    </details>`;
-  panel.querySelector('#vCsv').onclick=()=>{ if(!issueView.length){ toast('Nothing to export','info'); return; } downloadCSV(xp('issue_list')+'.csv', issuesCSV(model, issueView)); toast('CSV downloaded','success'); };
-  // L2 sorting (I-92): delegated handler on the scroll container, so the header (rebuilt on
-  // each sort) keeps working; the CSV reads the same sorted array the table shows.
+    </div>`;
   const vsc = panel.querySelector('.vtableWrap');
-  const vTbl = vsc ? vsc.querySelector('table') : null;
+  const vTbl = vsc && vsc.querySelector('table');
   const vHead = panel.querySelector('#vHead');
-  // L3 windowing (I-96) + a body painter that both paths share
-  const paintBody = () => { const tb = panel.querySelector('#vBody'); if(tb) tb.innerHTML = issueView.length ? issueRows(issueView) : issueEmpty(); };
-  const fullBody = () => issueView.length ? issueRows(issueView) : issueEmpty();
-  const win = makeWindow(vsc, {
-    rowHeight: 40, overscan: 8, total: () => issueView.length,
-    render: (s, e) => issueView.slice(s, e).map(issueRowHTML).join(''), full: fullBody
-  });
-  // I-116 — the sort buttons now live in the HEADER FRAGMENT, so that is what the handler binds to.
-  if(vHead) wireSort(vHead, issueCols, isort, ()=>{
-      issueView = dsSorted(issueView, issueCols, isort, issueGet);
-      if(win.enabled) win.redraw(); else paintBody();
-    }, 'issue_sort', issueHeadRow);
-  // I-114 — wire the panel-local rule filter. Sorting re-sorts the CURRENT (already filtered)
-  // subset, so the selection survives a sort; CSV reads `issueView`, so export parity is automatic.
   const ruleSelEl = panel.querySelector('#vRule');
-  if(ruleSelEl) ruleSelEl.onchange = onRuleChange;
-  // No in-panel column filters on this panel (removed 2026-10-20); the column-visibility
-  // chooser below is the only popover here.
-  const iHead = panel.querySelector('.head-actions');
-  // L3 grid (I-95): chooser + resize. The header is rebuilt on every sort, so the grips
-  // are re-attached whenever the grid refreshes.
-  // I-116 — the header now lives in its own table, so the resizer is given BOTH halves: grips attach
-  // in the fragment, and every width is written to both colgroups.
-  const iResize = (vTbl && vHead) ? grid.resizer(vTbl, vHead) : null;
-  grid.chooser(iHead);
-  grid.refresh = () => {
-    if(vTbl){
-      const cg = vTbl.querySelector('colgroup'); if(cg) cg.innerHTML = grid.colgroupHTML().replace(/^<colgroup>|<\/colgroup>$/g, '');
-    }
-    if(vHead){
-      const hcg = vHead.querySelector('colgroup'); if(hcg) hcg.innerHTML = issueFragCols().replace(/^<colgroup>|<\/colgroup>$/g, '');
-      const th = vHead.querySelector('thead'); if(th) th.innerHTML = issueHeadRow();
-    }
-    if(iResize) iResize.addGrips();
-    if(win.enabled) win.redraw(); else paintBody();
+  const pageSelEl = panel.querySelector('#vPage');
+  const csvBtn = panel.querySelector('#vCsv');
+  const prevBtn = panel.querySelector('[data-vpage="prev"]');
+  const nextBtn = panel.querySelector('[data-vpage="next"]');
+  const paint = ()=>{
+    const pc = pageCount();
+    if(page>pc) page=pc;
+    const rows = pageRows(), n = sortedView().length;
+    panel.querySelector('#vBody').innerHTML = rows.length ? rows.map(issueRowHTML).join('') : issueEmpty();
+    panel.querySelector('#vCnt').textContent = countText();
+    const shown = panel.querySelector('[data-validation-count]');
+    if(shown){ shown.textContent = n.toLocaleString(); shown.parentElement.dataset.pchipCount = String(n); }
+    csvBtn.hidden = n === 0;
+    prevBtn.hidden = nextBtn.hidden = pageSelEl.hidden = pc <= 1;
+    prevBtn.disabled = page <= 1;
+    nextBtn.disabled = page >= pc;
+    pageSelEl.innerHTML = Array.from({length:pc},(_,i)=>`<option value="${i+1}"${i+1===page?' selected':''}>${i+1} / ${pc}</option>`).join('');
   };
-  // §7.2.15 invariant 5 — the pair MUST fit the display area whenever it can.
-  fitToScroller(grid, vsc, () => grid.refresh());
-  // §18 split-header contract (3, 5) — width pin + gutter + horizontal lock-step, shared helper.
+  ruleSelEl.onchange = ()=>{ ruleSel = ruleSelEl.value; page = 1; paint(); };
+  prevBtn.onclick = ()=>{ page = Math.max(1, page-1); paint(); };
+  nextBtn.onclick = ()=>{ page = Math.min(pageCount(), page+1); paint(); };
+  pageSelEl.onchange = ()=>{ page = Math.max(1, Math.min(pageCount(), Number(pageSelEl.value)||1)); paint(); };
+  const resize = (vTbl && vHead) ? grid.resizer(vTbl, vHead) : null;
+  grid.chooser(panel.querySelector('.tool-actions'));
+  grid.refresh = ()=>{
+    if(vTbl){ const cg=vTbl.querySelector('colgroup'); if(cg) cg.innerHTML=grid.colgroupHTML().replace(/^<colgroup>|<\/colgroup>$/g,''); }
+    if(vHead){
+      const hcg=vHead.querySelector('colgroup'); if(hcg) hcg.innerHTML=issueFragCols().replace(/^<colgroup>|<\/colgroup>$/g,'');
+      const th=vHead.querySelector('thead'); if(th) th.innerHTML=issueHeadRow();
+    }
+    if(resize) resize.addGrips();
+    paint();
+  };
+  if(vsc) fitToScroller(grid, vsc, ()=>grid.refresh());
   wireSplitHeader(panel, '#vHead', '.vtableWrap');
-  /* §7.2.15 — keep the split header on the same column grid as the body AND cover the
-     scrollbar area. The header fragment is sized to the scroller's BORDER box (so the
-     navy reaches the card edge instead of leaving a white notch), and its gutter column
-     is given the scrollbar width, so the five data columns still line up exactly.
-     Re-synced whenever the scroller's box changes — a scrollbar appearing or disappearing
-     changes clientWidth with no window resize, so a resize listener is not enough. */
-  // §18 split-header contract — the shared helper; the Rule Reference and the matrix now share ONE
-  // implementation, so neither can drift from the contract.
-  wireSplitHeader(panel, '#vref .vheadtab', '#vref .tableScroll');
+  wireSort(vHead, issueCols, isort, ()=>{ page=1; paint(); if(resize) resize.addGrips(); }, 'issue_sort', issueHeadRow);
+  paint();
+  csvBtn.onclick=()=>{
+    const rs = sortedView();
+    if(!rs.length){ toast('Nothing to export','info'); return; }
+    downloadCSV(xp('issue_list')+'.csv', issuesCSV(model, rs));
+    toast('CSV downloaded','success');
+  };
 }
 function renderDetail(panel, recs, model, state, rerender){
   const cols = model.contract.fieldOrder;
@@ -3229,36 +3454,51 @@ const xp = b => projPrefix() + '_' + slugify(b) + '_' + localDateISO();
 
 // ---------- boot / welcome ----------
 export function boot(root){
-  const year = new Date().getFullYear();
-  root.innerHTML = `<style>${CSS}</style>
-  <div class="welcome-screen"><div class="welcome">
-    <img class="wlogo" src="${LOGO_DATA}" alt="logo">
-    <h1>Master Document List Dashboard</h1>
-    <p class="sub">Interactive dashboard. Load the workbook to validate data, explore status and details.</p>
-    <div class="expect"><b>What this does</b> — Select your Code-sheet workbook (.xlsx)… Drop it below or click to browse.</div>
-    <div class="drop">
-      <div class="d-title">Drop your workbook here</div>
-      <div class="d-sub">or click to browse</div>
-      <label class="btn btn-primary">Choose Workbook<input type="file" id="file" accept=".xlsx,.xlsm" style="display:none"></label>
-    </div>
-    <div class="privacy"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 3 5v6c0 5 3.4 9.7 9 11 5.6-1.3 9-6 9-11V5l-9-4zm0 10.9h7c-.5 4-3 7.3-7 8.3V12H5V6.3l7-3.1V12z"/></svg> Works fully offline — your data never leaves this browser</div>
-    <div class="copyright">© ${year} UESH</div>
-  </div></div>`;
-  const input = root.querySelector('#file');
-  const drop = root.querySelector('.drop');
-  const loadFile = async f => {
-    if(!f) return;
-    try{
-      const buf = await f.arrayBuffer();
-      const wb = await readXlsx(buf);
-      const model = buildModel(wb, { workbookName: f.name });
-      renderDashboard(root, model);
-    }catch(err){ console.error(err); showError('Failed to parse workbook: ' + err.message); }
-  };
-  input.onchange = e => { const f = e.target.files[0]; if(f) loadFile(f); };
-  ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); drop.classList.add('hover'); }));
-  ['dragleave','dragend'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); drop.classList.remove('hover'); }));
-  drop.addEventListener('drop', e => { e.preventDefault(); e.stopPropagation(); drop.classList.remove('hover'); const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if(f) loadFile(f); });
-  // Expose for harness-layout Tier 3 injection (§3.8.5) — never called in normal browser use.
-  if(typeof window !== 'undefined') window._loadFile = loadFile;
+  let pending = null;
+  applyShellPrefs(); // I-166 / common C-08 fix T1 — read the saved theme before the welcome page paints,
+                      // so it doesn't always show light. DOM lookups inside applyShellPrefs() for shell
+                      // controls (#themeSel etc.) are guarded with `if(el)` and simply no-op pre-load.
+  if (WELCOME_CONFIG.themePicker) WELCOME_CONFIG.themePicker.current = document.body.dataset.theme || 'light';
+  const welcome = CommonWelcome.render(root, WELCOME_CONFIG, {
+    inspect: async file => {
+      try {
+        const wb = await readXlsx(await file.arrayBuffer());
+        const codeSheet = wb.sheets['Code'] || { rows: [] };
+        const meta = parseCodeSheet(codeSheet).meta;
+        const dashboardTitle = meta['Dashboard Title'] == null ? '' : String(meta['Dashboard Title']);
+        const projectTitle = meta['Project Title'] == null ? '' : String(meta['Project Title']);
+        const want = WELCOME_CONFIG.files[0].dashboardTitle;
+        if (dashboardTitle !== want) {
+          return { ok: false, dashboardTitle, projectTitle,
+            reason: `The Dashboard Title is "${dashboardTitle || 'blank'}". Expected "${want}".` };
+        }
+        pending = wb;
+        return { ok: true, dashboardTitle, projectTitle };
+      } catch (err) {
+        return { ok: false, reason: `"${file.name}" could not be read as an Excel workbook. ${err?.message || ''}` };
+      }
+    },
+    load: async (filesByKey, report) => {
+      report(0);
+      await new Promise(r => setTimeout(r, 0));
+      const file = filesByKey[WELCOME_CONFIG.files[0].key];
+      const wb = pending || await readXlsx(await file.arrayBuffer());
+      report(1);
+      await new Promise(r => setTimeout(r, 0));
+      const model = buildModel(wb, { workbookName: file.name });
+      report(2);
+      await new Promise(r => setTimeout(r, 0));
+      pending = null;
+      // I-165 — return the opener; CommonWelcome calls it after the success hold (spec §3.7.7 rev 1.110).
+      return () => renderDashboard(root, model);
+    },
+    onHelp: () => openHelp('welcome'),
+    onThemeChange: key => { setPref('theme', key); applyShellPrefs(); },
+    onStatus: (level, message) => {
+      if (level === 'error') console.error(message);
+      else if (level === 'warning') console.warn(message);
+    },
+  });
+  // Expose for harness-layout Tier 3 and Tier 7 injection (§3.8.5) — never called in normal browser use.
+  if (typeof window !== 'undefined') window._loadFile = f => welcome.accept([f]);
 }

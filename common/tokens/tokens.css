@@ -1,0 +1,107 @@
+/* common/tokens/tokens.css
+ * Revision 1.0.0 | 2026-11-28 | AWS Quick (AI) | C-08 — six-theme chrome-family token set. Build-time only
+ * (AGENTS.md §3). Pure CSS module: no JS, no project data, no literal class names beyond :root / [data-theme].
+ * Values are the owner-approved sample (theme-sample.html rev 0.3, 2026-11-28). light is genuinely light —
+ * chrome surfaces (title bar / status bar / table header / nav rail) are light-neutral, not navy; navy
+ * becomes --accent (active nav text, KPI border, chart line 1), not a fill painted over every surface.
+ * sky / ocean / presentation are distinct hue families (pale cool blue daytime / deep teal-green / near-black
+ * with warm amber), not hue-shifted copies of one dark theme. contrast is kept for maximum legibility.
+ *
+ *
+ * Revision 1.3.1 | 2026-11-28 | CodeBuddy (AI) | Spec rev 1.116 — strong tier set to 14% light / 22% dark so all three tiers stay inside the owner's stated ranges.
+ * Revision 1.3.0 | 2026-11-28 | AWS Quick (AI) | User-reported crosshair regression + 20-point contract — added
+ * --crosshair-faint/-medium/-strong: a true 3-tier color-mix(..., transparent) ladder (NOT mixed toward
+ * a surface token, which produced an opaque fill). light/sky/contrast use 7/13/17%; dark/ocean/presentation
+ * use 12/20/26% (darker themes need a higher percentage for the same visual strength). All 18 values
+ * verified >= 4.5:1 text contrast against both --surface and --ds-zebra before writing.
+ * Revision 1.2.0 | 2026-11-28 | AWS Quick (AI) | C-08 — added --pchip-* (4 families x 3 roles, migrated
+ * from MDL's per-theme overrides) and --ds-zebra (alternating-row tint). pchip-blue/green/neutral are
+ * var() references onto existing tokens; pchip-violet reuses --status-purple-* for one violet identity.
+ * Revision 1.1.0 | 2026-11-28 | AWS Quick (AI) | C-08 — added 6 status-family tokens per theme for MDL's
+ * document-status chips and accents that had no token home: --accent-purple, --badge-bg,
+ * --status-amber2-bg/-fg, --status-neutral-bg/-fg, --status-neutral2-bg/-fg, --status-purple-bg/-fg.
+ * All 36 new fg/bg pairs verified >= 4.5:1 (or >= 3:1 for the border-only accent) before writing.
+ */
+:root,[data-theme="light"]{color-scheme:light;
+ --bg:#F3F5F8;--surface:#FFFFFF;--surface2:#EEF1F5;--surface3:#E3E8EE;--border:#DCE2E9;--line:#E6EAF0;
+ --text:#1E2733;--text2:#48525F;--text3:#5B6571;--muted:#5B6571;--ink:#15202B;
+ --chrome-bg:#F7F9FB;--chrome-fg:#1E2733;--chrome-border:#E1E6EC;
+ --nav-bg:#F7F9FB;--nav-fg:#33414F;--nav-bg-active:#E7EEF7;--nav-fg-active:#1B4A8C;--nav-border:#E1E6EC;
+ --thead-bg:#EEF2F7;--thead-fg:#33414F;
+ --navy:#1B4A8C;--accent:#1B6FD6;--blue:#1B6FD6;--link:#0F5FC2;--soft:#EAF2FD;
+ --btn-bg:#1B6FD6;--on-fill:#FFFFFF;
+ --green:#1E8E3E;--amber:#B9790A;--red:#C62828;
+ --ok-bg:#E7F5EA;--ok-fg:#1B6B2E;--warn-bg:#FBF0DC;--warn-fg:#7A5600;--error-bg:#FBEAEA;--error-fg:#A91E1E;
+ --chart-1:#1B6FD6;--chart-2:#1E8E3E;--chart-3:#C58A1D;--chart-4:#C62828;--chart-5:#7A52C7;--chart-6:#1E9E8E;
+ --shadow:0 1px 2px rgba(20,30,45,.04),0 6px 18px rgba(20,30,45,.05);
+ --welcome-left-bg:#F7F9FB;--welcome-left-fg:#1E2733;--welcome-left-border:#E1E6EC;--welcome-accent:#1B4A8C;--accent-purple:#6A3FA0;--badge-bg:#C0392B;--status-amber2-bg:#FBE7D6;--status-amber2-fg:#8A4B12;--status-neutral-bg:#E7EBEF;--status-neutral-fg:#44505C;--status-neutral2-bg:#E2E8ED;--status-neutral2-fg:#33414F;--status-purple-bg:#F1E6F7;--status-purple-fg:#6A3FA0;--pchip-blue-bg:var(--soft);--pchip-blue-border:var(--border);--pchip-blue-ink:var(--link);--pchip-violet-bg:var(--status-purple-bg);--pchip-violet-border:var(--accent-purple);--pchip-violet-ink:var(--status-purple-fg);--pchip-green-bg:var(--ok-bg);--pchip-green-border:var(--ok-fg);--pchip-green-ink:var(--ok-fg);--pchip-neutral-bg:var(--surface2);--pchip-neutral-border:var(--border);--pchip-neutral-ink:var(--muted);--ds-zebra:#F9FBFD;--crosshair-faint:color-mix(in srgb, var(--accent) 7%, transparent);--crosshair-medium:color-mix(in srgb, var(--accent) 13%, transparent);--crosshair-strong:color-mix(in srgb, var(--accent) 14%, transparent)}
+
+[data-theme="dark"]{color-scheme:dark;
+ --bg:#0F1722;--surface:#16202E;--surface2:#1D2A3B;--surface3:#243446;--border:#2C3C52;--line:#2C3C52;
+ --text:#E6EDF5;--text2:#AEBCCD;--text3:#8D9DB0;--muted:#AEBCCD;--ink:#E6EDF5;
+ --chrome-bg:#0B2036;--chrome-fg:#E8EDF3;--chrome-border:#1C3350;
+ --nav-bg:#0B2036;--nav-fg:#C7D5E6;--nav-bg-active:#2B4B6A;--nav-fg-active:#FFFFFF;--nav-border:#1C3350;
+ --thead-bg:#0B2036;--thead-fg:#E8EDF3;
+ --navy:#0B2036;--accent:#5AA9F5;--blue:#5AA9F5;--link:#8CC4FA;--soft:#20354A;
+ --btn-bg:#2563C9;--on-fill:#FFFFFF;
+ --green:#4FC58B;--amber:#F0BD52;--red:#FF8278;
+ --ok-bg:#1E3A2B;--ok-fg:#9FE0B0;--warn-bg:#3A3119;--warn-fg:#F0BD52;--error-bg:#3A1F24;--error-fg:#FF9A91;
+ --chart-1:#5AA9F5;--chart-2:#4FC58B;--chart-3:#F0BD52;--chart-4:#FF8278;--chart-5:#B39DDB;--chart-6:#4DD0C4;
+ --shadow:0 1px 2px rgba(0,0,0,.35);
+ --welcome-left-bg:#0B2036;--welcome-left-fg:#E8EDF3;--welcome-left-border:#1C3350;--welcome-accent:#5AA9F5;--accent-purple:#C9A6E8;--badge-bg:#C83A2C;--status-amber2-bg:#3A2A18;--status-amber2-fg:#F0B784;--status-neutral-bg:#243446;--status-neutral-fg:#C7D5E6;--status-neutral2-bg:#1D2A3B;--status-neutral2-fg:#AEBCCD;--status-purple-bg:#2E2440;--status-purple-fg:#C9A6E8;--pchip-blue-bg:var(--soft);--pchip-blue-border:var(--border);--pchip-blue-ink:var(--link);--pchip-violet-bg:var(--status-purple-bg);--pchip-violet-border:var(--accent-purple);--pchip-violet-ink:var(--status-purple-fg);--pchip-green-bg:var(--ok-bg);--pchip-green-border:var(--ok-fg);--pchip-green-ink:var(--ok-fg);--pchip-neutral-bg:var(--surface2);--pchip-neutral-border:var(--border);--pchip-neutral-ink:var(--muted);--ds-zebra:#1D2B3A;--crosshair-faint:color-mix(in srgb, var(--accent) 12%, transparent);--crosshair-medium:color-mix(in srgb, var(--accent) 20%, transparent);--crosshair-strong:color-mix(in srgb, var(--accent) 22%, transparent)}
+
+[data-theme="sky"]{color-scheme:light;
+ --bg:#EAF4FC;--surface:#FFFFFF;--surface2:#DEF0FB;--surface3:#CDE7F8;--border:#B9DCF2;--line:#CDE7F8;
+ --text:#17324A;--text2:#355773;--text3:#4C7190;--muted:#355773;--ink:#0E2338;
+ --chrome-bg:#D8ECFB;--chrome-fg:#0E2338;--chrome-border:#B9DCF2;
+ --nav-bg:#D8ECFB;--nav-fg:#1A4566;--nav-bg-active:#FFFFFF;--nav-fg-active:#0B6CC4;--nav-border:#B9DCF2;
+ --thead-bg:#BFE1F8;--thead-fg:#0E2338;
+ --navy:#0B6CC4;--accent:#0B6CC4;--blue:#0B6CC4;--link:#0864B8;--soft:#D8ECFB;
+ --btn-bg:#0B6CC4;--on-fill:#FFFFFF;
+ --green:#1C8E5B;--amber:#AD7A12;--red:#C23B3B;
+ --ok-bg:#E1F5EA;--ok-fg:#16744B;--warn-bg:#FBF0D9;--warn-fg:#815A0C;--error-bg:#FBE7E7;--error-fg:#9E2E2E;
+ --chart-1:#0B6CC4;--chart-2:#1C8E5B;--chart-3:#C58A1D;--chart-4:#C23B3B;--chart-5:#6E5BC9;--chart-6:#1AA7A0;
+ --shadow:0 1px 3px rgba(20,60,90,.08);
+ --welcome-left-bg:#D8ECFB;--welcome-left-fg:#0E2338;--welcome-left-border:#B9DCF2;--welcome-accent:#0B6CC4;--accent-purple:#6E5BC9;--badge-bg:#C23B3B;--status-amber2-bg:#FBE9D6;--status-amber2-fg:#814A14;--status-neutral-bg:#DCE9F3;--status-neutral-fg:#2B4A63;--status-neutral2-bg:#D4E5F0;--status-neutral2-fg:#1F3C53;--status-purple-bg:#E8E3F7;--status-purple-fg:#5A4AAE;--pchip-blue-bg:var(--soft);--pchip-blue-border:var(--border);--pchip-blue-ink:var(--link);--pchip-violet-bg:var(--status-purple-bg);--pchip-violet-border:var(--accent-purple);--pchip-violet-ink:var(--status-purple-fg);--pchip-green-bg:var(--ok-bg);--pchip-green-border:var(--ok-fg);--pchip-green-ink:var(--ok-fg);--pchip-neutral-bg:var(--surface2);--pchip-neutral-border:var(--border);--pchip-neutral-ink:var(--muted);--ds-zebra:#EAF5FC;--crosshair-faint:color-mix(in srgb, var(--accent) 7%, transparent);--crosshair-medium:color-mix(in srgb, var(--accent) 13%, transparent);--crosshair-strong:color-mix(in srgb, var(--accent) 14%, transparent)}
+
+[data-theme="ocean"]{color-scheme:dark;
+ --bg:#07211F;--surface:#0D2E2B;--surface2:#133C38;--surface3:#1C4C46;--border:#215A53;--line:#1C4C46;
+ --text:#E3F7F1;--text2:#A9D6CB;--text3:#7FB3A6;--muted:#A9D6CB;--ink:#E3F7F1;
+ --chrome-bg:#052320;--chrome-fg:#D7F3EC;--chrome-border:#13433D;
+ --nav-bg:#052320;--nav-fg:#B9E3D8;--nav-bg-active:#1B4F47;--nav-fg-active:#FFFFFF;--nav-border:#13433D;
+ --thead-bg:#052320;--thead-fg:#D7F3EC;
+ --navy:#052320;--accent:#2FD7B6;--blue:#2FD7B6;--link:#6FE9D2;--soft:#133C38;
+ --btn-bg:#179E86;--on-fill:#04120F;
+ --green:#49D18F;--amber:#E9C25B;--red:#F08A7E;
+ --ok-bg:#123A2C;--ok-fg:#86E3B4;--warn-bg:#3A3015;--warn-fg:#E9C25B;--error-bg:#3A1F1C;--error-fg:#F6AFA5;
+ --chart-1:#2FD7B6;--chart-2:#49D18F;--chart-3:#E9C25B;--chart-4:#F08A7E;--chart-5:#8FA6F0;--chart-6:#4FC2E8;
+ --shadow:0 1px 4px rgba(0,0,0,.4);
+ --welcome-left-bg:#052320;--welcome-left-fg:#D7F3EC;--welcome-left-border:#13433D;--welcome-accent:#2FD7B6;--accent-purple:#B49AF0;--badge-bg:#F6816F;--status-amber2-bg:#3A2E15;--status-amber2-fg:#E9B978;--status-neutral-bg:#15423C;--status-neutral-fg:#A9D6CB;--status-neutral2-bg:#133C38;--status-neutral2-fg:#9FCCC0;--status-purple-bg:#241A3A;--status-purple-fg:#B49AF0;--pchip-blue-bg:var(--soft);--pchip-blue-border:var(--border);--pchip-blue-ink:var(--link);--pchip-violet-bg:var(--status-purple-bg);--pchip-violet-border:var(--accent-purple);--pchip-violet-ink:var(--status-purple-fg);--pchip-green-bg:var(--ok-bg);--pchip-green-border:var(--ok-fg);--pchip-green-ink:var(--ok-fg);--pchip-neutral-bg:var(--surface2);--pchip-neutral-border:var(--border);--pchip-neutral-ink:var(--muted);--ds-zebra:#103631;--crosshair-faint:color-mix(in srgb, var(--accent) 12%, transparent);--crosshair-medium:color-mix(in srgb, var(--accent) 20%, transparent);--crosshair-strong:color-mix(in srgb, var(--accent) 22%, transparent)}
+
+[data-theme="presentation"]{color-scheme:dark;
+ --bg:#0A0A0A;--surface:#161412;--surface2:#201C18;--surface3:#2B2620;--border:#3A332A;--line:#2B2620;
+ --text:#FBF3E9;--text2:#D9C9B4;--text3:#AD9D87;--muted:#D9C9B4;--ink:#FFFFFF;
+ --chrome-bg:#000000;--chrome-fg:#FBF3E9;--chrome-border:#2B2620;
+ --nav-bg:#000000;--nav-fg:#D9C9B4;--nav-bg-active:#3A2A12;--nav-fg-active:#FFB454;--nav-border:#2B2620;
+ --thead-bg:#000000;--thead-fg:#FBF3E9;
+ --navy:#000000;--accent:#FFB454;--blue:#FFB454;--link:#FFCB82;--soft:#2B2012;
+ --btn-bg:#E08B1F;--on-fill:#120900;
+ --green:#6FD98B;--amber:#FFCB5C;--red:#FF7A6E;
+ --ok-bg:#1F2E1A;--ok-fg:#9FE6AE;--warn-bg:#352708;--warn-fg:#FFCB5C;--error-bg:#351715;--error-fg:#FF9F94;
+ --chart-1:#FFB454;--chart-2:#6FD98B;--chart-3:#FFCB5C;--chart-4:#FF7A6E;--chart-5:#C79CFF;--chart-6:#5CD8D0;
+ --shadow:0 1px 4px rgba(0,0,0,.6);
+ --welcome-left-bg:#000000;--welcome-left-fg:#FBF3E9;--welcome-left-border:#2B2620;--welcome-accent:#FFB454;--accent-purple:#C79CFF;--badge-bg:#FF9478;--status-amber2-bg:#2E2210;--status-amber2-fg:#E3AE68;--status-neutral-bg:#262016;--status-neutral-fg:#D9C9B4;--status-neutral2-bg:#201C18;--status-neutral2-fg:#C7B79F;--status-purple-bg:#241A33;--status-purple-fg:#C79CFF;--pchip-blue-bg:var(--soft);--pchip-blue-border:var(--border);--pchip-blue-ink:var(--link);--pchip-violet-bg:var(--status-purple-bg);--pchip-violet-border:var(--accent-purple);--pchip-violet-ink:var(--status-purple-fg);--pchip-green-bg:var(--ok-bg);--pchip-green-border:var(--ok-fg);--pchip-green-ink:var(--ok-fg);--pchip-neutral-bg:var(--surface2);--pchip-neutral-border:var(--border);--pchip-neutral-ink:var(--muted);--ds-zebra:#1C1813;--crosshair-faint:color-mix(in srgb, var(--accent) 12%, transparent);--crosshair-medium:color-mix(in srgb, var(--accent) 20%, transparent);--crosshair-strong:color-mix(in srgb, var(--accent) 22%, transparent)}
+
+[data-theme="contrast"]{color-scheme:light;
+ --bg:#FFFFFF;--surface:#FFFFFF;--surface2:#F1F5F9;--surface3:#E2E8F0;--border:#000000;--line:#555555;
+ --text:#000000;--text2:#1F2A37;--text3:#253746;--muted:#253746;--ink:#000000;
+ --chrome-bg:#FFFFFF;--chrome-fg:#000000;--chrome-border:#000000;
+ --nav-bg:#001526;--nav-fg:#FFFFFF;--nav-bg-active:#004275;--nav-fg-active:#FFFFFF;--nav-border:#000000;
+ --thead-bg:#001526;--thead-fg:#FFFFFF;
+ --navy:#001526;--accent:#005FCC;--blue:#005FCC;--link:#003D85;--soft:#EAF1F8;
+ --btn-bg:#004C9E;--on-fill:#FFFFFF;
+ --green:#1B5E20;--amber:#8A5A00;--red:#A30000;
+ --ok-bg:#E7F4EA;--ok-fg:#0F4214;--warn-bg:#FFF4D6;--warn-fg:#5C3C00;--error-bg:#FDE8E8;--error-fg:#8A0000;
+ --chart-1:#004C9E;--chart-2:#1B5E20;--chart-3:#8A5A00;--chart-4:#A30000;--chart-5:#4B2477;--chart-6:#00635A;
+ --shadow:none;
+ --welcome-left-bg:#001526;--welcome-left-fg:#FFFFFF;--welcome-left-border:#000000;--welcome-accent:#005FCC;--accent-purple:#4B2477;--badge-bg:#A30000;--status-amber2-bg:#F3E3CF;--status-amber2-fg:#4A2C00;--status-neutral-bg:#E2E8F0;--status-neutral-fg:#1F2A37;--status-neutral2-bg:#DCE3EC;--status-neutral2-fg:#000000;--status-purple-bg:#EDE0F5;--status-purple-fg:#3A1A5C;--pchip-blue-bg:var(--soft);--pchip-blue-border:var(--border);--pchip-blue-ink:var(--link);--pchip-violet-bg:var(--status-purple-bg);--pchip-violet-border:var(--accent-purple);--pchip-violet-ink:var(--status-purple-fg);--pchip-green-bg:var(--ok-bg);--pchip-green-border:var(--ok-fg);--pchip-green-ink:var(--ok-fg);--pchip-neutral-bg:var(--surface2);--pchip-neutral-border:var(--border);--pchip-neutral-ink:var(--muted);--ds-zebra:#F1F5F9;--crosshair-faint:color-mix(in srgb, var(--accent) 7%, transparent);--crosshair-medium:color-mix(in srgb, var(--accent) 13%, transparent);--crosshair-strong:color-mix(in srgb, var(--accent) 14%, transparent)}

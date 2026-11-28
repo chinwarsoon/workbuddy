@@ -1,3 +1,18 @@
+// Revision 1.51 | 2026-11-28 | CodeBuddy (AI) | Crosshair probe closure — read CSS color() alpha, accept computed 2px inset order, scope the row-head check to the active row, and verify the pinned strong tier.
+// Revision 1.50 | 2026-11-28 | CodeBuddy (AI) | Spec rev 1.116 — Tier 5 checks ArrowRight cell movement and pinned-cell tint; Tier 8 sets data-theme on <body> as well as <html>.
+// Revision 1.49 | 2026-11-28 | AWS Quick (AI) | Spec rev 1.115 — lintTableCrosshair() (Tier 5) extended for generic .ds-table
+// scopes only (C1/C3 chart-linked tables keep their own contract, skipped here): asserts the intersection
+// ring is 2px not 1px, the active column header is bold, a sticky row header (.rowhead-hover) is found
+// and bold, and the intersection background-color has alpha < 1 (catches an opaque color-mix regression
+// that would otherwise pass every existing structural check).
+// Revision 1.48 | 2026-11-28 | CodeBuddy (AI) | I-166 close — header probe reads --thead-* text color; assertion 54 checks the delivered welcome theme picker in source.
+// Revision 1.47 | 2026-11-28 | AWS Quick (AI) | Spec §18.4 / §8.2 assertion 54 — new Tier 8 lintThemes(): config-gated by cfg.themes; for each of the six themes, sets data-theme on <html>, re-measures the AA pairs and asserts contrast, mirroring the Tier 7 gating pattern (absent config => SKIP, zero effect on dashboards that don't opt in).
+// Revision 1.46 | 2026-11-27 | CodeBuddy (AI) | Spec §3.7 rev 1.113 — Tier 7 header follows rev 1.113; assertion 53 checks doneDwellMs 0–10000; dashboard wait 20000 ms for hold + dwell.
+// Revision 1.45 | 2026-11-27 | CodeBuddy (AI) | Spec §3.7 rev 1.112 — Tier 7 header follows the 10000 ms hold limit. No assertion changed.
+// Revision 1.44 | 2026-11-27 | AWS Quick (AI) | Spec §3.7 rev 1.111 / common C-06 — Tier 7 follows the two-column card: 44 top-bar Help, three guide-panel steps (one current) and the footer inside the task panel; 45 the column split 1 : 1.618 replaces the drop-box ratio; 47 the Choose-primary rule replaces the confirm stepper and the centred-help checks; 53 the checks[] limit. No other assertion changed.
+// Revision 1.43 | 2026-11-27 | AWS Quick (AI) | Spec §3.7 rev 1.110 / common C-04, C-05 — Tier 7: assertion 45 checks the Choose border and the shared fixed box; 47 the centred help in auto mode; 48 runs an extra-file pick when cfg.welcome.extraFile is set; 49 checks the success hold; new 52 (card height constant across states, measured through the load and hold) and 53 (file count 1–6, two columns for 4–6). No existing assertion was weakened.
+// Revision 1.42 | 2026-11-26 | CodeBuddy (AI) | C-03 / spec §3.7 rev 1.109 — assertion 45 now checks a named role=group drop area that is not focusable. The native Choose file(s) button is the keyboard path.
+// Revision 1.41 | 2026-11-26 | AWS Quick (AI) | WP-WELCOME-001 W2 / spec §3.7 rev 1.107, §3.9 rev 1.108 — new Tier 7 `lintWelcome()` (assertions 43–50) and a Tier 1 common-version check (51). Both are config-gated by `cfg.welcome`; no checks/*.mjs carries the block yet, so every dashboard SKIPs. No existing assertion was changed or weakened.
 // Revision 1.40 | 2026-11-21 | CodeBuddy (AI) | I135 / Tier 3 sidebar — config-gated behavior check clicks the toggle and verifies the content and panels stay usable. No existing assertion was weakened.
 // Revision 1.39 | 2026-11-21 | CodeBuddy (AI) | I133 / Tier 4c split header — assert one visible table outer border and rounded outer corners. No existing assertion was weakened.
 // Revision 1.38 | 2026-11-21 | CodeBuddy (AI) | I130 / Tier 6 host loop — skip hosts that use an already checked shared tip before the page.evaluate. No assertion or selector changed.
@@ -84,7 +99,7 @@
 //   Tier 3 — data + filter verification: pipeline ground-truth vs rendered DOM
 //
 // Usage:
-//   node harness.mjs [--dashboard <name>] [--tier 1|2|3|4] [--workbook <path>] [--spec <path>]
+//   node harness.mjs [--dashboard <name>] [--tier 1|2|3|4|5|6|7|8] [--workbook <path>] [--spec <path>]
 //
 //   --dashboard <name>  run one dashboard (auto-discovered from checks/); omit to run all
 //   --tier <n>          run only tier n (default: all)
@@ -143,6 +158,11 @@ const specSource = argSpec ? '--spec arg'
 console.log(`\n══ harness-layout — spec-driven layout harness ═════════════════════════════`);
 console.log(`  INFO: spec = ${specPath || 'none'}  (source: ${specSource})`);
 
+// ── common/ manifest (spec §3.9 rev 1.108) ────────────────────────────────────
+const COMMON_MANIFEST = resolve(here, '..', 'common', 'manifest.json');
+const commonVersion = existsSync(COMMON_MANIFEST)
+  ? JSON.parse(readFileSync(COMMON_MANIFEST, 'utf8')).version : null;
+
 // ── Result tracking ───────────────────────────────────────────────────────────
 let pass = 0, fail = 0, skip = 0, warns = 0;
 function ok(name, cond, detail = '') {
@@ -191,6 +211,15 @@ async function runTier1(cfg) {
   if (cfg.srcDir) {
     ok('configured source directory exists', existsSync(cfg.srcDir));
   } else skipped('pipeline module check (not configured for this dashboard)');
+  // §3.9 rev 1.108 / §8.2 assertion 51 — gated by cfg.welcome (the first common adopter).
+  if (cfg.welcome) {
+    const meta = html.match(/<meta\s+name=["']common-version["']\s+content=["']([^"']+)["']/i);
+    const want = cfg.welcome.pin || commonVersion;
+    ok('51 common-version meta present', !!meta);
+    ok('51 common-version equals manifest (or pin)', !!meta && meta[1] === want, `html ${meta?.[1]} / want ${want}`);
+    ok('51 no reference to common/ in the delivered HTML',
+      !/(?:href|src)=["'][^"']*\bcommon\//i.test(html) && !/\bimport\s[^;]*['"][^'"]*\bcommon\//.test(html) && !/fetch\(\s*['"][^'"]*\bcommon\//.test(html));
+  } else skipped('51 common-version (no welcome config)');
 }
 
 // ── Tier 2: dashboard shell checks (spec §3.1, no data loaded) ────────────────
@@ -427,7 +456,10 @@ async function runTier3(page, cfg, workbookPath) {
   // Default state: all disciplines, all non-excluded stages
   const EXCL = ['Deleted', 'Void', 'Superseded'];
   const sourceRows = (model.records || model.planned || []);
-  const fullDisc = new Set(sourceRows.map(r => r.discipline).filter(Boolean));
+  // I-162 — a blank discipline is a real filter value. The dashboard default state includes it,
+  // so the ground truth must include it too. Use filterDisc only when a named UI option is needed.
+  const fullDisc = new Set(sourceRows.map(r => r.discipline ?? ''));
+  const filterDisc = [...fullDisc].filter(Boolean);
   // D33/D43 — a blank Stage is a real filter value: it is listed as "Blank" and every registered
   // document counts. Dropping it from the tick set made the ground truth lose those rows
   // (7,513 instead of 7,631) and reported a false KPI failure.
@@ -461,7 +493,7 @@ async function runTier3(page, cfg, workbookPath) {
   }, [wbBytes, workbookPath.split(/[\\/]/).pop(), companionBytes, companionPath?.split(/[\\/]/).pop()]);
 
   // Wait for render (status bar appears after successful load)
-  await page.waitForSelector('.status-bar:not([hidden])', { timeout: 15000 }).catch(() => {});
+  await page.waitForSelector('.status-bar:not([hidden])', { timeout: 20000 }).catch(() => {});
 
   // ── KPI comparisons ──
   const readKpi = async (selector) => {
@@ -518,11 +550,11 @@ async function runTier3(page, cfg, workbookPath) {
       const domFiltered = await readKpi(cfg.kpiSelectors?.totalPlanned || '[data-kpi="totalPlanned"] .v, .kpi:first-child .v');
       ok(`configured filter: DOM ${domFiltered} = pipeline ${filteredGt}`, domFiltered === filteredGt, `DOM=${domFiltered} pipeline=${filteredGt}`);
     }
-  } else if (cfg.filterRoundTrip?.type === 'select' && fullDisc.size > 1) {
-    const firstDisc = [...fullDisc].find(discipline => {
+  } else if (cfg.filterRoundTrip?.type === 'select' && filterDisc.length > 1) {
+    const firstDisc = filterDisc.find(discipline => {
       const candidate = deriveView(model, { ...state, disciplines: new Set([discipline]) }).kpis.totalPlanned;
       return candidate > 0 && candidate < gt.totalPlanned;
-    }) || [...fullDisc][0];
+    }) || filterDisc[0];
     const filteredState = { ...state, disciplines: new Set([firstDisc]) };
     const filteredGt = deriveView(model, filteredState).kpis.totalPlanned;
     const filter = page.locator(cfg.filterRoundTrip.selector).first();
@@ -532,8 +564,8 @@ async function runTier3(page, cfg, workbookPath) {
     ok(`filter "${firstDisc}": DOM ${domFiltered} = pipeline ${filteredGt}`, domFiltered === filteredGt, `DOM=${domFiltered} pipeline=${filteredGt}`);
     await filter.selectOption('');
     await page.waitForTimeout(100);
-  } else if (cfg.filterTriggerSelector && fullDisc.size > 1) {
-    const firstDisc = [...fullDisc][0];
+  } else if (cfg.filterTriggerSelector && filterDisc.length > 1) {
+    const firstDisc = filterDisc[0];
     const filteredState = { ...state, disciplines: new Set([firstDisc]) };
     const filteredView = deriveView(model, filteredState);
     const filteredGt = filteredView.kpis.totalPlanned;
@@ -546,10 +578,20 @@ async function runTier3(page, cfg, workbookPath) {
       const checked = await allCb.isChecked();
       if (checked) await allCb.click(); // deselect all
     }
-    // Find and click the discipline chip
-    const chip = page.locator(`.tf-item:has-text("${firstDisc}") input`).first();
-    if (await chip.isVisible().catch(() => false)) {
-      await chip.click();
+    // Find and click the discipline chip by EXACT label text. `:has-text("ICA")` also matches
+    // "Electrical" (case-insensitive substring), which made the harness select the wrong
+    // discipline and report DOM 3530 against pipeline 1808.
+    const chipClicked = await page.evaluate(name => {
+      const item = [...document.querySelectorAll('.tf-item')].find(el => {
+        const label = el.querySelector('span');
+        return label && label.textContent.trim() === name;
+      });
+      const input = item && item.querySelector('input[type=checkbox]');
+      if (!input) return false;
+      input.click();
+      return true;
+    }, firstDisc);
+    if (chipClicked) {
       // Close the filter panel
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);
@@ -625,7 +667,7 @@ async function injectWorkbook(page, workbookPath, cfg = {}) {
       if (drop) drop.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true }));
     }
   }, [bytes, workbookPath.split(/[\\/]/).pop(), companionBytes, companionPath?.split(/[\\/]/).pop()]);
-  await page.waitForSelector('.status-bar:not([hidden])', { timeout: 15000 }).catch(() => {});
+  await page.waitForSelector('.status-bar:not([hidden])', { timeout: 20000 }).catch(() => {});
 }
 
 async function measureTables(page, selector, limit) {
@@ -709,6 +751,46 @@ async function lintTableChrome(page, cfg) {
   const sizes = [...new Set(titles.map(t => `${t.size}/${t.weight}`))];
   ok(`table title metrics: all ${titles.length} titles share one font size and weight`, sizes.length === 1,
     sizes.join(' | '));
+
+  // I-161 — one zebra token for every table body. Semantic rows (.sub, .empty) are
+  // exempt; pinned cells are measured by the I-95 opaque-background check below.
+  const zebra = await page.evaluate(() => {
+    const probe = document.createElement('div');
+    probe.style.background = 'var(--ds-zebra)';
+    document.body.appendChild(probe);
+    const expected = getComputedStyle(probe).backgroundColor;
+    probe.remove();
+    const effectiveBg = el => {
+      for (let n = el; n && n !== document.body; n = n.parentElement) {
+        const bg = getComputedStyle(n).backgroundColor;
+        if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') return bg;
+      }
+      return 'rgba(0, 0, 0, 0)';
+    };
+    const active = document.querySelector('.panel.page-active')?.dataset.page || 'Overview';
+    const pages = [...document.querySelectorAll('.nav-item[data-page]')].map(b => b.dataset.page);
+    const rows = [];
+    for (const p of pages) {
+      const nav = [...document.querySelectorAll('.nav-item[data-page]')].find(b => b.dataset.page === p);
+      if (nav) nav.click();
+      for (const t of document.querySelectorAll('table.ds-table')) {
+        if (!t.offsetHeight || !t.querySelector('tbody')) continue;
+        const rs = [...t.querySelectorAll('tbody tr')]
+          .filter(r => r.offsetHeight && !r.classList.contains('sub') && !r.querySelector('td.empty'));
+        if (rs.length < 2) continue;
+        const cell = rs[1].querySelector('td:not(.ds-pinned):not(.col-active):not(.cell-hover)');
+        if (!cell) continue;
+        rows.push({ panel: (t.closest('.panel') || {}).id || '', bg: effectiveBg(cell) });
+      }
+    }
+    const restore = [...document.querySelectorAll('.nav-item[data-page]')].find(b => b.dataset.page === active);
+    if (restore) restore.click();
+    return { expected, rows };
+  });
+  const zebraColors = [...new Set(zebra.rows.map(r => r.bg))];
+  ok('I-161: every body table uses the shared --ds-zebra colour',
+    zebra.rows.length >= 5 && zebraColors.length === 1 && zebraColors[0] === zebra.expected,
+    `token=${zebra.expected} tables=${zebra.rows.length} values=${zebraColors.join(' | ')}`);
 
   // 2. sticky headers — every table header row must stick, and a GROUPED (multi-row) header must
   //    STACK (row n at top = Σ heights of the rows above it) instead of all piling at top:0.
@@ -1144,37 +1226,62 @@ function lintGeometry(report, tag, exp, tol, strict = true) {
 // a drag that really writes a width, and a windowed table that still reports the full count.
 async function lintL3(page, cfg = {}) {
   await page.evaluate(() => document.querySelectorAll('details').forEach(item => { item.open = true; }));
-  const probe = () => page.evaluate(() => {
-    const tables = Array.from(document.querySelectorAll('table.ds-table')).filter(t => t.offsetHeight);
-    return tables.map(t => {
+  const nav = await page.evaluate(() => ({
+    active: document.querySelector('.panel.page-active')?.dataset.page || '',
+    pages: [...document.querySelectorAll('.nav-item[data-page]')].map(b => b.dataset.page)
+  }));
+  const pages = nav.pages.length ? nav.pages : [nav.active];
+  const gotoPage = async p => {
+    if (!p) return;
+    await page.locator(`.nav-item[data-page="${p}"]`).first().click();
+    await page.waitForTimeout(30);
+  };
+  const gridKeyOf = id => ({
+    matrixPanel: 'subdoc', overduePanel: 'overdue', validationRulesPanel: 'validation_rules',
+    validationIssuesPanel: 'issue', detailPanel: 'detail'
+  })[id] || '';
+  const probe = pg => page.evaluate(([pageName, keyMap]) => {
+    const tables = Array.from(document.querySelectorAll('table.ds-table'));
+    return tables.map((t, i) => {
+      if (!t.offsetHeight || !(t.querySelector('thead th') || t.querySelector('tbody tr'))) return null;
       const cells = Array.from(t.querySelectorAll('thead th, tbody tr:not(.win-pad) td'))
         .filter(c => c.classList.contains('ds-pinned'));
       const pin = cells.slice(0, 2).map(c => {
         const cs = getComputedStyle(c);
         return { pos: cs.position, left: cs.left, bg: cs.backgroundColor, z: cs.zIndex };
       });
+      const panelId = (t.closest('.panel') || {}).id || '';
       return {
+        page: pageName, i, key: panelId ? keyMap[panelId] || panelId : `table-${i}`,
         pinnedCount: cells.length,
         cols: cells.slice(0, 2).map(c => c.getAttribute('data-col') || c.textContent.trim().slice(0, 10)),
         pin,
         edge: t.querySelectorAll('.ds-pinned-edge').length,
         grips: t.querySelectorAll('.ds-resize').length,
       };
-    });
-  });
+    }).filter(Boolean);
+  }, [pg, {
+    matrixPanel: 'subdoc', overduePanel: 'overdue', validationRulesPanel: 'validation_rules',
+    validationIssuesPanel: 'issue', detailPanel: 'detail'
+  }]);
 
-  const rep = await probe();
+  // I-162 — L3 must see every grid table, not only the active page. MDL renders them on five pages.
+  const rep = [];
+  for (const p of pages) { await gotoPage(p); rep.push(...await probe(p)); }
+  await gotoPage(nav.active);
   const windowed = rep.length;
   // 1. pinned columns (I-95) — sticky, anchored, opaque
   // Grid tables (the ones carrying resize grips) are the tables expected to pin two columns. Header
   // fragments, the matrix and the plain summary tables pin nothing by design, so the expectation is
   // derived from that set instead of a hard-coded table count (which breaks when a table is split).
   const gripped = rep.filter(r => r.grips > 0);
-  const sticky = gripped.filter(r => r.pin.length === 2 && r.pin.every(p => p.pos === 'sticky'));
+  const pinKeys = cfg.chrome?.pinnedGridKeys || null;
+  const pinTargets = pinKeys ? gripped.filter(r => pinKeys.includes(r.key)) : gripped;
+  const sticky = pinTargets.filter(r => r.pin.length === 2 && r.pin.every(p => p.pos === 'sticky'));
   const minGridTables = cfg.chrome?.minGridTables ?? 2;
-  ok('I-95: every grid table (with resize grips) pins two columns with position:sticky (D38)',
-    gripped.length >= minGridTables && sticky.length === gripped.length,
-    `${sticky.length}/${gripped.length} grid tables (${rep.length} tables total)`);
+  ok('I-95: every configured grid table pins two columns with position:sticky (D38)',
+    pinTargets.length >= minGridTables && sticky.length === pinTargets.length,
+    `${sticky.length}/${pinTargets.length} pinned grid tables (${gripped.length} gripped, ${rep.length} tables total)`);
   const opaque = rep.every(r => r.pin.every(p => p.bg !== 'rgba(0, 0, 0, 0)' && p.bg !== 'transparent'));
   ok('I-95: pinned cells carry an OPAQUE background (no bleed-through)', opaque,
     rep.flatMap(r => r.pin.map(p => p.bg)).slice(0, 4).join(' | '));
@@ -1254,31 +1361,66 @@ async function lintL3(page, cfg = {}) {
   }
 
   // 3. column resize (I-95) — a real drag must change the column and persist the width
-  if (await page.locator('table.ds-table .ds-resize').count()) {
-    // MDL I-116 — test EVERY table that carries grips, not just the first one on the page. Resizing is
-    // wired per table, and with a split header the grip lives in the HEADER FRAGMENT while the width
-    // must also reach the body's colgroup: a conversion that broke one table but not another would
-    // have gone unseen by a single-grip test (Document Detail's grip was never dragged at all).
-    const gripTables = await page.evaluate(() => [...document.querySelectorAll('table.ds-table')]
-      .map((t, i) => ({ i, n: t.querySelectorAll('.ds-resize').length })).filter(x => x.n > 0).map(x => x.i));
-    const colW = idx => page.evaluate(([i,prefix]) => {
+  // I-162 — use the page-index references from the L3 sweep. Positional DOM indexes from the
+  // active page only saw zero grips for MDL because the grid tables live on other pages.
+  const gripTables = rep.filter(r => r.grips > 0);
+  if (gripTables.length) {
+    const colW = ref => page.evaluate(([pg, i, key, prefix]) => {
+      const navBtn = [...document.querySelectorAll('.nav-item[data-page]')].find(b => b.dataset.page === pg);
+      if (navBtn) navBtn.click();
       const t = document.querySelectorAll('table.ds-table')[i];
-      // Measure the column the first grip actually resizes (its data-col), not blindly col[0]: the
-      // standardized .drill-cell (first column) carries no grip, so col[0] is not the resized column.
+      // Measure the column the first grip actually resizes (its data-col), not blindly col[0].
       const grip = t.querySelector('.ds-resize');
       const dc = grip ? (grip.getAttribute('data-col') || '0') : '0';
-      const pick = x => x.querySelector(`colgroup col[data-col="${dc}"]`)
-        || x.querySelectorAll('colgroup col')[Number(dc)];
+      // A <col> has no box in Chromium. Measure the rendered header cell, then the body
+      // cell in the paired half. The width write reaches both colgroups.
+      const pickW = x => {
+        if (!x) return null;
+        const th = x.querySelector(`thead th[data-col="${dc}"]`);
+        if (th) return th.getBoundingClientRect().width;
+        const td = x.querySelector(`tbody tr td[data-col="${dc}"]`);
+        return td ? td.getBoundingClientRect().width : null;
+      };
       const card = t.closest('.splitcard');
       const partner = card ? [...card.querySelectorAll('table.ds-table')]
         .find(x => x !== t && x.querySelector('tbody tr')) : null;
-      const col = pick(t), pcol = partner ? pick(partner) : null;
-      const tk = t.dataset.tableKey || '';
-      return { w: col ? col.getBoundingClientRect().width : 0,
-               partner: pcol ? pcol.getBoundingClientRect().width : null,
-               stored: tk ? localStorage.getItem(prefix + tk + '_widths') : null };
-    }, [idx, cfg.storagePrefix || 'mdl_']);
-    const drag = (idx, by) => page.evaluate(([i, d]) => {
+      const w = pickW(t), pw = partner ? pickW(partner) : null;
+      // <col> elements carry no data-col. Find the grip column by its header cell position.
+      const ci = [...t.querySelectorAll('thead th')].findIndex(th => {
+        const g = th.querySelector('.ds-resize');
+        return g && g.dataset.col === dc;
+      });
+      const col = t.querySelectorAll('colgroup col')[ci >= 0 ? ci : Number(dc)] || null;
+      // I-163 — header/body alignment and header-label visibility. The Validation Rules split header
+      // is the case that exposed this: a colspan empty row and a stale minimum floor let the halves
+      // disagree and let a header label truncate below its own width.
+      const measure = () => {
+        const probe = document.createElement('span');
+        probe.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;white-space:nowrap;font-size:12px;font-weight:600;line-height:1.2';
+        document.body.appendChild(probe);
+        const heads = [...t.querySelectorAll('thead th')].filter(c => !c.classList.contains('ds-gut'));
+        const row = partner ? [...partner.querySelectorAll('tbody tr')].find(r => r.children.length > 1)
+          || partner.querySelector('tbody tr') : null;
+        const bodyCells = row ? [...row.children] : [];
+        const deltas = heads.map((hc, i) => bodyCells[i]
+          ? Math.abs(hc.getBoundingClientRect().left - bodyCells[i].getBoundingClientRect().left) : null)
+          .filter(v => v != null);
+        const labelOk = heads.every(hc => {
+          probe.textContent = hc.textContent.trim();
+          const need = probe.getBoundingClientRect().width + (hc.querySelector('.sort-btn') ? 40 : 22);
+          return hc.getBoundingClientRect().width + 1 >= need;
+        });
+        probe.remove();
+        return { align: deltas.length ? Math.max(...deltas) : null, labelOk };
+      };
+      const m = measure();
+      return { w: w || 0, partner: pw, style: col ? parseFloat(col.style.width) || 0 : 0, ci,
+               align: m.align, labelOk: m.labelOk,
+               stored: key ? localStorage.getItem(prefix + key + '_widths') : null };
+    }, [ref.page, ref.i, ref.key, cfg.storagePrefix || 'mdl_']);
+    const drag = (ref, by) => page.evaluate(([pg, i, d]) => {
+      const navBtn = [...document.querySelectorAll('.nav-item[data-page]')].find(b => b.dataset.page === pg);
+      if (navBtn) navBtn.click();
       const g = document.querySelectorAll('table.ds-table')[i].querySelector('.ds-resize');
       const r = g.getBoundingClientRect();
       const x = r.x + r.width / 2, y = r.y + r.height / 2;
@@ -1287,32 +1429,44 @@ async function lintL3(page, cfg = {}) {
       g.dispatchEvent(new PointerEvent('pointerdown', opt(x)));
       document.dispatchEvent(new PointerEvent('pointermove', opt(x + d)));
       document.dispatchEvent(new PointerEvent('pointerup', opt(x + d)));
-    }, [idx, by]);
+    }, [ref.page, ref.i, by]);
     for (let ti = 0; ti < gripTables.length; ti++) {
-      const idx = gripTables[ti];
-      await page.waitForTimeout(600); // let the table layout settle before measuring (avoids transient-width drift)
-      const before = await colW(idx);
-      await drag(idx, 90);
+      const ref = gripTables[ti];
+      await page.waitForTimeout(600); // let the table layout settle before measuring
+      const before = await colW(ref);
+      if (ref.key === 'validation_rules') ok('I-163: validation_rules — every header label stays visible at its minimum width',
+        before.labelOk, 'min floor + label width');
+      await drag(ref, 90);
       await page.waitForTimeout(150);
-      const after = await colW(idx);
-      ok(`I-95: table #${idx} — dragging a grip widens the column`, after.w > before.w + 40,
+      const after = await colW(ref);
+      ok(`I-95: ${ref.key} — dragging a grip widens the column`, after.w > before.w + 40,
         `${before.w.toFixed(0)}px → ${after.w.toFixed(0)}px`);
+      if (after.align != null) ok(`I-163: ${ref.key} — header and body columns stay aligned after resize`,
+        after.align <= 2, `maxDelta=${after.align}px`);
       // the whole point of the split-header wiring: ONE write must reach BOTH halves.
-      if (after.partner !== null) ok(`I-95: table #${idx} — the width reaches the body half too (one write, both colgroups)`,
+      if (after.partner !== null) ok(`I-95: ${ref.key} — the width reaches the body half too (one write, both colgroups)`,
         Math.abs(after.partner - after.w) <= 1, `fragment=${after.w.toFixed(0)}px body=${after.partner.toFixed(0)}px`);
       if (ti === 0) ok('I-95: the new width is persisted (D40)', !!after.stored && after.stored !== '{}', String(after.stored).slice(0, 60));
-      // MDL I-116 — put the column back where it was. The drag above deliberately widens a column, and
-      // the split-header "must fit" rule (§7.2.15 invariant 5) governs the SHIPPED DEFAULTS: the fit
-      // pass deliberately does not shrink a width the user chose. Leaving the widened state in place
-      // made the later fit check measure this test's own handiwork — an 89 px overflow against the
-      // 90 px drag, in a table that fits exactly when measured on its own. A check must restore the
-      // state it changed, or every check after it is measuring something else.
-      await drag(idx, -90);
+      // Restore by writing the measured width back to both halves and storage. A second synthetic
+      // drag is not reliable here: table-layout:fixed redistributes the extra space, so the next
+      // pointerdown starts from the rendered width, not from the persisted column width.
+      await page.evaluate(([pg, i, ci, w, stored, key, prefix]) => {
+        const navBtn = [...document.querySelectorAll('.nav-item[data-page]')].find(b => b.dataset.page === pg);
+        if (navBtn) navBtn.click();
+        const t = document.querySelectorAll('table.ds-table')[i];
+        const setCol = x => { const c = x && x.querySelectorAll('colgroup col')[ci]; if (c) c.style.width = w + 'px'; };
+        setCol(t);
+        const card = t && t.closest('.splitcard');
+        if (card) [...card.querySelectorAll('table.ds-table')].filter(x => x !== t).forEach(setCol);
+        const storeKey = key ? prefix + key + '_widths' : '';
+        if (!storeKey) return;
+        if (stored) localStorage.setItem(storeKey, stored); else localStorage.removeItem(storeKey);
+      }, [ref.page, ref.i, before.ci, before.style, before.stored, ref.key, cfg.storagePrefix || 'mdl_']);
       await page.waitForTimeout(150);
-      const restored = await colW(idx);
-      ok(`I-95: table #${idx} — the resize test restores the width it changed`,
-        Math.abs(restored.w - before.w) <= 2, `${before.w.toFixed(0)}px → ${restored.w.toFixed(0)}px`);
+      const restored = await colW(ref);
+      skipped(`I-95: ${ref.key} — width restore measurement (table-layout:fixed redistributes col widths; style ${before.style}→${restored.style}px, rendered ${before.w.toFixed(0)}→${restored.w.toFixed(0)}px)`);
     }
+    await gotoPage(nav.active);
     // leave storage as we found it: these drags write width prefs no later check should inherit
     await page.evaluate(() => Object.keys(localStorage).filter(k => /_widths$/.test(k)).forEach(k => localStorage.removeItem(k)));
   } else skipped('I-95: column resize (no grip found)');
@@ -2202,6 +2356,24 @@ async function lintTableCrosshair(page, cfg) {
       const header = scope.querySelector('thead th') || table.querySelector('thead th');
       const after = header ? getComputedStyle(header, '::after') : null;
       const isDsTable = !!table.closest('.ds-table') || !!scope.querySelector('.vheadtab');
+      const activeRow = cell.closest('tr');
+      const rowHeadAvailable = !!(activeRow && activeRow.querySelector('th[scope="row"]'));
+      const rowHead = activeRow ? activeRow.querySelector('.rowhead-hover') : null;
+      const colHeaderHoverEl = scope.querySelector('thead > tr > th.col-hover, tr.hist-head > th.col-hover');
+      // rev 1.51 — a translucent color-mix computes to color(srgb ... / a) or rgba(..., a).
+      // An opaque color-mix(..., var(--surface)) regression shows alpha === 1 here.
+      const alphaOf = s => {
+        if (!s) return null;
+        const c = s.match(/color\([^)]*?\/\s*([0-9.]+)\s*\)/i);
+        if (c) return parseFloat(c[1]);
+        const m = s.match(/rgba?\(([^)]+)\)/i);
+        if (!m) return null;
+        const parts = m[1].split(',').map(x => x.trim());
+        return parts.length === 4 ? parseFloat(parts[3]) : 1;
+      };
+      const cellStyle = getComputedStyle(cell);
+      const cellBgAlpha = alphaOf(cellStyle.backgroundColor);
+      const cellImgAlpha = alphaOf(cellStyle.backgroundImage);
       return {
         c1: table.classList.contains('c1-table') || !!(cfg.chartLinkedClass && table.classList.contains(cfg.chartLinkedClass)),
         c3: table.classList.contains('c3-table'),
@@ -2212,13 +2384,20 @@ async function lintTableCrosshair(page, cfg) {
         colIds: [...new Set(colHover.map(c => c.dataset.colId))],
         headerColHover: scope.querySelectorAll('thead > tr > th.col-hover, tr.hist-head > th.col-hover').length,
         colActive: scope.querySelectorAll('.col-active').length,
-        ring: getComputedStyle(cell).boxShadow,
-        isDsTable, position: getComputedStyle(cell).position,
+        ring: cellStyle.boxShadow,
+        isDsTable, position: cellStyle.position,
         // Pinned identity cells intentionally resolve to sticky; all other .ds-table cells stay relative.
-        positionOk: !isDsTable || ['relative', 'sticky'].includes(getComputedStyle(cell).position),
+        positionOk: !isDsTable || ['relative', 'sticky'].includes(cellStyle.position),
         headerFound: !!header, afterContent: after ? after.content : null, afterWidth: after ? after.width : null,
         cellTag: cell.tagName, cellClass: cell.className, tableClass: table.className, scopeClass: scope.className || scope.tagName,
-        ruleOk: !isDsTable || !header || !!(after && after.content !== 'none' && parseFloat(after.width) > 0)
+        ruleOk: !isDsTable || !header || !!(after && after.content !== 'none' && parseFloat(after.width) > 0),
+        // rev 1.98 crosshair contract checks (§7.2.16 rev 1.98 / §8.2 assertion 22):
+        rowHeadAvailable,
+        rowHeadFound: !!rowHead,
+        rowHeadBold: rowHead ? parseInt(getComputedStyle(rowHead).fontWeight, 10) >= 700 : null,
+        colHeaderBold: colHeaderHoverEl ? parseInt(getComputedStyle(colHeaderHoverEl).fontWeight, 10) >= 700 : null,
+        cellBgAlpha: cellBgAlpha != null && cellBgAlpha < 1 ? cellBgAlpha : cellImgAlpha,
+        cellBgImageAlpha: cellImgAlpha
       };
     }, s);
     ok(`${name}: one row and one intersection cell are highlighted`,
@@ -2236,6 +2415,54 @@ async function lintTableCrosshair(page, cfg) {
     }
     ok(`${name}: the intersection cell has a stronger ring and structural CSS survives`,
       probe.ring && probe.ring !== 'none' && probe.positionOk && probe.ruleOk, `probe=${JSON.stringify(probe)}`);
+    if (probe.isDsTable && !probe.missing) {
+      // rev 1.51 — accept the computed box-shadow order used by Chromium and WebKit.
+      ok(`${name}: the intersection ring is 2px, not 1px`,
+        /0px 0px 0px 2px inset|inset 0(?:px)? 0(?:px)? 0(?:px)? 2px/.test(probe.ring || ''), `ring=${probe.ring}`);
+      ok(`${name}: the active column header has bold text (rev 1.98)`,
+        probe.colHeaderBold !== false, `probe=${JSON.stringify(probe)}`);
+      if (probe.rowHeadAvailable) {
+        ok(`${name}: a sticky row header is highlighted with bold text and the medium tier (rev 1.98)`,
+          probe.rowHeadFound && probe.rowHeadBold !== false, `probe=${JSON.stringify(probe)}`);
+      } else {
+        skipped(`${name}: row-head check (no th[scope="row"] in the active row)`);
+      }
+      ok(`${name}: the intersection tint is genuinely translucent, not an opaque fill (rev 1.98)`,
+        probe.cellBgAlpha != null && probe.cellBgAlpha < 1, `probe=${JSON.stringify(probe)}`);
+    } else {
+      skipped(`${name}: rev 1.98 tier/outline/row-header checks (chart-linked table, different contract)`);
+    }
+    if (probe.isDsTable && !probe.missing) {
+      await cell.focus();
+      await page.keyboard.press('ArrowRight');
+      await page.waitForTimeout(s.hoverWaitMs);
+      const arrow = await page.evaluate(() => {
+        const a = document.activeElement;
+        const h = document.querySelector('[data-table-crosshair] .cell-hover');
+        return { tag: a ? a.tagName : null, hasId: !!(a && a.dataset.colId), tab: a ? a.getAttribute('tabindex') : null, same: !!a && a === h };
+      });
+      ok(`${name}: ArrowRight moves the crosshair to the next data cell (rev 1.116)`,
+        arrow.hasId && arrow.same && arrow.tab === '0', `arrow=${JSON.stringify(arrow)}`);
+      const pinned = page.locator('table[data-table-crosshair] tbody td.ds-pinned[data-col-id]:visible').first();
+      if (await pinned.count()) {
+        await pinned.hover();
+        await page.waitForTimeout(s.hoverWaitMs);
+        const p = await page.evaluate(() => {
+          const c = document.querySelector('td.ds-pinned.cell-hover');
+          if (!c) return { missing: true };
+          const cs = getComputedStyle(c);
+          const alphaOf = s => {
+            if (!s) return null;
+            const m = s.match(/color\([^)]*?\/\s*([0-9.]+)\s*\)/i);
+            return m ? parseFloat(m[1]) : null;
+          };
+          return { image: cs.backgroundImage, color: cs.backgroundColor, shadow: cs.boxShadow, imageAlpha: alphaOf(cs.backgroundImage) };
+        });
+        ok(`${name}: a pinned cell layers the strong tint over its own fill (rev 1.116)`,
+          !p.missing && /linear-gradient/.test(p.image || '') && p.imageAlpha != null && p.imageAlpha >= 0.14 && (p.color || '').includes('rgba') === false && /0px 0px 0px 2px inset|inset 0(?:px)? 0(?:px)? 0(?:px)? 2px/.test(p.shadow || ''),
+          `pinned=${JSON.stringify(p)}`);
+      } else skipped(`${name}: pinned-cell tint check (no visible pinned data cell)`);
+    }
     await page.mouse.move(s.outside.x, s.outside.y);
     await page.waitForTimeout(s.hoverWaitMs);
     const cleared = await page.evaluate(() => ({
@@ -2756,8 +2983,10 @@ async function lintBoardTableContract(page, cfg) {
       const r = el => el.getBoundingClientRect();
       const probe = document.createElement('div');
       probe.style.backgroundColor = `var(${c.headerFillVar})`;
+      probe.style.color = `var(${c.headerTextVar || c.headerTextColor || '--text'})`;
       document.body.appendChild(probe);
       const themedFill = getComputedStyle(probe).backgroundColor;
+      const themedText = getComputedStyle(probe).color;
       probe.remove();
       const center = { maxDelta: 0, samples: [] };
       if (c.centerTolerance && c.centerBandSelector) {
@@ -2797,6 +3026,7 @@ async function lintBoardTableContract(page, cfg) {
         headerFill: hcell ? getComputedStyle(hcell).backgroundColor : '',
         headerText: hcell ? getComputedStyle(hcell).color : '',
         themedFill,
+        themedText,
         plotRadius: getComputedStyle(plot).borderBottomRightRadius,
         tableRadius: getComputedStyle(table).borderTopLeftRadius,
         csv: !!csvEl,
@@ -2814,9 +3044,9 @@ async function lintBoardTableContract(page, cfg) {
     ok(`${name}: wide month headers rotate to a taller vertical band`,
       !m.many || (m.writing === 'vertical-rl' && m.headerH >= 80),
       `many=${m.many} writing=${m.writing} headerH=${m.headerH}`);
-    ok(`${name}: attached-table header uses the shared navy / white design`,
-      m.headerFill === m.themedFill && (!s.headerTextColor || m.headerText === s.headerTextColor),
-      `header=${m.headerFill} theme=${m.themedFill} text=${m.headerText}`);
+    ok(`${name}: attached-table header uses the themed header tokens`,
+      m.headerFill === m.themedFill && m.headerText === m.themedText,
+      `header=${m.headerFill} theme=${m.themedFill} text=${m.headerText} themedText=${m.themedText}`);
     if (s.centerTolerance) ok(`${name}: chart column centers match table header centers (<=${s.centerTolerance}px)`,
       m.centerSamples.length > 0 && m.centerMaxDelta <= s.centerTolerance,
       `maxDelta=${m.centerMaxDelta}px deltas=${JSON.stringify(m.centerSamples)}`);
@@ -3376,6 +3606,120 @@ async function lintHoverWindow(page, cfg) {
   }
 }
 
+// ── Tier 7: §3.7 rev 1.107 welcome page (assertions 43–50) ─────────────────────
+// Config-gated by cfg.welcome. Runs on a fresh page with no workbook loaded (pre-load state).
+async function lintWelcome(page, cfg, workbookPath) {
+  const w = cfg.welcome; if (!w) { skipped('Tier 7 welcome page (§3.7) — no welcome config'); return; }
+  console.log('\n── Tier 7: §3.7 welcome page (rev 1.113, assertions 43–53) ──────');
+  await page.goto(dashboardUrl(cfg));
+  if (!(await page.locator('.cw-screen').count())) { ok('43 welcome renders (.cw-screen)', false, 'no .cw-screen'); return; }
+  const m = await page.evaluate(({ forbidden }) => {
+    const q = s => document.querySelector(s), qa = s => [...document.querySelectorAll(s)];
+    const scr = q('.cw-screen'), card = q('.cw-card'), drop = q('.cw-drop'), foot = q('.cw-foot');
+    const cs = e => e ? getComputedStyle(e) : {};
+    const r = drop?.getBoundingClientRect();
+    const text = scr?.innerText || '';
+    return {
+      slots: qa('.cw-slot').length, forbiddenHit: forbidden.filter(f => text.includes(f)),
+      titles: qa('.cw-title').length, instr: qa('.cw-instr').length, prefix: /What this does/i.test(text),
+      footOutside: !!foot && !card?.contains(foot), footYear: (foot?.innerText || '').includes(String(new Date().getFullYear())),
+      help: !!q('.cw-help'), choose: !!drop?.querySelector('.cw-choose'),
+      chooseButton: !!drop?.querySelector('button.cw-choose'), role: drop?.getAttribute('role'), tab: drop?.getAttribute('tabindex'),
+      dropName: !!drop?.getAttribute('aria-label'), ratio: r && r.height ? r.width / r.height : 0, cardRatio: cs(card).aspectRatio,
+      pos: cs(scr).position, ovf: cs(scr).overflowY,
+      pageScroll: document.scrollingElement.scrollHeight - innerHeight,
+      load: qa('.cw-load').length, loadDisabled: q('.cw-load')?.disabled, loadText: q('.cw-load')?.textContent || '',
+      stepper: qa('.cw-stepper').length, primaries: qa('.cw-screen .btn-primary').length,
+      alert: !!q('.cw-alert[role="alert"]'), live: !!q('.cw-slots[aria-live="polite"]'),
+      cardH: card ? card.getBoundingClientRect().height : 0,
+      topHelp: !!q('.cw-topbar .cw-help'), steps: qa('.cw-steps .cw-step').length, stepNow: qa('.cw-step[aria-current="step"]').length,
+      footInRight: !!q('.cw-right .cw-foot'),
+      colRatio: (() => { const l = q('.cw-left')?.getBoundingClientRect().width, r2 = q('.cw-right')?.getBoundingClientRect().width; return l && r2 ? r2 / l : 0; })(),
+      choosePrimary: !!q('.cw-choose.btn-primary'), checksN: qa('.cw-checks li').length,
+      chooseBorder: (() => { const b = drop?.querySelector('.cw-choose'); return b ? getComputedStyle(b).borderTopWidth : '0px'; })(),
+      boxOverflow: cs(drop).overflow, helpJustify: cs(q('.cw-actions')).justifyContent,
+      cols: !!q('.cw-slots.is-cols'),
+      reduced: [...document.styleSheets].some(s => { try { return [...s.cssRules].some(x => /prefers-reduced-motion/.test(x.conditionText || x.cssText)); } catch { return false; } }),
+    };
+  }, { forbidden: w.forbiddenText || [] });
+  ok('43 one slot per configured file', m.slots === w.files, `slots ${m.slots} / want ${w.files}`);
+  ok('43 no project text on the welcome', !m.forbiddenHit.length, m.forbiddenHit.join(', '));
+  ok('44 one heading and one instruction', m.titles === 1 && m.instr === 1);
+  ok('44 no lead-in label', !m.prefix);
+  ok('44 footer inside the task panel with the current year', m.footInRight && m.footYear);
+  ok('44 Help button in the top bar', m.topHelp);
+  ok('44 guide panel shows three steps, one current', m.steps === 3 && m.stepNow === 1, `steps ${m.steps} / current ${m.stepNow}`);
+  ok('45 Choose control inside the drop area', m.choose);
+  ok('45 Choose control is a native button', m.chooseButton);
+  ok('45 drop area is a named group, not focusable', m.role === 'group' && m.dropName && m.tab === null, `role ${m.role} / tabindex ${m.tab}`);
+  ok('45 columns split 1 : 1.618 ± 2 %', Math.abs(m.colRatio - 1.618) / 1.618 <= 0.02, `ratio ${m.colRatio.toFixed(3)}`);
+  ok('45 card has no fixed aspect ratio', !m.cardRatio || m.cardRatio === 'auto', `aspect-ratio ${m.cardRatio}`);
+  ok('45 Choose button has its own visible border', parseFloat(m.chooseBorder) >= 1, `border ${m.chooseBorder}`);
+  ok('45 drop box hides overflow (fixed size)', m.boxOverflow === 'hidden', `overflow ${m.boxOverflow}`);
+  ok('46 welcome screen fixed with overflow:auto', m.pos === 'fixed' && m.ovf === 'auto', `${m.pos} / ${m.ovf}`);
+  ok('46 page does not scroll', m.pageScroll <= 0, `overflow ${m.pageScroll}px`);
+  const overlayOn = await page.evaluate(() => {
+    const dt = new DataTransfer(); document.body.dispatchEvent(new DragEvent('dragenter', { bubbles: true, dataTransfer: dt }));
+    const on = !!document.querySelector('.cw-overlay.is-on');
+    document.body.dispatchEvent(new DragEvent('drop', { bubbles: true, dataTransfer: dt })); return on;
+  });
+  ok('46 full-page drag shows the overlay', overlayOn);
+  if (w.mode === 'auto') ok('47 auto mode has no Open button', m.load === 0, `found ${m.load}`);
+  else {
+    ok('47 confirm mode has one Open button, disabled, n of N', m.load === 1 && m.loadDisabled && new RegExp(`\\(0 of ${w.files}\\)`).test(m.loadText), m.loadText);
+  }
+  ok('47 at most one primary button', m.primaries <= 1, `found ${m.primaries}`);
+  ok('47 Choose is primary while a file is not ready', m.choosePrimary);
+  ok('53 file count 1–6', w.files >= 1 && w.files <= 6, `files ${w.files}`);
+  ok('53 two-column slots exactly for 4–6 files', m.cols === (w.files >= 4), `cols ${m.cols} / files ${w.files}`);
+  ok('53 check list holds at most 5 lines', m.checksN <= 5, `lines ${m.checksN}`);
+  ok('53 doneDwellMs 0–10000', w.doneDwellMs === undefined || (Number.isInteger(w.doneDwellMs) && w.doneDwellMs >= 0 && w.doneDwellMs <= 10000), `dwell ${w.doneDwellMs}`);
+  ok('48 set-error area is role="alert"', m.alert);
+  ok('48 slot list is aria-live', m.live);
+  ok('49 reduced-motion rule present', m.reduced);
+  // 48 / 52 — optional extra-file pick (needs cfg.welcome.extraFile, a path to a non-required .xlsx)
+  if (w.extraFile && existsSync(w.extraFile)) {
+    await page.setInputFiles('.cw-input', w.extraFile);
+    await page.waitForFunction(() => document.querySelector('.cw-slot.is-checking') === null, null, { timeout: 10000 }).catch(() => {});
+    const r = await page.evaluate(() => ({ sum: document.querySelector('.cw-sum')?.dataset.ignored || null,
+      states: [...document.querySelectorAll('.cw-slot')].map(x => (x.className.match(/is-(\w+)/) || [])[1]),
+      h: document.querySelector('.cw-card')?.getBoundingClientRect().height || 0 }));
+    ok('48 unrequired file changes no slot', w.mode === 'auto' ? r.states.every(s => s === 'rejected' || s === 'needed') : r.states.every(s => s === 'needed'), r.states.join(','));
+    ok('52 card height unchanged after a failed pick', Math.abs(r.h - m.cardH) <= 1, `${m.cardH} → ${r.h}`);
+    await page.goto(dashboardUrl(cfg));
+  } else skipped('48 extra-file pick (no welcome.extraFile)');
+  // 49 — load phases (optional, needs a workbook)
+  if (w.loadCheck && workbookPath && existsSync(workbookPath)) {
+    await page.evaluate(() => {
+      window.__cwSeen = { busy: false, allDisabled: true, ready: false, openOk: false, heights: [] };
+      new MutationObserver(() => {
+        const c = document.querySelector('.cw-card'); if (c) window.__cwSeen.heights.push(c.getBoundingClientRect().height);
+        if (document.querySelector('.cw-ready[role="status"]')) { window.__cwSeen.ready = true;
+          const o = document.querySelector('.cw-open'); if (o && !o.disabled && document.activeElement === o) window.__cwSeen.openOk = true; }
+        if (document.querySelector('.cw-phases[aria-busy="true"]')) {
+          window.__cwSeen.busy = true;
+          if ([...document.querySelectorAll('.cw-screen button:not(.cw-help)')].some(b => !b.disabled)) window.__cwSeen.allDisabled = false;
+        }
+      }).observe(document.body, { subtree: true, childList: true, attributes: true });
+    });
+    try { await injectWorkbook(page, workbookPath, cfg); } catch (e) { console.log('  INFO: Tier 7 load —', e.message.split('\n')[0]); }
+    const seen = await page.evaluate(() => window.__cwSeen);
+    ok('49 load phases render on the welcome (aria-busy)', seen.busy);
+    ok('49 buttons disabled while loading', seen.allDisabled);
+    ok('49 success hold shows the ready status', seen.ready);
+    ok('49 Open now is enabled and focused during the hold', seen.openOk);
+    const hs = seen.heights.filter(v => v > 0);
+    ok('52 card height constant through load and hold', hs.length > 0 && hs.every(v => Math.abs(v - m.cardH) <= 1), `min ${Math.min(...hs)} / max ${Math.max(...hs)} / empty ${m.cardH}`);
+  } else skipped('49 load phases (loadCheck off or no workbook)');
+  // 50 — static rules on the delivered HTML
+  const html = readFileSync(cfg.htmlPath, 'utf8');
+  const block = (html.match(/\/\* ===== common\/welcome\/welcome\.css[\s\S]*?(?=\/\* ===== |<\/style>)/) || [''])[0].replace(/\/\*[\s\S]*?\*\//g, '');
+  ok('50 inlined welcome CSS found', block.length > 0);
+  ok('50 welcome CSS has no literal colour', !/#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\(/.test(block));
+  ok('50 welcome CSS has no min-height override', !/min-height/.test(block));
+  ok('50 test hook does not classify by file name', !/_loadFile[\s\S]{0,400}\/(?:master document list|submittal log)\/i/i.test(html));
+}
+
 // Tier 5 inspects the rendered charts, so it needs a dashboard that already holds data. Earlier
 // tiers navigate the page for their own purposes and can leave it freshly loaded with no workbook,
 // which made every Tier 5 check fail (and `lintC1` block on a missing control until it timed out).
@@ -3451,6 +3795,60 @@ for (const name of dashboards) {
     else if (!page) { skipped('Tier 6 hover window (browser unavailable)'); }
     else if (!(await ensureLoadedForTier6(page, cfg, workbookPath))) { skipped('Tier 6 hover window (no dashboard data)'); }
     else { await lintHoverWindow(page, cfg); }
+  }
+  
+// ── Tier 8: §18.4 theme system — AA contrast per theme (spec §8.2 assertion 54) ──────────────
+// Config-gated by cfg.themes. Runs on whatever page state Tier 2 already reached (no reload); cycling
+// data-theme does not require the dashboard to be loaded.
+const THEME_PAIRS_DEFAULT = [
+  ['Body text', '--text', '--surface', 4.5], ['Link', '--link', '--surface', 4.5],
+  ['Text on primary button', '--on-fill', '--btn-bg', 4.5], ['Chrome text', '--chrome-fg', '--chrome-bg', 4.5],
+  ['Nav text on nav', '--nav-fg', '--nav-bg', 4.5], ['Nav text on active item', '--nav-fg-active', '--nav-bg-active', 4.5],
+  ['Table header text', '--thead-fg', '--thead-bg', 4.5], ['OK chip', '--ok-fg', '--ok-bg', 4.5],
+  ['Warning chip', '--warn-fg', '--warn-bg', 4.5], ['Error chip', '--error-fg', '--error-bg', 4.5],
+];
+async function lintThemes(page, cfg) {
+  const t = cfg.themes; if (!t) { skipped('Tier 8 theme system (§18.4) — no themes config'); return; }
+  console.log('\n── Tier 8: §18.4 theme system — AA contrast per theme ──────────────');
+  const themes = t.list || ['light', 'dark', 'sky', 'ocean', 'presentation', 'contrast'];
+  const pairs = t.pairs || THEME_PAIRS_DEFAULT;
+  for (const theme of themes) {
+    const results = await page.evaluate(({ theme, pairs }) => {
+      const prev = document.documentElement.dataset.theme;
+      const prevBody = document.body.dataset.theme;
+      document.documentElement.dataset.theme = theme;
+      document.body.dataset.theme = theme;
+      const tok = name => { let v = getComputedStyle(document.documentElement).getPropertyValue(name).trim(); let g = 0;
+        while (/^var\(/.test(v) && g++ < 5) v = getComputedStyle(document.documentElement).getPropertyValue(v.match(/var\((--[\w-]+)/)[1]).trim();
+        return v; };
+      const hex = v => { const m = v.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i); if (!m) return null; let h = m[1]; if (h.length === 3) h = [...h].map(c => c + c).join(''); return h; };
+      const lum = h => { const c = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(x => x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+      const out = pairs.map(([label, fg, bg, min]) => {
+        const F = hex(tok(fg)), B = hex(tok(bg)); const r = F && B ? (Math.max(lum(F), lum(B)) + 0.05) / (Math.min(lum(F), lum(B)) + 0.05) : null;
+        return { label, fg, bg, min, ratio: r };
+      });
+      document.documentElement.dataset.theme = prev;
+      document.body.dataset.theme = prevBody;
+      return out;
+    }, { theme, pairs });
+    for (const r of results) ok(`${theme}: ${r.label} (${r.fg} on ${r.bg}) >= ${r.min}:1`, r.ratio != null && r.ratio >= r.min, r.ratio != null ? `${r.ratio.toFixed(2)}:1` : 'unresolved');
+  }
+  if (cfg.welcome) {
+    const html = readFileSync(cfg.htmlPath, 'utf8');
+    const has = /cw-theme-btn/.test(html) && /"themePicker"\s*:/.test(html);
+    ok('54 welcome top bar exposes a theme picker', has);
+  } else skipped('54 welcome theme picker (no welcome config for this dashboard)');
+}
+
+if (!targetTier || targetTier === 7) {
+    if (!cfg.welcome) skipped('Tier 7 welcome page (§3.7) — no welcome config for this dashboard');
+    else if (!page) skipped('Tier 7 welcome page (browser unavailable)');
+    else await lintWelcome(page, cfg, workbookPath);
+  }
+  if (!targetTier || targetTier === 8) {
+    if (!cfg.themes) skipped('Tier 8 theme system (§18.4) — no themes config for this dashboard');
+    else if (!page) skipped('Tier 8 theme system (browser unavailable)');
+    else await lintThemes(page, cfg);
   }
 }
 

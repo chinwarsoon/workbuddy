@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light"><head>
+<meta charset="utf-8"><style id="qw-theme">:root {
+  --color-bg: #faf9fc !important;
+  --color-text: #131920 !important;
+  --chat-column-base: 720px !important;
+  --chat-column-max: 720px !important;
+  --color-navbar-bg: #f9f9fb !important;
+  --color-navbar-fg: #131920 !important;
+  --color-navbar-divider: #0000001f !important;
+  --color-leftnav-bg: #fff !important;
+  --color-bg-chat-view: #f9f9fb !important;
+  --color-bg-secondary: #fff !important;
+  --color-bg-tertiary: #f9fafb !important;
+  --color-bg-hover: #f3f4f6 !important;
+  --color-surface: #f9fafb !important;
+  --color-surface-hover: #f3f4f6 !important;
+  --color-surface-active: #e5e7eb !important;
+  --color-border: #0000001f !important;
+  --color-border-light: #0000000f !important;
+  --color-border-strong: #d1d5db !important;
+  --background-toggle-off-default: #fff0 !important;
+  --color-primary: #4200db !important;
+  --color-primary-dark: #35009e !important;
+  --color-primary-light: #8575ff !important;
+  --color-primary-bg: #e8e6ff !important;
+  --color-primary-hover-border: #35009e !important;
+  --color-nav-icon-active: #4200db !important;
+  --color-nav-hover-border: #4200db !important;
+  --color-primary-alpha-3: color-mix(in srgb, #4200db 3%, transparent) !important;
+  --color-primary-alpha-5: color-mix(in srgb, #4200db 5%, transparent) !important;
+  --color-primary-alpha-8: color-mix(in srgb, #4200db 8%, transparent) !important;
+  --color-primary-alpha-12: color-mix(in srgb, #4200db 12%, transparent) !important;
+  --color-primary-alpha-15: color-mix(in srgb, #4200db 15%, transparent) !important;
+  --color-primary-alpha-20: color-mix(in srgb, #4200db 20%, transparent) !important;
+  --color-primary-alpha-25: color-mix(in srgb, #4200db 25%, transparent) !important;
+  --color-primary-alpha-30: color-mix(in srgb, #4200db 30%, transparent) !important;
+  --color-primary-alpha-40: color-mix(in srgb, #4200db 40%, transparent) !important;
+  --color-primary-alpha-50: color-mix(in srgb, #4200db 50%, transparent) !important;
+  --color-primary-alpha-60: color-mix(in srgb, #4200db 60%, transparent) !important;
+  --color-primary-subtle: color-mix(in srgb, #4200db 12%, transparent) !important;
+  --color-primary-border: color-mix(in srgb, #4200db 30%, transparent) !important;
+  --color-focus-ring: #4200db !important;
+  --color-sidebar-hover: color-mix(in srgb, #4200db 12%, transparent) !important;
+  --color-sidebar-hover-solid: color-mix(in srgb, #4200db 12%, #faf9fc) !important;
+  --block-selection-outline-offset: 2px !important;
+  --color-accent: #4200db !important;
+  --color-accent-foreground: #4200db !important;
+  --color-accent-dark: #35009e !important;
+  --color-accent-light: #e8e6ff !important;
+  --color-accent-inverse: #fff !important;
+  --color-link: #4200db !important;
+  --color-brand-ai-gradient-start: #6842ff !important;
+  --color-brand-ai-gradient-mid: #d600ba !important;
+  --color-brand-ai-gradient-end: #ff4b14 !important;
+  --color-brand-kiro: #9147ff !important;
+  --color-primary-gradient-end: #e8e6ff !important;
+  --color-primary-bg-solid: #e8e6ff !important;
+  --color-user-bubble: #f3f3f7 !important;
+  --color-user-bubble-text: #131920 !important;
+  --color-text-secondary: #5e5e5e !important;
+  --color-text-tertiary: #656871 !important;
+  --color-text-muted: #656871 !important;
+  --color-text-on-primary: #fff !important;
+  --color-success: #00802f !important;
+  --color-success-dark: #00471e !important;
+  --color-success-light: #d9ffd6 !important;
+  --color-success-hover: #005c26 !important;
+  --color-success-bg: #e6f5eb !important;
+  --color-success-border: #b3d9bf !important;
+  --color-success-foreground: #00802f !important;
+  --color-success-dark-foreground: #00471e !important;
+  --color-success-text: #00471e !important;
+  --color-error: #db0000 !important;
+  --color-error-dark: #700000 !important;
+  --color-error-light: #ffe0e0 !important;
+  --color-error-hover: #ffe0e0 !important;
+  --color-error-bg: #fceaea !important;
+  --color-error-border: #f2cccc !important;
+  --color-error-active-border: #db0000 !important;
+  --color-error-foreground: #db0000 !important;
+  --color-error-dark-foreground: #700000 !important;
+  --color-error-inverse: #fff !important;
+  --color-error-text: #700000 !important;
+  --color-warning: #f2b100 !important;
+  --color-warning-dark: #573a00 !important;
+  --color-warning-light: #fffbbd !important;
+  --color-warning-hover: #db9200 !important;
+  --color-warning-bg: #fef7e6 !important;
+  --color-warning-border: #f9dfa3 !important;
+  --color-warning-foreground: #f2b100 !important;
+  --color-warning-dark-foreground: #573a00 !important;
+  --color-warning-inverse: #573a00 !important;
+  --color-surface-warning: #fffbbd !important;
+  --color-text-warning: #573a00 !important;
+  --color-info: #006ce0 !important;
+  --color-info-dark: #002a66 !important;
+  --color-info-light: #d1f1ff !important;
+  --color-info-hover: #003b8f !important;
+  --color-info-bg: #ebf3fc !important;
+  --color-info-border: #b3d1f0 !important;
+  --color-info-foreground: #006ce0 !important;
+  --color-info-dark-foreground: #002a66 !important;
+  --color-info-inverse: #fff !important;
+  --color-overlay: #00000080 !important;
+  --color-shadow: #00000014 !important;
+  --color-hover: #0000000d !important;
+  --color-tooltip-bg: #000000d9 !important;
+  --color-tooltip-text: #fff !important;
+  --color-voice-purple: #8575ff !important;
+  --color-voice-purple-dark: #4200db !important;
+  --color-voice-purple-light: #8575ff !important;
+  --color-voice-red: #db0000 !important;
+  --color-voice-red-dark: #700000 !important;
+  --color-voice-amber: #f2b100 !important;
+  --color-voice-purple-glow: #4200db66 !important;
+  --color-voice-red-glow: #db000066 !important;
+  --font-sans: "Amazon Ember", "Helvetica Neue", "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  --font-mono: "SF Mono", "Monaco", "Menlo", "Consolas", monospace !important;
+  --text-2xs: .5625rem !important;
+  --text-xs: .625rem !important;
+  --text-sm: .6875rem !important;
+  --text-base: .75rem !important;
+  --text-md: .8125rem !important;
+  --text-lg: .875rem !important;
+  --text-xl: 1rem !important;
+  --text-2xl: 1.125rem !important;
+  --text-3xl: 1.25rem !important;
+  --text-4xl: 1.5rem !important;
+  --text-5xl: 2rem !important;
+  --spacing-1: calc(.25rem * 1) !important;
+  --spacing-1-5: calc(.25rem * 1.5) !important;
+  --spacing-2: calc(.25rem * 2) !important;
+  --spacing-3: calc(.25rem * 3) !important;
+  --spacing-4: calc(.25rem * 4) !important;
+  --spacing-5: calc(.25rem * 5) !important;
+  --spacing-6: calc(.25rem * 6) !important;
+  --spacing-7: calc(.25rem * 7) !important;
+  --spacing-8: calc(.25rem * 8) !important;
+  --spacing-9: calc(.25rem * 9) !important;
+  --spacing-10: calc(.25rem * 10) !important;
+  --border-radius-rounded-lg: 8px !important;
+  --radius-sm: 6px !important;
+  --radius-md: 10px !important;
+  --radius-card: 12px !important;
+  --radius-lg: 16px !important;
+  --radius-pill: 8px !important;
+  --shadow-sm: 0 1px 2px #0000000d !important;
+  --shadow-md: 0 4px 12px #00000014 !important;
+  --shadow-lg: 0 4px 16px 4px #00000029, 0 2px 6px 1px #00000029 !important;
+  --color-success-bg-solid: #d9ffd6 !important;
+  --color-error-bg-solid: #ffe0e0 !important;
+  --color-error-border-solid: #ffe0e0 !important;
+  --color-warning-bg-solid: #fffbbd !important;
+  --color-warning-text: #573a00 !important;
+  --color-info-bg-solid: #d1f1ff !important;
+  --color-info-bg-solid-alt: #d1f1ff !important;
+  --color-info-text: #002a66 !important;
+  --color-info-text-alt: #002a66 !important;
+  --color-emerald: #10b981 !important;
+  --color-teal: #4ecdc4 !important;
+  --color-code-bg: #f3f3f7 !important;
+  --color-code-header-bg: #f1f3f5 !important;
+  --color-code-text: #24292e !important;
+  --color-code-border: #e1e4e8 !important;
+  --color-code-muted: #6a737d !important;
+  --color-inline-code-bg: #f3f3f7 !important;
+  --color-inline-code-text: #24292e !important;
+  --color-inline-code-border: #e1e4e8 !important;
+  --color-scrollbar-thumb: #d1d5db !important;
+  --color-scrollbar-track: transparent !important;
+  --qs-data-cat-01: #4338ca !important;
+  --qs-data-cat-02: #d97706 !important;
+  --qs-data-cat-03: #0891b2 !important;
+  --qs-data-cat-04: #8b5cf6 !important;
+  --qs-data-cat-05: #15803d !important;
+  --qs-data-cat-06: #0c4a6e !important;
+  --qs-data-cat-07: #d946ef !important;
+  --qs-data-cat-08: #65a30d !important;
+  --qs-data-cat-09: #1d4ed8 !important;
+  --qs-data-cat-10: #831843 !important;
+  --qs-data-cat-11: #c2410c !important;
+  --qs-data-cat-12: #115e59 !important;
+  --qs-data-cat-other: #737373 !important;
+  --qs-content: #fff !important;
+  --qs-main: #f9f9fb !important;
+  --qs-primary-foreground: #131920 !important;
+  --qs-secondary-foreground: #656871 !important;
+  --qs-tertiary-foreground: #656871 !important;
+  --qs-placeholder-foreground: #656871 !important;
+  --qs-divider: #dedee3 !important;
+  --qs-default-border: #8c8c94 !important;
+  --qs-neutral-soft: #b4b4bb !important;
+  --qs-neutral-gray-50: #f9fafb !important;
+  --qs-tertiary-background: #f9fafb !important;
+  --qs-action-hover: #f3f3f7 !important;
+  --qs-primary-default: #4200db !important;
+  --qs-primary-dark: #35009e !important;
+  --qs-primary-medium: #8575ff !important;
+  --qs-primary-light: #e8e6ff !important;
+  --qs-primary-inverse: #fff !important;
+  --qs-success-default: #00802f !important;
+  --qs-success-dark: #00471e !important;
+  --qs-success-light: #d9ffd6 !important;
+  --qs-error-default: #db0000 !important;
+  --qs-error-dark: #700000 !important;
+  --qs-warning-default: #f2b100 !important;
+  --qs-warning-dark: #573a00 !important;
+  --qs-warning-light: #fffbbd !important;
+  --qs-info-default: #006ce0 !important;
+  --qs-info-dark: #002a66 !important;
+  --qs-font-sans: "Amazon Ember", "Helvetica Neue", "Segoe UI", Helvetica, Arial, sans-serif !important;
+  --safe-top: 0px !important;
+  --safe-bottom: 0px !important;
+  --safe-left: 0px !important;
+  --safe-right: 0px !important;
+  --qs-action-active: #e8e6ff !important;
+  --qs-action-active-hover: #b2a8ff !important;
+  --qs-action-disabled: #f3f3f7 !important;
+  --qs-active-border: #4200db !important;
+  --qs-application-navbar: #4200db !important;
+  --qs-application-navbar-dark: #35009e !important;
+  --qs-application-navbar-foreground: #fff !important;
+  --qs-application-navbar-light: #e8e6ff !important;
+  --qs-automation-dark: #660052 !important;
+  --qs-automation-default: #d600ba !important;
+  --qs-automation-light: #ffe0fb !important;
+  --qs-automation-medium: #b3008f !important;
+  --qs-automation-soft: #ff94f1 !important;
+  --qs-avatar-blue-bg: #d1f1ff !important;
+  --qs-avatar-blue-fg: #002a66 !important;
+  --qs-avatar-fuchsia-bg: #fce6ff !important;
+  --qs-avatar-fuchsia-fg: #590066 !important;
+  --qs-avatar-green-bg: #d9ffd6 !important;
+  --qs-avatar-green-fg: #00471e !important;
+  --qs-avatar-neutral-bg: #dedee3 !important;
+  --qs-avatar-neutral-fg: #131920 !important;
+  --qs-avatar-orange-bg: #ffe0d6 !important;
+  --qs-avatar-orange-fg: #661800 !important;
+  --qs-avatar-pink-bg: #ffe0fb !important;
+  --qs-avatar-pink-fg: #660052 !important;
+  --qs-avatar-primary-bg: #e8e6ff !important;
+  --qs-avatar-primary-fg: #35009e !important;
+  --qs-avatar-red-bg: #ffe0e0 !important;
+  --qs-avatar-red-fg: #700000 !important;
+  --qs-avatar-violet-bg: #f2e5ff !important;
+  --qs-avatar-violet-fg: #45008a !important;
+  --qs-avatar-yellow-bg: #fffbbd !important;
+  --qs-avatar-yellow-fg: #573a00 !important;
+  --qs-blue-100: #e2ebff !important;
+  --qs-blue-1000: #060d27 !important;
+  --qs-blue-200: #c2d5ff !important;
+  --qs-blue-300: #9fbdff !important;
+  --qs-blue-400: #7ea0fc !important;
+  --qs-blue-50: #fafbff !important;
+  --qs-blue-500: #517df6 !important;
+  --qs-blue-600: #2d5fe8 !important;
+  --qs-blue-700: #1d3cb9 !important;
+  --qs-blue-800: #162c85 !important;
+  --qs-blue-900: #102165 !important;
+  --qs-blue-950: #0b1746 !important;
+  --qs-brand: #fff !important;
+  --qs-brand-foreground: #131920 !important;
+  --qs-brand-navbar: #131920 !important;
+  --qs-brand-navbar-dark: #000 !important;
+  --qs-brand-navbar-foreground: #fff !important;
+  --qs-brand-navbar-light: #dedee3 !important;
+  --qs-coachmark: #006ce0 !important;
+  --qs-connection-dark: #661800 !important;
+  --qs-connection-default: #db3300 !important;
+  --qs-connection-light: #ffe0d6 !important;
+  --qs-connection-soft: #ff997a !important;
+  --qs-content-inverse: #333843 !important;
+  --qs-content-inverse-active: #131920 !important;
+  --qs-contrast-foreground: #131920 !important;
+  --qs-control-selected-bg: #4200db !important;
+  --qs-control-selected-hover-bg: #35009e !important;
+  --qs-darkpurple1-100: #eee1ef !important;
+  --qs-darkpurple1-1000: #130b14 !important;
+  --qs-darkpurple1-200: #dcc0dd !important;
+  --qs-darkpurple1-300: #c99ecc !important;
+  --qs-darkpurple1-400: #b57ab8 !important;
+  --qs-darkpurple1-50: #f8f2f8 !important;
+  --qs-darkpurple1-500: #97529b !important;
+  --qs-darkpurple1-600: #754078 !important;
+  --qs-darkpurple1-700: #542e57 !important;
+  --qs-darkpurple1-800: #472749 !important;
+  --qs-darkpurple1-900: #341c35 !important;
+  --qs-darkpurple1-950: #241325 !important;
+  --qs-darkpurple2-100: #f1e3fc !important;
+  --qs-darkpurple2-1000: #1b042f !important;
+  --qs-darkpurple2-200: #e7d0fb !important;
+  --qs-darkpurple2-300: #d6b0f8 !important;
+  --qs-darkpurple2-400: #be81f3 !important;
+  --qs-darkpurple2-50: #f8f1fe !important;
+  --qs-darkpurple2-500: #a652ef !important;
+  --qs-darkpurple2-600: #8e24eb !important;
+  --qs-darkpurple2-700: #7413c9 !important;
+  --qs-darkpurple2-800: #580e98 !important;
+  --qs-darkpurple2-900: #36095d !important;
+  --qs-darkpurple2-950: #260642 !important;
+  --qs-data-categorical-01: #4338ca !important;
+  --qs-data-categorical-02: #d97706 !important;
+  --qs-data-categorical-03: #0891b2 !important;
+  --qs-data-categorical-04: #8b5cf6 !important;
+  --qs-data-categorical-05: #15803d !important;
+  --qs-data-categorical-06: #0c4a6e !important;
+  --qs-data-categorical-07: #d946ef !important;
+  --qs-data-categorical-08: #65a30d !important;
+  --qs-data-categorical-09: #1d4ed8 !important;
+  --qs-data-categorical-10: #831843 !important;
+  --qs-data-categorical-11: #c2410c !important;
+  --qs-data-categorical-12: #115e59 !important;
+  --qs-data-categorical-other: #737373 !important;
+  --qs-data-divergent-negative: #ea580c !important;
+  --qs-data-divergent-positive: #4f46e5 !important;
+  --qs-data-divergent-red-green-negative: #dc2626 !important;
+  --qs-data-divergent-red-green-positive: #16a34a !important;
+  --qs-data-missing: #d4d4d4 !important;
+  --qs-data-sentiment-neutral: #737373 !important;
+  --qs-data-sentiment-warning: #9e6900 !important;
+  --qs-data-sequential-duochromatic-high: #1e1b4b !important;
+  --qs-data-sequential-duochromatic-low: #8b5cf6 !important;
+  --qs-data-sequential-monochromatic-high: #4f46e5 !important;
+  --qs-default-badge: #b4b4bb !important;
+  --qs-default-badge-dot: #656871 !important;
+  --qs-dimension: #4200db !important;
+  --qs-dimension-experimental: #4200db !important;
+  --qs-dimension-experimental-foreground: #4200db !important;
+  --qs-dimension-foreground: #fff !important;
+  --qs-disabled: #8c8c94 !important;
+  --qs-disabled-border: #dedee3 !important;
+  --qs-disabled-foreground: #b4b4bb !important;
+  --qs-divider-light: #f3f3f7 !important;
+  --qs-error-active-border: #db0000 !important;
+  --qs-error-border: #ffe0e0 !important;
+  --qs-error-foreground: #db0000 !important;
+  --qs-error-inverse: #fff !important;
+  --qs-error-light: #ffe0e0 !important;
+  --qs-error-medium: #900 !important;
+  --qs-error-soft: #ff9e9e !important;
+  --qs-focus-offset: 1px !important;
+  --qs-font-base-letter-spacing: .15px !important;
+  --qs-font-display: "Amazon Ember", "Helvetica Neue", "Segoe UI", Helvetica, Arial, sans-serif !important;
+  --qs-font-family: "Amazon Ember", "Helvetica Neue", "Segoe UI", Helvetica, Arial, sans-serif !important;
+  --qs-gradient-automation-light-stop: #ffe0fb !important;
+  --qs-gradient-automation-medium-stop: #b3008f !important;
+  --qs-gradient-automation-stop: #d600ba !important;
+  --qs-gradient-connection-light-stop: #ffe0d6 !important;
+  --qs-gradient-connection-stop: #db3300 !important;
+  --qs-gradient-insight-light-stop: #fce6ff !important;
+  --qs-gradient-insight-stop: #a000b8 !important;
+  --qs-gradient-visualization-light-stop: #f2e5ff !important;
+  --qs-gradient-visualization-stop: #7300e5 !important;
+  --qs-green-100: #ccffd8 !important;
+  --qs-green-1000: #001409 !important;
+  --qs-green-200: #a9efba !important;
+  --qs-green-300: #84d39a !important;
+  --qs-green-400: #71c68c !important;
+  --qs-green-50: #f0fff3 !important;
+  --qs-green-500: #5bbe7a !important;
+  --qs-green-600: #3c955a !important;
+  --qs-green-700: #227340 !important;
+  --qs-green-800: #00441f !important;
+  --qs-green-900: #003317 !important;
+  --qs-green-950: #002410 !important;
+  --qs-grid-gap: 16px !important;
+  --qs-grid-gap-xl: 24px !important;
+  --qs-hero-banner-button-hover: color-mix(in srgb, #fff, transparent 60%) !important;
+  --qs-hover-border: #333843 !important;
+  --qs-info-inverse: #fff !important;
+  --qs-info-light: #d1f1ff !important;
+  --qs-info-medium: #003b8f !important;
+  --qs-info-soft: #75cfff !important;
+  --qs-insight-dark: #590066 !important;
+  --qs-insight-default: #a000b8 !important;
+  --qs-insight-light: #fce6ff !important;
+  --qs-insight-soft: #f299ff !important;
+  --qs-main-foreground: #131920 !important;
+  --qs-main-secondary-foreground: #656871 !important;
+  --qs-measure: #00802f !important;
+  --qs-measure-experimental: #f2b100 !important;
+  --qs-measure-experimental-foreground: #f2b100 !important;
+  --qs-measure-foreground: #fff !important;
+  --qs-neutral-0: #fff !important;
+  --qs-neutral-100: #f5f3ef !important;
+  --qs-neutral-1000: #0b0a0a !important;
+  --qs-neutral-200: #ece9e4 !important;
+  --qs-neutral-300: #e2dfda !important;
+  --qs-neutral-400: #cdc9c1 !important;
+  --qs-neutral-50: #faf9f7 !important;
+  --qs-neutral-500: #adaaa3 !important;
+  --qs-neutral-600: #94918b !important;
+  --qs-neutral-700: #7d7a73 !important;
+  --qs-neutral-800: #5e5b56 !important;
+  --qs-neutral-900: #302f2c !important;
+  --qs-neutral-950: #151310 !important;
+  --qs-neutral-black: #000 !important;
+  --qs-neutral-dark: #333843 !important;
+  --qs-neutral-deep: #656871 !important;
+  --qs-neutral-default: #dedee3 !important;
+  --qs-neutral-light: #f3f3f7 !important;
+  --qs-neutral-lightest: #f9f9fb !important;
+  --qs-neutral-medium: #8c8c94 !important;
+  --qs-neutral-strong: #131920 !important;
+  --qs-neutral-white: #fff !important;
+  --qs-overlay: color-mix(in srgb, #131920, transparent 50%) !important;
+  --qs-popover-border: transparent !important;
+  --qs-primary-inverse-foreground: #fff !important;
+  --qs-primary-soft: #b2a8ff !important;
+  --qs-progress-active: #4200db !important;
+  --qs-red-100: #ffe4e1 !important;
+  --qs-red-1000: #240004 !important;
+  --qs-red-200: #ffc7c2 !important;
+  --qs-red-300: #ffa099 !important;
+  --qs-red-400: #eb6560 !important;
+  --qs-red-50: #fff6f5 !important;
+  --qs-red-500: #c33c38 !important;
+  --qs-red-600: #aa2b2b !important;
+  --qs-red-700: #8a0f0f !important;
+  --qs-red-800: #6e000d !important;
+  --qs-red-900: #57000a !important;
+  --qs-red-950: #3d0007 !important;
+  --qs-secondary: #dedee3 !important;
+  --qs-secondary-dark: #b4b4bb !important;
+  --qs-secondary-light: #f3f3f7 !important;
+  --qs-shadow: #00000029 !important;
+  --qs-shadow-lg: 0 4px 16px 4px #00000029, 0 2px 6px 1px #00000029 !important;
+  --qs-shadow-md: 0 0 2px 0 #00000029, 0 2px 8px 1px #00000029 !important;
+  --qs-shadow-pin-left: inset -4px 0 4px -4px #00000029 !important;
+  --qs-shadow-pin-right: inset 4px 0 4px -4px #00000029 !important;
+  --qs-shadow-sm: 0 0 2px 0 #00000029, 0 0 4px 0 #00000029 !important;
+  --qs-shadow-xl: 0 4px 8px 2px #00000029, 0 6px 20px 4px #00000029 !important;
+  --qs-spice: #ff9800 !important;
+  --qs-success-inverse: #fff !important;
+  --qs-success-medium: #005c26 !important;
+  --qs-success-soft: #aeffa8 !important;
+  --qs-tag-default: #dedee3 !important;
+  --qs-tag-soft-border: #b4b4bb !important;
+  --qs-toggle-tile-lg: calc(.25rem * 15) !important;
+  --qs-toggle-tile-md: calc(.25rem * 12) !important;
+  --qs-toggle-tile-sm: calc(.25rem * 8) !important;
+  --qs-transparent: transparent !important;
+  --qs-visualization-dark: #45008a !important;
+  --qs-visualization-default: #7300e5 !important;
+  --qs-visualization-light: #f2e5ff !important;
+  --qs-visualization-soft: #d4a8ff !important;
+  --qs-warning-experimental: #f2b100 !important;
+  --qs-warning-experimental-light: #fffbbd !important;
+  --qs-warning-experimental-light-foreground: #fffbbd !important;
+  --qs-warning-inverse: #573a00 !important;
+  --qs-warning-medium: #db9200 !important;
+  --qs-warning-soft: #ffed4d !important;
+  --qs-width-modal-lg: 1136px !important;
+  --qs-width-modal-md: 600px !important;
+  --qs-width-modal-sm: 384px !important;
+  --qs-yellow-100: #fff5cf !important;
+  --qs-yellow-1000: #1f1100 !important;
+  --qs-yellow-200: #ffe79e !important;
+  --qs-yellow-300: #fbd86f !important;
+  --qs-yellow-400: #facb3d !important;
+  --qs-yellow-50: #fffcf0 !important;
+  --qs-yellow-500: #e2ac36 !important;
+  --qs-yellow-600: #ca8d2b !important;
+  --qs-yellow-700: #9d672f !important;
+  --qs-yellow-800: #7a4c19 !important;
+  --qs-yellow-900: #522e00 !important;
+  --qs-yellow-950: #381f00 !important;
+  --qs-duration-reorder: .125s !important;
+  --qs-ease-reorder: ease-in-out !important;
+  --z-subtask-modal: 10000 !important;
+  --z-above-subtask-modal: 10001 !important;
+  --flow-size-overview-canvas-min-height: 480px !important;
+}</style>
+<title>Welcome page mockup (MDL / PPP / Sub)</title>
+<style>
+:root{--bg:#F3F5F8;--surface:#fff;--surface2:#EEF2F7;--border:#D5DCE5;--text:#1B2733;--text2:#4A5A6B;--text3:#7A8899;
+--navy:#1F3A5F;--blue:#2F6FB3;--success:#1E8E5A;--success-bg:#E6F4EC;--danger:#B42318;--danger-bg:#FDECEC;--danger-bd:#F3B4B4;
+--btn-h:32px;--radius:8px;--welcome-card-w:clamp(480px,45vw,640px);--welcome-card-pad:32px;--welcome-card-radius:16px;--welcome-logo-h:40px;--welcome-drop-ratio:1.618;
+--font-ui:system-ui,-apple-system,'Segoe UI',sans-serif;--shadow:0 8px 28px rgba(16,32,56,.10)}
+[data-theme="dark"]{--bg:#121820;--surface:#1A222D;--surface2:#232E3B;--border:#33404F;--text:#E6EBF1;--text2:#B3BFCC;--text3:#8593A3;
+--blue:#5B9BE0;--success:#4CC38A;--success-bg:#173326;--danger:#F08A80;--danger-bg:#3A1D1B;--danger-bd:#6B2C27;--shadow:0 8px 28px rgba(0,0,0,.4)}
+*{box-sizing:border-box}html,body{height:100%;margin:0;overflow:hidden}
+body{font:13px/1.45 var(--font-ui);background:var(--bg);color:var(--text);transition:background .25s,color .25s}
+.rv{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:6px 12px;background:#0d1b2a;color:#fff;font-size:12px;min-height:40px}
+.rv b{margin:0 4px 0 8px}.rv b:first-child{margin-left:0}.rv button{font:inherit;border:1px solid #47607c;background:#1c3149;color:#fff;border-radius:6px;padding:4px 9px;cursor:pointer}
+.rv button.on{background:#2F6FB3;border-color:#2F6FB3}.rv .sp{flex:1}.rv .sep{width:1px;height:20px;background:#47607c;margin:0 4px}
+.welcome-screen{position:fixed;inset:var(--rv-h,40px) 0 0 0;overflow:auto;display:flex;flex-direction:column;transition:opacity .3s}
+.welcome-screen.fade{opacity:0}
+.center{flex:1;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{width:var(--welcome-card-w);background:var(--surface);border:1px solid var(--border);border-radius:var(--welcome-card-radius);box-shadow:var(--shadow);padding:var(--welcome-card-pad)}
+.head{display:flex;gap:14px;align-items:center;margin-bottom:18px}
+.logo{height:var(--welcome-logo-h);aspect-ratio:1;border-radius:8px;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700;font-size:12px;flex:none}
+.head h1{margin:0;font-size:22px;font-weight:600;line-height:1.2}.head p{margin:2px 0 0;font-size:14px;color:var(--text2)}
+/* two-step indicator (Sub only) */
+.stepper{display:flex;gap:8px;align-items:center;margin:0 0 14px;font-size:12px;color:var(--text3)}
+.stepper .s{display:flex;align-items:center;gap:6px}.stepper .s i{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:700;background:var(--surface2);color:var(--text2)}
+.stepper .s.now{color:var(--text);font-weight:600}.stepper .s.now i{background:var(--navy);color:#fff}
+.stepper .s.done{color:var(--success)}.stepper .s.done i{background:var(--success);color:#fff}
+.stepper .ln{flex:1;height:2px;background:var(--border)}.stepper .ln.done{background:var(--success)}
+.drop{aspect-ratio:var(--welcome-drop-ratio);border:1.5px dashed var(--text3);border-radius:12px;padding:20px;display:flex;flex-direction:column;justify-content:center;gap:12px;transition:.15s;cursor:pointer}
+.drop:hover,.drop:focus-visible{border-color:var(--blue);background:var(--surface2);outline:none}
+.drop-top{display:flex;align-items:center;justify-content:center;gap:10px;font-size:14px;color:var(--text2);text-align:center;flex-wrap:wrap}
+.drop-top .ic{font-size:20px;color:var(--blue)}
+.drop .hint{text-align:center;font-size:12px;color:var(--text3)}
+.btn{min-height:var(--btn-h);padding:0 14px;border-radius:var(--radius);font:inherit;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text)}
+.btn:hover{background:var(--surface2)}.btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.btn-primary{background:var(--navy);border-color:var(--navy);color:#fff}.btn-primary:hover{filter:brightness(1.12);background:var(--navy)}
+.btn[disabled]{opacity:.5;cursor:not-allowed;filter:none}
+.slots{display:flex;flex-direction:column;gap:8px}
+.slot{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+.slot .n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--surface2);color:var(--text2)}
+.slot .nm{font-weight:600;font-size:13px}.slot .st{font-size:12px;color:var(--text3);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot .x{border:0;background:none;color:var(--text3);cursor:pointer;font-size:14px;padding:4px}
+.slot.ok{border-color:var(--success);background:var(--success-bg)}.slot.ok .n{background:var(--success);color:#fff}.slot.ok .st{color:var(--success)}
+.slot.bad{border-color:var(--danger-bd);background:var(--danger-bg)}.slot.bad .n{background:var(--danger);color:#fff}.slot.bad .st{color:var(--danger);white-space:normal}
+.slot.chk .st{color:var(--blue)}
+.alert{margin:0 0 10px;padding:10px 12px;border-radius:var(--radius);background:var(--danger-bg);border:1px solid var(--danger-bd);color:var(--danger);font-size:13px}
+.actions{display:flex;align-items:center;justify-content:space-between;margin-top:16px;gap:12px;min-height:var(--btn-h)}
+.help{color:var(--blue);font-size:13px;background:none;border:0;cursor:pointer;padding:0}.help:hover{text-decoration:underline}
+.steps{display:flex;flex-direction:column;gap:10px;padding:8px 4px}
+.step{display:flex;gap:10px;align-items:center;font-size:14px;color:var(--text3)}
+.step .d{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:grid;place-items:center;font-size:11px;flex:none}
+.step.done{color:var(--text)}.step.done .d{background:var(--success);border-color:var(--success);color:#fff}
+.step.now{color:var(--text);font-weight:600}.step.now .d{border-color:var(--blue);border-top-color:transparent;animation:sp .8s linear infinite}
+.step.fail{color:var(--danger)}.step.fail .d{background:var(--danger);border-color:var(--danger);color:#fff}
+.step .t{margin-left:auto;font-size:12px;color:var(--text3);font-weight:400}
+@keyframes sp{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.step.now .d{animation:none;border-top-color:var(--blue)}}
+.bar{height:4px;border-radius:2px;background:var(--surface2);overflow:hidden;margin:6px 4px 0}.bar i{display:block;height:100%;width:0;background:var(--blue);transition:width .4s}
+.foot{display:flex;justify-content:space-between;padding:10px 20px;font-size:12px;color:var(--text3);border-top:1px solid var(--border)}
+.overlay{position:fixed;inset:var(--rv-h,40px) 0 0 0;z-index:40;background:rgba(31,58,95,.82);display:none;align-items:center;justify-content:center}
+.overlay.show{display:flex}.overlay div{border:2px dashed #fff;border-radius:16px;padding:40px 60px;color:#fff;font-size:20px;font-weight:600;text-align:center}
+.overlay small{display:block;font-size:13px;font-weight:400;margin-top:6px;opacity:.85}
+.shell{position:fixed;inset:var(--rv-h,40px) 0 0 0;z-index:30;display:none;flex-direction:column;background:var(--bg)}.shell.show{display:flex}
+.shell .tb{background:var(--navy);color:#fff;padding:12px 20px;font-weight:600}.shell .mb{background:var(--surface);border-bottom:1px solid var(--border);height:40px}
+.shell .c{flex:1;display:grid;place-items:center;color:var(--text3);font-size:14px;text-align:center}
+.note{position:fixed;right:12px;bottom:46px;max-width:320px;background:#0d1b2a;color:#dfe7f0;font-size:12px;padding:10px 12px;border-radius:8px;opacity:.95;z-index:60}
+.note b{color:#fff}
+</style>
+</head>
+<body>
+<div class="rv" id="rv"><b>Dashboard:</b><span id="dbs"></span><span class="sep"></span><b>State:</b><span id="sts"></span><span class="sp"></span><button id="th" type="button">Theme: light</button></div>
+
+<main class="welcome-screen" id="ws">
+  <div class="center">
+    <section class="card" aria-labelledby="wt">
+      <div class="head"><div class="logo" role="img" aria-label="UESH">UESH</div>
+        <div><h1 id="wt"></h1><p id="wi"></p></div></div>
+      <div id="stepper"></div>
+      <div id="body"></div>
+      <div class="actions"><button class="help" type="button" id="help"></button><span id="act"></span></div>
+    </section>
+  </div>
+  <footer class="foot"><span>🛡 Works offline — your data stays in this browser</span><span id="ver"></span></footer>
+</main>
+<div class="overlay" id="ov"><div id="ovt"></div></div>
+<div class="shell" id="shell"><div class="tb" id="shellTitle"></div><div class="mb"></div><div class="c"><div>Dashboard shell opens here.<br><br><button class="btn" id="back" type="button">Back to the welcome mockup</button></div></div></div>
+<div class="note" id="note"></div>
+
+<script>
+/* ===== One config per dashboard. In the real build this comes from ui_help.json + the source contract. ===== */
+const CONFIG={
+ mdl:{label:'MDL',title:'Master Document List Dashboard',version:'v3.4',projectTitle:'TWRP C3B2',
+  instruction:'Load the project workbook to start.',
+  files:[{key:'mdl',name:'Master Document List',sample:'MDL_TWRP_C3B2_rev12.xlsx'}],
+  mode:'auto', phases:['Reading the workbook','Checking the data','Building the dashboard'],
+  help:'What file do I need?'},
+ ppp:{label:'PPP',title:'Procurement Package Plan Dashboard',version:'v1.6',projectTitle:'TWRP C3B2',
+  instruction:'Load the project workbook to start.',
+  files:[{key:'ppp',name:'Procurement Package Plan',sample:'PPP_TWRP_C3B2_2026-11.xlsx'}],
+  mode:'auto', phases:['Reading the workbook','Checking the data','Building the dashboard'],
+  help:'What file do I need?'},
+ sub:{label:'Sub',title:'Document Submittal Dashboard',version:'SUB v2.2.0',projectTitle:'TWRP C3B2',
+ instruction:'Load the two project workbooks to start.',
+  files:[{key:'mdl',name:'Master Document List',sample:'MDL_TWRP_C3B2_rev12.xlsx'},
+         {key:'log',name:'Document Submittal Log',sample:'Submittal_Log_2026-11.xlsx'}],
+  mode:'confirm', phases:['Reading the workbooks','Checking the data','Building the dashboard'],
+  help:'What files do I need?'}
+};
+/* States. "single" = only for 1-file dashboards, "multi" = only for multi-file dashboards. */
+const STATES=[
+ ['empty','1 Empty'],['partial','2 Some files','multi'],['checking','3 Checking'],['ready','4 Ready','multi'],
+ ['fileErr','5 File error'],['setErr','6 Selection error','multi'],['loading','7 Loading (animated)'],['loadErr','7b Load error'],['drag','8 Drag over page']];
+let db='sub',cur='empty',timers=[];
+const $=id=>document.getElementById(id);
+const clearT=()=>{timers.forEach(clearTimeout);timers=[]};
+const C=()=>CONFIG[db], N=()=>C().files.length, multi=()=>N()>1;
+
+function slot(i,f,st,cls,x){return `<div class="slot ${cls}"><span class="n">${cls==='ok'?'✓':cls==='bad'?'!':i+1}</span><div><div class="nm">${f.name}</div><div class="st">${st}</div></div>${x?'<button class="x" type="button" aria-label="Remove '+f.name+'">✕</button>':''}</div>`}
+function slots(spec){/* spec: array of [state,text] per file; default = still needed */
+ return C().files.map((f,i)=>{const s=spec[i]||['none'];
+  if(s[0]==='ok')return slot(i,f,'✓ '+f.sample+(s[1]?' · '+s[1]:''),'ok',1);
+  if(s[0]==='chk')return slot(i,f,'⟳ Checking the Code sheet…','chk');
+  if(s[0]==='bad')return slot(i,f,'✗ '+s[1],'bad',1);
+  return slot(i,f,'○ Still needed','');}).join('')}
+function drop(inner,alert){
+ const one=!multi();
+ return `${alert?`<div class="alert" role="alert">${alert}</div>`:''}
+ <div class="drop" tabindex="0" aria-label="${one?'Drop the workbook here, or press Enter to choose a file':'Drop the workbooks here, or press Enter to choose files'}">
+ <div class="drop-top"><span class="ic">⇪</span>${one?'Drop the file here, or':'Drop the files here (one at a time or all together), or'} <button class="btn" type="button">${one?'Choose file':'Choose files'}</button></div>
+ <div class="slots" aria-live="polite">${inner}</div>
+ ${one?'<div class="hint">The dashboard opens as soon as the file passes the check.</div>':''}</div>`}
+function stepper(step){/* Sub only: Step 1 select & check, Step 2 load */
+ if(C().mode!=='confirm'){$('stepper').innerHTML='';return}
+ const a=step>1?'done':'now',b=step>2?'done':step===2?'now':'';
+ $('stepper').innerHTML=`<div class="stepper" aria-label="Progress"><span class="s ${a}"><i>${a==='done'?'✓':1}</i>Select and check ${N()} files</span><span class="ln ${a==='done'?'done':''}"></span><span class="s ${b}"><i>${b==='done'?'✓':2}</i>Load the dashboard</span></div>`}
+function actionBtn(n,dis,label){
+ if(C().mode==='auto'){$('act').innerHTML='';return}/* 1-step: no Load button */
+ $('act').innerHTML=`<button class="btn btn-primary" id="load" type="button" ${dis?'disabled':''}>${label||(n<N()?`Load dashboard (${n} of ${N()})`:'Load dashboard')}</button>`;
+ const b=$('load');if(b&&!dis)b.onclick=()=>show('loading')}
+
+function show(s){
+ clearT();cur=s;const c=C();
+ $('shell').classList.remove('show');$('ws').classList.remove('fade');$('ov').classList.remove('show');
+ $('wt').textContent=c.title;$('wi').textContent=c.instruction;$('help').textContent=c.help;
+ $('ver').textContent=`${c.version} · © ${new Date().getFullYear()} UESH`;
+ $('ovt').innerHTML=multi()?`Release to add the files<small>Drop anywhere on the page · up to ${N()} workbooks</small>`:'Release to load the workbook<small>Drop anywhere on the page</small>';
+ const all=c.files.map(()=>['ok']);let note='';
+ switch(s){
+  case 'empty':$('body').innerHTML=drop(slots([]));actionBtn(0,1);stepper(1);
+   note=multi()?`<b>Sub, empty.</b> ${N()} slots, one per required file, from the source contract. Step 1 of 2 is active. The Load button shows the count.`:`<b>${c.label}, empty.</b> One slot. No Load button: this dashboard loads in one step.`;break;
+  case 'partial':$('body').innerHTML=drop(slots([['ok','Dashboard Title: Master Document List']]));actionBtn(1,1);stepper(1);
+   note='<b>Some files.</b> The user can add files one at a time or all together. Each file goes to its slot by its Dashboard Title, not by its file name (§3.7).';break;
+  case 'checking':
+   if(multi()){$('body').innerHTML=drop(slots([['ok'],['chk']]));actionBtn(1,1);stepper(1);
+    note='<b>Checking.</b> Only the Code sheet of the new file is read (§3.7).';}
+   else{$('body').innerHTML=drop(slots([['chk']]));stepper(1);
+    note=`<b>${c.label}, checking.</b> The Code sheet is read. If the check passes, the load starts by itself.`;
+    timers.push(setTimeout(()=>show('loading'),1500));}
+   break;
+  case 'ready':$('body').innerHTML=drop(slots(all));actionBtn(N(),0);stepper(2);
+   note='<b>Ready.</b> Both files passed. Step 1 is done; step 2 is active. Click <b>Load dashboard</b> to start step 2 (today: the <b>Load Data</b> button).';break;
+  case 'fileErr':
+   $('body').innerHTML=drop(slots(multi()?[['ok'],['bad','"Book1.xlsx" has no Code sheet. Choose the Submittal Log export.']]:[['bad','"Book1.xlsx" has no Code sheet. Choose the '+c.files[0].name+' export.']]));
+   actionBtn(1,1);stepper(1);
+   note=multi()?'<b>File error.</b> The reason shows on the slot it is about. The other files stay selected.':`<b>${c.label}, file error.</b> The reason shows on the slot. The user drops or chooses another file; no other action is needed.`;break;
+  case 'setErr':$('body').innerHTML=drop(slots(all),'The Project Title values do not match: “TWRP C3B2” in the Master Document List and “PRJ-B” in the Document Submittal Log. Choose two files from the same project. The previous selection is unchanged.');
+   actionBtn(N(),1);stepper(1);note='<b>Selection error.</b> A problem with the set of files shows once, above the slots. This state does not exist for a 1-file dashboard.';break;
+  case 'loading':case 'loadErr':$('body').innerHTML='<div id="steps"></div>';actionBtn(N(),1,'Loading…');stepper(2);run(s==='loadErr');
+   note=(s==='loadErr'?'<b>Load error.</b> The failed phase is marked, then the card returns to the slots with the reason.':'<b>Loading.</b> Load phases run in the same card. The welcome then closes and the shell opens.')+(multi()?' Sub: this is step 2 of 2.':` ${c.label}: this starts by itself after the file check.`);break;
+  case 'drag':$('body').innerHTML=drop(slots([]));actionBtn(0,1);stepper(1);$('ov').classList.add('show');
+   note='<b>Drag over page.</b> A full-screen drop target (AGENTS §18.7). Click the overlay to close it.';break;
+ }
+ $('note').innerHTML=note;paintBar();}
+
+function paintSteps(at,fail,times){const el=$('steps');if(!el)return;const P=C().phases;
+ el.innerHTML=`<div class="steps" aria-busy="${at<P.length&&fail==null}" aria-live="polite">${P.map((n,i)=>{
+  const c=i===fail?'fail':i<at?'done':i===at?'now':'';const d=c==='done'?'✓':c==='fail'?'!':'';
+  return `<div class="step ${c}"><span class="d">${d}</span>${n}${c==='now'?'…':''}<span class="t">${times[i]||''}</span></div>`}).join('')}
+  <div class="bar"><i style="width:${Math.round(Math.min(at,P.length)/P.length*100)}%"></i></div></div>`}
+function run(fail){const P=C().phases,D=[1300,1000,800],times=[];let t=0;paintSteps(0,null,times);
+ for(let i=0;i<P.length;i++){t+=D[i];const k=i;
+  timers.push(setTimeout(()=>{
+   if(fail&&k===1){paintSteps(1,1,times);timers.push(setTimeout(()=>afterLoadErr(),1600));return}
+   times[k]=(D[k]/1000).toFixed(1)+' s';paintSteps(k+1,null,times);
+   if(k===P.length-1)timers.push(setTimeout(()=>{if(C().mode==='confirm')stepper(3);
+    timers.push(setTimeout(()=>{$('ws').classList.add('fade');
+     timers.push(setTimeout(()=>{$('shell').classList.add('show');$('shellTitle').textContent=`${C().projectTitle} — ${C().title}`;
+      $('note').innerHTML='<b>Load done.</b> The welcome closes. The title bar now shows the project title from the loaded model (§3.7).'},300))},400))},400));
+  },t));
+  if(fail&&k===1)break;}}
+function afterLoadErr(){const c=C();clearT();
+ $('body').innerHTML=drop(slots(c.files.map(()=>['ok'])),`The data check failed: the ${c.files[multi()?1:0].name} has no “Document No.” column. Correct the export and load again. ${multi()?'Your files are still selected.':'Drop the corrected file to try again.'}`);
+ actionBtn(N(),0,multi()?'Load again':null);stepper(multi()?2:1);
+ $('note').innerHTML=multi()?'<b>After a load error.</b> Back to the slots. The files stay selected. <b>Load again</b> retries step 2.':`<b>${c.label}, after a load error.</b> Back to the slot. A new drop starts the check and load again.`}
+
+function paintBar(){
+ $('dbs').innerHTML=Object.keys(CONFIG).map(k=>`<button type="button" data-db="${k}" class="${k===db?'on':''}">${CONFIG[k].label} (${CONFIG[k].files.length} file${CONFIG[k].files.length>1?'s':''}, ${CONFIG[k].mode==='auto'?'1 step':'2 steps'})</button>`).join(' ');
+ $('sts').innerHTML=STATES.filter(x=>!x[2]||(x[2]==='multi')===multi()).map(x=>`<button type="button" data-s="${x[0]}" class="${x[0]===cur?'on':''}">${x[1]}</button>`).join(' ');
+ document.documentElement.style.setProperty('--rv-h',$('rv').offsetHeight+'px');
+ document.querySelectorAll('[data-db]').forEach(b=>b.onclick=()=>{db=b.dataset.db;const ok=STATES.find(x=>x[0]===cur&&(!x[2]||(x[2]==='multi')===multi()));show(ok?cur:'empty')});
+ document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>show(b.dataset.s));}
+$('back').onclick=()=>show('empty');$('ov').onclick=()=>show('empty');
+$('th').onclick=e=>{const d=document.documentElement,t=d.dataset.theme==='light'?'dark':'light';d.dataset.theme=t;e.target.textContent='Theme: '+t};
+window.addEventListener('resize',paintBar);
+show('empty');
+</script>
+
+
+</body></html>

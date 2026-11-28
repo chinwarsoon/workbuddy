@@ -1,3 +1,7 @@
+// Revision 1.5 | 2026-11-28 | CodeBuddy (AI) | I-166 close — the S-curve header probe reads --thead-bg / --thead-fg instead of the old navy / white pair.
+// Revision 1.4 | 2026-11-28 | AWS Quick (AI) | I-166 / common C-08 — add the `themes` block so harness Tier 8 (lintThemes, rev 1.47) runs for MDL instead of SKIPping.
+// Revision 1.3 | 2026-11-27 | CodeBuddy (AI) | Spec §3.7 rev 1.113 — declare MDL doneDwellMs 3000 for assertion 53.
+// Revision 1.2 | 2026-11-26 | CodeBuddy (AI) | I-164 W3 — enable the gated Tier 7 welcome and check 51 for MDL.
 // checks/mdl.mjs — harness config for the MDL dashboard (EXAMPLE).
 // This is project data, not part of the universal harness core: replace it (and ppp.mjs) with
 // your own dashboard's config when you reuse harness-layout elsewhere.
@@ -32,8 +36,9 @@ export default {
   // Tier 3 — filter trigger button selector (opens the Discipline filter panel)
   filterTriggerSelector: '.tf-btn',
 
-  // Tier 3 — validation panel issue count
-  validationCountSelector: null,  // set once the panel exposes a count element
+  // Tier 3 — validation issue count (I-160: Shown issues chip)
+  validationCountSelector: '[data-validation-count]',
+  validationPage: 'Validation',
 
   // Tier 4 — layout geometry (I-90 grid foundation; I-89 executable sample)
   samplePath: resolve(mdlRoot, 'Arch/sample-data-tables.html'),
@@ -54,6 +59,10 @@ export default {
     splitHeader:   true,              // enforce split-header pairing: gap / corners / column rule / alignment / fit / lock-step (I-103)
     controlContrast: true,            // every visible control must have readable text (contrast ≥ 3:1) — I-105
     colMinWidth:   60,                // hard floor for every column (spec §18: replace with per-type minima)
+    // I-162 — only these grid tables pin two columns. Overdue and Validation Rules use the grid
+    // for width and visibility, but their approved designs do not pin identity columns.
+    pinnedGridKeys: ['issue', 'detail'],
+    minGridTables:  2,
     scrollProbe:   240,               // px scrolled to prove the header sticks
     tolerance:     2,                 // px
   },
@@ -82,8 +91,8 @@ export default {
     manyClass:             'c1-many',
     csvSelector:           '.curve-card .chart-actions .csv',
     pngSelector:           '.curve-card .chart-actions .dl',
-    headerFillVar:         '--navy',
-    headerTextColor:       'rgb(255, 255, 255)',
+    headerFillVar:         '--thead-bg',
+    headerTextVar:         '--thead-fg',
     centerBandSelector:    '.curve-card .curve-c1-plot .sc-hover-band',
     centerTolerance:       2,
     tolerance:             0.5,
@@ -107,4 +116,20 @@ export default {
     boards: [],
     kpi: { name: 'KPI card', selector: '.kpi-card', snap: false, cursor: 'help' },
   },
+
+  // Tier 7 — spec §3.7 rev 1.107: MDL adopts the shared welcome module (I-164, W3).
+  welcome: {
+    mode: 'auto',
+    files: 1,
+    doneDwellMs: 3000,
+    forbiddenText: ['TWRP C3B2'],
+    loadCheck: true,
+    // I-165 / spec §3.7.5 rev 1.110 — a non-required workbook for the 48 / 52 extra-file pick.
+    extraFile: resolve(mdlRoot, 'TWRP C3B2 - Document Submittal Log.xlsx'),
+  },
+
+  // Tier 8 — spec §18.4 / §8.2 assertion 54 (I-166 / common C-08): six-theme AA contrast sweep.
+  // Uses the harness default theme list and AA pairs (common/tokens/tokens.schema.json); MDL has
+  // no theme-specific overrides to declare here, so the block only needs to exist to un-SKIP Tier 8.
+  themes: {},
 };

@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "common module manifest",
+  "description": "Shared design source for the dashboards. Build-time only (AGENTS.md §3).",
+  "version": "1.4.4",
+  "revisionHistory": [
+    {
+      "revision": "1.4.4",
+      "date": "2026-11-28",
+      "author": "CodeBuddy (AI)",
+      "summary": "tokens -> 1.3.1: strong crosshair tier set to 14% light / 22% dark to stay inside the owner's stated ranges. Spec rev 1.116."
+    },
+    {
+      "revision": "1.4.3",
+      "date": "2026-11-28",
+      "author": "AWS Quick (AI)",
+      "summary": "tokens module entry corrected 1.0.0 -> 1.3.0 (was never bumped to match the actual tokens.css revision through the status-family, pchip and now crosshair additions). Latest addition: --crosshair-faint/-medium/-strong, a true transparent color-mix() 3-tier ladder (MDL I-166 crosshair regression + 20-point user contract). Light/sky/contrast 7/13/17%; dark/ocean/presentation 12/20/26%."
+    },
+    {
+      "revision": "1.4.2",
+      "date": "2026-11-28",
+      "author": "AWS Quick (AI)",
+      "summary": "welcome -> 1.4.1: test-report fixes (user-run welcome.test.mjs: 69/4). Removed a literal rgba() border, renamed .is-active -> .cw-is-active, and precomputed the theme-picker markup so the Help button stays within the topbar proximity check."
+    },
+    {
+      "revision": "1.4.1",
+      "date": "2026-11-28",
+      "author": "AWS Quick (AI)",
+      "summary": "welcome module -> 1.4.0 (C-08): optional themePicker top-bar config key, no project data / no localStorage access inside the module."
+    },
+    {
+      "revision": "1.4.0",
+      "date": "2026-11-28",
+      "author": "AWS Quick (AI)",
+      "summary": "New module: tokens 1.0.0 — six-theme chrome-family token set (common C-08). Pure CSS, no JS. MINOR: adds a module, no existing module changed."
+    },
+    {
+      "revision": "1.3.1",
+      "date": "2026-11-27",
+      "author": "CodeBuddy (AI)",
+      "summary": "Spec rev 1.113 — doneDwellMs holds the painted done step before the opener. Default 0, limit 10000 ms."
+    },
+    {
+      "revision": "1.3.0",
+      "date": "2026-11-27",
+      "author": "CodeBuddy (AI)",
+      "summary": "Spec rev 1.112 — success hold limit 10000 ms; auto mode keeps step 2 current until load starts; done step paints before the dashboard opener."
+    },
+    {
+      "revision": "1.2.1",
+      "date": "2026-11-27",
+      "author": "CodeBuddy (AI)",
+      "summary": "C-07 — remove the duplicate actAuto text; one instruction sits below the task heading. Workplan version 1.2.1."
+    },
+    {
+      "revision": "1.2.0",
+      "date": "2026-11-27",
+      "author": "AWS Quick (AI)",
+      "summary": "C-06 — two-column welcome card (navy guide panel left, task panel right, 1 : 1.618), top bar with Help, three steps, file list below the drop box, Choose primary until all files are ready. Spec §3.7 rev 1.111."
+    },
+    {
+      "revision": "1.1.0",
+      "date": "2026-11-27",
+      "author": "AWS Quick (AI)",
+      "summary": "C-04 / C-05 — fixed-height welcome (one box for drop area and load stage), file list at the bottom of the drop area, 1–6 files, ignored-file summary, success hold, visible Choose button, gap tokens. Spec §3.7 rev 1.110."
+    },
+    {
+      "revision": "1.0.2",
+      "date": "2026-11-26",
+      "author": "CodeBuddy (AI)",
+      "summary": "C-03 — named role=group drop area; Choose file is the only keyboard path to the picker."
+    },
+    {
+      "revision": "1.0.1",
+      "date": "2026-11-26",
+      "author": "CodeBuddy (AI)",
+      "summary": "C-02 — remove role=\"button\" from the .cw-drop div for harness Tier 1."
+    },
+    {
+      "revision": "1.0.0",
+      "date": "2026-11-26",
+      "author": "AWS Quick (AI)",
+      "summary": "Created with the welcome module (WP-WELCOME-001 W2)."
+    }
+  ],
+  "modules": [
+    {
+      "name": "tokens",
+      "version": "1.3.1",
+      "spec": "Dashboard-UI-Design-Spec.md §6 / AGENTS.md §18.4",
+      "namespace": null,
+      "css": [
+        "tokens/tokens.css"
+      ],
+      "js": [],
+      "schema": "tokens/tokens.schema.json",
+      "dependsOn": []
+    },
+    {
+      "name": "welcome",
+      "version": "1.4.1",
+      "spec": "Dashboard-UI-Design-Spec.md §3.7 rev 1.114",
+      "namespace": "CommonWelcome",
+      "css": [
+        "welcome/welcome.css"
+      ],
+      "js": [
+        "welcome/welcome.mjs"
+      ],
+      "schema": "welcome/welcome.schema.json",
+      "dependsOn": []
+    }
+  ]
+}

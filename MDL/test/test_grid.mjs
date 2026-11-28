@@ -1,3 +1,5 @@
+// Revision 1.1 | 2026-11-28 | CodeBuddy (AI) | I-166 — the I-71 spec check uses the current A3 canonical wording.
+// Revision 1.0 | 2026-11-27 | CodeBuddy (AI) | Initial revision metadata.
 // Regression test for the L3 grid kit (I-95) and windowed rendering (I-96).
 // Runs the bundle in a jsdom + node-vm context WITHOUT rendering the dashboard,
 // so it stays fast and memory-safe (the full-render test needs ~10 GB for the
@@ -97,13 +99,31 @@ ok('grid: persisted visibility is restored, pinned columns always kept',
   g.visible().map(c => c.key).join(','));
 ok('grid: hidden count follows the restored view', g.hiddenCount() === 25, `hidden=${g.hiddenCount()}`);
 
-// ---------- I-95: width clamping ----------
+// ---------- I-163: width clamping, label visibility and fit ownership ----------
 clean();
 g = makeGrid('detail', detailCols);
 g.setWidth('Stage', 5, false);
-ok('grid: width is clamped to the 60 px minimum', g.widthOf('Stage') === 60, `${g.widthOf('Stage')}px`);
+ok('grid: width is clamped to the column minimum (text floor + label width)',
+  g.widthOf('Stage') === 90, `${g.widthOf('Stage')}px`);
 g.setWidth('Stage', 5000, false);
 ok('grid: width is clamped to the 640 px maximum', g.widthOf('Stage') === 640, `${g.widthOf('Stage')}px`);
+
+clean();
+g = makeGrid('validation_rules', [
+  { key:'severity', label:'Severity', sortable:false, type:'enum' },
+  { key:'code', label:'Code', sortable:false, type:'text' },
+  { key:'group', label:'Group', sortable:false, type:'text' },
+  { key:'description', label:'Description', sortable:false, type:'text' },
+  { key:'count', label:'Count', sortable:false, type:'num' }
+]);
+ok('grid: the default fit pass fills the available area when it can',
+  g.fit(1000) && Math.abs(g.visible().reduce((a,c)=>a+g.widthOf(c.key),0) - 1000) <= 2,
+  g.visible().map(c=>g.widthOf(c.key)).join('+'));
+const before = g.widthOf('description');
+g.setWidth('description', before + 40, true);
+const fitted = g.fit(1000);
+ok('grid: a persisted user width is not re-fitted away',
+  !fitted && g.widthOf('description') === before + 40, `${g.widthOf('description')}px`);
 
 // ---------- I-95: issue-list grid ----------
 clean();
@@ -118,8 +138,8 @@ const issueCols = [
   { key: 'rownum', label: 'Row', sortable: true, type: 'num' }
 ];
 const gi = makeGrid('issue', issueCols);
-ok('grid: the issue list shows all eight columns and pins Severity + Doc No',
-  gi.hiddenCount() === 0 && gi.visible()[0].key === 'severity' && gi.visible()[1].key === 'docNo',
+ok('grid: the issue list shows all eight columns and pins Severity + Rule',
+  gi.hiddenCount() === 0 && gi.visible()[0].key === 'severity' && gi.visible()[1].key === 'code',
   gi.visible().map(c => c.key).join(','));
 
 // ---------- I-71: shared A3 text-action class (spec §7.1) ----------
@@ -140,8 +160,8 @@ ok('I-71: both dashboards declare the same A3 geometry (no silent drift)',
   ['font-size:12px', 'font-weight:600', 'line-height:1.2', 'min-height:32px', 'padding:7px 14px',
    'border-radius:6px', 'gap:6px'].every(p => html.includes(p) && PPP_HTML.includes(p)),
   '12 px / 600, line-height 1.2, 32 px min-height, 7 px 14 px padding, 6 px radius, 6 px gap');
-ok('I-71: the spec names .btn-secondary canonical and records PPP as migrated',
-  SPEC_MD.includes('**canonical** — conforming') && SPEC_MD.includes('migrated 2026-10-21'),
+ok('I-71: the spec names .btn-secondary as the canonical A3 class',
+  SPEC_MD.includes('**A3 — one canonical class name (normative).**') && SPEC_MD.includes('`.btn-secondary` is the **canonical** A3 class'),
   'spec and code stay in sync');
 
 // ---------- I-94 (part 2b): every filter control states its scope ----------

@@ -1,3 +1,6 @@
+// Revision 1.2 | 2026-11-28 | CodeBuddy (AI) | Spec rev 1.116 — crosshair assertions follow the three-tier token set, arrow keys, and pinned-cell tint.
+// Revision 1.1 | 2026-11-28 | CodeBuddy (AI) | I-166 — theme assertions use six themes and the shared --thead-* header tokens.
+// Revision 1.0 | 2026-11-27 | CodeBuddy (AI) | Dashboard version 1.9 — status bar expectation follows the MDL workplan.
 // Lightweight runtime test for the rev 1.96 shell increment.
 // It renders the real bundle with a synthetic model and stubs only the heavy panel renderers.
 // This avoids the full-workbook jsdom heap failure in test_render.mjs.
@@ -24,7 +27,7 @@ const model={meta:{projectTitle:'TWRP C3B2',dashboardTitle:'Master Document List
 const defs=[{key:'disciplines',label:'Discipline',items:['Civil'],noCount:[]},{key:'stages',label:'Stage',items:['Issued'],noCount:['Void']}];
 ctx.getFilterDefs=()=>defs;
 ctx.deriveView=()=>({active:[],recs:[],issues:[],kpis:{},matrix:[],matrixMonths:[],curMonth:'',charts:{},monthlyProgress:{},firstOverdue:[],subOverdue:[],cliOverdue:[]});
-for(const fn of ['renderMatrix','renderCharts','renderCurvePanel','renderOverdue','renderValidation','renderDetail','wireFilterChips','showRenderIssues','ensureCollapse']) ctx[fn]=()=>{};
+for(const fn of ['renderMatrix','renderCharts','renderCurvePanel','renderOverdue','renderValidationRules','renderValidationIssues','renderDetail','wireFilterChips','showRenderIssues','ensureCollapse']) ctx[fn]=()=>{};
 
 let pass=0, fail=0;
 const ok=(name,cond,extra='')=>{ if(cond){pass++;console.log('PASS - '+name+(extra?'  ['+extra+']':''));}else{fail++;console.log('FAIL - '+name+(extra?'  ['+extra+']':''));} };
@@ -57,12 +60,27 @@ ok('matrix card has a rounded outer border',/\.matrixcard\{border:1px solid var\
 ok('tool-row tokens are defined',/--tool-pad:12px/.test(html)&&/--tool-gap:10px/.test(html));
 ok('tool row uses token gaps',/\.toolbar\{display:flex;gap:var\(--tool-gap\)/.test(html)&&/\.toolbar \.tool-filters\{display:flex;gap:var\(--tool-gap\)/.test(html)&&/\.toolbar \.tool-actions\{margin-left:auto;display:flex;gap:var\(--tool-gap\)/.test(html));
 ok('matrix tool row has token padding',/\.toolbar\.matrix-tools\{padding:var\(--tool-pad\)/.test(html));
+ok('overdue tool row precedes its table card',/<div class="toolbar overdue-tools">[\s\S]{0,1400}<div class="splitbox splitcard">/.test(html));
+ok('overdue panel head keeps only Help and Collapse',/<div class="panel-head"><h2>Overdue List<\/h2><div class="head-actions"><\/div><\/div>/.test(html));
+ok('overdue pager uses a panel-local attribute',/data-ov-page="prev"/.test(html)&&/data-ov-page="next"/.test(html)&&!/data-page="prev"/.test(html));
+ok('overdue CSV hides on an empty result',/csvBtn\.hidden = n === 0/.test(html));
+ok('overdue tool row uses token padding',/\.toolbar\.overdue-tools\{padding:var\(--tool-pad\)/.test(html));
+ok('overdue help text matches live sort and export',/Delay \(days\)<\/em> descending/.test(html)&&!html.includes('MDL_Overdue.csv'));
+const THEMES=['light','dark','sky','ocean','presentation','contrast'];
+ok('zebra token declared in six themes',THEMES.every(theme=>new RegExp('\\[data-theme="'+theme+'"\\]\\{[^}]*--ds-zebra:').test(html)));
+ok('generic and ds-table rows use the zebra token',/tbody tr:nth-child\(even\)\{background:var\(--ds-zebra\)\}/.test(html)&&/\.ds-table tbody tr:nth-child\(even\)\{background:var\(--ds-zebra\)\}/.test(html));
+ok('matrix and C1 tables use the zebra token',/\.matrix tbody tr:nth-child\(even\)\{background:var\(--ds-zebra\)\}/.test(html)&&/\.curve-card \.curve-c1-table tbody tr:nth-child\(even\) td\{background:var\(--ds-zebra\)\}/.test(html));
+ok('pinned cells use the theme surface and zebra token',/\.ds-table td\.ds-pinned\{position:sticky;background:var\(--surface\)\}/.test(html)&&/\.ds-table tbody tr:nth-child\(even\) td\.ds-pinned\{background:var\(--ds-zebra\)\}/.test(html));
+ok('row-level overdue fill is removed',!/\.ds-table \.over\{background:var\(--warn-bg\)\}/.test(html)&&!/<tr class="over">/.test(html));
+ok('literal zebra fills are removed',!/tbody tr:nth-child\(even\)\{background:#F6F8FA\}/.test(html)&&!/tbody tr:nth-child\(even\)\{background:#F9FBFD\}/.test(html)&&!/\.matrix tbody tr:nth-child\(even\)\{background:#fafcff\}/.test(html)&&!/background:#1f3a5f/.test(html));
 ok('shared crosshair binder is present',/function bindTableCrosshair\(\)/.test(html)&&/assignCrosshairIds\(\);/.test(html));
-const crosshairTokens=['--crosshair-track','--crosshair-intersection','--crosshair-ring','--header-crosshair-overlay','--header-crosshair-accent'];
-ok('crosshair tokens defined in five themes',crosshairTokens.every(t=>new RegExp(':root\\{[^}]*'+t+':').test(html))&&['dark','navy','contrast','sepia'].every(theme=>crosshairTokens.every(t=>new RegExp('body\\[data-theme="'+theme+'"\\]\\{[^}]*'+t+':').test(html))));
-ok('crosshair tracks are translucent layers',/tbody tr.row-hover > td[^}]*background-image:linear-gradient\(var\(--crosshair-track\)/.test(html)&&/td.col-hover\{background-image:linear-gradient\(var\(--crosshair-track\)/.test(html));
-ok('intersection uses tokenised overlay and ring',/td.cell-hover\{background-image:linear-gradient\(var\(--crosshair-intersection\)[^}]*box-shadow:inset 0 0 0 1px var\(--crosshair-ring\)/.test(html));
-ok('header highlight is non-destructive',/th.col-hover\{background-image:linear-gradient\(var\(--header-crosshair-overlay\)[^}]*box-shadow:inset 0 -2px 0 var\(--header-crosshair-accent\)/.test(html));
+const crosshairTokens=['--crosshair-faint','--crosshair-medium','--crosshair-strong','--crosshair-ring','--header-crosshair-accent'];
+ok('crosshair tokens defined in six themes',crosshairTokens.every(t=>html.includes(t+':'))&&THEMES.every(theme=>new RegExp('\\[data-theme="'+theme+'"\\]\\{[^}]*--crosshair-(faint|medium|strong):').test(html)));
+ok('crosshair tracks use translucent tier tokens',/tbody tr\.row-hover > td[^}]*background-color:var\(--crosshair-faint\)/.test(html)&&/td\.col-hover\{background-color:var\(--crosshair-faint\)/.test(html)&&/th\.col-hover\{background-color:var\(--crosshair-medium\)/.test(html)&&/th\.rowhead-hover\{background-color:var\(--crosshair-medium\)/.test(html));
+ok('intersection uses the strong tier and a 2px ring',/td\.cell-hover\{background-color:var\(--crosshair-strong\);box-shadow:inset 0 0 0 2px var\(--crosshair-ring\)\}/.test(html));
+ok('header highlight keeps bold text and a 2px edge',/th\.col-hover\{background-color:var\(--crosshair-medium\);font-weight:700;box-shadow:inset 0 -2px 0 var\(--header-crosshair-accent\)\}/.test(html)&&/th\.rowhead-hover\{background-color:var\(--crosshair-medium\);font-weight:700;box-shadow:inset -2px 0 0 var\(--header-crosshair-accent\)\}/.test(html));
+ok('pinned cells keep a base fill under the strong tint',/td\.ds-pinned\.cell-hover\{background-image:linear-gradient\(var\(--crosshair-strong\),var\(--crosshair-strong\)\);box-shadow:1px 0 0 var\(--border\),inset 0 0 0 2px var\(--crosshair-ring\)\}/.test(html));
+ok('crosshair arrow keys are wired',['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].every(k=>html.includes("'"+k+"'")));
 ok('crosshair focus parity is wired',html.includes("focusin")&&html.includes("focusout")&&html.includes("matchMedia('(hover: hover) and (pointer: fine)')")&&html.includes('tabindex="0"'));
 ok('sidebar toggle and resizer exist',!!D.querySelector('[data-shell-toggle="left-sidebar"]')&&!!D.querySelector('[data-shell-resize="left-sidebar"]'));
 ok('collapsed sidebar gives content the full row',/body\.sidebar-collapsed \.shell-main\{grid-template-columns:minmax\(0,1fr\)\}/.test(html));
@@ -73,7 +91,7 @@ ok('Breakdown is absent',!D.querySelector('[data-page="Breakdown"]'));
 ok('Settings and Help pinned in sidebar',!!D.getElementById('settingsBtn')&&!!D.getElementById('helpBtn'));
 ok('active page label present',D.getElementById('activePageLabel')?.textContent.trim()==='Overview');
 const sb=D.getElementById('statusBar'), sbText=sb?.textContent||'';
-ok('status bar shows file version and metadata',sbText.includes('MDL.xlsx')&&sbText.includes('MDL Dashboard v0.1')&&sbText.includes('Updated 20 Nov 2026')&&sbText.includes('© UESH 2026'),sbText);
+ok('status bar shows file version and metadata',sbText.includes('MDL.xlsx')&&sbText.includes('MDL Dashboard v1.9')&&sbText.includes('Updated 20 Nov 2026')&&sbText.includes('© UESH 2026'),sbText);
 ok('status bar has plain left/right groups',!!sb?.querySelector('.sb-left')&&!!sb?.querySelector('.sb-right')&&!sb.querySelector('.sb-panel'));
 ok('status bar chip chrome removed',!html.includes('.sb-panel')&&!html.includes('sb-bar'));
 ok('page footer statement removed',!D.querySelector('footer.disclaimer')&&!html.includes('Standalone Dashboard.'));
@@ -92,11 +110,16 @@ kpiHosts[0]?.dispatchEvent(new window.Event('pointerleave',{bubbles:false}));
 ok('KPI hover hides and clears tooltip',!kpiTip?.classList.contains('show')&&kpiTip.getAttribute('aria-hidden')==='true'&&kpiTip.textContent.trim()==='');
 ok('Print / Save PDF removed',!D.body.innerHTML.includes('Print / Save PDF')&&!D.getElementById('aPrint'));
 ok('top menu Export present',!!D.getElementById('exportWorkbook'));
-ok('seven panels',D.querySelectorAll('.panel').length===7,'count='+D.querySelectorAll('.panel').length);
+ok('eight panels',D.querySelectorAll('.panel').length===8,'count='+D.querySelectorAll('.panel').length);
 ok('panels numbered',[...D.querySelectorAll('.panel')].every((p,i)=>p.dataset.panel===String(i+1)));
 ok('Overview shows two panels',D.querySelectorAll('.panel.page-active').length===2,'active='+D.querySelectorAll('.panel.page-active').length);
 const progress=D.querySelector('[data-page="Progress"]'); progress.click();
 ok('page switch updates label and panels',D.getElementById('activePageLabel').textContent==='Progress'&&D.querySelectorAll('.panel.page-active').length===2);
+const validation=D.querySelector('[data-page="Validation"]'); validation.click();
+ok('Validation shows two independent panels',D.querySelectorAll('.panel.page-active').length===2&&!!D.getElementById('validationRulesPanel')&&!!D.getElementById('validationIssuesPanel'),
+   'active='+D.querySelectorAll('.panel.page-active').length);
+ok('Validation panels stay full width',/\.panel-area > \.panel\[data-page="Validation"\]\{grid-column:1 \/ -1\}/.test(html));
+D.querySelector('[data-page="Overview"]').click();
 D.getElementById('settingsBtn').click();
 const settings=D.querySelector('[data-setting="layout"]');
 ok('Settings has layout select one/two/three',!!settings&&[...settings.options].map(o=>o.value).join(',')==='one,two,three');
@@ -138,7 +161,7 @@ ok('I-146 help text matches the rendered reference lines',html.includes('grey da
 ok('I-147 plot-table gap token and row-gap',html.includes('--c1-plot-table-gap:10px')&&html.includes('row-gap:var(--c1-plot-table-gap)')&&html.includes('tableY=g.H+tableGap'));
 ok('I-147 board fits without a horizontal scrollbar',html.includes('.curve-card .curve-host{width:100%;overflow-x:visible}')&&html.includes('align-items:stretch;min-width:0;width:100%')&&!html.includes('min-width:calc(var(--c1-gutter)'));
 ok('I-147 wide tables rotate month headers vertically',html.includes('.curve-c1-table.c1-many thead th.g-axis span{writing-mode:vertical-rl')&&html.includes("table.classList.toggle('c1-many',cols>13)")&&html.includes('<span>${monthLabel(p.months[i])}</span>'));
-ok('I-149 attached-table header uses the shared navy / white design',html.includes('.curve-card .curve-c1-table thead th{background:var(--navy);color:#fff}')&&html.includes('thead th.g-axis,.curve-card .curve-c1-table thead th.g-label{font-size:11px;font-weight:600;color:#fff')&&html.includes("headFill=cs.getPropertyValue('--navy')")&&html.includes("fill=\"${header?'#fff':'#2B3440'}\""));
+ok('I-149 attached-table header uses the themed header tokens',html.includes('.curve-card .curve-c1-table thead th{background:var(--thead-bg,var(--navy));color:var(--thead-fg,var(--on-fill))}')&&html.includes('thead th.g-axis,.curve-card .curve-c1-table thead th.g-label{font-size:11px;font-weight:600;color:var(--thead-fg,var(--on-fill))')&&html.includes("headFill=cs.getPropertyValue('--thead-bg').trim()||cs.getPropertyValue('--navy').trim()||headFill")&&html.includes("headFg=cs.getPropertyValue('--thead-fg').trim()||headFg")&&html.includes("fill=\"${header?headFg:'#2B3440'}\""));
 ok('I-150 chart viewBox uses the real plot width',html.includes('function curveFallbackWidth(cols)')&&html.includes('function curvePlotWidth(st, cols)')&&html.includes('const W=Math.max(1, Number(plotW)||curveFallbackWidth(m))')&&html.includes('const W=curvePlotWidth(st, cols);')&&html.includes('const W=curvePlotWidth(st, cols.length);')&&!html.includes('Math.max(440,cols*64+CURVE_RIGHT_W,Math.round(st.plot.clientWidth)'));
 ok('I-147 export keeps the gap and themed header fill',html.includes("tableGap=parseFloat(cs.getPropertyValue('--c1-plot-table-gap'))")&&html.includes('fill="${header?headFill:'));
 ok('I-148 attached table offers CSV before PNG',html.includes("csv.className='csv btn btn-secondary'; csv.textContent='⤓ CSV'")&&html.indexOf('cluster.appendChild(csv);')<html.indexOf('cluster.appendChild(dl);')&&html.includes('csv.onclick=()=>curveTableCSV(st)'));

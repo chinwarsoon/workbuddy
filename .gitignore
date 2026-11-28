@@ -17,3 +17,6 @@ node_modules/
 
 # harness-pipeline — runtime artifacts (Tier-1 results), never commit
 harness-pipeline/test_output/
+
+# common — runtime artifacts of common/test (AGENTS.md §6.1), never commit
+common/test_output/

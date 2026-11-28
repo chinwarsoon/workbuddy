@@ -2,6 +2,22 @@
 
 | Revision | Date | Author | Summary |
 |---|---|---|---|
+| 1.43 | 2026-11-28 | CodeBuddy (AI) | **TL045 closed.** Full suite rerun after the CSS specificity and test-probe fixes. Crosshair assertions pass; only the known baseline failures remain. |
+| 1.42 | 2026-11-28 | CodeBuddy (AI) | **TL045** added for I-167 crosshair contract: arrow keys, pinned cells, strong-tier ranges, resolver and harness checks. |
+| 1.41 | 2026-11-28 | CodeBuddy (AI) | **TL044** added for I-166 theme close: header tokens, welcome theme picker, and stale test fixes. |
+| 1.40 | 2026-11-27 | CodeBuddy (AI) | **TL043** added for welcome 1.3.1: done-step dwell 3000 ms after the 10-second hold. |
+| 1.39 | 2026-11-27 | CodeBuddy (AI) | **TL042** added for welcome-specific Help: label `What file do I need?` and welcome help dialog. |
+| 1.38 | 2026-11-27 | CodeBuddy (AI) | **TL041** added for welcome 1.3.0: 10000 ms hold and `Rev 1.9 · © 2026 UESH` footer. |
+| 1.37 | 2026-11-27 | CodeBuddy (AI) | **TL040** added for MDL dashboard version 1.9: shell 125 / 0, render 190 / 13, harness 281 / 2. |
+| 1.36 | 2026-11-27 | CodeBuddy (AI) | **TL039** added for common C-07: welcome 1.2.1, common 70 / 0, shell 125 / 0, render 190 / 13, harness 281 / 2. |
+| 1.35 | 2026-11-27 | AWS Quick (AI) | **TL038** added for I-165 welcome 1.2.0 (two-column card): common 70 / 0, shell 125 / 0, render 190 / 13 (203 checks), harness 281 / 2. |
+| 1.34 | 2026-11-26 | CodeBuddy (AI) | **TL037** added for common C-03: common 32 / 0, MDL render 186 / 13, harness 269 / 2. |
+| 1.33 | 2026-11-26 | CodeBuddy (AI) | **TL036** added for I-164 welcome adoption: common 29 / 0, MDL shell 125 / 0, render 185 / 13, pipeline 96 / 7, grid 44 / 45, harness 268 / 2. |
+| 1.32 | 2026-11-25 | CodeBuddy | **TL035** added for I-163 content-aware minima, grow-to-fill fit, Validation Rules alignment and header-label visibility. |
+| 1.31 | 2026-11-25 | CodeBuddy | **TL034** added for I-162 harness ground truth, exact chip selection, page sweep and L3 table discovery. |
+| 1.30 | 2026-11-25 | CodeBuddy | **TL033** added for I-161 shared zebra token, per-theme values, removed overdue fill and the new browser zebra check. |
+| 1.29 | 2026-11-25 | CodeBuddy | **TL032** added for I-160 two-panel Validation, pagination, harness count hook and the full render rerun. |
+| 1.28 | 2026-11-25 | CodeBuddy | **TL031** added for I-151 … I-159 Overdue List conformance, shell assertions and the full layout harness rerun. |
 | 1.27 | 2026-11-25 | CodeBuddy | **TL030** added for I-150 chart-to-table column center alignment and live center measurement. |
 | 1.26 | 2026-11-24 | CodeBuddy | **TL029** added for I-149 shared table-header design and live colour comparison. |
 | 1.25 | 2026-11-24 | CodeBuddy | **TL028** added for I-148 CSV action, Y-axis caption typography and the live CSV download. |
@@ -30,6 +46,111 @@
 | 1.2 | 2026-11-20 | CodeBuddy | **TL005** added for U003 shell geometry and warning bar verification. TL004 note corrected. |
 | 1.1 | 2026-11-20 | CodeBuddy | **TL004** added for I-122 vertical-scroll verification. |
 | 1.0 | 2026-11-20 | CodeBuddy | Initial canonical test log. Records TL001–TL003 for the rev 1.96 shell increment. |
+
+## TL045 — Crosshair contract verification
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-28 |
+| Commands | `node common/test/tokens.test.mjs`; `node common/test/welcome.test.mjs`; `node MDL/test/test_pipeline.mjs`; `node MDL/test/test_grid.mjs`; `node MDL/test/test_shell.mjs`; `node MDL/test/test_render.mjs`; `node harness-layout/harness.mjs --dashboard mdl` |
+| Result | Build OK (`MDL-Dashboard.html` 436,311 bytes). Tokens 178 / 0. Welcome 73 / 0. Pipeline 27 / 5 and 96 / 7 (pre-existing stale workbook data). Grid 45 / 45. Shell 127 / 0. Render 190 / 203 (13 pre-existing). Harness 366 passed / 2 failed (Tier 1 baseline) / 2 advisory / 31 skipped. |
+| Crosshair assertions | Arrow keys move the active cell and apply the same crosshair state. Pinned cells keep the strong 14% / 22% tint over their base fill. The C1 row header keeps 700 weight. The 2px ring reads in computed CSS order. The intersection alpha is below 1 over surface and zebra. Tier 8 passes AA contrast for six themes with body-theme cycling. |
+| Finding | The crosshair contract is complete. The remaining failures are the known Tier 1 shell-zone, pipeline workbook-data and render baseline sets. No crosshair assertion fails. |
+
+## TL044 — Theme close verification
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-28 |
+| Commands | `node common/test/tokens.test.mjs`; `node common/test/welcome.test.mjs`; `node MDL/test/test_pipeline.mjs`; `node MDL/test/test_grid.mjs`; `node MDL/test/test_shell.mjs`; `node MDL/test/test_render.mjs`; `node harness-layout/harness.mjs --dashboard mdl` |
+| Result | Tokens 160 / 0. Welcome 73 / 0. Pipeline 27 / 5 and 96 / 7 (pre-existing stale workbook data). Grid 45 / 45. Shell 125 / 0. Render 190 / 203 (13 pre-existing). Harness 343 passed / 2 failed (Tier 1 baseline) / 2 advisory / 24 skipped. |
+| Welcome assertions | Tier 7 rev 1.113 assertions 43–53 and check 51 PASS. Tier 8 assertion 54 PASS. The delivered HTML carries the welcome theme picker. |
+| Finding | The S-curve header and export use the live `--thead-*` tokens. The welcome theme picker persists the selected theme. All theme-related failures are closed. |
+
+## TL043 — Welcome done-step dwell verification
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-27 |
+| Commands | `node common/test/welcome.test.mjs`; `node build.mjs`; `node test/test_shell.mjs`; `node test/test_render.mjs`; `node harness-layout/harness.mjs --dashboard mdl` |
+| Result | Common 73 passed / 0 failed. Build OK (`MDL-Dashboard.html` 414,561 bytes, `common-version` 1.3.1). Shell 125 passed / 0 failed. Render 190 passed / 13 pre-existing of 203 checks. Harness 282 passed / 2 failed (Tier 1 shell-zone baseline) / 2 advisory / 24 skipped. |
+| Welcome assertions | Tier 7 rev 1.113 assertions 43–53 and check 51 all PASS, including the new `53 doneDwellMs 0–10000` check. |
+| Finding | The delivered config holds `doneDwellMs: 3000`. Step 3 paints as complete with `Step 3 complete — opening…` for 3000 ms after the 10-second hold, before the dashboard opens. |
+
+## TL042 — Welcome-specific Help verification
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-27 |
+| Commands | `node build.mjs`; `node test/test_shell.mjs`; `node test/test_render.mjs`; `node harness-layout/harness.mjs --dashboard mdl` |
+| Result | Build OK (`MDL-Dashboard.html` 413,809 bytes). Shell 125 passed / 0 failed. Render 190 passed / 13 pre-existing of 203 checks. Harness 281 passed / 2 failed (Tier 1 shell-zone baseline) / 2 advisory / 24 skipped. |
+| Welcome assertions | Tier 7 rev 1.112 assertions 43–53 and check 51 all PASS. Assertion 44 finds the welcome Help button with the new label. |
+| Finding | The delivered config holds `What file do I need?`. The welcome button opens `HELP.welcome`. The dashboard menu still opens `MDL Dashboard — shell and navigation`. |
+
+## TL041 — Welcome 1.3.0 hold and footer verification
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-27 |
+| Commands | `node common/test/welcome.test.mjs`; `node build.mjs` in `MDL/`; `node test/test_shell.mjs`; `node test/test_render.mjs`; `node harness-layout/harness.mjs --dashboard mdl` |
+| Result | Common 70 passed / 0 failed. Build OK (`MDL-Dashboard.html` 413,128 bytes, `common-version` 1.3.0). Shell 125 passed / 0 failed. Render 190 passed / 13 pre-existing of 203 checks. Harness 281 passed / 2 failed (Tier 1 shell-zone baseline) / 2 advisory / 24 skipped. |
+| Welcome assertions | Tier 7 rev 1.112 assertions 43–53 and check 51 all PASS. The harness header prints `rev 1.112`. |
+| Finding | The MDL dashboard version stays 1.9. The delivered config holds 10000 ms and the footer shows `Rev 1.9 · © 2026 UESH`. |
+
+## TL040 — MDL dashboard version 1.9 verification
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-27 |
+| Commands | `node build.mjs`; `node test/test_shell.mjs`; `node test/test_render.mjs`; `node harness-layout/harness.mjs --dashboard mdl` |
+| Result | `APP_VERSION` 1.9. Welcome footer version 1.9. `common-version` 1.2.1 unchanged. Shell 125 passed / 0 failed. Render 190 passed / 13 pre-existing of 203 checks. Harness 281 passed / 2 failed / 2 advisory / 24 skipped. |
+| Welcome assertions | Tier 7 assertions 43–53 and check 51 all PASS. Only the two Tier 1 shell-zone FAILs remain. |
+| Finding | The MDL dashboard version now follows the MDL workplan revision 1.9. The common module version remains separate. |
+
+## TL039 — Common C-07 welcome instruction verification
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-27 |
+| Commands | `node common/test/welcome.test.mjs`; `node build.mjs`; `node test/test_shell.mjs`; `node test/test_render.mjs`; `node harness-layout/harness.mjs --dashboard mdl` |
+| Result | Common welcome 70 passed / 0 failed. `common-version` 1.2.1. Shell 125 passed / 0 failed. Render 190 passed / 203 checks, 13 pre-existing failures. Harness 281 passed / 2 failed / 2 advisory / 24 skipped. |
+| Welcome assertions | Tier 7 assertions 43–53 and check 51 all PASS. Only the two Tier 1 shell-zone FAILs remain. |
+| Finding | The delivered instruction is `Add the workbook; the dashboard opens once it passes the check.` The duplicate auto-mode action text is absent. Common C-07 is resolved. |
+
+## TL038 — I-165 welcome 1.2.0 two-column card verification
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-27 |
+| Run by | Owner (Node v20.18.0) |
+| Commands | `node common/test/welcome.test.mjs`; `node MDL/build.mjs`; `node MDL/test/test_shell.mjs`; `node MDL/test/test_render.mjs`; `node harness-layout/harness.mjs --dashboard mdl` |
+| Result | Common welcome 70 passed / 0 failed. Build OK, `common-version` 1.2.0 in `MDL-Dashboard.html`. Shell 125 passed / 0 failed. Render 190 passed / 13 failed of 203 checks. Harness 281 passed / 2 failed / 2 advisory warnings / 24 skipped. |
+| Welcome assertions | Tier 7 assertions 43–53 all PASS (incl. 45 column split 1 : 1.618, 49 success hold, 52 card height constant, 53 file limits). Check 51 all PASS. |
+| Baseline | Harness FAIL lines are the two Tier 1 shell-zone checks ("dashboard defines stable shell zone markers", "content declares filter-area and body zones"). The 13 render failures are the same pre-existing set. Render grew by 4 checks (199 → 203): four new welcome checks; the footer check was replaced, not added. Both commands exit with code 1 because of these expected failures. |
+| Fixes during the run | Two test-pattern defects, not product defects: common `welcome.test.mjs` 1.2.1 (Choose may carry `btn-primary`) and MDL `test_render.mjs` rev 1.5 (Help test reads the `<header>`; the logo data URI exceeded the fixed window). See common U010, MDL U041. |
+| Finding | No new failure. I-165 and common C-04, C-05, C-06 resolved. |
+
+## TL037 — Common C-03 welcome drop-area verification
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-26 |
+| Commands | `node common/test/welcome.test.mjs`; `node build.mjs`; `node test/test_render.mjs`; `node harness-layout/harness.mjs --dashboard mdl` |
+| Result | Common welcome 32 passed / 0 failed. MDL render 186 passed / 13 pre-existing failures. MDL harness 269 passed / 2 failed / 2 advisory warnings / 24 skipped. |
+| Welcome assertions | Tier 7 assertions 43–50 and check 51 all pass. Assertion 45 now checks `role="group"`, the missing `tabindex` and the native `button.cw-choose`. |
+| Baseline | The two harness FAIL lines are the W2 Tier 1 shell-zone baseline. The 13 render failures are pre-existing. |
+| Finding | No new failure. Common C-03 is resolved. |
+
+## TL036 — I-164 welcome adoption verification
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-26 |
+| Commands | `node common/test/welcome.test.mjs`; `node build.mjs`; `node test/test_shell.mjs`; `node test/test_render.mjs`; `node test/test_pipeline.mjs`; `node test/test_grid.mjs`; `node harness-layout/harness.mjs --dashboard mdl` |
+| Result | Common welcome 29 passed / 0 failed. MDL shell 125 passed / 0 failed. MDL render 185 passed / 13 failed. MDL pipeline 96 passed / 7 failed. MDL grid 44 passed / 45 checks with the canvas warning. MDL harness 268 passed / 2 failed / 2 advisory warnings / 24 skipped. |
+| Welcome assertions | Tier 7 assertions 43–50 all PASS. Check 51 all PASS. The first run had one extra FAIL from `div role="button"`; common C-02 fixed it in welcome 1.0.1. |
+| Baseline | The two harness FAIL lines are the W2 Tier 1 shell-zone baseline. The 13 render failures, 7 pipeline failures and 1 grid failure are pre-existing. |
+| Finding | No new failure. I-164 is resolved. Common C-03 records the drop-area role review before W4. |
 
 ## TL001 — Pipeline and grid baseline and final run
 
@@ -73,6 +194,72 @@
 | Result | Syntax PASS. Build PASS (261,484 B). Shell suite 28 passed / 0 failed. Harness Tier 2: 53 passed / 0 failed. |
 | New checks | Five new shell assertions cover the grid rows, hidden page scroll, in-flow status bar, in-flow warning bar, and removed padding workaround. |
 | Finding | The three geometry failures from TL004 no longer occur. The content body stays the only scroll area. |
+
+## TL035 — I-163 Validation Rules resize alignment
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-25 |
+| Issue | I-163 in `MDL/log/issue_log.md` |
+| Commands | `node build.mjs` · `node test/test_grid.mjs` · `node test/test_shell.mjs` · `node --max-old-space-size=8192 test/test_render.mjs` · `cd ../harness-layout && node harness.mjs --dashboard mdl` |
+| Result | Build 309,831 B. Shell 125 passed / 0 failed. Grid 44 passed / 1 baseline I-71 failure. Full render 184 passed / 13 stale failures. Harness 241 passed / 2 failed / 2 advisory / 24 skipped. |
+| New coverage | Grid tests assert the column minimum, grow-to-fill and that a persisted user width is not re-fitted away. The render suite asserts the rules empty state has one cell per visible column. Harness asserts Validation Rules header/body alignment after a real grip drag and header-label visibility at the minimum width. |
+| Baseline comparison | The harness moved from 236 / 2 / 2 / 24 to 241 / 2 / 2 / 24. Five new assertions pass. The two harness failures remain the pre-existing Tier 1 shell-zone string checks. |
+| Evidence | Header/body alignment is measured from rendered header and body cells after a real drag. Label visibility is measured with a hidden nowrap probe and a sort-glyph allowance. |
+| Issue | I-163 resolved. No existing assertion was weakened. |
+
+## TL034 — I-162 harness ground truth and L3 discovery
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-25 |
+| Issue | I-162 in `MDL/log/issue_log.md` |
+| Commands | `cd ../harness-layout && node harness.mjs --dashboard mdl` |
+| Result | Harness 236 passed / 2 failed / 2 advisory / 24 skipped. The two failures are the pre-existing Tier 1 string checks for shell zone markers. |
+| Fixed checks | KPI `totalPlanned`, validation issue count, filter `ICA`, I-95 pinned grid tables, opaque pinned cells, resize grips and all four grid drag / persist checks pass. |
+| Baseline comparison | The harness moved from 226 / 12 / 2 / 20 to 236 / 2 / 2 / 24. Ten data and L3 failures cleared. Four width-restore measurements are now skipped because `table-layout:fixed` redistributes rendered column widths. |
+| Evidence | Ground truth includes 186 blank-discipline records. Exact chip selection avoids matching `Electrical` for `ICA`. L3 sweeps all five pages and uses grid keys `overdue`, `validation_rules`, `issue` and `detail`. |
+| Issue | I-162 resolved. No dashboard build change. |
+
+## TL033 — I-161 shared zebra token
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-25 |
+| Issue | I-161 in `MDL/log/issue_log.md` |
+| Commands | `node build.mjs`; `node test/test_shell.mjs`; `node test/test_grid.mjs`; `node test/test_pipeline.mjs`; `node --max-old-space-size=8192 test/test_render.mjs`; `cd ../harness-layout && node harness.mjs --dashboard mdl` |
+| Result | Build 306,700 B. Shell 125 passed / 0 failed. Grid 42 / 1 at baseline. Pipeline 96 / 7 at baseline. Full render 183 passed / 13 failed. Harness 226 passed / 12 failed / 2 advisory / 20 skipped. |
+| New harness check | `I-161: every body table uses the shared --ds-zebra colour` passes. The check walks all five MDL pages, resolves effective cell backgrounds and compares them with a probe using `var(--ds-zebra)`. |
+| Baseline comparison | The 12 harness failures stay at the prior set. The pass count rises from 225 to 226 because the zebra check passes. The 13 full-render failures and 7 pipeline failures are unchanged. |
+| Evidence | Shell asserts five theme values, generic and `.ds-table` rules, matrix and C1 rules, pinned-cell rules, removal of `.over` and removal of literal zebra fills. Render asserts that Overdue rows no longer carry `tr.over`. |
+| Issue | I-161 resolved. Document Detail remains the reference table design. |
+
+## TL032 — I-160 two-panel Validation redesign
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-25 |
+| Issue | I-160 in `MDL/log/issue_log.md` |
+| Commands | `node build.mjs`; `node test/test_shell.mjs`; `node test/test_grid.mjs`; `node test/test_pipeline.mjs`; `node --max-old-space-size=8192 test/test_render.mjs`; `cd ../harness-layout && node harness.mjs --dashboard mdl` |
+| Result | Build 306,026 B. Shell 119 passed / 0 failed. Grid 42 / 1 at baseline. Pipeline 96 / 7 at baseline. Full render 182 passed / 13 failed. Harness 225 passed / 12 failed / 2 advisory / 20 skipped. |
+| Baseline comparison | The grid I-71 failure, pipeline seven workbook-data failures and harness KPI / filter / grid-grip failures match the stored baseline. The harness passed count rises from 219 to 225 because of new page coverage and the validation count check. |
+| New harness check | `validationCountSelector` is now `[data-validation-count]`. It reports DOM 16641 against ground truth 15888. This is the same state mismatch as the KPI 7631 / 7445 failure. It does not show a panel defect. |
+| Full render | Pagination reduced the DOM enough for the suite to finish with an 8 GB heap. The 13 failures cover stale download-name, filter-badge, help-modal, curve and Overdue-order assertions. They are outside I-160. |
+| Evidence | Shell asserts eight panels, two Validation panels and full-width CSS. Render asserts two chip rows, unique `data-validation-count`, tool-row split, 200-row cap, page controls, rule CSV and filter locality. |
+| Issue | I-160 resolved. I-121 stays open for other bounded tables. A separate harness ground-truth issue is proposed. |
+
+## TL031 — I-151 … I-159 Overdue List conformance
+
+| Field | Value |
+|---|---|
+| Date | 2026-11-25 |
+| Issues | I-151 … I-159 in `MDL/log/issue_log.md` |
+| Commands | `node build.mjs`; `node test/test_shell.mjs`; `node test/test_grid.mjs`; `node test/test_pipeline.mjs`; `node --max-old-space-size=8192 test/test_render.mjs`; `cd ../harness-layout && node harness.mjs --dashboard mdl` |
+| Result | Build 302,980 B. Shell 117 passed / 0 failed. Grid 42 / 1 at baseline. Pipeline 96 / 7 at baseline. Harness 219 passed / 10 failed / 2 advisory / 22 skipped. |
+| Baseline comparison | The 10 harness failures match `harness-layout/run-mdl-i149.txt` exactly. Passed count rises from 218 to 219 because later revisions added one board-contract check. |
+| Finding | The full jsdom render suite reached the Node heap limit at 4 GB and again at 8 GB. It produced no pass/fail result. This is the known full-workbook jsdom limit, not a dashboard render error. |
+| Evidence | Shell asserts card placement, empty panel head, pager attribute, hidden empty CSV, token padding and help text. Render asserts group membership, 200-row DOM cap, adjacent document columns and type alignment. |
+| Issues | I-151 … I-159 resolved. I-121 remains open for other bounded tables. |
 
 ## TL030 — I-150 chart-to-table column center verification
 

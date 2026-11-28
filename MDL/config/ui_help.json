@@ -1,0 +1,102 @@
+{
+  "version": "1.9",
+  "title": "MDL Dashboard UI help",
+  "description": "Labels and user help for the MDL dashboard (spec §3.7 and AGENTS.md §18.1).",
+  "revisionHistory": [
+    {
+      "revision": "1.9.4",
+      "date": "2026-11-28",
+      "author": "CodeBuddy (AI)",
+      "summary": "I-166 close — welcome themePicker exposes the six themes before load; the saved theme selects the current entry."
+    },
+    {
+      "revision": "1.9.3",
+      "date": "2026-11-27",
+      "author": "CodeBuddy (AI)",
+      "summary": "Welcome done-step dwell 3000 ms after the 10-second hold. Step 3 shows as complete before the dashboard opens."
+    },
+    {
+      "revision": "1.9.2",
+      "date": "2026-11-27",
+      "author": "CodeBuddy (AI)",
+      "summary": "Welcome Help is now `What file do I need?` and opens welcome-specific help. Dashboard Help is unchanged."
+    },
+    {
+      "revision": "1.9.1",
+      "date": "2026-11-27",
+      "author": "CodeBuddy (AI)",
+      "summary": "Welcome hold 10000 ms; footer shows `Rev 1.9`. Dashboard version stays 1.9."
+    },
+    {
+      "revision": "1.9",
+      "date": "2026-11-27",
+      "author": "CodeBuddy (AI)",
+      "summary": "MDL dashboard revision 1.9 — welcome footer and status bar follow the MDL workplan."
+    },
+    {
+      "revision": "1.2.1",
+      "date": "2026-11-27",
+      "author": "CodeBuddy (AI)",
+      "summary": "C-07 — one instruction below the task heading. Removed the duplicate Code-sheet instruction; kept the add-workbook text from the shared module."
+    },
+    {
+      "revision": "1.2",
+      "date": "2026-11-27",
+      "author": "AWS Quick (AI)",
+      "summary": "I-165 — common welcome 1.2.0 (two-column card): description, checks[], instruction and Help text for the guide and task panels. No brand text (not confirmed). checks[] lists only the two checks the MDL inspect handler runs (readable workbook; Code-sheet Dashboard Title). The Project Title is not checked for a single file, so it is not listed."
+    },
+    {
+      "revision": "1.1",
+      "date": "2026-11-27",
+      "author": "AWS Quick (AI)",
+      "summary": "I-165 — common welcome 1.1.0: successHoldMs 1500; instruction aligned with the shared plan; help link text 'What file do I need?'."
+    },
+    {
+      "revision": "1.0",
+      "date": "2026-11-26",
+      "author": "CodeBuddy (AI)",
+      "summary": "I-164 W3 — added the configuration-driven welcome block (spec §3.7 rev 1.107)."
+    }
+  ],
+  "welcome": {
+    "title": "Master Document List Dashboard",
+    "instruction": "Add the workbook; the dashboard opens once it passes the check.",
+    "files": [
+      {
+        "key": "mdl",
+        "name": "Master Document List",
+        "dashboardTitle": "Master Document List"
+      }
+    ],
+    "mode": "auto",
+    "phases": [
+      "Reading the workbook",
+      "Checking the data",
+      "Building the dashboard"
+    ],
+    "help": "What file do I need?",
+    "footer": {
+      "privacy": "Works fully offline — your data never leaves this browser",
+      "version": "Rev 1.9",
+      "owner": "UESH"
+    },
+    "successHoldMs": 10000,
+    "doneDwellMs": 3000,
+    "themePicker": {
+      "current": "light",
+      "themes": [
+        { "key": "light", "label": "Light", "dot": "#1B6FD6" },
+        { "key": "dark", "label": "Dark", "dot": "#5AA9F5" },
+        { "key": "sky", "label": "Sky", "dot": "#0B6CC4" },
+        { "key": "ocean", "label": "Ocean", "dot": "#2FD7B6" },
+        { "key": "presentation", "label": "Presentation", "dot": "#FFB454" },
+        { "key": "contrast", "label": "Contrast", "dot": "#005FCC" }
+      ]
+    },
+    "description": "Load your Master Document List workbook to explore document status and progress.",
+    "checks": [
+      "The file is a readable Excel workbook",
+      "Its Code sheet has the Dashboard Title \"Master Document List\""
+    ]
+  }
+}
